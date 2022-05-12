@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 import ast
@@ -11,7 +11,7 @@ import re
 import sys
 
 from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict, loadDifferencesFile
-class color:
+class fullColor:
     reset="\033[0m"
     difference="\033[91m"
     knowndifference="\033[35m"
@@ -20,6 +20,16 @@ class color:
     second="\033[35m"
     component="\33[92m"
     value="\33[91m"
+
+class noColor:
+    reset=""
+    difference=""
+    knowndifference=""
+    first=""
+    property=""
+    second=""
+    component=""
+    value=""
 
 
 def parse_args():
@@ -61,6 +71,10 @@ def parse_args():
     )
     parser.add_argument("--knownDifferencesFile", 
         help="Ignore differences enlisted in file (to be used only with diffing)")
+        
+    parser.add_argument("--color",
+        help="Use colored output even for file output (usefull when piping to less -R to to HTML conversion", 
+        action="store_true")
 
     args = parser.parse_args()
     main(args)
@@ -70,6 +84,9 @@ knownDifferences={}
 def main(args):
     if args.ignoreIrrelevant:
         print(f"Components to ignore: {args.ignore}")
+    color = fullColor()
+    if not sys.stdout.isatty() and not args.color: #Remove colors when writing to a file unless forced
+        color = noColor()
     if args.printComps:
         for fileName in args.file:
             conf = loadConfigFile(fileName, args)
@@ -78,7 +95,7 @@ def main(args):
     if args.printConf:
         for fileName in args.file:
             conf = loadConfigFile(fileName, args)
-            _print(conf)
+            _print(conf, color)
 
     if args.toJSON:
         if len(args.file) != 1:
@@ -103,17 +120,22 @@ def main(args):
             sys.exit(
                 "ERROR, can diff exactly two files at a time, got: %s"
                 % args.file
-            )
+            )        
+        # renaming only applied on the "reference/1st" file
         configRef = loadConfigFile(args.file[0], args)
+        args.renameComps=None 
+        args.renameCompsFile=None
         configChk = loadConfigFile(args.file[1], args)
         global knownDifferences
         if args.knownDifferencesFile:
             knownDifferences = loadDifferencesFile(args.knownDifferencesFile)
+        _compareConfig(configRef, configChk, args, color)
 
 
-        _compareConfig(configRef, configChk, args)
 
-def _print(conf):
+
+
+def _print(conf, color):
     for k, settings in conf.items():
         print(f"{color.component}{k}{color.reset}")
         if isinstance(settings, dict):
@@ -127,7 +149,7 @@ def _printComps(conf):
         if isinstance(item, dict):
             print(k)
 
-def _compareConfig(configRef, configChk, args):
+def _compareConfig(configRef, configChk, args, color):
     # Find superset of all components:
     allComps = list(set(configRef.keys()) | set(configChk.keys()))
     allComps.sort()
@@ -167,9 +189,13 @@ def _compareConfig(configRef, configChk, args):
             if args.printIdenticalComponents:
                 print("Component", _componentDescription(component), "identical")
         else:
-            print(f"{color.difference} Component", _componentDescription(component), f"differ {color.reset}")
+            print(f"{color.difference}Component", _componentDescription(component), f"may differ{color.reset}")
             if not args.allComponentPrint:
-                _compareComponent(refValue, chkValue, "\t", args, component)
+                countDifferent = _compareComponent(refValue, chkValue, "\t", args, component, color)
+                if countDifferent == 0:
+                    print("   but all are suppressed by renaming/known differences/...") 
+                else:
+                    print(f"  {color.difference} {countDifferent} relevant differences{color.reset}") 
             else:
                 print(
                     f"\t{color.first}Ref{color.reset}\t",
@@ -222,8 +248,8 @@ def _handleComponentsReanaming( refVal ):
             updatedRef.append(v)
     return updatedRef if isinstance(refVal, list) else updatedRef[0]
 
-def _compareComponent(compRef, compChk, prefix, args, component):
-
+def _compareComponent(compRef, compChk, prefix, args, component, color):
+    countDifferent=0
     if isinstance(compRef, dict):
 
         allProps = list(set(compRef.keys()) | set(compChk.keys()))
@@ -233,6 +259,7 @@ def _compareComponent(compRef, compChk, prefix, args, component):
             if prop not in compRef.keys(): 
                 if not _knownDifference(component, prop, compChk[prop], None):
                     print(f"{prefix}{color.property}{prop} = {color.second}{compChk[prop]} {color.reset} only in 2nd file {color.reset}")
+                    countDifferent += 1
                 else:
                     print(f"{prefix}known difference in: {prop}")
                 continue
@@ -240,6 +267,7 @@ def _compareComponent(compRef, compChk, prefix, args, component):
             if prop not in compChk.keys():
                 if not _knownDifference(component, prop, compRef[prop], None):
                     print(f"{prefix}{color.property}{prop} = {color.first}{compRef[prop]} {color.reset} only in 1st file {color.reset}")
+                    countDifferent += 1
                 else:
                     print(f"{prefix}known difference in: {prop}")
                 continue
@@ -274,10 +302,10 @@ def _compareComponent(compRef, compChk, prefix, args, component):
 
             if refVal and ( isinstance(refVal, list) or isinstance(refVal, dict) ):
                 if component == "IOVDbSvc" and prop == "Folders":
-                    _compareIOVDbFolders(refVal, chkVal, "\t", args)
+                    countDifferent += _compareIOVDbFolders(refVal, chkVal, "\t", args, color)
                 else:
-                    _compareComponent(
-                        refVal, chkVal, "\t" + prefix + ">> ", args, component
+                    countDifferent += _compareComponent(
+                        refVal, chkVal, "\t" + prefix + ">> ", args, component, color
                     )
 
     elif isinstance(compRef, (list, tuple)) and len(compRef) > 1:
@@ -293,22 +321,25 @@ def _compareComponent(compRef, compChk, prefix, args, component):
 
         if diffRef:
             print(f"{prefix} {color.reset}only in 1st file : {color.first} {diffRef} {color.reset}")
+            countDifferent += 1
         if diffChk:
             print(f"{prefix} {color.reset}only in 2nd file :  {color.second} {diffChk} {color.reset}")
+            countDifferent += 1
 
         if len(compRef) == len(compChk):
             if sorted(compRef) == sorted(compChk):
                 print(
                     f"{prefix} : {color.difference} ^^ Different order ^^ {color.reset}"
                 )
+                countDifferent += 1
             else:
                 for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
                     if refVal != chkVal:
                         print(f"{prefix} : {color.first} {refVal} {color.reset} vs {color.second} {chkVal} {color.reset} {color.difference}<< at index {i} {color.reset}")
-                        _compareComponent(
-                            refVal, chkVal, "\t" + prefix + ">> ", args, ""
+                        countDifferent += _compareComponent(
+                            refVal, chkVal, "\t" + prefix + ">> ", args, "", color
                         )
-
+    return countDifferent
 
 def _parseIOVDbFolder(definition):
     result = {}
@@ -342,14 +373,14 @@ def _parseIOVDbFolder(definition):
     return json.dumps(result)
 
 
-def _compareIOVDbFolders(compRef, compChk, prefix, args):
+def _compareIOVDbFolders(compRef, compChk, prefix, args, color):
     refParsed = []
     chkParsed = []
     for item in compRef:
         refParsed.append(_parseIOVDbFolder(item))
     for item in compChk:
         chkParsed.append(_parseIOVDbFolder(item))
-    _compareComponent(refParsed, chkParsed, prefix, args, "")
+    return _compareComponent(refParsed, chkParsed, prefix, args, "", color)
 
 
 if __name__ == "__main__":

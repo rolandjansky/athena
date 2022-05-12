@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
    @class ElectronChargeEfficiencyCorrectionTool
-   @brief Apply the correction for the electrons charge mis-ID different rates
+   @brief Apply the correction for the difference in electron charge mis-ID rates
    in MC/data
 
    @author Giulia Gonella <giulia.gonella@cern.ch>
@@ -12,17 +12,15 @@
 */
 // Include this class's header
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/ElectronEfficiencyHelpers.h"
 // xAOD includes
 #include "PathResolver/PathResolver.h"
-// #include "xAODTruth/TruthEventContainer.h"
-// #include "xAODEgamma/EgammaTruthxAODHelpers.h"
-// #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "PATInterfaces/SystematicRegistry.h"
 
 // ROOT includes
 #include "TFile.h"
-// #include "TRandom.h"
 
 // STL includes
 #include <cstdlib> /* atoi */
@@ -47,7 +45,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::
   , m_pt_lowlimit(0.0)
   , m_pt_uplimit(0.0)
   , m_gevmev(0.0)
-  , m_truthCharge(0)
   , m_filtered_sys_sets()
   , m_mySysConf()
   , m_affectingSys()
@@ -149,6 +146,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   m_SF_OS.clear();
   TList* keyListfolder = rootFile->GetListOfKeys();
   std::vector<std::string> names;
+  std::set<std::string> set_systematics;
 
   names.reserve(keyListfolder->GetEntries());
   for (int j = 0; j < keyListfolder->GetEntries(); j++) {
@@ -253,7 +251,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
         std::string sysname = histid;
         sysname.erase(sysname.find('_'), sysname.size());
-        m_systematics.push_back(sysname);
+        set_systematics.insert(sysname);
 
         histid.erase(0, histid.find('_') + 1); // remove _SS, _OS
         ATH_MSG_VERBOSE("Using syst histid: " << histid);
@@ -293,6 +291,8 @@ CP::ElectronChargeEfficiencyCorrectionTool::initialize()
     return StatusCode(CP::CorrectionCode::Error);
   }
 
+  m_systematics.insert(m_systematics.end(), set_systematics.begin(), set_systematics.end());
+
   std::sort(m_RunNumbers.begin(), m_RunNumbers.end());
   ///////////////////////////////////////////////////////////////////////////////////
   // Determine the limits of validity
@@ -321,6 +321,12 @@ CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
   // Systematics // dynamic too?
   m_affectingSys = affectingSystematics();
+
+  // Add the recommended systematics to the registry
+  if (registerSystematics() != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("(registerSystematics() != CP::SystematicCode::Ok)");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -353,7 +359,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(
   // returning
   bool goodEle = false;
   CP::CorrectionCode goodEle_result =
-    this->isGoodEle(ele, goodEle); //// ## Giulia: This is to change
+    ElectronEfficiencyHelpers::isGoodEle( ele, goodEle); 
   if (goodEle_result != CP::CorrectionCode::Ok) {
     sf = -999.0;
     ATH_MSG_DEBUG("This is the check of goodeleCC in getscalefactor. Scale "
@@ -374,8 +380,8 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(
 
   // getting the truth charge
   int truth_ele_charge = 9999;
-  CP::CorrectionCode charge_result = this->getEleTruthCharge(
-    ele, truth_ele_charge); //// ## Giulia: second function to change
+  CP::CorrectionCode charge_result = 
+    ElectronEfficiencyHelpers::getEleTruthCharge( ele, truth_ele_charge);
   if (charge_result != CP::CorrectionCode::Ok) {
     sf = -9999.0;
     ATH_MSG_VERBOSE("This is check of geteletruthchargeCC in getscalefactor. "
@@ -422,31 +428,49 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(
       }
       runnumber = randomrunnumber(*(eventInfo));
     }
-    ATH_MSG_DEBUG("Number of RunNumbers: " << m_RunNumbers.size());
+    ATH_MSG_DEBUG("Number of RunNumbers in file: " << m_RunNumbers.size());
     for (std::size_t r = 0; r < m_RunNumbers.size(); r++) {
-      ATH_MSG_DEBUG(m_RunNumbers.at(r));
+      ATH_MSG_DEBUG( " - " << m_RunNumbers.at(r));
     }
     ATH_MSG_VERBOSE("DONE");
 
-    for (std::size_t r = 0; r < m_RunNumbers.size() - 1; r++) {
-      ATH_MSG_VERBOSE(m_RunNumbers.size() - 1 << "  " << m_RunNumbers.at(r)
-                                              << "  " << m_RunNumbers.at(r + 1)
-                                              << "  " << runnumber);
-      if (runnumber > (unsigned int)m_RunNumbers.at(r) &&
-          runnumber <= (unsigned int)m_RunNumbers.at(r + 1)) {
+    bool isInRunNumberRange = false;
+    for ( std::size_t r=0; r<m_RunNumbers.size()-1; r+=2 ){
+      // increment by two, run numbers always come in pairs (upper and lower bound specified in the histogram name)
+
+      if ( runnumber >= (unsigned int)m_RunNumbers.at(r) && 
+	   runnumber <= (unsigned int)m_RunNumbers.at(r+1) ) {
         cutRunNumber.clear();
         cutRunNumber =
           Form("RunNumber%d_%d", m_RunNumbers.at(r), m_RunNumbers.at(r + 1));
-        ATH_MSG_DEBUG(m_RunNumbers.at(r));
+        ATH_MSG_DEBUG("Random run number lies in range " << m_RunNumbers.at(r) << " " << m_RunNumbers.at(r+1));
+	isInRunNumberRange = true;
       }
     }
 
     if (runnumber < m_RunNumbers.at(0) ||
         (runnumber > m_RunNumbers.at(m_RunNumbers.size() - 1))) {
-      ATH_MSG_DEBUG("RunNumber not in valid RunNumber Range ");
-      sf = -9999.0;
+      ATH_MSG_DEBUG("RunNumber " << runnumber << " is not in valid RunNumber Range ");
+      sf = 1.0;
       return CP::CorrectionCode::OutOfValidityRange;
     }
+    
+    if ( !isInRunNumberRange ) {
+      return CP::CorrectionCode::OutOfValidityRange;
+    }
+  }
+
+  // check if electron is within recommendations in eta/Et
+  if ( ele_eta < m_eta_lowlimit || ele_eta > m_eta_uplimit ) {
+
+    ATH_MSG_DEBUG("Got an electron outside of the range of eta validity " << ele_eta);
+    return CP::CorrectionCode::OutOfValidityRange;
+  }
+
+  if ( ele_pt < m_pt_lowlimit ) {
+
+    ATH_MSG_DEBUG("Got an electron outside of the range of pt validity: pt lower than lower limit");
+    return CP::CorrectionCode::OutOfValidityRange;
   }
 
   // Determine WHICH histograms to use here
@@ -552,9 +576,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(
       }
     }
 
-    // else if (*(m_mySysConf.begin()) == SystematicVariation ("EL_CHARGEID_SYS"
-    // , -1)) { val_sf*=(1-(val_sf_sys*0.01));  ATH_MSG_DEBUG("SF after SYSdown
-    // = "  << val_sf); } else ATH_MSG_ERROR("No systematic string found");
   }
 
   return CP::CorrectionCode::Ok;
@@ -579,67 +600,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(
   return result;
 }
 
-//////////////////////////////////////////////////////////////////
-// Get the charge of the original electron
-// Giulia: not needed anymore!
-CP::CorrectionCode
-CP::ElectronChargeEfficiencyCorrectionTool::getEleTruthCharge(
-  const xAOD::Electron& ele,
-  int& truthcharge) const
-{
-  // if ( !(ele.isAvailable<int>("firstEgMotherPdgId")) ||
-  // !(ele.isAvailable<int>("truthPdgId")) ) {
-  if (!(ele.isAvailable<int>("firstEgMotherPdgId"))) {
-    ATH_MSG_ERROR("Link not available for firstEgMotherPdgId...BAD!!!");
-    ATH_MSG_ERROR("Need to have present: ( "
-                  "!(ele.isAvailable<int>('firstEgMotherPdgId')) )");
-    return CP::CorrectionCode::OutOfValidityRange;
-  }
-
-  // don't you need a - sign? like electron pdg is +11? or am I wrong?
-  truthcharge = (-1) * ele.auxdata<int>("firstEgMotherPdgId");
-  // Make truthcharge -1, 0, +1
-  truthcharge = (0 < truthcharge) - (truthcharge < 0);
-
-  return CP::CorrectionCode::Ok;
-}
-
-// Giulia: already changed -> need to be checked --> Kristin: Looks good!
-
-CP::CorrectionCode
-CP::ElectronChargeEfficiencyCorrectionTool::isGoodEle(const xAOD::Electron& ele,
-                                                      bool& goodele) const
-{
-
-  // good ele => (firstEgMotherPdgId) == 11 ## valid for both iso and conversion
-  // ele
-
-  goodele = false;
-  int firstEgPdgId = -9999;
-
-  if (!(ele.isAvailable<int>("firstEgMotherPdgId"))) {
-    ATH_MSG_ERROR("firstEgMotherPdgId IS NOT AVAILABLE!!");
-    return CP::CorrectionCode::OutOfValidityRange;
-  } else {
-
-    firstEgPdgId = ele.auxdata<int>("firstEgMotherPdgId");
-
-    if (std::abs(firstEgPdgId) != 11) {
-
-      goodele = false;
-      ATH_MSG_VERBOSE("  electron is not GOOD .... returning ....");
-      return CP::CorrectionCode::Ok;
-
-    } else {
-
-      goodele = true;
-      return CP::CorrectionCode::Ok;
-    }
-  }
-
-  return CP::CorrectionCode::OutOfValidityRange;
-}
-
 // Get the correction rate given pt (E), eta, histogram
 float
 CP::ElectronChargeEfficiencyCorrectionTool::getChargeFlipRate(
@@ -650,20 +610,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::getChargeFlipRate(
 {
   ATH_MSG_VERBOSE(" -> in: getChargeFlipRate(" << pt << ", " << eta
                                                << " TH2, double&)");
-
-  if (eta < m_eta_lowlimit || eta > m_eta_uplimit) {
-
-    ATH_MSG_ERROR("Got an electron outside of the range of ETA validity "
-                  << eta);
-    return 1;
-  }
-
-  if (pt < m_pt_lowlimit) {
-
-    ATH_MSG_ERROR("Got an electron outside of the range of pt validity: pt "
-                  "lower than lower limit");
-    return 2;
-  }
 
   if (pt > m_pt_uplimit)
     pt = m_pt_uplimit * 0.999;
@@ -732,4 +678,17 @@ CP::ElectronChargeEfficiencyCorrectionTool::applySystematicVariation(
 
   return StatusCode::SUCCESS;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Register the systematics with the registry and add them to the recommended list
+StatusCode CP::ElectronChargeEfficiencyCorrectionTool::registerSystematics() {
+  CP::SystematicRegistry &registry = CP::SystematicRegistry::getInstance();
+
+  if (registry.registerSystematics(*this) != StatusCode::SUCCESS) {
+    ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics.");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////

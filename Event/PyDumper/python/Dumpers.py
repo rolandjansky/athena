@@ -184,13 +184,13 @@ def dump_H3V (v, f):
 
 def dump_HLV (v, f):
     m2 = v.e()**2 - v.px()**2 - v.py()**2 - v.pz()**2
+    # Be insensitive to some rounding errors.
+    m2 = fix_neg0 (m2, 1e-3)
     if m2 < 0:
         m = - math_sqrt (-m2)
     else:
         m = math_sqrt (m2)
 
-    # Be insensitive to some rounding errors.
-    m = fix_neg0 (m, 1e-3)
     #if abs(m-int(m)-0.5) < 1e-4: m += 0.01
 
     pt = math_hypot (v.px(), v.py())
@@ -292,7 +292,7 @@ def dump_AmgMatrix (m, f, thresh=1e-38):
     fprint (f, ']')
     return
 
-def dump_AmgVector (m, f, thresh=1e-38):
+def dump_AmgVector (m, f, thresh=1e-38, prec=3):
     if not m:
         fprint (f, '(null vector)')
         return
@@ -300,7 +300,7 @@ def dump_AmgVector (m, f, thresh=1e-38):
     for r in range(m.rows()):
         v = m(r)
         if abs(v) < thresh: v = 0
-        fprint (f, '%#6.3g' % v)
+        fprint (f, '%#6.*g' % (prec, v))
     fprint (f, ']')
     return
 
@@ -1346,7 +1346,7 @@ def dump_TruthParticle (p, f):
         # Here, we'll pick the one with the smallest barcode.
         mother = None
         for i in range(p.nParents()):
-            if not mother or p.genMother(i).barcode() < mother.barcode():
+            if not mother or _gen_barcode(p.genMother(i)) < _gen_barcode(mother):
                 mother = p.genMother(i)
                 mni = i
         dump_HLV (mother.momentum(), f)
@@ -1355,7 +1355,7 @@ def dump_TruthParticle (p, f):
         fprint (f, '\n        c0:')
         child = None
         for i in range(p.nDecay()):
-            if not child or p.genChild(i).barcode() < child.barcode():
+            if not child or _gen_barcode(p.genChild(i)) < _gen_barcode(child):
                 child = p.genChild(i)
                 mni = i
         dump_HLV (child.momentum(), f)
@@ -1676,7 +1676,7 @@ def dump_CompetingRIOsOnTrack (p, f):
 
 def dump_MuonClusterOnTrack (p, f):
     dump_RIO_OnTrack (p, f)
-    dump_AmgVector (p.globalPosition(), f)
+    dump_AmgVector (p.globalPosition(), f, 1e-12, 4)
     fprint (f, p.positionAlongStrip())
     return
     
@@ -1705,7 +1705,7 @@ def dump_TgcClusterOnTrack (p, f):
     dump_EL (p.prepRawDataLink(), f)
     fprint (f, p.detectorElement().identifyHash().value())
     return
-    
+
 
 def dump_sTgcClusterOnTrack (p, f):
     dump_MuonClusterOnTrack (p, f)
@@ -2330,6 +2330,54 @@ def dump_EventStreamInfo (e, f):
     return
 
 
+# HepMC2/3 compatibility hacks
+def _gen_attr(e, a, typ):
+    fn = getattr(e, a, None)
+    if fn:
+        return fn()
+    v = e.attribute_as_string(a)
+    if v == '': return None
+    return typ(v)
+def _gen_vecattr(e, a, typ):
+    fn = getattr(e, a, None)
+    if fn:
+        return fn()
+    return [typ(x) for x in e.attribute_as_string(a).split()]
+def _gen_barcode(p):
+    return _gen_attr(p, 'barcode', int)
+def _genevent_particles_size(e):
+    if hasattr(e, 'particles_size'):
+        return e.particles_size()
+    return e.particles().size()
+def _genevent_vertices_size(e):
+    if hasattr(e, 'vertices_size'):
+        return e.vertices_size()
+    return e.vertices().size()
+def _genevent_particles(e):
+    if hasattr(e, 'particles_begin'):
+        return toiter (e.particles_begin(), e.particles_end())
+    return e.particles()
+def _genevent_vertices(e):
+    if hasattr(e, 'vertices_begin'):
+        return toiter (e.vertices_begin(), e.vertices_end())
+    return e.vertices()
+def _genevent_signal_process_vertex(e):
+    if hasattr(e, 'signal_process_vertex'):
+        return e.signal_process_vertex()
+    for v in e.vertices():
+        if v.attribute_as_string('signal_process_vertex') == '1':
+            return v
+    return None
+def _genvertex_particles_in_size(e):
+    if hasattr(e, 'particles_in_size'):
+        return e.particles_in_size()
+    return e.particles_in().size()
+def _genvertex_particles_out_size(e):
+    if hasattr(e, 'particles_out_size'):
+        return e.particles_out_size()
+    return e.particles_out().size()
+
+
 def barcodes (beg, end, sz, f):
     #out = [x.barcode() for x in toiter (beg, end)]
 
@@ -2347,26 +2395,40 @@ def barcodes (beg, end, sz, f):
     return
 def dump_GenVertex (v, f):
     fprint (f, "%d %d %d %d %d" %
-            (v.id(),
-             v.barcode(),
+            (v.status() if hasattr(v,'status') else v.id(),
+             _gen_barcode(v),
              v.parent_event().event_number(),
-             v.particles_in_size(),
-             v.particles_out_size()))
-    dump_Threevec (v.point3d(), f)
-    dump_HLV (v.position(), f)
-    if v.weights().size() == 0:
+             _genvertex_particles_in_size(v),
+             _genvertex_particles_out_size(v)))
+    dump_Threevec (v.position(), f)
+    fprint (f, '%f ' % v.position().t())
+    if not hasattr(v, 'weights'):
+        ww = _gen_vecattr(v, 'weights', float)
+    elif v.weights().size() == 0:
         ww = []
     else:
         ww = list(v.weights())
     fprintln (f, [w for w in ww])
-    fprint (f, '(')
-    barcodes(v.particles_in_const_begin(),
-             v.particles_in_const_end(),
-             v.particles_in_size(), f)
+    fprint (f, '     (')
+    if hasattr(v, 'particles_in_size'):
+        barcodes(v.particles_in_const_begin(),
+                 v.particles_in_const_end(),
+                 v.particles_in_size(), f)
+    else:
+        parts = [_gen_barcode(p) for p in v.particles_in()]
+        parts.sort()
+        for bc in parts:
+            fprint (f, bc)
     fprint (f, ')(')
-    barcodes(v.particles_out_const_begin(),
-             v.particles_out_const_end(),
-             v.particles_out_size(), f)
+    if hasattr(v, 'particles_out_size'):
+        barcodes(v.particles_out_const_begin(),
+                 v.particles_out_const_end(),
+                 v.particles_out_size(), f)
+    else:
+        parts = [_gen_barcode(p) for p in v.particles_out()]
+        parts.sort()
+        for bc in parts:
+            fprint (f, bc)
     fprint (f, ')')
 
     return
@@ -2374,46 +2436,57 @@ def dump_GenVertex (v, f):
 
 def dump_GenParticle (p, f):
     fprint (f, "%d %d %d %d" %
-            (p.barcode(),
+            (_gen_barcode(p),
              p.pdg_id(),
              p.parent_event().event_number(),
              p.status(),))
     if p.production_vertex():
-        fprint (f, p.production_vertex().barcode())
+        fprint (f, _gen_barcode (p.production_vertex()))
     else:
         fprint (f, None)
     if p.end_vertex():
-        fprint (f, p.end_vertex().barcode())
+        fprint (f, _gen_barcode (p.end_vertex()))
     else:
         fprint (f, None)
     dump_HLV (p.momentum(), f)
-    pol = p.polarization()
-    poltheta = fix_neg0 (pol.theta())
-    fprint (f, "%f %f %f %f" %
-            (poltheta, pol.phi(), pol.normal3d().theta(), pol.normal3d().phi()))
+    if hasattr (p, 'polarization'):
+        pol = p.polarization()
+        poltheta = fix_neg0 (pol.theta())
+        fprint (f, "%f %f" % (poltheta, pol.phi()))
+        if pol.normal3d().theta() != 0 or pol.normal3d().phi() != 0:
+            fprint (f, "%f %f" %
+                    (pol.normal3d().theta(), pol.normal3d().phi()))
+    else:
+        poltheta = fix_neg0 (_gen_attr(p, 'theta', float))
+        polphi = _gen_attr(p, 'phi', float)
+        fprint (f, "%f %f" % (poltheta, polphi))
     return
 
 
 def dump_GenEvent (e, f):
     fprint (f, '%d %d %f %f %f %d %d' %
             (e.event_number(),
-             e.signal_process_id(),
-             e.event_scale(), 
-             e.alphaQCD(),
-             e.alphaQED(),
-             e.particles_size(),
-             e.vertices_size()))
-    fprint (f, '\n   wt', [w for w in e.weights()], [i for i in e.random_states()])
+             _gen_attr(e, 'signal_process_id', int),
+             _gen_attr(e, 'event_scale', float),
+             _gen_attr(e, 'alphaQCD', float),
+             _gen_attr(e, 'alphaQED', float),
+             _genevent_particles_size(e),
+             _genevent_vertices_size(e)))
+    fprint (f, '\n   wt', [w for w in e.weights()], \
+            [i for i in _gen_vecattr(e, 'random_states', int)])
     fprint (f, '\n   v0')
-    if e.signal_process_vertex():
-        dump_GenVertex (e.signal_process_vertex(), f)
+    sv = _genevent_signal_process_vertex(e)
+    if sv:
+        dump_GenVertex (sv, f)
     else:
         fprint (f, None)
-    for v in toiter (e.vertices_begin(), e.vertices_end()):
+    for v in _genevent_vertices(e):
         fprint (f, '\n   v')
         dump_GenVertex (v, f)
 
-    for p in toiter (e.particles_begin(), e.particles_end()):
+    parts = list (_genevent_particles(e))
+    parts.sort (key = lambda p : _gen_barcode(p))
+    for p in parts:
         fprint (f, '\n   p')
         if p:
             dump_GenParticle (p, f)
@@ -4015,7 +4088,7 @@ def dump_PrepRawData (p, f):
 
 def dump_MuonCluster (p, f):
     dump_PrepRawData (p, f)
-    dump_AmgVector (p.globalPosition(), f, thresh=1e-8)
+    dump_AmgVector (p.globalPosition(), f, thresh=1e-8, prec=4)
     return
 
 
@@ -4147,7 +4220,12 @@ def dump_SCT_RDORawData (p, f):
 def dump_IDC (payload_dumper, p, f):
     beg = p.begin()
     end = p.end()
-    nextfunc = beg.__next__ if hasattr (beg.__class__, '__next__') else beg.next
+    if hasattr(beg.__class__, '__preinc__'):
+        nextfunc = beg.__preinc__
+    elif hasattr(beg.__class__, '__next__'):
+        nextfunc = beg.__next__
+    else:
+        nextfunc = beg.next
     while beg != end:
         coll = beg.cptr()
         fprint (f, 'IDC', beg.hashId().value(), coll.identifyHash().value(), coll.size())
@@ -4312,7 +4390,12 @@ def dump_TileDigitsContainer (p, f):
     fwrite (f, '\n')
     beg = p.begin()
     end = p.end()
-    nextfunc = beg.__next__ if hasattr (beg.__class__, '__next__') else beg.next
+    if hasattr(beg.__class__, '__preinc__'):
+        nextfunc = beg.__preinc__
+    elif hasattr(beg.__class__, '__next__'):
+        nextfunc = beg.__next__
+    else:
+        nextfunc = beg.next
     while beg != end:
         coll = beg.cptr()
         fprint (f, 'TDC',

@@ -61,16 +61,16 @@ namespace Trk {
      private:
        const AtlasDetectorID*                               m_idHelper;                         //! Helper to detect type of sub-detector from PRD->identify().
                                                                                                 
-        ToolHandle<IPRD_Provider>                           m_idPrdProvider;                    //!< Identifier to PRD relation in the Inner Detector
-        ToolHandle<IPRD_Provider>                           m_msPrdProvider;                    //!< Identifier to PRD relation in the Muons System
+        ToolHandle<IPRD_Provider>                           m_idPrdProvider{this, "InDetPRD_Provider", ""};                    //!< Identifier to PRD relation in the Inner Detector
+        ToolHandle<IPRD_Provider>                           m_msPrdProvider{this, "MuonPRD_Provider", ""};                    //!< Identifier to PRD relation in the Muons System
         
-        ToolHandleArray<IPRD_TruthTrajectoryManipulator>    m_prdTruthTrajectoryManipulators;   //!< PRD truth tracjectory manipulators
+        ToolHandleArray<IPRD_TruthTrajectoryManipulator>    m_prdTruthTrajectoryManipulators{this, "PRD_TruthTrajectoryManipulators", {}};   //!< PRD truth tracjectory manipulators
         
-	SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_prdMultiTruthCollectionNames {this,"PRD_MultiTruthCollections",{"PixelClusterTruth","SCT_ClusterTruth","TRT_DriftCircleTruth"}, "PRD multi truth collection names this builder is working on"};
-	std::vector<const PRD_MultiTruthCollection*> m_prdMultiTruthCollections;         //!< the retrieved PRD muli truth collections
+      	SG::ReadHandleKeyArray<PRD_MultiTruthCollection>    m_prdMultiTruthCollectionNames{this,"PRD_MultiTruthCollections",{"PixelClusterTruth","SCT_ClusterTruth","TRT_DriftCircleTruth"}, "PRD multi truth collection names this builder is working on"};
+      	std::vector<const PRD_MultiTruthCollection*>        m_prdMultiTruthCollections;         //!< the retrieved PRD muli truth collections
         
-	Gaudi::Property<double>                             m_minPt {this,"MinimumPt",400.,"minimum pT to be even considered"};
-	Gaudi::Property<bool>                               m_geantinos {this,"Geantinos",false,"Track geantinos or not"};
+      	Gaudi::Property<double>                             m_minPt{this,"MinimumPt",400.,"minimum pT to be even considered"};
+      	Gaudi::Property<bool>                               m_geantinos{this,"Geantinos",false,"Track geantinos or not"};
         mutable std::map< HepMC::ConstGenParticlePtr, PRD_TruthTrajectory > m_gpPrdTruthTrajectories; //!< the cache for the return (cleared by Incident)
         
   };

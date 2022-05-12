@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -71,7 +71,9 @@ Trk::RectangularSegmentation::RectangularSegmentation(std::shared_ptr<const Trk:
       }
      
       
-      if (boundaries.size() != numCellsY+1) exit(1);
+      if (boundaries.size() != numCellsY+1) {
+        throw std::runtime_error("RectangularSegmentation: invalid numCellsY");
+      }
       
       Trk::BinUtility yBinUtility(boundaries, Trk::open, Trk::binY);
       if (m_binUtility)

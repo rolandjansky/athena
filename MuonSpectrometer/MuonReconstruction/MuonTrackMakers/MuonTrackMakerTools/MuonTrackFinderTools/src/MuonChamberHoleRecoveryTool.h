@@ -12,7 +12,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCondData/MdtCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -21,12 +20,12 @@
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
+#include "MuonStationIntersectCond/MuonIntersectGeoData.h"
 
 namespace Trk {
     class Track;
@@ -64,8 +63,8 @@ namespace Muon {
                 @param tubeIds set containing the Identifier of the hits that should not be counted as holes
                 @return a vector of hole Identifiers
             */
-        std::set<Identifier> holesInMdtChamber(const Amg::Vector3D& position, const Amg::Vector3D& direction, const Identifier& chId,
-                                               const EventContext& ctx, const std::set<Identifier>& tubeIds) const;
+        std::set<Identifier> holesInMdtChamber(const EventContext& ctx, const Amg::Vector3D& position, const Amg::Vector3D& direction, 
+                                               const Identifier& chId, const std::set<Identifier>& tubeIds) const;
 
         /** @brief Find missing layers in a given detector element. Look whether there is PrepData compatible with the track, if so add it.
             @param tsit     iterator pointing to the current TSOS
@@ -135,8 +134,6 @@ namespace Muon {
         const sTgcPrepDataCollection* findStgcPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
         const MMPrepDataCollection* findMmPrdCollection(const Identifier& detElId, const EventContext& ctx) const;
 
-        ServiceHandle<MuonStationIntersectSvc> m_intersectSvc{this, "MuonStationIntersectSvc", "MuonStationIntersectSvc",
-                                                              "pointer to hole search service"};
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                               "Handle to the service providing the IMuonEDMHelperSvc interface"};
@@ -166,8 +163,10 @@ namespace Muon {
         SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this, "RpcPrepDataContainer", "RPC_Measurements", "RPC PRDs"};
         SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_key_stgc{this, "sTgcPrepDataContainer", "STGC_Measurements", "sTGC PRDs"};
         SG::ReadHandleKey<Muon::MMPrepDataContainer> m_key_mm{this, "MMPrepDataContainer", "MM_Measurements", "MM PRDs"};
-        SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
-
+        
+        
+        SG::ReadCondHandleKey<Muon::MuonIntersectGeoData> m_chamberGeoKey{this, "ChamberGeoKey", "MuonStationIntersects", "Pointer to hole search service"};
+   
         Gaudi::Property<bool> m_addMeasurements{this, "AddMeasurements", true};
         Gaudi::Property<bool> m_detectBadSort{this, "DetectBadSorting", false};
 

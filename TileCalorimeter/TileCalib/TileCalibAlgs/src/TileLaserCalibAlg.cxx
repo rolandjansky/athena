@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -11,7 +11,7 @@
 
 
 // Tile includes
-#include "TileCalibAlgs/TileLaserCalibAlg.h"
+#include "TileLaserCalibAlg.h"
 
 #include "TFile.h"
 #include <iostream>
@@ -31,7 +31,7 @@
 TileLaserCalibAlg::TileLaserCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
   , m_RobSvc("ROBDataProviderSvc" , name)
-  , m_outfile(0)
+  , m_outfile(nullptr)
   , m_fileName("LaserCalib.root")
   , m_runNo(0)
   , m_runType(0)

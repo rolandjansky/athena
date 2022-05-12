@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -20,7 +20,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 
 // constructor
 Trk::TrackInformationNtupleTool::TrackInformationNtupleTool(
@@ -47,7 +46,7 @@ Trk::TrackInformationNtupleTool::TrackInformationNtupleTool(
 }
 
 // destructor
-Trk::TrackInformationNtupleTool::~TrackInformationNtupleTool() {}
+Trk::TrackInformationNtupleTool::~TrackInformationNtupleTool() = default;
 
 
 ///////////////////////////////////////
@@ -219,55 +218,6 @@ StatusCode Trk::TrackInformationNtupleTool::fillTrackParticleData
     m_nHits += (unsigned char)summary->get(Trk::numberOfRpcPhiHits);
     m_nHits += (unsigned char)summary->get(Trk::numberOfCscEtaHits);
     m_nHits += (unsigned char)summary->get(Trk::numberOfCscPhiHits);
-  }
-  return StatusCode::SUCCESS;
-}
-
-//////////////////////////////////////
-// fill ntuple data of a given proto-trajectory (function used for fitter validation)
-//////////////////////////////////////
-StatusCode Trk::TrackInformationNtupleTool::fillProtoTrajectoryData 
-(  const Trk::ProtoTrajectory& trajectory,
-   const int iterationIndex,
-   const Trk::Perigee*,
-   const unsigned int fitStatCode) const
-   //const Trk::FitterStatusCode fitStatCode) const
-{
-  ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
-  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
-  if(!evt.isValid()) {
-    msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  if (m_lastEventNumber!=evt->eventNumber()) {
-    // we have a new event!
-    // reset TrackID:
-    m_TrackIDcounter = 0;
-    m_lastEventNumber = evt->eventNumber();
-  }
-  // ---------------------------------------------
-  // track id (increase if a new iteration was started = iterationIndex==0)
-  if (iterationIndex == 0) {
-    m_TrackIDcounter++;
-  }
-  m_TrackID = m_TrackIDcounter;
-  m_iterIndex = iterationIndex;
-  m_eventNumber = evt->eventNumber();
-  m_runNumber   = evt->runNumber();
-
-  ATH_MSG_VERBOSE ("Event: " << m_eventNumber << MSG::VERBOSE << " TrackID: " << m_TrackID << " iteration index: " << m_iterIndex);
-  m_fitStatusCode = fitStatCode;
-
-  // Loop over all proto track states on surfaces
-  Trk::ProtoTrajectory::const_iterator it = trajectory.begin();
-  for (; it!=trajectory.end(); ++it) {
-    // get the measurement            
-    const Trk::MeasurementBase *measurement = it->measurement();
-    if (!measurement) {
-      msg(MSG::WARNING) << "ProtoTrackStateOnSurface with no measurement on proto trajectory, ignore it" << endmsg;
-      continue;
-    } else ++m_nHits;
   }
   return StatusCode::SUCCESS;
 }

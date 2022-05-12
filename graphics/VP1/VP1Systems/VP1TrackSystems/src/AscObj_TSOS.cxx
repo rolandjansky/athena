@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -525,8 +525,6 @@ void AscObj_TSOS::addErrors(const Trk::Surface& theSurface, const AmgSymMatrix(5
     VP1Msg::message("WARNING: Visualisation of errors on Disc Surface not implemented");
   }  
   VP1Msg::messageVerbose("leaving addErrors");  
-  
-  return;
 }
 
 //____________________________________________________________________
@@ -673,7 +671,7 @@ void AscObj_TSOS::addRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple,
   const bool showMeas(f & TrackCommonFlags::TSOS_AnyMeasurement);
   const bool showMeasErrors(f & TrackCommonFlags::TSOS_MeasError);
 
-  TrkObjToString::MeasurementType type = m_objToType.type(rio);
+  TrkObjToString::MeasurementType type = TrkObjToString::type(rio);
   // std::cout<<">>>>>>>>>>>     addRIO_OnTrackInfoToShapes: Have measurement of type: "<<static_cast<unsigned int>(type)<<" & showRioOnTrack="<<showMeas<<std::endl;
   if (showMeas){
     // std::pair<SoSeparator*,  std::vector<SoNode*> > detailed_nodes, simple_nodes; 
@@ -958,15 +956,15 @@ void AscObj_TSOS::addTransformToSurface(SoSeparator*& shape_simple,SoSeparator*&
   // surface(), I think.
   
   TrkObjToString::MeasurementType type=TrkObjToString::Unknown;
-  if (surface()->associatedDetectorElement()) type= m_objToType.type(surface()->associatedDetectorElement());
+  if (surface()->associatedDetectorElement()) type= TrkObjToString::type(surface()->associatedDetectorElement());
   
 //  const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb()) : 0;
   const Trk::RIO_OnTrack* rio = rioOnTrack() ? rioOnTrack() : competingRIOsOnTrack() ? &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb())) : nullptr;
-  if (type==TrkObjToString::Unknown && rio) type=m_objToType.type(rio);
+  if (type==TrkObjToString::Unknown && rio) type=TrkObjToString::type(rio);
 
   SoTransform*   theHitTransform=nullptr;  
   if (rio) {
-    TrkObjToString::MeasurementType type=m_objToType.type(rio);
+    TrkObjToString::MeasurementType type=TrkObjToString::type(rio);
     // std::cout<<"Got ROT of type"<<static_cast<unsigned int>(type)<<std::endl; 
     switch (type) {
       case TrkObjToString::Pixel:
@@ -1200,7 +1198,7 @@ bool AscObj_TSOS::isShortMeasurement(){
     rio = &(competingRIOsOnTrack()->rioOnTrack(competingRIOsOnTrack()->indexOfMaxAssignProb()));
   }
 
-  TrkObjToString::MeasurementType type = m_objToType.type(rio);
+  TrkObjToString::MeasurementType type = TrkObjToString::type(rio);
   bool isTRT = (type==TrkObjToString::TRT);
   bool isMDT = (type==TrkObjToString::MDT);
 

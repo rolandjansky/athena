@@ -57,9 +57,13 @@ StatusCode eFEXegAlgo::safetyTest(){
 
 }
 
-void eFEXegAlgo::setup(int inputTable[3][3]) {
+void eFEXegAlgo::setup(int inputTable[3][3], int efex_id, int fpga_id, int central_eta) {
   
   std::copy(&inputTable[0][0], &inputTable[0][0] + 9, &m_eFEXegAlgoTowerID[0][0]);
+
+  m_efexid = efex_id;
+  m_fpgaid = fpga_id; 
+  m_central_eta = central_eta;
   
   setSeed();
 
@@ -157,10 +161,14 @@ void eFEXegAlgo::getRhad(std::vector<unsigned int> & rhadvec) {
   // 3x3 Towers Had ; 1x3 L0 + 1x3 L3 EM
   for (int i=0; i<3; ++i) { // phi
     for (int j=0; j<=2; ++j) { // eta
-      const eTower * tTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[i][j]);
-      hadsum += tTower->getLayerTotalET(4);
-      if (j==1) {
-	emsum += ( tTower->getLayerTotalET(0) + tTower->getLayerTotalET(3) );
+      if (((m_efexid%3 == 0) && (m_fpgaid == 0) && (m_central_eta == 0) && (j == 0)) || ((m_efexid%3 == 2) && (m_fpgaid == 3) && (m_central_eta == 5) && (j == 2))) {
+        continue;
+      } else { 
+        const eTower * tTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[i][j]);
+        hadsum += tTower->getLayerTotalET(4);
+        if (j==1) {
+	      emsum += ( tTower->getLayerTotalET(0) + tTower->getLayerTotalET(3) );
+        }
       }
     }
   }
@@ -195,6 +203,9 @@ void LVL1::eFEXegAlgo::getWstot(std::vector<unsigned int> & output){
     for (int j = 0; j <= 2; ++j) { // phi
       unsigned int eT; 
       getWindowET(1, j, i, eT);
+      // NB need to be careful as numer and den are defined such that wstot=numer/den,
+      // but in the firmware (and therefore this bitwise code) we actually 
+      // check that den/numer < Threshold
       numer += eT*weight;
       den += eT;
     }
@@ -254,15 +265,17 @@ std::unique_ptr<eFEXegTOB> LVL1::eFEXegAlgo::geteFEXegTOB() {
 
   std::vector<unsigned int> temvector;
   getWstot(temvector);
-
+  // For wstot, num and den seem switched around, but this is because the 'numerator' and 'denominator'
+  // mean different things at different points in the processing chain
+  // When the threshold comparison is done in the SetIsoWP function, we actually check Den/Num
   out->setWstotNum(temvector[1]);
   out->setWstotDen(temvector[0]);
   getRhad(temvector);
-  out->setRhadNum(temvector[1]);
-  out->setRhadDen(temvector[0] + temvector[1]);
+  out->setRhadEM(temvector[0]);
+  out->setRhadHad(temvector[1]);
   getReta(temvector);
-  out->setRetaNum(temvector[0]);
-  out->setRetaDen(temvector[0] + temvector[1]);
+  out->setRetaCore(temvector[0]);
+  out->setRetaEnv(temvector[1]);
   out->setSeedUnD(m_seed_UnD);
   out->setSeed(m_seedID);
   return out;
@@ -273,12 +286,16 @@ void LVL1::eFEXegAlgo::getWindowET(int layer, int jPhi, int SCID, unsigned int &
   SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
 
   if (SCID<0) { // left towers in eta
-    int etaID = 4+SCID;
-    const eTower * tmpTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[jPhi][0]);
-    if (layer==1 || layer==2) {
-      outET = tmpTower->getET(layer,etaID);
-    } else if (layer==0 || layer==3 || layer==4) {
-      outET = tmpTower->getLayerTotalET(layer);
+    if ((m_efexid%3 == 0) && (m_fpgaid == 0) && (m_central_eta == 0)) { 
+      outET = 0;
+    } else {
+      int etaID = 4+SCID;
+      const eTower * tmpTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[jPhi][0]);
+      if (layer==1 || layer==2) {
+        outET = tmpTower->getET(layer,etaID);
+      } else if (layer==0 || layer==3 || layer==4) {
+        outET = tmpTower->getLayerTotalET(layer);
+      }
     }
   } else if (SCID>=0 && SCID<4) { // central towers in eta
     const eTower * tmpTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[jPhi][1]);
@@ -288,12 +305,16 @@ void LVL1::eFEXegAlgo::getWindowET(int layer, int jPhi, int SCID, unsigned int &
       outET = tmpTower->getLayerTotalET(layer);
     }
   } else if (SCID>=4){ // right towers in eta
-    int etaID = SCID-4;
-    const eTower * tmpTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[jPhi][2]);
-    if (layer==1 || layer==2) {  
-      outET = tmpTower->getET(layer,etaID);
-    } else if (layer==0 || layer==3 || layer==4) {
-      outET = tmpTower->getLayerTotalET(layer);
+    if ((m_efexid%3 == 2) && (m_fpgaid == 3) && (m_central_eta == 5)) {
+      outET = 0;
+    } else {
+      int etaID = SCID-4;
+      const eTower * tmpTower = eTowerContainer->findTower(m_eFEXegAlgoTowerID[jPhi][2]);
+      if (layer==1 || layer==2) {  
+        outET = tmpTower->getET(layer,etaID);
+      } else if (layer==0 || layer==3 || layer==4) {
+        outET = tmpTower->getLayerTotalET(layer);
+      }
     }
   }
 

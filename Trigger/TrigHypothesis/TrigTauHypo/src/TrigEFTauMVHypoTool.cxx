@@ -116,10 +116,8 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
   ninputTaus = TauContainer->size();
  
   for(auto Tau: *TauContainer){
-    
+ 
     ATH_MSG_DEBUG( " tauRec candidate ");
-    
-    PassedCuts++;
     
     double EFet = Tau->pt()*1e-3;
     
@@ -134,7 +132,6 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     int numWideTrack = -100;
 
     numTrack = Tau->nTracks();
-
     numWideTrack = Tau->nTracksIsolation();
 
     
@@ -147,9 +144,9 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     if(m_highpt && (EFet > m_highpttrkthr*1e-3) ) applyTrkSel = false;
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) applyMaxTrkSel = false;
 
-    if(applyMaxTrkSel) if( !(numTrack <= m_numTrackMax) ) continue;
-    if(applyTrkSel)    if( !(numTrack >= m_numTrackMin) ) continue;
-    if(applyTrkSel)    if( !(numWideTrack <= m_numWideTrackMax)  ) continue;
+    if(applyMaxTrkSel && !m_acceptAll) if( !(numTrack <= m_numTrackMax) ) continue;
+    if(applyTrkSel && !m_acceptAll)    if( !(numTrack >= m_numTrackMin) ) continue;
+    if(applyTrkSel && !m_acceptAll)    if( !(numWideTrack <= m_numWideTrackMax)  ) continue;
    
     PassedCuts++;
     nTrackAccepted = numTrack;
@@ -157,7 +154,7 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
     auto local_level = m_level;
     //loosen and turn off ID cut at highpt
-    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; //works only for BDT, not llh
+    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; 
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
     if(!m_applyIDon0p && numTrack==0) local_level = -1111;
 
@@ -168,7 +165,17 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     {
       pass = true;
       PassedCuts++;
-      break;
+
+      if(Tau->nTracks() == 0){
+         RNNJetScore_0p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_0p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      } else if ( Tau->nTracks() == 1 ) {
+         RNNJetScore_1p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_1p = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      } else {
+         RNNJetScore_mp = Tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+         RNNJetScoreSigTrans_mp = Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+      }
     }
     else if(m_method == 1)
     {
@@ -181,15 +188,14 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
       {  //noCut, accept this TE
          pass = true;
          PassedCuts++;
-         break;
       }
-      if (local_level == 0 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) == 0)  
+      else if (local_level == 0 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) == 0 && !m_acceptAll)
          continue;
-      else if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0)
+      else if (local_level == 1 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0 && !m_acceptAll)
          continue;
-      else if (local_level == 2 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0)
+      else if (local_level == 2 && Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0 && !m_acceptAll)
          continue;
-      else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
+      else if (local_level == 3  && Tau->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0 && !m_acceptAll)
          continue;
 
       PassedCuts++;

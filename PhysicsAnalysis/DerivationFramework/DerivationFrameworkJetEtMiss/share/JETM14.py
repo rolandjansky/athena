@@ -2,13 +2,8 @@
 # JETM14.py 
 # reductionConf flag JETM14 in Reco_tf.py   
 #====================================================================
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss import TriggerLists
-from DerivationFrameworkEGamma.EGammaCommon import*
-from DerivationFrameworkMuons.MuonsCommon import*
 from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerDerivationContentManager
 
 #======================================================================================================================

@@ -27,8 +27,6 @@ TrigConf::CTPFiles::CTPFiles() :
    m_LoadCtpinFiles(true),
    m_LoadCtpmonFiles(true)
 {}
-  
-TrigConf::CTPFiles::~CTPFiles() {}
 
 void 
 TrigConf::CTPFiles::setFileSizes(unsigned int run) {

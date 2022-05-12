@@ -45,5 +45,5 @@ def setupProfile(flags, scaleTaskLength=1):
             events = eventsPerStep + 1 if step < stepsWithExtraEvent else eventsPerStep
             mu = float(startMu + (step * stepMu))
             profile += [{'run': currentRun, 'lb': currentStartlb + step, 'starttstamp': currentTimestamp, 
-                         'dt':0.000, 'evts': _evts(events), 'mu': mu, 'force_new': False}]
+                         'evts': _evts(events), 'mu': mu}]
     return profile

@@ -37,14 +37,11 @@ def PerfMonMTSvcCfg(flags, **kwargs):
     kwargs.setdefault("jsonFileName", flags.PerfMon.OutputJSON)
 
     # Get CA and add the service 
-    acc = ComponentAccumulator(sequence="AthBeginSeq")
-    beginSeq = acc.getSequence("AthBeginSeq")
-    beginSeq.IgnoreFilterPassed = False
-    beginSeq.StopOverride = False
-    beginSeq.Sequential = True
+    acc = ComponentAccumulator()
     acc.addService(PerfMonMTSvc(**kwargs), create=True)
 
     # Enable the auditors that are necessarry for the service
+    acc.addService(CompFactory.AuditorSvc(), create=True)
     acc.setAppProperty("AuditAlgorithms", True)
     acc.setAppProperty("AuditTools", True)
     acc.setAppProperty("AuditServices", True)
@@ -62,7 +59,6 @@ if __name__ == '__main__':
     # Set the necessary configuration flags
     # Process 100 events in 1 thread/slot and do fast monitoring
     ConfigFlags.Exec.MaxEvents = 100
-    ConfigFlags.Concurrency.NumProcs = 1
     ConfigFlags.Concurrency.NumThreads = 1
     ConfigFlags.PerfMon.doFastMonMT = True
     ConfigFlags.PerfMon.OutputJSON = 'perfmonmt_test.json'

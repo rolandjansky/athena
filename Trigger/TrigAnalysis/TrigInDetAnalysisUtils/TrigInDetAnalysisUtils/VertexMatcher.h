@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Mon 10 Aug 2015 17:47:51 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -26,8 +26,10 @@ public:
   VertexMatcher( const std::string& s, double d=3 ) : BestMatcher<TIDA::Vertex>( s, d*d ) { }  
 
   ~VertexMatcher() { }
+
+  virtual BestMatcher<TIDA::Vertex>* clone() override { return new VertexMatcher(*this); }
   
-  virtual double distance( const TIDA::Vertex* v0, const TIDA::Vertex* v1 ) const {
+  virtual double distance( const TIDA::Vertex* v0, const TIDA::Vertex* v1 ) const override {
     double d = (v0->z()-v1->z());
     return d*d;
 

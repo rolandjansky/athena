@@ -4,12 +4,18 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 
-PFSubtractionEnergyRatioCalculator::PFSubtractionEnergyRatioCalculator() : AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),
-                  "PFSubtractionEnergyRatioCalculator"){}
+PFSubtractionEnergyRatioCalculator::PFSubtractionEnergyRatioCalculator()
+  : AsgMessaging("PFSubtractionEnergyRatioCalculator")
+{}
 
-void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatios(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterSubtractionList, std::map<xAOD::CaloCluster*, double>& clusterEnergyMap, std::vector<std::pair<float, float> >& clusterSubtractedEnergyRatios){
+void
+PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatios(
+  const std::vector<std::pair<xAOD::CaloCluster*, bool>>&
+    clusterSubtractionList,
+  std::map<xAOD::CaloCluster*, double>& clusterEnergyMap,
+  std::vector<std::pair<float, float>>& clusterSubtractedEnergyRatios) const
+{
 
   ATH_MSG_DEBUG("Setting subtracted energy ratios here");
   
@@ -37,10 +43,15 @@ void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatios(const s
       ATH_MSG_DEBUG("Subtracted energy ratio is NAN ");
     }
   }//Loop over clusterSubtractionList
-
 }
 
-void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatiosForAnnih(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterSubtractionList, std::map<xAOD::CaloCluster*, double>& clusterEnergyMap, std::vector<std::pair<float, float> >& clusterSubtractedEnergyRatios){
+void
+PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatiosForAnnih(
+  const std::vector<std::pair<xAOD::CaloCluster*, bool>>&
+    clusterSubtractionList,
+  std::map<xAOD::CaloCluster*, double>& clusterEnergyMap,
+  std::vector<std::pair<float, float>>& clusterSubtractedEnergyRatios) const
+{
 
   ATH_MSG_DEBUG("Setting subtracted energy ratios for annih here");
 
@@ -63,5 +74,4 @@ void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatiosForAnnih
     }
 
   }
-
 }

@@ -5,8 +5,6 @@
 
 """Basic end-user help."""
 
-from __future__ import print_function
-
 import os
 from AthenaCommon.Logging import logging
 

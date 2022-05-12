@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileSimEventTPCnv )
@@ -23,9 +23,9 @@ atlas_add_dictionary( OLD_TileSimEventTPCnvDict
 atlas_add_test( TileHitCnv_p1_test
                 SOURCES
                 test/TileHitCnv_p1_test.cxx
-                LINK_LIBRARIES GaudiKernel TestTools TileSimEventTPCnv )
+                LINK_LIBRARIES GaudiKernel TestTools TileSimEventTPCnv CxxUtils )
 
 atlas_add_test( TileHitVectorCnv_p1_test
                 SOURCES
                 test/TileHitVectorCnv_p1_test.cxx
-                LINK_LIBRARIES GaudiKernel TestTools TileSimEventTPCnv )
+                LINK_LIBRARIES GaudiKernel TestTools TileSimEventTPCnv CxxUtils )

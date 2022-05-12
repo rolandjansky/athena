@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -369,13 +369,13 @@ void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
   gErrorIgnoreLevel = m_IgnoreErrLvl;
 }
 
-std::vector<uint32_t> TrigTSerializer::serialize(const std::string &nameOfClass, void* instance){
+std::vector<uint32_t> TrigTSerializer::serialize(const std::string &nameOfClass, const void* instance){
   std::vector<uint32_t> serialized;
   serialize(nameOfClass, instance, serialized);
   return serialized;
 }
 
-void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, std::vector<uint32_t> &serialized){
+void TrigTSerializer::serialize(const std::string &nameOfClass, const void* instance, std::vector<uint32_t> &serialized){
 
   serialized.clear();
 

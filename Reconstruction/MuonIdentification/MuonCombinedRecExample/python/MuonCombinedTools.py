@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.AppMgr import ToolSvc
@@ -59,7 +59,7 @@ def MuonCombinedInDetDetailedTrackSelectorTool_LRT(name='MuonCombinedInDetDetail
     kwargs.setdefault("nHitSi", 4 )
     kwargs.setdefault("nHitTrt", 0 )
     kwargs.setdefault("useTrackQualityInfo", False )
-    kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
+    kwargs.setdefault("TrackSummaryTool", "" )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
 
@@ -183,6 +183,24 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
+
+def MuonCombinedFitTagTool_EMEO(name="MuonCombinedFitTagTool_EMEO",**kwargs):
+    return MuonCombinedFitTagTool(name = name,
+                                  TrackBuilder= getPublicTool("CombinedMuonTrackBuilder_EMEO"),
+                                  **kwargs)
+
+def MuonCombinedTool_EMEO(name="MuonCombinedTool_EMEO",**kwargs):
+    tools = []
+    if muonCombinedRecFlags.doCombinedFit():
+        tools.append(getPublicTool("MuonCombinedFitTagTool_EMEO"))
+    if muonCombinedRecFlags.doStatisticalCombination():
+        tools.append(getPublicTool("MuonCombinedStacoTagTool"))
+    kwargs.setdefault("MuonCombinedTagTools", tools )
+    ### Retune the angular selection for the muons
+    kwargs.setdefault("AlignmentUncertTool", getPublicTool("MuonAlignmentUncertToolTheta"))
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
+    return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
     from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTagTestTool

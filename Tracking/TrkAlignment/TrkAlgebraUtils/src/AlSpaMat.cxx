@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Original Author: Anthony Morley  (15Jan2007)
@@ -199,7 +199,7 @@ double  AlSpaMat::elemc(long int i,long int j) const
 }
 
 //______________________________________________________________________________
-indices  AlSpaMat::elem(long int i,long int j) const
+indices  AlSpaMat::elem(long int i,long int j) 
 {
   // ATTENTION! the key value is returned:
 #ifdef _DEBUG

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -69,9 +69,7 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
   m_nZCandidates = 0; 
 }
 
-ZeeTaPMonTool::~ZeeTaPMonTool()
-{
-}
+ZeeTaPMonTool::~ZeeTaPMonTool() = default;
 
 StatusCode ZeeTaPMonTool::initialize()
 {

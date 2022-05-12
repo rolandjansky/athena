@@ -1,19 +1,39 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import BeamType
 # TODO : Add some exta levels?
 
 def createITkConfigFlags():
   itkcf = AthConfigFlags()
 
   # take geometry XML files from local instance rather than Detector Database, for development
-  itkcf.addFlag("ITk.pixelGeometryFilename", "ITKLayouts/Pixel/ITkPixel.gmx")
-  itkcf.addFlag("ITk.stripGeometryFilename", "ITKLayouts/Strip/ITkStrip.gmx")
-  itkcf.addFlag("ITk.bcmPrimeGeometryFilename", "ITKLayouts/Pixel/BCMPrime.gmx")
-  itkcf.addFlag("ITk.plrGeometryFilename", "ITKLayouts/PLR/PLR.gmx")
+  itkcf.addFlag("ITk.Geometry.AllLocal", False)
+  itkcf.addFlag("ITk.Geometry.PixelLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.PixelFilename", "ITKLayouts/Pixel/ITkPixel.gmx")
+  itkcf.addFlag("ITk.Geometry.PixelClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.StripLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.StripFilename", "ITKLayouts/Strip/ITkStrip.gmx")
+  itkcf.addFlag("ITk.Geometry.StripClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.BCMPrimeLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.BCMPrimeFilename", "ITKLayouts/Pixel/BCMPrime.gmx")
+  itkcf.addFlag("ITk.Geometry.BCMPrimeClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.PLRLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.PLRFilename", "ITKLayouts/PLR/PLR.gmx")
+  itkcf.addFlag("ITk.Geometry.PLRClobOutputName", "")
+  itkcf.addFlag("ITk.Geometry.DictionaryLocal", lambda prevFlags: prevFlags.ITk.Geometry.AllLocal)
+  itkcf.addFlag("ITk.Geometry.DictionaryFilename", "ITKLayouts/IdDictInnerDetector_ITK_LOCAL.xml")
+  itkcf.addFlag("ITk.Geometry.isLocal", lambda prevFlags : (prevFlags.ITk.Geometry.PixelLocal
+                                                         or prevFlags.ITk.Geometry.StripLocal
+                                                         or prevFlags.ITk.Geometry.BCMPrimeLocal
+                                                         or prevFlags.ITk.Geometry.PLRLocal))
+
+  itkcf.addFlag("ITk.Conditions.PixelChargeCalibTag", "")
+  itkcf.addFlag("ITk.Conditions.PixelChargeCalibFile", "")
 
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.checkDeadPixelsOnTrack", True) # Enable check for dead modules and FEs
+  itkcf.addFlag("ITk.selectStripIntimeHits", lambda prevFlags: not(prevFlags.Beam.Type is BeamType.Cosmics) ) # defines if the X1X mode is used for the offline or not
 
   itkcf.addFlag("ITk.Tracking.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies
   itkcf.addFlag("ITk.Tracking.doDigitalROTCreation", False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU
@@ -35,6 +55,8 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.Tracking.perigeeExpression", "BeamLine"   ) # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   itkcf.addFlag("ITk.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackParticles
   itkcf.addFlag("ITk.Tracking.materialInteractions", True)
+  itkcf.addFlag("ITk.Tracking.writeSeedValNtuple", False) # Turn writing of seed validation ntuple on and off
+  itkcf.addFlag("ITk.Tracking.writeExtendedPRDInfo", False)
   
   # config flags for tracking geometry configuration
   from InDetConfig.TrackingGeometryFlags import createITkTrackingGeometryFlags
@@ -52,5 +74,7 @@ def createITkConfigFlags():
   from InDetConfig.VertexFindingFlags import createITkPriVertexingFlags
   itkcf.addFlagsCategory("ITk.PriVertex", createITkPriVertexingFlags, prefix=True)
 
+  itkcf.addFlag("ITk.Tracking.convertInDetClusters", False) # Turn on conversion of InDet clusters to xAOD clusters
+  itkcf.addFlag("ITk.Tracking.produceNewSpacePointContainer", False) # Turn on to produce ActsTrk::SpacePointContainers
 
   return itkcf

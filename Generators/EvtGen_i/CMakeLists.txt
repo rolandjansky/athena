@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EvtGen_i )
@@ -27,21 +27,41 @@ atlas_disable_as_needed()
 atlas_disable_as_needed()
 
 #Use only the codes absent in the modern external EvtGen libraries
-set(EvtGen_iLib_SOURCES   src/EvtInclusiveDecay.cxx)
 
 # Previously  own interfaces/externals were used
 # Keep the list as a documentation
-#  set(EvtGen_iLib_SOURCES  
-#                   src/EvtPythia.cxx
-#                   src/EvtTauola.cxx
-#                   src/EvtExternalGenFactory.cxx
-#                   src/EvtPHOTOS.cxx
-#                   src/EvtPythia6CommandConverter.cxx
-#                   src/EvtTauolaEngine.cxx
-#                   src/EvtExternalList.cxx
-#                   src/EvtPhotosEngine.cxx
-#                   src/EvtPythiaEngine.cxx
-#                   src/EvtInclusiveDecay.cxx)
+set(EvtGen_iLib_SOURCES  
+                   src/EvtPythia.cxx
+                   src/EvtTauola.cxx
+                   src/EvtExternalGenFactory.cxx
+                   src/EvtPHOTOS.cxx
+                   src/EvtPythia6CommandConverter.cxx
+                   src/EvtTauolaEngine.cxx
+                   src/EvtExternalList.cxx
+                   src/EvtPhotosEngine.cxx
+                   src/EvtPythiaEngine.cxx
+                   src/EvtInclusiveDecay.cxx
+                   src/Belle2/EvtB0toKsKK.cc
+                   src/Belle2/EvtBCL.cc
+                   src/Belle2/EvtBCLFF.cc
+                   src/Belle2/EvtBGL.cc
+                   src/Belle2/EvtBGLFF.cc
+                   src/Belle2/EvtBSemiTauonic.cc
+                   src/Belle2/EvtBSemiTauonic2HDMType2.cc
+      		   src/Belle2/EvtBSemiTauonicAmplitude.cc
+		   src/Belle2/EvtBSemiTauonicHelicityAmplitudeCalculator.cc
+		   src/Belle2/EvtBSemiTauonicScalarMesonAmplitude.cc
+		   src/Belle2/EvtBSemiTauonicVectorMesonAmplitude.cc
+		   src/Belle2/EvtEtaFullDalitz.cc
+ 		   src/Belle2/EvtEtaPi0Dalitz.cc
+ 		   src/Belle2/EvtEtaPrimeDalitz.cc
+ 		   src/Belle2/EvtHQET3.cc
+		   src/Belle2/EvtHQET3FF.cc
+ 		   src/Belle2/EvtLLSW.cc
+		   src/Belle2/EvtLLSWFF.cc
+ 		   src/Belle2/EvtPHSPBMix.cc
+ 		   src/Belle2/EvtYmSToYnSpipiCLEOboost.cc
+)
 #endif()
 # Component(s) in the package:
 atlas_add_library( EvtGen_iLib

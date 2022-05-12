@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -38,7 +38,7 @@ CaloLVL1_ID::CaloLVL1_ID(void) :
 
 }
 
-CaloLVL1_ID:: ~CaloLVL1_ID(){}
+CaloLVL1_ID:: ~CaloLVL1_ID()= default;
 
 
 

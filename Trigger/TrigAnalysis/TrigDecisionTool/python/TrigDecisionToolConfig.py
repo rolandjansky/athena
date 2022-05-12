@@ -45,7 +45,6 @@ def TrigDecisionToolCfg(flags):
     tdt.HLTSummary = getRun3NavigationContainerFromInput(flags)
 
     if flags.Input.Format is Format.BS and flags.Trigger.EDMVersion in [1, 2]:
-        tdt.TrigDecisionKey = 'TrigDecision'
         tdt.UseAODDecision = True
 
     # This pre-loads libraries required to read the run 2 trigger navigation

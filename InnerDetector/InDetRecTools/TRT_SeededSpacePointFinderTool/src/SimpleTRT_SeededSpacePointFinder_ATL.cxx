@@ -63,7 +63,7 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
 ///////////////////////////////////////////////////////////////////
 
 InDet::SimpleTRT_SeededSpacePointFinder_ATL::~SimpleTRT_SeededSpacePointFinder_ATL()
-{}
+= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
@@ -426,7 +426,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(const Even
 //=====================================================================================================
 
 //void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(const Trk::TrackParameters& directionTRT, double& deltaPhi, double& deltaEta)
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(double& deltaPhi, double& deltaEta) const
+void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSearchRange(double& deltaPhi, double& deltaEta) 
 {
   /** This method defines the tolerance for the ROI around the TRT track parameter. At the moment it is set constant, but it should be considered to
       define it in dependence on the track parameter. In order to suppress warnings for unused variables, the method signature including the track parameter

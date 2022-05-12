@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ Trk::MaterialOnTrackValidation::MaterialOnTrackValidation(const std::string& nam
 //================ Destructor =================================================
 
 Trk::MaterialOnTrackValidation::~MaterialOnTrackValidation()
-{}
+= default;
 
 
 //================ Initialisation =================================================
@@ -71,7 +71,7 @@ StatusCode Trk::MaterialOnTrackValidation::execute()
   StatusCode sc = StatusCode::SUCCESS;
   const TrackCollection* trackCollection = nullptr;
 
-  if (m_inputTrackCollection!="") {
+  if (!m_inputTrackCollection.empty()) {
       sc = evtStore()->retrieve(trackCollection,m_inputTrackCollection);
       if (sc.isFailure())
          ATH_MSG_ERROR( "TrackCollection "<<m_inputTrackCollection<<" not found!" );

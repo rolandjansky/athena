@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
@@ -42,7 +42,10 @@ namespace InDet{
     if ( CovTrkMtx22 > m_zTrkErrorCut*m_zTrkErrorCut )    return StatusCode::FAILURE;
     if ( ConeDist > m_coneForTag )                        return StatusCode::FAILURE;
     if(trkP>10000.){
-      if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , evtWgt);
+      if(m_fillHist){
+        Hists& h = getHists();
+        h.m_hb_trkPErr->Fill( trkPErr , evtWgt);
+      }
       if(trkPErr>0.5) return StatusCode::FAILURE;
     }
 
@@ -152,7 +155,10 @@ namespace InDet{
           double ImpactZ=perigeePos.z()-PrimVrt.z();
           double ImpactSignif=std::sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
 
-          if(m_fillHist){  m_hb_trkD0->Fill( ImpactA0, evtWgt); }
+          if(m_fillHist){
+            Hists& h = getHists();
+            h.m_hb_trkD0->Fill( ImpactA0, evtWgt);
+          }
 
 	  double eta = (*i_ntrk)->eta();
 

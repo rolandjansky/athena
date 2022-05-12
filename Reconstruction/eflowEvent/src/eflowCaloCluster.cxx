@@ -32,5 +32,4 @@ eflowCaloCluster::eflowCaloCluster(const CaloCluster* clus, bool copyMoments): C
   }
 }
 
-eflowCaloCluster::~eflowCaloCluster(){
-}
+eflowCaloCluster::~eflowCaloCluster()= default;

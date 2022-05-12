@@ -1,13 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_DetectorElementStatus.h"
 
 // Athena includes
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
 #include "StoreGate/ReadCondHandle.h"
+#include <type_traits>
+#include <limits>
 
 // Constructor
 SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -61,6 +66,87 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, const 
     result = isGoodChip(elementId, ctx);
   }
   return result;
+}
+
+
+void SCT_ConfigurationConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+  SG::ReadCondHandle<SCT_ConfigurationCondData> condDataHandle{m_condKey, ctx};
+  if (not condDataHandle.isValid() ) {
+     ATH_MSG_ERROR("Invalid cond data handle " << m_condKey.key());
+     return;
+  }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const SCT_ConfigurationCondData* condData{ condDataHandle.cptr() };
+  const std::set<Identifier>* bad_wafers = condData->getBadWaferIds();
+  if (bad_wafers) {
+     std::vector<bool> &status = element_status.getElementStatus();
+     std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();
+     if (status.empty()) {
+        status.resize(m_pHelper->wafer_hash_max(),true);
+     }
+     constexpr unsigned int N_CHIPS_PER_SIDE = 6;
+     constexpr unsigned int N_SIDES = 2;
+     constexpr InDet::ChipFlags_t all_flags_set = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul);
+     static_assert( (1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul <= std::numeric_limits<InDet::ChipFlags_t>::max());
+     if (chip_status.empty()) {
+        chip_status.resize(status.size(), all_flags_set);
+     }
+     for (const Identifier &a_bad_wafer : *bad_wafers) {
+        IdentifierHash hash = m_pHelper->wafer_hash(a_bad_wafer);
+        status.at(hash.value())=false;
+     }
+     if (m_checkStripsInsideModules) {
+        const std::set<Identifier>* bad_modules = condData->getBadModuleIds();
+        if (bad_modules) {
+           for (const Identifier &a_bad_module :  *bad_modules) {
+              for (unsigned int side_i=0; side_i<N_SIDES; ++side_i) {
+                 Identifier wafer_id{m_pHelper->wafer_id(m_pHelper->barrel_ec(a_bad_module),
+                                                         m_pHelper->layer_disk(a_bad_module),
+                                                         m_pHelper->phi_module(a_bad_module),
+                                                         m_pHelper->eta_module(a_bad_module),
+                                                         side_i)};
+                 IdentifierHash hash = m_pHelper->wafer_hash(wafer_id);
+                 chip_status.at(hash.value()) = 0;
+              }
+           }
+        }
+     }
+     if (condData->getBadChips()) {
+        std::array<unsigned int,N_SIDES> side_mask{0x3F, 0xFC0};
+        for (const std::pair<const Identifier, unsigned int> &a_bad_module :  *(condData->getBadChips()) ) {
+           for (unsigned int side_i=0; side_i<N_SIDES; ++side_i) {
+              if (a_bad_module.second & side_mask[side_i]) {
+                 Identifier wafer_id{m_pHelper->wafer_id(m_pHelper->barrel_ec(a_bad_module.first),
+                                                         m_pHelper->layer_disk(a_bad_module.first),
+                                                         m_pHelper->phi_module(a_bad_module.first),
+                                                         m_pHelper->eta_module(a_bad_module.first),
+                                                         side_i)};
+                 IdentifierHash hash = m_pHelper->wafer_hash(wafer_id);
+                 unsigned int bad_chip_flags = SCT::getGeometricalFromPhysicalChipFlags(*m_pHelper, *element_status.getDetectorElement(hash),a_bad_module.second );
+                 chip_status.at(hash.value()) &= static_cast<InDet::ChipFlags_t>( ~(bad_chip_flags) );
+              }
+           }
+        }
+     }
+     if (condData->getBadStripIds()) {
+        std::vector<std::vector<unsigned short> > &bad_strips = element_status.getBadCells();
+        if (bad_strips.empty()) {
+           bad_strips.resize(status.size());
+        }
+        for (const Identifier &bad_strip :  *(condData->getBadStripIds()) ) {
+           IdentifierHash hash = m_pHelper->wafer_hash(m_pHelper->wafer_id(bad_strip));
+           // skip bad modules and chips
+           if (!status.at(hash)) continue;
+           int strip_i = m_pHelper->strip(bad_strip);
+
+           std::vector<unsigned short> &bad_module_strips_combined = bad_strips.at(hash);
+           std::vector<unsigned short>::const_iterator iter = std::lower_bound(bad_module_strips_combined.begin(),bad_module_strips_combined.end(),strip_i);
+           if (iter == bad_module_strips_combined.end() || *iter != strip_i) {
+              bad_module_strips_combined.insert( iter, strip_i);
+           }
+        }
+     }
+  }
 }
 
 bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
@@ -145,10 +231,6 @@ bool SCT_ConfigurationConditionsTool::isWaferInBadModule(const Identifier& wafer
 
 // Find the chip number containing a particular strip Identifier
 int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId, const EventContext& ctx) const {
-  // Find side and strip number
-  const int side{m_pHelper->side(stripId)};
-  int strip{m_pHelper->strip(stripId)};
-
   // Check for swapped readout direction
   const IdentifierHash waferHash{m_pHelper->wafer_hash(m_pHelper->wafer_id(stripId))};
   const InDetDD::SiDetectorElement* pElement{getDetectorElement(waferHash, ctx)};
@@ -156,10 +238,7 @@ int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId, const Ev
     ATH_MSG_FATAL("Element pointer is nullptr in 'badStrips' method");
     return invalidChipNumber;
   }
-  strip = (pElement->swapPhiReadoutDirection()) ? lastStrip - strip: strip;
-
-  // Find chip number
-  return (side==0 ? strip/stripsPerChip : strip/stripsPerChip + 6);
+  return SCT::getChip(*m_pHelper, *pElement, stripId);
 }
 
 int SCT_ConfigurationConditionsTool::getChip(const Identifier& stripId) const {

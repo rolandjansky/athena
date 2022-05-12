@@ -157,7 +157,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
 
     def test___PileUpToolsAlg_is_third_in_AthAlgSeq(self):
-        expected_AlgSequence = ['TimingAlg/DigiTimerBegin', 'Simulation::BeamSpotFixerAlg/BeamSpotFixerAlg', 'PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg', 'LArRawChannelBuilderAlg/LArRawChannelBuilder', 'TileDigitsMaker/TileDigitsMaker', 'TileDQstatusAlg/TileDQstatusAlg', 'TileRawChannelMaker/TileRChMaker', 'TileRawChannelToL2/TileRawChannelToL2', 'CscDigitToCscRDO/CscDigitToCscRDO', 'MdtDigitToMdtRDO/MdtDigitToMdtRDO', 'RpcDigitToRpcRDO/RpcDigitToRpcRDO', 'TgcDigitToTgcRDO/TgcDigitToTgcRDO', 'LArTTL1Maker/LArTTL1Maker', 'TileHitToTTL1/TileHitToTTL1', 'TilePulseForTileMuonReceiver/TilePulseForTileMuonReceiver', 'TileMuonReceiverDecision/TileMuonReceiverDecision']
+        expected_AlgSequence = ['TimingAlg/DigiTimerBegin', 'Simulation::BeamSpotFixerAlg/BeamSpotFixerAlg', 'PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg', 'LArHitEMapToDigitAlg/LArHitEMapToDigitAlg', 'LArRawChannelBuilderAlg/LArRawChannelBuilder', 'TileDigitsMaker/TileDigitsMaker', 'TileDQstatusAlg/TileDQstatusAlg', 'TileRawChannelMaker/TileRChMaker', 'TileRawChannelToL2/TileRawChannelToL2', 'CscDigitToCscRDO/CscDigitToCscRDO', 'MdtDigitToMdtRDO/MdtDigitToMdtRDO', 'RpcDigitToRpcRDO/RpcDigitToRpcRDO', 'TgcDigitToTgcRDO/TgcDigitToTgcRDO', 'LArTTL1Maker/LArTTL1Maker', 'TileHitToTTL1/TileHitToTTL1', 'TilePulseForTileMuonReceiver/TilePulseForTileMuonReceiver', 'TileMuonReceiverDecision/TileMuonReceiverDecision']
         ignore_Algs = ['EventInfoTagBuilder/EventInfoTagBuilder']
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
@@ -277,11 +277,10 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['ADC2MeVKey', 'AutoCorrNoiseKey', 'BadChanKey', 'BadFebKey', 'CablingKey', 'DetStore', 'CaloDetDescrManager', 'DigitContainer', 'DigitContainer_DigiHSTruth', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HighGainThreshFCAL', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LArXTalkWeightGlobal', 'LastXing', 'NoiseKey', 'NoiseOnOff', 'Nsamples', 'OFCKey', 'PedestalKey', 'PileUpMergeSvc', 'ProblemsToMask', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'ShapeKey', 'TriggerTimeToolName', 'fSamplKey', 'firstSample', 'useLArFloat']
-
-        expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4',
+        expected_property_list = ['CablingKey', 'DetStore', 'CaloDetDescrManager', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LArXTalkWeightGlobal', 'LastXing', 'NoiseOnOff', 'PileUp', 'PileUpMergeSvc', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'useLArFloat']
+        expected_string_properties = {}
+        expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751',
                                          'LArHitContainers': '["StoreGateSvc+LArHitEMB","StoreGateSvc+LArHitEMEC","StoreGateSvc+LArHitHEC","StoreGateSvc+LArHitFCAL"]', 'LArHitFloatContainers':'[]'}
-        expected_string_properties = {'DigitContainer': 'LArDigitContainer_MC'}
         self._detailed_ConfigurablePropertiesCheck(
             tested_configurable_name,
             expected_property_list,
@@ -291,7 +290,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TileHitVecToCntTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TileHitVecToCntTool'
-        expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'PileUpMergeSvc', 'RndmSvc', 'TileCablingSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileInfoName', 'TriggerTimeTool']
+        expected_property_list = ['DetStore', 'DoHSTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'PileUp', 'PileUpMergeSvc', 'RndmSvc', 'TileCablingSvc', 'TileHitContainer', 'TileHitContainer_DigiHSTruth', 'TileHitVectors', 'TileSamplingFraction', 'TriggerTimeTool']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-200', 'TileHitVectors': '["TileHitVec", "MBTSHits"]'}
         expected_string_properties = {'TileHitContainer': 'TileHitCnt'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -339,7 +338,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TgcDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TgcDigitizationTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'TGCDigitASDposKey']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputObjectName', 'LastXing', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'TGCDigitASDposKey', 'TGCDigitTimeOffsetKey']
         expected_nonstring_properties = {'LastXing': '75', 'FirstXing': '-50'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(

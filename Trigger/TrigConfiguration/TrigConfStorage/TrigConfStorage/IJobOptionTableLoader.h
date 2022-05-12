@@ -27,7 +27,7 @@ namespace TrigConf {
    class IJobOptionTableLoader : virtual public ILoader {
    public:
 
-      virtual ~IJobOptionTableLoader() {};
+      virtual ~IJobOptionTableLoader() override = default;
 
       virtual bool load( JobOptionTable& data ) = 0;
    };

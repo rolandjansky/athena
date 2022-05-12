@@ -38,8 +38,10 @@ class JetParticleAssociation : public asg::AsgTool,
         // note
         // if m_particleKey is "", then an empty container will be written to the OutputDecoration.
         Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "Jet collection name"};
+        Gaudi::Property<float> m_ptMinimum{this, "MinimumJetPt", 0.0, "minimum pt to consider for association"};
         SG::ReadHandleKey<xAOD::IParticleContainer> m_particleKey{this, "InputParticleContainer", "", "Input particle collection name"};
         SG::WriteDecorHandleKey<xAOD::JetContainer> m_decKey{this, "OutputDecoration", "", "Output decoration name"};
+        SG::WriteDecorHandleKey<xAOD::JetContainer> m_passPtKey{this, "PassPtFlag", "", "Name for decoration indicating we passed pt threshold"};
 };
 
 #endif

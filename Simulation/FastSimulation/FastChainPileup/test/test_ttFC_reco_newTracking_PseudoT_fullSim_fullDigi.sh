@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_newTracking_PseudoT_fullSim_fullDigi
-# art-type: grid
-# art-include: master/Athena
+# art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_newTracking_PseudoT_fullSim_fullDigi (was for grid, master/Athena)
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube-rdo-truth
@@ -30,7 +28,7 @@ FastChain_tf.py --simulator ATLFASTII \
     --maxEvents 50 \
     --skipEvents 0 \
     --geometryVersion ATLAS-R2-2015-03-01-00 \
-    --conditionsTag OFLCOND-RUN12-SDR-31 \
+    --conditionsTag OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py' \
     --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
@@ -56,12 +54,10 @@ then
     Reco_tf.py --maxEvents '-1' \
                --skipEvents 0 \
                --geometryVersion ATLAS-R2-2015-03-01-00 \
-               --conditionsTag OFLCOND-RUN12-SDR-31  \
+               --conditionsTag OFLCOND-MC16-SDR-RUN2-09  \
                --inputRDOFile ${rdoFile} \
                --outputAODFile ${aodFile} \
-               --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doNewTracking.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" \
-               --steering 'doRDO_TRIG' \
-               --athenaopts "all:--threads=1" \
+               --preExec "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPseudoTracking.set_Value_and_Lock(True);InDetFlags.doNewTracking.set_Value_and_Lock(True);InDetFlags.doTrackSegmentsTRT.set_Value_and_Lock(True);" "all:rec.doTrigger.set_Value_and_Lock(False)" \
                --imf False
      rc2=$?
      if [ ${rc2} -eq 0 ]

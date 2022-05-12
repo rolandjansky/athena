@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETMAPBASE_H
@@ -35,9 +35,12 @@ public:
   public:
     record_ptr_t(record_t* r=NULL) : m_ptr(r) {};
     bool isValid()const{return m_ptr !=NULL;}
-    record_t & operator*()const {return *m_ptr;}
-    record_t* operator->() const {return m_ptr;}
-    record_t* get() const {return m_ptr;}
+    const record_t& operator*() const {return *m_ptr;}
+    const record_t* operator->() const {return m_ptr;}
+    const record_t* get() const {return m_ptr;}
+    record_t& operator*() {return *m_ptr;}
+    record_t* operator->() {return m_ptr;}
+    record_t* get() {return m_ptr;}
     void destroy() {if (isValid()) delete m_ptr; m_ptr=NULL;}
     void set(record_t *r){m_ptr = r;}
   protected:
@@ -156,7 +159,7 @@ protected:
   /*! @brief Data store */
   mutable map_t  m_store;
   /*! @brief Null data reference */
-  static data_t m_nullData;
+  static const data_t m_nullData;
 
   typename map_t::iterator m_end;
 #endif
@@ -167,7 +170,7 @@ protected:
 
 class OrphanJetCounter {
 public:
-  size_t getNewId(){m_counter++;return m_counter;};
+  size_t getNewId() {m_counter++;return m_counter;};
   
 protected:
   void reset(){m_counter=0;}

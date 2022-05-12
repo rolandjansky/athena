@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LarEMSamplingFraction.h"
@@ -46,7 +46,7 @@ StatusCode LarEMSamplingFraction::initialize()
   
   ServiceHandle<ITHistSvc> histSvc("THistSvc",name()); 
   ATH_CHECK( histSvc.retrieve() );
-	
+
   m_mytree = new TTree("mytree","mytree");
   m_mytree->Branch("energy_reco",          &m_energy_reco);
   m_mytree->Branch("energy_hit",           &m_energy_hit);
@@ -90,9 +90,14 @@ StatusCode LarEMSamplingFraction::initialize()
   m_tileID=caloIdManager->getTileID();
   if(m_tileID==0) throw std::runtime_error("ISF_HitAnalysis: Invalid Tile ID helper");
 
+  ATH_CHECK(detStore()->retrieve(m_tileHWID));
+
   ATH_CHECK(m_fSamplKey.initialize());
-  ATH_CHECK(detStore()->retrieve(m_tileInfo,"TileInfo"));
-  
+  ATH_CHECK( m_tileSamplingFractionKey.initialize() );
+
+  ATH_CHECK( m_tileCablingSvc.retrieve() );
+  m_tileCabling = m_tileCablingSvc->cablingService();
+
   return StatusCode::SUCCESS;
 }
 
@@ -110,7 +115,10 @@ StatusCode LarEMSamplingFraction::execute()
 {
   SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
   const ILArfSampl* fSampl=*fSamplHdl;
-  
+
+  SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey);
+  ATH_CHECK( tileSamplingFraction.isValid() );
+
   const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
   std::vector<std::string>::iterator iter;
@@ -250,13 +258,14 @@ StatusCode LarEMSamplingFraction::execute()
 	    
 	    if((sampling>=0 && sampling<=11) || (sampling>=21 && sampling<=23)) Efactor=1/fSampl->FSAMPL(id);
 	    if((sampling>=12 && sampling<=20)) {
+        HWIdentifier channel_id = m_tileCabling->s2h_channel_id(id);
+        int channel = m_tileHWID->channel(channel_id);
+        int drawerIdx = m_tileHWID->drawerIdx(channel_id);
+        Efactor = tileSamplingFraction->getSamplingFraction(drawerIdx, channel);
 	      Identifier cell_id = m_tileID->cell_id(id);
 	      if(caloMgr->get_element(cell_id)) {
-		Efactor = m_tileInfo->HitCalib(cell_id);
-		id=cell_id;
-	      } else {
-		Efactor = m_tileInfo->HitCalib(id);
-	      }  
+          id=cell_id;
+	      }
 	    }  
 	  }  
 	  

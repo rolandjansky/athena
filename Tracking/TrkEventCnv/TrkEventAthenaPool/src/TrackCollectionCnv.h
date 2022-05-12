@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -28,12 +28,13 @@
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp4.h"
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
 #include "TrkEventTopLevelCnv/TrackCollectionCnv_tlp6.h"
+#include "TrkEventTopLevelCnv/TrackCollectionCnv_tlp7.h"
 
 //-----------------------------------------------------------------------------
 // Base class definition - defined which is the to-be-used persistent version
 //-----------------------------------------------------------------------------
 
-typedef Trk::TrackCollection_tlp6   TrackCollection_PERS;
+typedef Trk::TrackCollection_tlp7   TrackCollection_PERS;
 
 typedef T_AthenaPoolCustomCnvWithKey<TrackCollection, TrackCollection_PERS>  TrackCollectionCnvBase;
 
@@ -71,7 +72,8 @@ private:
   TrackCollectionCnv_tlp3   m_TPConverter_tlp3;
   TrackCollectionCnv_tlp4   m_TPConverter_tlp4;
   TrackCollectionCnv_tlp5   m_TPConverter_tlp5;
-  TrackCollectionCnv_tlp6   m_TPConverter;    //  <- the current one
+  TrackCollectionCnv_tlp6   m_TPConverter_tlp6;
+  TrackCollectionCnv_tlp7   m_TPConverter;    //  <- the current one
 };
 
 #endif // TRKEVENTATHENAPOOL_TRACKCOLLECTIONCNV_H

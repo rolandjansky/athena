@@ -57,7 +57,7 @@ Trk::TrackingVolumeHelper::TrackingVolumeHelper(const std::string& t, const std:
 
 // destructor
 Trk::TrackingVolumeHelper::~TrackingVolumeHelper()
-{}
+= default;
 
 
 // the interface methods

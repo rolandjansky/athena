@@ -27,80 +27,20 @@ using namespace MuonGM;
 /**
  ** Constructor(s)
  **/
-MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &name, const IInterface *parent)
-    : GeoModelTool(type, name, parent), m_layout("R.08"), m_accessCondDb(1), m_asciiCondData(0), m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0),
-      m_fillCache_initTime(0), m_dumpMemoryBreakDown(false), m_enableFineClashFixing(0), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_stationSelection(0),
-      m_controlAlines(111111), m_dumpAlines(false), m_altAsztFile(""), m_minimalGeoFlag(false), m_useCscIntAlines(false), m_controlCscIntAlines(0), m_dumpCscIntAlines(false),
-      m_useCscIntAlinesFromGM(true), m_altCscIntAlinesFile(""), m_enableMdtDeformations(0), m_enableMdtAsBuiltParameters(0), m_altMdtAsBuiltFile(""), m_manager(nullptr) {
+MuonDetectorTool::MuonDetectorTool(const std::string &type, const std::string &name, const IInterface *parent) : 
+    GeoModelTool(type, name, parent) {
     declareInterface<IGeoModelTool>(this);
-    declareProperty("LayoutName", m_layout);
-    declareProperty("UseConditionDb", m_accessCondDb);
-    declareProperty("UseAsciiConditionData", m_asciiCondData);
-    declareProperty("IncludeCutouts", m_includeCutouts);
-    declareProperty("IncludeCutoutsBog", m_includeCutoutsBog);
-    declareProperty("IncludeCtbBis", m_includeCtbBis);
-    //
-    declareProperty("FillCacheInitTime", m_fillCache_initTime = 0);
-    declareProperty("DumpMemoryBreakDown", m_dumpMemoryBreakDown = false);
-    //
-    declareProperty("EnableFineClashFixing", m_enableFineClashFixing = 0);
-    declareProperty("HasCSC", m_hasCSC);
-    declareProperty("HasSTgc", m_hasSTgc);
-    declareProperty("HasMM", m_hasMM);
-    //
-    declareProperty("StationSelection", m_stationSelection = 0);
-    declareProperty("SelectedStations", m_selectedStations);
-    declareProperty("SelectedStJzz", m_selectedStEta);
-    declareProperty("SelectedStJff", m_selectedStPhi);
-    //
-    declareProperty("ControlAlines", m_controlAlines = 111111); // allowed values are   0 -  111111
-    declareProperty("DumpAlines", m_dumpAlines = false);
-    declareProperty("AlternateASZTFile", m_altAsztFile);
-    declareProperty("MinimalGeoFlag", m_minimalGeoFlag = 0);
-    //
-    declareProperty("EnableCscInternalAlignment", m_useCscIntAlines = false);
-    declareProperty("ControlCscInternalAlines", m_controlCscIntAlines = 111111); // allowed values are 0 - 111111
-    declareProperty("DumpCscInternalAlines", m_dumpCscIntAlines = false);
-    declareProperty("UseIlinesFromGM", m_useCscIntAlinesFromGM = true);
-    declareProperty("AlternateCscIntAlignFile", m_altCscIntAlinesFile);
-    //
-    declareProperty("EnableMdtDeformations", m_enableMdtDeformations = 0);
-    //
-    declareProperty("EnableMdtAsBuiltParameters", m_enableMdtAsBuiltParameters = 0);
-    declareProperty("AlternateAsBuiltParamAlignFile", m_altMdtAsBuiltFile);
-    //
-    declareProperty("passivationWidthMM", m_testPassivationWidthMM = 0); // temporary to test the effect MM passivation
-    // THESE ALLOW TO RESET THE MUON SWITCHES IN THE oracle TABLES:
-    // to reset (for example) BUILDBARRELTOROID use ForceSwitchOnOff_BUILDBARRELTOROID = 1001/1000 to have/not have the BARRELTOROID
-    // i.e  you must set 1000 to force resetting + 1/0 (enable/disable)
-    // ForceSwitchOnOff_BUILDBARRELTOROID = XX with XX <1000 will have no effect => muon switches from Oracle will be used
-    declareProperty("ForceSwitchOnOff_BUILDINERTMATERIALS", m_switchOnOff_BUILDINERTMATERIALS = 0);
-    declareProperty("ForceSwitchOnOff_MINIMALGEO", m_switchOnOff_MINIMALGEO = 0);
-    declareProperty("ForceSwitchOnOff_BUILDENDCAP", m_switchOnOff_BUILDENDCAP = 0);
-    declareProperty("ForceSwitchOnOff_BUILDCALOSADDLE", m_switchOnOff_BUILDCALOSADDLE = 0);
-    declareProperty("ForceSwitchOnOff_BUILDBARRELTOROID", m_switchOnOff_BUILDBARRELTOROID = 0);
-    declareProperty("ForceSwitchOnOff_BUILDENDCAPTOROID", m_switchOnOff_BUILDENDCAPTOROID = 0);
-    declareProperty("ForceSwitchOnOff_BUILDFEET", m_switchOnOff_BUILDFEET = 0);
-    declareProperty("ForceSwitchOnOff_BUILDDISKSHIELD", m_switchOnOff_BUILDDISKSHIELD = 0);
-    declareProperty("ForceSwitchOnOff_BUILDTOROIDSHIELD", m_switchOnOff_BUILDTOROIDSHIELD = 0);
-    declareProperty("ForceSwitchOnOff_BUILDFORWARDSHIELD", m_switchOnOff_BUILDFORWARDSHIELD = 0);
-}
-
-/**
- ** Destructor
- **/
-MuonDetectorTool::~MuonDetectorTool() {
-    // This will need to be modified once we register the Muon DetectorNode in
-    // the Transient Detector Store
-    if (nullptr != m_detector) {
-        delete m_detector;
-        m_detector = nullptr;
-    }
 }
 
 StatusCode MuonDetectorTool::initialize() {
     ATH_MSG_INFO("Initializing ...");
     return StatusCode::SUCCESS;
+}
+MuonDetectorTool::~MuonDetectorTool() { 
+    if (m_detector) {
+        delete m_detector;
+        m_detector = nullptr;
+    } 
 }
 
 /**
@@ -117,7 +57,7 @@ StatusCode MuonDetectorTool::create() {
     if (createFactory(theFactory).isFailure())
         return StatusCode::FAILURE;
 
-    if (nullptr == m_detector) {
+    if (!m_detector) {
         ATH_CHECK(detStore()->record(theFactory.getDetectorManager(), theFactory.getDetectorManager()->getName()));
 
         GeoModelExperiment *theExpt = nullptr;
@@ -195,7 +135,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
     ATH_MSG_INFO("Keys for Muon Switches are  (key) " << detectorKey << " (node) " << detectorNode);
 
     std::string tempLayout = m_layout;
-    std::map<std::string, std::string> altAsciiDBMap = std::map<std::string, std::string>();
+    std::map<std::string, std::string> altAsciiDBMap{};
     if (MuonVersion == "CUSTOM")
         ATH_MSG_WARNING("Detector Information coming from a custom configuration !!");
     else {
@@ -249,6 +189,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         ATH_MSG_INFO("    ControlCscIntAlines   reset to " << tempControlCscIntAlines);
     ATH_MSG_INFO("    EnableMdtDeformations          " << m_enableMdtDeformations);
     ATH_MSG_INFO("    EnableMdtAsBuiltParameters     " << m_enableMdtAsBuiltParameters);
+    ATH_MSG_INFO("    EnableNswAsBuiltParameters     " << m_enableNswAsBuiltParameters);
 
     if (m_stationSelection > 0) {
         StationSelector::SetSelectionType(m_stationSelection);
@@ -299,9 +240,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setDBMuonVersion(MuonVersion);
         theFactory.setDBkey(detectorKey);
         theFactory.setDBnode(detectorNode);
-        theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
-        theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
-        theFactory.setMMAsBuiltJsonPath(m_MMAsBuiltJsonPath);
+        theFactory.setNSWABLineAsciiPath(m_NSWABLineAsciiPath);
         theFactory.setAmdcDb(isAmdcDb);
         theFactory.setLayout(tempLayout);
         theFactory.setCutoutsFlag(m_includeCutouts);
@@ -317,6 +256,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setCacheFillingFlag(m_fillCache_initTime);
         theFactory.setMdtDeformationFlag(m_enableMdtDeformations);
         theFactory.setMdtAsBuiltParaFlag(m_enableMdtAsBuiltParameters);
+        theFactory.setNswAsBuiltParaFlag(m_enableNswAsBuiltParameters);
         theFactory.setFineClashFixingFlag(m_enableFineClashFixing);
         theFactory.hasCSC(m_hasCSC);
         theFactory.hasSTgc(m_hasSTgc);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  HECWheelConstruction.cxx 1.0.0
@@ -59,17 +59,13 @@ using GeoTrf::RotateZ3D;
 
 
 //Constructor
-LArGeo::HECWheelConstruction::HECWheelConstruction(bool fullGeo, std::string wheelType, bool threeBoards, bool posZSide):
+LArGeo::HECWheelConstruction::HECWheelConstruction(bool fullGeo, const std::string& wheelType, bool threeBoards, bool posZSide):
   m_physiHECWheel(0),
-  //m_rail(false),
-  //m_left(false),
-  //m_clampLength(0),
-  //m_clampAngle(0),
+  m_posZSide(posZSide),
+  m_threeBoards(threeBoards),
+  m_wheelType(wheelType),
   m_fullGeo(fullGeo)
 {
-  m_threeBoards = threeBoards;
-  m_posZSide    = posZSide;
-  m_wheelType   = wheelType;
   if (m_wheelType=="front") m_frontWheel  = true;
   else                      m_frontWheel  = false;
 }

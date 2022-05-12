@@ -11,7 +11,7 @@
 #include <cassert>
 #include <cstdlib> // rand
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
+//#include <boost/lexical_cast.hpp>
 
 // ClassImp( TNetworkToHistoTool)
 
@@ -280,7 +280,7 @@ std::vector<TH1*> NetworkToHistoTool
   std::map<std::string, TH1*> hists = histsFromNetwork(net); 
   std::vector<TH1*> hist_vec; 
   for (std::map<std::string, TH1*>::const_iterator itr = hists.begin(); 
-       itr != hists.end(); itr++) { 
+       itr != hists.end(); ++itr) { 
     itr->second->SetName(itr->first.c_str()); 
     hist_vec.push_back(itr->second); 
   }

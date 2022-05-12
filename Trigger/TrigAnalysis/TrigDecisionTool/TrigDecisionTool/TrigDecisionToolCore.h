@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecision_TrigDecisionToolCore_h
@@ -20,6 +20,7 @@
  *
  ***********************************************************************************/
 #include "AsgMessaging/StatusCode.h"
+#include "AsgTools/SlotSpecificObj.h"
 #include "TrigDecisionTool/ChainGroupFunctions.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -58,16 +59,13 @@ namespace Trig {
     const Trig::ExpertMethods& ExperimentalAndExpertMethods() const { return m_expertMethods; }
 
   protected:
-    virtual Trig::CacheGlobalMemory* cgm() const;
+    virtual Trig::CacheGlobalMemory* cgm();
+    virtual const Trig::CacheGlobalMemory* cgm() const;
 
     
   private:
 
-#if !defined(XAOD_STANDALONE) // AthAnalysis or full Athena
     SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;
-#else // Analysis or Standalone
-    Trig::CacheGlobalMemory m_cacheGlobalMemory;
-#endif
 
     Trig::ExpertMethods m_expertMethods;
     TrigDecisionToolCore (const TrigDecisionToolCore&);

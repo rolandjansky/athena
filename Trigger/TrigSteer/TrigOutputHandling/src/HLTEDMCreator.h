@@ -87,6 +87,27 @@
 #include "xAODForward/AFPVertexContainer.h"
 #include "xAODForward/AFPVertexAuxContainer.h"
 
+#include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIAuxContainer.h"
+#include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/eFexTauRoIAuxContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIAuxContainer.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
+#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexMETRoIAuxContainer.h"
+#include "xAODTrigger/jFexSumETRoIContainer.h"
+#include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIAuxContainer.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+#include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODTrigger/MuonRoIAuxContainer.h"
+
 /**
  * @class HLTEDMCreator
  * @brief Tool capable of creating collections missing (early rejection) after HLT processing.
@@ -171,6 +192,18 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( AFPToFTrackContainer );
   DEF_XAOD_KEY( AFPProtonContainer );
   DEF_XAOD_KEY( AFPVertexContainer );
+
+  // Phase-I L1 RoIs EDM
+  DEF_XAOD_KEY( eFexEMRoIContainer );
+  DEF_XAOD_KEY( eFexTauRoIContainer );
+  DEF_XAOD_KEY( jFexTauRoIContainer );
+  DEF_XAOD_KEY( jFexSRJetRoIContainer );
+  DEF_XAOD_KEY( jFexLRJetRoIContainer );
+  DEF_XAOD_KEY( jFexMETRoIContainer );
+  DEF_XAOD_KEY( jFexSumETRoIContainer );
+  DEF_XAOD_KEY( gFexJetRoIContainer );
+  DEF_XAOD_KEY( gFexGlobalRoIContainer );
+  DEF_XAOD_KEY( MuonRoIContainer );
 
 #undef DEF_VIEWS
 #undef DEF_KEY

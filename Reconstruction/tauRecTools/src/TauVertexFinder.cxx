@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -14,6 +14,8 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauJet.h"
+
+#include "tauRecTools/HelperFunctions.h"
 
 TauVertexFinder::TauVertexFinder(const std::string& name ) :
   TauRecToolBase(name) {
@@ -80,6 +82,12 @@ StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau,
         primaryVertex = vertex;
         break;
       }
+    }
+    
+    // FIXME: this is kept for consistency but can probably be dropped
+    // cases where we would have a non-empty PrimaryVertices container but no vertex of type xAOD::VxType::PriVtx, is that even possible?
+    if(primaryVertex==nullptr && pTau.jet()!=nullptr) {
+      primaryVertex = tauRecTools::getJetVertex(*pTau.jet());
     }
   }
 

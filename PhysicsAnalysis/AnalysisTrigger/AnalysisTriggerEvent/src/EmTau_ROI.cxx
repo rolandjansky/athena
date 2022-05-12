@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTau_ROI.cxx,v 1.5 2008-05-08 15:00:11 krasznaa Exp $
 
 // Local include(s):
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
+
+#include <algorithm>
 
 /**
  * This is the constructor used by the RoIBResultToAOD algorithm. It shouldn't
@@ -19,8 +20,7 @@ EmTau_ROI::EmTau_ROI( uint32_t roiWord, float eta, float phi, uint32_t thrPatter
      m_TauClus(0),
      m_EMIsol(0),
      m_HadIsol(0),
-     m_HadCore(0),
-     m_highestThreshold( -1. ) {
+     m_HadCore(0) {
 
 }
 
@@ -35,8 +35,7 @@ EmTau_ROI::EmTau_ROI()
      m_TauClus(0),
      m_EMIsol(0),
      m_HadIsol(0),
-     m_HadCore(0),
-     m_highestThreshold( -1. ) {
+     m_HadCore(0) {
 
 }
 
@@ -57,16 +56,6 @@ EmTau_ROI::~EmTau_ROI() {
  * @return The value of the highest threshold this RoI passed, in MeV/c
  */
 double EmTau_ROI::pt() const {
-
-   //
-   // Calculate the pT if it hasn't been done yet:
-   //
-   if( m_highestThreshold < 0. ) {
-      thr_value_type::const_iterator it = m_thresholdValues.begin();
-      for( ; it != m_thresholdValues.end(); ++it ) {
-         if( ( *it ) > m_highestThreshold ) m_highestThreshold = ( *it );
-      }
-   }
-
-   return m_highestThreshold;
+  auto itr = std::max_element(m_thresholdValues.begin(), m_thresholdValues.end());
+  return (itr != m_thresholdValues.end() ? *itr : -1);
 }

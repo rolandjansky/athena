@@ -26,11 +26,7 @@ if not hasattr(svcMgr, 'OnlineEventDisplaysSvc'):
         publicStreams=['HardProbes', 'MinBias']
     else:
         maxEvents=250   #1000
-        ############## Original - changed by sjiggins @ 02-06-15 #################
-        #projectTags=['data12_8TeV']
-        #publicStreams=['Egamma', 'JetTauEtmiss', 'MinBias']
-        ##########################################################################
-        projectTags=['data18_13TeV']
+        projectTags=['data22_13TeV']
         publicStreams=['physics_Main']
 
 

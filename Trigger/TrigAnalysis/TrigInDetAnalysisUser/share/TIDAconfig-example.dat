@@ -1,0 +1,56 @@
+// emacs: this is -*- c++ -*-
+
+
+
+bins = { 200, 0.4, 2.5 };
+
+values = { 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1.0, 1.5, 2.0 }; 
+
+efficiency = 1;
+mean = 1;
+
+
+mplots = { 
+  //  "HLT_mu26_ivarperf_L1MU20_HLT_IDTrack_MuonIso_IDTrig_HLT_Roi_MuonIso/phi_eff", "eff_vs_zwidth_IDTrig.pdf", 
+  //  "HLT_mu26_ivarperf_L1MU20_HLT_IDTrack_MuonIso_FTF_HLT_Roi_MuonIso/phi_eff",    "eff_vs_zwidth_FTF.pdf",
+  //
+  //  "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20_HLT_IDTrack_Bjet_IDTrig/phi_eff", "eff_vs_zwidth_IDTrig.pdf", 
+  //  "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20_HLT_IDTrack_Bjet_FTF/phi_eff",    "eff_vs_zwidth_FTF.pdf", 
+  "All/Chain_Algorithm_HLT/HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20__TrigFastTrackFinder__jet/All_Chain_Algorithm_HLT_HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20__TrigFastTrackFinder__jet_Time_perCall",                     "FTF_time.pdf;p_{T} [GeV];Execution time [ms]",      "FastTrackFinder",
+  "All/Chain_Algorithm_HLT/HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20__InDetTrigMTTrkAmbiguityScorebjet/All_Chain_Algorithm_HLT_HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20__InDetTrigMTTrkAmbiguityScorebjet_Time_perCall",     "AScore_time.pdf;p_{T} [GeV];Execution time [ms]",   "Ambiguity Scoring",
+  "All/Chain_Algorithm_HLT/HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20__InDetTrigMTTrkAmbiguitySolverbjet/All_Chain_Algorithm_HLT_HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20__InDetTrigMTTrkAmbiguitySolverbjet_Time_perCall",   "Asolve_time.pdf;p_{T} [GeV];Execution time [ms]",   "Ambiguity Solver",
+};
+
+mfiles  = { 
+  "run05/TrigCostRoot_Results.root",
+  "run06/TrigCostRoot_Results.root",
+  "run07/TrigCostRoot_Results.root",
+  "run08/TrigCostRoot_Results.root",
+  "run09/TrigCostRoot_Results.root",
+  "run095/TrigCostRoot_Results.root",
+  "run10/TrigCostRoot_Results.root",
+  "run15/TrigCostRoot_Results.root",
+  "run20/TrigCostRoot_Results.root"
+};
+
+
+
+
+eplots = { 
+  "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20_HLT_IDTrack_Bjet_FTF/phi_eff",    "eff_vs_pt_FTF.pdf;p_{T} [GeV];Efficiency",  "Fast tracking efficiency", 
+  "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20_HLT_IDTrack_Bjet_IDTrig/phi_eff", "eff_vs_pt_IDrig.pdf;p_{T} [GeV];Efficiency", "Precision tracking efficiency"  
+};
+
+
+efiles  = {
+       "run05/data-hists-offline.root",
+       "run06/data-hists-offline.root",
+       "run07/data-hists-offline.root",
+       "run08/data-hists-offline.root",
+       "run09/data-hists-offline.root",
+       "run095/data-hists-offline.root",
+       "run10/data-hists-offline.root",
+       "run15/data-hists-offline.root",
+       "run20/data-hists-offline.root"
+};
+

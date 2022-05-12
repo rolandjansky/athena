@@ -30,6 +30,9 @@ def TileCablingSvcCfg(flags):
 
     if not flags.Common.isOnline:
       runNumber = flags.Input.RunNumber[0]
+      if flags.Input.OverrideRunNumber > 0:
+          from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
+          runNumber = getMinMaxRunNumbers(flags)[0]
       if flags.GeoModel.Run is LHCPeriod.Run1:
           if runNumber > 219651:
               # Choose RUN2 cabling for old geometry tags starting from 26-MAR-2013
@@ -49,14 +52,20 @@ def TileCablingSvcCfg(flags):
           tileCablingSvc.CablingType = 6
           msg.info("Forcing RUN3 cabling for run %s with geometry %s", flags.GeoModel.Run.value, geometry)
     else: #Running online or simulating running online: either way, do not access run number
+      if flags.GeoModel.Run is LHCPeriod.Run1:
+          tileCablingSvc.CablingType = 4
+          msg.warning("Forcing RUN2 (2014-2017) cabling for unknown run number and geometry %s", geometry)
       if flags.GeoModel.Run is LHCPeriod.Run2:
           tileCablingSvc.CablingType = 5
           msg.info("Forcing RUN2a (2018) cabling for online run with geometry %s", geometry)
       elif flags.GeoModel.Run is LHCPeriod.Run3:
           tileCablingSvc.CablingType = 6
           msg.info("Forcing RUN3 cabling for online run with geometry %s", geometry)
+      elif flags.GeoModel.Run is LHCPeriod.Run4:
+          tileCablingSvc.CablingType = 6
+          msg.warning("Forcing RUN3 cabling beyond Run3 for online run with geometry %s", geometry)
       else:
-          log.error("CablingType only defined for Run 2 and Run 3 geometries")
+          msg.error("Tile Cabling version not set for %s", geometry)
 
     acc.addService(tileCablingSvc, primary = True)
 

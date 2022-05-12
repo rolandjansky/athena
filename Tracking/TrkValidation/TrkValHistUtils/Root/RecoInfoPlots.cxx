@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/RecoInfoPlots.h"
@@ -25,7 +25,7 @@ namespace Trk {
   }
 
   void
-  RecoInfoPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
+  RecoInfoPlots::fill(const xAOD::TrackParticle &trkprt, float weight) const {
     float chi2 = trkprt.chiSquared();
     int ndf = trkprt.numberDoF();
 

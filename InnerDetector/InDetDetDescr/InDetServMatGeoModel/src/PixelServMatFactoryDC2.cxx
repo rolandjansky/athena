@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -21,11 +21,11 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 #define SKIPCYLINDER 3
@@ -33,9 +33,9 @@
 
 PixelServMatFactoryDC2::PixelServMatFactoryDC2(StoreGateSvc *detStore,
 					       ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+  AthMessaging(Athena::getMessageSvc(), "PixelServmatFactoryDC2"),
   m_detStore(detStore),
-  m_rdbAccess(std::move(pRDBAccess)),
-  m_msg("PixelServmatFactoryDC2")
+  m_rdbAccess(std::move(pRDBAccess))
 {
   
 }
@@ -52,12 +52,12 @@ PixelServMatFactoryDC2::~PixelServMatFactoryDC2()
 void PixelServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
+  ATH_MSG_DEBUG("Building Pixel Service Material");
 
   // Get the material manager:  
   const StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
+  if (sc.isFailure()) ATH_MSG_FATAL("Could not locate Material Manager");
 
   // And the list of materials that we are using:
     std::string mat[6] = {

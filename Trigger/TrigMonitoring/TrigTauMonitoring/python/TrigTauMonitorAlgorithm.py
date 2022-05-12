@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def TrigTauMonConfig(inputFlags):
@@ -10,8 +10,8 @@ def TrigTauMonConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigTauAthMonitorCfg')
 
-    from TrigTauMonitoring.TrigTauMonitoringConfigMT import TrigTauMonAlgBuilder
-    monAlgCfg = TrigTauMonAlgBuilder( helper, '2018', detailedHistogram=True ) # Using 2018 e/g tunings
+    from TrigTauMonitoring.TrigTauMonitoringConfig import TrigTauMonAlgBuilder
+    monAlgCfg = TrigTauMonAlgBuilder( helper ) 
     # build monitor and book histograms
     monAlgCfg.configure()
 

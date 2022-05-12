@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // HECWheelConstruction.h
@@ -22,7 +22,7 @@ namespace LArGeo
   class HECWheelConstruction 
     {
     public:
-      HECWheelConstruction(bool fullGeo, std::string wheelType="front", bool threeBoards=false, bool posZSide=true);
+      HECWheelConstruction(bool fullGeo, const std::string& wheelType="front", bool threeBoards=false, bool posZSide=true);
       virtual ~HECWheelConstruction();
 
       // Get the envelope containing this detector.

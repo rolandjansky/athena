@@ -5,7 +5,7 @@ from sys import exit
 
 from WorkflowTestRunner.ScriptUtils import setup_logger, setup_parser, get_test_setup, get_standard_performance_checks, \
     run_tests, run_checks, run_summary
-from WorkflowTestRunner.StandardTests import QTest, SimulationTest
+from WorkflowTestRunner.StandardTests import PileUpTest, QTest, SimulationTest
 from WorkflowTestRunner.Test import WorkflowRun, WorkflowType
 
 
@@ -30,8 +30,8 @@ def main():
         log.error("Overlay not supported yet")
         exit(1)
     elif options.pileup:
-        log.error("Pile-up not supported yet")
-        exit(1)
+        if not options.workflow or options.workflow is WorkflowType.PileUpPresampling:
+            tests_to_run.append(PileUpTest("d1744", run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
     else:
         if not options.workflow or options.workflow is WorkflowType.MCReco:
             if "--CA" in options.extra_args:

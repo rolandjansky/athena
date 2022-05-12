@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyAthenaComps.py
 # @purpose: a set of Python classes for PyAthena
@@ -102,7 +102,7 @@ class Alg( CfgPyAlgorithm ):
     def condStore(self):
         if not self._pyath_condstore:
             import AthenaPython.PyAthena as PyAthena
-            self._pyath_condtstore = PyAthena.py_svc('StoreGateSvc/ConditionStore')
+            self._pyath_condstore = PyAthena.py_svc('StoreGateSvc/ConditionStore')
         return self._pyath_condstore
     
     def sysInitialize(self):

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getPrivateTool, getAlgorithm
@@ -50,7 +50,7 @@ def MuonSegmentTagAlg_LRT( name="MuonSegmentTagAlg_LRT", **kwargs ):
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
@@ -68,7 +68,7 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
 def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
@@ -89,7 +89,7 @@ def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")
@@ -182,6 +182,15 @@ def MuonCombinedAlg_LRT( name="MuonCombinedAlg_LRT",**kwargs ):
     kwargs.setdefault("MuidMETracksLocation", "MuidMETracks_LRT")    
     return CfgMgr.MuonCombinedAlg(name,**kwargs)
 
+def MuonCombinedAlg_EMEO(name="MuonCombinedAlg_EMEO", **kwargs):
+    kwargs.setdefault("MuonCombinedTool",getPublicTool("MuonCombinedTool_EMEO"))
+    kwargs.setdefault("CombinedTagMaps", [
+                      "muidcoTagMap_EMEO", "stacoTagMap_EMEO"])
+    kwargs.setdefault("MuidCombinedTracksLocation", "MuidCombinedTracks_EMEO")
+    kwargs.setdefault("MuidMETracksLocation", "MuidMETracks_EMEO")
+    kwargs.setdefault("MuonCandidateLocation", "MuonCandidates_EMEO")
+    return CfgMgr.MuonCombinedAlg(name,**kwargs)
+
 def recordMuonCreatorAlgObjs (kw):
     Alg = CfgMgr.MuonCreatorAlg
     def val (prop):
@@ -228,7 +237,7 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
 def MuonCreatorAlg_EMEO(name = "MuonCreatorAlg_EMEO", **kwargs):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool"))
     muon_maps = ["MuonCandidates_EMEO"]
-    combined_maps = []
+    combined_maps = [ "muidcoTagMap_EMEO", "stacoTagMap_EMEO"]
     kwargs.setdefault("TagMaps", combined_maps)
     kwargs.setdefault("MuonCandidateLocation", muon_maps)
     kwargs.setdefault("MuonContainerLocation", "EMEO_Muons")
@@ -277,6 +286,26 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     if not ConfigFlags.Muon.MuonTrigger:
         recordMuonCreatorAlgObjs (kwargs)
     return MuonCreatorAlg(name,**kwargs)
+
+def GetCombinedTrackParticles():
+    from RecExConfig.RecFlags  import rec
+    colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
+    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
+
+    if InDetFlags.doR3LargeD0():
+        colsTP+= ["CombinedMuonsLRTTrackParticles", "ExtraPolatedMuonsLRTTrackParticles"]
+        cols += ["CombinedMuonsLRTTracks", "ExtraPolatedMuonsLRTTracks"]
+        ### These two will be remocved in 50080
+        colsTP +=["MSOnlyExtraPolatedMuonsLRTTrackParticles"]
+        cols  += ["MSOnlyExtraPolatedMuonsLRTTrackParticlesTracks"]
+    if muonRecFlags.runCommissioningChain():
+        cols +=["EMEO_MSOnlyExtrapolatedTracks", "EMEO_ExtrapolatedMuonTracks", "EMEO_CombinedMuonTracks"]
+        colsTP += ["EMEO_MSOnlyExtrapolatedMuonTrackParticles", "EMEO_ExtrapolatedMuonTrackParticles", "EMEO_CombinedMuonTrackParticles"]
+    if rec.readESD or (muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta()):
+        colsTP += ["CombinedStauTrackParticles", "ExtrapolatedStauTrackParticles"]
+        cols += ["CombinedStauTracks", "ExtrapolatedStauTracks"]
+    return colsTP, cols
+
 
 
 class MuonCombinedReconstruction(ConfiguredMuonRec):
@@ -334,6 +363,7 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         if InDetFlags.doR3LargeD0(): topSequence += getAlgorithm("MuonCreatorAlg_LRT")
         # Commissioning chain
         if muonRecFlags.runCommissioningChain(): 
+            topSequence += getAlgorithm("MuonCombinedAlg_EMEO")
             topSequence += getAlgorithm("MuonCreatorAlg_EMEO") 
             topSequence.MuonCreatorAlg_EMEO.MuonCreatorTool.ParticleCaloExtensionTool.StartFromPerigee=True
 

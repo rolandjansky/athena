@@ -1,11 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloCellPrefetchIterator.h,v 1.2 2008-08-02 14:57:07 ssnyder Exp $
-
 /**
  * @file CaloEvent/CaloCellPrefetchIterator.h
  * @author scott snyder
@@ -159,12 +156,17 @@ private:
  */
 template <class T>
 class CaloCellPrefetchIterator
-  : public std::iterator<std::forward_iterator_tag, const CaloCell*>,
-    public CaloEvent_detail::paramholder<T, typename T::iterator_category>
+  : public CaloEvent_detail::paramholder<T, typename T::iterator_category>
 {
 public:
   /// The base iterator, on which we're templated.
   typedef T base_iterator;
+
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = const CaloCell*;
+  using difference_type = std::ptrdiff_t;
+  using pointer = value_type*;
+  using reference = value_type&;
 
   /// The base paramholder class.
   typedef CaloEvent_detail::paramholder<T, typename T::iterator_category>

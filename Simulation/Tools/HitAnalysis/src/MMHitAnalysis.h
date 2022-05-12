@@ -77,7 +77,7 @@ class MMHitAnalysis : public AthAlgorithm {
 
   std::vector<float>* m_hits_x;
 
-  TTree * m_tree;
+  TTree * m_tree = nullptr;
   std::string m_ntupleFileName;
 
   std::string m_path;

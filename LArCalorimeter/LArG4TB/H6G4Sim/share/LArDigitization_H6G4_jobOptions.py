@@ -44,9 +44,9 @@ else:
 # ............ declare the used top algo.
 # --------------------------------------------------------
 #theApp.Dlls += ["LArDigitization"]
-#theApp.TopAlg += [ "LArDigitMaker/digitmaker1"]
-from LArDigitization.LArDigitizationConf import LArDigitMaker
-digitmaker1 = LArDigitMaker("digitmaker1")
+#theApp.TopAlg += [ "LArHitEMapMaker/digitmaker1"]
+from LArDigitization.LArDigitizationConf import LArHitEMapMaker
+digitmaker1 = LArHitEMapMaker("digitmaker1")
 topSequence += digitmaker1
 #
 digitmaker1.LArPileUpTool = theLArPileUpTool

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -19,7 +19,6 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
 from AthenaCommon.SystemOfUnits import meter
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from IOVDbSvc.CondDB import conddb
@@ -189,9 +188,7 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
-
+  
     from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT, makeRegSelTool_RPC, makeRegSelTool_TGC
     kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
     kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())
@@ -199,7 +196,7 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
  
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     
     if reco_cscs:
         from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC

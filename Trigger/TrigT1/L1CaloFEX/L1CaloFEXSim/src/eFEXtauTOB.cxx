@@ -17,16 +17,15 @@ LVL1::eFEXtauTOB::eFEXtauTOB():
 	m_eta{99999},
 	m_phi{99999},
 	m_et{99999},
-	m_reta_num{99999},
-	m_reta_den{99999},
-	m_rhad_num{99999},
-	m_rhad_den{99999},
-	m_wstot_num{99999},
-	m_wstot_den{99999},
+	m_rcore_core{99999},
+	m_rcore_env{99999},
+	m_rhad_core{99999},
+	m_rhad_env{99999},
 	m_fpga_id{99999},
 	m_efex_id{99999},
 	m_seed_und{1},
-	m_seed{99999}
+	m_seed{99999},
+	m_tobword{0}
 {}
 
 unsigned int LVL1::eFEXtauTOB::setEta(unsigned int eta)
@@ -65,7 +64,7 @@ unsigned int LVL1::eFEXtauTOB::setFPGAID(unsigned int fpgaid)
 	return m_fpga_id; 
 }
 
-unsigned int LVL1::eFEXtauTOB::setEFEXID(unsigned int efexid)
+unsigned int LVL1::eFEXtauTOB::seteFEXID(unsigned int efexid)
 {
 	m_efex_id = efexid;
 	return m_efex_id; 
@@ -83,38 +82,31 @@ unsigned int LVL1::eFEXtauTOB::setSeed(unsigned int seed)
 	return m_seed;
 }
 
-unsigned int LVL1::eFEXtauTOB::setRetaNum(unsigned int retanum)
+unsigned int LVL1::eFEXtauTOB::setRcoreCore(unsigned int rcorecore)
 {
-	m_reta_num = retanum;
-	return m_reta_num;
+	m_rcore_core = rcorecore;
+	return m_rcore_core;
 }
 
-unsigned int LVL1::eFEXtauTOB::setRetaDen(unsigned int retaden)
+unsigned int LVL1::eFEXtauTOB::setRcoreEnv(unsigned int rcoreenv)
 {
-	m_reta_den = retaden;
-	return m_reta_den;
+	m_rcore_env = rcoreenv;
+	return m_rcore_env;
 }
 
-unsigned int LVL1::eFEXtauTOB::setRhadNum(unsigned int rhadnum)
+unsigned int LVL1::eFEXtauTOB::setRhadCore(unsigned int rhadcore)
 {
-	m_rhad_num = rhadnum;
-	return m_rhad_num;
+	m_rhad_core = rhadcore;
+	return m_rhad_core;
 }
 
-unsigned int LVL1::eFEXtauTOB::setRhadDen(unsigned int rhadden)
+unsigned int LVL1::eFEXtauTOB::setRhadEnv(unsigned int rhadenv)
 {
-	m_rhad_den = rhadden;
-	return m_rhad_den;
+	m_rhad_env = rhadenv;
+	return m_rhad_env;
 }
 
-unsigned int LVL1::eFEXtauTOB::setWstotNum(unsigned int wstot_num)
-{
-	m_wstot_num = wstot_num;
-	return wstot_num;
-}
-
-unsigned int LVL1::eFEXtauTOB::setWstotDen(unsigned int wstot_den)
-{
-	m_wstot_den = wstot_den;
-	return wstot_den;
+uint32_t LVL1::eFEXtauTOB::setTobword(uint32_t tobword) {
+  m_tobword = tobword;
+  return m_tobword;
 }

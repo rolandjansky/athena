@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationCalibration_h
@@ -21,7 +21,7 @@ class PixelChargeInterpolationCalibration{
 
 public :
 	// Modified stuff
-	PixelChargeInterpolationCalibration(std::string tag,
+	PixelChargeInterpolationCalibration(const std::string& tag,
 			PixelChargeInterpolationParameters &parametersModel);
 	virtual ~PixelChargeInterpolationCalibration();
 	void Fill(int DetType, double GeVTrkPt,
@@ -32,7 +32,7 @@ public :
 	void Read(TDirectory *readdir = 0);
 	void Write(TDirectory *writedir = 0);
 	
-	int Analyze( std::string output, std::vector<std::string> &reference_names);
+	int Analyze( const std::string& output, std::vector<std::string> &reference_names);
 
 private:
 

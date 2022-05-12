@@ -899,7 +899,7 @@ public:
       m_hi = xinfo.hi();
     }
     
-    if ( xinfo.autoset() ) {
+    if ( xinfo.autoset() && size() > 0 ) {
       std::vector<double> limits = findxrange( xinfo.symmetric() );
       if ( xinfo.rangeset() ) { 
 	if ( limits[0]<m_lo ) m_lo = limits[0];
@@ -909,6 +909,12 @@ public:
 	m_lo = limits[0];
 	m_hi = limits[1];
       }
+    }
+    else if (size() == 0)
+    {
+        std::cout<<"Warning in computils.h::sortx() size=0.  Setting m_lo/m_hi to 0/1.  You will probably have empty figures."<<std::endl;
+        m_lo = 0;
+        m_hi = 1;
     }
 
     if ( xinfo.rangeset() || xinfo.autoset() ) { 

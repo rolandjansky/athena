@@ -21,6 +21,21 @@ if digitizationFlags.RunAndLumiOverrideList.get_Value():
     #fix event id
     from AthenaCommon.CfgGetter import getService
     getService("EvtIdModifierSvc")
+    from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+        if not hasattr(svcMgr, 'AthenaHiveEventLoopMgr'):
+            from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+            svcMgr += AthenaHiveEventLoopMgr()
+        svcMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"  
+    elif DetFlags.pileup.any_on():
+        # already configured in PileUpEventLoopMgr
+        pass
+    else:
+        if not hasattr(svcMgr, 'AthenaEventLoopMgr'):
+            from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+            svcMgr += AthenaEventLoopMgr()
+        svcMgr.AthenaEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"
 
     #fix iov metadata
     if not hasattr(svcMgr.ToolSvc, 'IOVDbMetaDataTool'): svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()

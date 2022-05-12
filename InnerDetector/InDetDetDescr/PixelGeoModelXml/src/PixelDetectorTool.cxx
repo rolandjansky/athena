@@ -4,13 +4,14 @@
 
 #include "PixelGeoModelXml/PixelDetectorTool.h"
 #include "PixelGeoModelXml/PixelGmxInterface.h"
+
 #include <PixelReadoutGeometry/PixelDetectorManager.h>
 #include <PixelReadoutGeometry/PixelModuleDesign.h>
 
 #include <DetDescrConditions/AlignableTransformContainer.h>
+#include <GeoModelKernel/GeoPhysVol.h>
 #include <GeoModelUtilities/DecodeVersionKey.h>
 #include <GeoModelUtilities/GeoModelExperiment.h>
-#include <GeoModelKernel/GeoPhysVol.h>
 #include <SGTools/DataProxy.h>
 #include <StoreGate/StoreGateSvc.h>
 
@@ -28,10 +29,8 @@ PixelDetectorTool::PixelDetectorTool(const std::string &type,
 
 StatusCode PixelDetectorTool::create()
 {
-  //retrieve the common stuff
+  // retrieve the common stuff
   ATH_CHECK(createBaseTool());
-  // Get the detector configuration.
-  ATH_CHECK(m_geoModelSvc.retrieve());
 
   GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
@@ -41,40 +40,46 @@ StatusCode PixelDetectorTool::create()
   m_commonItems = std::make_unique<InDetDD::SiCommonItems>(idHelper);
 
   //
-  // Get the version
+  // Check the availability
   //
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
-  if (versionKey.tag() == "AUTO"){
-    ATH_MSG_ERROR("Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00.");
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO((versionKey.custom() ? "Building custom " : "Building ")
-               << "ITk Pixel with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() );
-  //
-  // Get the Database Access Service and from there the pixel version tag
-  //
-  std::string pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-  ATH_MSG_INFO("ITk Pixel Version: " << pixelVersionTag);
-  //
-  // Check if pixel version tag is empty. If so, then the pixel cannot be built.
-  // This may or may not be intentional. We just issue an INFO message.
-  //
-  if (pixelVersionTag.empty()) {
-    ATH_MSG_INFO("No ITk Pixel Version. ITk Pixel will not be built.");
-    return StatusCode::SUCCESS;
+  std::string node{"Pixel"};
+  std::string table{"PIXXDD"};
+  if (!isAvailable(node, table)) {
+    ATH_MSG_INFO("Trying new " << m_detectorName.value() << " database location.");
+    node = "InnerDetector";
+    table = "PixelXDD";
+    if (!isAvailable(node, table)) {
+      ATH_MSG_ERROR("No ITk Pixel geometry found. ITk Pixel can not be built.");
+      return StatusCode::FAILURE;
+    }
   }
   //
-  // Create the PixelDetectorFactory
+  // Create the detector manager
   //
   // The * converts a ConstPVLink to a ref to a GeoVPhysVol
   // The & takes the address of the GeoVPhysVol
   GeoPhysVol *world = &*theExpt->getPhysVol();
-  m_detManager  = createManager(world);
+  auto *manager = new InDetDD::PixelDetectorManager(&*detStore(), m_detectorName);
+  manager->addFolder(m_alignmentFolderName);
 
-  if (!m_detManager) {
-    ATH_MSG_ERROR("PixelDetectorManager not found");
+  InDetDD::ITk::PixelGmxInterface gmxInterface(manager, m_commonItems.get(), &m_moduleTree);
+
+  // Load the geometry, create the volume, 
+  // and then find the volume index within the world to allow it to be added
+  // last two arguments are the location in the DB to look for the clob
+  // (may want to make those configurables)
+  int childIndex = createTopVolume(world, gmxInterface, node, table);
+  if (childIndex != -1) { // -1 represents an error state from the above method
+    manager->addTreeTop(&*world->getChildVol(childIndex));
+    doNumerology(manager);
+    manager->initNeighbours();
+  } else {
+    ATH_MSG_FATAL("Could not find the Top Volume!!!");
     return StatusCode::FAILURE;
   }
+
+  // set the manager
+  m_detManager = manager;
 
   ATH_CHECK(detStore()->record(m_detManager, m_detManager->getName()));
   theExpt->addManager(m_detManager);
@@ -142,30 +147,6 @@ StatusCode PixelDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys))
   }
 }
 
-InDetDD::PixelDetectorManager * PixelDetectorTool::createManager(GeoPhysVol * theWorld){
-
-  InDetDD::PixelDetectorManager * theManager = new InDetDD::PixelDetectorManager(&*detStore(), m_detectorName);
-  //in the factory we would set the version here and write it to the mgr... is it really necessary???
-  //Leave it out for now until we find we need it...
-
-  theManager->addFolder(m_alignmentFolderName);
-
-  InDetDD::ITk::PixelGmxInterface gmxInterface(theManager, m_commonItems.get(), &m_moduleTree);
-
-  //Load the geometry, create the volume, 
-  //and then find the volume index within the world to allow it to be added
-  //last two arguments are the location in the DB to look for the clob
-  //(may want to make those configurables)
-  int childIndex = createTopVolume(theWorld,gmxInterface, "Pixel", "PIXXDD");
-  if(childIndex != -1){ //-1 represents an error state from the above method
-   theManager->addTreeTop(&*theWorld->getChildVol(childIndex));
-   doNumerology(theManager);
-   theManager->initNeighbours();
-  }
-  else ATH_MSG_FATAL("Could not find the Top Volume!!!");
- 
-  return theManager;
-}
 
 void PixelDetectorTool::doNumerology(InDetDD::PixelDetectorManager * manager)
 {

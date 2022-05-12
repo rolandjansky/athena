@@ -1,10 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // DistanceToIn stuff for LArWheelSolid
 #include <cassert>
+#ifndef PORTABLE_LAR_SHAPE
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#else
+#endif
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"

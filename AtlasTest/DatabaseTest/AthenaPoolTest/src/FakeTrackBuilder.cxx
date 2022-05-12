@@ -82,7 +82,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
     const InDetDD::SiDetectorElement * detEl = elements->getDetectorElement( idHash);
 
     // MaterialEffects
-    const Trk::EnergyLoss       *eloss = new Trk::EnergyLoss((0.5),0.19);
+    auto eloss = std::make_unique<Trk::EnergyLoss>((0.5),0.19);
     auto scatt = Trk::ScatteringAngles(.1,.2,.3,.4);
     std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> mefPattern(0);
     mefPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
@@ -94,7 +94,7 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
     const PlaneSurface& planeDetElSf = dynamic_cast<const PlaneSurface&>(detEl->surface());
     auto trackParameter5 = planeDetElSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt);
 
-    auto mefBase = std::make_unique<Trk::MaterialEffectsOnTrack>(70.7,std::move(scatt),eloss,planeDetElSf, mefPattern);
+    auto mefBase = std::make_unique<Trk::MaterialEffectsOnTrack>(70.7,scatt,std::move(eloss),planeDetElSf, mefPattern);
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
     typePattern.set(Trk::TrackStateOnSurface::Scatterer);
     trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter5), nullptr, std::move(mefBase),  typePattern) );

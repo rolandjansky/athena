@@ -11,7 +11,7 @@ theApp.EvtMax = 10
 #--------------------------------------------------------------
 # Algorithms Private Options
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 ServiceMgr.AtRndmGenSvc.Seeds = ["PYTHIA 4789899 989240512",
 "PYTHIA_INIT 820021 2347532"]

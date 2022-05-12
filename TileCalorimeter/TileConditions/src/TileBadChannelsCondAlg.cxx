@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -34,18 +34,10 @@ TileBadChannelsCondAlg::~TileBadChannelsCondAlg() {
 
 StatusCode TileBadChannelsCondAlg::initialize() {
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // Tile cabling service
   ATH_CHECK( m_cablingSvc.retrieve() );
 
   ATH_CHECK( m_badChannelsKey.initialize() );
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_badChannelsKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_badChannelsKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
     //=== initialize bit pattern decoders for all possible versions
   m_tileBchDecoder.resize(TileBchDecoder::MaxVersion);

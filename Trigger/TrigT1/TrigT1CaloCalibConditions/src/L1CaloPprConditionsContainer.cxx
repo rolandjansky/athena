@@ -139,27 +139,27 @@ DataObject* L1CaloPprConditionsContainer::makePersistent() const {
 	return 0;
 }
 
-void L1CaloPprConditionsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
+void L1CaloPprConditionsContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap) {
 
 	this->clear();
 
 	std::string chanCalibFolderKey(this->coolFolderKey(L1CaloPprConditionsContainer::ePprChanCalib));
-	std::map<std::string, CondAttrListCollection*>::const_iterator it_pprChanCalibAttrListCollection = condAttrListCollectionMap.find(chanCalibFolderKey);
+	std::map<std::string, const CondAttrListCollection*>::const_iterator it_pprChanCalibAttrListCollection = condAttrListCollectionMap.find(chanCalibFolderKey);
 	if(it_pprChanCalibAttrListCollection==condAttrListCollectionMap.end()) {
 		std::cout<<"L1CaloPprConditionsContainer : Could not find requested CondAttrListCollection "<< chanCalibFolderKey << std::endl;
 		return;
 	}
 
-	CondAttrListCollection* chanCalibAttrListCollection = it_pprChanCalibAttrListCollection->second;
+	const CondAttrListCollection* chanCalibAttrListCollection = it_pprChanCalibAttrListCollection->second;
 
 	std::string chanDefaultsFolderKey(this->coolFolderKey(L1CaloPprConditionsContainer::ePprChanDefaults));
-	std::map<std::string, CondAttrListCollection*>::const_iterator it_pprChanDefaultsAttrListCollection = condAttrListCollectionMap.find(chanDefaultsFolderKey);
+	std::map<std::string, const CondAttrListCollection*>::const_iterator it_pprChanDefaultsAttrListCollection = condAttrListCollectionMap.find(chanDefaultsFolderKey);
 	if(it_pprChanDefaultsAttrListCollection==condAttrListCollectionMap.end()) {
 		std::cout<<"L1CaloPprConditionsContainer : Could not find requested CondAttrListCollection "<< chanDefaultsFolderKey << std::endl;
 		return;
 	}
 
-	CondAttrListCollection* chanDefaultsAttrListCollection = it_pprChanDefaultsAttrListCollection->second;
+	const CondAttrListCollection* chanDefaultsAttrListCollection = it_pprChanDefaultsAttrListCollection->second;
 	
 	// There should be only one channel (channel#1) in the Default folder
 	// we just retrieve that one, waiting for a better method to retrieve that information.

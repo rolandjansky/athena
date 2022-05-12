@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator.h"
+#include "MdtDriftCircleOnTrackCreator.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibData/MdtRtRelation.h"
 #include "MdtCalibData/MdtFullCalibData.h"

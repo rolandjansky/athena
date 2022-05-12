@@ -8,7 +8,7 @@
  * @date October, 2021
  */
 
-#include "HGTD_Digitization/HGTD_TimingResolution.h"
+#include "HGTD_TimingResolution.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "TMath.h"
@@ -75,18 +75,18 @@ StatusCode HGTD_TimingResolution::initialize() {
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(setIntegratedLuminosity(0.));
+  ATH_CHECK(propagateDamage());
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode HGTD_TimingResolution::setIntegratedLuminosity(float integratedLumi) {
-  m_integratedLumi = integratedLumi;
+// Calculate dose, resolution, and gain based on the configured integrated luminosity
+StatusCode HGTD_TimingResolution::propagateDamage() {
 
   m_dose.clear();
   m_resolution.clear();
   m_gain.clear();
-  computeDose(m_integratedLumi);
+  computeDose();
   radToResolution();
   radToGain();
 
@@ -181,15 +181,15 @@ float HGTD_TimingResolution::translateEta2R(float eta) const {
   return std::fabs(std::tan(std::atan(std::exp(-eta)) * 2.) * m_z);
 }
 
-void HGTD_TimingResolution::computeDose(float lumi) {
+void HGTD_TimingResolution::computeDose() {
   for (unsigned int i = 0; i < m_doseInner1000.size(); ++i) {
-    m_dose.push_back(remainder_1(lumi, 1000) / 1000 * m_doseInner1000[i]);
+    m_dose.push_back(remainder_1(m_integratedLumi, 1000) / 1000 * m_doseInner1000[i]);
   }
   for (unsigned int i = 0; i < m_doseMiddle2000.size(); ++i) {
-    m_dose.push_back(remainder_1(lumi, 2000) / 2000 * m_doseMiddle2000[i]);
+    m_dose.push_back(remainder_1(m_integratedLumi, 2000) / 2000 * m_doseMiddle2000[i]);
   }
   for (unsigned int i = 0; i < m_doseOuter4000.size(); ++i) {
-    m_dose.push_back(lumi / 4000 * m_doseOuter4000[i]);
+    m_dose.push_back(m_integratedLumi / 4000 * m_doseOuter4000[i]);
   }
 }
 

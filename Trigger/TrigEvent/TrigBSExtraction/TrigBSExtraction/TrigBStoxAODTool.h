@@ -118,8 +118,8 @@ public:
   ToolHandle<xAODMaker::ITrigVertexCountsCnvTool> m_trigVtxCtsTool;
 
   // xAODTrackingCnv
-  ToolHandle<xAODMaker::ITrackCollectionCnvTool> m_trackCollectionTool;
-  ToolHandle<xAODMaker::IRecTrackParticleContainerCnvTool> m_recTrackParticleContTool;
+  ToolHandle<xAODMaker::ITrackCollectionCnvTool> m_trackCollectionTool{this, "TrackCollectionCnvTool","xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool","Cnv of tracks"};
+  ToolHandle<xAODMaker::IRecTrackParticleContainerCnvTool> m_recTrackParticleContTool{this, "TrackParticleContainerCnvTool","xAODMaker::RecTrackParticleContainerCnvTool/RecTrackParticleContainerCnvTool","Cnv of Rec::TrackParticles"};
 
   // xAODEgammaCnv
   ToolHandle<xAODMaker::IElectronCnvTool> m_electronTool;

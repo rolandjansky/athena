@@ -21,6 +21,8 @@
 #include "DerivationFrameworkInDet/EventInfoPixelModuleStatusMonitoring.h"
 #include "DerivationFrameworkInDet/TrackParticleMerger.h"
 #include "DerivationFrameworkInDet/MergerTester.h"
+#include "DerivationFrameworkInDet/PseudoTrackSelector.h"
+#include "DerivationFrameworkInDet/TauJets_LepRMParticleThinning.h"
 
 using namespace DerivationFramework;
 
@@ -47,5 +49,8 @@ DECLARE_COMPONENT( UsedInVertexFitTrackDecorator )
 DECLARE_COMPONENT( EventInfoPixelModuleStatusMonitoring )
 DECLARE_COMPONENT( TrackParticleMerger )
 DECLARE_COMPONENT( MergerTester )
+DECLARE_COMPONENT( PseudoTrackSelector )
+DECLARE_COMPONENT( TauJets_LepRMParticleThinning )
+
 
 

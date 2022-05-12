@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "../ALFA_BeamTransport/ALFA_BeamTrack.h"
-//#include "../HepMCAnalysis_i/FileWrite.h"
+#include "ALFA_BeamTrack.h"
 
 //Athena Stuff
 #include "GaudiKernel/MsgStream.h"
@@ -29,6 +28,7 @@
 
 
 #include <iostream>
+#include <utility>
 
 //constructor
 ALFA_BeamTrack::ALFA_BeamTrack()
@@ -144,7 +144,7 @@ int ALFA_BeamTrack::initialize(const FPConfig &ConfigValues){
 //calculates Position and Momentum at RP
 int ALFA_BeamTrack::CalculatePosRP(FPTracker::Particle particle){
   
-	FPTracker::Particle Particle=particle;
+	FPTracker::Particle Particle=std::move(particle);
 	FPTracker::Point lost_markerMom(-99,-99,-99); 
 	
 

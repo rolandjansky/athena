@@ -21,9 +21,6 @@ CopyEventStreamInfo::CopyEventStreamInfo(const std::string& type,
 		m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name) {
    // Declare IMetaDataTool interface
    declareInterface<IMetaDataTool>(this);
-
-   // Declare the properties
-   declareProperty("Key", m_key = std::string());
 }
 //___________________________________________________________________________
 CopyEventStreamInfo::~CopyEventStreamInfo() {
@@ -58,61 +55,71 @@ StatusCode CopyEventStreamInfo::finalize() {
 
 StatusCode CopyEventStreamInfo::beginInputFile(const SG::SourceID&)
 {
-   std::vector<std::string> keys;
-   if (m_key.value().empty()) {
+   std::vector<std::string> keys = m_keys;
+   if (keys.empty()) {
       m_inputMetaDataStore->keys<EventStreamInfo>(keys);
    } else {
-      keys.push_back(m_key);
+     // remove keys not in the InputMetaDataStore
+     keys.erase(
+         std::remove_if(
+             keys.begin(), keys.end(),
+             [this](std::string& key) {
+               return !m_inputMetaDataStore->contains<EventStreamInfo>(key);
+             }),
+         keys.end());
    }
+
+   // If the input file doesn't have any event format metadata,
+   // then finish right away:
+   if (keys.empty()) return StatusCode::SUCCESS;
+
    for (const auto &key : keys) {
       // Ignore versioned container
       if (key.substr(0, 1) == ";" && key.substr(3, 1) == ";") {
          ATH_MSG_VERBOSE( "Ignore versioned container: " << key );
          continue;
       }
-      if (m_inputMetaDataStore->contains<EventStreamInfo>(key)) {
-         std::list<SG::ObjectWithVersion<EventStreamInfo> > allVersions;
-         if (!m_inputMetaDataStore->retrieveAllVersions(allVersions, key).isSuccess()) {
-            ATH_MSG_ERROR("Could not retrieve all versions for EventStreamInfo");
-            return StatusCode::FAILURE;
-         }
-         EventStreamInfo* evtStrInfo_out = 0;
-         for (SG::ObjectWithVersion<EventStreamInfo>& obj : allVersions) {
-            const EventStreamInfo* evtStrInfo_in = obj.dataObject.cptr();
-            evtStrInfo_out = m_metaDataSvc->tryRetrieve<EventStreamInfo>(key);
-            if( !evtStrInfo_out ) {
-               auto esinfo_up = std::make_unique<EventStreamInfo>(*evtStrInfo_in);
-               if( m_metaDataSvc->record( std::move(esinfo_up), key ).isFailure()) {
-                  ATH_MSG_ERROR("Could not record DataObject: " << key);
-                  return StatusCode::FAILURE;
-               }
-            } else {
-               evtStrInfo_out->addEvent(evtStrInfo_in->getNumberOfEvents());
-               for (auto elem = evtStrInfo_in->getRunNumbers().begin(),
-                         lastElem = evtStrInfo_in->getRunNumbers().end(); 
-                         elem != lastElem; elem++) {
-                  evtStrInfo_out->insertRunNumber(*elem);
-               }
-               for (auto elem = evtStrInfo_in->getLumiBlockNumbers().begin(),
-                         lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); 
-                         elem != lastElem; elem++) {
-                  evtStrInfo_out->insertLumiBlockNumber(*elem);
-               }
-               for (auto elem = evtStrInfo_in->getProcessingTags().begin(),
-                         lastElem = evtStrInfo_in->getProcessingTags().end(); 
-                         elem != lastElem; elem++) {
-                  evtStrInfo_out->insertProcessingTag(*elem);
-               }
-               for (auto elem = evtStrInfo_in->getItemList().begin(),
-                         lastElem = evtStrInfo_in->getItemList().end(); 
-                         elem != lastElem; elem++) {
-                  evtStrInfo_out->insertItemList((*elem).first, (*elem).second);
-               }
-               for (auto elem = evtStrInfo_in->getEventTypes().begin(),
-                         lastElem = evtStrInfo_in->getEventTypes().end(); 
-                         elem != lastElem; elem++) {
-                  evtStrInfo_out->insertEventType(*elem);
-               }
+      std::list<SG::ObjectWithVersion<EventStreamInfo> > allVersions;
+      if (!m_inputMetaDataStore->retrieveAllVersions(allVersions, key).isSuccess()) {
+         ATH_MSG_ERROR("Could not retrieve all versions for EventStreamInfo");
+         return StatusCode::FAILURE;
+      }
+      EventStreamInfo* evtStrInfo_out = 0;
+      for (SG::ObjectWithVersion<EventStreamInfo>& obj : allVersions) {
+         const EventStreamInfo* evtStrInfo_in = obj.dataObject.cptr();
+         evtStrInfo_out = m_metaDataSvc->tryRetrieve<EventStreamInfo>(key);
+         if( !evtStrInfo_out ) {
+            auto esinfo_up = std::make_unique<EventStreamInfo>(*evtStrInfo_in);
+            if( m_metaDataSvc->record( std::move(esinfo_up), key ).isFailure()) {
+               ATH_MSG_ERROR("Could not record DataObject: " << key);
+               return StatusCode::FAILURE;
+            }
+         } else {
+            evtStrInfo_out->addEvent(evtStrInfo_in->getNumberOfEvents());
+            for (auto elem = evtStrInfo_in->getRunNumbers().begin(),
+                        lastElem = evtStrInfo_in->getRunNumbers().end(); 
+                        elem != lastElem; elem++) {
+               evtStrInfo_out->insertRunNumber(*elem);
+            }
+            for (auto elem = evtStrInfo_in->getLumiBlockNumbers().begin(),
+                        lastElem = evtStrInfo_in->getLumiBlockNumbers().end(); 
+                        elem != lastElem; elem++) {
+               evtStrInfo_out->insertLumiBlockNumber(*elem);
+            }
+            for (auto elem = evtStrInfo_in->getProcessingTags().begin(),
+                        lastElem = evtStrInfo_in->getProcessingTags().end(); 
+                        elem != lastElem; elem++) {
+               evtStrInfo_out->insertProcessingTag(*elem);
+            }
+            for (auto elem = evtStrInfo_in->getItemList().begin(),
+                        lastElem = evtStrInfo_in->getItemList().end(); 
+                        elem != lastElem; elem++) {
+               evtStrInfo_out->insertItemList((*elem).first, (*elem).second);
+            }
+            for (auto elem = evtStrInfo_in->getEventTypes().begin(),
+                        lastElem = evtStrInfo_in->getEventTypes().end(); 
+                        elem != lastElem; elem++) {
+               evtStrInfo_out->insertEventType(*elem);
             }
          }
       }

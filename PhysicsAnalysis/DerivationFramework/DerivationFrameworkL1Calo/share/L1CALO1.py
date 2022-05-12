@@ -62,8 +62,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFL1CALO1_KERN",
                                                                        AugmentationTools = augmentationTools,
                                                                        SkimmingTools = skimmingTools,
-                                                                       ThinningTools = thinningTools,
-                                                                       OutputLevel = DEBUG)
+                                                                       ThinningTools = thinningTools)
 
 topSequence += DerivationFrameworkJob
 print(DerivationFrameworkJob)
@@ -88,7 +87,7 @@ L1CALO1Stream.AddItem("xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux.")
 
 #Physics Objects
 L1CALO1Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-L1CALO1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+L1CALO1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet")
 L1CALO1Stream.AddItem("xAOD::MuonContainer#Muons")
 L1CALO1Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 L1CALO1Stream.AddItem("xAOD::ElectronContainer#Electrons")

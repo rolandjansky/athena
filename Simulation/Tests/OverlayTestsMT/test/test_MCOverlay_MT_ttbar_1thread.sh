@@ -2,6 +2,7 @@
 
 # art-description: MC+MC Overlay with MT support, running with 1 thread
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-include: master/Athena
 

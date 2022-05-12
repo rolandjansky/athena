@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -89,17 +89,21 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   tauIntermediateAxisEM.SetPtEtaPhiM(0,0,0,0);
  
   TLorentzVector tauAxis = tauRecTools::getTauAxis(xTau, m_doVertexCorrection);
-  const xAOD::Vertex* vertex = tauRecTools::getTauVertex(xTau, inTrigger());
+
+  // in the trigger, we must ignore the tau vertex, otherwise ptFinalCalib computed at calo-only step and precision step will differ
+  const xAOD::Vertex* vertex = nullptr;
+  if (m_doVertexCorrection) vertex = xTau.vertex();
 
   // Loop through clusters and jet constituents
   std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = xTau.vertexedClusters();
   for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
-    TLorentzVector clusterP4 = vertexedCluster.p4();
+    const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+    
+    TLorentzVector clusterP4 = m_doVertexCorrection? vertexedCluster.p4() : cluster.p4();
     if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
 
     // FIXME: should we use calE for EMTopo clusters ?
-    // what's the energy scale when calculating thee cluster momentum
-    const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+    // what's the energy scale when calculating the cluster momentum
     clE = cluster.calE();
     Etot += clE;
     if(clE>lead_cluster_frac) lead_cluster_frac = clE;
@@ -176,17 +180,20 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   if(inTrigger()) {
     return StatusCode::SUCCESS;
   }
-
-  // retrieve Ghost Muon Segment Count (for punch-through studies)
-  if (! xTau.jetLink().isValid()) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
+  // no seed jets in AOD
+  if (!inAOD()){
+    // retrieve Ghost Muon Segment Count (for punch-through studies)
+    const xAOD::Jet* jetSeed = xTau.jet();
+    if (jetSeed == nullptr) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return StatusCode::FAILURE;
+    }
+    
+    int nMuSeg=0;
+    if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
+    xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
   }
-  const xAOD::Jet* jetSeed = xTau.jet(); 
-  
-  int nMuSeg=0;
-  if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
-  xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
+
   
   // summing corrected Pi0 PFO energies
   TLorentzVector Pi0_totalP4;

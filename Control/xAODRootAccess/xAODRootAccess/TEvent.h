@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
@@ -407,9 +407,9 @@ namespace xAOD {
       /// Size of a possible TTreeCache (30 MB)
       static const ::Int_t CACHE_SIZE;
       /// Name of the event tree
-      static const char* EVENT_TREE_NAME;
+      static const char* const EVENT_TREE_NAME;
       /// Name of the metadata tree
-      static const char* METADATA_TREE_NAME;
+      static const char* const METADATA_TREE_NAME;
 
       /// The auxiliary access mode
       EAuxMode m_auxMode;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,6 +13,9 @@
  **/
 
 #include "SCT_MonitorConditionsTool.h"
+#include "SCT_DetectorElementStatus.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
 
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
@@ -51,7 +54,7 @@ SCT_MonitorConditionsTool::initialize() {
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKey.initialize());
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -89,8 +92,9 @@ SCT_MonitorConditionsTool::isGood(const Identifier& elementId, const EventContex
       return not (condData->nBadStripsForWafer(waferHash)>=m_nhits_noisywafer);
     case InDetConditions::SCT_CHIP:
       return not (condData->nBadStripsForChip(waferHash, strip)>=m_nhits_noisychip);
-    case InDetConditions::SCT_STRIP:
+    case InDetConditions::SCT_STRIP: {
       return not condData->isBadStrip(waferHash, strip);
+    }
     default:
       return true;
     }//end of switch statement
@@ -123,6 +127,80 @@ SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   return isGood(hashId, ctx);
+}
+
+
+void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const  {
+  SG::ReadCondHandle<SCT_MonitorCondData> condDataHandle{m_condKey, ctx};
+  if (not condDataHandle.isValid()) {
+     ATH_MSG_ERROR("Invalid cond data handle " << m_condKey.key() );
+     return;
+  }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const SCT_MonitorCondData* condData{condDataHandle.cptr() };
+  if (condData) {
+     std::vector<bool> &status = element_status.getElementStatus();
+     if (status.empty()) {
+        status.resize(m_pHelper->wafer_hash_max(),true);
+     }
+     for (unsigned int hash=0; hash<status.size(); ++hash) {
+        status.at(hash) = status.at(hash) && not (condData->nBadStripsForWafer(hash)>=m_nhits_noisywafer);
+     }
+
+     std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();
+     if (chip_status.empty()) {
+        constexpr InDet::ChipFlags_t all_chips_set = static_cast<InDet::ChipFlags_t>((1ul<<(SCT::N_CHIPS_PER_SIDE*SCT::N_SIDES)) - 1ul);
+        static_assert( (1ul<<(SCT::N_CHIPS_PER_SIDE*SCT::N_SIDES)) - 1ul <= std::numeric_limits<InDet::ChipFlags_t>::max());
+        chip_status.resize(m_pHelper->wafer_hash_max(),all_chips_set);
+     }
+
+     std::vector<std::vector<unsigned short> >  &bad_strips = element_status.getBadCells();
+     if (bad_strips.empty()) {
+        bad_strips.resize(status.size());
+     }
+
+     std::vector<std::pair<unsigned int, unsigned int> > tmp_bad_strips;
+     for (unsigned int module_hash=0; module_hash<status.size(); ++module_hash) {
+        IdentifierHash moduleHash(module_hash);
+
+        std::vector<unsigned short> &bad_module_strips_out = bad_strips.at(module_hash);
+        std::array<unsigned int, SCT::N_CHIPS_PER_SIDE> bad_strip_counts{};
+
+        const std::array<std::bitset<SCT_ConditionsData::STRIPS_PER_CHIP>,
+                         SCT_ConditionsData::CHIPS_PER_SIDE>
+           &bad_module_strips_in = condData->badStripsForModule(moduleHash);
+
+        unsigned int strip_i=0;
+        tmp_bad_strips.clear();
+        tmp_bad_strips.reserve(bad_module_strips_in.size()*SCT_ConditionsData::STRIPS_PER_CHIP);
+
+        for (unsigned int chip_i=0; chip_i < bad_module_strips_in.size(); ++chip_i) {
+           unsigned int geoemtrical_chip_id = SCT::getGeometricalChipID(strip_i);
+
+           for (unsigned int strip_per_chip_i=0; strip_per_chip_i<bad_module_strips_in[chip_i].size(); ++strip_per_chip_i) {
+              if (bad_module_strips_in[chip_i].test(strip_per_chip_i)) {
+                 tmp_bad_strips.push_back(std::make_pair(geoemtrical_chip_id,strip_i));
+                 ++bad_strip_counts.at(geoemtrical_chip_id);
+              }
+              ++strip_i;
+           }
+        }
+
+        InDet::ChipFlags_t bad_chips=0;
+        for (unsigned int the_chip=0; the_chip< bad_strip_counts.size(); ++the_chip) {
+           bad_chips |= static_cast<InDet::ChipFlags_t >((bad_strip_counts[the_chip]>=m_nhits_noisychip) << the_chip);
+        }
+        chip_status[module_hash] &= ~bad_chips;
+
+        for (const std::pair<unsigned int, unsigned int> &chip_and_strip : tmp_bad_strips) {
+           unsigned int strip_i=chip_and_strip.second;
+           std::vector<unsigned short>::const_iterator iter = std::lower_bound(bad_module_strips_out.begin(),bad_module_strips_out.end(),strip_i);
+           if (iter == bad_module_strips_out.end() || *iter != strip_i) {
+              bad_module_strips_out.insert( iter, strip_i);
+           }
+        }
+     }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

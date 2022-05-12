@@ -16,7 +16,8 @@ def grep_errors(filename):
     error_pattern = '^.*ERROR.*$'
     ignore_patterns = [
         'Missing reference',
-        'echo "ERROR'
+        'echo "ERROR',
+        'echo ERROR',
     ]
     def filter_fn(msg):
         for p in ignore_patterns:

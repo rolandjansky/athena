@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrigAFPDijetComboHypoTool.h"
@@ -70,9 +70,7 @@ StatusCode TrigAFPDijetComboHypoTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-struct DescendingEt: std::binary_function<const xAOD::Jet*,
-                                          const xAOD::Jet*,
-                                          bool> {
+struct DescendingEt {
   bool operator () (const xAOD::Jet* l, const xAOD::Jet* r)  const {
     return l->p4().Et() > r->p4().Et();
   }

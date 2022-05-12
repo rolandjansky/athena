@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SRC_EVENTINFOWRITER_H
-# define SRC_EVENTINFOWRITER_H
+#ifndef ATHENAPOOLTEST_EVENTINFOWRITER_H
+#define ATHENAPOOLTEST_EVENTINFOWRITER_H
 
 /**
  * @file EventInfoWriter.h
@@ -26,6 +26,8 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
@@ -41,13 +43,13 @@ public:
     EventInfoWriter(const std::string &name,ISvcLocator *pSvcLocator);
 
     /// Algorithm initialize at begin of job
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /// Algorithm execute once per event
-    virtual StatusCode execute(); 
+    virtual StatusCode execute() override;
 
     /// Algorithm finalize at end of job
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
   
     ///////////////////////////////////////////////////////////////////
     // Private methods:
@@ -83,6 +85,9 @@ private:
 
     /// Access to the TagInfoMgr
     ITagInfoMgr*    m_tagInfoMgr;
+
+    /// SG key for Event Info
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "EventInfo name"};
 
 };
 

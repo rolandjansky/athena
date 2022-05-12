@@ -3,7 +3,7 @@
 import importlib
 import string
 
-from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT  import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig  import HLTMenuConfig
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLT.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
@@ -12,9 +12,8 @@ from TriggerMenuMT.HLT.Config.Utility.ComboHypoHandling import addTopoInfo, comb
 from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences, TLABuildingSequences
 
-from TriggerMenuMT.HLT.Menu.HLTCFConfig import makeHLTTree
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig import makeHLTTree
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -201,7 +200,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         # get all chain names from menu
         log.info("Will now get chains from the menu")
-        self.getChainsFromMenu()
+        self.getChainsFromMenu(flags)
 
         # decoding of the chain name
         log.info("Will now get chain dictionaries for each chain")
@@ -252,18 +251,18 @@ class GenerateMenuMT(object, metaclass=Singleton):
               #parallel-merged single-signature chains or single signature chains. Anything that needs no splitting!
               if len(set(alignmentGroups)) == 1: 
                   alignedChainConfig = menuAlignment.single_align(chainDict, chainConfig)
-                  TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )
+                  HLTMenuConfig.registerChain( chainDict, alignedChainConfig )
 
               elif len(alignmentGroups) >= 2:
                   alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, lengthOfChainConfigs)
 
-                  TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )              
+                  HLTMenuConfig.registerChain( chainDict, alignedChainConfig )              
 
               else: 
                   log.error("Menu can't deal with combined chains with more than two alignmentGroups at the moment. oops...")
                   raise NotImplementedError("more than three alignment groups still needs implementing in ChainMerging.py, ATR-22206")
 
-              if not TriggerConfigHLT.isChainRegistered(chainDict['chainName']):
+              if not HLTMenuConfig.isChainRegistered(chainDict['chainName']):
                 log.error("Chain %s has not been registered in the menu!", chainDict['chainName'])
                 import pprint
                 pp = pprint.PrettyPrinter(indent=4, depth=8)
@@ -274,30 +273,24 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         # align event building sequences
         log.info("[generateAllChainConfigs] general alignment complete, will now align TLA chains")
-        TLABuildingSequences.alignTLASteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())    
+        TLABuildingSequences.alignTLASteps(HLTMenuConfig.configs(), HLTMenuConfig.dicts())    
         log.info("[generateAllChainConfigs] general and TLA alignment complete, will now align PEB chains")
-        EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
+        EventBuildingSequences.alignEventBuildingSteps(HLTMenuConfig.configs(), HLTMenuConfig.dicts())
         
          
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
-        return TriggerConfigHLT.configsList()
+        return HLTMenuConfig.configsList()
 
 
-    def getChainsFromMenu(self):
+    def getChainsFromMenu(self, flags):
         """
         == Returns the list of chain names that are in the menu
         """
 
         # go over the slices and put together big list of signatures requested
-        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(TriggerConfigHLT)
+        (self.L1Prescales, self.HLTPrescales, self.chainsInMenu) = MenuPrescaleConfig(HLTMenuConfig, flags)
 
         log.debug("Setup HLT menu with prescales: %s", self.HLTPrescales)
-
-        ## we can already use new set of flags
-        #from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        #from TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1_newJO import setupMenu as setupMenuFlags
-        #setupMenuFlags( ConfigFlags )
-        #ConfigFlags.lock()
 
         # Filter chains if requested
         if self.chainFilter is not None:
@@ -453,9 +446,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
         if len(empty_step_indices) == 0:
             return chainConfigs
         
-        if len(self.availableSignatures) != 1:
-            log.error("[resolveEmptySteps] The menu you are trying to generate contains a fully empty step. This is only allowed for partial menus.")
-            raise Exception("[resolveEmptySteps] Please find the source of this empty step and remove it from the menu.")
+        if len(self.availableSignatures) != 1 and not (self.chainFilter and hasattr(self.chainFilter,'selectChains') and self.chainFilter.selectChains):
+            log.warning("[resolveEmptySteps] The menu you are trying to generate contains a fully empty step. This is only allowed for partial menus.")
+            #raise Exception("[resolveEmptySteps] Please find the source of this empty step and remove it from the menu.")  #ATR-25392 downgrade to warning only
 
         log.info("Will now delete steps %s (indexed from zero)",empty_step_indices)
         
@@ -470,7 +463,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return chainConfigs 
  
 
-    def generateMT(self, flags=ConfigFlags):
+    def generateMT(self, flags):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
@@ -491,35 +484,34 @@ class GenerateMenuMT(object, metaclass=Singleton):
             log.debug('Steps for %s are %s', cc.name, cc.steps)
 
         log.info("Making the HLT configuration tree")
-        makeHLTTree(newJO=False, triggerConfigHLT = TriggerConfigHLT)
+        makeHLTTree(flags, newJO=False, hltMenuConfig = HLTMenuConfig)
         # the return values used for debugging, might be removed later
 
         log.info("Applying HLT prescales")
 
         # Having built the Menu add prescales for disabling items (e.g. MC production)
-        applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
+        applyHLTPrescale(HLTMenuConfig, self.HLTPrescales, self.signaturesOverwritten)
 
         log.info("Checking the L1HLTConsistency...")
         from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
-        checkL1HLTConsistency()
+        checkL1HLTConsistency(flags)
         
         log.info("Checking the Coherent Prescale assignments...")
         from TriggerMenuMT.HLT.Config.Validation.CheckCPSGroups import checkCPSGroups
-        checkCPSGroups(TriggerConfigHLT.dictsList())
+        checkCPSGroups(HLTMenuConfig.dictsList())
 
         log.info("Generating HLT menu JSON...")
         
-        from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON
-        generateJSON()
+        from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON
+        generateJSON(flags)
 
         log.info("Generating HLT prescale JSON...")
 
-        from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
-        generatePrescaleJSON()
+        from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+        generatePrescaleJSON(flags)
 
-        log.info('Generating HLTMonitoring JSON...')
-        from TriggerMenuMT.HLT.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
-        generateDefaultMonitoringJSON()
+        from TriggerMenuMT.HLT.Config.JSON.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        generateDefaultMonitoringJSON(flags)
 
         log.info('Menu generation is complete.')
         return finalListOfChainConfigs

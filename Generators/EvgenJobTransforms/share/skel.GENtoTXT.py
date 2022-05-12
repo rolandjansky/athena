@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Generate_tf transform"""
 
@@ -21,6 +21,10 @@ import AthenaCommon.AppMgr as acam
 from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AthenaCommonFlags import jobproperties
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+acam.athMasterSeq += xAODMaker__EventInfoCnvAlg(xAODKey="TMPEvtInfo")
+
 theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
@@ -52,7 +56,7 @@ perfmonjp.PerfMonFlags.doMonitoring = True
 perfmonjp.PerfMonFlags.doSemiDetailedMonitoring = True
 
 ## Random number services
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc, AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc, AtRanluxGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr += AtRanluxGenSvc()
 
@@ -86,11 +90,12 @@ evgenLog.info("****************** CONFIGURING EVENT GENERATION *****************
 ## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
 from EvgenJobTransforms.EvgenConfig import evgenConfig
 from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune, gen_require_steering
-
-
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
-
+if not hasattr(runArgs, "ecmEnergy"):
+    raise RuntimeError("No center of mass energy provided.")
+else:
+    evgenLog.info(' ecmEnergy = ' + str(runArgs.ecmEnergy) )
 ##==============================================================
 ## Configure standard Athena and evgen services
 ##==============================================================
@@ -108,12 +113,17 @@ from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, g
 ## Configure the event counting (AFTER all filters)
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
+if (runArgs.firstEvent <= 0):
+   evgenLog.warning("Run argument firstEvent should be > 0")
+
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 
 #evgenConfig.nEventsPerJob = 1
 if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
+   postSeq += CountHepMC(InputEventInfo="TMPEvtInfo",
+                         OutputEventInfo="EventInfo",
+                         mcEventWeightsKey="")
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
 postSeq.CountHepMC.CorrectHepMC = True
@@ -435,14 +445,45 @@ def checkBlackList(relFlavour,cache,generatorName) :
                 isError=relFlavour+","+cache+" is blacklisted for " + badGens
                 return isError  
     return isError
+
+def checkPurpleList(relFlavour,cache,generatorName) :
+    isError = None
+    with open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common/PurpleList_generators.txt') as bfile:
+        for line in bfile.readlines():
+            if not line.strip():
+                continue
+            # Purple-listed release flavours  
+            purpleRelFlav=line.split(',')[0].strip()
+            # Purple-listed caches
+            purpleCache=line.split(',')[1].strip()
+            # Purple-listed generators
+            purpleGens=line.split(',')[2].strip()
+            # Purple-listed process
+            purpleProcess=line.split(',')[3].strip()
+    
+            used_gens = ','.join(generatorName)
+            #Match Generator and release type e.g. AtlasProduction, MCProd
+            if relFlavour==purpleRelFlav and cache==purpleCache and re.search(purpleGens,used_gens) is not None:
+                isError=relFlavour+","+cache+" is blacklisted for " + purpleGens + " if it uses " + purpleProcess 
+                return isError
+    return isError
+
 ## Announce start of JO checkingrelease nimber checking
 evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
 rel = os.popen("echo $AtlasVersion").read()
 rel = rel.strip()
 errorBL = checkBlackList("AthGeneration",rel,gennames)
 if (errorBL):
-#   evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
-   raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)
+  if (hasattr( runArgs, "ignoreBlackList") and runArgs.ignoreBlackList): 
+      evgenLog.warning("This run is blacklisted for this generator, please use a different one for production !! "+ errorBL )
+  else:
+      raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)   
+      
+errorPL = checkPurpleList("AthGeneration",rel,gennames)
+if (errorPL):
+   evgenLog.warning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
+   evgenLog.warning("!!! WARNING  !!! "+ errorPL )
+   evgenLog.warning("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 ## Add special config option (extended model info for BSM scenarios)
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration": evgenConfig.specialConfig})

@@ -37,7 +37,7 @@ def GSFTrackSummaryToolCfg(flags,
                     flags,
                     name="GSFBuildTestBLayerTool"))
 
-        from InDetConfig.InDetRecToolConfig import (
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import (
             InDetTrackSummaryHelperToolCfg)
         kwargs["InDetSummaryHelperTool"] = acc.popToolsAndMerge(
             InDetTrackSummaryHelperToolCfg(
@@ -64,9 +64,11 @@ def GSFTrackSummaryToolCfg(flags,
 
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", False)
+    kwargs.setdefault("AddExpectedHits", True)
 
     summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
-    acc.setPrivateTools(summaryTool)
+    # Particle creator needs a public one
+    acc.addPublicTool(summaryTool, primary=True)
     return acc
 
 
@@ -88,13 +90,17 @@ def EMBremCollectionBuilderCfg(flags,
 
     if "TrackParticleCreatorTool" not in kwargs:
         from InDetConfig.TrackRecoConfig import TrackToVertexCfg
+        trackSummaryTool = acc.getPrimaryAndMerge(
+            GSFTrackSummaryToolCfg(flags))
         gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            TrackSummaryTool="",
+            TrackSummaryTool=trackSummaryTool,
             BadClusterID=0,
-            IBLParameterSvc="IBLParameterSvc" if flags.Detector.GeometryID else "")
+            IBLParameterSvc=(
+                "IBLParameterSvc" if flags.Detector.GeometryID else "")
+        )
         kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
 
     if "TrackSlimmingTool" not in kwargs:
@@ -104,24 +110,27 @@ def EMBremCollectionBuilderCfg(flags,
             KeepOutliers=True)
         kwargs["TrackSlimmingTool"] = slimmingTool
 
-    if "TrackSummaryTool" not in kwargs:
-        kwargs["TrackSummaryTool"] = acc.popToolsAndMerge(
-            GSFTrackSummaryToolCfg(flags))
-
-    kwargs.setdefault("usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
-    kwargs.setdefault("useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
+    kwargs.setdefault(
+        "usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
+    kwargs.setdefault(
+        "useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
+    kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
 
     # P->T conversion extra dependencies
     if flags.Detector.GeometryITk:
         kwargs.setdefault("ExtraInputs", [
-            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
-            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection",
+             "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection",
+             "ConditionStore+ITkStripDetectorElementCollection"),
         ])
     else:
         kwargs.setdefault("ExtraInputs", [
-            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
-            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection",
+             "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection",
+             "ConditionStore+SCT_DetectorElementCollection"),
         ])
 
     alg = CompFactory.EMBremCollectionBuilder(name, **kwargs)

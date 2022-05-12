@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -24,6 +24,7 @@
 
 // McParticleTools includes
 #include "VtxBasedFilterTool.h"
+#include "copyBeamParticles.h"
 #include "AtlasHepMC/Flow.h"
 using namespace TruthHelper;
 
@@ -90,6 +91,8 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
       outEvt = 0;
       continue;
     }
+
+    TruthHelper::copyBeamParticles (*inEvt, *outEvt);
 
     out->push_back( outEvt );
   }
@@ -170,7 +173,7 @@ StatusCode VtxBasedFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx,
     vtx->set_position( srcVtx->position() );
     vtx->set_status( srcVtx->status() );
     HepMC::suggest_barcode(vtx, HepMC::barcode(srcVtx) );
-    //AV: here should be code to copy the weights, but these are never used. Skip. Please don't remove this comment.  vtx->weights() = srcVtx->weights();
+    vtx->add_attribute("weights",srcVtx->attribute<HepMC3::VectorFloatAttribute> ("weights"));
   }
 
   ////////////////////////////

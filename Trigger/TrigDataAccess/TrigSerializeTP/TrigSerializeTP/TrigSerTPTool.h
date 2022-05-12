@@ -22,6 +22,8 @@
 #include "AthenaKernel/ITPCnvSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/ClassName.h"
+
 /**
  * @class  TrigSerTPTool
  * @author Jiri Masik <Jiri.Masik@cern.ch>
@@ -57,6 +59,7 @@ public:
 private:
    /// Get the ROOT dictionary for a type
    TClass* getClass( const std::string& clname ) const;
+   CxxUtils::ClassName::Rules               m_clNameRules;
 
    std::unique_ptr< MsgStream >             m_logTP;
    std::map< std::string, std::string >     m_TPmap; //configure - lookup of 

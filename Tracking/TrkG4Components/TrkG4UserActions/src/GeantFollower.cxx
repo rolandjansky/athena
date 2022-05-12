@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,9 +48,7 @@ namespace G4UA{
       }
 
     m_helperPointer = (&(*m_config.helper));
-
-    return;
-  }
+ }
 
   void GeantFollower::UserSteppingAction(const G4Step* aStep)
   {
@@ -98,7 +96,6 @@ namespace G4UA{
         description << "GeantFollower::SteppingAction NULL G4TouchableHistory pointer.";
         G4Exception("GeantFollower", "GeantFollower3", FatalException, description);
       }
-    return;
-  }
+     }
 
 } // namespace G4UA

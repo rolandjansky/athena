@@ -64,13 +64,11 @@ public:
   // WriteHandle();
 
 
-  // /**
-  //  * @brief Constructor with full arguments.
-  //  * @param sgkey StoreGate key of the referenced object.
-  //  * @param storename Name of the referenced event store.
-  //  */
-  // explicit WriteHandle(const std::string& sgkey, 
-  //                      const std::string& storename = StoreID::storeName(StoreID::EVENT_STORE));
+  /**
+   * @brief Constructor with full arguments.
+   * @param sgkey StoreGate key of the referenced object.
+   */
+  explicit WriteHandle(const std::string& sgkey);
 
 
   /**

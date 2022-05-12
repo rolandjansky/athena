@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,10 +35,10 @@ public:
   SoSeparator * attachsep_detailed;
   VP1ExtraSepLayerHelper * attachHelper_simple;
   VP1ExtraSepLayerHelper * attachHelper_detailed;
-  void ensureLODDetached();
-  void ensureSimpleDetached();
-  void ensureDetailedDetached();
-  void updateAttachmentForDetailLevel(TrackCommonFlags::DETAILLEVEL);
+  void ensureLODDetached() const;
+  void ensureSimpleDetached() const;
+  void ensureDetailedDetached() const;
+  void updateAttachmentForDetailLevel(TrackCommonFlags::DETAILLEVEL) const;
 
   TrackCommonFlags::DETAILLEVEL detailLevel;
   std::map<std::pair<int,double>,TrackLODHandle* > id_2_lodhandle;
@@ -62,28 +62,28 @@ TrackLODManager::~TrackLODManager()
 }
 
 //____________________________________________________________________
-void TrackLODManager::Imp::ensureDetailedDetached()
+void TrackLODManager::Imp::ensureDetailedDetached() const
 {
   if ( attachnode && attachsep_detailed && attachnode->findChild(attachsep_detailed)>-1)
     attachnode->removeChild(attachsep_detailed);
 }
 
 //____________________________________________________________________
-void TrackLODManager::Imp::ensureSimpleDetached()
+void TrackLODManager::Imp::ensureSimpleDetached() const
 {
   if ( attachnode && attachsep_simple && attachnode->findChild(attachsep_simple)>-1)
     attachnode->removeChild(attachsep_simple);
 }
 
 //____________________________________________________________________
-void TrackLODManager::Imp::ensureLODDetached()
+void TrackLODManager::Imp::ensureLODDetached() const
 {
   if ( attachnode && attachnode_lod && attachnode->findChild(attachnode_lod)>-1)
     attachnode->removeChild(attachnode_lod);
 }
 
 //____________________________________________________________________
-void TrackLODManager::Imp::updateAttachmentForDetailLevel(TrackCommonFlags::DETAILLEVEL dl)
+void TrackLODManager::Imp::updateAttachmentForDetailLevel(TrackCommonFlags::DETAILLEVEL dl) const
 {
   if (dl == TrackCommonFlags::SIMPLE) {
     if ( attachnode && attachsep_simple && attachnode->findChild(attachsep_simple)<0)
@@ -234,7 +234,7 @@ public:
   SoLevelOfDetail * lod;
   SoSeparator * sep_detailed;
   SoSeparator * sep_simple;
-  void updateCrossOverField()
+  void updateCrossOverField() const
   {
     //Fixme: We should scale this with complexity! I.e. multiply the value with 1.0/(complexity+0.5)
     //    lod->screenArea.setValue(crossVal/sqrt(sep_detailed->getNumChildren()+1.0));

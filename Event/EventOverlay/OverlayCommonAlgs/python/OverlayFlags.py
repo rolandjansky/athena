@@ -103,6 +103,12 @@ class processLegacyEventInfo(JobProperty):
     allowedTypes=['bool']
     StoredValue = False
 
+class doTrackOverlay(JobProperty):
+    """ perform the track overlay (meaning that the ID overlay is turned off) """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 ## Definition and registration of the simulation flag container
 class Overlay_Flags(JobPropertyContainer):
     """ The global Overlay flag/job property container.

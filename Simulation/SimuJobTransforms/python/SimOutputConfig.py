@@ -17,9 +17,13 @@ def getStreamEVNT_TR_ItemList(ConfigFlags):
 def getStreamHITS_ItemList(ConfigFlags):
     #Add to item list
     #TODO - make a separate function (combine with G4AtlasAlg one?)
-    ItemList = ["EventInfo#*",
-                "McEventCollection#TruthEvent",
+    ItemList = ["McEventCollection#TruthEvent",
                 "JetCollection#*"]
+
+    ItemList+=["xAOD::EventInfo#EventInfo",
+               "xAOD::EventAuxInfo#EventInfoAux.",
+               "xAOD::EventInfoContainer#*",
+               "xAOD::EventInfoAuxContainer#*"]
 
     if ConfigFlags.Sim.IncludeParentsInG4Event:
         ItemList += ["McEventCollection#GEN_EVENT"]

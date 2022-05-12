@@ -4,6 +4,7 @@
 # art-include: master/Athena
 
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-output: log.*
 # art-output: test.HITS.pool.root

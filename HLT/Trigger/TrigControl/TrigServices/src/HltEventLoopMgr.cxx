@@ -35,6 +35,7 @@
 
 // ROOT includes
 #include "TROOT.h"
+#include "TSystem.h"
 
 // System includes
 #include <sstream>
@@ -93,6 +94,7 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> HardTimeout               = " << m_hardTimeout.value());
   ATH_MSG_INFO(" ---> SoftTimeoutFraction       = " << m_softTimeoutFraction.value());
   ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue.count());
+  ATH_MSG_INFO(" ---> TraceOnTimeout            = " << m_traceOnTimeout.value());
   ATH_MSG_INFO(" ---> MaxFrameworkErrors        = " << m_maxFrameworkErrors.value());
   ATH_MSG_INFO(" ---> FwkErrorDebugStreamName   = " << m_fwkErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
@@ -291,6 +293,8 @@ StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
     ATH_MSG_ERROR("Exception: " << e.what());
   }
 
+  ATH_CHECK( updateMagField(pt) );  // update magnetic field
+
   return StatusCode::SUCCESS;
 }
 
@@ -298,14 +302,12 @@ StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
 // =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
-StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
+StatusCode HltEventLoopMgr::prepareForRun(const ptree& /*pt*/)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   try
   {
-    ATH_CHECK( updateMagField(pt) );                     // update magnetic field
-
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginRun, m_currentRunCtx));
 
     // Initialize COOL helper (needs to be done after IOVDbSvc has loaded all folders)
@@ -841,6 +843,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   Gaudi::Hive::setCurrentContext(eventContext);
 
   auto drainAllAndProceed = [&]() -> StatusCode {
+    resetEventTimer(eventContext, /*processing=*/ false); // stop the timeout monitoring for the failed slot
     ATH_CHECK(drainAllSlots()); // break the event loop on failure
     if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("The number of tolerable framework errors for this HltEventLoopMgr instance, which is "
@@ -1007,6 +1010,11 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   // The output has been sent out, the ByteStreamAddress can be deleted
   delete addr;
 
+  //------------------------------------------------------------------------
+  // Reset the timeout flag and the timer, and mark the slot as idle
+  //------------------------------------------------------------------------
+  resetEventTimer(eventContext, /*processing=*/ false);
+
   //----------------------------------------------------------------------------
   // Clear the event data slot
   //----------------------------------------------------------------------------
@@ -1057,15 +1065,31 @@ void HltEventLoopMgr::runEventTimer()
         EventContext ctx(0,i); // we only need the slot number for Athena::Timeout instance
         // don't duplicate the actions if the timeout was already reached
         if (!Athena::Timeout::instance(ctx).reached()) {
-          auto procTime = now - m_eventTimerStartPoint.at(i);
-          auto procTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(procTime);
-          ATH_MSG_ERROR("Soft timeout in slot " << i << ". Processing time = " << procTimeMillisec.count() << " ms");
+          ATH_MSG_ERROR("Soft timeout in slot " << i << ". Processing time exceeded the limit of " << m_softTimeoutValue.count() << " ms");
           setTimeout(Athena::Timeout::instance(ctx));
+          // Generate a stack trace only once, on the first timeout
+          if (m_traceOnTimeout.value() && !m_timeoutTraceGenerated) {
+            ATH_MSG_INFO("Generating stack trace due to the soft timeout");
+            m_timeoutTraceGenerated = true;
+            gSystem->StackTrace();
+          }
         }
       }
     }
   }
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+}
+
+// =============================================================================
+void HltEventLoopMgr::resetEventTimer(const EventContext& eventContext, bool processing) {
+  if (!eventContext.valid()) {return;}
+  {
+    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+    m_eventTimerStartPoint[eventContext.slot()] = std::chrono::steady_clock::now();
+    m_isSlotProcessing[eventContext.slot()] = processing;
+    resetTimeout(Athena::Timeout::instance(eventContext));
+  }
+  m_timeoutCond.notify_all();
 }
 
 // =============================================================================
@@ -1161,6 +1185,18 @@ StatusCode HltEventLoopMgr::startNextEvent(EventLoopStatus& loopStatus)
     }
     return StatusCode::SUCCESS;
   }
+  catch (const hltonl::Exception::MissingCTPFragment& e) {
+    sc = StatusCode::FAILURE;
+    if (check(e.what(), HLT::OnlineErrorCode::MISSING_CTP_FRAGMENT, *eventContext)) {
+      return sc;
+    }
+  }
+  catch (const hltonl::Exception::BadCTPFragment& e) {
+    sc = StatusCode::FAILURE;
+    if (check(e.what(), HLT::OnlineErrorCode::BAD_CTP_FRAGMENT, *eventContext)) {
+      return sc;
+    }
+  }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Failed to get next event from the event source, std::exception caught: " << e.what());
     sc = StatusCode::FAILURE;
@@ -1175,15 +1211,9 @@ StatusCode HltEventLoopMgr::startNextEvent(EventLoopStatus& loopStatus)
   }
 
   //------------------------------------------------------------------------
-  // Set event processing start time for timeout monitoring and reset timeout flag
+  // Reset the timeout flag and the timer, and mark the slot as busy
   //------------------------------------------------------------------------
-  {
-    std::unique_lock<std::mutex> lock(m_timeoutMutex);
-    m_eventTimerStartPoint[eventContext->slot()] = std::chrono::steady_clock::now();
-    m_isSlotProcessing[eventContext->slot()] = true;
-    resetTimeout(Athena::Timeout::instance(*eventContext));
-  }
-  m_timeoutCond.notify_all();
+  resetEventTimer(*eventContext, /*processing=*/ true);
 
   //------------------------------------------------------------------------
   // Load event proxies and get event info
@@ -1555,16 +1585,10 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::processFinishedEvent(
   delete l1addr;
   delete l1addrLegacy;
 
-  //--------------------------------------------------------------------------
-  // Flag idle slot to the timeout thread and reset the timer
-  //--------------------------------------------------------------------------
-  {
-    std::unique_lock<std::mutex> lock(m_timeoutMutex);
-    m_eventTimerStartPoint[eventContext->slot()] = std::chrono::steady_clock::now();
-    m_isSlotProcessing[eventContext->slot()] = false;
-    resetTimeout(Athena::Timeout::instance(*eventContext));
-  }
-  m_timeoutCond.notify_all();
+  //------------------------------------------------------------------------
+  // Reset the timeout flag and the timer, and mark the slot as idle
+  //------------------------------------------------------------------------
+  resetEventTimer(*eventContext, /*processing=*/ false);
 
   //--------------------------------------------------------------------------
   // Clear the slot

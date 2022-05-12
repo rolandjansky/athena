@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ Trk::RecMomentumQualityValidation::RecMomentumQualityValidation(const std::strin
 //================ Destructor =================================================
 
 Trk::RecMomentumQualityValidation::~RecMomentumQualityValidation()
-{}
+= default;
 
 
 //================ Initialisation =================================================
@@ -97,7 +97,7 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
   StatusCode sc = StatusCode::SUCCESS;
   const TrackCollection* trackCollection = nullptr;
 
-  if (m_inputTrackCollection!="") {
+  if (!m_inputTrackCollection.empty()) {
       sc = evtStore()->retrieve(trackCollection,m_inputTrackCollection);
       if (sc.isFailure())
          ATH_MSG_ERROR( "TrackCollection "<<m_inputTrackCollection<<" not found!" );
@@ -110,7 +110,7 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
   }
 
   const TrackTruthCollection* trackTruthCollection = nullptr;
-  if (m_trackTruthCollection!="") {
+  if (!m_trackTruthCollection.empty()) {
     sc = evtStore()->retrieve(trackTruthCollection, m_trackTruthCollection);
     if (sc.isFailure())
       ATH_MSG_ERROR( "TruthCollection "<<m_trackTruthCollection<<" not found!" );
@@ -237,7 +237,7 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
 //============================================================================================
 
 void Trk::RecMomentumQualityValidation::monitorTrackFits(std::vector<unsigned int>& Ntracks,
-                                         const double& eta) const {
+                                         const double& eta) {
   Ntracks[Trk::RecMomentumQualityValidation::iAll] += 1;
   if (std::abs(eta) < 0.80 ) ++Ntracks[Trk::RecMomentumQualityValidation::iBarrel];
   else if (std::abs(eta) < 1.60) ++Ntracks[Trk::RecMomentumQualityValidation::iTransi];
@@ -301,5 +301,4 @@ void Trk::RecMomentumQualityValidation::printTable() const {
             << m_nFakeOrLost[iEndcap] << " ("<< std::setw(iw)<<m_tFakeOrLost[iEndcap]<<") "
             << std::endl;
   std::cout << "---------------------------------------------------------------------------------" << std::endl << std::endl;
-  return;
 }

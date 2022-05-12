@@ -93,6 +93,10 @@ AthenaEventLoopMgr.OutputLevel = INFO
 # No stats printout
 include( "AthenaPoolTest/NoStats_jobOptions.py" )
 
+# Work around cling crash with root 6.24.00.
+import ROOT
+ROOT.CaloCellContainer
+
 #==============================================================
 #
 # End of job options file

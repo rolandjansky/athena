@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -29,6 +29,10 @@ def StandaloneMuonOutputCfg(flags):
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
+    if flags.Muon.doMMs or flags.Muon.dosTGCs:
+         aod_items+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
+         aod_items+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
+
     # TrackParticles 
     aod_items+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
     aod_items+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
@@ -65,7 +69,8 @@ def StandaloneMuonOutputCfg(flags):
         aod_items += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_RDO_MeasurementsAux."] 
 
     # ESD list includes all AOD items
-    esd_items = aod_items
+    esd_items = []
+    esd_items += aod_items
 
     #PRDs
     if flags.Detector.EnableMM: esd_items+=["Muon::MMPrepDataContainer#MM_Measurements"]
@@ -125,13 +130,32 @@ def StandaloneMuonOutputCfg(flags):
 
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
-    result=ComponentAccumulator()
     from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
-    result.merge(MuonPrepDataConvCfg(flags))
+    from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg, MuonTrackSummaryToolCfg
+    from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
 
+    # Many components need these services, so setup once here.
+    result=MuonIdHelperSvcCfg(flags)
+    result.merge(MuonEDMHelperSvcCfg(flags))
+  
+    # Now setup reconstruction steps
+    result.merge(MuonPrepDataConvCfg(flags))
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
     result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags) )
+    if flags.Muon.runCommissioningChain:
+        result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags,
+                                                            "MuonStandaloneTrackParticleCnvAlg_EMEO",
+                                                            TrackContainerName = "EMEO_MuonSpectrometerTracks",
+                                                            xAODTrackParticlesFromTracksContainerName="EMEO_MuonSpectrometerTrackParticles"))
+    
+    # FIXME - work around to fix unconfigured public MuonTrackScoringTool   
+    # It wuould be best to find who is using this tool, and add this configuration there
+    # But AFAICS the only parent is MuonCombinedFitTagTool, and it's private there, so I'm a bit confused.
+    result.addPublicTool( result.popToolsAndMerge(MuonTrackScoringToolCfg(flags) ) )
+    # Ditto
+    result.addPublicTool( result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags) ) )
 
     # Setup output
     if flags.Output.doWriteESD or flags.Output.doWriteAOD:
@@ -163,14 +187,9 @@ if __name__=="__main__":
     from SGComps.AddressRemappingConfig import InputRenameCfg
     cfg.merge(InputRenameCfg("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old"))
 
-    # This is a temporary fix! Should be private!
-    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    cfg.addService( muon_edm_helper_svc )
-
     cfg.printConfig(withDetails = True)
     # drop faulty remapping
-    # the evaluation of MuonSegmentNameFixCfg should happen conditinally instead
+    # the evaluation of MuonSegmentNameFixCfg should happen conditionally instead
     # this is hack that is functioning only because this is top level CA
     oldRemaps = cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps
     cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps = [ remap for remap in oldRemaps if "Trk::SegmentCollection" not in remap]

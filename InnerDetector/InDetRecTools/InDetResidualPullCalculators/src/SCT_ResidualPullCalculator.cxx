@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ double InDet::SCT_ResidualPullCalculator::calcPull(
     const double locMesCov,
     const double locTrkCov,
     const Trk::ResidualPull::ResidualType& resType,
-    bool&        pullIsValid ) const {
+    bool&        pullIsValid ) {
 
     double ErrorSum;
     if (resType == Trk::ResidualPull::Unbiased) {

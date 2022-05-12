@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDIGITASDPOSCONDALG_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "MuonCondData/TgcDigitASDposData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -23,8 +22,6 @@ class TgcDigitASDposCondAlg : public AthReentrantAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_ASDpos{this, "ReadKeyAsdPos", "/TGC/DIGIT/ASDPOS", "SG key for TGCDIGITASDPOS"};
   SG::WriteCondHandleKey<TgcDigitASDposData> m_writeKey{this, "WriteKey", "TGCDigitASDposData", "SG Key of TGCDigit AsdPos"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif

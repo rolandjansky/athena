@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,8 @@
 #include "SiSPSeededTrackFinderData/SeedToTrackConversionData.h"
 #include "SiSPSeededTrackFinderData/SiDetElementRoadMakerData_xk.h"
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
+
 
 #include <array>
 #include <list>
@@ -52,12 +54,10 @@ namespace InDet {
     bool& pix();
     bool& sct();
     bool& dbm();
-    std::list<double>& caloF();
-    std::list<double>& caloR();
-    std::list<double>& caloZ();
-    std::list<double>& hadF();
-    std::list<double>& hadR();
-    std::list<double>& hadZ();
+    const ROIPhiRZContainer *caloClusterROIEM()  const        { return m_caloClusterROIEM; }
+    const ROIPhiRZContainer *caloClusterROIHad() const        { return m_caloClusterROIHad; }
+    void setCaloClusterROIEM(const ROIPhiRZContainer &rois)   { m_caloClusterROIEM  = &rois; }
+    void setCaloClusterROIHad(const ROIPhiRZContainer &rois)  { m_caloClusterROIHad = &rois; }
     std::array<double, 2>& xybeam();
 
     std::array<std::array<std::array<int,SiCombinatorialTrackFinderData_xk::kNRapidityRanges>,SiCombinatorialTrackFinderData_xk::kNSeedTypes>,SiCombinatorialTrackFinderData_xk::kNStatEtaTypes>& summaryStatUsedInTrack();
@@ -105,12 +105,8 @@ namespace InDet {
 
     /// @name Data members updated only by newEvent method
     //@{
-    std::list<double> m_caloF;
-    std::list<double> m_caloR;
-    std::list<double> m_caloZ;
-    std::list<double> m_hadF;
-    std::list<double> m_hadR;
-    std::list<double> m_hadZ;
+    const ROIPhiRZContainer *m_caloClusterROIEM {};
+    const ROIPhiRZContainer *m_caloClusterROIHad {};
     std::array<double, 2> m_xybeam{0., 0.};
     //@}
 

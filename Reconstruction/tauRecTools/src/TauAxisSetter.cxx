@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -21,11 +21,12 @@ TauRecToolBase(name) {
 
 
 StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
-  if (! tau.jetLink().isValid()) {
+
+  const xAOD::Jet* jetSeed = tau.jet();
+  if (jetSeed == nullptr) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
   }
-  const xAOD::Jet* jetSeed = tau.jet();
 
   // Barycenter is the sum of cluster p4 in the seed jet
   TLorentzVector baryCenter;  
@@ -50,7 +51,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
     tauDetectorAxis += constituentP4;
   }
 
-  if (tauDetectorAxis.Pt() == 0. && m_doVertexCorrection == false) {
+  if (tauDetectorAxis.Pt() == 0. && !m_doVertexCorrection) {
     ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters!");
     return StatusCode::FAILURE;
   }
@@ -70,7 +71,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
       jetVertex = tauRecTools::getJetVertex(*jetSeed);
     }
 
-    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(tau, inTrigger());
+    const xAOD::Vertex* tauVertex = tau.vertex();
 
     // Redo the vertex correction when tau vertex is different from jet vertex
     if (jetVertex != tauVertex) {
@@ -131,15 +132,15 @@ TLorentzVector TauAxisSetter::getVertexCorrectedP4(const xAOD::JetConstituent& c
   TLorentzVector vertexCorrectedP4;
   
   if (constituent.type() == xAOD::Type::CaloCluster) {
-	const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(constituent.rawConstituent());
+    const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(constituent.rawConstituent());
     vertexCorrectedP4 = xAOD::CaloVertexedTopoCluster(*cluster, position).p4();;
   }
   else if (constituent.type() == xAOD::Type::ParticleFlow) {
-	const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(constituent.rawConstituent());
+    const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(constituent.rawConstituent());
     vertexCorrectedP4 = getVertexCorrectedP4(*pfo, position); 
   }
   else {
-	ATH_MSG_WARNING("Seed jet constituent type not supported, will not do vertex correction !");
+    ATH_MSG_WARNING("Seed jet constituent type not supported, will not do vertex correction !");
     vertexCorrectedP4 = tauRecTools::GetConstituentP4(constituent);
   }
  

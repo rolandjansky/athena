@@ -15,9 +15,13 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
     if DetFlags.overlay.pixel_on():
         job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
-        job += CfgGetter.getAlgorithm("PixelOverlay")
-        if DetFlags.overlay.Truth_on():
-            job += CfgGetter.getAlgorithm("PixelSDOOverlay")
+        if not overlayFlags.doTrackOverlay():
+            job += CfgGetter.getAlgorithm("PixelOverlay")
+            if DetFlags.overlay.Truth_on():
+                job += CfgGetter.getAlgorithm("PixelSDOOverlay")
+        else:
+            job.PixelOverlayDigitization.DigitizationTool.RDOCollName="PixelRDOs"
+            job.PixelOverlayDigitization.DigitizationTool.SDOCollName="PixelSDO_Map"
 
         if overlayFlags.isDataOverlay():
             if overlayFlags.isOverlayMT():
@@ -48,9 +52,13 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             #   conddb.addFolderSplitOnline("SCT","/SCT/DAQ/Calibration/ChipNoise","/SCT/DAQ/Calibration/ChipNoise",forceMC=True)
 
         job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
-        job += CfgGetter.getAlgorithm("SCTOverlay")
-        if DetFlags.overlay.Truth_on():
-            job += CfgGetter.getAlgorithm("SCTSDOOverlay")
+        if not overlayFlags.doTrackOverlay():
+            job += CfgGetter.getAlgorithm("SCTOverlay")
+            if DetFlags.overlay.Truth_on():
+                job += CfgGetter.getAlgorithm("SCTSDOOverlay")
+        else:
+            job.SCT_OverlayDigitization.DigitizationTool.OutputObjectName="SCT_RDOs"
+            job.SCT_OverlayDigitization.DigitizationTool.OutputSDOName="SCT_SDO_Map"            
 
         if overlayFlags.isDataOverlay():
             include("InDetRecExample/InDetRecConditionsAccess.py")
@@ -79,11 +87,16 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
                                                        TRT_DriftCircleCollection="")
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
-        job += CfgGetter.getAlgorithm("TRTOverlay")
-        if DetFlags.overlay.Truth_on():
-            job += CfgGetter.getAlgorithm("TRTSDOOverlay")
+        if not overlayFlags.doTrackOverlay():
+            job += CfgGetter.getAlgorithm("TRTOverlay")
+            job.TRTOverlay.TRT_LocalOccupancyTool  = TRT_LocalOccupancy
+            if DetFlags.overlay.Truth_on():
+                job += CfgGetter.getAlgorithm("TRTSDOOverlay")
+        else:
+            job.TRT_OverlayDigitization.DigitizationTool.OutputObjectName="TRT_RDOs"
+            job.TRT_OverlayDigitization.DigitizationTool.OutputSDOName="TRT_SDO_Map"
+            job.TRT_OverlayDigitization.DigitizationTool.Override_isOverlay=0
 
-        job.TRTOverlay.TRT_LocalOccupancyTool  = TRT_LocalOccupancy
 
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")

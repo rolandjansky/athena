@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ Trk::BasicValTrkParticleNtupleTool::BasicValTrkParticleNtupleTool(
 }
 
 // destructor
-Trk::BasicValTrkParticleNtupleTool::~BasicValTrkParticleNtupleTool() {}
+Trk::BasicValTrkParticleNtupleTool::~BasicValTrkParticleNtupleTool() = default;
 
 
 
@@ -396,10 +396,3 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::writeTrackData (
                                             const int) const {return StatusCode::SUCCESS;}
 
 
-
-    StatusCode Trk::BasicValTrkParticleNtupleTool::writeProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int,
-        const Trk::Perigee*,
-        const unsigned int ) const{return StatusCode::SUCCESS;}
-	//const Trk::FitterStatusCode) const {return StatusCode::SUCCESS;}

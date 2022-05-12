@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -38,7 +38,7 @@ namespace LVL1CTP {
 
   public:
 
-    Lvl1Item( std::string n, unsigned int hash, bool passBP = false,
+    Lvl1Item( const std::string& n, unsigned int hash, bool passBP = false,
               bool passAP = true, bool passAV = true, float factor = 1) :
       m_name(n), m_hashId(hash), m_passBP(passBP), m_passAP(passAP), m_passAV(passAV),
       m_prescaleFactor(factor) {}
@@ -57,7 +57,7 @@ namespace LVL1CTP {
 
     float prescaleFactor() const { return m_prescaleFactor; }
 
-    void setName  (std::string name) { m_name = name; }
+    void setName  (const std::string& name) { m_name = name; }
     void setHashId(unsigned int hash) { m_hashId = hash; }
     void setPrescaleFactor(float factor) { m_prescaleFactor = factor; }
 

@@ -18,15 +18,11 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-// needed for forward declaration
-#include "AthContainers/DataVector.h"
+// Internal include(s):
+#include "xAODForward/AFPTrackContainer.h"
 
 
 namespace xAOD {
-
-  // forward declaration
-  class AFPTrack_v1;
-  typedef DataVector< AFPTrack_v1 > AFPTrackContainer_v1;
 
   /**
    * @brief Class representing a hit in silicon detector.
@@ -39,7 +35,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the track
-    typedef ElementLink< AFPTrackContainer_v1 > AFPTrackLink_t;
+    typedef ElementLink< AFPTrackContainer > AFPTrackLink_t;
 
     
     // needed by athenaRoot 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EgammaPhysValMonitoringTool.cxx 
@@ -55,8 +55,7 @@ EgammaPhysValMonitoringTool::EgammaPhysValMonitoringTool( const std::string& typ
 
 // Destructor
 ///////////////
-EgammaPhysValMonitoringTool::~EgammaPhysValMonitoringTool()
-{}
+EgammaPhysValMonitoringTool::~EgammaPhysValMonitoringTool() = default;
 
 // Athena algtool's Hooks
 ////////////////////////////

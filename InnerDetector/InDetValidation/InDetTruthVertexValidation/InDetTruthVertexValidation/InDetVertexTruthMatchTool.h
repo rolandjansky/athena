@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetVertexTruthMatchTool_h
@@ -37,7 +37,7 @@ class InDetVertexTruthMatchTool : public virtual IInDetVertexTruthMatchTool,
 
  private:
 
-  const xAOD::TrackParticleContainer* findTrackParticleContainer( const xAOD::VertexContainer& vxContainer ) const;
+  static const xAOD::TrackParticleContainer* findTrackParticleContainer( const xAOD::VertexContainer& vxContainer ) ;
 
   //required MC match probability to consider track a good match
   float m_trkMatchProb;

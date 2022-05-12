@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TrkEventTPCnv/test/CompetingRIOsOnTrackCnv_p1_test.cxx
@@ -23,7 +23,7 @@ class TestCompetingRIOsOnTrack
   : public Trk::CompetingRIOsOnTrack
 {
 public:
-  TestCompetingRIOsOnTrack() {}
+  TestCompetingRIOsOnTrack() = default;
   TestCompetingRIOsOnTrack (const Trk::LocalParameters& pars,
                             const Amg::MatrixX& cov,
                             const std::vector<double>& probs);

@@ -1,13 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TauSeed.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
-#ifndef PANTAUALGSTAUCONSTITUENT_H
-#define PANTAUALGSTAUCONSTITUENT_H
+#ifndef PANTAUALGS_TAUCONSTITUENT_H
+#define PANTAUALGS_TAUCONSTITUENT_H
 
 #include <string>
 #include <vector>
@@ -25,7 +21,6 @@ namespace PanTau {
     
     @author limbach@physik.uni-bonn.de
     */
-
 
   class TauConstituent : public xAOD::IParticle {
 
@@ -62,9 +57,7 @@ namespace PanTau {
     
     static std::string  getTypeName(PanTau::TauConstituent::Type aType);
     static bool         isNeutralType(int tauConstituentType);
-    static bool         isCoreType(int tauConstituentType);
-    
-
+    static bool         isCoreType(int tauConstituentType);    
 
       
     /** Default Constructor for POOL. Do not use! */
@@ -75,11 +68,11 @@ namespace PanTau {
      * @param itsType The type of this particle using this class' enumeration 
      * @param itsBDTValue If a BDT was used ot ID this particle, provide the BDT response
      */
-    TauConstituent(TLorentzVector                           itsMomentum,
-                   int                                      itsCharge,
-                   std::vector<int>                         itsType,
-                   double                                   itsBDTValue,
-                   xAOD::PFO*                               itsPFOLink);
+    TauConstituent(TLorentzVector   itsMomentum,
+                   int              itsCharge,
+                   std::vector<int> itsType,
+                   double           itsBDTValue,
+                   xAOD::PFO*       itsPFOLink);
     
     
     /** Destructor */
@@ -117,7 +110,7 @@ namespace PanTau {
      /// @brief Definition of the 4-momentum type
      typedef IParticle::FourMom_t FourMom_t;
  
-     /// @brief The full 4-momentum of the particle as a TLoretzVector
+     /// @brief The full 4-momentum of the particle as a TLorentzVector
      virtual FourMom_t p4() const;
 
      /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
@@ -150,24 +143,19 @@ namespace PanTau {
     bool                                    isOfType(TauConstituent::Type aType) const;
     double                                  getBDTValue() const;
     int                                     getCharge() const;
-    xAOD::PFO*                              getPFO() const;
+    const xAOD::PFO*                        getPFO() const;
     
     void                                    addShot(TauConstituent* shot);
     std::vector<TauConstituent*>            getShots();
-    unsigned int                            getNShots();
+    unsigned int                            getNShots() const;
     
     void                                    setNPhotonsInShot(int nPhotons);
-    int                                     getNPhotonsInShot();
+    int                                     getNPhotonsInShot() const;
 
   private:
 
-     /// Cached 4-momentum object
-     mutable FourMom_t m_p4;
-     ///
- 
-     /// Cache state of the internal 4-momentum (reset from the streamer)
-     mutable bool m_p4Cached;
-
+     /// 4-momentum object
+     FourMom_t m_p4;
 
 
   protected:
@@ -180,13 +168,10 @@ namespace PanTau {
     
     // the constituents in there are owned by this! delete them!
     std::vector<TauConstituent*>    m_Shots;
-    int                             m_nPhotonsInShot;
-    
+    int                             m_nPhotonsInShot;    
 
   };
 
 
-
-
 } //end namespace
-#endif // PANTAUALGSTAUCONSTITUENT_H
+#endif // PANTAUALGS_TAUCONSTITUENT_H

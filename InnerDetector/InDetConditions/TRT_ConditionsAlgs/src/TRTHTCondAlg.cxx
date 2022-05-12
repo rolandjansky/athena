@@ -1,32 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTHTCondAlg.h"
 
 TRTHTCondAlg::TRTHTCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm(name,pSvcLocator),
-    m_condSvc("CondSvc",name)
+  : ::AthAlgorithm(name,pSvcLocator)
 {}
 TRTHTCondAlg::~TRTHTCondAlg(){}
 
 StatusCode TRTHTCondAlg::initialize()
 {
-
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // Read key
   ATH_CHECK( m_ReadKey.initialize() );
 
   // Register write handle
   ATH_CHECK( m_WriteKey.initialize() );
-
-  if (m_condSvc->regHandle(this, m_WriteKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_WriteKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

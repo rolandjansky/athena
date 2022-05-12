@@ -269,7 +269,7 @@ namespace MuonGM {
     }
 
     int TgcReadoutElement::nWires(int gasGap, int gang) const {
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return getNWires(gasGap, gang);
     }
 
@@ -293,7 +293,7 @@ namespace MuonGM {
     float TgcReadoutElement::gangCtrZ(int gasGap, int gang) const {
         // recursively calculates position of gang in local Z coordinate
 
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         float z;
         if (1 == gang) {
             z = -length() / 2 + frameZwidth() + wirePitch() * 0.5 + gangLength(gasGap, gang) / 2;
@@ -304,29 +304,29 @@ namespace MuonGM {
     }
 
     float TgcReadoutElement::gangMinZ(int gasGap, int gang) const {
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return gangCtrZ(gasGap, gang) - gangLength(gasGap, gang) / 2;
     }
 
     float TgcReadoutElement::gangMaxZ(int gasGap, int gang) const {
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return gangCtrZ(gasGap, gang) + gangLength(gasGap, gang) / 2;
     }
 
     // Access to wire gang dimensions (simple trapezoid with length along z)
 
     float TgcReadoutElement::gangLength(int gasGap, int gang) const {
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return wirePitch() * nWires(gasGap, gang);
     }
 
     float TgcReadoutElement::gangShortWidth(int gasGap, int gang) const {
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return chamberWidth(gangMinZ(gasGap, gang)) - frameXwidth() * 2.;
     }
 
     float TgcReadoutElement::gangLongWidth(int gasGap, int gang) const {
-        if (!validGang(gasGap, gang)) throw;
+        if (!validGang(gasGap, gang)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return chamberWidth(gangMaxZ(gasGap, gang)) - frameXwidth() * 2.;
     }
 
@@ -399,7 +399,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripMinPhi(int gasGap, int strip) const {
         // angle of lower edge of strip wrt center of chamber
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         float stripMinPhi;
 
         // layout Q and following
@@ -418,7 +418,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripMaxPhi(int gasGap, int strip) const {
         // angle of upper edge of strip wrt center of chamber
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         float stripMaxPhi{0};
 
         // layout Q and following
@@ -436,7 +436,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripCtrPhi(int gasGap, int strip) const {
         // angle of center of strip wrt center of chamber
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         float stripCtrPhi{0};
 
         stripCtrPhi = (stripMaxPhi(gasGap, strip) + stripMinPhi(gasGap, strip)) / 2.;
@@ -444,12 +444,12 @@ namespace MuonGM {
     }
 
     float TgcReadoutElement::stripCtrX(int gasGap, int strip, float z) const {
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return (stripMinX(gasGap, strip, z) + stripMaxX(gasGap, strip, z)) / 2.;
     }
 
     float TgcReadoutElement::stripMinX(int gasGap, int strip, float z) const {
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         if ((getStationEta() > 0 && gasGap == 1) || (getStationEta() < 0 && gasGap != 1)) {
             return (getStripPositionOnLargeBase(strip) - getStripPositionOnShortBase(strip)) /
                        (getRsize() - 2. * getPhysicalDistanceFromBase()) * z +
@@ -462,7 +462,7 @@ namespace MuonGM {
     }
 
     float TgcReadoutElement::stripMaxX(int gasGap, int strip, float z) const {
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         if ((getStationEta() > 0 && gasGap == 1) || (getStationEta() < 0 && gasGap != 1)) {
             return (getStripPositionOnLargeBase(strip + 1) - getStripPositionOnShortBase(strip + 1)) /
                        (getRsize() - 2. * getPhysicalDistanceFromBase()) * z +
@@ -509,7 +509,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripShortWidth(int gasGap, int strip) const {
         // projection of strip on local X axis at min(Z)
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         if ((getStationEta() > 0 && gasGap == 1) || (getStationEta() < 0 && gasGap != 1)) {
             return getStripPositionOnShortBase(strip + 1) - getStripPositionOnShortBase(strip);
         } else {
@@ -520,7 +520,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripLongWidth(int gasGap, int strip) const {
         // projection of strip on local X axis at max(Z)
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         if ((getStationEta() > 0 && gasGap == 1) || (getStationEta() < 0 && gasGap != 1)) {
             return getStripPositionOnLargeBase(strip + 1) - getStripPositionOnLargeBase(strip);
         } else {
@@ -531,7 +531,7 @@ namespace MuonGM {
     float TgcReadoutElement::stripSkew(int gasGap, int strip) const {
         // angle of center of strip wrt center of chamber
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         return stripCtrPhi(gasGap, strip);
     }
 
@@ -544,7 +544,7 @@ namespace MuonGM {
     double TgcReadoutElement::StripPitch(int gasGap, int strip, float z) const {
         //!< strip pitch depending on local z position (R in global coordinate)
 
-        if (!validStrip(gasGap, strip)) throw;
+        if (!validStrip(gasGap, strip)) throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
         if (1 < strip && strip < 32) {
             double pitchlow = (double)stripCtrX(gasGap, strip + 1, z) - stripCtrX(gasGap, strip, z);
             double pitchhigh = (double)stripCtrX(gasGap, strip, z) - stripCtrX(gasGap, strip - 1, z);
@@ -616,7 +616,7 @@ namespace MuonGM {
             if (gasGap == gap_index) return i;
         }
 
-        throw;
+        throw std::runtime_error(Form("%s:%d - Invalid identifier given",__FILE__,__LINE__));
     }
 
     bool TgcReadoutElement::isAgap(const std::string& volumeMaterial) const { return ("TGCGas" == volumeMaterial); }

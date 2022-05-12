@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ namespace Trk {
        BevelledCylinderVolumeBoundaryAccessors();
 
        /**Default Constructor*/
-       ~BevelledCylinderVolumeBoundaryAccessors();
+       ~BevelledCylinderVolumeBoundaryAccessors() = default;
 
        /** Return the accessor for the cylindrical case */
        const ThreeObjectsAccessor& bevelledcylinderAccessor(BevelledCylinderAccessorType cat) const;

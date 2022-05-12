@@ -26,8 +26,8 @@ include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 # --------------------------------------------------------
 # ............ declare the used top algo.
 # --------------------------------------------------------
-from LArDigitization.LArDigitizationConf import LArDigitMaker
-digitmaker1 = LArDigitMaker("digitmaker1")
+from LArDigitization.LArDigitizationConf import LArHitEMapMaker
+digitmaker1 = LArHitEMapMaker("digitmaker1")
 topSequence += digitmaker1
 
 # Number of samples

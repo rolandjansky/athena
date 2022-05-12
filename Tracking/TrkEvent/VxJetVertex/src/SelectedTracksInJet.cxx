@@ -22,8 +22,7 @@
 
 namespace Trk {
 
-  SelectedTracksInJet::SelectedTracksInJet() 
-  {}
+  SelectedTracksInJet::SelectedTracksInJet() = default;
   
   
   SelectedTracksInJet::~SelectedTracksInJet() 

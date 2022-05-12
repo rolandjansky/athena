@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -67,7 +67,7 @@ public:
   int m_vtxNANandINFCheckRate;
   int m_vtxDisplacedstatuscode12CheckRate;
   int m_vtxDisplacedstatuscodenot12CheckRate;
-  int m_vtxDisplacedMoreThan_1m_CheckRateCnt;
+  int m_vtxDisplacedMoreThan_1m_CheckRate;
   int m_partMomentumNANandINFCheckRate;
   int m_undecayedPi0statuscode12CheckRate;
   int m_unstableNoEndVtxCheckRate;

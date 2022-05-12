@@ -1,23 +1,25 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMASUPERCLUSTERBUILDERBASE_H
 #define EGAMMAALGS_EGAMMASUPERCLUSTERBUILDERBASE_H
 
-// INCLUDE HEADER FILES:
+//
+#include "AthLinks/DataLink.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
-
-// Fwd declarations
+//
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloCellDetPos.h"
+//
 #include "EgammaAnalysisInterfaces/IegammaMVASvc.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaRecEvent/egammaRecContainer.h"
+//
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
@@ -90,7 +92,7 @@ protected:
   bool matchesInWindow(const xAOD::CaloCluster* ref,
                        const xAOD::CaloCluster* clus) const;
 
-  /** 
+  /**
    * Add  new supercluster ,created out of the input clusters,
    * to the newClusters collections.
    *
@@ -112,22 +114,22 @@ protected:
    * of the cells.
    *
    * If the supercluster has a cluster energy less then EtThresholdCut (also
-   * used as threshould for the seed) false returned, and the cluster is not added.
-   * The supercluster need to pass
-   * egammaCheckEnergyDepositTool::checkFractioninSamplingCluster 
-   * if not false is returned  and the cluster is not added. 
+   * used as threshould for the seed) false returned, and the cluster is not
+   * added. The supercluster need to pass
+   * egammaCheckEnergyDepositTool::checkFractioninSamplingCluster
+   * if not false is returned  and the cluster is not added.
    *
    * Calibrations on eta1, energy are applied with
    * egammaSuperClusterBuilderBase::calibrateCluster
    *
    */
-  bool createNewCluster(
-    const EventContext& ctx,
-    const std::vector<const xAOD::CaloCluster*>& clusters,
-    const CaloDetDescrManager& mgr,
-    xAOD::EgammaParameters::EgammaType egType,
-    xAOD::CaloClusterContainer* newClusters,
-    xAOD::CaloClusterContainer* precorrClusters) const;
+  bool createNewCluster(const EventContext& ctx,
+                        const std::vector<const xAOD::CaloCluster*>& clusters,
+                        const DataLink<CaloCellContainer>& cellCont,
+                        const CaloDetDescrManager& mgr,
+                        xAOD::EgammaParameters::EgammaType egType,
+                        xAOD::CaloClusterContainer* newClusters,
+                        xAOD::CaloClusterContainer* precorrClusters) const;
 
   /** check if we pass the basic criteria for
    * a seed cluster
@@ -137,6 +139,13 @@ protected:
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;
   static constexpr float s_cellPhiSize = M_PI / 128.;
+  static constexpr float s_TG3Run3E4cellEtaMax = 1.72;
+  static constexpr float s_TG3Run3E3cellEtaMin = 1.2;
+  static constexpr float s_TG3Run2E4cellEtaMax = 1.6;
+  static constexpr float s_TG3Run2E4cellEtaMin = 1.4;
+  // Run2 here
+  static constexpr float s_ClEtaMinForTG3cell = s_TG3Run2E4cellEtaMin - 0.03;
+  static constexpr float s_ClEtaMaxForTG3cell = s_TG3Run3E4cellEtaMax + 0.03;
 
   /** @brief Seed selection requirements */
   Gaudi::Property<float> m_EtThresholdCut{
@@ -154,22 +163,7 @@ protected:
   float m_searchWindowPhiEndcap;
 
 private:
-  /** Find the size of the cluster in phi using L2 cells.
-   *
-   * @param cp0: the reference position in calo-coordinates
-   * @param cluster: the cluster filled with L2 and L3 cells
-   *
-   * The window is computed using only cells in the second layer.
-   * Asymmetric sizes are computed for barrel and endcap. The size
-   * is the maximum difference in phi between the center of a cell
-   * and the refence, considering separately cells in the barrel
-   * and in the endcap. The computation is done separately for the
-   * cells with phi < reference phi or >=. A cutoff value of 1 is used.
-   */
-  PhiSize findPhiSize(const CentralPosition& cp0,
-                      const xAOD::CaloCluster& cluster) const;
-
-  /**
+ /**
    * Fill super cluster constraining its size
    * in eta,phi around the overall hottest cell
    * and the its L2 size
@@ -246,12 +240,21 @@ private:
   // Extra opening in eta for L3 cells
   float m_extraL3EtaSize;
 
-  /** @brief Size of topocluster search window in eta for the barrel */
+  /** @brief Decorate the supercluster with links to the component topoclusters
+   */
   Gaudi::Property<bool> m_linkToConstituents{
     this,
     "LinkToConstituents",
     true,
     "Link sister clusters to new cluster"
+  };
+
+  /** @brief Use extended TG3 definition (only after Run 2) */
+  Gaudi::Property<bool> m_useExtendedTG3{
+    this,
+    "UseExtendedTG3",
+    false,
+    "Extend TG3 definition from |eta| = 1.2 to |eta| = 1.72"
   };
 
   /** @brief Size of topocluster search window in eta for the barrel */
@@ -348,9 +351,6 @@ private:
     "",
     "Optional tool that performs basic checks of viability of cluster"
   };
-
-
-  
 };
 
 #endif

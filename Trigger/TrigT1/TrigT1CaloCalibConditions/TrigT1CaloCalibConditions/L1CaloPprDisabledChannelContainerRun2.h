@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRDISABLEDCHANNELCONTAINERRUN2_H
@@ -39,7 +39,6 @@ public:
   virtual ~L1CaloPprDisabledChannelContainerRun2() {};
 
   using L1CaloPprDisabledChannelContainer::makePersistent;
-  using AbstractL1CaloPersistentCondition::makeTransient;
   using L1CaloPprDisabledChannelContainer::makeTransient;
 
   using L1CaloPprDisabledChannelContainer::pprDisabledChannel;
@@ -59,6 +58,7 @@ private:
   std::map<L1CaloPprDisabledChannelContainerRun2::eCoolFolders, std::string> m_coolFoldersKeysMap;
 };
 
-CLASS_DEF( L1CaloPprDisabledChannelContainerRun2 , 1248179392 , 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(  L1CaloPprDisabledChannelContainerRun2 , 1104770746);
 
 #endif

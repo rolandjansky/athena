@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/AlgTool.h"
@@ -21,7 +21,7 @@ CaloTopoTowerBuilderToolBase::CaloTopoTowerBuilderToolBase(const std::string& na
 }
 
 CaloTopoTowerBuilderToolBase::~CaloTopoTowerBuilderToolBase()
-{ }
+= default;
 
 StatusCode CaloTopoTowerBuilderToolBase::initialize()
 {

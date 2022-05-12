@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -24,6 +24,8 @@
 #include "TLegend.h"
 #include "TStyle.h"
 #include "TROOT.h"
+#include <numeric> //for std::iota
+#include <algorithm>
 
 void splitline(const std::string & s, std::vector<std::string> & words);
 void splitdataline(const std::string & s, std::string & name, std::vector<double> & cols);
@@ -366,24 +368,18 @@ TGraphErrors * makeGraph(const std::vector<float> &y_in, const std::vector<float
 
 TGraphErrors * makeGraph(const std::vector<int> &iter, const std::vector<float> &y_in, const std::vector<float> &ey_in)
 {
-  unsigned int npoints = y_in.size();
-  float * x = new float[npoints];
-  float * ex = new float[npoints];
-  float * y = new float[npoints];
-  float * ey = new float[npoints];
-  for (unsigned int i =0; i < npoints; i++) {
-    x[i] = (iter.size() > i) ? float(iter[i]) : float(i);
-    y[i] = y_in[i];
-    ex[i] = 0;
-    ey[i] = (ey_in.size() > i) ? ey_in[i] : 0;
-    //std::cout <<  npoints << " " << x[i] << " " << y[i] << std::endl;
-  }
-  TGraphErrors * g = new TGraphErrors(npoints,x,y,ex,ey);
-
-  delete [] x;
-  delete [] y;
-  delete [] ex;
-  delete [] ey;
+  size_t npoints = y_in.size();
+  std::vector<float> y(y_in); //initialise y to y_in values
+  std::vector<float> ex(npoints, 0.0f); //initialise ex to zero
+  //
+  std::vector<float> x(npoints, 0.0f); //initialise x to zero
+  std::iota (x.begin(),x.end(),0.f); //initialise x with 0,1,2,3 etc ..
+  std::copy(iter.begin(),iter.end(), x.begin()); //..but overwrite with 'iter' values
+  //
+  std::vector<float> ey(npoints, 0.0f);  //initialise ey to zero..
+  std::copy(ey_in.begin(), ey_in.end(), ey.begin()); //..but overwrite with ey_in values
+  //TGraphErrors takes array pointers as arguments
+  TGraphErrors * g = new TGraphErrors(npoints,x.data(),y.data(),ex.data(),ey.data());
   return g;
 }
       

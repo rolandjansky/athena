@@ -28,7 +28,7 @@ namespace TrigConf {
       IMasterTableLoader() {};
 
       /**@brief destructor*/       
-      virtual ~IMasterTableLoader(){};
+      virtual ~IMasterTableLoader() override = default;
 
       /**
        * @brief Load the LVL1 trigger thresholds from the configuration

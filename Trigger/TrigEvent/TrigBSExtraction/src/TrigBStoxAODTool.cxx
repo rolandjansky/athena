@@ -377,8 +377,6 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
     m_trigMbtsBitsTool("xAODMaker::TrigT2MbtsBitsCnvTool/TrigT2MbtsBitsCnvTool",this),
     m_trigTrackCtsTool("xAODMaker::TrigTrackCountsCnvTool/TrigTrackCountsCnvTool",this),
     m_trigVtxCtsTool(  "xAODMaker::TrigVertexCountsCnvTool/TrigVertexCountsCnvTool",this),
-    m_trackCollectionTool(      "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool", this ),
-    m_recTrackParticleContTool( "xAODMaker::RecTrackParticleContainerCnvTool/RecTrackParticleContainerCnvTool", this ),
     m_electronTool( "xAODMaker::ElectronCnvTool/ElectronCnvTool", this ),
     m_photonTool( "xAODMaker::PhotonCnvTool/PhotonCnvTool", this ),
     m_caloClusterTool( "xAODMaker::CaloClusterCnvTool/CaloClusterCnvTool", this),
@@ -405,8 +403,6 @@ TrigBStoxAODTool::TrigBStoxAODTool(const std::string& type, const std::string& n
   declareProperty("trigMbtsBitsTool", m_trigMbtsBitsTool);
   declareProperty("trigTrackCtsTool", m_trigTrackCtsTool);
   declareProperty("trigVtxCtsTool", m_trigVtxCtsTool);
-  declareProperty("trackCollectionTool", m_trackCollectionTool);
-  declareProperty("recTrackParticleContTool", m_recTrackParticleContTool);
   declareProperty("electronTool", m_electronTool);
   declareProperty("photonTool", m_photonTool);
   declareProperty("caloClusterTool", m_caloClusterTool);

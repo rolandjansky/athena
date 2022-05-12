@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
@@ -8,7 +8,7 @@
 void
 LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj, 
                                   LArShapeTransType1* transObj, 
-                                  MsgStream & log)
+                                  MsgStream & log) const
 {
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
@@ -151,7 +151,7 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
 void
 LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj, 
                                   LArShapePersType1* persObj, 
-                                  MsgStream &log) 
+                                  MsgStream &log) const
 {
     // Copy conditions
 

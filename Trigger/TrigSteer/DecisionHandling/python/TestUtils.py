@@ -91,7 +91,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
     prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
 
-    from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
     from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep
 
     from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
@@ -121,7 +121,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     from TriggerMenuMT.HLT.Config.MenuComponents import Chain
     chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=StepConfig )
 
-    TriggerConfigHLT.registerChain( chainDict, chainConfig )
+    HLTMenuConfig.registerChain( chainDict, chainConfig )
 
     return chainConfig
 

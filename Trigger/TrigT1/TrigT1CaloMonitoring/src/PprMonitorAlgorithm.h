@@ -38,28 +38,25 @@ private:
   Gaudi::Property<int> m_SliceNo{this, "SliceNo", 15, "Number of possible time slices in the readout"};
   Gaudi::Property<int> m_EMFADCCut{this, "EMFADCCut", 40, "EM FADC cut for signal"};
   Gaudi::Property<int> m_TT_ADC_Pedestal{this, "ADCPedestal", 32, "Nominal pedestal value"};
-
+  Gaudi::Property<std::vector<int>> m_TT_HitMap_ThreshVec{this, "LUTHitMap_ThreshVec", {0, 1, 3, 5, 10, 20, 30, 50}, "Thresholds for LUT hitmaps"}; 
   
   /// Groups for GenericMonitoringArrays
-  std::map<std::string,int> m_groupTimeslice_EM;
+  std::map<std::string,int> m_groupTimeslice_EM; 
   std::map<std::string,int> m_groupTimeslice_HAD; 
-
 
   /// Helper functions
   
- StatusCode fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2* tt, 
-                               std::vector<MonitorTT> &vecMonTT_EM, 
-                               std::vector<MonitorTT> &vecMonTT_HAD,  
+ StatusCode makePPMTower( const xAOD::TriggerTower_v2* tt, 
                                std::vector<MonitorTT> &vecMonTT) const;
 
   double recTime(const std::vector<short unsigned int> &vFADC, int cut) const;
 
   std::string getPartition(int layer, double eta) const;
 
-  StatusCode fillPPMEtaVsPhi( MonitorTT &monTT, 
+  StatusCode fillPPMEtaPhi( MonitorTT &monTT, 
                               const std::string& groupName, 
                               const std::string& weightName,
-                              double weight) const;
+                              double weight=1.) const;
 
   StatusCode fillPPMPhi( MonitorTT &monTT,
                          const std::string& groupName) const;

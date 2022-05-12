@@ -2,6 +2,7 @@
 #
 # art-description: Run TRT digitization of an MC16a ttbar sample with 2016 geometry and conditions, without pile-up using Athena and AthenaMT
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-include: master/Athena
 # art-output: mc16a_ttbar.ST.RDO.pool.root

@@ -185,6 +185,8 @@ class LArSCL1Maker : public AthReentrantAlgorithm
 
   /** hit map */
   SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
+  /** Background Digit Overlay, default key is Bkg_LArDigitSCL2 */
+  SG::ReadHandleKey<LArDigitContainer> m_bkgDigitsKey{ this, "BkgDigitKey", ""};
   /** output Lar Digits SC container */
   SG::WriteHandleKey<LArDigitContainer> m_sLArDigitsContainerKey {this, "SCL1ContainerName","LArDigitSCL1","Output LArDigit container"};
 

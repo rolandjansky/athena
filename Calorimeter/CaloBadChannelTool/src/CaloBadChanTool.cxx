@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloBadChannelTool/CaloBadChanTool.h"
@@ -15,8 +15,7 @@ CaloBadChanTool::CaloBadChanTool(const std::string& type, const std::string& nam
 }
 
 
-CaloBadChanTool::~CaloBadChanTool() {
-}
+CaloBadChanTool::~CaloBadChanTool() = default;
 
 StatusCode CaloBadChanTool::initialize()
 {

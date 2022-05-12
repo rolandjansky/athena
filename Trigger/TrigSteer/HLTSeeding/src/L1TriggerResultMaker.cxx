@@ -3,6 +3,7 @@
 */
 
 #include "L1TriggerResultMaker.h"
+#include "L1TopoAlgorithms/cTauMultiplicity.h"
 #include "xAODTrigger/eFexTauRoIAuxContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
@@ -129,29 +130,20 @@ StatusCode L1TriggerResultMaker::createCombinedTauRoIs(xAOD::TrigComposite& l1tr
   // Match jTaus to eTaus and add the resulting cTaus to the container
   size_t i_eTau{0};
   for (const xAOD::eFexTauRoI* eTau : *eTauRoIs) {
-    size_t i_matched{std::numeric_limits<size_t>::max()};
-    size_t i_jTau{0};
-    for (const xAOD::jFexTauRoI* jTau : *jTauRoIs) {
-      // TODO: replace this with a function call to L1TopoSim implementation of the matching
-      if (eTau->iEta()==jTau->globalEta() && eTau->iPhi()==static_cast<int>(jTau->globalPhi())) {
-        i_matched = i_jTau;
-        ATH_MSG_DEBUG("Matched jTau index " << i_jTau << " to eTau index " << i_eTau);
-        break;
-      }
-      ++i_jTau;
-    }
-    if (i_matched==std::numeric_limits<size_t>::max()) {
+    const size_t i_jTau = TCS::cTauMultiplicity::cTauMatching(*eTau, *jTauRoIs);
+    if (i_jTau==std::numeric_limits<size_t>::max()) {
       ATH_MSG_DEBUG("No matching jTau for eTau index " << i_eTau);
       ++i_eTau;
       continue;
     }
+    ATH_MSG_DEBUG("Matched jTau index " << i_jTau << " to eTau index " << i_eTau);
 
     // Add new eTau to the cTau container
     cTauRoIs->push_back(std::make_unique<xAOD::eFexTauRoI>());
     // Copy over all variables from the original eTau
     *cTauRoIs->back() = *eTau;
     // Link the matched jTau
-    cjTauLink(*cTauRoIs->back()) = jTauLink_t(m_jFexTauRoIKey.key(), i_matched, eventContext);
+    cjTauLink(*cTauRoIs->back()) = jTauLink_t(m_jFexTauRoIKey.key(), i_jTau, eventContext);
 
     ++i_eTau;
   }

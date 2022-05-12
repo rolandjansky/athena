@@ -7,7 +7,7 @@ from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from ..Menu.SignatureDicts import METChainParts_Default
+from ..Menu.SignatureDicts import METChainParts_Default, METChainParts
 from ..Config.MenuComponents import (
     RecoFragmentsPool,
     ChainStep,
@@ -17,12 +17,12 @@ from ..Config.MenuComponents import (
     MenuSequenceCA,
 )
 from copy import copy
-from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
+from ..CommonSequences.FullScanDefs import trkFSRoI
 from AthenaCommon.Logging import logging
 from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 from abc import ABC, abstractmethod
 from string import ascii_uppercase
-from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETCellHypoToolFromDict
+from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETHypoToolFromDict
 
 
 def streamer_hypo_tool(chainDict):
@@ -33,9 +33,9 @@ log = logging.getLogger(__name__)
 
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
-recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "addInfo"]
-metFSRoIs = [caloFSRoI, trkFSRoI]
 
+recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "nSigma", "addInfo"]
+metFSRoIs = ['', None, trkFSRoI]
 
 def metRecoDictToString(recoDict, skipDefaults=True):
     """Convert a dictionary containing reconstruction keys to a string
@@ -51,6 +51,20 @@ def metRecoDictToString(recoDict, skipDefaults=True):
         and (not skipDefaults or recoDict[k] != METChainParts_Default[k])
     )
 
+def stringToMETRecoDict(string):
+    """Convert a string to a MET reco dict"""
+    defaults = copy(METChainParts_Default)
+    # Now go through the parts of the string and fill in the dict
+    for part in string.split("_"):
+        for key, values in METChainParts.items():
+            if not isinstance(values, list):
+                continue
+            if part in values:
+                if isinstance(defaults[key], list):
+                    defaults[key].append(part)
+                else:
+                    defaults[key] = part
+    return defaults
 
 class AlgConfig(ABC):
     """Base class to describe algorithm configurations
@@ -140,12 +154,10 @@ class AlgConfig(ABC):
         """ Create the monitoring tool """
         return getMETMonTool()
 
-    def athSequences(self):
-        """ Get the reco sequences (split by step) """
-        if hasattr(self, "_athSequences"):
-            return self._athSequences
-
-        inputMakers = self.inputMakers()
+    def recoAlgorithms(self):
+        """Get the reconstruction algorithms (split by step) without the input makers"""
+        if hasattr(self, "_recoAlgorithms"):
+            return self._recoAlgorithms
         # Retrieve the inputss
         log.verbose("Create inputs for %s", self._suffix)
         steps, inputs = self.inputRegistry.build_steps(
@@ -154,14 +166,23 @@ class AlgConfig(ABC):
         fex = self.make_fex(self.fexName, inputs)
         fex.MonTool = self.getMonTool()
         fex.METContainerKey = self.outputKey
-        sequences = []
+        # Add the FEX to the last list
+        steps[-1] += [fex]
+        self._recoAlgorithms = steps
+        return self._recoAlgorithms
 
-        for idx, algList in enumerate(steps):
-            # Put the input makers at the start
-            algList.insert(0, inputMakers[idx])
-            if idx == len(steps) - 1:
-                algList += [fex]
-            sequences.append(seqAND(f"METAthSeq_step{idx}_{self._suffix}", algList))
+    def athSequences(self):
+        """ Get the reco sequences (split by step) """
+        if hasattr(self, "_athSequences"):
+            return self._athSequences
+
+        inputMakers = self.inputMakers()
+        reco = self.recoAlgorithms()
+        # Put the input makers at the start
+        sequences = [
+            [] if step==[] else seqAND(f"METAthSeq_step{idx}_{self._suffix}",  [inputMakers[idx]] + step)
+            for idx, step in enumerate(reco)
+        ]
         self._athSequences = sequences
         return self._athSequences
 
@@ -177,7 +198,7 @@ class AlgConfig(ABC):
         for idx, seq in enumerate(ath_sequences):
             if idx == len(ath_sequences) - 1:
                 hypo = conf2toConfigurable(self.make_hypo_alg())
-                hypo_tool = TrigMETCellHypoToolFromDict
+                hypo_tool = TrigMETHypoToolFromDict
             else:
                 hypo = conf2toConfigurable(self.make_passthrough_hypo_alg(idx))
                 hypo_tool = streamer_hypo_tool
@@ -187,7 +208,7 @@ class AlgConfig(ABC):
                     Maker=inputMakers[idx],
                     Hypo=hypo,
                     HypoToolGen=hypo_tool,
-                )
+                ) if seq != [] else []
             )
         self._menuSequences = sequences
         return self._menuSequences
@@ -202,15 +223,19 @@ class AlgConfig(ABC):
         # number of different steps that can be provided this way, but it seems
         # unlikely that we'll actually run into this limit. If we do, it
         # shouldn't be a problem to change it
-        return [
-            ChainStep(
-                self.name_step(idx),
-                [seq],
-                multiplicity=[1],
-                chainDicts=[chainDict],
-            )
-            for idx, seq in enumerate(self.menuSequences())
-        ]
+        steps=[]
+
+        for idx, seq in enumerate(self.menuSequences()):
+            steps+= [
+                ChainStep(
+                    self.name_step(idx),
+                    [seq] if seq!=[] else [],
+                    multiplicity=[1] if seq != [] else [],
+                    chainDicts=[chainDict],
+                )
+            ]
+
+        return steps
 
     def make_reco_ca(self, flags):
         """ Make the reconstruction sequences for the new JO style """
@@ -236,32 +261,37 @@ class AlgConfig(ABC):
         # and the InEventRecoCAs that contain the input makers
         for step_idx, reco_sequence in enumerate(reco_sequences):
             reco_acc = self.inputMakerCA(step_idx)
-            if step_idx == len(reco_sequences) - 1:
-                # If this is the last step we have to add the hypo alg
-                hypo_alg = self.make_hypo_alg()
-                hypo_tool = TrigMETCellHypoToolFromDict
-            else:
-                # Otherwise, we add a passthrough hypo
-                hypo_alg = self.make_passthrough_hypo_alg(step_idx)
-                hypo_tool = streamer_hypo_tool
+            sel_acc  = None
+            step_name = f'Empty_METStep{step_idx}'
+            if reco_acc is not None: #Define reco and hypo algorithms only if reco_acc is not None
+                if step_idx == len(reco_sequences) - 1:
+                    # If this is the last step we have to add the hypo alg
+                    hypo_alg = self.make_hypo_alg()
+                    hypo_tool = TrigMETHypoToolFromDict
+                else:
+                    # Otherwise, we add a passthrough hypo
+                    hypo_alg = self.make_passthrough_hypo_alg(step_idx)
+                    hypo_tool = streamer_hypo_tool
 
-            # Now merge the reco sequence into the InEventRecoCA
-            reco_acc.merge(reco_sequence)
+                # Now merge the reco sequence into the InEventRecoCA
+                reco_acc.merge(reco_sequence)
 
-            # Create a selection CA
-            sel_acc = SelectionCA(self.name_step(step_idx))
-            # Merge in the reconstruction sequence
-            sel_acc.mergeReco(reco_acc)
-            # Add its hypo alg
-            sel_acc.addHypoAlgo(hypo_alg)
+                # Create a selection CA
+                sel_acc = SelectionCA(self.name_step(step_idx))
+                # Merge in the reconstruction sequence
+                sel_acc.mergeReco(reco_acc)
+                # Add its hypo alg
+                sel_acc.addHypoAlgo(hypo_alg)
+                
+                step_name = sel_acc.name
 
             # Build the menu sequence and create the actual chainStep
             output_steps.append(
                 ChainStep(
-                    name=sel_acc.name,
-                    multiplicity=[1],
+                    name=step_name,
+                    multiplicity=[] if sel_acc is None else [1],
                     chainDicts=[chainDict],
-                    Sequences=[MenuSequenceCA(sel_acc, HypoToolGen=hypo_tool)],
+                    Sequences= [] if sel_acc is None else [MenuSequenceCA(sel_acc, HypoToolGen=hypo_tool)],
                 )
             )
 
@@ -287,7 +317,9 @@ class AlgConfig(ABC):
         name = self.name_step(idx) + "Reco"
         if idx == 0:
             return InEventRecoCA(name, inputMaker=clusterFSInputMaker())
-        elif idx == 1:
+        elif idx==1:
+            return None
+        elif idx == 2:
             return InEventRecoCA(
                 name,
                 inputMaker=CompFactory.InputMakerForRoI(
@@ -305,7 +337,7 @@ class AlgConfig(ABC):
             return self._inputMakers
         from ..Jet.JetMenuSequences import getCaloInputMaker, getTrackingInputMaker
 
-        self._inputMakers = [getCaloInputMaker(), getTrackingInputMaker('ftf')]
+        self._inputMakers = [getCaloInputMaker(), None, getTrackingInputMaker('ftf')]
         return self._inputMakers
 
     @classmethod

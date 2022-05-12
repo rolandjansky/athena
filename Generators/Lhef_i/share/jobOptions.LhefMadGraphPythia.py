@@ -25,7 +25,7 @@ evgenMsgLevel = INFO
 # other includes needed by the physics file
 include( "PartPropSvc/PartPropSvc.py" )
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 
 # get a handle on topalg

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetCosmicTrackSelectorTool.h"
@@ -40,7 +40,7 @@ namespace InDet
 
   //----------------------------------------------------------------------------
   InDetCosmicTrackSelectorTool::~InDetCosmicTrackSelectorTool()
-  {}
+  = default;
 
   //----------------------------------------------------------------------------
   StatusCode  InDetCosmicTrackSelectorTool::initialize()
@@ -244,7 +244,7 @@ namespace InDet
   }
 
   //----------------------------------------------------------------------------
-  int InDetCosmicTrackSelectorTool::getNSiHits(const Trk::Track * track, bool top) const
+  int InDetCosmicTrackSelectorTool::getNSiHits(const Trk::Track * track, bool top) 
   {
     int nsilicon = 0;
 

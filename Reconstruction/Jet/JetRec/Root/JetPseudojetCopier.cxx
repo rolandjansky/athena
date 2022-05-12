@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPseudojetCopier.cxx
@@ -18,7 +18,7 @@ using xAOD::JetContainer;
 namespace {
 
   /// Some helpers to sort according to p_T
-  SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  const SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
   struct ConstitPtComp {
     bool operator()(const xAOD::Jet* j1, const xAOD::Jet * j2) {
       return ptAcc(*j1) > ptAcc(*j2) ;
@@ -116,13 +116,11 @@ copy(const JetContainer& srcjets, const JetContainer& dstjets, string pjmapname)
     }
     ATH_MSG_DEBUG("   Checking jet " << sourceIndex << "   pt=" << ptAcc(*pjetin) );
     // find a matching jet in the target container
+    //first remove null pointers
+    sortedTarget.remove_if([](const Jet * pJetOut){return pJetOut == nullptr;});
+    //
     for ( auto targetIt=sortedTarget.begin(); targetIt!=sortedTarget.end(); ++targetIt ) {
       const Jet* pjetout = *targetIt;
-      if ( pjetout == nullptr ) {
-        ATH_MSG_WARNING("Skipping missing output jet.");
-        sortedTarget.erase(targetIt); 
-        continue;
-      }
       int jetdiff = differentJets(pjetin, pjetout);
       bool isSame = jetdiff == 0;
       ATH_MSG_DEBUG("            vs     pt="<<ptAcc(*pjetout) << " jetdiff= " << jetdiff );    
@@ -133,7 +131,7 @@ copy(const JetContainer& srcjets, const JetContainer& dstjets, string pjmapname)
                         << " in map " << pjmapname);
         pjmap[pjetout] = ppj;
         // remove target from list to reduce next search length.
-        sortedTarget.erase(targetIt); 
+        sortedTarget.erase(targetIt); //the returned iterator is unused, as the loop is terminated
         break;
       }
       ATH_MSG_VERBOSE("No match found for destination jet " << long(pjetout));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
@@ -7,6 +7,7 @@
 
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "TF1.h"
@@ -122,42 +123,78 @@ namespace CP {
         /// This is necessary only when the resolution is very optimistic in the MC such that a large smearing is applied
         bool passedBMVmimicCut(const xAOD::Muon&) const;
 
-	///Returns a vector of the muon's segments, sorted according to chamber index
-	std::vector<const xAOD::MuonSegment*> getSegmentsSorted(const xAOD::Muon& mu) const;
-
-        /// Maximum pseudorapidity for the selected muons
-        double m_maxEta;
-        int m_quality;
+        /// Returns a vector of the muon's segments, sorted according to chamber index
+        std::vector<const xAOD::MuonSegment*> getSegmentsSorted(const xAOD::Muon& mu) const;
 
         /// Store selection information.
         asg::AcceptInfo m_acceptInfo;
 
-        bool m_toroidOff;
-        bool m_developMode;
-        bool m_TrtCutOff;
-        bool m_SctCutOff;
-        bool m_PixCutOff;
-        bool m_SiHolesCutOff;
-        bool m_TurnOffMomCorr;
-        bool m_useAllAuthors;
-        bool m_use2stationMuonsHighPt;
-        bool m_useMVALowPt;
-	bool m_useSegmentTaggedLowPt;
-	bool m_useCaloScore;
-        bool m_doBadMuonVetoMimic;
+        Gaudi::Property<double> m_maxEta{this, "MaxEta", 2.7, "Maximum eta range to select the muons"};
+        Gaudi::Property<int> m_quality{this, "MuQuality", 1,
+                                       "Quality to select. Values correspond to 0, 1, 2, 3, 4=HighPt, 5=LowPtEfficiency"};
+
+        Gaudi::Property<bool> m_toroidOff{this, "ToroidOff", false, "Run the tool in Toroid off setup"};
+
+        // Expert development options
+        Gaudi::Property<bool> m_TurnOffMomCorr{this, "TurnOffMomCorr", false};
+        Gaudi::Property<bool> m_disablePtCuts{this, "DisablePtCuts", false};
+
+        Gaudi::Property<bool> m_developMode{this, "ExpertDevelopMode", false};
+        Gaudi::Property<bool> m_TrtCutOff{this, "TrtCutOff", true};
+        Gaudi::Property<bool> m_SctCutOff{this, "SctCutOff", false};
+        Gaudi::Property<bool> m_PixCutOff{this, "PixCutOff", false};
+        Gaudi::Property<bool> m_SiHolesCutOff{this, "SiHolesCutOff", false};
+        Gaudi::Property<bool> m_useAllAuthors{this, "UseAllAuthors", true};
+
+        Gaudi::Property<bool> m_use2stationMuonsHighPt{
+            this, "Use2stationMuonsHighPt", true, "for users of high-pT working point to choose whether to include 'safe' 2-station muons"};
+
+        Gaudi::Property<bool> m_useMVALowPt{
+            this, "UseMVALowPt", false,
+            "for users of low-pT working point to choose whether to use MVA and whether to include MuTagIMO muons"};
+
+        Gaudi::Property<bool> m_useSegmentTaggedLowPt{this, "UseSegmentTaggedLowPt", false, "Use MVA low-pt WP. In development phase"};
+
+        Gaudi::Property<bool> m_useCaloScore{this, "UseCaloScore", false,
+                                             "Switch to use CaloScore for calo-tags in the Loose working point - In development phase"};
+
+        // switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the
+        // high-pT selection
+        Gaudi::Property<bool> m_doBadMuonVetoMimic{this, "DoBadMuonVetoMimic", false};
 
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
 
-        std::string m_MVAreaderFile_EVEN_MuidCB;
-        std::string m_MVAreaderFile_ODD_MuidCB;
-        std::string m_MVAreaderFile_EVEN_MuGirl;
-        std::string m_MVAreaderFile_ODD_MuGirl;
+        // MVA configs for low-pT working point. Expert use only!
+        Gaudi::Property<std::string> m_MVAreaderFile_EVEN_MuidCB{
+            this, "MVAreaderFile_EVEN_MuidCB",
+            "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_EVEN.weights.xml"};
+        Gaudi::Property<std::string> m_MVAreaderFile_ODD_MuidCB{
+            this, "MVAreaderFile_ODD_MuidCB",
+            "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuidCB_ODD.weights.xml"};
 
-	std::string m_MVAreaderFile_MuTagIMO_etaBin1;
-	std::string m_MVAreaderFile_MuTagIMO_etaBin2;
-	std::string m_MVAreaderFile_MuTagIMO_etaBin3;
+        Gaudi::Property<std::string> m_MVAreaderFile_EVEN_MuGirl{
+            this, "MVAreaderFile_EVEN_MuGirl",
+            "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml"};
+        Gaudi::Property<std::string> m_MVAreaderFile_ODD_MuGirl{
+            this, "MVAreaderFile_ODD_MuGirl",
+            "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml"};
 
-        std::string m_BMVcutFile;
+        Gaudi::Property<std::string> m_MVAreaderFile_MuTagIMO_etaBin1{
+            this, "MVAreaderFile_MuTagIMO_etaBin1", "dev/MuonSelectorTools/181121_MuTagIMO_BDT/BDT_NOV2021_MuTagIMO_etaBin1.weights.xml"};
+        Gaudi::Property<std::string> m_MVAreaderFile_MuTagIMO_etaBin2{
+            this, "MVAreaderFile_MuTagIMO_etaBin2", "dev/MuonSelectorTools/181121_MuTagIMO_BDT/BDT_NOV2021_MuTagIMO_etaBin2.weights.xml"};
+        Gaudi::Property<std::string> m_MVAreaderFile_MuTagIMO_etaBin3{
+            this, "MVAreaderFile_MuTagIMO_etaBin3", "dev/MuonSelectorTools/181121_MuTagIMO_BDT/BDT_NOV2021_MuTagIMO_etaBin3.weights.xml"};
+
+        // subfolder to load from the calibration db
+        Gaudi::Property<std::string> m_calibration_version{this, "CalibrationRelease", "PreRec2016_2016-04-13"};
+
+        // possible override for the calibration version
+        Gaudi::Property<std::string> m_custom_dir{this, "CustomInputFolder", ""};
+
+        /// file for bad muon veto mimic cut functions
+        Gaudi::Property<std::string> m_BMVcutFile{this, "BMVcutFile",
+                                                  "MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root"};
 
         /// Checks for each histogram
         StatusCode getHist(TFile* file, const std::string& histName, std::unique_ptr<TH1>& hist) const;
@@ -169,11 +206,6 @@ namespace CP {
         //
         std::unique_ptr<TF1> m_BMVcutFunction_barrel;
         std::unique_ptr<TF1> m_BMVcutFunction_endcap;
-
-        // subfolder to load from the calibration db
-        std::string m_calibration_version;
-        // possible override for the calibration version
-        std::string m_custom_dir;
 
         // Need run number (or random run number) to apply period-dependent selections.
         // If selection depends only on data taking year, this can be specified by passing
@@ -187,17 +219,49 @@ namespace CP {
         bool isBMG(const float eta, const float phi) const;
 
         // TMVA readers for low-pT working point
-        std::unique_ptr<TMVA::Reader> m_readerE_MUID;
-        std::unique_ptr<TMVA::Reader> m_readerO_MUID;
-        std::unique_ptr<TMVA::Reader> m_readerE_MUGIRL;
-        std::unique_ptr<TMVA::Reader> m_readerO_MUGIRL;
-	
-	std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin1;
-	std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin2;
-	std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin3;
+        std::unique_ptr<TMVA::Reader> m_readerE_MUID{nullptr};
+        std::unique_ptr<TMVA::Reader> m_readerO_MUID{nullptr};
+        std::unique_ptr<TMVA::Reader> m_readerE_MUGIRL{nullptr};
+        std::unique_ptr<TMVA::Reader> m_readerO_MUGIRL{nullptr};
+
+        std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin1{nullptr};
+        std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin2{nullptr};
+        std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin3{nullptr};
 
         // variables for the TMVA readers
         mutable std::mutex m_low_pt_mva_mutex;
+
+        struct hitSummary {
+            uint8_t nprecisionLayers{0};
+            uint8_t nprecisionHoleLayers{0};
+            uint8_t nGoodPrecLayers{0};
+            uint8_t innerSmallHits{0};
+            uint8_t innerLargeHits{0};
+            uint8_t middleSmallHits{0};
+            uint8_t middleLargeHits{0};
+            uint8_t outerSmallHits{0};
+            uint8_t outerLargeHits{0};
+            uint8_t extendedSmallHits{0};
+            uint8_t extendedLargeHits{0};
+            uint8_t extendedSmallHoles{0};
+            uint8_t isSmallGoodSectors{0};
+            uint8_t cscUnspoiledEtaHits{0};
+        };
+
+        template <class P, class T, class S> inline void retrieveSummaryValue(const P& muon, T& value, const S type) const {
+            if (!muon.summaryValue(value, type)) {
+                ATH_MSG_FATAL(__FILE__ << ":" << __LINE__ << " Failed to retrieve summary value " << type);
+                throw std::runtime_error("MuonSelectorTool summary retrieval failed");
+            }
+        }
+        inline void fillSummary(const xAOD::Muon& muon, hitSummary& summary) const;
+
+        inline void retrieveParam(const xAOD::Muon& muon, float& value, const xAOD::Muon::ParamDef param) const;
+
+        inline float qOverPsignificance(const xAOD::Muon& muon) const;
+        inline float rhoPrime(const xAOD::Muon& muon) const;
+
+        inline void IdMsPt(const xAOD::Muon& muon, float& idPt, float& msPt) const;
 
     };  // class MuonSelectionTool
 

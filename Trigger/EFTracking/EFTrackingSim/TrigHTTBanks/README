@@ -1,0 +1,20 @@
+## TrigHTTBanks package
+
+This package contains all files that manage constant banks. This includes fit constants and pattern banks. Algorithms for generating banks are located in TrigHTTBankGen.
+All bank classes can be retrieved using ITrigHTTBankSvc, except for HTTIndexPatt, which are AthAlgTools. File and other configuration can be set using the bank tags.
+
+#### Bank Service:
+
+1. ITrigHTTBankSvc.h: Interface declaration for the bank service.
+2. TrigHTTBankSvc.h: Implementation of the bank service.
+
+#### Sector Files:
+
+1. HTTFitConstantBank.h: This class stores the fit constants for all sectors, and exposes methods to perform linear fits and inverse fits.
+2. HTTSectorSlice.h: This class manages bitvectors that describe what range of track parameters go through each sector (a slice). Primarily used by track inversion to reverse-lookup sectors given a set of track parameters.
+3. HTTSectorBank.h: This class stores the sector definitions, the list of 8 or 13 modules that define a sector. It also provides methods to reverse-lookup a sector given a list of modules.
+
+#### Configuration:
+
+1. HTTBankConfig.py: Functions for creating the bank service and applying the bank tag to HTTBanks objects.
+2. HTTBankTags.py: JSON-like file that lists tags for configuring the HTTBanks objects and algorithms.

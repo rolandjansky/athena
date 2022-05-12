@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinTrkTrackAlg.cxx
@@ -174,7 +174,7 @@ ThinTrkTrackAlg::doMuons(const EventContext& ctx) const
     if (!acc.isAvailable(*mu)) {
       continue;
     }
-    const ElementLink<xAOD::TrackParticleContainer> link = acc(*mu);
+    const ElementLink<xAOD::TrackParticleContainer>& link = acc(*mu);
     if (!link.isValid()) {
       continue;
     }

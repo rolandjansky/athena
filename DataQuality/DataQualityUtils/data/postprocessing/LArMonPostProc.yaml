@@ -48,10 +48,17 @@ Parameters: { maxVal : 100, minVal : 0}
 Description: LAr_FEBmon_EventsRejectedLB_SetMinMax
 
 ---
+Input: [ 'LAr/FEBMon/(?P<fold>\S+)/EventsRejected' ]
+Output: [ 'LAr/FEBMon/{fold}/EventsRejectedYield' ]
+Function: LArMonitoring.LArMonTransforms.normToBinAndSetMinMax
+Parameters: { bin_norm : 7, maxVal : 100, minVal : 0, titleToReplace : 'Nb of events rejected (at least one error)', replaceWith: 'Data corruption yield', newYaxis : 'Yield(%)'}
+Description: LAr_FEBmon_EventsRejectedYield_Normalize
+
+---
 Input: [ 'LAr/FEBMon/Summary/RAW_YieldOfRejectedEventsVsLB(?P<end>\S*)' ]
 Output: [ 'LAr/FEBMon/Summary/YieldOfRejectedEventsVsLB{end}' ]
 Function: LArMonitoring.LArMonTransforms.setMaxMin
-Parameters: { minVal : -5, useMax : False}
+Parameters: { minVal : -1, useMax : False}
 Description: LAr_FEBmon_YieldOfRejectedEventsVsLB_SetMinMax
 
 
@@ -66,14 +73,14 @@ Description: LAr_FEBmon_SetMin0
 
 #Digits
 ---
-Input: [ 'LAr/Digits/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>OutOfRange|Saturation|SaturationLow|NullDigit|AvePosMaxDig)_(?P=fold)(?P<side>A|C)' ]
+Input: [ 'LAr/Digits/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>AvePosMaxDig)_(?P=fold)(?P<side>A|C)' ]
 Output: [ 'LAr/Digits/{fold}/{histname}_{fold}{side}' ]
 Function: LArMonitoring.LArMonTransforms.setMaxMin
 Parameters: { minVal : 0, useMax : False}
 Description: LAr_Digits_SetMin0
 
 ---
-Input: [ 'LAr/Digits/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>OutOfRangeChan|SaturationChan|SaturationChanLow|NullDigitChan)_(?P=fold)(?P<side>A|C)', 'LAr/Digits/LBN' ]
+Input: [ 'LAr/Digits/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>OutOfRange|OutOfRangeChan|Saturation|SaturationChan|SaturationLow|SaturationChanLow|NullDigit|NullDigitChan)_(?P=fold)(?P<side>A|C)', 'LAr/Digits/LBN' ]
 Output: [ 'LAr/Digits/{fold}/{histname}_{fold}{side}' ]
 Function: LArMonitoring.LArMonTransforms.normToEntriesAndSetMin
 Parameters: { minVal : 0}
@@ -145,4 +152,8 @@ Output: [ 'LAr/NoiseCorrelation/FCal{side}/NoiseCorr_FCal{side}ft{ftid}slot{slot
 Function: LArMonitoring.LArMonTransforms.computeCorrelations
 Description: NoiseCorrelationMon_FCal
 
-
+---
+Input: [ 'LAr/PedMonGroupNewAlg/(?P<part>EMB|EMEC|HEC|FCal)/nbOfFebBlocks_(?P=part)(?P<side>A|C)' ]
+Output: [ 'LAr/MeanFeb' ]
+Function: LArMonitoring.LArMonTransforms.Mean
+Description: LAr_NbOfFebvsPartition_Mean

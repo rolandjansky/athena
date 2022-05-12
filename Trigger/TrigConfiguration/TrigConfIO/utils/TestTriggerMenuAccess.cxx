@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdlib>
@@ -517,12 +517,6 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    working point Tight" << endl;
       for(auto & iso : ex.isolation(TrigConf::Selection::WP::TIGHT)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
-              << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
-              << ", isolation=" << iso.value() << endl;
-      }
-      cout << "    working point HadMedium" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Selection::WP::HADMEDIUM)) {
-         cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax()
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }

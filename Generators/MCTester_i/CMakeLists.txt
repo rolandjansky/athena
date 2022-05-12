@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MCTester_i )
@@ -14,11 +14,10 @@ atlas_add_component( MCTester_i
                      ${MCTester_sources}
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${MCTESTER_INCLUDE_DIRS} ${HEPMC_MCTester_INTERFACE_DIR}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${MCTESTER_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib EventInfo GeneratorObjects )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${MCTESTER_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib GeneratorObjects )
 
 
 # Install files from the package:
-atlas_install_headers( MCTester_i )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/*.sh share/*.C )
 

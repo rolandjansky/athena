@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_FEATUREEXTRACTOR_H
@@ -38,7 +38,6 @@ namespace PanTau {
         
         //get the features for an input seed
         virtual StatusCode execute(PanTau::PanTauSeed* inSeed);
-        void Log10();
         
     protected:
         

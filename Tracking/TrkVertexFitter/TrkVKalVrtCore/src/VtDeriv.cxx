@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -17,7 +17,7 @@ extern const vkalMagFld      myMagFld;
 
 
 void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, double *vrtref, double *covvrtref, 
-      double *drdpar, double *dwgt, double *rv0, const VKalVrtControl * FitCONTROL)
+      double *drdpar, double *dwgt, double *rv0, VKalVrtControl * FitCONTROL)
 {
     /* Initialized data */
 

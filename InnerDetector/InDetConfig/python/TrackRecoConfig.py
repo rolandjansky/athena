@@ -4,132 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, Format
 
-##------------------------------------------------------------------------------
-def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("BcmContainerName", "BCM_RDOs")
-    algo = CompFactory.BCM_ZeroSuppression(name=name, **kwargs)
-    acc.addEventAlgo(algo, primary = True)
-    return acc
-
-##------------------------------------------------------------------------------
-def PixelClusterizationCfg(flags, name = "InDetPixelClusterization", **kwargs) :
-    acc = ComponentAccumulator()
-    merged_pixels_tool = acc.popToolsAndMerge(MergedPixelsToolCfg(flags, **kwargs))
-    ambi_finder = acc.popToolsAndMerge(PixelGangedAmbiguitiesFinderCfg(flags))
-
-    # Region selector tools for Pixel
-    from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
-    RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
-
-    kwargs.setdefault("clusteringTool", merged_pixels_tool)
-    kwargs.setdefault("gangedAmbiguitiesFinder", ambi_finder)
-    kwargs.setdefault("DataObjectName", "PixelRDOs")
-    kwargs.setdefault("ClustersName", "PixelClusters")
-    kwargs.setdefault("RegSelTool", RegSelTool_Pixel)
-
-    acc.addEventAlgo(CompFactory.InDet.PixelClusterization(name=name, **kwargs))
-    return acc
-##------------------------------------------------------------------------------
-def PixelClusterizationPUCfg(flags, name="InDetPixelClusterizationPU", **kwargs) :
-    kwargs.setdefault("DataObjectName", "Pixel_PU_RDOs")
-    kwargs.setdefault("ClustersName", "PixelPUClusters")
-    kwargs.setdefault("AmbiguitiesMap", "PixelClusterAmbiguitiesMapPU")
-    return PixelClusterizationCfg(flags, name=name, **kwargs)
-
-##------------------------------------------------------------------------------
-##------------------------------------------------------------------------------
-
-def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
-    acc = ComponentAccumulator()
-
-    # Need to get SCT_ConditionsSummaryTool for e.g. SCT_ClusteringTool
-    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False))
-
-    #### Clustering tool ######
-    InDetClusterMakerTool = acc.popToolsAndMerge(ClusterMakerToolCfg(flags))
-    InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "InDetSCT_ClusteringTool",
-                                                                    globalPosAlg   = InDetClusterMakerTool,
-                                                                    conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
-    if flags.InDet.selectSCTIntimeHits :
-       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type is BeamType.Collisions:
-          InDetSCT_ClusteringTool.timeBins = "01X"
-       else:
-          InDetSCT_ClusteringTool.timeBins = "X1X"
-
-    kwargs.setdefault("clusteringTool", InDetSCT_ClusteringTool)
-    kwargs.setdefault("DataObjectName", 'SCT_RDOs') ##InDetKeys.SCT_RDOs()
-    kwargs.setdefault("ClustersName", 'SCT_Clusters') ##InDetKeys.SCT_Clusters()
-    kwargs.setdefault("conditionsTool", InDetSCT_ConditionsSummaryToolWithoutFlagged)
-
-    acc.addEventAlgo( CompFactory.InDet.SCT_Clusterization(name=name, **kwargs))
-
-    return acc
-
-##------------------------------------------------------------------------------
-##------------------------------------------------------------------------------
-##------------------------------------------------------------------------------
-
-def SCTClusterizationPUCfg(flags, name="InDetSCT_ClusterizationPU", **kwargs) :
-    kwargs.setdefault("DataObjectName", "SCT_PU_RDOs" )   #flags.InDetKeys.SCT_PU_RDOs
-    kwargs.setdefault("ClustersName", "SCT_PU_Clusters")  #flags.InDetKeys.SCT_PU_Clusters
-    return SCTClusterizationCfg(flags, name=name, **kwargs)
-
-##------------------------------------------------------------------------------
-def PixelGangedAmbiguitiesFinderCfg(flags) :
-    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
-    acc = PixelReadoutGeometryCfg(flags)
-
-    InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
-    acc.setPrivateTools( InDetPixelGangedAmbiguitiesFinder )
-    return acc
-
-##------------------------------------------------------------------------------
-def MergedPixelsToolCfg(flags, **kwargs) :
-      acc = ComponentAccumulator()
-      # --- now load the framework for the clustering
-      kwargs.setdefault("globalPosAlg", acc.popToolsAndMerge(ClusterMakerToolCfg(flags)) )
-
-      # PixelClusteringToolBase uses PixelConditionsSummaryTool
-      from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-      kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) )
-
-      # Enable duplcated RDO check for data15 because duplication mechanism was used.
-      if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
-          kwargs.setdefault("CheckDuplicatedRDO", True )
-
-      InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "InDetMergedPixelsTool", **kwargs)
-
-      acc.setPrivateTools(InDetMergedPixelsTool)
-      return acc
-
-##------------------------------------------------------------------------------
-def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
-    acc = ComponentAccumulator()
-
-    # This directly needs the following Conditions data:
-    # PixelChargeCalibCondData & PixelOfflineCalibData
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-
-    from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
-    acc.merge(PixelReadoutManagerCfg(flags))
-
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-    PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )
-
-    kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
-    kwargs.setdefault("SCTLorentzAngleTool", SCTLorentzAngleTool)
-
-    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = name, **kwargs)
-    acc.setPrivateTools(InDetClusterMakerTool)
-    return acc
-
-
 def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
@@ -165,6 +39,15 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
     result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
     return result
 
+def RecTrackParticleContainerCnvToolCfg(flags, name="RecTrackParticleContainerCnvTool", TrackParticleCreator = None):
+    result = ComponentAccumulator()
+    if TrackParticleCreator is None:
+        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
+    result.setPrivateTools(CompFactory.xAODMaker.RecTrackParticleContainerCnvTool(name,
+                                                                                  TrackParticleCreator=TrackParticleCreator,
+    ))
+    return result
+
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
@@ -180,19 +63,31 @@ def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticl
     ))
     return result
 
-def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputCombinedTracks=None, CombinedInDetClusterSplitProbContainer=None, **kwargs):
+def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
+                                InputCombinedTracks=None,
+                                OutputCombinedTracks="",
+                                AssociationMapName="",
+                                CombinedInDetClusterSplitProbContainer="",
+                                **kwargs):
     result = ComponentAccumulator()
 
+    if flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("DoTrackOverlay",True)
+        if "Disappearing" in name:
+            InputCombinedTracks+=flags.Overlay.BkgPrefix+"DisappearingTracks"
+        else:
+            InputCombinedTracks+=flags.Overlay.BkgPrefix+"CombinedInDetTracks"
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
-    kwargs.setdefault("OutputTracksLocation", "CombinedInDetTracks")
-    from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+    kwargs.setdefault("OutputTracksLocation", OutputCombinedTracks)
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", "PRDtoTrackMapCombinedInDetTracks")
+    kwargs.setdefault("AssociationMapName", AssociationMapName)
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
+    kwargs.setdefault("DoTrackOverlay",flags.Overlay.doTrackOverlay)
     from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name="CombinedInDetSplitProbTrackSummaryToolSharedHits"))
+    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name=OutputCombinedTracks+"SummaryToolSharedHits"))
     TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedInDetClusterSplitProbContainer
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
@@ -237,10 +132,11 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName
 def ReFitTrackAlgCfg(flags, name="InDetRefitTrack", InputTrackCollection="CombinedInDetTracks", OutputTrackCollection="RefittedTracks", **kwargs):
     result = ComponentAccumulator()
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg, InDetTrackFitterTRTCfg, InDetTrackSummaryToolSharedHitsCfg, InDetPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg, InDetTrackFitterTRTCfg, InDetTrackSummaryToolSharedHitsCfg
     InDetTrackFitter = result.popToolsAndMerge(InDetTrackFitterCfg(flags))
     InDetTrackFitterTRT = result.popToolsAndMerge(InDetTrackFitterTRTCfg(flags))
-    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+    TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("FitterTool", InDetTrackFitter)
     kwargs.setdefault("FitterToolTRT", InDetTrackFitterTRT)
@@ -401,6 +297,8 @@ def InDetTrackRecoCfg(flags):
                                       InputCollections = [],
                                       BarrelSegments = "TRTSegmentsTRT"))
 
+    # @TODO add TRTPhase computation somewhere (needed for cosmics)
+
     # ------------------------------------------------------------
     #
     # ----------- Main passes for standard reconstruction
@@ -428,9 +326,14 @@ def InDetTrackRecoCfg(flags):
             continue # Skip rest of config for the TRTStandalone pass
 
         ResolvedTracks = "Resolved" + extension + "Tracks"
+        #for track overlay, save resolved track name for final merged track collection
+        if flags.Overlay.doTrackOverlay and current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            ResolvedTracks = flags.Overlay.sigPrefix + ResolvedTracks
         # Tweak to match old config key
         if "LargeD0" in extension:
             ResolvedTracks = "ResolvedLargeD0Tracks"
+            if flags.Overlay.doTrackOverlay:
+                ResolvedTracks = flags.Overlay.sigPrefix + "ResolvedLargeD0Tracks"
         SiSPSeededTracks = "SiSPSeeded" + extension + "Tracks" # Old config had inconsistent "SiSPSeeded" vs "SiSpSeeded" keys
 
         result.merge(TrackingSiPatternCfg(current_flags,
@@ -440,6 +343,10 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
 
         TrackContainer = ResolvedTracks
+        if flags.Overlay.doTrackOverlay and current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            TrackContainer = "Resolved" + extension + "Tracks"
+            if "LargeD0" in extension:
+                TrackContainer = "ResolvedLargeD0Tracks"
 
         if current_flags.InDet.Tracking.ActivePass.useTRTExtension:
             ExtendedTracks = "Extended" + extension + "Tracks"
@@ -459,6 +366,24 @@ def InDetTrackRecoCfg(flags):
             TrackContainer = ExtendedTracks
 
         if current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            # Dummy Merger to fill additional info for PRD-associated pixel tracklets
+            # Can also run on all separate collections like R3LargeD0 but kept consistent with legacy config
+            if extension=="Disappearing":
+                InputTracks = [TrackContainer]
+                if flags.Overlay.doTrackOverlay:
+                    InputTracks += [flags.Overlay.bkgPrefix+extension+"Tracks"]
+                TrackContainer = extension+"Tracks"
+                result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
+                                                         InputCombinedTracks = InputTracks,
+                                                         OutputCombinedTracks = TrackContainer,
+                                                         CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
+            elif flags.Overlay.doTrackOverlay:
+                #schedule merger to combine signal and background tracks
+                InputTracks=[flags.Overlay.sigPrefix+TrackContainer,flags.Overlay.bkgPrefix+TrackContainer]
+                result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
+                                                         InputCombinedTracks = InputTracks,
+                                                         OutputCombinedTracks = "Resolved" + extension + "Tracks",
+                                                         CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
             if flags.InDet.doTruth:
                 result.merge(InDetTrackTruthCfg(current_flags,
                                                 Tracks = TrackContainer,
@@ -470,6 +395,7 @@ def InDetTrackRecoCfg(flags):
                                                 TrackContainerName = TrackContainer,
                                                 OutputTrackParticleContainer = "InDetLargeD0TrackParticles" if "LargeD0" in extension
                                                 else "InDet" + extension + "TrackParticles")) # Need specific handling for R3LargeD0 not to break downstream configs
+
         else:
             ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension
             InputCombinedInDetTracks += [TrackContainer]
@@ -494,13 +420,29 @@ def InDetTrackRecoCfg(flags):
                 ClusterSplitProbContainer = "InDetTRT_SeededAmbiguityProcessorSplitProb"
                 InputCombinedInDetTracks += ["ResolvedTRTSeededTracks"]
                 InputExtendedInDetTracks += ["ResolvedTRTSeededTracks"]
+
+            if flags.InDet.doTruth and (flags.InDet.Tracking.doPseudoTracking or flags.InDet.Tracking.doIdealPseudoTracking): ## Do we need the dotruth flags...?
+                from InDetConfig.TruthTrackingConfig import TruthTrackingCfg
+                result.merge(TruthTrackingCfg(flags))
+
+                ## Old config only scheduled InDetTrackTruth for IdealPseudoTracking, while the TrackParticleCnvAlg requires it if "doTruth" is enabled
+                if flags.InDet.doTruth: ## needed if flag above is removed
+                    from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+                    result.merge(InDetTrackTruthCfg(flags, 'InDetPseudoTracks', 'InDetPseudoTracksTruthCollection', 'InDetPseudoTracksTruthCollection'))
+
+                result.merge(TrackParticleCnvAlgCfg(current_flags,
+                                                    name = "PseudoTrackParticleCnvAlg",
+                                                    TrackContainerName = "InDetPseudoTracks",
+                                                    OutputTrackParticleContainer = "InDetPseudoTrackParticles"))
+
             isPrimaryPass = False
 
-
-
-
+    if flags.Overlay.doTrackOverlay:
+        InputCombinedInDetTracks += [flags.Overlay.bkgPrefix+"CombinedInDetTracks"]
     result.merge(TrackCollectionMergerAlgCfg(flags,
                                              InputCombinedTracks = InputCombinedInDetTracks,
+                                             OutputCombinedTracks = "CombinedInDetTracks",
+                                             AssociationMapName = "PRDtoTrackMapCombinedInDetTracks",
                                              CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer))
 
     if flags.InDet.doTruth:
@@ -519,11 +461,241 @@ def InDetTrackRecoCfg(flags):
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
         result.merge(primaryVertexFindingCfg(flags))
 
+    if flags.InDet.Tracking.writeExtendedPRDInfo:
+        from InDetConfig.InDetPrepRawDataToxAODConfig import InDetPixelPrepDataToxAODCfg, InDetSCT_PrepDataToxAODCfg, InDetTRT_PrepDataToxAODCfg
+        result.merge(InDetPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(InDetSCT_PrepDataToxAODCfg(flags))
+        result.merge(InDetTRT_PrepDataToxAODCfg(flags))
+
+        from DerivationFrameworkInDet.InDetToolsConfig import TrackStateOnSurfaceDecoratorCfg
+        TrackStateOnSurfaceDecorator = result.getPrimaryAndMerge(TrackStateOnSurfaceDecoratorCfg(flags, name="TrackStateOnSurfaceDecorator"))
+        result.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation("InDetCommonKernel", AugmentationTools = [TrackStateOnSurfaceDecorator]))
+
+        if flags.Input.isMC:
+            from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
+            result.merge(InDetPhysHitDecoratorAlgCfg(flags))
+
+    # output
+    result.merge(InDetTrackRecoOutputCfg(flags))
+
+    return result
+
+
+def InDetTrackRecoOutputCfg(flags):
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
+    toAOD = []
     toESD = []
-    result.merge(addToESD(flags, toAOD+toESD))
+
+    # FIXME: special branches without flags
+    special = False
+
+    # excluded track aux data
+    excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
+    # remove track decorations used internally by FTAG software
+    excludedAuxData += ('.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow'
+                        '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
+                        '.-VxTrackAtVertex')
+
+    if not special: #not flags.InDet.keepFirstParameters or flags.InDet.keepAdditionalHitsOnTrackParticle
+        excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+    # exclude TTVA decorations 
+    excludedAuxData += '.-TTVA_AMVFVertices.-TTVA_AMVFWeights'
+
+    # exclude IDTIDE/IDTRKVALID decorations
+    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'
+    if not flags.InDet.Tracking.writeExtendedPRDInfo:
+        excludedAuxData += '.-msosLink'
+
+    # exclude IDTIDE decorations
+    excludedAuxData += ('.-IDTIDE1_biased_PVd0Sigma.-IDTIDE1_biased_PVz0Sigma.-IDTIDE1_biased_PVz0SigmaSinTheta.-IDTIDE1_biased_d0.-IDTIDE1_biased_d0Sigma'
+                        '.-IDTIDE1_biased_z0.-IDTIDE1_biased_z0Sigma.-IDTIDE1_biased_z0SigmaSinTheta.-IDTIDE1_biased_z0SinTheta.-IDTIDE1_unbiased_PVd0Sigma.-IDTIDE1_unbiased_PVz0Sigma'
+                        '.-IDTIDE1_unbiased_PVz0SigmaSinTheta.-IDTIDE1_unbiased_d0.-IDTIDE1_unbiased_d0Sigma.-IDTIDE1_unbiased_z0.-IDTIDE1_unbiased_z0Sigma.-IDTIDE1_unbiased_z0SigmaSinTheta'
+                        '.-IDTIDE1_unbiased_z0SinTheta')
+
+
+    ##### ESD #####
+    # Save full and zero-suppressed BCM rdos
+    # (the latter is needed to allow writting to AOD and the former will hopefully be removed in future):
+    if not flags.InDet.Tracking.doDBMstandalone:
+        toESD += [
+            "BCM_RDO_Container#BCM_RDOs",
+            "BCM_RDO_Container#BCM_CompactDOs",
+        ]
+
+    # In case of cosmics we save the RDOs as well
+    if special:  # flags.InDet.writeRDOs:
+        toESD += [
+            "PixelRDO_Container#PixelRDOs",
+            "SCT_RDO_Container#SCT_RDOs",
+            # "TRT_RDO_Container#TRT_RDOs",
+        ]
+
+    # write phase calculation into ESD
+    if flags.InDet.doTRTPhase:
+        toESD += ["ComTime#TRT_Phase"]
+
+    # Save PRD
+    if special:  # flags.InDet.writePRDs: globalflags.DataSource == 'data' and flags.InDet.doHeavyIon()
+        toESD += [
+            "InDet::SCT_ClusterContainer#SCT_Clusters",
+            "InDet::PixelClusterContainer#PixelClusters",
+            "InDet::TRT_DriftCircleContainer#TRT_DriftCircles",
+            "InDet::PixelGangedClusterAmbiguities#PixelClusterAmbiguitiesMap",
+        ]
+        if flags.InDet.Tracking.doPixelClusterSplitting:
+            toESD += ["InDet::PixelGangedClusterAmbiguities#SplitClusterAmbiguityMap"]
+        toESD += ["IDCInDetBSErrContainer#SCT_FlaggedCondData"]
+        toESD += ["Trk::ClusterSplitProbabilityContainer#*"]  # TODO: proper name
+
+    # add tracks
+    if flags.InDet.Tracking.doStoreTrackSeeds and special:  # flags.InDet.doWriteTracksToESD:
+        toESD += ["TrackCollection#SiSPSeedSegments"]
+
+    if special:  # flags.InDet.doWriteTracksToESD:
+        toESD += ["TrackCollection#SiSPSeededTracks"]
+
+        if flags.InDet.Tracking.doTrackSegmentsPixel:
+            toESD += ["TrackCollection#ResolvedPixelTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#ResolvedPixelTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#ResolvedPixelTracksDetailedTruth"]
+
+        if flags.InDet.Tracking.doTrackSegmentsSCT:
+            toESD += ["TrackCollection#ResolvedSCTTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#ResolvedSCTTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#ResolvedSCTTracksDetailedTruth"]
+
+        if flags.InDet.Tracking.doTrackSegmentsTRT:
+            toESD += ["TrackCollection#StandaloneTRTTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#StandaloneTRTTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#StandaloneTRTTracksDetailedTruth"]
+
+        if flags.InDet.Tracking.doPseudoTracking:
+            toESD += ["TrackCollection#InDetPseudoTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#InDetPseudoTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#InDetPseudoTracksDetailedTruth"]
+
+        if special:  # flags.InDet.doTIDE_AmbiTrackMonitoring:
+            toESD += ["TrackCollection#ObservedTracksCollection"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#InDetObservedTrackTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#InDetObservedTrackDetailedTruth"]
+
+        if flags.InDet.Tracking.doDBMstandalone:
+            toESD += ["TrackCollection#ResolvedDBMTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#ResolvedDBMTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#ResolvedDBMTracksDetailedTruth"]
+
+        # add the forward tracks for combined muon reconstruction
+        if flags.InDet.Tracking.doForwardTracks:
+            toESD += ["TrackCollection#ResolvedForwardTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#ResolvedForwardTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#ResolvedForwardTracksDetailedTruth"]
+
+        if flags.InDet.Tracking.doBeamGas:
+            # TODO
+            pass
+
+        if flags.InDet.Tracking.doBeamHalo:
+            # TODO
+            pass
+
+        if flags.InDet.Tracking.doTrackSegmentsDisappearing:
+            toESD += ["TrackCollection#DisappearingTracks"]
+            if flags.InDet.doTruth:
+                toESD += ["TrackTruthCollection#DisappearingTracksTruthCollection"]
+                toESD += ["DetailedTrackTruthCollection#DisappearingTracksDetailedTruth"]
+
+        # Add TRT Segments (only if standalone is off).
+        # TODO: no TP converter?
+        # if not flags.InDet.doTRTStandalone:
+        #    toESD += ["Trk::SegmentCollection#TRTSegments"]
+
+        # Save (Detailed) Track Truth
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#TrackTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#DetailedTrackTruth"]
+
+            # save PRD MultiTruth
+            toESD += [
+                "PRD_MultiTruthCollection#PRD_MultiTruthPixel",
+                "PRD_MultiTruthCollection#PRD_MultiTruthSCT",
+                "PRD_MultiTruthCollection#PRD_MultiTruthTRT",
+            ]
+
+    if not flags.Input.isMC:
+        toESD += [
+            "InDetBSErrContainer#PixelByteStreamErrs",
+            "TRT_BSErrContainer#TRT_ByteStreamErrs",
+            "TRT_BSIdErrContainer#TRT_ByteStreamIdErrs",
+            "IDCInDetBSErrContainer#SCT_ByteStreamErrs",
+        ]
+
+    ##### AOD #####
+    toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
+    toAOD += [f"xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.{excludedAuxData}"]
+    toAOD += ["xAOD::TrackParticleContainer#InDetForwardTrackParticles"]
+    toAOD += [f"xAOD::TrackParticleAuxContainer#InDetForwardTrackParticlesAux.{excludedAuxData}"]
+    toAOD += ["xAOD::TrackParticleContainer#InDetLargeD0TrackParticles"]
+    toAOD += [f"xAOD::TrackParticleAuxContainer#InDetLargeD0TrackParticlesAux.{excludedAuxData}"]
+    if flags.InDet.Tracking.doTrackSegmentsPixel:
+        toAOD += ["xAOD::TrackParticleContainer#InDetPixelTrackParticles"]
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetPixelTrackParticlesAux.{excludedAuxData}"]
+    if flags.InDet.Tracking.doTrackSegmentsDisappearing:
+        toAOD += ["xAOD::TrackParticleContainer#InDetDisappearingTrackParticles"]
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetDisappearingTrackParticlesAux.{excludedAuxData}"]
+    if flags.InDet.Tracking.doTrackSegmentsSCT:
+        toAOD += ["xAOD::TrackParticleContainer#InDetSCTTrackParticles"]
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetSCTTrackParticlesAux.{excludedAuxData}"]
+    if flags.InDet.Tracking.doTrackSegmentsTRT:
+        toAOD += ["xAOD::TrackParticleContainer#InDetTRTTrackParticles"]
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetTRTTrackParticlesAux.{excludedAuxData}"]
+    if flags.InDet.Tracking.doDBMstandalone: 
+        toAOD += ["xAOD::TrackParticleContainer#InDetDBMTrackParticles"] 
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetDBMTrackParticlesAux.{excludedAuxData}"] 
+        toAOD += ["TrackCollection#ResolvedDBMTracks"] 
+        if flags.InDet.doTruth:
+            toAOD += ["TrackTruthCollection#ResolvedDBMTracksTruthCollection"] 
+            toAOD += ["DetailedTrackTruthCollection#ResolvedDBMTracksDetailedTruth"] 
+    if flags.InDet.Tracking.doPseudoTracking:
+        toAOD += ["xAOD::TrackParticleContainer#InDetPseudoTrackParticles"]
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetPseudoTrackParticlesAux.{excludedAuxData}"]
+        if flags.InDet.doTruth:
+            toAOD += ["TrackTruthCollection#InDetPseudoTrackTruthCollection"]
+            toAOD += ["DetailedTrackTruthCollection#InDetPseudoTrackDetailedTruth"]
+    if special:  # flags.InDet.doTIDE_AmbiTrackMonitoring:
+        toAOD += ["xAOD::TrackParticleContainer#InDetObservedTrackParticles"]
+        toAOD += [f"xAOD::TrackParticleAuxContainer#InDetObservedTrackParticlesAux.{excludedAuxData}"]
+        if flags.InDet.doTruth:
+            toAOD += ["TrackTruthCollection#InDetObservedTrackTruthCollection"]
+            toAOD += ["DetailedTrackTruthCollection#ObservedDetailedTracksTruth"]
+
+    if flags.InDet.Tracking.writeExtendedPRDInfo:
+        toAOD += [
+            "xAOD::TrackMeasurementValidationContainer#PixelClusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#PixelClustersAux.",
+            "xAOD::TrackMeasurementValidationContainer#SCT_Clusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#SCT_ClustersAux.",
+            "xAOD::TrackMeasurementValidationContainer#TRT_DriftCircles",
+            "xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux.",
+            "xAOD::TrackStateValidationContainer#PixelMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#PixelMSOSsAux.",
+            "xAOD::TrackStateValidationContainer#SCT_MSOSs",
+            "xAOD::TrackStateValidationAuxContainer#SCT_MSOSsAux.",
+            "xAOD::TrackStateValidationContainer#TRT_MSOSs",
+            "xAOD::TrackStateValidationAuxContainer#TRT_MSOSsAux."
+        ]
+
+    result = ComponentAccumulator()
+    result.merge(addToESD(flags, toESD + toAOD))
     result.merge(addToAOD(flags, toAOD))
+
     return result
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFPHITSMONITORTOOL_H
@@ -77,7 +77,7 @@ public:
   const ToolHandleArray<IAFPSiStationMonitor>* stationsMonitors () const {return &m_stationsMonitors;}
 
   /// Manager of summary distributions #m_summaryManager
-  AFPSiLayerSummaryManager* summaryManager () const {return m_summaryManager;}
+  AFPSiLayerSummaryManager* summaryManager () {return m_summaryManager;}
   
   /// Average number of interactions per crossing in a given event
   double pileUp () const {return m_lumiBlockMuTool->averageInteractionsPerCrossing();}

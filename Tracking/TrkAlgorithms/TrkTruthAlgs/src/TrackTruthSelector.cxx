@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTruthAlgs/TrackTruthSelector.h"
@@ -74,7 +74,7 @@ StatusCode TrackTruthSelector::execute() {
 void TrackTruthSelector::fillOutput(TrackTruthCollection *out, 
 				    const DetailedTrackTruthCollection *in)
 {
-  typedef DetailedTrackTruthCollection::const_iterator Iter;
+  using Iter = DetailedTrackTruthCollection::const_iterator;
   Iter itrackData=in->begin();
   while(itrackData!=in->end()) {
     std::pair<Iter,Iter> range = in->equal_range(itrackData->first);

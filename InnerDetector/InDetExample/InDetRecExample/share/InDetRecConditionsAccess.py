@@ -95,14 +95,14 @@ if DetFlags.pixel_on():
 
             condSeq += alg
 
-    if not (athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200'):
+    if not conddb.dbdata=='COMP200':
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
         alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-        if athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200':
+        if conddb.dbdata=='COMP200':
             alg.ReadKey = ''
         condSeq += alg
 
@@ -146,7 +146,7 @@ if DetFlags.pixel_on():
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib" if commonGeoFlags.Run() == "RUN2" else "")
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
@@ -156,6 +156,9 @@ if DetFlags.pixel_on():
             conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
 
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+        if not conddb.folderRequested("/PIXEL/PixReco") and not conddb.folderRequested("/PIXEL/Onl/PixReco") :
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat")
+
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
         PixelOfflineCalibCondAlg.InputSource = 2
@@ -205,41 +208,9 @@ if DetFlags.haveRIO.SCT_on():
     InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetSCT_ConditionsSummaryTool)
-    
-    # Load conditions configuration service and load folders and algorithm for it
-    # Load folders that have to exist for both MC and Data
-    SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-    #if its COMP200, use old folders...
-    if (conddb.dbdata == "COMP200"):
-        SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-    #...but now check if we want to override that decision with explicit flag (if there is one)
-    try:
-        if InDetFlags.ForceCoraCool():
-            SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-    except:
-        pass
-    
-    try:
-        if InDetFlags.ForceCoolVectorPayload():
-            SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-    except:
-        pass
-    try:
-        if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-            printfunc ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
-            SCTConfigurationFolderPath=''
-    except:
-        pass
-    from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
-    sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    if SCTConfigurationFolderPath=='/SCT/DAQ/Configuration/':
-        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip") # Run 1 data (COMP200)
-    else:
-        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"ChipSlim") # For MC (OFLP200) and Run 2, 3 data (CONDBR2)
-    sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
-    sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
-    sct_ConfigurationConditionsToolSetup.setup()
-    InDetSCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
+
+    from SCT_ConditionsTools.SCT_ConditionsToolsHelper import getSCT_ConfigurationConditionsTool, getSCT_ByteStreamErrorsTool
+    InDetSCT_ConfigurationConditionsTool = getSCT_ConfigurationConditionsTool()
     if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetSCT_ConfigurationConditionsTool)
 
@@ -277,16 +248,10 @@ if DetFlags.haveRIO.SCT_on():
         if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetSCT_ModuleVetoTool)
 
-    # Load bytestream errors tool (use default instance without "InDet")
-    # @TODO find a better to solution to get the correct tool for the current job.
-    from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
-    sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
-    sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
-    sct_ByteStreamErrorsToolSetup.setup()
-    SCT_ByteStreamErrorsTool = sct_ByteStreamErrorsToolSetup.getTool()
+    SCT_ByteStreamErrorsTool = getSCT_ByteStreamErrorsTool()
     if (InDetFlags.doPrintConfigurables()):
         printfunc (SCT_ByteStreamErrorsTool)
-    
+
     if InDetFlags.useSctDCS():
         from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
         sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
@@ -346,9 +311,6 @@ if DetFlags.haveRIO.SCT_on():
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ InDetSCT_ModuleVetoTool ]
 
-    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
-    import InDetRecExample.TrackingCommon as TrackingCommon
-    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
 
     if (InDetFlags.doPrintConfigurables()):
         printfunc (InDetSCT_ConditionsSummaryTool)
@@ -364,6 +326,11 @@ if DetFlags.haveRIO.SCT_on():
             if condTool != InDetSCT_FlaggedConditionTool:
                 condTools.append(condTool)
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
+
+    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
+    TrackingCommon.def_InDetSCT_ConditionsSummaryToolWithoutFlagged=InDetSCT_ConditionsSummaryToolWithoutFlagged
 
     # Setup Lorentz angle tool.
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
@@ -429,7 +396,7 @@ if DetFlags.haveRIO.TRT_on():
         if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
             conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
         # FIXME: need to force an override for the online DB until this folder has been added to the latest tag
-        conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
+        conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v2")
 
     #
     # now do the services
@@ -467,6 +434,10 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
     InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
+    # straw status  algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawStatusCondAlg
+    TRTStrawStatusCondAlg = TRTStrawStatusCondAlg(name = "TRTStrawStatusCondAlg")
+
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
@@ -497,6 +468,8 @@ if DetFlags.haveRIO.TRT_on():
         condSeq += TRTPhaseCondAlg
 
     # Condition algorithms for straw conditions
+    if not hasattr(condSeq, "TRTStrawStatusCondAlg"):
+        condSeq += TRTStrawStatusCondAlg
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg
     if not hasattr(condSeq, "TRTActiveCondAlg"):

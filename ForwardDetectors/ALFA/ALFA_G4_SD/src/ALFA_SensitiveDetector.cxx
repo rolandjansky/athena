@@ -93,8 +93,7 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
   const double globalTime(pTrack->GetGlobalTime());
   const int trackID(pTrack->GetTrackID()); //DC 2-29-04 use it as barcode
 
-  std::string vol_test_str ("aaaaaaa");
-  vol_test_str = vol_name.substr(0,7);
+  std::string vol_test_str = vol_name.substr(0,7);
 
   ////ATH_MSG_DEBUG("test volume name is " << vol_test_str  );
 
@@ -153,9 +152,9 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         {
           substring = substring.substr(m_pos2+1);
           ////ATH_MSG_DEBUG("remaining string is " << substring  );
-          m_pos1 = int(substring.find("["));
+          m_pos1 = int(substring.find('['));
           ////ATH_MSG_DEBUG("position 1 is " << m_pos1  );
-          m_pos2 = int(substring.find("]"));
+          m_pos2 = int(substring.find(']'));
           ////ATH_MSG_DEBUG("position 2 is " << m_pos1  );
           num_string = substring.substr(m_pos1+1,m_pos2-1);
           ////ATH_MSG_DEBUG("num_string is " << substring );
@@ -203,8 +202,7 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
       //////ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
       //////ATH_MSG_DEBUG("string slope is " << substring.substr(m_pos2,1)  );
 
-      std::string test_str ("A");
-      test_str = substring.substr(m_pos2,1);
+      std::string test_str = substring.substr(m_pos2,1);
       int sign_fiber(0);
       if (test_str.compare("U") == 0)
         {
@@ -239,9 +237,9 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         {
           substring = substring.substr(m_pos2+1);
           ////ATH_MSG_DEBUG("OD: remaining string is " << substring  );
-          m_pos1 = int(substring.find("["));
+          m_pos1 = int(substring.find('['));
           ////ATH_MSG_DEBUG("OD: position 1 is " << m_pos1  );
-          m_pos2 = int(substring.find("]"));
+          m_pos2 = int(substring.find(']'));
           ////ATH_MSG_DEBUG("OD: position 2 is " << m_pos1  );
           num_string = substring.substr(m_pos1+1,m_pos2-1);
           ////ATH_MSG_DEBUG("OD: num_string is " << substring );

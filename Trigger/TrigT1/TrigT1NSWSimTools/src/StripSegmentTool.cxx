@@ -8,25 +8,12 @@ namespace NSWL1 {
 
   StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_incidentSvc("IncidentSvc",name),
     m_tree(nullptr),
-    m_rIndexBits(0),
-    m_dThetaBits(0),
     m_zbounds({-1,1}),
     m_etabounds({-1,1}),
-    m_rbounds({-1,-1}),
-    m_ridxScheme(0),
-    m_dtheta_min(0),
-    m_dtheta_max(0)
+    m_rbounds({-1,-1})
   {
     declareInterface<NSWL1::IStripSegmentTool>(this);
-    declareProperty("DoNtuple",     m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
-    declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
-    declareProperty("rIndexBits",   m_rIndexBits = 8,   "number bits in R-index calculation");
-    declareProperty("dthetaBits",   m_dThetaBits = 5,   "number bits in dTheta calculation");
-    declareProperty("dthetaMin",    m_dtheta_min = -15, "minimum allowed value for dtheta in mrad");
-    declareProperty("dthetaMax",    m_dtheta_max = 15,  "maximum allowed value for dtheta in mrad");
-    declareProperty("rIndexScheme", m_ridxScheme = 1,   "rIndex slicing scheme/ 0-->R / 1-->eta");
   }
 
   StatusCode StripSegmentTool::initialize() {
@@ -39,11 +26,14 @@ namespace NSWL1 {
       ITHistSvc* tHistSvc;
       ATH_CHECK(service("THistSvc", tHistSvc));
       std::string ntuple_name = algo_name+"Tree";
-      m_tree = 0;
+      m_tree = nullptr;
       ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
       ATH_CHECK(this->book_branches());
     } else this->clear_ntuple_variables();
-    ATH_CHECK(m_incidentSvc.retrieve());
+    if( m_incidentSvc.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Failed to retrieve the Incident Service");
+      return StatusCode::FAILURE;
+    } else ATH_MSG_DEBUG("Incident Service successfully retrieved");
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_regSelTableKey.initialize());
@@ -52,7 +42,7 @@ namespace NSWL1 {
 
   void StripSegmentTool::handle(const Incident& inc) {
     if( inc.type()==IncidentType::BeginEvent ) {
-      this->reset_ntuple_variables();
+      this->clear_ntuple_variables();
     }
   }
 
@@ -98,7 +88,7 @@ namespace NSWL1 {
   }
 
   uint8_t StripSegmentTool::findRIdx(const float& val) const {
-    unsigned int nSlices=1<<m_rIndexBits;
+    unsigned int nSlices=(1<<m_rIndexBits); //256
     std::pair<float,float> range;
     switch(m_ridxScheme){
       case 0:
@@ -111,14 +101,12 @@ namespace NSWL1 {
         break;
     }
     float step=(range.second-range.first)/nSlices;
-    if(val<=range.first) return 0;
-    if(val>=range.second) return nSlices-1;
 
-    //the loop gets stuck if the value is between the last and second-to-last step (255-256)
-    if(val>=range.first+(nSlices-1)*step) return nSlices-1;
+  // the cases with val<=range.first or val>=range.second have been abandoned before
     for(uint8_t i=0;i<nSlices;i++) {
-      if(range.first+i*step>=val) return i;
+      if(range.first+i*step <= val && val < range.first+(i+1)*step) return i;
     }
+    ATH_MSG_ERROR( "StripSegmentTool: findRIdx failed!");
     return 0;
   }
 
@@ -133,7 +121,7 @@ namespace NSWL1 {
 
   StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters,
                                              const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer){
-    auto ctx = Gaudi::Hive::currentContext();
+    const auto& ctx = Gaudi::Hive::currentContext();
     int event = ctx.eventID().event_number();
     if (event == 0) ATH_CHECK(FetchDetectorEnvelope());
 
@@ -142,37 +130,40 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
     }
 
-    std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
+    std::map<uint32_t, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by hash_bandid and seperate in wedge
 
-    int bcid=-1;
-    int sectorid=-1;
-    int sideid=-1;
+    int sectorid=-1;     // [1,8]
+    int sideid=-1;       // sideid==0: C
+    int sectorNumber=-1; // [1,16]
+    int hash=-1;         // [1,32]
+
+    int bandId=-1;       // bandId is different for large and small sector type, the same for side / specific sector
 
     for(auto& cl : clusters){
-      bcid=cl->BCID();
+      // combine the side, sectortype, sectorid to form the hash
       sideid=cl->sideId();
-      /* S.I : For the sector logic I guess we need sector Ids from 1 to 16 / per side
-         The convention followed by different people throghout this simulation chain (starting from padTDs Tool upto here) is :
-         sector Id ranges from 1 to 8 + combined with the info Small or Large.
-      */
       sectorid=cl->sectorId();
-      if(cl->isSmall()) sectorid*=2;
-      else sectorid=sectorid*2-1;
+      if(cl->isSmall()) sectorNumber=2*sectorid;
+      else sectorNumber=2*sectorid-1;
+      hash=16*sideid+sectorNumber;
 
-      if(sideid == 0 ) sectorid+=16; //C
+      bandId=cl->bandId();
 
+      std::string id_str=std::to_string(hash)+std::to_string(bandId);
+      uint32_t hash_bandid=atoi(id_str.c_str());
+
+      // use the clusters in 2 wedges, with the same bandId, to form the sector segment
       /*****************************************************************************************************/
-      auto item =cluster_map.find(cl->bandId());
+      auto item =cluster_map.find(hash_bandid);
       if (item != cluster_map.end()){
         item->second[cl->wedge()-1].push_back(std::move(cl));
       }
       else{
-        cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
+        cluster_map[hash_bandid][cl->wedge()-1].push_back(std::move(cl));
       }
     }
 
-    ATH_MSG_DEBUG(" Building NSW Segment RDO at sector=" << sectorid);
-    auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>((uint16_t)(sectorid), (uint16_t)(bcid));
+    ATH_MSG_DEBUG(" Building NSW Segment RDO at hash=" << hash);
 
     for(const auto& band : cluster_map){//main band loop
       int bandId=band.first;
@@ -190,42 +181,53 @@ namespace NSWL1 {
       float gly2=0;
       float glx=0;
       float gly=0;
-      float phi=0;
-      float eta_inf=0;
-      float eta=0;
       float charge1=0;
       float charge2=0;
 
-      //first measuement
-      float r1=0;
+      float eta=0;
+      float phi=0;
+      float theta=0;
+      float theta_inf=0;
+      float dtheta=0;
+      float eta_inf=0;
+
+      // First measurement, corresponding to the inner wedge
       float z1=0;
-      for( const auto& cl : band.second[0] ){//inner
-        r1+=std::hypot(cl->globX(), cl->globY())*cl->charge();
+      uint16_t sectorID = 0, bcID = 0;
+      char sectorSide = '-';
+      for( const auto& cl : band.second[0] ){
         z1+=cl->globZ()*cl->charge();
         glx1+=cl->globX()*cl->charge();
         gly1+=cl->globY()*cl->charge();
         charge1+=cl->charge();
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+	sectorID--; // ID should start from zero
+        sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
+        bcID = cl->BCID();
       }
+      auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>(sectorID, sectorSide, bcID);
 
-      //first measurement
-      //S.I : This is SECOND measurement, not the 1st. Please be careful while copy/pasting
-      float r2=0;
+      // Second measurement, corresponding to the outer wedge
       float z2=0;
-      for( const auto& cl : band.second[1] ){//outer
-        r2+=std::hypot(cl->globX(), cl->globY())*cl->charge();
+      for( const auto& cl : band.second[1] ){
         z2+=cl->globZ()*cl->charge();
         glx2+=cl->globX()*cl->charge();
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+	sectorID--; // ID should start from zero
+        sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
+        bcID = cl->BCID();
+        if (( sectorID != trgRawData->sectorId() ) ||
+            ( sectorSide != trgRawData->sectorSide() ) ||
+            ( bcID != trgRawData->bcId() )) ATH_MSG_WARNING("Possible mismatch between inner and outer wedge RDO parameters");
       }
       if(charge1!=0){
-        r1=r1/charge1;
         z1=z1/charge1;
         glx1=glx1/charge1;
         gly1=gly1/charge1;
       }
       if(charge2!=0){
-        r2=r2/charge2;
         z2=z2/charge2;
         glx2=glx2/charge2;
         gly2=gly2/charge2;
@@ -234,42 +236,32 @@ namespace NSWL1 {
       //centroid calc
       glx=(glx1+glx2)/2.;
       gly=(gly1+gly2)/2.;
-      float slope=(r2-r1)/(z2-z1);
-      float avg_r=(r1+r2)/2.;
       float avg_z=(z1+z2)/2.;
-      float inf_slope=(avg_r/avg_z);
-      //float dR=slope-inf_slope;
-      float theta_inf=std::atan(inf_slope);
-      float theta=std::atan(slope);
-      float dtheta=(theta_inf-theta)*1000;//In Milliradian
-      if(avg_z>0){
-        eta_inf=-std::log(std::tan(theta_inf/2));
-        eta=-std::log(std::tan(theta/2));
-      }
-      else if(avg_z<0){
-        eta_inf=std::log(std::tan(-theta_inf/2));
-        eta=std::log(std::tan(theta/2));
-      }
-      else{
-        ATH_MSG_WARNING("Segment Global Z at IP");// somehow zero might come from simulation effects so throw a warning and continue to avoid nan
-        continue;
-      }
 
-      phi=std::atan2(gly,glx);
+      //segment calc
+      ROOT::Math::XYZVector v3_centr1(glx1,gly1,z1), v3_centr2(glx2,gly2,z2);
+      ROOT::Math::XYZVector v3_segment = v3_centr2 - v3_centr1;
+      phi=v3_segment.Phi();
+      theta=v3_segment.Theta();
+      eta=v3_segment.Eta();
+
+      //inf momentum track 
+      theta_inf=v3_centr1.Theta();
+      eta_inf=v3_centr1.Eta();
+      dtheta=(theta_inf-theta)*1000;//In Milliradian
+
+      ATH_MSG_DEBUG("StripSegmentTool: phi:" << phi << " theta:" << theta << " eta: " << eta << " theta_inf: " << theta_inf << " eta_inf: " << eta_inf << " dtheta: " << dtheta);
 
       //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
-      //if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
+      if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
 
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
-      float delta_z=std::abs(m_zbounds.second-std::abs(avg_z) );
-      int sign=-99999;
-      sign= (std::abs(theta_inf)<std::abs(theta)) ? 1: -1;
-      float delta_r=delta_z*std::tan(theta_inf);
-      float rfar=avg_r+sign*delta_r;
 
-      if( rfar > m_rbounds.second || rfar < m_rbounds.first ){
-        ATH_MSG_WARNING("measured r is out of detector envelope! rfar="<<rfar<<" rmax="<<m_rbounds.second);
+      float rfar=m_zbounds.second*std::abs(std::tan(theta_inf));
+
+      if( rfar >= m_rbounds.second || rfar < m_rbounds.first || std::abs(eta_inf) >= m_etabounds.second || std::abs(eta_inf) < m_etabounds.first){
+        ATH_MSG_WARNING("measured r/eta is out of detector envelope!");
         return StatusCode::SUCCESS;
       }
 
@@ -303,16 +295,12 @@ namespace NSWL1 {
         m_seg_eta->push_back(eta);
         m_seg_eta_inf->push_back(eta_inf);
         m_seg_phi->push_back(phi);
-        m_seg_global_r->push_back(avg_r);
         m_seg_global_x->push_back(glx);
         m_seg_global_y->push_back(gly);
         m_seg_global_z->push_back(avg_z);
-        m_seg_dir_r->push_back(slope);
-        m_seg_dir_y->push_back(-99);
-        m_seg_dir_z->push_back(-99);
       }
+      trgContainer->push_back(std::move(trgRawData));
     }//end of clmap loop
-    trgContainer->push_back(std::move(trgRawData));
     return StatusCode::SUCCESS;
   }
 
@@ -324,13 +312,9 @@ namespace NSWL1 {
     m_seg_eta = new std::vector< float >();
     m_seg_eta_inf=new std::vector< float >();
     m_seg_phi = new std::vector< float >();
-    m_seg_global_r = new std::vector< float >();
     m_seg_global_x = new std::vector< float >();
     m_seg_global_y = new std::vector< float >();
     m_seg_global_z = new std::vector< float >();
-    m_seg_dir_r = new std::vector< float >();
-    m_seg_dir_y = new std::vector< float >();
-    m_seg_dir_z = new std::vector< float >();
     m_seg_bandId = new std::vector< int >();
     m_seg_phiId = new std::vector< int >();
     m_seg_rIdx=new std::vector< int >();
@@ -346,13 +330,9 @@ namespace NSWL1 {
       m_tree->Branch(TString::Format("%s_seg_eta",n).Data(),&m_seg_eta);
       m_tree->Branch(TString::Format("%s_seg_eta_inf",n).Data(),&m_seg_eta_inf);
       m_tree->Branch(TString::Format("%s_seg_phi",n).Data(),&m_seg_phi);
-      m_tree->Branch(TString::Format("%s_seg_global_r",n).Data(),&m_seg_global_r);
       m_tree->Branch(TString::Format("%s_seg_global_x",n).Data(),&m_seg_global_x);
       m_tree->Branch(TString::Format("%s_seg_global_y",n).Data(),&m_seg_global_y);
       m_tree->Branch(TString::Format("%s_seg_global_z",n).Data(),&m_seg_global_z);
-      m_tree->Branch(TString::Format("%s_seg_dir_r",n).Data(),&m_seg_dir_r);
-      m_tree->Branch(TString::Format("%s_seg_dir_y",n).Data(),&m_seg_dir_y);
-      m_tree->Branch(TString::Format("%s_seg_dir_z",n).Data(),&m_seg_dir_z);
       m_tree->Branch(TString::Format("%s_seg_bandId",n).Data(),&m_seg_bandId);
       m_tree->Branch(TString::Format("%s_seg_phiId",n).Data(),&m_seg_phiId);
       m_tree->Branch(TString::Format("%s_seg_rIdx",n).Data(),&m_seg_rIdx);
@@ -362,12 +342,8 @@ namespace NSWL1 {
     return StatusCode::SUCCESS;
   }
 
-  void StripSegmentTool::reset_ntuple_variables() {
-    clear_ntuple_variables();
-  }
-
   void StripSegmentTool::clear_ntuple_variables() {
-    if(m_tree==0) return;
+    if(m_tree==nullptr) return;
 
     m_seg_theta->clear();
     m_seg_dtheta->clear();
@@ -375,13 +351,9 @@ namespace NSWL1 {
     m_seg_eta->clear();
     m_seg_eta_inf->clear();
     m_seg_phi->clear();
-    m_seg_global_r->clear();
     m_seg_global_x->clear();
     m_seg_global_y->clear();
     m_seg_global_z->clear();
-    m_seg_dir_r->clear();
-    m_seg_dir_y->clear();
-    m_seg_dir_z->clear();
     m_seg_bandId->clear();
     m_seg_phiId->clear();
     m_seg_rIdx->clear();
@@ -389,3 +361,4 @@ namespace NSWL1 {
     m_seg_wedge1_size->clear();
   }
 }
+

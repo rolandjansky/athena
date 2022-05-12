@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -11,6 +11,7 @@
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "LVL1ConfigSvc.h"
+#include "TrigConfMD5.h"
 
 #include <memory>
 
@@ -35,7 +36,8 @@ StatusCode TrigConf::LVL1ConfigSvc::loadRun3StyleMenu()
     fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
     ATH_CHECK( fileLoader.loadFile(m_l1FileName, *l1menu) );
-    l1menu->setSMK(m_smk);  // allow assigning a dummy SMK when running from FILE
+    const uint32_t smk = m_smk == 0 ? TrigConf::truncatedHash(*l1menu) : m_smk.value();
+    l1menu->setSMK(smk); // allow assigning a specified or hashed SMK when running from FILE
 
   }
   else {

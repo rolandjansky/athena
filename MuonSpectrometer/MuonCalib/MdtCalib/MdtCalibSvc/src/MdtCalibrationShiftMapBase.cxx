@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibSvc/MdtCalibrationShiftMapBase.h"
@@ -8,24 +8,15 @@
 #include <sys/stat.h>
 #include <fstream>
 
-// TRandom3 for random shifting
-// should later be replaced with std
-#include "TRandom3.h"
 
 MdtCalibrationShiftMapBase::MdtCalibrationShiftMapBase(const std::string& type, const std::string& name, const IInterface* parent)
-    : base_class (type, name, parent),
-      m_mapIsInitialized(false) {
-}
+    : base_class (type, name, parent) {}
 
 StatusCode MdtCalibrationShiftMapBase::initialize() {
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_mdtCab.initialize());
+  ATH_CHECK(initializeMap());
   return StatusCode::SUCCESS;
-}
-
-// return failure if not overloaded
-StatusCode MdtCalibrationShiftMapBase::initializeMap() {
-  return StatusCode::FAILURE;
 }
 
 StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
@@ -41,8 +32,7 @@ StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
     /* see if opening the file was successful */
     if (!file.is_open()) {
       ATH_MSG_FATAL(
-          "Cannot open map output file for writing. Tried accessing file at "
-          "\"./"
+          "Cannot open map output file for writing. Tried accessing file at \"./"
           << m_mapFileName.value().c_str() << "\"");
       return StatusCode::FAILURE;
     }
@@ -76,7 +66,7 @@ StatusCode MdtCalibrationShiftMapBase::loadMapFromFile() {
 
   /* resolve path */
   std::string fileWithPath = PathResolver::find_file(m_mapFileName, "DATAPATH");
-  if (fileWithPath == "") {
+  if (fileWithPath.empty()) {
     ATH_MSG_ERROR("Cannot find file " << m_mapFileName << " in $DATAPATH");
     return StatusCode::FAILURE;
   }
@@ -137,14 +127,11 @@ StatusCode MdtCalibrationShiftMapBase::loadMapFromFile() {
   return StatusCode::SUCCESS;
 }
 
-float MdtCalibrationShiftMapBase::getValue(const Identifier &id) {
-  if (!m_mapIsInitialized) {
-    StatusCode sc = initializeMap();
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Could not initialize the shift map.");
-      throw GaudiException("Cannot run without shift map.", "", sc);
-    }
+float MdtCalibrationShiftMapBase::getValue(const Identifier &id) const { 
+  std::map<Identifier, float>::const_iterator itr = m_shiftValues.find(id);
+  if (itr == m_shiftValues.end()){
+      ATH_MSG_FATAL("The identifier "<<m_idHelperSvc->toString(id)<<" is not known for a T0 smearing");
+      throw std::runtime_error("MdtT0Calibration - Invalid identifier");
   }
-
-  return m_shiftValues[id];
+  return itr->second; 
 }

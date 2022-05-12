@@ -154,13 +154,15 @@ public:
   /** Return all objects of the Array non const T*/
   BinnedArraySpan<T* const> arrayObjects()
   {
-    return BinnedArraySpan<T* const>(&*m_arrayObjects.begin(), &*m_arrayObjects.end());
+    return BinnedArraySpan<T* const>(m_arrayObjects.data(),
+                                     m_arrayObjects.data() + m_arrayObjects.size());
   }
 
   /** Return all objects of the Array const T*/
   BinnedArraySpan<T const * const> arrayObjects() const
   {
-    return BinnedArraySpan<T const * const>(&*m_arrayObjects.begin(), &*m_arrayObjects.end());
+    return BinnedArraySpan<T const * const>(m_arrayObjects.data(),
+                                            m_arrayObjects.data() + m_arrayObjects.size());
   }
 
   /** Number of Entries in the Array */

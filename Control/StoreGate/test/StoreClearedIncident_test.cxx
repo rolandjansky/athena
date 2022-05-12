@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: StoreClearedIncident_test.cxx,v 1.2 2008-09-10 04:07:14 ssnyder Exp $
 /**
  * @file  StoreGate/test/StoreClearedIncident_test.cxx
  * @author scott snyder
@@ -33,6 +32,8 @@ void test1()
 
 int main()
 {
+  std::cerr << "*** StoreClearedIncident_test BEGIN ***" << std::endl;
   test1();
+  std::cerr << "*** StoreClearedIncident_test END ***" << std::endl;
 }
 

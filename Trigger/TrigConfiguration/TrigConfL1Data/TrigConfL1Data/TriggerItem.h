@@ -25,7 +25,7 @@ namespace TrigConf {
    class TriggerItem : public TrigConfData {
    public:
       TriggerItem();
-      virtual ~TriggerItem();
+      virtual ~TriggerItem() override;
 
       // getters
       unsigned int       complex_deadtime() const { return m_ComplexDeadtime; }
@@ -47,7 +47,7 @@ namespace TrigConf {
 
       bool isTriggerTypeBitOn(int ibit) const { return ( (m_TriggerType & (1<<ibit) )!=0); }
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
       void buildLogic(std::string & logic, std::vector<std::string> & conditionList) const;
@@ -63,7 +63,7 @@ namespace TrigConf {
 
       DiffStruct* compareTo(const TriggerItem* o) const;
 
-      std::string __str__() const;
+      std::string __str__() const override;
 
    private:
       unsigned int m_ComplexDeadtime;

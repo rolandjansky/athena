@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileRawChNoiseCalibAlgConfig.py
@@ -14,9 +14,6 @@ def TileRawChNoiseCalibAlgCfg(flags, **kwargs):
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge( TileCablingSvcCfg(flags) )
-
-    #from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
-    #acc.merge( TileInfoLoaderCfg(flags) )
 
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg( flags ))

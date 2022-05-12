@@ -6,7 +6,8 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM9ExtraContent import *
@@ -24,11 +25,10 @@ keepCells = False
 RecomputeEGammaSelectors = True
 
 #====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 #====================================================================
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM9 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource()!='geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
 
@@ -98,7 +98,7 @@ print('WARNING, Thinning of trigger navigation has to be properly implemented in
 
 
 # Truth thinning
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
@@ -279,9 +279,12 @@ EGAM9Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM9Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-#from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-#from JetRecConfig.StandardSmallRJets import AntiKt4Truth
-#addDAODJets([AntiKt4Truth], EGAM9Sequence)
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth, AntiKt4TruthDressedWZ
+jetList=[]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM9Sequence)
 
 
 #====================================================================
@@ -293,6 +296,9 @@ EGAM9SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM9SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM9SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -303,7 +309,7 @@ EGAM9SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM9SlimmingHelper.AllVariables += ExtraContainersPhotons
 EGAM9SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     EGAM9SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM9SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

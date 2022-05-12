@@ -6,7 +6,8 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM4ExtraContent import *
@@ -26,11 +27,10 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 
 
 #====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 #====================================================================
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM4 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource()!='geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     DoCellReweighting = False
     DoCellReweightingVariations = False
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
@@ -119,7 +119,7 @@ if DoCellReweighting:
     print(EGAM4_NewCellTool)
     ToolSvc += EGAM4_NewCellTool
     augmentationTools += [EGAM4_NewCellTool]
-	
+    
     # second, run a tool that creates the clusters and objects from these new cells
     EGAM4_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM4_ClusterDecoratorTool",
                                                               #OutputLevel=DEBUG,
@@ -289,7 +289,7 @@ if DoCellReweighting:
         EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
 augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
 
-		
+        
 #====================================================================
 # SET UP THINNING
 #====================================================================
@@ -440,8 +440,11 @@ EGAM4Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth
-addDAODJets([AntiKt4Truth], EGAM4Sequence)
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth, AntiKt4TruthDressedWZ
+jetList=[]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM4Sequence)
 
 
 #====================================================================
@@ -458,6 +461,9 @@ EGAM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM4SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM4SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -465,16 +471,29 @@ EGAM4SlimmingHelper.IncludeMuonTriggerContent = True
 
 # Append cell-reweighted collections to dictionary
 if DoCellReweighting:
-    EGAM4SlimmingHelper.AppendToDictionary = {"NewSwPhotons": "xAOD::PhotonContainer", "NewSwPhotonsAux": "xAOD::PhotonAuxContainer" }
+    EGAM4SlimmingHelper.AppendToDictionary = {
+        "NewSwPhotons": "xAOD::PhotonContainer",
+        "NewSwPhotonsAux": "xAOD::PhotonAuxContainer"
+    }
     if DoCellReweightingVariations:
-        EGAM4SlimmingHelper.AppendToDictionary.update({ "MaxVarSwPhotons": "xAOD::PhotonContainer", "MaxVarSwPhotonsAux": "xAOD::PhotonAuxContainer", "MinVarSwPhotons": "xAOD::PhotonContainer", "MinVarSwPhotonsAux": "xAOD::PhotonAuxContainer" })
+        EGAM4SlimmingHelper.AppendToDictionary.update({
+            "MaxVarSwPhotons": "xAOD::PhotonContainer",
+            "MaxVarSwPhotonsAux": "xAOD::PhotonAuxContainer",
+            "MinVarSwPhotons": "xAOD::PhotonContainer",
+            "MinVarSwPhotonsAux": "xAOD::PhotonAuxContainer"
+        })
 
 # Extra variables
 EGAM4SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM4SlimmingHelper.AllVariables = ExtraContainersPhotons
 EGAM4SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+if DoCellReweighting:
+    EGAM4SlimmingHelper.AllVariables += ["NewSwPhotons"]
+    if DoCellReweightingVariations:
+        EGAM4SlimmingHelper.AllVariables += ["MaxVarSwPhotons", "MinVarSwPhotons"]
+
+if DerivationFrameworkIsMonteCarlo:
     EGAM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM4SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

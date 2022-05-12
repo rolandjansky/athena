@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--outDS',action="store",default="",help="Name of the output dataset",required=False)
     parser.add_argument('--forceStaged',action="store_true",help="If set, grid jobs will be submitted with forceStaged option")
     parser.add_argument('--skipNTUP_PILEUP',action="store_true",help="If set, will not check for existing NTUP_PILEUP datasets")
-    parser.add_argument('prwFiles',nargs="*",help="Exosting PRW Config files to check")
+    parser.add_argument('prwFiles',nargs="*",help="Existing PRW Config files to check")
     
     args = parser.parse_args()
 
@@ -30,11 +30,11 @@ def main():
       import pyAMI.atlas.api as atlasAPI
       import pyAMI.client
     except ImportError:
-      print "Could not import pyAMI ... please do: lsetup pyAMI"
-      print "Also ensure you have a valid certificate (voms-proxy-init -voms atlas)"
+      print("Could not import pyAMI ... please do: lsetup pyAMI")
+      print("Also ensure you have a valid certificate (voms-proxy-init -voms atlas)")
       return 1
 
-    client = pyAMI.client.Client('atlas')
+    client = pyAMI.client.Client(['atlas', 'atlas-replica'])
     atlasAPI.init()
 
     #read datasets into list
@@ -50,8 +50,17 @@ def main():
     out.ResetCountingMode() #trick tool into going into counting mode 
     #list of known period numbers
     periodNumbers = out.GetPeriodNumbers()
+
+    # count lines
+    count=0
+    for dataset in datasets:
+        d = dataset.strip("/")
+        if d.startswith("#"): continue
+        d = d.rsplit(":")[-1].strip()
+        if len(d)==0: continue
+        count+=1
     
-    print "Determining provenances of %d datasets ..." % len(datasets)
+    print("Determining provenances of %d datasets ..." % count)
     
     aodDatasets=[]
     ntupDatasets=[]
@@ -62,22 +71,24 @@ def main():
       dataset = dataset.rsplit(":")[-1].strip()
       if len(dataset)==0: continue
       
-      print "Doing %s" % dataset
-      prov = atlasAPI.get_dataset_prov(client, dataset )
-      if 'node' not in prov:
-          print "ERROR: Could not determine provenance of %s, skipping!" % dataset
-          continue
+      print("Doing %s" % dataset)
       theParent=""
-      for ds in prov['node']:
-        if ds[u'dataType']!=u'AOD': continue
-        if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
-        theParent = str(ds[u'logicalDatasetName'])
-        theParentSize = int(ds[u'events'])
-        
-        
-        break
+      if ".DAOD_PHYS." in dataset:
+          print("INFO: Assuming %s is unskimmed because it is DAOD_PHYS" % dataset)
+          theParent = dataset
+      else:
+          prov = atlasAPI.get_dataset_prov(client, dataset )
+          if 'node' not in prov:
+              print("ERROR: Could not determine provenance of %s, skipping!" % dataset)
+              continue
+          for ds in prov['node']:
+            if ds[u'dataType']!=u'AOD': continue
+            if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
+            theParent = str(ds[u'logicalDatasetName'])
+            theParentSize = int(ds[u'events'])
+            break
       if theParent=="":
-          print "ERROR: Could not determine provenance of %s, skipping!" % dataset
+          print("ERROR: Could not determine provenance of %s, skipping!" % dataset)
           continue
       
       #check input prw files, if we specified
@@ -91,21 +102,24 @@ def main():
           if hist: total += hist.GetEntries()
         
         if total==theParentSize:
-            print "INFO: %s is complete in your existing PRW files. Good!" % dataset
+            print("INFO: %s is complete in your existing PRW files. Good!" % dataset)
             continue
         if total>theParentSize:
-            print "WARNING: %s is suspect in your existing PRW files, has %d events when expected %d ... please check you didn't overmerge" % (dataset,total,theParentSize)
+            print("WARNING: %s is suspect in your existing PRW files, has %d events when expected %d ... please check you didn't overmerge" % (dataset,total,theParentSize))
             continue
         else:
             if total!=0: 
-              print "WARNING: %s is incomplete (%d events when expected %d) ... will try to find centrally produced NTUP_PILEUP or prepare to generate" % (dataset,total,theParentSize)
+              print("WARNING: %s is incomplete (%d events when expected %d) ... will try to find centrally produced NTUP_PILEUP or prepare to generate" % (dataset,total,theParentSize))
               isIncomplete=True
         
       #before adding the dataset, see if we can find an NTUP_PILEUP for it
       if not args.skipNTUP_PILEUP:
-        ntupDatasetName = theParent.replace("AOD","NTUP_PILEUP")
+        ntupDatasetName = theParent.replace("DAOD_PHYS","NTUP_PILEUP")
+        ntupDatasetName = ntupDatasetName.replace("AOD","NTUP_PILEUP")
         ntupDatasetName = ntupDatasetName.replace("aod","%")
         ntupDatasetName = ntupDatasetName.replace("merge","%")
+        ntupDatasetName = ntupDatasetName.replace("recon","%")
+        ntupDatasetName = ntupDatasetName.replace("deriv","%")
         #remove everything after first rtag of ami tag .. replace with wildcard
         first_rtag_pos = ntupDatasetName.index("_r",ntupDatasetName.index("NTUP_PILEUP"))
         try:
@@ -113,11 +127,15 @@ def main():
         except ValueError:
             next_underscore_pos = len(ntupDatasetName)
         ntupDatasetName = ntupDatasetName[:next_underscore_pos]+"%"
-        res = atlasAPI.list_datasets(client, ntupDatasetName,fields='ldn,prodsys_status')
+        try:
+            res = atlasAPI.list_datasets(client, ntupDatasetName,fields='ldn,prodsys_status')
+        except pyAMI.exception.Error:
+            print("pyAMI failed ... did you remember to authenticate: voms-proxy-init -voms atlas")
+            return 1
         foundNTUP=False
         for r in res:
           if r[u'prodsys_status']!="ALL EVENTS AVAILABLE" and (isIncomplete or r[u'prodsys_status']!="EVENTS PARTIALLY AVAILABLE"): continue
-          print "Found existing NTUP_PILEUP ... please download: %s" % r[u"ldn"]
+          print("Found existing NTUP_PILEUP ... please download: %s" % r[u"ldn"])
           ntupDatasets += [r[u'ldn']]
           foundNTUP=True
           break
@@ -128,41 +146,43 @@ def main():
     
     if len(aodDatasets)>0:
       if args.outDS=="":
-          print "NTUP_PILEUP need generating for the following datasets, please specify the --outDS option to give a name to the output dataset"
-          print ",".join(aodDatasets)
-          return 1
-      print "...submitting job to grid..."
+          print("NTUP_PILEUP need generating for the following datasets, please specify the --outDS option to give a name to the output dataset: ")
+          print(",".join(aodDatasets))
+          if len(ntupDatasets)>0: aodDatasets.clear() # carry on to get the downloads script
+          else: return 1
+      else:
+        print("...submitting job to grid...")
   
-      extraOpts=""
-      if args.forceStaged: extraOpts += "--forceStaged "
+        extraOpts=""
+        if args.forceStaged: extraOpts += "--forceStaged "
   
-      mycommand = """pathena --inDS="%s" --outDS="%s" PileupReweighting/generatePRW_jobOptions.py %s--mergeOutput --nGBPerJob=MAX --addNthFieldOfInDSToLFN=2,6""" % (",".join(aodDatasets),args.outDS,extraOpts)
+        mycommand = """pathena --inDS="%s" --outDS="%s" PileupReweighting/generatePRW_jobOptions.py %s--mergeOutput --nGBPerJob=MAX --addNthFieldOfInDSToLFN=2,6""" % (",".join(aodDatasets),args.outDS,extraOpts)
       
-      print "Command: %s" % mycommand
+        print("Command: %s" % mycommand)
       
-      from subprocess import call
-      if call(mycommand,shell=True)!=0:
-         print "Problem executing command. Did you remember to do: lsetup panda"
+        from subprocess import call
+        if call(mycommand,shell=True)!=0:
+         print("Problem executing command. Did you remember to do: lsetup panda")
          return 1
   
   
-      print "... finished. Please monitor your job on the grid, and when it is finished, download the files!"
+        print("... finished. Please monitor your job on the grid, and when it is finished, download the files!")
     
     if len(ntupDatasets):
-      frucio_fn = 'rucio_downloads_%s.sh' % args.inDsTxt
-      print "Please download existing config files from these datasets (see also output file %s):" % frucio_fn
+      frucio_fn = 'prw_rucio_downloads.sh'
+      print("Please download (and merge) existing config files from these datasets (see also output file %s):" % frucio_fn)
       with open(frucio_fn, 'w') as frucio:
         for ds in ntupDatasets:
-          command = "rucio download %s" % ds
-          print command
+          command = ("rucio download %s" % ds)
+          print(command)
           frucio.write(command + '\n')
-      print ""
+      print("")
     
     if len(ntupDatasets) or len(aodDatasets):
-      print "After downloading, you are advised to check they are complete: checkPRW.py --inDsTxt=%s <downloaded files> " % args.inDsTxt
-      print "Thank you for generating config files, you get a gold star!"
+      print("After downloading, you are advised to check they are complete: checkPRW.py --inDsTxt=%s <downloaded files> " % args.inDsTxt)
+      print("Thank you for generating config files, you get a gold star!")
     else:
-      print "Looks like you are ready for pileup reweighting!"
+      print("Looks like you are ready for pileup reweighting!")
 
     return 0
 

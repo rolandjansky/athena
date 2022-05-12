@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderToolAverage.h"
+#include "LArRawChannelBuilderToolAverage.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "LArRawEvent/LArDigit.h"

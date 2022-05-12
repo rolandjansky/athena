@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/TruthInfoPlots.h"
@@ -18,7 +18,7 @@ namespace Trk {
   }
 
   void
-  TruthInfoPlots::fill(const xAOD::TruthParticle &truthprt, float weight ) {
+  TruthInfoPlots::fill(const xAOD::TruthParticle &truthprt, float weight ) const {
     if (truthprt.isAvailable<int>("truthType")) {
       truthType->Fill(truthprt.auxdata< int >("truthType"), weight);
     }

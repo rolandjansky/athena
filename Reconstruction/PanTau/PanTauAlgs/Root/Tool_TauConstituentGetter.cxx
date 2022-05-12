@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/Tool_TauConstituentGetter.h"
@@ -44,7 +44,7 @@ StatusCode PanTau::Tool_TauConstituentGetter::initialize() {
  */
 StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::TauJet* tauJet,
                                                                  std::vector<TauConstituent*>& outputConstituents,
-                                                                 std::string algName) const {
+                                                                 const std::string& algName) const {
     
   if(algName != "CellBased") {
     ATH_MSG_WARNING("Unknown input algorithm: " << algName << " -> Pantau BDT Training not done for this algorithm!");
@@ -60,7 +60,7 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::Tau
     //convert to tau constituent
     PanTau::TauConstituent* curConst = nullptr;
     ATH_CHECK(m_Tool_InputConverter->ConvertToTauConstituent(curChrgPFO, curConst, tauJet) );
-    if(curConst == 0) {
+    if(curConst == nullptr) {
       ATH_MSG_DEBUG("Problems converting charged PFO into tau constituent -> skip PFO");
       continue;
     }
@@ -81,7 +81,7 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::Tau
     //convert to tau constituent
     PanTau::TauConstituent* curConst = nullptr;
     ATH_CHECK( m_Tool_InputConverter->ConvertToTauConstituent(curNeutPFO, curConst, tauJet) );
-    if(curConst == 0) {
+    if(curConst == nullptr) {
       ATH_MSG_DEBUG("Problems converting neutral PFO into tau constituent -> skip PFO");
       continue;
     }

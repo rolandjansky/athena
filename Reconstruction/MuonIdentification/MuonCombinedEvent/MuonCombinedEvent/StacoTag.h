@@ -53,8 +53,8 @@ namespace MuonCombined {
     /** access to primary muon system track, zero if non available */
     const Trk::Track* primaryTrack() const override;
 
-    /** Returns whether the muon belongs to the comissioning chain **/
-    bool isComissioning() const override;
+    /** Returns whether the muon belongs to the commissioning chain **/
+    bool isCommissioning() const override;
 
        
   private:

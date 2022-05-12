@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -76,6 +76,8 @@ class ConfiguredVertexingCuts :
 
    self.__doMaxTracksCut = False
    self.__MaxTracks = 5000 #Not applied  anyway if above false
+
+   self.__maxVertices         = 200
       
 #-----------------------------------------------------------------------
 #End of the default track pre-selection block
@@ -206,6 +208,8 @@ class ConfiguredVertexingCuts :
    if mode == "HeavyIon":  
      self.__chi2CutMethod          = 1
      self.__enableMultipleVertices = False
+     self.__doMaxTracksCut = False
+     self.__maxVertices          = 1
 
 
 #------------------------------------------------------------------------- 
@@ -300,6 +304,9 @@ class ConfiguredVertexingCuts :
      
   def MaxTracks(self):
     return self.__MaxTracks
+
+  def maxVertices(self):
+    return self.__maxVertices
 
 #-------------------------------------------------------------------------
 #  Print method dumping the summary of the current cut configuration

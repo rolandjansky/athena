@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,19 +8,19 @@ def DetDescrCnvSvcCfg(flags, **kwargs):
     kwargs.setdefault("HasCSC", flags.Detector.GeometryCSC)
     kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC)
     kwargs.setdefault("HasMM", flags.Detector.GeometryMM)
-    
-    # Use GEOM DB to read InDet information 
+
+    # Use GEOM DB to read InDet dictionary information 
     if flags.Detector.GeometryITk:
        kwargs.setdefault("useGeomDB_InDet", True)
     else:
        kwargs.setdefault("useGeomDB_InDet", False)   
 
-
-    if flags.GeoModel.useLocalGeometry:
+    if (flags.Detector.GeometryITk or flags.Detector.GeometryHGTD) \
+        and flags.ITk.Geometry.DictionaryLocal:
         kwargs.setdefault("IdDictFromRDB", False)
-        kwargs.setdefault("InDetIDFileName", "ITKLayouts/IdDictInnerDetector_ITK_LOCAL.xml")
-        kwargs.setdefault("MuonIDFileName", "IdDictParser/IdDictMuonSpectrometer_R.09.NSW.xml")
-        kwargs.setdefault("LArIDFileName", "IdDictParser/IdDictLArCalorimeter_HGTD_TDR_01.xml")
+        kwargs.setdefault("InDetIDFileName", flags.ITk.Geometry.DictionaryFilename)
+        kwargs.setdefault("MuonIDFileName", "IdDictParser/IdDictMuonSpectrometer_R.10.00.xml")
+        kwargs.setdefault("LArIDFileName", "IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml")
         kwargs.setdefault("TileIDFileName", "IdDictParser/IdDictTileCalorimeter.xml")
         kwargs.setdefault("CaloIDFileName", "IdDictParser/IdDictCalorimeter_L1Onl.xml")
         kwargs.setdefault("ForwardIDFileName", "IdDictParser/IdDictForwardDetectors_2010.xml")

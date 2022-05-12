@@ -176,9 +176,9 @@ namespace AtlasRoot {
     // Load the ROOT filea
 
     const std::unique_ptr<char[]> fname(gSystem->ExpandPathName(m_rootFileName.c_str()));
-    m_rootFile.reset(TFile::Open( fname.get(), "READ" ));
+    std::unique_ptr<TFile> rootFile(TFile::Open( fname.get(), "READ" ));
 
-    if ( !m_rootFile ) {
+    if ( !rootFile ) {
       ATH_MSG_ERROR("no root file found");
       return 0;
     }
@@ -197,17 +197,17 @@ namespace AtlasRoot {
 
     if ( m_esmodel==egEnergyCorr::es2010 ) {
       m_use_new_resolution_model = false;
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get( "Scales/es2010/alphaPS_errTot" ) ) );
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get( "Scales/es2010/alphaPS_errTot" ) ) );
       m_aPSNom->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2010/alphaS12_errTot")));          m_aS12Nom->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2010/alphaS12_errTot")));          m_aS12Nom->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2010/alphaZee_errStat")));         m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2010/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2010/alphaZee_errStat")));         m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2010/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2010/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2010/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
-      m_peakResData.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2010/resZee_Data")));          m_peakResData->SetDirectory(nullptr);
-      m_peakResMC.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2010/resZee_MC")));            m_peakResMC->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2010/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2010/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+      m_peakResData.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2010/resZee_Data")));          m_peakResData->SetDirectory(nullptr);
+      m_peakResMC.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2010/resZee_MC")));            m_peakResMC->SetDirectory(nullptr);
 
       m_begRunNumber = 152166;
       m_endRunNumber = 170482;
@@ -218,16 +218,16 @@ namespace AtlasRoot {
 
     } else if ( m_esmodel==egEnergyCorr::es2011c ) {
       m_use_new_resolution_model = false;
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011c/alphaPS_errTot")));          m_aPSNom->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011c/alphaS12_errTot")));         m_aS12Nom->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011c/alphaPS_errTot")));          m_aPSNom->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011c/alphaS12_errTot")));         m_aS12Nom->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011c/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011c/alphaZee_errSyst")));        m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011c/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011c/alphaZee_errSyst")));        m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011c/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011c/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
-      m_peakResData.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011c/resZee_Data")));         m_peakResData->SetDirectory(nullptr);
-      m_peakResMC.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011c/resZee_MC")));           m_peakResMC->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011c/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011c/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
+      m_peakResData.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011c/resZee_Data")));         m_peakResData->SetDirectory(nullptr);
+      m_peakResMC.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011c/resZee_MC")));           m_peakResMC->SetDirectory(nullptr);
 
       m_begRunNumber = 177531;
       m_endRunNumber = 194382;
@@ -240,60 +240,60 @@ namespace AtlasRoot {
     } else if ( m_esmodel==egEnergyCorr::es2011d || m_esmodel==egEnergyCorr::es2011dMedium || m_esmodel==egEnergyCorr::es2011dTight ) {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>("run1");
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
       if( m_esmodel==egEnergyCorr::es2011d ) {
 
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/alphaZee_errStat")));              m_zeeNom->SetDirectory(nullptr);
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011d/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011d/ctZee_errStat")));             m_resNom->SetDirectory(nullptr);
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011d/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/alphaZee_errStat")));              m_zeeNom->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011d/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011d/ctZee_errStat")));             m_resNom->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011d/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
 
       } else if( m_esmodel==egEnergyCorr::es2011dMedium ) {
 
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011dMedium/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011dMedium/alphaZee_errSyst")));        m_zeeSyst->SetDirectory(nullptr);
-        m_zeePhys.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011dMedium/alphaZee_errPhys")));        m_zeePhys->SetDirectory(nullptr);
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011dMedium/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011dMedium/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011dMedium/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011dMedium/alphaZee_errSyst")));        m_zeeSyst->SetDirectory(nullptr);
+        m_zeePhys.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011dMedium/alphaZee_errPhys")));        m_zeePhys->SetDirectory(nullptr);
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011dMedium/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011dMedium/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
 
       } else if( m_esmodel==egEnergyCorr::es2011dTight ) {
 
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011dTight/alphaZee_errStat")));         m_zeeNom->SetDirectory(nullptr);
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011dTight/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
-        m_zeePhys.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2011dTight/alphaZee_errPhys")));         m_zeePhys->SetDirectory(nullptr);
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011dTight/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2011dTight/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011dTight/alphaZee_errStat")));         m_zeeNom->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011dTight/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeePhys.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2011dTight/alphaZee_errPhys")));         m_zeePhys->SetDirectory(nullptr);
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011dTight/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2011dTight/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
 
       }
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2011d/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2011d/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2011d/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2011d/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2011d/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2011d/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2011d/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2011d/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2011d/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2011d/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2011d/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2011d/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2011d/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2011d/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 177531;
       m_endRunNumber = 194382;
@@ -311,16 +311,16 @@ namespace AtlasRoot {
 
     } else if ( m_esmodel==egEnergyCorr::es2012a ) {
       m_use_new_resolution_model = false;
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012a/alphaPS_errTot")));          m_aPSNom->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012a/alphaS12_errTot")));         m_aS12Nom->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012a/alphaPS_errTot")));          m_aPSNom->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012a/alphaS12_errTot")));         m_aS12Nom->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012a/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012a/alphaZee_errSyst")));        m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012a/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012a/alphaZee_errSyst")));        m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012a/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012a/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
-      m_peakResData.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012a/resZee_Data")));         m_peakResData->SetDirectory(nullptr);
-      m_peakResMC.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012a/resZee_MC")));           m_peakResMC->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012a/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012a/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
+      m_peakResData.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012a/resZee_Data")));         m_peakResData->SetDirectory(nullptr);
+      m_peakResMC.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012a/resZee_MC")));           m_peakResMC->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -332,41 +332,41 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>("run1");
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaZee_errStat")));              m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaZee_errStat")));              m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012c/ctZee_errStat")));             m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012c/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012c/ctZee_errStat")));             m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012c/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -382,41 +382,41 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>("run1");
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012c/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015PRE/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012c/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -433,49 +433,49 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>( "run2_pre") ;
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
-      m_uA2MeV_2015_first2weeks_correction.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"))); m_uA2MeV_2015_first2weeks_correction->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
+      m_uA2MeV_2015_first2weeks_correction.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"))); m_uA2MeV_2015_first2weeks_correction->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015PRE/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015PRE/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015PRE/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
 
-      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
-      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
-      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
+      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
+      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
+      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
 
       assert(m_G4OverAFII_resolution_electron);
       assert(m_G4OverAFII_resolution_unconverted);
@@ -497,49 +497,49 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
-      m_uA2MeV_2015_first2weeks_correction.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"))); m_uA2MeV_2015_first2weeks_correction->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
+      m_uA2MeV_2015_first2weeks_correction.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"))); m_uA2MeV_2015_first2weeks_correction->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015PRE_res_improved/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015PRE/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015PRE_res_improved/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
 
-      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
-      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
-      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
+      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
+      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
+      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
 
       assert(m_G4OverAFII_resolution_electron);
       assert(m_G4OverAFII_resolution_unconverted);
@@ -561,49 +561,49 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015Summer/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015Summer/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015Summer/alphaZee_errStat")));        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015Summer/alphaZee_errSyst")));              m_zeeSyst->SetDirectory(nullptr);
       m_uA2MeV_2015_first2weeks_correction = nullptr;
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015Summer/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015Summer/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015Summer/ctZee_errStat")));       m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015Summer/ctZee_errSyst")));       m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
 
-      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
-      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
-      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
+      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
+      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
+      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
 
       assert(m_G4OverAFII_resolution_electron);
       assert(m_G4OverAFII_resolution_unconverted);
@@ -627,48 +627,48 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>( "run2_pre");
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015Summer/alphaZee_errStat")));         m_zeeNom->SetDirectory(nullptr);
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015Summer/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015Summer/alphaZee_errStat")));         m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015Summer/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015Summer/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015Summer/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015Summer/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015Summer/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
 
-      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
-      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
-      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
+      m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/el_full_fast_resolution")));
+      m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_unconv_full_fast_resolution")));
+      m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2015/ph_conv_full_fast_resolution")));
 
       assert(m_G4OverAFII_resolution_electron);
       assert(m_G4OverAFII_resolution_unconverted);
@@ -698,193 +698,193 @@ namespace AtlasRoot {
         m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
       if(m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 or m_esmodel == egEnergyCorr::es2018_R21_v0 ){
-        m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor")));       m_aPSNom->SetDirectory(nullptr);
-        m_daPSb12.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12")));        m_daPSb12->SetDirectory(nullptr);
-        m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                    m_daPSCor->SetDirectory(nullptr);
-        m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaS12_uncor")));      m_aS12Nom->SetDirectory(nullptr);
-        m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                   m_daS12Cor->SetDirectory(nullptr);
+        m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor")));       m_aPSNom->SetDirectory(nullptr);
+        m_daPSb12.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12")));        m_daPSb12->SetDirectory(nullptr);
+        m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                    m_daPSCor->SetDirectory(nullptr);
+        m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaS12_uncor")));      m_aS12Nom->SetDirectory(nullptr);
+        m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                   m_daS12Cor->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v1){
-        m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor")));       m_aPSNom->SetDirectory(nullptr);
-        m_daPSb12.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12")));        m_daPSb12->SetDirectory(nullptr);
-        m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                    m_daPSCor->SetDirectory(nullptr);
-        m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v1/alphaS12_uncor")));      m_aS12Nom->SetDirectory(nullptr);
-        m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                   m_daS12Cor->SetDirectory(nullptr);
+        m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor")));       m_aPSNom->SetDirectory(nullptr);
+        m_daPSb12.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12")));        m_daPSb12->SetDirectory(nullptr);
+        m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                    m_daPSCor->SetDirectory(nullptr);
+        m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v1/alphaS12_uncor")));      m_aS12Nom->SetDirectory(nullptr);
+        m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                   m_daS12Cor->SetDirectory(nullptr);
       }
       else{
-        m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
-        m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
-        m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
-        m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
+        m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaPS_uncor")));                 m_aPSNom->SetDirectory(nullptr);
+        m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaPS_cor")));                  m_daPSCor->SetDirectory(nullptr);
+        m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/alphaS12_uncor")));                m_aS12Nom->SetDirectory(nullptr);
+        m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/dalphaS12_cor")));                 m_daS12Cor->SetDirectory(nullptr);
       }
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2012c/momentum_errSyst")));              m_trkSyst->SetDirectory(nullptr);
 
       if(m_esmodel == egEnergyCorr::es2017){
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved){
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final){
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2015_5TeV){
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015")));         m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015")));         m_zeeNom->SetDirectory(nullptr);
         //Same histogram added twice for simplicity
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015")));      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2016.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2016.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2016.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
-        m_zeeFwdk.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
-        m_zeeFwdb.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2016.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeFwdk.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
+        m_zeeFwdb.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
       }
       else if (m_esmodel==egEnergyCorr::es2017_R21_ofc0_v1) {
-        m_zeeNom.reset(checked_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2016.reset(checked_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset(checked_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
-        m_zeeNom_data2018.reset(checked_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2018")));  m_zeeNom_data2018->SetDirectory(nullptr);
-        m_zeeFwdk.reset(checked_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
-        m_zeeFwdb.reset(checked_cast<TH1*> (m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
+        m_zeeNom.reset(checked_cast<TH1*> (rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2017")));  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2016.reset(checked_cast<TH1*> (rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset(checked_cast<TH1*> (rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom_data2018.reset(checked_cast<TH1*> (rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errStat_period_2018")));  m_zeeNom_data2018->SetDirectory(nullptr);
+        m_zeeFwdk.reset(checked_cast<TH1*> (rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
+        m_zeeFwdb.reset(checked_cast<TH1*> (rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v0){
 
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2018")));  m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2017.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2017")));  m_zeeNom_data2017->SetDirectory(nullptr);
-        m_zeeNom_data2016.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
-        m_zeeFwdk.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
-        m_zeeFwdb.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2018")));  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2017.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2017")));  m_zeeNom_data2017->SetDirectory(nullptr);
+        m_zeeNom_data2016.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeFwdk.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
+        m_zeeFwdb.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v1) {
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2018")));  m_zeeNom->SetDirectory(nullptr);
-        m_zeeNom_data2017.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2017")));  m_zeeNom_data2017->SetDirectory(nullptr);
-        m_zeeNom_data2016.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2018")));  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2017.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2017")));  m_zeeNom_data2017->SetDirectory(nullptr);
+        m_zeeNom_data2016.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2016")));  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v1/alphaZee_errStat_period_2015")));  m_zeeNom_data2015->SetDirectory(nullptr);
         //same as in v0 model
-        m_zeeFwdk.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
-        m_zeeFwdb.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
+        m_zeeFwdk.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalk"))); m_zeeFwdk->SetDirectory(nullptr);
+        m_zeeFwdb.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaFwd_Finalb"))); m_zeeFwdb->SetDirectory(nullptr);
        }
 
 
       else{
-        m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016")));         m_zeeNom->SetDirectory(nullptr);
         //SAME HISTO FOR 2015 FOR NOW
-        m_zeeNom_data2015.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016")));      m_zeeNom_data2015->SetDirectory(nullptr);
+        m_zeeNom_data2015.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016")));      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       if(m_esmodel == egEnergyCorr::es2017){
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final){
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2015_5TeV){
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_5TeV/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1) {
-         m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+         m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_R21_ofc0_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v0) {
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v0/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v0/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v1) {
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2018_R21_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2018_R21_v1/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
       else{
-        m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2017_summer/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
+        m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2017_summer/alphaZee_errSyst")));         m_zeeSyst->SetDirectory(nullptr);
       }
 
       m_uA2MeV_2015_first2weeks_correction = nullptr;
       if(m_esmodel == egEnergyCorr::es2017){
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2015_5TeV){
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_summer/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if(m_esmodel == egEnergyCorr::es2017_summer_final) {
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_summer_final/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
-         m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_v0/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+         m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_R21_v0/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_R21_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_ofc0_v1) {
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2018_R21_v0) {
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2018_R21_v0/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2018_R21_v0/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2018_R21_v1) {
-         m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2018_R21_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr); }
+         m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2018_R21_v1/ctZee_errStat")));        m_resNom->SetDirectory(nullptr); }
       else{
-        m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
+        m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat")));        m_resNom->SetDirectory(nullptr);
       }
 
       if(m_esmodel == egEnergyCorr::es2017){
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final){
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2015_5TeV){
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2015_5TeV/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2015_5TeV/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
-         m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+         m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_R21_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1) {
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_R21_ofc0_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v0) {
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2018_R21_v0/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2018_R21_v0/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2018_R21_v1) {
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2018_R21_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2018_R21_v1/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       else{
-        m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+        m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_summer/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       }
       //else{
-      //m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2017_summer_improved/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
+      //m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2017_summer_improved/ctZee_errSyst")));        m_resSyst->SetDirectory(nullptr);
       //}
 
-      m_pedestals_es2017.reset( checked_cast< TH1* >(m_rootFile->Get("Pedestals/es2017/pedestals")));          m_pedestals_es2017->SetDirectory(nullptr);
+      m_pedestals_es2017.reset( checked_cast< TH1* >(rootFile->Get("Pedestals/es2017/pedestals")));          m_pedestals_es2017->SetDirectory(nullptr);
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);
       if(m_esmodel == egEnergyCorr::es2017){
-	m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-	m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+	m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+	m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
       }
       else{
-	m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2017_summer/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
-        m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2017_summer/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
+	m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2017_summer/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);
+        m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2017_summer/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);
       }
 
       // TODO: change path when moving to calibarea
@@ -925,14 +925,14 @@ namespace AtlasRoot {
       m_endRunNumber = 314199;
 
       if (m_esmodel == egEnergyCorr::es2017_R21_v1 || m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1) {
-         m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017_v1/resol_Af2ToG4_elec_rel21")));
-         m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017_v1/resol_Af2ToG4_unco_rel21")));
-         m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017_v1/resol_Af2ToG4_conv_rel21")));
+         m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017_v1/resol_Af2ToG4_elec_rel21")));
+         m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017_v1/resol_Af2ToG4_unco_rel21")));
+         m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017_v1/resol_Af2ToG4_conv_rel21")));
       }
       else {
-        m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017/el_full_fast_resolution")));
-        m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017/ph_unconv_full_fast_resolution")));
-        m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017/ph_conv_full_fast_resolution")));
+        m_G4OverAFII_resolution_electron.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017/el_full_fast_resolution")));
+        m_G4OverAFII_resolution_unconverted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017/ph_unconv_full_fast_resolution")));
+        m_G4OverAFII_resolution_converted.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017/ph_conv_full_fast_resolution")));
       }
       assert(m_G4OverAFII_resolution_electron);
       assert(m_G4OverAFII_resolution_unconverted);
@@ -965,41 +965,41 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = std::make_unique<eg_resolution>("run2_pre");
 
-      m_aPSNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/alphaPS_uncor")));             m_aPSNom->SetDirectory(nullptr);         // old one
-      m_daPSCor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/dalphaPS_cor")));              m_daPSCor->SetDirectory(nullptr);        // old one
-      m_aS12Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/alphaS12_uncor")));            m_aS12Nom->SetDirectory(nullptr);        // old one
-      m_daS12Cor.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/dalphaS12_cor")));             m_daS12Cor->SetDirectory(nullptr);       // old one
+      m_aPSNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/alphaPS_uncor")));             m_aPSNom->SetDirectory(nullptr);         // old one
+      m_daPSCor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/dalphaPS_cor")));              m_daPSCor->SetDirectory(nullptr);        // old one
+      m_aS12Nom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/alphaS12_uncor")));            m_aS12Nom->SetDirectory(nullptr);        // old one
+      m_daS12Cor.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/dalphaS12_cor")));             m_daS12Cor->SetDirectory(nullptr);       // old one
 
-      m_trkSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/momentum_errSyst")));          m_trkSyst->SetDirectory(nullptr);        // old one
+      m_trkSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/momentum_errSyst")));          m_trkSyst->SetDirectory(nullptr);        // old one
 
-      m_zeeNom.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/alphaZee_errStat")));          m_zeeNom->SetDirectory(nullptr);         // old one
-      m_zeeSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Scales/es2015_day0/alphaZee_errSyst")));          m_zeeSyst->SetDirectory(nullptr);        // old one
+      m_zeeNom.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/alphaZee_errStat")));          m_zeeNom->SetDirectory(nullptr);         // old one
+      m_zeeSyst.reset( checked_cast< TH1* >( rootFile->Get("Scales/es2015_day0/alphaZee_errSyst")));          m_zeeSyst->SetDirectory(nullptr);        // old one
 
-      m_resNom.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012c/ctZee_errStat")));             m_resNom->SetDirectory(nullptr);         // old one
-      m_resSyst.reset( checked_cast< TH1* >( m_rootFile->Get("Resolution/es2012c/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);        // old one
+      m_resNom.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012c/ctZee_errStat")));             m_resNom->SetDirectory(nullptr);         // old one
+      m_resSyst.reset( checked_cast< TH1* >( rootFile->Get("Resolution/es2012c/ctZee_errSyst")));             m_resSyst->SetDirectory(nullptr);        // old one
 
-      m_pedestalL0.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);     // old one
-      m_pedestalL1.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);     // old one
-      m_pedestalL2.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);     // old one
-      m_pedestalL3.reset( checked_cast< TH1* >( m_rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);     // old one
+      m_pedestalL0.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l0")));               m_pedestalL0->SetDirectory(nullptr);     // old one
+      m_pedestalL1.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l1")));               m_pedestalL1->SetDirectory(nullptr);     // old one
+      m_pedestalL2.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l2")));               m_pedestalL2->SetDirectory(nullptr);     // old one
+      m_pedestalL3.reset( checked_cast< TH1* >( rootFile->Get("Pedestals/es2012c/pedestals_l3")));               m_pedestalL3->SetDirectory(nullptr);     // old one
 
-      m_dX_ID_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);      // old one
+      m_dX_ID_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/DX0_ConfigA")));                         m_dX_ID_Nom->SetDirectory(nullptr);      // old one
 
-      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);    // old one
-      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);    // old one
+      m_dX_IPPS_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor")));   m_dX_IPPS_Nom->SetDirectory(nullptr);    // old one
+      m_dX_IPPS_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr")));     m_dX_IPPS_LAr->SetDirectory(nullptr);    // old one
 
-      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);   // old one
-      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);   // old one
-      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);    // old one
-      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);  // old one
+      m_dX_IPAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor")));  m_dX_IPAcc_Nom->SetDirectory(nullptr);   // old one
+      m_dX_IPAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr")));    m_dX_IPAcc_LAr->SetDirectory(nullptr);   // old one
+      m_dX_IPAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4")));     m_dX_IPAcc_G4->SetDirectory(nullptr);    // old one
+      m_dX_IPAcc_GL1.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1")));    m_dX_IPAcc_GL1->SetDirectory(nullptr);  // old one
 
-      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);   // old one
-      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);   // old one
-      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);    // old one
+      m_dX_PSAcc_Nom.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor")));  m_dX_PSAcc_Nom->SetDirectory(nullptr);   // old one
+      m_dX_PSAcc_LAr.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr")));    m_dX_PSAcc_LAr->SetDirectory(nullptr);   // old one
+      m_dX_PSAcc_G4.reset( checked_cast< TH1* >( rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4")));     m_dX_PSAcc_G4->SetDirectory(nullptr);    // old one
 
-      m_convRadius.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);          // old one
-      m_convFakeRate.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);        // old one
-      m_convRecoEfficiency.reset( checked_cast< TH1* >( m_rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);  // old one
+      m_convRadius.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRadiusMigrations")));  m_convRadius->SetDirectory(nullptr);          // old one
+      m_convFakeRate.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convFakeRate")));          m_convFakeRate->SetDirectory(nullptr);        // old one
+      m_convRecoEfficiency.reset( checked_cast< TH1* >( rootFile->Get("Conversions/es2012c/convRecoEfficiency")));    m_convRecoEfficiency->SetDirectory(nullptr);  // old one
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -1029,13 +1029,13 @@ namespace AtlasRoot {
 	or m_esmodel == egEnergyCorr::es2017_R21_PRE or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2018_R21_v0 or  m_esmodel == egEnergyCorr::es2018_R21_v1)
     {
       // E4 systematics
-      m_E4ElectronEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("E4Recalibration/v4/electron_eta_axis")));
-      m_E4ElectronGraphs.reset( checked_cast< TList* >( m_rootFile->Get("E4Recalibration/v4/electron")));m_E4ElectronGraphs->SetOwner();
+      m_E4ElectronEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("E4Recalibration/v4/electron_eta_axis")));
+      m_E4ElectronGraphs.reset( checked_cast< TList* >( rootFile->Get("E4Recalibration/v4/electron")));m_E4ElectronGraphs->SetOwner();
       // for photons use the same as electrons
-      m_E4UnconvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("E4Recalibration/v4/electron_eta_axis")));
-      m_E4UnconvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("E4Recalibration/v4/electron")));m_E4UnconvertedGraphs->SetOwner();
-      m_E4ConvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("E4Recalibration/v4/electron_eta_axis")));
-      m_E4ConvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("E4Recalibration/v4/electron")));m_E4ConvertedGraphs->SetOwner();
+      m_E4UnconvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("E4Recalibration/v4/electron_eta_axis")));
+      m_E4UnconvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("E4Recalibration/v4/electron")));m_E4UnconvertedGraphs->SetOwner();
+      m_E4ConvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("E4Recalibration/v4/electron_eta_axis")));
+      m_E4ConvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("E4Recalibration/v4/electron")));m_E4ConvertedGraphs->SetOwner();
     }
 
     // ... PS and S12 recalibration curves
@@ -1046,109 +1046,109 @@ namespace AtlasRoot {
         or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1
 	or m_esmodel == egEnergyCorr::es2017_R21_PRE or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2018_R21_v0 or m_esmodel == egEnergyCorr::es2018_R21_v1) {
 
-      m_psElectronEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("PSRecalibration/es2015PRE/ElectronAxis")));
-      m_psElectronGraphs.reset( checked_cast< TList* >( m_rootFile->Get("PSRecalibration/es2015PRE/ElectronBiasPS")));m_psElectronGraphs->SetOwner();
-      m_psUnconvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("PSRecalibration/es2015PRE/UnconvertedAxis")));
-      m_psUnconvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("PSRecalibration/es2015PRE/UnconvertedBiasPS")));m_psUnconvertedGraphs->SetOwner();
-      m_psConvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("PSRecalibration/es2015PRE/ConvertedAxis")));
-      m_psConvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("PSRecalibration/es2015PRE/ConvertedBiasPS")));m_psConvertedGraphs->SetOwner();
+      m_psElectronEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("PSRecalibration/es2015PRE/ElectronAxis")));
+      m_psElectronGraphs.reset( checked_cast< TList* >( rootFile->Get("PSRecalibration/es2015PRE/ElectronBiasPS")));m_psElectronGraphs->SetOwner();
+      m_psUnconvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("PSRecalibration/es2015PRE/UnconvertedAxis")));
+      m_psUnconvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("PSRecalibration/es2015PRE/UnconvertedBiasPS")));m_psUnconvertedGraphs->SetOwner();
+      m_psConvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("PSRecalibration/es2015PRE/ConvertedAxis")));
+      m_psConvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("PSRecalibration/es2015PRE/ConvertedBiasPS")));m_psConvertedGraphs->SetOwner();
 
-      m_s12ElectronEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("S1Recalibration/es2015PRE/ElectronAxis")));
-      m_s12ElectronGraphs.reset( checked_cast< TList* >( m_rootFile->Get("S1Recalibration/es2015PRE/ElectronBiasS1")));m_s12ElectronGraphs->SetOwner();
-      m_s12UnconvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("S1Recalibration/es2015PRE/UnconvertedAxis")));
-      m_s12UnconvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("S1Recalibration/es2015PRE/UnconvertedBiasS1")));m_s12UnconvertedGraphs->SetOwner();
-      m_s12ConvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("S1Recalibration/es2015PRE/ConvertedAxis")));
-      m_s12ConvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("S1Recalibration/es2015PRE/ConvertedBiasS1")));m_s12ConvertedGraphs->SetOwner();
+      m_s12ElectronEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("S1Recalibration/es2015PRE/ElectronAxis")));
+      m_s12ElectronGraphs.reset( checked_cast< TList* >( rootFile->Get("S1Recalibration/es2015PRE/ElectronBiasS1")));m_s12ElectronGraphs->SetOwner();
+      m_s12UnconvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("S1Recalibration/es2015PRE/UnconvertedAxis")));
+      m_s12UnconvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("S1Recalibration/es2015PRE/UnconvertedBiasS1")));m_s12UnconvertedGraphs->SetOwner();
+      m_s12ConvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("S1Recalibration/es2015PRE/ConvertedAxis")));
+      m_s12ConvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("S1Recalibration/es2015PRE/ConvertedBiasS1")));m_s12ConvertedGraphs->SetOwner();
     }
     else // run1
     {
-      m_psElectronEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("PSRecalibration/ElectronAxis")));
-      m_psElectronGraphs.reset( checked_cast< TList* >( m_rootFile->Get("PSRecalibration/ElectronBiasPS")));m_psElectronGraphs->SetOwner();
-      m_psUnconvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("PSRecalibration/UnconvertedAxis")));
-      m_psUnconvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("PSRecalibration/UnconvertedBiasPS")));m_psUnconvertedGraphs->SetOwner();
-      m_psConvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("PSRecalibration/ConvertedAxis")));
-      m_psConvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("PSRecalibration/ConvertedBiasPS")));m_psConvertedGraphs->SetOwner();
+      m_psElectronEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("PSRecalibration/ElectronAxis")));
+      m_psElectronGraphs.reset( checked_cast< TList* >( rootFile->Get("PSRecalibration/ElectronBiasPS")));m_psElectronGraphs->SetOwner();
+      m_psUnconvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("PSRecalibration/UnconvertedAxis")));
+      m_psUnconvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("PSRecalibration/UnconvertedBiasPS")));m_psUnconvertedGraphs->SetOwner();
+      m_psConvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("PSRecalibration/ConvertedAxis")));
+      m_psConvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("PSRecalibration/ConvertedBiasPS")));m_psConvertedGraphs->SetOwner();
 
-      m_s12ElectronEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("S1Recalibration/ElectronAxis")));
-      m_s12ElectronGraphs.reset( checked_cast< TList* >( m_rootFile->Get("S1Recalibration/ElectronBiasS1")));m_s12ElectronGraphs->SetOwner();
-      m_s12UnconvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("S1Recalibration/UnconvertedAxis")));
-      m_s12UnconvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("S1Recalibration/UnconvertedBiasS1")));m_s12UnconvertedGraphs->SetOwner();
-      m_s12ConvertedEtaBins.reset( checked_cast< TAxis* >( m_rootFile->Get("S1Recalibration/ConvertedAxis")));
-      m_s12ConvertedGraphs.reset( checked_cast< TList* >( m_rootFile->Get("S1Recalibration/ConvertedBiasS1")));m_s12ConvertedGraphs->SetOwner();
+      m_s12ElectronEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("S1Recalibration/ElectronAxis")));
+      m_s12ElectronGraphs.reset( checked_cast< TList* >( rootFile->Get("S1Recalibration/ElectronBiasS1")));m_s12ElectronGraphs->SetOwner();
+      m_s12UnconvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("S1Recalibration/UnconvertedAxis")));
+      m_s12UnconvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("S1Recalibration/UnconvertedBiasS1")));m_s12UnconvertedGraphs->SetOwner();
+      m_s12ConvertedEtaBins.reset( checked_cast< TAxis* >( rootFile->Get("S1Recalibration/ConvertedAxis")));
+      m_s12ConvertedGraphs.reset( checked_cast< TList* >( rootFile->Get("S1Recalibration/ConvertedBiasS1")));m_s12ConvertedGraphs->SetOwner();
     }
 
     // further inputs do not depend on year
 
     // ... material distortions
 
-    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigA") ));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) rootFile->Get("Material/unconvertedBiasSubtracted_ConfigA") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigCpDp") ));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) rootFile->Get("Material/unconvertedBiasSubtracted_ConfigCpDp") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigEpLp") ));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) rootFile->Get("Material/unconvertedBiasSubtracted_ConfigEpLp") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigFpMX") ));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) rootFile->Get("Material/unconvertedBiasSubtracted_ConfigFpMX") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
-    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigGp") ));
+    m_matUnconvertedScale.emplace_back(std::unique_ptr<TH1>( (TH1*) rootFile->Get("Material/unconvertedBiasSubtracted_ConfigGp") ));
     m_matUnconvertedScale.back()->SetDirectory(nullptr);
 
-    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigA") ));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/convertedBiasSubtracted_ConfigA") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigCpDp") ));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/convertedBiasSubtracted_ConfigCpDp") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigEpLp") ));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/convertedBiasSubtracted_ConfigEpLp") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigFpMX") ));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/convertedBiasSubtracted_ConfigFpMX") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
-    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigGp") ));
+    m_matConvertedScale.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/convertedBiasSubtracted_ConfigGp") ));
     m_matConvertedScale.back()->SetDirectory(nullptr);
 
-    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigA") ));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/electronCstTerm_ConfigA") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigCpDp") ));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/electronCstTerm_ConfigCpDp") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigEpLp") ));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/electronCstTerm_ConfigEpLp") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") ));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/electronCstTerm_ConfigFpMX") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
-    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") ));
+    m_matElectronCstTerm.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/electronCstTerm_ConfigGp") ));
     m_matElectronCstTerm.back()->SetDirectory(nullptr);
 
     if (m_esmodel==egEnergyCorr::es2017_R21_v1 || m_esmodel==egEnergyCorr::es2017_R21_ofc0_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1) {
      // update dX0 plots for distorted geometry for case A, EL, FMX and N
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigA") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material_rel21/DX0_ConfigA") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigCpDp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigEpLp") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material_rel21/DX0_ConfigEpLp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigFpMX") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material_rel21/DX0_ConfigFpMX") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigGp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material_rel21/DX0_ConfigN") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
     }
     else {
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigA") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigA") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigCpDp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigEpLp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigFpMX") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
-      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") ));
+      m_matX0Additions.emplace_back(std::unique_ptr<TH1>(  (TH1*) rootFile->Get("Material/DX0_ConfigGp") ));
       m_matX0Additions.back()->SetDirectory(nullptr);
     }
 
 
-    m_matElectronEtaBins.reset( checked_cast<TAxis*>(m_rootFile->Get("Material/LinearityEtaBins")));
-    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigA")) );
-    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigCpDp")) );
-    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigEpLp")) );
-    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigFpMX")) );
-    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigGp")) );
+    m_matElectronEtaBins.reset( checked_cast<TAxis*>(rootFile->Get("Material/LinearityEtaBins")));
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) rootFile->Get("Material/Linearity_Cluster_ConfigA")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) rootFile->Get("Material/Linearity_Cluster_ConfigCpDp")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) rootFile->Get("Material/Linearity_Cluster_ConfigEpLp")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) rootFile->Get("Material/Linearity_Cluster_ConfigFpMX")) );
+    m_matElectronGraphs.emplace_back( std::unique_ptr<TList>( (TList*) rootFile->Get("Material/Linearity_Cluster_ConfigGp")) );
 
 
     for (auto &mat: m_matElectronGraphs) {
@@ -1159,24 +1159,24 @@ namespace AtlasRoot {
     // ... new material distortions from release 21 parameterizations
 
     if (m_esmodel==egEnergyCorr::es2017_R21_v1 || m_esmodel==egEnergyCorr::es2017_R21_ofc0_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1) {
-      m_electronBias_ConfigA.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/electronBias_ConfigA")));            m_electronBias_ConfigA->SetDirectory(nullptr);
-      m_electronBias_ConfigEpLp.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/electronBias_ConfigEpLp")));      m_electronBias_ConfigEpLp->SetDirectory(nullptr);
-      m_electronBias_ConfigFpMX.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/electronBias_ConfigFpMX")));      m_electronBias_ConfigFpMX->SetDirectory(nullptr);
-      m_electronBias_ConfigN.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/electronBias_ConfigN")));            m_electronBias_ConfigN->SetDirectory(nullptr);
-      m_electronBias_ConfigIBL.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/electronBias_ConfigIBL")));        m_electronBias_ConfigIBL->SetDirectory(nullptr);
-      m_electronBias_ConfigPP0.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/electronBias_ConfigPP0")));        m_electronBias_ConfigPP0->SetDirectory(nullptr);
-      m_unconvertedBias_ConfigA.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA")));      m_unconvertedBias_ConfigA->SetDirectory(nullptr);
-      m_unconvertedBias_ConfigEpLp.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"))); m_unconvertedBias_ConfigEpLp->SetDirectory(nullptr);
-      m_unconvertedBias_ConfigFpMX.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX")));m_unconvertedBias_ConfigFpMX->SetDirectory(nullptr);
-      m_unconvertedBias_ConfigN.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN")));      m_unconvertedBias_ConfigN->SetDirectory(nullptr);
-      m_unconvertedBias_ConfigIBL.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL")));  m_unconvertedBias_ConfigIBL->SetDirectory(nullptr);
-      m_unconvertedBias_ConfigPP0.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0")));  m_unconvertedBias_ConfigPP0->SetDirectory(nullptr);
-      m_convertedBias_ConfigA.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/convertedBias_ConfigA")));          m_convertedBias_ConfigA->SetDirectory(nullptr);
-      m_convertedBias_ConfigEpLp.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/convertedBias_ConfigEpLp")));    m_convertedBias_ConfigEpLp->SetDirectory(nullptr);
-      m_convertedBias_ConfigFpMX.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/convertedBias_ConfigFpMX")));    m_convertedBias_ConfigFpMX->SetDirectory(nullptr);
-      m_convertedBias_ConfigN.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/convertedBias_ConfigN")));          m_convertedBias_ConfigN->SetDirectory(nullptr);
-      m_convertedBias_ConfigIBL.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL")));      m_convertedBias_ConfigIBL->SetDirectory(nullptr);
-      m_convertedBias_ConfigPP0.reset( checked_cast< TH2* >( m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0")));      m_convertedBias_ConfigPP0->SetDirectory(nullptr);
+      m_electronBias_ConfigA.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/electronBias_ConfigA")));            m_electronBias_ConfigA->SetDirectory(nullptr);
+      m_electronBias_ConfigEpLp.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/electronBias_ConfigEpLp")));      m_electronBias_ConfigEpLp->SetDirectory(nullptr);
+      m_electronBias_ConfigFpMX.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/electronBias_ConfigFpMX")));      m_electronBias_ConfigFpMX->SetDirectory(nullptr);
+      m_electronBias_ConfigN.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/electronBias_ConfigN")));            m_electronBias_ConfigN->SetDirectory(nullptr);
+      m_electronBias_ConfigIBL.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/electronBias_ConfigIBL")));        m_electronBias_ConfigIBL->SetDirectory(nullptr);
+      m_electronBias_ConfigPP0.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/electronBias_ConfigPP0")));        m_electronBias_ConfigPP0->SetDirectory(nullptr);
+      m_unconvertedBias_ConfigA.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/unconvertedBias_ConfigA")));      m_unconvertedBias_ConfigA->SetDirectory(nullptr);
+      m_unconvertedBias_ConfigEpLp.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"))); m_unconvertedBias_ConfigEpLp->SetDirectory(nullptr);
+      m_unconvertedBias_ConfigFpMX.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX")));m_unconvertedBias_ConfigFpMX->SetDirectory(nullptr);
+      m_unconvertedBias_ConfigN.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/unconvertedBias_ConfigN")));      m_unconvertedBias_ConfigN->SetDirectory(nullptr);
+      m_unconvertedBias_ConfigIBL.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL")));  m_unconvertedBias_ConfigIBL->SetDirectory(nullptr);
+      m_unconvertedBias_ConfigPP0.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0")));  m_unconvertedBias_ConfigPP0->SetDirectory(nullptr);
+      m_convertedBias_ConfigA.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/convertedBias_ConfigA")));          m_convertedBias_ConfigA->SetDirectory(nullptr);
+      m_convertedBias_ConfigEpLp.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/convertedBias_ConfigEpLp")));    m_convertedBias_ConfigEpLp->SetDirectory(nullptr);
+      m_convertedBias_ConfigFpMX.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/convertedBias_ConfigFpMX")));    m_convertedBias_ConfigFpMX->SetDirectory(nullptr);
+      m_convertedBias_ConfigN.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/convertedBias_ConfigN")));          m_convertedBias_ConfigN->SetDirectory(nullptr);
+      m_convertedBias_ConfigIBL.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/convertedBias_ConfigIBL")));      m_convertedBias_ConfigIBL->SetDirectory(nullptr);
+      m_convertedBias_ConfigPP0.reset( checked_cast< TH2* >( rootFile->Get("Material_rel21/convertedBias_ConfigPP0")));      m_convertedBias_ConfigPP0->SetDirectory(nullptr);
     }
 
 
@@ -1187,46 +1187,47 @@ namespace AtlasRoot {
         m_esmodel == egEnergyCorr::es2015cPRE or m_esmodel == egEnergyCorr::es2015cPRE_res_improved or
         m_esmodel == egEnergyCorr::es2015c_summer or m_esmodel == egEnergyCorr::es2016PRE) {
 
-      m_G4OverAFII_electron.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/es2015/el_scale_full_fast_peak_gaussian"))); m_G4OverAFII_electron->SetDirectory(nullptr);
-      m_G4OverAFII_unconverted.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/es2015/ph_unconv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_unconverted->SetDirectory(nullptr);
-      m_G4OverAFII_converted.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/es2015/ph_conv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_converted->SetDirectory(nullptr);
+      m_G4OverAFII_electron.reset( checked_cast< TH1* >( rootFile->Get("FastSim/es2015/el_scale_full_fast_peak_gaussian"))); m_G4OverAFII_electron->SetDirectory(nullptr);
+      m_G4OverAFII_unconverted.reset( checked_cast< TH1* >( rootFile->Get("FastSim/es2015/ph_unconv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_converted.reset( checked_cast< TH1* >( rootFile->Get("FastSim/es2015/ph_conv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_converted->SetDirectory(nullptr);
     }
     else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer
              or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final
              or m_esmodel == egEnergyCorr::es2017_R21_PRE or m_esmodel == egEnergyCorr::es2015_5TeV
              or m_esmodel == egEnergyCorr::es2017_R21_v0) {
-      m_G4OverAFII_electron.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/es2017/el_scale_full_fast_peak_gaussian"))); m_G4OverAFII_electron->SetDirectory(nullptr);
-      m_G4OverAFII_unconverted.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/es2017/ph_unconv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_unconverted->SetDirectory(nullptr);
-      m_G4OverAFII_converted.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/es2017/ph_conv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_converted->SetDirectory(nullptr);
+      m_G4OverAFII_electron.reset( checked_cast< TH1* >( rootFile->Get("FastSim/es2017/el_scale_full_fast_peak_gaussian"))); m_G4OverAFII_electron->SetDirectory(nullptr);
+      m_G4OverAFII_unconverted.reset( checked_cast< TH1* >( rootFile->Get("FastSim/es2017/ph_unconv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_converted.reset( checked_cast< TH1* >( rootFile->Get("FastSim/es2017/ph_conv_scale_full_fast_peak_gaussian"))); m_G4OverAFII_converted->SetDirectory(nullptr);
     }
     else if (m_esmodel == egEnergyCorr::es2017_R21_v1 || m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1) {
-      m_G4OverAFII_electron_2D.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_elec_rel21"))); m_G4OverAFII_electron_2D->SetDirectory(nullptr);
-      m_G4OverAFII_unconverted_2D.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_unco_rel21"))); m_G4OverAFII_unconverted_2D->SetDirectory(nullptr);
-      m_G4OverAFII_converted_2D.reset( checked_cast< TH2* >( m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_conv_rel21"))); m_G4OverAFII_converted_2D->SetDirectory(nullptr);
+      m_G4OverAFII_electron_2D.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_elec_rel21"))); m_G4OverAFII_electron_2D->SetDirectory(nullptr);
+      m_G4OverAFII_unconverted_2D.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_unco_rel21"))); m_G4OverAFII_unconverted_2D->SetDirectory(nullptr);
+      m_G4OverAFII_converted_2D.reset( checked_cast< TH2* >( rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_conv_rel21"))); m_G4OverAFII_converted_2D->SetDirectory(nullptr);
     }
     else { // run 1
-      m_G4OverAFII_electron.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/hG4OverAF")));                 m_G4OverAFII_electron->SetDirectory(nullptr);
+      m_G4OverAFII_electron.reset( checked_cast< TH1* >( rootFile->Get("FastSim/hG4OverAF")));                 m_G4OverAFII_electron->SetDirectory(nullptr);
     }
 
-    m_G4OverFrSh.reset( checked_cast< TH1* >( m_rootFile->Get("FastSim/hG4OverFS")));                 m_G4OverFrSh->SetDirectory(nullptr);
+    m_G4OverFrSh.reset( checked_cast< TH1* >( rootFile->Get("FastSim/hG4OverFS")));                 m_G4OverFrSh->SetDirectory(nullptr);
 
     // ... Leakage systematics
 
     if(m_esmodel != egEnergyCorr::es2017_summer and m_esmodel != egEnergyCorr::es2017_summer_improved
        and m_esmodel != egEnergyCorr::es2017_summer_final and m_esmodel != egEnergyCorr::es2017_R21_PRE
        and m_esmodel != egEnergyCorr::es2015_5TeV and m_esmodel != egEnergyCorr::es2017_R21_v0
-       and m_esmodel != egEnergyCorr::es2017_R21_v1 and m_esmodel != egEnergyCorr::es2017_R21_ofc0_v1 and m_esmodel != egEnergyCorr::es2018_R21_v0 and m_esmodel != egEnergyCorr::es2018_R21_v1){
-      m_leakageConverted.reset( checked_cast< TH1* >( m_rootFile->Get("Leakage/LeakageDiffConverted")));      m_leakageConverted->SetDirectory(nullptr);
-      m_leakageUnconverted.reset( checked_cast< TH1* >( m_rootFile->Get("Leakage/LeakageDiffUnconverted")));    m_leakageUnconverted->SetDirectory(nullptr);
+       and m_esmodel != egEnergyCorr::es2017_R21_v1 and m_esmodel != egEnergyCorr::es2017_R21_ofc0_v1 
+       and m_esmodel != egEnergyCorr::es2018_R21_v0 and m_esmodel != egEnergyCorr::es2018_R21_v1){
+      m_leakageConverted.reset( checked_cast< TH1* >( rootFile->Get("Leakage/LeakageDiffConverted")));      m_leakageConverted->SetDirectory(nullptr);
+      m_leakageUnconverted.reset( checked_cast< TH1* >( rootFile->Get("Leakage/LeakageDiffUnconverted")));    m_leakageUnconverted->SetDirectory(nullptr);
     }
     else{
-      m_leakageConverted.reset( checked_cast< TH1* >( m_rootFile->Get("Leakage/es2017_summer/LeakageDiffConverted")));      m_leakageConverted->SetDirectory(nullptr);
-      m_leakageUnconverted.reset( checked_cast< TH1* >( m_rootFile->Get("Leakage/es2017_summer/LeakageDiffUnconverted")));    m_leakageUnconverted->SetDirectory(nullptr);
+      m_leakageConverted.reset( checked_cast< TH1* >( rootFile->Get("Leakage/es2017_summer/LeakageDiffConverted")));      m_leakageConverted->SetDirectory(nullptr);
+      m_leakageUnconverted.reset( checked_cast< TH1* >( rootFile->Get("Leakage/es2017_summer/LeakageDiffUnconverted")));    m_leakageUnconverted->SetDirectory(nullptr);
     }
 
     // ... Zee S2 profile (needed for gain switch syst).
 
-    m_zeeES2Profile.reset( checked_cast< TH1* >( m_rootFile->Get("ZeeEnergyProfiles/p2MC")));    m_zeeES2Profile->SetDirectory(nullptr);
+    m_zeeES2Profile.reset( checked_cast< TH1* >( rootFile->Get("ZeeEnergyProfiles/p2MC")));    m_zeeES2Profile->SetDirectory(nullptr);
 
     // OK, now we are all initialized and everything went fine
 

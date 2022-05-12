@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # DAOD_PHYSVAL.py
@@ -19,8 +19,8 @@ from DerivationFrameworkMuons import MuonsCommon
 InDetCommon.makeInDetDFCommon()
 EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
-from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addDAODJets, addQGTaggerTool, getPFlowfJVT, addJetTruthLabel, addVRTrackJetMoments
-from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4LCTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
+from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addDAODJets
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4EMTopo,AntiKt4LCTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
 from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
@@ -30,6 +30,7 @@ from DerivationFrameworkTrigger.TrigSlimmingHelper import addTrigEDMSetToOutput
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 #add to check whether flip tagger is run
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 
 #====================================================================
 # SET UP STREAM   
@@ -123,22 +124,20 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSVALTriggerMatchingTool
 # JET/MET   
 #====================================================================
 
-jetList = [AntiKt4EMTopo,AntiKt4LCTopo,AntiKt4EMPFlow,
+AntiKt4EMTopo_deriv = AntiKt4EMTopo.clone(
+   modifiers = AntiKt4EMTopo.modifiers+("JetPtAssociation","QGTagging")
+)
+
+AntiKt4EMPFlow_deriv = AntiKt4EMPFlow.clone(
+   modifiers = AntiKt4EMPFlow.modifiers+("JetPtAssociation","QGTagging","fJVT")
+)
+
+jetList = [AntiKt4EMTopo_deriv,
+           AntiKt4EMPFlow_deriv,
            AntiKtVR30Rmax4Rmin02PV0Track,
            AntiKt10LCTopoTrimmed]
 
 addDAODJets(jetList,SeqPHYSVAL)
-
-# Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,labelname="R10TruthLabel_R21Consolidated")
-   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSVAL,labelname="R10TruthLabel_R21Precision")
-
-addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYSVAL)
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSVAL)
-
-# fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSVAL)
 
 # Event cleaning flags
 addEventCleanFlags(sequence=SeqPHYSVAL)
@@ -190,8 +189,10 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                       "MET_Reference_AntiKt4EMTopo",
-                                       "MET_Reference_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt4EMPFlow_expert",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
+                                       "MET_Baseline_AntiKt4EMTopo",
+                                       "MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
@@ -215,9 +216,6 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
 				       "BTagging_AntiKt4EMPFlowJFVtxFlip", #Flip version of JetFitter
                                        "BTagging_AntiKt4EMPFlowSecVtx",
 				       "BTagging_AntiKt4EMPFlowSecVtxFlip", #Flip version of SV1
-                                       "MET_Reference_AntiKt4EMTopo",
-                                       "MET_Reference_AntiKt4EMPFlow",
-                                       "MET_Reference_AntiKt4LCTopo",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
@@ -229,6 +227,23 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
                                        "CaloCalTopoClusters", "EMOriginTopoClusters","LCOriginTopoClusters",
                                        "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects"
                                      ]
+
+if InDetDxAODFlags.AddPseudoTracks():
+   PseudoTrackContainers = [
+      "InDetPseudoTrackParticles",
+      "InDetReplacedWithPseudoTrackParticles",
+      "InDetReplacedWithPseudoFromBTrackParticles",
+      "InDetReplacedWithPseudoNotFromBTrackParticles",
+      "InDetPlusPseudoTrackParticles",
+      "InDetPlusPseudoFromBTrackParticles",
+      "InDetPlusPseudoNotFromBTrackParticles",
+      "InDetNoFakesTrackParticles",
+      "InDetNoFakesFromBTrackParticles",
+      "InDetNoFakesNotFromBTrackParticles",
+      "InDetSiSPSeededTracksParticles"
+   ]
+   PHYSVALSlimmingHelper.SmartCollections += PseudoTrackContainers
+   PHYSVALSlimmingHelper.AllVariables += PseudoTrackContainers
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 StaticContent = []
@@ -288,15 +303,19 @@ if DerivationFrameworkIsMonteCarlo:
                                             'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                             'BTagging_AntiKt4EMPFlowJFVtx':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxAux':'xAOD::BTagVertexAuxContainer',
                                             'BTagging_AntiKt4EMPFlowSecVtx':'xAOD::VertexContainer','BTagging_AntiKt4EMPFlowSecVtxAux':'xAOD::VertexAuxContainer',
-                                            'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
-                                            'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                            'GlobalChargedParticleFlowObjects':'xAOD::FlowElementContainer','GlobalChargedParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                            'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                            'CHSGChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                            'CHSGNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
 					    'BTagging_AntiKt4EMPFlowJFVtxFlip':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxFlipAux':'xAOD::BTagVertexAuxContainer',#For Flip version of JetFitter
 					    'BTagging_AntiKt4EMPFlowSecVtxFlip':'xAOD::VertexContainer','BTagging_AntiKt4EMPFlowSecVtxFlipAux':'xAOD::VertexAuxContainer',
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
    addTruth3ContentToSlimmerTool(PHYSVALSlimmingHelper)
-   PHYSVALSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm','CHSChargedParticleFlowObjects', 'CHSNeutralParticleFlowObjects']
+   PHYSVALSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm',
+                                          'GlobalChargedParticleFlowObjects','GlobalNeutralParticleFlowObjects',
+                                          'CHSGChargedParticleFlowObjects', 'CHSGNeutralParticleFlowObjects']
    PHYSVALSlimmingHelper.SmartCollections += ['AntiKt4TruthJets']
 
 PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",

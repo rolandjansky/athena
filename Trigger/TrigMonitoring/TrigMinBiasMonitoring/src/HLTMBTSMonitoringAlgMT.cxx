@@ -4,6 +4,8 @@
 
 #include "HLTMBTSMonitoringAlgMT.h"
 
+
+
 HLTMBTSMonitoringAlgMT::HLTMBTSMonitoringAlgMT(const std::string &name, ISvcLocator *pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator)
 {
 }
@@ -57,13 +59,14 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
   auto energyMean_C = Scalar<float>("MBTS_C_meanEnergy", 0.);
   auto timeMean_A = Scalar<float>("MBTS_A_meanTime", 0.);
   auto timeMean_C = Scalar<float>("MBTS_C_meanTime", 0.);
-  auto ebaCounters = Scalar<int>("energy_ebaCounters", 1);
   auto channelID = Scalar<int>("MBTS_channelID", 0);
   auto mbtsEnergy = Scalar<float>("MBTS_energy", 0.);
   auto mbtsTime = Scalar<float>("MBTS_time", 0.);
   // Parameters to be tuned to correspond to trigger threshold:
   const double timeCut = 20.;
   const double energyCut = 40. / 222.;
+  int ebaCounters = 0;
+  int ebcCounters = 0;
 
   for (auto &trig : m_triggerList)
   {
@@ -96,13 +99,14 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
             triggerWord.set(i);
           if (std::abs(mbtsHitTimes.at(i)) < timeCut)
             timeWord.set(i);
+          if ( not (triggerWord[i] and timeWord[i]) ) continue;
+
 
           channelID = i;
           mbtsTime = mbtsHitTimes.at(i);
           mbtsEnergy = mbtsHitEnergies.at(i);
           ATH_MSG_DEBUG( "MBTS module " << i << " time " <<  mbtsHitTimes.at(i) << " energies: " << mbtsHitEnergies.at(i));
           fill(trig + "_shifter", channelID, mbtsTime, mbtsEnergy);
-
           if (i < 16)
           { // A side
             energyMean_A += mbtsHitEnergies.at(i);
@@ -122,7 +126,7 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
           {
             energyMean_C += mbtsHitEnergies.at(i);
             timeMean_C += mbtsHitTimes.at(i);
-            ebaCounters++;
+            ebcCounters++;
             if (i == 31)
             {
               if (ebaCounters > 0)

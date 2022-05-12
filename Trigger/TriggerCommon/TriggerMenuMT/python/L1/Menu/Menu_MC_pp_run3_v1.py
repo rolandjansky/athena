@@ -37,7 +37,6 @@ def defineMenu():
     L1MenuFlags.ItemMap = {
 
         # non-primary EM
-        'L1_EM12':'', 
         'L1_EM8VH':'', 
         'L1_EM18VHI':'',
         'L1_EM20VHI':'',
@@ -51,23 +50,12 @@ def defineMenu():
         'L1_eEM18':'',
         'L1_eEM22M':'',
         'L1_eEM24VM':'',
-        'L1_eEM26':'',
-        'L1_eEM26L':'',
         'L1_3eEM12L':'',
 
         # non-primary TAU
-        'L1_eTAU12':'',
-        'L1_jTAU20':'',
-        'L1_jTAU30':'',
-        'L1_jTAU30M':'',
-        'L1_cTAU20M':'',
         'L1_eTAU20L':'',
-        'L1_cTAU30M':'',
         'L1_eTAU35':'',
-        'L1_cTAU35M':'',
         'L1_eTAU40HM':'',
-        'L1_eTAU60':'',
-        'L1_eTAU80':'',
         'L1_2TAU8':'',
         'L1_EM15VHI_2TAU12IM':'',
         'L1_MU8F_TAU12IM':'',
@@ -120,12 +108,6 @@ def defineMenu():
         # other non-primary
         'L1_jEM20':'',
         'L1_jEM20M':'',
-        'L1_gJ20':'',
-        'L1_gJ30':'',
-        'L1_gJ40':'',
-        'L1_gJ50':'',
-        'L1_gJ100':'',
-        'L1_gJ160':'',
 
         # combined non-primary
         'L1_MU8F_2J20':'',
@@ -146,22 +128,18 @@ def defineMenu():
         'L1_TAU8_EMPTY':'', 
         'L1_TAU8_FIRSTEMPTY':'', 
         'L1_TAU8_UNPAIRED_ISO':'', 
-        'L1_TAU40_EMPTY':'', 
-        'L1_TAU40_UNPAIRED_ISO':'',
 
         # J non-FILLED
         'L1_J12_EMPTY':'',
         'L1_J12_FIRSTEMPTY':'', 
         'L1_J12_UNPAIRED_ISO':'', 
         'L1_J12_UNPAIRED_NONISO':'', 
-        'L1_J12_ABORTGAPNOTCALIB':'',
         'L1_J15p31ETA49_UNPAIRED_ISO':'',
         'L1_J30p31ETA49_EMPTY':'', 
         'L1_J30p31ETA49_UNPAIRED_ISO':'', 
         'L1_J30p31ETA49_UNPAIRED_NONISO':'',
         'L1_J50_UNPAIRED_ISO':'', 
         'L1_J50_UNPAIRED_NONISO':'', 
-        'L1_J50_ABORTGAPNOTCALIB':'',
         'L1_J100_FIRSTEMPTY':'',
 
         # Others
@@ -172,7 +150,7 @@ def defineMenu():
         'L1_TRT_FILLED':'',
 
         'L1_RD0_UNPAIRED_ISO':'',
-        'L1_RD0_ABORTGAPNOTCALIB':'',
+        'L1_RD0_FIRSTINTRAIN':'',
         'L1_RD0_FIRSTEMPTY':'', 
         'L1_RD0_BGRP11':'',
         'L1_RD0_BGRP7':'',
@@ -183,10 +161,6 @@ def defineMenu():
         'L1_RD3_FILLED':'',
 
         'L1_TGC_BURST':'',
-
-        'L1_ZDC_A':'', 
-        'L1_ZDC_C':'', 
-        'L1_ZDC_AND':'',
 
         'L1_LUCID_A':'', 
         'L1_LUCID_C':'',
@@ -275,16 +249,17 @@ def defineMenu():
         'L1_BCM_CA_UNPAIRED_ISO':'',
         'L1_BCM_AC_UNPAIRED_NONISO':'',
         'L1_BCM_CA_UNPAIRED_NONISO':'',
-        'L1_BCM_AC_ABORTGAPNOTCALIB':'', 
-        'L1_BCM_CA_ABORTGAPNOTCALIB':'',
-        'L1_BCM_Wide_ABORTGAPNOTCALIB':'',
-        'L1_BCM_AC_CALIB':'', 
-        'L1_BCM_CA_CALIB':'',
         'L1_BCM_Wide_CALIB':'',
-        'L1_BCM_AC_UNPAIREDB1':'', 
-        'L1_BCM_CA_UNPAIREDB2':'',
         'L1_J12_UNPAIREDB1':'', 
         'L1_J12_UNPAIREDB2':'',
+        'L1_BCM_2A_EMPTY':'',
+        'L1_BCM_2C_EMPTY':'',
+        'L1_BCM_2A_UNPAIRED_ISO':'',
+        'L1_BCM_2C_UNPAIRED_ISO':'',
+        'L1_BCM_2A_UNPAIRED_NONISO':'',
+        'L1_BCM_2C_UNPAIRED_NONISO':'',
+        'L1_BCM_2A_FIRSTINTRAIN':'',
+        'L1_BCM_2C_FIRSTINTRAIN':'',
 
         'L1_AFP_A_OR_C_UNPAIRED_ISO':'',
         'L1_AFP_A_OR_C_UNPAIRED_NONISO':'',

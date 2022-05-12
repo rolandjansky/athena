@@ -20,6 +20,13 @@ def commonRunArgsToFlags(runArgs,configFlags):
         configFlags.Beam.Type=BeamType(runArgs.beamType)
 
     ## Threading arguments
+    if hasattr(runArgs,"nprocs"):
+        configFlags.Concurrency.NumProcs = runArgs.nprocs
+        # also parse MP stuff in case of nprocs > 0
+        if runArgs.nprocs > 0:
+            from AthenaMP.AthenaMPConfig import athenaMPRunArgsToFlags
+            athenaMPRunArgsToFlags(runArgs, configFlags)
+
     if hasattr(runArgs,"threads"):
         configFlags.Concurrency.NumThreads = runArgs.threads
 

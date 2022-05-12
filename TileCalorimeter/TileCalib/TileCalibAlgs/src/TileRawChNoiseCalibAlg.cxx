@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****** **************************************************************
@@ -22,7 +22,7 @@
 #include "StoreGate/ReadHandle.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileRawChNoiseCalibAlg.h"
+#include "TileRawChNoiseCalibAlg.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
@@ -49,11 +49,11 @@
 
 TileRawChNoiseCalibAlg::TileRawChNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
  : AthAlgorithm(name,pSvcLocator)
-  , m_beamCnv(0)
-  , m_cabling(0)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_cispar(0)
+  , m_beamCnv(nullptr)
+  , m_cabling(nullptr)
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_cispar(nullptr)
   //, m_nDrawers(0)
   , m_time(0)
   , m_year(0)
@@ -213,7 +213,7 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
             nam = sStr.str();
             m_histAmp[rc][ros][drawer][ch][g] = new TH1F(nam.c_str(), nam.c_str(), nbin, -xmax[g], xmax[g]);
             m_histAmp[rc][ros][drawer][ch][g]->SetCanExtend(TH1::kAllAxes); //in case some entries are outside the initial limits
-            m_histAmp[rc][ros][drawer][ch][g]->SetDirectory(0);
+            m_histAmp[rc][ros][drawer][ch][g]->SetDirectory(nullptr);
           }
         }
       }
@@ -234,7 +234,7 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
             nam = sStr.str();
             m_histCellAmp[side][drawer][sample][tower][gg] = new TH1F(nam.c_str(), nam.c_str(), nbin, -xcellmax[gg / 3], xcellmax[gg / 3]); // cell limits should be at least sqrt(2)*channel limits
             m_histCellAmp[side][drawer][sample][tower][gg]->SetCanExtend(TH1::kAllAxes); //in case some entries are outside the initial limits
-            m_histCellAmp[side][drawer][sample][tower][gg]->SetDirectory(0);
+            m_histCellAmp[side][drawer][sample][tower][gg]->SetDirectory(nullptr);
           }
         }
       }
@@ -291,18 +291,18 @@ StatusCode TileRawChNoiseCalibAlg::FirstEvt_initialize() {
       ServiceHandle<IConversionSvc> cnvSvc("ByteStreamCnvSvc","");
       if (cnvSvc.retrieve().isFailure()) {
         ATH_MSG_ERROR( " Can't get ByteStreamCnvSvc " );
-        m_beamCnv = NULL;
+        m_beamCnv = nullptr;
       
       } else {
       
         m_beamCnv = dynamic_cast<TileBeamElemContByteStreamCnv *> ( cnvSvc->converter( ClassID_traits<TileBeamElemContainer>::ID() ) );
   
-        if ( m_beamCnv == NULL ) {
+        if ( m_beamCnv == nullptr ) {
           ATH_MSG_ERROR( " Can't get TileBeamElemContByteStreamCnv " );
         }
       }
     } else {
-      m_beamCnv = NULL;
+      m_beamCnv = nullptr;
     }
   }        
 
@@ -909,7 +909,7 @@ void TileRawChNoiseCalibAlg::fillCell(TileRawChannelUnit::UNIT RChUnit, const Ti
           }
         }
 
-      } else if (!m_cabling->C10_connected(drawer)) { // modules with special C10
+      } else if (!TileCablingService::C10_connected(drawer)) { // modules with special C10
         if (channel == OUTER_MBTS_CHANNEL) {
           amp = 0.0; // ignore MBTS completely
           nch = 0;

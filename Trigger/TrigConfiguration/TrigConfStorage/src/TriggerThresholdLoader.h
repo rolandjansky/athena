@@ -37,9 +37,9 @@ namespace TrigConf {
        DBLoader("TriggerThresholdLoader", sm, session), m_MenuId(0), m_LoadCableInfo(true) {}
 
     /**@brief destructor*/       
-    virtual ~TriggerThresholdLoader(){};
+    virtual ~TriggerThresholdLoader() override = default;
 
-    virtual bool load( TriggerThreshold& data);
+    virtual bool load( TriggerThreshold& data) override;
 
     void setLoadCableInfo(bool b) { m_LoadCableInfo = b; }
     bool loadCableInfo() { return m_LoadCableInfo; }

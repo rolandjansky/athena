@@ -31,8 +31,8 @@
 # (without the postInclude, a standard simulation job would run)
 
 cond_tag="default:OFLCOND-MC21-SDR-RUN3-05"
-Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
+Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
+          --geometryVersion 'default:ATLAS-R3S-2021-03-00-00' \
           --conditionsTag "${cond_tag}" \
           --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.G4Optimizations.py,SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" \
           --postInclude "EVNTtoHITS:SimulationJobOptions/postInclude.G4Optimizations.py,MuonPRDTest/NSWPRDValAlg.sim.py" \
@@ -54,7 +54,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 
 #####################################################################
 # create histograms for dcube
-python $Athena_DIR/bin/createDCubeHistograms.py --doMM --doSTGC
+python $Athena_DIR/bin/createDCubeSimHistograms.py --doMM --doSTGC
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeSimHist"
 if [ ${exit_code} -ne 0 ]
@@ -116,7 +116,7 @@ fi
 
 #####################################################################
 # create histograms for dcube
-python $Athena_DIR/bin/createDCubeDigitHistograms.py
+python $Athena_DIR/bin/createDCubeDigitHistograms_withSel.py
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeDigitHist"
 if [ ${exit_code} -ne 0 ]
@@ -171,6 +171,33 @@ python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root \
                                          --checkPRD &> NSWRecoCheck.txt
 exit_code=$?
 echo  "art-result: ${exit_code} NSWRecoCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# create histograms for dcube
+python $Athena_DIR/bin/createDCubeRecoHistograms_withSel.py
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeRecoHist"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# run dcube for reconstruction output
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+                        -r lastResults/NSWPRDValAlg.reco.dcube.root \
+                        -t KS chi2 \
+                        -c $Athena_DIR/XML/MuonPRDTest/dcube_config_reconstruction_symRun3.xml \
+                        -x dcubeReconstruction \
+                        -p NSWPRDValAlg.reco.dcube.root | tee log.DCubeReco
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeReco"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}

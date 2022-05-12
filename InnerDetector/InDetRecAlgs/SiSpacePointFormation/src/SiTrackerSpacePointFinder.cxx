@@ -41,6 +41,7 @@ namespace InDet {
   declareProperty("ProcessPixels", m_selectPixels=true);
   declareProperty("ProcessSCTs", m_selectSCTs=true);
   declareProperty("ProcessOverlaps", m_overlap=true, "process overlaps of SCT wafers.");
+  declareProperty("IsITk", m_isITk=false, "use different treatment for ITk strip endcap for phi overlap sp formation.");
   declareProperty("AllClusters", m_allClusters=false, "process all clusters without limits.");
   declareProperty("OverlapLimitOpposite", m_overlapLimitOpposite=2.8, "overlap limit for opposite-neighbour.");
   declareProperty("OverlapLimitPhi", m_overlapLimitPhi=5.64, "overlap limit for phi-neighbours.");
@@ -431,6 +432,13 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
   // For this reason you need to re-order the indices, since the SiSpacePointMakerTool will process 
   // first the eta overlaps and then the phi ones
   const std::array<size_t, nNeighbours> neigbourIndices{ThisOne, Opposite, EtaMinus, EtaPlus, PhiMinus, PhiPlus};
+
+  // if searching for phi overlaps, check if you are on
+  // the positive side of ITk strip detector.
+  // Here a different convention of prev/pos phi element
+  // is configured wrt to SCT and the negative side of the ITk
+  bool isPositiveEndcapITk = m_overlap and m_isITk
+      and triggerElement->isEndcap() and m_idHelper->barrel_ec(thisID)==2;
   
   for (const auto& otherHash : *others) {
 
@@ -455,6 +463,12 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
         overlapExtents[ 7] =-hwidth+m_overlapLimitPhi;
         overlapExtents[ 8] = hwidth-m_overlapLimitPhi;
         overlapExtents[ 9] = hwidth;
+        if (isPositiveEndcapITk) {
+          overlapExtents[ 6] = hwidth-m_overlapLimitPhi;
+          overlapExtents[ 7] = hwidth;
+          overlapExtents[ 8] =-hwidth;
+          overlapExtents[ 9] =-hwidth+m_overlapLimitPhi;
+        }
         break;
       }
       case PhiPlus: {
@@ -462,6 +476,12 @@ void SiTrackerSpacePointFinder::addSCT_SpacePoints(const SCT_ClusterCollection* 
         overlapExtents[11] = hwidth;
         overlapExtents[12] =-hwidth;
         overlapExtents[13] =-hwidth+m_overlapLimitPhi;
+        if (isPositiveEndcapITk) {
+          overlapExtents[10] =-hwidth;
+          overlapExtents[11] =-hwidth+m_overlapLimitPhi;
+          overlapExtents[12] = hwidth-m_overlapLimitPhi;
+          overlapExtents[13] = hwidth;
+        }
         break;
       } 
       case EtaMinus: {

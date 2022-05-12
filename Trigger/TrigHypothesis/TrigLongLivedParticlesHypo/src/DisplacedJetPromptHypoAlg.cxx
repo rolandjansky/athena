@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DisplacedJetPromptHypoAlg.h"
@@ -30,6 +30,8 @@ StatusCode DisplacedJetPromptHypoAlg::initialize()
   ATH_CHECK(m_jetContainerKey.initialize());
   ATH_CHECK(m_stdTracksKey.initialize());
   ATH_CHECK(m_vtxKey.initialize());
+  ATH_CHECK(m_countsKey.initialize());
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   ATH_CHECK(m_hypoTools.retrieve());
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
@@ -73,16 +75,20 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
   auto stdHandle = SG::makeHandle(m_stdTracksKey, context);
   auto vtxHandle = SG::makeHandle(m_vtxKey, context);
 
+  SG::WriteHandle<xAOD::TrigCompositeContainer> countsHandle(m_countsKey, context);
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, context };
+
   ATH_CHECK( jetsHandle.isValid() );
   ATH_CHECK( stdHandle.isValid() );
   ATH_CHECK( vtxHandle.isValid() );
+  ATH_CHECK( beamSpotHandle.isValid());
 
   const xAOD::TrackParticleContainer* stdTracks = stdHandle.get();
   const xAOD::JetContainer* jets = jetsHandle.get();
   const xAOD::VertexContainer* vtxs = vtxHandle.get();
 
   std::map<const xAOD::Jet_v1*, TrigCompositeUtils::Decision*> jet_decisions;
-
+  std::map<const xAOD::Jet_v1*, xAOD::TrigComposite*> jet_counts;
   //get primary vertex
   const xAOD::Vertex_v1* primary_vertex = nullptr;
 
@@ -117,6 +123,12 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
     return StatusCode::SUCCESS;
   }
 
+  auto countsContainer = std::make_unique< xAOD::TrigCompositeContainer>();
+  auto countsContainerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
+  countsContainer->setStore(countsContainerAux.get());
+
+  std::map<TrigCompositeUtils::Decision*, int> count_index_map;
+
   //create decision objects for each jet
   //the displaced tracking step wants to run over each jet on its own
   for(size_t jet_idx=0; jet_idx < jets->size(); jet_idx ++){
@@ -131,6 +143,25 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
       const xAOD::Jet* jet = jetsHandle->at(jet_idx);
 
       jet_decisions[jet] = jet_dec;
+
+      //create a counts object
+      auto count = new xAOD::TrigComposite();
+      auto count_idx = countsContainer->size();
+
+      countsContainer->push_back(count);
+
+      count_index_map[jet_dec]= count_idx;
+
+      jet_counts[jet] = count;
+  }
+
+  ATH_CHECK(countsHandle.record(std::move(countsContainer), std::move(countsContainerAux)));
+
+  //link all of the counts to the decisions
+  for(auto pair: count_index_map){
+    auto jet_dec = pair.first;
+    auto idx = pair.second;
+    jet_dec->setObjectLink("djtrig_counts", ElementLink<xAOD::TrigCompositeContainer>(*countsHandle, idx, context));
   }
 
   //do jet<->track association
@@ -153,13 +184,13 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
       }
     }
 
-    if(best_dr <= 0.4){
+    if(best_dr <= m_drcut){
       //associate track to jet
       jets_to_tracks[best_jet].push_back(track);
     }
   }
 
-  DisplacedJetPromptHypoTool::Info info{prev,jet_decisions, jets, jets_to_tracks, primary_vertex};
+  DisplacedJetPromptHypoTool::Info info{prev,jet_decisions, jets, jets_to_tracks, primary_vertex, jet_counts, DisplacedJetBeamspotInfo(beamSpotHandle.retrieve())};
 
   for(auto &tool:m_hypoTools)
   {

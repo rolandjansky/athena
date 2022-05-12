@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 include.block('RunDependentSimData/configCommon.py')
 from Digitization.DigitizationFlags import jobproperties
 if not 'logging' in dir(): import logging
@@ -18,13 +20,15 @@ if 'runArgs' in dir():
                 raise ValueError("Mismatch between total executor steps and event fractions size!")
             trfMaxEvents = runArgs.executorEventCounts[runArgs.executorStep]
             trfSkipEvents = runArgs.executorEventSkips[runArgs.executorStep]
+            DoNotCorrectMaxEvents = True
 
         if runArgs.maxEvents==-1:
             raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job."%(runArgs.maxEvents,))
         if not 'DoNotCorrectMaxEvents' in dir():
             corrMaxEvents = math.ceil(float(trfMaxEvents)/100.0)*100.0 # round up to nearest 100 events..
         else:
-            digilog.warning('Using the actual number of HITS input events for this job -- not for production use!')
+            if not (hasattr(runArgs, "totalExecutorSteps") and runArgs.totalExecutorSteps > 1):
+                digilog.warning('Using the actual number of HITS input events for this job -- not for production use!')
             corrMaxEvents = trfMaxEvents
     else: 
         raise SystemExit("Please provide jobNumber and maxEvents to runArgs.") 
@@ -56,11 +60,11 @@ randomMuSampling = True if 'RandomMuSampling' in dir() and RandomMuSampling else
 if randomMuSampling:
     digilog.info('Mu values will be sampled randomly from the set profile.')
     #Load needed tools 
-    from Digitization.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
+    from RunDependentSimComps.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
     fragment=getRandomlySampledRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,totalEvents=trfTotalEvents,skipEvents=trfSkipEvents,sequentialEventNumbers=sequentialEventNumbers)
 else:
     #Load needed tools 
-    from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
+    from RunDependentSimComps.RunDependentMCTaskIterator import getRunLumiInfoFragment
     fragment=getRunLumiInfoFragment(jobnumber=(trfJobNumber-1),task=JobMaker,maxEvents=trfMaxEvents,totalEvents=trfTotalEvents,skipEvents=trfSkipEvents,sequentialEventNumbers=sequentialEventNumbers)
 
 from RunDependentSimComps.RunLumiConfigTools import condenseRunLumiInfoFragment

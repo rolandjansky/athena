@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
@@ -29,7 +29,7 @@ BoostedXbbTagTool::BoostedXbbTagTool(std::string name) :
 
 int BoostedXbbTagTool::modifyJet(xAOD::Jet &jet) const
 {
-  static JetSubStructureUtils::BoostedXbbTag tagger(m_working_point, m_recommendations_file, m_boson_type, m_algorithm_name, m_num_bTags, m_decor_prefix, m_debug, m_verbose);
+  static const JetSubStructureUtils::BoostedXbbTag tagger(m_working_point, m_recommendations_file, m_boson_type, m_algorithm_name, m_num_bTags, m_decor_prefix, m_debug, m_verbose);
 
   const xAOD::MuonContainer *muons = 0;
   StatusCode sc = evtStore()->retrieve(muons, m_muon_container_name);

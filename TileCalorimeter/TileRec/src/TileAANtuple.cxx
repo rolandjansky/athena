@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -32,7 +32,8 @@
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileEvent/TileMuonReceiverContainer.h"
-#include "TileByteStream/TileBeamElemContByteStreamCnv.h"
+#include "TileByteStream/TileHid2RESrcID.h"
+#include "TileIdentifier/TileTBFrag.h"
 #include "TileL2Algs/TileL2Builder.h"
 
 // Calo includes
@@ -45,12 +46,17 @@
 #include "AthenaKernel/errorcheck.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+
+#include "eformat/ROBFragment.h"
+#include "eformat/FullEventFragment.h"
 
 // Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TTree.h"
+#include "TFile.h"
 #include <iomanip>
 #include "boost/date_time/local_time/local_time.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -144,7 +150,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_tileMgr(0)
 , m_tileBadChanTool("TileBadChanTool")
 , m_tileToolEmscale("TileCondToolEmscale")
-, m_beamCnv(0)
 , m_l2Builder()
 , m_sumEt_xx()
 , m_sumEz_xx()
@@ -192,6 +197,8 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 
   declareProperty("SkipEvents", m_skipEvents = 0);
   declareProperty("NSamples", m_nSamples=7);
+  declareProperty("Reduced", m_reduced=false);
+  declareProperty("CompressionSettings", m_compressSettings = -1);
 
   m_evtNr = -1;
 }
@@ -208,7 +215,7 @@ StatusCode TileAANtuple::initialize() {
 
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
-  
+
   // retrieve TileDetDescr Manager det store
   ATH_CHECK( detStore()->retrieve(m_tileMgr) );
   
@@ -235,10 +242,6 @@ StatusCode TileAANtuple::initialize() {
   }
 
   ATH_CHECK( m_DQstatusKey.initialize() );
-
-  if (m_dspRawChannelContainerKey.empty() && m_bsInput) {
-    m_dspRawChannelContainerKey = "TileRawChannelCnt"; // try DSP container name to read DQ status
-  }
 
   int sample_size = N_ROS2*N_MODULES*N_CHANS*m_nSamples;
   int sample_TMDB_size = N_ROS*N_MODULES*N_TMDBCHANS*m_nSamples;
@@ -273,25 +276,13 @@ StatusCode TileAANtuple::ntuple_initialize(const EventContext& ctx,
                                            const TileDQstatus& DQstatus)
 {
   if (m_bsInput) {
-    ServiceHandle<IConversionSvc> cnvSvc("ByteStreamCnvSvc", "");
-    if (cnvSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR( " Can't get ByteStreamCnvSvc " );
-      m_beamCnv = NULL;
-      
-    } else {
-      
-      m_beamCnv =
-      dynamic_cast<TileBeamElemContByteStreamCnv *>(cnvSvc->converter(
-                                                                      ClassID_traits<TileBeamElemContainer>::ID()));
-      
-      if (m_beamCnv == NULL) {
-        ATH_MSG_ERROR( " Can't get TileBeamElemContByteStreamCnv " );
-      }
-    }
-  } else {
-    m_beamCnv = NULL;
+    ATH_CHECK( m_robSvc.retrieve() );
+    ATH_CHECK( m_decoder.retrieve() );
+    const TileHid2RESrcID* hid2re = m_decoder->getHid2re();
+    m_ROBID.push_back( hid2re->getRobFromFragID(DIGI_PAR_FRAG) );
+    m_ROBID.push_back( hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
   }
-  
+
   uint32_t calib = DQstatus.calibMode();
   bool calibMode  = (calib == 1);
   if ( calibMode != m_calibMode && calib!=0xFFFFFFFF ) {
@@ -324,6 +315,10 @@ StatusCode TileAANtuple::ntuple_initialize(const EventContext& ctx,
   m_evtNr = 0;
   
   ATH_CHECK( m_thistSvc.retrieve() );
+
+  if (m_compressSettings >= 0) {
+    ATH_CHECK( m_fileMgr.retrieve() );
+  }
   
   if(initNTuple(ctx).isFailure()) {
     ATH_MSG_ERROR( " Error during ntuple initialization" );
@@ -353,7 +348,7 @@ StatusCode TileAANtuple::execute() {
   }
   
   bool empty = true;
-  
+
   // store BeamElements
   if (!m_beamElemContainerKey.key().empty()) {
     empty &= storeBeamElements(*DQstatus).isFailure();
@@ -386,19 +381,30 @@ StatusCode TileAANtuple::execute() {
   empty &= storeTMDBDigits(ctx).isFailure();
   empty &= storeTMDBRawChannel(ctx).isFailure();
 
-  if (m_beamCnv) {
-    SG::makeHandle (m_beamElemContainerKey, ctx).get();
-    m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
-    m_evt = m_beamCnv->eventFragment()->global_id();
-    if ( m_beamCnv->validBeamFrag() )
-      m_run = m_beamCnv->robFragment()->rod_run_no();   // take it from beam ROD header
-    else
-      m_run = m_beamCnv->eventFragment()->run_no();  // sometimes run_no is 0 here
-  } else {
-    m_evTime = 0;
-    m_evt = m_evtNr;
-    m_run = 0;
+  m_evTime = 0;
+
+  if (m_bsInput) {
+    const eformat::FullEventFragment<const uint32_t*>* event = nullptr;
+    const eformat::ROBFragment<const uint32_t*>* robFrag = nullptr;
+    event = m_robSvc->getEvent();
+    std::vector<const ROBDataProviderSvc::ROBF*> robf;
+    // keep pointer to whole event and to CIS PAR frag internally
+    m_robSvc->getROBData(m_ROBID, robf);
+    robFrag = (robf.size() > 0 ) ? robf[0] : nullptr;
+    if (event) {
+      m_evTime = event->bc_time_seconds();
+      if ( robFrag ) {
+        // Store ROD header info from collection
+        int rod = N_RODS-1;
+        m_l1ID[rod]   = robFrag->rod_lvl1_id();
+        m_l1Type[rod] = robFrag->rod_lvl1_trigger_type();
+        m_evType[rod] = robFrag->rod_detev_type();
+        m_evBCID[rod] = robFrag->rod_bc_id();
+        if (m_trigType == 0) m_trigType = -m_l1Type[rod]; // make negative to distinguish from TileCal internal trig types
+      }
+    }
   }
+
   m_lumiBlock = -1; // placeholder
   
   //Get run and event numbers
@@ -433,7 +439,7 @@ StatusCode TileAANtuple::execute() {
      }
      */
     //"Europe/Zurich","CET","CET","CEST","CEST","+01:00:00","+01:00:00","-1;0;3","+02:00:00","-1;0;10","+03:00:00"
-    static time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
+    static const time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
     local_date_time gva_time(from_time_t(m_evTime),gva_tz);
     
     //std::ostringstream otime;
@@ -624,19 +630,6 @@ StatusCode TileAANtuple::storeBeamElements(const TileDQstatus& DQstatus) {
   }
   
   m_trigType = cispar[12];
-  
-  // Store ROD header info from collection
-  if (m_beamCnv) {
-    const eformat::ROBFragment<const uint32_t*> *rob = m_beamCnv->robFragment();
-    if (rob) {
-      int rod = N_RODS-1;
-      m_l1ID[rod]   = rob->rod_lvl1_id();
-      m_l1Type[rod] = rob->rod_lvl1_trigger_type();
-      m_evType[rod] = rob->rod_detev_type();
-      m_evBCID[rod] = rob->rod_bc_id();
-      if (m_trigType == 0) m_trigType = -m_l1Type[rod]; // make negative to distinguish from TileCal internal trig types
-    }
-  }
   
   return StatusCode::SUCCESS;
 }
@@ -1441,6 +1434,18 @@ StatusCode
 TileAANtuple::initNTuple(const EventContext& ctx) {
   //Aux Ntuple creation
   
+  if (m_compressSettings >= 0) {
+    std::vector<std::string> files;
+    m_fileMgr->getFiles(Io::ROOT, ( Io::WRITE | Io::CREATE ), files);
+    for (std::string& file : files) {
+      TFile* outFile = (TFile*) m_fileMgr->fptr(file);
+      if (outFile) {
+	ATH_MSG_INFO("Changing compressing settings to " << m_compressSettings << " for file: " << file);
+	outFile->SetCompressionSettings(m_compressSettings);
+      }
+    }
+  }
+
   if (m_ntupleID.size() > 0) {
     
     std::string ntupleID = m_ntupleID + "_map";
@@ -1969,7 +1974,7 @@ void TileAANtuple::DIGI_addBranch(void)
       m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf),    m_arrays->m_chi2OF1[ir],       NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (!m_dspRawChannelContainerKey.empty()) {
+    if (!m_dspRawChannelContainerKey.empty() && !m_reduced) {
       m_ntuplePtr->Branch(NAME2("eDsp",f_suf),       m_arrays->m_eDsp[ir],             NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tDsp",f_suf),       m_arrays->m_tDsp[ir],             NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),     m_arrays->m_pedDsp[ir],         NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float

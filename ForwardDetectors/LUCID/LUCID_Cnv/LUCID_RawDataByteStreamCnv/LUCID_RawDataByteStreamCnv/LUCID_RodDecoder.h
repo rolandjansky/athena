@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_RODDECODER_H
@@ -7,13 +7,8 @@
 
 #include <inttypes.h>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/MsgStreamMember.h"
-
 #include "ByteStreamData/RawEvent.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/MsgStream.h"
 
 class LUCID_RodDecoder {
   

@@ -5,7 +5,6 @@
 thread_local TCS::Heap<TCS::eEmTOB> TCS::eEmTOB::fg_heap("eEm");
 
 const unsigned int TCS::eEmTOB::g_nBitsEt = 13;
-const unsigned int TCS::eEmTOB::g_nBitsIsolation = 5;
 const unsigned int TCS::eEmTOB::g_nBitsEta = 9;
 const unsigned int TCS::eEmTOB::g_nBitsPhi = 7;
 
@@ -15,10 +14,9 @@ TCS::eEmTOB::eEmTOB(uint32_t roiWord, const std::string& tobName) :
 {}
 
 // constructor with initial values
-TCS::eEmTOB::eEmTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType, uint32_t roiWord, const std::string& tobName) :
+TCS::eEmTOB::eEmTOB(unsigned int et, int eta, unsigned int phi, inputTOBType_t tobType, uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
-   , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )
    , m_phi( sizeCheck(phi, nBitsPhi()) )
    , m_tobType( tobType )

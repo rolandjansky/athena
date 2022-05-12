@@ -9,7 +9,7 @@
 
 #include "StoreGate/setupStoreGate.h"
 
-#include "TileCablingService_common_test.cxx"
+#include "TileCablingService_common_test.h"
 
 
 void test1() {

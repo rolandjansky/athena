@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/TSplineReweight.h"
@@ -15,21 +15,21 @@ using namespace std;
 //========= TSplineReweight ===========
 //=============================================
 
-TSplineReweight::TSplineReweight():TLateralShapeCorrection(),m_spline(0)
+TSplineReweight::TSplineReweight():TLateralShapeCorrection(),m_spline(nullptr)
 {
   SetBit(kHasShapeFactor);
 }
 
 TSplineReweight::~TSplineReweight()
 {
-  SetSpline(0);
+  SetSpline(nullptr);
 }
 
 void TSplineReweight::SetSpline(TSpline3* spline) 
 {
   if(m_spline) delete m_spline;
   if(spline) m_spline=(TSpline3*)spline->Clone(gen_name().c_str());
-   else m_spline=0;
+   else m_spline=nullptr;
   SetStandardName(); 
 }
 

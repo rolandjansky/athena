@@ -25,7 +25,6 @@
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "RoiDescriptor/RoiDescriptor.h"
 
 #include <memory>
@@ -38,11 +37,11 @@ using namespace std;
 
 InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_nprint(0),
     m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
-    m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
+    m_fitterTool("Trk::GlobalChi2Fitter/InDetTrackFitter"),
     m_SegmentsKey("TRTSegments"),
     m_outTracksKey("TRTSeededTracks")
 {
@@ -109,7 +108,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   ATH_CHECK(  m_SegmentsKey.initialize()) ;  /** TRT segments to use */
   ATH_CHECK( m_outTracksKey.initialize());
 
-  ATH_CHECK( m_caloKey.initialize(m_caloSeededRoI) );
+  ATH_CHECK( m_caloClusterROIKey.initialize(m_caloSeededRoI) );
+
   if(m_caloSeededRoI){
     ATH_CHECK( m_regionSelector.retrieve());
   } else {
@@ -152,12 +152,8 @@ namespace InDet {
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
-StatusCode InDet::TRT_SeededTrackFinder::execute() {
-   return execute_r( Gaudi::Hive::currentContext() );
-}
-
 StatusCode 
-InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
+InDet::TRT_SeededTrackFinder::execute(const EventContext& ctx) const{
   //Counters. See the include file for definitions
   Stat_t ev_stat;
   // counter
@@ -179,29 +175,27 @@ InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
   InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
   std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p;
   if(m_caloSeededRoI ) {
-    SG::ReadHandle calo(m_caloKey,ctx);
+    SG::ReadHandle<ROIPhiRZContainer> calo_rois(m_caloClusterROIKey, ctx);
     std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
-    if (calo.isValid()) {
+    if (calo_rois.isValid()) {
       RoiDescriptor * roi =nullptr;
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
       double beamZ = beamSpotHandle->beamVtx().position().z();
       roiComp->clear();
       roiComp->setComposite();
-      for (const Trk::CaloClusterROI *c: *calo) {
-        if ( c->energy()/std::cosh(c->globalPosition().eta()) < m_clusterEt) {
-          continue;
-        }
-        double eta = c->globalPosition().eta();
-        double phi = c->globalPosition().phi();
-        double roiPhiMin = phi -m_deltaPhi;
-        double roiPhiMax = phi +m_deltaPhi;
-        double roiEtaMin = eta -m_deltaEta;
-        double roiEtaMax = eta +m_deltaEta;
-        double roiZMin = beamZ -m_deltaZ;
-        double roiZMax = beamZ +m_deltaZ;
-        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax, beamZ, roiZMin,roiZMax);
-        roiComp->push_back(roi);
+      for (const ROIPhiRZ &the_roi : *calo_rois) {
+          double eta = the_roi.eta();
+          double phi = the_roi.phi();
+          double roiPhiMin = phi -m_deltaPhi;
+          double roiPhiMax = phi +m_deltaPhi;
+          double roiEtaMin = eta -m_deltaEta;
+          double roiEtaMax = eta +m_deltaEta;
+          double roiZMin = beamZ -m_deltaZ;
+          double roiZMax = beamZ +m_deltaZ;
+          roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax, beamZ, roiZMin,roiZMax);
+          roiComp->push_back(roi);
       }
+
     }
     std::vector<IdentifierHash> listOfSCTIds;
     std::vector<IdentifierHash> listOfPixIds;

@@ -77,6 +77,7 @@ def L1CaloFEXSimCfg(flags):
 
     eFEX = CompFactory.LVL1.eFEXDriver('eFEXDriver')
     eFEX.eSuperCellTowerMapperTool = CompFactory.LVL1.eSuperCellTowerMapper('eSuperCellTowerMapper', SCell=sCellType)
+    eFEX.eFEXSysSimTool = CompFactory.LVL1.eFEXSysSim('eFEXSysSimTool')
     acc.addEventAlgo(eFEX)
 
     # jFEX part
@@ -89,6 +90,26 @@ def L1CaloFEXSimCfg(flags):
     gFEX.gSuperCellTowerMapperTool = CompFactory.LVL1.gSuperCellTowerMapper('gSuperCellTowerMapper', SCell=sCellType)
     gFEX.gFEXSysSimTool = CompFactory.LVL1.gFEXSysSim('gFEXSysSimTool')
     acc.addEventAlgo(gFEX)
+
+    if flags.Trigger.doHLT:
+        # Check the RoI EDM containers are registered in HLT outputs
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
+        def check(key):
+            assert key==recordable(key), f'recordable() check failed for {key}'
+        check(eFEX.eFEXSysSimTool.Key_eFexEMOutputContainer)
+        check(eFEX.eFEXSysSimTool.Key_eFexTauOutputContainer)
+        check(jFEX.jFEXSysSimTool.Key_jFexSRJetOutputContainer)
+        check(jFEX.jFEXSysSimTool.Key_jFexLRJetOutputContainer)
+        check(jFEX.jFEXSysSimTool.Key_jFexTauOutputContainer)
+        check(jFEX.jFEXSysSimTool.Key_jFexSumETOutputContainer)
+        check(jFEX.jFEXSysSimTool.Key_jFexMETOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gFexSRJetOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gFexLRJetOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gFexRhoOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gScalarEJwojOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gMETComponentsJwojOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gMHTComponentsJwojOutputContainer)
+        check(gFEX.gFEXSysSimTool.Key_gMSTComponentsJwojOutputContainer)
 
     return acc
 
@@ -181,6 +202,11 @@ if __name__ == '__main__':
         'xAOD::gFexGlobalRoIContainer#L1_gMETComponentsJwoj','xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsJwojAux.',
         'xAOD::gFexGlobalRoIContainer#L1_gMHTComponentsJwoj','xAOD::gFexGlobalRoIAuxContainer#L1_gMHTComponentsJwojAux.',
         'xAOD::gFexGlobalRoIContainer#L1_gMSTComponentsJwoj','xAOD::gFexGlobalRoIAuxContainer#L1_gMSTComponentsJwojAux.',
+        'xAOD::gFexGlobalRoIContainer#L1_gMETComponentsNoiseCut','xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsNoiseCutAux.',
+        'xAOD::gFexGlobalRoIContainer#L1_gMETComponentsRms','xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsRmsAux.',
+        'xAOD::gFexGlobalRoIContainer#L1_gScalarENoiseCut','xAOD::gFexGlobalRoIAuxContainer#L1_gScalarENoiseCutAux.',
+        'xAOD::gFexGlobalRoIContainer#L1_gScalarERms','xAOD::gFexGlobalRoIAuxContainer#L1_gScalarERmsAux.',
+
     ]
     acc.merge(OutputStreamCfg(flags, 'AOD', ItemList=FexEDMList))
 

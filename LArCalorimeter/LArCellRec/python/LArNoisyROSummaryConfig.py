@@ -35,6 +35,12 @@ def LArNoisyROSummaryCfg(configFlags):
    theLArNoisyROAlg=LArNoisyROAlg(isMC=isMC)
    theLArNoisyROAlg.Tool=theLArNoisyROTool
    result.addEventAlgo(theLArNoisyROAlg)
+   
+   toStore="LArNoisyROSummary#LArNoisyROSummary"
+   from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
+   result.merge(addToESD(configFlags,toStore))
+   result.merge(addToAOD(configFlags,toStore))
+
 
    return result
 

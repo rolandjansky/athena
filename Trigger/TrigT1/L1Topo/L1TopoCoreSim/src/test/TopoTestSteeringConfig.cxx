@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // test the loading of the topo menu and configuration of the topo steering
 
 #include <iostream>
+
+#include "CxxUtils/checker_macros.h"
 
 #include "L1TopoCoreSim/TopoSteering.h"
 
@@ -12,7 +14,7 @@
 
 using namespace std;
 
-int run(int argc, const char * argv[]) {
+int run ATLAS_NOT_THREAD_SAFE (int argc, const char * argv[]) {
 
    if(argc<2) {
       cout << "Please specify topo menu input JSON file:\n" << argv[0] << " -v <menu.json>" << endl;
@@ -60,7 +62,7 @@ int run(int argc, const char * argv[]) {
 
 
 
-int main(int argc, const char * argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, const char * argv[]) {
    try {
       return run(argc, argv);
    }

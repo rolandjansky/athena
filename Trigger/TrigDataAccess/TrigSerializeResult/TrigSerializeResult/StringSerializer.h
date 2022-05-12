@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERIALIZERESULT_STRINGSERIALIZER_H
@@ -48,6 +48,13 @@ public:
   /// Same as above but with vector instead of iterators
   std::size_t deserialize (const std::vector<uint32_t>& storage, std::vector<std::string>& strings ) {
     return deserialize(storage.begin(), storage.end(), strings);
+  }
+
+  /// Same as above but return string by value (useful when invoked from Python)
+  std::vector<std::string> deserialize (const std::vector<uint32_t>& storage) {
+    std::vector<std::string> strings;
+    deserialize(storage.begin(), storage.end(), strings);
+    return strings;
   }
 
   /// Deserialize one single string

@@ -33,7 +33,7 @@ StatusCode TrigL2MuonSA::RpcClusterPreparator::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::RpcClusterPreparator::clusteringRPCs(const bool doMultiMuon,
-                                                              std::vector<const Muon::RpcPrepDataCollection*> rpcCols, 
+                                                              const std::vector<const Muon::RpcPrepDataCollection*>& rpcCols, 
                                                               const TrigRoiDescriptor*          p_roids, 
                                                               const ToolHandle<ClusterPatFinder>*     clusterPatFinder, 
                                                               TrigL2MuonSA::RpcLayerClusters&   rpcLayerClusters) const

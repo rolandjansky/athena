@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOHelperFcns.cxx 693573 2015-09-07 19:15:49Z wsfreund $
 #include "RingerSelectorTools/tools/IOHelperFcns.icc"
 
 // STL includes:
@@ -139,7 +138,7 @@ unsigned version()
 
   versionStr.erase(std::remove_if( versionStr.begin(),
       versionStr.end(),
-      std::not1( std::ptr_fun<int,int>( std::isdigit ) ) ),
+      [] (int c) { return !std::isdigit(c); }),
       versionStr.end());
 
   return std::stoul(versionStr);
@@ -155,16 +154,7 @@ void checkFile(const TFile& file){
 
 // =============================================================================
 bool fileExist(const char* fileName) {
-  Int_t prevMessageLevel = gErrorIgnoreLevel;
-  gErrorIgnoreLevel = kBreak;
-  TFile file(fileName);
-  gErrorIgnoreLevel = prevMessageLevel;
-  try {
-    file.IsZombie();
-    return true;
-  } catch (const std::runtime_error &e){
-    return false;
-  }
+  return (gSystem->AccessPathName(fileName) == 0);
 }
 
 // =============================================================================

@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file EventCommonD3PDMaker/src/EventFlagNames.h
  * @author scott snyder <snyder@bnl.gov>
@@ -29,7 +28,7 @@ struct EventFlagNames
 };
 
 
-static EventFlagNames eventFlagNames[] = {
+static const EventFlagNames eventFlagNames[] = {
   { xAOD::EventInfo::Pixel,      "pixel" },
   { xAOD::EventInfo::SCT,        "sct"   },
   { xAOD::EventInfo::TRT,        "trt"   },
@@ -40,7 +39,7 @@ static EventFlagNames eventFlagNames[] = {
   { xAOD::EventInfo::Core,       "core"  },
 };
 
-static const size_t nEventFlagNames =
+static constexpr size_t nEventFlagNames =
   sizeof(eventFlagNames) / sizeof(eventFlagNames[0]);
 
 

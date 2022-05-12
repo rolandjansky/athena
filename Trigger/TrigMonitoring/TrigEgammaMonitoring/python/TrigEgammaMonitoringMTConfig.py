@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 '''@file TrigEgammaMonitoringConfigRun3.py
 @author D. Maximov (histograms), Joao victor Pinto (core)
@@ -84,7 +84,7 @@ class TrigEgammaMonAlgBuilder:
 
   def configureMode(self):
 
-    self.__logger.info("TrigEgammaMonToolBuilder.configureMode()")
+    self.__logger.info("TrigEgammaMonAlgBuilder.configureMode()")
     self.activate_onlineMonHypos = True
 
     if not self.get_monitoring_mode():
@@ -131,7 +131,7 @@ class TrigEgammaMonAlgBuilder:
 
   def get_monitoring_mode(self):
 
-    self.__logger.info("TrigEgammaMonToolBuilder.get_monitoring_mode()")
+    self.__logger.info("TrigEgammaMonAlgBuilder.get_monitoring_mode()")
     self.data_type = dqflags.monManDataType()
     if self.data_type == 'monteCarlo': 
       self.mc_mode = True
@@ -152,7 +152,7 @@ class TrigEgammaMonAlgBuilder:
 
   def setProperties(self):
 
-    self.__logger.info("TrigEgammaMonToolBuilder.setProperties()")
+    self.__logger.info("TrigEgammaMonAlgBuilder.setProperties()")
     self.basePath = 'HLT/EgammaMon'
    
     if self.pp_mode:
@@ -607,9 +607,9 @@ class TrigEgammaMonAlgBuilder:
       self.addHistogram(monGroup, TH1F("et"     , "Et; Et [GeV] ; Count", 100, 0., 200.))
       self.addHistogram(monGroup, TH1F("eta"    , "eta; eta ; Count"    , 50, -2.5, 2.5))
       self.addHistogram(monGroup, TH1F("phi"    , "phi; phi ; Count"    , 20, -3.2, 3.2))
-      self.addHistogram(monGroup, TH1F("Rhad"   , "Rhad; Rhad ; Count"  , 50, -1, 3))
-      self.addHistogram(monGroup, TH1F("Reta"   , "Reta; Reta ; Count"  , 50, -1, 3 ))
-      self.addHistogram(monGroup, TH1F("Wstot"  , "Wstot; Wstot ; Count", 50, -1, 3 ))
+      self.addHistogram(monGroup, TH1F("Rhad"   , "Rhad; Rhad ; Count"  , 10, 0, 1))
+      self.addHistogram(monGroup, TH1F("Reta"   , "Reta; Reta ; Count"  , 10, 0, 1 ))
+      self.addHistogram(monGroup, TH1F("Wstot"  , "Wstot; Wstot ; Count", 40, 0, 4 ))
 
     else: # L1Calo Legacy
       self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.))

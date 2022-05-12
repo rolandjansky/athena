@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ProtosLHEF_i )
@@ -11,7 +11,6 @@ atlas_add_component( ProtosLHEF_i
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel GeneratorFortranCommonLib )
 
 # Install files from the package:
-atlas_install_headers( ProtosLHEF_i )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.events share/*.dat )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare package version:
 set( RingerSelectorTools_version "\"RingerSelectorTools-00-00-18\"" )
@@ -15,7 +15,7 @@ atlas_add_library( RingerSelectorToolsEnumsLib
                    Root/enums/*.cxx
                    PUBLIC_HEADERS RingerSelectorTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} PATCoreAcceptLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils PATCoreAcceptLib )
 
 
 atlas_add_library( RingerSelectorToolsLib

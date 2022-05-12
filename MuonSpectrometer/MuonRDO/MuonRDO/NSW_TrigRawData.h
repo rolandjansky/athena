@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */  
 
 #ifndef NSW_TRIGRAWDATA_H
@@ -18,7 +18,7 @@ class NSW_TrigRawData : public DataVector<Muon::NSW_TrigRawDataSegment>
   NSW_TrigRawData();
   NSW_TrigRawData(uint16_t sectorId, uint16_t bcId);
   NSW_TrigRawData(uint16_t sectorId, char sectorSide, uint16_t bcId);
-  NSW_TrigRawData(const NSW_TrigRawData &trd);
+  NSW_TrigRawData(const NSW_TrigRawData &trd, const bool phiResBit);
 
   ~NSW_TrigRawData() { };
 

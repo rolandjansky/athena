@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/BosonTagTool.h"
@@ -23,7 +23,7 @@ BosonTagTool::BosonTagTool(std::string name) :
 
 int BosonTagTool::modifyJet(xAOD::Jet &jet) const
 {
-  static JetSubStructureUtils::BosonTag tagger(m_working_point, m_tagger_alg, m_recommendations_file, m_debug, m_verbose);
+  static const JetSubStructureUtils::BosonTag tagger(m_working_point, m_tagger_alg, m_recommendations_file, m_debug, m_verbose);
   jet.setAttribute("BosonTag", static_cast<int>(tagger.result(jet)));
 
   return 0;

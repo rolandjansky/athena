@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -15,7 +15,6 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone, getPrivateTool
 
@@ -324,7 +323,7 @@ def MCTBSLFitterMaterialFromTrack(name="MCTBSLFitterMaterialFromTrack", **kwargs
 def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
         if beamFlags.beamType() == 'collisions':
           
@@ -398,7 +397,7 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
         kwargs.setdefault("AddMeasurements", False)
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     
     if reco_cscs:
         if muonRecFlags.enableErrorTuning() or globalflags.DataSource() == 'data':
@@ -418,33 +417,23 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
     kwargs.setdefault("TgcPrepDataContainer",
                       'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
  
-    #MDT conditions information not available online
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
-
     return CfgMgr.Muon__MuonChamberHoleRecoveryTool(name,**kwargs)
 # end of factory function MuonChamberHoleRecoveryTool
 
 def MuonTrackToSegmentTool(name="MuonTrackToSegmentTool",extraFlags=None,**kwargs):
-    #MDT conditions information not available online
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
     return CfgMgr.Muon__MuonTrackToSegmentTool(name,**kwargs)
 
 class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,ConfiguredBase):
   __slots__ = ()
 
   def __init__(self,name="MuonSegmentRegionRecoveryTool",**kwargs):
-      #MDT conditions information not available online
-      if(athenaCommonFlags.isOnline):
-          kwargs.setdefault("MdtCondKey","")
       from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT, makeRegSelTool_RPC, makeRegSelTool_TGC
       kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
       kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())
       kwargs.setdefault("TGCRegionSelector", makeRegSelTool_TGC())
       reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
       reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-      reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+      reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
   
       if reco_cscs:
           from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC

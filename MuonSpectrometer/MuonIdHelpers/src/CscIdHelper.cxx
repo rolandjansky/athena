@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/CscIdHelper.h"
@@ -9,18 +9,12 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 CscIdHelper::CscIdHelper() :
-    MuonIdHelper("CscIdHelper"),
-    m_CHAMBERLAYER_INDEX(0),
-    m_WIRELAYER_INDEX(0),
-    m_MEASURESPHI_INDEX(0),
-    m_stripMaxPhi(UINT_MAX),
-    m_stripMaxEta(UINT_MAX),
-    m_hasChamLay1(false) {}
+    MuonIdHelper("CscIdHelper")
+    {}
 
 /// Initialize dictionary
 int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
     int status = 0;
-
     MsgStream log(m_msgSvc, m_logName);
 
     // Check whether this helper should be reinitialized
@@ -33,10 +27,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
     /// init base object
     AtlasDetectorID::setMessageSvc(Athena::getMessageSvc());
-    if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
+    if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return 1;
 
     // Register version of the MuonSpectrometer dictionary
-    if (register_dict_tag(dict_mgr, "MuonSpectrometer")) return (1);
+    if (register_dict_tag(dict_mgr, "MuonSpectrometer")) return 1;
 
     m_dict = dict_mgr.find_dictionary("MuonSpectrometer");
     if (!m_dict) {
@@ -46,7 +40,7 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
 
     /// Initialize some of the field indices
 
-    if (initLevelsFromDict()) return (1);
+    if (initLevelsFromDict()) return 1;
 
     int index = technologyIndex("CSC");
     if (index == -1) {
@@ -133,7 +127,7 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
             log << MSG::ERROR << "Could not get value for label 'MuonSpectrometer' of field "
                 << "'subdet' in dictionary " << atlasDict->m_name << endmsg;
         }
-        return (1);
+        return 1;
     }
 
     /// Build MultiRange down to "technology" for all (muon) regions
@@ -733,14 +727,15 @@ bool CscIdHelper::valid(const Identifier& id) const {
     }
     return true;
 }
-
+bool CscIdHelper::isStNameInTech(const std::string& stationName) const{
+     return stationName[0] == 'C';
+}
 bool CscIdHelper::validElement(const Identifier& id) const {
     int station = stationName(id);
-    std::string name = stationNameString(station);
-    if ('C' != name[0]) {
+    if (!validStation(station)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationName=" << name << endmsg;
+            log << MSG::WARNING << "Invalid stationName=" << stationNameString(station) << endmsg;
         }
         return false;
     }
@@ -749,7 +744,7 @@ bool CscIdHelper::validElement(const Identifier& id) const {
     if ((eta < stationEtaMin(id)) || (eta > stationEtaMax(id)) || (0 == eta)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationEta=" << eta << " for stationName=" << name << " stationEtaMin=" << stationEtaMin(id)
+            log << MSG::WARNING << "Invalid stationEta=" << eta << " for stationName=" << stationNameString(station) << " stationEtaMin=" << stationEtaMin(id)
                 << " stationEtaMax=" << stationEtaMax(id) << endmsg;
         }
         return false;
@@ -759,7 +754,7 @@ bool CscIdHelper::validElement(const Identifier& id) const {
     if ((phi < stationPhiMin(id)) || (phi > stationPhiMax(id))) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationPhi=" << phi << " for stationName=" << name << " stationPhiMin=" << stationPhiMin(id)
+            log << MSG::WARNING << "Invalid stationPhi=" << phi << " for stationName=" << stationNameString(station) << " stationPhiMin=" << stationPhiMin(id)
                 << " stationPhiMax=" << stationPhiMax(id) << endmsg;
         }
         return false;
@@ -770,12 +765,10 @@ bool CscIdHelper::validElement(const Identifier& id) const {
 /// Private validation of levels
 
 bool CscIdHelper::validElement(const Identifier& id, int stationName, int stationEta, int stationPhi) const {
-    std::string name = stationNameString(stationName);
-
-    if ('C' != name[0]) {
+    if (!validStation(stationName)) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationName=" << name << endmsg;
+            log << MSG::WARNING << "Invalid stationName=" << stationNameString(stationName) << endmsg;
         }
         return false;
     }
@@ -784,7 +777,7 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName, int statio
         std::call_once(flag, [&]() {
             if (m_msgSvc) {
                 MsgStream log(m_msgSvc, m_logName);
-                log << MSG::WARNING << "Invalid stationEta=" << stationEta << " for stationName=" << name
+                log << MSG::WARNING << "Invalid stationEta=" << stationEta << " for stationName=" << stationNameString(stationName)
                     << " stationEtaMin=" << stationEtaMin(id) << " stationEtaMax=" << stationEtaMax(id) << endmsg;
             }
         });
@@ -793,7 +786,7 @@ bool CscIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((stationPhi < stationPhiMin(id)) || (stationPhi > stationPhiMax(id))) {
         if (m_msgSvc) {
             MsgStream log(m_msgSvc, m_logName);
-            log << MSG::WARNING << "Invalid stationPhi=" << stationPhi << " for stationName=" << name
+            log << MSG::WARNING << "Invalid stationPhi=" << stationPhi << " for stationName=" << stationNameString(stationName) 
                 << " stationPhiMin=" << stationPhiMin(id) << " stationPhiMax=" << stationPhiMax(id) << endmsg;
         }
         return false;
@@ -900,36 +893,36 @@ int CscIdHelper::strip_hash_offsets() {
     }
     return 0;
 }
-Identifier CscIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool check, bool* isValid) const {
+Identifier CscIdHelper::elementID(int stationName, int stationEta, int stationPhi) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
     m_phi_impl.pack(stationPhi, result);
     m_tec_impl.pack(csc_field_value(), result);
-    if (check) {
-        val = this->validElement(result, stationName, stationEta, stationPhi);
-        if (isValid) *isValid = val;
-    }
+    return result;
+}
+Identifier CscIdHelper::elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const {
+    const Identifier result = elementID(stationName, stationEta, stationPhi);
+    isValid = validElement(result, stationName, stationEta, stationPhi);
     return result;
 }
 
-Identifier CscIdHelper::elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
-    Identifier id;
-    int stationName = stationNameIndex(stationNameStr);
-    id = elementID(stationName, stationEta, stationPhi, check, isValid);
-    return id;
+Identifier CscIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const {
+    return elementID(stationNameIndex(stationNameStr), stationEta, stationPhi);   
 }
+Identifier CscIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const {
+    return elementID(stationNameIndex(stationNameStr), stationEta, stationPhi, isValid);   
+}
+
 
 Identifier CscIdHelper::elementID(const Identifier& id) const { return parentID(id); }
 
 Identifier CscIdHelper::channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi,
-                                  int strip, bool check, bool* isValid) const {
+                                  int strip) const {
     // pack fields independently
     Identifier result((Identifier::value_type)0);
-    bool val = false;
     m_muon_impl.pack(muon_field_value(), result);
     m_sta_impl.pack(stationName, result);
     m_eta_impl.pack(stationEta, result);
@@ -939,36 +932,37 @@ Identifier CscIdHelper::channelID(int stationName, int stationEta, int stationPh
     m_lay_impl.pack(wireLayer, result);
     m_mea_impl.pack(measuresPhi, result);
     m_str_impl.pack(strip, result);
-    if (check) {
-        val = this->validChannel(result, stationName, stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip);
-        if (isValid) *isValid = val;
-    }
     return result;
+}
+Identifier CscIdHelper::channelID(int stationName, int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi,
+                                  int strip, bool& isValid) const {
+    const Identifier result = channelID(stationName, stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip);
+    isValid = validChannel(result, stationName, stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip);
+    return result;    
 }
 
 Identifier CscIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
-                                  int measuresPhi, int strip, bool check, bool* isValid) const {
-    Identifier id;
-    int stationName = stationNameIndex(stationNameStr);
-    id = channelID(stationName, stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip, check, isValid);
-    return id;
+                                  int measuresPhi, int strip) const {
+    return channelID(stationNameIndex(stationNameStr), stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip);
+}
+Identifier CscIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int chamberLayer, int wireLayer,
+                                  int measuresPhi, int strip, bool& isValid) const {
+    return channelID(stationNameIndex(stationNameStr), stationEta, stationPhi, chamberLayer, wireLayer, measuresPhi, strip, isValid);
 }
 
-Identifier CscIdHelper::channelID(const Identifier& id, int chamberLayer, int wireLayer, int measuresPhi, int strip, bool check,
-                                  bool* isValid) const {
+Identifier CscIdHelper::channelID(const Identifier& id, int chamberLayer, int wireLayer, int measuresPhi, int strip) const {
     Identifier result(id);
-    bool val = false;
     m_cla_impl.pack(chamberLayer, result);
     m_lay_impl.pack(wireLayer, result);
     m_mea_impl.pack(measuresPhi, result);
     m_str_impl.pack(strip, result);
-    if (check) {
-        val = this->valid(result);
-        if (isValid) *isValid = val;
-    }
     return result;
 }
-
+Identifier CscIdHelper::channelID(const Identifier& id, int chamberLayer, int wireLayer, int measuresPhi, int strip, bool& isValid) const {
+    const Identifier result = channelID(id, chamberLayer, wireLayer, measuresPhi, strip);
+    isValid = valid(result);
+    return result;
+}
 /// get parent id from channel id
 
 Identifier CscIdHelper::parentID(const Identifier& id) const {

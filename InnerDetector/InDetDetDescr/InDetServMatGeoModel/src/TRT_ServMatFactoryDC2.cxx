@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryDC2.h"
@@ -19,25 +19,25 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#define NUMBEROFPANEL 2
-#define TRTELEMENTSINEL 9
+static const int NUMBEROFPANEL = 2;
+static const int TRTELEMENTSINEL = 9;
 
 #include <sstream>
 #include <utility>
 
 
 TRT_ServMatFactoryDC2::TRT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+  AthMessaging(Athena::getMessageSvc(), "ServMatFactoryDC2"),
   m_detStore(detStore),
   m_rdbAccess(std::move(pRDBAccess)),
-  m_materialManager(nullptr),
-  m_msg("ServMatFactoryDC2")
+  m_materialManager(nullptr)
 {
   
 }
@@ -54,16 +54,15 @@ TRT_ServMatFactoryDC2::~TRT_ServMatFactoryDC2()
 void TRT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 {
   if (not mother){
-    msg(MSG::FATAL) <<"GeoPhysVol pointer 'mother' is null"<<endmsg;
+    ATH_MSG_FATAL("GeoPhysVol pointer 'mother' is null");
     return;
-  
   }
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
+  ATH_MSG_DEBUG("Building TRT Service Material");
 
 
   // Get the material manager:  
   StatusCode sc = m_detStore->retrieve(m_materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
+  if (sc.isFailure()) ATH_MSG_FATAL("Could not locate Material Manager");
   
   double epsilon = 0.002;
   

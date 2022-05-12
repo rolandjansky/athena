@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from math import inf
 
 # this function is only used below
 def JetParticleAssociationCfg(ConfigFlags, jetCollName, partcollname, assocname, **options):
@@ -22,13 +23,58 @@ def JetParticleAssociationCfg(ConfigFlags, jetCollName, partcollname, assocname,
     return acc
 
 
-def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", **options):
+def JetParticleAssociationAlgCfg(
+        ConfigFlags,
+        JetCollection,
+        InputParticleCollection,
+        OutputParticleDecoration,
+        MinimumJetPt=None,
+        MinimumJetPtFlag=None):
+
+    acc=ComponentAccumulator()
+    jetcol = JetCollection.replace("Track", "PV0Track")
+    name=(jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
+    if MinimumJetPt is None:
+        MinimumJetPt = ConfigFlags.BTagging.minimumJetPtForTrackAssociation
+    if MinimumJetPt > 0.0 and MinimumJetPtFlag is None:
+        ptflag = f'{OutputParticleDecoration}OverPtThreshold'
+    elif MinimumJetPtFlag is not None:
+        ptflag = MinimumJetPtFlag
+    else:
+        ptflag = ''
+
+    # -- create the association algorithm
+    acc.addEventAlgo(CompFactory.JetDecorationAlg(
+        name=name,
+        JetContainer=jetcol,
+        Decorators=[
+            acc.popToolsAndMerge(
+                JetParticleAssociationCfg(
+                    ConfigFlags,
+                    jetcol,
+                    InputParticleCollection,
+                    OutputParticleDecoration,
+                    MinimumJetPt=MinimumJetPt,
+                    PassPtFlag=ptflag,
+                ))
+        ]
+    ))
+
+    return acc
+
+def JetParticleFixedConeAssociationAlgCfg(ConfigFlags, fixedConeRadius, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", **options):
 
     acc=ComponentAccumulator()
     jetcol = JetCollection.replace("Track", "PV0Track")
 
     options['JetContainer'] = jetcol
-    options['Decorators'] = [acc.popToolsAndMerge(JetParticleAssociationCfg(ConfigFlags, jetcol, InputParticleCollection, OutputParticleDecoration))]
+    options['Decorators'] = [CompFactory.JetParticleShrinkingConeAssociation(
+                                                                             InputParticleContainer=InputParticleCollection,
+                                                                             OutputDecoration=OutputParticleDecoration,
+                                                                             coneSizeFitPar1=fixedConeRadius,
+                                                                             coneSizeFitPar2=-inf,
+                                                                             coneSizeFitPar3=0,
+                                                                             **options)]
     options['name'] = (jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
 
     # -- create the association algorithm

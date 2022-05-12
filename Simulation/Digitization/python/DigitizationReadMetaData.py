@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon.Logging import logging
@@ -13,6 +13,20 @@ def checkLegacyEventInfo(inputlist):
 
         print(entry)
         present = True
+        break
+
+    return present
+
+def checkLegacyNSWContainers(inputlist):
+    """ Check for legacy NSW containers """
+    present = False
+    for entry in inputlist:
+        if not (entry[0] == 'MMSimHitCollection' and entry[1] == 'MicromegasSensitiveDetector') \
+            and not (entry[0] == 'sTGCSimHitCollection' and entry[1] == 'sTGCSensitiveDetector'):
+            continue
+
+        present = True
+        break
 
     return present
 
@@ -26,6 +40,7 @@ def checkTruthJetContainer(inputlist, containerName):
             continue
         print(entry)
         present = True
+        break
 
     return present
 
@@ -38,6 +53,7 @@ def checkTruthParticleContainer(inputlist):
 
         print(entry)
         present = True
+        break
 
     return present
 
@@ -48,9 +64,10 @@ def hitColls2SimulatedDetectors(inputlist):
                            'BCMHits': 'BCM', 'LucidSimHitsVector': 'Lucid', 'LArHitEMB': 'LAr',
                            'LArHitEMEC': 'LAr', 'LArHitFCAL': 'LAr', 'LArHitHEC': 'LAr',
                            'MBTSHits': 'Tile', 'TileHitVec': 'Tile', 'MDT_Hits': 'MDT',
-                           'MicromegasSensitiveDetector': 'Micromegas',
-                           'sTGCSensitiveDetector': 'sTGC',
+                           'MicromegasSensitiveDetector': 'MM',  # TODO: remove after MC21a
+                           'sTGCSensitiveDetector': 'sTGC',  # TODO: remove after MC21a
                            'CSC_Hits': 'CSC', 'TGC_Hits': 'TGC', 'RPC_Hits': 'RPC',
+                           'sTGC_Hits': 'sTGC', 'MM_Hits': 'MM',
                            'TruthEvent': 'Truth'} #'': 'ALFA', '': 'ZDC',
     for entry in inputlist:
         if entry[1] in simulatedDictionary.keys():
@@ -236,6 +253,11 @@ def buildDict(inputtype, inputfile):
             metadatadict['LegacyEventInfo'] = checkLegacyEventInfo(f.infos['eventdata_items'])
         else:
             metadatadict['LegacyEventInfo'] = False
+        ## Check for legacy NSW containers
+        if 'eventdata_items' in f.infos.keys():
+            metadatadict['LegacyNSWContainers'] = checkLegacyNSWContainers(f.infos['eventdata_items'])
+        else:
+            metadatadict['LegacyNSWContainers'] = False
         ## Check for xAOD::TruthParticleContainer
         if 'eventdata_items' in f.infos.keys():
             metadatadict['PileUpTruthParticles'] = checkTruthParticleContainer(f.infos['eventdata_items'])
@@ -338,11 +360,17 @@ def signalMetaDataCheck(metadatadict):
     from AthenaCommon.DetFlags import DetFlags
     if not skipCheck('SimulatedDetectors'):
         if 'SimulatedDetectors' in simkeys:
+            if isinstance(metadatadict['SimulatedDetectors'], str):
+                simulatedDetectors = eval(metadatadict['SimulatedDetectors']) # convert from str to list of str
+            else:
+                simulatedDetectors = metadatadict['SimulatedDetectors']
+            simulatedDetectors[:] = [x.lower() if x == 'Pixel' else x for x in simulatedDetectors] # to cope with CA-based inputs where Pixel rather than pixel is used
+            simulatedDetectors[:] = ['MM' if x == 'Micromegas' else x for x in simulatedDetectors] # to cope with legacy NSW naming
             logDigitizationReadMetadata.debug("Switching off subdetectors which were not simulated")
-            possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+            possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth']
             switchedOffSubDetectors=[]
             for subdet in possibleSubDetectors:
-                if subdet not in metadatadict['SimulatedDetectors']:
+                if subdet not in simulatedDetectors:
                     attrname = subdet+"_setOff"
                     checkfn = getattr(DetFlags, attrname, None)
                     if checkfn is not None:
@@ -361,6 +389,12 @@ def signalMetaDataCheck(metadatadict):
         if metadatadict['LegacyEventInfo']:
             from Digitization.DigitizationFlags import digitizationFlags
             digitizationFlags.experimentalDigi += ['LegacyEventInfo']
+
+    # Check for legacy NSW containers
+    if not skipCheck('LegacyNSWContainers'):
+        if metadatadict['LegacyNSWContainers']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['LegacyNSWContainers']
 
     if not skipCheck('PileUpAntiKt4TruthJets'):
         if metadatadict['PileUpAntiKt4TruthJets']:
@@ -441,7 +475,11 @@ def pileupMetaDataCheck(pileuptype, pileupfile, simdict):
             switchedOffSubDetectors=[]
             for subdet in simdict['SimulatedDetectors']:
                 if subdet not in metadatadict['SimulatedDetectors']:
-                    switchedOffSubDetectors+=[subdet]
+                    if subdet == 'MM':
+                        if 'Micromegas' not in metadatadict['SimulatedDetectors']:
+                            switchedOffSubDetectors+=[subdet]    
+                    else:
+                        switchedOffSubDetectors+=[subdet]
             if switchedOffSubDetectors:
                 logDigitizationReadMetadata.error("%s sub-detectors were sinmulated in the signal sample, but not in the %s background sample: %s", len(switchedOffSubDetectors), longpileuptype, switchedOffSubDetectors)
                 raise AssertionError("Some simulated sub-detectors from signal sample are missing in the background samples.")

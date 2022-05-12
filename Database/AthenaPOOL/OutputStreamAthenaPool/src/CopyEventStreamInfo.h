@@ -46,12 +46,13 @@ public:
    virtual StatusCode metaDataStop();
 
 private:
-   /// Key, the StoreGate key for the EventStreamInfo object.
-   StringProperty m_key;
+   /// (optional) list of keys to copy, all if empty, default: empty
+   Gaudi::Property<std::vector<std::string> > m_keys{this, "Keys", {},
+      "(optional) list of keys to copy, all if empty. default: empty"};
 
    /// Access to output MetaDataStore through MetaDataSvc (using MetaContainers)
    ServiceHandle<IMetaDataSvc> m_metaDataSvc;
-   /// MetaDataStore for input 
+   /// MetaDataStore for input
    ServiceHandle<StoreGateSvc> m_inputMetaDataStore;
 };
 #endif

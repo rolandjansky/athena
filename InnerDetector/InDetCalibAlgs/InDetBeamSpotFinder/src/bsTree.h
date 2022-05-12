@@ -139,7 +139,7 @@ bsTree::bsTree(TTree *tree)
       tree = (TTree*)gDirectory->Get("Beamspots");
 
    }
-   Init(tree);
+   bsTree::Init(tree);
 }
 
 bsTree::~bsTree()

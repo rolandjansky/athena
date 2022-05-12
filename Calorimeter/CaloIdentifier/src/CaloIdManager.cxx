@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -56,9 +56,7 @@ CaloIdManager::CaloIdManager(void)
 {
 }
 
-CaloIdManager::~CaloIdManager(void)
-{
-}
+
 
 
 const CaloCell_ID*

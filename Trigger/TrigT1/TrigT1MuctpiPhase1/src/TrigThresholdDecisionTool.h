@@ -1,7 +1,7 @@
 // This file is really -*- C++ -*-.
 
 /*                                                                                                                      
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1MUCTPIPHASE1_TRIGTHRESHOLDECISIONTOOL_H
@@ -106,7 +106,7 @@ namespace LVL1 {
     void makeRPCDecision(const std::string& rpcFlags, bool M);
 
     void parseFlags(const std::string& flags);
-    std::vector<std::string> parseString(std::string str, std::string sep) const;
+    std::vector<std::string> parseString(const std::string& str, const std::string& sep) const;
     std::string getShapedFlags(const std::string& flags) const;
 
     ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcTool{this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/LVL1__TrigT1RPCRecRoiTool", "Tool to get the eta/phi coordinates in the RPC"};

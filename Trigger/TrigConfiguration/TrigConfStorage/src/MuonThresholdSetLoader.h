@@ -39,9 +39,9 @@ namespace TrigConf {
          : ILoader(), DBLoader(sm, session) {}
       
       /**@brief destructor*/           
-      virtual ~MuonThresholdSetLoader(){};
+      virtual ~MuonThresholdSetLoader() override = default;
 
-      virtual bool load( MuonThresholdSet& data);
+      virtual bool load( MuonThresholdSet& data) override;
 
       // retrieve all muon theshold sets for the current entries in the
       // trigger_alias table

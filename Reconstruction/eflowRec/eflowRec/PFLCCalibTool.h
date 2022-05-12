@@ -27,14 +27,13 @@ class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
 
   ~PFLCCalibTool() {}
 
-  StatusCode initialize();
-  void execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer);
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) override;
+  virtual StatusCode finalize() override;
 
  private:
 
-  void apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster);
-  void applyLocal(ToolHandle<CaloClusterProcessor>& calibTool, eflowRecCluster *cluster);
+  StatusCode apply(ToolHandle<CaloClusterProcessor>& calibTool, xAOD::CaloCluster* cluster);  
   static void applyLocalWeight(eflowRecCluster* theEFRecCluster, const CaloDetDescrManager& calo_dd_man);
 
   /** Tool to put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */

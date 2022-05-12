@@ -1,30 +1,36 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigHLTMonitorAlgorithm.py
 @date 2019-09-10
 @date 2020-09-18
+@date 2022-02-21
 @brief TrigHLTMonitoring top-level files
 '''
 
 def createHLTDQConfigFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     acf=AthConfigFlags()
 
-    # need to (temporarily) block General monitoring by default when it is
-    # running on bytestream
-    acf.addFlag('DQ.Steering.HLT.doGeneral', lambda flags: 'TriggerMenu' in GetFileMD(flags.Input.Files))
-    acf.addFlag('DQ.Steering.HLT.doBjet', True)
-    acf.addFlag('DQ.Steering.HLT.doBphys', True)
-    acf.addFlag('DQ.Steering.HLT.doCalo', True)
-    acf.addFlag('DQ.Steering.HLT.doEgamma', True)
-    acf.addFlag('DQ.Steering.HLT.doJet', True)
-    acf.addFlag('DQ.Steering.HLT.doMET', True)
-    acf.addFlag('DQ.Steering.HLT.doMinBias', True)
-    acf.addFlag('DQ.Steering.HLT.doMuon', True)
-    acf.addFlag('DQ.Steering.HLT.doTau', True)
+    # need to (temporarily) block signature monitoring by default when it is
+    # running on bytestream. Remove when ATR-23720 is completed
+    from AthenaConfiguration.Enums import Format
+    from AthenaConfiguration.Enums import BeamType
+    acf.addFlag('DQ.Steering.HLT.doGeneral', True)
+
+    # b-jets disabled for cosmics following ATR-25036
+    acf.addFlag('DQ.Steering.HLT.doBjet', lambda flags: flags.Input.Format is Format.POOL and flags.Beam.Type is BeamType.Collisions)
+
+    acf.addFlag('DQ.Steering.HLT.doInDet', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doBphys', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doCalo', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doEgamma', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doJet', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doMET', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doMinBias', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doMuon', True) #must be changed back to lambda flags if monGroups are implemented. Safe if ATR-23720 is completed
+    acf.addFlag('DQ.Steering.HLT.doTau', lambda flags: flags.Input.Format is Format.POOL)
 
     return acf
 
@@ -46,6 +52,10 @@ def TrigHLTMonTopConfig(inputFlags):
         if inputFlags.DQ.Steering.HLT.doGeneral:
             from TrigHLTMonitoring.TrigGeneralMonitorAlgorithm import TrigGeneralMonConfig
             result.merge(TrigGeneralMonConfig(inputFlags))
+
+        if inputFlags.DQ.Steering.HLT.doInDet:
+            from TrigIDtrkMonitoring.TIDAMonitoring import TrigInDetMonConfig
+            result.merge(TrigInDetMonConfig(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doBjet:
             from TrigBjetMonitoring.TrigBjetMonitorAlgorithm import TrigBjetMonConfig
@@ -76,7 +86,7 @@ def TrigHLTMonTopConfig(inputFlags):
             result.merge(TrigMinBias(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doMuon:
-            from TrigMuonMonitoringMT.TrigMuonMonitoringMTConfig import TrigMuonMonConfig
+            from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonConfig
             result.merge(TrigMuonMonConfig(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doTau:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_EVTRANGEPROCESSOR_H
@@ -63,7 +63,6 @@ class EvtRangeProcessor final : public AthenaMPToolBase
     , PROC_STATE_STOP
   };
 
-  bool m_isPileup;        // Are we doing pile-up digitization?
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
   int  m_nEventsBeforeFork;
   int  m_activeWorkers;   // Keep track of the number of workers

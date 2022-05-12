@@ -97,7 +97,7 @@ namespace Trk {
     @author Andreas.Salzburger@cern.ch
     */
 
- class BevelledCylinderVolumeBounds : public VolumeBounds {
+ class BevelledCylinderVolumeBounds final : public VolumeBounds {
 
   public:
     /**Default Constructor*/

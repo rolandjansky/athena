@@ -44,13 +44,11 @@ TCS::jJetMultiplicity::initialize() {
   m_threshold = getThreshold();
 
   // book histograms
-  bool isMult = true;
+  std::string hname_accept = "jJetMultiplicity_accept_EtaPt"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 600, 0, 600);
 
-  std::string hname_accept = "hjJetMultiplicity_accept_EtaPt"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 450, 0., 300., isMult);
-
-  hname_accept = "hjJetMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+  hname_accept = "jJetMultiplicity_accept_counts_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
 
   return StatusCode::SUCCESS;
      
@@ -71,7 +69,7 @@ TCS::jJetMultiplicity::process( const TCS::InputTOBArray & input,
 {
 
   // Grab the threshold and cast it into the right type
-  auto jJThr = dynamic_cast<const TrigConf::L1Threshold_jJ &>(*m_threshold);
+  const auto& jJThr = dynamic_cast<const TrigConf::L1Threshold_jJ &>(*m_threshold);
 
   // Grab inputs
   const jJetTOBArray & jjets = dynamic_cast<const jJetTOBArray&>(input);
@@ -86,7 +84,7 @@ TCS::jJetMultiplicity::process( const TCS::InputTOBArray & input,
     const GenericTOB gtob(**jjet);
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() >= jJThr.thrValue100MeV(gtob.eta()/4);
+    bool passed = gtob.Et() > jJThr.thrValue100MeV(gtob.eta()/4);
 
     if (passed) {
       counting++; 

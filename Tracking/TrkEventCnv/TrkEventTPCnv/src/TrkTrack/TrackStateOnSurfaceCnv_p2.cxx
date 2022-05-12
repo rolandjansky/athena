@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -33,10 +33,10 @@ persToTrans( const Trk::TrackStateOnSurface_p2 *persObj, Trk::TrackStateOnSurfac
   ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = nullptr;
   const Trk::MaterialEffectsBase* materialEffects = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
 
-  *transObj = Trk::TrackStateOnSurface (meas,
-                                        trackParameters,
-                                        fitQoS,
-                                        materialEffects,
+  *transObj = Trk::TrackStateOnSurface (std::unique_ptr<const Trk::MeasurementBase> (meas),
+                                        std::unique_ptr<const Trk::TrackParameters>(trackParameters),
+                                        std::unique_ptr<const Trk::FitQualityOnSurface> (fitQoS),
+                                        std::unique_ptr<const Trk::MaterialEffectsBase>(materialEffects),
                                         persObj->m_typeFlags);
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGDISTRACKHYPOALG_H
 #define TRIGLONGLIVEDPARTICLESHYPO_TRIGDISTRACKHYPOALG_H
@@ -11,6 +11,7 @@
 #include "TrigDisappearingTrackHypoTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 #include "TMVA/Reader.h"
 
 /**
@@ -45,71 +46,80 @@ private:
    float bdt_eval_pix3l_sct1p(const EventContext&, float, float, float, float, float, float, int,   int,   float, int,   int,   float, float, float, float) const;
    inline float BDTinput(float) const;
 
-   // TMVA reader
-   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_pix4l_sct0_reader  ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_pix4l_sct1p_reader ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_pix3l_sct0_reader  ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_pix3l_sct1p_reader ATLAS_THREAD_SAFE;
+   /// TMVA reader and associated variables for pix4l_sct0
+   struct TMVA_pix4l_sct0 {
+      std::unique_ptr<TMVA::Reader> tmva;
+      float pt;
+      float z0;
+      float d0;
+      float trkiso3_dr01;
+      float trkiso3_dr0201;
+      float chi2ndof;
+      float chi2ndof_pix;
+      float refit_pt;
+      float n_pix;
+      float refit_ptratio;
+      float refit_chi2ndof;
+      float n_bl;
+   };
+   mutable SG::SlotSpecificObj<TMVA_pix4l_sct0> m_tmva_pix4l_sct0_reader ATLAS_THREAD_SAFE;
 
-   // TMVA variables
-   // pix4l_sct0
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_pt             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_z0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_d0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_trkiso3_dr01   ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_trkiso3_dr0201 ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_chi2ndof       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_chi2ndof_pix   ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_refit_pt       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_n_pix          ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_refit_ptratio  ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_refit_chi2ndof ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct0_n_bl           ATLAS_THREAD_SAFE;
+   /// TMVA reader and associated variables for pix4l_sct1p
+   struct TMVA_pix4l_sct1p {
+      std::unique_ptr<TMVA::Reader> tmva;
+      float pt;
+      float refit_pt;
+      float refit_z0;
+      float refit_d0;
+      float n_sct;
+      float refit_ptratio;
+      float refit_chi2ndof_ratio;
+      float trkiso3_dr01;
+      float trkiso3_dr0201;
+      float is_fail;
+      float chi2ndof_pix;
+      float n_pix;
+   };
+   mutable SG::SlotSpecificObj<TMVA_pix4l_sct1p> m_tmva_pix4l_sct1p_reader ATLAS_THREAD_SAFE;
 
-   // pix4l_sct1p
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_pt                   ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_refit_pt             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_refit_z0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_refit_d0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_n_sct                ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_refit_ptratio        ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_refit_chi2ndof_ratio ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_trkiso3_dr01         ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_trkiso3_dr0201       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_is_fail              ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_chi2ndof_pix         ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix4l_sct1p_n_pix                ATLAS_THREAD_SAFE;
+   /// TMVA reader and associated variables for pix3l_sct0
+   struct TMVA_pix3l_sct0 {
+      std::unique_ptr<TMVA::Reader> tmva;
+      float pt;
+      float z0;
+      float d0;
+      float chi2ndof;
+      float chi2ndof_pix;
+      float trkiso3_dr01;
+      float trkiso3_dr0201;
+      float refit_pt;
+      float refit_z0;
+      float refit_d0;
+      float n_pix;
+      float n_bl;
+   };
+   mutable SG::SlotSpecificObj<TMVA_pix3l_sct0> m_tmva_pix3l_sct0_reader ATLAS_THREAD_SAFE;
 
-   // pix3l_sct0
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_pt             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_z0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_d0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_chi2ndof       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_chi2ndof_pix   ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_trkiso3_dr01   ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_trkiso3_dr0201 ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_refit_pt       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_refit_z0       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_refit_d0       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_n_pix          ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct0_n_bl           ATLAS_THREAD_SAFE;
-
-   // pix3l_sct1p
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_pt             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_z0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_d0             ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_refit_pt       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_refit_z0       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_refit_d0       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_n_pix          ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_n_sct          ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_refit_ptratio  ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_is_fail        ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_n_bl           ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_chi2ndof       ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_trkiso3_dr01   ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_trkiso3_dr0201 ATLAS_THREAD_SAFE;
-   mutable SG::SlotSpecificObj<float> m_tmva_pix3l_sct1p_refit_chi2ndof ATLAS_THREAD_SAFE;
+   /// TMVA reader and associated variables for pix3l_sct1p
+   struct TMVA_pix3l_sct1p {
+      std::unique_ptr<TMVA::Reader> tmva;
+      float pt;
+      float z0;
+      float d0;
+      float refit_pt;
+      float refit_z0;
+      float refit_d0;
+      float n_pix;
+      float n_sct;
+      float refit_ptratio;
+      float is_fail;
+      float n_bl;
+      float chi2ndof;
+      float trkiso3_dr01;
+      float trkiso3_dr0201;
+      float refit_chi2ndof;
+   };
+   mutable SG::SlotSpecificObj<TMVA_pix3l_sct1p> m_tmva_pix3l_sct1p_reader ATLAS_THREAD_SAFE;
 }; 
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGDISTRACKHYPOALG_H

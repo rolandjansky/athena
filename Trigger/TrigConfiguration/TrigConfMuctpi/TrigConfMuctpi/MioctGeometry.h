@@ -15,7 +15,7 @@ class MioctTopoCellGeometry;
 class MioctGeometry {
    public:
       MioctGeometry();
-      virtual ~MioctGeometry();
+      virtual ~MioctGeometry() = default;
     
       // getters
     unsigned int mioctId() const {return m_mioctid; }; 

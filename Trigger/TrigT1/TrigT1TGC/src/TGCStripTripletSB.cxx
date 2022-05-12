@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCStripTripletSB.h"
@@ -51,7 +51,7 @@ void TGCStripTripletSB::createSlaveBoardOut()
 
 void TGCStripTripletSB::doCoincidence()
 {
-  TGCHitPattern* pattern[2];
+  const TGCHitPattern* pattern[2];
   pattern[0] = m_patchPanelOut->getHitPattern(0);
   pattern[1] = m_patchPanelOut->getHitPattern(1);
 

@@ -5,19 +5,21 @@
 #ifndef PFCALCRADIALENERGYPROFILES
 #define PFCALCRADIALENERGYPROFILES
 
-#include "AthenaBaseComps/AthMessaging.h"
-#include "eflowRec/PFData.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
+#include "eflowRec/PFData.h"
 
-class PFCalcRadialEnergyProfiles : public AthMessaging {
+class PFCalcRadialEnergyProfiles : public asg::AsgMessaging
+{
 
-  public:
-    PFCalcRadialEnergyProfiles()  : AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),"PFCalcRadialEnergyProfiles ") {};
-    ~PFCalcRadialEnergyProfiles() {};
+public:
+  PFCalcRadialEnergyProfiles()
+    : asg::AsgMessaging("PFCalcRadialEnergyProfiles")
+  {
+  }
 
-    void calculate(const PFData& data);
+  ~PFCalcRadialEnergyProfiles() = default;
 
+  void calculate(const PFData& data) const;
 };
 #endif

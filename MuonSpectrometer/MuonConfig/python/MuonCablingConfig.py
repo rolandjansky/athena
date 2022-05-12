@@ -13,18 +13,28 @@ def RPCCablingConfigCfg(flags):
     rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR"
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
-    if flags.Trigger.doLVL1 and flags.Trigger.enableL1MuonPhase1:
+
+    # This block with conditions override is only used in Trigger and Reco, and only needed until mid-May 2022.
+    # See ATR-25059 for discussion. To avoid this ConfigFlags based block being executed in simulation/digitization,
+    # skip this if ProductionStep is not Reconstruction or Default (i.e. unset)
+    from AthenaConfiguration.Enums import ProductionStep
+    if flags.Common.ProductionStep in [ProductionStep.Reconstruction, ProductionStep.Default] and \
+            flags.Trigger.doLVL1 and flags.Trigger.enableL1MuonPhase1:
         # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
         # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
         rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
         rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
-        if flags.Input.isMC and flags.Detector.GeometrysTGC: # Run3-geometry
-            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
-            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+        from AthenaConfiguration.Enums  import LHCPeriod
+        if flags.Input.isMC and flags.GeoModel.Run >= LHCPeriod.Run3:        # from Run3 on geometry
+           rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+           rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, [rpcCabMap,rpcCabMapCorr], dbName, className='CondAttrListCollection' ))
-    if flags.Trigger.doLVL1 and not flags.Input.isMC:
+    # Same protection of ProductionStep as above, ATR-25059
+    if flags.Common.ProductionStep in [ProductionStep.Reconstruction, ProductionStep.Default] and \
+            flags.Trigger.doLVL1 and not flags.Input.isMC:
         # RPC trigger roads in the online database are not up-to-dated
         # Use offline database for now
         # Will switch to online database once online database has been updated (ATR-23465)

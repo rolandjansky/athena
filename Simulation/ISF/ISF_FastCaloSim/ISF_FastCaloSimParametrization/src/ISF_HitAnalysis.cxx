@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -9,8 +9,6 @@
 // Section of includes for LAr calo tests
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // Section of includes for tile calo tests
@@ -22,6 +20,7 @@
 
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "CaloIdentifier/TileID.h"
+#include "TileIdentifier/TileHWID.h"
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 
@@ -36,12 +35,8 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -70,124 +65,16 @@
 
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <iostream>
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , m_geoModel(0)
-   , m_tileInfo(0)
-   , m_larEmID(0)
-   , m_larFcalID(0)
-   , m_larHecID(0)
-   , m_tileID(0)
-   , m_tileMgr(0)
-   , m_hit_x(0)
-   , m_hit_y(0)
-   , m_hit_z(0)
-   , m_hit_energy(0)
-   , m_hit_time(0)
-   , m_hit_identifier(0)
-   , m_hit_cellidentifier(0)
-   , m_islarbarrel(0)
-   , m_islarendcap(0)
-   , m_islarhec(0)
-   , m_islarfcal(0)
-   , m_istile(0)
-   , m_hit_sampling(0)
-   , m_hit_samplingfraction(0)
-   , m_truth_energy(0)
-   , m_truth_px(0)
-   , m_truth_py(0)
-   , m_truth_pz(0)
-   , m_truth_pdg(0)
-   , m_truth_barcode(0)
-   , m_truth_vtxbarcode(0)
-   , m_cluster_energy(0)
-   , m_cluster_eta(0)
-   , m_cluster_phi(0)
-   , m_cluster_size(0)
-   , m_cluster_cellID(0)
-   , m_cell_identifier(0)
-   , m_cell_energy(0)
-   , m_cell_sampling(0)
-   , m_g4hit_energy(0)
-   , m_g4hit_time(0)
-   , m_g4hit_identifier(0)
-   , m_g4hit_cellidentifier(0)
-   , m_g4hit_samplingfraction(0)
-   , m_g4hit_sampling(0)
-   , m_total_cell_e(0)
-   , m_total_hit_e(0)
-   , m_total_g4hit_e(0)
-   , m_final_cell_energy(0)
-   , m_final_hit_energy(0)
-   , m_final_g4hit_energy(0)
-   , m_tree(0)
-   , m_ntupleFileName("ISF_HitAnalysis")
-   , m_ntupleTreeName("CaloHitAna")
-   , m_metadataTreeName("MetaData")
-   , m_geoFileName("ISF_Geometry")
-   , m_thistSvc(0)
-   , m_calo_dd_man(0)
-   //#####################
-   , m_eta_calo_surf(0)
-   , m_phi_calo_surf(0)
-   , m_d_calo_surf(0)
-   , m_ptruth_eta(0)
-   , m_ptruth_phi(0)
-   , m_ptruth_e(0)
-   , m_ptruth_et(0)
-   , m_ptruth_pt(0)
-   , m_ptruth_p(0)
-   , m_pdgid(0)
-   , m_newTTC_entrance_eta(0)
-   , m_newTTC_entrance_phi(0)
-   , m_newTTC_entrance_r(0)
-   , m_newTTC_entrance_z(0)
-   , m_newTTC_entrance_detaBorder(0)
-   , m_newTTC_entrance_OK(0)
-   , m_newTTC_back_eta(0)
-   , m_newTTC_back_phi(0)
-   , m_newTTC_back_r(0)
-   , m_newTTC_back_z(0)
-   , m_newTTC_back_detaBorder(0)
-   , m_newTTC_back_OK(0)
-   , m_newTTC_mid_eta(0)
-   , m_newTTC_mid_phi(0)
-   , m_newTTC_mid_r(0)
-   , m_newTTC_mid_z(0)
-   , m_newTTC_mid_detaBorder(0)
-   , m_newTTC_mid_OK(0)
-   , m_newTTC_IDCaloBoundary_eta(0)
-   , m_newTTC_IDCaloBoundary_phi(0)
-   , m_newTTC_IDCaloBoundary_r(0)
-   , m_newTTC_IDCaloBoundary_z(0)
-   , m_newTTC_Angle3D(0)
-   , m_newTTC_AngleEta(0)
 
-   , m_MuonEntryLayer_E(0)
-   , m_MuonEntryLayer_px(0)
-   , m_MuonEntryLayer_py(0)
-   , m_MuonEntryLayer_pz(0)
-   , m_MuonEntryLayer_x(0)
-   , m_MuonEntryLayer_y(0)
-   , m_MuonEntryLayer_z(0)
-   , m_MuonEntryLayer_pdg(0)
 
-   , m_caloEntrance(0)
-   , m_calo_tb_coord(0)
-   , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
-   , m_particleDataTable(0)
-   , m_CaloBoundaryR(1148)
-   , m_CaloBoundaryZ(3550)
-
-   ,m_MC_DIGI_PARAM("/Digitization/Parameters")
-   ,m_MC_SIM_PARAM("/Simulation/Parameters")
 
    //######################
-
 
   //Note that m_xxx are pointers to vectors set to 0, not set to empty vector! see note around TBranch
 {
@@ -200,11 +87,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("FastCaloSimCaloExtrapolation",   m_FastCaloSimCaloExtrapolation );
 
   //###########################
-  //declareProperty("ExtrapolatorName",               m_extrapolatorName );
-  //declareProperty("ExtrapolatorInstanceName",       m_extrapolatorInstanceName );
-  //declareProperty("CalosurfMiddleInstanceName",     m_calosurf_InstanceName);
-  //declareProperty("CalosurfEntranceInstanceName",   m_calosurf_entrance_InstanceName);
-
   declareProperty("CaloBoundaryR", m_CaloBoundaryR);
   declareProperty("CaloBoundaryZ", m_CaloBoundaryZ);
   declareProperty("CaloMargin", m_calomargin);
@@ -212,8 +94,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
-
-  declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
 
   declareProperty("MetaDataSim", m_MC_SIM_PARAM );
   declareProperty("MetaDataDigi", m_MC_DIGI_PARAM );
@@ -226,22 +106,16 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("DoG4Hits", m_doG4Hits = false);
   declareProperty("TimingCut", m_TimingCut = 999999);
 
-
-
-
   m_surfacelist.resize(0);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerB);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerE);
   m_surfacelist.push_back(CaloCell_ID_FCS::EME1);
   m_surfacelist.push_back(CaloCell_ID_FCS::EME2);
   m_surfacelist.push_back(CaloCell_ID_FCS::FCAL0);
-
 }
-
 
 ISF_HitAnalysis::~ISF_HitAnalysis()
-{
-}
+= default;
 
 StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) )
 {
@@ -291,85 +165,59 @@ StatusCode ISF_HitAnalysis::initialize()
   //
   // Register the callback(s):
   //
-  StatusCode sc = service("GeoModelSvc", m_geoModel);
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_geoModel.retrieve());
+  ATH_CHECK(detStore()->retrieve(m_tileMgr));
+  ATH_CHECK(detStore()->retrieve(m_tileID));
 
-  sc = detStore()->retrieve(m_tileMgr);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve TileDetDescrManager from DetectorStore" );
-      m_tileMgr=0;
-    }
-
-  sc = detStore()->retrieve(m_tileID);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve TileID helper from DetectorStore" );
-      m_tileID=0;
-    }
-
-  const DataHandle<CaloIdManager> caloIdManager;
-  sc=detStore()->retrieve(caloIdManager);
-  if(sc.isSuccess())
-    ATH_MSG_DEBUG("CaloIDManager retrieved.");
-  else
-    throw std::runtime_error("ISF_HitAnalysis: Unable to retrieve CaloIDManeger");
+  const CaloIdManager* caloIdManager{nullptr};
+  ATH_CHECK(detStore()->retrieve(caloIdManager));
   m_larEmID=caloIdManager->getEM_ID();
-  if(m_larEmID==0)
+  if(m_larEmID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid LAr EM ID helper");
   m_larFcalID=caloIdManager->getFCAL_ID();
-  if(m_larFcalID==0)
+  if(m_larFcalID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid FCAL ID helper");
   m_larHecID=caloIdManager->getHEC_ID();
-  if(m_larHecID==0)
+  if(m_larHecID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid HEC ID helper");
   m_tileID=caloIdManager->getTileID();
-  if(m_tileID==0)
+  if(m_tileID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid Tile ID helper");
 
   ATH_CHECK( m_fSamplKey.initialize() );
 
-  ATH_CHECK( detStore()->retrieve(m_tileInfo,"TileInfo") );
+  ATH_CHECK(detStore()->retrieve(m_tileHWID));
+  ATH_CHECK( m_tileSamplingFractionKey.initialize() );
 
-  m_calo_dd_man  = CaloDetDescrManager::instance();
+  ATH_CHECK( m_tileCablingSvc.retrieve() );
+  m_tileCabling = m_tileCablingSvc->cablingService();
+
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // Retrieve Tools
-  IToolSvc* p_toolSvc = 0;
-  if ( service("ToolSvc",p_toolSvc).isFailure() )
-    {
-      ATH_MSG_ERROR("Cannot find ToolSvc! ");
-      return StatusCode::FAILURE;
-    }
-  else
-    {
-      IAlgTool* algTool;
+  IToolSvc* p_toolSvc = nullptr;
+  ATH_CHECK(service("ToolSvc",p_toolSvc));
+  IAlgTool* algTool = nullptr;
 
-      // Get TimedExtrapolator  ***************************************************************************************************
-      if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
-        return StatusCode::FAILURE;
+  // Get TimedExtrapolator  ***************************************************************************************************
+  if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure()) {
+    return StatusCode::FAILURE;
+  }
+  else { 
+    ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
+  }
 
-      else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
-
-      std::string CaloCoordinateTool_name="TBCaloCoordinate";
-      ListItem CaloCoordinateTool(CaloCoordinateTool_name);
-      if(p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this).isFailure() )
-        {
-          ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-          return StatusCode::FAILURE;
-        }
-      m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
-      if(!m_calo_tb_coord )
-        {
-          ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-          return StatusCode::FAILURE;
-        }
-      else
-        ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
-    } //tools
+  std::string CaloCoordinateTool_name="TBCaloCoordinate";
+  ListItem CaloCoordinateTool(CaloCoordinateTool_name);
+  ATH_CHECK(p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this));
+  m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
+  if(!m_calo_tb_coord ) {
+    ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
+    return StatusCode::FAILURE;
+  }
+  else {
+    ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
+  } //tools
 
   if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
     {
@@ -394,121 +242,22 @@ StatusCode ISF_HitAnalysis::initialize()
           return StatusCode::FAILURE;
         }
     }
-  else
+  else {
     ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
-
-  // Get CaloGeometryHelper
-  if (m_CaloGeometryHelper.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR("CaloGeometryHelper not found ");
-      return StatusCode::FAILURE;
-    }
+  }
 
   // Get FastCaloSimCaloExtrapolation
-  if (m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
-      return StatusCode::FAILURE;
-    }
-
-  m_final_cell_energy = new std::vector<Float_t>;
-  m_final_hit_energy = new std::vector<Float_t>;
-  m_final_g4hit_energy = new std::vector<Float_t>;
-
-  m_newTTC_entrance_eta = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_r = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_z = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_back_eta = new std::vector<std::vector<float> >;
-  m_newTTC_back_phi = new std::vector<std::vector<float> >;
-  m_newTTC_back_r = new std::vector<std::vector<float> >;
-  m_newTTC_back_z = new std::vector<std::vector<float> >;
-  m_newTTC_back_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_back_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_mid_eta = new std::vector<std::vector<float> >;
-  m_newTTC_mid_phi = new std::vector<std::vector<float> >;
-  m_newTTC_mid_r = new std::vector<std::vector<float> >;
-  m_newTTC_mid_z = new std::vector<std::vector<float> >;
-  m_newTTC_mid_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_mid_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_r = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_z = new std::vector<float>;
-  m_newTTC_Angle3D = new std::vector<float>;
-  m_newTTC_AngleEta = new std::vector<float>;
-
-  m_MuonEntryLayer_E = new std::vector<float>;
-  m_MuonEntryLayer_px = new std::vector<float>;
-  m_MuonEntryLayer_py = new std::vector<float>;
-  m_MuonEntryLayer_pz = new std::vector<float>;
-  m_MuonEntryLayer_x = new std::vector<float>;
-  m_MuonEntryLayer_y = new std::vector<float>;
-  m_MuonEntryLayer_z = new std::vector<float>;
-  m_MuonEntryLayer_pdg = new std::vector<int>;
-
-
-  // Optional branches
-  if(m_saveAllBranches){
-    m_tree->Branch("HitX",                 &m_hit_x);
-    m_tree->Branch("HitY",                 &m_hit_y);
-    m_tree->Branch("HitZ",                 &m_hit_z);
-    m_tree->Branch("HitE",                 &m_hit_energy);
-    m_tree->Branch("HitT",                 &m_hit_time);
-    m_tree->Branch("HitIdentifier",        &m_hit_identifier);
-    m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
-    m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
-    m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
-    m_tree->Branch("HitIsHEC",             &m_islarhec);
-    m_tree->Branch("HitIsFCAL",            &m_islarfcal);
-    m_tree->Branch("HitIsTile",            &m_istile);
-    m_tree->Branch("HitSampling",          &m_hit_sampling);
-    m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
-
-    m_tree->Branch("CellIdentifier",       &m_cell_identifier);
-    m_tree->Branch("CellE",                &m_cell_energy);
-    m_tree->Branch("CellSampling",         &m_cell_sampling);
-
-    m_tree->Branch("G4HitE",               &m_g4hit_energy);
-    m_tree->Branch("G4HitT",               &m_g4hit_time);
-    m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
-    m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
-    m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
-    m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
-  }
+  ATH_CHECK (m_FastCaloSimCaloExtrapolation.retrieve());
 
   // Grab the Ntuple and histogramming service for the tree
-  sc = service("THistSvc",m_thistSvc);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve pointer to THistSvc" );
-      return StatusCode::FAILURE;
-    }
-
-  if(m_doClusterInfo){
-    m_tree->Branch("ClusterE",               &m_cluster_energy);
-    m_tree->Branch("ClusterEta",             &m_cluster_eta);
-    m_tree->Branch("ClusterPhi",             &m_cluster_phi);
-    m_tree->Branch("ClusterSize",            &m_cluster_size);
-    m_tree->Branch("ClusterCellID",          &m_cluster_cellID);
-  }
-  m_oneeventcells = new FCS_matchedcellvector;
-  if(m_doAllCells){
-    m_tree->Branch("AllCells", &m_oneeventcells);
-  }
+  ATH_CHECK(m_thistSvc.retrieve());
 
   //#########################
-  IPartPropSvc* p_PartPropSvc=0;
-  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
-    {
-      ATH_MSG_ERROR("could not find PartPropService");
-      return StatusCode::FAILURE;
-    }
+  IPartPropSvc* p_PartPropSvc = nullptr;
+  ATH_CHECK(service("PartPropSvc",p_PartPropSvc));
 
   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
-  if(m_particleDataTable == 0)
+  if(m_particleDataTable == nullptr)
     {
       ATH_MSG_ERROR("PDG table not found");
       return StatusCode::FAILURE;
@@ -517,7 +266,7 @@ StatusCode ISF_HitAnalysis::initialize()
   std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
   m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
   std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
-  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
+  StatusCode sc = m_thistSvc->regTree(fullNtupleName, m_tree);
   if (sc.isFailure() || !m_tree )
     {
       ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName);
@@ -602,6 +351,15 @@ StatusCode ISF_HitAnalysis::initialize()
       m_newTTC_Angle3D = new std::vector<float>;
       m_newTTC_AngleEta = new std::vector<float>;
 
+      m_MuonEntryLayer_E = new std::vector<float>;
+      m_MuonEntryLayer_px = new std::vector<float>;
+      m_MuonEntryLayer_py = new std::vector<float>;
+      m_MuonEntryLayer_pz = new std::vector<float>;
+      m_MuonEntryLayer_x = new std::vector<float>;
+      m_MuonEntryLayer_y = new std::vector<float>;
+      m_MuonEntryLayer_z = new std::vector<float>;
+      m_MuonEntryLayer_pdg = new std::vector<int>;
+
       // Optional branches
       if(m_saveAllBranches){
         m_tree->Branch("HitX",                 &m_hit_x);
@@ -639,6 +397,14 @@ StatusCode ISF_HitAnalysis::initialize()
       m_tree->Branch("TruthPDG",             &m_truth_pdg);
       m_tree->Branch("TruthBarcode",         &m_truth_barcode);
       m_tree->Branch("TruthVtxBarcode",      &m_truth_vtxbarcode);
+
+      if(m_doClusterInfo){
+        m_tree->Branch("ClusterE",               &m_cluster_energy);
+        m_tree->Branch("ClusterEta",             &m_cluster_eta);
+        m_tree->Branch("ClusterPhi",             &m_cluster_phi);
+        m_tree->Branch("ClusterSize",            &m_cluster_size);
+        m_tree->Branch("ClusterCellID",          &m_cluster_cellID);
+      }
 
       m_oneeventcells = new FCS_matchedcellvector;
       if(m_doAllCells){
@@ -722,13 +488,13 @@ StatusCode ISF_HitAnalysis::finalize()
 
  /** now add branches and leaves to the tree */
 
- typedef struct
+ using GEOCELL = struct
  {
   Long64_t identifier;
   Int_t calosample;
   float eta,phi,r,eta_raw,phi_raw,r_raw,x,y,z,x_raw,y_raw,z_raw;
   float deta,dphi,dr,dx,dy,dz;
- } GEOCELL;
+ };
 
  static GEOCELL geocell;
 
@@ -762,12 +528,13 @@ StatusCode ISF_HitAnalysis::finalize()
   geo->Branch("dz", &geocell.dz,"dz/F");
  }
 
- if(m_calo_dd_man)
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
+ ATH_CHECK(caloMgrHandle.isValid());
+ const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
+ int ncells=0;
+ for (const CaloDetDescrElement* theDDE : calo_dd_man->element_range())
  {
-  int ncells=0;
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_calo_dd_man->element_begin();calo_iter<m_calo_dd_man->element_end();++calo_iter)
-  {
-   const CaloDetDescrElement* theDDE=*calo_iter;
    if(theDDE)
    {
     CaloCell_ID::CaloSample sample=theDDE->getSampling();
@@ -799,10 +566,10 @@ StatusCode ISF_HitAnalysis::finalize()
      geo->Fill();
     }
    }
-  }
-
-  ATH_MSG_INFO( ncells<<" cells found" );
  }
+
+ ATH_MSG_INFO( ncells<<" cells found" );
+
  dummyGeoFile->Close();
  return StatusCode::SUCCESS;
 } //finalize
@@ -819,8 +586,12 @@ StatusCode ISF_HitAnalysis::execute()
   return StatusCode::FAILURE;
  }
 
- SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+ SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey,Gaudi::Hive::currentContext());
  const ILArfSampl* fSampl=*fSamplHdl;
+
+ SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey,Gaudi::Hive::currentContext());
+ ATH_CHECK( tileSamplingFraction.isValid() );
+
 
  //now if the branches were created correctly, the pointers point to something and it is possible to clear the vectors
  TVector3 vectest;
@@ -870,9 +641,9 @@ StatusCode ISF_HitAnalysis::execute()
  g4hits.clear();
  hits.clear();
 
- FCS_cell   one_cell; //note that this is not extra safe if I don't have a clear method!
- FCS_g4hit  one_g4hit;
- FCS_hit    one_hit;
+ FCS_cell   one_cell{}; //note that this is not extra safe if I don't have a clear method!
+ FCS_g4hit  one_g4hit{};
+ FCS_hit    one_hit{};
  FCS_matchedcell one_matchedcell;
 
  m_oneeventcells->m_vector.clear();
@@ -916,6 +687,10 @@ StatusCode ISF_HitAnalysis::execute()
 
  //##########################
 
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
+ ATH_CHECK(caloMgrHandle.isValid());
+ const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
  //Get the FastCaloSim step info collection from store
  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
  StatusCode sc = evtStore()->retrieve(eventStepsES, "MergedEventSteps");
@@ -943,15 +718,20 @@ StatusCode ISF_HitAnalysis::execute()
      Identifier id = (*it)->identify();
      Identifier cell_id = (*it)->identify(); //to be replaced by cell_id in tile
 
-     if(m_calo_dd_man->get_element(id)) {
-       CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(id)->getSampling();
+     if(calo_dd_man->get_element(id)) {
+       CaloCell_ID::CaloSample layer = calo_dd_man->get_element(id)->getSampling();
        sampling = layer; //use CaloCell layer immediately
      } else {
        ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
      }
 
      if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id)) sampfrac=fSampl->FSAMPL(id);
-
+     if (m_tileID->is_tile(id)) {
+       HWIdentifier channel_id = m_tileCabling->s2h_channel_id(id);
+       int channel = m_tileHWID->channel(channel_id);
+       int drawerIdx = m_tileHWID->drawerIdx(channel_id);
+       sampfrac = tileSamplingFraction->getSamplingFraction(drawerIdx, channel);
+     }
      if(m_larEmID->is_lar_em(id)) {
        //LAr EM cells
        if (m_larEmID->is_em_barrel(id)) larbarrel=true;
@@ -967,17 +747,15 @@ StatusCode ISF_HitAnalysis::execute()
        tile = true;
        cell_id = m_tileID->cell_id(id);
        sampling = CaloCell_ID::TileGap3;
-       sampfrac = m_tileInfo->HitCalib(id);
      } else if(m_tileID->is_tile_barrel(id) || m_tileID->is_tile_extbarrel(id) || m_tileID->is_tile_gap(id)) {
        // all other Tile cells
        tile = true;
        cell_id = m_tileID->cell_id(id);
        Int_t tile_sampling = -1;
-       if(m_calo_dd_man->get_element(cell_id)) {
-         tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
-         sampfrac = m_tileInfo->HitCalib(cell_id);
+       if(calo_dd_man->get_element(cell_id)) {
+         tile_sampling = calo_dd_man->get_element(cell_id)->getSampling();
        }
-       if(tile_sampling!= -1) sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
+       if(tile_sampling!= -1) sampling = tile_sampling; //calo_dd_man needs to be called with cell_id not pmt_id!!
      } else {
        ATH_MSG_WARNING( "This hit is somewhere. Please check!");
      }
@@ -1005,7 +783,7 @@ StatusCode ISF_HitAnalysis::execute()
  } else {
    if(mcEvent) {
      //std::cout<<"ISF_HitAnalysis: MC event size: "<<mcEvent->size()<<std::endl;
-     if(mcEvent->size()) {
+     if(!mcEvent->empty()) {
        int particleIndex=0;
        int loopEnd = m_NtruthParticles;
 #ifdef HEPMC3
@@ -1016,7 +794,7 @@ StatusCode ISF_HitAnalysis::execute()
        if(loopEnd==-1) {
          loopEnd = particles_size; //is this the correct thing?
        }
-       for (auto part: *(*mcEvent->begin())) {
+       for (const auto& part: *(*mcEvent->begin())) {
          ATH_MSG_DEBUG("Number truth particles="<<particles_size<<" loopEnd="<<loopEnd);
          particleIndex++;
 
@@ -1140,22 +918,6 @@ StatusCode ISF_HitAnalysis::execute()
          m_newTTC_mid_detaBorder  ->push_back(detaBorder_vec_MID);
          m_newTTC_mid_OK  ->push_back(OK_vec_MID);
 
-         //*****************************
-
-         //OLD EXTRAPOLATION
-         /*
-         std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
-         for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it) {
-           if((*it).trackParms) {
-             delete (*it).trackParms;
-             (*it).trackParms=0;
-           }
-         }
-         delete hitVector;
-         */
-
-         //Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
-
          m_truth_energy->push_back((part)->momentum().e());
          m_truth_px->push_back((part)->momentum().px());
          m_truth_py->push_back((part)->momentum().py());
@@ -1234,13 +996,12 @@ StatusCode ISF_HitAnalysis::execute()
   }
 
  //Get reco cells if available
- const CaloCellContainer *cellColl = 0;
+ const CaloCellContainer *cellColl = nullptr;
  sc = evtStore()->retrieve(cellColl, "AllCalo");
 
  if (sc.isFailure())
  {
-  ATH_MSG_WARNING( "Couldn't read AllCalo cells from StoreGate");
-  //return NULL;
+   ATH_MSG_WARNING( "Couldn't read AllCalo cells from StoreGate");
  }
  else
  {
@@ -1249,20 +1010,20 @@ StatusCode ISF_HitAnalysis::execute()
   CaloCellContainer::const_iterator itrLastCell = cellColl->end();
   for ( ; itrCell!=itrLastCell; ++itrCell)
   {
-         m_cell_energy->push_back((*itrCell)->energy());
-         m_cell_identifier->push_back((*itrCell)->ID().get_compact());
-         if (m_tileID->is_tile_aux((*itrCell)->ID())) {
-           // special case for E4'
-           m_cell_sampling->push_back(CaloCell_ID::TileGap3);
-         }
-         else if (m_calo_dd_man->get_element((*itrCell)->ID()))
-         {
-          // all other Tile cells
-          CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
-          m_cell_sampling->push_back(layer);
-         }
-         else
-          m_cell_sampling->push_back(-1);
+    m_cell_energy->push_back((*itrCell)->energy());
+    m_cell_identifier->push_back((*itrCell)->ID().get_compact());
+    if (m_tileID->is_tile_aux((*itrCell)->ID())) {
+      // special case for E4'
+      m_cell_sampling->push_back(CaloCell_ID::TileGap3);
+    }
+    else if (calo_dd_man->get_element((*itrCell)->ID()))
+    {
+    // all other Tile cells
+    CaloCell_ID::CaloSample layer = calo_dd_man->get_element((*itrCell)->ID())->getSampling();
+    m_cell_sampling->push_back(layer);
+    }
+    else
+    m_cell_sampling->push_back(-1);
   }
  } //calorimeter cells
 
@@ -1279,20 +1040,20 @@ StatusCode ISF_HitAnalysis::execute()
     for (hi=(*iter).begin();hi!=(*iter).end();++hi) {
       hitnumber++;
       const LArHit* larHit = *hi;
-      const CaloDetDescrElement *hitElement = m_calo_dd_man->get_element(larHit->cellID());
+      const CaloDetDescrElement *hitElement = calo_dd_man->get_element(larHit->cellID());
       if(!hitElement)
-	continue;
+        continue;
       Identifier larhitid = hitElement->identify();
-      if(m_calo_dd_man->get_element(larhitid)) {
-	CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+      if(calo_dd_man->get_element(larhitid)) {
+      CaloCell_ID::CaloSample larlayer = calo_dd_man->get_element(larhitid)->getSampling();
 
-	float larsampfrac=fSampl->FSAMPL(larhitid);
-	m_g4hit_energy->push_back( larHit->energy() );
-	m_g4hit_time->push_back( larHit->time() );
-	m_g4hit_identifier->push_back( larhitid.get_compact() );
-	m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
-	m_g4hit_sampling->push_back( larlayer);
-	m_g4hit_samplingfraction->push_back( larsampfrac );
+      float larsampfrac=fSampl->FSAMPL(larhitid);
+      m_g4hit_energy->push_back( larHit->energy() );
+      m_g4hit_time->push_back( larHit->time() );
+      m_g4hit_identifier->push_back( larhitid.get_compact() );
+      m_g4hit_cellidentifier->push_back( larhitid.get_compact() );
+      m_g4hit_sampling->push_back( larlayer);
+      m_g4hit_samplingfraction->push_back( larsampfrac );
       }
     } // End while LAr hits
     ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
@@ -1313,27 +1074,26 @@ StatusCode ISF_HitAnalysis::execute()
    hitnumber++;
    Identifier pmt_id = (*i_hit).identify();
    Identifier cell_id = m_tileID->cell_id(pmt_id);
-   //const  CaloDetDescrElement* ddElement = m_tileMgr->get_cell_element(cell_id);
 
-   if (m_calo_dd_man->get_element(cell_id))
-         {
-          CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
+   if (calo_dd_man->get_element(cell_id)){
+      CaloCell_ID::CaloSample layer = calo_dd_man->get_element(cell_id)->getSampling();
 
-          float tilesampfrac = m_tileInfo->HitCalib(cell_id);
+      HWIdentifier channel_id = m_tileCabling->s2h_channel_id(pmt_id);
+      int channel = m_tileHWID->channel(channel_id);
+      int drawerIdx = m_tileHWID->drawerIdx(channel_id);
+      float tilesampfrac = tileSamplingFraction->getSamplingFraction(drawerIdx, channel);
 
-          //could there be more subhits??
-          for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)
-          {
-           //!!
-           //std::cout <<"Tile subhit: "<<tilesubhit_i<<"/"<<(*i_hit).size()<< " E: "<<(*i_hit).energy(tilesubhit_i)<<std::endl;
-           m_g4hit_energy->push_back( (*i_hit).energy(tilesubhit_i) );
-           m_g4hit_time->push_back(   (*i_hit).time(tilesubhit_i)   );
-           m_g4hit_identifier->push_back( pmt_id.get_compact() );
-           m_g4hit_cellidentifier->push_back( cell_id.get_compact() );
-           m_g4hit_sampling->push_back( layer );
-           m_g4hit_samplingfraction->push_back( tilesampfrac );
-          }
-         }
+      //could there be more subhits??
+      for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)
+      {
+        m_g4hit_energy->push_back( (*i_hit).energy(tilesubhit_i) );
+        m_g4hit_time->push_back(   (*i_hit).time(tilesubhit_i)   );
+        m_g4hit_identifier->push_back( pmt_id.get_compact() );
+        m_g4hit_cellidentifier->push_back( cell_id.get_compact() );
+        m_g4hit_sampling->push_back( layer );
+        m_g4hit_samplingfraction->push_back( tilesampfrac );
+      }
+    }
   }
   ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from TileHitVec");
  }
@@ -1343,10 +1103,8 @@ StatusCode ISF_HitAnalysis::execute()
   ATH_MSG_DEBUG("CaloHitAna begin!");
 
   //cells
-  for (unsigned int cell_i = 0; cell_i < m_cell_identifier->size(); cell_i++)
-  {
-    if (cells.find((*m_cell_identifier)[cell_i]) == cells.end()) //doesn't exist
-    {
+  for (unsigned int cell_i = 0; cell_i < m_cell_identifier->size(); cell_i++){
+    if (cells.find((*m_cell_identifier)[cell_i]) == cells.end()) { //doesn't exist
       one_cell.cell_identifier = (*m_cell_identifier)[cell_i];
       one_cell.sampling = (*m_cell_sampling)[cell_i];
       one_cell.energy = (*m_cell_energy)[cell_i];
@@ -1379,25 +1137,19 @@ StatusCode ISF_HitAnalysis::execute()
         one_g4hit.cell_identifier = (*m_g4hit_cellidentifier)[g4hit_i];
         one_g4hit.sampling = (*m_g4hit_sampling)[g4hit_i];
         one_g4hit.hit_time = (*m_g4hit_time)[g4hit_i];
-        //one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i];
         //scale the hit energy with the sampling fraction
         if (one_g4hit.sampling >= 12 && one_g4hit.sampling <= 20)
         { //tile
-          //std::cout <<"Tile: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           if ((*m_g4hit_samplingfraction)[g4hit_i])
           {
             one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] * (*m_g4hit_samplingfraction)[g4hit_i];
-            //std::cout <<"TileE: "<<one_g4hit.hit_energy<<std::endl;
           }
           else one_g4hit.hit_energy = 0.;
         }
         else
         {
-          //std::cout <<"LAr: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] / (*m_g4hit_samplingfraction)[g4hit_i];
         }
-        //one_g4hit.hit_sampfrac = (*m_g4hit_samplingfraction)[g4hit_i];
-        //new g4hit -> insert vector with 1 element
         g4hits.insert(std::pair<Long64_t, std::vector<FCS_g4hit> >(one_g4hit.cell_identifier, std::vector<FCS_g4hit>(1, one_g4hit)));
       }
       else
@@ -1409,20 +1161,16 @@ StatusCode ISF_HitAnalysis::execute()
         one_g4hit.hit_time = (*m_g4hit_time)[g4hit_i];
         if (one_g4hit.sampling >= 12 && one_g4hit.sampling <= 20)
         { //tile
-          //std::cout <<"Tile2: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           if ((*m_g4hit_samplingfraction)[g4hit_i])
           {
             one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] * (*m_g4hit_samplingfraction)[g4hit_i];
-            //std::cout <<"TileE2: "<<one_g4hit.hit_energy<<std::endl;
           }
           else one_g4hit.hit_energy = 0.;
         }
         else
         {
-          //std::cout <<"LAr2: "<<(*m_g4hit_energy)[g4hit_i]<<" "<<(*m_g4hit_samplingfraction)[g4hit_i]<<std::endl;
           one_g4hit.hit_energy = (*m_g4hit_energy)[g4hit_i] / (*m_g4hit_samplingfraction)[g4hit_i];
         }
-        //one_g4hit.hit_sampfrac = (*m_g4hit_samplingfraction)[g4hit_i];
         g4hits[(*m_g4hit_cellidentifier)[g4hit_i]].push_back(one_g4hit);
       }
     }
@@ -1433,8 +1181,7 @@ StatusCode ISF_HitAnalysis::execute()
   {
     if ((*m_hit_sampling)[hit_i] >= 0 && (*m_hit_sampling)[hit_i] <= 25 && (*m_hit_time)[hit_i] > m_TimingCut)
     {
-      // if (m_Debug > 1)
-        ATH_MSG_DEBUG("Ignoring FCS hit, time too large: " << hit_i << " time: " << (*m_hit_time)[hit_i]);
+      ATH_MSG_DEBUG("Ignoring FCS hit, time too large: " << hit_i << " time: " << (*m_hit_time)[hit_i]);
       continue;
     }
     if (hits.find((*m_hit_cellidentifier)[hit_i]) == hits.end())
@@ -1517,7 +1264,6 @@ StatusCode ISF_HitAnalysis::execute()
     std::map<Long64_t, std::vector<FCS_g4hit> >::iterator it3 = g4hits.find(it->first);
     if (it3 != g4hits.end())
     {
-      //std::cout <<"G4 hits found in this cell"<<std::endl;
       one_matchedcell.g4hit = it3->second;
       g4hits.erase(it3);
     }
@@ -1526,13 +1272,9 @@ StatusCode ISF_HitAnalysis::execute()
       //no g4hit found for this cell
       one_matchedcell.g4hit.clear();//important!
     }
-    //std::cout <<"Erase cell"<<std::endl;
     cells.erase(it++);
-    //std::cout <<"Insert matched object"<<std::endl;
     //push_back matched cell for event jentry
     m_oneeventcells->push_back(one_matchedcell);
-    //std::cout <<"Go next"<<std::endl;
-
   }
 
   //ok, cells should be empty, what about hits and g4hits?
@@ -1544,7 +1286,7 @@ StatusCode ISF_HitAnalysis::execute()
     one_matchedcell.clear();
     one_matchedcell.cell.cell_identifier = it->first;
     //std::cout <<"This hit didn't exist in cell: "<<it->first<<std::endl;
-    if (it->second.size())
+    if (!it->second.empty())
     {
       one_matchedcell.cell.sampling = (it->second)[0].sampling;
     }
@@ -1581,7 +1323,7 @@ StatusCode ISF_HitAnalysis::execute()
   {
     one_matchedcell.clear(); //maybe not so important
     one_matchedcell.cell.cell_identifier = it->first;
-    if (it->second.size())
+    if (!it->second.empty())
     {
       one_matchedcell.cell.sampling = (it->second)[0].sampling;
     }
@@ -1673,9 +1415,6 @@ StatusCode ISF_HitAnalysis::execute()
   m_final_hit_energy->at(MAX_LAYER)   = m_total_hit_e;
   m_final_g4hit_energy->at(MAX_LAYER) = m_total_g4hit_e;
 
-
-
-
  //Fill the tree and finish
  if (m_tree) m_tree->Fill();
 
@@ -1701,7 +1440,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
  // geantinos not handled by PdgToParticleHypothesis - fix there
  if( pdgId == 999 ) pHypothesis = Trk::geantino;
 
- auto  vtx = part.production_vertex();
+ auto   vtx = part.production_vertex();
  Amg::Vector3D pos(0.,0.,0.);    // default
 
  if (vtx)
@@ -1768,44 +1507,66 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
 
  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo entrance ");
 
- const Trk::TrackParameters* caloEntry = 0;
+ std::unique_ptr<const Trk::TrackParameters> caloEntry = nullptr;
 
  if(m_caloEntrance && m_caloEntrance->inside(pos,0.001) && !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance,0.001))
  {
-  std::vector<Trk::HitInfo>*     dummyHitVector = 0;
-  if( charge==0 )
-  {
-   caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
+  std::vector<Trk::HitInfo>*     dummyHitVector = nullptr;
+  if (charge == 0) {
+    caloEntry =
+      m_extrapolator->transportNeutralsWithPathLimit(inputPar,
+                                                     pathLim,
+                                                     timeLim,
+                                                     Trk::alongMomentum,
+                                                     pHypothesis,
+                                                     dummyHitVector,
+                                                     nextGeoID,
+                                                     m_caloEntrance);
+  } else {
+    caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,
+                                                         pathLim,
+                                                         timeLim,
+                                                         Trk::alongMomentum,
+                                                         pHypothesis,
+                                                         dummyHitVector,
+                                                         nextGeoID,
+                                                         m_caloEntrance);
   }
-  else
-  {
-   caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
-  }
+ } else{
+   caloEntry = inputPar.uniqueClone();
  }
- else
-  caloEntry=&inputPar;
 
  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo caloEntry ");
 
  if(caloEntry)
  {
-  const Trk::TrackParameters* eParameters = 0;
+   std::unique_ptr<const Trk::TrackParameters> eParameters = nullptr;
 
   // save Calo entry hit (fallback info)
-  hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));
+  hitVector->push_back(Trk::HitInfo(caloEntry->uniqueClone(),timeLim.time,nextGeoID,0.));
 
   ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position eta="<<caloEntry->position().eta()<<" phi="<<caloEntry->position().phi()<<" d="<<caloEntry->position().mag() );
 
-  if( charge==0 )
-  {
-   eParameters = m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
-  }
-  else
-  {
-   eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
+  if (charge == 0) {
+    eParameters =
+      m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,
+                                                     pathLim,
+                                                     timeLim,
+                                                     Trk::alongMomentum,
+                                                     pHypothesis,
+                                                     hitVector,
+                                                     nextGeoID);
+  } else {
+    eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry,
+                                                           pathLim,
+                                                           timeLim,
+                                                           Trk::alongMomentum,
+                                                           pHypothesis,
+                                                           hitVector,
+                                                           nextGeoID);
   }
   // save Calo exit hit (fallback info)
-  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));
+  if (eParameters) hitVector->push_back(Trk::HitInfo(std::move(eParameters),timeLim.time,nextGeoID,0.));
   //delete eParameters;   // HitInfo took ownership
  }
 
@@ -1823,79 +1584,3 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
 
  return hitVector;
 } //caloHits
-
-
-bool ISF_HitAnalysis::isCaloBarrel(int sample) const
-{
-  return GetCaloGeometry()->isCaloBarrel(sample);
-}
-
-double ISF_HitAnalysis::deta(int sample,double eta) const
-{
-  return GetCaloGeometry()->deta(sample,eta);
-}
-
-void ISF_HitAnalysis::minmaxeta(int sample,double eta,double& mineta,double& maxeta) const
-{
-  GetCaloGeometry()->minmaxeta(sample,eta,mineta,maxeta);
-}
-
-double ISF_HitAnalysis::rmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->rmid(sample,eta);
-}
-
-double ISF_HitAnalysis::zmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->zmid(sample,eta);
-}
-
-double ISF_HitAnalysis::rzmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzmid(sample,eta);
-}
-
-double ISF_HitAnalysis::rent(int sample,double eta) const
-{
-  return GetCaloGeometry()->rent(sample,eta);
-}
-
-double ISF_HitAnalysis::zent(int sample,double eta) const
-{
-  return GetCaloGeometry()->zent(sample,eta);
-}
-
-double ISF_HitAnalysis::rzent(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzent(sample,eta);
-}
-
-double ISF_HitAnalysis::rext(int sample,double eta) const
-{
-  return GetCaloGeometry()->rext(sample,eta);
-}
-
-double ISF_HitAnalysis::zext(int sample,double eta) const
-{
-  return GetCaloGeometry()->zext(sample,eta);
-}
-
-double ISF_HitAnalysis::rzext(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzext(sample,eta);
-}
-
-double ISF_HitAnalysis::rpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->rpos(sample,eta,subpos);
-}
-
-double ISF_HitAnalysis::zpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->zpos(sample,eta,subpos);
-}
-
-double ISF_HitAnalysis::rzpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->rzpos(sample,eta,subpos);
-}

@@ -22,12 +22,12 @@ namespace xAODMaker {
     
     // Declare the interface(s) provided by the tool:
     declareInterface< ITrackCollectionCnvTool >( this );
-    declareProperty( "TrackParticleCreator", m_particleCreator );
+    declareProperty("TrackParticleCreator", m_particleCreator, "creator of xAOD::TrackParticles");
   }
   
   StatusCode TrackCollectionCnvTool::initialize() {
     // Greet the user:
-    ATH_MSG_INFO( "Initializing TrackCollectionCnvTool" );
+    ATH_MSG_INFO( "Initializing TrackCollectionCnvTool with " << m_particleCreator.name() );
     ATH_CHECK( m_particleCreator.retrieve() );
     
     return StatusCode::SUCCESS;

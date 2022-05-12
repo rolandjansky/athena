@@ -22,7 +22,7 @@ StatusCode AFP_GlobRecoTool::initialize()
   // proton reconstruction tools
   if(m_recoToolsList.empty())
   {
-    ATH_MSG_ERROR("No proton reconstruction tools set, check settings in AFP_GlobReco/AFP_GlobReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("No proton reconstruction tools set, check settings in AFP_GlobReco/AFP_GlobReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   else
@@ -34,7 +34,7 @@ StatusCode AFP_GlobRecoTool::initialize()
   // output containers for the proton reconstruction tools
   if(m_arrayOfWriteHandleKeys.empty())
   {
-    ATH_MSG_ERROR("No output proton containers provided, check settings in AFP_GlobReco/AFP_GlobReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("No output proton containers provided, check settings in AFP_GlobReco/AFP_GlobReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   else
@@ -59,7 +59,7 @@ StatusCode AFP_GlobRecoTool::initialize()
   listOfWHKeys.erase(std::unique(listOfWHKeys.begin(),listOfWHKeys.end()), listOfWHKeys.end());
   if(listOfWHKeys.size() != all_WHkeys)
   {
-    ATH_MSG_ERROR("It seems write handle keys do not have unique values, check settings in AFP_GlobReco/AFP_GlobReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("It seems write handle keys do not have unique values, check settings in AFP_GlobReco/AFP_GlobReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   // get names from proton reco tools

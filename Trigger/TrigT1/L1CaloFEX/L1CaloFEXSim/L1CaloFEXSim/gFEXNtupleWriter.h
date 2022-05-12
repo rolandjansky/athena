@@ -45,10 +45,14 @@ private:
   SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexRhoOutKey {this,"Key_gFexRhoOutputContainer","L1_gFexRhoRoI","Output gFexRho"};
   SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexBlockOutKey {this,"Key_gFexSRJetOutputContainer","L1_gFexSRJetRoI","Output gFexBlock"};
   SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexJetOutKey {this,"Key_gFexLRJetOutputContainer","L1_gFexLRJetRoI","Output gFexJet"};
-  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarEJwojOutKey {this,"Key_gScalarEJwojOutputContainer","L1_gScalarEJwoj","Output Scalar MET and SumET"};
-  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsJwojOutKey {this,"Key_gMETComponentsJwojOutputContainer","L1_gMETComponentsJwoj","Output total MET components"};
-  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojOutKey {this,"Key_gMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","Output hard MET components"};
-  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojOutKey {this,"Key_gMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","Output soft MET components"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarEJwojOutKey {this,"Key_gScalarEJwojOutputContainer","L1_gScalarEJwoj","Output Scalar MET and SumET (JwoJ)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsJwojOutKey {this,"Key_gMETComponentsJwojOutputContainer","L1_gMETComponentsJwoj","Output total MET components (JwoJ)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojOutKey {this,"Key_gMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","Output hard MET components (JwoJ)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojOutKey {this,"Key_gMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","Output soft MET components (JwoJ)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsNoiseCutOutKey {this,"Key_gMETComponentsNoiseCutOutputContainer","L1_gMETComponentsNoiseCut","Output total MET components (NoiseCut)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsRmsOutKey {this,"Key_gMETComponentsRmsOutputContainer","L1_gMETComponentsRms","Output total MET components (RMS)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarENoiseCutOutKey {this,"Key_gScalarENoiseCutOutputContainer","L1_gScalarENoiseCut","Output Scalar MET and SumET (NoiseCut)"};
+  SG::ReadHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarERmsOutKey {this,"Key_gScalarERmsOutputContainer","L1_gScalarERms","Output Scalar MET and SumET (RMS)"};
 
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
   
@@ -82,9 +86,9 @@ private:
   TTree *m_myTree;
   TTree *m_valiTree;
 
-  std::vector<float> m_SC_phi;
-  std::vector<float> m_SC_eta;
-  std::vector<float> m_SC_et;
+  std::vector<float> m_sc_phi;
+  std::vector<float> m_sc_eta;
+  std::vector<float> m_sc_et;
 
   std::vector<float> m_gtower_phi;
   std::vector<float> m_gtower_eta;
@@ -98,30 +102,51 @@ private:
 
   std::vector<float> m_gRho_eta;
   std::vector<float> m_gRho_phi;
-  std::vector<float> m_gRho_et;
+  std::vector<float> m_gRho_tobEt;
+  std::vector<float> m_gRho_etMeV;
+  std::vector<float> m_gRho_etScale;
 
   std::vector<float> m_gSJ_iEta;
   std::vector<float> m_gSJ_iPhi;
   std::vector<float> m_gSJ_eta;
   std::vector<float> m_gSJ_gFEXphi;
   std::vector<float> m_gSJ_phi;
-  std::vector<float> m_gSJ_et;
+  std::vector<float> m_gSJ_phiTopo;
+  std::vector<float> m_gSJ_tobEt;
+  std::vector<float> m_gSJ_etMeV;
+  std::vector<float> m_gSJ_etScale;
 
   std::vector<float> m_gLJ_iEta;
   std::vector<float> m_gLJ_iPhi;
   std::vector<float> m_gLJ_eta;
   std::vector<float> m_gLJ_gFEXphi;
   std::vector<float> m_gLJ_phi;
-  std::vector<float> m_gLJ_et;
+  std::vector<float> m_gLJ_phiTopo;
+  std::vector<float> m_gLJ_tobEt;
+  std::vector<float> m_gLJ_etMeV;
+  std::vector<float> m_gLJ_etScale;
 
-  std::vector<float> m_gGlobal_MET;
-  std::vector<float> m_gGlobal_SumET;
-  std::vector<float> m_gGlobal_METx;
-  std::vector<float> m_gGlobal_METy;
-  std::vector<float> m_gGlobal_MHTx;
-  std::vector<float> m_gGlobal_MHTy;
-  std::vector<float> m_gGlobal_MSTx;
-  std::vector<float> m_gGlobal_MSTy;
+  std::vector<float> m_gJwoJ_MET;
+  std::vector<float> m_gJwoJ_SumET;
+  std::vector<float> m_gJwoJ_METx;
+  std::vector<float> m_gJwoJ_METy;
+  std::vector<float> m_gJwoJ_MHTx;
+  std::vector<float> m_gJwoJ_MHTy;
+  std::vector<float> m_gJwoJ_MSTx;
+  std::vector<float> m_gJwoJ_MSTy;
+
+  std::vector<float> m_gNoiseCut_METx;
+  std::vector<float> m_gNoiseCut_METy;
+  std::vector<float> m_gRms_METx;
+  std::vector<float> m_gRms_METy;
+  std::vector<float> m_gNoiseCut_MET;
+  std::vector<float> m_gNoiseCut_SumET;
+  std::vector<float> m_gRms_MET;
+  std::vector<float> m_gRms_SumET;
+
+  std::vector<float> m_gGlobal_etScale1;
+  std::vector<float> m_gGlobal_etScale2;
+
 
 
   StatusCode loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);

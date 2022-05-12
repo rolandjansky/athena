@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -215,10 +215,10 @@ class ALFA_RDBAccess;
 class ALFA_GeometryReader
 {	
 	public:
-		static HepGeom::Point3D<double> ms_NominalRPPin1; //in station CS
-		static HepGeom::Point3D<double> ms_NominalRPMainPoint;  //in station CS
-		static HepGeom::Point3D<double> ms_NominalAlfaRefPoint;  //in RP CS
-		static HepGeom::Point3D<double> ms_NominalDetPin1; //in RP CS
+		static const HepGeom::Point3D<double> ms_NominalRPPin1; //in station CS
+		static const HepGeom::Point3D<double> ms_NominalRPMainPoint;  //in station CS
+		static const HepGeom::Point3D<double> ms_NominalAlfaRefPoint;  //in RP CS
+		static const HepGeom::Point3D<double> ms_NominalDetPin1; //in RP CS
 
 	private:
 		eFiberCoordSystem m_eFCoordSystem;

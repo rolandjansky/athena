@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigEgammaMatchingToolTest.h 
@@ -56,7 +56,7 @@ class TrigEgammaEmulationToolTest : public AthMonitorAlgorithm
       SG::ReadHandleKey<xAOD::PhotonContainer> m_offPhotonKey{ this, "PhotonKey", "Photons", ""};
 
       asg::AcceptData setAccept( const TrigCompositeUtils::Decision *dec, 
-                                 const TrigEgammaEmulationToolTest::TrigInfo info) const;
+                                 const TrigEgammaEmulationToolTest::TrigInfo& info) const;
 
       TrigEgammaEmulationToolTest::TrigInfo getInfo( std::string trigger ) const;
 

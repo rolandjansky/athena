@@ -22,8 +22,7 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-#include "xAODForward/versions/AFPToFHit_v1.h"
-#include "xAODForward/versions/AFPToFHitContainer_v1.h"
+#include "xAODForward/AFPToFHitContainer.h"
 
 namespace xAOD {
 
@@ -37,7 +36,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the hit
-    typedef ElementLink< AFPToFHitContainer_v1 > AFPToFHitLink_t;
+    typedef ElementLink< AFPToFHitContainer > AFPToFHitLink_t;
 
     /** 
      * @brief Index of the station where track was reconstructed.

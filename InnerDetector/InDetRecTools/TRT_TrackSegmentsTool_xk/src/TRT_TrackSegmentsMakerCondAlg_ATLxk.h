@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,8 +18,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderBounds.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 #include <vector>
 
@@ -72,7 +70,6 @@ namespace InDet {
 
     SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"};
     SG::WriteCondHandleKey<TRT_TrackSegmentsToolCondData_xk> m_writeKey{this, "WriteKey", "TRT_TrackSegmentsToolCondData_xk", "Key of TRT_TrackSegmentsToolCondData_xk"};
-    ServiceHandle<ICondSvc> m_condSvc;
 
     ///////////////////////////////////////////////////////////////////
     // Methods

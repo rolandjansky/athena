@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -49,7 +49,7 @@ CaloCellCorrection::CaloCellCorrection(const std::string& type,
 // DESTRUCTOR:
 
 CaloCellCorrection::~CaloCellCorrection()
-{ }
+= default;
 
 //////////////////////////////////////////////////////////////
 // EXECUTE method: Correct cells in input cell container

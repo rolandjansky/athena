@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ Trk::PropagationEngine::PropagationEngine(const std::string& t, const std::strin
 
 // destructor
 Trk::PropagationEngine::~PropagationEngine()
-{}
+= default;
 
 
 // the interface method initialize

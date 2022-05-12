@@ -88,57 +88,41 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
   this->setUVfactor(uvfactor);
 
   for (int ihds = 0; ihds < (int)hitDatas.size(); ihds++) {
-    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager);
-    myhit->updateHitProperties(par);
+    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager, par);
     if (myhit->verifyHit()) {
       m_hitslopes.push_back(myhit->getRZSlope());
       entry.ev_hits.push_back(myhit);
     }
   }
-  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() < 0; })) ? 'C' : '-';
-  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() > 0; })) ? 'A' : '-';
+  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() < 0; })) ? 'C' : 'A';
 
-  std::vector<std::shared_ptr<MMT_Road> > temp_roads;
   for (int i = 0; i < nroad; i++) {
-
     auto myroad = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i);
-    temp_roads.push_back(myroad);
+    entry.ev_roads.push_back(myroad);
 
     int nuv = (this->getUV()) ? this->getUVfactor() : 0;
     for (int uv = 1; uv <= nuv; uv++) {
       if (i-uv < 0) continue;
 
       auto myroad_0 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv, i-uv);
-      temp_roads.push_back(myroad_0);
+      entry.ev_roads.push_back(myroad_0);
 
       auto myroad_1 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv, i+uv);
-      temp_roads.push_back(myroad_1);
+      entry.ev_roads.push_back(myroad_1);
 
       auto myroad_2 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv-1, i-uv);
-      temp_roads.push_back(myroad_2);
+      entry.ev_roads.push_back(myroad_2);
 
       auto myroad_3 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv, i+uv-1);
-      temp_roads.push_back(myroad_3);
+      entry.ev_roads.push_back(myroad_3);
 
       auto myroad_4 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i-uv+1, i+uv);
-      temp_roads.push_back(myroad_4);
+      entry.ev_roads.push_back(myroad_4);
 
       auto myroad_5 = std::make_shared<MMT_Road>(par->getSector(), detManager, micromegas, this->getXthreshold(), this->getUVthreshold(), i, i+uv, i-uv+1);
-      temp_roads.push_back(myroad_5);
+      entry.ev_roads.push_back(myroad_5);
     }
   }
-
-  for (const auto &road : temp_roads) {
-    if (this->isTrapezoidalShape()) {
-      if (road->iRoadu() < 0. && road->iRoadv() < 0.) continue;
-      /* 
-       * Here some condition(s) about the trapezoidal shape should be added
-       */
-      entry.ev_roads.push_back(road);
-    } else entry.ev_roads.push_back(road);
-  }
-
-  temp_roads.clear();
   m_diamonds.push_back(entry);
 
   ATH_MSG_DEBUG("CreateRoadsAndFillHits: Feeding hitDatas Ended");
@@ -216,7 +200,6 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         }
 
         if (addc_same.size() <= 8) continue;
-        else std::cout << "Going further in ADDC loop" << std::endl;
 
         // priority encode the hits by channel number; remember hits 8+
         to_erase.clear();

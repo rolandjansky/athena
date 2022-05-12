@@ -3,18 +3,44 @@
 */
 
 #include "./JetGroupProduct.h"
+#include "./JetStreamer.h"
+#include "./make_jetstream.h"
+#include "./elementalJetGroups.h"
+
 #include <set>
 #include <string>
 
 JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
 				 const CondInd2JetGroupsInds& satisfiedBy,
-				 const std::vector<std::size_t>& condMult) {
+				 const std::vector<std::size_t>& condMult,
+				 const JetGroupInd2ElemInds& jg2elemjgs):
+  m_jg2elemjgs{jg2elemjgs}
+{
 
-  // copy the parts od satisfiedBy corresponding to the sibling indices
-  // into m_condIndices. The number of copies made per sibling is the
-  // given by the sibling multiplicity.
+  m_valid = !siblings.empty() or satisfiedBy.size() != condMult.size();
+  if (m_valid) {init(siblings, satisfiedBy, condMult);}
+}
+
+void JetGroupProduct::init(const std::vector<std::size_t>& siblings,
+		      const CondInd2JetGroupsInds& satisfiedBy,
+		      const std::vector<std::size_t>& condMult) {
+
+  // create a jetstreamer object to cycle through the
+  // possoble combinations. The streamer may form 
+  // vectors of indices by performing external products, and
+  // these may have duplicates, and vectors that differ only in
+  // order, which will need to be removed.
+
+  
+  std::vector<std::vector<std::size_t>> condIndices;
+  condIndices.reserve(siblings.size());
+  std::vector<std::size_t> repeats;
+  condIndices.reserve(siblings.size());
+  
   for(const auto& isib : siblings){
     auto mult = condMult[isib];  // jet groups indices of satisying jgs.
+    repeats.push_back(mult);
+    condIndices.push_back(satisfiedBy.at(isib));
 
     // find the greatest jet index we will deal with
     const auto& sibjets = satisfiedBy.at(isib);
@@ -24,25 +50,11 @@ JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
     ++m_jetEnd;; // to be used as an end marker
     m_jetMask.reserve(m_jetEnd);
     
-    // no of copies = multiplicity of the Condition
-    for (std::size_t im = 0; im != mult; ++im){
-      m_condIndices.push_back(satisfiedBy.at(isib));
-    }
   }
 
-  // find the size for the satisfying jet group vectors.
-  // these values will be used ot generate indexes into m_condIndices.
-  std::vector<std::size_t> ends;
-  ends.reserve(m_condIndices.size());
-  for(const auto& s : m_condIndices){
-    ends.push_back(s.size());
-  }
 
-  // ProductGen is a device for calculating a tuple of indices
-  // into a vector of vectors of indices. The length of the tuple
-  // is the length of m_condIndices. The values of the tuple
-  // are indices into the inner vectors.
-  m_productGen = ProductGen(ends);
+  auto streamer = make_jetstream(condIndices, repeats, 0);
+  m_jetstreamer.reset(new JetStreamer(std::move(streamer)));
 }
   
 std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
@@ -57,6 +69,8 @@ std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
   // already been generated. If this is the first time the sequece has
   // been generated, it will be added to m_seenJetIndices, and then requrned
   // to the caller. If it has already been seen, it will be abandoned.
+
+  if (!m_valid) {return std::vector<std::size_t>();}
   
   unsigned int ipass{0};
   std::vector<std::size_t> jg_indices;
@@ -66,44 +80,49 @@ std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
     
     if(collector){
       collector->collect("JetGroupProduct::next()",
-                         "loop start pass" + std::to_string(ipass++));
+                         "loop start pass " + std::to_string(ipass++));
     }
       
-    auto indices = m_productGen.next();
-    if(indices.empty()){
-      return indices;  //an empty vector of size_t ints
-    }
 
-    // select indices from the child jet group indicies. Form a vector
-    // of indices.
     bool blocked{false};
-    for(std::size_t i = 0; i < indices.size(); ++i){
-      auto idx = (m_condIndices.at(i)).at(indices[i]);
-      if (m_jetMask[idx]) {
+    auto jet_indices = m_jetstreamer->next();
+    if (jet_indices.empty()) {
+      if(collector){
+      collector->collect("JetGroupProduct::next()",
+                         "end of iteration ");
+      }
+      return jet_indices;
+    }
+    for (const auto& ind : jet_indices) {
+      if (m_jetMask[ind]) {
 	blocked = true;
 	break;
       }
- 
-      
-      m_jetMask[idx] = true;
+      m_jetMask[ind] = true;
     }
 
     if (blocked){continue;}
 
     jg_indices.clear();
-    jg_indices.reserve(m_condIndices.size());
     for(std::size_t i = 0; i != m_jetEnd; ++i) {
       if (m_jetMask[i]) {
 	jg_indices.push_back(i);
       }
     }
-      
+
+    auto elem_indices = elementalJetGroups(jg_indices,
+					   m_jg2elemjgs);
+    if (elem_indices.empty()) {continue;}
+
     if (std::find(m_seenIndices.begin(),
 		  m_seenIndices.end(),
-		  jg_indices) == m_seenIndices.end()){
-      
-      m_seenIndices.push_back(jg_indices);
-      return jg_indices;
+		  elem_indices) == m_seenIndices.end()){
+      m_seenIndices.push_back(elem_indices);
+      return elem_indices;
     }
   }		       
 }
+
+
+bool JetGroupProduct::valid() const {return m_valid;}
+

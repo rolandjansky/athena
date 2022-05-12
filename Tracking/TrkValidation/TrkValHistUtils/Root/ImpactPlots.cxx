@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/ImpactPlots.h"
@@ -24,7 +24,7 @@ namespace Trk {
   }
 
   void
-  ImpactPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
+  ImpactPlots::fill(const xAOD::TrackParticle &trkprt, float weight) const {
     d0->Fill(trkprt.d0(),weight);
     d0_small->Fill(trkprt.d0(),weight);
     z0->Fill(trkprt.z0(),weight);

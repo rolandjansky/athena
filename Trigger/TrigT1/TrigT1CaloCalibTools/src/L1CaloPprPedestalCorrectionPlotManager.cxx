@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprPedestalCorrectionPlotManager.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "LWHists/TProfile_LW.h"

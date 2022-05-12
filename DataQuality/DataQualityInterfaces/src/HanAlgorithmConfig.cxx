@@ -10,6 +10,7 @@
 #include <TFile.h>
 #include <TKey.h>
 #include <TH1.h>
+#include <TMap.h>
 
 #include "DataQualityInterfaces/HanAlgorithmConfig.h"
 #include "DataQualityInterfaces/HanConfigAlgLimit.h"
@@ -137,8 +138,19 @@ CopyAlgConfig( const HanConfigAssessor& hca )
     if (key == NULL) {
       std::cout << "ERROR: can't find reference " << refName << std::endl;
     } else {
-      m_ref = key->ReadObj();
-      //m_ref = m_file->Get(refName.c_str());
+      if (hca.GetIsRegex()) {
+        TMap* map = dynamic_cast<TMap*>(key->ReadObj());
+        if (! map) {
+          std::cerr << "Problem reading TMap input for regex" << std::endl;
+          m_ref = nullptr;
+        } else {
+          std::cout << "Get reference for  " << hca.GetHistPath() << std::endl;
+          m_ref = map->GetValue(hca.GetHistPath());
+        }
+      } else {
+        // not a regex
+        m_ref = key->ReadObj();
+      }
     }
   }
 }

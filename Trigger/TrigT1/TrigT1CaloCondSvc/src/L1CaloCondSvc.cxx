@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
@@ -7,6 +7,8 @@
 #include <list>
 #include <set>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // obsolete, replaced by L1CaloCondAlg
 
 L1CaloCondSvc::L1CaloCondSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name, svc),
@@ -115,7 +117,7 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 		if(conditionType=="CondAttrListCollection") {
 
 			// will contain pointer to the CondAttrListCollection(s) required by pobj to populate itself.
-			std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap;
+			std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMap;
 
 			// loop onver input keys, to get the corresponding datahandle
 			std::vector<std::string>::const_iterator it_coolInputKeys = vCoolInputKeys.begin();

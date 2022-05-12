@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JetQGTaggerBDT.h"
@@ -99,18 +99,20 @@ namespace CP {
     // read json file for DNN weights
     ATH_MSG_INFO( "BDT Tagger configured with: " << m_tmvaConfigFilePath );
 
-    // -- Initialize TMVA for BDTs
+    // -- Initialize TMVA for BDTs for each slot
     TMVA::Tools::Instance();
-    m_bdtTagger = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
+    for (auto& tagger : m_bdtTagger) {
+      tagger.tmva = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
 
-    m_bdtTagger->AddVariable( "NTracks", &m_ntracks);
-    m_bdtTagger->AddVariable( "TrackWidth", &m_trackwidth  );
-    m_bdtTagger->AddVariable( "JetPt",  &m_pt );
-    m_bdtTagger->AddVariable( "JetEta", &m_eta  );
-    m_bdtTagger->AddVariable( "TrackC1", &m_trackC1  );
+      tagger.tmva->AddVariable( "NTracks", &tagger.ntracks );
+      tagger.tmva->AddVariable( "TrackWidth", &tagger.trackwidth );
+      tagger.tmva->AddVariable( "JetPt",  &tagger.pt );
+      tagger.tmva->AddVariable( "JetEta", &tagger.eta );
+      tagger.tmva->AddVariable( "TrackC1", &tagger.trackC1 );
 
-    // configure the bdt
-    m_bdtTagger->BookMVA( m_BDTmethod.c_str(), m_tmvaConfigFilePath.c_str() );
+      // configure the bdt
+      tagger.tmva->BookMVA( m_BDTmethod.c_str(), m_tmvaConfigFilePath.c_str() );
+    }
 
     /// Initialize WriteDecorHandle keys
     m_decScoreKey = m_containerName + "." + m_decScoreKey.key();
@@ -176,7 +178,7 @@ namespace CP {
       ATH_MSG_WARNING( "One (or more) tagger input variable has an undefined value (NaN), setting score to -666" );
       return bdt_score;
     }
-    bdt_score = m_bdtTagger->EvaluateMVA( m_BDTmethod.c_str() );
+    bdt_score = m_bdtTagger->tmva->EvaluateMVA( m_BDTmethod.c_str() );
 
     return bdt_score;
   }
@@ -184,14 +186,14 @@ namespace CP {
   bool JetQGTaggerBDT::getJetProperties( const xAOD::Jet& jet, asg::AcceptData &acceptData ) const {
     /* Update the jet substructure variables for this jet */
 
-    m_pt  = jet.pt()/1000.0;
-    m_eta = jet.eta();
+    m_bdtTagger->pt  = jet.pt()/1000.0;
+    m_bdtTagger->eta = jet.eta();
 
-    ATH_MSG_DEBUG( TString::Format("pT: %g, eta: %g",m_pt,m_eta) );
+    ATH_MSG_DEBUG( TString::Format("pT: %g, eta: %g", m_bdtTagger->pt, m_bdtTagger->eta) );
 
-    m_ntracks = -1.;
-    m_trackwidth = -1.;
-    m_trackC1 = -1.;
+    m_bdtTagger->ntracks = -1.;
+    m_bdtTagger->trackwidth = -1.;
+    m_bdtTagger->trackC1 = -1.;
 
     bool validVars = true;
 
@@ -237,9 +239,9 @@ namespace CP {
       validVars = false;
     }
 
-    m_ntracks = (float) ntrk;
-    m_trackwidth = trkWidth;
-    m_trackC1 = trkC1;
+    m_bdtTagger->ntracks = (float) ntrk;
+    m_bdtTagger->trackwidth = trkWidth;
+    m_bdtTagger->trackC1 = trkC1;
 
     return validVars;
   
@@ -288,7 +290,7 @@ namespace CP {
     std::vector<int> nTrkVec;
     if(jet.getAttribute(xAOD::JetAttribute::NumTrkPt500, nTrkVec)){
       ATH_MSG_DEBUG(nTrkVec.size());
-      m_ntracks = (float) nTrkVec[primvertex->index()];
+      m_bdtTagger->ntracks = (float) nTrkVec[primvertex->index()];
     }
     else
       //if NumTrkPt500 is not available, I can't confirm that the number of GhostTracks is correct (i.e. unslimmed)
@@ -299,7 +301,7 @@ namespace CP {
     std::vector<float> trkWidthVec;
     if(jet.getAttribute(xAOD::JetAttribute::TrackWidthPt500, trkWidthVec)){
       ATH_MSG_DEBUG(trkWidthVec.size());
-      m_trackwidth = trkWidthVec[primvertex->index()];
+      m_bdtTagger->trackwidth = trkWidthVec[primvertex->index()];
     }
     else
       //if TrackWidthPt500 is not available, we can maybe calculate it from tracks
@@ -333,7 +335,7 @@ namespace CP {
       }
     }
 
-    if(! isCorrectNumberOfTracks(m_ntracks,trackParttmp.size())){
+    if(! isCorrectNumberOfTracks(m_bdtTagger->ntracks,trackParttmp.size())){
       ATH_MSG_ERROR("Number of ghost associated tracks wrong!");
       validVars = false;
     }
@@ -359,9 +361,10 @@ namespace CP {
       }
     }
 
-    if(undefTrackWidth)
-      m_trackwidth = sumPt>0 ? weightedwidth/sumPt : -0.1;
-    m_trackC1 = sumPt>0 ? weightedwidth2/(sumPt*sumPt) : -0.1;
+    if(undefTrackWidth) {
+      m_bdtTagger->trackwidth = sumPt>0 ? weightedwidth/sumPt : -0.1;
+    }
+    m_bdtTagger->trackC1 = sumPt>0 ? weightedwidth2/(sumPt*sumPt) : -0.1;
 
     return validVars;
   }

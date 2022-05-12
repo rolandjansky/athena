@@ -16,15 +16,15 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 
-/// Interface for AFP tools that reconstruct protons from tracks
+/// Interface for AFP tools that reconstruct vertices from protons
 class IAFP_VertexRecoTool : virtual public ::IAlgTool
 {
  public:
   DeclareInterfaceID(IAFP_VertexRecoTool, 1, 0);
   
-  /// @brief run protons reconstruction
+  /// @brief run vertex reconstruction
   /// 
-  /// The method calls tools that reconstruct protons.
+  /// The method calls tools that reconstruct vertices.
   virtual StatusCode execute(const EventContext& ctx) const = 0;
 }; 
 

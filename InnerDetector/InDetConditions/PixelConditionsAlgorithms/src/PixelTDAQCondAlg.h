@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelTDAQCondAlg.h
@@ -21,7 +21,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelTDAQCondAlg : public AthReentrantAlgorithm {
@@ -34,7 +33,6 @@ class PixelTDAQCondAlg : public AthReentrantAlgorithm {
 
   private:
     const PixelID* m_pixelID{nullptr};
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
     {this, "ReadKey", "", "Input key of TDAQ deadmap conditions folder"};

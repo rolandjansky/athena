@@ -63,7 +63,7 @@ template <typename KEY, typename DATA>
 StatusCode 
 PileUpMergeSvc::retrieveOriginal(const KEY& dataKey, const DATA*& data) {
   StatusCode sc(StatusCode::FAILURE);
-  const xAOD::EventInfo* pEvent = getPileUpEvent();
+  const xAOD::EventInfo* pEvent = getPileUpEvent(nullptr,m_EventInfoKeyName);
   if (pEvent) {
     // access the sub events DATA objects...
      if( pEvent->subEvents().size() ) {
@@ -87,8 +87,23 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY &dataKey, // orig evt key
   // the tdefs above in practice check that TIMEDDATA is what we want
   // FIXME we still have to check we are dealing with a sequence:
   //   boost::function_requires < boost::SequenceConcept<TIMEDDATA> > ();
-  const xAOD::EventInfo *pEvent = getPileUpEvent();
+  const xAOD::EventInfo* pEvent = getPileUpEvent(nullptr,m_EventInfoKeyName);
+
+	ATH_MSG_DEBUG ( "retrieveSubEvtsData: object of type "
+			  << System::typeinfoName(typeid(data_t)) << " with key "
+			  << dataKey<< " ei="<<pEvent  );
+
   if (pEvent) {
+    if(pEvent->subEvents().size()==0) {
+       ATH_MSG_DEBUG ( "no subEvents for xAOD::EventInfo '"<<m_EventInfoKeyName<<"'" ); 
+
+       DataLink_t dLink;
+       fillLink(dLink, dataKey);
+       if (dLink.isValid()) {
+          timedData.push_back(std::make_pair(0, dLink));
+       }
+       return StatusCode::SUCCESS;
+    }
     // access the sub events DATA objects...
     for (const xAOD::EventInfo::SubEvent &subEv : pEvent->subEvents()) {
       // skip if dobj not active for this xing
@@ -214,6 +229,7 @@ template <typename KEY, typename DATA>
 StatusCode
 PileUpMergeSvc::retrieveSingleSubEvtData(const KEY& dataKey, const DATA*& data, int bunchXing, SubEventIterator iEvt){
 
+  ATH_MSG_VERBOSE("In PileUpMergeSvc::retrieveSingleSubEvtData evt="<<*iEvt->ptr()<<" SG="<<iEvt->ptr()->evtStore());
   StoreGateSvc &seStore = *iEvt->ptr()->evtStore();
   ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
 		  << " bunch crossing : " << bunchXing
@@ -239,8 +255,24 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY &dataKey, // orig evt key
   // the tdefs above in practice check that TIMEDDATA is what we want
   // FIXME we still have to check we are dealing with a sequence:
   //   boost::function_requires < boost::SequenceConcept<TIMEDDATA> > ();
-  const xAOD::EventInfo *pEvent = getPileUpEvent();
+  const xAOD::EventInfo* pEvent = getPileUpEvent(nullptr,m_EventInfoKeyName);
+
+  ATH_MSG_DEBUG ( "retrieveSubEvtsData: object of type "
+                  << System::typeinfoName(typeid(data_t)) << " with key "
+                  << dataKey<< " ei="<<pEvent  );
+
   if (pEvent) {
+    if(pEvent->subEvents().size()==0) {
+       ATH_MSG_DEBUG ( "no subEvents for xAOD::EventInfo '"<<m_EventInfoKeyName<<"'" );
+
+       DataLink_t dLink;
+       fillLink(dLink, dataKey);
+       if (dLink.isValid()) {
+          timedData.push_back(std::make_pair(0, dLink));
+       }
+       return StatusCode::SUCCESS;
+    }
+
     // access the sub events DATA objects...
     for (const xAOD::EventInfo::SubEvent &subEv : pEvent->subEvents()) {
       // skip if dobj not active for this xing

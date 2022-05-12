@@ -7,8 +7,6 @@
 # @date: July 2006
 #
 
-from __future__ import with_statement, print_function
-
 """
 A set of python objects to ease the scripting of Athena from
 a python script. It might even become more easy when Configurables

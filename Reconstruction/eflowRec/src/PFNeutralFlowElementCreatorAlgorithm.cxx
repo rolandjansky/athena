@@ -81,14 +81,12 @@ PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(
     ATH_MSG_VERBOSE("Sister cluster link valid? "<<theSisterClusterLink.isValid()<<"");
 
     std::vector<ElementLink<xAOD::IParticleContainer>> theClusters;
-    ElementLink<xAOD::IParticleContainer> theIParticleTrackLink;
-    if (theSisterClusterLink.isValid())
-      theIParticleTrackLink.resetWithKeyAndIndex(
-        theSisterClusterLink.persKey(), theSisterClusterLink.persIndex());
-    else
-      theIParticleTrackLink.resetWithKeyAndIndex(
-        theOriginalClusterLink.persKey(), theOriginalClusterLink.persIndex());
-    theClusters.push_back(theIParticleTrackLink);
+    if (theSisterClusterLink.isValid()){
+      theClusters.emplace_back(ElementLink<xAOD::IParticleContainer>(theSisterClusterLink));
+    }
+    else{
+      theClusters.emplace_back(ElementLink<xAOD::IParticleContainer>(theOriginalClusterLink));
+    }
     thisFE->setOtherObjectLinks(theClusters);
 
     const static SG::AuxElement::Accessor<

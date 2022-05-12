@@ -21,7 +21,7 @@
 #include "TVirtualCollectionProxy.h"
 #include "TVirtualCollectionIterators.h"
 #include "TBranchRef.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TBasket.h"
 #include "TError.h"
 #include "TStreamerInfo.h"

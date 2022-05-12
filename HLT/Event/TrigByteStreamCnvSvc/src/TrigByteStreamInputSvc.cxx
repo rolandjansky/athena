@@ -13,6 +13,9 @@
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
 
+// System includes
+#include <charconv>
+
 namespace {
   constexpr float wordsToKiloBytes = 0.001*sizeof(uint32_t);
 }
@@ -153,9 +156,40 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   auto subdets = Monitored::Collection<std::vector<std::string>>("L1Result_SubDets", subdetNameVec);
   auto mon = Monitored::Group(m_monTool, numROBs, fragSize, subdets, monLBN, monNoEvent);
 
-  // Give the FullEventFragment pointer to ROBDataProviderSvc and also return it
+  // Give the FullEventFragment pointer to ROBDataProviderSvc
   m_robDataProviderSvc->setNextEvent(*eventContext, cache->fullEventFragment.get());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+
+  // Check the CTP fragment (request from readout if not part of the cache), ATR-25217
+  if (m_checkCTPFragmentModuleID.value() >= 0) {
+    const eformat::helper::SourceIdentifier sid{eformat::SubDetector::TDAQ_CTP,
+                                                static_cast<uint16_t>(m_checkCTPFragmentModuleID.value())};
+    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vrobf;
+    m_robDataProviderSvc->getROBData(*eventContext, {sid.code()}, vrobf, name());
+    if (vrobf.empty()) {
+      ATH_MSG_INFO("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " is missing. "
+                    << "Throwing hltonl::Exception::MissingCTPFragment");
+      throw hltonl::Exception::MissingCTPFragment();
+    }
+    uint32_t robStatus = vrobf.at(0)->nstatus()>0 ? *(vrobf.at(0)->status()) : 0;
+    if (robStatus!=0) {
+      std::string hexStatus(8, char{0});
+      std::to_chars(hexStatus.data(), hexStatus.data()+hexStatus.size(), robStatus, 16);
+      ATH_MSG_INFO("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " has non-zero status word: 0x"
+                    << hexStatus << ". Throwing hltonl::Exception::BadCTPFragment");
+      throw hltonl::Exception::BadCTPFragment("Non-zero ROB status 0x"+hexStatus);
+    }
+    try {
+      vrobf.at(0)->check();
+    }
+    catch (const std::exception& ex) {
+      ATH_MSG_INFO("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " is corrupted: "
+                    << ex.what() << ". Throwing hltonl::Exception::BadCTPFragment");
+      throw hltonl::Exception::BadCTPFragment(ex.what());
+    }
+  }
+
+  // Return the FullEventFragment pointer (do not transfer ownership)
   return cache->fullEventFragment.get();
 }
 

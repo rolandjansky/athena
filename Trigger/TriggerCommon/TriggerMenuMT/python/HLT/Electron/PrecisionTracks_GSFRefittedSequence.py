@@ -9,20 +9,23 @@ import AthenaCommon.CfgMgr as CfgMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-def precisionTracks_GSFRefitted(RoIs):
+def precisionTracks_GSFRefitted(RoIs, ion=False, variant=''):
     """
     Takes precision Tracks as input and applies GSF refits on top
     """
-    log.debug('precisionTracks_GSFRefitted(RoIs = %s)',RoIs)
+    log.debug('precisionTracks_GSFRefitted(RoIs = %s, variant = %s)',RoIs,variant)
+
+    tag = '_ion' if ion is True else ''
+    tag+=variant
 
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
 
-    TrigEgammaKeys = getTrigEgammaKeys()
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
     trackParticles = TrigEgammaKeys.precisionTrackingContainer
 
-    ViewVerifyPrecisionTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_forGSFRefit")
+    ViewVerifyPrecisionTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_forGSFRefit"+tag)
 
     from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
     ViewVerifyPrecisionTrk.DataObjects = [( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % trackParticles),
@@ -42,13 +45,14 @@ def precisionTracks_GSFRefitted(RoIs):
       ViewVerifyPrecisionTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+%s' % "TRT_RDOs" )]
 
 
-    from TriggerMenuMT.HLT.Electron.TrigEMBremCollectionBuilder import TrigEMBremCollectionBuilder
+    from TriggerMenuMT.HLT.Electron.TrigEMBremCollectionBuilder import TrigEMBremCollectionBuilderCfg
     
     thesequence_GSF = parOR( "precisionTracking_GSF%s" % RoIs)
     thesequence_GSF += ViewVerifyPrecisionTrk
     
     ## TrigEMBremCollectionBuilder ##
-    track_GSF = TrigEMBremCollectionBuilder()
+    
+    track_GSF = TrigEMBremCollectionBuilderCfg(variant,TrigEgammaKeys)
     thesequence_GSF += track_GSF
 
      ## TrigEMTrackMatchBuilder_GSF ##

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.cxx - helper class for IOVDbSvc to manage folder & data cache
@@ -128,9 +128,9 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
         throw;
     }
   }
-  if (folderprop.overridesIov()){
+  if (folderprop.overridesIov(msg)){
     m_iovoverridden=true;
-    m_iovoverride=folderprop.iovOverrideValue();
+    m_iovoverride=folderprop.iovOverrideValue(msg);
     if (m_timestamp){
       ATH_MSG_INFO( "Override timestamp to " << m_iovoverride << " for folder " << m_foldername );
     } else {
@@ -839,7 +839,7 @@ IOVDbFolder::overrideOptionsFromParsedDescription(const IOVDbParser & parsedDesc
     m_addrheader=newAddrHeader;
   }
   //get clid, if it exists (set to zero otherwise)
-  m_clid=parsedDescription.classId();
+  m_clid=parsedDescription.classId(msg());
   // decode the typeName
   if (!parsedDescription.getKey("typeName","",m_typename)) {
     ATH_MSG_ERROR( "Primary type name is empty" );

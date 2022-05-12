@@ -7,11 +7,13 @@ atlas_subdir( LUCID_OpProcess )
 find_package( Geant4 )
 
 # Component(s) in the package:
-atlas_add_component( LUCID_OpProcess
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} GaudiKernel AthenaBaseComps G4AtlasInterfaces )
+atlas_add_library( LUCID_OpProcess
+                   src/*.cxx
+                   src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
+                   PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${GEANT4_LIBRARIES} GaudiKernel AthenaBaseComps G4AtlasInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

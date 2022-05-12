@@ -147,7 +147,7 @@ StatusCode TrigCostSvc::monitor(const EventContext& context, const AlgorithmIden
       getROIID(context),
       static_cast<uint32_t>(context.slot())
     };
-    ATH_CHECK( m_algStartInfo.insert(ai, ap) );
+    ATH_CHECK( m_algStartInfo.insert(ai, ap, msg()) );
 
     // Cache the AlgorithmIdentifier which has just started executing on this thread
     if (ai.m_realSlot == ai.m_slotToSaveInto) {
@@ -158,7 +158,7 @@ StatusCode TrigCostSvc::monitor(const EventContext& context, const AlgorithmIden
 
   } else if (type == AuditType::After) {
 
-    ATH_CHECK( m_algStopTime.insert(ai, now) );
+    ATH_CHECK( m_algStopTime.insert(ai, now, msg()) );
 
   } else {
 
@@ -186,7 +186,7 @@ StatusCode TrigCostSvc::monitorROS(const EventContext& /*context*/, robmonitor::
 
   // Record data in TrigCostDataStore
   ATH_MSG_DEBUG( "Adding ROBs from" << payload.requestor_name << " to " << theAlg.m_hash );
-  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload)) );
+  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload), msg()) );
 
   return StatusCode::SUCCESS;
 }
@@ -224,7 +224,7 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     const AlgorithmIdentifier myAi = AlgorithmIdentifierMaker::make(context, m_decisionSummaryMakerAlgName, msg());
     ATH_CHECK( myAi.isValid() );
     tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
-    if (m_algStopTime.retrieve(myAi, stopTimeAcessor).isFailure()) {
+    if (m_algStopTime.retrieve(myAi, stopTimeAcessor, msg()).isFailure()) {
       ATH_MSG_ERROR("No end time for '" << myAi.m_caller << "', '" << myAi.m_store << "'"); // Error as we JUST entered this info!
     } else { // retrieve was a success
       eventStopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
@@ -237,7 +237,7 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     const AlgorithmIdentifier hltSeedingAi = AlgorithmIdentifierMaker::make(context, m_hltSeedingName, msg());
     ATH_CHECK( hltSeedingAi.isValid() );
     tbb::concurrent_hash_map<AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_accessor startAcessor;
-    if (m_algStartInfo.retrieve(hltSeedingAi, startAcessor).isFailure()) {
+    if (m_algStartInfo.retrieve(hltSeedingAi, startAcessor, msg()).isFailure()) {
       ATH_MSG_ERROR("No alg info for '" << hltSeedingAi.m_caller << "', '" << hltSeedingAi.m_store << "'"); // Error as we know this info must be present
     } else { // retrieve was a success
       eventStartTime = startAcessor->second.m_algStartTime.microsecondsSinceEpoch();
@@ -262,7 +262,7 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     uint64_t stopTime = eventStopTime;
     {
       tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
-      if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
+      if (m_algStopTime.retrieve(ai, stopTimeAcessor, msg()).isFailure()) {
         ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
       } else { // retrieve was a success
         stopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
@@ -275,7 +275,7 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     // This gives us an end time which is before the start time. Disregard these entries.
     if (startTime > stopTime) {
       ATH_MSG_VERBOSE("Disregard start-time:" << startTime << " > stop-time:" << stopTime 
-        << " for " << TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " in slot " << ap.m_slot << ", this is slot " << context.slot());
+        << " for " << TrigConf::HLTUtils::hash2string( ai.callerHash(msg()), "ALG") << " in slot " << ap.m_slot << ", this is slot " << context.slot());
       continue;
     }
 
@@ -285,11 +285,11 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     // If the alg starts afterwards, we disregard it in lieu of setting to have zero walltime.
     // If the alg stops afterwards, we truncate its stop time to be no later than eventStopTime
     if (startTime > eventStopTime) {
-      ATH_MSG_VERBOSE("Disregard " << TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " as it started after endEvent() was finished being called" );
+      ATH_MSG_VERBOSE("Disregard " << TrigConf::HLTUtils::hash2string( ai.callerHash(msg()), "ALG") << " as it started after endEvent() was finished being called" );
       continue;
     }
     if (stopTime > eventStopTime) {
-      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " stopped after endEvent() was called, but before the cost container was locked," 
+      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(msg()), "ALG") << " stopped after endEvent() was called, but before the cost container was locked," 
         << " truncating its ending time stamp from " << stopTime << " to " << eventStopTime);
       stopTime = eventStopTime;
     }
@@ -298,11 +298,11 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     // If the alg stops before eventStartTime, we disregard it in lieu of setting it to have zero walltime
     // If the alg starts before eventStartTime, we truncate its start time to be no later than eventStopTime
     if (stopTime < eventStartTime) {
-      ATH_MSG_VERBOSE("Disregard " << TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " as it stopped before startEvent() was finished being called" );
+      ATH_MSG_VERBOSE("Disregard " << TrigConf::HLTUtils::hash2string( ai.callerHash(msg()), "ALG") << " as it stopped before startEvent() was finished being called" );
       continue;
     }
     if (startTime < eventStartTime) {
-      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(), "ALG") << " started just after the cost container was unlocked, but before the HLTSeeding record was written." 
+      ATH_MSG_VERBOSE(TrigConf::HLTUtils::hash2string( ai.callerHash(msg()), "ALG") << " started just after the cost container was unlocked, but before the HLTSeeding record was written." 
         << " truncating its starting time stamp from " << startTime << " to " << eventStartTime);
       startTime = eventStartTime;
     }
@@ -327,8 +327,8 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     }
 
     bool result = true;
-    result &= tc->setDetail("alg", ai.callerHash());
-    result &= tc->setDetail("store", ai.storeHash());
+    result &= tc->setDetail("alg", ai.callerHash(msg()));
+    result &= tc->setDetail("store", ai.storeHash(msg()));
     result &= tc->setDetail("view", ai.m_viewID);
     result &= tc->setDetail("thread", threadEnumerator);
     result &= tc->setDetail("thash", threadID);
@@ -441,7 +441,7 @@ StatusCode TrigCostSvc::generateTimeoutReport(const EventContext& context, std::
     uint64_t stopTime = 0;
     {
       tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
-      if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
+      if (m_algStopTime.retrieve(ai, stopTimeAcessor, msg()).isFailure()) {
         ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
       } else { // retrieve was a success
         stopTime = stopTimeAcessor->second.microsecondsSinceEpoch();

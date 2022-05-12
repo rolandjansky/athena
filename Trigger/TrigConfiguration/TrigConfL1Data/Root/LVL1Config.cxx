@@ -13,7 +13,4 @@ namespace TrigConf {
     : m_menu(), m_thresholdConfig(), m_muctpi() {
   }
 
-  LVL1Config::~LVL1Config() {
-  }
-
 }

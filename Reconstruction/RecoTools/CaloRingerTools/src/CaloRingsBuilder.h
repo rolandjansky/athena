@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsBuilder.h 713524 2015-12-09 08:56:24Z wsfreund $
 #ifndef CALORINGERTOOLS_CALORINGSBUILDER_H
 #define CALORINGERTOOLS_CALORINGSBUILDER_H
 
@@ -263,7 +262,7 @@ class CaloRingsBuilder : public ::AthAlgTool,
     /**
      * @brief used for phi wrap-around
      **/
-    static CaloPhiRange m_phiHelper;
+    static const CaloPhiRange m_phiHelper;
     /**
      * @brief hold the number of RingSets we are building for each CaloRings
      **/

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVALHISTUTILS_PARAMPLOTS_H
@@ -13,7 +13,7 @@ namespace Trk{
 class ParamPlots:public PlotBase {
   public:      
     ParamPlots(PlotBase *pParent, const std::string& sDir, std::string sParticleType);
-    void fill(const xAOD::IParticle& prt, float weight=1.0);
+    void fill(const xAOD::IParticle& prt, float weight=1.0) const;
 
     TH1* eta;
     TH1* phi;

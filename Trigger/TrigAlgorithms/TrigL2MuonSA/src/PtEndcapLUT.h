@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_PTENDCAPLUT_H
@@ -30,8 +30,8 @@ class PtEndcapLUT: public AthAlgTool
                 const IInterface*  parent);
     ~PtEndcapLUT(void);
 
-    StatusCode readLUT(std::string lut_fileName);
-    StatusCode readLUTSigmaMean(std::string lut_mean, std::string lut_sigma);
+    StatusCode readLUT(const std::string& lut_fileName);
+    StatusCode readLUTSigmaMean(const std::string& lut_mean, const std::string& lut_sigma);
 
     double alpha(double z1, double r1, double z2, double r2) const;
     double radius(double z1, double r1, double s1, double z2, double r2, double s2, double deltar) const;

@@ -87,9 +87,9 @@ ExcludeList=[ "xAOD::BTagVertexAuxContainer#*",
               "RpcPadContainer#*"]
 
 # Excluding all but AntiKt4EMTopoJets
-JetContainers = 'AntiKt10LCTopoJets, AntiKt10TruthJets, AntiKt10TruthWZJets, AntiKt2PV0TrackJets, AntiKt3PV0TrackJets, AntiKt4EMPFlowJets, AntiKt4LCTopoJets, AntiKt4PV0TrackJets, AntiKt4TruthJets, AntiKt4TruthWZJets, CamKt12LCTopoJets, CamKt12TruthJets, CamKt12TruthWZJets, HLT_xAOD__JetContainer_EFJet, HLT_xAOD__JetContainer_SplitJet, HLT_xAOD__JetContainer_SuperRoi, HLT_xAOD__JetContainer_TrigHLTJetDSSelectorCollection, HLT_xAOD__JetContainer_TrigTauJet, HLT_xAOD__JetContainer_a10TTemnojcalibFS, HLT_xAOD__JetContainer_a10TThadnojcalibFS, HLT_xAOD__JetContainer_a10r_tcemsubjesFS, HLT_xAOD__JetContainer_a10tcemjesFS, HLT_xAOD__JetContainer_a10tcemjesPS, HLT_xAOD__JetContainer_a10tcemnojcalibFS, HLT_xAOD__JetContainer_a10tcemnojcalibPS, HLT_xAOD__JetContainer_a10tcemsubFS, HLT_xAOD__JetContainer_a10tcemsubjesFS, HLT_xAOD__JetContainer_a10tclcwjesFS, HLT_xAOD__JetContainer_a10tclcwjesPS, HLT_xAOD__JetContainer_a10tclcwnojcalibFS, HLT_xAOD__JetContainer_a10tclcwnojcalibPS, HLT_xAOD__JetContainer_a10tclcwsubFS, HLT_xAOD__JetContainer_a10tclcwsubjesFS, HLT_xAOD__JetContainer_a4TTemnojcalibFS, HLT_xAOD__JetContainer_a4TThadnojcalibFS, HLT_xAOD__JetContainer_a4tcemjesFS, HLT_xAOD__JetContainer_a4tcemjesPS, HLT_xAOD__JetContainer_a4tcemnojcalibFS, HLT_xAOD__JetContainer_a4tcemnojcalibPS, HLT_xAOD__JetContainer_a4tcemsubFS, HLT_xAOD__JetContainer_a4tcemsubjesFS, HLT_xAOD__JetContainer_a4tclcwjesFS, HLT_xAOD__JetContainer_a4tclcwjesPS, HLT_xAOD__JetContainer_a4tclcwnojcalibFS, HLT_xAOD__JetContainer_a4tclcwnojcalibPS, HLT_xAOD__JetContainer_a4tclcwsubFS, HLT_xAOD__JetContainer_a4tclcwsubjesFS'
+JetContainers = 'AntiKt10LCTopoJets, AntiKt10TruthJets, AntiKt10TruthWZJets, AntiKt4EMPFlowJets, AntiKt4LCTopoJets, AntiKt4TruthJets, AntiKt4TruthWZJets, HLT_xAOD__JetContainer_EFJet, HLT_xAOD__JetContainer_SplitJet, HLT_xAOD__JetContainer_SuperRoi, HLT_xAOD__JetContainer_TrigHLTJetDSSelectorCollection, HLT_xAOD__JetContainer_TrigTauJet, HLT_xAOD__JetContainer_a10TTemnojcalibFS, HLT_xAOD__JetContainer_a10TThadnojcalibFS, HLT_xAOD__JetContainer_a10r_tcemsubjesFS, HLT_xAOD__JetContainer_a10tcemjesFS, HLT_xAOD__JetContainer_a10tcemjesPS, HLT_xAOD__JetContainer_a10tcemnojcalibFS, HLT_xAOD__JetContainer_a10tcemnojcalibPS, HLT_xAOD__JetContainer_a10tcemsubFS, HLT_xAOD__JetContainer_a10tcemsubjesFS, HLT_xAOD__JetContainer_a10tclcwjesFS, HLT_xAOD__JetContainer_a10tclcwjesPS, HLT_xAOD__JetContainer_a10tclcwnojcalibFS, HLT_xAOD__JetContainer_a10tclcwnojcalibPS, HLT_xAOD__JetContainer_a10tclcwsubFS, HLT_xAOD__JetContainer_a10tclcwsubjesFS, HLT_xAOD__JetContainer_a4TTemnojcalibFS, HLT_xAOD__JetContainer_a4TThadnojcalibFS, HLT_xAOD__JetContainer_a4tcemjesFS, HLT_xAOD__JetContainer_a4tcemjesPS, HLT_xAOD__JetContainer_a4tcemnojcalibFS, HLT_xAOD__JetContainer_a4tcemnojcalibPS, HLT_xAOD__JetContainer_a4tcemsubFS, HLT_xAOD__JetContainer_a4tcemsubjesFS, HLT_xAOD__JetContainer_a4tclcwjesFS, HLT_xAOD__JetContainer_a4tclcwjesPS, HLT_xAOD__JetContainer_a4tclcwnojcalibFS, HLT_xAOD__JetContainer_a4tclcwnojcalibPS, HLT_xAOD__JetContainer_a4tclcwsubFS, HLT_xAOD__JetContainer_a4tclcwsubjesFS'
 
-JetAuxContainers = 'AntiKt10LCTopoJetsAux., AntiKt10TruthJetsAux., AntiKt10TruthWZJetsAux., AntiKt2PV0TrackJetsAux., AntiKt3PV0TrackJetsAux., AntiKt4EMPFlowJetsAux., AntiKt4LCTopoJetsAux., AntiKt4PV0TrackJetsAux., AntiKt4TruthJetsAux., AntiKt4TruthWZJetsAux., CamKt12LCTopoJetsAux., CamKt12TruthJetsAux., CamKt12TruthWZJetsAux.'
+JetAuxContainers = 'AntiKt10LCTopoJetsAux., AntiKt10TruthJetsAux., AntiKt10TruthWZJetsAux., AntiKt4EMPFlowJetsAux., AntiKt4LCTopoJetsAux., AntiKt4TruthJetsAux., AntiKt4TruthWZJetsAux.'
               
 TrackCollections = 'CombinedMuonTracks, ExtrapolatedMuonTracks, GSFTracks, HLT_TrackCollection_InDetTrigTrackSlimmer_Bjet_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_Bphysics_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_CosmicsN_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_Electron_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_FullScan_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_Muon_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_Photon_EFID, HLT_TrackCollection_InDetTrigTrackSlimmer_Tau_EFID, MuonSpectrometerTracks, ResolvedForwardTracks'
 
@@ -200,7 +200,6 @@ outList = CfgItemList( 'DEDX',
     'xAOD::EventShape#ParticleFlowIsoForwardEventShape',
     'xAOD::EventShape#TopoClusterIsoCentralEventShape',
     'xAOD::EventShape#TopoClusterIsoForwardEventShape',
-    'RawInfoSummaryForTag#RawInfoSummaryForTag',
     'xAOD::JetEtRoIAuxInfo#LVL1JetEtRoIAux.',
     'xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.',
     'Muon::CscPrepDataContainer#CSC_Clusters',
@@ -499,13 +498,9 @@ outList = CfgItemList( 'DEDX',
     'xAOD::BTaggingAuxContainer#BTagging_AntiKt4LCTopoAux.',
     'xAOD::BTaggingAuxContainer#BTagging_AntiKt4TrackAux.',
     'xAOD::JetContainer#AntiKt10LCTopoJets',
-    'xAOD::JetContainer#AntiKt2PV0TrackJets',
-    'xAOD::JetContainer#AntiKt3PV0TrackJets',
     'xAOD::JetContainer#AntiKt4EMPFlowJets',
     'xAOD::JetContainer#AntiKt4EMTopoJets',
     'xAOD::JetContainer#AntiKt4LCTopoJets',
-    'xAOD::JetContainer#AntiKt4PV0TrackJets',
-    'xAOD::JetContainer#CamKt12LCTopoJets',
     'xAOD::JetContainer#HLT_xAOD__JetContainer_EFJet',
     'xAOD::JetContainer#HLT_xAOD__JetContainer_FarawayJet',
     'xAOD::JetContainer#HLT_xAOD__JetContainer_SplitJet',
@@ -684,14 +679,10 @@ outList = CfgItemList( 'DEDX',
     'xAOD::MuonRoIAuxContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuonAux.',
     'xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.',
     'TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer',
-    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.',
-    'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.',
+    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.-PseudoJet',
     'TileMuFeatureContainer#HLT_TileMuFeatureContainer',
     'RpcSectorLogicContainer#RPC_SECTORLOGIC',
     'TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex',

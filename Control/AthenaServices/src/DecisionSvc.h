@@ -17,7 +17,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IDecisionSvc.h"
 #include "AthenaKernel/ICutFlowSvc.h"
-
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
 
 
@@ -98,7 +98,7 @@ private:
   ServiceHandle<ICutFlowSvc> m_cutflowSvc;
   ServiceHandle<IAlgExecStateSvc> m_algstateSvc;
 
-  void DeclareToCutFlowSvc();
+  StatusCode DeclareToCutFlowSvc ATLAS_NOT_THREAD_SAFE ();
   StatusCode fillMap(std::map<std::string, std::vector<std::string> >& streamsModeMap, 
                      const std::string& name,
                      const std::string& stream);

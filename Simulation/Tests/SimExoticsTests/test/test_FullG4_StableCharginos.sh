@@ -2,6 +2,7 @@
 # 
 # art-description: MC16-style simulation of stable Charginos using FullG4 (tests the Charginos package alone)
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-output: *.root

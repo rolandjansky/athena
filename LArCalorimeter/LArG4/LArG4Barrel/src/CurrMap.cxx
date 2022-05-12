@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CurrMap.h"
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <stdio.h>
 
-CurrMap::CurrMap(std::string filename,double xnorm)
+CurrMap::CurrMap(const std::string& filename,double xnorm)
 {
   // normalisation to convert nA from the map back to MeV
   // use average in straight section:

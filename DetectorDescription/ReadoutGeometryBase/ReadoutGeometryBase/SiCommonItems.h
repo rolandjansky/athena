@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,6 @@ class AtlasDetectorID;
 /**
  * Message Stream Member
  */
-#include "AthenaKernel/MsgStreamMember.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaBaseComps/AthMessaging.h"

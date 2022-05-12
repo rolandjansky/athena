@@ -11,6 +11,7 @@
 #include "../LArNoiseCorrelationMonAlg.h"
 #include "../LArCalibPedMonAlg.h"
 #include "../LArCoherentNoisefractionMonAlg.h"
+#include "../LArCalibDelayMonAlg.h"
 #include "../LArSuperCellMonAlg.h"
 #include "../LArRawChannelMonAlg.h"
 
@@ -27,5 +28,6 @@ DECLARE_COMPONENT(LArDigitalTriggMonAlg)
 DECLARE_COMPONENT(LArNoiseCorrelationMonAlg)
 DECLARE_COMPONENT(LArCalibPedMonAlg)
 DECLARE_COMPONENT(LArCoherentNoisefractionMonAlg)
+DECLARE_COMPONENT(LArCalibDelayMonAlg)
 DECLARE_COMPONENT(LArSuperCellMonAlg)
 DECLARE_COMPONENT(LArRawChannelMonAlg)

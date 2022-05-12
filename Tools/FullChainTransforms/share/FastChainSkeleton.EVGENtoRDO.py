@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # skeleton.EVGENtoRDO.py
 # skeleton file for running simulation+digi in one job for FastChain
 # currently using full simulation and digi, will swap in fast components later
@@ -262,7 +262,7 @@ try:
     configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
     if configureFlags is not None:
         configureFlags()
-    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth']
     for subdet in possibleSubDetectors:
         simattr = subdet+"_on"
         simcheck = getattr(DetFlags.simulate, simattr, None)
@@ -295,7 +295,7 @@ DetFlags.DBM_setOff()
 # turn off DetFlags for muon detectors which are not part of the layout
 if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
-if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.MM_setOff()
 
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
@@ -315,13 +315,13 @@ DetFlags.digitize.ALFA_setOff()
 # (since DetFlags.digitize.all_setOn() is called a few lines above)
 if not MuonGeometryFlags.hasCSC(): DetFlags.digitize.CSC_setOff()
 if not MuonGeometryFlags.hasSTGC(): DetFlags.digitize.sTGC_setOff()
-if not MuonGeometryFlags.hasMM(): DetFlags.digitize.Micromegas_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.digitize.MM_setOff()
 
 #set all detdescr on except fwd.
 #DetFlags.detdescr.all_setOn()
 #DetFlags.detdescr.LVL1_setOff()
 #DetFlags.detdescr.ZDC_setOff()
-#DetFlags.detdescr.Micromegas_setOff()
+#DetFlags.detdescr.MM_setOff()
 #DetFlags.detdescr.sTGC_setOff()
 #DetFlags.detdescr.Forward_setOff()
 #DetFlags.detdescr.Lucid_setOff()
@@ -749,8 +749,8 @@ if ISF_Flags.UsingGeant4():
 
     ## AtlasSimSkeleton._do_external
     from AthenaCommon.AppMgr import ToolSvc
-    from Geo2G4.Geo2G4Conf import Geo2G4Svc
-    geo2G4Svc = Geo2G4Svc()
+    from AthenaCommon import CfgMgr
+    geo2G4Svc = CfgMgr.Geo2G4Svc()
     theApp.CreateSvc += ["Geo2G4Svc"]
     ServiceMgr += geo2G4Svc
     ## Enable top transforms for the ATLAS geometry
@@ -830,6 +830,16 @@ else :
 from ISF_Example.ISF_Input import ISF_Input
 
 topSequence += CfgGetter.getAlgorithm("BeamEffectsAlg")
+
+# Note - here we should check whether xAOD::EventInfo is already
+# present in the EVNT file as is done in DigitizationReadMetadata ( 'LegacyEventInfo' in digitizationFlags.experimentalDigi())
+from Digitization.DigitizationFlags import digitizationFlags
+if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    topSequence += xAODMaker__EventInfoCnvAlg()
+    # Decorate zero pile-up
+    from PileUpComps.PileUpCompsConf import NoPileUpMuWriter
+    topSequence += NoPileUpMuWriter()
 
 #--------------------------------------------------------------
 # ISF kernel configuration
@@ -1086,9 +1096,8 @@ if DetFlags.pileup.any_on():
     fast_chain_log.info(" -----> Luminosity = %s cm^-2 s^-1", jobproperties.Beam.estimatedLuminosity())
     fast_chain_log.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
 
-# in any case we need the PileUpMergeSvc for the digitize algos
-if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
-    ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
+    if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
+        ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
 
 
 #--------------------------------------------------------------

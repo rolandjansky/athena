@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
@@ -17,7 +17,7 @@
 
 L1CaloPprDisabledChannelContainer::L1CaloPprDisabledChannelContainer():AbstractL1CaloPersistentCondition("CondAttrListCollection") {
 	// Define DB rows names and types in order to construct the AttributeListSpecification object
-	this->addSpecification(eChanDeadErrorCode, std::string("ErrorCode"), std::string("UInt32"));
+        this->addSpecification(eChanDeadErrorCode, std::string("ErrorCode"), std::string("UInt32"));
 	this->addSpecification(eChanCalibErrorCode, std::string("ErrorCode"), std::string("UInt32"));
 
 	// noiseCut from PpmDeadChannels db
@@ -32,10 +32,7 @@ L1CaloPprDisabledChannelContainer::L1CaloPprDisabledChannelContainer():AbstractL
 	this->addSpecification(ePhiDisableMask, std::string("phiDisableMask"), std::string("Int64"));
 	this->addSpecification(eChanDisableMask, std::string("chanDisableMask"), std::string("Int64"));
 
-	m_mCoolFoldersKeysMap[L1CaloPprDisabledChannelContainer::ePpmDeadChannels] = std::string("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels");
-	m_mCoolFoldersKeysMap[L1CaloPprDisabledChannelContainer::ePprChanCalib] = std::string("/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib");
-	m_mCoolFoldersKeysMap[L1CaloPprDisabledChannelContainer::eDisabledTowers] = std::string("/TRIGGER/L1Calo/V1/Conditions/DisabledTowers");
-	//m_mCoolFoldersKeysMap[L1CaloPprDisabledChannelContainer::eOKS2COOL] = std::string("/TECHRUN/L1CaloDisabledRegions");
+	
 }
 
 L1CaloPprDisabledChannelContainer::L1CaloPprDisabledChannelContainer(const std::map<L1CaloPprDisabledChannelContainer::eCoolFolders, std::string>& folderKeysMap):AbstractL1CaloPersistentCondition("CondAttrListCollection"),
@@ -108,142 +105,119 @@ DataObject* L1CaloPprDisabledChannelContainer::makePersistent() const {
 */
 }
 
-void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
+void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap) {
 
-//	std::cout<< "*** L1CaloPprDisabledChannelContainer::makeTransient() ***"<<std::endl;
-//	std::cout<< "***"<<condAttrListCollectionMap.size()<<"***"<<std::endl;
+  CondAttrListCollection::const_iterator it_attr;
+  CondAttrListCollection::const_iterator it_attrE;
 
-	this->clear();
+  if (condAttrListCollectionMap.empty()) return;
 
-	std::map<std::string, CondAttrListCollection*>::const_iterator it_deadChannels = condAttrListCollectionMap.find(this->coolFolderKey(L1CaloPprDisabledChannelContainer::ePpmDeadChannels));
-	if(it_deadChannels==condAttrListCollectionMap.end()) {
-		std::cout<<"L1CaloPprDisabledChannelContainer : Could not find requested CondAttrListCollection "<< this->coolFolderKey(L1CaloPprDisabledChannelContainer::ePpmDeadChannels) << std::endl;
-		return;
+  // Reading cool paths and reading attributes 
+  
+  for (const auto& [name, coll] : condAttrListCollectionMap) {
+    if (name.find("PpmDeadChannels")!=std::string::npos){
+      auto it_deadChannelsAttrListCollection = condAttrListCollectionMap.find(name);
+      const CondAttrListCollection* deadChannelsAttrListCollection = it_deadChannelsAttrListCollection->second;
+
+      
+      //Dead channel
+      it_attr  = deadChannelsAttrListCollection->begin();
+      it_attrE = deadChannelsAttrListCollection->end();
+      for(;it_attr!=it_attrE;++it_attr) {
+	
+	const coral::AttributeList& attrList(it_attr->second);
+	
+	// Get value of each row for the current channel
+	CondAttrListCollection::ChanNum chanNum(it_attr->first);
+	
+	ChanDeadErrorCode errorCode(attrList[ this->specificationName(eChanDeadErrorCode) ].data<unsigned int>());
+	
+	unsigned int noiseCut = attrList[this->specificationName(eNoiseCut)].data<unsigned int>();
+	
+	// test if the channel is really bad for the given IOV
+	if(!errorCode.chanValid() || noiseCut > 0) {
+	  L1CaloPprDisabledChannelMap::iterator it_chan =  m_mPprDisabledChannelMap.find(chanNum);
+	  if(it_chan==m_mPprDisabledChannelMap.end()) {
+	    m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
+	  }
+	  m_mPprDisabledChannelMap[chanNum].deadErrorCode(errorCode);
+	  m_mPprDisabledChannelMap[chanNum].setNoiseCut(noiseCut);
 	}
-	CondAttrListCollection* deadChannelsAttrListCollection = it_deadChannels->second;
+      } 
 
-	std::map<std::string, CondAttrListCollection*>::const_iterator it_calibChannels = condAttrListCollectionMap.find(this->coolFolderKey(L1CaloPprDisabledChannelContainer::ePprChanCalib));
-	if(it_calibChannels==condAttrListCollectionMap.end()) {
-		std::cout<<"L1CaloPprDisabledChannelContainer : Could not find requested CondAttrListCollection "<< this->coolFolderKey(L1CaloPprDisabledChannelContainer::ePprChanCalib) << std::endl;
-		return;
+      
+      
+    } // End PpmDeadChannels
+    
+    if(name.find("PprChanCalib")!=std::string::npos){
+      auto it_calibChannelsAttrListCollection = condAttrListCollectionMap.find(name);
+      const CondAttrListCollection* calibChannelsAttrListCollection =  it_calibChannelsAttrListCollection->second;
+
+
+      
+      // calib channels
+      it_attr  = calibChannelsAttrListCollection->begin();
+      it_attrE = calibChannelsAttrListCollection->end();
+      for(;it_attr!=it_attrE;++it_attr) {
+	
+	const coral::AttributeList& attrList(it_attr->second);
+	
+	// Get value of each row for the current channel
+	CondAttrListCollection::ChanNum chanNum(it_attr->first);
+	
+	ChanCalibErrorCode errorCode(attrList[ this->specificationName(eChanCalibErrorCode) ].data<unsigned int>());
+	
+	// test if the channel is correctly calibrated for the given IOV
+	if(!errorCode.chanValid()) {
+	  L1CaloPprDisabledChannelMap::iterator it_chan =  m_mPprDisabledChannelMap.find(chanNum);
+	  if(it_chan==m_mPprDisabledChannelMap.end()) {
+	    m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
+	  }
+	  m_mPprDisabledChannelMap[chanNum].calibErrorCode(errorCode);
 	}
-	CondAttrListCollection* calibChannelsAttrListCollection = it_calibChannels->second;
+      }
+      
+      
+    
 
-	std::map<std::string, CondAttrListCollection*>::const_iterator it_disabledTowers = condAttrListCollectionMap.find(this->coolFolderKey(L1CaloPprDisabledChannelContainer::eDisabledTowers));
-	if(it_disabledTowers==condAttrListCollectionMap.end()) {
-		std::cout<<"L1CaloPprDisabledChannelContainer : Could not find requested CondAttrListCollection "<< this->coolFolderKey(L1CaloPprDisabledChannelContainer::eDisabledTowers) << std::endl;
-		return;
+    } // End PprChanCalib
+
+    if(name.find("DisabledTowers")!=std::string::npos){
+      auto it_disabledTowersAttrListCollection = condAttrListCollectionMap.find(name);
+      const CondAttrListCollection* disabledTowersAttrListCollection = it_disabledTowersAttrListCollection->second;
+      
+      // disabled towers
+      it_attr  = disabledTowersAttrListCollection->begin();
+      it_attrE = disabledTowersAttrListCollection->end();
+      for(;it_attr!=it_attrE;++it_attr) {
+	
+	const coral::AttributeList& attrList(it_attr->second);
+	
+	// Get value of each row for the current channel
+	CondAttrListCollection::ChanNum chanNum(it_attr->first);
+	
+	unsigned int disabledBits = attrList[this->specificationName(eDisabledBits)].data<unsigned int>();
+	
+	if(disabledBits) {
+	  L1CaloPprDisabledChannelMap::iterator it_chan =  m_mPprDisabledChannelMap.find(chanNum);
+	  if(it_chan==m_mPprDisabledChannelMap.end()) {
+	    m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
+	  }
+	  m_mPprDisabledChannelMap[chanNum].setDisabledBits(disabledBits);
 	}
-	CondAttrListCollection* disabledTowersAttrListCollection = it_disabledTowers->second;
-/*
-	std::map<std::string, CondAttrListCollection*>::const_iterator it_oksChannels = condAttrListCollectionMap.find(this->coolFolderKey(L1CaloPprDisabledChannelContainer::eOKS2COOL));
-	if(it_oksChannels==condAttrListCollectionMap.end()) {
-		std::cout<<"L1CaloPprDisabledChannelContainer : Could not find requested CondAttrListCollection "<< this->coolFolderKey(L1CaloPprDisabledChannelContainer::eOKS2COOL) << std::endl;
-		return;
-	}
-	CondAttrListCollection* oksChannelsAttrListCollection = it_oksChannels->second;
-*/
+      }
+      
+      
 
-//	std::cout<< "*** Filling dead ***"<<std::endl;
+      
+    } // End DisabledTowers
+    
+  } // End cool loop 
+  
+  
 
-	CondAttrListCollection::const_iterator it_attr;
-	CondAttrListCollection::const_iterator it_attrE;
 
-	//Dead channel
-	it_attr  = deadChannelsAttrListCollection->begin();
-	it_attrE = deadChannelsAttrListCollection->end();
-	for(;it_attr!=it_attrE;++it_attr) {
 
-                const coral::AttributeList& attrList(it_attr->second);
-
-		// Get value of each row for the current channel
-		CondAttrListCollection::ChanNum chanNum(it_attr->first);
-
-		ChanDeadErrorCode errorCode(attrList[ this->specificationName(eChanDeadErrorCode) ].data<unsigned int>());
-
-		unsigned int noiseCut = attrList[this->specificationName(eNoiseCut)].data<unsigned int>();
-
-		// test if the channel is really bad for the given IOV
-		if(!errorCode.chanValid() || noiseCut > 0) {
-			L1CaloPprDisabledChannelMap::iterator it_chan =  m_mPprDisabledChannelMap.find(chanNum);
-			if(it_chan==m_mPprDisabledChannelMap.end()) {
-				m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
-			}
-			m_mPprDisabledChannelMap[chanNum].deadErrorCode(errorCode);
-			m_mPprDisabledChannelMap[chanNum].setNoiseCut(noiseCut);
-		}
-	}
-
-//std::cout<< "*** Filling calib ***"<<std::endl;
-
-	// calib channels
-	it_attr  = calibChannelsAttrListCollection->begin();
-	it_attrE = calibChannelsAttrListCollection->end();
-	for(;it_attr!=it_attrE;++it_attr) {
-
-                const coral::AttributeList& attrList(it_attr->second);
-
-		// Get value of each row for the current channel
-		CondAttrListCollection::ChanNum chanNum(it_attr->first);
-
-		ChanCalibErrorCode errorCode(attrList[ this->specificationName(eChanCalibErrorCode) ].data<unsigned int>());
-
-		// test if the channel is correctly calibrated for the given IOV
-		if(!errorCode.chanValid()) {
-			L1CaloPprDisabledChannelMap::iterator it_chan =  m_mPprDisabledChannelMap.find(chanNum);
-			if(it_chan==m_mPprDisabledChannelMap.end()) {
-				m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
-			}
-			m_mPprDisabledChannelMap[chanNum].calibErrorCode(errorCode);
-		}
-	}
-
-	// disabled towers
-	it_attr  = disabledTowersAttrListCollection->begin();
-	it_attrE = disabledTowersAttrListCollection->end();
-	for(;it_attr!=it_attrE;++it_attr) {
-
-                const coral::AttributeList& attrList(it_attr->second);
-
-		// Get value of each row for the current channel
-		CondAttrListCollection::ChanNum chanNum(it_attr->first);
-
-		unsigned int disabledBits = attrList[this->specificationName(eDisabledBits)].data<unsigned int>();
-
-		if(disabledBits) {
-			L1CaloPprDisabledChannelMap::iterator it_chan =  m_mPprDisabledChannelMap.find(chanNum);
-			if(it_chan==m_mPprDisabledChannelMap.end()) {
-				m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
-			}
-			m_mPprDisabledChannelMap[chanNum].setDisabledBits(disabledBits);
-		}
-	}
-
-//std::cout<< "*** Filling oks ***"<<std::endl;
-/*
-	// oks channels
-	// use harcoded value or just take the first and only one channelId ?
-	unsigned int defaultChannel = 2844830117;
-	AthenaAttributeList Oks2CoolAttrList(oksChannelsAttrListCollection->attributeList(defaultChannel));
-
-	long int caloDisableMask(Oks2CoolAttrList[ this->specificationName(eCaloDisableMask) ].data<long int>());
-	long int etaDisableMask(Oks2CoolAttrList[ this->specificationName(eEtaDisableMask) ].data<long int>());
-	long int phiDisableMask(Oks2CoolAttrList[ this->specificationName(ePhiDisableMask) ].data<long int>());
-	long int chanDisableMask(Oks2CoolAttrList[ this->specificationName(eChanDisableMask) ].data<long int>());
-
-	std::cout<< caloDisableMask<<" "<<etaDisableMask<<" "<<phiDisableMask<<" "<< chanDisableMask<<std::endl;
-
-	//compute here coolchannelId from previous variables
-	//CondAttrListCollection::ChanNum chanNum( myComputedId )
-	CondAttrListCollection::ChanNum chanNum( 0 );
-
-	L1CaloPprDisabledChannelMap::iterator it_chan = m_mPprDisabledChannelMap.find(chanNum);
-	if(it_chan==m_mPprDisabledChannelMap.end()) {
-		m_mPprDisabledChannelMap[chanNum] = L1CaloPprDisabledChannel(chanNum);
-	}
-	m_mPprDisabledChannelMap[chanNum].isMasked(true);
-*/
-	// add invalid channels ?
 
 }
 

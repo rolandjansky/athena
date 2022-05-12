@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 */
 
 #include "TauThinningAlg.h"
@@ -102,7 +102,7 @@ StatusCode TauThinningAlg::execute (const EventContext& ctx) const
 
     // keep tau cluster cell links and cells within 0.2 of the tau axis
     TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau, m_doVertexCorrection);
-    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
+    const xAOD::Vertex* tauVertex = tau->vertex();
 
     auto clusterList = tau->clusters();
     for (const xAOD::IParticle* particle : clusterList) {

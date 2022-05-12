@@ -11,6 +11,9 @@ def GetCustomAthArgs():
     from argparse import ArgumentParser
     IDPVMparser = ArgumentParser(description='Parser for IDPVM configuration')
     IDPVMparser.add_argument("--filesInput")
+    IDPVMparser.add_argument("--doLargeD0Tracks", help='also run LRT plots', action='store_true', default=False)
+    IDPVMparser.add_argument("--doMergedLargeD0Tracks", help='also run merged STD+LRT plots', action='store_true', default=False)
+    IDPVMparser.add_argument("--doLowPtTracks", help='also run LowPT plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTightPrimary", help='also run tight-primary plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInJets", help='also run tracks in jets', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInBJets", help='also run tracks in jets', action='store_true', default=False)
@@ -22,7 +25,8 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--doElectronMatchedTracks", help='run plots for tracks matched to true electrons', action='store_true', default=False)
     IDPVMparser.add_argument("--doTruthToRecoNtuple", help='output track-to-truth ntuple', action='store_true', default=False)
     IDPVMparser.add_argument("--disableDecoration", help='disable extra track and truth decoration if possible', action='store_true', default=False)
-    IDPVMparser.add_argument("--hardScatterStrategy", help='Strategy to select the hard scatter. 0 = SumPt² 1 = SumPt', choices=["0","1"], default="0")
+    IDPVMparser.add_argument("--hardScatterStrategy", help='Strategy to select the hard scatter. 0 = SumPt² 1 = SumPt , 2 = Sumptw', choices=["0","1", "2"], default="0")
+    IDPVMparser.add_argument("--truthMinPt", help='minimum truth particle pT', type=float, default=500)
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     IDPVMparser.add_argument("--HSFlag", help='Hard-scatter flag - decides what is used for truth matching', choices=['HardScatter', 'All', 'PileUp'],default="HardScatter")
     IDPVMparser.add_argument("--ancestorIDList", help='List of ancestor truth IDs to match.', default = [], nargs='+', type=int)
@@ -42,11 +46,14 @@ ConfigFlags.IDPVM.doValidateTightPrimaryTracks = MyArgs.doTightPrimary
 ConfigFlags.IDPVM.doTruthOriginPlots = MyArgs.doTruthOrigin
 ConfigFlags.IDPVM.doValidateMuonMatchedTracks = MyArgs.doMuonMatchedTracks
 ConfigFlags.IDPVM.doValidateElectronMatchedTracks = MyArgs.doElectronMatchedTracks
+ConfigFlags.IDPVM.doValidateLargeD0Tracks = MyArgs.doLargeD0Tracks
+ConfigFlags.IDPVM.doValidateMergedLargeD0Tracks = MyArgs.doMergedLargeD0Tracks
 ConfigFlags.IDPVM.doPerAuthorPlots = MyArgs.doPerAuthor
 ConfigFlags.IDPVM.doHitLevelPlots = MyArgs.doHitLevelPlots
 ConfigFlags.IDPVM.runDecoration = not MyArgs.disableDecoration
 ConfigFlags.IDPVM.ancestorIDs = MyArgs.ancestorIDList
 ConfigFlags.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
+ConfigFlags.IDPVM.truthMinPt = MyArgs.truthMinPt
 
 ConfigFlags.Input.Files = glob(MyArgs.filesInput)
 

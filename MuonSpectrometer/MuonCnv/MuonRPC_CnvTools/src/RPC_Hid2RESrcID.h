@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPC_CNVTOOLS_RPC_HID2RESRCID_H
 #define MUONRPC_CNVTOOLS_RPC_HID2RESRCID_H
 
-#include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "RPC_CondCabling/RpcCablingCondData.h"
@@ -13,8 +12,6 @@
 
 #include <stdint.h> 
 #include <map>
-
-#include "CxxUtils/checker_macros.h"
 
 class RPC_Hid2RESrcID {
 

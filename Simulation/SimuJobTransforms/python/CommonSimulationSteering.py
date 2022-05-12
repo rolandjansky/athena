@@ -65,8 +65,9 @@ def CommonSimulationCfg(ConfigFlags, log):
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))
         if ConfigFlags.Sim.ISF.ReSimulation:
             # Case 4
-            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
-            cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
+            if "xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
+                from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+                cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
             from McEventCollectionFilter.McEventCollectionFilterConfig import TruthResetAlgCfg
             cfg.merge(TruthResetAlgCfg(ConfigFlags))
             cfg.addSequence(CompFactory.AthSequencer('SimSequence'), parentName='AthAlgSeq')
@@ -86,6 +87,9 @@ def CommonSimulationCfg(ConfigFlags, log):
         # add BeamEffectsAlg
         from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
         cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
+        if "xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            cfg.merge(EventInfoCnvAlgCfg(ConfigFlags)) ## TODO: update config so that ReSim can use the same xAOD::EventInfo
 
     AcceptAlgNames=[]
     if ConfigFlags.Sim.ISFRun:
@@ -103,15 +107,13 @@ def CommonSimulationCfg(ConfigFlags, log):
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
-    cfg.getEventAlgo("OutputStreamHITS").AcceptAlgs=AcceptAlgNames
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=False, AcceptAlgs=AcceptAlgNames) )
     if ConfigFlags.Sim.ISF.ReSimulation:
         cfg.getEventAlgo("OutputStreamHITS").TakeItemsFromInput=False
 
     if len(ConfigFlags.Output.EVNT_TRFileName)>0:
         from SimuJobTransforms.SimOutputConfig import getStreamEVNT_TR_ItemList
-        cfg.merge( OutputStreamCfg(ConfigFlags,"EVNT_TR", ItemList=getStreamEVNT_TR_ItemList(ConfigFlags), disableEventTag=True) )
-        cfg.getEventAlgo("OutputStreamEVNT_TR").AcceptAlgs=AcceptAlgNames
+        cfg.merge( OutputStreamCfg(ConfigFlags,"EVNT_TR", ItemList=getStreamEVNT_TR_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=AcceptAlgNames) )
 
     # Add MT-safe PerfMon
     if ConfigFlags.PerfMon.doFastMonMT or ConfigFlags.PerfMon.doFullMonMT:

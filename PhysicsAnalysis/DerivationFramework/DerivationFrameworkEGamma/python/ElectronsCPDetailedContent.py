@@ -4,7 +4,7 @@ ExtraElectronShowerShapes = ["Electrons.Rhad.Rhad1.e277.Reta.Rphi.weta2.f1.Erati
 ExtraElectronTruthInfo = ["Electrons.lastEgMotherTruthType.lastEgMotherTruthOrigin.lastEgMotherTruthParticleLink.lastEgMotherPdgId"]
 ElectronsCPDetailedContent = ExtraElectronShowerShapes + ExtraElectronTruthInfo
 
-ExtraElectronGSFVar = ["GSFTrackParticles.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdOutliers.numberOfTRTXenonHits.eProbabilityComb.eProbabilityHT"]  
+ExtraElectronGSFVar = ["GSFTrackParticles.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdOutliers.numberOfTRTXenonHits.eProbabilityComb.eProbabilityHT.eProbabilityNN"]
 GSFTracksCPDetailedContent = ExtraElectronGSFVar
 
 ElectronsAddAmbiguityContent = ["Electrons.DFCommonSimpleConvRadius.DFCommonSimpleConvPhi.DFCommonSimpleMee.DFCommonSimpleMeeAtVtx.DFCommonSimpleSeparation.DFCommonProdTrueRadius.DFCommonProdTruePhi.DFCommonProdTrueZ"]

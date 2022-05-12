@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
@@ -7,7 +7,7 @@
  
 
 void
-LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCWTransType* transObj, MsgStream & log)
+LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCWTransType* transObj, MsgStream & log) const
 {
   log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p2  begin persToTrans"<<endmsg;
   // Copy basic metadata
@@ -165,7 +165,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 
 
 void
-LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWaveSubset_p2* persObj, MsgStream & log)
+LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWaveSubset_p2* persObj, MsgStream & log) const
 {
   log<<MSG::DEBUG<<" LArCaliWaveSubsetCNV_p2  begin Writing"<<endmsg;
 	

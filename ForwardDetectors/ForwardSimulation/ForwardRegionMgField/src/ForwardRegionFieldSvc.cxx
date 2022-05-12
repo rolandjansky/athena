@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForwardRegionFieldSvc.h"
@@ -516,7 +516,7 @@ double MagField::ForwardRegionFieldSvc::kLToB(double kL, double length, double m
     return kL*momentum/length/0.299792458;
 }
 
-void MagField::ForwardRegionFieldSvc::writeOutTwiss(std::vector<std::vector<std::string> > loadedTwissFile, int beam, std::string header)
+void MagField::ForwardRegionFieldSvc::writeOutTwiss(const std::vector<std::vector<std::string>>& loadedTwissFile, int beam, const std::string& header)
 {
     MsgStream LogStream(Athena::getMessageSvc(), "MagField::ForwardRegionFieldSvc::writeOutTwiss()");
 
@@ -577,7 +577,7 @@ void MagField::ForwardRegionFieldSvc::writeOutTwiss(std::vector<std::vector<std:
     file.close();
 }
 
-int MagField::ForwardRegionFieldSvc::getMagNumFromName(std::string name) const
+int MagField::ForwardRegionFieldSvc::getMagNumFromName(const std::string& name) const
 {
     // dipoles
     if (name == "\"MBXW.A4R1\"" || name == "\"MBXW.A4L1\"") return s_D1;

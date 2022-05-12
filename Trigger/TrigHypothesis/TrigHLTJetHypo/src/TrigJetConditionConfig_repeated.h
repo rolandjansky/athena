@@ -34,6 +34,10 @@ public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
   Gaudi::Property<std::size_t> m_multiplicity {this, "multiplicity", {1},
       "no. of occurences of identical condition"};
 
+  
+  Gaudi::Property<int> m_clique {this, "clique", {-1},
+      "indentical condition index"};
+
   Gaudi::Property<std::size_t> m_tree_id {this, "id", {0},
     "Condition ID if in FastReduction condition tree"};
   

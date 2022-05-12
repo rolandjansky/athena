@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -25,16 +25,11 @@ UPDATED:
 // ----------------------------
 //  Constructor
 // ----------------------------
-egPID::egPID()
-{}
+egPID::egPID() = default;
 
 // =========================================================
 // copy constructor
-egPID::egPID(const egPID& original)
-  : m_egammaIDint (original.m_egammaIDint),  // value as unsigned integer
-    m_egammaID (original.m_egammaID)         // value as double
-{
-}
+egPID::egPID(const egPID& original) = default;
 
 // =========================================================
 // assignment
@@ -51,8 +46,7 @@ egPID& egPID::operator=(const egPID& original)
 
 // =========================================================
 egPID::~egPID()
-{ 
-}
+= default;
 
 // =========================================================
 double egPID::egammaID(egammaPIDObs::PID key, bool *found) const 
@@ -72,7 +66,7 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
   case egammaPIDObs::IsGoodOQ:
     return (double)egammaIDint(key, found);
   default:
-    typedef std::pair<egammaPIDObs::PID,double> elParams;
+    using elParams = std::pair<egammaPIDObs::PID, double>;
 
     std::vector<elParams>::const_iterator p = m_egammaID.begin();
     
@@ -106,7 +100,9 @@ bool egPID::set_egammaID(egammaPIDObs::PID key, double value)
   case egammaPIDObs::IsEMMedium:
   case egammaPIDObs::IsEMTight:
   case egammaPIDObs::IsGoodOQ:
-    return set_egammaIDint( key, (unsigned int) value);
+     // Need to convert to an int first, then to unsigned int.
+     // Converting directly from a negative float to an unsigned is undefined.
+    return set_egammaIDint( key, static_cast<long int>(value));
   default:
     using elParams = std::pair<egammaPIDObs::PID, double>;
     

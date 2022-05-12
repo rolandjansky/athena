@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BTagging/JetBTaggingAlg.h"
@@ -113,7 +113,7 @@ namespace Analysis {
 
 
   StatusCode JetBTaggingAlg::execute() {
-    EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     //retrieve the Jet container
     SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName, ctx);
@@ -122,7 +122,7 @@ namespace Analysis {
       return StatusCode::FAILURE;
     }
 
-    if (h_JetCollectionName->size() == 0) {
+    if (h_JetCollectionName->empty()) {
       ATH_MSG_DEBUG("#BTAG# Empty JetContainer !!");
     }
     else {

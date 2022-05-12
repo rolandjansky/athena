@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventCnvTools/EventCnvSuperTool.h"
@@ -22,11 +22,13 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     m_haveMuonCnvTool(false), // Will be set to true on retrieval
     m_doMuons(true),
     m_doID(true),
+    m_doTrackOverlay(false),
     m_errCount(0),
     m_maxErrCount(10)
 {
     declareProperty("DoMuons",m_doMuons, "If true (default), attempt to retrieve Muon helper tool and convert Muon objects.");
     declareProperty("DoID",m_doID, "If true (default), attempt to retrieve Inner Detector helper tool and convert ID objects.");
+    declareProperty("DoTrackOverlay",m_doTrackOverlay,"If true, ID on-track conversion tools will look for background PRD collections");
     declareProperty("MaxErrorCount", m_maxErrCount, "Maximum number of errors that will be reported");
 }
 
@@ -80,7 +82,7 @@ Trk::EventCnvSuperTool::initialize(){
         msg(MSG::WARNING) << "Failed to retrieve either and InDet or a Muon tool. Will not be able to recreate surfaces / detector elements."<< endmsg;
         m_maxErrCount=0; // No point in further WARNINGs
     }
-    
+
     return StatusCode::SUCCESS;
 }
 
@@ -98,7 +100,6 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
 
     if(m_detID->is_indet(id))
     {
-        //std::cout<<"Trk::EventCnvSuperTool::getCnvTool = ID"<<std::endl;
         if (m_haveIdCnvTool )
         {
             return &(*m_idCnvTool);
@@ -111,7 +112,6 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
     }else{
         if(m_detID->is_muon(id) )
         {
-            //std::cout<<"Trk::EventCnvSuperTool::getCnvTool = Muon"<<std::endl;
             if (m_haveMuonCnvTool)
             {
                 return &(*m_muonCnvTool);
@@ -162,8 +162,7 @@ Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
         if ( (m_errCount++)<m_maxErrCount) 
             msg(MSG::WARNING)<< "recreateRIO_OnTrack: could not get cnv tool. Returning without correctly filling ROT of type: "<< info.name()<< endmsg;
     }
-    return;
-}
+    }
 
 void
 Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
@@ -174,8 +173,7 @@ Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
     }
-    return;
-}
+    }
 
 void
 Trk::EventCnvSuperTool::prepareRIO_OnTrackLink ( const Trk::RIO_OnTrack *RoT,
@@ -188,5 +186,4 @@ Trk::EventCnvSuperTool::prepareRIO_OnTrackLink ( const Trk::RIO_OnTrack *RoT,
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
     }
-    return;
-}
+    }

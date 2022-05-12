@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "DirectTrackNtupleWriterTool.h"
 #include "TrkValInterfaces/ITrackValidationNtupleTool.h"
 #include "TrkTrack/Track.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
 // constructor
@@ -47,7 +46,7 @@ Trk::DirectTrackNtupleWriterTool::DirectTrackNtupleWriterTool(
 }
 
 // destructor
-Trk::DirectTrackNtupleWriterTool::~DirectTrackNtupleWriterTool() {}
+Trk::DirectTrackNtupleWriterTool::~DirectTrackNtupleWriterTool() = default;
 
 
 
@@ -152,32 +151,6 @@ StatusCode Trk::DirectTrackNtupleWriterTool::writeTrackParticleData (
   // write the ntuple record out (once per call)
   return writeRecord(m_nt);
 }
-
-//////////////////////////////////////////////////////////
-/// fill AND write ntuple data of a given proto-trajectory
-//////////////////////////////////////////////////////////
-StatusCode Trk::DirectTrackNtupleWriterTool::writeProtoTrajectoryData (
-        const Trk::ProtoTrajectory& trajectory,
-        const int iterationIndex,
-        const Trk::Perigee* perigee,
-        const unsigned int fitStatCode )  const {
-       // const Trk::FitterStatusCode fitStatCode ) const{
-    if (!m_nt) {
-        msg(MSG::ERROR) << "writeProtoTrajectoryData(protoTraj, indx) can only be used, if property BookNewNtuple is set to true"  << endmsg;
-        return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ("in writeProtoTrajectoryData(protoTraj, indx)");
-    
-    ToolHandleArray< Trk::ITrackValidationNtupleTool >::const_iterator itTools;
-    itTools = m_ValidationNtupleTools.begin();
-    for (  ; itTools != m_ValidationNtupleTools.end(); ++itTools ) {
-      if (((*itTools)->fillProtoTrajectoryData( trajectory, iterationIndex, perigee, fitStatCode )).isFailure()) {
-        ATH_MSG_ERROR ("Validation Ntuple Tool could not fill track data.");
-        return StatusCode::FAILURE;
-      }
-    }
-    return writeRecord(m_nt);
-}  
 
 /////////////////////////////////////////
 /// write the filled data into the ntuple

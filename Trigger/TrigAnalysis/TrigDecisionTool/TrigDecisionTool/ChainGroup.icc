@@ -56,13 +56,12 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   // Collect the set of chains (and chain legs) which we are fetching
   // Perform the fetches using the full set of IDs for each chain (include all legs)
   TrigCompositeUtils::DecisionIDContainer allRequestedChainIDs;
-  std::set<const TrigConf::HLTChain*>::const_iterator chIt;
-  for (chIt=conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
+  for (const TrigConf::HLTChain* ch : m_confChains) {
 
     TrigCompositeUtils::DecisionIDContainer thisChainIDs;
     HLT::Identifier chainID("");
 
-    const HLT::Chain* fchain = cgm()->chain(**chIt);
+    const HLT::Chain* fchain = cgm_assert().chain(*ch);
     if (fchain) {
       chainID = HLT::Identifier( fchain->getChainName() );
       const std::vector<size_t> legMultiplicites = fchain->getLegMultiplicities();

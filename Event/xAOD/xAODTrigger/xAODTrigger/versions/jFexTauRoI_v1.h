@@ -1,6 +1,6 @@
 //create
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODTRIGGER_VERSIONS_JFEXTAUROI_V1_H
 #define XAODTRIGGER_VERSIONS_JFEXTAUROI_V1_H
@@ -25,8 +25,8 @@ namespace xAOD {
       /// Default constructor
       jFexTauRoI_v1();
 
-      /// In future initialze the xTOB as well, word1
-      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi );
+      /// In future initialze the EDM
+      void initialize(uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord, char istob, int resolution, float_t eta, float_t phi );
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t  tobWord()       const;
@@ -41,6 +41,11 @@ namespace xAOD {
       uint      globalPhi()     const;
       float     eta()           const;
       float     phi()           const;
+      int       tobEtScale()    const;
+      char      isTOB()         const;
+      
+      /// Set the isTOB variable (TOB or xTOB)
+      void setIsTOB( char value);
 
       /// Set the "raw" 32-bit words describing the object candidate
       void setTobWord( uint32_t tobWord );
@@ -81,14 +86,11 @@ namespace xAOD {
       void setGlobalPhi(uint value);
       void setPhi(float value);
       
+      //Et resolution
+      void setResolution(int value);
+      
       
    private:
-      //Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
-      static const float s_tobIsoScale;
-      static const float s_towerEtaWidth;
-      static const float s_towerPhiWidth;
-      static const float s_minEta;
 
       // Data locations within word
       static const int s_isoBit = 21;

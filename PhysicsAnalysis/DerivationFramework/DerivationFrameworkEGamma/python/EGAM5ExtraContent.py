@@ -1,13 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
-    "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",
@@ -55,22 +50,6 @@ ExtraContentGSFConversionVertices=[
         "GSFConversionVertices.trackParticleLinks"
 ]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (      "_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#                                       "_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#                                       "_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#                                       "_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#       ExtraContentPhotons.append("Photons."+cell)
-#       for layer in layers_gains:
-#               ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#       ExtraContentElectrons.append("Electrons."+cell)
-#       for layer in layers_gains:
-#               ExtraContentElectrons.append("Electrons."+cell+layer)
-#
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
 ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
@@ -82,10 +61,7 @@ ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
                       "egammaTruthParticles"
-                      #,"BTagging_AntiKt4TruthWZ"
-                      #,"AntiKt4TruthWZJets"
                       ]
 
 ExtraContainersElectrons=["Electrons",

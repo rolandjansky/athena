@@ -5,7 +5,7 @@
 ####################
 #Run-dependent digi job configuration file.
 #SimuJobTransforms/ConfigLumi_preOptions.py
-from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
+from RunDependentSimComps.RunDependentMCTaskIterator import getRunLumiInfoFragment
 from Digitization.DigitizationFlags import jobproperties
 digilog = logging.getLogger('Digi_trf')
 digilog.info('doing RunLumiOverride configuration from file.')

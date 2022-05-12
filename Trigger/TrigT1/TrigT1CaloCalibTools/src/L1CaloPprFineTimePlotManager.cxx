@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprFineTimePlotManager.h"
@@ -8,7 +8,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
@@ -86,7 +85,7 @@ StatusCode L1CaloPprFineTimePlotManager::getCaloCells()
     
     sc = m_caloTool->loadCaloCells();
     if ( sc.isFailure() ) {
-        *m_log<<MSG::WARNING<<"Could not load CaloCells" << endmsg;
+      ATH_MSG_WARNING("Could not load CaloCells");
     }
 
     return sc;
@@ -203,7 +202,6 @@ double L1CaloPprFineTimePlotManager::getMonitoringValue(const xAOD::TriggerTower
 	    // subtract the reference value
 	    fineTime = fineTime - refValue;
 	    if(calFactor <= 0.000001){//setting unreasonable calibration factors to minus 1
-// 	       *m_log<<MSG::INFO<<"Calibration factor < 10^-10 provided! Setting it to -1" <<endmsg;
 	       calFactor = -1;
 	    }
 	    // and calibrate the value
@@ -231,13 +229,13 @@ void L1CaloPprFineTimePlotManager::loadTools()
     if (m_isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;
+        ATH_MSG_WARNING("Unable to locate tool L1CaloMonitoringCaloTool");
 	}
     }
     else {
         sc = m_storeGate.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endmsg;
+        ATH_MSG_WARNING("Unable to retrieve store gate");
 	}
     }
     

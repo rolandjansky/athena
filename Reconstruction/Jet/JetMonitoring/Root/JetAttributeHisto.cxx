@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetAttributeHisto.h"
@@ -128,9 +128,9 @@ namespace jet {
       VectFloat_Float=32,
     };
     static Supported fromString(const std::string &n){
-      static std::map< std::string , Supported > m( { {"int",Int}, {"float",Float}, {"vector<float>",VectFloat}, {"vector<int>",VectInt},  } );
-      if ( m.find( n ) != m.end() ) return m[n];
-      return Unknown;
+      static const std::map< std::string , Supported > m( { {"int",Int}, {"float",Float}, {"vector<float>",VectFloat}, {"vector<int>",VectInt},  } );
+      auto itr = m.find( n );
+      return ( itr != m.end() ? itr->second : Unknown );
     }
     static Supported fromString(const std::string &n1, const std::string &n2){
       Supported t1 = fromString(n1);

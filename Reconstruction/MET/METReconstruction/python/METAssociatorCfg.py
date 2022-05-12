@@ -3,13 +3,17 @@
 from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocCfg import AssocConfig, METAssocConfig,getMETAssocAlg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from METUtilities.METMakerConfig import getMETMakerAlg
-
 
 def METAssociatorCfg(configFlags, jetType):
     sequencename = "METAssociation"
 
     components = ComponentAccumulator()
+
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg   
+    extrapCfg = AtlasExtrapolatorCfg(configFlags)
+    extrapCfg.popPrivateTools()
+    components.merge(extrapCfg)
+    
     from AthenaConfiguration.ComponentFactory import CompFactory
     AthSequencer=CompFactory.AthSequencer
     components.addSequence( AthSequencer(sequencename) )
@@ -84,7 +88,4 @@ def getAssocCA(config,sequencename='METAssociation',METName=''):
     components.addSequence( AthSequencer(sequencename) )
     assocAlg = getMETAssocAlg(algName='METAssociation_'+METName,configs={config.suffix:config})
     components.addEventAlgo(assocAlg,sequencename)
-    if not METName=='':
-        makerAlg=getMETMakerAlg(METName)
-        components.addEventAlgo(makerAlg,sequencename)
     return components

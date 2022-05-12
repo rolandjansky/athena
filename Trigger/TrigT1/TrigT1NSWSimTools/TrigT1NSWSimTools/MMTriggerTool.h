@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMTRIGGERTOOL_H
@@ -7,20 +7,24 @@
 
 //basic includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "MuonIdHelpers/MmIdHelper.h"
 
 //local includes
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
-#include "MMT_Diamond.h"
+#include "TrigT1NSWSimTools/MMLoadVariables.h"
+#include "TrigT1NSWSimTools/MMT_Finder.h"
+#include "TrigT1NSWSimTools/MMT_Fitter.h"
+#include "TrigT1NSWSimTools/MMT_Diamond.h"
+#include "TTree.h"
 
-//forward declarations
-class IIncidentSvc;
-class MmIdHelper;
-class MmDigit;
-class TTree;
-
-#include "MMLoadVariables.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonDigitContainer/MmDigit.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "TrackRecord/TrackRecordCollection.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -39,62 +43,63 @@ namespace NSWL1 {
     //load event stuff
     std::vector<hitData_entry> event_hitDatas(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
     std::vector<hitData_key> event_hitData_keys(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
-    std::shared_ptr<MMT_Parameters> m_par_large;
-    std::shared_ptr<MMT_Parameters> m_par_small;
-    std::unique_ptr<MMT_Diamond> m_diamond;
 
     //MMT_Loader stuff end
 
     MMTriggerTool(const std::string& type, const std::string& name, const IInterface* parent);
 
-    virtual ~MMTriggerTool();
+    virtual ~MMTriggerTool()=default;
 
     virtual StatusCode initialize();
 
     virtual void handle (const Incident& inc);
 
-    StatusCode runTrigger(const bool do_MMDiamonds);
-
-    StatusCode fillRDO(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds);
+    StatusCode runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) const;
 
   private:
 
     // needed Servives, Tools and Helpers
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
+    ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};       //!< Athena/Gaudi incident Service
+
+    // read data handle
+    SG::ReadHandleKey<McEventCollection> m_keyMcEventCollection{this,"McEventCollection","TruthEvent","Location of TruthEvent"};
+    SG::ReadHandleKey<TrackRecordCollection> m_keyMuonEntryLayer{this,"MuonEntryLayer","MuonEntryLayer","Location of MuonEntryLayer"};
+    SG::ReadHandleKey<MmDigitContainer> m_keyMmDigitContainer{this,"MmDigitContainer","MM_DIGITS","Location of MmDigitContainer"};
+    Gaudi::Property<bool>  m_isMC            {this, "IsMC",         true, "This is MC"};
+
+    // Parameters for Diamond Road algorithms
+    Gaudi::Property<bool>  m_trapShape            {this, "TrapezoidalShape",         true, "Consider the quadruplet as a trapezoid"};
+    Gaudi::Property<int>   m_diamRoadSize         {this, "DiamondRoadSize",          8,    "Number of strips to create a road"};
+    Gaudi::Property<bool>  m_uv                   {this, "DiamondUV",                true, "Include Stereo planes for tracking"};
+    Gaudi::Property<int>   m_diamXthreshold       {this, "DiamondEtaThreshold",      2,    "Number of Eta planes for coincidences"};
+    Gaudi::Property<int>   m_diamUVthreshold      {this, "DiamondStereoThreshold",   2,    "Number of Stereo planes for coincidences"};
+    Gaudi::Property<int>   m_diamOverlapEtaUp     {this, "DiamondEtaUpOverlap",      4,    "Number of Eta strips for upper road overlap"};
+    Gaudi::Property<int>   m_diamOverlapEtaDown   {this, "DiamondEtaDownOverlap",    0,    "Number of Eta strips for lower road overlap"};
+    Gaudi::Property<int>   m_diamOverlapStereoUp  {this, "DiamondStereoUpOverlap",   4,    "Number of Stereo strips for upper road overlap"};
+    Gaudi::Property<int>   m_diamOverlapStereoDown{this, "DiamondStereoDownOverlap", 0,    "Number of Stereo strips for lower road overlap"};
+
+    // Parameters for RDO encoding
+    Gaudi::Property<std::string>  m_mmDigitContainer{this, "MM_DigitContainerName", "MM_DIGITS", "Name of the MM digit container"};
+    Gaudi::Property<bool>         m_doNtuple        {this, "DoNtuple",   false,          "Input the MMStrip branches into the analysis ntuple"};
+    Gaudi::Property<float>        m_phiMin          {this, "PhiMin",    -16.*M_PI/180.0, "Minimum Phi"};
+    Gaudi::Property<float>        m_phiMax          {this, "PhiMax",     16.*M_PI/180.0, "Maximum Phi"};
+    Gaudi::Property<int>          m_phiBits         {this, "PhiBits",    6,              "Number of Phi bits"};
+    Gaudi::Property<float>        m_rMin            {this, "RMin",       900.0,          "Minimum R [mm]"};
+    Gaudi::Property<float>        m_rMax            {this, "RMax",       5000.0,         "Maximum R [mm]"};
+    Gaudi::Property<int>          m_rBits           {this, "RBits",      8,              "Number of R bits"};
+    Gaudi::Property<float>        m_dThetaMin       {this, "DThetaMin", -0.015,          "Minimum dTheta [rad]"};
+    Gaudi::Property<float>        m_dThetaMax       {this, "DThetaMax",  0.015,          "Maximum dTheta [rad]"};
+    Gaudi::Property<int>          m_dThetaBits      {this, "DThetaBits", 5,              "Number of dTheta bits"};
+
+    std::shared_ptr<MMT_Parameters> m_par_large;
+    std::shared_ptr<MMT_Parameters> m_par_small;
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
 
     //Histogram
-    StatusCode book_branches();                             //!< book the branches
-    void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
-    void fillNtuple(const MMLoadVariables& loadedVariables);
-
-    // Functions and variables for RDO conversion: since they are method-independent, they should be stored as private members of the main class
-    void setPhiMin(float value) { m_rdoPhiMin = value; }
-    void setPhiMax(float value) { m_rdoPhiMax = value; }
-    void setPhiBits(uint8_t bits) { m_rdoPhiBits = bits; }
-    void setRMin(float value) { m_rdoRMin = value; }
-    void setRMax(float value) { m_rdoRMax = value; }
-    void setRBits(uint8_t bits) { m_rdoRBits = bits; }
-    void setdThetaMin(float value) { m_rdodThetaMin = value; }
-    void setdThetaMax(float value) { m_rdodThetaMax = value; }
-    void setdThetaBits(uint8_t bits) { m_rdodThetaBits = bits; }
-    float getPhiMin() const { return m_rdoPhiMin; }
-    float getPhiMax() const { return m_rdoPhiMax; }
-    uint8_t getPhiBits() const { return m_rdoPhiBits; }
-    float getRMin() const { return m_rdoRMin; }
-    float getRMax() const { return m_rdoRMax; }
-    uint8_t getRBits() const { return m_rdoRBits; }
-    float getdThetaMin() const { return m_rdodThetaMin; }
-    float getdThetaMax() const { return m_rdodThetaMax; }
-    uint8_t getdThetaBits() const { return m_rdodThetaBits; }
-    float m_rdoPhiMin, m_rdoPhiMax, m_rdoRMin, m_rdoRMax, m_rdodThetaMin, m_rdodThetaMax;
-    uint8_t m_rdoPhiBits, m_rdoRBits, m_rdodThetaBits;
-
-    // properties: container and service names
-    StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
-
-    BooleanProperty  m_doNtuple;                            //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
+    StatusCode book_branches();                       //!< book the branches
+    void clear_ntuple_variables();                    //!< clear the variables used in the analysis ntuple
+    void fillNtuple(const histogramDigitVariables& histDigVars) const;
 
     TTree* m_tree;                                          //!< ntuple for analysis
     std::vector<unsigned int>* m_trigger_diamond_ntrig;
@@ -194,75 +199,6 @@ namespace NSWL1 {
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposX;
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposY;
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposZ;
-    std::vector< std::vector<float> >  *m_NSWMM_dig_sr_time;
-    std::vector< std::vector<float> >  *m_NSWMM_dig_sr_charge;
-    std::vector< std::vector<int> >    *m_NSWMM_dig_sr_stripPosition;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripLposX;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripLposY;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposX;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposY;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposZ;
-
-    std::vector< int    > *m_NSWMM_dig_truth_barcode;
-    std::vector< double > *m_NSWMM_dig_truth_localPosX;
-    std::vector< double > *m_NSWMM_dig_truth_localPosY;
-    std::vector< double > *m_NSWMM_dig_truth_globalPosX;
-    std::vector< double > *m_NSWMM_dig_truth_globalPosY;
-    std::vector< double > *m_NSWMM_dig_truth_globalPosZ;
-    std::vector< float  > *m_NSWMM_dig_truth_XZ_angle;
-
-    std::vector<int>   *m_NSWMM_dig_stripForTrigger;
-    std::vector<float> *m_NSWMM_dig_stripTimeForTrigger;
-
-
-    std::vector<int>    *m_NSWMM_trackId;
-    std::vector<int>    *m_NSWMM_truthEl;
-    std::vector<double> *m_NSWMM_globalTime;
-    std::vector<double> *m_NSWMM_hitGlobalPositionX;
-    std::vector<double> *m_NSWMM_hitGlobalPositionY;
-    std::vector<double> *m_NSWMM_hitGlobalPositionZ;
-    std::vector<double> *m_NSWMM_hitGlobalPositionR;
-    std::vector<double> *m_NSWMM_hitGlobalPositionP;
-    std::vector<double> *m_NSWMM_hitGlobalDirectionX;
-    std::vector<double> *m_NSWMM_hitGlobalDirectionY;
-    std::vector<double> *m_NSWMM_hitGlobalDirectionZ;
-
-
-    std::vector<double> *m_NSWMM_detector_globalPositionX;
-    std::vector<double> *m_NSWMM_detector_globalPositionY;
-    std::vector<double> *m_NSWMM_detector_globalPositionZ;
-    std::vector<double> *m_NSWMM_detector_globalPositionR;
-    std::vector<double> *m_NSWMM_detector_globalPositionP;
-
-    std::vector<double> *m_NSWMM_hitToDsurfacePositionX;
-    std::vector<double> *m_NSWMM_hitToDsurfacePositionY;
-    std::vector<double> *m_NSWMM_hitToDsurfacePositionZ;
-
-    std::vector<double> *m_NSWMM_hitToRsurfacePositionX;
-    std::vector<double> *m_NSWMM_hitToRsurfacePositionY;
-    std::vector<double> *m_NSWMM_hitToRsurfacePositionZ;
-
-
-    std::vector<int> *m_NSWMM_particleEncoding;
-    std::vector<double> *m_NSWMM_kineticEnergy;
-    std::vector<double> *m_NSWMM_depositEnergy;
-
-    std::vector<std::string> *m_NSWMM_sim_stationName;
-    std::vector<int> *m_NSWMM_sim_stationEta;
-    std::vector<int> *m_NSWMM_sim_stationPhi;
-    std::vector<int> *m_NSWMM_sim_multilayer;
-    std::vector<int> *m_NSWMM_sim_layer;
-    std::vector<int> *m_NSWMM_sim_side;
-
-    std::vector<std::string> *m_NSWMM_off_stationName;
-    std::vector<int> *m_NSWMM_off_stationEta;
-    std::vector<int> *m_NSWMM_off_stationPhi;
-    std::vector<int> *m_NSWMM_off_multiplet;
-    std::vector<int> *m_NSWMM_off_gas_gap;
-    std::vector<int> *m_NSWMM_off_channel;
-
   };  // end of MMTriggerTool class
-
 } // namespace NSWL1
-
 #endif

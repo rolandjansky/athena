@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArWheelSolid.h"
 #include "LArFanSection.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
-#include<iostream>
-
+#include <iostream>
+#include <cassert>
 
 void LArFanSections::print(void) const
 {

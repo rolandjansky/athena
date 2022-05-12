@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/JetCalibUtils.h"
 #include "PathResolver/PathResolver.h"
+#include <utility>
 
 EtaJESCorrection::EtaJESCorrection()
   : JetCalibrationStep::JetCalibrationStep(),
@@ -287,7 +288,7 @@ double EtaJESCorrection::getLogPolNSlope(const double *factors, double x) const 
 }
 
 int EtaJESCorrection::getEtaBin(double eta_det) const {
-  int bin = m_etaBinAxis->FindBin(eta_det);
+  int bin = std::as_const(m_etaBinAxis)->FindBin(eta_det);
   if (bin<=0) return 0;
   if (bin>m_etaBinAxis->GetNbins()) return bin-2; // overflow
   return bin-1;

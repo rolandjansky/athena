@@ -14,12 +14,8 @@
 namespace Muon {
 
 MuonSegmentSelectionTool::MuonSegmentSelectionTool(const std::string& ty, const std::string& na, const IInterface* pa)
-    : AthAlgTool(ty, na, pa)
-{
-    declareInterface<IMuonSegmentSelectionTool>(this);
-    declareProperty("SegmentQualityCut", m_cutSegmentQuality = 10.);
-    declareProperty("MinADCPerSegmentCut", m_minAdcPerSegmentCut = 70.);
-    declareProperty("GoodADCFractionCut", m_adcFractionCut = -1.);
+    : AthAlgTool(ty, na, pa) {
+    declareInterface<IMuonSegmentSelectionTool>(this);    
 }
 
 StatusCode
@@ -43,10 +39,10 @@ MuonSegmentSelectionTool::quality(const MuonSegment& seg, bool ignoreHoles, bool
 
     // different treatment for CSC and MDT segments
     // mdt treatment
-    if (m_idHelperSvc->isMdt(chid)) return mdtSegmentQuality(seg, chid, ignoreHoles);
+    if (m_idHelperSvc->isMdt(chid)) return mdtSegmentQuality(seg, ignoreHoles);
 
     // csc segments
-    if (m_idHelperSvc->isCsc(chid)) return cscSegmentQuality(seg, chid, ignoreHoles, useEta, usePhi);
+    if (m_idHelperSvc->isCsc(chid)) return cscSegmentQuality(seg, useEta, usePhi);
 
     // rpc/tgc case
     if (m_idHelperSvc->isTgc(chid) || m_idHelperSvc->isRpc(chid)) return 1;
@@ -56,8 +52,7 @@ MuonSegmentSelectionTool::quality(const MuonSegment& seg, bool ignoreHoles, bool
 }
 
 int
-MuonSegmentSelectionTool::cscSegmentQuality(const MuonSegment& seg, const Identifier& /*chid*/, bool /*ignoreHoles*/,
-                                            bool useEta, bool usePhi) const
+MuonSegmentSelectionTool::cscSegmentQuality(const MuonSegment& seg, bool useEta, bool usePhi) const
 {
 
     // get hit counts
@@ -68,29 +63,29 @@ MuonSegmentSelectionTool::cscSegmentQuality(const MuonSegment& seg, const Identi
 
     // remove CSC segments with only 3  hits
     // unless either eta or phi are broken, in that case we accept the segment
-    if (hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta < 4 && useEta && usePhi) return -1;
+    if (hitCounts.ncscHits() < 4 && useEta && usePhi) return -1;
 
 
     /**********************************/
     /*       cuts for quality level 1 */
 
     // remove CSC segments with no layer with 4 hits
-    if (hitCounts.ncscHitsPhi != 4 && hitCounts.ncscHitsEta != 4) return 1;
+    if (hitCounts.ncscHits.nphiHits != 4 && hitCounts.ncscHits.netaHits != 4) return 1;
 
 
     /**********************************/
     /*      cuts for quality level 2  */
 
     // require hits in both projections
-    if (hitCounts.ncscHitsPhi == 0 || hitCounts.ncscHitsEta == 0) return 1;
+    if (!hitCounts.ncscHits.hasEtaAndPhi()) return 1;
 
 
     /**********************************/
     /*      cuts for quality level 3  */
 
     // require four hits in one of the projections and hits in the other
-    if ((hitCounts.ncscHitsEta == 4 && hitCounts.ncscHitsPhi != 4)
-        || (hitCounts.ncscHitsEta != 4 && hitCounts.ncscHitsPhi == 4))
+    if ((hitCounts.ncscHits.netaHits == 4 && hitCounts.ncscHits.nphiHits != 4)
+        || (hitCounts.ncscHits.netaHits != 4 && hitCounts.ncscHits.nphiHits == 4))
         return 2;
 
 
@@ -100,38 +95,41 @@ MuonSegmentSelectionTool::cscSegmentQuality(const MuonSegment& seg, const Identi
 }
 
 int
-MuonSegmentSelectionTool::nswSegmentQuality(const MuonSegment& seg, const Identifier& chid, bool /*ignoreHoles*/) const
-{
+MuonSegmentSelectionTool::nswSegmentQuality(const MuonSegment& seg, const Identifier& /*chid*/, bool /*ignoreHoles*/) const {
 
+    
     // get hit counts
     IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(seg);
+    const uint8_t nPrecHits = hitCounts.nnswHits();
+    /// For the moment count the micromega hits to precision eta hits
+    const uint8_t nPrecEtaHits = hitCounts.nmmEtaHits + hitCounts.nstgcHits.netaHits;
+    const uint8_t nPrecPhiHits =  nPrecHits - nPrecEtaHits;
 
+    const uint8_t nMM_Hits = hitCounts.nmmHits();
+    const uint8_t nSTGC_Hits = hitCounts.nstgcHits();
     /**********************************/
     /*       cuts for quality level 0 */
-
     // remove NSW segments with only 3  hits
-    if (hitCounts.ncscHitsEta < 4) return -1;
-
+    if (nPrecHits < 4) return -1;
 
     /**********************************/
     /*       cuts for quality level 1 */
 
-    // remove NSW segments with less than 8 hits
-    if (hitCounts.ncscHitsEta < 8) return 1;
-
+    // remove NSW segments where both chambers have below than 4 associated hits
+    if (std::max(nMM_Hits, nSTGC_Hits) < 4) return 0;
 
     /**********************************/
     /*      cuts for quality level 2  */
-
     // require hits in both projections
-    if (std::abs(m_idHelperSvc->stationEta(chid)) > 2 && hitCounts.ncscHitsPhi == 0) return 1;
+    if (nSTGC_Hits && !hitCounts.nstgcHits.hasEtaAndPhi()) return 1;
 
+    if (nMM_Hits && (!hitCounts.nmmEtaHits || !hitCounts.nmmStereoHits)) return 1;
 
     /**********************************/
     /*      cuts for quality level 3  */
 
     // require four hits in one of the projections and hits in the other
-    if (hitCounts.ncscHitsEta < 12 || (std::abs(m_idHelperSvc->stationEta(chid)) > 2 && hitCounts.ncscHitsPhi < 4))
+    if (nPrecHits < 12 || nPrecPhiHits < 4)
         return 2;
 
     /**********************************/
@@ -140,7 +138,7 @@ MuonSegmentSelectionTool::nswSegmentQuality(const MuonSegment& seg, const Identi
 }
 
 int
-MuonSegmentSelectionTool::mdtSegmentQuality(const MuonSegment& seg, const Identifier& /*chid*/, bool ignoreHoles) const
+MuonSegmentSelectionTool::mdtSegmentQuality(const MuonSegment& seg, bool ignoreHoles) const
 {
 
 

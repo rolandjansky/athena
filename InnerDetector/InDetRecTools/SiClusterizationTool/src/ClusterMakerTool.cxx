@@ -125,17 +125,17 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   
   const AtlasDetectorID* aid = element->getIdHelper();
-  const PixelID* pid = dynamic_cast<const PixelID*>(aid);
-  if (not pid){
-  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  if (aid->helper() != AtlasDetectorID::HelperType::Pixel){
+  	ATH_MSG_ERROR("Wrong helper type at "<<__LINE__<<" of ClusterMakerTool.cxx.");
   	return nullptr;
   }
-  
+  const PixelID* pid = static_cast<const PixelID*>(aid);
   if ( errorStrategy==2 && m_forceErrorStrategy1A ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
   if (!m_chargeDataKey.empty()) {
-    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
+    const PixelChargeCalibCondData *calibData = *calibDataHandle;
     int nRDO=rdoList.size();
     chargeList.reserve(nRDO);
     for (int i=0; i<nRDO; i++) {
@@ -144,9 +144,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 
       Identifier moduleID = pid->wafer_id(pixid);
       IdentifierHash moduleHash = pid->wafer_hash(moduleID);
-      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
       InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-      float charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+      float charge = calibData->getCharge(type, moduleHash, FE, ToT);
 
       chargeList.push_back(charge);
     }
@@ -296,7 +296,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   int nRDO=rdoList.size();
   if (!m_chargeDataKey.empty()) { 
     chargeList.reserve(nRDO); 
-    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
+    const PixelChargeCalibCondData *calibData = *calibDataHandle;
     for (int i=0; i<nRDO; i++) {
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
@@ -304,9 +305,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
       float charge = ToT;
       Identifier moduleID = pixelID.wafer_id(pixid);
       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
       InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-      charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+      charge = calibData->getCharge(type, moduleHash, FE, ToT);
       if (moduleHash<12 || moduleHash>2035) {
         charge = ToT/8.0*(8000.0-1200.0)+1200.0;
       }
@@ -383,11 +384,12 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   double zPitch = width.z()/colRow.y();
   
   const AtlasDetectorID* aid = element->getIdHelper();
-  const PixelID* pid = dynamic_cast<const PixelID*>(aid);
-  if (not pid){
-  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  
+  if (aid->helper() != AtlasDetectorID::HelperType::Pixel){
+  	ATH_MSG_ERROR("Wrong helper type at "<<__LINE__<<" of ClusterMakerTool.cxx.");
   	return nullptr;
   }
+  const PixelID* pid = static_cast<const PixelID*>(aid);
   int layer = pid->layer_disk(clusterID);
   int phimod = pid->phi_module(clusterID);
   switch (errorStrategy){

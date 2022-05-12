@@ -29,6 +29,8 @@ namespace xAOD{
     std::vector<int>      tobEy;
     std::vector<uint8_t>  tobRes;
     std::vector<uint8_t>  tobSat;
+    std::vector<int>      tobEtScale;
+    
 }; // class jFexMETRoIAuxContainer_v1
 
 }//end of namespace xAOD 

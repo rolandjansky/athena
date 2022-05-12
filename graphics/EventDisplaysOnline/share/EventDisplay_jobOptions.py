@@ -9,6 +9,8 @@ partitionName   = 'ATLAS'
 beamType          = 'collisions'
 #beamType          = 'cosmics'
 
+## Pause this thread until the ATLAS partition is up
+include ("EventDisplaysOnline/WaitForAtlas_jobOptions.py")
 
 ## ------------------------------------------- set online defaults for AthenaConfiguration.AllConfigFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -18,7 +20,6 @@ ConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
 autoConfigOnlineRecoFlags(ConfigFlags, partitionName)
 
 ## ------------------------------------------- update selected ConfigFlags if needed
-# ConfigFlags.Input.RunNumber = [390732]  # for testing with GMTestPartition
 ConfigFlags.Beam.Type = BeamType(beamType)
 
 ## ------------------------------------------- flags set in: RecExOnline_jobOptions.py  
@@ -31,15 +32,15 @@ isOfflineTest     = False
 #for the time being, running over file is not possible ONLINE (please see RecExOnline_File_Offline.py) 
 useEmon           = True
 #The number of machines per single monitoring task we run with helpfully labelled "keycount"
-keycount          = 30
-buffersize        = 10
+keycount          = 10 # equal or greater than the number of DCMs for beam splashes
+buffersize        = 10 # three times of keycount for beam splashes
 updateperiod      = 200
-timeout           = 600000
+timeout           = 600000 # 144000000 (40 hrs) for beam splashes
 
 keyname           = 'dcm'
 
 #Blank to read all
-streamName          = ''
+streamName          = '' # 'MinBias' for beam splashes
 
 #Read Physics
 streamType        = 'physics'          #Progonal Does not specify  these
@@ -59,6 +60,17 @@ publishName     = 'EventDisplays'
 
 if (partitionName == 'ATLAS'):
     evtMax            = -1
+    # from Pavol in 2021 beam splashes
+    # for beam plashes when LAr running in 32 samples mode, provide the current run number to LAr config
+    import ispy
+    from ispy import ISObject
+    obj = ispy.ISObject(ispy.IPCPartition(partitionName), 'RunParams.RunParams', 'RunParams')
+    obj.checkout()
+    # setting run number from IS, some configs need it
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber.set_Value_and_Lock(obj.run_number)
+
+
 
 #Don't flood if you are running on a test loop
 if (partitionName != 'ATLAS'):
@@ -75,9 +87,9 @@ InputFormat       = 'bytestream'
 fileName          = './0.data'
 
 #COND tag
-ConditionsTag     = 'CONDBR2-HLTP-2018-01'
+ConditionsTag     = 'CONDBR2-HLTP-2022-01'
 #Current DetDesc
-DetDescrVersion   = 'ATLAS-R2-2016-01-00-01'
+DetDescrVersion   = 'ATLAS-R3S-2021-02-00-00'
 
 doESD             = True
 writeESD          = True # False - Jiggins_12Feb_v2 working version switch 
@@ -91,10 +103,10 @@ doInDet     = doAllReco
 doMuon      = doAllReco
 doLArg      = doAllReco
 doTile      = doAllReco
-doTrigger   = doAllReco 
+doTrigger   = False # lshi 29 Apr 2022 need AthenaMT to turn on trigger reco again
 doHist      = False
 doJiveXML   = False
-doEgammaTau = False
+doEgammaTau = doAllReco # lshi Feb 18 2022 enable this to get rid of Electron error
 
 ## ------------------------------------------ flags set in : RecExOnline_monitoring.py (from from RecExOnline_jobOptions.py)
 doAllMon  = False
@@ -111,11 +123,10 @@ doMuonMon = doAllMon
 if not 'OutputDirectory' in dir():
   OutputDirectory="/atlas/EventDisplayEvents"
 
-## Pause this thread until the ATLAS partition is up
-include ("EventDisplaysOnline/WaitForAtlas_jobOptions.py")
-
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
+# set geometry tag before including RecExOnline. Otherwise something will initialize based on the default geometry tag which is Run2. lshi Apr 2022
+globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
 
 ## Setup unique output files (so that multiple Athenas on the same machine don't interfere)
 jobId = os.environ.get('TDAQ_APPLICATION_NAME', '').split(':')
@@ -137,16 +148,13 @@ from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doLArHVCorr=False
 jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False)
 jobproperties.CaloCellFlags.doLArCreateMissingCells=False
+ConfigFlags.LAr.doHVCorr = False # ATLASRECTS-6823
 
 #Work around to stop crash in pixel cluster splitting (Updated by lshi 23 July 2020, ATLASRECTS-5496)
 from InDetRecExample.InDetJobProperties import InDetFlags#All OK
 InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 
-from JetRec.JetRecFlags import jetFlags
-jetFlags.useTracks.set_Value_and_Lock(False)
-
 from RecExConfig.RecAlgsFlags import recAlgs
-recAlgs.doEFlow.set_Value_and_Lock(False)
 recAlgs.doMissingET.set_Value_and_Lock(False)
 
 ## from Global Monitoring 12 Oct 2021
@@ -154,10 +162,24 @@ from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.DetGeo.set_Value_and_Lock('atlas')
 jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25) # Needed for collisions
 
+if (partitionName != 'ATLAS'): # Can't get some information from the test partition
+     ConfigFlags.Input.RunNumber = [412343]
+     ConfigFlags.Input.ProjectName = 'data22_cos'
+     ## ERROR Missing ROBFragment with ID 0x760001 requested ATR-24151 13 Oct 2021 lshi
+     ConfigFlags.Trigger.L1.doMuon=False;
+     ConfigFlags.Trigger.L1.doCalo=False;
+     ConfigFlags.Trigger.L1.doTopo=False;
+     ConfigFlags.Trigger.doNavigationSlimming = False # ATR-24551
+
 ## Main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
 
 ToolSvc.InDetPixelRodDecoder.OutputLevel = ERROR
+
+topSequence.LArRawDataReadingAlg.FailOnCorruption=False
+
+# lshi from 2021 Pilot Beam: disable SCT in tracking for beam splashes
+#topSequence.InDetSiTrackerSpacePointFinder.ProcessSCTs     = False
 
 include ("EventDisplaysOnline/JiveXMLServer_jobOptions.py")
 include ("EventDisplaysOnline/Atlantis_jobOptions.py")
@@ -165,6 +187,9 @@ include ("EventDisplaysOnline/Atlantis_jobOptions.py")
 
 ## Disable histogramming
 svcMgr.ByteStreamInputSvc.ISServer=''
+
+if (partitionName != 'ATLAS'):
+     svcMgr.ByteStreamInputSvc.KeyValue = [ 'Test_emon_push' ]
 
 ################### Added by sjiggins 10/03/15 as given by Peter Van Gemmeren for name PoolFileatalogs
 svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:PoolFileCatalog_%s_%s.xml" % (jobId[3], jobId[4])

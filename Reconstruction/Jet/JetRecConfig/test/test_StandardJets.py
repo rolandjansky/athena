@@ -3,7 +3,8 @@
 
 
 # should choose a better default ??
-DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
+#DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
+DEFAULT_INPUTFILE = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root"
 
 from argparse import ArgumentParser
 parser = ArgumentParser(prog="StandardTests: runs standard jet reconstruction from an ESD",
@@ -18,7 +19,7 @@ parser.add_argument("-n", "--nEvents",  default=10, type=int, help="The number o
 #
 parser.add_argument("-t", "--nThreads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
 parser.add_argument("-D", "--dumpSG",   default=False, action="store_true", help="Toggle StoreGate dump on each event")
-parser.add_argument("-j", "--jetType",   default="smallR", type=str, choices={"smallR","largeR", "cssk", "VR"},
+parser.add_argument("-j", "--jetType",   default="smallR", type=str, choices={"smallR","largeR", "cssk", "VR", "deriv"},
                     help="the type of jet definitions to test")
 
 #
@@ -104,6 +105,18 @@ elif args.jetType=='VR':
     from JetRecConfig.StandardSmallRJets import AntiKtVR30Rmax4Rmin02PV0Track
     jetdefs = [AntiKtVR30Rmax4Rmin02PV0Track]
     alljetdefs = jetdefs
+# Derivation test
+elif args.jetType=='deriv':
+    from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKtVR30Rmax4Rmin02PV0Track
+    from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed, AntiKt10TruthTrimmed
+    # Not in AOD
+    jetdefs = [AntiKt4Truth,AntiKtVR30Rmax4Rmin02PV0Track,AntiKt10TruthTrimmed,AntiKt10LCTopoTrimmed]
+    # In AOD, need renaming
+    DerivAntiKt4EMTopo = AntiKt4EMTopo.clone(prefix="Deriv",modifiers=list(AntiKt4EMTopo.modifiers)+["QGTagging"])
+    DerivAntiKt4EMPFlow = AntiKt4EMPFlow.clone(prefix="Deriv",modifiers=list(AntiKt4EMPFlow.modifiers)+["QGTagging","fJVT","NNJVT"])
+    jetdefs += [DerivAntiKt4EMTopo,DerivAntiKt4EMPFlow]
+    alljetdefs = jetdefs
+
 
 # ***********************************************
 if args.nEvents == 0:
@@ -166,4 +179,5 @@ pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 cfg.getService("StoreGateSvc").Dump = args.dumpSG
 
 # Run the job
-cfg.run(maxEvents=args.nEvents)
+if args.nEvents>0:
+    cfg.run(maxEvents=args.nEvents)

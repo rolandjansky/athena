@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_ABSTRACTL1CALOPERSISTENTCONDITION_H
@@ -26,8 +26,8 @@ class AbstractL1CaloPersistentCondition : public IL1CaloPersistenceCapable {
 
     virtual DataObject* makePersistent() const;
 
-    virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
-    virtual void makeTransient(const std::map<std::string, AthenaAttributeList*>& condAttributeList);
+    virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap);
+    virtual void makeTransient(const std::map<std::string, const AthenaAttributeList*>& condAttributeList);
 
     std::string specificationName(int specId) const;
 	std::string specificationType(int specId) const;

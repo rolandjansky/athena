@@ -1,13 +1,17 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthHitMonAlg.cxx
+ * @brief Reads Pixel RDO information and fills it into histograms 
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthHitMonAlg.h"
 #include <stdexcept>
 
 PixelAthHitMonAlg::PixelAthHitMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelid(nullptr) {
+  AthMonitorAlgorithm(name, pSvcLocator)
+{
   //jo flags
   declareProperty("doOnline", m_doOnline = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
@@ -18,12 +22,10 @@ PixelAthHitMonAlg::PixelAthHitMonAlg(const std::string& name, ISvcLocator* pSvcL
 }
 
 StatusCode PixelAthHitMonAlg::initialize() {
-  ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
-  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-  ATH_CHECK(m_pixelReadout.retrieve());
+  ATH_CHECK( PixelAthMonitoringBase::initialize());
   ATH_CHECK(m_pixelRDOName.initialize());
 
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
@@ -55,14 +57,16 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   bool copyFEval(false);
 
   AccumulatorArrays hitsPerEventArray = {{{0}}, {{0}}, {{0}}, {{0}}, {{0}}, {{0}}};
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_status = getPixelDetElStatus(m_pixelDetElStatus, ctx);
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly, ctx);
   // for inactive or bad modules init corresponding arrays entries to -1
   for (auto idIt = m_pixelid->wafer_begin(); idIt != m_pixelid->wafer_end(); ++idIt) {
     Identifier waferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
-    if (m_pixelCondSummaryTool->isActive(id_hash) == false) {
-      getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
+    if (isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr, id_hash) == false) {
+      getPhiEtaMod(waferID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA:
         hitsPerEventArray.DA[phiMod][etaMod] = -1;
@@ -72,15 +76,15 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
         hitsPerEventArray.DC[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB0:
+      case PixLayers::kBLayer:
         hitsPerEventArray.B0[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB1:
+      case PixLayers::kLayer1:
         hitsPerEventArray.B1[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB2:
+      case PixLayers::kLayer2:
         hitsPerEventArray.B2[phiMod][etaMod] = -1;
         break;
 
@@ -112,25 +116,42 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
   for (; idIt != idItEnd; ++idIt) {
     Identifier waferID = *idIt;
-    IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
+    IdentifierHash modHash = m_pixelid->wafer_hash(waferID);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
 
-    if (m_pixelCondSummaryTool->isActive(id_hash) == true) {
-      if (pixlayer == PixLayers::kIBL && m_pixelid->eta_module(waferID) > -7 &&
-          m_pixelid->eta_module(waferID) < 6) nActive_layer[pixlayer] += 2;
-      else nActive_layer[pixlayer]++;
-
-      if (m_pixelCondSummaryTool->isGood(id_hash) == true) {
-        if (pixlayer == PixLayers::kIBL && m_pixelid->eta_module(waferID) > -7 &&
-            m_pixelid->eta_module(waferID) < 6) nGood_layer[pixlayer] += 2;
-        else nGood_layer[pixlayer]++;
+    if (pixlayer == PixLayers::kIBL)
+      {
+	// normalization per FE for IBL
+	//
+	int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
+	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	for (int iFE=0; iFE<nFE; iFE++) {
+	  Identifier pixID = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
+	  if (not pixID.is_valid()) continue;
+	  auto [is_active,is_good] = isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
+						 !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
+						 modHash, iFE);
+	  if (not is_active) continue;
+	  nActive_layer[iblsublayer]++;
+	  if (is_good) nGood_layer[iblsublayer]++;
+	}
       }
-    }
+    else
+      {
+	// normalization per module for the old pixel layers
+	//
+	bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr, modHash);
+	bool is_good   = isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr, modHash);
+	if (is_active) {
+	  nActive_layer[pixlayer]++;
+	  if (is_good) nGood_layer[pixlayer]++;
+	}
+      }
   }
 
   const int nChannels_mod[PixLayers::COUNT] = {
-    46080, 46080, 46080, 46080, 46080, 26880
+    46080, 46080, 46080, 46080, 46080, 26880, 26880
   };
   float nGoodChannels_layer[PixLayers::COUNT];
   float nActiveChannels_layer[PixLayers::COUNT];
@@ -146,38 +167,34 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   ATH_MSG_DEBUG("Filling Raw Hit (RDO) Monitoring Histograms");
 
 
-  VecAccumulator2DMap HitMap("HitMap");
-  VecAccumulator2DMap HitFEMap("HitFEMap");
+  VecAccumulator2DMap HitMap(*this, "HitMap");
+  VecAccumulator2DMap HitFEMap(*this, "HitFEMap");
   std::vector<int> hitLvl1a;
   std::unordered_map<int, std::vector<int> > hitLvl1aLayer;
   std::unordered_map<int, std::vector<int> > hitToTLayer;
 
   Identifier rdoID;
-  PixelRDO_Container::const_iterator colNext = rdocontainer->begin();
-  PixelRDO_Container::const_iterator lastCol = rdocontainer->end();
-  DataVector<PixelRDORawData>::const_iterator p_rdo;
 
-  for (; colNext != lastCol; ++colNext) {
-    const InDetRawDataCollection<PixelRDORawData>* PixelCollection(*colNext);
-    if (!PixelCollection) {
+  for (auto colNext: *rdocontainer) {
+    const InDetRawDataCollection<PixelRDORawData>* HitCollection(colNext);
+    if (!HitCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Hit container is empty.");
       auto dataread_err = Monitored::Scalar<int>("hitdataread_err", DataReadErrors::CollectionInvalid);
       fill(hitGroup, dataread_err);
       continue;
     }
 
-    for (p_rdo = PixelCollection->begin(); p_rdo != PixelCollection->end(); ++p_rdo) {
-      rdoID = (*p_rdo)->identify();
+    for (auto p_rdo: *HitCollection) {
+      rdoID = p_rdo->identify();
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID));
       if (pixlayer == 99) continue;
-      HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
-      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelReadout->getFE(rdoID, rdoID), 1.0);
+
+      HitMap.add(pixlayer, rdoID, 1.0);
+      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelReadout->getFE(rdoID, rdoID), 1.0);
+
       nhits++;
-      nhits_layer[pixlayer]++;
-      hitLvl1a.push_back((*p_rdo)->getLVL1A());
-      hitLvl1aLayer[pixlayer].push_back((*p_rdo)->getLVL1A());
-      hitToTLayer[pixlayer].push_back((*p_rdo)->getToT());
-      getPhiEtaMod(m_pixelid, rdoID, phiMod, etaMod, copyFEval);
+      hitLvl1a.push_back(p_rdo->getLVL1A());
+      getPhiEtaMod(rdoID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA:
         hitsPerEventArray.DA[phiMod][etaMod]++;
@@ -187,15 +204,15 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
         hitsPerEventArray.DC[phiMod][etaMod]++;
         break;
 
-      case PixLayers::kB0:
+      case PixLayers::kBLayer:
         hitsPerEventArray.B0[phiMod][etaMod]++;
         break;
 
-      case PixLayers::kB1:
+      case PixLayers::kLayer1:
         hitsPerEventArray.B1[phiMod][etaMod]++;
         break;
 
-      case PixLayers::kB2:
+      case PixLayers::kLayer2:
         hitsPerEventArray.B2[phiMod][etaMod]++;
         break;
 
@@ -203,6 +220,13 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
         hitsPerEventArray.IBL[phiMod][etaMod]++;
         break;
       }
+      if (pixlayer == PixLayers::kIBL) 
+	{
+	  pixlayer = (m_pixelid->eta_module(rdoID) > -7 && m_pixelid->eta_module(rdoID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	}
+      nhits_layer[pixlayer]++;
+      hitLvl1aLayer[pixlayer].push_back(p_rdo->getLVL1A());
+      hitToTLayer[pixlayer].push_back(p_rdo->getToT());
     }
   }
 
@@ -248,9 +272,13 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   fill1DProfLumiLayers("AvgOccActivePerLumi", lb, avgocc_active_layer);
   fill1DProfLumiLayers("AvgOccGoodPerLumi", lb, avgocc_good_layer);
 
-  if (avgocc_good_layer[PixLayers::kIBL] > 0) {
+  
+  float nGoodChannels_ibl = nGoodChannels_layer[PixLayers::kIBL2D] + nGoodChannels_layer[PixLayers::kIBL3D];
+  float avgocc_good_ibl(0);
+  if (nGoodChannels_ibl>0) avgocc_good_ibl = (nhits_layer[PixLayers::kIBL2D] + nhits_layer[PixLayers::kIBL3D])/nGoodChannels_ibl;
+  if (avgocc_good_ibl > 0) {
     for (int i = 0; i < PixLayers::COUNT; i++) {
-      avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
+      avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_ibl;
     }
     fill1DProfLumiLayers("AvgOccRatioToIBLPerLumi", lb, avgocc_ratio_toIBL_layer);
   }

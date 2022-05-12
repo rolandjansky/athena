@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H8CalibSDTool.h"
@@ -8,17 +8,7 @@
 
 #include "LArG4Code/LArG4CalibSD.h"
 #include "LArG4Code/EscapedEnergyProcessing.h"
-// #include "LArG4Code/CalibrationDefaultCalculator.h"
-// #include "CaloG4Sim/VEscapedEnergyProcessing.h"
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
-
-// #include "LArG4Barrel/PresamplerCalibrationCalculator.h"
-// #include "LArG4Barrel/LArBarrelCalibrationCalculator.h"
-
-// #include "LArTBCryostatCalibrationCalculator.h"
-// #include "H8CalibrationDefaultCalculator.h"
-
-// #include "CaloG4Sim/CalibrationDefaultProcessing.h"
 
 
 LArG4H8CalibSDTool::LArG4H8CalibSDTool(const std::string& type, const std::string& name, const IInterface *parent)
@@ -88,9 +78,9 @@ StatusCode LArG4H8CalibSDTool::initializeSD()
   ATH_MSG_DEBUG( " **** Call  LArG4H8CalibSD::initializeProcessing() " );
 
   // Initialize the escaped energy processing for LAr volumes.
-  CaloG4::VEscapedEnergyProcessing* eep = new EscapedEnergyProcessing(m_uninstSD);
+  std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep(new EscapedEnergyProcessing(m_uninstSD));
   CaloG4::EscapedEnergyRegistry* registry = CaloG4::EscapedEnergyRegistry::GetInstance();
-  registry->AddAndAdoptProcessing( "LAr::", eep );
+  registry->AddAndAdoptProcessing( "LAr::", std::move(eep) );
 
   return StatusCode::SUCCESS;
 }

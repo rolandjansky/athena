@@ -1,0 +1,73 @@
+#
+#   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Separate blocks with ---
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Efficiency/pcb_eta(?P<eta>.)_(?P=side)Side_phi(?P<phi>[0-9]|[0-9]{1,2})_multiplet(?P<ml>.)_gas_gap(?P<gasgap>.)_vs_hitcut']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Efficiency_per_PCB_eta{eta}_E{side}']
+Function : MMRawDataMonitoring.MMPostProcessing.make_eff_histo_per_PCB
+Description: make_eff_histo_per_PCB
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Residuals/residuals_(?P=side)Side_phi(?P<phi>[0-9]|[0-9]{1,2})_stationEta(?P<eta>.)_multiplet(?P<ml>.)_gas_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/Map_Residuals_Sigma_Eta{eta}_E{side}','Muon/MuonRawDataMonitoring/MM/Overview/Map_Residuals_Mean_Eta{eta}_E{side}']
+Function : MMRawDataMonitoring.MMPostProcessing.residual_map
+Description: residual_map
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Charge_perLayer/Charge_(?P=side)Side_stPhi(?P<phi>[0-9]|[0-9]{1,2})_stEta(?P<eta>.)_multiplet(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Charge_eta{eta}_E{side}_perLayer']
+Function : MMRawDataMonitoring.MMPostProcessing.charge_map_perLayer
+Description : charge_map_perLayer
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Cluster_size_perPCB/Cluster_size_vs_PCB_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Cluster_size_eta{eta}_E{side}']
+Parameters: { histo_name : 'Cluster_size_vs_PCB', start_index : 34, proctype : 'mean' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_cluster_size
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Cluster_size_ontrack/Cluster_size_vs_PCB_ontrack_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Cluster_size_ontrack_eta{eta}_E{side}']
+Parameters: { histo_name : 'Cluster_size_vs_PCB_ontrack', start_index : 42, proctype : 'mean' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_cluster_size_ontrack
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Segments/Cluster_size_onseg/Cluster_size_vs_PCB_onseg_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Cluster_size_onseg_eta{eta}_E{side}']
+Parameters: { histo_name : 'Cluster_size_vs_PCB_onseg', start_index : 40, proctype : 'mean' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_cluster_size_onseg
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Cluster_time_perPCB/Cluster_time_vs_PCB_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Cluster_time_eta{eta}_E{side}']
+Parameters: { histo_name : 'Cluster_time_vs_PCB', start_index : 34, proctype : 'gaus' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_cluster_time
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Cluster_time_ontrack/Cluster_time_ontrack_vs_PCB_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Cluster_time_ontrack_eta{eta}_E{side}']
+Parameters: { histo_name : 'Cluster_time_ontrack_vs_PCB', start_index : 42, proctype : 'gaus' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_cluster_time_ontrack
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Segments/Cluster_time_onseg/Cluster_time_onseg_vs_PCB_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Cluster_time_onseg_eta{eta}_E{side}']
+Parameters: { histo_name : 'Cluster_time_onseg_vs_PCB', start_index : 40, proctype : 'gaus' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_cluster_time_onseg
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Charge_perPCB/Charge_vs_PCB_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Charge_eta{eta}_E{side}']
+Parameters: { histo_name : 'Charge_vs_PCB', start_index : 28, proctype : 'landau' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_charge
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Charge_ontrack/Charge_vs_PCB_ontrack_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Charge_ontrack_eta{eta}_E{side}']
+Parameters: { histo_name : 'Charge_vs_PCB_ontrack', start_index : 36, proctype : 'landau' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_charge_ontrack
+---
+Input : ['Muon/MuonRawDataMonitoring/MM/(?P<side>A|C)Side/Segments/Charge_onseg/Charge_vs_PCB_onseg_(?P=side)Side_eta(?P<eta>.)_phi(?P<phi>[0-9]|[0-9]{1,2})_ml(?P<ml>.)_gap(?P<gasgap>.)']
+Output : ['Muon/MuonRawDataMonitoring/MM/Overview/MMG_Charge_onseg_eta{eta}_E{side}']
+Parameters: { histo_name : 'Charge_vs_PCB_onseg', start_index : 34, proctype : 'landau' }
+Function : MMRawDataMonitoring.MMPostProcessing.map_per_PCB
+Description : map_per_PCB_charge_onseg

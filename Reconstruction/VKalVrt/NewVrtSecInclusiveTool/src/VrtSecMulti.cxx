@@ -63,6 +63,7 @@ namespace Rec{
 
 //---
       ATH_MSG_DEBUG(" Defined edges in the graph="<< num_edges(*m_compatibilityGraph));
+      if(num_edges(*m_compatibilityGraph)==0){ return finalVertices;} //No vertices!
 
 //
 //  m_Incomp[]           -  main vector of pointers for multivertex search

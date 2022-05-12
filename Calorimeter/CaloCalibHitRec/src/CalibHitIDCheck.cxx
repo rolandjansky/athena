@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************************
@@ -306,7 +306,7 @@ void CalibHitIDCheck::check(int l_cnt) {
       break;
 
     case 4:
-      if( !(m_id_helper->is_lar_dm(id))  & 
+      if( !(m_id_helper->is_lar_dm(id))  &&
           //It's normal to find Tile DM ID 
           //recorded by Default Calculator
           !(m_id_helper->is_tile_dm(id))  ) {

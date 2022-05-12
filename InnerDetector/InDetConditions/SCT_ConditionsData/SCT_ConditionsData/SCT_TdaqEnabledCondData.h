@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -60,6 +60,7 @@ public:
   /// Clear m_goodRods, m_goodIds, m_noneBad, m_filled
   void clear();
 
+  const std::set<IdentifierHash> &goodIdHashes() const { return m_goodIds; }
 private:
 
   std::set<unsigned int> m_goodRods;

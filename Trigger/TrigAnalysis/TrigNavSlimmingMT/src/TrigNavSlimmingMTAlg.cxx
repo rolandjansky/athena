@@ -291,7 +291,7 @@ StatusCode TrigNavSlimmingMTAlg::inputToOutput(
 }
 
 
-StatusCode TrigNavSlimmingMTAlg::propagateSeedingRelation(  
+StatusCode TrigNavSlimmingMTAlg::propagateSeedingRelation( 
   const TrigCompositeUtils::NavGraphNode* inputNode, 
   IOCacheMap& cache,
   const EventContext& ctx) const
@@ -313,6 +313,31 @@ StatusCode TrigNavSlimmingMTAlg::propagateSeedingRelation(
     }
     // Perform the linking only using nodes from the slimmed output graph
     TrigCompositeUtils::linkToPrevious(outputDecision, outputSeedDecision, ctx);
+  }
+
+  // Don't run this check for "HLTPassRaw", this node is expected to link back to every passing physics object. 
+  // Hence there may be more than 'sensibleUpperBoundOnNLinks' in aggregate here.
+  if (m_runtimeValidation and outputDecision->name() != TrigCompositeUtils::summaryPassNodeName()) { 
+    const size_t sensibleUpperBoundOnNLinks = 100;
+    const size_t maxUpperBoundOnNLinks = 500;
+    // Note: Only in the NavGraphNode do we have the two-way links to check how many children link back to this node
+    const bool bad_in = inputNode->children().size() > sensibleUpperBoundOnNLinks; 
+    //Note: Here we check more than "seed" links. We pick up external links too like "feature"
+    const bool bad_out = outputDecision->linkColNames().size() > sensibleUpperBoundOnNLinks; 
+    const bool vbad = inputNode->children().size() > maxUpperBoundOnNLinks or outputDecision->linkColNames().size() > maxUpperBoundOnNLinks;
+    if (bad_in) {
+      ATH_MSG_WARNING("Saving a Decision object with a very large number of INCOMING graph edges. Number of in-edges: " << inputNode->children().size());
+    }
+    if (bad_out) {
+      ATH_MSG_WARNING("Saving a Decision object with a very large number of OUTGOING graph edges. Number of out-edges: " << outputDecision->linkColNames().size());
+    }
+    if (bad_in or bad_out) {
+      ATH_MSG_WARNING("Comes from: " << TrigCompositeUtils::decisionToElementLink(inputDecision, ctx).dataID());
+      ATH_MSG_DEBUG("Output Decision: " << *outputDecision);
+    }
+    if (vbad) {
+      ATH_MSG_ERROR("More than " << maxUpperBoundOnNLinks << " links, printing an ERROR such that this gets promptly investigated and reduced.");
+    }
   }
   return StatusCode::SUCCESS;
 }

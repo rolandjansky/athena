@@ -43,9 +43,9 @@ namespace TrigConf {
          : DBLoader("CTPFilesLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~CTPFilesLoader(){};
+      virtual ~CTPFilesLoader() override = default;
 
-      virtual bool load( CTPFiles& data);
+      virtual bool load( CTPFiles& data) override;
 
    private:
     

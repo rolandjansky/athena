@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauRecMerged.h"
@@ -203,7 +203,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
-  if(roisHandle->size() == 0){
+  if(roisHandle->empty()){
     ATH_MSG_ERROR("RoIHandle size = Zero");
     return StatusCode::FAILURE;
   }
@@ -243,11 +243,11 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_trigtauRecOutKey, ctx);
   ATH_CHECK(outputTauHandle.record(std::move(pContainer),std::move(pAuxContainer)));
 
-  xAOD::TauJet* tau(0);
-  xAOD::TauJet* p_tau(0);
+  xAOD::TauJet* tau(nullptr);
+  xAOD::TauJet* p_tau(nullptr);
 
   ATH_CHECK(deepCopy(outputTauHandle, tau, pTauContainer));
-  if(outputTauHandle->size()>0) p_tau = outputTauHandle->back();
+  if(!outputTauHandle->empty()) p_tau = outputTauHandle->back();
 
   std::unique_ptr<xAOD::TauTrackContainer>    pTrackContainer    = std::make_unique<xAOD::TauTrackContainer>();
   std::unique_ptr<xAOD::TauTrackAuxContainer> pTrackAuxContainer = std::make_unique<xAOD::TauTrackAuxContainer>();
@@ -257,7 +257,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG("  write: " << tauTrackHandle.key() << " = " << "..." );
   ATH_CHECK(tauTrackHandle.record(std::move(pTrackContainer), std::move(pTrackAuxContainer)));
 
-  xAOD::TauTrack* tautrack(0);
+  xAOD::TauTrack* tautrack(nullptr);
 
   ATH_CHECK(deepCopy(tauTrackHandle, tautrack, pTauTrackContainer));
 
@@ -277,8 +277,8 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     if(RoICaloClusterContainer != nullptr) {
       ATH_MSG_DEBUG( "CaloCluster container found of size: " << RoICaloClusterContainer->size());
       //If size is zero, don't stop just continue to produce empty TauJetCollection
-      if( RoICaloClusterContainer->size() < 1) {
-          calo_errors.push_back(NoClustCont);
+      if(RoICaloClusterContainer->empty()) {
+	calo_errors.push_back(NoClustCont);
       }
     }
     else {
@@ -325,7 +325,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
       aJet->addConstituent(*clusterIt);
 
       TauBarycenter += myCluster;
-
     }
 	 
     aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
@@ -446,8 +445,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 
     outputTauHandle->pop_back();
 
-    ATH_MSG_DEBUG("Clean up done after jet seed");
-  
+    ATH_MSG_DEBUG("Clean up done after jet seed");  
   }
   else {
 
@@ -559,7 +557,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
         float nSCTHitsPlusDeadSensors = -999;     
         if (success1_sct_hits && success2_sct_dead) {nSCTHitsPlusDeadSensors=sct_hits + sct_dead;};                               
         track_nSCTHitsPlusDeadSensors.push_back(nSCTHitsPlusDeadSensors);
-
     }
 
     RNN_clusternumber = p_tau->clusters().size();
@@ -567,7 +564,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     // cluster variables monitoring
     for ( auto cluster : p_tau->clusters()){
 
-        auto cls = dynamic_cast<const xAOD::CaloCluster*>(cluster); 
+        auto cls = dynamic_cast<const xAOD::CaloCluster*>(cluster);
 
         cluster_et_log.push_back(std::log10( cls->et()));
         cluster_dEta.push_back( cls->eta()- p_tau->eta());
@@ -586,8 +583,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
         double center_lambda = -999.;
         const auto success_CENTER_LAMBDA = cls->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, center_lambda);
         if (success_CENTER_LAMBDA) center_lambda = std::log10(center_lambda + 1e-6);
-        cluster_CENTER_LAMBDA.push_back(center_lambda);
-     
+        cluster_CENTER_LAMBDA.push_back(center_lambda);     
     }
 
     // monitoring tau vertex
@@ -659,4 +655,3 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   
   return StatusCode::SUCCESS;
 }
-

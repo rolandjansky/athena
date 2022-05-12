@@ -10,8 +10,8 @@ public:
   PFTrackFiller(){};
   ~PFTrackFiller(){};
 
-  void fillTracksToRecover(PFData &data) const;
-  void fillTracksToConsider(PFData &data, eflowRecTrackContainer &recTrackContainer) const;
+  static void fillTracksToRecover(PFData &data) ;
+  static void fillTracksToConsider(PFData &data, eflowRecTrackContainer &recTrackContainer) ;
 
 };
 #endif

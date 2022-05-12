@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -40,7 +40,7 @@ class VP1TrackSystem : public IVP13DSystemSimple {
 
 public:
 
-  VP1TrackSystem(QString name="Tracks");
+  VP1TrackSystem(const QString& name="Tracks");
   virtual ~VP1TrackSystem();
 
   void systemcreate(StoreGateSvc* detstore);

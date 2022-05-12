@@ -904,7 +904,7 @@ InDetIterativePriVxFinderTool::removeAllFrom(
 void
 InDetIterativePriVxFinderTool::countTracksAndNdf(xAOD::Vertex* myxAODVertex,
                                                  double& ndf,
-                                                 int& ntracks) const
+                                                 int& ntracks) 
 {
   if (myxAODVertex) {
     ndf = myxAODVertex->numberDoF();

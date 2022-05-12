@@ -41,7 +41,7 @@ StatusCode AFPTDBasicTool::initialize()
   ATH_MSG_INFO("Station with ID="<<m_stationID <<" will have minimum number of "<<m_minHitsNumber <<" bars.");
   ATH_MSG_INFO("Maximal length of signal  at which bar can be joined to the track  m_maxAllowedLength = "<<m_maxAllowedLength);
 
-  CHECK( m_hitContainerKey.initialize() );
+  CHECK( m_hitContainerKey.initialize( SG::AllowEmpty ) );
 
   return StatusCode::SUCCESS;
 }
@@ -71,6 +71,12 @@ void AFPTDBasicTool::fillTrainWithBars(std::vector<const xAOD::AFPToFHit*> my_tr
 
 StatusCode AFPTDBasicTool::reconstructTracks(std::unique_ptr<xAOD::AFPToFTrackContainer>& outputContainer, const EventContext& ctx) const
 {
+
+  if (m_hitContainerKey.empty()) {
+    // this is allowed, there might be no AFP data in the input
+    return StatusCode::SUCCESS;
+  }
+
   SG::ReadHandle<xAOD::AFPToFHitContainer> hitContainer( m_hitContainerKey, ctx );
   if(!hitContainer.isValid())
   {

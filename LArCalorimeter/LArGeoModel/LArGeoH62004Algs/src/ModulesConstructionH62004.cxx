@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ModulesConstructionH62004
@@ -55,92 +55,83 @@
 
 #include "LArG4RunControl/LArGeoTB2004Options.h"
 
-float LArGeo::ModulesConstructionH62004::s_dX[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_dY[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_dZ[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_angleX[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_angleY[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_angleZ[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_shiftX[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_shiftY[NUM_LEAK];
-float LArGeo::ModulesConstructionH62004::s_shiftZ[NUM_LEAK];
+
+LArGeo::ModulesConstructionH62004::LeakGeom::LeakGeom()
+{
+  for(int i=0; i<NUM_LEAK; ++i) {
+    m_dX[i] = m_dY[i] = m_dZ[i] = 0.;
+    m_shiftX[i] = m_shiftY[i] = m_shiftZ[i] = 0.;
+    m_angleX[i] = m_angleY[i] = m_angleZ[i] = 0.;
+  }
+
+  m_dX[0] = m_dX[1] = 1.*Gaudi::Units::cm; m_dY[0]= m_dY[1] = 31.6*Gaudi::Units::cm; m_dZ[0] = m_dZ[1] = 50.*Gaudi::Units::cm; 
+  m_shiftX[0] = -26.*Gaudi::Units::cm; m_shiftX[1] = -m_shiftX[0];
+  m_shiftY[0] = m_shiftY[1] = 85.1*Gaudi::Units::cm; m_shiftZ[0] = m_shiftZ[1] = -3.*Gaudi::Units::cm;
+  m_angleX[0] = m_angleX[1] = 4.668*Gaudi::Units::deg; m_angleZ[0] = m_angleZ[1] = 0.*Gaudi::Units::deg;
+  m_angleY[0] = -30.*Gaudi::Units::deg; m_angleY[1] = -m_angleY[0]; 
+  m_dX[2] = 98.1*Gaudi::Units::cm; m_dY[2] = 98.2*Gaudi::Units::cm; m_dZ[2] = 30.6*Gaudi::Units::cm;
+  m_shiftX[2] = 0.*Gaudi::Units::cm; m_shiftY[2] = 89.7*Gaudi::Units::cm; m_shiftZ[2] = -42.*Gaudi::Units::cm;
+  m_angleX[2] = 94.668*Gaudi::Units::deg; m_angleY[2] = 0.; m_angleZ[2] = 90.*Gaudi::Units::degree;
+    
+    
+  m_dX[3] = 1.*Gaudi::Units::cm; m_dY[3] = 43.*Gaudi::Units::cm; m_dZ[3] = 40.*Gaudi::Units::cm;
+  m_dX[4] = m_dX[3]; m_dY[4] = m_dY[3]; m_dZ[4] = m_dZ[3];
+  m_shiftX[3] = -58.5*Gaudi::Units::cm; m_shiftY[3] = 12.2*Gaudi::Units::cm; m_shiftZ[3] = 5.*Gaudi::Units::cm;
+  m_shiftX[4] = -m_shiftX[3]; m_shiftY[4] = m_shiftY[3]; m_shiftZ[4] = m_shiftZ[3];
+  m_angleX[3] = m_angleX[4] = 4.668*Gaudi::Units::deg; m_angleY[3] = -45.*Gaudi::Units::deg; 
+  m_angleY[4] = -m_angleY[3]; 
+  m_angleZ[3] = 0.*Gaudi::Units::deg; 
+  m_angleZ[4] = -m_angleZ[3];
+  m_dX[5] = 130.*Gaudi::Units::cm; m_dY[5] = 131.*Gaudi::Units::cm; m_dZ[5] = 43.*Gaudi::Units::cm; 
+  m_shiftX[5] = 0.*Gaudi::Units::cm; m_shiftY[5] = 18.1*Gaudi::Units::cm; m_shiftZ[5] = -62.*Gaudi::Units::cm;
+  m_angleX[5] = 94.668*Gaudi::Units::deg; m_angleY[5] = 0.*Gaudi::Units::deg;
+  m_angleZ[5] = 90.*Gaudi::Units::deg;
+
+  m_dX[6] = m_dX[7] = 1.*Gaudi::Units::cm; m_dY[6] = m_dY[7] = 27.*Gaudi::Units::cm; m_dZ[6] = m_dZ[7] = 40.*Gaudi::Units::cm; 
+  m_shiftX[6] = -58.*Gaudi::Units::cm; m_shiftY[6] = m_shiftY[7] = -57.85*Gaudi::Units::cm; m_shiftZ[6] = m_shiftZ[7] = -1.*Gaudi::Units::cm;
+  m_shiftX[7] = - m_shiftX[6]; 
+  m_angleX[6] = m_angleX[7] = 4.668*Gaudi::Units::deg; m_angleY[6] = -45.*Gaudi::Units::deg; m_angleZ[6] = m_angleZ[7] = 0.*Gaudi::Units::deg;
+  m_angleY[7] = -m_angleY[6];
+  m_dX[8] = 130.*Gaudi::Units::cm; m_dY[8] = 131.*Gaudi::Units::cm; m_dZ[8] = 27.*Gaudi::Units::cm;
+  m_shiftX[8] = 0.*Gaudi::Units::cm; m_shiftY[8] = -51.9*Gaudi::Units::cm; m_shiftZ[8] = -67.*Gaudi::Units::cm;
+  m_angleX[8] = 94.668*Gaudi::Units::degree; m_angleY[8] = 0.*Gaudi::Units::degree; m_angleZ[8] = 90.*Gaudi::Units::degree;
+  m_dX[9] = 1.*Gaudi::Units::cm; m_dY[9] = 82.*Gaudi::Units::cm; m_dZ[9] = 44.5*Gaudi::Units::cm;
+  m_shiftX[9] = 0.*Gaudi::Units::cm; m_shiftY[9] = -89.0*Gaudi::Units::cm; m_shiftZ[9] = 32.5*Gaudi::Units::cm;
+  m_angleX[9] = 4.668*Gaudi::Units::degree; m_angleY[9] = 0.*Gaudi::Units::degree; m_angleZ[9] = 90.*Gaudi::Units::degree;    
+    
+  m_dX[10] = m_dX[11] =  1.*Gaudi::Units::cm; m_dY[10] = m_dY[11] = 41.5*Gaudi::Units::cm; m_dZ[10] = m_dZ[11] = 20.3*Gaudi::Units::cm;
+  m_shiftX[10] = -15.4*Gaudi::Units::cm; m_shiftY[10] = m_shiftY[11] = 14.50*Gaudi::Units::cm; m_shiftZ[10] = m_shiftZ[11] = -39.*Gaudi::Units::cm;
+  m_shiftX[11] = - m_shiftX[10];
+  m_angleX[10] = m_angleX[11] = 4.668*Gaudi::Units::degree; m_angleY[10] = -45.*Gaudi::Units::degree; m_angleZ[10] = 0.*Gaudi::Units::degree;    
+  m_angleY[11] = -m_angleY[10]; m_angleZ[11] = -m_angleZ[10];    
+  
+  m_dX[12] = m_dX[13] = 1.*Gaudi::Units::cm; m_dY[12] = m_dY[13] = 27.*Gaudi::Units::cm; m_dZ[12] = m_dZ[13] = 20.3*Gaudi::Units::cm;
+  m_shiftX[12] = -15.4*Gaudi::Units::cm; m_shiftY[12] = m_shiftY[13] = -54.4*Gaudi::Units::cm; m_shiftZ[12] = m_shiftZ[13] = -43.8*Gaudi::Units::cm;
+  m_shiftX[13] = -m_shiftX[12];
+  m_angleX[12]  = m_angleX[13] = 4.668*Gaudi::Units::degree; m_angleY[12] = -45.*Gaudi::Units::degree; m_angleZ[12] = 0.*Gaudi::Units::degree;
+  m_angleY[13] = -m_angleY[12]; m_angleZ[13] = -m_angleZ[12];
+      
+  m_dX[14] = m_dX[15] = 1.*Gaudi::Units::cm; m_dY[14] = m_dY[15] = 12.*Gaudi::Units::cm; m_dZ[14] = m_dZ[15] = 25.3*Gaudi::Units::cm;
+  m_shiftX[14] = -19.5*Gaudi::Units::cm; m_shiftY[14] = m_shiftY[15] = -93.5*Gaudi::Units::cm; m_shiftZ[14] = m_shiftZ[15] = -46.5*Gaudi::Units::cm;
+  m_shiftX[15] = -m_shiftX[14];
+  m_angleX[14] = m_angleX[15] = 4.668*Gaudi::Units::degree; m_angleY[14] = -45.*Gaudi::Units::degree; m_angleZ[14] = m_angleZ[15] = 0.*Gaudi::Units::degree;
+  m_angleY[15] = -m_angleY[14]; 
+    
+  m_dX[16] = 59.5*Gaudi::Units::cm; m_dY[16] = 60.0*Gaudi::Units::cm; m_dZ[16] = 12.0*Gaudi::Units::cm;
+  m_shiftX[16] = 0.*Gaudi::Units::cm; m_shiftY[16] = -91.5*Gaudi::Units::cm; m_shiftZ[16] = -73.5*Gaudi::Units::cm;
+  m_angleX[16] = 94.668*Gaudi::Units::degree; m_angleY[16] = 0.*Gaudi::Units::degree; m_angleZ[16] = 90.*Gaudi::Units::degree;
+  m_dX[17] = 0.3*Gaudi::Units::cm; m_dY[17] = 35.*Gaudi::Units::cm; m_dZ[17] = 25.*Gaudi::Units::cm;
+  m_shiftX[17] = 0.*Gaudi::Units::cm; m_shiftY[17] = -107.0*Gaudi::Units::cm; m_shiftZ[17] = -40.*Gaudi::Units::cm;
+  m_angleX[17] = 4.668*Gaudi::Units::degree; m_angleY[17] = 0.*Gaudi::Units::degree; m_angleZ[17] = 90.*Gaudi::Units::degree;
+}
+
+
+const LArGeo::ModulesConstructionH62004::LeakGeom
+LArGeo::ModulesConstructionH62004::s_leakGeom;
+
 
 LArGeo::ModulesConstructionH62004::ModulesConstructionH62004():m_ModulesPhys(0),m_Options(0),m_fcalVisLimit(-1)
 {
-// fill the static arrays, if called first time
-//
-  //const double thick = 1.*Gaudi::Units::cm;
-  static bool first = true;
-  if(first){
-    first = false;
-    for(int i=0; i<NUM_LEAK; ++i) {
-       s_dX[i] = s_dY[i] = s_dZ[i] = 0.;
-       s_shiftX[i] = s_shiftY[i] = s_shiftZ[i] = 0.;
-       s_angleX[i] = s_angleY[i] = s_angleZ[i] = 0.;
-    }
-
-    s_dX[0] = s_dX[1] = 1.*Gaudi::Units::cm; s_dY[0]= s_dY[1] = 31.6*Gaudi::Units::cm; s_dZ[0] = s_dZ[1] = 50.*Gaudi::Units::cm; 
-    s_shiftX[0] = -26.*Gaudi::Units::cm; s_shiftX[1] = -s_shiftX[0];
-    s_shiftY[0] = s_shiftY[1] = 85.1*Gaudi::Units::cm; s_shiftZ[0] = s_shiftZ[1] = -3.*Gaudi::Units::cm;
-    s_angleX[0] = s_angleX[1] = 4.668*Gaudi::Units::deg; s_angleZ[0] = s_angleZ[1] = 0.*Gaudi::Units::deg;
-    s_angleY[0] = -30.*Gaudi::Units::deg; s_angleY[1] = -s_angleY[0]; 
-    s_dX[2] = 98.1*Gaudi::Units::cm; s_dY[2] = 98.2*Gaudi::Units::cm; s_dZ[2] = 30.6*Gaudi::Units::cm;
-    s_shiftX[2] = 0.*Gaudi::Units::cm; s_shiftY[2] = 89.7*Gaudi::Units::cm; s_shiftZ[2] = -42.*Gaudi::Units::cm;
-    s_angleX[2] = 94.668*Gaudi::Units::deg; s_angleY[2] = 0.; s_angleZ[2] = 90.*Gaudi::Units::degree;
-    
-    
-    s_dX[3] = 1.*Gaudi::Units::cm; s_dY[3] = 43.*Gaudi::Units::cm; s_dZ[3] = 40.*Gaudi::Units::cm;
-    s_dX[4] = s_dX[3]; s_dY[4] = s_dY[3]; s_dZ[4] = s_dZ[3];
-    s_shiftX[3] = -58.5*Gaudi::Units::cm; s_shiftY[3] = 12.2*Gaudi::Units::cm; s_shiftZ[3] = 5.*Gaudi::Units::cm;
-    s_shiftX[4] = -s_shiftX[3]; s_shiftY[4] = s_shiftY[3]; s_shiftZ[4] = s_shiftZ[3];
-    s_angleX[3] = s_angleX[4] = 4.668*Gaudi::Units::deg; s_angleY[3] = -45.*Gaudi::Units::deg; 
-    s_angleY[4] = -s_angleY[3]; 
-    s_angleZ[3] = 0.*Gaudi::Units::deg; 
-    s_angleZ[4] = -s_angleZ[3];
-    s_dX[5] = 130.*Gaudi::Units::cm; s_dY[5] = 131.*Gaudi::Units::cm; s_dZ[5] = 43.*Gaudi::Units::cm; 
-    s_shiftX[5] = 0.*Gaudi::Units::cm; s_shiftY[5] = 18.1*Gaudi::Units::cm; s_shiftZ[5] = -62.*Gaudi::Units::cm;
-    s_angleX[5] = 94.668*Gaudi::Units::deg; s_angleY[5] = 0.*Gaudi::Units::deg;
-    s_angleZ[5] = 90.*Gaudi::Units::deg;
-
-    s_dX[6] = s_dX[7] = 1.*Gaudi::Units::cm; s_dY[6] = s_dY[7] = 27.*Gaudi::Units::cm; s_dZ[6] = s_dZ[7] = 40.*Gaudi::Units::cm; 
-    s_shiftX[6] = -58.*Gaudi::Units::cm; s_shiftY[6] = s_shiftY[7] = -57.85*Gaudi::Units::cm; s_shiftZ[6] = s_shiftZ[7] = -1.*Gaudi::Units::cm;
-    s_shiftX[7] = - s_shiftX[6]; 
-    s_angleX[6] = s_angleX[7] = 4.668*Gaudi::Units::deg; s_angleY[6] = -45.*Gaudi::Units::deg; s_angleZ[6] = s_angleZ[7] = 0.*Gaudi::Units::deg;
-    s_angleY[7] = -s_angleY[6];
-    s_dX[8] = 130.*Gaudi::Units::cm; s_dY[8] = 131.*Gaudi::Units::cm; s_dZ[8] = 27.*Gaudi::Units::cm;
-    s_shiftX[8] = 0.*Gaudi::Units::cm; s_shiftY[8] = -51.9*Gaudi::Units::cm; s_shiftZ[8] = -67.*Gaudi::Units::cm;
-    s_angleX[8] = 94.668*Gaudi::Units::degree; s_angleY[8] = 0.*Gaudi::Units::degree; s_angleZ[8] = 90.*Gaudi::Units::degree;
-    s_dX[9] = 1.*Gaudi::Units::cm; s_dY[9] = 82.*Gaudi::Units::cm; s_dZ[9] = 44.5*Gaudi::Units::cm;
-    s_shiftX[9] = 0.*Gaudi::Units::cm; s_shiftY[9] = -89.0*Gaudi::Units::cm; s_shiftZ[9] = 32.5*Gaudi::Units::cm;
-    s_angleX[9] = 4.668*Gaudi::Units::degree; s_angleY[9] = 0.*Gaudi::Units::degree; s_angleZ[9] = 90.*Gaudi::Units::degree;    
-    
-    s_dX[10] = s_dX[11] =  1.*Gaudi::Units::cm; s_dY[10] = s_dY[11] = 41.5*Gaudi::Units::cm; s_dZ[10] = s_dZ[11] = 20.3*Gaudi::Units::cm;
-    s_shiftX[10] = -15.4*Gaudi::Units::cm; s_shiftY[10] = s_shiftY[11] = 14.50*Gaudi::Units::cm; s_shiftZ[10] = s_shiftZ[11] = -39.*Gaudi::Units::cm;
-    s_shiftX[11] = - s_shiftX[10];
-    s_angleX[10] = s_angleX[11] = 4.668*Gaudi::Units::degree; s_angleY[10] = -45.*Gaudi::Units::degree; s_angleZ[10] = 0.*Gaudi::Units::degree;    
-    s_angleY[11] = -s_angleY[10]; s_angleZ[11] = -s_angleZ[10];    
-  
-    s_dX[12] = s_dX[13] = 1.*Gaudi::Units::cm; s_dY[12] = s_dY[13] = 27.*Gaudi::Units::cm; s_dZ[12] = s_dZ[13] = 20.3*Gaudi::Units::cm;
-    s_shiftX[12] = -15.4*Gaudi::Units::cm; s_shiftY[12] = s_shiftY[13] = -54.4*Gaudi::Units::cm; s_shiftZ[12] = s_shiftZ[13] = -43.8*Gaudi::Units::cm;
-    s_shiftX[13] = -s_shiftX[12];
-    s_angleX[12]  = s_angleX[13] = 4.668*Gaudi::Units::degree; s_angleY[12] = -45.*Gaudi::Units::degree; s_angleZ[12] = 0.*Gaudi::Units::degree;
-    s_angleY[13] = -s_angleY[12]; s_angleZ[13] = -s_angleZ[12];
-      
-    s_dX[14] = s_dX[15] = 1.*Gaudi::Units::cm; s_dY[14] = s_dY[15] = 12.*Gaudi::Units::cm; s_dZ[14] = s_dZ[15] = 25.3*Gaudi::Units::cm;
-    s_shiftX[14] = -19.5*Gaudi::Units::cm; s_shiftY[14] = s_shiftY[15] = -93.5*Gaudi::Units::cm; s_shiftZ[14] = s_shiftZ[15] = -46.5*Gaudi::Units::cm;
-    s_shiftX[15] = -s_shiftX[14];
-    s_angleX[14] = s_angleX[15] = 4.668*Gaudi::Units::degree; s_angleY[14] = -45.*Gaudi::Units::degree; s_angleZ[14] = s_angleZ[15] = 0.*Gaudi::Units::degree;
-    s_angleY[15] = -s_angleY[14]; 
-    
-    s_dX[16] = 59.5*Gaudi::Units::cm; s_dY[16] = 60.0*Gaudi::Units::cm; s_dZ[16] = 12.0*Gaudi::Units::cm;
-    s_shiftX[16] = 0.*Gaudi::Units::cm; s_shiftY[16] = -91.5*Gaudi::Units::cm; s_shiftZ[16] = -73.5*Gaudi::Units::cm;
-    s_angleX[16] = 94.668*Gaudi::Units::degree; s_angleY[16] = 0.*Gaudi::Units::degree; s_angleZ[16] = 90.*Gaudi::Units::degree;
-    s_dX[17] = 0.3*Gaudi::Units::cm; s_dY[17] = 35.*Gaudi::Units::cm; s_dZ[17] = 25.*Gaudi::Units::cm;
-    s_shiftX[17] = 0.*Gaudi::Units::cm; s_shiftY[17] = -107.0*Gaudi::Units::cm; s_shiftZ[17] = -40.*Gaudi::Units::cm;
-    s_angleX[17] = 4.668*Gaudi::Units::degree; s_angleY[17] = 0.*Gaudi::Units::degree; s_angleZ[17] = 90.*Gaudi::Units::degree;
-     
-  }
-
   StatusCode status;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   if (svcLocator->service("DetectorStore", m_detectorStore, false )==StatusCode::FAILURE) {
@@ -585,7 +576,7 @@ LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materi
 //----------------- construct ID and name
   int myID = GetID(side,dir,calo);
   if(myID == 0 || myID > NUM_LEAK) return 0;
-  if(s_dX[myID-1] == 0 && s_dY[myID-1] == 0 && s_dZ[myID-1] == 0) return 0;
+  if(s_leakGeom.m_dX[myID-1] == 0 && s_leakGeom.m_dY[myID-1] == 0 && s_leakGeom.m_dZ[myID-1] == 0) return 0;
   name = "LArGeoTB::LeakageDet::";  
   switch(calo){
   case 0:
@@ -643,18 +634,18 @@ LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materi
 //------------------ now construct shape and logical volume ---------------
   GeoLogVol *volume_log;
   if(myID == 6 || myID == 9 || myID == 17) {
-     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-43.*Gaudi::Units::degree,86.*Gaudi::Units::degree);
+     GeoTubs *tub = new GeoTubs(s_leakGeom.m_dX[myID-1],s_leakGeom.m_dY[myID-1],s_leakGeom.m_dZ[myID-1],-43.*Gaudi::Units::degree,86.*Gaudi::Units::degree);
      volume_log = new GeoLogVol(name,tub,Vacuum); 
   } else if(myID == 3) {
-     GeoTubs *tub = new GeoTubs(s_dX[myID-1],s_dY[myID-1],s_dZ[myID-1],-32.*Gaudi::Units::degree,64.*Gaudi::Units::degree);
+     GeoTubs *tub = new GeoTubs(s_leakGeom.m_dX[myID-1],s_leakGeom.m_dY[myID-1],s_leakGeom.m_dZ[myID-1],-32.*Gaudi::Units::degree,64.*Gaudi::Units::degree);
      volume_log = new GeoLogVol(name,tub,Vacuum); 
 #if 0 // impossible case...
   } else if(myID == 19) {
-    GeoTrd *trd = new GeoTrd(s_dX[myID-1]-16.*Gaudi::Units::cm,s_dX[myID-1],s_dY[myID-1],s_dY[myID-1],s_dZ[myID-1]);
+    GeoTrd *trd = new GeoTrd(s_leakGeom.m_dX[myID-1]-16.*Gaudi::Units::cm,s_leakGeom.m_dX[myID-1],s_leakGeom.m_dY[myID-1],s_leakGeom.m_dY[myID-1],s_leakGeom.m_dZ[myID-1]);
     volume_log = new GeoLogVol(name,trd,Vacuum); 
 #endif
   } else {
-    GeoBox *mbox = new GeoBox(s_dX[myID-1], s_dY[myID-1], s_dZ[myID-1]);
+    GeoBox *mbox = new GeoBox(s_leakGeom.m_dX[myID-1], s_leakGeom.m_dY[myID-1], s_leakGeom.m_dZ[myID-1]);
     volume_log = new GeoLogVol(name,mbox,Vacuum);
   }
   return volume_log;
@@ -671,9 +662,9 @@ GeoTrf::Transform3D LArGeo::ModulesConstructionH62004::position(int side, int di
   assert(myID>0 && myID <= NUM_LEAK);
   if(myID > NUM_LEAK) return leak_position;
 
-  GeoTrf::Transform3D rotM = GeoTrf::RotateX3D(s_angleX[myID-1]) * GeoTrf::RotateY3D(s_angleY[myID-1]) * GeoTrf::RotateZ3D(s_angleZ[myID-1]);
+  GeoTrf::Transform3D rotM = GeoTrf::RotateX3D(s_leakGeom.m_angleX[myID-1]) * GeoTrf::RotateY3D(s_leakGeom.m_angleY[myID-1]) * GeoTrf::RotateZ3D(s_leakGeom.m_angleZ[myID-1]);
 
-  leak_position = GeoTrf::Transform3D(GeoTrf::Translation3D(s_shiftX[myID-1],s_shiftY[myID-1],s_shiftZ[myID-1]) * rotM);
+  leak_position = GeoTrf::Transform3D(GeoTrf::Translation3D(s_leakGeom.m_shiftX[myID-1],s_leakGeom.m_shiftY[myID-1],s_leakGeom.m_shiftZ[myID-1]) * rotM);
 
   return leak_position;
 }

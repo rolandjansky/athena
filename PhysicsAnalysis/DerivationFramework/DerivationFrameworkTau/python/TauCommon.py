@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # TauCommon.py
@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 from AthenaCommon import CfgMgr 
+import logging
 
 # will likely be replaced with generic tau decorator tool
 #from tauRec.TauRecAODBuilder import TauRecAODProcessor_FTau
@@ -35,7 +36,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doVeryLoose:
         if not hasattr(ToolSvc,"TauVeryLooseWrapper"):
             TauSelectorVeryLoose = TauAnalysisTools__TauSelectionTool(name="TauSelectorVeryLoose")
-            TauSelectorVeryLoose.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNVERYLOOSE
+            TauSelectorVeryLoose.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNVERYLOOSE
             TauSelectorVeryLoose.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorVeryLoose.ConfigPath = ''
             ToolSvc += TauSelectorVeryLoose
@@ -54,7 +55,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doLoose:
         if not hasattr(ToolSvc,"TauLooseWrapper"):
             TauSelectorLoose = TauAnalysisTools__TauSelectionTool(name="TauSelectorLoose")
-            TauSelectorLoose.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNLOOSE
+            TauSelectorLoose.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNLOOSE
             TauSelectorLoose.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorLoose.ConfigPath = ''
             ToolSvc += TauSelectorLoose
@@ -73,7 +74,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doMedium:
         if not hasattr(ToolSvc,"TauMediumWrapper"):
             TauSelectorMedium = TauAnalysisTools__TauSelectionTool(name="TauSelectorMedium")
-            TauSelectorMedium.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNMEDIUM
+            TauSelectorMedium.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNMEDIUM
             TauSelectorMedium.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorMedium.ConfigPath = ''
             ToolSvc += TauSelectorMedium
@@ -92,7 +93,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doTight:
         if not hasattr(ToolSvc,"TauTightWrapper"):
             TauSelectorTight = TauAnalysisTools__TauSelectionTool(name="TauSelectorTight")
-            TauSelectorTight.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNTIGHT
+            TauSelectorTight.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNTIGHT
             TauSelectorTight.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorTight.ConfigPath = ''
             ToolSvc += TauSelectorTight
@@ -165,7 +166,7 @@ def addDiTauLowPt(Seq=None):
     from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 
-    AntiKt10EMPFlow = AntiKt10LCTopo.clone(inputdef = cst.EMPFlow)
+    AntiKt10EMPFlow = AntiKt10LCTopo.clone(inputdef = cst.GPFlow)
     jetList = [AntiKt10EMPFlow]
 
     addDAODJets(jetList,Seq)
@@ -197,3 +198,107 @@ def addDiTauLowPt(Seq=None):
                                      Rcore=0.1,
                                      Tools=ditauTools)
     Seq += DiTauLowPtBuilder
+
+
+#=======================================
+# TauWP decoration
+#=======================================
+def addTauWPDecoration(Seq=None, evetoFixTag=None):
+
+    if not Seq or hasattr(Seq,"TauWPDecorator"+Seq.name()):
+        print("TauWP Decoration will not be scheduled")
+        return
+
+    print ("Adding Tau WP Decoration")
+    TauWPDecorations = []
+    from AthenaCommon.AppMgr import ToolSvc
+    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauWPDecoratorWrapper
+    
+    if (evetoFixTag == "v1"):
+        if not hasattr(ToolSvc,"TauWPDecoratorEvetoWrapper"):
+            
+            from tauRecTools.tauRecToolsConf import TauWPDecorator
+
+            evetoTauWPDecorator = TauWPDecorator( name = 'TauWPDecoratorEleRNN'+Seq.name(),
+                                                  flatteningFile1Prong = "rnneveto_mc16d_flat_1p_fix.root",
+                                                  flatteningFile3Prong = "rnneveto_mc16d_flat_3p_fix.root",
+                                                  DecorWPNames = [ "EleRNNLoose_"+evetoFixTag, "EleRNNMedium_"+evetoFixTag, "EleRNNTight_"+evetoFixTag ],
+                                                  DecorWPCutEffs1P = [0.95, 0.90, 0.85],
+                                                  DecorWPCutEffs3P = [0.98, 0.95, 0.90],
+                                                  UseEleBDT = True,
+                                                  ScoreName = "RNNEleScore",
+                                                  NewScoreName = "RNNEleScoreSigTrans_"+evetoFixTag,
+                                                  DefineWPs = True )
+            ToolSvc += evetoTauWPDecorator
+
+            evetoTauWPDecoratorWrapper = DerivationFramework__TauWPDecoratorWrapper(name               = "TauWPDecoratorEvetoWrapper",
+                                                                                    TauContainerName   = "TauJets",
+                                                                                    TauWPDecorator     = evetoTauWPDecorator)
+            ToolSvc += evetoTauWPDecoratorWrapper
+        else:
+            evetoTauWPDecoratorWrapper = getattr(ToolSvc,"TauWPDecoratorEvetoWrapper")
+
+        TauWPDecorations.append(evetoTauWPDecoratorWrapper)
+
+    if TauWPDecorations:
+        Seq += CfgMgr.DerivationFramework__DerivationKernel("TauWPDecorator"+Seq.name(), AugmentationTools = TauWPDecorations)
+
+#=======================================
+# tauJet Muon RM Re-Reconstruction 
+#=======================================
+def addMuonRemovalTauReReco(Seq=None):
+    from tauRec.tauRecFlags import tauFlags
+    if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
+        logging.error("Muon removal TauJets re-reconstruction will not be scheduled")
+        return
+    if not tauFlags.inAOD():
+        logging.error("Muon removal TauJets re-reconstruction will not be scheduled.")
+        logging.error('Please set the inAOD flag to true before schedule the AOD re-reco.')
+        return
+    
+    logging.info("Adding Muon removal TauJets re-reconstruction")
+    import tauRec.TauAlgorithmsHolder as taualgs
+    tools_mod = []
+    tools_mod.append(taualgs.getTauAODMuonRemovalTool())
+    tools_after = []
+    tools_after.append(taualgs.getTauVertexedClusterDecorator())
+    tools_after.append(taualgs.getTauTrackRNNClassifier())
+    tools_after.append(taualgs.getEnergyCalibrationLC())        
+    tools_after.append(taualgs.getTauCommonCalcVars())
+    tools_after.append(taualgs.getTauSubstructure())            
+    tools_after.append(taualgs.getPi0ClusterCreator())          
+    tools_after.append(taualgs.getPi0ClusterScaler())           
+    tools_after.append(taualgs.getPi0ScoreCalculator())         
+    tools_after.append(taualgs.getPi0Selector())
+    tools_after.append(taualgs.getTauVertexVariables())
+    import PanTauAlgs.JobOptions_Main_PanTau as pantau
+    tools_after.append(pantau.getPanTau())                      
+    tools_after.append(taualgs.getTauCombinedTES())             
+    tools_after.append(taualgs.getMvaTESVariableDecorator())    
+    tools_after.append(taualgs.getMvaTESEvaluator())            
+    tools_after.append(taualgs.getTauIDVarCalculator())         
+    tools_after.append(taualgs.getTauJetRNNEvaluator())         
+    tools_after.append(taualgs.getTauWPDecoratorJetRNN())       
+    tools_after.append(taualgs.getTauEleRNNEvaluator())         
+    tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
+    tools_after.append(taualgs.getTauDecayModeNNClassifier())
+    
+    for atool in tools_mod:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = tauFlags.inAOD()
+    for atool in tools_after:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = tauFlags.inAOD()
+    from tauRec.tauRecConf import TauAODRunnerAlg
+    MuonRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "MuonRemovalTauReReco_"+Seq.name(), 
+                                                Key_tauOutputContainer          = "TauJets_MuonRM",
+                                                Key_pi0OutputContainer          = "TauFinalPi0s_MuonRM",
+                                                Key_neutralPFOOutputContainer   = "TauNeutralPFOs_MuonRM",
+                                                Key_chargedPFOOutputContainer   = "TauChargedPFOs_MuonRM",
+                                                Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_MuonRM",
+                                                Key_tauTrackOutputContainer     = "TauTracks_MuonRM",
+                                                Key_vertexOutputContainer       = "TauSecondaryVertices_MuonRM",
+                                                modificationTools               = tools_mod,
+                                                officialTools                   = tools_after
+    )
+    Seq += MuonRemovalAODReRecoAlg

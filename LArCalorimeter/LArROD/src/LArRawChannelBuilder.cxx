@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArRawChannelBuilder.h"
+#include "LArRawChannelBuilder.h"
 
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TBEvent/TBPhase.h"

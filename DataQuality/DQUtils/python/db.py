@@ -13,6 +13,7 @@ from io import StringIO
 from datetime import datetime
 from keyword import iskeyword
 from os.path import dirname
+from os import environ
 import six
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen
@@ -401,7 +402,7 @@ class Databases(object):
             sys.stdout = StringIO()
             try:
                 connection = indirectOpen(res_db_string, readOnly=read_only,
-                                          oracle=True)
+                                          oracle= "DBRELEASE" not in environ)
             finally:
                 sys.stdout = prev_stdout
         except Exception as e:

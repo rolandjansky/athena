@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixelHitDiscCnfgAlg.h
@@ -20,7 +20,6 @@
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelHitDiscCnfgAlg : public AthReentrantAlgorithm {
@@ -32,8 +31,6 @@ class PixelHitDiscCnfgAlg : public AthReentrantAlgorithm {
     virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
-
     SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
     {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
 

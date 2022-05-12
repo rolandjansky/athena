@@ -58,7 +58,7 @@ print()
 
 # Configure
 if args.localgeo:
-    ConfigFlags.GeoModel.useLocalGeometry = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
 
 ConfigFlags.Input.Files = [args.inputevntfile]
 ConfigFlags.Output.HITSFileName = args.outputhitsfile
@@ -120,7 +120,11 @@ kwargs.update(UserActionSvc=svcName)
 if args.simulate:
   from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
   acc.merge(G4AtlasAlgCfg(ConfigFlags, "ITkG4AtlasAlg", **kwargs))
-  
+  from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+  from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
+  acc.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=['ITkG4AtlasAlg']) )
+
+
 AthenaOutputStream=CompFactory.AthenaOutputStream
 AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
 writingTool = AthenaOutputStreamTool( "MaterialStepCollectionStreamTool" )

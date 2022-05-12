@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #################################################################
 # a script to grab the trigger information from checkfile.py output
 # Fabrizio Salvatore - University of Sussex - May 2009
@@ -584,6 +584,18 @@ class checkFileTrigSize:
             '_TRIGGER_LVL1_Thresholds',
             'TriggerMenu',
             'TriggerMenuAux.',
+            'TriggerMenuJson_BG',
+            'TriggerMenuJson_L1',
+            'TriggerMenuJson_HLT',
+            'TriggerMenuJson_L1PS',
+            'TriggerMenuJson_HLTPS',
+            'TriggerMenuJson_HLTMonitoring',
+            'TriggerMenuJson_BGAux.',
+            'TriggerMenuJson_L1PSAux.',
+            'TriggerMenuJson_HLTMonitoringAux.',
+            'TriggerMenuJson_HLTPSAux.',
+            'TriggerMenuJson_L1Aux.',
+            'TriggerMenuJson_HLTAux.',
         ]
         triggerCounterConfig = Counter('triggerConfig',triggerListConfig)
 

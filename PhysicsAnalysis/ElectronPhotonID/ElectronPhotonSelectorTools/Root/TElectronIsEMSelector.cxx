@@ -178,8 +178,7 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
 }
 
 Root::TElectronIsEMSelector::~TElectronIsEMSelector()
-{
-}
+= default;
 
 StatusCode Root::TElectronIsEMSelector::initialize()
 {
@@ -362,7 +361,7 @@ asg::AcceptData Root::TElectronIsEMSelector::fillAccept(unsigned int isEM) const
 {
   asg::AcceptData acceptData(&m_acceptInfo);
   for (int i = 0; i < 32; i++) {
-    const unsigned int mask = (0x1 << i) & m_isEMMask;
+    const unsigned int mask = (0x1u << i) & m_isEMMask;
     acceptData.setCutResult(i, (isEM & mask) == 0);
   }
   return acceptData;

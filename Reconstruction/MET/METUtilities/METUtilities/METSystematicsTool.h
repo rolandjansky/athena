@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METSystematicsTool.h
@@ -29,7 +29,8 @@ class TH1D;
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETAssociationHelper.h"
 
-#include <gtest/gtest_prod.h>
+#include "boost/thread/tss.hpp"
+#include "gtest/gtest_prod.h"
 
 namespace met {
 
@@ -143,6 +144,7 @@ namespace met {
     CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper& helper) const;
     CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper& helper, const xAOD::Jet* jet) const;
     CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationHelper& helper) const;
+    TRandom3* getTLSRandomGen() const;
 
     //declared properties
     std::string m_configPrefix;
@@ -163,7 +165,7 @@ namespace met {
     TH1D* m_h_calosyst_scale;
     TH1D* m_h_calosyst_reso;
 
-    mutable TRandom3 m_rand;//so that we can call this from applyCorrection
+    mutable boost::thread_specific_ptr<TRandom3> m_rand_tls; // thread-specific random number generator
 
     //internal property
     int m_units;//by default = -1, not set.  Set to 1 (MeV) if not value found in config file

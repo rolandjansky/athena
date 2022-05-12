@@ -77,16 +77,7 @@
 // TrkSurfaces
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkSurfaces/Surface_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/Surface_p2.h"
 #include "TrkEventTPCnv/TrkSurfaces/BoundSurface_p1.h"
-
-#include "TrkEventTPCnv/TrkSurfaces/CylinderBounds_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/DiamondBounds_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/DiscBounds_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/RectangleBounds_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/TrapezoidBounds_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/TriangleBounds_p1.h"
-#include "TrkEventTPCnv/TrkSurfaces/EllipseBounds_p1.h"
 
 //-----------------------------------------------------------------------------
 // TrkParameters (also used by TrackNeutralParameters)

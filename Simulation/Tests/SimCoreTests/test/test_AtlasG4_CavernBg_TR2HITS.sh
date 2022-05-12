@@ -2,6 +2,7 @@
 #
 # art-description: Run simulation outside ISF, reading cavern background track records, writing cavern background HITS, using 2015 geometry and conditions
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: *.HITS.pool.root
 # art-output: log.*
 # art-output: Config*.pkl

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #from AthenaCommon import CfgMgr
 #from AthenaCommon.CfgGetter import getPrivateTool
@@ -191,19 +191,9 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.TGC_on():
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
-            if not digitizationFlags.PileUpPresampling:
-                StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
-            # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            if not digitizationFlags.PileUpPresampling:
-                StreamRDO_ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
-        if DetFlags.writeRDOPool.Micromegas_on():
-            if not digitizationFlags.PileUpPresampling:
-                StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
+        if DetFlags.writeRDOPool.MM_on():
             StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
-            # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            if not digitizationFlags.PileUpPresampling:
-                StreamRDO_ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():

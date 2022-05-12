@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCoolMgr.py
 #author: nils.gollub@cern.ch
@@ -18,7 +18,7 @@ class TileCoolMgr(object):
         self.__idDict = {}
 
         #=== Available folder types
-        self.__validTypes = ["SplitMC", "SplitOnline", "OfflineOnly", "Sqlite"]
+        self.__validTypes = ["SplitMC", "SplitOnline", "OfflineOnly", "Sqlite", "ForceMC"]
 
         #=== do we run on real data (not MC)?
         self._isMC=isMC
@@ -39,7 +39,7 @@ class TileCoolMgr(object):
     def addSource(self, condId, folder, connStr, tag, folder2, type, key = ""):
         if type not in self.__validTypes:
             self.__log.error("Folder type \'%s\' not recognized!", type)
-        if (type != "OfflineOnly") and (folder2 == ""):
+        if (type not in ["OfflineOnly", "ForceMC"]) and (folder2 == ""):
             self.__log.error("For folder type \'%s\' second folder name required!", type)
         self.__idDict[condId] = [folder, connStr, tag, folder2, type, key]
 
@@ -114,6 +114,17 @@ class TileCoolMgr(object):
             else:
                 return False
 
+    #_______________________________________________________________
+    def isForceMC(self, condId):
+        idInfo = self.__idDict.get(condId)
+        if not idInfo:
+            self.__log.error("CondId \'%s\' not recognized!", condId)
+            return None
+        else:
+            if idInfo[4]=="ForceMC":
+                return True
+            else:
+                return False
     #_______________________________________________________________
     def isSqlite(self, condId):
         idInfo = self.__idDict.get(condId)
@@ -269,6 +280,8 @@ class TileCoolMgr(object):
         self.addSource('OfcOf1CisPl5p2', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
         self.addSource('OfcOf1Las',      '/TILE/ONL01/FILTER/OF1/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/LAS', 'SplitMC')
 
+        #--- sampling fraction
+        self.addSource('oflSampFrac', '/TILE/OFL02/CALIB/SFR', oflConnStr, "", "", 'ForceMC', '/TILE/OFL02/CALIB/SFR')
 
         if (self._dbInstance == 'CONDBR2'):
             #--- OFCs

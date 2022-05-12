@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_JIVEXMLSERVER_H
@@ -21,6 +21,7 @@
 //athena includes
 #include <GaudiKernel/IMessageSvc.h>
 #include <GaudiKernel/StatusCode.h>
+#include <CxxUtils/checker_macros.h>
 
 //JiveXML includes
 #include <JiveXML/IServer.h>
@@ -93,10 +94,10 @@ namespace JiveXML {
       //running. The semaphore will reach its post-condition either by
       // a) receiving a signal through the signal handler
       // b) the ServerThreadStopped callback being called
-      static OWLSemaphore lock;
+      inline static OWLSemaphore lock ATLAS_THREAD_SAFE;
 
       //Store the received signal in a static member
-      static int m_receivedSignal;
+      inline static std::atomic<int> m_receivedSignal{0};
 
       //Port number property - defaults to zero in which case
       //it is dynamically assigned
@@ -106,7 +107,7 @@ namespace JiveXML {
       EventStreamMap m_eventStreamMap;
 
       //A mutex (mutual exclusive) lock for the data map
-      mutable pthread_mutex_t m_accessLock;
+      mutable pthread_mutex_t m_accessLock ATLAS_THREAD_SAFE;
 
       //A handle to the server thread
       pthread_t m_ServerThreadHandle;

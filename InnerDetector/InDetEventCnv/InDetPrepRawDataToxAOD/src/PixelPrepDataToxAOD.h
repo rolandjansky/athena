@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file InDetPrepRawDataToxAOD/PixelPrepDataToxAOD.h
@@ -114,6 +114,7 @@ private:
   bool  m_writeSiHits;
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
+  bool  m_writeExtendedPRDinformation;
   bool m_useSiHitsGeometryMatching;
 
   ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
@@ -129,7 +130,7 @@ private:
   {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
 
   SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
-  {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
+  {this, "ReadKeyTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
 
   SG::ReadCondHandleKey<PixelDCSHVData> m_readKeyHV
   {this, "ReadKeyHV",    "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};

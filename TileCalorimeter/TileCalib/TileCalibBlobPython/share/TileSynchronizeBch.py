@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # TileSynchronizeBch.py <TAG1> <TAG2> <MASKONLY> <RUN1> <RUN2>
 # sanya.solodkov@cern.ch July 2016
@@ -157,6 +157,15 @@ for ros in range(1,5):
                         mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.IgnoredInHlt)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineGeneralMaskAdc)
+
+                    #--- add OnlineWrongBCID if either of the ADCs has isWrongBCID
+                    if statlo.isWrongBCID() or stathi.isWrongBCID():
+                        mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineWrongBCID)
+                        mgr2.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineWrongBCID)
+                    else:
+                        #--- delete OnlineWrongBCID if the both ADCs has not isWrongBCID
+                        mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineWrongBCID)
+                        mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineWrongBCID)
 
                     #--- add OnlineBadTiming if either of the ADCs has isBadTiming
                     if statlo.isBadTiming() or stathi.isBadTiming():

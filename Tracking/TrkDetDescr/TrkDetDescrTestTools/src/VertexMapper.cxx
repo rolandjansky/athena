@@ -28,9 +28,7 @@ Trk::VertexMapper::VertexMapper(const std::string& t, const std::string& n, cons
 
 // destructor
 Trk::VertexMapper::~VertexMapper()
-{
-
-}
+= default;
 
 // Athena standard methods
 // initialize
@@ -147,6 +145,6 @@ Trk::MappedVertex Trk::VertexMapper::mapToLocal(const Amg::Vector3D& vertex) con
         }
     }
     // did not succeed return an invalid solution
-    return Trk::MappedVertex();
+    return {};
 }
 

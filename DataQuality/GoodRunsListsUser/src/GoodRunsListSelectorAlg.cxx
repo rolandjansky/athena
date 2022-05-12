@@ -3,7 +3,7 @@
 */
 
 
-#include "GoodRunsListsUser/GoodRunsListSelectorAlg.h"
+#include "GoodRunsListSelectorAlg.h"
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TMsgLogger.h"
 #include "TROOT.h"

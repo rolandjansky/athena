@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSHAPEEVENT_EVENTFEATURE_H
@@ -132,7 +132,7 @@ public:
    *
    *  @return Number of data blocks
    */
-  size_t numberDataBlocks() const;
+  size_t numberDataBlocks();
   /*! @brief Retrieve number of words in data block
    *
    *  @return Number of words in data block
@@ -150,7 +150,7 @@ public:
   std::vector<double>& dataList();
 
   /*! @brief Return one datablock */
-  bool dataBlock(size_t blockIdx,std::vector<double>& data) const;
+  bool dataBlock(size_t blockIdx,std::vector<double>& data);
 
   /*! @brief Set feature tag
    *
@@ -199,7 +199,7 @@ public:
   static const std::string& featureTag();
 
   /*! @brief Build compressed feature structure */
-  unsigned int buildFeatureStructure() const;
+  unsigned int buildFeatureStructure();
 
 private:
 
@@ -226,11 +226,11 @@ private:
   /*! @brief Internal cache data structure description (words per block)*/
   unsigned int         m_dataWords;
   /*! @brief Internal cache for data structure descriptor (number of blocks) */
-  mutable unsigned int m_dataBlocks;
+  unsigned int m_dataBlocks;
   /*! @brief Internal cache for compressed data structure descriptor */
-  mutable unsigned int m_featureStructure;
+  unsigned int m_featureStructure;
   /*! @brief Internal cache for vector data */
-  mutable std::vector<double>  m_dataList;
+  std::vector<double>  m_dataList;
 
   /*! @brief Control flag for setting number of data words
    * 
@@ -239,12 +239,10 @@ private:
   bool m_structureFixed;
 
   /*! @brief Lookup for feature type and tag matches */
-  static std::map<FeatureType,std::string> m_featureTags;
-  /*! @brief Fill lookup once */  
-  static const std::map<FeatureType,std::string>& fillFeatureTags();
+  static const std::map<FeatureType,std::string> m_featureTags;
 
   /*! @brief Set/update feature structure */
-  void setFeatureStructure(bool updateCache=false) const;
+  void setFeatureStructure(bool updateCache=false);
 
   /*! */
   bool insertDataBlock(size_t startIdx,size_t endIdx,
@@ -253,7 +251,7 @@ private:
 		    data);
 
   /*! */
-  bool indexRange(size_t startIdx,index_t& idx) const;
+  bool indexRange(size_t startIdx,index_t& idx);
 };
 
 /*! @class EventFeature
@@ -310,6 +308,6 @@ inline void EventFeature::setDataList(const std::vector<double>& data)
 inline size_t EventFeature::numberDataWords() const
 { return m_dataWords; }
 
-inline size_t EventFeature::numberDataBlocks() const
+inline size_t EventFeature::numberDataBlocks()
 { this->setFeatureStructure(); return m_dataBlocks; }
 #endif

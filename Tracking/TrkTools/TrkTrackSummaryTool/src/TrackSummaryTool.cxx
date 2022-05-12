@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
@@ -58,7 +58,7 @@ Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
   declareInterface<ITrackSummaryTool>(this);
 }
 
-Trk::TrackSummaryTool::~TrackSummaryTool() {}
+Trk::TrackSummaryTool::~TrackSummaryTool() = default;
 
 StatusCode
 Trk::TrackSummaryTool::initialize()
@@ -349,6 +349,10 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
   // add detailed summary for indet
   if (m_addInDetDetailedSummary && !m_idTool.empty()) {
     m_idTool->addDetailedTrackSummary(ctx, track, ts);
+  }
+  //Add Expected Hits info
+  if (m_addExpectedHits && !m_idTool.empty()) {
+    m_idTool->updateExpectedHitInfo(ctx,track,ts);
   }
   // add detailed summary for muons
   if (m_addMuonDetailedSummary && !m_muonTool.empty()) {

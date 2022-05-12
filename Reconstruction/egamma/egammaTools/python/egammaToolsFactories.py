@@ -1,17 +1,17 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactories to instantiate
 all egammaTools with default configuration"""
 __author__ = "Bruno Lenzi"
 
 
-from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
-from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
-
-
+from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 from egammaTools import egammaToolsConf
 from egammaRec.Factories import ToolFactory
 from egammaRec import egammaKeys
+from egammaCaloTools.egammaCaloToolsFactories import (
+  egammaShowerShape, egammaIso)
+from CaloIdentifier import SUBCALO
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
@@ -47,17 +47,36 @@ egammaSwSuperClusterTool = ToolFactory(
     egammaToolsConf.egammaSwTool,
     postInit=[configureSuperClusterCorrections])
 
-EGammaAmbiguityTool = ToolFactory(
-    ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool)
-
 EMFourMomBuilder = ToolFactory(egammaToolsConf.EMFourMomBuilder)
 
-# Photon Selectors
+
+class EMPIDBuilderPhotonBase (egammaToolsConf.EMPIDBuilder):
+    __slots__ = ()
+
+    def __init__(self, name="EMPIDBuilderPhotonBase"):
+        egammaToolsConf.EMPIDBuilder.__init__(self, name)
+        # photon Selectors
+        from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors \
+            import ConfiguredAsgPhotonIsEMSelector
+        LoosePhotonSelector = ConfiguredAsgPhotonIsEMSelector(
+            "LoosePhotonSelector", egammaPID.PhotonIDLoose)
+        TightPhotonSelector = ConfiguredAsgPhotonIsEMSelector(
+            "TightPhotonSelector", egammaPID.PhotonIDTight)
+
+        self.photonIsEMselectors = [LoosePhotonSelector, TightPhotonSelector]
+        self.photonIsEMselectorResultNames = ["Loose", "Tight"]
+        self.LuminosityTool = None
+
+
 PhotonPIDBuilder = ToolFactory(
     EMPIDBuilderPhotonBase,
     name="PhotonPIDBuilder")
 
-# -------------------------
 
-# Import the factories that are not defined here
-from .EMShowerBuilder import EMShowerBuilder            # noqa: F401
+EMShowerBuilder = ToolFactory(
+    egammaToolsConf.EMShowerBuilder,
+    CellsName=egammaKeys.caloCellKey(),
+    CaloNums=[SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.TILE],
+    ShowerShapeTool=egammaShowerShape,
+    HadronicLeakageTool=egammaIso,
+    Print=False)

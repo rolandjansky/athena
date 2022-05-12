@@ -41,6 +41,7 @@ StatusCode LVL1::jFEXPileupAndNoise::initialize() {
 //calls container for TT
 StatusCode LVL1::jFEXPileupAndNoise::safetyTest() {
     
+    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jTowerContainerKey);
     if(! m_jTowerContainer.isValid()) {
         ATH_MSG_FATAL("Could not retrieve jTowerContainer " << m_jTowerContainerKey.key());
         return StatusCode::FAILURE;
@@ -50,7 +51,7 @@ StatusCode LVL1::jFEXPileupAndNoise::safetyTest() {
 }
 
 StatusCode LVL1::jFEXPileupAndNoise::reset() {
-    m_jTowerContainer = SG::ReadHandle<jTowerContainer>(m_jTowerContainerKey);
+
     m_is_FWD=0;
     m_apply_pileup2jets=0; 
     m_apply_pileup2met=0;
@@ -120,7 +121,7 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                 //calculating rho's
                 
                 int tmp_eta = getTTowerEta(TTID);
-                if(tmp_eta < 32){
+                if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     if(tmp_energy_EM > m_et_low and tmp_energy_EM < m_et_high) {//lower and upper threshold must be get from the L1Calo DB
                         m_rho_EM += tmp_energy_EM / tmp_EM_Area; 
                         m_count_rho_EM++;
@@ -139,7 +140,7 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                         m_count_rho_HAD2++;
                     }
                 }
-                else if(tmp_eta > 30 and TTID>=700000 ){
+                else if(tmp_eta > 30 && TTID >= FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     m_FPGA_ET_central_HAD[iphi][ieta] = tmp_energy; //This corrects the FCAL layer 0 (which is an EM layer)
                     if(tmp_energy > m_et_low and tmp_energy < m_et_high){ //lower and upper threshold must be get from the L1Calo DB         
                         m_rho_FCAL += tmp_energy / (tmp_HD_Area*tmp_EM_Area); // FCAL is treated differently.. but when HAD layer -> EM_Area = 1 and viceversa with this we dont need to divide into FCAL layers
@@ -174,7 +175,7 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                 
                 int tmp_eta = getTTowerEta(TTID);
                 
-                if(tmp_eta < 32){
+                if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     if(tmp_energy_EM > m_et_low and tmp_energy_EM < m_et_high){ //lower and upper threshold must be get from the L1Calo DB
                         m_rho_EM += tmp_energy_EM / tmp_EM_Area; 
                         m_count_rho_EM++;
@@ -193,7 +194,7 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                         m_count_rho_HAD2++;
                     }
                 }
-                else if(tmp_eta > 30  and TTID>=700000 ){ //this should not happen since  central jFEX is not FWD
+                else if(tmp_eta > 30 && TTID >= FEXAlgoSpaceDefs::jFEX_FCAL_start){ //this should not happen since  central jFEX is not FWD
                     m_FPGA_ET_central_HAD[iphi][ieta] = tmp_energy; //This corrects the FCAL layer 0 (which is an EM layer)
                     if(tmp_energy > m_et_low and tmp_energy < m_et_high){ //lower and upper threshold must be get from the L1Calo DB         
                         m_rho_FCAL += tmp_energy / (tmp_HD_Area*tmp_EM_Area); // FCAL is treated differently.. but when HAD layer -> EM_Area = 1 and viceversa with this we dont need to divide into FCAL layers
@@ -237,7 +238,7 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
                 int tmp_EM_Area = getTTArea_EM(TTID);
                 int tmp_HD_Area = getTTArea_HAD(TTID);
                     
-                if(tmp_eta < 32){
+                if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     m_FPGA_ET_forward_EM[iphi][ieta]=m_FPGA_ET_forward_EM[iphi][ieta]-m_rho_EM * tmp_EM_Area; 
                 }
                 
@@ -247,7 +248,7 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
                 else if(tmp_eta < 16 ){
                     m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_HAD2 * tmp_HD_Area; 
                 }
-                else if(tmp_eta > 30 and TTID>=700000){
+                else if(tmp_eta > 30 && TTID >= FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     m_FPGA_ET_forward_HAD[iphi][ieta]=m_FPGA_ET_forward_HAD[iphi][ieta]-m_rho_FCAL * (tmp_HD_Area*tmp_EM_Area); 
                 } 
                 else if(tmp_eta < 32 ){
@@ -268,7 +269,7 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
                 int tmp_EM_Area = getTTArea_EM(TTID);
                 int tmp_HD_Area = getTTArea_HAD(TTID);
                     
-                if(tmp_eta < 32){
+                if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     m_FPGA_ET_central_EM[iphi][ieta]=m_FPGA_ET_central_EM[iphi][ieta]-m_rho_EM * tmp_EM_Area; 
                 }
                 
@@ -278,7 +279,7 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
                 else if(tmp_eta < 16 ){
                     m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_HAD2 * tmp_HD_Area; 
                 }
-                else if(tmp_eta > 30  and TTID>=700000 ){ 
+                else if(tmp_eta > 30 && TTID >= FEXAlgoSpaceDefs::jFEX_FCAL_start){ 
                     m_FPGA_ET_central_HAD[iphi][ieta]=m_FPGA_ET_central_HAD[iphi][ieta]-m_rho_FCAL * (tmp_HD_Area*tmp_EM_Area); 
                 } 
                 else if(tmp_eta < 32 ){

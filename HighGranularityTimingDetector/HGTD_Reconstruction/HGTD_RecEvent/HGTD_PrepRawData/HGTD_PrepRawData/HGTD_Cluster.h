@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_PrepRawData/HGTD_Cluster.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -28,6 +28,7 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
+#include "CxxUtils/CachedValue.h"
 #include <memory>
 #include <numeric>
 
@@ -35,9 +36,9 @@ class HGTD_Cluster : public Trk::PrepRawData {
 
 public:
   HGTD_Cluster();
-  HGTD_Cluster(const HGTD_Cluster&);
+  HGTD_Cluster(const HGTD_Cluster&) = default;
+  HGTD_Cluster& operator=(const HGTD_Cluster&) = default;
   HGTD_Cluster(HGTD_Cluster&&);
-  HGTD_Cluster& operator=(const HGTD_Cluster&);
   HGTD_Cluster& operator=(HGTD_Cluster&&);
 
   HGTD_Cluster(const Identifier& rdo_id, const Amg::Vector2D& loc_pos,
@@ -81,7 +82,7 @@ public:
 private:
   InDet::SiWidth m_width; // col, row, and width in mm
 
-  mutable std::unique_ptr<const Amg::Vector3D> m_glob_pos;
+  CxxUtils::CachedValue<Amg::Vector3D> m_glob_pos;
 
   const InDetDD::SolidStateDetectorElementBase* m_det_el;
 
@@ -96,16 +97,13 @@ private:
 inline const InDet::SiWidth& HGTD_Cluster::width() const { return m_width; }
 
 inline const Amg::Vector3D& HGTD_Cluster::globalPosition() const {
-  if (m_glob_pos == nullptr and m_det_el) {
-    // Trk::Surface::localToGlobal returns const Amg::Vector3D&
-    auto temp_ref =
-        m_det_el->surface(identify()).localToGlobal(localPosition());
-    m_glob_pos.reset(&temp_ref);
-  }
-  if (not m_glob_pos) {
+  if (!m_det_el) {
     throw Trk::PrepRawDataUndefinedVariable();
   }
-  return *m_glob_pos;
+  if (!m_glob_pos.isValid()) {
+    m_glob_pos.set (m_det_el->surface(identify()).localToGlobal(localPosition()));
+  }
+  return *m_glob_pos.ptr();
 }
 
 inline const InDetDD::SolidStateDetectorElementBase*

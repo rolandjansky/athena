@@ -32,10 +32,13 @@ elif [ $totalL1PhysP1json -lt 2 ] || [ $totalHLTPhysP1json -lt 3 ]; then
     exit 1
 fi
 
-cp HLTMenu_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/HLTMenu.json
-cp HLTPrescalesSet_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/HLTPrescale.json
-cp L1Menu_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/L1Menu.json
-cp L1PrescalesSet_PhysicsP1_pp_run3_v1_*.json ${RB_PATH_SCRIPTS}/L1Prescale.json
+# Move to RB scripts dir to set up links
+TEST_DIR=${PWD}
+cd ${RB_PATH_SCRIPTS}
+# input file path, menu, release
+./update_inputs.sh ${TEST_DIR} ${AtlasVersion} PhysicsP1_pp_run3_v1
+# Return to test working dir
+cd ${TEST_DIR}
 
 sed -i -e 's/allowNoOracleConnection\s*=\s*False/allowNoOracleConnection = True/g' ${RB_PATH_PYTHON}/runOptions.py
 sed -i -e 's/retryOracleConnection\s*=\s*True/retryOracleConnection = False/g' ${RB_PATH_PYTHON}/runOptions.py

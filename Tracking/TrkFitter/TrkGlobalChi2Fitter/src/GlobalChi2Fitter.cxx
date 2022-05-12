@@ -595,7 +595,7 @@ namespace Trk {
       muontrack->trackStateOnSurfaces()->begin();
       
     if (firstismuon) {
-      tsosit--;
+     -- tsosit;
     }
     
     const MeasurementBase *closestmuonmeas = nullptr;
@@ -2075,7 +2075,7 @@ namespace Trk {
           double sigmascat = 0;
           
           if (matprop != nullptr) {
-            eloss.reset(m_elosstool->energyLoss(*matprop, p, 1. / costracksurf, Trk::alongMomentum, matEffects));
+            eloss = m_elosstool->energyLoss(*matprop, p, 1. / costracksurf, Trk::alongMomentum, matEffects);
             sigmascat = std::sqrt(m_scattool->sigmaSquare(*matprop, p, 1. / costracksurf, matEffects));
             
             if (eloss != nullptr) {
@@ -3279,13 +3279,13 @@ namespace Trk {
         std::unique_ptr<EnergyLoss> eloss;
         
         if (cache.m_fiteloss || (matEffects == electron && cache.m_asymeloss)) {
-          eloss.reset(m_elosstool->energyLoss(
+          eloss = m_elosstool->energyLoss(
             *matprop,
             (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
             1. / costracksurf, 
             alongMomentum,
             matEffects
-          ));
+          );
           if (eloss != nullptr) {
             meff->setSigmaDeltaE(eloss->sigmaDeltaE());
           }
@@ -4370,59 +4370,56 @@ namespace Trk {
 
     if (firsthit == firstmuonhit && cache.m_extmat && (firstcalopar != nullptr)) {
       std::unique_ptr<const Trk::TrackParameters> muonpar1;
-      
-      if (firstcalopar != nullptr) {
-        if (cache.m_msEntrance == nullptr) {
-          const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
+    
+      if (cache.m_msEntrance == nullptr) {
+        const TrackingGeometry *geometry = trackingGeometry(cache,ctx);
 
-          if (geometry != nullptr) {
-            cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
-          } else {
-            ATH_MSG_ERROR("Tracking Geometry not available");
-          }
-        }
-
-        if (cache.m_msEntrance == nullptr) {
-          ATH_MSG_ERROR("MS entrance not available");
-        } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
-          muonpar1 = m_extrapolator->extrapolateToVolume(ctx,
-                                                         *firstcalopar,
-                                                         *cache.m_msEntrance,
-                                                         Trk::oppositeMomentum,
-                                                         Trk::nonInteracting);
-
-          if (muonpar1 != nullptr) {
-            Amg::Vector3D trackdir = muonpar1->momentum().unit();
-            Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
-            Amg::Vector3D curvU = curvZcrossT.unit();
-            Amg::Vector3D curvV = trackdir.cross(curvU);
-            Amg::RotationMatrix3D rot = Amg::RotationMatrix3D::Identity();
-            rot.col(0) = curvU;
-            rot.col(1) = curvV;
-            rot.col(2) = trackdir;
-            Amg::Transform3D trans;
-            trans.linear().matrix() << rot;
-            trans.translation() << muonpar1->position() - .1 * trackdir;
-            PlaneSurface curvlinsurf(trans);
-
-            std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
-              ctx,
-              *muonpar1, 
-              curvlinsurf,
-              Trk::oppositeMomentum,
-              Trk::nonInteracting != 0u
-            ));
-            
-            if (curvlinpar != nullptr) {
-              muonpar1 = std::move(curvlinpar);
-            }
-          }
+        if (geometry != nullptr) {
+          cache.m_msEntrance = geometry->trackingVolume("MuonSpectrometerEntrance");
         } else {
-          muonpar1 = std::unique_ptr<const TrackParameters>(firstcalopar->clone());
+          ATH_MSG_ERROR("Tracking Geometry not available");
+        }
+      }
+
+      if (cache.m_msEntrance == nullptr) {
+        ATH_MSG_ERROR("MS entrance not available");
+      } else if (cache.m_msEntrance->inside(firstcalopar->position())) {
+        muonpar1 = m_extrapolator->extrapolateToVolume(ctx,
+                                                       *firstcalopar,
+                                                       *cache.m_msEntrance,
+                                                       Trk::oppositeMomentum,
+                                                       Trk::nonInteracting);
+
+        if (muonpar1 != nullptr) {
+          Amg::Vector3D trackdir = muonpar1->momentum().unit();
+          Amg::Vector3D curvZcrossT = -(trackdir.cross(Amg::Vector3D(0, 0, 1)));
+          Amg::Vector3D curvU = curvZcrossT.unit();
+          Amg::Vector3D curvV = trackdir.cross(curvU);
+          Amg::RotationMatrix3D rot = Amg::RotationMatrix3D::Identity();
+          rot.col(0) = curvU;
+          rot.col(1) = curvV;
+          rot.col(2) = trackdir;
+          Amg::Transform3D trans;
+          trans.linear().matrix() << rot;
+          trans.translation() << muonpar1->position() - .1 * trackdir;
+          PlaneSurface curvlinsurf(trans);
+
+          std::unique_ptr<const TrackParameters> curvlinpar(m_extrapolator->extrapolateDirectly(
+            ctx,
+            *muonpar1, 
+            curvlinsurf,
+            Trk::oppositeMomentum,
+            Trk::nonInteracting != 0u
+          ));
+          
+          if (curvlinpar != nullptr) {
+            muonpar1 = std::move(curvlinpar);
+          }
         }
       } else {
-        muonpar1 = std::unique_ptr<const TrackParameters>(refpar->clone());
+        muonpar1 = std::unique_ptr<const TrackParameters>(firstcalopar->clone());
       }
+      
 
       DistanceSolution distsol;
       
@@ -6746,7 +6743,11 @@ namespace Trk {
       }
     }
 
-    return std::make_unique<TrackStateOnSurface>(measurement.release(), trackpar.release(), fitQual.release(), mateff.release(), typePattern);
+    return std::make_unique<TrackStateOnSurface>(std::move(measurement),
+                                                 std::move(trackpar),
+                                                 std::move(fitQual),
+                                                 std::move(mateff),
+                                                 typePattern);
   }
 
   void GlobalChi2Fitter::makeTrackFillDerivativeMatrix(
@@ -7141,6 +7142,7 @@ namespace Trk {
          * We also have no interest in going past the final measurement, so we
          * break out of the loop if we find it.
          */
+        //cppcheck-suppress iterators3 
         if (s.get() == lastmeas) {
           break;
         }
@@ -7405,8 +7407,7 @@ namespace Trk {
     return rv;
   }
 
-  GlobalChi2Fitter::~GlobalChi2Fitter() {
-  }
+  GlobalChi2Fitter::~GlobalChi2Fitter() = default;
 
   std::vector<std::unique_ptr<TrackParameters>> GlobalChi2Fitter::holesearchExtrapolation(
     const EventContext & ctx,

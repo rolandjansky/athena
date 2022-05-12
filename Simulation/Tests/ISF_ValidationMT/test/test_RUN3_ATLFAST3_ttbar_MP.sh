@@ -3,6 +3,7 @@
 # art-description: MC21-style simulation using ATLFAST3MT in AthenaMP
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 4
 # art-output: test.HITS.pool.root
 

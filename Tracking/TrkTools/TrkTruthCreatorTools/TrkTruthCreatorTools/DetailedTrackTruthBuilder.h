@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -33,7 +33,8 @@ namespace Trk {
     /** See description for IDetailedTrackTruthBuilder::buildDetailedTrackTruth() */
     virtual void buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 					 const TrackCollection& tracks,
-					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const;
+					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth,
+					 unsigned int maxTracks=-1) const;
 
   private:
     typedef InverseMultiMap<PRD_MultiTruthCollection> PRD_InverseTruth;
@@ -49,7 +50,7 @@ namespace Trk {
 		  const std::vector<const PRD_MultiTruthCollection*>& orderedPRD_Truth,
 		  const PRD_InverseTruth& inverseTruth) const;
 
-    void makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) const;
+    static void makeTruthToRecMap( PRD_InverseTruth& result, const PRD_MultiTruthCollection& rec2truth) ;
 
     SubDetHitStatistics countPRDsOnTruth(const TruthTrajectory& traj,
                                          const PRD_InverseTruth& inverseTruth) const;

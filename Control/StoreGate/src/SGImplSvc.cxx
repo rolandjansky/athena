@@ -47,16 +47,11 @@
 
 using std::ostringstream;
 using std::setw;
-using std::bind1st;
-using std::find_if;
-using std::mem_fun;
-using std::not1;
 using std::hex;
 using std::dec;
 using std::endl;
 using std::ends;
 using std::pair;
-using std::setw;
 using std::string;
 using std::vector;
 
@@ -776,8 +771,10 @@ SGImplSvc::transientContains(const CLID id, const std::string& key) const
 
 DataProxy* 
 SGImplSvc::proxy(const void* const pTransient) const
-{ 
-  lock_t lock (m_mutex);
+{
+  // No lock needed here --- the T2pmap held by DataStore has its own locking
+  // (and we were seeing contention here).
+  //lock_t lock (m_mutex);
   return m_pStore->locatePersistent(pTransient); 
 }
 

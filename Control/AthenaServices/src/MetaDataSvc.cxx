@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -23,6 +23,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "RootAuxDynIO/RootAuxDynIO.h"
 
 #include "OutputStreamSequencerSvc.h"
 
@@ -46,8 +47,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_allowMetaDataStop(false),
         m_outputPreprared(false),
 	m_persToClid(),
-	m_toolForClid(),
-	m_streamForKey() {
+	m_toolForClid() {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
@@ -190,13 +190,8 @@ StatusCode MetaDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode MetaDataSvc::preLoadAddresses(StoreID::type /*storeID*/,
-	IAddressProvider::tadList& /*tads*/) {
-   return(StatusCode::SUCCESS);
-}
-//________________________________________________________________________________
 StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads) {
-   if (storeID != StoreID::METADATA_STORE) {
+   if (storeID != StoreID::METADATA_STORE) { // should this (also) run in the INPUT_METADATA_STORE?
       return(StatusCode::SUCCESS);
    }
    // Put Additional MetaData objects into Input MetaData Store using VersionedKey
@@ -227,11 +222,6 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*,
-                                      const EventContext&) {
-   return(StatusCode::FAILURE);
-}
-
 StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
 {
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
@@ -243,6 +233,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    const std::string fileName = fileInc->fileName();
    m_allowMetaDataStop = false;
    if (!boost::starts_with (fileName, "BSF:")) {
+      // the input file is _not_ bytestream
       if (!m_clearedInputDataStore) {
          if (!m_inputDataStore->clearStore().isSuccess()) {
             ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
@@ -380,10 +371,10 @@ void MetaDataSvc::handle(const Incident& inc) {
 }
 
 //__________________________________________________________________________
-// This method is currently called only from OutputStreamSequencerSvc for MP EventService
-StatusCode MetaDataSvc::transitionMetaDataFile()
+// This method is currently called only from OutputStreamSequencerSvc
+StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn)
 {
-   ATH_MSG_DEBUG("transitionMetaDataFile()");
+   ATH_MSG_DEBUG("transitionMetaDataFile: " << outputConn );
 
    // this is normally called through EndInputFile inc, simulate it for EvSvc 
    FileIncident inc("transitionMetaDataFile", "EndInputFile", "dummyMetaInputFileName", "");
@@ -397,7 +388,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile()
 
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
-      if (!cnvSvc->disconnectOutput("").isSuccess()) {
+      if (!cnvSvc->disconnectOutput(outputConn).isSuccess()) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
    }
@@ -422,6 +413,26 @@ StatusCode MetaDataSvc::io_reinit() {
 //__________________________________________________________________________
 StatusCode MetaDataSvc::rootOpenAction(FILEMGR_CALLBACK_ARGS) {
    return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+// check if the metadata object key contains Stream name (added by SharedWriter in MetaDataSvc)
+// remove stream part from the key (i.e. modify the parameter) and return it
+std::string MetaDataSvc::removeStreamFromKey(std::string& key) {
+   size_t pos = key.find(m_streamInKeyMark);
+   if( pos==std::string::npos ) return "";
+   size_t epos = key.find(']', pos);
+   size_t spos = pos + m_streamInKeyMark.size();
+   std::string stream = key.substr( spos, epos - spos );
+   key = key.substr(0, pos) + key.substr(epos+1);
+   return stream;
+}
+//__________________________________________________________________________
+std::set<std::string> MetaDataSvc::getPerStreamKeysFor(const std::string& key ) const {
+   auto iter = m_streamKeys.find( key );
+   if( iter == m_streamKeys.end() ) {
+      return std::set<std::string>( {key} );
+   } 
+   return iter->second;
 }
 //__________________________________________________________________________
 StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr) {
@@ -476,9 +487,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
-         toolInstName += "_" + keyName;
-      }
       bool foundTool = false;
       for (auto iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc." + toolInstName) foundTool = true;
@@ -494,32 +502,30 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
          }
-         if (clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
-            IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
-            if (property == nullptr) {
-               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
-               return(StatusCode::FAILURE);
-            }
-            if (!property->setProperty("InputKey", keyName).isSuccess()) {
-               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
-               return(StatusCode::FAILURE);
-            }
-            if (!property->setProperty("OutputKey", keyName).isSuccess()) {
-               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set output key " << tokenStr);
-               return(StatusCode::FAILURE);
-            }
-         }
       }
+   }
+   // make stream-unique keys for infile metadata objects
+   // AthenaOutputStream will use this to distribute objects to the right stream (and restore the original key)
+   if( clid == 178309087 ) {  // FileMetaData
+      std::string newName = keyName + m_streamInKeyMark + fileName + "]";
+      ATH_MSG_DEBUG("Recording " << keyName << " as " << newName);
+      m_streamKeys[keyName].insert(newName);
+      keyName = std::move(newName);
+   }
+   if( clid == 73252552 ) {  // FileMetaDataAuxInfo
+      std::string newName = keyName.substr(0, keyName.find(RootAuxDynIO::AUX_POSTFIX)) + m_streamInKeyMark
+                          + fileName +  + "]" + RootAuxDynIO::AUX_POSTFIX;
+      ATH_MSG_DEBUG("Recording " << keyName << " as " << newName);
+      m_streamKeys[keyName].insert(newName);
+      keyName = std::move(newName);
    }
    const std::string par[3] = { "SHM" , keyName , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
-   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
-   if (iter == m_streamForKey.end()) {
-      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
-   } else if (fileName != iter->second) { // Remove duplicated objects
+   SG::DataProxy* dp = m_inputDataStore->proxy(clid, keyName);
+   if (dp != nullptr) {
       ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
-      m_inputDataStore->proxy(clid, keyName)->reset();
+      dp->reset();
    }
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
@@ -534,7 +540,8 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
    }
-   if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink (clid, keyName, 187169987).isFailure()) {
+   if (keyName.find(RootAuxDynIO::AUX_POSTFIX) != std::string::npos
+       && m_inputDataStore->symLink(clid, keyName, 187169987).isFailure()) {
       ATH_MSG_WARNING("addProxyToInputMetaDataStore: Cannot symlink to AuxStore for " << tokenStr);
    }
    return(StatusCode::SUCCESS);
@@ -676,3 +683,5 @@ void MetaDataSvc::unlockTools() const
       if( lockable ) lockable->unlock_shared();
    }
 }
+
+

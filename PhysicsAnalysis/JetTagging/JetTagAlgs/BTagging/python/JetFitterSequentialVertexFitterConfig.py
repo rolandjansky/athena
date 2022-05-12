@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
 from BTagging.JetFitterSequentialVertexSmootherConfig import JetFitterSequentialVertexSmootherCfg
-
-# import the SequentialVertexFitter configurable
-Trk__SequentialVertexFitter=CompFactory.Trk.SequentialVertexFitter
 
 def JetFitterSequentialVertexFitterCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexFitter tool and returns it.
@@ -26,6 +23,6 @@ def JetFitterSequentialVertexFitterCfg(name, useBTagFlagsDefaults = True, **opti
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Trk__SequentialVertexFitter(**options))
+    acc.setPrivateTools(CompFactory.Trk.SequentialVertexFitter(**options))
 
     return acc

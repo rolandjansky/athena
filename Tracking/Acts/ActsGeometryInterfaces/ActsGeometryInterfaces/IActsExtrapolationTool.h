@@ -11,7 +11,7 @@
 #include "GaudiKernel/EventContext.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
-#include "ActsGeometry/ActsGeometryContext.h"
+#include "ActsGeometryInterfaces/ActsGeometryContext.h"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 
 #include "Acts/Propagator/MaterialInteractor.hpp"

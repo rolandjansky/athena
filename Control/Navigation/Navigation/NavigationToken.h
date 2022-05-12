@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATIONTOKEN_H
@@ -69,9 +69,15 @@ class NavigationToken : public INavigationToken
  /////////////////////
 
  class NavigationTokenIterator
-   : public std::iterator<NavigationTokenIteratorTag, const_child_ptr>
  {
    public:
+
+   using iterator_category = NavigationTokenIteratorTag;
+   using value_type = const_child_ptr;
+   using difference_type = std::ptrdiff_t;
+   using pointer = value_type*;
+   using reference = value_type&;
+
    typedef CHILDPAR tokenParameter;
    
    NavigationTokenIterator() : m_store(0) { };

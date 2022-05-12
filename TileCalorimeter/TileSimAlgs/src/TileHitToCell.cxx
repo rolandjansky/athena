@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -19,8 +19,8 @@
 // Tile includes
 #include "TileSimAlgs/TileHitToCell.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-#include "TileConditions/TileInfo.h"
 #include "TileEvent/TileCell.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -31,19 +31,14 @@
 #include "EventContainers/SelectAllObject.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
+#include "StoreGate/ReadCondHandle.h"
 
 //
 // Constructor
 //
 TileHitToCell::TileHitToCell(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_infoName ("TileInfo")
-  , m_tileID(0)
-  , m_tileInfo(0)
-  , m_tileMgr(0)
 {
-  declareProperty("TileInfoName", m_infoName);
 }
 
 TileHitToCell::~TileHitToCell() {
@@ -54,16 +49,18 @@ TileHitToCell::~TileHitToCell() {
 //
 StatusCode TileHitToCell::initialize() {
 
-  // retrieve Tile detector manager, TileID helper and TileInfo from det store
+  // retrieve Tile detector manager, TileID helper from det store
 
-  CHECK( detStore()->retrieve(m_tileMgr) );
+  ATH_CHECK( detStore()->retrieve(m_tileMgr) );
 
-  CHECK( detStore()->retrieve(m_tileID) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
 
-  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
 
   ATH_CHECK( m_hitContainerKey.initialize() );
   ATH_CHECK( m_cellContainerKey.initialize() );
+
+  ATH_CHECK( m_samplingFractionKey.initialize() );
 
   ATH_MSG_INFO( "TileHitToCell initialisation completed" );
 
@@ -76,6 +73,9 @@ StatusCode TileHitToCell::initialize() {
 StatusCode TileHitToCell::execute() {
 
   ATH_MSG_DEBUG( "Executing TileHitToCell" );
+
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey);
+  ATH_CHECK( samplingFraction.isValid() );
 
   // step1: read hits from TES
   SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
@@ -108,13 +108,19 @@ StatusCode TileHitToCell::execute() {
     Identifier pmt_id = (*hitItr)->identify();
     int pmt = m_tileID->pmt(pmt_id); // 0 or 1 - first or second PMT of the cell
 
+    HWIdentifier pmt_hwid = (*hitItr)->pmt_HWID();
+    int ros = m_tileHWID->ros(pmt_hwid);
+    int drawer = m_tileHWID->drawer(pmt_hwid);
+    int channel = m_tileHWID->channel(pmt_hwid);
+    int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
     // Get logical ID of cell
     Identifier cell_id = m_tileID->cell_id(pmt_id);
     m_tileID->get_hash(cell_id, cellHash_id, &cellContext);
 
     // Convert hit energy deposit to cell energy
     double eHit = (*hitItr)->energy();
-    double fact = m_tileInfo->HitCalib(pmt_id);
+    double fact = samplingFraction->getSamplingFraction(drawerIdx, channel);
     double eCell = eHit * fact;
 
     ++nChan;

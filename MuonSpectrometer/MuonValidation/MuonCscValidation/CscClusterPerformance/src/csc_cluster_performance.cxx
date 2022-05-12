@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // csc_cluster_performance.cxx
@@ -21,10 +21,11 @@
 #include <map>
 #include <vector>
 #include <cmath>
+
 #include "TTree.h"
 #include "TTreeIndex.h"
-#include "CscClusterPerformance/SimposAccessor.h"
-#include "CscClusterPerformance/ClusterAccessor.h"
+#include "SimposAccessor.h"
+#include "ClusterAccessor.h"
 
 using std::string;
 using std::map;
@@ -597,8 +598,8 @@ int main(int narg, char* argv[]) {
 
 // Build the skeleton functions.
 #define SimposAccessor_cxx
-#include "CscClusterPerformance/SimposAccessor.h"
+#include "SimposAccessor.h"
 void SimposAccessor::Loop() { }
 #define ClusterAccessor_cxx
-#include "CscClusterPerformance/ClusterAccessor.h"
+#include "ClusterAccessor.h"
 void ClusterAccessor::Loop() { }

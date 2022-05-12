@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
@@ -182,6 +182,7 @@ private:
                                                           Info* info) const;
   //MCTruthPartClassifier::ParticleOrigin
   std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*) const;
+  static bool fromHadron(const xAOD::TruthParticle* p, const xAOD::TruthParticle *hadptr, bool &fromTau, bool &fromBSM);
 
   //
   MCTruthPartClassifier::ParticleOrigin defHadronType(long);
@@ -262,6 +263,7 @@ private:
     "xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"
   };
 
+  bool  m_FwdElectronUseG4Sel;
   float m_FwdElectronTruthExtrEtaCut;
   float m_FwdElectronTruthExtrEtaWindowCut;
   float m_partExtrConeEta;

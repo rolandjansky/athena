@@ -12,6 +12,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include "CaloConditions/ToolConstants.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaKernel/errorcheck.h"
 
 

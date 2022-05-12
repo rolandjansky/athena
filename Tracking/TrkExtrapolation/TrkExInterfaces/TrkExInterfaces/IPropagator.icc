@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -39,22 +39,6 @@ Trk::IPropagator::propagateT(const EventContext&,
                              TimeLimit&,
                              bool,
                              const Trk::TrackingVolume*,
-                             std::vector<Trk::HitInfo>*&) const
-{
-  return nullptr;
-}
-
-inline std::unique_ptr<Trk::TrackParameters>
-Trk::IPropagator::propagateT(const EventContext&,
-                             const TrackParameters&,
-                             Trk::TargetSurfaces&,
-                             PropDirection,
-                             const MagneticFieldProperties&,
-                             ParticleHypothesis,
-                             Trk::TargetSurfaceVector&,
-                             PathLimit&,
-                             TimeLimit&,
-                             bool,
                              std::vector<Trk::HitInfo>*&) const
 {
   return nullptr;

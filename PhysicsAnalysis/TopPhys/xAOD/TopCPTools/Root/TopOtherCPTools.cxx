@@ -76,6 +76,27 @@ namespace top {
   StatusCode OtherCPTools::setupPileupReweighting() {
     const std::string prw_tool_name = "PileupReweightingTool";
 
+    auto GetDefaultPRW = [this](bool isFS) {
+      // example path: dev/PileupReweighting/share/DSID410xxx/pileup_mc20e_dsid410470_FS.root
+      std::string path = "dev/PileupReweighting/share/DSID";
+      const int dsid = this->m_config->getDSID();
+      const std::string year = this->m_config->getYear();
+      std::string campaign("mc20a");
+      if (year == "2017") campaign = "mc20d";
+      else if (year == "2018") campaign = "mc20e";
+      path += std::to_string(dsid/1000) + "xxx/";
+      path += "pileup_" + campaign + "_dsid" + std::to_string(dsid) + "_";
+      path += isFS ? "FS" : "AFII";
+      path += ".root";
+
+      // if running on data, give any valid MC file
+      if (!this->m_config->isMC()) path = "dev/PileupReweighting/share/DSID410xxx/pileup_mc20e_dsid410470_FS.root";
+
+      ATH_MSG_INFO("Using the default PRW file: " + path);
+
+      return path;
+    };
+
     if (asg::ToolStore::contains<CP::IPileupReweightingTool>(prw_tool_name)) {
       m_pileupReweightingTool = asg::ToolStore::get<CP::IPileupReweightingTool>(prw_tool_name);
     } else {
@@ -91,12 +112,21 @@ namespace top {
         s = PathResolverFindCalibFile(s);
 
       std::vector<std::string> pileup_config_FS = m_config->PileupConfig_FS();
-      for (std::string& s : pileup_config_FS)
-        s = PathResolverFindCalibFile(s);
+      if (pileup_config_FS.empty() && !m_config->isAFII()) {
+        pileup_config_FS.emplace_back(PathResolverFindCalibFile(GetDefaultPRW(true)));
+      } else {
+        for (std::string& s : pileup_config_FS) {
+          s = PathResolverFindCalibFile(s);
+        }
+      }
 
       std::vector<std::string> pileup_config_AF = m_config->PileupConfig_AF();
-      for (std::string& s : pileup_config_AF)
-        s = PathResolverFindCalibFile(s);
+      if (pileup_config_AF.empty() && m_config->isAFII()) {
+        pileup_config_AF.emplace_back(PathResolverFindCalibFile(GetDefaultPRW(false)));
+      } else {
+        for (std::string& s : pileup_config_AF)
+          s = PathResolverFindCalibFile(s);
+      }
 
       std::vector<std::string> actual_mu_FS = m_config->PileupActualMu_FS();
       for (std::string& s : actual_mu_FS)

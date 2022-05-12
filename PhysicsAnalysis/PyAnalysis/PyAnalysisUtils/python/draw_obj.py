@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: draw_obj.py
@@ -55,7 +55,6 @@ from __future__ import division
 
 
 from ROOT import gROOT, TCanvas, TVirtualPad, TH1, TH2, TObject
-import string
 
 
 # The number of histograms we've superimposed on the current pad with SAME.
@@ -88,7 +87,7 @@ class _options(object):
 
         options = options.replace (',', ' ')
         for o in options.split():
-            lo = string.lower (o)
+            lo = o.lower()
             if lo in ["merge", "same", "norm", "logy", 'linecolors']:
                 setattr (self, lo, 1)
             elif (self._optmatch (lo, "fill") or

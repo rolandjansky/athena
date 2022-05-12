@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef JEMTOB_H
 #define JEMTOB_H
@@ -8,8 +8,6 @@
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/Heap.h"
 
-
-// TODO implement sizecheck lile in ClusterTOB
 
 namespace TCS {
    
@@ -31,10 +29,7 @@ namespace TCS {
       virtual ~jEmTOB();
       
       // accessors
-      unsigned int energy() const { return m_Et; }
       unsigned int Et() const { return m_Et; }
-      
-      // accessors
       int eta() const { return m_eta; }
       unsigned phi() const { return m_phi; }
       
@@ -43,7 +38,7 @@ namespace TCS {
       double phiDouble() const { return m_phiDouble; }
       
       // setters
-      void setEt(int energy) { m_Et = energy; }
+      void setEt(int et) { m_Et = et; }
       void setEta(int eta) { m_eta = eta; }
       void setPhi(int phi) { m_phi = phi; }
       

@@ -81,6 +81,9 @@ def _loadBasicEventInfoMgt():
     from AthenaCommon.AppMgr import theApp
     theApp.CreateSvc += [ tagInfoMgr.name() ]
 
+    # include basic IOVDbSvc functionality for /TagInfo
+    from IOVDbSvc import IOVDb   # noqa: F401
+
     msg.debug( "Loading basic services for EventInfoMgt... [DONE]" )
     return
 

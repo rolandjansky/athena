@@ -287,7 +287,7 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
 
   // vertex variables
   double dz0_TV_PV0 = 0., sumpt_TV = 0., sumpt2_TV = 0., sumpt_PV0 = 0., sumpt2_PV0 = 0.;
-  if(vertexContainer != nullptr && !vertexContainer->empty()) {
+  if(vertexContainer != nullptr && !vertexContainer->empty() && xTau.vertex()!=nullptr) {
     dz0_TV_PV0 = xTau.vertex()->z() - vertexContainer->at(0)->z();
 
     for (const ElementLink<xAOD::TrackParticleContainer>& trk : vertexContainer->at(0)->trackParticleLinks()) {
@@ -330,7 +330,8 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
       valueMap["z0sinthetaSigTJVA"][i] = xTrack->z0sinthetaSigTJVA();
       valueMap["log(rConv)"][i] = std::log( xTrack->rConv() );
       valueMap["tanh(rConvII/500)"][i] = std::tanh( xTrack->rConvII()/500. );
-      valueMap["dRJetSeedAxis"][i] = xTrack->dRJetSeedAxis(xTau);
+      // there is no seed jets in AOD so dRJetSeedAxis wont work
+      valueMap["dRJetSeedAxis"][i] = xTrack->p4().DeltaR(xTau.p4(xAOD::TauJetParameters::JetSeed));
       valueMap["dRIntermediateAxis"][i] = xTrack->p4().DeltaR( xTau.p4(xAOD::TauJetParameters::IntermediateAxis) );
       valueMap["tanh(d0SigTJVA/10)"][i] = std::tanh( xTrack->d0SigTJVA()/10. );
       valueMap["tanh(d0TJVA/10)"][i] = std::tanh( xTrack->d0TJVA()/10. );

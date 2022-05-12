@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ Trk::StaticNavigationEngine::StaticNavigationEngine(const std::string& t, const 
 
 // destructor
 Trk::StaticNavigationEngine::~StaticNavigationEngine()
-{}
+= default;
 
 // the interface method initialize
 StatusCode Trk::StaticNavigationEngine::initialize()

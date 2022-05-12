@@ -15,7 +15,7 @@
 
 from __future__ import print_function
 
-import sys, os
+import os
 
 AMI_TAG_PREFIX='h'
 
@@ -137,7 +137,7 @@ def update_dict_for_configs_afs(updict, indir):
     print ()
 
     val = updict.get('phconfig', {})
-    if isinstance(val, basestring):
+    if isinstance(val, str):
         val = {}
     val['filepaths'] = filepathdict
     updict['phconfig'] = '"%s"' % val
@@ -192,7 +192,7 @@ def update_dict_for_configs_cvmfs(updict, indir):
     print ()
 
     val = updict.get('phconfig', {})
-    if isinstance(val, basestring):
+    if isinstance(val, str):
         val = {}
     val['filepaths'] = filepathdict
     updict['phconfig'] = '"%s"' % val
@@ -206,9 +206,9 @@ def update_dict_for_release(updict, release):
         raise RuntimeError(s)
     relProj=relSp[0]
     if ',' in relSp[1]:
-        relNbr, relAddtl=relSp[1].split(',', 1)
+        relNbr, _=relSp[1].split(',', 1)
     else:
-        relNbr, relAddtl=relSp[1], None
+        relNbr, _=relSp[1], None
     ### 21.0 stored on cvmfs
     baseRelNbr=".".join(relNbr.split(".")[:2])
     relPath = "/cvmfs/atlas.cern.ch/repo/sw/software/%s/%s/%s" % (baseRelNbr, relProj, relNbr)
@@ -306,9 +306,9 @@ if __name__ == '__main__':
     nextTag = get_next_tag(latestTag)
     
     if args[0].lower() == 'configs':
-        if '/afs/cern.ch/user/a/atlasdqm/' in args[1]:
+        if '/afs/cern.ch/user/a/atlasdqm/' in str(args[1]):
             update_dict_for_configs_afs(cfgdict, args[1])
-        elif 'cvmfs' in args[1]:
+        elif 'cvmfs' in str(args[1]):
             update_dict_for_configs_cvmfs(cfgdict, args[1])
         else:
             s="Invalid directory given. hcfg files should exist in cvmfs or the atlasdqm afs space"

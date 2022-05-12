@@ -60,7 +60,7 @@ svcMgr.EventSelector.FirstEvent  = 1
 #--------------------------------------------------------------
 #User random number seeds - re-written if use B job submition script
 #--------------------------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr.AtRndmGenSvc.Seeds = ["PYTHIA 4789899 989240512", "PYTHIA_INIT 820021 2347532", "EVTGEN 4789899 821000366"]
 # svcMgr.AtRndmGenSvc.ReadFromFile = true;

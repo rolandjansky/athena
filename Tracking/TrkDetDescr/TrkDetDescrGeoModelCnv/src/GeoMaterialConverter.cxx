@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,9 +14,9 @@
 #include "GeoModelKernel/Units.h"
 
 
-double Trk::GeoMaterialConverter::s_densityCnvFactor = 1./GeoModelKernelUnits::gram;
+const double Trk::GeoMaterialConverter::s_densityCnvFactor = 1./GeoModelKernelUnits::gram;
 
-Trk::Material Trk::GeoMaterialConverter::convert(const GeoMaterial* gm) const {
+Trk::Material Trk::GeoMaterialConverter::convert(const GeoMaterial* gm) {
   // get the obvious things 
   float x0   = gm->getRadLength();
   float l0   = gm->getIntLength();
@@ -34,6 +34,6 @@ Trk::Material Trk::GeoMaterialConverter::convert(const GeoMaterial* gm) const {
         Z += fraction*(geoEl->getZ());             
    }
   // return the result
-  return Trk::Material(x0,l0,A,Z,rho);
+  return {x0,l0,A,Z,rho};
 
 }

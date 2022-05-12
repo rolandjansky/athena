@@ -25,7 +25,8 @@ function( _add_test name )
    atlas_add_test( ${name}
                    SOURCES test/${name}.cxx
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib CaloEvent DataModelAthenaPoolLib Particle SGTools TestTools VxVertex eflowEvent eflowEventTPCnv )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolCnvSvcLib CaloEvent DataModelAthenaPoolLib Particle SGTools TestTools 
+		                  VxVertex eflowEvent eflowEventTPCnv CxxUtils)
 endfunction( _add_test )
 
 _add_test( eflowObjectCnv_p1_test )

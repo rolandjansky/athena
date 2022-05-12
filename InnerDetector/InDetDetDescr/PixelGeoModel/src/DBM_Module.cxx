@@ -54,9 +54,8 @@ DBM_Module::DBM_Module(InDetDD::PixelDetectorManager* ddmgr,
 							     InDetDD::electrons,
 							     readoutSide);
 
-  m_design = p_dbmdesign.get();
 
-  m_DDmgr->addDesign(std::move(p_dbmdesign));
+  m_design = m_DDmgr->addDesign(std::move(p_dbmdesign));
 
 
 }
@@ -163,19 +162,6 @@ GeoVPhysVol* DBM_Module::Build()
     int dbmdet = 4*m_gmt_mgr->GetSide();
     Identifier idwafer;
     idwafer = idHelper->wafer_id(dbmdet,m_gmt_mgr->GetLD(),m_gmt_mgr->Phi(),m_gmt_mgr->Eta());
-
-    // if (gmt_mgr->msgLvl(MSG::INFO)) {
-    //   gmt_mgr->msg(MSG::INFO) << "BEGIN DBM diamond crystal" << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "check identifier for side="<< dbmdet <<" layer=" << gmt_mgr->GetLD() << " phi=" << gmt_mgr->Phi() << " eta=" << gmt_mgr->Eta() << endmsg; 
-    //   gmt_mgr->msg(MSG::INFO) << "is pixel = " << idHelper->is_pixel(idwafer) << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "is barrel = " << idHelper->is_barrel(idwafer) << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "barrelendcap = " << idHelper->barrel_ec(idwafer) << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "layer = " << idHelper->layer_disk(idwafer) << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "phi_module = " << idHelper->phi_module(idwafer) << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "eta module = " << idHelper->eta_module(idwafer) << endmsg;
-    //   gmt_mgr->msg(MSG::INFO) << "END DBM diamond crystal" << endmsg;
-    //}
-
     SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, dbmDiamondPhys, m_gmt_mgr->commonItems());
     
     // add the element to the manager
@@ -183,8 +169,7 @@ GeoVPhysVol* DBM_Module::Build()
 
     GeoTrf::Translation3D dbmDiamondPos(0, bot2Diamond+diamond_Y/2.0-substrate_Y/2.0, diamond_Z/2.0-max_thick/2.0);
     GeoTransform* xform = new GeoTransform(GeoTrf::Transform3D(dbmDiamondPos*rm));
-    //tag = new GeoNameTag("dbmDiamond");
-    //dbmModulePhys->add(tag);
+     
     dbmModulePhys->add(diamondTag);
     dbmModulePhys->add(xform);
     dbmModulePhys->add(dbmDiamondPhys);
@@ -196,8 +181,7 @@ GeoVPhysVol* DBM_Module::Build()
     
     GeoTrf::Translation3D dbmFEI4Pos(0, bot2Chip+chip_Y/2.0-substrate_Y/2.0, max_thick/2.0-substrate_Z-chip_thick/2.0);
     xform = new GeoTransform(GeoTrf::Transform3D(dbmFEI4Pos*rm));
-    //tag = new GeoNameTag("dbmFEI4");
-    //dbmModulePhys->add(tag);
+     
     dbmModulePhys->add(xform);
     dbmModulePhys->add(dbmFEI4Phys);
     
@@ -209,8 +193,7 @@ GeoVPhysVol* DBM_Module::Build()
 
     GeoTrf::Translate3D dbmSubstPos(0, 0, max_thick/2.0-substrate_Z/2.0);
     xform = new GeoTransform(dbmSubstPos);
-    //tag = new GeoNameTag("dbmSubstrate");
-    //dbmModulePhys->add(tag);
+     
     dbmModulePhys->add(xform);
     dbmModulePhys->add(dbmSubstPhys);
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCSlaveBoard.h"
@@ -112,8 +112,8 @@ void TGCSlaveBoard::clockIn(int bidIn)
 void TGCSlaveBoard::storeSlbIn()
 {
   // store SlaveBoard input for readout
-  TGCHitPattern* inner = m_patchPanelOut->getHitPattern(0);
-  TGCHitPattern* pivot = m_patchPanelOut->getHitPattern(1);
+  const TGCHitPattern* inner = m_patchPanelOut->getHitPattern(0);
+  const TGCHitPattern* pivot = m_patchPanelOut->getHitPattern(1);
   int i;
   if(pivot!=0){
     for(i=0; i<s_pLength[m_type]; i++){
@@ -136,7 +136,7 @@ void TGCSlaveBoard::showResult() const
   int i;
   if(m_patchPanelOut!=0){
     for( i=0; i<NumberOfConnectorPerPPOut; i+=1)
-      if(m_patchPanelOut->getHitPattern(i)!=0){
+      if(std::as_const(m_patchPanelOut)->getHitPattern(i)!=0){
         std::cout<<"#SB I: BID= "<<m_bid;
         if(m_patchPanelOut->getOrigin()!=0){
           std::cout << " Typ= " <<m_patchPanelOut->getOrigin()->getType();
@@ -146,7 +146,7 @@ void TGCSlaveBoard::showResult() const
           std::cout << "" <<m_id;
         }
         std::cout << ":";
-        m_patchPanelOut->getHitPattern(i)->print();
+        std::as_const(m_patchPanelOut)->getHitPattern(i)->print();
       }
   }
 

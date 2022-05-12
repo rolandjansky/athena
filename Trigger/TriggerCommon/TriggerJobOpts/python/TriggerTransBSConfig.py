@@ -40,7 +40,6 @@ def triggerTransBSCfg_LVL1(flags, seqName="AthAlgSeq"):
 
     if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1:
         itemList += ["ROIB::RoIBResult#RoIBResult"]
-        typeNames += ["MuCTPI_RDO/MUCTPI_RDO"]
         extraInputs += [('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult')]
 
     if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1:

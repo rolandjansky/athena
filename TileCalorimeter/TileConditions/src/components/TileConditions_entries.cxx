@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileInfoLoader.h"
@@ -26,6 +26,8 @@
 #include "../TileBadChannelsCondAlg.h"
 #include "../TileEMScaleCondAlg.h"
 #include "../TileDCSCondAlg.h"
+#include "../TileCondAlg.h"
+#include "../TileSamplingFractionCondAlg.h"
 
 DECLARE_COMPONENT( TileInfoLoader )
 DECLARE_COMPONENT( TileCablingSvc )
@@ -55,3 +57,4 @@ DECLARE_COMPONENT( TileBadChannelsCondAlg )
 DECLARE_COMPONENT( TileEMScaleCondAlg )
 DECLARE_COMPONENT( TileDCSCondAlg )
 DECLARE_COMPONENT( TileDCSTool )
+DECLARE_COMPONENT( TileSamplingFractionCondAlg )

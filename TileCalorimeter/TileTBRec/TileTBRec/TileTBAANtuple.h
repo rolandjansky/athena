@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -46,13 +46,19 @@
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // Tile includes
+#include "TileConditions/TileSamplingFraction.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCondToolEmscale.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
+#include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 
 #include "TFile.h"
 #include "TMatrixT.h"
@@ -65,12 +71,9 @@
 class ITHistSvc;
 class TileID;
 class TileHWID;
-class TileInfo;
 //class TileCablingSvc;
-class TileRawChannelBuilderFlatFilter;
 class TileBeamElemContByteStreamCnv;
 class TileLaserObject;
-class TileCondToolEmscale;
 class TileHit;
 
 class TileTBAANtuple: public AthAlgorithm {
@@ -79,14 +82,22 @@ class TileTBAANtuple: public AthAlgorithm {
     TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator);
 
     //Destructor 
-    virtual ~TileTBAANtuple();
-
-    //Gaudi Hooks
+    virtual ~TileTBAANtuple() = default;
     StatusCode ntuple_initialize();
     StatusCode ntuple_clear();
-    StatusCode execute();
+
+    //Gaudi Hooks
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
 
   private:
+
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+    SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
+
 
     StatusCode storeRawChannels(std::string cntID
                                 , std::vector<float*>* eneVec
@@ -110,7 +121,8 @@ class TileTBAANtuple: public AthAlgorithm {
     StatusCode storeLaser();
     StatusCode storeHitVector();
     StatusCode storeHitContainer();
-    void storeHit(const TileHit *hit, int fragType, int fragId, float* ehitVec, float* thitVec);
+    void storeHit(const TileHit *hit, int fragType, int fragId, float* ehitVec, float* thitVec,
+                  const TileSamplingFraction* samplingFraction);
 
     StatusCode initList(void);
     StatusCode initNTuple(void);
@@ -295,14 +307,14 @@ class TileTBAANtuple: public AthAlgorithm {
     int m_cispar[16];
 
     // TDC/BEAM Items
-    int m_s1cou;
-    int m_s2cou;
-    int m_s3cou;
-    int m_cher1;
-    int m_cher2;
-    int m_muTag;
-    int m_muHalo;
-    int m_muVeto;
+    uint32_t m_s1cou;
+    uint32_t m_s2cou;
+    uint32_t m_s3cou;
+    uint32_t m_cher1;
+    uint32_t m_cher2;
+    uint32_t m_muTag;
+    uint32_t m_muHalo;
+    uint32_t m_muVeto;
 
     int m_s2extra;
     int m_s3extra;
@@ -408,14 +420,14 @@ class TileTBAANtuple: public AthAlgorithm {
     float* m_ExtEne;
     float* m_GapEne;
 
-    int* m_coincTrig1;
-    int* m_coincTrig2;
-    int* m_coincTrig3;
-    int* m_coincTrig4;
-    int* m_coincTrig5;
-    int* m_coincTrig6;
-    int* m_coincTrig7;
-    int* m_coincTrig8;
+    unsigned int* m_coincTrig1;
+    unsigned int* m_coincTrig2;
+    unsigned int* m_coincTrig3;
+    unsigned int* m_coincTrig4;
+    unsigned int* m_coincTrig5;
+    unsigned int* m_coincTrig6;
+    unsigned int* m_coincTrig7;
+    unsigned int* m_coincTrig8;
 
     int m_coincFlag1;
     int m_coincFlag2;
@@ -527,10 +539,9 @@ class TileTBAANtuple: public AthAlgorithm {
     ToolHandle<TileRawChannelBuilderFlatFilter> m_adderFilterAlgTool;
 
     // Identifiers
-    const TileID* m_tileID;
-    const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;
-    const TileCablingService* m_cabling;
+    const TileID* m_tileID{nullptr};
+    const TileHWID* m_tileHWID{nullptr};
+    const TileCablingService* m_cabling{nullptr};
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
 

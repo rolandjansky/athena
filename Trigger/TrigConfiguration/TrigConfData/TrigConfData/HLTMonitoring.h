@@ -37,7 +37,7 @@ namespace TrigConf {
       HLTMonitoring(HLTMonitoring&&) = default;
 
       /** Destructor */
-      ~HLTMonitoring();
+      virtual ~HLTMonitoring() override = default;
 
       // class name
       virtual std::string className() const override {

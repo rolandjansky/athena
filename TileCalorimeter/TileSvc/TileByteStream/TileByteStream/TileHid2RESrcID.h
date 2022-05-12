@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEHID2RESRCID_H
@@ -79,7 +79,7 @@ private:
   const TileHWID* m_tileHWID;
   typedef std::map<int, uint32_t> FRAGRODMAP; 
   FRAGRODMAP m_frag2ROD, m_TileMuRcvFrag2ROD;
-  uint32_t m_runnum, m_TileMuRcvRunnum;
+  uint32_t m_runnum, m_TileMuRcvRunnum = 0U;
 };
 
 #endif 

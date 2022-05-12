@@ -285,7 +285,7 @@ int main( int argc, char* argv[] ) {
 	    for ( CP::SystematicSet sysSet : jetUnc_sysSets ){
 	      ANA_CHECK( m_Tagger->tag( *jetSC ) );
 	      ANA_CHECK( jetUncToolSF->applySystematicVariation(sysSet) );
-	      CP::CorrectionCode didApplyCorr=jetUncToolSF->applyCorrection(*jetSC);
+	      ANA_CHECK( jetUncToolSF->applyCorrection(*jetSC) );
 	      std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained50_SF") << std::endl;
 	    }
 	  }

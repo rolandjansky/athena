@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ Trk::GeometryJsonDumper::GeometryJsonDumper(const std::string& t, const std::str
 
 // destructor
 Trk::GeometryJsonDumper::~GeometryJsonDumper()
-{}
+= default;
 
 
 StatusCode Trk::GeometryJsonDumper::initialize()

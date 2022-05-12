@@ -8,12 +8,22 @@
 # jet reco code.
 
 from JetRecConfig.JetDefinition import JetInputConstitSeq,JetInputConstit, xAODType, JetDefinition
+from ..Menu.SignatureDicts import JetRecoKeys as recoKeys
 from JetRecConfig import StandardJetContext
 # this is to define trigger specific JetModifiers (ex: ConstitFourMom_copy) : 
 from . import TriggerJetMods
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
+
+##########################################################################################
+### --- Common jet eta ranges --- 
+etaRangeAbbrev = {
+    "j":"0eta320", # default
+    "a":"0eta490",
+    "c":"0eta240",
+    "f":"320eta490"
+}
 
 ##########################################################################################
 ### --- Extracting jet chain parts --- 
@@ -27,8 +37,6 @@ def jetChainParts(chainParts):
 
 ##########################################################################################
 ### --- General reco dict handling --- 
-
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','ionopt']
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
@@ -151,6 +159,8 @@ def getJetCalibDefaultString(recoDict):
     elif recoDict['recoAlg'] == 'a10':
         return 'subjes'
     elif recoDict['recoAlg'] == 'a10t':
+        return 'jes'
+    elif recoDict['recoAlg'] == 'a10sd':
         return 'jes'
     elif recoDict['recoAlg'] == 'a10r':
         return 'subjesIS' # calibration for the small-R jets used to reconstruct the reclustered jets
@@ -401,6 +411,13 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
         "t" :JetTrimming(ungroomedDef,RClus=0.2,PtFrac=0.04, suffix=suffix),
     }[groomAlg]
     return groomDef
+
+#Jet Definition for VR track jets
+def defineVRTrackJets(Rmax, Rmin, VRMassScale, Ptmin, prefix, suffix):
+    jetconstit = JetInputConstit("PV0Track", xAODType.TrackParticle, "PV0JetSelectedTracks_ftf")
+    VRTrackJetDef = JetDefinition("AntiKt", Rmax, jetconstit, ptmin=Ptmin, VRMinR=Rmin, VRMassSc=VRMassScale, prefix=prefix, suffix=suffix, lock=True)
+    return VRTrackJetDef
+
 
 def defineHIJets(jetRecoDict,clustersKey=None,prefix='',suffix=''):
     minpt = {

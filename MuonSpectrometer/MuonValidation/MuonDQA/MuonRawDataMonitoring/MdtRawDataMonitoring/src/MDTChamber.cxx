@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MdtRawDataMonitoring/MDTChamber.h"
+#include "MDTChamber.h"
 
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"

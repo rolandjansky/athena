@@ -269,7 +269,8 @@ namespace MuonCombined {
                             hits = &extendedLargeHits;
                             holes = &extendedLargeHoles;
                         } else {
-                            ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::chName(index));
+                            ATH_MSG_WARNING("Unknown ChamberIndex " << Muon::MuonStationIndex::chName(index)<<
+                                                                  "that is found for "<<m_idHelperSvc->toString(chId));
                         }
                         if (hits) {
                             if (isMdt || isMM) {
@@ -298,14 +299,14 @@ namespace MuonCombined {
                         uint8_t* etaHits = nullptr;
                         uint8_t* etaHoles = nullptr;
                         Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(chId);
-                        if (index == Muon::MuonStationIndex::BM1 || index == Muon::MuonStationIndex::T4 ||
-                            index == Muon::MuonStationIndex::CSC || index == Muon::MuonStationIndex::STGC1) {
+                        if (index == Muon::MuonStationIndex::BI1 || index == Muon::MuonStationIndex::BM1 ||
+                            index == Muon::MuonStationIndex::T4 || index == Muon::MuonStationIndex::CSC || index == Muon::MuonStationIndex::STGC1) {
                             phiHits = &phiLayer1Hits;
                             phiHoles = &phiLayer1Holes;
                             etaHits = &etaLayer1Hits;
                             etaHoles = &etaLayer1Holes;
-                        } else if (index == Muon::MuonStationIndex::BM2 || index == Muon::MuonStationIndex::T1 ||
-                                   index == Muon::MuonStationIndex::STGC2) {
+                        } else if (index == Muon::MuonStationIndex::BI2 || index == Muon::MuonStationIndex::BM2 || 
+                            	   index == Muon::MuonStationIndex::T1 || index == Muon::MuonStationIndex::STGC2) {
                             phiHits = &phiLayer2Hits;
                             phiHoles = &phiLayer2Holes;
                             etaHits = &etaLayer2Hits;
@@ -321,7 +322,8 @@ namespace MuonCombined {
                             etaHits = &etaLayer4Hits;
                             etaHoles = &etaLayer4Holes;
                         } else {
-                            ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::phiName(index));
+                            ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::phiName(index)<<" "<<m_idHelperSvc->toString(chId))
+                            ;
                         }
                         // split into RPC and TGC
                         // First RPC layer

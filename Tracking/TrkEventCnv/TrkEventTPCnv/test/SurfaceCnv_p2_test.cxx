@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TrkEventTPCnv/test/SurfaceCnv_p2_test.cxx
@@ -48,11 +48,13 @@ public:
   { std::abort(); }
   virtual int maxNumberOfErrors() const override
   { std::abort(); }
+  virtual bool doTrackOverlay() const override
+  { std::abort(); }
 
   virtual const Trk::Surface* getSurface(const Identifier& id) const override;
   void addSurface (std::unique_ptr<Trk::Surface> surf);
 
-  typedef std::map<Identifier, std::unique_ptr<Trk::Surface> > map_t;
+  using map_t = std::map<Identifier, std::unique_ptr<Trk::Surface>>;
   map_t m_map;
 };
 

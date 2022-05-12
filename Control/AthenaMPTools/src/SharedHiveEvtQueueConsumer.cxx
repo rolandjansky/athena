@@ -30,7 +30,7 @@
 #include <signal.h>
 
 namespace SharedHiveEvtQueueConsumer_d {
-  bool sig_done = false;
+  std::atomic<bool> sig_done = false;
   void pauseForDebug(int /*sig*/) {
     // std::cout << "Continuing after receiving signal " 
     // 	    << sig << std::endl;
@@ -286,7 +286,7 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
   // TODO: this "worker_" can be made configurable too
 
   if(mkdir(worker_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 
@@ -550,7 +550,7 @@ SharedHiveEvtQueueConsumer::fin_func()
     all_ok=false;
   } else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      std::cerr << "Unable to finalize AppMgr" << std::endl;
       all_ok=false;
     }
   }

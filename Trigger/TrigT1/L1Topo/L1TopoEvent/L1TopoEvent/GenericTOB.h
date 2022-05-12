@@ -11,8 +11,8 @@
 #include "L1TopoEvent/gJetTOB.h"
 #include "L1TopoEvent/jTauTOB.h"
 #include "L1TopoEvent/eTauTOB.h"
-#include "L1TopoEvent/jLargeRJetTOB.h"
-#include "L1TopoEvent/gLargeRJetTOB.h"
+#include "L1TopoEvent/jLJetTOB.h"
+#include "L1TopoEvent/gLJetTOB.h"
 #include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/eEmTOB.h"
@@ -22,6 +22,10 @@
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
 #include "L1TopoEvent/MetTOB.h"
+#include "L1TopoEvent/jXETOB.h"
+#include "L1TopoEvent/jTETOB.h"
+#include "L1TopoEvent/gXETOB.h"
+#include "L1TopoEvent/gTETOB.h"
 
 
 // TODO implement sizecheck lile in ClusterTOB
@@ -43,34 +47,34 @@ namespace TCS {
       // constructor from jet
       GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize);
 
-      // constructor from jtaus
+      // constructor from jFEX Tau
       GenericTOB(const jTauTOB & tau);
 
-      // constructor from jEm
+      // constructor from jFEX Em
       GenericTOB(const jEmTOB & jem);
 
-      // constructor from large r jet
-      GenericTOB(const jLargeRJetTOB & jet);
+      // constructor from jFEX LJet
+      GenericTOB(const jLJetTOB & jet);
 
-      // constructor from large r gjet
-      GenericTOB(const gLargeRJetTOB & jet);
+      // constructor from gFEX LJet
+      GenericTOB(const gLJetTOB & jet);
 
-      // constructor from small r jet
+      // constructor from jFEX Jet
       GenericTOB(const jJetTOB & jet);
 
-      // constructor from small r gjet
+      // constructor from gFEX Jet
       GenericTOB(const gJetTOB & jet);
 
       // constructor from cluster
       GenericTOB(const ClusterTOB & cluster);
 
-      // constructor from eEm
+      // constructor from eFEX Em
       GenericTOB(const eEmTOB & eem);
 
-      // constructor from eTau
+      // constructor from eFEX Tau
       GenericTOB(const eTauTOB & etau);
 
-      // constructor from eTau
+      // constructor from cTau
       GenericTOB(const cTauTOB & ctau);
 
       // constructor from muon
@@ -84,6 +88,18 @@ namespace TCS {
 
       // constructor from met
       GenericTOB(const MetTOB & met);
+
+      // constructor from jFEX XE
+      GenericTOB(const jXETOB & jxe);
+
+      // constructor from jFEX TE
+      GenericTOB(const jTETOB & jte);
+
+      // constructor from gFEX XE
+      GenericTOB(const gXETOB & gxe);
+
+      // constructor from gFEX TE
+      GenericTOB(const gTETOB & gte);
 
       // destructor
       ~GenericTOB();
@@ -100,14 +116,20 @@ namespace TCS {
 
       int Ex() const { return m_Ex; }
       int Ey() const { return m_Ey; }
+      unsigned int Et2() const { return m_Et2; }
+      unsigned int sumEt() const { return m_sumEt; }
 
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
 
-      //eEm
+      // eEm isolation
       unsigned int Reta() const { return m_reta; }
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
+      
+      // eTau isolation
+      unsigned int rCore() const { return m_rCore; }
+      unsigned int rHad() const { return m_rHad; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -119,6 +141,10 @@ namespace TCS {
       double EtDouble() const { return m_EtDouble; }
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
+
+      double ExDouble() const { return m_ExDouble; }
+      double EyDouble() const { return m_EyDouble; }
+      double sumEtDouble() const { return m_sumEtDouble; }
 
       virtual void print(std::ostream &o) const;
 
@@ -133,6 +159,8 @@ namespace TCS {
 
       int m_Ex { 0 };
       int m_Ey { 0 };
+      unsigned int m_Et2 { 0 };
+      unsigned int m_sumEt { 0 };
 
       int m_eta { 0 };
       int m_phi { 0 };
@@ -147,9 +175,16 @@ namespace TCS {
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
 
+      double m_ExDouble { 0 };
+      double m_EyDouble { 0 };
+      double m_sumEtDouble { 0 };
+
       unsigned int m_reta {0};
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
+     
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
 
       inputTOBType_t   m_tobType { NONE };
 

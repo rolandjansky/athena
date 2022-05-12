@@ -77,6 +77,10 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     ClassIDSvc=CompFactory.ClassIDSvc
     cfg.addService(ClassIDSvc(CLIDDBFiles= ['clid.db',"Gaudi_clid.db" ]))
 
+    AlgContextSvc=CompFactory.AlgContextSvc
+    cfg.addService(AlgContextSvc(BypassIncidents=True))
+    cfg.addAuditor(CompFactory.AlgContextAuditor())
+
     StoreGateSvc=CompFactory.StoreGateSvc
     cfg.addService(StoreGateSvc())
     cfg.addService(StoreGateSvc("DetectorStore"))
@@ -145,11 +149,8 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         elmgr = AthenaHiveEventLoopMgr()
         elmgr.WhiteboardSvc = "EventDataSvc"
         elmgr.SchedulerSvc = scheduler.getName()
+        elmgr.OutStreamType = 'AthenaOutputStream'
         cfg.addService( elmgr )
-
-        # enable timeline recording
-        TimelineSvc=CompFactory.TimelineSvc
-        cfg.addService( TimelineSvc( RecordTimeline = True, Partial = False ) )
 
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute

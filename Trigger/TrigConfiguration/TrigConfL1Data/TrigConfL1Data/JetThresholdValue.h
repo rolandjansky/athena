@@ -13,7 +13,7 @@ namespace TrigConf {
    public:
 
       JetThresholdValue();
-      ~JetThresholdValue() = default;
+      virtual ~JetThresholdValue() override = default;
       
       virtual TriggerThresholdValue* createCopy() const override;
 

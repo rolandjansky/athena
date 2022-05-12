@@ -26,8 +26,7 @@ namespace eflowSubtract {
 void
 Subtractor::subtractTracksFromClusters(
   eflowRecTrack* efRecTrack,
-  std::vector<std::pair<xAOD::CaloCluster*, bool>>& clusterSubtractionList,
-  const bool& debugToggle)
+  std::vector<std::pair<xAOD::CaloCluster*, bool>>& clusterSubtractionList) const
 {
 
   /* Make ordered cell list */
@@ -41,11 +40,9 @@ Subtractor::subtractTracksFromClusters(
   eflowRingSubtractionManager& ranking =
     efRecTrack->getCellSubtractionManager();
 
-  eflowCellSubtractionFacilitator facilitator;
-  if (debugToggle)
-    facilitator.setLevel(MSG::DEBUG);
-  facilitator.subtractCells(
-    ranking, efRecTrack->getTrack()->e(), clusterSubtractionList, orderedCells);
+  bool annFlag;
+  m_facilitator.subtractCells(
+    ranking, efRecTrack->getTrack()->e(), clusterSubtractionList, orderedCells, annFlag);
 
   orderedCells.eraseList();
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -135,9 +135,9 @@ public:
   mutable bool inittouchedchambers;
 
   void addPathToSoLineSetAndSoVertexProperty(const std::vector<Amg::Vector3D >& points,
-    int & iver, int& numlines, SoLineSet *, SoVertexProperty * );
+    int & iver, int& numlines, SoLineSet *, SoVertexProperty * ) const;
   void addPathsToSoLineSetAndSoVertexProperty(const Amg::SetVectorVector3D * paths,
-    int & iver, int& numlines,SoLineSet *, SoVertexProperty * );
+    int & iver, int& numlines,SoLineSet *, SoVertexProperty * ) const;
 
   SoMaterial * determineMaterial();
   SoMaterial * randommaterial;
@@ -168,7 +168,7 @@ public:
   TrackCommonFlags::TSOSPartsFlags customColouredTSOSParts;
   std::vector<AscObj_TSOS*> * tsos_ascobjs;
   void ensureInitTSOSs();
-  AscObj_TSOS* addTSOS(const Trk::TrackStateOnSurface * tsos,unsigned index);
+  AscObj_TSOS* addTSOS(const Trk::TrackStateOnSurface * tsos,unsigned index) const;
 
   QTreeWidgetItem* m_objBrowseTree;
   float tempMaxPropRadius;
@@ -371,9 +371,8 @@ void TrackHandleBase::Imp::ensureInitTSOSs()
     return;
   tsos_ascobjs = new std::vector<AscObj_TSOS*>;
   ensureLoadPathInfo();
-  if (!pathInfo_TrkTrack||!pathInfo_TrkTrack->trackParameters()||pathInfo_TrkTrack->trackParameters()->size()==0)
+  if (!pathInfo_TrkTrack||!pathInfo_TrkTrack->trackParameters()||pathInfo_TrkTrack->trackParameters()->empty())
     return;
-  VP1TrackSanity * sanity = theclass->common()->trackSanityHelper();
 
   tsos_ascobjs->reserve(pathInfo_TrkTrack->trackParameters()->size());
 
@@ -385,11 +384,11 @@ void TrackHandleBase::Imp::ensureInitTSOSs()
   const Trk::TrackParameters* trackParam(nullptr);
   for (; tsos_iter != tsos_end; ++tsos_iter) {
     trackParam = (*tsos_iter)->trackParameters();
-    if (!sanity->isSafe(*tsos_iter)) {
+    if (!VP1TrackSanity::isSafe(*tsos_iter)) {
       parindex++;
       continue;
     }
-    if (trackParam&&!sanity->isSafe(trackParam)) {
+    if (trackParam&&!VP1TrackSanity::isSafe(trackParam)) {
       parindex++;
       continue;
     }
@@ -405,7 +404,7 @@ void TrackHandleBase::Imp::ensureInitTSOSs()
 }
 
 //____________________________________________________________________
-AscObj_TSOS* TrackHandleBase::Imp::addTSOS(const Trk::TrackStateOnSurface * tsos,unsigned index)
+AscObj_TSOS* TrackHandleBase::Imp::addTSOS(const Trk::TrackStateOnSurface * tsos,unsigned index) const
 {
   AscObj_TSOS* ao = new AscObj_TSOS(theclass,tsos,index);
   theclass->registerAssocObject(ao);
@@ -418,8 +417,8 @@ AscObj_TSOS* TrackHandleBase::Imp::addTSOS(const Trk::TrackStateOnSurface * tsos
 //____________________________________________________________________
 void TrackHandleBase::setVisible(bool vis)
 {
-  QString tmp = (vis==true)?"True":"False";
-  QString tmp2 = (m_visible==true)?"True":"False";
+  QString tmp = (vis)?"True":"False";
+  QString tmp2 = (m_visible)?"True":"False";
   VP1Msg::messageDebug(QString("TrackHandleBase calling setVisible with vis=")+tmp+QString(", and m_visible=")+tmp2 );
   if (vis==m_visible)
     return;
@@ -531,7 +530,7 @@ void TrackHandleBase::updateMuonProjections()
 //____________________________________________________________________
 void TrackHandleBase::Imp::addPathToSoLineSetAndSoVertexProperty(const std::vector<Amg::Vector3D >& points,
   int & iver, int& numlines,
-  SoLineSet * line, SoVertexProperty * vertices )
+  SoLineSet * line, SoVertexProperty * vertices ) const
 {
   if (points.size()<2)
     return;
@@ -595,7 +594,7 @@ void TrackHandleBase::Imp::addPathToSoLineSetAndSoVertexProperty(const std::vect
 //____________________________________________________________________
 void TrackHandleBase::Imp::addPathsToSoLineSetAndSoVertexProperty(const Amg::SetVectorVector3D * paths,
   int & iver, int& numlines,
-  SoLineSet * line, SoVertexProperty * vertices )
+  SoLineSet * line, SoVertexProperty * vertices ) const
 {
   if ( !paths || ( paths->size()==1 && paths->begin()->empty()) )
     return;
@@ -973,7 +972,6 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
   ensureLoadPathInfo();
 
   if (pathInfo_TrkTrack) {
-    const VP1TrackSanity * sanity = theclass->common()->trackSanityHelper();
     Amg::Vector3D * firstmomentum(nullptr);
     if (pathInfo_TrkTrack->trackParameters())
       points_raw->reserve(pathInfo_TrkTrack->trackParameters()->size());
@@ -982,7 +980,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = pathInfo_TrkTrack->trackStateOnSurfaces()->end();
     const Trk::TrackParameters* trackParam;
     for (; tsos_iter != tsos_end; ++tsos_iter) {
-      if (!sanity->isSafe(*tsos_iter)) {
+      if (!VP1TrackSanity::isSafe(*tsos_iter)) {
         unsafeparts = true;
         continue;
       }
@@ -990,7 +988,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
         continue;
       trackParam = (*tsos_iter)->trackParameters();
       if (trackParam) {
-        if (!sanity->isSafe(trackParam)) {
+        if (!VP1TrackSanity::isSafe(trackParam)) {
           unsafeparts = true;
           continue;
         }

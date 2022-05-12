@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from SGComps.AddressRemappingConfig import InputRenameCfg
-AthSequencer=CompFactory.AthSequencer
 
 
 def McEventCollectionFilterCfg(flags, **kwargs):
@@ -98,6 +97,18 @@ def ITkStripHitsTruthRelinkCfg(flags, **kwargs):
     return acc
 
 
+def PLR_HitsTruthRelinkCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    acc.merge(InputRenameCfg("SiHitCollection", "PLR_Hits", "PLR_HitsOLD"))
+
+    kwargs.setdefault("InputHits", "PLR_HitsOLD")
+    kwargs.setdefault("OutputHits", "PLR_Hits")
+
+    acc.addEventAlgo(CompFactory.SiliconHitsTruthRelink(name="PLR_HitsTruthRelink", **kwargs))
+    return acc
+
+
 def HGTD_HitsTruthRelinkCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
@@ -137,10 +148,10 @@ def MDT_HitsTruthRelinkCfg(flags, **kwargs):
 def MM_HitsTruthRelinkCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(InputRenameCfg("MMSimHitCollection", "MicromegasSensitiveDetector", "MicromegasSensitiveDetectorOLD"))
+    acc.merge(InputRenameCfg("MMSimHitCollection", "MM_Hits", "MM_HitsOLD"))
 
-    kwargs.setdefault("InputHits", "MicromegasSensitiveDetectorOLD")
-    kwargs.setdefault("OutputHits", "MicromegasSensitiveDetector")
+    kwargs.setdefault("InputHits", "MM_HitsOLD")
+    kwargs.setdefault("OutputHits", "MM_Hits")
 
     acc.addEventAlgo(CompFactory.MM_HitsTruthRelink(name="MM_HitsTruthRelink", **kwargs))
     return acc
@@ -173,10 +184,10 @@ def TGC_HitsTruthRelinkCfg(flags, **kwargs):
 def sTGC_HitsTruthRelinkCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(InputRenameCfg("sTGCSimHitCollection", "sTGCSensitiveDetector", "sTGCSensitiveDetectorOLD"))
+    acc.merge(InputRenameCfg("sTGCSimHitCollection", "sTGC_Hits", "sTGC_HitsOLD"))
 
-    kwargs.setdefault("InputHits", "sTGCSensitiveDetectorOLD")
-    kwargs.setdefault("OutputHits", "sTGCSensitiveDetector")
+    kwargs.setdefault("InputHits", "sTGC_HitsOLD")
+    kwargs.setdefault("OutputHits", "sTGC_Hits")
 
     acc.addEventAlgo(CompFactory.sTGC_HitsTruthRelink(name="sTGC_HitsTruthRelink", **kwargs))
     return acc

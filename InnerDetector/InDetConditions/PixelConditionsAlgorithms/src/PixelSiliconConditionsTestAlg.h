@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixelSiliconConditionsTestAlg.h
@@ -15,7 +15,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
@@ -25,16 +24,12 @@
 
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
-    PixelSiliconConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
-    virtual ~PixelSiliconConditionsTestAlg() = default;
+    PixelSiliconConditionsTestAlg(const std::string &name, ISvcLocator *pSvcLocator);
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
 
   private:
-    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
-    {this, "PixelModuleData", "PixelModuleData", "Output key"};
 
     SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
     {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};

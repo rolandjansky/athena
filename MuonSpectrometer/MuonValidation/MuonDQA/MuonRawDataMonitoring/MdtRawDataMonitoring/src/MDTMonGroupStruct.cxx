@@ -8,7 +8,7 @@
 //Author Justin Griffiths <griffith@cern.ch>
 ///////////////////////////////////////////////////////////////////////////
 
-#include "MdtRawDataMonitoring/MDTMonGroupStruct.h"
+#include "MDTMonGroupStruct.h"
 
 MDTMonGroupStruct::MDTMonGroupStruct(ManagedMonitorToolBase *b, const std::string& title, ManagedMonitorToolBase::Interval_t low_stat_interval,  ManagedMonitorToolBase::MgmtAttr_t m, const std::string& lowStat_suffix):
 

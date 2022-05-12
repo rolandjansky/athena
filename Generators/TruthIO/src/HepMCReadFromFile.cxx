@@ -73,7 +73,10 @@ StatusCode HepMCReadFromFile::execute() {
     evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
     mcEvtColl->push_back(evt);
     const auto cs = evt->cross_section();
-    double xs=cs->xsec();
+    double xs = 0;
+    if ( cs ){
+       xs=cs->xsec();
+    }
     m_sum_xs = m_sum_xs+xs; 
 
   }
@@ -86,8 +89,12 @@ StatusCode HepMCReadFromFile::execute() {
     evt->set_event_number(m_event_number);
     GeVToMeV(evt);
     mcEvtColl->push_back(evt);
+
     HepMC::GenCrossSection* cs=evt->cross_section();
-    double xs=cs->cross_section();
+    double xs = 0;
+    if ( cs ){
+      xs=cs->cross_section();
+      }
     m_sum_xs = m_sum_xs+xs; 
 
   }
@@ -101,5 +108,8 @@ StatusCode HepMCReadFromFile::finalize() {
       
   return StatusCode::SUCCESS;
 }  
+
+
+
 
 

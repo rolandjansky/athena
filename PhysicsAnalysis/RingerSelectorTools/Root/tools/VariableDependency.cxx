@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VariableDependency.cxx 667899 2015-05-18 18:37:25Z wsfreund $
 #include "RingerSelectorTools/tools/VariableDependency.h"
 
 #include "RingerSelectorTools/tools/IOHelperFcns.icc"
@@ -10,7 +9,7 @@
 namespace Ringer {
 
 // =============================================================================
-const char* VariableDependency::type() const
+std::string VariableDependency::type() const
 {
   std::stringstream depVar;
   if (m_etaDependency){
@@ -31,8 +30,7 @@ const char* VariableDependency::type() const
       return "[eta, Et Independent]";
     }
   }
-  const_cast<std::string&>(m_type) = depVar.str();
-  return m_type.c_str();
+  return depVar.str();
 }
 
 // =============================================================================

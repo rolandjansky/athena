@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/Route.h"
@@ -9,11 +9,12 @@
 #include <iostream>
 using namespace std;
 
-ServiceVolume* Route::entryVolume( double pos, bool ascending, Athena::MsgStreamMember& msg) const 
+ServiceVolume* Route::entryVolume( double pos, bool ascending, MsgStream& msg) const
 {
-  msg << MSG::DEBUG  << "entering entryVolume with ascending = " << ascending 
-       << " and pos = " << pos << endmsg;
-
+  if (msg.level() <= MSG::DEBUG) {
+    msg << MSG::DEBUG  << "entering entryVolume with ascending = " << ascending
+        << " and pos = " << pos << endmsg;
+  }
   if (volumes().empty()) return nullptr;
 
   //  if (volumes().front()->contains(pos)) return volumes().front();
@@ -23,16 +24,19 @@ ServiceVolume* Route::entryVolume( double pos, bool ascending, Athena::MsgStream
   if ( ascending) {
     for (VolumeContainer::const_iterator i=volumes().begin(); i!=volumes().end(); ++i) {
 
-      msg << MSG::DEBUG  << "Comparing " << pos << " and " << (**i).position() << endmsg;
-
-      if (pos < (**i).position()) {
-	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() 
-	     << ", " << (**i).zPos() << " contains exit point" << endmsg;
-	return *i;
+      if (msg.level() <= MSG::DEBUG) {
+        msg << MSG::DEBUG  << "Comparing " << pos << " and " << (**i).position() << endmsg;
       }
-      else {
-	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() 
-	     << ", " << (**i).zPos() << " does not contain exit point" << endmsg;
+      if (pos < (**i).position()) {
+        if (msg.level() <= MSG::DEBUG) {
+          msg << MSG::DEBUG  << "volume at pos " << (**i).radius()
+              << ", " << (**i).zPos() << " contains exit point" << endmsg;
+        }
+        return *i;
+      }
+      else if (msg.level() <= MSG::DEBUG) {
+          msg << MSG::DEBUG  << "volume at pos " << (**i).radius()
+              << ", " << (**i).zPos() << " does not contain exit point" << endmsg;
       }
     }
     return volumes().front();  // catch-all
@@ -46,12 +50,12 @@ ServiceVolume* Route::entryVolume( double pos, bool ascending, Athena::MsgStream
   //}
 }
 
-ServiceVolume* Route::exitVolume( bool ascending, Athena::MsgStreamMember& msg) const 
+ServiceVolume* Route::exitVolume( bool ascending, MsgStream& msg) const
 {
-
-  msg << MSG::DEBUG  << "entering exitVolume with ascending = " << ascending 
-       << " and route.exit() = " << exit() << endmsg;
-
+  if (msg.level() <= MSG::DEBUG) {
+    msg << MSG::DEBUG  << "entering exitVolume with ascending = " << ascending
+        << " and route.exit() = " << exit() << endmsg;
+  }
   if (m_exitVolume != nullptr) return m_exitVolume;
 
   // returns the volume closest to the exit point, coming from the given direction
@@ -59,9 +63,9 @@ ServiceVolume* Route::exitVolume( bool ascending, Athena::MsgStreamMember& msg) 
   if ( ascending) {
     for (VolumeContainer::const_iterator i=volumes().begin(); i!=volumes().end(); ++i) {
       if ((**i).contains(exit())) return *i;
-      else {
-	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() 
-	     << ", " << (**i).zPos() << " does not contain exit point" << endmsg;
+      else if (msg.level() <= MSG::DEBUG) {
+        msg << MSG::DEBUG  << "volume at pos " << (**i).radius()
+            << ", " << (**i).zPos() << " does not contain exit point" << endmsg;
       }
     }
     return volumes().back();  // catch-all

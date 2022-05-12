@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,7 +53,7 @@
 //____________________________________________________________________
 class TrackCollHandle_TruthTracks::Imp {
 public:
-  double mag(const HepMC::FourVector& v) const {
+  static double mag(const HepMC::FourVector& v) {
     return std::sqrt( v.x()*v.x() + v.y()*v.y() + v.z()*v.z() );
   }
 
@@ -82,7 +82,7 @@ public:
   std::list<SimHitHandleBase*>::iterator closestCompatibleHandleItr(SimHitHandleBase* handle,
 								    const std::list<SimHitHandleBase*>::iterator& itFirst,
 								    std::list<SimHitHandleBase*>& handleList,
-								    const double& massSquared);
+								    const double& massSquared) const;
 
   std::map<SimBarCode::ExtBarCode,int> extBarCode2pdg;
 
@@ -98,9 +98,9 @@ public:
   bool cut_excludeNeutrals = false;
 
   bool displayAscObjs = false;
-  void updateVisibleAssociatedObjects();
+  void updateVisibleAssociatedObjects() const;
 
-  bool fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist);
+  bool fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist) const;
 
   static const int maxPdgCode = 1000000000;
 
@@ -243,7 +243,7 @@ void TrackCollHandle_TruthTracks::Imp::addHitCollections(std::map<SimBarCode,Sim
 	  l.push_back(std::pair<double,SimHitHandleBase*>(handle->hitTime(),handle));
 	  hitLists[trackID] = l;
 	} else {
-	  itHitList->second.push_back(std::pair<double,SimHitHandleBase*>(handle->hitTime(),handle));
+	  itHitList->second.emplace_back(handle->hitTime(),handle);
 	}
 	++iadded;
       }
@@ -463,7 +463,7 @@ bool TrackCollHandle_TruthTracks::load()
   const double minSpacialSeparation = 1.0e-3*CLHEP::mm;
   const double minSepSq = minSpacialSeparation*minSpacialSeparation;
   for (itGenPart=genParticles.begin();itGenPart!=itGenPartEnd;++itGenPart) {
-    auto p = itGenPart->second;
+    HepMC::ConstGenParticlePtr p = itGenPart->second;
     if (!p)
       continue;
      if (abs(p->pdg_id())>=Imp::maxPdgCode)//Internal particle... (fixme: find proper limit!!)
@@ -630,7 +630,7 @@ void TrackCollHandle_TruthTracks::Imp::createSecondaryHitLists(const SimBarCode&
 
     std::list<SimHitHandleBase*>::const_iterator itHandle(itOutList->begin()),itHandleE(itOutList->end());
     for (;itHandle!=itHandleE;++itHandle)
-      itActualOutList->second.push_back(std::pair<double,SimHitHandleBase*>((*itHandle)->hitTime(),*itHandle));
+      itActualOutList->second.emplace_back((*itHandle)->hitTime(),*itHandle);
 
     //Should be ok already, but just to be safe: (fixme: don't do this?)
     sort(itActualOutList->second.begin(),itActualOutList->second.end());
@@ -647,7 +647,7 @@ void TrackCollHandle_TruthTracks::Imp::createSecondaryHitLists(const SimBarCode&
 std::list<SimHitHandleBase*>::iterator TrackCollHandle_TruthTracks::Imp::closestCompatibleHandleItr(SimHitHandleBase* handle,
 												    const std::list<SimHitHandleBase*>::iterator& itFirst,
 												    std::list<SimHitHandleBase*>& handleList,
-												    const double& massSquared) {
+												    const double& massSquared) const {
 //   if (itFirst==handleList.end())
 //     return handleList.end();
   const double mom = handle->momentum();
@@ -755,7 +755,7 @@ std::list<SimHitHandleBase*>::iterator TrackCollHandle_TruthTracks::Imp::closest
 
 
 //____________________________________________________________________
-bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist) {
+bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist) const {
   //Returns false only if we prune down to zero information!
 
   if (hitlist.empty())
@@ -765,7 +765,7 @@ bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(HepMC::ConstGenP
   static double unknown = -1.0e99;
   double mom(unknown), time(unknown);
   if (p) {
-    auto v = p->production_vertex();
+    HepMC::ConstGenVertexPtr v = p->production_vertex();
     if (v) {
       mom = mag(p->momentum());
       time = v->position().t()/CLHEP::c_light;
@@ -966,7 +966,7 @@ bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(HepMC::ConstGenP
 //mom should be decreasing
 
 //____________________________________________________________________
-void TrackCollHandle_TruthTracks::Imp::updateVisibleAssociatedObjects()
+void TrackCollHandle_TruthTracks::Imp::updateVisibleAssociatedObjects() const
 {
       
   theclass->message("updateVisibleAssociatedObjects");//fixme

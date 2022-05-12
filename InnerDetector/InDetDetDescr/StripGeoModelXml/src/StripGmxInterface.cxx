@@ -225,8 +225,7 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
         motherDesign->addChildDesign(i,design.get());
 
         std::string splitName = typeName + "_" + std::to_string(i) + "_" + std::to_string(side);
-        m_geometryMap[splitName] = design.get();
-        m_detectorManager->addDesign(std::move(design));
+        m_geometryMap[splitName] = m_detectorManager->addDesign(std::move(design));
       }
     }
 

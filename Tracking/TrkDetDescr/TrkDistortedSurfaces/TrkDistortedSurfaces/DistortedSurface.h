@@ -32,10 +32,10 @@ namespace Trk {
 
     public:
      /** Default Constructor - needed for pool and inherited classes */
-     DistortedSurface(){}
+     DistortedSurface() = default;
 
      /** Destructor */
-     virtual ~DistortedSurface(){}
+     virtual ~DistortedSurface() = default;
 
      /** Get the Surface representation */
      virtual const Surface& surfaceRepresentation() const = 0;

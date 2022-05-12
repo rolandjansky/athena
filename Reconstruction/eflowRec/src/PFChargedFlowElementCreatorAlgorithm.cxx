@@ -55,8 +55,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
     /* Get the track elementLink and add it to the xAOD:FE. 
     Note we first have to convert it to an IParticle ElementLink. */
     ElementLink<xAOD::TrackParticleContainer> theTrackLink = efRecTrack->getTrackElemLink();
-    ElementLink< xAOD::IParticleContainer > theIParticleTrackLink; 
-    theIParticleTrackLink.resetWithKeyAndIndex(theTrackLink.persKey(),theTrackLink.persIndex() ); 
+    ElementLink< xAOD::IParticleContainer > theIParticleTrackLink (theTrackLink); 
     std::vector<ElementLink<xAOD::IParticleContainer> > vecIParticleTrackLinkContainer;
     vecIParticleTrackLinkContainer.push_back(theIParticleTrackLink);
     thisFE->setChargedObjectLinks(vecIParticleTrackLinkContainer);
@@ -138,7 +137,15 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
             if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second.second));
             else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second.second));
           }
-          else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+          else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink){
+            thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+            eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
+            ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
+            ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+            ATH_MSG_DEBUG("Will add cluster with E, ratio and absolute subtracted energy " << (*theOriginalClusterLink)->e() << ", " << 1.0 << ", " << 0.0);
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,0.0));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,0.0));
+          }
         }
       }
 
@@ -148,8 +155,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       std::vector<ElementLink<xAOD::IParticleContainer> > theClusters;
       std::vector<float> theClusterWeights;
       for (auto thePair : vectorClusterToSubtractedEnergies){
-        ElementLink< xAOD::IParticleContainer > theIParticleTrackLink; 
-        theIParticleTrackLink.resetWithKeyAndIndex(thePair.first.persKey(),thePair.first.persIndex()); 
+        ElementLink< xAOD::IParticleContainer > theIParticleTrackLink(thePair.first); 
         theClusters.push_back(theIParticleTrackLink);
         theClusterWeights.push_back(thePair.second);
       }

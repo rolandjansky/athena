@@ -66,15 +66,15 @@ namespace G4UA
       TTree* m_tree;
 
       //Tree Branches
-      int   m_genNPart;
-      float m_genEta;
-      float m_genPhi;
-      float m_genZ;
-      float m_genR;
+      int   m_genNPart = 0;
+      float m_genEta = 0.0F;
+      float m_genPhi = 0.0F;
+      float m_genZ = 0.0F;
+      float m_genR = 0.0F;
       
       //X0 Branches
-      float m_total_X0;
-      float m_total_L0;
+      float m_total_X0 = 0.0F;
+      float m_total_L0 = 0.0F;
 
       std::vector<double> m_collected_X0;
       std::vector<double> m_collected_L0;
@@ -96,8 +96,8 @@ namespace G4UA
       bool m_splitPP1;  
 
       void fillNtuple();
-      std::string getMaterialClassification(std::string name);
-      std::string getVolumeType(std::string s);
+      std::string getMaterialClassification(const std::string& name);
+      std::string getVolumeType(const std::string& s);
 
       // Add elements and values into the map
       void addToDetThickMap(const std::string&, double, double);

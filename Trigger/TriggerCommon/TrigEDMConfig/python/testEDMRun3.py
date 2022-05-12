@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from TriggerEDMRun3 import TriggerHLTListRun3, EDMDetailsRun3, AllowedOutputFormats
+from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, EDMDetailsRun3, AllowedOutputFormats
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testEDMRun3')
 
@@ -13,6 +13,15 @@ def isCLIDDefined(typename):
   c = cgen.genClidFromName(typename)
   return (cgen.getNameFromClid(c) is not None)
 
+
+def dumpListToJson(fileName):
+  from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+  import json
+  edmDict = dict([(fmt, getTriggerEDMList(fmt, 3)) for fmt in AllowedOutputFormats])
+  with open(fileName,'w') as f:
+    json.dump(edmDict, f)
+
+
 def main():
   import re
   serializable_names = []
@@ -20,7 +29,7 @@ def main():
   #Check for duplicates
   if len(set(TriggerHLTListRun3))!=len(TriggerHLTListRun3):
     log.error("Duplicates in TriggerHLTListRun3")
-    import collections
+    import collections.abc
     for item, count in collections.Counter(TriggerHLTListRun3).items():
         if count > 1:
           log.error(str(count) + "x: " + str(item))

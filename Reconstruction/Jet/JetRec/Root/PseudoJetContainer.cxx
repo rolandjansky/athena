@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetContainer.cxx
@@ -414,7 +414,7 @@ std::size_t PseudoJetContainer::size() const {
 }
 
 bool  PseudoJetContainer::debug() const{ return m_debug;}
-void  PseudoJetContainer::debug(bool b) const {m_debug  = b;}
+void  PseudoJetContainer::debug(bool b) {m_debug  = b;}
 std::ostream& operator << (std::ostream& os, const PseudoJetContainer& c){
   os <<  c.toString(0);
   return os;

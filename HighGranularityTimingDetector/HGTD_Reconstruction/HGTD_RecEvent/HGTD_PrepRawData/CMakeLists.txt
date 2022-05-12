@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Declare the package name:
 atlas_subdir( HGTD_PrepRawData )
@@ -11,7 +11,7 @@ atlas_add_library( HGTD_PrepRawData
    HGTD_PrepRawData/*.h src/*.cxx
    PUBLIC_HEADERS HGTD_PrepRawData
    LINK_LIBRARIES AthenaKernel AthLinks HGTD_ReadoutGeometry Identifier
-   TrkPrepRawData InDetPrepRawData TrkSurfaces)
+   TrkPrepRawData InDetPrepRawData TrkSurfaces CxxUtils)
 
 atlas_add_dictionary( HGTD_PrepRawDataDict
    HGTD_PrepRawData/HGTD_PrepRawDataDict.h HGTD_PrepRawData/selection.xml

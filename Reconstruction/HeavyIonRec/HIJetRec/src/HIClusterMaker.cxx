@@ -46,7 +46,7 @@ StatusCode HIClusterMaker::execute()
   //make the container
   //Tricky migration: here we don't have to migrate our methods but what we use from CaloClusterStoreHelper
   SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleContainer ( m_outputKey );
-  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), writeHandleContainer, msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(writeHandleContainer));
 
   //loop on towers
   for(INavigable4MomentumCollection::const_iterator towerItr=navInColl->begin();

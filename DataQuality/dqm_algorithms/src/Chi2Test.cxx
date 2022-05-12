@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file Chi2Test.cxx does Chi2Test and compares either chi2/ndf or the probability; returns dqm_core::Result
@@ -15,15 +15,15 @@
 #include <TClass.h>
 #include <ers/ers.h>
 
-using namespace std;
-
-
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::Chi2Test chi2_ndf( "Chi2_per_NDF" );
 static dqm_algorithms::Chi2Test chi2_p( "Prob" );
 static dqm_algorithms::Chi2Test chi2_uw("ProbUW" );
 static dqm_algorithms::Chi2Test chi2_ww("ProbWW" );
 static dqm_algorithms::Chi2Test chi2_chi2("Chi2");
+
+using namespace std;
+
 
 dqm_algorithms::Chi2Test::Chi2Test( const std::string & name )
   : m_name ( name )

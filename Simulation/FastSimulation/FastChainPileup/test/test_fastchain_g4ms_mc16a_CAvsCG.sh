@@ -4,6 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-output: run_*
+# art-architecture: '#x86_64-intel'
 
 maxevent=2
 inputfile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1"
@@ -22,10 +23,11 @@ FastChain_tf.py \
     --outputRDOFile RDO_CG.pool.root \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
-    --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+    --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
     --preSimExec 'from AthenaCommon.DetFlags import DetFlags;DetFlags.simulate.BCM_setOff();from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
+    --postExec 'from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05")' \
     --DataRunNumber '284500' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
@@ -51,10 +53,10 @@ FastChain_tf.py \
     --outputRDOFile RDO_CA.pool.root \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
-    --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+    --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
-    --preExec 'import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
+    --postExec 'from IOVDbSvc.IOVDbSvcConfig import addOverride;cfg.merge(addOverride(ConfigFlags,"/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05"))' \
     --DataRunNumber '284500' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \

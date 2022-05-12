@@ -17,7 +17,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 //Truth
@@ -82,7 +81,7 @@ Trk::PerigeeParametersNtupleTool::PerigeeParametersNtupleTool(
 }
 
 // destructor
-Trk::PerigeeParametersNtupleTool::~PerigeeParametersNtupleTool() {}
+Trk::PerigeeParametersNtupleTool::~PerigeeParametersNtupleTool() = default;
 
 
 ///////////////////////////////////////
@@ -214,48 +213,6 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackParticleData
 }
 
 //////////////////////////////////////
-// fill ntuple data of a given proto-trajectory (function used for fitter validation)
-//////////////////////////////////////
-StatusCode Trk::PerigeeParametersNtupleTool::fillProtoTrajectoryData 
-(  const Trk::ProtoTrajectory& trajectory,
-   const int,
-   const Trk::Perigee* myPerigee,
-   const unsigned int ) const 
-  // const Trk::FitterStatusCode) const
-{
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  ATH_MSG_VERBOSE ("in fillProtoTrajectoryData(protoTraj, indx)");
-  
-  if (myPerigee != nullptr) {
-    if (fillTrackPerigee(myPerigee).isFailure()) {
-      ATH_MSG_WARNING ("Newly made perigee parameters could not be written to ntuple");
-    }
-  } else {
-    ProtoTrajectory::const_iterator it = trajectory.begin();
-    const Trk::TrackParameters* nearestParam   = nullptr;
-    double smallest_perp = 999999.;
-    for ( ; it!= trajectory.end(); ++it) {
-      if (!it->isOutlier() && (it->smoothedTrackParameters())) {
-        if (it->smoothedTrackParameters()->position().perp() < smallest_perp) {
-          nearestParam = it->smoothedTrackParameters();
-          smallest_perp = nearestParam->position().perp();
-        }
-      }
-    }
-    if (nearestParam!=nullptr) {
-      const Trk::PerigeeSurface   perSurf;
-      const Trk::Perigee* perpars = dynamic_cast<const Trk::Perigee *>
-        (m_extrapolator->extrapolate(ctx,*nearestParam, perSurf, Trk::anyDirection, false, Trk::pion).release());
-      if (perpars != nullptr && fillTrackPerigee(perpars).isFailure()) {
-        ATH_MSG_WARNING ("Newly made perigee parameters could not be written to ntuple");
-      }
-      delete perpars;
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-//////////////////////////////////////
 // reset variables
 //////////////////////////////////////
 void Trk::PerigeeParametersNtupleTool::resetVariables() const {
@@ -275,7 +232,7 @@ StatusCode Trk::PerigeeParametersNtupleTool::fillTrackTruthData ( const TrackPar
   m_mc_prob=trackTruth.probability();
   m_mc_truthTreeIndex = indexInTruthTree;
   
-  const HepMC::GenParticle* genParticle = particleLink.cptr();
+  HepMC::ConstGenParticlePtr genParticle = particleLink.cptr();
 
   if ( genParticle ){
     m_mc_particleID = genParticle->pdg_id();

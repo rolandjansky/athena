@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -30,8 +30,6 @@
 // ********************************************************************
 
 #include "LArDigitalTriggMonAlg.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 //Histograms
 //LAr infos:
@@ -164,7 +162,7 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       pLArDigit = *itDig;
       unsigned int trueNSamples = pLArDigit->nsamples();
       MNsamples = trueNSamples;
-      
+
       fill(m_scMonGroupName, MNsamples);
       
       HWIdentifier id = pLArDigit->hardwareID(); //gives online ID
@@ -198,10 +196,6 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       //    std::string spart = m_partitions[ThisPartition];
       Mpartition = ThisPartition;
       
-      /** Check the gain -  SCs have only 1 gain*/
-      // will be used in next iteration
-      //int gain = pLArDigit->gain();
-      
       const LArSCDigit* scdigi = dynamic_cast<const LArSCDigit*>(pLArDigit);
       if(!scdigi){ ATH_MSG_DEBUG(" CAN'T CAST ");
       }else{
@@ -223,13 +217,13 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       fill(m_scMonGroupName, Mmaxpos, Mpartition, MlatomeSourceIdBIN);
       
       /** max sample per layer*/
-      if(layerName.find("P")!= std::string::npos || layerName.find("0")!= std::string::npos){  
+      if(layerName.find('P')!= std::string::npos || layerName.find('0')!= std::string::npos){  
         layer = "0";
       }
-      else if(layerName.find("1")!= std::string::npos){ 
+      else if(layerName.find('1')!= std::string::npos){ 
 	layer = "1";
       }
-      else if(layerName.find("2")!= std::string::npos){ 
+      else if(layerName.find('2')!= std::string::npos){ 
 	layer = "2";
       }
       else{  
@@ -287,7 +281,8 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
     LArRawSCContainer::const_iterator itSC = hSCetContainer->begin();
     LArRawSCContainer::const_iterator itSC_e = hSCetContainer->end();
     const LArRawSC* rawSC = 0;
-    
+
+        
     /** Loop over SCs*/
     for ( ; itSC!=itSC_e;++itSC) {
       rawSC = *itSC;
@@ -319,9 +314,10 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	ATH_MSG_DEBUG("    |______ --------- rawSC->SourceId() = "<< rawSC->SourceId());
       }
 
+
       ////////////////// make coverage plots
       HWIdentifier id = rawSC->hardwareID(); //gives online ID
-      //      /**skip disconnected channels:*/ ?
+      // TODO     /**skip disconnected channels:*/ ?
       //      if(!cabling->isOnlineConnected(id)) continue;
 
       const Identifier offlineID=cabling->cnvToIdentifier(id); //converts online to offline ID
@@ -329,8 +325,6 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       Identifier32 Onl32 =id.get_identifier32();
 	
 
-      //        m_SCID_helper
-      //https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/LArCalorimeter/LArMonTools/src/LArCoverage.cxx
       // Get Physical Coordinates
       const CaloSuperCellDetDescrManager* ddman = nullptr;
       

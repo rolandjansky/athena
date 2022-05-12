@@ -1,12 +1,17 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthErrorMonAlg.cxx
+ * @brief Reads Pixel Bytestream error information and fills it into various histograms 
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthErrorMonAlg.h"
+#include "PixelBSUtils.h"
 
 PixelAthErrorMonAlg::PixelAthErrorMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthMonitorAlgorithm(name, pSvcLocator),
-  m_pixelid(nullptr) {
+  AthMonitorAlgorithm(name, pSvcLocator)
+{
   // jo flags
   declareProperty("doOnline", m_doOnline = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
@@ -19,11 +24,12 @@ PixelAthErrorMonAlg::~PixelAthErrorMonAlg() {}
 
 
 StatusCode PixelAthErrorMonAlg::initialize() {
-  ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
-  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-  ATH_CHECK(m_pixelReadout.retrieve());
-
-  return AthMonitorAlgorithm::initialize();
+  ATH_CHECK( PixelAthMonitoringBase::initialize() );
+  m_readoutTechnologyMask =   Pixel::makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology::FEI4, m_useByteStreamFEI4)
+                            | Pixel::makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology::FEI3, m_useByteStreamFEI3)
+                            | Pixel::makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology::RD53, m_useByteStreamRD53);
+  ATH_CHECK( m_idcErrContKey.initialize(m_readoutTechnologyMask) );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
@@ -37,21 +43,32 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
   // Generate a vector of error maps for all different error states.
   std::vector<VecAccumulator2DMap> error_maps_per_state;
   error_maps_per_state.reserve(kNumErrorStatesFEI3 + kNumErrorStatesFEI4);
+  std::vector<VecAccumulator2DMap> fe_error_maps_per_state;
+  fe_error_maps_per_state.reserve(kNumErrorStatesPerFE);
   for (const auto& state : error_names_stateFEI3) {
-    error_maps_per_state.emplace_back(state + std::string("Map"));
+    error_maps_per_state.emplace_back(*this, state + std::string("Map"));
+    if (isPerFEI3State(state))
+      {
+	fe_error_maps_per_state.emplace_back(*this, state + std::string("FEMap"));
+      }
   }
   for (const auto& state : error_names_stateFEI4) {
-    error_maps_per_state.emplace_back(state + std::string("Map"));
+    error_maps_per_state.emplace_back(*this, state + std::string("Map"));
+  }
+  if (error_maps_per_state.size()!=(kNumErrorStatesFEI3 + kNumErrorStatesFEI4) ||
+      fe_error_maps_per_state.size()!=kNumErrorStatesPerFE) {
+    ATH_MSG_ERROR("PixelMonitoring: Mismatch in the definition of the number of error states.");
+    return StatusCode::RECOVERABLE;
   }
   std::vector<VecAccumulator2DMap> error_maps_per_cat_rodmod;
   // only first four rodmod histos are unique, others are covered by
   // the overall, rod/mod-agnostic categories below
   for (unsigned int cat = 0; cat < ErrorCategoryRODMOD::kTruncROD + 1; ++cat) {
-    error_maps_per_cat_rodmod.emplace_back(error_names_cat_rodmod[cat]);
+    error_maps_per_cat_rodmod.emplace_back(*this, error_names_cat_rodmod[cat]);
   }
   std::vector<VecAccumulator2DMap> error_maps_per_cat;
   for (unsigned int cat = 0; cat < ErrorCategory::COUNT; ++cat) {
-    error_maps_per_cat.emplace_back(error_names_cat[cat]);
+    error_maps_per_cat.emplace_back(*this, error_names_cat[cat]);
   }
 
   // containers to keep IBL service records info
@@ -74,12 +91,12 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
   float num_errormodules_per_cat_rodmod[ErrorCategoryRODMOD::COUNT][PixLayers::COUNT] = {{0}};
 
   // Generate femcc_errwords, ROB error and per LB maps.
-  VecAccumulator2DMap femcc_errwords_maps("FEMCCErrorwords");
-  VecAccumulator2DMap trunc_rob_errors_maps("TruncatedROBErrors", true);
-  VecAccumulator2DMap masked_rob_errors_maps("MaskedROBErrors", true);
-  VecAccumulator2DMap all_errors_maps("ErrorsLB");
-  VecAccumulator2DMap modsync_errors_maps("ErrorsModSyncLB");
-  VecAccumulator2DMap rodsync_errors_maps("ErrorsRODSyncLB");
+  VecAccumulator2DMap femcc_errwords_maps(*this, "FEMCCErrorwords");
+  VecAccumulator2DMap trunc_rob_errors_maps(*this, "TruncatedROBErrors", true);
+  VecAccumulator2DMap masked_rob_errors_maps(*this, "MaskedROBErrors", true);
+  VecAccumulator2DMap all_errors_maps(*this, "ErrorsLB");
+  VecAccumulator2DMap modsync_errors_maps(*this, "ErrorsModSyncLB");
+  VecAccumulator2DMap rodsync_errors_maps(*this, "ErrorsRODSyncLB");
 
   //====================================================================================
   // This is an example how to read the Error informaiton.
@@ -118,15 +135,29 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
 
   const int maxHash = m_pixelid->wafer_hash_max(); // 2048
 
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly, ctx);
+  SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont;
+  if (m_readoutTechnologyMask)  {
+     idcErrCont =SG::ReadHandle<IDCInDetBSErrContainer> ( m_idcErrContKey, ctx);
+     if (!idcErrCont.isValid()) {
+        ATH_MSG_FATAL("Faled to get BS error container" << m_idcErrContKey.key() );
+     }
+  }
   // Loop over modules except DBM, s.a.
   for (int modHash = 12; modHash < maxHash - 12; modHash++) {
     Identifier waferID = m_pixelid->wafer_id(modHash);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     int nFE(0);
     bool is_fei4(false);     // FEI4 readout architecture (IBL, DBM)
+    int iblsublayer(pixlayer);
     if (pixlayer == PixLayers::kIBL) {
-      nFE = 1; // IBL 3D
-      if (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) nFE = 2; // IBL Planar
+      if (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) { // IBL Planar
+	nFE = 2;
+	iblsublayer = PixLayers::kIBL2D;
+      } else { // IBL 3D
+	nFE = 1;
+	iblsublayer = PixLayers::kIBL3D;
+      }
       is_fei4 = true;
     } else { // for fei3 Pixel layers
       nFE = 16;
@@ -139,15 +170,22 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     // count number of words w/ MCC/FE flags per module
     unsigned int num_femcc_errwords = 0;
 
-    uint64_t mod_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx);
+    uint64_t mod_errorword = (!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask
+                              ? InDet::getBSErrorWord( *pixel_active,
+                                                       *idcErrCont,
+                                                       modHash,
+                                                       modHash,
+                                                       m_readoutTechnologyMask)
+                              : m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx) );
+    VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask, InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,modHash,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx) );
 
     // extracting ROB error information
     //
     if (PixelByteStreamErrors::hasError(mod_errorword, PixelByteStreamErrors::TruncatedROB)) {
-      trunc_rob_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+      trunc_rob_errors_maps.add(pixlayer, waferID, 1.0);
     }
     if (PixelByteStreamErrors::hasError(mod_errorword, PixelByteStreamErrors::MaskedROB)) {
-      masked_rob_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+      masked_rob_errors_maps.add(pixlayer, waferID, 1.0);
     }
     // getting module_error information (only fei3 layers)
     //
@@ -157,7 +195,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
       for (unsigned int state = 0; state < stateFEI3.size(); ++state) {
         if (stateFEI3[state]) {
           num_errors_per_state[state][pixlayer]++;
-          error_maps_per_state[state].add(pixlayer, waferID, m_pixelid, 1.0);
+          error_maps_per_state[state].add(pixlayer, waferID, 1.0);
         }
       }
       fillErrorCatRODmod(mod_errorword, nerrors_cat_rodmod);
@@ -168,7 +206,15 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     for (int iFE = 0; iFE < nFE; iFE++) {
 
       int offsetFE = (1 + iFE) * maxHash + modHash;    // (FE index+1)*2048 + moduleHash
-      uint64_t fe_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx);
+      uint64_t fe_errorword = (!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask
+                              ? InDet::getBSErrorWord( *pixel_active,
+                                                       *idcErrCont,
+                                                       modHash,
+                                                       offsetFE,
+                                                       m_readoutTechnologyMask) 
+                               : m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx) );
+      VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask, InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,offsetFE,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx) );
+
 
       fillErrorCatRODmod(fe_errorword, is_fei4, nerrors_cat_rodmod, iFE);
 
@@ -176,25 +222,31 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         std::bitset<kNumErrorStatesFEI3> stateFEI3 = getErrorStateFE(fe_errorword, is_fei4);
         num_errors[pixlayer] += stateFEI3.count();
         if (stateFEI3.any()) num_femcc_errwords++;
+	int perFEI3state(-1);
         for (unsigned int state = 0; state < stateFEI3.size(); ++state) {
+	  if (isPerFEI3State(error_names_stateFEI3[state])) perFEI3state++;
           if (stateFEI3[state]) {
             num_errors_per_state[state][pixlayer]++;
-            error_maps_per_state[state].add(pixlayer, waferID, m_pixelid, 1.0);
+	    if (perFEI3state>=0 && perFEI3state<kNumErrorStatesPerFE) {
+	      fe_error_maps_per_state[perFEI3state].add(pixlayer, waferID, iFE, 1.0);
+	    } else {
+	      error_maps_per_state[state].add(pixlayer, waferID, 1.0);
+	    }
           }
         }
       } else {
         std::bitset<kNumErrorStatesFEI3> stateFEI4 = getErrorStateFE(fe_errorword, is_fei4);
-        num_errors[pixlayer] += stateFEI4.count();
+        num_errors[iblsublayer] += stateFEI4.count();
         Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
         for (unsigned int state = 0; state < stateFEI4.size(); ++state) {
           if (stateFEI4[state]) {
-            num_errors_per_state[state][pixlayer]++;
-            error_maps_per_state[state + kNumErrorStatesFEI3].add(pixlayer, pixelIDperFEI4, m_pixelid, 1.0);
+            num_errors_per_state[state][iblsublayer]++;
+            error_maps_per_state[state + kNumErrorStatesFEI3].add(pixlayer, pixelIDperFEI4, 1.0);
           }
         }
       }
     } // FE loop
-    if (!is_fei4) femcc_errwords_maps.add(pixlayer, waferID, m_pixelid, num_femcc_errwords);
+    if (!is_fei4) femcc_errwords_maps.add(pixlayer, waferID, num_femcc_errwords);
 
     // getting error information from service records (only IBL)
     //
@@ -213,16 +265,24 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
           Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
           // index = offset + (serviceCode)*(#IBL*nFEmax) + (moduleHash-156)*nFEmax + iFE
           int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE;
-          uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx);
+          uint64_t serviceCodeCounter = (!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask
+                                         ? InDet::getBSErrorWord( *pixel_active,
+                                                                  *idcErrCont,
+                                                                  modHash,
+                                                                  serviceCodeCounterIndex,
+                                                                  m_readoutTechnologyMask)
+                                         : m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx) );
+          VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask, InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,serviceCodeCounterIndex,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx) );
+
           if (serviceCodeCounter > 0) {
             float payload = serviceCodeCounter; // NB: + 1, as in rel 21, is now added upstream
             flagged_ibl_error_bits.push_back(serviceCode);
             weights_of_flagged_ibl_error_bits.push_back(payload);
 
             int state = serviceCode + state_offset;
-            num_errors[pixlayer] += payload;
-            num_errors_per_state[state][pixlayer] += payload;
-            error_maps_per_state[state + kNumErrorStatesFEI3].add(pixlayer, pixelIDperFEI4, m_pixelid, payload);
+            num_errors[iblsublayer] += payload;
+            num_errors_per_state[state][iblsublayer] += payload;
+            error_maps_per_state[state + kNumErrorStatesFEI3].add(pixlayer, pixelIDperFEI4, payload);
 
             fillErrorCatRODmod(serviceCode, payload, nerrors_cat_rodmod, iFE);
           }
@@ -230,7 +290,6 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
       } //over service codes
     } // IBL modules
 
-    // access categorized error information per module
     // access categorized error information per module (for IBL - FE)
     // it is only flagged - the actual number of errors per category is not tracked
     for (int iFE = 0; iFE < nFE; iFE++) {
@@ -243,31 +302,34 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         for (int i = 0; i < ErrorCategoryRODMOD::COUNT; i++) {
           if (nerrors_cat_rodmod[i][iFE]) {
             if (getErrorCategory(i + 1) != 99) has_err_cat[getErrorCategory(i + 1)][iFE] = true;
-            num_errormodules_per_cat_rodmod[i][pixlayer]++;
+	    if (pixlayer == PixLayers::kIBL) num_errormodules_per_cat_rodmod[i][iblsublayer]++;
+            else num_errormodules_per_cat_rodmod[i][pixlayer]++;
             if (!m_doOnline) {
-              all_errors_maps.add(pixlayer, pixID, m_pixelid, nerrors_cat_rodmod[i][iFE]);
+              all_errors_maps.add(pixlayer, pixID, nerrors_cat_rodmod[i][iFE]);
               if (i < ErrorCategoryRODMOD::kTruncROD + 1) {
-                error_maps_per_cat_rodmod[i].add(pixlayer, pixID, m_pixelid, 1.0);
-                if (i == 0) modsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
-                if (i == 1) rodsync_errors_maps.add(pixlayer, pixID, m_pixelid, 1.0);
+                error_maps_per_cat_rodmod[i].add(pixlayer, pixID, 1.0);
+                if (i == 0) modsync_errors_maps.add(pixlayer, pixID, 1.0);
+                if (i == 1) rodsync_errors_maps.add(pixlayer, pixID, 1.0);
               }
             }
           }
         }
         for (int i = 0; i < ErrorCategory::COUNT; i++) {
           if (has_err_cat[i][iFE]) {
-            num_errormodules_per_cat[i][pixlayer]++;
+	    if (pixlayer == PixLayers::kIBL) num_errormodules_per_cat[i][iblsublayer]++;
+            else num_errormodules_per_cat[i][pixlayer]++;
             if (!m_doOnline) {
-              error_maps_per_cat[i].add(pixlayer, pixID, m_pixelid, 1.0);
+              error_maps_per_cat[i].add(pixlayer, pixID, 1.0);
             }
           }
         }
 
         // filling nActive modules per layer for later normalization
         // for IBL normalization is done by number of FEI4
-        if ((pixlayer != PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash) == true) ||
-            (pixlayer == PixLayers::kIBL && m_pixelCondSummaryTool->isActive(modHash, pixID) == true)) {
-          nActive_layer[pixlayer]++;
+        if ((pixlayer != PixLayers::kIBL && isActive(!m_pixelDetElStatusActiveOnly.empty()     ? pixel_active.cptr() : nullptr, modHash) == true) ||
+            (pixlayer == PixLayers::kIBL && isChipActive(!m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr, modHash, iFE) == true)) {
+	  if (pixlayer == PixLayers::kIBL) nActive_layer[iblsublayer]++;
+          else nActive_layer[pixlayer]++;
         }
       } else {
         ATH_MSG_ERROR("PixelMonitoring: got invalid pixID " << pixID);
@@ -290,10 +352,12 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
       }
     }
   }
-
+  int perFEI3state(0);
   for (unsigned int state = 0; state < kNumErrorStatesFEI3 + kNumErrorStatesFEI4; state++) {
     if (state < kNumErrorStatesFEI3) {
-      fill2DProfLayerAccum(error_maps_per_state[state]);
+      if (isPerFEI3State(error_names_stateFEI3[state]) && perFEI3state<kNumErrorStatesPerFE) 
+	fill2DProfLayerAccum(fe_error_maps_per_state[perFEI3state++]);
+      else fill2DProfLayerAccum(error_maps_per_state[state]);
       fill1DProfLumiLayers(error_names_stateFEI3[state] + std::string(
                              "PerLumi"), lb, num_errors_per_state[state], PixLayers::NFEI3LAYERS);
     } else {
@@ -436,4 +500,10 @@ void PixelAthErrorMonAlg::fillErrorCatRODmod(int sc, int payload,
       sc == 28 || sc == 29 ||                                    // SR28:Bit flip in CMD, SR29:Triple redundant CMD,
       sc == 31)                                                 // SR31:Triple redundant EFUSE)
     nerrors_cat_rodmod[5][ife] += payload;// SEU error
+}
+
+bool PixelAthErrorMonAlg::isPerFEI3State(const std::string& state) const {
+ return (state.find("SEU") != std::string::npos || 
+	 state.find("EOC") != std::string::npos || 
+	 state.find("Warning") != std::string::npos);
 }

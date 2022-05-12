@@ -35,16 +35,6 @@ if DerivationFrameworkIsMonteCarlo:
                                                                     AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
                                                                      )
 
-    # Add in some jets - global config if we are running on EVNT
-    if dfInputIsEVNT:
-        from JetRec.JetRecFlags import jetFlags
-        jetFlags.useTruth = True
-        jetFlags.useTracks = False
-        jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-                                    "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                                    "TausFinal",
-                                    "Partons",
-                                    ]
 
 # Helper for adding truth jet collections via new jet config
 def addTruthJets(kernel=None, decorationDressing=None):
@@ -422,25 +412,21 @@ def addTruthEnergyDensity(kernel=None):
     # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
     if not hasattr(ToolSvc,'EDTruthCentralTool'):
         DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool",
-                                                            cst.Truth.label,
+                                                            cst.Truth,
                                                             0.5,
                                                             AbsRapidityMax      = 1.5,
                                                             OutputContainer     = "TruthIsoCentralEventShape",
                                                            )
-        # Note the helper function mangles the naming in a specific way that is not sufficiently general
-        DFCommonTruthCentralEDTool.InputContainer = "PseudoJet"+cst.Truth.label
         ToolSvc += DFCommonTruthCentralEDTool
         kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
     if not hasattr(ToolSvc,'EDTruthForwardTool'):
         DFCommonTruthForwardEDTool = configEventDensityTool("DFCommonTruthForwardEDTool",
-                                                            cst.Truth.label,
+                                                            cst.Truth,
                                                             0.5,
                                                             AbsRapidityMin      = 1.5,
                                                             AbsRapidityMax      = 3.0,
                                                             OutputContainer     = "TruthIsoForwardEventShape",
                                                            )
-        # Note the helper function mangles the naming in a specific way that is not sufficiently general
-        DFCommonTruthForwardEDTool.InputContainer = "PseudoJet"+cst.Truth.label
         ToolSvc += DFCommonTruthForwardEDTool
         kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 

@@ -7,8 +7,7 @@
    and fit quality.
 ***************************************************************************/
 
-#include <cmath>
-#include <iomanip>
+
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
@@ -28,6 +27,8 @@
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
 #include "TrkiPatFitterUtils/MessageHelper.h"
+#include <cmath>
+#include <iomanip>
 
 namespace Trk
 {
@@ -1364,10 +1365,12 @@ namespace Trk
 
       // insert material at measurement surface
       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
-      const Trk::EnergyLoss* energyLoss = nullptr;
-      if (materialEffects->energyLoss()) energyLoss = materialEffects->energyLoss()->clone();
+      std::unique_ptr<Trk::EnergyLoss> energyLoss = nullptr;
+      if (materialEffects->energyLoss()) {
+        energyLoss = std::unique_ptr<Trk::EnergyLoss>(materialEffects->energyLoss()->clone());
+      }
       MaterialEffectsOnTrack* meot = new MaterialEffectsOnTrack(materialEffects->thicknessInX0(),
-                                                                energyLoss,
+                                                                std::move(energyLoss),
                                                                 *(**m).surface(),
                                                                 typePattern);
       const TrackSurfaceIntersection* intersection =
@@ -2123,7 +2126,6 @@ namespace Trk
                                   anyDirection,
                                   false,
                                   particleHypothesis));
-   if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
 
    if (!endParameters) {
      endParameters = m_extrapolator->extrapolate(ctx,
@@ -2132,9 +2134,7 @@ namespace Trk
                                                  anyDirection,
                                                  false,
                                                  Trk::nonInteracting);
-     if (endParameters.get() == outerParameters.get())
-       throw std::logic_error("Extrapolator returned input parameters.");
-
+     
      if (!endParameters) {
         // failed extrapolation
         m_messageHelper->printWarning(4);

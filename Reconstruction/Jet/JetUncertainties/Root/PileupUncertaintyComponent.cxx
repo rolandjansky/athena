@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/PileupUncertaintyComponent.h"
@@ -246,7 +246,7 @@ double PileupUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, cons
 
 double PileupUncertaintyComponent::getPileupWeight(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const PileupRefType refType) const
 {
-    static SG::AuxElement::Accessor<float> accNPV("NPV");
+    static const SG::AuxElement::Accessor<float> accNPV("NPV");
 
     double weight;
     const float mu  = eInfo.averageInteractionsPerCrossing();

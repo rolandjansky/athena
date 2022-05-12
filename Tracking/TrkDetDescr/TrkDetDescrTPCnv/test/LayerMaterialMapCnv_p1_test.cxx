@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrkDetDescrTPCnv/test/LayerMaterialMapCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "TrkDetDescrTPCnv/LayerMaterialMapCnv_tlp1.h"
 #include "TestTools/leakcheck.h"
 #include "TestTools/FLOATassert.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 #include <cassert>
@@ -175,7 +174,7 @@ void testit (const Trk::LayerMaterialMap& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Trk::ElementTable* e = new Trk::ElementTable;
@@ -231,7 +230,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

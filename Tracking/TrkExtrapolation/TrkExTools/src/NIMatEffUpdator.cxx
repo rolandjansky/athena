@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,8 +26,7 @@ Trk::NIMatEffUpdator::NIMatEffUpdator(const std::string &t, const std::string &n
 }
 
 // destructor
-Trk::NIMatEffUpdator::~NIMatEffUpdator() {
-}
+Trk::NIMatEffUpdator::~NIMatEffUpdator() = default;
 
 // Athena standard methods
 // initialize
@@ -53,7 +52,7 @@ Trk::NIMatEffUpdator::finalize() {
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackParameters *
+std::unique_ptr<Trk::TrackParameters>
 Trk::NIMatEffUpdator::update(const Trk::TrackParameters *parm,
                              const Trk::Layer &lay,
                              Trk::TimeLimit & /*timeLim*/,
@@ -61,11 +60,11 @@ Trk::NIMatEffUpdator::update(const Trk::TrackParameters *parm,
                              Trk::GeometrySignature /*geoID*/,
                              Trk::PropDirection dir,
                              Trk::ParticleHypothesis particle) const {
-  return m_matUpdator->update(parm, lay, dir, particle).release();
+  return m_matUpdator->update(parm, lay, dir, particle);
 }
 
 // update method
-const Trk::TrackParameters *
+std::unique_ptr<Trk::TrackParameters>
 Trk::NIMatEffUpdator::update(double /*time*/,
                              const Trk::TrackParameters &parm,
                              const Trk::MaterialProperties &matprop,
@@ -73,14 +72,14 @@ Trk::NIMatEffUpdator::update(double /*time*/,
                              Trk::PropDirection dir,
                              Trk::ParticleHypothesis particle,
                              Trk::MaterialUpdateMode) const {
-  return m_matUpdator->update(parm, matprop, pathCorrection, dir, particle).release();
+  return m_matUpdator->update(parm, matprop, pathCorrection, dir, particle);
 }
 
-const Trk::TrackParameters *
+std::unique_ptr<Trk::TrackParameters>
 Trk::NIMatEffUpdator::update(double /*time*/,
                              const Trk::TrackParameters *parm,
                              const Trk::MaterialEffectsOnTrack &meff,
                              Trk::ParticleHypothesis particle,
                              Trk::MaterialUpdateMode) const {
-  return m_matUpdator->update(parm, meff, particle).release();
+  return m_matUpdator->update(parm, meff, particle);
 }

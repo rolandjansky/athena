@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+from JetRecConfig.JetRecConfig import registerAsInputConstit
 from .JetDefinition import  JetDefinition
 
 
@@ -38,7 +39,7 @@ calibmods_lowCut = (
 
 standardmods = (
     "LArHVCorr", "Width",
-     "CaloQuality", "TrackMoments","TrackSumMoments",
+    "CaloQuality", "TrackMoments","TrackSumMoments",
     "JVF", "JVT", "Charge",
 )
 
@@ -51,20 +52,20 @@ pflowmods        = ()
 # Standard track jet definition
 # ********************************************************
 AntiKtVR30Rmax4Rmin02PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
-                                              modifiers = ("Sort","JetDeltaRLabel:4500","JetGhostLabel"),
+                                              modifiers = ("Sort","JetDeltaRLabel:4500","JetGhostLabel","vr"),
                                               ptmin=4000,
-                                              standardRecoMode = True,
                                               VRMinR = 0.02,
                                               VRMassSc = 30000,
                                               lock = True)
 
+# These jets are used as ghost, so they also need to be defined as constituents : 
+registerAsInputConstit(AntiKtVR30Rmax4Rmin02PV0Track)
 
 
 AntiKt4PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
                                 modifiers = ("Sort",)+truthmods,
                                 ptmin=2000,
-                                standardRecoMode = True,
-                                lock = True)
+                                  lock = True)
 
 
 # *********************************************************
@@ -72,10 +73,9 @@ AntiKt4PV0Track = JetDefinition("AntiKt", 0.4, cst.PV0Track,
 # *********************************************************
 
 
-AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.GPFlow,
                                ghostdefs = standardghosts+flavourghosts,
                                modifiers = calibmods+("Filter:10000",)+truthmods+standardmods,
-                               standardRecoMode = True,                               
                                lock = True
 )
 
@@ -84,8 +84,7 @@ AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
 
 AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
                               ghostdefs = standardghosts+flavourghosts, 
-                              modifiers = calibmods+("Filter:15000",)+standardmods+clustermods,
-                              standardRecoMode = True,
+                              modifiers = calibmods+("Filter_ifnotESD:15000","OriginSetPV")+standardmods+clustermods,
                               lock = True,
 )
 
@@ -94,30 +93,27 @@ AntiKt4LCTopo = JetDefinition("AntiKt",0.4,cst.LCTopoOrigin,
 AntiKt4EMTopo = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                               ghostdefs = standardghosts+["TrackLRT"]+flavourghosts,
                               modifiers = calibmods+("Filter:15000",)+truthmods+standardmods+clustermods,
-                              standardRecoMode = True,
                               lock = True,
 )
 
 # *********************************************************
 # EMPFlow CSSK jets
 # *********************************************************
-AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.EMPFlowCSSK,
+AntiKt4EMPFlowCSSK = JetDefinition("AntiKt",0.4,cst.GPFlowCSSK,
                                    ghostdefs = standardghosts+flavourghosts,
-                                   modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1",)+truthmods+standardmods,
+                                   modifiers = ("ConstitFourMom","CaloEnergies","Sort","Filter:1","JetPtAssociation")+truthmods+standardmods,
                                    ptmin = 2000,
-                                   standardRecoMode = True,
                                    lock = True
 )
 
 # *********************************************************
 # Low and no pT cut containers used in JETMX derivations
 # *********************************************************
-AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.GPFlow,
                                       infix = "NoPtCut",
                                       ghostdefs = standardghosts+flavourghosts,
-                                      modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                      modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+("JetPtAssociation",),
                                       ptmin = 1,
-                                      standardRecoMode = True,
                                       lock = True
 )
 
@@ -125,27 +121,24 @@ AntiKt4EMPFlowNoPtCut = JetDefinition("AntiKt",0.4,cst.EMPFlow,
 AntiKt4EMTopoNoPtCut = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                                      infix = "NoPtCut",
                                      ghostdefs = standardghosts+flavourghosts,
-                                     modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+clustermods,
+                                     modifiers = calibmods_lowCut+("Filter:1",)+truthmods+standardmods+clustermods+("JetPtAssociation",),
                                      ptmin = 1,
-                                     standardRecoMode = True,
                                      lock = True
 )
 
-AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.EMPFlow,
+AntiKt4EMPFlowLowPt = JetDefinition("AntiKt",0.4,cst.GPFlow,
                                     infix = "LowPt",
                                     ghostdefs = standardghosts+flavourghosts,
-                                    modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods,
+                                    modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+("JetPtAssociation",),
                                     ptmin = 2000,
-                                    standardRecoMode = True,
                                     lock = True
 )
 
 AntiKt4EMTopoLowPt = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
                                    infix = "LowPt",
                                    ghostdefs = standardghosts+flavourghosts,
-                                   modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+clustermods,
+                                   modifiers = calibmods_lowCut+("Filter:2000",)+truthmods+standardmods+clustermods+("JetPtAssociation",),
                                    ptmin = 2000,
-                                   standardRecoMode = True,
                                    lock = True
 )
 
@@ -156,21 +149,18 @@ AntiKt4EMTopoLowPt = JetDefinition("AntiKt",0.4,cst.EMTopoOrigin,
 AntiKt4Truth = JetDefinition("AntiKt",0.4, cst.Truth,
                              ghostdefs = flavourghosts,
                              modifiers = ("Sort", "Width")+truthmods,
-                             standardRecoMode = True,
                              lock = True,
 )
 
 AntiKt4TruthWZ = JetDefinition("AntiKt",0.4, cst.TruthWZ,
                                ghostdefs = flavourghosts,
                                modifiers = ("Sort", "Width")+truthmods,
-                               standardRecoMode = True,
                                lock = True,
 )
 
 AntiKt4TruthDressedWZ = JetDefinition("AntiKt",0.4, cst.TruthDressedWZ,
                                       ghostdefs = flavourghosts,
                                       modifiers = ("Sort", "Width")+truthmods,
-                                      standardRecoMode = True,
                                       lock = True,
 )
 
@@ -179,7 +169,6 @@ AntiKtVRTruthCharged = JetDefinition("AntiKt",0.4, cst.TruthCharged,
                                      modifiers = ("Sort",)+truthmods,
                                      VRMinR = 0.02,
                                      VRMassSc = 30000,
-                                     standardRecoMode = True,
                                      lock = True
 )
 

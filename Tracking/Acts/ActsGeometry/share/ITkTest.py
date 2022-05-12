@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 """Run ACTS geometry construction for ITk
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Set up logging and new style config
 Configurable.configurableRun3Behavior = True
-
-ConfigFlags.GeoModel.useLocalGeometry = False
-
-
 
 from AthenaConfiguration.Enums import ProductionStep
 ConfigFlags.Common.ProductionStep = ProductionStep.Simulation

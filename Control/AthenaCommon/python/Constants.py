@@ -5,8 +5,6 @@
 
 """Useful/conventional constants."""
 
-from __future__ import print_function
-
 __all__ = [ 'ALL', 'VERBOSE', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'FATAL',
             'TRUE', 'FALSE' ]
 

@@ -168,7 +168,7 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
     return StatusCode::FAILURE;
   }
 
-  if (m_RecTrackCollection_keys.size()<=0) {
+  if (m_RecTrackCollection_keys.empty()) {
     ATH_MSG_ERROR("No reco track collection specified! Aborting.");
     return StatusCode::FAILURE;
   }
@@ -301,7 +301,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
     // step through the various reconstructed TrackCollections and
     // corresponding TrackTruthCollections and produce statistics for each
 
-    if (m_SignalCounters.size()<=0) {
+    if (m_SignalCounters.empty()) {
       ATH_MSG_ERROR("No reco track collection specified! Aborting.");
       return StatusCode::FAILURE;
     }
@@ -553,7 +553,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
     const DataVector<const Trk::TrackParameters>* trackpara =
       (*it)->trackParameters();
 
-    if(trackpara->size() > 0){
+    if(!trackpara->empty()){
       const Trk::TrackParameters* para = trackpara->front();
       if (para){
 	if (para->pT() >  m_minPt && std::abs(para->eta()) < m_maxEta) {
@@ -565,8 +565,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
       counter.m_counter[kN_rec_tracks_without_perigee] ++;
     }
   }
- return;
-}
+ }
 
 // select charged, stable particles in allowed pt and eta range
 void InDet :: InDetRecStatisticsAlg ::
@@ -618,8 +617,7 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	  }
 	} // End of a particle iteration
     } // End of one GenEvent iteration
-  return;
-}
+  }
 
 namespace {
 

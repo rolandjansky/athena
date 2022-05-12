@@ -12,8 +12,7 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IAthenaSharedWriterSvc.h"
-
-#include "GaudiKernel/IConversionSvc.h"
+#include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 
 #include "THashTable.h"
 
@@ -43,7 +42,7 @@ public:
    virtual StatusCode share(int numClients = 0, bool motherClient = false) override;
 
 private:
-   ServiceHandle<IConversionSvc> m_cnvSvc{this,"AthenaPoolCnvSvc","AthenaPoolCnvSvc"};
+   ServiceHandle<IAthenaPoolCnvSvc> m_cnvSvc{this,"AthenaPoolCnvSvc","AthenaPoolCnvSvc"};
 
    TServerSocket* m_rootServerSocket;
    TMonitor* m_rootMonitor;

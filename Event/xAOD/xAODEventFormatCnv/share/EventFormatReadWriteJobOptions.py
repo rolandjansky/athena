@@ -48,7 +48,6 @@ def makeStream(name='TestStream'):
 # grab input files
 svcMgr.EventSelector.InputCollections = [
     "testStream0.pool.root",
-    "testStream1.pool.root",
 ]
 
 # propogate xAOD::EventFormat from InputMetaDataStore to MetaDataStore
@@ -56,7 +55,13 @@ ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool(
     "EventFormatMetaDataTool",
     OutputLevel=VERBOSE,
 )
-svcMgr.MetaDataSvc.MetaDataTools += [ToolSvc.EventFormatMetaDataTool]
+ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool(
+    "FileMetaDataTool",
+    OutputLevel=3,
+)
+svcMgr.MetaDataSvc.MetaDataTools += [
+    ToolSvc.EventFormatMetaDataTool, ToolSvc.FileMetaDataTool
+]
 
 
 # Add the xAOD::EventFormat printer algorithm to main algorithm sequence
@@ -82,4 +87,4 @@ svcMgr.MetaDataSvc.OutputLevel = DEBUG
 
 # read the last event of the first file and the first event of the second file
 # to test metadata access across file boundary
-theApp.EvtMax = -1
+theApp.EvtMax = 1

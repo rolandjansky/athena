@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArCalibDigitsAccumulatorFreeGain.h"
+#include "LArCalibDigitsAccumulatorFreeGain.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <math.h>

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
@@ -8,17 +8,24 @@ def getStreamHITS_ItemList(ConfigFlags):
     #--------------------------------------------------------------
     # Specify collections for output HIT files, as not all are required.
     #--------------------------------------------------------------
-    ItemList = ["EventInfo#*",
-                "McEventCollection#TruthEvent", # mc truth (hepmc)
+    ItemList = ["McEventCollection#TruthEvent", # mc truth (hepmc)
                 "TrackRecordCollection#MuonEntryLayer", # others not used in pileup
                 "xAOD::JetContainer#*",
                 "xAOD::JetAuxContainer#*",
                 "xAOD::TruthParticleContainer#TruthPileupParticles",
                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
+    if "xAOD::EventInfo#EventInfo" in ConfigFlags.Input.TypedCollections:
+        ItemList += ["xAOD::EventInfo#EventInfo",
+                     "xAOD::EventAuxInfo#EventInfoAux.",
+                     "xAOD::EventInfoContainer#*",
+                     "xAOD::EventInfoAuxContainer#*"]
+    else:
+        ItemList += ["EventInfo#*"]
+
     #PLR
     if ConfigFlags.Detector.EnablePLR:
-        ItemList += ["SiHitCollection#PLRHits"]
+        ItemList += ["SiHitCollection#PLR_Hits"]
     #BCM
     if ConfigFlags.Detector.EnableBCM:
         ItemList += ["SiHitCollection#BCMHits"]
@@ -66,10 +73,10 @@ def getStreamHITS_ItemList(ConfigFlags):
         ItemList+=["TGCSimHitCollection#TGC_Hits"]
     #STGC
     if ConfigFlags.Detector.EnablesTGC:
-        ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
+        ItemList+=["sTGCSimHitCollection#sTGC_Hits"]
     #MM
     if ConfigFlags.Detector.EnableMM:
-        ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
+        ItemList+=["MMSimHitCollection#MM_Hits"]
     return ItemList
 
 
@@ -180,6 +187,9 @@ def fromRunArgs(runArgs):
         if ConfigFlags.Detector.EnableITkPixel:
             from McEventCollectionFilter.McEventCollectionFilterConfig import ITkPixelHitsTruthRelinkCfg
             cfg.merge(ITkPixelHitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnablePLR:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import PLR_HitsTruthRelinkCfg
+            cfg.merge(PLR_HitsTruthRelinkCfg(ConfigFlags))
         # HGTD
         if ConfigFlags.Detector.EnableHGTD:
             from McEventCollectionFilter.McEventCollectionFilterConfig import HGTD_HitsTruthRelinkCfg
@@ -205,7 +215,7 @@ def fromRunArgs(runArgs):
             cfg.merge(sTGC_HitsTruthRelinkCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag="xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections) )
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

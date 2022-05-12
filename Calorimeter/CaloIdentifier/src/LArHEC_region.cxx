@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHEC_region.h"
@@ -44,8 +44,7 @@ LArHEC_region::LArHEC_region(unsigned int& minHash, short int& nbEtaBins, short 
 }
 
 LArHEC_region::~LArHEC_region()
-{
-}
+= default;
 
 short int LArHEC_region::numberOfEta() const
 {

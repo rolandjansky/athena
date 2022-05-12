@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArFCAL_SuperCell_ID.h"
@@ -20,8 +20,7 @@ LArFCAL_SuperCell_ID::LArFCAL_SuperCell_ID(void) :
 }
 
 LArFCAL_SuperCell_ID::~LArFCAL_SuperCell_ID(void) 
-{
-}
+= default;
 
 int  LArFCAL_SuperCell_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 /*=================================================================*/

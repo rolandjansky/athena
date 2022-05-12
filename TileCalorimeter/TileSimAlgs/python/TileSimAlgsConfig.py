@@ -27,7 +27,6 @@ def TileHitVecToCntTool(name="TileHitVecToCntTool", **kwargs):
     protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
     protectedInclude( "TileConditions/TileConditions_jobOptions.py" )
     kwargs.setdefault("TileHitVectors", ["TileHitVec" , "MBTSHits" ])
-    kwargs.setdefault("TileInfoName", "TileInfo")
     kwargs.setdefault("TileHitContainer", "TileHitCnt")
     kwargs.setdefault("TileHitContainer_DigiHSTruth", "TileHitCnt_DigiHSTruth")
     kwargs.setdefault("DoHSTruthReconstruction", digitizationFlags.doDigiTruth())
@@ -41,7 +40,10 @@ def TileHitVecToCntTool(name="TileHitVecToCntTool", **kwargs):
         kwargs.setdefault("UseTriggerTime", True)
 
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
-        kwargs.setdefault("FirstXing", Tile_FirstXing() ) 
-        kwargs.setdefault("LastXing",  Tile_LastXing() ) 
+        kwargs.setdefault("FirstXing", Tile_FirstXing() )
+        kwargs.setdefault("LastXing",  Tile_LastXing() )
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     return CfgMgr.TileHitVecToCntTool(name, **kwargs)

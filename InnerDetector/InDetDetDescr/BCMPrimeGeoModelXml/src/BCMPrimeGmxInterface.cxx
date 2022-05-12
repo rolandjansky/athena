@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCMPrimeGmxInterface.h"
 
-#include <BCMPrimeReadoutGeometry/BCMPrimeDetectorManager.h>
-#include <InDetSimEvent/SiHitIdHelper.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "BCMPrimeReadoutGeometry/BCMPrimeDetectorManager.h"
+#include "InDetSimEvent/SiHitIdHelper.h"
 
 namespace InDetDD
 {
 
-BCMPrimeGmxInterface::BCMPrimeGmxInterface(InDetDD::BCMPrimeDetectorManager *detectorManager)
+BCMPrimeGmxInterface::BCMPrimeGmxInterface(BCMPrimeDetectorManager *detectorManager)
   : AthMessaging(Athena::getMessageSvc(), "BCMPrimeGmxInterface"),
     m_detectorManager(detectorManager)
 {}
@@ -18,8 +19,7 @@ BCMPrimeGmxInterface::BCMPrimeGmxInterface(InDetDD::BCMPrimeDetectorManager *det
 int BCMPrimeGmxInterface::sensorId(std::map<std::string, int> &index) const
 {
   // Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
-  int hitIdOfModule = SiHitIdHelper::GetHelper()->buildHitId(0, 0, index["diamond_number"],
-                index["module_number"], 0, 0);
+  int hitIdOfModule = SiHitIdHelper::GetHelper()->buildHitId(0, 0, index["diamond_number"], index["module_number"], 0, 0);
 
   ATH_MSG_DEBUG("Index list: " << index["diamond_number"] << " " << index["module_number"]);
   ATH_MSG_DEBUG("hitIdOfModule = " << std::hex << hitIdOfModule << std::dec);

@@ -65,13 +65,13 @@ public:
 private:
 
   ///AFPProtonTransportParam object used for the x position evaluation
-  AFPProtonTransportParam* m_x_position;
+  AFPProtonTransportParam* m_x_position = nullptr;
   ///AFPProtonTransportParam object used for the y position evaluation
-  AFPProtonTransportParam* m_y_position;
+  AFPProtonTransportParam* m_y_position = nullptr;
   ///AFPProtonTransportParam object used for the x slope
-  AFPProtonTransportParam* m_x_slope;
+  AFPProtonTransportParam* m_x_slope = nullptr;
   ///AFPProtonTransportParam object used for the y slope
-  AFPProtonTransportParam* m_y_slope;
+  AFPProtonTransportParam* m_y_slope = nullptr;
 
   /// Beam crossing angle from x axis at the interaction point
   Gaudi::Property<double> m_xSlopeInitIP {this, "xSlopeInitIp", 0, "Initial x slope at IP"};

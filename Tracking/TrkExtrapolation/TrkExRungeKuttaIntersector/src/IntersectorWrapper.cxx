@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ IntersectorWrapper::IntersectorWrapper	(const std::string& type,
   }
 
 IntersectorWrapper::~IntersectorWrapper	(void)
-{}
+= default;
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 

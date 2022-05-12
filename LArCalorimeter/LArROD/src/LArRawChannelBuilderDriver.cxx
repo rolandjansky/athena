@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderDriver.h"
+#include "LArRawChannelBuilderDriver.h"
 
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannelContainer.h"

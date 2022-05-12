@@ -24,6 +24,17 @@ namespace SG {
 
 
   /**
+   * @brief Constructor with full arguments.
+   * @param sgkey StoreGate key of the referenced object.
+   */
+  VarHandleBase::VarHandleBase(const std::string& sgkey) :
+    m_ownedKey (std::make_unique<VarHandleKey> (sgkey)),
+    m_key (m_ownedKey.get())
+  {
+  }
+
+
+  /**
    * @brief Constructor from a VarHandleKey.
    * @param key The key object holding the clid/key/store.
    * @param ctx The event context to use, or nullptr.

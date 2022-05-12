@@ -33,6 +33,7 @@
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigSteeringEvent/Lvl1Item.h"
 
+#include "TrigDecisionInterface/GroupProperties.h"
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 
@@ -78,12 +79,12 @@ namespace Trig {
      *        It is not the same though as "EF_mu.*" even if in particular case that would mean the same 2 chains.
      *
      * @param alias is the short human readable name for the triggers which are in the group i.e. myMuons
-     * @param parseAsRegex Sets if regular expression are allowed in patterns. Otherwise exact matches will be required.
-     *        This is considerably faster, so is used for some internally created chains groups with a large number of patterns.
+     * @param props are additional properties for the chain group creation (e.g. disable regex parsing)
      **/
     const Trig::ChainGroup* createChainGroup(const std::vector< std::string >& patterns,
                                              const std::string& alias="",
-                                             const bool parseAsRegex = true);
+                                             TrigDefs::Group props = TrigDefs::Group::Default) const;
+
     /**
      * @brief Updates configuration of the chain groups
      * (i.e. regexes are reapplied to new set of chains)
@@ -113,20 +114,16 @@ namespace Trig {
     void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
 
     const std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() const {return m_chainGroupsRef;};
-    //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
-    //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() const {return m_items;};
-    //    std::map<unsigned, const HLT::Chain*>         getL2chains() {return m_l2chains;};
-    //    std::map<unsigned, const HLT::Chain*>         getL2chains() const {return m_l2chains;};
-    //    std::map<unsigned, const HLT::Chain*>         getEFchains() {return m_efchains;};
-    //    std::map<unsigned, const HLT::Chain*>         getEFchains() const {return m_efchains;};
     const std::map<std::string, std::vector<std::string> >& getStreams() const {return m_streams;};
 
     /**
      * @brief checks if new event arrived with the decision
-     * Need to use before any call to CacheGlobalMemory.
+     * Need to use before any call to CacheGlobalMemory. It is marked `const`
+     * since it is frequently called from `const` methods and is internally locked.
+     *
      * @return true if all went fine about decision, false otherwise
      **/
-    bool assert_decision();
+    bool assert_decision() const;
 
     /**
      * @brief invalidate previously unpacked decision
@@ -173,7 +170,8 @@ namespace Trig {
     /**
      * @brief unpacks everything that belongs to a ChainGroup
      **/
-    void updateChainGroup(Trig::ChainGroup& chainGroup, const bool parseAsRegex = true);
+    void updateChainGroup(Trig::ChainGroup& chainGroup,
+                          TrigDefs::Group props = TrigDefs::Group::Default);
 
     //
     // Data members
@@ -183,7 +181,7 @@ namespace Trig {
     const asg::EventStoreType* m_store{nullptr};
 
     /// Trigger decision unpacker helper
-    std::unique_ptr<IDecisionUnpacker> m_unpacker;
+    mutable std::unique_ptr<IDecisionUnpacker> m_unpacker ATLAS_THREAD_SAFE;  // for assert_decision
 
     bool m_decisionUnpacked{false};   //!< Was decision unpacked for this event?
     bool m_navigationUnpacked{false}; //!< Was navigation unpacked for this event?
@@ -191,13 +189,9 @@ namespace Trig {
     /// Navigation owned by CGM
     HLT::TrigNavStructure* m_navigation{nullptr};
 
-    // chain groups
-    std::map< std::vector< std::string >, Trig::ChainGroup > m_chainGroups;     //!< primary storage for chain groups
-    std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef; //!< this map keeps the chain group more than once i.e. when alias is given
-
-    //    std::map<CTPID, const LVL1CTP::Lvl1Item*>          m_items;    //!< items keyed by id (changing every event)
-    //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_l2chains; //!< chains keyed by chain counter (chainging every event)
-    //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_efchains;
+    // chain groups (protected by mutex)
+    mutable std::map< std::vector< std::string >, Trig::ChainGroup > m_chainGroups ATLAS_THREAD_SAFE;     //!< primary storage for chain groups
+    mutable std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef ATLAS_THREAD_SAFE; //!< this map keeps the chain group more than once i.e. when alias is given
 
     std::unordered_map<std::string, const LVL1CTP::Lvl1Item*> m_itemsByName;     //!< items keyed by configuration name (chainging every event)
     std::unordered_map<std::string, const HLT::Chain*> m_l2chainsByName;  //!< L2 chains keyed by chain name (chainging every event)

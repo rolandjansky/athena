@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULTBYTESTREAM_EXAMPLEL1TRIGGERBYTESTREAMTOOL_H
@@ -47,9 +47,6 @@ private:
   // ROBIDs property required by the interface
   Gaudi::Property<std::vector<uint32_t>> m_robIds {
     this, "ROBIDs", {}, "List of ROB IDs required for conversion to/from xAOD RoI"};
-  // It is a good idea to have also the module IDs configurable in case they change at some point
-  Gaudi::Property<uint16_t> m_muCTPIModuleID {
-    this, "MUCTPIModuleId", 1, "Module ID of MUCTPI ROB with RoI information"};
 
   // Only write key should be set to non-empty string in python configuration if the tool is in BS->xAOD mode of operation
   SG::WriteHandleKey<xAOD::MuonRoIContainer> m_roiWriteKey {

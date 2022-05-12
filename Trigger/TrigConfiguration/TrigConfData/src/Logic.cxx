@@ -15,9 +15,6 @@ TrigConf::Logic::Logic(NodeType nodeType) :
    m_nodeType(nodeType)
 {}
 
-TrigConf::Logic::~Logic()
-{}
-
 void
 TrigConf::Logic::setNegate(bool negate) {
    m_negate = negate;

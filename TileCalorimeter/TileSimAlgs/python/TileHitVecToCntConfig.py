@@ -46,6 +46,9 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
 
+    from TileConditions.TileSamplingFractionConfig import TileSamplingFractionCondAlgCfg
+    acc.merge( TileSamplingFractionCondAlgCfg(flags) )
+
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
 
@@ -70,23 +73,23 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     else:
         kwargs.setdefault('PileUp', flags.Digitization.PileUp)
 
-    if kwargs['PileUp']:
-        PileUpMergeSvc=CompFactory.PileUpMergeSvc
-        acc.addService( PileUpMergeSvc() )
-
     if flags.Beam.Type is BeamType.Cosmics:
         CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault('TriggerTimeTool', CosmicTriggerTimeTool())
         kwargs.setdefault('HitTimeFlag', 2)
         kwargs.setdefault('UseTriggerTime', True)
 
-    if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
-        kwargs.setdefault("FirstXing", getTileFirstXing() )
-        kwargs.setdefault("LastXing",  getTileLastXing() )
-    elif flags.Digitization.PileUp:
-        rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
-        acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
+            kwargs.setdefault("FirstXing", getTileFirstXing() )
+            kwargs.setdefault("LastXing",  getTileLastXing() )
+        else:
+            intervals += [acc.popToolsAndMerge(TileRangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     TileHitVecToCntTool=CompFactory.TileHitVecToCntTool
     acc.setPrivateTools(TileHitVecToCntTool(**kwargs))
 
@@ -166,6 +169,7 @@ if __name__ == "__main__":
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.PileUp = False
+    ConfigFlags.Exec.MaxEvents = 3
 
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
@@ -190,7 +194,7 @@ if __name__ == "__main__":
     ConfigFlags.dump()
     acc.store( open('TileHitVecToCnt.pkl','wb') )
 
-    sc = acc.run(maxEvents=3)
+    sc = acc.run()
     # Success should be 0
     import sys
     sys.exit(not sc.isSuccess())

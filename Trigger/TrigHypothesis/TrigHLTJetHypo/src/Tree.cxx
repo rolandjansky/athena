@@ -3,6 +3,7 @@
 */
 
 #include "./Tree.h"
+#include <algorithm>
 
 Tree::Tree(const std::vector<std::size_t>& parents) :
   m_parents(parents),
@@ -48,9 +49,27 @@ const std::vector<std::size_t>& Tree::leaves() const {
   return m_leaves;
 }
 
+bool  Tree::is_leaf(std::size_t c) const {
+  return std::find(m_leaves.begin(),
+		   m_leaves.end(),
+		   c) != m_leaves.end();
+}
+
+
 const std::vector<std::size_t>& Tree::firstGeneration() const {
   return m_firstGeneration;
 }
+
+
+bool Tree::is_simple() const {
+  if (m_parents.empty()) {
+    return false;
+  } else {
+    return std::all_of(m_parents.begin(),
+		       m_parents.end(),
+		       [](const auto& e) {return e == 0;});
+  }
+}	  
 
 
 std::size_t Tree::depth(std::size_t n) const {

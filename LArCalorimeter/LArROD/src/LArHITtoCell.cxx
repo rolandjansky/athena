@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -19,7 +19,6 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "boost/foreach.hpp"
 #include <cmath>
 #include <random>
 #include <sys/time.h>

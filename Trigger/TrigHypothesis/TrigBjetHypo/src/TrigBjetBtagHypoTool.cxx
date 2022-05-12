@@ -15,6 +15,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigBjetBtagHypoTool.h"
+#include "xAODBTagging/BTagging.h"
 
 TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
     const std::string& name,
@@ -27,27 +28,16 @@ TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
   StatusCode TrigBjetBtagHypoTool::initialize()  {
 
     ATH_MSG_DEBUG(  "declareProperty review:"   );
-    ATH_MSG_DEBUG(  "   " << m_acceptAll  );
-    ATH_MSG_DEBUG(  "   " << m_bTaggingCut   );
-    ATH_MSG_DEBUG(  "   " << m_cFrac   );
-    ATH_MSG_DEBUG(  "   " << m_tagger     );
-
     ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
     if ( not m_monTool.name().empty() ) {
       ATH_CHECK( m_monTool.retrieve() );
       ATH_MSG_DEBUG("MonTool name: " << m_monTool);
     }
+    ATH_CHECK(m_checks.retrieve());
 
-    if (m_cFrac < 0 || 1 < m_cFrac) {
-      ATH_MSG_ERROR("c-jet fraction for b-tagger likelihood ratio calculation should be between 0 and 1!");
-      ATH_MSG_ERROR("c-jet fraction requested: " << m_cFrac);
-      return StatusCode::FAILURE;
-    }
-
-    if (m_tagger == "") {
-      ATH_MSG_ERROR("no b-jet tagger requested; please provid a b-jet tagger string!");
-      return StatusCode::FAILURE;
+    for (const auto& monpair: m_monMap) {
+      m_monPairs.emplace_back(monpair.first, monpair.second);
     }
 
     return StatusCode::SUCCESS;
@@ -81,49 +71,54 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // Compute trigger decision
     bool pass = true;
 
-    if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
+    int bits = bTagInfo.beamSpot->beamStatus();
+    // beamspot is converged if first and second bit are set
+    bool converged = ((bits | 0b11) == bits);
+    // beamspot is online if thrid bit is set
+    bool online = ((bits | 0b001) == bits);
+
+    ATH_MSG_DEBUG(
+      "Beamspot status: 0x" << std::hex << bits << ", "
+      "converged: " << std::boolalpha << converged << ", "
+      "online: " << online);
+
+    if (m_vetoBadBeamspot && !converged && online) {
+      ATH_MSG_DEBUG( "Beamspot has problems" );
+      ATH_MSG_DEBUG( "Trigger decision is FALSE" );
+      pass = false;
+    } else if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
       ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
       ATH_MSG_DEBUG( "Trigger decision is FALSE" );
       pass = false;
     } else {
-
       const xAOD::BTagging *btagging = *(bTagInfo.btaggingEL);
-      double btaggingWeight = -1000;
 
-      double pu = -1;
-      double pb = -1;
-      double pc = -1;
+      // monitor floats
+      std::vector<Monitored::Scalar<float>> mons;
+      for (const auto& monpair: m_monPairs) {
+        mons.emplace_back(monpair.second, monpair.first(*btagging));
+      }
+      std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> mons_wrappers(
+        mons.begin(), mons.end());
+      Monitored::Group(m_monTool, mons_wrappers);
 
-      btagging->pu(m_tagger, pu);
-      btagging->pb(m_tagger, pb);
-      btagging->pc(m_tagger, pc);
-
-      btaggingWeight = log( pb / (pu * (1 - m_cFrac) + m_cFrac * pc) );
-
-
-      auto monitor_btag_pu = Monitored::Scalar( "btag_pu", pu);
-      auto monitor_btag_pb = Monitored::Scalar( "btag_pb", pb);
-      auto monitor_btag_pc = Monitored::Scalar( "btag_pc", pc);
-      auto monitor_btag_weight = Monitored::Scalar( "btag_llr", btaggingWeight);
-
-      auto monitor_group_for_btag_weights =
-        Monitored::Group( m_monTool, monitor_btag_pu, monitor_btag_pb, monitor_btag_pc, monitor_btag_weight);
-
-      ATH_MSG_DEBUG( "Cutting b-tagging weight at " << m_bTaggingCut.value() );
-
-      if ( btaggingWeight < m_bTaggingCut )
-        pass = false;
+      for (const auto& check: m_checks) {
+        if (!check->passThreshold(*btagging)) {
+          pass = false;
+          break;
+        }
+      }
     }
 
+
     // -------------------------------------
-    if ( pass == true ) {
+    if ( pass ) {
       ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" );
       TrigCompositeUtils::addDecisionID( getId().numeric(),bTagInfo.decision );
     } else {
       ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" );
     }
 
-    ATH_MSG_DEBUG( "b-Tagging decision is " << (pass?"TRUE":"FALSE") );
     ATH_MSG_DEBUG( "PRINTING DECISION" );
     ATH_MSG_DEBUG( *bTagInfo.decision );
   }

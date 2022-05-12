@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, cons
 }
 
 iFatras::McEnergyLossUpdator::~McEnergyLossUpdator()
-{}
+= default;
 
 StatusCode iFatras::McEnergyLossUpdator::initialize()
 {
@@ -86,27 +86,28 @@ double iFatras::McEnergyLossUpdator::dEdX( const Trk::MaterialProperties& materi
   return m_energyLossUpdator->dEdX( materialProperties, momentum, particleHypothesis );
 }
 
-Trk::EnergyLoss* iFatras::McEnergyLossUpdator::energyLoss(
-                   const Trk::MaterialProperties& materialProperties,
-                   double momentum,
-                   double pathCorrection,
-                   Trk::PropDirection direction,
-                   Trk::ParticleHypothesis particleHypothesis,
-                   bool, bool) const
+std::unique_ptr<Trk::EnergyLoss>
+iFatras::McEnergyLossUpdator::energyLoss(
+  const Trk::MaterialProperties& materialProperties,
+  double momentum,
+  double pathCorrection,
+  Trk::PropDirection direction,
+  Trk::ParticleHypothesis particleHypothesis,
+  bool,
+  bool) const
 {
 
   bool mpvSwitch = m_energyLossDistribution >= 2;
  
   // get the number of the material effects distribution
-  Trk::EnergyLoss* sampledEloss = m_energyLossUpdator->energyLoss( 
-	                                  materialProperties,
-                                          momentum,
-                                          pathCorrection,
-                                          direction,
-                                          particleHypothesis,
-                                          mpvSwitch,
-					  m_usePDGformula);     
-
+  std::unique_ptr<Trk::EnergyLoss> sampledEloss =
+    m_energyLossUpdator->energyLoss(materialProperties,
+                                    momentum,
+                                    pathCorrection,
+                                    direction,
+                                    particleHypothesis,
+                                    mpvSwitch,
+                                    m_usePDGformula);
 
   if (!sampledEloss) return nullptr; 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDOINDEX_H
@@ -108,13 +108,15 @@ private:
     void set_indexes(void);
 
 public:
-    RDOindex(unsigned int, unsigned int);
-    RDOindex(unsigned int, unsigned int, const std::string&, int, int, int, int, int);
+    RDOindex(unsigned int, unsigned int,
+             const RpcIdHelper& helper);
+    RDOindex(unsigned int, unsigned int, const std::string&, int, int, int, int, int,
+             const RpcIdHelper& helper);
 
     RDOindex(const RDOindex&) = default;
     ~RDOindex() = default;
 
-    RDOindex& operator=(const RDOindex&) = default;
+    RDOindex& operator=(const RDOindex&) = delete;
     operator bool() const;
     bool operator!() const;
 
@@ -147,10 +149,8 @@ public:
 
     void pad_identifier(Identifier& id) const;
 
-    static void setRpcIdHelper(const RpcIdHelper*);
-
 private:
-    static const RpcIdHelper* s_rpcIdHelper;
+    const RpcIdHelper& m_rpcIdHelper;
 
     friend std::ostream& operator<<(std::ostream&, const RDOindex&);
 };

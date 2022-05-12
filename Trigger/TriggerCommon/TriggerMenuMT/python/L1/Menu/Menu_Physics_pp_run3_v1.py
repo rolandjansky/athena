@@ -97,6 +97,7 @@ def defineMenu():
         'L1_eTAU80_2eTAU60', 
         'L1_cTAU30M_2cTAU20M_4jJ30p0ETA25',
         'L1_cTAU35M_2cTAU30M_2jJ55_3jJ50',  
+        'L1_cTAU35M_2cTAU30M',
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
@@ -111,6 +112,7 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
         'L1_TAU20IM_2TAU12IM_4J12p0ETA25',
         'L1_TAU25IM_2TAU20IM_2J25_3J20',
+        'L1_TAU25IM_2TAU20IM',
 
         # combined tau - xe
         'L1_TAU20IM_2J20_XE45',
@@ -140,10 +142,10 @@ def defineMenu():
         'L1_J12', 'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J120', 'L1_J400',
         'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
-        'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
+        'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO',
         'L1_J15p31ETA49_UNPAIRED_ISO',
         'L1_J30_EMPTY', 'L1_J30_FIRSTEMPTY', 'L1_J30p31ETA49_EMPTY', 'L1_J30p31ETA49_UNPAIRED_ISO', 'L1_J30p31ETA49_UNPAIRED_NONISO',
-        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',         
+        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO',
         'L1_J100_FIRSTEMPTY',
         'L1_J12_BGRP12',
 
@@ -166,7 +168,7 @@ def defineMenu():
         # jEM
         'L1_jEM20', 'L1_jEM20M',   
 
-        # gL
+        # gJ
         'L1_gJ20', 'L1_gJ30', 'L1_gJ40', 'L1_gJ50', 'L1_gJ100', 'L1_gJ160',
 
         # gLJ
@@ -209,10 +211,12 @@ def defineMenu():
         'L1_jXEC100', 'L1_jTE200', 'L1_jTEC200', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
     
         # RNDM
-        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY',
         'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11',
         'L1_RD0_BGRP7',
+        'L1_RD0_FIRSTINTRAIN',
         'L1_RD1_EMPTY',
+        'L1_RD1_FILLED',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',
         'L1_RD3_EMPTY',
@@ -220,10 +224,6 @@ def defineMenu():
 
         #LUCID
         'L1_LUCID_A', 'L1_LUCID_C',
-
-        # ZDC 
-        # TODO: request for pilot run (ATR-22904), to be removed for pp
-        'L1_ZDC_A', 'L1_ZDC_C', 'L1_ZDC_AND',
 
         # VDM
 
@@ -246,10 +246,15 @@ def defineMenu():
         'L1_BCM_Wide_BGRP12', 'L1_BCM_AC_CA_BGRP12', 'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
         'L1_BCM_AC_UNPAIRED_NONISO','L1_BCM_CA_UNPAIRED_NONISO',
-        'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB','L1_BCM_Wide_ABORTGAPNOTCALIB',
-        'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
-        'L1_BCM_AC_UNPAIREDB1', 'L1_BCM_CA_UNPAIREDB2',
+        'L1_BCM_Wide_CALIB',
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
+        'L1_BCM_2A_EMPTY', 'L1_BCM_2C_EMPTY',
+        'L1_BCM_2A_UNPAIRED_ISO', 'L1_BCM_2C_UNPAIRED_ISO', 'L1_BCM_2A_UNPAIRED_NONISO', 'L1_BCM_2C_UNPAIRED_NONISO',
+        'L1_BCM_2A_FIRSTINTRAIN', 'L1_BCM_2C_FIRSTINTRAIN',
+        # Expected to be needed later after commissioning of the BCM_2A,2C items in other BCIDs
+        # 'L1_BCM_2A_UNPAIREDB1', 'L1_BCM_2A_UNPAIREDB2',
+        # 'L1_BCM_2C_UNPAIREDB1', 'L1_BCM_2C_UNPAIREDB2',
+        # 'L1_BCM_2A_CALIB', 'L1_BCM_2C_CALIB',
 
         # AFP
         # high-priority (all mu)
@@ -342,11 +347,10 @@ def defineMenu():
         'L1_jJ90_DETA20-jJ90J', 
 
         # tau 
-        'L1_DR-eTAU30eTAU20', 'L1_DR-eTAU30eTAU20-jJ55', 
-        'L1_DR-eTAU30MeTAU20M', 'L1_DR-eTAU30MeTAU20M-jJ55', 
+        'L1_cTAU30M_2cTAU20M',
         'L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M', 'L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M-jJ55',
         'L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20', 'L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20-jJ55', 
-        'L1_eTAU80_2cTAU20M_DR-eTAU30eTAU20', 
+        'L1_eTAU80_2cTAU30M_DR-eTAU30eTAU20', 
 
         #ATR-19510
         'L1_DY-BOX-2MU5VF', 'L1_DY-BOX-MU5VFMU3V', 'L1_DY-BOX-2MU3V',
@@ -391,6 +395,7 @@ def defineMenu():
         #ATR-22782
         'L1_BPH-7M11-25DR99-2MU3VF',
         'L1_BPH-7M14-MU5VFMU3VF',
+        'L1_BPH-7M14-0DR25-MU5VFMU3VF',
         'L1_BPH-7M14-2MU3V', 
         'L1_BPH-7M14-2MU3VF',
 

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -101,16 +101,7 @@ StatusCode TileDCSCondAlg::initialize() {
   if (readConfig(m_dcsChStatesInCool, "_LVPS_", m_rosDrawerStates)) return StatusCode::FAILURE;
   if (readConfig(m_dcsChHvInCool, "Drawer", m_rosDrawerHV)) return StatusCode::FAILURE;
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
   ATH_CHECK( m_dcsStateKey.initialize() );
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_dcsStateKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle "
-                  << m_dcsStateKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

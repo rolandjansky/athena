@@ -35,6 +35,7 @@ namespace top {
     declareProperty("MuonEfficiencyCorrectionsToolLoose", m_muonEfficiencyCorrectionsToolLoose);
     declareProperty("MuonEfficiencyCorrectionsToolIso", m_muonEfficiencyCorrectionsToolIso);
     declareProperty("MuonEfficiencyCorrectionsToolLooseIso", m_muonEfficiencyCorrectionsToolLooseIso);
+    declareProperty("MuonEfficiencyCorrectionsToolBadMuonVeto", m_muonEfficiencyCorrectionsToolBadMuonVeto);
 
     declareProperty("SoftMuonSelectionTool", m_softmuonSelectionTool);
     declareProperty("SoftMuonEfficiencyCorrectionsTool", m_softmuonEfficiencyCorrectionsTool);
@@ -110,20 +111,6 @@ namespace top {
     *
     ************************************************************/
 
-    // Muon SF tools now require you to have setup an instance of
-    // the pileup reweighting tool!
-    // If we haven't set it up then tell the user this and exit.
-    if (!m_config->doPileupReweighting() and !m_config->isDataOverlay()) {
-      ATH_MSG_ERROR("\nThe Muon SF tools now require that you have"
-                    " previously setup an instance of "
-                    "the pileup reweighting tool.\n\n"
-                    "To do this set the options:\n\n\t"
-                    "PRWLumiCalcFiles\n and \n\tPRWConfigFiles \n\n"
-                    "in your config file.");
-      
-      return StatusCode::FAILURE;
-    }
-
     /************************************************************
     * Trigger Scale Factors:
     *    setup trigger SFs for nominal and 'loose' muon WPs
@@ -154,14 +141,20 @@ namespace top {
     if (m_config->muonQuality() == "LowPt" && m_config->muonUseMVALowPt()) muonQuality_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsTool
       = setupMuonSFTool("MuonEfficiencyScaleFactorsTool",
-                        muonQuality_name);
+                        muonQuality_name, false);
 
     std::string muonQualityLoose_name = m_config->muonQualityLoose();
     if (m_config->muonQualityLoose() == "HighPt" && !(m_config->muonUse2stationMuonsHighPtLoose()) ) muonQualityLoose_name = "HighPt3Layers";
     if (m_config->muonQualityLoose() == "LowPt" && m_config->muonUseMVALowPtLoose()) muonQualityLoose_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsToolLoose
       = setupMuonSFTool("MuonEfficiencyScaleFactorsToolLoose",
-                        muonQualityLoose_name);
+                        muonQualityLoose_name, false);
+
+    if (m_config->muonQuality() == "HighPt" || m_config->muonQualityLoose() == "HighPt") {
+      m_muonEfficiencyCorrectionsToolLoose
+        = setupMuonSFTool("MuonEfficiencyScaleFactorsToolBadMuonVeto",
+                          "BadMuonVeto_HighPt", false);
+    }
 
     //now the soft muon part
     std::string softmuonQuality_name = m_config->softmuonQuality();
@@ -169,7 +162,7 @@ namespace top {
     if (m_config->useSoftMuons()) {
       m_softmuonEfficiencyCorrectionsTool
         = setupMuonSFTool("SoftMuonEfficiencyScaleFactorsTool",
-			  softmuonQuality_name);
+	                  softmuonQuality_name, false);
     }
     
     /************************************************************
@@ -185,7 +178,7 @@ namespace top {
       std::string muon_isolation = m_config->muonIsolationSF() + "Iso";
       m_muonEfficiencyCorrectionsToolIso =
         setupMuonSFTool("MuonEfficiencyScaleFactorsToolIso",
-                        muon_isolation);
+                        muon_isolation, true);
     }
 
     // Do we have isolation on our loose muons? If not no need for the tool...
@@ -194,7 +187,7 @@ namespace top {
       std::string muon_isolation = m_config->muonIsolationSFLoose() + "Iso";
       m_muonEfficiencyCorrectionsToolLooseIso =
         setupMuonSFTool("MuonEfficiencyScaleFactorsToolLooseIso",
-                        muon_isolation);
+                        muon_isolation, true);
     }
 
     /************************************************************
@@ -205,7 +198,7 @@ namespace top {
     ************************************************************/
     m_muonEfficiencyCorrectionsToolTTVA
       = setupMuonSFTool("MuonEfficiencyScaleFactorsToolTTVA",
-                        "TTVA");
+                        "TTVA", false);
 
     // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
     //         - Hence we need to fail if this has occured
@@ -269,13 +262,25 @@ namespace top {
                  "Failed to set MuonQuality for " + name);
       top::check(asg::setProperty(tool, "AllowZeroSF", true),
                  "Failed to set AllowZeroSF for " + name);
+      if (m_config->muonSFCustomInputFolder() != " ") {
+        top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
+                   "Failed to set CustomInputFolder property for MuonTriggerScaleFactors tool");
+      }
+      if (m_config->muonForcePeriod() != " ") {
+        top::check(asg::setProperty(tool, "forcePeriod", m_config->muonForcePeriod()),
+                   "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
+      }
+      if (m_config->muonForceYear() != -1) {
+        top::check(asg::setProperty(tool, "forceYear", m_config->muonForceYear()),
+                   "Failed to set forceYear property for MuonTriggerScaleFactors tool");
+      }
       top::check(tool->initialize(), "Failed to init. " + name);
     }
     return tool;
   }
 
   CP::IMuonEfficiencyScaleFactors*
-  MuonCPTools::setupMuonSFTool(const std::string& name, const std::string& WP) {
+  MuonCPTools::setupMuonSFTool(const std::string& name, const std::string& WP, const bool isIso) {
     CP::IMuonEfficiencyScaleFactors* tool = nullptr;
     if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>(name)) {
       tool = asg::ToolStore::get<CP::MuonEfficiencyScaleFactors>(name);
@@ -285,6 +290,15 @@ namespace top {
                  "Failed to set WP for " + name + " tool");
       top::check(asg::setProperty(tool, "CloseJetDRDecorator", "dRMuJet_AT_usingWeirdNameToAvoidUsingOnTheFlyCalculation"), 
                  "Failed to set WP for " + name + " tool"); //in this way we'll only read the dR(mu,jet) from the derivation, IF the variable is there, but we'll not use on-the-fly calculation, which is tricky in AT
+      if (m_config->muonSFCustomInputFolder() != " ") {
+        top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
+                   "Failed to set CustomInputFolder property for MuonEfficiencyScaleFactors tool");
+      }
+
+      if (!isIso) {
+        top::check(asg::setProperty(tool, "BreakDownSystematics", m_config->muonBreakDownSystematics()), 
+                  "Failed to set BreakDownSystematics for " + name + " tool");
+      }
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }
@@ -304,6 +318,23 @@ namespace top {
                  "Failed to set doExtraSmearing for " + name + " tool");
       top::check(asg::setProperty(tool, "do2StationsHighPt", do2StationsHighPt),
                  "Failed to set do2StationsHighPt for " + name + " tool");
+      if (m_config->isMC() && m_config->forceRandomRunNumber() > 0) {
+        top::check(asg::setProperty(tool, "useRandomRunNumber", false),
+                   "Failed to set useRandomRunNumber for " + name + " tool");
+      }
+      // this is a hack to assign mc21 campaign to mc16
+      std::vector<unsigned int> campaign = {310000, 330000};
+      top::check(asg::setProperty(tool, "MCperiods18", campaign),
+                 "Failed to set MCperiods18 for " + name + " tool");
+      CP::MuonCalibrationPeriodTool::CalibMode calibMode = CP::MuonCalibrationPeriodTool::CalibMode::noOption;
+      if (m_config->muonCalibMode() == "correctData_CB")
+	      calibMode = CP::MuonCalibrationPeriodTool::CalibMode::correctData_CB;
+      else if (m_config->muonCalibMode() == "correctData_IDMS")
+	      calibMode = CP::MuonCalibrationPeriodTool::CalibMode::correctData_IDMS;
+      else if (m_config->muonCalibMode() == "notCorrectData_IDMS")
+	      calibMode = CP::MuonCalibrationPeriodTool::CalibMode::notCorrectData_IDMS;
+      top::check(asg::setProperty(tool, "calibrationMode", calibMode),
+		 "Failed to set calibrationMode for " + name + " tool");
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

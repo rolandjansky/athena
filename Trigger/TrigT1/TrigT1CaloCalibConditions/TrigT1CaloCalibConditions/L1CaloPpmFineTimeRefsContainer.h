@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPMFINETIMEREFSCONTAINER_H
@@ -44,7 +44,7 @@ public:
 
 	// IL1CaloPersistenceCapable interface
 	using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
+	virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap);
 
 	const L1CaloPpmFineTimeRefs* ppmFineTimeRefs(unsigned int channelId) const;
 	const L1CaloPpmFineTimeRefs* ppmFineTimeRefs(const L1CaloCoolChannelId& channelId) const;
@@ -69,6 +69,7 @@ private:
 
 };
 
-CLASS_DEF(L1CaloPpmFineTimeRefsContainer , 1107733553 , 1 ) //number taken from $ clid -m "L1CaloPpmFineTimeRefsContainer"
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(L1CaloPpmFineTimeRefsContainer ,1290241871);
 #endif

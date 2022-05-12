@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTChain
@@ -13,10 +13,9 @@
 #include <iosfwd>
 #include <fstream>
 #include <vector>
-#include <map>
 #include <set>
 
-#include "boost/unordered_map.hpp"
+#include <unordered_map>
 
 namespace TrigConf {
    class HLTChain;
@@ -57,7 +56,7 @@ namespace TrigConf {
                 const std::string& level,
                 const std::string& lower_chain_name,
                 int lower_chain_counter,
-                const std::vector<HLTSignature*>& signatureList );
+                std::vector<HLTSignature*>&& signatureList );
 
       /**@brief copy constructor
        *
@@ -66,7 +65,7 @@ namespace TrigConf {
       HLTChain( const HLTChain& ch );
 
       /**@brief destructor*/
-      ~HLTChain();
+      virtual ~HLTChain() override;
 
 
       // getters
@@ -155,14 +154,14 @@ namespace TrigConf {
       void createSignatureLabels();
 
       /**@brief print the chain*/
-      void print(const std::string& indent="", unsigned int detail=1) const;
+      void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void writeXML(std::ofstream & xmlfile);
 
       DiffStruct* compareTo(const HLTChain* o) const;
 
       // for python
-      std::string __str__() const;
+      std::string __str__() const override;
 
 
    private:
@@ -185,7 +184,7 @@ namespace TrigConf {
       std::set<std::string>                              m_groups;
       std::vector<HLTStreamTag*>                         m_streams_orig;
       std::vector<HLTStreamTag*>                         m_streams;
-      boost::unordered_map<std::string, HLTStreamTag*>   m_streams_map;
+      std::unordered_map<std::string, HLTStreamTag*>   m_streams_map;
 
       friend std::ostream & operator<<(std::ostream &, const HLTChain &);
 
@@ -193,8 +192,8 @@ namespace TrigConf {
       
       // temporary object to store the merge information
       struct {
-         unsigned int l2;
-         unsigned int ef;
+         unsigned int l2{0};
+         unsigned int ef{0};
       } mergeCounter;
    };
 

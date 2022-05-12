@@ -49,7 +49,7 @@ if not muonRecFlags.doFastDigitization():
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
             topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
-        if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
+        if muonRecFlags.doMMs() and DetFlags.makeRIO.MM_on() and (DetFlags.haveRDO.MM_on() or DetFlags.digitize.MM_on()):
             topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
 
 #

@@ -1,5 +1,4 @@
 #include "../TransportTool.h"
-#include "../TransportEngine.h"
 #include "../McMaterialEffectsUpdator.h"
 #include "../McMaterialEffectsEngine.h"
 #include "../HadIntProcessorParametric.h"
@@ -14,7 +13,6 @@
 #include "../MultipleScatteringSamplerGeneralMixture.h"
 
 DECLARE_COMPONENT( iFatras::TransportTool )
-DECLARE_COMPONENT( iFatras::TransportEngine )
 DECLARE_COMPONENT( iFatras::McMaterialEffectsUpdator )
 DECLARE_COMPONENT( iFatras::McMaterialEffectsEngine )
 DECLARE_COMPONENT( iFatras::HadIntProcessorParametric )

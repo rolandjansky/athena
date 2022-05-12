@@ -130,7 +130,9 @@ ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
     // create new perigee
     std::unique_ptr<const Trk::Perigee> ipPerigee_unique;
     const Trk::Perigee* ipPerigee = dynamic_cast<const Trk::Perigee*>(ipPars.get());
+    
     if (!ipPerigee) {
+        //cppcheck-suppress nullPointerRedundantCheck
         ipPerigee_unique = createPerigee(*ipPars, ctx);
         ipPerigee = ipPerigee_unique.get();
     }

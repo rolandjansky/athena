@@ -289,6 +289,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
     std::shared_ptr<Acts::PerigeeSurface> actsPerigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
     double t = 0.;
     Acts::BoundVector pars;
+    //cppcheck-suppress constStatement
     pars << perigee.m_d0, perigee.m_z0, perigee.m_phi, theta, qOverP, t;
     std::optional<Acts::BoundSymMatrix> cov = std::nullopt;
     

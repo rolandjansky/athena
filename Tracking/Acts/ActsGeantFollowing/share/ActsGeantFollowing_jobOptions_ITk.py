@@ -29,8 +29,8 @@ def defaultTestFlags(configFlags, args):
 
 
     ## Just enable ID for the moment.
-    ConfigFlags.Input.isMC             = True
-    ConfigFlags.GeoModel.useLocalGeometry = False
+    ConfigFlags.Input.isMC            = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
     detectors = [
       "ITkPixel",
       "ITkStrip",
@@ -214,6 +214,10 @@ kwargs.update(UserActionSvc=svcName)
 
 from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
 acc.merge(G4AtlasAlgCfg(ConfigFlags, "ITkG4AtlasAlg", **kwargs))
+
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
+acc.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=['ITkG4AtlasAlg']) )
 
 # dump pickle
 with open("ITkTest.pkl", "wb") as f:

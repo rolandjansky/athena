@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-# import the JetFitterSequentialVertexSmoother configurable
-Trk__SequentialVertexSmoother=CompFactory.Trk.SequentialVertexSmoother
 
 def JetFitterSequentialVertexSmootherCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexSmoother tool and returns it.
@@ -17,6 +14,6 @@ def JetFitterSequentialVertexSmootherCfg(name, useBTagFlagsDefaults = True, **op
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     options['name'] = name
-    acc.setPrivateTools(Trk__SequentialVertexSmoother(**options))
+    acc.setPrivateTools(CompFactory.Trk.SequentialVertexSmoother(**options))
 
     return acc

@@ -22,6 +22,7 @@ def createLArConfigFlags():
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
+    lcf.addFlag("LAr.doBadFebMasking",lambda prevFlags : not prevFlags.Input.isMC)
 
     # Include MC shape folder
     lcf.addFlag("LAr.UseMCShape", True)
@@ -46,6 +47,8 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.ROD.nSamples", 5)
     # Index of first sample in LAr digitization + ROD emulation
     lcf.addFlag("LAr.ROD.FirstSample", 0)
+    # Number of preceeding samples (necessary for phase 2 simulation)
+    lcf.addFlag("LAr.ROD.nPreceedingSamples", 0)
     # Force using the highest gain autocorrelation function
     # when doing OFC optimization
     lcf.addFlag("LAr.ROD.UseHighestGainAutoCorr", False)
@@ -57,6 +60,11 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.ROD.UseDelta", 0)
     # Force using the iterative OFC procedure
     lcf.addFlag("LAr.ROD.forceIter",False)
+    # NN based energy reconstruction
+    lcf.addFlag("LAr.ROD.NNRawChannelBuilding", False)
+    lcf.addFlag("LAr.ROD.nnJson", "")
+    lcf.addFlag("LAr.ROD.nnOutputNode", "")
+    lcf.addFlag("LAr.ROD.nnInputNode", "")
 
     ##NoisyRO flags
     # cell quality cut
@@ -102,10 +110,8 @@ def _determineRawChannelSource(prevFlags):
     log.info("runType %d",lri.runType())
     if (lri.runType()==0):
         return RawChannelSource.Calculated #Have only digits in bytestream
-    elif (lri.runType()==1):
+    elif (lri.runType()==1 or lri.runType()==2):
         return RawChannelSource.Both       #Have both, digits and raw-channels in bytestream
-    elif (lri.runType()==2):
-        return RawChannelSource.Input      #Have only raw-channels in bytestream
     else:
         log.warning("Unknown LAr run type %i",lri.runType())
         return RawChannelSource.Both

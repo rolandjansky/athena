@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -20,6 +20,7 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include "AsgTools/StandaloneToolHandle.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include <string>
+#include <iostream>
 #include <vector>
 #ifdef XAOD_STANDALONE
 // xAOD include(s):
@@ -31,6 +32,7 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 int
 main()
 {
+  std::cout << "EgEfficiencyCorr_mem_check" << std::endl;
 
   // Suppress known ubsan warning we get from cling.
   CxxUtils::ubsan_suppress([]() { TInterpreter::Instance(); });

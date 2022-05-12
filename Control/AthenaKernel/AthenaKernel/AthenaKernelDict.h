@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_ATHENAKERNELDICT_H
@@ -28,6 +28,7 @@
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/CondCont.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 

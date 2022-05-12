@@ -17,6 +17,7 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
   
@@ -36,7 +37,7 @@ namespace Trk {
   
       @author Andreas Salzburger -at - cern.ch 
   */
-  class IMaterialEffectsEngine : virtual public IAlgTool {
+  class ATLAS_NOT_THREAD_SAFE IMaterialEffectsEngine : virtual public IAlgTool {
      public:
      
        /** Virtual destructor */

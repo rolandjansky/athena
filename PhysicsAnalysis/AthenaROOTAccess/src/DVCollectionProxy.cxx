@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,7 @@
 #include "AthContainers/DataVector.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 #include "TError.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TMethodCall.h"
@@ -62,7 +62,13 @@ TClass* class_from_dvclass (TClass* dvclass)
   // Split up the class name into template arguments.
   std::vector<std::string> args;
   int tailloc;
-  TClassEdit::GetSplit (dvclass->GetName(), args, tailloc);
+  {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    TClassEdit::GetSplit (dvclass->GetName(), args, tailloc);
+  }
   assert (args.size() > 1);
 
   // This should be the element type name.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArCoudeAbsorbers_H
@@ -24,7 +24,7 @@ public:
   double YCentCoude(int stackid, int cellid) const;
   double PhiRot(int stackid, int cellid) const;
 protected:
-  LArCoudeAbsorbers(std::string strDetector="") ;
+  LArCoudeAbsorbers(const std::string& strDetector="") ;
 };
 
 #endif // LARG4BARREL_LArCoudeAbsorbers_H

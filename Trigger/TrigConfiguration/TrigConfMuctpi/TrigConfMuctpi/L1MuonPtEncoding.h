@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_L1MuonPtEncoding
@@ -10,9 +10,7 @@
 class L1MuonPtEncoding {
 public:
    // constructor
-   L1MuonPtEncoding();
-   // destructor
-   ~L1MuonPtEncoding(){}
+   L1MuonPtEncoding() = default;
 
    void setCodingInfo(unsigned int idx, unsigned int ptCode, unsigned int thresholdValue );
 
@@ -24,8 +22,8 @@ public:
 
 private:
    struct code {
-      unsigned int ptCode; // encoding for topo
-      unsigned int thresholdValue; // muon pt threshold
+      unsigned int ptCode{0}; // encoding for topo
+      unsigned int thresholdValue{0}; // muon pt threshold
    };
 
    code m_encoding[6];

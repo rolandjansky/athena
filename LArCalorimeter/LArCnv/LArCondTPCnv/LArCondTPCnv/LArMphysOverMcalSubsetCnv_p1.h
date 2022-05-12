@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -18,12 +18,15 @@ typedef LArConditionsSubset<LArSingleFloatP> LArMpMcTransType;
 typedef LArMphysOverMcalSubset_p1         LArMpMcPersType;
 
 class LArMphysOverMcalSubsetCnv_p1  
-    : public T_AthenaPoolTPCnvBase<LArMpMcTransType,LArMpMcPersType >
+    : public T_AthenaPoolTPCnvConstBase<LArMpMcTransType,LArMpMcPersType >
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
+
     LArMphysOverMcalSubsetCnv_p1() {}
-    virtual void   persToTrans(const LArMpMcPersType* persObj, LArMpMcTransType* transObj, MsgStream &log) ;
-    virtual void   transToPers(const LArMpMcTransType* transObj, LArMpMcPersType* persObj, MsgStream &log) ;
+    virtual void   persToTrans(const LArMpMcPersType* persObj, LArMpMcTransType* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const LArMpMcTransType* transObj, LArMpMcPersType* persObj, MsgStream &log) const override;
 };
 
 

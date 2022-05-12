@@ -1,30 +1,22 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_EDGEMETHOD_H
 #define ALFA_EDGEMETHOD_H
 
-
-
-
 #include <utility>
-
 #include <vector>
 
 #include "Rtypes.h"
 
-
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-#include "AthenaKernel/getMessageSvc.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 #include "ALFA_Geometry/ALFA_constants.h"
 
 
-class ALFA_EdgeMethod
+class ALFA_EdgeMethod : public AthMessaging
 {
 public:
 	ALFA_EdgeMethod();
@@ -86,18 +78,6 @@ public:
 
 private:
 	void readUVONE(Int_t no_Detector, Double_t u_pos = 91.0, Double_t v_pos = -91.0);
-
-
-
-
-public:
-	/// Log a message using the Athena controlled logging system
-	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-	/// Check whether the logging system is active at the provided verbosity level
-	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-private:
-	/// Private message stream member
-	mutable Athena::MsgStreamMember m_msg;
 
 	Float_t m_faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];	//slope, offset and Z-pos for MD fibers [2*10][64]
 	Float_t m_fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventTPCnv/SegmentCollectionCnv_tlp1.h"
@@ -45,7 +45,7 @@ SegmentCollectionCnv_tlp1::SegmentCollectionCnv_tlp1( )
 }
 
 SegmentCollectionCnv_tlp1::~SegmentCollectionCnv_tlp1()
-{}
+= default;
 
 void SegmentCollectionCnv_tlp1::setPStorage( Trk::SegmentCollection_tlp1 *storage )
 {

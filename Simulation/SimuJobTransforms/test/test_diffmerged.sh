@@ -71,6 +71,7 @@ Digi_tf.py \
 --skipEvents 6 \
 --geometryVersion ${GEOMETRY} \
 --conditionsTag 'OFLCOND-RUN12-SDR-30' \
+--postExec 'HITtoRDO:condSeq.TileSamplingFractionCondAlg.G4Version = -1;' \
 --DataRunNumber 222525
 
 echo  "art-result: $? mergeDigi"
@@ -82,6 +83,7 @@ Digi_tf.py \
 --skipEvents 6 \
 --geometryVersion ${GEOMETRY} \
 --conditionsTag 'OFLCOND-RUN12-SDR-30' \
+--postExec 'HITtoRDO:condSeq.TileSamplingFractionCondAlg.G4Version = -1;' \
 --DataRunNumber 222525
 
 echo  "art-result: $? unmergeDigi"

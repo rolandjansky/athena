@@ -12,7 +12,7 @@ namespace TrigConf {
 
    class ICaloJetInputLoader : virtual public ILoader {
    public:
-      virtual ~ICaloJetInputLoader() {};
+      virtual ~ICaloJetInputLoader() override = default;
       virtual bool load( CaloJetInput& data ) = 0;
    };
 

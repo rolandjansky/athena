@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,7 +9,7 @@
 // Gaudi Units
 #include "GaudiKernel/SystemOfUnits.h"
 //TrkDetDescr Algs, Interfaces, Utils
-#include "TrkDetDescrAlgs/MaterialManipulation.h"
+#include "MaterialManipulation.h"
 #include "TrkDetDescrInterfaces/ILayerMaterialManipulator.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
@@ -32,7 +32,7 @@ Trk::MaterialManipulation::MaterialManipulation(const std::string& name, ISvcLoc
 }
 
 Trk::MaterialManipulation::~MaterialManipulation()
-{}
+= default;
 
 StatusCode Trk::MaterialManipulation::initialize()
 {

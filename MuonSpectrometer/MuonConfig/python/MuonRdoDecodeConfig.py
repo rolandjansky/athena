@@ -32,10 +32,10 @@ def MuonPrdCacheCfg(flags):
                                        MdtCacheKey       = MuonPrdCacheNames.MdtCache,
                                        CscCacheKey       = (MuonPrdCacheNames.CscCache if flags.Detector.GeometryCSC else ""),
                                        RpcCacheKey       = MuonPrdCacheNames.RpcCache,
-                                       TgcCacheKey       = MuonPrdCacheNames.TgcCache,
+                                       TgcCacheStr       = MuonPrdCacheNames.TgcCache,
                                        sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if flags.Detector.GeometrysTGC else ""),
                                        MmCacheKey        = (MuonPrdCacheNames.MmCache if flags.Detector.GeometryMM else ""),
-                                       TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
+                                       TgcCoinCacheStr   = MuonPrdCacheNames.TgcCoinCache,
                                        RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
 
@@ -75,6 +75,7 @@ def RpcRDODecodeCfg(flags, name="RpcRdoToRpcPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -95,7 +96,9 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
     acc.merge(TGCCablingConfigCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.TgcRdoToPrepDataToolMT(name="TgcPrepDataProviderTool"))
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.TgcRdoToPrepDataToolMT(name="TgcPrepDataProviderTool",
+                                                                              PrdCacheString = MuonPrdCacheNames.TgcCache if flags.Muon.MuonTrigger else "",
+                                                                              CoinCacheString = MuonPrdCacheNames.TgcCoinCache if flags.Muon.MuonTrigger else ""))
 
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
@@ -104,6 +107,7 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -111,6 +115,17 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
     acc.addEventAlgo(CompFactory.TgcRdoToTgcPrepData(name, **kwargs))
     return acc
 
+def TgcPrepDataReplicationToolAllBCto3BC(flags, name = "TgcPrepDataAllBCto3BCTool", **kwargs):
+    acc = ComponentAccumulator()
+    the_tool = CompFactory.Muon.TgcPrepDataReplicationToolAllBCto3BC(name, **kwargs)
+    acc.setPrivateTools(the_tool)
+    return acc
+    
+def TgcPrepDataAllBCto3BCCfg(flags, name="TgcPrepDataAllTo3Replicator", **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("Tool", acc.popToolsAndMerge(TgcPrepDataReplicationToolAllBCto3BC(flags)))
+    acc.addEventAlgo(CompFactory.Muon.TgcPrepDataReplicationAlg(name, **kwargs))
+    return acc
 
 def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc = ComponentAccumulator()
@@ -120,8 +135,7 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool"))
-
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool", PrdCacheKey = MuonPrdCacheNames.sTgcCache if flags.Muon.MuonTrigger else ""))
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     # kwargs.setdefault("RegSel_STGC", acc.popToolsAndMerge(regSelTool_STGC_Cfg(flags)))
@@ -139,8 +153,9 @@ def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool"))
-
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool", PrdCacheKey = MuonPrdCacheNames.MmCache if flags.Muon.MuonTrigger else ""))
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("PrintPrepData", False)
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
     # kwargs.setdefault("RegSel_MM", acc.popToolsAndMerge(regSelTool_MM_Cfg(flags)))
@@ -174,6 +189,7 @@ def MdtRDODecodeCfg(flags, name="MdtRdoToMdtPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -207,6 +223,7 @@ def CscRDODecodeCfg(flags, name="CscRdoToCscPrepData", **kwargs):
     if flags.Muon.MuonTrigger:
         # Set the algorithm to RoI mode
         kwargs.setdefault("DoSeededDecoding", True)
+        kwargs.setdefault("PrintPrepData", False)
         from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
         kwargs.setdefault("RoIs", mapThresholdToL1RoICollection("MU"))
 
@@ -223,8 +240,7 @@ def CscClusterBuildCfg(flags, name="CscThresholdClusterBuilder"):
 
     # Get cluster creator tool
 
-    acc = MuonIdHelperSvcCfg(flags) 
-    MuonIdHelperSvc = acc.getService("MuonIdHelperSvc")
+    MuonIdHelperSvc = acc.getPrimaryAndMerge( MuonIdHelperSvcCfg(flags) )
     CalibCscStripFitter = acc.getPrimaryAndMerge( CalibCscStripFitterCfg(flags) )
     QratCscClusterFitter = acc.getPrimaryAndMerge( QratCscClusterFitterCfg(flags) )
     SimpleCscClusterFitter = CompFactory.SimpleCscClusterFitter(CscAlignmentTool = CscAlignmentTool(flags) )

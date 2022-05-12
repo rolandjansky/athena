@@ -25,16 +25,15 @@ namespace LVL1 {
     unsigned int m_et;
     unsigned int m_bitwise_et;
     float m_iso;
-    unsigned int m_reta_num;
-    unsigned int m_reta_den;
-    unsigned int m_rhad_num;
-    unsigned int m_rhad_den;
-    unsigned int m_wstot_num;
-    unsigned int m_wstot_den;
+    unsigned int m_rcore_core;
+    unsigned int m_rcore_env;
+    unsigned int m_rhad_core;
+    unsigned int m_rhad_env;
     unsigned int m_fpga_id;
     unsigned int m_efex_id;
     bool m_seed_und;
     unsigned int m_seed;
+    uint32_t m_tobword;
     
   public:
     eFEXtauTOB();
@@ -51,12 +50,11 @@ namespace LVL1 {
     inline bool getSeedUnD() const {return m_seed_und;}
     // seed index in eta
     inline unsigned int getSeed() const {return m_seed;}
-    inline unsigned int getRetaNum() const {return m_reta_num;}
-    inline unsigned int getRetaDen() const {return m_reta_den;}
-    inline unsigned int getRhadNum() const {return m_rhad_num;}
-    inline unsigned int getRhadDen() const {return m_rhad_den;}
-    inline unsigned int getWstotNum() const {return m_wstot_num;}
-    inline unsigned int getWstotDen() const {return m_wstot_den;}
+    inline unsigned int getRcoreCore() const {return m_rcore_core;}
+    inline unsigned int getRcoreEnv() const {return m_rcore_env;}
+    inline unsigned int getRhadCore() const {return m_rhad_core;}
+    inline unsigned int getRhadEnv() const {return m_rhad_env;}
+    inline uint32_t getTobword() const {return m_tobword;}
     
     unsigned int setEta(unsigned int);
     unsigned int setPhi(unsigned int);
@@ -64,15 +62,14 @@ namespace LVL1 {
     unsigned int setBitwiseEt(unsigned int);
     float setIso(unsigned int);
     unsigned int setFPGAID(unsigned int);
-    unsigned int setEFEXID(unsigned int);
+    unsigned int seteFEXID(unsigned int);
     bool setSeedUnD(bool);
     unsigned int setSeed(unsigned int);
-    unsigned int setRetaNum(unsigned int);
-    unsigned int setRetaDen(unsigned int);
-    unsigned int setRhadNum(unsigned int);
-    unsigned int setRhadDen(unsigned int);
-    unsigned int setWstotNum(unsigned int);
-    unsigned int setWstotDen(unsigned int);
+    unsigned int setRcoreCore(unsigned int);
+    unsigned int setRcoreEnv(unsigned int);
+    unsigned int setRhadCore(unsigned int);
+    unsigned int setRhadEnv(unsigned int);
+    uint32_t setTobword(uint32_t);
   };
   
 } // end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -335,7 +335,7 @@ bool HFOR_Truth::is_FinalState(const xAOD::TruthParticle* bcQuark) {
   for (unsigned int i=0; i<nChildren; i++) {
     son = bcQuark->child(i) ;
     if (son != nullptr) {
-      if ( is_c(son) | is_b(son) ) {
+      if ( is_c(son) || is_b(son) ) {
         return (false) ;
       }
     } else {
@@ -515,7 +515,7 @@ bool HFOR_Truth::findHFQuarks(const std::map <int,
               //an oposite charge, same flavour quark
               nid = 0 ;
               for (auto& part: PDF) {
-                if ( ( part->prodVtx() == pvtx34 ) & (part->pdgId() == -pdgId) ) {
+                if ( ( part->prodVtx() == pvtx34 ) && (part->pdgId() == -pdgId) ) {
                   xPDF[fsq_pdgId].push_back(bcQuark) ;
                   nid++ ;
                 }
@@ -528,7 +528,7 @@ bool HFOR_Truth::findHFQuarks(const std::map <int,
                   nParents = part->nParents() ;
                   for (unsigned int i=0; i<nParents; i++) {
                     father = part->parent(i) ;
-                    if ( ( father->prodVtx() == pvtx34 ) & (part->pdgId() == pdgId) ) {
+                    if ( ( father->prodVtx() == pvtx34 ) && (part->pdgId() == pdgId) ) {
                       xME[fsq_pdgId].push_back(bcQuark) ;
                       nid++ ;
                       isME = true ;
@@ -631,8 +631,8 @@ std::map<std::string, bool> HFOR_Truth::checkAncestor(const xAOD::TruthParticle*
     tipo ["proton"]  = is_proton(ancestor);
     tipo ["top"]     = ancestor->isTop() ;
     tipo ["W"]       = ancestor->isW() ;
-    tipo ["cFromb"]  = (is_c(bcQuark) & (is_b(ancestor) | is_bHadron(ancestor))) ;
-    tipo ["bFromb"]  = (is_b(bcQuark) & is_bHadron(ancestor)) ;
+    tipo ["cFromb"]  = (is_c(bcQuark) && (is_b(ancestor) || is_bHadron(ancestor))) ;
+    tipo ["bFromb"]  = (is_b(bcQuark) && is_bHadron(ancestor)) ;
   }
   else {
     tipo["bastard"] = true ;
@@ -858,7 +858,7 @@ HFORType HFOR_Truth::angularBasedRemoval( void ) {
   //light sample
   if (m_sampleType == HFORType::isLight) {
     //Remove ME b,c quarks
-    if ( (m_qq["ME"][4].size() > 0) | (m_qq["ME"][5].size()>0) ) {
+    if ( (m_qq["ME"][4].size() > 0) || (m_qq["ME"][5].size()>0) ) {
       tipo = HFORType::kill ;
       if(m_debug) std::cout << "Killed by ME size 4,5: " <<  m_qq["ME"][4].size() << " , " << m_qq["ME"][4].size() << std::endl ;
     }

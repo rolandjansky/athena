@@ -2,7 +2,7 @@
 
 #include "eflowRec/eflowCaloObject.h"
 
-void PFClusterFiller::fillClustersToRecover(PFData &data) const{
+void PFClusterFiller::fillClustersToRecover(PFData &data) {
 
   for (auto thisEflowCaloObject : *data.caloObjects )
   {
@@ -22,7 +22,7 @@ void PFClusterFiller::fillClustersToRecover(PFData &data) const{
 
 }
 
-void PFClusterFiller::fillClustersToConsider(PFData &data, eflowRecClusterContainer &recClusterContainer) const{
+void PFClusterFiller::fillClustersToConsider(PFData &data, eflowRecClusterContainer &recClusterContainer) {
 
   for (unsigned int count = 0; count < recClusterContainer.size(); count++)
     data.clusters.push_back(recClusterContainer[count]);

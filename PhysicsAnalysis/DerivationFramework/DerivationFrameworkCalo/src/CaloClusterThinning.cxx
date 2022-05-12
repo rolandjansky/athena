@@ -45,7 +45,7 @@ DerivationFramework::CaloClusterThinning::CaloClusterThinning(
 }
 
 // Destructor
-DerivationFramework::CaloClusterThinning::~CaloClusterThinning() {}
+DerivationFramework::CaloClusterThinning::~CaloClusterThinning() = default;
 
 // Athena initialize and finalize
 StatusCode

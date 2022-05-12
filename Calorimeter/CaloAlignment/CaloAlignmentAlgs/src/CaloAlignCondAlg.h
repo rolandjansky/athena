@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOALIGNMENTALGS_CALOALIGNCONDALG_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "CaloConditions/CaloCellPositionShift.h"
@@ -45,9 +44,6 @@ class CaloAlignCondAlg final : public AthAlgorithm
       , "CaloDetDescrManager"
       , "CaloDetDescrManager"
       , "SG key of the resulting CaloDetDescrManager" };
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
-
 };
 
 #endif

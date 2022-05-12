@@ -1,10 +1,10 @@
 ##@file TestSetSeedRunEvent.py
 # @brief test SetSeedRunEventSvc
 # @author Paolo Calafiura
-# $Id: TestSeedRunEvent.py 535391 2013-01-30 12:04:52Z binet $
 #==============================================================
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaServices.AthenaServicesConf import AtDSFMTGenSvc, AtRanluxGenSvc, AtRndmGenSvc, TestRandomSeqAlg
+from AthenaServices.AthenaServicesConf import TestRandomSeqAlg
+from RngComps.RngCompsConf import AtDSFMTGenSvc, AtRanluxGenSvc, AtRndmGenSvc
 
 atMars = AtDSFMTGenSvc()
 atMars.OutputLevel=VERBOSE

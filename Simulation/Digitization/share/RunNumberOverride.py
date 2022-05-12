@@ -13,12 +13,28 @@ if digitizationFlags.dataRunNumber.get_Value():
     myFirstLB = 1
     myInitialTimeStamp = 1
     #update the run/event info for each event
+    from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+        if not hasattr(ServiceMgr, 'AthenaHiveEventLoopMgr'):
+            from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+            ServiceMgr += AthenaHiveEventLoopMgr()
+        ServiceMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"  
+    elif DetFlags.pileup.any_on():
+        # already configured in PileUpEventLoopMgr
+        pass
+    else:
+        if not hasattr(ServiceMgr, 'AthenaEventLoopMgr'):
+            from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+            ServiceMgr += AthenaEventLoopMgr()
+        ServiceMgr.AthenaEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"
+
     if not hasattr(ServiceMgr,'EvtIdModifierSvc'):
         from AthenaCommon.CfgGetter import getService
         getService("EvtIdModifierSvc")
     else:
         digilog.warning('RunNumberOverride.py :: Will override the settings of the EvtIdModifierSvc that was previously set up!')
-    from Digitization.RunDependentConfig import buildListOfModifiers
+    from RunDependentSimComps.RunDependentConfig import buildListOfModifiers
     # to prevent the same modifiers being added twice by mistake
     newModifiers = buildListOfModifiers()
     if ServiceMgr.EvtIdModifierSvc.Modifiers != newModifiers:

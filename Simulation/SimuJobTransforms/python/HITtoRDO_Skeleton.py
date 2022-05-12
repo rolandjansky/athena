@@ -53,6 +53,10 @@ def fromRunArgs(runArgs):
         from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
         setupDetectorsFromList(ConfigFlags, detectors)
 
+    # Setup perfmon flags from runargs
+    from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
+
     # Special Configuration preInclude
     specialConfigPreInclude(ConfigFlags)
 
@@ -68,7 +72,7 @@ def fromRunArgs(runArgs):
 
     # Setup pile-up profile
     if ConfigFlags.Digitization.PileUp:
-        from Digitization.PileUpUtils import setupPileUpProfile
+        from RunDependentSimComps.PileUpUtils import setupPileUpProfile
         setupPileUpProfile(ConfigFlags)
 
     # TODO not parsed yet:

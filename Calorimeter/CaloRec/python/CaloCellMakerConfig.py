@@ -23,7 +23,7 @@ def CaloCellMakerCfg(configFlags):
     cellMakerTools=[larCellBuilder,tileCellBuilder,cellFinalizer]+larCellCorrectors
 
     #Add corrections tools that are not LAr or Tile specific:
-    if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Cell.doPedestalCorr:
+    if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Calo.Cell.doPedestalCorr:
         theCaloCellPedestalCorr=CaloCellPedestalCorrCfg(configFlags)
         cellMakerTools.append(result.popToolsAndMerge(theCaloCellPedestalCorr))
 
@@ -51,10 +51,18 @@ def CaloCellMakerCfg(configFlags):
 
     print(cellMakerTools)
 
-    cellAlgo=CompFactory.CaloCellMaker(CaloCellMakerToolNames=cellMakerTools,
-                                       CaloCellsOutputName="AllCalo")
+    cellAlgo = CompFactory.CaloCellMaker(CaloCellMakerToolNames=cellMakerTools,
+                                         CaloCellsOutputName="AllCalo")
 
-    result.addEventAlgo(cellAlgo,primary=True)
+    result.addEventAlgo(cellAlgo, primary=True)
+    from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
+    result.merge(addToESD(configFlags, ["CaloCellContainer#AllCalo",
+                                        "TileCellContainer#MBTSContainer",
+                                        "TileCellContainer#E4prContainer"]))
+    result.merge(addToAOD(configFlags,
+                          ["TileCellContainer#MBTSContainer",
+                           "TileCellContainer#E4prContainer"]))
+
     return result
 
  

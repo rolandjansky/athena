@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellEnergyRescaler.h" 
@@ -12,7 +12,7 @@ CaloCellEnergyRescaler::CaloCellEnergyRescaler (const std::string& type,
 						const IInterface* parent) :
   base_class (type, name, parent) {}
 
-CaloCellEnergyRescaler::~CaloCellEnergyRescaler() {}
+CaloCellEnergyRescaler::~CaloCellEnergyRescaler() = default;
 
 
 StatusCode CaloCellEnergyRescaler::initialize() {
@@ -45,7 +45,7 @@ CaloCellEnergyRescaler::process (CaloCellContainer* theCaloCellContainer,
     CaloCell* theCell=(*it);
     const IdentifierHash& hash_id=theCell->caloDDE()->calo_hash();
     if (hash_id<corrValues->getNChans()) {
-      const float& scale= corrValues->getData(hash_id,0,0);
+      const float& scale= corrValues->getData(hash_id);
       theCell->setEnergy(theCell->energy()*scale);
     }//end if hash_id<NChans
   }//end loop over cells

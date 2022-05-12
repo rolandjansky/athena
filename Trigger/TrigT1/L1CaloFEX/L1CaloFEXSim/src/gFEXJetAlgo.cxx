@@ -109,14 +109,14 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   // sorting by 192 blocks 0 = left, 1 = right
 
   // find the leading and subleading gBlock  in the left column of FPGA A
-  gBlockMax2(gBLKA, 0, gBlockTOBv[0], gBlockTOBeta[0], gBlockTOBphi[0]);
+  gBlockMax2(gBLKA, 1, 0, gBlockTOBv[0], gBlockTOBeta[0], gBlockTOBphi[0]);
    // find the leading and subleading gBlock  in the right column of FPGA A
-  gBlockMax2(gBLKA, 1, gBlockTOBv[1], gBlockTOBeta[1], gBlockTOBphi[1]);
+  gBlockMax2(gBLKA, 2, 1, gBlockTOBv[1], gBlockTOBeta[1], gBlockTOBphi[1]);
 
   // find the leading and subleading gBlock  in the left column of FPGA B
-  gBlockMax2(gBLKB, 2, gBlockTOBv[2], gBlockTOBeta[2], gBlockTOBphi[2]);
+  gBlockMax2(gBLKB, 3, 0, gBlockTOBv[2], gBlockTOBeta[2], gBlockTOBphi[2]);
   // find the leading and subleading gBlock  in the right column of FPGA B
-  gBlockMax2(gBLKB, 3, gBlockTOBv[3], gBlockTOBeta[3], gBlockTOBphi[3]);
+  gBlockMax2(gBLKB, 4, 1, gBlockTOBv[3], gBlockTOBeta[3], gBlockTOBphi[3]);
 
 
   if( FEXAlgoSpaceDefs::ENABLE_INTER_AB ) {
@@ -136,11 +136,21 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   }
 
   // Apply pileup threshold
-  pileUpCorrectionAB(AjetsRestricted,pucA);
-  pileUpCorrectionAB(BjetsRestricted,pucB);
+  // Apply pileup correction (if enabled)
+  if (FEXAlgoSpaceDefs::ENABLE_PUC){
+    pileUpCorrectionAB(AjetsRestricted,pucA);
+    pileUpCorrectionAB(BjetsRestricted,pucB);
+  }
+
+
+  //Emulate switch to unsigned values by zeroing everything below the jet threshold
+  //https://gitlab.cern.ch/atlas-l1calo/gfex/firmware/-/blob/devel/common/jet_finder/HDL/jet_eng.vhd#L550
+ 
+  gJetVetoAB(AjetsRestricted,  jetThreshold);
+  gJetVetoAB(BjetsRestricted,  jetThreshold);
+  // gJetVetoAB(CCjetsRestricted, jetThreshold);
 
   // Apply gBlock trheshold to jet array
-  // DMS check this!
 
   gBlockVetoAB(AjetsRestricted, gBLKA, gLJ_seedThrA);
   gBlockVetoAB(BjetsRestricted, gBLKB, gLJ_seedThrB);
@@ -587,7 +597,9 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
         // switch to 800 MeV LSB 
-        gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        if (FEXAlgoSpaceDefs::APPLY_TRUNC){
+          gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        }
         // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
         if ( gBlkSum[irow][jcolumn] < 0 ){
           gBlkSum[irow][jcolumn] = 0;
@@ -635,15 +647,16 @@ void gFEXJetAlgo::blkOutAB(gTowersCentral blocks,
 }
 
 
-void gFEXJetAlgo::gBlockMax2(gTowersCentral gBlkSum, int BjetColumn, std::array<int, 3> & gBlockV, std::array<int, 3> & gBlockEta, std::array<int, 3> & gBlockPhi){
+void gFEXJetAlgo::gBlockMax2(gTowersCentral gBlkSum, int BjetColumn, int localColumn, std::array<int, 3> & gBlockV, std::array<int, 3> & gBlockEta, std::array<int, 3> & gBlockPhi){
+
+  //  gBlkSum are the 9 or 6 gTower sums  
+  //  BjetColumn is the Block Column -- 0 for CN, 1, 2 for A 3, 4 for B and 5 for CP 
 
   gTowersJetEngine gBlkSumC;
-
-  // get the local column number
-  int jetColumn = BjetColumn%2;
+ 
   for( int irow = 0; irow<FEXAlgoSpaceDefs::ABCrows; irow++){
     for( int icolumn =0; icolumn<FEXAlgoSpaceDefs::ABcolumnsEng; icolumn++){
-      gBlkSumC[irow][icolumn] = gBlkSum[irow][icolumn + jetColumn*FEXAlgoSpaceDefs::ABcolumnsEng];
+      gBlkSumC[irow][icolumn] = gBlkSum[irow][icolumn + localColumn*FEXAlgoSpaceDefs::ABcolumnsEng];
     }
   }
 
@@ -668,8 +681,8 @@ void gFEXJetAlgo::gBlockMax2(gTowersCentral gBlkSum, int BjetColumn, std::array<
   gBlockMax192(gBlkSumC, gBlockV, gBlockEta, gBlockPhi, 1);
 
   // need to wait until the end for this!
-  gBlockEta[0] =  gBlockEta[0] + 8 + 6*BjetColumn;
-  gBlockEta[1] =  gBlockEta[1] + 8 + 6*BjetColumn;
+  gBlockEta[0] =  gBlockEta[0] + 2 + 6*BjetColumn;
+  gBlockEta[1] =  gBlockEta[1] + 2 + 6*BjetColumn;
 }
 
 
@@ -832,14 +845,60 @@ void gFEXJetAlgo::addRemoteLin(gTowersCentral &jets, const gTowersPartialSums &p
   }
 }
 
+
+void gFEXJetAlgo::pileUpCalculation(gTowersCentral &twrs, int rhoThreshold_Max, int rhoThreshold_Min, int inputScale,  int &PUCp) { 
+  // input are 50 MeV "fine" scale towers (i.e. inputScale = 1)
+  // to use 200 MeV towers use inputScale = 4  
+  //PUCp output is the pileup correction for 69 towers at 200 MeV energy scale 
+
+  int rows = twrs.size();
+  int cols = twrs[0].size();
+  int pucSum = 0;
+  int nSum   = 0; 
+  for(int irow=0; irow<rows; irow++){
+    for( int icolumn=0; icolumn<cols; icolumn++){
+      int fineGT = twrs[irow][icolumn]*inputScale; 
+      if( (fineGT > rhoThreshold_Min) && (fineGT < rhoThreshold_Max) ) {
+      pucSum = pucSum + fineGT;
+      nSum = nSum + 1;
+      }
+    }
+  }
+  // in firmware this is done with a lookup table see https://gitlab.cern.ch/atlas-l1calo/gfex/firmware/-/blob/devel/common/jet_finder/HDL/inv_lut19.vhd
+  // See also https://gitlab.cern.ch/atlas-l1calo/gfex/firmware/-/blob/devel/common/jet_finder/HDL/gt_build_all_AB.vhd#L1471
+  int oneOverN = 69*4096;
+  if( nSum > 0 ) {
+    oneOverN = oneOverN/nSum;
+  } else {
+    oneOverN = 0.0;
+  }
+
+  PUCp = pucSum * oneOverN;
+  // divide by 4096 and convert to 200 MeV LSB 
+  PUCp = PUCp/(4*4096); 
+}
+
+
+
 void gFEXJetAlgo::pileUpCorrectionAB(gTowersCentral &jets, int puc){
   int rows = jets.size();
   int cols = jets[0].size();
-  // add partial sums
   for(int irow=0;irow<rows;irow++){
     for(int icolumn=0;icolumn<cols;icolumn++){
       jets[irow][icolumn] =   jets[irow][icolumn] - puc;
     }
+  }
+}
+
+void gFEXJetAlgo::gJetVetoAB( gTowersCentral &twrs ,int jet_threshold ){
+  int rows = twrs.size();
+  int cols = twrs[0].size();
+  for( int irow = 0; irow < rows; irow++ ){
+    for(int jcolumn = 0; jcolumn<cols; jcolumn++){
+      if( twrs[irow][jcolumn] < jet_threshold+1 ) {
+        twrs[irow][jcolumn] = 0; 
+      }
+    } 
   }
 }
 
@@ -874,8 +933,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
     }
     // Turncate to 15 bits as in firmware
     if( jetOutL[ieng] >  (1<<16) - 1 )  jetOutL[ieng] = 0x00007FFF;
-    // reduce by 3 bits prior to sorting done here
-    jetOutL[ieng] = jetOutL[ieng]/8; 
+    if (FEXAlgoSpaceDefs::APPLY_TRUNC){
+      // reduce by 3 bits prior to sorting done here
+      jetOutL[ieng] = jetOutL[ieng]/8;
+    } 
   }
   // loop over right engines
   for(int ieng=0; ieng<FEXAlgoSpaceDefs::ABCrows; ieng++){
@@ -890,7 +951,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
     // Turncate to 15 bits as in firmware 
     if( jetOutR[ieng] >  (1<<16) - 1 )  jetOutR[ieng] = 0x00007FFF;
     // reduce by 3 bits prior to sorting done here
-    jetOutR[ieng] = jetOutR[ieng]/8; 
+    if (FEXAlgoSpaceDefs::APPLY_TRUNC){  
+      // reduce by 3 bits prior to sorting done here
+      jetOutR[ieng] = jetOutR[ieng]/8; 
+    } 
 
   }
 

@@ -291,6 +291,27 @@ class useOldVertexFitterAPI(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class inAOD(JobProperty):
+    """ Indicate that the reconstruction is done in AOD.
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class doAODMuonRemoval(JobProperty):
+    """ Control if the muons found inside the TauJet should be removed in the AOD re-reco of the TauJet.
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class doAODElecRemoval(JobProperty):
+    """ Control if the electrons found inside the TauJet should be removed in the AOD re-reco of the TauJet.
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 # Defines a sub-container for the algorithm switches
 class tauRecFlags(JobPropertyContainer):
     """ tau information """
@@ -299,38 +320,12 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,doTJVA_Tiebreak,associateLRT,classifyLRT,removeDuplicateCoreTracks,useGhostTracks,ghostTrackDR,tauRecRNNTrackClassification,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRec0pMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauJetRNNWPConfig,tauRecTauEleRNNConfig,tauRecTauEleRNNWPConfig,tauRecPi0ScoreConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRec0pMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,doTJVA_Tiebreak,associateLRT,classifyLRT,removeDuplicateCoreTracks,useGhostTracks,ghostTrackDR,tauRecRNNTrackClassification,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecCalibrateLCConfig,tauRecMvaTESConfig,tauRec0pMvaTESConfig,tauRecCombinedTESConfig,tauRecTauJetRNNConfig,tauRecTauJetRNNWPConfig,tauRecTauEleRNNConfig,tauRecTauEleRNNWPConfig,tauRecPi0ScoreConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMinPt,tauRec0pMinPt,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI, inAOD, doAODMuonRemoval, doAODElecRemoval]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau
 
 
-
-#################################################
-#### AOD flags ##################################
-#                                               #
-# only for re-running tau reco on AODs          #
-# !not for normal reconstruction!               #
-#################################################
-
-class doUpdate(JobProperty):
-    """ update the tau containers (if running in AODmode)
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class tauRecAODFlags(JobPropertyContainer):
-    """ tau information if re-running on AODs """
-
-# add the tau flags container to the top container 
-jobproperties.add_Container(tauRecAODFlags)
-
-# I want always the following flags in the Rec container  
-_list_tau=[doUpdate]
-for j in _list_tau: 
-    jobproperties.tauRecAODFlags.add_JobProperty(j)
-del _list_tau
 
 
 tauFlags=jobproperties.tauRecFlags

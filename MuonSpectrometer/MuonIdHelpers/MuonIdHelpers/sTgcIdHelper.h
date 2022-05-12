@@ -64,45 +64,60 @@ public:
     ///////////// compact identifier stuff begins //////////////////////////////////////
 
     /// Initialization from the identifier dictionary
-    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
-    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const;
-    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const;
+    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
+    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const override;
+    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const override;
 
     ///////////// compact identifier stuff ends   //////////////////////////////////////
 
     // Identifier builders
-    Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(std::string_view stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
+    
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
+  
     Identifier elementID(const Identifier& channelID) const;
 
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel) const;
     Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int channel,
-                         bool check = false, bool* isValid = 0) const;
+                         bool& isValid) const;
+    
     Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
-                         int channel, bool check = false, bool* isValid = 0) const;
-    Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel, bool check = false,
-                         bool* isValid = 0) const;
+                         int channel) const;
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
+                         int channel, bool& isValid) const;
+                         
+    Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel) const;
+    Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channelType, int channel, bool& isValid) const;
 
+    Identifier padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi) const;
     Identifier padID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType, int padEta, int padPhi,
-                     bool check = false, bool* isValid = 0) const;
+                     bool& isValid) const;
+    
     Identifier padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
-                     int padEta, int padPhi, bool check = false, bool* isValid = 0) const;
-    Identifier padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool check = false,
-                     bool* isValid = 0) const;
+                     int padEta, int padPhi) const;
+     Identifier padID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channelType,
+                     int padEta, int padPhi, bool& isValid) const;
+                     
+    Identifier padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi) const;
+    Identifier padID(const Identifier& id, int multilayer, int gasGap, int channelType, int padEta, int padPhi, bool& isValid) const;
 
     Identifier parentID(const Identifier& id) const;
 
     Identifier multilayerID(const Identifier& channeldID) const;
-    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool check = false, bool* isValid = 0) const;
+    Identifier multilayerID(const Identifier& moduleID, int multilayer) const;
+    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool& isValid) const;
 
     // for an Identifier id, get the list of the daughter readout channel ids
     void idChannels(const Identifier& id, std::vector<Identifier>& vect) const;
 
     // Access to levels: missing field returns 0
-    int gasGap(const Identifier& id) const;
+    int gasGap(const Identifier& id) const override;
     int multilayer(const Identifier& id) const;
     int channelType(const Identifier& id) const;
-    bool measuresPhi(const Identifier& id) const;
-    int channel(const Identifier& id) const;
+    bool measuresPhi(const Identifier& id) const override;
+    int channel(const Identifier& id) const override;
     int numberOfMultilayers(const Identifier& id) const;
     int padEta(const Identifier& id) const;
     int padPhi(const Identifier& id) const;
@@ -148,13 +163,15 @@ public:
     enum sTgcChannelTypes { Pad = 0, Strip = 1, Wire = 2 };
 
 private:
+   bool isStNameInTech(const std::string& stationName) const override;
+
     int init_id_to_hashes();
     unsigned int m_module_hashes[60][20][48]{};             // ED Probably need to change this
     unsigned int m_detectorElement_hashes[60][20][8][3]{};  // Nektar Probably need to change this
 
     // compact id indices
-    size_type m_GASGAP_INDEX;
-    size_type m_CHANNELTYPE_INDEX;
+    size_type m_GASGAP_INDEX{6};
+    size_type m_CHANNELTYPE_INDEX{7};
 
     IdDictFieldImplementation m_gap_impl;
     IdDictFieldImplementation m_typ_impl;

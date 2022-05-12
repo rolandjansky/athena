@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,6 @@
 
 
 #include "xAODTestWriteCInfo.h"
-#include "EventInfo/EventID.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
 #include "AthLinks/ElementLink.h"
@@ -29,12 +28,10 @@ namespace DMTest {
 xAODTestWriteCInfo::xAODTestWriteCInfo (const std::string &name,
                                         ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator),
-    m_eventInfoKey ("McEventInfo"),
     m_cvecKey ("cvec"),
     m_cinfoKey ("cinfo")
 {
   declareProperty ("Offset", m_offset = 0);
-  declareProperty ("EventInfoKey", m_eventInfoKey);
   declareProperty ("CVecKey", m_cvecKey);
   declareProperty ("CInfoKey", m_cinfoKey);
 }
@@ -57,10 +54,8 @@ StatusCode xAODTestWriteCInfo::initialize()
  */
 StatusCode xAODTestWriteCInfo::execute (const EventContext& ctx) const
 {
-  //SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-  //unsigned int count = eventInfo->eventNumber()  + 1;
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
-  unsigned int count = eventInfo->event_ID()->event_number() + 1;
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+  unsigned int count = eventInfo->eventNumber()  + 1;
 
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
 

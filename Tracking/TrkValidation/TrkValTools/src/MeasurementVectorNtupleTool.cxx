@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "TrkValInterfaces/IValidationNtupleHelperTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -109,7 +108,7 @@ Trk::MeasurementVectorNtupleTool::MeasurementVectorNtupleTool(
 }
 
 // destructor
-Trk::MeasurementVectorNtupleTool::~MeasurementVectorNtupleTool() {}
+Trk::MeasurementVectorNtupleTool::~MeasurementVectorNtupleTool() = default;
 
 
 ///////////////////////////////////////
@@ -594,20 +593,6 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackParticleData
 }
 
 //////////////////////////////////////
-// fill ntuple data of a given proto-trajectory (function used for fitter validation)
-//////////////////////////////////////
-StatusCode Trk::MeasurementVectorNtupleTool::fillProtoTrajectoryData
-(  const Trk::ProtoTrajectory&,
-   const int,
-   const Trk::Perigee*,
-   const unsigned int ) const
-   //const Trk::FitterStatusCode) const
-{
-  ATH_MSG_WARNING ("MeasurementVectorNtupleTool not meant to be used with TrackParticles.");
-  return StatusCode::SUCCESS;
-}
-
-//////////////////////////////////////
 // reset variables
 //////////////////////////////////////
 void Trk::MeasurementVectorNtupleTool::resetVariables() const {
@@ -892,7 +877,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::callHelperTools(
     } //end if (detectorType!=TrackState::unidentified && !isOutlier)
 
     // call the general tools
-    if (m_GeneralHelperTools.size() > 0) {
+    if (!m_GeneralHelperTools.empty()) {
       std::vector< const Trk::IValidationNtupleHelperTool* >::const_iterator toolIter = m_GeneralHelperTools.begin();
       for (; toolIter!=m_GeneralHelperTools.end(); ++toolIter) {
         if (((*toolIter)->fillMeasurementData(measurement, trkPar, detectorType, isOutlier)).isFailure()) {
@@ -987,7 +972,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillHoleData (
     } //end if (detectorType!=TrackState::unidentified)
 
     // call the general tools
-    if (m_GeneralHelperTools.size() > 0) {
+    if (!m_GeneralHelperTools.empty()) {
         std::vector< const Trk::IValidationNtupleHelperTool* >::const_iterator toolIter = m_GeneralHelperTools.begin();
         for (; toolIter!=m_GeneralHelperTools.end(); ++toolIter) {
             if (((*toolIter)->fillHoleData(tsos, detectorType)).isFailure()) {

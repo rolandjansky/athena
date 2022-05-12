@@ -22,9 +22,12 @@ void DiscBoundsCnv_p1 :: persToTrans( const Trk :: DiscBounds_p1 *persObj,
                                persObj->m_hPhiSec);
 }
 
-void DiscBoundsCnv_p1 :: transToPers( const Trk :: DiscBounds    * /**transObj*/,
-                                            Trk :: DiscBounds_p1 * /**persObj*/,
+void DiscBoundsCnv_p1 :: transToPers( const Trk :: DiscBounds    *transObj,
+                                            Trk :: DiscBounds_p1 *persObj,
                                             MsgStream            & )
 {
-  throw std::runtime_error("DiscBoundsCnv_p1::transToPers is deprecated!");
+  persObj->m_rMin    = transObj->rMin();
+  persObj->m_rMax    = transObj->rMax();
+  persObj->m_avePhi  = transObj->averagePhi();
+  persObj->m_hPhiSec = transObj->halfPhiSector();
 }

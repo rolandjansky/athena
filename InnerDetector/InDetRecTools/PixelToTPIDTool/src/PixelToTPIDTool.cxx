@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelToTPIDTool/PixelToTPIDTool.h"
@@ -49,7 +49,7 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t, const std::string&
 
 }
 
-InDet::PixelToTPIDTool::~PixelToTPIDTool() { }
+InDet::PixelToTPIDTool::~PixelToTPIDTool() = default;
 
 StatusCode InDet::PixelToTPIDTool::initialize() {
 

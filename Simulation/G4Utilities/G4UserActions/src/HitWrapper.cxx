@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -44,8 +44,8 @@ namespace G4UA
     SG::WriteHandle<TGCSimHitCollection> tgc("TGC_Hits");
     SG::WriteHandle<RPCSimHitCollection> rpc("RPC_Hits");
     /** for nSW */
-    SG::WriteHandle<MMSimHitCollection> mmhits("MicromegasSensitiveDetector");
-    SG::WriteHandle<sTGCSimHitCollection> stgc("sTGCSensitiveDetector");
+    SG::WriteHandle<MMSimHitCollection> mmhits("MM_Hits");
+    SG::WriteHandle<sTGCSimHitCollection> stgc("sTGC_Hits");
 
     if (!csc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access csc hit collection" );
     else {

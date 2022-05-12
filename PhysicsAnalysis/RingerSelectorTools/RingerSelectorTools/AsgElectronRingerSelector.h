@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef RINGERSELECTORTOOLS_ASGELECTRONCALORINGERSELECTOR_H
 #define RINGERSELECTORTOOLS_ASGELECTRONCALORINGERSELECTOR_H
@@ -250,7 +250,7 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     RingerCommonSelector *m_ringSelCommon;
 
     /// @brief Hold the track patterns:
-    mutable TrackPatternsHolder *m_trackPat;
+    TrackPatternsHolder *m_trackPat;
 
     /// @brief Last particle accept bitmask (already applying the m_cutsToUse)
     asg::AcceptInfo m_accept;

@@ -37,7 +37,7 @@ namespace TrigConf {
       HLTStreamTag(const std::string& stream, const std::string& type, bool obeyLB, float prescale);
 
       /**@brief destructor*/
-      ~HLTStreamTag( void ){};
+      virtual ~HLTStreamTag() override = default;
 
       bool operator==(const HLTStreamTag &);
 
@@ -54,7 +54,7 @@ namespace TrigConf {
       void set_prescale( float val ) { m_prescale = val; }
 
       // print the chain
-      void print(const std::string& indent="", unsigned int detail=1) const;
+      void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void writeXML(std::ofstream & xmlfile) const;
 

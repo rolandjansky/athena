@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,24 +44,24 @@ public:
     std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    PropDirection direction,
+    ParticleHypothesis particleHypothesis) const = 0;
 
   //!< Convolution with pre-measurement-update material properties
   virtual MultiComponentState preUpdate(
     std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    PropDirection direction,
+    ParticleHypothesis particleHypothesis) const = 0;
 
   //!< Convolution with post-measurement-update material properties
   virtual MultiComponentState postUpdate(
     std::vector<GsfMaterial::Combined>&,
     const MultiComponentState&,
     const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    PropDirection direction,
+    ParticleHypothesis particleHypothesis) const = 0;
 
 };
 

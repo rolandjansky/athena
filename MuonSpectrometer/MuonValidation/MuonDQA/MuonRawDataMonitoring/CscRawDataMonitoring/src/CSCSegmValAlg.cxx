@@ -10,7 +10,7 @@
  *----------------------------------------------------------------------
  */
 
-#include "CscRawDataMonitoring/CSCSegmValAlg.h"
+#include "CSCSegmValAlg.h"
 
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"

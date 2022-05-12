@@ -11,7 +11,7 @@ Offline configurations are available here:
 
 """
 # athena imports
-from AthenaCommon.BeamFlags import jobproperties
+from AthenaConfiguration.Enums import BeamType
 
 # flags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -147,7 +147,7 @@ TrigEMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
                       useScoring         = True,
                       SecondPassRescale  = True,
                       UseRescaleMetric   = True,
-                      isCosmics          = (jobproperties.Beam.beamType()=="cosmics"))
+                      isCosmics          = (ConfigFlags.Beam.Type == BeamType.Cosmics) )
 
 """Configuring the builder of Egamma shower shapes"""
 TrigEMShowerBuilder = ToolFactory( egammaToolsConf.EMShowerBuilder,
@@ -274,10 +274,53 @@ TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsol
 from AthenaCommon import CfgMgr
 """ Configure the HLT CaloIsoTool """
 H_ClIT = CfgMgr.xAOD__CaloIsolationTool('TrigCaloIsolationTool')                                
-H_ClIT.doEnergyDensityCorrection=True
-H_ClIT.InitializeReadHandles=False
-H_ClIT.UseEMScale=True
+H_ClIT.InitializeReadHandles=True
+H_ClIT.TopoClusterEDCentralContainer='TrigIsoEventShape'
+# Only one density estimate for the time being
+H_ClIT.TopoClusterEDForwardContainer='TrigIsoEventShape'
+# the last three should not be used in HLT
+H_ClIT.EFlowEDCentralContainer='TrigIsoEventShape'
+H_ClIT.EFlowEDForwardContainer='TrigIsoEventShape'
 
+
+def TrigEgammaPseudoJetAlgCfg(name='TrigEgammaPseudoJetAlg'):
+    # This is to run pseudoJetAlgorithm to compute event density over FullScan TopoClusters for TrigEgamma. This is used by the Calorimeter isolation to correct for detector activity
+    
+    # Lets just bring the FS reco sequence from CaloSequence. This will call/include the FS cellMaker already configured/instantiated 
+    from ..CommonSequences.CaloSequences import caloClusterRecoSequence
+    from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    FSTopoSequence, clustersKey = RecoFragmentsPool.retrieve( caloClusterRecoSequence, flags=ConfigFlags, RoIs = '') # As no RoI defined, it should use roisKey='' 
+    from JetRec.JetRecConf import PseudoJetAlgorithm
+    TrigEgammaPseudoJetAlgBuilder = PseudoJetAlgorithm(
+        name               = name,
+        Label              = "EMTopo",
+        InputContainer     = clustersKey, 
+        OutputContainer    = "PseudoJetTrigEMTopo",
+        SkipNegativeEnergy = True,
+        )
+    return  [FSTopoSequence, TrigEgammaPseudoJetAlgBuilder]
+
+
+def TrigIsoEventShapeAlgCfg(name='TrigIsoEventShapeBuilder'):
+
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
+    from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
+
+    rhotool = configEventDensityTool("TrigIsoTool",
+                                     jetOrConstitdef = cst.EMTopo,
+                                     radius          = 0.5,
+                                     AbsRapidityMin  = 0.0,
+                                     AbsRapidityMax  = 2.0,
+                                     InputContainer = 'PseudoJetTrigEMTopo',
+                                     OutputContainer = 'TrigIsoEventShape')
+
+    TrigIsoEventShapeAlg = AlgFactory(EventDensityAthAlg,
+                                      name             = name,
+                                      doAdd            = False,
+                                      EventDensityTool = rhotool)
+    return TrigIsoEventShapeAlg()
 
 def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
     TrigPhotonIsolationBuilder = AlgFactory(IsolationBuilder,
@@ -289,7 +332,7 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = None, 
                                     PhIsoTypes            = [[isoPar.topoetcone20, isoPar.topoetcone40]],
-                                    PhCorTypes            = [[isoPar.core57cells]],
+                                    PhCorTypes            = [[isoPar.core57cells, isoPar.pileupCorrection]],
                                     PhCorTypesExtra       = [[]],
                                     )
     return TrigPhotonIsolationBuilder()
@@ -343,3 +386,16 @@ def egammaFSCaloRecoSequence():
     )
 
     return parOR("egammaFSRecoSequence", [cellMaker, eventShapeMaker])
+
+def egammaFSEventDensitySequence():
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigIsoEventShapeAlgCfg, TrigEgammaPseudoJetAlgCfg
+    from AthenaCommon.CFElements import parOR
+
+    thesequence = parOR( "precisionPhotonFSEventDensity") # This thing creates the sequence with name precisionPhotonAlgs
+    FSTopoSequence, TrigEgammaPseudoJetAlg = TrigEgammaPseudoJetAlgCfg('TrigPhotonEgammaPSeudoJetBuilder')
+    thesequence += FSTopoSequence
+    thesequence += TrigEgammaPseudoJetAlg
+    thesequence += TrigIsoEventShapeAlgCfg('TrigPhotonIsoEventShapeAlg')
+
+    return thesequence
+

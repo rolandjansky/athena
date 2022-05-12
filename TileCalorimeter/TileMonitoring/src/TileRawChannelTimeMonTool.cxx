@@ -13,7 +13,7 @@
 // ********************************************************************
 
 // Tile includes
-#include "TileMonitoring/TileRawChannelTimeMonTool.h"
+#include "TileRawChannelTimeMonTool.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/ITileBadChanTool.h"

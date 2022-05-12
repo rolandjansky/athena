@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VxVertex/RecVertex.h"
@@ -21,8 +21,8 @@ void  RecVertexCnv_p2::persToTrans(const Trk::RecVertex_p2 * persObj, Trk::RecVe
   Trk::ErrorMatrix dummy;
   fillTransFromPStore( &m_errorMatrixConverter, persObj->m_positionError, &dummy, log );
   AmgSymMatrix(3) cov;
-  if (0!=dummy.values.size()){
-    if (dummy.values.size() == 0) dummy.values.resize(6);
+  if (!dummy.values.empty()){
+    if (dummy.values.empty()) dummy.values.resize(6);
     EigenHelpers::vectorToEigenMatrix(dummy.values, cov, "RecVertexCnv_p2");
   } else {
     // Seems we didn't write out an error matrix - set it to an identity

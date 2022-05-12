@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderToolBase.h"
+#include "LArRawChannelBuilderToolBase.h"
 
 LArRawChannelBuilderToolBase::LArRawChannelBuilderToolBase(const std::string& type,
 							   const std::string& name,

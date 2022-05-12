@@ -496,7 +496,7 @@ G4VParticleChange* QuirkTransportation::PostStepDoIt( const G4Track& track,
 
     // Update the Step flag which identifies the Last Step in a volume
     isLastStep =  m_linearNavigator->ExitedMotherVolume() 
-                       | m_linearNavigator->EnteredDaughterVolume() ;
+                       || m_linearNavigator->EnteredDaughterVolume() ;
 
 #ifdef G4DEBUG_TRANSPORT
     //  Checking first implementation of flagging Last Step in Volume

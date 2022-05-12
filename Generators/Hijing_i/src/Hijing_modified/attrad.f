@@ -50,7 +50,8 @@ C.....MAKE PLACE FOR ONE GLUON.....
 C+++BAC
                  V(J+1,M) = V(J,M)
 C---BAC
-150                        P(J+1,M)=P(J,M)
+                           P(J+1,M)=P(J,M)
+150                 CONTINUE
 160                 CONTINUE
 190          N=N+1
      

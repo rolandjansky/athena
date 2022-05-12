@@ -1,0 +1,4306 @@
+'302778':
+- nominal
+'303495':
+- nominal
+'303768':
+- nominal
+'303769':
+- nominal
+'303770':
+- nominal
+'303777':
+- nominal
+'303780':
+- nominal
+'303783':
+- nominal
+'303809':
+- nominal
+'303810':
+- nominal
+'303815':
+- nominal
+'304940':
+- nominal
+'304948':
+- nominal
+'304956':
+- nominal
+'309126':
+- MadGraph_ME_PDF315200_var
+- MadGraph_Other
+- MadGraph_ME_PDF315200_scale
+- MadGraph_PDF315200_Nominal
+'342561':
+- nominal
+'344235':
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF11068
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF260000_scale_type3
+- Powheg_ME_PDF90400_var
+- Powheg_ME_PDF90400
+- Powheg_ME_PDF13165
+- Powheg_ME_PDF25200
+'344302':
+- nominal
+'345039':
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90400
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF260000_scale
+- Powheg_ME_PDF90400_var
+'345040':
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90400
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF260000_scale
+- Powheg_ME_PDF90400_var
+'345043':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345045':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345071':
+- MadGraph_PDF262000_Nominal
+- MadGraph_ME_PDF262000_var
+- MadGraph_ME_PDF262000_scale
+- MadGraph_Other
+'345666':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345706':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345708':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345716':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345723':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345725':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345848':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345850':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345860':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'345919':
+- nominal
+'345925':
+- MadGraph_ME_PDF263000_scale
+- MadGraph_PDF263000_Nominal
+- MadGraph_ME_PDF263000_var
+'345927':
+- MadGraph_ME_PDF263000_scale
+- MadGraph_PDF263000_Nominal
+- MadGraph_ME_PDF263000_var
+'346303':
+- aMcAtNlo_ME_PDF260000_scale
+- aMcAtNlo_PDF260000_Nominal
+- aMcAtNlo_ME_PDF260000_var
+'346342':
+- Powheg_ME_PDF11068
+- Powheg_ME_PDF260000_scale
+- Pythia8_PDF260000_ISR_PDF
+- Powheg_ME_PDF13165
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF25300
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF90400_var
+- Pythia8_PDF260000_Var3c_alphaS
+- Powheg_ME_PDF90400
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200
+'361068':
+- nominal
+'361069':
+- nominal
+'361070':
+- nominal
+'361077':
+- nominal
+'361078':
+- nominal
+'361080':
+- nominal
+'361091':
+- nominal
+'361094':
+- nominal
+'361095':
+- nominal
+'361097':
+- nominal
+'361292':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'361499':
+- nominal
+'361510':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361511':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361512':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361513':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361514':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361515':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361516':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361517':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361518':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361519':
+- MadGraph_PDF247000_Nominal
+- MadGraph_ME_PDF247000_scale
+'361598':
+- nominal
+'361600':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361602':
+- nominal
+'361604':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361605':
+- nominal
+'361606':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361607':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361608':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361609':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361611':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'361663':
+- nominal
+'363036':
+- nominal
+'363037':
+- nominal
+'363038':
+- nominal
+'363039':
+- nominal
+'363040':
+- nominal
+'363041':
+- nominal
+'363072':
+- nominal
+'363073':
+- nominal
+'363074':
+- nominal
+'363075':
+- nominal
+'363076':
+- nominal
+'363077':
+- nominal
+'363084':
+- nominal
+'363085':
+- nominal
+'363086':
+- nominal
+'363087':
+- nominal
+'363088':
+- nominal
+'363089':
+- nominal
+'363090':
+- nominal
+'363091':
+- nominal
+'363092':
+- nominal
+'363093':
+- nominal
+'363094':
+- nominal
+'363095':
+- nominal
+'363096':
+- nominal
+'363097':
+- nominal
+'363098':
+- nominal
+'363099':
+- nominal
+'363100':
+- nominal
+'363101':
+- nominal
+'363123':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363124':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363125':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363126':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363127':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363128':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363129':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363130':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363131':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363132':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363133':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363134':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363135':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363136':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363137':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363138':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363139':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363140':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363141':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363142':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363143':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363144':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363145':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363146':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363147':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363148':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363149':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363150':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363151':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363152':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363153':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363154':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363155':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363156':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363157':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363158':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363159':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363160':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363161':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363162':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363163':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363164':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363165':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363166':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363167':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363168':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363169':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363170':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363299':
+- nominal
+'363300':
+- nominal
+'363355':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363356':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363357':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363358':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363359':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363360':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363489':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363492':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363493':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363494':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363500':
+- nominal
+'363501':
+- nominal
+'363502':
+- nominal
+'363506':
+- nominal
+'363510':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363514':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363517':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363519':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'363600':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363601':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363602':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363603':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363604':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363605':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363606':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363607':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363608':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363609':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363610':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363611':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363612':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363613':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363614':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363615':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363616':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363617':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363618':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363619':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363620':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363623':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363624':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363625':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363626':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363627':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363628':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363629':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363630':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363631':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363632':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363633':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363634':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363635':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363636':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363637':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363638':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363639':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363640':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363641':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363642':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363643':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363644':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363648':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363649':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363650':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363651':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363652':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363653':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363654':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363655':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363656':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363657':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363658':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363659':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363660':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363661':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363662':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363663':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363664':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363665':
+- MadGraph_ME_PDF260000_scale
+- MadGraph_PDF260000_Nominal
+'363841':
+- nominal
+'363842':
+- nominal
+'363843':
+- nominal
+'363844':
+- nominal
+'363847':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363848':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363849':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363850':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363851':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363852':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363853':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363855':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363856':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363858':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363859':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363860':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363861':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363862':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363864':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363865':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363867':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363868':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363870':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363871':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363872':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363873':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363874':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363876':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363877':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363879':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363880':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363881':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363882':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363883':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363885':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363886':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363888':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363889':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363890':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363891':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363892':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363893':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'363894':
+- Powheg_ME_PDF11000_scale
+- Powheg_ME_PDF21100
+- Powheg_PDF11000_Nominal
+- Powheg_ME_PDF11000_var
+- Powheg_ME_PDF260000
+'364100':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364101':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364102':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364103':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364104':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364105':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364106':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364107':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364108':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364109':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364110':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364111':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364112':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364113':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000
+- Sherpa_Other
+'364114':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364115':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364116':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364117':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364118':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364119':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364120':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364121':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364122':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364123':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364124':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364125':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364126':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364127':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364128':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364129':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364130':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364131':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364132':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364133':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364134':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364135':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364136':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364137':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364138':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364139':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364140':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364141':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364142':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364143':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364144':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364145':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364146':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364147':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364148':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364149':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364150':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364151':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364152':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364153':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364154':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364155':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364156':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364157':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364158':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364159':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364160':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364161':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364162':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364163':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364164':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364165':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364166':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364167':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364168':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364169':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364170':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364171':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364172':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364173':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364174':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364175':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364176':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364177':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364178':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364179':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364180':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364181':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364182':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364183':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364184':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364185':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364186':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364187':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364188':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364189':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364190':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364191':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364192':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364193':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364194':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364195':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364196':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364197':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364243':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364245':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364247':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364248':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364250':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364253':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364254':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364255':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364284':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364285':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364286':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364287':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364290':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364297':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364300':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364301':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364302':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364303':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364304':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364364':
+- Sherpa_PDF261000_Nominal
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364502':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364503':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364504':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364507':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364508':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364509':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364512':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364513':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364514':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364517':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364518':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364519':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364523':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364524':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364525':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364528':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364529':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364530':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364533':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364534':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364535':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364542':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364543':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364544':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364545':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364546':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364547':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364554':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364559':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364564':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364569':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364574':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364579':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'364584':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'367515':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367516':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367517':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367518':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367519':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367520':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367521':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367522':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367523':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367524':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367525':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367526':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367527':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367528':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367529':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367530':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367531':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367532':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367533':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367534':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367535':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367536':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367537':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367538':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367539':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367540':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367541':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367542':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367543':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367544':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367545':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367546':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367547':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367548':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367549':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367550':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367551':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367552':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367553':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367554':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367555':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367556':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367557':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367558':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367559':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367560':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367561':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367562':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367563':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367564':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367565':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367566':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367567':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367568':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367569':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367570':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367571':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367572':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367573':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367574':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367575':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367576':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367577':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367578':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367579':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367580':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367581':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367582':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367583':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367584':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367585':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367586':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367587':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367588':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367589':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367590':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367591':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367592':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367593':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367594':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367595':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367596':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367597':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367598':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367599':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367600':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367601':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367602':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367603':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367604':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367605':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367606':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367607':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367608':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367609':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367610':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367611':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367612':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367613':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367614':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367615':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367616':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367617':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367618':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367619':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367620':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367621':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367622':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367623':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367624':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367625':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367626':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367627':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367628':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367629':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367630':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367631':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367632':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367633':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367634':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367635':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367636':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367637':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367638':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367639':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367640':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367641':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367642':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367643':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367644':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367645':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367646':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367647':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367648':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367649':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367650':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367651':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367652':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367653':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367654':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367655':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367656':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367657':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367658':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367659':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367660':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367661':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367662':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367663':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367664':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367665':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367666':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367667':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367668':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367669':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'367670':
+- MadGraph_ME_PDF260000_scale_type2
+- MadGraph_PDF260000_Nominal_type2
+- MadGraph_ME_PDF260000_var
+- MadGraph_Other_type2
+'407022':
+- nominal
+'407023':
+- nominal
+'407024':
+- nominal
+'407025':
+- nominal
+'407026':
+- nominal
+'407027':
+- nominal
+'407028':
+- nominal
+'407320':
+- aMcAtNlo_ME_PDF260000_scale_type2
+- aMcAtNlo_PDF260000_Nominal_type2
+- aMcAtNlo_ME_PDF260000_var_type2
+'410142':
+- nominal
+'410218':
+- aMcAtNlo_ME_PDF260000_scale_type2
+- aMcAtNlo_PDF260000_Nominal_type2
+- aMcAtNlo_ME_PDF260000_var_type2
+'410219':
+- aMcAtNlo_ME_PDF260000_scale_type2
+- aMcAtNlo_PDF260000_Nominal_type2
+- aMcAtNlo_ME_PDF260000_var_type2
+'410220':
+- aMcAtNlo_ME_PDF260000_scale_type2
+- aMcAtNlo_PDF260000_Nominal_type2
+- aMcAtNlo_ME_PDF260000_var_type2
+'410361':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'410362':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'410363':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'410365':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'410366':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'410367':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'410470':
+- Powheg_ME_PDF265000_scale
+- Powheg_ME_PDF260000_scale
+- Powheg_ME_PDF266000_scale
+- Powheg_ME_PDF303400_scale
+- Powheg_ME_PDF13165_scale
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Pythia8_PDF260000_Var3c_alphaS
+- Powheg_ME_PDF90900_scale
+- Powheg_ME_PDF260000_alphaS_NNPDF_NLO
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200_scale
+'410471':
+- Powheg_ME_PDF265000_scale
+- Powheg_ME_PDF260000_scale
+- Powheg_ME_PDF266000_scale
+- Powheg_ME_PDF303400_scale
+- Powheg_ME_PDF13165_scale
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Pythia8_PDF260000_Var3c_alphaS
+- Powheg_ME_PDF90900_scale
+- Powheg_ME_PDF260000_alphaS_NNPDF_NLO
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200_scale
+'410472':
+- Powheg_ME_PDF265000_scale
+- Powheg_ME_PDF260000_scale
+- Powheg_ME_PDF266000_scale
+- Powheg_ME_PDF303400_scale
+- Powheg_ME_PDF13165_scale
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Pythia8_PDF260000_Var3c_alphaS
+- Powheg_ME_PDF90900_scale
+- Powheg_ME_PDF260000_alphaS_NNPDF_NLO
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200_scale
+'410482':
+- Powheg_ME_PDF265000_scale
+- Powheg_ME_PDF260000_scale
+- Pythia8_PDF260000_ISR_PDF
+- Powheg_ME_PDF266000_scale
+- Powheg_ME_PDF303400_scale
+- Powheg_ME_PDF13165_scale
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Pythia8_PDF260000_Var3c_alphaS
+- Powheg_ME_PDF90900_scale
+- Powheg_ME_PDF260000_alphaS_NNPDF_NLO
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200_scale
+'410503':
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_ME_PDF25200_scale
+- Powheg_ME_PDF260000_scale
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF13165_scale
+- Powheg_ME_PDF90900_scale_type2
+'410644':
+- Powheg_ME_PDF260000_scale_type2
+- Pythia8_PDF260000_ISR_PDF
+- Powheg_ME_PDF13165_scale
+- Powheg_ME_PDF90900_scale_type2
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Pythia8_PDF260000_Var3c_alphaS
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200_scale
+'410645':
+- Powheg_ME_PDF260000_scale_type2
+- Pythia8_PDF260000_ISR_PDF
+- Powheg_ME_PDF13165_scale
+- Powheg_ME_PDF90900_scale_type2
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Pythia8_PDF260000_Var3c_alphaS
+- Pythia8_PDF260000_ISR_FSR_alphaS
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200_scale
+'410646':
+- Powheg_ME_PDF13165
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF260000_scale_type2
+- Pythia8_PDF260000_ISR_PDF
+- Pythia8_PDF260000_Var3c_alphaS
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200
+- Pythia8_PDF260000_ISR_FSR_alphaS
+'410647':
+- Powheg_ME_PDF13165
+- Powheg_ME_PDF260000_var
+- Powheg_ME_PDF90900_Hessian
+- Powheg_PDF260000_Nominal
+- Powheg_ME_PDF260000_scale_type2
+- Pythia8_PDF260000_ISR_PDF
+- Pythia8_PDF260000_Var3c_alphaS
+- Pythia8_PDF260000_non_singular
+- Powheg_ME_PDF25200
+- Pythia8_PDF260000_ISR_FSR_alphaS
+'410658':
+- Powheg_PDF260400_Nominal
+- Pythia8_PDF260400_Var3c_alphaS
+- Pythia8_PDF260400_ISR_PDF
+- Powheg_ME_PDF25410_scale
+- Powheg_ME_PDF260400_scale
+- Pythia8_PDF260400_ISR_FSR_alphaS
+- Powheg_ME_PDF92000_scale
+- Pythia8_PDF260400_non_singular
+- Powheg_ME_PDF13191_scale
+- Powheg_ME_PDF260400_var
+- Powheg_ME_PDF92000_var
+- Powheg_ME_PDF92000
+'410659':
+- Powheg_PDF260400_Nominal
+- Pythia8_PDF260400_Var3c_alphaS
+- Pythia8_PDF260400_ISR_PDF
+- Powheg_ME_PDF25410_scale
+- Powheg_ME_PDF260400_scale
+- Pythia8_PDF260400_ISR_FSR_alphaS
+- Powheg_ME_PDF92000_scale
+- Pythia8_PDF260400_non_singular
+- Powheg_ME_PDF13191_scale
+- Powheg_ME_PDF260400_var
+- Powheg_ME_PDF92000_var
+- Powheg_ME_PDF92000
+'413010':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413025':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413026':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413027':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF260400
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413028':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF260400
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413029':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413030':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413031':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413032':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413033':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413034':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413035':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413036':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413037':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413038':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413039':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413040':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413041':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413042':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413043':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413044':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413045':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413046':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413047':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413048':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413049':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413050':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413051':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413052':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413053':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413054':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413055':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413056':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413057':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413058':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413059':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413060':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413061':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413062':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413063':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413064':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413065':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413066':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413067':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413068':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413069':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413070':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413071':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413072':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413073':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413074':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413075':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413076':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413077':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413078':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413079':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413080':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413081':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413082':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413083':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413084':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413085':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413086':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413087':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413088':
+- Sherpa_ME_PDF260400_alphaS_NNPDF_NNLO
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF260400_scale_type2
+- Sherpa_ME_PDF13000
+- Sherpa_PDF260400_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF260400
+'413089':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413090':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413091':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413092':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413093':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413094':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413095':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'413096':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429831':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429832':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429833':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429834':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429835':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429836':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'429837':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'451492':
+- nominal
+'451493':
+- nominal
+'451494':
+- nominal
+'451495':
+- nominal
+'451509':
+- Default
+'451510':
+- Default
+'451511':
+- Default
+'451512':
+- Default
+'451513':
+- Default
+'451514':
+- Default
+'451515':
+- Default
+'451516':
+- Default
+'451517':
+- Default
+'451518':
+- Default
+'451519':
+- Default
+'451520':
+- Default
+'451521':
+- Default
+'451522':
+- Default
+'451523':
+- Default
+'451524':
+- Default
+'451525':
+- Default
+'451526':
+- Default
+'451527':
+- Default
+'451528':
+- Default
+'451529':
+- Default
+'500004':
+- Sherpa_ME_ONLY_PDF260000
+- Sherpa_ME_PDF260000_alphaS_NNPDF_NLO
+- Sherpa_Other_type4
+- Sherpa_ME_PDF13100
+- Sherpa_ME_PDF260000_var
+- Sherpa_ME_PDF260000_scale
+- Sherpa_ME_PDF25200
+- Sherpa_PDF260000_Nominal
+'500006':
+- Sherpa_ME_ONLY_PDF260000
+- Sherpa_ME_PDF260000_alphaS_NNPDF_NLO
+- Sherpa_Other_type4
+- Sherpa_ME_PDF13100
+- Sherpa_ME_PDF260000_var
+- Sherpa_ME_PDF260000_scale
+- Sherpa_ME_PDF25200
+- Sherpa_PDF260000_Nominal
+'500009':
+- Sherpa_ME_ONLY_PDF260000
+- Sherpa_ME_PDF260000_alphaS_NNPDF_NLO
+- Sherpa_Other_type4
+- Sherpa_ME_PDF13100
+- Sherpa_ME_PDF260000_var
+- Sherpa_ME_PDF260000_scale
+- Sherpa_ME_PDF25200
+- Sherpa_PDF260000_Nominal
+'500010':
+- Sherpa_ME_ONLY_PDF260000
+- Sherpa_ME_PDF260000_alphaS_NNPDF_NLO
+- Sherpa_Other_type4
+- Sherpa_ME_PDF13100
+- Sherpa_ME_PDF260000_var
+- Sherpa_ME_PDF260000_scale
+- Sherpa_ME_PDF25200
+- Sherpa_PDF260000_Nominal
+'500011':
+- Sherpa_ME_ONLY_PDF260000
+- Sherpa_ME_PDF260000_alphaS_NNPDF_NLO
+- Sherpa_Other_type4
+- Sherpa_ME_PDF13100
+- Sherpa_ME_PDF260000_var
+- Sherpa_ME_PDF260000_scale
+- Sherpa_ME_PDF25200
+- Sherpa_PDF260000_Nominal
+'500012':
+- Sherpa_ME_ONLY_PDF260000
+- Sherpa_ME_PDF260000_alphaS_NNPDF_NLO
+- Sherpa_Other_type4
+- Sherpa_ME_PDF13100
+- Sherpa_ME_PDF260000_var
+- Sherpa_ME_PDF260000_scale
+- Sherpa_ME_PDF25200
+- Sherpa_PDF260000_Nominal
+'700009':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other
+- Sherpa_ME_ONLY_PDF261000
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700011':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700012':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700013':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700014':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700015':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700016':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700017':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type3
+- Sherpa_ME_ONLY_PDF261000_type3
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700040':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700041':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700042':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700047':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700048':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700049':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+'700050':
+- Sherpa_PDF261000_Nominal
+- Sherpa_Other_type2
+- Sherpa_ME_ONLY_PDF261000_type4
+- Sherpa_ME_PDF91400_var
+- Sherpa_ME_PDF25300
+- Sherpa_ME_PDF13000
+- Sherpa_ME_PDF261000_var
+- Sherpa_ME_PDF261000_scale_type2
+- Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO

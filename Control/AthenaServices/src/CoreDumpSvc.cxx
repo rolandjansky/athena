@@ -80,6 +80,7 @@ namespace CoreDumpSvcHandler
   
   SigHandler_t oldSigHandler;         ///< old signal handlers
   bool callOldHandler(true);          ///< forward calls to old handlers?
+  bool dumpCoreFile(false);           ///< dump core file on exit?
   bool stackTrace(false);             ///< produce stack trace?
   bool fastStackTrace(false);         ///< produce fast stack trace using CxxUtils/Seal
   CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
@@ -119,7 +120,20 @@ namespace CoreDumpSvcHandler
     static std::atomic<int> inThreads = 0;
     ++inThreads;
 
-    unsigned int timeoutSeconds = static_cast<unsigned int>(round(coreDumpSvc->m_timeout * 1e-9));
+    const unsigned int timeoutSeconds = static_cast<unsigned int>(round(coreDumpSvc->m_timeout * 1e-9));
+
+    if ( sig == SIGALRM) {
+      if (dumpCoreFile) {
+        log() << "Received SIGALRM. Aborting job..." << std::endl;
+        // Restore default abort handler that should create a core file
+        Athena::Signal::revert (SIGABRT);
+        std::abort();
+      }
+      else {
+        log() << "Received SIGALRM. Terminating job..." << std::endl;
+        _exit(97);   // exit without raising any further signals
+      }
+    }
 
     // Only allow one thread past at a time.
     // Try to assume as little as possible about the state of the library.
@@ -139,10 +153,7 @@ namespace CoreDumpSvcHandler
 
     // setup timeout
     if ( timeoutSeconds > 0 && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
-      struct sigaction sa;
-      memset(&sa, 0, sizeof(sa));
-      sa.sa_handler = SIG_DFL;
-      if (sigaction(SIGALRM, &sa, nullptr) < 0) std::abort();
+      // This will trigger SIGALRM, which we then handle ourselves above
       alarm(timeoutSeconds);
     }
 
@@ -204,6 +215,14 @@ namespace CoreDumpSvcHandler
       while (inThreads > 0 && waits < timeoutSeconds) {
         nanosleep (&one_second, nullptr);
       }
+
+      if (dumpCoreFile) {
+        log() << "Aborting job... " << std::endl;
+        // Restore default abort handler that should create a core file
+        Athena::Signal::revert (SIGABRT);
+        std::abort();
+      }
+
       // Exit now on a fatal signal; otherwise, we can hang.
       _exit (99);
     }
@@ -221,6 +240,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   CoreDumpSvcHandler::coreDumpSvc = this;
   
   m_callOldHandler.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
+  m_dumpCoreFile.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_stackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fastStackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
@@ -239,6 +259,7 @@ CoreDumpSvc::~CoreDumpSvc()
 void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
+  CoreDumpSvcHandler::dumpCoreFile = m_dumpCoreFile;
   CoreDumpSvcHandler::stackTrace = m_stackTrace;
   CoreDumpSvcHandler::fastStackTrace = m_fastStackTrace;
 
@@ -356,7 +377,12 @@ void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& n
 //----------------------------------------------------------------------
 void CoreDumpSvc::print ATLAS_NOT_THREAD_SAFE ()
 {
-  ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() << ".");
+  // Print a FATAL message but don't use the MsgStream anymore once we crashed
+  CoreDumpSvcHandler::log() << name() << "   FATAL Caught fatal signal. Printing details to "
+                            << m_coreDumpStream.value()
+                            << (m_dumpCoreFile ? ". Will try to produce a core dump file on exit." : ".")
+                            << std::endl;
+
   CoreDumpSvcHandler::log() << dump() << std::flush;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ namespace {
 }
 
 
-Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoTubs* gtubs) const {
+Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoTubs* gtubs) {
     // get the dimensions
     double rMin       = gtubs->getRMin();
     double rMax       = gtubs->getRMax();
@@ -63,7 +63,7 @@ Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoTubs* gtubs)
     return new Trk::CylinderVolumeBounds(rMin,rMax,halflength);
 }
 
-Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoTube* gtube) const {
+Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoTube* gtube) {
     // get the dimensions
     double rMin       = gtube->getRMin();
     double rMax       = gtube->getRMax();
@@ -72,7 +72,7 @@ Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoTube* gtube)
     return new Trk::CylinderVolumeBounds(rMin,rMax,halflength);
 }
 
-Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoPcon* gpcon, std::vector<double>& zbounds) const {
+Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoPcon* gpcon, std::vector<double>& zbounds) {
   // get the pcon igredients ...
   unsigned int numberOfPlanes = gpcon->getNPlanes();
 //  std::cout << numberOfPlanes << " planes build this Pcon (pointer: " << gpcon <<") =================" << std::endl;
@@ -100,7 +100,7 @@ Trk::CylinderVolumeBounds* Trk::GeoShapeConverter::convert(const GeoPcon* gpcon,
   return new Trk::CylinderVolumeBounds(rMin,rMax,0.5*(zMax-zMin));
 }
 
-Trk::CuboidVolumeBounds* Trk::GeoShapeConverter::convert(const GeoBox* gbox) const {
+Trk::CuboidVolumeBounds* Trk::GeoShapeConverter::convert(const GeoBox* gbox) {
 
   double halfX = gbox->getXHalfLength();
   double halfY = gbox->getYHalfLength();

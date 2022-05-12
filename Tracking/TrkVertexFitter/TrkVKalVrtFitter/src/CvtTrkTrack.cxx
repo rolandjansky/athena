@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrkTrack parameters to internal VKalVrt parameters
@@ -139,10 +139,10 @@ namespace Trk{
 //
   Track* TrkVKalVrtFitter::CreateTrkTrack( const std::vector<double>& VKPerigee,
                                            const std::vector<double>& VKCov,
-                                           const IVKalState& istate) const
+                                           IVKalState& istate) const
   {
     assert(dynamic_cast<const State*> (&istate)!=nullptr);
-    const State& state = static_cast<const State&> (istate);
+    State& state = static_cast<State&> (istate);
     auto	perigee{CreatePerigee(0., 0., 0., VKPerigee, VKCov, state)};
 				      
     const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
@@ -165,7 +165,7 @@ namespace Trk{
    TrkVKalVrtFitter::CreatePerigee(double vX, double vY, double vZ,
      			  	            const std::vector<double>& VKPerigee,
                                             const std::vector<double>& VKCov,
-                                            const State& state) const
+                                            State& state) const
   {
 //
 // ------  Magnetic field access

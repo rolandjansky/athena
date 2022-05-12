@@ -1,12 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # file to simulate the HypoTool configuration of the signatures
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 def TestHypoTool(name, prop, threshold_value):
-    from DecisionHandling.DecisionHandlingConf import HLTTest__TestHypoTool
     value  =  int(threshold_value)*1000
-    UseThisLinkName="initialRoI"
-    h = HLTTest__TestHypoTool(name, Threshold=value, Property=prop, LinkName=UseThisLinkName)
-    return h
+    UseThisLinkName="initialRoI"   
+    HLTTest__TestHypoTool=CompFactory.getComp("HLTTest::TestHypoTool") 
+    return HLTTest__TestHypoTool(name, Threshold=value, Property=prop, LinkName=UseThisLinkName)
 
 def MuTestHypoTool(chainDict):
     name = chainDict['chainName']

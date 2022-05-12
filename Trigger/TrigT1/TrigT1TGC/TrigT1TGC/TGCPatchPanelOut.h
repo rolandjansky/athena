@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCPatchPanelOut_hh
@@ -21,7 +21,8 @@ class TGCPatchPanelOut {
   TGCPatchPanelOut(const TGCPatchPanelOut& right) = default;
   TGCPatchPanelOut& operator=(const TGCPatchPanelOut& right);
 
-  TGCHitPattern* getHitPattern(int connector) const;
+  const TGCHitPattern* getHitPattern(int connector) const;
+  TGCHitPattern* getHitPattern(int connector);
   void setHitPattern(int connector, TGCHitPattern* sig);
 
   const TGCPatchPanel* getOrigin() const;
@@ -42,7 +43,13 @@ class TGCPatchPanelOut {
 
 
 inline
-TGCHitPattern* TGCPatchPanelOut::getHitPattern(int connector) const
+const TGCHitPattern* TGCPatchPanelOut::getHitPattern(int connector) const
+{
+  return m_signalPattern[connector];
+}
+
+inline
+TGCHitPattern* TGCPatchPanelOut::getHitPattern(int connector)
 {
   return m_signalPattern[connector];
 }

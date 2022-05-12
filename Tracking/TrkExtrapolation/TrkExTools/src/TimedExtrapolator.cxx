@@ -146,8 +146,7 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
 }
 
 // destructor
-Trk::TimedExtrapolator::~TimedExtrapolator() {
-}
+Trk::TimedExtrapolator::~TimedExtrapolator() = default;
 
 // Athena standard methods
 // initialize
@@ -277,7 +276,7 @@ Trk::TimedExtrapolator::finalize() {
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackParameters *
+std::unique_ptr<const Trk::TrackParameters>
 Trk::TimedExtrapolator::extrapolateWithPathLimit(
   const Trk::TrackParameters &parm,
   Trk::PathLimit &pathLim, Trk::TimeLimit &timeLim,
@@ -322,8 +321,9 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
   }
 
   // extrapolate to destination volume boundary with path limit
-  const Trk::TrackParameters *returnParms = extrapolateToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID,
-                                                                             boundaryVol);
+  std::unique_ptr<const Trk::TrackParameters> returnParms =
+    extrapolateToVolumeWithPathLimit(
+      cache, parm, timeLim, dir, particle, nextGeoID, boundaryVol);
 
   // save actual path on output
   if (cache.m_path.x0Collected > 0.) {
@@ -342,17 +342,20 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
   std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
   std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
   for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
-    if(garbageIter->first == returnParms) {
-      auto *ret=returnParms->clone();
-      ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
-      returnParms=ret;
+    if(garbageIter->first == returnParms.get()) {
+      auto ret=returnParms->uniqueClone();
+      ATH_MSG_DEBUG("  [+] garbage - at "
+                    << positionOutput(garbageIter->first->position())
+                    << " parm=" << garbageIter->first
+                    << " is the return param. Cloning to" << ret.get());
+      returnParms = std::move(ret);
     }
   }
 
   return returnParms;
 }
 
-const Trk::TrackParameters *
+std::unique_ptr<const Trk::TrackParameters>
 Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   Trk::TimedExtrapolator::Cache &cache,
   const Trk::TrackParameters &parm,
@@ -366,7 +369,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   //    B)  boundary parameters (at destination volume boundary)
 
   // initialize the return parameters vector
-  const Trk::TrackParameters *returnParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> returnParameters = nullptr;
   const Trk::TrackParameters *currPar = &parm;
   const Trk::TrackingVolume *currVol = nullptr;
   const Trk::TrackingVolume *nextVol = nullptr;
@@ -377,7 +380,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   ATH_MSG_DEBUG("  [+] start extrapolateToVolumeWithPathLimit - at " << positionOutput(parm.position())<<" parm="<<&parm);
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
-    return &parm;
+    return parm.uniqueClone();
   }
 
   // if (cache.m_lastMaterialLayer && !cache.m_lastMaterialLayer->isOnLayer(parm.position())) {
@@ -421,7 +424,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     if (!nextVol) {
       ATH_MSG_DEBUG("  [+] Word boundary reached        - at " << positionOutput(currPar->position()));
       nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-      return currPar->clone();
+      return currPar->uniqueClone();
     }
     cache.m_currentStatic = nextVol;
     updateStatic = true;
@@ -781,7 +784,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                         particle);
         } else {
           ATH_MSG_VERBOSE("  [o] Collecting intersection with active input layer.");
-          cache.m_hitVector->push_back(Trk::HitInfo(currPar->clone(), timeLim.time, cache.m_navigLays[i].second->layerType(), 0.));
+          cache.m_hitVector->push_back(Trk::HitInfo(currPar->uniqueClone(), timeLim.time, cache.m_navigLays[i].second->layerType(), 0.));
         }
       } // ------------------------------------------------- Fatras mode off -----------------------------------
     }
@@ -847,9 +850,11 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
         const Trk::Material *extMprop = cache.m_path.process > 100 ? cache.m_currentDense : nullptr;
 
-        const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                                                   nextPar->momentum(), particle, cache.m_path.process,
-                                                                   extMprop);
+        const Trk::TrackParameters* iPar =
+          m_updators[0]
+            ->interact(
+              timeLim.time, nextPar->position(), nextPar->momentum(), particle, cache.m_path.process, extMprop)
+            .release();
 
         if (!iPar) {
           return returnParameters;
@@ -866,8 +871,10 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
       // process interaction only if creation of secondaries allowed
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
         // trigger presampled interaction
-        const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                                                   nextPar->momentum(), particle, timeLim.process);
+        const Trk::TrackParameters* iPar =
+          m_updators[0]
+            ->interact(timeLim.time, nextPar->position(), nextPar->momentum(), particle, timeLim.process)
+            .release();
         if (!iPar) {
           return returnParameters;
         }
@@ -890,16 +897,23 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     unsigned int iSol = 0;
     while (iSol < solutions.size()) {
       if (solutions[iSol] < iDest) {
-        return nextPar->clone();
+        return nextPar->uniqueClone();
       } if (solutions[iSol] < iDest + cache.m_staticBoundaries.size()) {
         // material attached ?
         const Trk::Layer *mb = cache.m_navigSurfs[solutions[iSol]].first->materialLayer();
         if (mb && m_includeMaterialEffects) {
           if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPar->position())) {
             const ITimedMatEffUpdator *currentUpdator = subMaterialEffectsUpdator(*cache.m_currentStatic);
-            nextPar = currentUpdator ?
-                      currentUpdator->update(nextPar, *mb, timeLim, cache.m_path,
-                                             cache.m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+            nextPar = currentUpdator ? currentUpdator
+                                         ->update(nextPar,
+                                                  *mb,
+                                                  timeLim,
+                                                  cache.m_path,
+                                                  cache.m_currentStatic->geometrySignature(),
+                                                  dir,
+                                                  particle)
+                                         .release()
+                                     : nextPar;
 
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
@@ -943,7 +957,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                             nextPar->position()) << ", timed at " << timeLim.time);
             nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
             if (!destVol) {
-              return nextPar->clone();
+              return nextPar->uniqueClone();
             }
           }
           // next volume found and parameters are at boundary
@@ -952,7 +966,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
             ATH_MSG_DEBUG("  [+] Crossing position is         - at " << positionOutput(nextPar->position()));
             if (!destVol && cache.m_currentStatic->geometrySignature() != nextVol->geometrySignature()) {
               nextGeoID = nextVol->geometrySignature();
-              return nextPar->clone();
+              return nextPar->uniqueClone();
             }
           }
           return extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
@@ -978,7 +992,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           double pIn = nextPar->momentum().mag();
           nextPar = currentUpdator ? currentUpdator->update(nextPar, *nextLayer, timeLim, cache.m_path,
                                                             cache.m_currentStatic->geometrySignature(), dir,
-                                                            particle) : nextPar;
+                                                            particle).release() :  nextPar;
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
             cache.m_parametersAtBoundary.resetBoundaryInformation();
@@ -998,7 +1012,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
             overlapSearch(cache,*m_subPropagators[0], *currPar, *nextPar, *nextLayer, timeLim.time, dir, true, particle);
           } else if (nextLayer->layerType() > 0 && nextLayer->isOnLayer(nextPar->position())) {
             ATH_MSG_VERBOSE("  [o] Collecting intersection with active layer.");
-            cache.m_hitVector->push_back(Trk::HitInfo(nextPar->clone(), timeLim.time, nextLayer->layerType(), 0.));
+            cache.m_hitVector->push_back(Trk::HitInfo(nextPar->uniqueClone(), timeLim.time, nextLayer->layerType(), 0.));
           }
         } // ------------------------------------------------- Fatras mode off -----------------------------------
 
@@ -1172,7 +1186,7 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
 
   const Trk::TrackParameters *detParameters = nullptr;
   // the temporary vector (might have to be ordered)
-  std::vector<const Trk::TrackParameters *> detParametersOnLayer;
+  std::vector<const Trk::TrackParameters*> detParametersOnLayer;
   bool reorderDetParametersOnLayer = false;
   // the first test for the detector surface to be hit (false test)
   // - only do this if the parameters aren't on the surface
@@ -1289,7 +1303,11 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
   // now fill them into the parameter vector -------> hit creation done <----------------------
   for (; parsOnLayerIter != parsOnLayerIterEnd; ++parsOnLayerIter) {
     if (cache.m_hitVector) {
-      cache.m_hitVector->push_back(Trk::HitInfo(*parsOnLayerIter, time, 0, 0.));
+      cache.m_hitVector->push_back(Trk::HitInfo(
+        std::unique_ptr<const Trk::TrackParameters>(*parsOnLayerIter),
+         time,
+         0,
+         0.));
     }
   }
 }
@@ -1348,7 +1366,7 @@ Trk::TimedExtrapolator::validationAction() const {
   // record the navigator validation information
 }
 
-const Trk::TrackParameters *
+std::unique_ptr<const Trk::TrackParameters>
 Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameters &parm,
                                                        Trk::PathLimit &pathLim, Trk::TimeLimit &timeLim,
                                                        Trk::PropDirection dir,
@@ -1389,8 +1407,9 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
   cache.m_particleMass = s_particleMasses.mass[particle];
 
   // extrapolate to destination volume boundary with path limit
-  const Trk::TrackParameters *returnParms = transportToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID,
-                                                                           boundaryVol);
+  std::unique_ptr<const Trk::TrackParameters> returnParms =
+    transportToVolumeWithPathLimit(
+      cache, parm, timeLim, dir, particle, nextGeoID, boundaryVol);
 
   // save actual path on output
   if (cache.m_path.x0Collected > 0.) {
@@ -1403,30 +1422,35 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
   std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
   std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
   for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
-    if(garbageIter->first == returnParms) {
-      auto *ret=returnParms->clone();
-      ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
-      returnParms=ret;
+    if(garbageIter->first == returnParms.get()) {
+      auto ret=returnParms->uniqueClone();
+      ATH_MSG_DEBUG("  [+] garbage - at "
+                    << positionOutput(garbageIter->first->position())
+                    << " parm=" << garbageIter->first
+                    << " is the return param. Cloning to" << ret.get());
+      returnParms=std::move(ret);
     }
   }
 
   return returnParms;
 }
 
-const Trk::TrackParameters *
-Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::Cache &cache,
-                                                       const Trk::TrackParameters &parm,
-                                                       Trk::TimeLimit &timeLim,
-                                                       Trk::PropDirection dir,
-                                                       Trk::ParticleHypothesis particle,
-                                                       Trk::GeometrySignature &nextGeoID,
-                                                       const Trk::TrackingVolume *destVol) const {
+std::unique_ptr<const Trk::TrackParameters>
+Trk::TimedExtrapolator::transportToVolumeWithPathLimit(
+  Trk::TimedExtrapolator::Cache& cache,
+  const Trk::TrackParameters& parm,
+  Trk::TimeLimit& timeLim,
+  Trk::PropDirection dir,
+  Trk::ParticleHypothesis particle,
+  Trk::GeometrySignature& nextGeoID,
+  const Trk::TrackingVolume* destVol) const
+{
   // returns:
   //    A)  curvilinear track parameters if path or time limit reached
   //    B)  boundary parameters (at destination volume boundary)
 
   // initialize the return parameters vector
-  const Trk::TrackParameters *returnParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> returnParameters = nullptr;
   const Trk::TrackParameters *currPar = &parm;
   const Trk::TrackingVolume *currVol = nullptr;
   const Trk::TrackingVolume *nextVol = nullptr;
@@ -1437,7 +1461,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
   const EventContext& ctx = Gaudi::Hive::currentContext();
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
-    return &parm;
+    return parm.uniqueClone();
   }
 
   // bool resolveActive = m_resolveActive;
@@ -1501,7 +1525,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
       // no next volume found --- end of the world
       ATH_MSG_DEBUG("  [+] Word boundary reached        - at " << positionOutput(currPar->position()));
       nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-      return currPar;
+      return currPar->uniqueClone();
     }
   }
 
@@ -1608,7 +1632,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
                       currPar->position()) << ", timed at " << cache.m_time);
       nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
       // if (!destVol) { return currPar;}
-      return currPar;
+      return currPar->uniqueClone();
 
   }
 
@@ -1936,9 +1960,10 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
       // process interaction only if creation of secondaries allowed
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
-        const Trk::TrackParameters *nextPar = m_updators[0]->interact(cache.m_time, nextPos,
-                                                                      currPar->momentum(), particle, process,
-                                                                      cache.m_currentDense);
+        const Trk::TrackParameters* nextPar =
+          m_updators[0]
+            ->interact(cache.m_time, nextPos, currPar->momentum(), particle, process, cache.m_currentDense)
+            .release();
 
         if (nextPar) {
           ATH_MSG_DEBUG(" [!] WARNING: particle survives the interaction " << process);
@@ -1971,16 +1996,20 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
     throwIntoGarbageBin(cache,nextPar);
 
     if (sols[is] < iDest) {      // destination volume (most often, subdetector boundary)
-      return nextPar->clone();
+      return nextPar->uniqueClone();
     } if (sols[is] < iDest + cache.m_trStaticBounds.size()) {     // tracking geometry frame
       // material attached ?
       const Trk::Layer *mb = cache.m_trStaticBounds[sols[is] - iDest].surface->materialLayer();
       if (mb && m_includeMaterialEffects) {
         if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPos)) {
           const ITimedMatEffUpdator *currentUpdator = subMaterialEffectsUpdator(*cache.m_currentStatic);
-          nextPar = currentUpdator ?
-                    currentUpdator->update(nextPar, *mb, timeLim, cache.m_path,
-                                           cache.m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+          nextPar =
+            currentUpdator
+              ? currentUpdator
+                  ->update(
+                    nextPar, *mb, timeLim, cache.m_path, cache.m_currentStatic->geometrySignature(), dir, particle)
+                  .release()
+              : nextPar;
 
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
@@ -2022,8 +2051,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
           ATH_MSG_DEBUG("  [+] World boundary reached        - at " << positionOutput(
                           nextPar->position()) << ", timed at " << cache.m_time);
           nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-          // if (!destVol) { return nextPar->clone();}
-          return nextPar->clone();
+          return nextPar->uniqueClone();
         }
         // next volume found and parameters are at boundary
         if (nextVol /*&& nextPar nextPar is dereferenced anyway*/) {
@@ -2031,7 +2059,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
           ATH_MSG_DEBUG("  [+] Crossing position is         - at " << positionOutput(nextPar->position()));
           if (!destVol && cache.m_currentStatic->geometrySignature() != nextVol->geometrySignature()) {
             nextGeoID = nextVol->geometrySignature();
-            return nextPar->clone();
+            return nextPar->uniqueClone();
           }
         }
         cache.m_parametersAtBoundary.boundaryInformation(nextVol, nextPar, nextPar);
@@ -2061,9 +2089,16 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
       if (matUp && m_includeMaterialEffects) {
         const ITimedMatEffUpdator *currentUpdator = subMaterialEffectsUpdator(*cache.m_currentStatic);
 
-        nextPar = currentUpdator ?
-                  currentUpdator->update(nextPar, *nextLayer, timeLim, cache.m_path,
-                                         cache.m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+        nextPar = currentUpdator ? currentUpdator
+                                     ->update(nextPar,
+                                              *nextLayer,
+                                              timeLim,
+                                              cache.m_path,
+                                              cache.m_currentStatic->geometrySignature(),
+                                              dir,
+                                              particle)
+                                     .release()
+                                 : nextPar;
 
         if (!nextPar) {
           ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
@@ -2119,10 +2154,9 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
     nextPar->position());
 
   if (nextPar) {
-    return nextPar->clone();
+    return nextPar->uniqueClone();
   }
     return nullptr;
-
 }
 
 Trk::BoundaryTrackParameters
@@ -2179,7 +2213,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
     if (cache.m_hitVector && binIDMat) {
       // std::cout <<"id info at the alignable volume entry:"<<binIDMat->second<<std::endl;
       if (binIDMat->second > 0) {
-        cache.m_hitVector->push_back(Trk::HitInfo(currPar->clone(), timeLim.time, binIDMat->second, 0.));
+        cache.m_hitVector->push_back(Trk::HitInfo(currPar->uniqueClone(), timeLim.time, binIDMat->second, 0.));
       }
     }
 
@@ -2356,9 +2390,11 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
       // process interaction only if creation of secondaries allowed
       if (m_caloMsSecondary) {
-        const Trk::TrackParameters *nextPar = m_updators[0]->interact(cache.m_time, nextPos,
-                                                                      currPar->momentum(), particle, process, currMat);
-        throwIntoGarbageBin(cache,nextPar);
+        const Trk::TrackParameters* nextPar =
+          m_updators[0]
+            ->interact(cache.m_time, nextPos, currPar->momentum(), particle, process, currMat)
+            .release();
+        throwIntoGarbageBin(cache, nextPar);
 
         if (nextPar) {
           ATH_MSG_DEBUG(" [!] WARNING: particle survives the interaction " << process);
@@ -2394,8 +2430,8 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
       if (cache.m_hitVector && iis[is].identifier > 0) {      // save entry to the next layer
         ATH_MSG_VERBOSE("active layer entry:" << currLay << " at R,z:" << nextPos.perp() << "," << nextPos.z());
-        Trk::CurvilinearParameters *nextPar = new Trk::CurvilinearParameters(nextPos, currPar->momentum(), 0.);
-        cache.m_hitVector->push_back(Trk::HitInfo(nextPar, timeLim.time, iis[is].identifier, 0.));
+        auto nextPar = std::make_unique<Trk::CurvilinearParameters>(nextPos, currPar->momentum(), 0.);
+        cache.m_hitVector->push_back(Trk::HitInfo(std::move(nextPar), timeLim.time, iis[is].identifier, 0.));
       }
     }
   }   // end loop over intersections
@@ -2405,7 +2441,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
   if (cache.m_hitVector) {      // save volume exit /active layer only ?
     ATH_MSG_VERBOSE("active layer/volume exit:" << currLay << " at R,z:" << nextPos.perp() << "," << nextPos.z());
     if (binIDMat and(binIDMat->second > 0)) {
-      cache.m_hitVector->push_back(Trk::HitInfo(nextPar->clone(), timeLim.time, currLay, 0.));
+      cache.m_hitVector->push_back(Trk::HitInfo(nextPar->uniqueClone(), timeLim.time, currLay, 0.));
     }
   }
 
@@ -2506,7 +2542,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
     if (binMat) {
       const Trk::IdentifiedMaterial *binIDMat = binMat->material(currPar->position());
       if (binIDMat->second > 0) {
-        cache.m_hitVector->push_back(Trk::HitInfo(currPar->clone(), timeLim.time, binIDMat->second, 0.));
+        cache.m_hitVector->push_back(Trk::HitInfo(currPar->uniqueClone(), timeLim.time, binIDMat->second, 0.));
       }
     }
   }
@@ -2583,8 +2619,11 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
 
         const Trk::TrackParameters *iPar = nullptr;
         if (nextPar) {
-          iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                         nextPar->momentum(), particle, cache.m_path.process, extMprop);
+          iPar =
+            m_updators[0]
+              ->interact(
+                timeLim.time, nextPar->position(), nextPar->momentum(), particle, cache.m_path.process, extMprop)
+              .release();
         }
 
         if (!iPar) {
@@ -2609,8 +2648,8 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
       // process interaction only if creation of secondaries allowed
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
         // trigger presampled interaction
-        const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                                                   nextPar->momentum(), particle, timeLim.process);
+        const Trk::TrackParameters* iPar = m_updators[0]->interact(
+          timeLim.time, nextPar->position(), nextPar->momentum(), particle, timeLim.process).release();
         if (!iPar) {
           return {nullptr, nullptr, nullptr};
         }
@@ -2656,7 +2695,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
                 // double s = (nextPar->position()-m_identifiedParameters->back().first->position()).mag();
                 // if (s>0.001) m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int>
                 // (nextPar->clone(), -binIDMat->second));
-                cache.m_hitVector->push_back(Trk::HitInfo(nextPar->clone(), timeLim.time, -binIDMat->second, 0.));
+                cache.m_hitVector->push_back(Trk::HitInfo(nextPar->uniqueClone(), timeLim.time, -binIDMat->second, 0.));
               }
             }
           }

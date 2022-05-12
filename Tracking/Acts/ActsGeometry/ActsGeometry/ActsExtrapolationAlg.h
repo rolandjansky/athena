@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
@@ -7,6 +7,7 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
@@ -42,7 +43,6 @@ public:
   ActsExtrapolationAlg (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize() override;
   StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
 
 private:
   ServiceHandle<IActsPropStepRootWriterSvc> m_propStepWriterSvc;
@@ -61,9 +61,9 @@ private:
   Gaudi::Property<bool> m_writePropStep{this, "WritePropStep", false, "Write propagation step"};
   ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
 
-  mutable std::mutex m_writeMutex{};
-  mutable std::unique_ptr<std::ofstream> m_objOut;
-  mutable size_t m_objVtxCount{0};
+  // Mutex and members for optional debugging output
+  mutable std::mutex m_writeMutex;
+  mutable size_t m_objVtxCount ATLAS_THREAD_SAFE {0};
 
   void writeStepsObj(std::vector<Acts::detail::Step> steps) const;
 

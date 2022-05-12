@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -7,10 +7,6 @@
 #include <algorithm>
 #include <iterator> // need it for advance
 
-
-
-//#include <boost/cstdint.hpp>
-//#include <stdint.h>
 #include <boost/lexical_cast.hpp>
 
 #include "TrigNavStructure/TypelessHolder.h"
@@ -34,15 +30,7 @@ std::recursive_mutex TrigNavStructure::s_rmutex;
 
 
 TrigNavStructure::~TrigNavStructure() {
-#ifndef XAOD_STANDALONE
-  for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
-    EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
-    m_factory.get(dummyContext)->reset();
-  }
-#else
-  m_factory.reset();
-#endif
-
+  for (auto& factory : m_factory) factory.reset();
 }
 
 /*****************************************************************************
@@ -769,27 +757,13 @@ unsigned int TrigNavStructure::copyAllFeatures( const TriggerElement* sourceTE, 
  *****************************************************************************/
 void TrigNavStructure::reset(bool inFinalize) {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-#ifndef XAOD_STANDALONE
   if (inFinalize) {
-    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
-      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
-      m_factory.get(dummyContext)->reset();
-      m_holderstorage.get(dummyContext)->reset();
-    }
+    for (auto& factory : m_factory) factory.reset();
+    for (auto& holder : m_holderstorage) holder.reset();
   } else {
     getFactory().reset();
     getHolderStorage().reset();
   }
-#else
-  //  std::cerr << "resetting" << std::endl;
-  if (inFinalize) { // Note: Makes no difference for analysis base
-    m_factory.reset();
-    m_holderstorage.reset();
-  } else {
-    m_factory.reset();
-    m_holderstorage.reset(); 
-  }
-#endif
 }
 
 
@@ -812,8 +786,8 @@ TriggerElement::FeatureAccessHelper TrigNavStructure::getFeature(const TriggerEl
 
 
   TriggerElement::FeatureVec features;
-  bool single = true; bool cache_rec = false; bool recursively = false;
-  bool status = getFeatureAccessors(te, clid,index_or_label,single,features,cache_rec, recursively);
+  bool single = true; bool recursively = false;
+  bool status = getFeatureAccessors(te, clid,index_or_label,single,features,recursively);
 
   if(status && !features.empty()){
     return features.front();
@@ -826,8 +800,8 @@ TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(cons
 									    const index_or_label_type& index_or_label, const TriggerElement*& sourceTE) const {  
 
   TriggerElement::FeatureVec features;
-  bool single = true; bool cache_rec = false; bool recursively = true;
-  bool status = getFeatureAccessors(startTE, clid,index_or_label,single,features,cache_rec, recursively,sourceTE);
+  bool single = true; bool recursively = true;
+  bool status = getFeatureAccessors(startTE, clid,index_or_label,single,features,recursively,sourceTE);
 
   if(status && !features.empty()){
     return features.front();
@@ -839,16 +813,12 @@ bool TrigNavStructure::getFeatureAccessorsSingleTE( const TriggerElement* te, cl
 						    const index_or_label_type& index_or_label,
 						    bool only_single_feature,
 						    TriggerElement::FeatureVec& features,
-						    bool with_cache_recording,
 						    const TriggerElement*& source,
 						    std::string& sourcelabel ) const {
 
   // ATH_MSG_VERBOSE("getFeatureAccessorsSingleTE: looking for:" << (only_single_feature ? "one object" : "many objects" ) << " of CLID: " << clid
   // 		  << " label: \"" << label << "\"" << " starting from TE: " << te->getId());
 
-  //remove unused warning
-  (void)(with_cache_recording);
-  
   int size = te->getFeatureAccessHelpers().size();
   
   // loop the feature access helper in order depending of type of request (i.e. if single featyure needed then loop from back, if all then loop from the front)
@@ -875,12 +845,11 @@ bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_t
 					    const index_or_label_type& index_or_label,
 					    bool only_single_feature,
 					    TriggerElement::FeatureVec& features,
-					    bool with_cache_recording,
 					    bool travel_backward_recursively,
 					    const TriggerElement*& source,
 					    std::string& sourcelabel ) const {
 
-  bool singleTEstatus = getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,with_cache_recording,source,sourcelabel);
+  bool singleTEstatus = getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,source,sourcelabel);
 
    if(!singleTEstatus){
      // MLOG(WARNING) << "getFeatureAccessorsSingleTE() returned false" << endmsg;
@@ -909,9 +878,9 @@ bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_t
     TriggerElement::FeatureVec features_in_branch;
 
     recursion_status = recursion_status && getFeatureAccessors( predecessor, clid, index_or_label,
-								only_single_feature, features_in_branch,
-                                                                with_cache_recording, travel_backward_recursively,
-								source, sourcelabel);
+                                                                only_single_feature, features_in_branch,
+                                                                travel_backward_recursively,
+                                                                source, sourcelabel);
     features.insert(features.end(),  features_in_branch.begin(), features_in_branch.end());
   }
     
@@ -958,50 +927,4 @@ const BaseHolder* TrigNavStructure::getHolder(const TriggerElement::FeatureAcces
   const TrigHolderStructure& holderstorage = getHolderStorage();
 
   return holderstorage.getHolderForFeature(fea);
-}
-
-
-TriggerElementFactory& TrigNavStructure::getFactory() {
-#ifndef XAOD_STANDALONE
-  return *(m_factory.get());
-#else
-  return m_factory;
-#endif
-}
-
-
-const TriggerElementFactory& TrigNavStructure::getFactory() const {
-#ifndef XAOD_STANDALONE
-  return *(m_factory.get());
-#else
-  return m_factory;
-#endif
-}
-
-
-TrigHolderStructure& TrigNavStructure::getHolderStorage() {
-#ifndef XAOD_STANDALONE
-  return *(m_holderstorage.get());
-#else
-  return m_holderstorage;
-#endif
-}
-
-
-const TrigHolderStructure& TrigNavStructure::getHolderStorage() const {
-#ifndef XAOD_STANDALONE
-  return *(m_holderstorage.get());
-#else
-  return m_holderstorage;
-#endif
-}
-
-
-std::recursive_mutex& TrigNavStructure::getMutex() {
-  return s_rmutex;
-}
-
-
-std::recursive_mutex& TrigNavStructure::getMutex() const {
-  return s_rmutex; // Note: Mutable
 }

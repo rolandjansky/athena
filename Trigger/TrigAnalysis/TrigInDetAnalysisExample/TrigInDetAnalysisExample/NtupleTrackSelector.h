@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:06:38 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -22,6 +22,8 @@ class NtupleTrackSelector : public TrackSelector {
 public:
 
   NtupleTrackSelector( TrackFilter* selector=0 ) : TrackSelector(selector) {  } 
+
+  virtual TrackSelector* clone() override { return new NtupleTrackSelector(*this); } 
 
   /// add single Track
   void selectTrack( TIDA::Track* track ) {     
@@ -67,7 +69,7 @@ public:
 
   /// the ntple selector manages the tracks itself, so we have to do an explicit 
   /// delete for each one to prevent memory leaking
-  virtual void clear() {  
+  virtual void clear() override {
     for ( int i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; 
     m_tracks.clear(); 
   }

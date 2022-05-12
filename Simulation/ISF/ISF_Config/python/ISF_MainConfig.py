@@ -940,31 +940,3 @@ def getKernel_G4ZDecayProducts_FatrasID_FastCalo (name="ISF_Kernel_G4ZDecayProdu
     kwargs.setdefault("MSSimulationSelectors"       , GlobalStickyG4ZDecayProductsSelector + [ 'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ] )
     return getKernel_GenericSimulator(name, **kwargs)
-
-
-############## Simulator: ParametricSimulation ###############
-def getKernel_ParametricSimulation(name="ISF_Kernel_ParametricSimulation", **kwargs):
-    kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParametricSimulationSelector' ] )
-    # set the simFlags accordingly (TODO: is this even needed?)
-    from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "ParametricSimulation"
-    return getKernel_GenericSimulatorNoG4(name, **kwargs)
-
-
-# This does not work yet: if the ISF_Flags are set via a preExec it mixes
-#       up the initialization order and simulators do not get configured
-#       properly!
-############### Simulator: FromJobProperties ###############
-#def getKernel_FromJobProperties (name="ISF_Kernel_FromJobProperties", **kwargs):
-#    from ISF_Config.ISF_jobProperties import ISF_Flags
-#    kwargs.setdefault("BeamPipeSimulationSelectors" , ISF_Flags.RoutingChainBeamPipe() )
-#    kwargs.setdefault("IDSimulationSelectors"       , ISF_Flags.RoutingChainID() )
-#    kwargs.setdefault("CaloSimulationSelectors"     , ISF_Flags.RoutingChainCalo() )
-#    kwargs.setdefault("MSSimulationSelectors"       , ISF_Flags.RoutingChainMS() )
-#    kwargs.setdefault("CavernSimulationSelectors"   , ISF_Flags.RoutingChainCavern() )
-#
-#    return getKernel_GenericSimulator(name, **kwargs)

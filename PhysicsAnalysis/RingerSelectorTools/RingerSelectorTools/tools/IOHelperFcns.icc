@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOHelperFcns.icc 694257 2015-09-10 22:45:27Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_TOOLS_IOHELPERFCNS_ICC
 #define RINGERSELECTORTOOLS_TOOLS_IOHELPERFCNS_ICC
 
@@ -12,6 +11,9 @@
 #include <string>
 #include <iostream>
 #include <type_traits>
+
+// Athena includes:
+#include "CxxUtils/checker_macros.h"
 
 // ROOT includes:
 #include <TFile.h>
@@ -80,15 +82,13 @@ void writeVar(TDirectory* dir, const char* varName, InputType& var)
           typename std::remove_cv<WrittenType>::type
           >::type NonConstWrittenType;
   // Create the non constant variable to write:
-  NonConstWrittenType &writtenVar = const_cast<NonConstWrittenType&>(
-                                    static_cast<WrittenType&>(var));
+  NonConstWrittenType &writtenVar ATLAS_THREAD_SAFE =
+    const_cast<NonConstWrittenType&>(static_cast<WrittenType&>(var));
   // Check if directory is in good status
   checkDir(dir);
-  Int_t prevMessageLevel = gErrorIgnoreLevel;
-  gErrorIgnoreLevel = kBreak;
+
   // Try to write variable directly:
   if ( !dir->WriteObject( &writtenVar, varName ) ){
-    gErrorIgnoreLevel = prevMessageLevel;
     // It didn't work, so attempt to write it using std::vector
     std::vector< NonConstWrittenType > vec(1, writtenVar);
     if ( !dir->WriteObject( &vec, (std::string(varName) + "__Vec__").c_str() ) )
@@ -98,7 +98,6 @@ void writeVar(TDirectory* dir, const char* varName, InputType& var)
           varName );
     }
   }
-  gErrorIgnoreLevel = prevMessageLevel;
 }
 
 } // namespace IOHelperFcns

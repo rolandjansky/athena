@@ -22,6 +22,9 @@ namespace xAOD{
       AUX_VARIABLE(globalPhi);
       AUX_VARIABLE(eta);
       AUX_VARIABLE(phi);
+      AUX_VARIABLE(tobEtScale);
+      AUX_VARIABLE(isTOB);
+      
   }
 
 }//end of namespace xAOD

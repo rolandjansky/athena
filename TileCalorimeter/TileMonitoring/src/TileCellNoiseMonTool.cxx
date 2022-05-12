@@ -18,8 +18,8 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileCellNoiseMonTool.h"
-#include "TileMonitoring/PairBuilder.h"
+#include "TileCellNoiseMonTool.h"
+#include "PairBuilder.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 

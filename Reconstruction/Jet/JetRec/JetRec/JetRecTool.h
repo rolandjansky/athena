@@ -1,7 +1,7 @@
 // JetRecTool.h. This file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +57,6 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetPseudojetRetriever.h"
 #include "JetInterface/IJetConsumer.h"
-#include "TStopwatch.h"
 #include "AsgDataHandles/ReadHandleKeyArray.h"
 #include "AsgDataHandles/WriteHandleKey.h"
 #include "JetEDM/PseudoJetVector.h"
@@ -131,7 +130,6 @@ private:
   ToolHandleArray<IJetModifier> m_modifiers {this, "JetModifiers", {}};
   ToolHandleArray<IJetConsumer> m_consumers {this, "JetConsumers", {}};
   bool m_trigger;
-  int m_timer;
 
   // Cached state.
   int m_initCount;
@@ -146,17 +144,6 @@ private:
 
   // trigger hacks
   const xAOD::JetContainer* m_trigInputJetsForGrooming; // used in trigger context only
-
-  // Clocks.
-  mutable unsigned int m_nevt;
-  mutable TStopwatch m_totclock;
-  mutable TStopwatch m_inpclock;
-  mutable TStopwatch m_actclock;
-  mutable TStopwatch m_modclock;
-  mutable TStopwatch m_conclock;
-  mutable TStopwatch m_pjcclock;
-  mutable std::vector<TStopwatch> m_modclocks;
-  mutable std::vector<TStopwatch> m_conclocks;
 
 #if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};

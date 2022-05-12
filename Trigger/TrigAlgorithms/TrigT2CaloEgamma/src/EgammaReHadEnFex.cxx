@@ -88,7 +88,7 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
   // Next TILECAL
 
-  TileCellCollection seltile;
+  std::vector<const TileCell*> seltile;
   ATH_CHECK( m_dataSvc->loadCollections(context, roi, seltile) );
 
   for (const TileCell* tilecell : seltile) { // loop over cells

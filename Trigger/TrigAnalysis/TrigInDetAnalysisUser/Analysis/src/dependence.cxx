@@ -4,7 +4,7 @@
  **     @author  berare gokturk
  **     @date    Mon 17 May 2021 20:02:26 CET 
  **
- **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include <string>
@@ -41,7 +41,7 @@ int usage( const std::string& err_msg="", int status=0 ) {
   s << " - compiled on " << __DATE__ << " at " << __TIME__ << "\n\n";
   s << "Options: \n";
   s << "    -c,  --config   value \t configure which histograms to plot from config file,\n\n";
-  s << "    -f,  --fit            \t fit a pol2 to the efficiencies\n\\n";
+  s << "    -f,  --fit            \t fit a pol2 to the efficiencies\n\n";
   s << "    -lx, --logx           \t drawwith log x axis\n";
   s << "    -as, --atlasstyle    \t usethe atlas style\n\n";
 
@@ -165,7 +165,7 @@ void efficiency( std::vector<double>& bins, std::vector<double>& values, const s
 
   for ( size_t i=0 ; i<files.size() ; i++ ) { 
     
-    std::string s = files[i];
+    const std::string& s = files[i];
     
     std::cout << "file: "<< s << "\tvalue: "<< values[i] << std::endl; 
 
@@ -288,7 +288,7 @@ void mean( std::vector<double>& bins, std::vector<double>& values, const std::ve
 
   for ( size_t i=0 ; i<files.size() ; i++ ) { 
 
-    std::string s = files[i];
+    const std::string& s = files[i];
     
     TFile* f = new TFile( s.c_str() );
     

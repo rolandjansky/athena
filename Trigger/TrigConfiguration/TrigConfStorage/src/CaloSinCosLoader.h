@@ -39,9 +39,9 @@ namespace TrigConf {
        DBLoader(sm, session) {}
 
     /**@brief destructor*/       
-    virtual ~CaloSinCosLoader(){};
+    virtual ~CaloSinCosLoader() override = default;
 
-    virtual bool load( CaloSinCos& data);
+    virtual bool load( CaloSinCos& data) override;
   };
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_EGAMMAVALIDATIONPLOTS_H
@@ -13,8 +13,8 @@
 class EgammaValidationPlots:public PlotBase {
     public:
       EgammaValidationPlots(PlotBase* pParent, const std::string& sDir);
-      void fill(const xAOD::Electron& electron);
-      void fill(const xAOD::Photon& photon);
+      void fill(const xAOD::Electron& electron) const;
+      void fill(const xAOD::Photon& photon) const;
       
       // Reco only information
       Trk::ParamPlots                 m_oElectronAllPlots;

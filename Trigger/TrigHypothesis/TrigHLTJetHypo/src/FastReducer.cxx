@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./FastReducer.h"
@@ -52,6 +52,8 @@ FastReducer::FastReducer(const HypoJetVector& jv,
     m_satisfiedBy.emplace(i, std::vector<std::size_t>{});
     m_testedBy.emplace(i, std::set<std::size_t>{});
     m_conditionMult.push_back(conditions[i]->multiplicity());
+    m_conditionCap.push_back(conditions[i]->capacity());
+    m_conditionClique.push_back(conditions[i]->clique());
   }
 
 
@@ -359,12 +361,14 @@ bool FastReducer::propagate_(std::size_t child,
   // sibling c2 is satisfied by jg21, the external jet groups are
   // jg11jg21, jg12jg21. Each of these  are flattened.
 
-   
   auto jg_product = makeJetGroupProduct(siblings,
 					m_satisfiedBy,
 					m_conditionMult,
+					m_conditionCap,
+					m_conditionClique,
 					m_jg2elemjgs,
 					m_conditions[par]->capacity(),
+					m_tree.is_simple(),
 					collector);
    
   // obtain the next product of jet groups passing siblings
@@ -375,38 +379,24 @@ bool FastReducer::propagate_(std::size_t child,
   // add an edge from the contributing children, and from the new jet group to the parent.
 
   while (!jg_indices.empty()){  // empty jg_inidices: end of iteration
-    
-    std::vector<std::size_t> elem_indices;
-
-    // flatten the jet groups participating in the product to a list of
-    // elemental jet groups (ie the incoming jets). The entities being
-    // manipulated are integer indexes.
-    
-    for(auto i : jg_indices){
-      elem_indices.insert(elem_indices.end(),
-		      m_jg2elemjgs[i].begin(),
-		      m_jg2elemjgs[i].end());
+    if (!std::is_sorted(jg_indices.begin(), jg_indices.end())) {
+	throw std::runtime_error("Jet hypo unsorted jet group");
     }
 
-    // if any of the elemental jet group indices are repeated,
-    // stop processing the new jet group. (do not allow sharing for
-    // among Conditions. Sharing is handled by having the matcher use
-    // multiple FastReducer instances).
-
-    std::sort(elem_indices.begin(), elem_indices.end());
-    if (std::unique(elem_indices.begin(),
-		    elem_indices.end()) != elem_indices.end()){
-      jg_indices = jg_product->next(collector);
-      continue;
+    for (const auto& ind : jg_indices) {
+      if (m_jg2elemjgs.at(ind).size() != 1) {
+	throw std::runtime_error("Jet hypo jet group with non-elementary index");
+      }
     }
-
+      
+    
     // use the elemental jet group indices to form a vector of jet pointers
     HypoJetVector jg;
-    for(const auto& i : elem_indices){
+    for(const auto& i : jg_indices){
       const auto& jetGroup = m_indJetGroup.at(i);
       jg.insert(jg.end(), jetGroup.begin(), jetGroup.end());
     }
-
+    
     // obtain an index for the new jet group.
     auto cur_jg = m_jgRegister.record(jg);
 
@@ -424,7 +414,7 @@ bool FastReducer::propagate_(std::size_t child,
       // get an index for this vector of elementary jet group indices
       m_satisfiedBy[par].push_back(cur_jg);
 
-      m_jg2elemjgs[cur_jg] = elem_indices;
+      m_jg2elemjgs[cur_jg] = jg_indices;
       if(collector){recordJetGroup(cur_jg, jg, collector);}
     }
     

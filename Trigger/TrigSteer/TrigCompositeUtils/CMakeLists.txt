@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 
 # Declare the package name.
 atlas_subdir( TrigCompositeUtils )
@@ -33,7 +33,8 @@ if( NOT XAOD_STANDALONE )
   atlas_add_test( TrigCompositeUtils_test
     SOURCES test/TrigCompositeUtils_test.cxx
     LINK_LIBRARIES TestTools AthenaKernel GaudiKernel SGTools StoreGateLib
-    CxxUtils xAODTrigger TrigCompositeUtilsLib AthContainers )
+    CxxUtils xAODTrigger TrigCompositeUtilsLib AthContainers
+    LOG_IGNORE_PATTERN "@0x[0-9a-f]{4,}" )
 
   atlas_add_test( TrigTraversal_test
     SOURCES test/TrigTraversal_test.cxx

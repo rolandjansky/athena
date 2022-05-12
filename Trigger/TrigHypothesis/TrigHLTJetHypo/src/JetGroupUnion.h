@@ -23,11 +23,10 @@ class JetGroupUnion: public IJetGroupProduct{
    */
  public:
   JetGroupUnion(const std::vector<std::size_t>& siblings,
-		const CondInd2JetGroupsInds& satisfiedBy,
-		const JetGroupInd2ElemInds& jg2elemjgs,
-		const Collector&);
+		const CondInd2JetGroupsInds& satisfiedBy);
   
   virtual std::vector<std::size_t> next(const Collector&) override;
+  virtual bool valid() const override;
   
  private:
   std::vector<std::size_t>  m_jetIndices;

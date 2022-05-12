@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ Trk::KalmanUpdator::KalmanUpdator(const std::string& t,const std::string& n,cons
 
 // destructor
 Trk::KalmanUpdator::~KalmanUpdator()
-{}
+= default;
 
 // initialize
 StatusCode Trk::KalmanUpdator::initialize()

@@ -32,7 +32,7 @@ class LArFastShower : public G4VFastSimulationModel
     LArFastShower(const std::string& name, const FastShowerConfigStruct& config,
                   IFastSimDedicatedSD* fastSimDedicatedSD);
 
-    /// Empty destructor
+    /// Destructor
     virtual ~LArFastShower() {}
 
     /** Determines the applicability of the fast sim model to this particle type
@@ -86,7 +86,7 @@ class LArFastShower : public G4VFastSimulationModel
 
     // data members for configuration
     bool m_generate_starting_points;
-    HepMC::IO_GenEvent* m_starting_points_file;
+    std::shared_ptr<HepMC::IO_GenEvent>  m_starting_points_file;
     std::string m_detector_tag_str;
     std::map<std::string,int> m_detmap;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
@@ -119,6 +119,7 @@ def getInDetPhysHitDecoratorAlg(**kwargs):
     of the algorithm will be extended by the collection name
     '''
     # @TODO use track particles from ? from InDetRecExample.InDetKeys import InDetKeys
+    from InDetRecExample.TrackingCommon import getPixelLorentzAngleTool
     return createExtendNameIfNotDefault(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorAlg,
                                         'TrackParticleContainerName', 'InDetTrackParticles',
                                         kwargs,
@@ -126,6 +127,7 @@ def getInDetPhysHitDecoratorAlg(**kwargs):
                                             getPhysValMonInDetHoleSearchTool),
                                         Updator='Trk::KalmanUpdator/TrkKalmanUpdator',
                                         ResidualPullCalculator='Trk::ResidualPullCalculator/ResidualPullCalculator',
+                                        LorentzAngleTool=getPixelLorentzAngleTool(),
                                         TrackParticleContainerName='InDetTrackParticles')
 
 
@@ -177,6 +179,7 @@ def getInDetTruthSelectionTool(**kwargs):
 def getHardScatterSelectionTool(**kwargs):
     from InDetHardScatterSelectionTool.InDetHardScatterSelectionToolConf import InDet__InDetHardScatterSelectionTool
     kwargs = setDefaults(kwargs, name="InDetHardScatterSelectionTool")
+    kwargs = setDefaults(kwargs, JetContainer="AntiKt4EMTopoJets") 
     return InDet__InDetHardScatterSelectionTool(**kwargs)
 
 

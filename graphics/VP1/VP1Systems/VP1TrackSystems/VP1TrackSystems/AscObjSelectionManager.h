@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -50,7 +50,7 @@ public:
   //Fixme: add method for changing mode of operation (single, toggle, shift+click)
 
   enum MODE { SINGLE, TOGGLE, SHIFT };
-  QString toString(MODE) const;
+  static QString toString(MODE) ;
   MODE mode() const;
   void setMode(MODE);
 

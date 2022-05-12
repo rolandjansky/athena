@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -36,9 +36,9 @@ StatusCode JetTagInfoCnv::initialize(void)
 /// anything at all for this.
 void JetTagInfoCnv::readObjectFromPool (const string &token)
 {
-  static pool::Guid p1_guid ("977E2E76-4DA6-4A4B-87A8-2E41353DB9F4");
-  static pool::Guid p2_guid ("50E644C1-E247-41B0-B873-416362824A21");
-  static pool::Guid p3_guid ("8A57BABD-C361-4796-93CD-E8171EF06BC7");
+  static const pool::Guid p1_guid ("977E2E76-4DA6-4A4B-87A8-2E41353DB9F4");
+  static const pool::Guid p2_guid ("50E644C1-E247-41B0-B873-416362824A21");
+  static const pool::Guid p3_guid ("8A57BABD-C361-4796-93CD-E8171EF06BC7");
 
   /// The POOL token which will be used for reading from POOL.
 

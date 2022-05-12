@@ -33,7 +33,7 @@
 class TrigComboHypoTool:  public ComboHypoToolBase {
 
  public:
-  enum ComboHypoVars { UNDEF=-1, DR=0, DPHI, INVM, MT};
+  enum ComboHypoVars { UNDEF=-1, DR=0, DPHI, INVM, MT, DETA};
   
   TrigComboHypoTool(const std::string& type,
 		    const std::string& name,

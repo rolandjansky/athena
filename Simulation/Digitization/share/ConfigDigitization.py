@@ -87,10 +87,10 @@ if DetFlags.pileup.any_on():
     logConfigDigitization.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
 
 # in any case we need the PileUpMergeSvc for the digitize algos
-if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
-    from AthenaCommon import CfgGetter
-    ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
-
+if DetFlags.pileup.any_on():
+    if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
+        from AthenaCommon import CfgGetter
+        ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
 
 #--------------------------------------------------------------
 # Subdetector-specific configuration

@@ -249,6 +249,8 @@ StatusCode IOVDbSvc::initialize() {
     " connections and " << m_foldermap.size() << " folders" );
   if (m_outputToFile.value()) ATH_MSG_INFO("Db dump to file activated");
   ATH_MSG_INFO( "Service IOVDbSvc initialised successfully" );
+
+  ATH_CHECK( checkConfigConsistency() );
   return StatusCode::SUCCESS;
 }
 
@@ -462,7 +464,9 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   Gaudi::Guards::AuditorGuard auditor(std::string("UpdateAddr::")+(tad->name().empty() ? "anonymous" : tad->name()),
                                       auditorSvc(), "preLoadProxy");
 
-  Athena::DBLock dblock;
+  IOVTime iovTime{m_iovTime};
+  IOVRange range;
+  std::unique_ptr<IOpaqueAddress> address;
 
   // first check if this key is managed by IOVDbSvc
   // return FAILURE if not - this allows other AddressProviders to be 
@@ -492,74 +496,67 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
     // determine iovTime from eventID in the event context
     const EventIDBase* evid = EventIDFromStore( m_h_sgSvc );
     if( evid ) {
-      m_iovTime.setRunEvent( evid->run_number(), evid->lumi_block()) ;
+      iovTime.setRunEvent( evid->run_number(), evid->lumi_block()) ;
       // save both seconds and ns offset for timestamp
       uint64_t nsTime = evid->time_stamp() *1000000000LL;
       nsTime += evid->time_stamp_ns_offset();
-      m_iovTime.setTimestamp(nsTime);
-      ATH_MSG_DEBUG( "updateAddress - using iovTime from EventInfo: " << m_iovTime);
+      iovTime.setTimestamp(nsTime);
+      m_iovTime = iovTime;
+      ATH_MSG_DEBUG( "updateAddress - using iovTime from EventInfo: " << iovTime);
     } else {
       // failed to get event info - just return success
       ATH_MSG_DEBUG( "Could not get event - initialise phase");
       return StatusCode::SUCCESS;
     }
   } else {
-    ATH_MSG_DEBUG("updateAddress: using iovTime from init/beginRun: " << m_iovTime);
+    ATH_MSG_DEBUG("updateAddress: using iovTime from init/beginRun: " << iovTime);
   }
 
-  // check consistency of global tag and database instance, if set
-  // catch most common user misconfigurations
-  // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
-    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
-    ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
-    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
-         (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
-        (m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
-      ATH_MSG_FATAL( "Likely incorrect conditions DB configuration! " 
-             <<  "Attached to database instance " << m_par_dbinst <<
-        " but global tag begins " << tagstub );
-      ATH_MSG_FATAL( "See Atlas/CoolTroubles wiki for details," << 
-        " or set IOVDbSvc.DBInstance=\"\" to disable check" );
-      return StatusCode::FAILURE;
-    }
-  }
 
 
   // obtain the validity key for this folder (includes overrides)
-  cool::ValidityKey vkey=folder->iovTime(m_iovTime);
-  ATH_MSG_DEBUG("Validity key "<<vkey);
-  if (!folder->readMeta() && !folder->cacheValid(vkey)) {
-    // mark this folder as not-dropped so cache-read will succeed
-    folder->setDropped(false);
-    // reload cache for this folder (and all others sharing this DB connection)
-    ATH_MSG_DEBUG( "Triggering cache load for folder " << folder->folderName());
-    if (StatusCode::SUCCESS!=loadCaches(folder->conn())) {
-      ATH_MSG_ERROR( "Cache load failed for at least one folder from " << folder->conn()->name()
-                     << ". You may see errors from other folders sharing the same connection." );
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // data should now be in cache
-  std::unique_ptr<IOpaqueAddress> address;
-  IOVRange range;
-  // setup address and range
+  cool::ValidityKey vkey=folder->iovTime(iovTime);
   {
-    Gaudi::Guards::AuditorGuard auditor(std::string("FldrSetup:")+(tad->name().empty() ? "anonymous" : tad->name()),
-                                        auditorSvc(), "preLoadProxy");
-    if (!folder->getAddress(vkey,&(*m_h_persSvc),poolSvcContext(),address,
-                            range,m_poolPayloadRequested)) {
-      ATH_MSG_ERROR( "getAddress failed for folder " << folder->folderName() );
-      return StatusCode::FAILURE;
-    }
-  }
-  // reduce minimum IOV of timestamp folders to avoid 'thrashing' 
-  // due to events slightly out of order in HLT
-  if (folder->timeStamp()) {
-    cool::ValidityKey start=range.start().timestamp();
-    if (start>m_iovslop) start-=m_iovslop;
-    range=IOVRange(IOVTime(start),range.stop());
+     // The dblock is currently abused to also protect the cache in the IOVDbFolders.
+     // This global lock may give rise to deadlocks between the dblock and the internal lock
+     // of the SGImplSvc. The deadlock may arise if the order of the initial call to IOVDbSvc
+     // and SGImplSvc are different, because the two services call each other.
+     // A problem was observed when SG::DataProxy::isValidAddress first called IOVDbSvc::updateAddress
+     // which called IOVSvc::setRange then SGImplSvc::proxy, and at the same time
+     // StoreGateSvc::contains called first SGImplSvc::proxy which then called IOVDbSvc::updateAddress.
+     // This problem is mitigated by limiting the scope of the dblock here.
+     Athena::DBLock dblock;
+     ATH_MSG_DEBUG("Validity key "<<vkey);
+     if (!folder->readMeta() && !folder->cacheValid(vkey)) {
+        // mark this folder as not-dropped so cache-read will succeed
+        folder->setDropped(false);
+        // reload cache for this folder (and all others sharing this DB connection)
+        ATH_MSG_DEBUG( "Triggering cache load for folder " << folder->folderName());
+        if (StatusCode::SUCCESS!=loadCaches(folder->conn())) {
+           ATH_MSG_ERROR( "Cache load failed for at least one folder from " << folder->conn()->name()
+                          << ". You may see errors from other folders sharing the same connection." );
+           return StatusCode::FAILURE;
+        }
+     }
+
+     // data should now be in cache
+     // setup address and range
+     {
+        Gaudi::Guards::AuditorGuard auditor(std::string("FldrSetup:")+(tad->name().empty() ? "anonymous" : tad->name()),
+                                            auditorSvc(), "preLoadProxy");
+        if (!folder->getAddress(vkey,&(*m_h_persSvc),poolSvcContext(),address,
+                                range,m_poolPayloadRequested)) {
+           ATH_MSG_ERROR( "getAddress failed for folder " << folder->folderName() );
+           return StatusCode::FAILURE;
+        }
+     }
+     // reduce minimum IOV of timestamp folders to avoid 'thrashing'
+     // due to events slightly out of order in HLT
+     if (folder->timeStamp()) {
+        cool::ValidityKey start=range.start().timestamp();
+        if (start>m_iovslop) start-=m_iovslop;
+        range=IOVRange(IOVTime(start),range.stop());
+     }
   }
 
   // Pass range onto IOVSvc
@@ -599,27 +596,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     return StatusCode::FAILURE;
   }
 
-
-  /// FIXME?
   tag = folder->key();
-  // check consistency of global tag and database instance, if set
-  // catch most common user misconfigurations
-  // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
-    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
-    ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
-    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
-         (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
-        (m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
-      ATH_MSG_FATAL( "Likely incorrect conditions DB configuration! " 
-             <<  "Attached to database instance " << m_par_dbinst <<
-        " but global tag begins " << tagstub );
-      ATH_MSG_FATAL( "See Atlas/CoolTroubles wiki for details," << 
-        " or set IOVDbSvc.DBInstance=\"\" to disable check" );
-      return StatusCode::FAILURE;
-    }
-  }
-
 
   // obtain the validity key for this folder (includes overrides)
   cool::ValidityKey vkey=folder->iovTime(time);
@@ -818,6 +795,7 @@ StatusCode IOVDbSvc::processTagInfo() {
   if (m_globalTag=="") {
     m_globalTag = m_h_tagInfoMgr->findTag("IOVDbGlobalTag");
     if (m_globalTag!="") ATH_MSG_INFO( "Global tag: " << m_globalTag<< " set from input file" );
+    ATH_CHECK( checkConfigConsistency() );
   }
 
   // now check for tag overrides for specific folders
@@ -1178,4 +1156,26 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
     throw std::exception();
   }
   return sc;
+}
+
+StatusCode IOVDbSvc::checkConfigConsistency() const {
+// check consistency of global tag and database instance, if set
+  // catch most common user misconfigurations
+  // this is only done here as need global tag to be set even if read from file
+  // @TODO should this not be done during initialize
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
+    ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
+    if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") &&
+         (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
+        (m_par_dbinst=="OFLP200" && (tagstub!="OFLCOND" && tagstub!="CMCCOND"))) {
+      ATH_MSG_FATAL( "Likely incorrect conditions DB configuration! "
+             <<  "Attached to database instance " << m_par_dbinst <<
+        " but global tag begins " << tagstub );
+      ATH_MSG_FATAL( "See Atlas/CoolTroubles wiki for details," <<
+        " or set IOVDbSvc.DBInstance=\"\" to disable check" );
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
 }

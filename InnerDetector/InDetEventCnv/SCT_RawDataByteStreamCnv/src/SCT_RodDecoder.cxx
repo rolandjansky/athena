@@ -243,6 +243,14 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
 
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vecROBData;
   const unsigned long int vecROBDataSize{robFrag.rod_ndata()};
+  if (vecROBDataSize >   robFrag.payload_size_word()) {
+     ATH_MSG_WARNING("The ROB data does not seem to fit in the payload. Rejecting fragment (ndata size  " << vecROBDataSize << " !< payload size " << robFrag.payload_size_word()
+                     << " header size: " <<  robFrag.rod_header_size_word()
+                     << " trailer size: " << robFrag.rod_trailer_size_word()
+                     << " fragment size: " << robFrag.rod_fragment_size_word()
+                     << ")");
+     return StatusCode::RECOVERABLE;
+  }
   robFrag.rod_data(vecROBData);
 
   // Loop over header, hit element, flagged ABCD error, raw data, trailer words
@@ -802,9 +810,14 @@ StatusCode SCT_RodDecoder::processSuperCondensedHit(const uint16_t inData,
   }
   if (secondSide) {
     const uint32_t onlineID{(robID & 0xFFFFFF) | (data.linkNumber << 24)};
-    data.setCollection(m_sctID, m_cabling->getHashFromOnlineId(onlineID), rdoIDCont, errs);
+    IdentifierHash id_hash(m_cabling->getHashFromOnlineId(onlineID));
+    if (!id_hash.is_valid()) {
+       hasError = true;
+       return sc;
+    }
+    data.setCollection(m_sctID, id_hash, rdoIDCont, errs);
   }
-  
+
   if (data.groupSize == 0)  {
     data.setOld(); // If it's the first super-condensed word
   }

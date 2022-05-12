@@ -9,7 +9,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 import AthenaCommon.SystemOfUnits as Units
-
+from TrigMinBias.TrigMinBiasMonitoring import MbtsHypoToolMonitoring
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -39,6 +39,9 @@ def TrackCountHypoToolGen(chainDict):
     hypo = TrackCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
         hypo.minNtrks = int(chainDict["chainParts"][0]["hypoTrkInfo"].strip("trk"))
+        hypo.minPt = 200*Units.MeV
+        if "pusup" in chainDict["chainName"]:
+            hypo.maxVertexZ = 10*Units.mm
     if "mb_sptrk" in chainDict["chainName"]:
         hypo.minPt = 100*Units.MeV
         hypo.maxZ0 = 401*Units.millimeter
@@ -64,6 +67,10 @@ def MbtsHypoToolGen(chainDict):
         hypo.MbtsCounters=2
         hypo.MBTSMode=1
         hypo.Veto=True
+    if '_all_' in chainDict["chainName"]:
+        hypo.AcceptAll = True
+        if "mbMon:online" in chainDict["monGroups"]:
+            hypo.MonTool = MbtsHypoToolMonitoring()
     else:  #default, one counter on each side
         hypo.MbtsCounters=1
     return hypo
@@ -75,7 +82,8 @@ def TrigZVertexHypoToolGen(chainDict):
     if "pusup" in chainDict["chainName"]:
         hypo.minWeight = int(chainDict["chainParts"][0]["pileupInfo"].strip("pusup"))
     else:
-        raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
+        hypo.minWeight = -1 # pass always
+
     return hypo
 
 @AccumulatorCache
@@ -106,7 +114,7 @@ def MinBiasSPSequence():
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     idAlgs, verifier = makeInDetTrigFastTracking(config=idTrigConfig, 
                                      rois=spInputMakerAlg.InViewRoIs, 
-                                     viewVerifier='SPViewDataVerifier', 
+                                     viewVerifier='IDDataPrepCosmicsDataVerifier', 
                                      doFTF=False)
     verifier.DataObjects += [('TrigRoiDescriptorCollection', 'StoreGateSvc+InputRoI'),
                              ('SCT_ID', 'DetectorStore+SCT_ID'),
@@ -173,6 +181,9 @@ def MinBiasTrkSequence():
 
         from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
         algs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVMinBiasIDTracking')
+        vdv = algs[0]
+        assert vdv.DataObjects, "Likely not ViewDataVerifier, does not have DataObjects property"
+        vdv.DataObjects += [("xAOD::TrigCompositeContainer", "HLT_vtx_z")]
         trackCountHypo = TrackCountHypoAlg()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
         trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")

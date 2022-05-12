@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HGTD_CONDITIONSALGORITHMS_HGTD_DETECTORELEMENTCONDALG_H
@@ -14,7 +14,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
 
-#include "GaudiKernel/ICondSvc.h"
 
 class HGTD_DetectorManager;
 
@@ -32,8 +31,6 @@ class HGTD_DetectorElementCondAlg : public AthReentrantAlgorithm
  private:
   SG::WriteCondHandleKey<InDetDD::HGTD_DetectorElementCollection> m_writeKey
   {this, "WriteKey", "HGTD_DetectorElementCollection", "Key of output HGTD_DetectorElementCollection for HGTD"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   StringProperty m_detManagerName{this, "DetManagerName", "HGTD", "Name of the DeterctorManager to retrieve"};
   const HGTD_DetectorManager* m_detManager{nullptr};

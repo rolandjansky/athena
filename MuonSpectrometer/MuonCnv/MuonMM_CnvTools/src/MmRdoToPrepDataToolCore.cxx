@@ -58,37 +58,38 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
 
   const IdentifierHash hash = rdoColl->identifierHash();
 
-  MMPrepDataCollection* prdColl = nullptr;
+
   
   // check if the collection already exists, otherwise add it
   if ( mmPrepDataContainer->indexFindPtr(hash) != nullptr) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
-    return StatusCode::FAILURE;
+    idWithDataVect.push_back(hash);
+    return StatusCode::SUCCESS;
+  } 
+
+  // Get write handle for this collection
+  MMPrepDataContainer::IDC_WriteHandle lock = mmPrepDataContainer->getWriteHandle( hash );
+  // Check if collection already exists (via the cache, i.e. in online trigger mode)
+  if( lock.OnlineAndPresentInAnotherView() ) {
+    ATH_MSG_DEBUG("In processCollection: collection already available in the MM PrepData container (via cache)");
+    idWithDataVect.push_back(hash);
+    return StatusCode::SUCCESS;
+  }
+  std::unique_ptr<MMPrepDataCollection> prdColl = std::make_unique<MMPrepDataCollection>(hash);
+  idWithDataVect.push_back(hash);
+    
+  // set the offline identifier of the collection Id
+  IdContext context = m_idHelperSvc->mmIdHelper().module_context();
+  Identifier moduleId;
+  int getId = m_idHelperSvc->mmIdHelper().get_id(hash,moduleId,&context);
+  if ( getId != 0 ) {
+    ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
   } 
   else {
-    prdColl = new MMPrepDataCollection(hash);
-    idWithDataVect.push_back(hash);
-    
-    // set the offline identifier of the collection Id
-    IdContext context = m_idHelperSvc->mmIdHelper().module_context();
-    Identifier moduleId;
-    int getId = m_idHelperSvc->mmIdHelper().get_id(hash,moduleId,&context);
-    if ( getId != 0 ) {
-      ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
-    } 
-    else {
-      ATH_MSG_DEBUG(" dump moduleId " << moduleId );
-      prdColl->setIdentifier(moduleId);
-    }
-
-    if (StatusCode::SUCCESS != mmPrepDataContainer->addCollection(prdColl, hash)) {
-      ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
-		    << (int)hash );
-      return StatusCode::FAILURE;
-    }
-
-  }
+    ATH_MSG_DEBUG(" dump moduleId " << moduleId );
+    prdColl->setIdentifier(moduleId);
+  }  
 
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_muDetMgrKey};
@@ -222,9 +223,11 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
       prdColl->push_back(std::move(prdN));
     } 
 
-  }
+  }//merge
 
-
+  // now write the collection
+  ATH_CHECK( lock.addOrDelete(std::move( prdColl ) ) );
+  ATH_MSG_DEBUG("PRD hash " << hash << " has been moved to container");
 
   return StatusCode::SUCCESS;
 }

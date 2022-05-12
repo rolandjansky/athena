@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "egammaIso.h"
@@ -23,8 +23,7 @@ egammaIso::egammaIso(const std::string& type,
         declareInterface<IegammaIso>(this);
     }
 
-egammaIso::~egammaIso(){ 
-}
+egammaIso::~egammaIso()= default;
 
 StatusCode egammaIso::initialize(){
     ATH_MSG_DEBUG(" Initializing egammaIso");
@@ -50,7 +49,10 @@ StatusCode egammaIso::execute(const xAOD::CaloCluster& cluster,
     // considering that in the tile the granularity is 0.1, the value
     // choosen below is safe. All hadrons in 0.2X0.2
     HADCellList.select(eta,phi,size,size);       
-    ehad +=HADCellList.energy(); 
+    ehad +=HADCellList.energy();
+    info.nBadT0 += HADCellList.nBadT(0);
+    info.nBadT12 += HADCellList.nBadT(1);
+
     HADCellList.select(eta,phi,size,size,CaloSampling::TileGap3);       
     egap +=HADCellList.energy(); 
 

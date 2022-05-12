@@ -276,6 +276,9 @@ namespace xAOD {
      if (bib) {
        return bib->is_base (ClassID_traits< xAOD::IParticleContainer >::ID());
      }
+     // No base info available means we never called any of the macros declaring bases so it's
+     // likely that the clid doesn't inherit from IParticle...
+     return false;
 #endif
      return true;
    }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1TrackSystems/TrackCollectionSettingsButton.h"
@@ -263,7 +263,6 @@ void TrackCollectionSettingsButton::updateTrackTubeRadius()
   m_d->last_trackTubeRadius=trackTubeRadius();
   messageVerbose("TrackTubeRadius changed to "+str(m_d->last_trackTubeRadius));
   emit trackTubeRadiusChanged(m_d->last_trackTubeRadius);
-  return;
 }
 
 void TrackCollectionSettingsButton::updateTrackDrawStyle()
@@ -490,7 +489,7 @@ void TrackCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 VP1Interval TrackCollectionSettingsButton::cutAllowedPt() const
 {
   if (!m_d->editwindow_ui.checkBox_cut_minpt)
-    return VP1Interval();
+    return {};
 
   // will set range to negative if we have momcut=P
   // if minCut unset then min=-inf
@@ -515,7 +514,7 @@ VP1Interval TrackCollectionSettingsButton::cutAllowedPt() const
   //message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
   
   if (max<min)
-    return VP1Interval();
+    return {};
     
   return VP1Interval( min, max );//fixme: closed interval??
 }

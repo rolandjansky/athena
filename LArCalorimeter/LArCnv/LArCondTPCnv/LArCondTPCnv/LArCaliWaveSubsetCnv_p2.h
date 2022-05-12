@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDTPCNV_LARcaliWAVEsubsetCNV_P2_H
@@ -15,14 +15,15 @@ class MsgStream;
 typedef LArConditionsSubset<LArCaliWaveVec>   LArCWTransType;  
 
 class LArCaliWaveSubsetCnv_p2  
-    : public T_AthenaPoolTPCnvBase<LArCWTransType, LArCaliWaveSubset_p2 >
+    : public T_AthenaPoolTPCnvConstBase<LArCWTransType, LArCaliWaveSubset_p2 >
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
 
     LArCaliWaveSubsetCnv_p2() {}
-    virtual void   persToTrans(const LArCaliWaveSubset_p2*   persObj, LArCWTransType* transObj, MsgStream &log);
-    virtual void   transToPers(const LArCWTransType* transObj, LArCaliWaveSubset_p2*   persObj, MsgStream &log);
-
+    virtual void   persToTrans(const LArCaliWaveSubset_p2*   persObj, LArCWTransType* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const LArCWTransType* transObj, LArCaliWaveSubset_p2*   persObj, MsgStream &log) const override;
 };
 
 #endif

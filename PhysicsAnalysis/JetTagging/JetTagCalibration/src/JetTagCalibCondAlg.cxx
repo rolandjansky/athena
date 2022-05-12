@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -27,9 +27,8 @@ namespace Analysis {
 
 
   JetTagCalibCondAlg::JetTagCalibCondAlg (const std::string& name, ISvcLocator* pSvcLocator)
-    : ::AthAlgorithm( name, pSvcLocator )
-    , m_condSvc("CondSvc", name) ,
-    m_Likelihood_smoothNTimes(1) ,
+    : ::AthAlgorithm( name, pSvcLocator ),
+    m_Likelihood_smoothNTimes(1),
     m_JetFitterNN_calibrationDirectory("JetFitter"),
     m_JetFitterNN_calibrationSubDirectory("NeuralNetwork"),
     m_JetFitterNN_useCombinedIPNN(false),
@@ -61,21 +60,12 @@ namespace Analysis {
   StatusCode JetTagCalibCondAlg::initialize() {
     ATH_MSG_DEBUG("initialize " << name());
 
-    // CondSvc   
-    ATH_CHECK( m_condSvc.retrieve() ); 
-
     // PoolSvc
     ATH_CHECK(service("PoolSvc",m_poolsvc));
   
     // Condition Handles
     ATH_CHECK( m_readKey.initialize() );
     ATH_CHECK( m_writeKey.initialize() );
-
-    // Register write handle
-    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-      ATH_MSG_ERROR("#BTAG# Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
 
     // Prepare histo maps:
     if (m_taggers.size() > 0) {
@@ -568,9 +558,9 @@ namespace Analysis {
                       commaSepVars=tos->GetString().Data();
                     }
                   }
-                  while (commaSepVars.find(",")!=std::string::npos) {
-                    inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-                    commaSepVars.erase(0,commaSepVars.find(",")+1);
+                  while (commaSepVars.find(',')!=std::string::npos) {
+                    inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(',')));
+                    commaSepVars.erase(0,commaSepVars.find(',')+1);
                   }
                   inputVars.push_back(commaSepVars.substr(0,-1));
                   ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);

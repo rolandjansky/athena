@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolTest )
@@ -30,20 +30,12 @@ atlas_install_joboptions( share/*.py )
 # Tests in the package:
 function (athenapooltest_run_test testName jo pattern)
   cmake_parse_arguments( ARG "" "" "DEPENDS" ${ARGN} )
-
   atlas_add_test( ${testName}
                   SCRIPT athena.py AthenaPoolTest/${jo}.py
                   LOG_SELECT_PATTERN ${pattern}
-                  LOG_IGNORE_PATTERN "DEBUG Try item:|AthenaAttribute.*DB=|AtlasRelease|Release version"
-                  PROPERTIES TIMEOUT 900 )
-  if( ARG_DEPENDS )
-    set( _alldeps  )
-    foreach( _dep ${ARG_DEPENDS} )
-      list( APPEND _alldeps AthenaPoolTest_${_dep}_ctest )
-    endforeach()
-    set_tests_properties( AthenaPoolTest_${testName}_ctest
-                          PROPERTIES DEPENDS "${_alldeps}" )
-  endif()
+                  LOG_IGNORE_PATTERN "0x[0-9a-f]{4,}|DEBUG Try item:|AthenaAttribute.*DB=|AtlasRelease|Release version"
+                  PROPERTIES TIMEOUT 900
+                  DEPENDS ${ARG_DEPENDS} )
 endfunction (athenapooltest_run_test)
 
 
@@ -101,7 +93,7 @@ athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverl
 # AthenaMT test for DoubleEventSelector
 atlas_add_test( DoubleEventSelectorOverlayTestMT
                 SCRIPT athena.py --threads=4 -c \"outputFile=\'OverlayRDOMT.root\'\" AthenaPoolTest/DoubleEventSelectorOverlayTest.py
-                LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR"
+                LOG_SELECT_PATTERN "^DoubleEvent.*WARNING|ERROR|Terminated successfully"
                 PROPERTIES TIMEOUT 900 )
 
 # Check for adding DetDescr tags to event info object:

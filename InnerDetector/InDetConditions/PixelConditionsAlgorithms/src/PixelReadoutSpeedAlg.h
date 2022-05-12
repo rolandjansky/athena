@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixelReadoutSpeedAlg.h
@@ -19,7 +19,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelReadoutSpeedData.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelReadoutSpeedAlg : public AthReentrantAlgorithm {
@@ -31,8 +30,6 @@ class PixelReadoutSpeedAlg : public AthReentrantAlgorithm {
     virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
-
     SG::ReadCondHandleKey<AthenaAttributeList> m_readKey
     {this, "ReadKey", "/PIXEL/ReadoutSpeed", "Input readout speed folder"};
 

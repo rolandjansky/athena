@@ -9,7 +9,7 @@ evgenConfig.generators += ["Pythia8"]
 
 ## Control storing LHE in the HepMC record
 if "StoreLHE" in genSeq.Pythia8.__slots__.keys():
-    print "Pythia8_Base_Fragment.py: DISABLING storage of LHE record in HepMC by default. Please re-enable storage if desired"
+    print("Pythia8_Base_Fragment.py: DISABLING storage of LHE record in HepMC by default. Please re-enable storage if desired")
     genSeq.Pythia8.StoreLHE = False
 
 genSeq.Pythia8.LHEFile = genSeq.SuperChicConfig.outputLHEFile()

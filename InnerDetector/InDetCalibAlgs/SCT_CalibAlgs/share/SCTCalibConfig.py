@@ -112,10 +112,10 @@ QuietThresholdStrip   = 0.5
 QuietThresholdChip    = 0.5
 
 #--- Efficiency
-EfficiencyDoChips     = True
+EfficiencyDoChips     = False
 
 #--- HIST
-NoiseOccupancyTriggerAware = True
+NoiseOccupancyTriggerAware = False
 NoiseOccupancyMinStat = 5000
 RawOccupancyMinStat   = 5000
 EfficiencyMinStat     = 5000

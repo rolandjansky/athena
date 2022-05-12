@@ -11,7 +11,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;forceEnableAllChains=True;"'  
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;enableL1MuonPhase1=False;forceEnableAllChains=True;"'  
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

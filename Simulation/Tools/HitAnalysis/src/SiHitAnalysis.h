@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SI_HIT_ANALYSIS_H
@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "GaudiKernel/LockedHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -39,6 +40,8 @@ private:
   TH1* m_h_hits_r{};
   TH2* m_h_xy{};
   TH2* m_h_zr{};
+  LockedHandle<TH2> m_h_xy_shared{};
+  LockedHandle<TH2> m_h_zr_shared{};
   TH1* m_h_hits_time{};
   TH1* m_h_hits_eloss{};
   TH1* m_h_hits_step{};
@@ -74,8 +77,8 @@ private:
 
   SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey {this, "CollectionName", "", "Input HITS collection name"};
 
-  Gaudi::Property<std::string> m_histPath {this, "HistPath", "/SiHitAnalysis/", ""};
-  Gaudi::Property<std::string> m_ntuplePath {this, "NtupleFileName", "/SiHitAnalysis/", ""};
+  Gaudi::Property<std::string> m_histPath {this, "HistPath", "/SiHitAnalysis/histos/", ""};
+  Gaudi::Property<std::string> m_ntuplePath {this, "NtuplePath", "/SiHitAnalysis/ntuples/", ""};
   Gaudi::Property<bool> m_expert {this, "ExpertMode", false, ""};
   Gaudi::Property<bool> m_extraTruthBranches {this, "ExtraTruthBranches", false, ""};
 

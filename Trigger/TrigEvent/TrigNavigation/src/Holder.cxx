@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
 #include <boost/regex.hpp>
+#include <tbb/concurrent_unordered_map.h>
 
 #include "TrigNavigation/TypeMaps.h"
 #include "TrigNavigation/Holder.h"
@@ -51,9 +52,9 @@ IHolder::~IHolder() {
   if ( m_aux ) { delete m_aux; }
 }
 
-void IHolder::prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly) {
+void IHolder::prepare(const asg::AsgMessaging& logger, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly) {
   m_storeGate = sg;
-  m_log = log;
+  m_logger = &logger;
   m_objectserializerSvc = objSerializer;
   m_readonly = readonly;
 }
@@ -115,14 +116,16 @@ MsgStream& HLTNavDetails::operator<< ( MsgStream& m, const HLTNavDetails::IHolde
 
 // only construct the regex once
 namespace HLTNavDetails {  
-  boost::regex rx1("_v[0-9]+$");
+  const boost::regex rx1("_v[0-9]+$");
 }
 
 std::string HLTNavDetails::formatSGkey(const std::string& prefix, const std::string& containername, const std::string& label){
   // Memoize already used keys
-  static std::map<std::string,std::string> memo;
-  std::string key = prefix+containername+label;
-  if (memo.count(key)) return memo[key];
+  static tbb::concurrent_unordered_map<std::string,std::string> memo ATLAS_THREAD_SAFE;
+  const std::string key = prefix+containername+label;
+
+  const auto itr = memo.find(key);
+  if (itr!=memo.end()) return itr->second;
 
   // Remove version
   std::string ret = boost::regex_replace(containername,rx1,std::string(""));
@@ -138,7 +141,7 @@ std::string HLTNavDetails::formatSGkey(const std::string& prefix, const std::str
   else if (!label.empty())
     ret += ("_" + label);
 
-  memo[key] = ret;
+  memo.insert({key, ret});
   return ret;
 }
 
@@ -361,8 +364,7 @@ bool IHolder::serializeDynVars (const SG::IAuxStoreIO& iio,
 
     // Serialize the object data to a temp buffer.
     std::vector<uint32_t> serialized =
-      m_serializer->serialize (cls->GetName(),
-                               const_cast<void*>(iio.getIOData (id)));
+      m_serializer->serialize (cls->GetName(), iio.getIOData (id));
 
     // Concatenate header header information to the output buffer:
     // attribute name and data type.
@@ -473,7 +475,7 @@ IHolder::deserializeDynVars (const std::vector<uint32_t>& dataBlob,
     // Object size.
     size_t var_size = *it++;
 
-    const static char* packed_pref = "SG::PackedContainer<";
+    const static char* const packed_pref = "SG::PackedContainer<";
     const static unsigned int packed_preflen = strlen(packed_pref);
     std::string vecname = tname;
     if (strncmp (vecname.c_str(), packed_pref, packed_preflen) == 0)

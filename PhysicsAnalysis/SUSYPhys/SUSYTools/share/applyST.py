@@ -326,7 +326,7 @@ if isMC and doTruth==2:
     TruthThinningTool = DerivationFramework__HardTruthThinning(
                       name            = "TruthThinningTool",
                       ThinningService = "AST99ThinningSvc",
-                      EventInfo       = "McEventInfo",
+                      EventInfo       = "EventInfo",
                       TruthParticles  = "TruthParticles",
                       TruthVertices   = "TruthVertices",
                       HardParticles   = "TruthHardParticles",

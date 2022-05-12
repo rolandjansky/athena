@@ -14,7 +14,7 @@ PFTrackMuonIsoTaggingAlg::PFTrackMuonIsoTaggingAlg(const std::string &name, ISvc
 {
 }
 
-PFTrackMuonIsoTaggingAlg::~PFTrackMuonIsoTaggingAlg() {}
+PFTrackMuonIsoTaggingAlg::~PFTrackMuonIsoTaggingAlg() = default;
 
 StatusCode PFTrackMuonIsoTaggingAlg::initialize()
 {

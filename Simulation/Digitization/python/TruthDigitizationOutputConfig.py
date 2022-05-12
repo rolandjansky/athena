@@ -17,7 +17,7 @@ def TruthDigitizationOutputCfg(flags):
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         prefix = flags.Overlay.BkgPrefix
 
-    from Digitization.PileUpUtils import pileupInputCollections
+    from RunDependentSimComps.PileUpUtils import pileupInputCollections
     puCollections = pileupInputCollections(flags.Digitization.PU.LowPtMinBiasInputCols)
     if "AntiKt4TruthJets" in puCollections:
         ItemList += [

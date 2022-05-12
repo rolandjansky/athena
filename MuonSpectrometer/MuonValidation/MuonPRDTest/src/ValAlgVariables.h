@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VALALGVARIABLES_H
 #define VALALGVARIABLES_H
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -16,7 +17,7 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class ValAlgVariables
+class ValAlgVariables : public AthMessaging
 {
  public:
   ValAlgVariables(StoreGateSvc* evtStore,
@@ -24,21 +25,19 @@ class ValAlgVariables
                  TTree* tree,
                  const std::string& containername,
                  MSG::Level msglvl) :
+    AthMessaging(Athena::getMessageSvc(), containername),
     m_evtStore(evtStore),
     m_detManager(detManager),
     m_tree(tree),
     m_ContainerName(containername)
   {
-  	  m_msg.get().setLevel(msglvl);
+  	  setLevel(msglvl);
   }
 
   virtual ~ValAlgVariables() = default;
 
   virtual StatusCode initializeVariables() = 0;
   virtual StatusCode fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) = 0;
-
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  protected:
 
@@ -51,9 +50,6 @@ class ValAlgVariables
   const MuonGM::MuonDetectorManager* m_detManager{};
   TTree*                             m_tree{};
   std::string                        m_ContainerName;
-  mutable Athena::MsgStreamMember    m_msg;
-
-
 };
 
 #endif // VALALGVARIABLES_H

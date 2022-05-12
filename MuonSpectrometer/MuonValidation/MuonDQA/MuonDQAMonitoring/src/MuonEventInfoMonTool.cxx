@@ -6,7 +6,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaMonitoring/LogFileMsgStream.h"
 
-#include "MuonDQAMonitoring/MuonEventInfoMonTool.h"
+#include "MuonEventInfoMonTool.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include "EventInfo/EventInfo.h"

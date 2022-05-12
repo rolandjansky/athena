@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/SiTrajectory_xk.h"
@@ -647,7 +647,7 @@ bool InDet::SiTrajectory_xk::initialize
             initDeadMaterial = true;
             if(!m_elements[m_nElements].setDead(m_surfacedead.get())) return false;
             m_elementsMap[m_nElements] = m_nElements;
-            if(m_nclusters && lSiCluster.size()) {
+            if(m_nclusters && !lSiCluster.empty()) {
               if(!m_elements[m_nElements].ForwardPropagationWithoutSearch(m_elements[up])) return false;
               up = m_nElements;
             }
@@ -2031,7 +2031,6 @@ void  InDet::SiTrajectory_xk::sortStep()
   }
   m_firstElement = n;
   m_lastElement  = m;
-  return;
 
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -54,9 +54,14 @@ class CaloClusterCellLink {
    *  @brief const_iterator to loop over cells belonging to a cluster
    */
   class const_iterator
-    : public std::iterator<std::bidirectional_iterator_tag, const CaloCell*>
   {
   public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = const CaloCell*;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
+
     const_iterator() = delete; //C++11 
 
     /**@brief constructor *
@@ -118,10 +123,15 @@ class CaloClusterCellLink {
    *  @brief const_iterator to loop over cells belonging to a cluster
    */
   class iterator
-    : public std::iterator<std::bidirectional_iterator_tag, const CaloCell*>
   {
     friend class CaloClusterCellLink;
   public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type = const CaloCell*;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
+
     iterator() = delete;
 
     /**@brief constructor *

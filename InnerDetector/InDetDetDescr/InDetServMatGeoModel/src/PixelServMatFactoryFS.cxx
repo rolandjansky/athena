@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactoryFS.h"
@@ -23,7 +23,7 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/Bootstrap.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -36,9 +36,9 @@
 
 PixelServMatFactoryFS::PixelServMatFactoryFS(StoreGateSvc *detStore,
 					     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+  AthMessaging(Athena::getMessageSvc(), "PixelServMatFactoryFS"),
   m_detStore(detStore),
-  m_rdbAccess(std::move(pRDBAccess)),
-  m_msg("PixelServMatFactoryFS")
+  m_rdbAccess(std::move(pRDBAccess))
 { 
 }
 
@@ -51,7 +51,7 @@ PixelServMatFactoryFS::~PixelServMatFactoryFS()
 //## Other Operations (implementation)
 void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 {
-  msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
+  ATH_MSG_DEBUG("Building Pixel Service Material");
 
   DecodeVersionKey indetVersionKey("InnerDetector");
   DecodeVersionKey pixelVersionKey("Pixel");

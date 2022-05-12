@@ -64,6 +64,7 @@ protected:
 
   private:
         SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandle<jTowerContainer> m_jTowerContainer;
         
         int realValue(int ID, int eta);
         int m_SeedIDs[3][3]={{0}};

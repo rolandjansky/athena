@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -27,7 +27,7 @@ TileAssocFillerTool::TileAssocFillerTool(const string& type,const string& name, 
   declareProperty("BranchName",m_branchName="_index");
 
   /* I have no idea what is this for */
-  book().ignore(); // Avoid coverity warnings
+  TileAssocFillerTool::book().ignore(); // Avoid coverity warnings
 } 
 
 //=====================================================
@@ -67,8 +67,10 @@ StatusCode TileAssocFillerTool::fill(){
   m_container->clear();
   m_container->resize(cont->size());
   for(unsigned int i=0; i< cont->size(); i++){
+    //cppcheck-suppress containerOutOfBounds
     m_container->at(i).resize(cont->at(i).size());
     for(unsigned int j=0; j< cont->at(i).size(); j++){
+      //cppcheck-suppress containerOutOfBounds
       m_container->at(i).at(j)=cont->at(i).at(j);
     }
   }

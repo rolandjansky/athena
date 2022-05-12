@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -154,10 +154,6 @@ GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
   pixZone->add(new InDetDD::TubeZone("B",barrelZmin,barrelZmax,barrelRmin,barrelRmax));
   pixZone->add(new InDetDD::TubeZone("A",endcapZmin,endcapZmax,endcapRmin,endcapRmax));
   topZone.add(pixZone);
-
-  std::cout<<"GEOPIXELSERVICES pixel : "<<pixelRmin<<" "<<pixelRmax<<" //  "<<pixelZmax<<std::endl;
-  std::cout<<"GEOPIXELSERVICES barrel : "<<barrelRmin<<" "<<barrelRmax<<" //  "<<barrelZmin<<" "<<barrelZmax<<std::endl;
-  std::cout<<"GEOPIXELSERVICES endcap : "<<endcapRmin<<" "<<endcapRmax<<" //  "<<endcapZmin<<" "<<endcapZmax<<std::endl;
 
   // Collect the layer shifts / IBL 2mm shift
   m_layerShift.clear();

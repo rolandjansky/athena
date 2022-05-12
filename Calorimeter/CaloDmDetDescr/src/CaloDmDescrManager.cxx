@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -24,11 +24,11 @@
 #include "CaloIdentifier/CaloDM_ID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
 
 #define MAX_BUFFER_LEN 1024
 #undef DEBUG
@@ -321,21 +321,15 @@ CaloDmDescrElement* CaloDmDescrManager::build_element(const Identifier& id, cons
     eta = myRegion->etaMax() - (0.5+neta)*myRegion->deta();
   }
   float phi = myRegion->m_dphi*(0.5+nphi);
-  // !!! temporary hack FIX ME (used only for 14.1.0 simulation)
-//   if( (myRegion->m_key == 4123 || myRegion->m_key == 4124) && fabs(eta)<2.5) {
-//     phi = phi*2.0;
-//     if(phi > 2*M_PI) phi -= 2*M_PI;
-//   }
-  // eof FIX ME
   if(phi > M_PI) phi -= 2*M_PI; // we need to have phi=-M_PI,M_PI
-  float theta = 2.*atan(exp(-eta));
+  float theta = 2.*std::atan(std::exp(-eta));
   float rho, z;
   if(myRegion->m_isBarrel) {
     rho=myRegion->m_distance*0.1;
-    z=rho/fabs(tan(theta));
+    z=rho/std::abs(std::tan(theta));
   }else{
     z=myRegion->m_distance*0.1;
-    rho=z*fabs(tan(theta));
+    rho=z*std::abs(std::tan(theta));
   }
   // building new element which will containt real eta, phi values for this identifier
   CaloDmDescrElement *element = new CaloDmDescrElement(eta, myRegion->m_deta, phi, myRegion->m_dphi, rho, z); 

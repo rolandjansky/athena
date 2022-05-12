@@ -9,7 +9,7 @@ DetFlags.bpipe_setOn()
 DetFlags.ZDC_setOn()
 DetFlags.Truth_setOn()
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 
 from AthenaCommon.GlobalFlags import jobproperties

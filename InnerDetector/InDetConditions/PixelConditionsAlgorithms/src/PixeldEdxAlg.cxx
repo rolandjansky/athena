@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixeldEdxAlg.h"
@@ -20,16 +20,9 @@ StatusCode PixeldEdxAlg::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
-  ATH_CHECK(m_condSvc.retrieve());
-
   ATH_CHECK(m_readKey.initialize(m_readfromcool));
   ATH_CHECK(m_writeKey.initialize());
-  if (m_readfromcool) {
-    if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
-      ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-  }
+
   return StatusCode::SUCCESS;
 }
 

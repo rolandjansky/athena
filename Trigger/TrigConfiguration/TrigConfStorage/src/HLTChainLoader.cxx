@@ -336,7 +336,7 @@ TrigConf::HLTChainLoader::loadSignatures( HLTChainList& chainlist ) {
 
       if( sig_list[sig_counter] == 0) {
          int logic = row["TS.HTS_LOGIC"].data<int>();
-         sig_list[sig_counter] = new HLTSignature(sig_counter, logic);
+         sig_list[sig_counter] = new HLTSignature(sig_counter, logic, std::vector<HLTTriggerElement*>());
          sig_list[sig_counter]->set_label( chainname + "_" + boost::lexical_cast<string,int>(sig_counter) );
       }
 

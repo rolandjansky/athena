@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOL_H
 #define TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOL_H 1
@@ -24,13 +24,12 @@ class TrigLArNoiseBurstHypoTool : public extends<AthAlgTool, ITrigLArNoiseBurstH
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigLArNoiseBurstHypoTool::FlagNoiseInfo>& input )  const override;
 
-  virtual bool decide( const ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo& i ) const override;
+  virtual bool decide( const ITrigLArNoiseBurstHypoTool::FlagNoiseInfo& i ) const override;
 
 
  private:
-  ToolHandle<ILArNoisyROTool> m_noisyROTool;
   HLT::Identifier m_decisionId;
 
   Gaudi::Property< bool >  m_badFEBFlaggedPartitions         { this, "BadFEBFlaggedPartitions" , true, "flag to be used for NB detection" };
@@ -40,8 +39,6 @@ class TrigLArNoiseBurstHypoTool : public extends<AthAlgTool, ITrigLArNoiseBurstH
   Gaudi::Property< bool >  m_mNBTight_PsVetoFlaggedPartitions{ this, "MNBTight_PsVetoFlaggedPartitions", true, "flag to be used for NB detection" };
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  unsigned int m_mask;
-  
 }; 
 
 #endif //> !TRIGCALOHYPO_TRIGLARNOISEBURSTHYPOTOOL_H

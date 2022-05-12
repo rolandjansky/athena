@@ -28,7 +28,8 @@ C
 C
       NDO=1
       DO 1 J=1,NDIM
-1     XI(1,J)=ONE
+      XI(1,J)=ONE
+1     CONTINUE
 C
       ENTRY VEGAS1(FXN,AVGI,SD,CHI2A)
 C         - INITIALIZES CUMMULATIVE VARIABLES, BUT NOT GRID
@@ -63,7 +64,8 @@ C         - NO INITIALIZATION
       DO 3 J=1,NDIM
 c***this is the line 50
       DX(J)=XU(J)-XL(J)
-3     XJAC=XJAC*DX(J)
+      XJAC=XJAC*DX(J)
+3     CONTINUE
 C
 C   REBIN PRESERVING BIN DENSITY
 C
@@ -84,8 +86,10 @@ C
       XIN(I)=XN-(XN-XO)*DR
       IF(I.LT.NDM) GO TO 5
       DO 6 I=1,NDM
-6     XI(I,J)=XIN(I)
-7     XI(ND,J)=ONE
+      XI(I,J)=XIN(I)
+6     CONTINUE
+      XI(ND,J)=ONE
+7     CONTINUE
       NDO=ND
 C
 8     CONTINUE
@@ -97,11 +101,13 @@ C         - MAIN INTEGRATION LOOP
 9     IT=IT+1
       TI=0.
       TSI=TI
-      DO 10 J=1,NDIM
+      DO 100 J=1,NDIM
       KG(J)=1
       DO 10 I=1,ND
       D(I,J)=TI
-10    DI(I,J)=TI
+      DI(I,J)=TI
+10    CONTINUE
+100   CONTINUE
 C
 11    FB=0.
       F2B=FB
@@ -130,7 +136,8 @@ C
       F2B=F2B+F2
       DO 16 J=1,NDIM
       DI(IA(J),J)=DI(IA(J),J)+F
-16    IF(MDS.GE.0) D(IA(J),J)=D(IA(J),J)+F2
+      IF(MDS.GE.0) D(IA(J),J)=D(IA(J),J)+F2
+16    CONTINUE
       IF(K.LT.NPG) GO TO 12
 C
       F2B=DSQRT(F2B*NPG)
@@ -139,7 +146,8 @@ C
       TSI=TSI+F2B
       IF(MDS.GE.0) GO TO 18
       DO 17 J=1,NDIM
-17    D(IA(J),J)=D(IA(J),J)+F2B
+      D(IA(J),J)=D(IA(J),J)+F2B
+17    CONTINUE
 18    K=NDIM
 19    KG(K)=MOD(KG(K),NG)+1
       IF(KG(K).NE.1) GO TO 11
@@ -167,7 +175,8 @@ C****this is the line 150
       WRITE(16,201) IT,TI,TSI,AVGI,SD,CHI2A
       IF(NPRN.GE.0) GO TO 21
       DO 20 J=1,NDIM
-20    WRITE(16,202) J,(XI(I,J),DI(I,J),D(I,J),I=1,ND)
+      WRITE(16,202) J,(XI(I,J),DI(I,J),D(I,J),I=1,ND)
+20    CONTINUE
 C
 C   REFINE GRID
 C
@@ -181,9 +190,11 @@ C
       XO=XN
       XN=D(I+1,J)
       D(I,J)=(D(I,J)+XN)/3.
-22    DT(J)=DT(J)+D(I,J)
+      DT(J)=DT(J)+D(I,J)
+22    CONTINUE
       D(ND,J)=(XN+XO)/2.
-23    DT(J)=DT(J)+D(ND,J)
+      DT(J)=DT(J)+D(ND,J)
+23    CONTINUE
 C
       DO 28 J=1,NDIM
       RC=0.
@@ -203,7 +214,8 @@ C1114  FORMAT(1X,'**************END NOTICE*************')
       IF(D(I,J).LE.1.0D-18) GO TO 24
       XO=DT(J)/D(I,J)
       R(I)=((XO-ONE)/XO/DLOG(XO))**ALPH
-24    RC=RC+R(I)
+      RC=RC+R(I)
+24    CONTINUE
       RC=RC/XND
       K=0
       XN=0.
@@ -220,8 +232,10 @@ c****this is the line 200
       XIN(I)=XN-(XN-XO)*DR/(R(K)+1.0d-30)
       IF(I.LT.NDM) GO TO 26
       DO 27 I=1,NDM
-27    XI(I,J)=XIN(I)
-28    XI(ND,J)=ONE
+      XI(I,J)=XIN(I)
+27    CONTINUE
+      XI(ND,J)=ONE
+28    CONTINUE
 C
       IF(IT.LT.ITMX.AND.ACC*DABS(AVGI).LT.SD) GO TO 9
 200   FORMAT('0INPUT PARAMETERS FOR VEGAS:  NDIM=',I3,'  NCALL=',F8.0

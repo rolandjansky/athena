@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -85,6 +85,18 @@ def buildListOfModifiers(ConfigFlags):
     return Modifiers
 
 
+def getFirstLumiBlock(ConfigFlags, run):
+    pDicts = ConfigFlags.Input.RunAndLumiOverrideList
+    if pDicts:
+        allLBs = [1]
+        for el in pDicts:
+            if el["run"] == run:
+                allLBs += [el["lb"]]
+        return min(allLBs) + 0
+    else:
+        return ConfigFlags.Input.LumiBlockNumber[0]
+
+
 def getMinMaxRunNumbers(ConfigFlags):
     """Get a pair (firstrun,lastrun + 1) for setting ranges in IOVMetaData """
     mini = 1
@@ -124,8 +136,21 @@ def EvtIdModifierSvcCfg(ConfigFlags, name="EvtIdModifierSvc", **kwargs):
     Modifiers = buildListOfModifiers(ConfigFlags)
     if len(Modifiers) > 0:
         kwargs.setdefault("Modifiers", Modifiers)
-    acc.addService(CompFactory.EvtIdModifierSvc(name, **kwargs), create=True)
     iovDbMetaDataTool = CompFactory.IOVDbMetaDataTool()
     iovDbMetaDataTool.MinMaxRunNumbers = getMinMaxRunNumbers(ConfigFlags)
     acc.addPublicTool(iovDbMetaDataTool)
+
+    # TODO There must be a better way to do this, but it would require
+    # Cfg methods for the EventLoopMgrs which don't exist.
+    if ConfigFlags.Common.Project == "AthSimulation" or not ConfigFlags.Digitization.PileUp:
+        if ConfigFlags.Concurrency.NumThreads > 0:
+            AthenaHiveEventLoopMgr = CompFactory.AthenaHiveEventLoopMgr
+            elmgr = AthenaHiveEventLoopMgr()
+        else:
+            AthenaEventLoopMgr = CompFactory.AthenaEventLoopMgr
+            elmgr = AthenaEventLoopMgr()
+        elmgr.EvtIdModifierSvc="EvtIdModifierSvc"
+        acc.addService(elmgr)
+
+    acc.addService(CompFactory.EvtIdModifierSvc(name, **kwargs), create=True, primary=True)
     return acc

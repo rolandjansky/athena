@@ -1,17 +1,30 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInDetToMuonSystemExtensionAlg.h"
 #include "AthContainers/ConstDataVector.h"
-#include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 namespace {
     constexpr unsigned int num_sectors = 16;
     using RegionIndex = Muon::MuonStationIndex::DetectorRegionIndex;
-    using LayerIndex = Muon::MuonStationIndex::LayerIndex;   
+    using LayerIndex = Muon::MuonStationIndex::LayerIndex; 
+
+    inline const Trk::PrepRawData* prepData(const std::shared_ptr<MuonHough::Hit>& hit) {
+        if (hit->prd) return hit->prd;
+        if (hit->tgc) return  hit->tgc->phiCluster.hitList.front();
+        return nullptr;
+    }
+    /// Helper struct to store the number of hits per chamber
+    /// and the average theta of a chamber per hough seed
+    struct hough_chamber{
+        int nhits{0};
+        double eta{0.};
+        std::set<int> sectors;
+    };
+   
 }  // namespace
 
 MuonInDetToMuonSystemExtensionAlg::MuonInDetToMuonSystemExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -21,6 +34,7 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::initialize() {
     
     ATH_CHECK(m_muonSystemExtensionTool.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_combTagMap.initialize());
     ATH_CHECK(m_inputCandidate.initialize());
     ATH_CHECK(m_bulkInDetCandKey.initialize());
@@ -29,7 +43,10 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::initialize() {
         ATH_MSG_INFO("Use the Hough seeds to determine the sectors in the MS worth for being extrapolated to");
     }
     ATH_CHECK(m_houghDataPerSectorVecKey.initialize(m_restrictExtension)); 
-   
+    ATH_CHECK(m_segmentKey.initialize(m_restrictExtension));
+    if (m_restrictExtension){
+        ATH_CHECK(m_segmentSelector.retrieve());
+    }
     return StatusCode::SUCCESS;
 }
 
@@ -44,8 +61,11 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::execute(const EventContext& ctx) c
     output_cache.input_candidates = input_container.cptr();
     ATH_CHECK(selectCandidates(ctx,output_cache));    
     
-    if (m_restrictExtension) { ATH_CHECK(findHitSectors(ctx, output_cache)); }
-
+    if (m_restrictExtension) { 
+        ATH_CHECK(findSegments(ctx,output_cache)); 
+        ATH_CHECK(findHitSectors(ctx, output_cache));
+   
+    }
     
     ATH_MSG_DEBUG("Find the inner detector candidates to be used for MuGirl / Segment tagging");
     ATH_CHECK(create(ctx,output_cache));
@@ -76,7 +96,11 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::selectCandidates(const EventContex
         const MuonCombined::CombinedFitTag* cmb_tag = dynamic_cast<const MuonCombined::CombinedFitTag*>(combined_tags.second.get());
         MuidCoCache cache{combined_tags.first, cmb_tag};
         out_cache.tag_map.push_back(std::move(cache));
-        out_cache.excluded_trks.insert(combined_tags.first);       
+        out_cache.excluded_trks.insert(combined_tags.first);   
+        for (const Muon::MuonSegment* muon_seg : cmb_tag->associatedSegments()){
+            out_cache.combined_segs.insert(muon_seg);
+            maskHits(muon_seg, out_cache);
+        }
     }
     return StatusCode::SUCCESS;
 }
@@ -96,18 +120,14 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::create(const EventContext& ctx, In
             (!m_extendBulk && !candidate->isSiliconAssociated()) ) {
             ATH_MSG_VERBOSE("Inner detector track "<<candidate->toString()<<" is too soft");
             continue;
-        }
+        }       
 
         /// Prepare the system extension
         Muon::IMuonSystemExtensionTool::SystemExtensionCache cache;
         cache.candidate = std::make_unique<MuonCombined::InDetCandidate>(candidate->indetTrackParticleLink());
         cache.candidate->setSiliconAssociated(candidate->isSiliconAssociated());
         cache.candidate->setExtension(candidate->getCaloExtension());
-        cache.useHitSectors = m_restrictExtension;
-        cache.sectorsWithHits = &out_cache.hit_sectors;
-        cache.createSystemExtension = true;
-        cache.requireSystemExtension = true; 
-
+        
         const Muon::MuonSystemExtension* extension = candidate->getExtension(); 
         /// The candidate already has somehow a system extension --> it's just a matter of copying it 
         if (extension) {
@@ -115,15 +135,26 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::create(const EventContext& ctx, In
             std::vector<Muon::MuonSystemExtension::Intersection> intersects = extension->layerIntersections();
             cache.candidate->setExtension(std::make_unique<Muon::MuonSystemExtension>(&extension->muonEntryLayerIntersection(), 
                                             std::move(intersects)));
-        } else if (!m_muonSystemExtensionTool->muonSystemExtension(ctx, cache)) {
-            ATH_MSG_VERBOSE("Extension failed");
-            continue;
+        } else { 
+            /// If the id candidate has a matching segment, then we know that this track can be potentially reconstructed by MuTagIMO
+            const bool seg_match = !m_restrictExtension || hasMatchingSegment(*candidate, out_cache);
+
+            if (!seg_match && !hasMatchingSeed(*candidate,out_cache)) continue;
+            cache.useHitSectors = !seg_match;       
+            cache.sectorsWithHits = &out_cache.hit_sectors;        
+            cache.createSystemExtension = true;
+            cache.requireSystemExtension = true; 
+        
+            if (!m_muonSystemExtensionTool->muonSystemExtension(ctx, cache)) {
+                ATH_MSG_VERBOSE("Extension failed");
+                continue;
+            }
         }
         out_cache.outputContainer->push_back(std::move(cache.candidate));
     }
     if (msgLevel(MSG::DEBUG))  {
         std::stringstream sstr;
-        for (const MuonCombined::InDetCandidate*  extended :  *out_cache.outputContainer) {
+        for (const MuonCombined::InDetCandidate* extended :  *out_cache.outputContainer) {
             sstr<<"   * "<<extended->toString()<<std::endl;
         }
         if(!out_cache.excluded_trks.empty()) {
@@ -167,38 +198,153 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::findHitSectors(const EventContext&
         for (const auto& sector_hits : output_cache.hit_sectors) { n += sector_hits.second.size() >= num_sectors; }
         return n;
     };
-    /// Helper
-    static const Muon::MuonSectorMapping sector_mapping;
-    for (const Muon::HoughDataPerSec& sector_data : hough_data) {
-        /// The phi-hit vector has a size of 3 representing
-        /// the forward-backward and barrel sections
-        for (int det_region = 0; det_region < Muon::MuonStationIndex::DetectorRegionIndexMax; ++det_region) {
-            const RegionIndex region_index = static_cast<RegionIndex>(det_region);
-            for (int layer = 0; layer < Muon::MuonStationIndex::LayerIndexMax; ++layer) {
-                const LayerIndex layer_index = static_cast<LayerIndex>(layer);
-                const unsigned int hash = Muon::MuonStationIndex::sectorLayerHash(region_index, layer_index);
-                const Muon::HoughDataPerSec::MaximumVec& eta_hits = sector_data.maxVec[hash];
-                for (const std::shared_ptr<MuonHough::MuonLayerHough::Maximum>& maxima : eta_hits) {
-                    if (m_houghMin > maxima->hits.size())  continue;
-                    ATH_MSG_VERBOSE("Hough maximum in " <<Muon::MuonStationIndex::regionName(region_index)<<
-                                    ", "<<Muon::MuonStationIndex::layerName(layer_index)<<", hits: "<<maxima->hits.size());
-                    for (const std::shared_ptr<MuonHough::Hit>& hit : maxima->hits) {
-                        const Trk::PrepRawData* prep_data{hit->prd};
-                        if (!prep_data && hit->tgc) { prep_data = hit->tgc->phiCluster.hitList.front(); }
-                        if (!prep_data) continue;
-                        const Amg::Vector3D glob_pos = prep_data->detectorElement()->center(prep_data->identify());
-                        output_cache.hit_sectors[region_index].insert(sector_mapping.getSector(glob_pos.phi()));
+  
+    /// The phi-hit vector has a size of 3 representing
+    /// the forward-backward and barrel sections        
+    for (int det_region = 0; det_region < Muon::MuonStationIndex::DetectorRegionIndexMax; ++det_region) {
+        const RegionIndex region_index = static_cast<RegionIndex>(det_region);
+        for (int layer = 0; layer < Muon::MuonStationIndex::LayerIndexMax; ++layer) {
+            const LayerIndex layer_index = static_cast<LayerIndex>(layer);
+            const unsigned int hash = Muon::MuonStationIndex::sectorLayerHash(region_index, layer_index);
+            /// Hits built into a MuidCo track
+            const std::set<Identifier>& masked_hits = output_cache.consumed_hits[hash];
+            
+            /// Subtract the hits used by MuidCo from the hough seeds
+            auto num_hough_hits =[&masked_hits, this](const std::shared_ptr<MuonHough::MuonLayerHough::Maximum>& hough_maximum) {                
+                std::map<Identifier, hough_chamber> chamber_counts;
+                for (const std::shared_ptr<MuonHough::Hit>& hough_hit: hough_maximum->hits) {
+                    const Trk::PrepRawData* prep = prepData(hough_hit);
+                    const Identifier chId = prep->identify();
+                    if (masked_hits.count(chId)) {
+                        ATH_MSG_VERBOSE("Do not reuse hit "<<m_idHelperSvc->toString(chId));
+                        continue;
                     }
+                    ATH_MSG_VERBOSE("Count houg hit "<<m_idHelperSvc->toString(chId));
+                    // Split the seeds into the chambers
+                    hough_chamber& chamber = chamber_counts[m_idHelperSvc->chamberId(chId)];
+                    ++chamber.nhits;
+                    const Amg::Vector3D glob_pos = prep->detectorElement()->center(chId);
+                    chamber.eta += glob_pos.eta();
+                    chamber.sectors.insert(m_sector_mapping.getSector(glob_pos.phi()));
+                }
+                /// Find the chamber with the largest number of hits
+                hough_chamber N{};
+                for (auto& ch_it : chamber_counts) {
+                    if (N.nhits < ch_it.second.nhits) {
+                        N = std::move(ch_it.second);
+                    }
+                }
+                /// Average the theta
+                N.eta /= std::max(N.nhits, 1);
+                return N;
+            };
+
+            for (const Muon::HoughDataPerSec& sector_data : hough_data) {
+                const Muon::HoughDataPerSec::MaximumVec& eta_hits = sector_data.maxVec[hash];                
+                /// Loop over the maxima & find the hit sectors
+                for (const std::shared_ptr<MuonHough::MuonLayerHough::Maximum>& maxima : eta_hits) {
+                    /// Remove all hits from the seed that are built into a segment
+                    const hough_chamber effect_hits = num_hough_hits(maxima);
+                    /// If the seed has still more than the minimum. Then let's mark the sector as hit
+                    if (m_houghMin > effect_hits.nhits)  continue;
+                    ATH_MSG_VERBOSE("Hough maximum in " <<Muon::MuonStationIndex::regionName(region_index)<<
+                                    ", "<<Muon::MuonStationIndex::layerName(layer_index)<<", hits: "<<effect_hits.nhits);
+                    
+                    for (const int sector : effect_hits.sectors) {
+                        output_cache.hit_sectors[region_index].insert(sector);
+                        /// Cache the eta value additionally
+                        output_cache.eta_seeds[sector].push_back(effect_hits.eta);
+                    }                               
                 }
                 if (count_finished() >= RegionIndex::DetectorRegionIndexMax) {
                     ATH_MSG_VERBOSE("The MS is filled up with Hough seeds. We do not need to search for them any longer");
-                    return StatusCode::SUCCESS;
+                     break;
                 }            
             }
         }
+        for (auto& theta_pair : output_cache.eta_seeds) {
+            std::sort(theta_pair.second.begin(), theta_pair.second.end());
+        }
     }
+    output_cache.consumed_hits.clear();
     return StatusCode::SUCCESS;
 }
+StatusCode MuonInDetToMuonSystemExtensionAlg::findSegments(const EventContext& ctx, InDetCandidateCache& output_cache) const{
+   SG::ReadHandle<xAOD::MuonSegmentContainer> segmentContainer{m_segmentKey,ctx};
+   if (!segmentContainer.isValid()) {
+        ATH_MSG_FATAL("Failed to retrieve the Muon segment container " << m_segmentKey.fullKey());
+        return StatusCode::FAILURE;
+    }
+    for (const xAOD::MuonSegment* segment : *segmentContainer){
+        if(!segment->muonSegment().isValid()){
+            ATH_MSG_WARNING("Failured in the segment association");
+            continue;
+        }
+        /// Retrieve the Trk segment
+        const Trk::Segment* trk_segment =*segment->muonSegment();
+        // Which in reality is a Muon segment
+        const Muon::MuonSegment* muon_segment = dynamic_cast<const Muon::MuonSegment*>(trk_segment);
+        if (!muon_segment){
+            ATH_MSG_WARNING("How can it be that a Muon segment is not a muon segment?");
+            continue;
+        }
+        // Check if the segment satisfies the quality criteria
+        // if (m_segmentSelector->quality(*muon_segment) < m_segmentQuality) continue;
+        /// Check if the segment is part of a MuidCo muon
+        if (output_cache.combined_segs.count(muon_segment)) {
+            ATH_MSG_VERBOSE("Segment was already used in combined fit");
+            continue;
+        }
+        /// Mask all hits from the Hough seeds
+        maskHits(muon_segment, output_cache);   
+        output_cache.candidate_segments.push_back(muon_segment);
+    }
+    output_cache.combined_segs.clear();
+    return StatusCode::SUCCESS;
+}
+bool MuonInDetToMuonSystemExtensionAlg::hasMatchingSegment(const MuonCombined::InDetCandidate& id_cand, const InDetCandidateCache& cache ) const {
+    const Trk::TrackParameters* ms_entry = id_cand.getCaloExtension()->muonEntryLayerIntersection();
+    const double ThetaID =  ms_entry->position().theta();  
+    std::vector<int> id_sectors;
+    m_sector_mapping.getSectors(ms_entry->position().phi(), id_sectors);       
+    auto sector_match = [&id_sectors, this](const Amg::Vector3D& seg_pos) -> bool {
+        std::vector<int> seg_sectors;
+        m_sector_mapping.getSectors(seg_pos.phi(), seg_sectors);            
+        return std::find_if(id_sectors.begin(), id_sectors.end(), [&seg_sectors](const int id_sec) {
+            return std::find(seg_sectors.begin(), seg_sectors.end(), id_sec) != seg_sectors.end();
+        }) != id_sectors.end();
+    };
+    for (const Muon::MuonSegment* itSeg : cache.candidate_segments) {
+        const Amg::Vector3D pos = itSeg->globalPosition();
+        const double dTheta = pos.theta() - ThetaID; 
+        const bool theta_match = std::abs(dTheta) < 0.2;
+        if (!theta_match) {
+            ATH_MSG_VERBOSE("dTheta cut failed");
+            continue;
+        }
+        if (!sector_match(pos)) {
+            ATH_MSG_VERBOSE("dPhi cut failed");
+            continue;
+        }  
+        return true;
+    }
+    return false;
+}
+bool MuonInDetToMuonSystemExtensionAlg::hasMatchingSeed(const MuonCombined::InDetCandidate& id_cand, const InDetCandidateCache& cache) const{
+    const Trk::TrackParameters* ms_entry = id_cand.getCaloExtension()->muonEntryLayerIntersection();
+    const double etaID =  ms_entry->position().eta();  
+    std::vector<int> id_sectors;
+    m_sector_mapping.getSectors(ms_entry->position().phi(), id_sectors);       
+    for (const int& sect : id_sectors) {
+        std::map<int, std::vector<double>>::const_iterator theta_itr = cache.eta_seeds.find(sect);
+        if (theta_itr == cache.eta_seeds.end()) continue;
+        if (std::find_if(theta_itr->second.begin(),theta_itr->second.end(), [&etaID](const double eta_seed){
+            return std::abs(etaID - eta_seed) < 0.1;
+        } ) != theta_itr->second.end()) return true;
+    }
+    return false;
+}
+
 
 StatusCode MuonInDetToMuonSystemExtensionAlg::createStaus(const EventContext& ctx, 
                            const InDetCandidateCollection* ext_candidates,
@@ -238,6 +384,18 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::createStaus(const EventContext& ct
     SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_stauInDetCandKey, ctx);
     ATH_CHECK(indetCandidateCollection.record(std::move(stau_cache.outputContainer)));
     return StatusCode::SUCCESS;
+}
+
+void MuonInDetToMuonSystemExtensionAlg::maskHits(const Muon::MuonSegment* muon_seg, InDetCandidateCache& output_cache) const{
+    const Identifier seg_id = m_edmHelperSvc->chamberId(*muon_seg);
+    const LayerIndex layer_index = m_idHelperSvc->layerIndex(seg_id);
+    const RegionIndex region_index = m_idHelperSvc->regionIndex(seg_id);
+    const unsigned int hash = Muon::MuonStationIndex::sectorLayerHash(region_index, layer_index);
+    std::set<Identifier>& id_set = output_cache.consumed_hits[hash];
+    for (const Trk::MeasurementBase* meas: muon_seg->containedMeasurements()) {
+        const Identifier meas_id = m_edmHelperSvc->getIdentifier(*meas);        
+        id_set.insert(meas_id);
+    }
 }
 
     

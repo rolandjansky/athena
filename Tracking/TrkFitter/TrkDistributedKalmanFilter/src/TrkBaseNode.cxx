@@ -41,8 +41,7 @@ namespace Trk {
     return m_pTrackState;
   }
 
-  TrkBaseNode::~TrkBaseNode() {
-  }
+  TrkBaseNode::~TrkBaseNode() = default;
 
   void TrkBaseNode::setNodeState(int s) {
     m_nodeState = s;

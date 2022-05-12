@@ -364,12 +364,7 @@ StatusCode Sherpa_i::genFinalize() {
   ATH_MSG_INFO("Sherpa_i finalize()");
 
   std::cout << "MetaData: generator = Sherpa" << SHERPA_VERSION << "." << SHERPA_SUBVERSION << std::endl;
-  std::cout << "MetaData: cross-section (nb)= " << p_sherpa->TotalXS()/1000.0 << std::endl;
-  if (m_xsscale!=1.0) {
-    std::cout << "MetaData: cross-section*CrossSectionScaleFactor (nb)= "
-              << p_sherpa->TotalXS()/1000.0*m_xsscale << std::endl;
-    std::cout << "MetaData: CrossSectionScaleFactor = " << m_xsscale << std::endl;
-  }
+  std::cout << "MetaData: cross-section (nb)= " << p_sherpa->TotalXS()/1000.0*m_xsscale << std::endl;
 
   std::cout << "MetaData: PDF = " << p_sherpa->PDFInfo() << std::endl;
 

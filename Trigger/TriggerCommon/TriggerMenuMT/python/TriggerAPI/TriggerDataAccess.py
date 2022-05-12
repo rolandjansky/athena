@@ -298,8 +298,9 @@ def getHLTmap_fromTM(period, release):
     '''
 
     from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     menu = GenerateMenuMT()
-    menu.getChainsFromMenu()
+    menu.getChainsFromMenu(ConfigFlags)
 
     if not period & TriggerPeriod.future: return {}, 0
     hltMap = {}

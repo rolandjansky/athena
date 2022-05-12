@@ -13,6 +13,7 @@ find_package( Geant4 )
 # Component(s) in the package:
 atlas_add_library( G4PhysicsLists
   src/*.cc src/MuBias/*.cc src/hadronicVariations/*.cc
+  OBJECT
   PUBLIC_HEADERS G4PhysicsLists
   INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}

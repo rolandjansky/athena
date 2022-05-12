@@ -46,10 +46,7 @@ namespace Trk {
 		m_positionError(Amg::MatrixX()),
 		m_fitQuality(Trk::FitQuality(chi2,ndf)) { m_positionError.setZero();}
 
-  RecVertexPositions::RecVertexPositions(const RecVertexPositions& rhs) : VertexPositions(rhs),
-									  m_positionError(rhs.m_positionError),
-									  m_fitQuality(rhs.m_fitQuality)
-  {}
+  RecVertexPositions::RecVertexPositions(const RecVertexPositions& rhs) = default;
 
 
   const Amg::VectorX& RecVertexPositions::weightTimesPosition() {
@@ -156,7 +153,7 @@ namespace Trk {
     return sl;
   }
 
-  RecVertexPositions::~RecVertexPositions() {}
+  RecVertexPositions::~RecVertexPositions() = default;
  
   const Trk::FitQuality& RecVertexPositions::fitQuality() const
   {return m_fitQuality;}

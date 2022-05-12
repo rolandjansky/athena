@@ -8,6 +8,10 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
+#ifdef USE_GPU
+#include "ISF_FastCaloGpu/LoadGpuFuncHist.h"
+#include "ISF_FastCaloGpu/GeoLoadGpu.h"
+#endif
 
 class TH2;
 class ICaloGeometry;
@@ -62,6 +66,16 @@ public:
   const TFCS2DFunctionHistogram& histogram() const {return m_hist;};
   
   void Print(Option_t *option = "") const override;
+
+#ifdef USE_GPU
+  //for FCS-GPU
+  //construct the hist function and copy to GPU
+  void  set_d_HistFunc( FH2D* hf_ptr ) { m_d_HistFunc = hf_ptr; };
+  const FH2D*  d_HistFunc() { return m_d_HistFunc; };
+  LoadGpuFuncHist* LdFH() { return m_LdFH; };
+  void LoadHistFuncs();
+#endif
+
 protected:
   /// Histogram to be used for the shape simulation
   TFCS2DFunctionHistogram m_hist;
@@ -70,6 +84,11 @@ protected:
   float m_r_scale;
 
 private:
+
+#ifdef USE_GPU
+  FH2D*            m_d_HistFunc = nullptr;
+  LoadGpuFuncHist* m_LdFH       = nullptr;
+#endif
 
   ClassDefOverride(TFCSHistoLateralShapeParametrization,2)  //TFCSHistoLateralShapeParametrization
 };

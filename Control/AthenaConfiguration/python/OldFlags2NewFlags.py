@@ -18,6 +18,8 @@ def getNewConfigFlags():
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     from RecExConfig.RecFlags import rec
+    from RecExConfig.RecAlgsFlags import recAlgs
+    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -53,7 +55,7 @@ def getNewConfigFlags():
 
     #Geometry - Muon
     geom_flag_map.update({ 'CSC':'CSC', 'MDT':'MDT', 'RPC':'RPC', 'TGC':'TGC'})
-    geom_flag_map.update({ 'MM':'Micromegas', 'sTGC':'sTGC'})
+    geom_flag_map.update({ 'MM':'MM', 'sTGC':'sTGC'})
 
     # Geometry - Forward
     geom_flag_map.update({'Lucid':'Lucid', 'ZDC':'ZDC', 'ALFA':'ALFA', 'AFP':'AFP'})
@@ -77,11 +79,28 @@ def getNewConfigFlags():
 
     # miscellaneous settings
     from InDetRecExample.InDetJobProperties import InDetFlags
+    InDetFlags.init()
     ConfigFlags.InDet.Tracking.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+    ConfigFlags.InDet.PriVertex.doVertexFinding = InDetFlags.doVertexFinding()
 
+
+    # LAr Flags
     from LArConditionsCommon.LArCondFlags import larCondFlags 
     ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
+    from LArROD.LArRODFlags import larRODFlags
+    ConfigFlags.LAr.ROD.DoOFCPileupOptimization=larRODFlags.doOFCPileupOptimization()
+    ConfigFlags.LAr.ROD.NumberOfCollisions=larRODFlags.NumberOfCollisions()
+    ConfigFlags.LAr.ROD.nSamples=larRODFlags.nSamples()
+    ConfigFlags.LAr.ROD.FirstSample=larRODFlags.firstSample()
+    ConfigFlags.LAr.ROD.UseHighestGainAutoCorr=larRODFlags.useHighestGainAutoCorr()
+    ConfigFlags.LAr.ROD.DoOFCMixedOptimization=larRODFlags.doOFCMixedOptimization()
+    ConfigFlags.LAr.ROD.UseDelta=larRODFlags.UseDelta()
+    ConfigFlags.LAr.ROD.forceIter=larRODFlags.forceIter()
+
+    # Muon reco flags
+    ConfigFlags.MuonCombined.doMuGirl = recAlgs.doMuGirl()
+    ConfigFlags.MuonCombined.doMuGirlLowBeta = muonCombinedRecFlags.doMuGirlLowBeta()
 
     # data overlay
     from AthenaCommon.GlobalFlags import globalflags

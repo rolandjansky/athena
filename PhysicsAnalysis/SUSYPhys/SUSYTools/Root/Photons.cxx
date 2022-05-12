@@ -16,6 +16,7 @@
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -77,6 +78,9 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
      return StatusCode::SUCCESS;
   }
 
+ //Check DeadHVCellRemoval
+  bool pass_deadHVTool = m_deadHVTool->accept(&input);
+
   if (m_debug) {
     ATH_MSG_INFO( "PHOTON eta: " << input.eta() );
     ATH_MSG_INFO( "PHOTON phi: " << input.phi() );
@@ -85,12 +89,15 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     ATH_MSG_INFO( "PHOTON cl e: " << input.caloCluster()->e() );
     ATH_MSG_INFO( "PHOTON OQ: " << input.OQ() );
     ATH_MSG_INFO( "PHOTON author: " << input.author() );
+    ATH_MSG_INFO( "PHOTON deadHVTools: " << pass_deadHVTool );
   }
 
   dec_baseline(input) = false;
   dec_selected(input) = 0;
   dec_isol(input) = false;
   dec_isEM(input) = 0;
+
+  if (!pass_deadHVTool) return StatusCode::SUCCESS; 
 
   // Author cuts needed according to https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_authors
   if ( !(input.author() & (xAOD::EgammaParameters::AuthorPhoton + xAOD::EgammaParameters::AuthorAmbiguous)) )
@@ -122,8 +129,8 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     if ( (!m_photonAllowLate && acc_passPhCleaning(input)) || (m_photonAllowLate && acc_passPhCleaningNoTime(input)) ) passPhCleaning = true;
   } else {
     ATH_MSG_VERBOSE ("DFCommonPhotonsCleaning is not found in DAOD..");
-    if ( (!m_photonAllowLate && PhotonHelpers::passOQquality(&input)) || 
-         ( m_photonAllowLate && PhotonHelpers::passOQqualityDelayed(&input)) ) passPhCleaning = true;
+    if ( (!m_photonAllowLate && PhotonHelpers::passOQquality(input)) || 
+         ( m_photonAllowLate && PhotonHelpers::passOQqualityDelayed(input)) ) passPhCleaning = true;
   }
   if (!passPhCleaning) return StatusCode::SUCCESS;
 

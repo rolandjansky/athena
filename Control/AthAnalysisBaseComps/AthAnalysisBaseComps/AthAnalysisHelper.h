@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisHelper.h 
@@ -211,7 +211,7 @@ public:
       IAlgTool *algtool = AlgTool::Factory::create(type,type,name,parent).release();
       algtool->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
       W* out = dynamic_cast<W*>(algtool);
-      if(!out && algtool) {
+      if(!out) {
          std::cout << "ERROR: Tool of type " << type << " does not implement the interface " << System::typeinfoName(typeid(W)) << std::endl;
          delete algtool;
          return 0; 
@@ -380,13 +380,6 @@ public:
 
   //Obtain TFile pointer to THistSvc's output file with the given streamName
   static TFile* getOutputFile(const std::string& streamName);
-
-
-
-
-   ///we keep a static handle to the joboptionsvc, since it's very useful
-   ///can e.g. do: AAH::joSvc->readOptions("myJob.opts","$JOBOPTSEARCHPATH")
-   static ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc;
 
 
 }; //AthAnalysisHelper class

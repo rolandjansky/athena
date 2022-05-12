@@ -37,6 +37,7 @@ namespace H5Utils {
       unsigned long long u_ullong;
       unsigned int u_uint;
       unsigned char u_uchar;
+      char u_char;
       float u_float;
       double u_double;
       bool u_bool;
@@ -66,6 +67,10 @@ namespace H5Utils {
     template <> struct H5Traits<unsigned char> {
       static const H5::DataType type;
       static unsigned char& ref(data_buffer_t& buf) { return buf.u_uchar; }
+    };
+    template <> struct H5Traits<char> {
+      static const H5::DataType type;
+      static char& ref(data_buffer_t& buf) { return buf.u_char; }
     };
     template <> struct H5Traits<float> {
       static const H5::DataType type;

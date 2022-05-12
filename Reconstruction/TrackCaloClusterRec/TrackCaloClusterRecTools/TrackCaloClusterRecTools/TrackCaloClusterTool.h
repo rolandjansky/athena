@@ -17,6 +17,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 
 #include "TrackCaloClusterRecInterfaces/ITrackCaloClusterTool.h"
@@ -125,13 +126,14 @@ protected:
 class UFOTool : public TrackCaloClusterBaseTool {
 public:
   UFOTool(const std::string&,const std::string&,const IInterface*);
-
+  virtual StatusCode initialize() override;// force override of base class to add extra handles  
   virtual StatusCode fillTCC(xAOD::FlowElementContainer* container, const TrackCaloClusterInfo & tccInfo ) const override;
 
 protected:
 
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inputPFOHandle {this, "InputPFO", "CHSParticleFlowObjects", ""};
-  SG::ReadDecorHandleKey<xAOD::PFOContainer> m_orig_pfo{this, "OriginPFO", "Origin_pfo", "Key to access original un-modified pfo"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_inputPFOHandle {this, "InputPFO", "CHSParticleFlowObjects", ""};
+  // no need for a ReadDecorHandleKey here : access to this deco is optional (tested through is isAvailable, see TCCHelpers.h)  
+  Gaudi::Property<std::string> m_orig_pfo{this, "OriginPFO", "originalObjectLink", "Key to access original un-modified pfo"};
 
   /// cluster with E below this cut won't be considered in the TCC alg. WARNING cut must be configured as in TrackCaloClusterInfoUFOAlg
   Gaudi::Property<float> m_clusterEcut{this , "ClusterECut", 0, " Impotant !! : must be the same value as in TrackCaloClusterInfoUFOAlg"};

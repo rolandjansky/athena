@@ -19,3 +19,5 @@ atlas_add_dictionary( InDetUsedInFitTrackDecoratorToolDict
         InDetUsedInFitTrackDecoratorTool/InDetUsedInFitTrackDecoratorToolDict.h
     InDetUsedInFitTrackDecoratorTool/selection.xml
     LINK_LIBRARIES InDetUsedInFitTrackDecoratorToolLib )
+
+atlas_install_python_modules( python/*.py )

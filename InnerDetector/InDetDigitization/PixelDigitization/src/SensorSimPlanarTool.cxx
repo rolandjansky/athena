@@ -53,20 +53,20 @@ StatusCode SensorSimPlanarTool::initialize() {
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
 
-  //If any fluence or voltage initialized negative use benchmark maps and not interpolation
-  std::vector<std::string> mapsPath_list;
-  std::vector<std::string> TCADpath_list;
-
-  // Use all TCAD E field files in this directory for creating E field via interpolation (pruned filed excluded)
-  std::string iblFiles = PathResolverFindCalibDirectory("PixelDigitization/TCAD_IBL_efields/fei4-200um/");
-  std::string sensorFiles = PathResolverFindCalibDirectory("PixelDigitization/TCAD_Blayer_efields/fei4-250um/");
-
-  // For each layer one configuration
-  TCADpath_list = {
-    iblFiles, sensorFiles, sensorFiles, sensorFiles
-  };           //IBL - 200um sensor depth, B layer - 20um, layer 1, layer 2
-
   if (m_doInterpolateEfield) {
+    //If any fluence or voltage initialized negative use benchmark maps and not interpolation
+    std::vector<std::string> mapsPath_list;
+    std::vector<std::string> TCADpath_list;
+
+    // Use all TCAD E field files in this directory for creating E field via interpolation (pruned filed excluded)
+    std::string iblFiles = PathResolverFindCalibDirectory("PixelDigitization/TCAD_IBL_efields/fei4-200um/");
+    std::string sensorFiles = PathResolverFindCalibDirectory("PixelDigitization/TCAD_Blayer_efields/fei4-250um/");
+
+    // For each layer one configuration
+    TCADpath_list = {
+      iblFiles, sensorFiles, sensorFiles, sensorFiles
+    };
+
     if (m_fluenceMap.size() == 0 || m_fluenceLayer.size() == 0 || m_voltageLayer.size() == 0 ||
         m_fluenceMap.size() != m_fluenceLayer.size() || m_fluenceMap.size() != m_voltageLayer.size()) {
       ATH_MSG_INFO("Use interpolation, but the input map/fluence/valtage are not set.");
@@ -233,8 +233,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const InDet::SiliconProperties& siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash(), ctx);
 
   // Prepare values that are needed for radiation damage corrections later
-  const HepGeom::Point3D<double>& startPosition = phit->localStartPosition(); 
-  const HepGeom::Point3D<double>& endPosition   = phit->localEndPosition(); 
+  const HepGeom::Point3D<double>& startPosition = phit->localStartPosition();
+  const HepGeom::Point3D<double>& endPosition   = phit->localEndPosition();
   const float zPosDiff = endPosition.Z - startPosition.Z;
   const float tanTheta = (zPosDiff != 0.) ? (endPosition.Y - startPosition.Y) / zPosDiff : (endPosition.Y - startPosition.Y) * 9999.;
   const float tanPhi   = (zPosDiff != 0.) ? (endPosition.X - startPosition.X) / zPosDiff : (endPosition.X - startPosition.X) * 9999.;
@@ -274,12 +274,13 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   const double halfPhiPitch = 0.5*Module.phiPitch();
 
   if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel() && !m_doRadDamageTemplate) {
-    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
+    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceDataHandle(m_fluenceDataKey,ctx);
+    const PixelRadiationDamageFluenceMapData *fluenceData = *fluenceDataHandle;
 
     std::pair<double, double> trappingTimes;
     if (m_doInterpolateEfield) {
       trappingTimes = m_radDamageUtil->getTrappingTimes(m_fluenceLayer[layer]);
-    } 
+    }
     else {
       trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer(layer));
     }
@@ -290,7 +291,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : fluenceData->getLorentzMap_h(layer);
     const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : fluenceData->getRamoPotentialMap(layer);
 
-    std::map<unsigned, std::pair<SiLocalPosition, double>> cachedChargeMap; 
+    std::map<unsigned, std::pair<SiLocalPosition, double>> cachedChargeMap;
     std::map<unsigned, SiCellId> diodeCellMap;
     for (const auto& iHitRecord : trfHitRecord) {
 
@@ -318,10 +319,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       SiLocalPosition centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
 
       //Make limits for NN loop
-      int nnLoop_pixelEtaMax = std::min(1, pixel_i.etaIndex());
-      int nnLoop_pixelEtaMin = std::max(-1, pixel_i.etaIndex() + 1 - etaCells);
-      int nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
-      int nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
+      const int nnLoop_pixelEtaMax = std::min(1, pixel_i.etaIndex());
+      const int nnLoop_pixelEtaMin = std::max(-1, pixel_i.etaIndex() + 1 - etaCells);
+      const int nnLoop_pixelPhiMax = std::min(1, pixel_i.phiIndex());
+      const int nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
 
       std::array<double, 3> sensorScales{};
 
@@ -329,7 +330,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       const std::size_t distance_f_h_bin_x = distanceMap_h.getBinX(dist_electrode);
       const std::size_t tanLorentz_e_bin_x = lorentzMap_e.getBinX(dist_electrode);
       const std::size_t tanLorentz_h_bin_x = lorentzMap_h.getBinX(dist_electrode);
-      
+
       const std::size_t sizePhi = std::abs(nnLoop_pixelPhiMax - nnLoop_pixelPhiMin) + 1;
 
       const auto pixel_eta = pixel_i.etaIndex();
@@ -354,8 +355,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
                                                                                    pixel_phi - q);
           const std::size_t iphi = q - nnLoop_pixelPhiMin;
           const std::size_t index = iphi + ieta*sizePhi;
-          m_centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta(); 
-          m_centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi(); 
+          m_centrePixelNNEtaPhi[index].first  = centreOfPixel_nn.xEta();
+          m_centrePixelNNEtaPhi[index].second = centreOfPixel_nn.xPhi();
         }
       }
 
@@ -363,10 +364,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       for (int j = 0; j < ncharges; j++) {
         // amount of energy to be converted into charges at current step
         double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
-        double u = CLHEP::RandFlat::shoot(0., 1.);
+        double u = CLHEP::RandFlat::shoot(rndmEngine, 0.0, 1.0);
         // need to update to std::logf when we update gcc - this is a known bug in gcc libc
         const double drifttime_e = (-1.) * (trappingTimes.first) * logf(u); //ns
-        u = CLHEP::RandFlat::shoot(0., 1.);
+        u = CLHEP::RandFlat::shoot(rndmEngine, 0.0, 1.0);
         const double drifttime_h = (-1.) * (trappingTimes.second) * logf(u); //ns
 
         //Now, need the z-position at the trap.
@@ -398,7 +399,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         const double phi_f_h = phi_i + dz_h * tanLorentz_h + rdif_h * phiRand;
         etaRand = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
         double eta_f_h = eta_i + rdif_h * etaRand;
-        
+
 
         // Slim Edge for IBL planar sensors:
         if (p_design.getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
@@ -501,7 +502,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       }
     });
 
-  } 
+  }
   else if (m_doRadDamage && m_doRadDamageTemplate && !(Module.isDBM()) && Module.isBarrel()){ // will run radiation damage but with the template method
     for (size_t i = 0; i < trfHitRecord.size(); i++) {
       std::pair<double, double> const& iHitRecord = trfHitRecord[i];

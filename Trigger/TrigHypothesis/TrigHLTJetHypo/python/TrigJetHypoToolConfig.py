@@ -1,15 +1,18 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaCommon.SystemOfUnits import GeV
 
-from TriggerMenuMT.HLT.Config.MenuComponents import NoHypoToolCreated
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
+from TrigHLTJetHypo.TrigJetHypoMonitoringConfig import TrigJetHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
 logger = logging.getLogger(__name__)
 
 
-debug = False  # SET TO FALSE  WHEN COMMITTING
+import os
+debug = 'JETHYPODEBUG' in os.environ
 if debug:
     from AthenaCommon.Constants import DEBUG
     logger.setLevel(DEBUG)
@@ -19,6 +22,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     
     from DecisionHandling.TrigCompositeUtils import isLegId, getLegIndexInt
     chain_name = chain_dict['chainName']
+    chain_mg   = chain_dict['monGroups']
     jet_signature_identifiers = ['Jet', 'Bjet']
 
     if isLegId(chain_name):
@@ -67,9 +71,15 @@ def  trigJetHypoToolFromDict(chain_dict):
     logger.debug("Returning a HypoTool for %s as this is the first leg with any of %s (leg signatures are %s)",
                  chain_name, tuple(jet_signature_identifiers), tuple(chain_dict['signatures']))
 
-    hypo_tool =  hypotool_from_chaindict(chain_dict)
-    hypo_tool.visit_debug = debug
+    hypo_tool =  hypotool_from_chaindict(chain_dict, debug)
 
+    #if menu has chain in an online monitoring group, unpack the recoalg(s) and hyposcenario(s) to configure monitoring
+    if any('jetMon:online' in group for group in chain_mg):
+        cpl = chain_dict["chainParts"] 
+        histFlags = []
+        for cp in cpl:
+            histFlags += [ cp['recoAlg'] ] + [ cp['hypoScenario']] 
+        hypo_tool.MonTool = TrigJetHypoToolMonitoring("HLTJetHypo/"+chain_name, histFlags)        
     return hypo_tool
 
     
@@ -77,18 +87,26 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
     return  CompFactory.TrigJetTLAHypoTool(chain_dict['chainName'])
 
 def  trigJetEJsHypoToolFromDict(chain_dict):
-    chain_name = chain_dict['chainName']
+    if len(chain_dict['chainParts']) > 1:
+        raise Exception("misconfiguration of emerging jet chain")
 
-    if 'emerging' in chain_name:
+    if len(chain_dict['chainParts'][0]['exotHypo']) > 0:
+        exot_hypo = chain_dict['chainParts'][0]['exotHypo'][0]
+    else:
+        raise Exception("Unable to extract exotHypo emerging jet configuration from chain dict")
+
+    if 'emerging' in exot_hypo:
         trackless = int(0)
-        ptf = float(chain_name.split('PTF')[1].split('dR')[0].replace('p', '.'))
-        dr  = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
-    elif 'trackless' in chain_name:
+        ptf = float(exot_hypo.split('PTF')[1].split('dR')[0].replace('p', '.'))
+        dr  = float(exot_hypo.split('dR')[1].split('_')[0].replace('p', '.'))
+    elif 'trackless' in exot_hypo:
         trackless = int(1)
         ptf = 0.0
-        dr = float(chain_name.split('dR')[1].split('_')[0].replace('p', '.'))
+        dr = float(exot_hypo.split('dR')[1].split('_')[0].replace('p', '.'))
     else:
         raise Exception("misconfiguration of emerging jet chain")
+
+    chain_name = chain_dict['chainName']
 
     hypo = CompFactory.TrigJetEJsHypoTool(chain_name)
     hypo.PTF       = ptf
@@ -97,6 +115,28 @@ def  trigJetEJsHypoToolFromDict(chain_dict):
 
     return  hypo
 
+def  trigJetCRHypoToolFromDict(chain_dict):
+    chain_name = chain_dict['chainName']
+ 
+    doBIBrm = int(0)
+    if 'calratio' in chain_dict['chainParts'][0]['exotHypo'] or 'calratiormbib' in chain_dict['chainParts'][0]['exotHypo']:
+        if 'calratiormbib' in chain_dict['chainParts'][0]['exotHypo']:
+            doBIBrm = int(1)
+    else:
+        raise Exception("misconfiguration of Exotic jet chain")
+
+    hypo = CompFactory.TrigJetCRHypoTool(chain_name)
+
+    hypo.MinjetlogR      = 1.2
+    hypo.MintrackPt      = 2*GeV
+    hypo.MindeltaR       = 0.2
+
+    hypo.countBIBcells   = 4
+
+    hypo.doBIBremoval = doBIBrm
+
+
+    return  hypo
 
 import unittest
 class TestStringMethods(unittest.TestCase):
@@ -113,11 +153,6 @@ class TestStringMethods(unittest.TestCase):
             tool = trigJetHypoToolFromDict(chain_dict)
             self.assertIsNotNone(tool)
             logger.debug(chain_name.rjust(wid), str(tool))
-
-
-class TestDebugFlagIsFalse(unittest.TestCase):
-    def testValidConfigs(self):
-        self.assertFalse(debug)
 
 
 

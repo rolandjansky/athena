@@ -15,7 +15,7 @@
 
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
-#include "TrigNavigation/RoICacheHistory.h"
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
 /*****************************************************************************
@@ -31,7 +31,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
 				   std::vector<const T*>&  features, const std::string& label,
-				   std::map<const T*, std::string>* /*labels*/)  {
+				   std::map<const T*, std::string>* /*labels*/) const {
 
 
   class_id_type clid = ClassID_traits<T>::ID();
@@ -40,8 +40,8 @@ bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = false; bool cache_rec = true; bool recursively = false;
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  bool single = false; bool recursively = false;
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
  
@@ -62,7 +62,7 @@ bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
 /////////////////////////////////////////////////////////////////////////////
 template<class T> 
 __attribute__((__used__))
-bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) {
+bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) const {
 
   feature = 0;
 
@@ -73,8 +73,8 @@ bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElemen
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = true; bool cache_rec = true; bool recursively = false;
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, m_unspecifiedTE, sourcelabel)) {
+  bool single = true; bool recursively = false;
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, m_unspecifiedTE, sourcelabel)) {
     return false;
   }
   // remove following after testing
@@ -107,7 +107,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getFeature( const TriggerElement* te,
                                       const ConstDataVector<T>*&  feature,
-                                      const std::string& label, std::string& sourcelabel) {
+                                      const std::string& label, std::string& sourcelabel) const {
   const T* dv = nullptr;
   if (!getFeature (te, dv, label, sourcelabel))
     return false;
@@ -129,8 +129,8 @@ bool HLT::NavigationCore::getFeaturesLinks( const TriggerElement* te, ElementLin
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;
-  bool single = false; bool cache_rec = true; bool recursively = false;
-  if (!getFeatureAccessors(te,clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  bool single = false; bool recursively = false;
+  if (!getFeatureAccessors(te,clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
 
@@ -152,7 +152,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeatures( const TriggerElement* te,
 					     std::vector<const T*>&  features, const std::string& label,
-					     std::map<const T*, std::string>* /*labels*/) {
+					     std::map<const T*, std::string>* /*labels*/) const {
 
   class_id_type clid = ClassID_traits<T>::ID();
 
@@ -162,9 +162,9 @@ bool HLT::NavigationCore::getRecentFeatures( const TriggerElement* te,
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = false; bool cache_rec = true; bool recursively = true;
+  bool single = false; bool recursively = true;
 
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
 
@@ -188,7 +188,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te, 
 					    const T*&  feature, const std::string& label, 
-					    const TriggerElement*& source, std::string& sourcelabel ) {
+					    const TriggerElement*& source, std::string& sourcelabel ) const {
 
   // important! set pointer to NULL to signify nothing was found, it will later be reset to sth else eventually
   feature = 0;
@@ -200,9 +200,9 @@ bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te,
 	      << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers; 
-  bool single = true; bool cache_rec = true; bool recursively = true;
+  bool single = true; bool recursively = true;
  
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, source, sourcelabel)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, source, sourcelabel)) {
     return false;
   }
   // remove following after testing
@@ -230,7 +230,7 @@ bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te,
 template<class C, class T> 
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeaturesLinks( const TriggerElement* te,
-						  ElementLinkVector<C>& links, const std::string& label ) {
+						  ElementLinkVector<C>& links, const std::string& label ) const {
 
   
   class_id_type clid = ClassID_traits<T>::ID();
@@ -241,9 +241,9 @@ bool HLT::NavigationCore::getRecentFeaturesLinks( const TriggerElement* te,
                 << " label: \"" << label << "\"");
   
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = false; bool cache_rec = true; bool recursively = true;
+  bool single = false; bool recursively = true;
 
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
   
@@ -283,7 +283,7 @@ struct link_to_type<ElementLink<CONTAINERTYPE> >{
 template<class LinkType> 
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeatureDataOrElementLink( const TriggerElement* te, LinkType& link, const std::string& label,
-                                                             const TriggerElement*& source, std::string& sourcelabel) {
+                                                             const TriggerElement*& source, std::string& sourcelabel) const {
 
 
 
@@ -295,8 +295,8 @@ bool HLT::NavigationCore::getRecentFeatureDataOrElementLink( const TriggerElemen
               << " label: \"" << label << "\"");
   
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = true; bool cache_rec = true; bool recursively = true;
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, source, sourcelabel)) {
+  bool single = true; bool recursively = true;
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, source, sourcelabel)) {
     ATH_MSG_INFO("looking for FAs failed. Returning false! Details CLID: " << ClassID_traits<T>::ID() <<
                  "(" << ClassID_traits<T>::typeName() << ")"
                  << " in TE: " << te->getId()  << " label: \"" << label << "\"");
@@ -333,7 +333,7 @@ __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeatureLink( const TriggerElement* te,
                                                 ElementLink<C>& link, const std::string& label, 
                                                 const TriggerElement*& source, 
-                                                std::string& sourcelabel) {
+                                                std::string& sourcelabel) const {
 
   
   class_id_type clid = ClassID_traits<T>::ID();
@@ -348,9 +348,9 @@ bool HLT::NavigationCore::getRecentFeatureLink( const TriggerElement* te,
     
 
   TriggerElement::FeatureVec features_access_helpers; 
-  bool single = true; bool cache_rec = true; bool recursively = true;
+  bool single = true; bool recursively = true;
  
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, source, sourcelabel)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, source, sourcelabel)) {
     return false;
   }
   // remove following after testing
@@ -388,7 +388,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getFeaturesInRoI( const TriggerElement* te,
                                             std::vector<const T*>&  features, const std::string& label,
-                                            std::map<const T*, std::string>* labels) {
+                                            std::map<const T*, std::string>* labels) const {
   // easy, jump to the RoI (if not RoI node) and loop over all TEs attached to it
   const TriggerElement* roi(0);
   if ( TrigNavStructure::isRoINode(te) )
@@ -410,9 +410,9 @@ bool HLT::NavigationCore::getFeaturesInRoI( const TriggerElement* te,
 /////////////////////////////////////////////////////////////////////////////
 template<class C, class T> 
 __attribute__((__used__))
-bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const std::string& label ) {
+bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const std::string& label ) const {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-  TrigHolderStructure& holderstorage = getHolderStorage();
+  const TrigHolderStructure& holderstorage = getHolderStorage();
 
   CLID clid = ClassID_traits<T>::ID();
   ATH_MSG_DEBUG("getAllFeatures: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
@@ -436,7 +436,7 @@ bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const
 /////////////////////////////////////////////////////////////////////////////
 template<class T>
 __attribute__((__used__))
-HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (const std::string& label, uint16_t suggestedIndex) {
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (const std::string& label, uint16_t suggestedIndex) const {
 
   // find object
   CLID clid = ClassID_traits<T>::ID();
@@ -459,7 +459,10 @@ HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (
     return 0;
   }
   holder = static_cast<HLTNavDetails::Holder<T>*>(baseholder);
-  registerHolder(holder);
+
+  // registerHolder is thread-safe via a mutex:
+  auto nc_this ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(this);
+  nc_this->registerHolder(holder);
 
   return holder;
 }
@@ -467,7 +470,7 @@ HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (
 /////////////////////////////////////////////////////////////////////////////
 template<class T>
 __attribute__((__used__))
-HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (uint16_t subTypeIndex ) {
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (uint16_t subTypeIndex ) const {
   // find object
   CLID clid = ClassID_traits<T>::ID();
   ATH_MSG_DEBUG("Getting holder for type: " << clid);
@@ -499,7 +502,7 @@ namespace HLT{
   template<class T, class C>
   struct get< T,  C, false, true>{
     static const T* do_it(const TrigFeatureLink&fl, const HLT::NavigationCore* nav){
-      HLTNavDetails::Holder<T>* holder = const_cast<HLT::NavigationCore*>(nav)->getHolder<T>(fl.subTypeIndex());
+      HLTNavDetails::Holder<T>* holder = nav->getHolder<T>(fl.subTypeIndex());
       //std::cerr << " Holder acquired " << __LINE__ << std::endl;
       const T* ptr(0);
       holder->get(ptr, HLT::TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));
@@ -571,7 +574,7 @@ TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te
     return TrigFeatureLink();
   TriggerElement::FeatureVec features_access_helpers;  
   std::string sourcelabel;
-  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, false, true, m_unspecifiedTE, sourcelabel ) == false ) {
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, m_unspecifiedTE, sourcelabel ) == false ) {
     return TrigFeatureLink();
   }
 
@@ -596,7 +599,7 @@ TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te
 
   TriggerElement::FeatureVec features_access_helpers;  
   std::string sourcelabel;
-  if ( getFeatureAccessors(te, ClassID_traits<C>::ID(), label, true, features_access_helpers, false, true, m_unspecifiedTE, sourcelabel ) == false ) {
+  if ( getFeatureAccessors(te, ClassID_traits<C>::ID(), label, true, features_access_helpers, true, m_unspecifiedTE, sourcelabel ) == false ) {
     return TrigFeatureLink();
   }
   // remove following after testing

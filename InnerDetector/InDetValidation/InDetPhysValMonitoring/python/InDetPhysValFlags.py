@@ -17,6 +17,7 @@ def createIDPVMConfigFlags():
     icf.addFlag("IDPVM.doValidateMuonMatchedTracks", False )
     icf.addFlag("IDPVM.doValidateElectronMatchedTracks", False )
     icf.addFlag("IDPVM.doValidateLargeD0Tracks", False )
+    icf.addFlag("IDPVM.doValidateMergedLargeD0Tracks", False )
     icf.addFlag("IDPVM.doPhysValOutput", False )
     icf.addFlag("IDPVM.doExpertOutput", False )
     icf.addFlag("IDPVM.doTruthOriginPlots", False )
@@ -28,6 +29,7 @@ def createIDPVMConfigFlags():
     icf.addFlag("IDPVM.ancestorIDs", [] )
     icf.addFlag("IDPVM.requiredSiHits", 1)
     icf.addFlag("IDPVM.hardScatterStrategy", 0 ) # The hard-scatter vertex selection strategy to use when running hard-scatter efficiency / performance plots in IDPVM. 0 corresponds to sumPt^2, 1 corresponds to sumPt
+    icf.addFlag("IDPVM.truthMinPt", 500 ) # Configurable pT cut for determining a "reconstructable" particle
     
     return icf
 

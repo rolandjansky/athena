@@ -3,6 +3,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen
+from os import environ
 
 class LArRunInfo:
     "Wrapper class to hold LAr run configuration information"
@@ -63,6 +64,11 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
         connstring = "COOLONL_LAR/"+conddb.dbdata
     
     mlog_LRF.info("Connecting to database %s", connstring)
+
+    if "DBRELEASE" in environ:
+        print ("Running in DBRelease, forcing readOracle to False")
+        readOracle=False
+
     print("run=",run)
     runDB=indirectOpen(connstring,oracle=readOracle)
     if (runDB is None):

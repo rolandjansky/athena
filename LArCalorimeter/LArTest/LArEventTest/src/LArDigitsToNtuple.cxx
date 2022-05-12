@@ -1,20 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEventTest/LArDigitsToNtuple.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "xAODEventInfo/EventInfo.h"
-
-#include "GaudiKernel/SmartDataPtr.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArRawEvent/LArDigitContainer.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
 #include "TBEvent/TBPhase.h"
 #include "TBEvent/TBTriggerPatternUnit.h"
 #include "TBEvent/TBScintillatorCont.h"
-
-#include "LArElecCalib/ILArPedestal.h"
 #include <fstream>
 
 
@@ -74,6 +67,10 @@ StatusCode LArDigitsToNtuple::initialize()
 
   ATH_CHECK( m_cablingKey.initialize() );
 
+  ATH_CHECK( m_pedestalKey.initialize(m_ped) );
+  ATH_CHECK( m_contKey.initialize() );
+  ATH_CHECK( m_hdrContKey.initialize(m_sca) );
+
   ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   ATH_MSG_DEBUG ( " Found the LArOnlineID helper. " );
 
@@ -105,6 +102,7 @@ StatusCode LArDigitsToNtuple::initialize()
   ATH_CHECK( nt->addItem("channel",m_nt_channel,0,127) );
   ATH_CHECK( nt->addItem("gain",m_nt_gain,0,3) );
   ATH_CHECK( nt->addItem("samples",m_nsamples,m_nt_samples) );
+  ATH_CHECK( nt->addItem("onlId",m_nt_onlId) );
 
   if(m_ped)     ATH_CHECK( nt->addItem("ped",m_nt_ped) );
   if(m_sca)     ATH_CHECK( nt->addItem("sca",m_nsamples,m_nt_sca) );
@@ -119,24 +117,18 @@ StatusCode LArDigitsToNtuple::initialize()
 
 StatusCode LArDigitsToNtuple::execute()
 {
-  int eventnumber,triggerword;
+  int triggerword;
   double S1Adc,tdcphase;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const int eventnumber = ctx.eventID().event_number();
 
-  // Retrieve EventInfo
-  const DataHandle<xAOD::EventInfo> thisEventInfo;
-  StatusCode sc=evtStore()->retrieve(thisEventInfo);
-  eventnumber=0;
-  if (sc!=StatusCode::SUCCESS)
-    ATH_MSG_WARNING ( "No EventInfo object found!" );
-  else {
-    eventnumber=thisEventInfo->eventNumber();
-  }
+  
 
   // Retrieve the TBScintillators
   if(m_scint) {
     S1Adc=-999.0;
     const TBScintillatorCont * theTBScint;
-    sc = evtStore()->retrieve(theTBScint,"ScintillatorCont");
+    StatusCode sc =evtStore()->retrieve(theTBScint,"ScintillatorCont");
     if (sc.isFailure()) 
       {
 	ATH_MSG_ERROR ( " Cannot read TBScintillatorCont from StoreGate! " );
@@ -156,8 +148,8 @@ StatusCode LArDigitsToNtuple::execute()
 
   //Retrieve the TBPhase
   if(m_phase) {
-    const TBPhase* theTBPhase;
-    sc = evtStore()->retrieve(theTBPhase, "TBPhase");
+    const TBPhase* theTBPhase=nullptr;
+    StatusCode sc = evtStore()->retrieve(theTBPhase, "TBPhase");
     
     if (sc.isFailure()) {
       tdcphase = -999.0;
@@ -172,7 +164,7 @@ StatusCode LArDigitsToNtuple::execute()
   //Retrieve the TBTriggerPatternUnit
   if(m_trigger) {
     const TBTriggerPatternUnit* theTBTriggerPatternUnit;
-    sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
+    StatusCode sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
 
     if (sc.isFailure()) {
       triggerword = 0;
@@ -193,29 +185,23 @@ StatusCode LArDigitsToNtuple::execute()
 
   // Retrieve the pedestal
   //Pointer to conditions data objects 
-  const ILArPedestal* larPedestal=NULL;
+  const ILArPedestal* larPedestal=nullptr;
   if (m_ped) {
-    sc=detStore()->retrieve(larPedestal);
-    if (sc.isFailure()) {
-      larPedestal=NULL;
-      ATH_MSG_INFO ( "No pedestal found in database. Use default values." );
-    }
+    SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey,ctx);
+    larPedestal= *pedHdl;
   }
 
   // Retrieve LArDigitContainer
-  const DataHandle < LArDigitContainer > digit_cont;
-  if (m_contKey.size())
-    ATH_CHECK( evtStore()->retrieve(digit_cont,m_contKey) );
-  else
-    ATH_CHECK( evtStore()->retrieve(digit_cont) );
-  ATH_MSG_INFO ( "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey );
+  SG::ReadHandle<LArDigitContainer> digit_cont{m_contKey,ctx};
+  ATH_MSG_INFO ( "Retrieved LArDigitContainer from StoreGate! key=" << m_contKey.key() );
 
   // Retrieve LArFebHeaderContainer
-  const LArFebHeaderContainer *larFebHeaderContainer=0;
+  const LArFebHeaderContainer *larFebHeaderContainer=nullptr;
   if(m_sca) {
-    ATH_CHECK( evtStore()->retrieve(larFebHeaderContainer) );
+    SG::ReadHandle<LArFebHeaderContainer> febHdrHdl{m_hdrContKey,ctx};
+    larFebHeaderContainer=&(*febHdrHdl);
   }
-  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling=*larCablingHdl;
   if(!cabling) {
      ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
@@ -232,6 +218,7 @@ StatusCode LArDigitsToNtuple::execute()
     const HWIdentifier hwid=(*it)->channelID();//hardwareID();
     // Fill detector geometry information
     m_nt_event   = eventnumber;
+    m_nt_onlId   = hwid.get_identifier32().get_compact();
     if(m_phase)   m_nt_tdc     = tdcphase;
     if(m_trigger) m_nt_trigger = triggerword;
     if(m_scint)   m_nt_S1      = S1Adc;
@@ -279,20 +266,20 @@ StatusCode LArDigitsToNtuple::execute()
       float  DBpedestal=larPedestal->pedestal(hwid,(*it)->gain());
       if (DBpedestal >= (1.0+LArElecCalib::ERRORCODE))
 	thePedestal=DBpedestal;
+      if (thePedestal<0) {
+	thePedestal = -999;
+	ATH_MSG_DEBUG ( "No pedestal found for this cell. Use default value " << thePedestal );
+      }
+      m_nt_ped = thePedestal;
     }
-    if (thePedestal<0) {
-      thePedestal = -999;
-      ATH_MSG_DEBUG ( "No pedestal found for this cell. Use default value " << thePedestal );
-    }
-    m_nt_ped = thePedestal;
-
+  
     // Fill raw data samples and gain
     for(unsigned int i=0;i<(*it)->samples().size();i++) {
       if((int)i>=m_nsamples) break;
       m_nt_samples[i]=(*it)->samples()[i];
     }
     m_nt_gain=(*it)->gain();
-
+  
     // Fill SCA numbers
     if(m_sca) {
       const HWIdentifier febid=m_onlineHelper->feb_Id(hwid);
@@ -307,12 +294,8 @@ StatusCode LArDigitsToNtuple::execute()
 	break;
       } // End FebHeader loop
     }
-    sc=ntupleSvc()->writeRecord(m_nt);
-    
-    if (sc!=StatusCode::SUCCESS) {
-      ATH_MSG_ERROR ( "writeRecord failed" );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(ntupleSvc()->writeRecord(m_nt));
+ 
   }
 
   return StatusCode::SUCCESS;

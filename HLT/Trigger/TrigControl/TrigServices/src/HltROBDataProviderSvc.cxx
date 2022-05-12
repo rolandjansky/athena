@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "HltROBDataProviderSvc.h"
 #include "TrigKernel/HltExceptions.h"
@@ -75,7 +75,7 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // print list of ROBs to filter out by status code
   ATH_MSG_INFO(" ---> Filter out specific ROBs by Status Code: # ROBs              = " << m_filterRobMap.size());
-  for (auto it : m_filterRobMap) {
+  for (const auto& it : m_filterRobMap) {
     eformat::helper::SourceIdentifier tmpsrc(it.first);
     ATH_MSG_INFO("      RobId=0x" << MSG::hex << it.first << " -> in Sub Det = " << tmpsrc.human_detector());
 
@@ -90,7 +90,7 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // print list of subdetectors to filter out by status code
   ATH_MSG_INFO(" ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = " << m_filterSubDetMap.size());
-  for (auto it : m_filterSubDetMap) {
+  for (const auto& it : m_filterSubDetMap) {
     eformat::helper::SourceIdentifier tmpsrc(it.first, 0);
     ATH_MSG_INFO("      SubDetId=0x" << MSG::hex << it.first << " -> " << tmpsrc.human_detector());
     for (auto it_status : it.second) {
@@ -123,7 +123,7 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // print list of enabled ROBs, read from OKS
   ATH_MSG_INFO(" ---> Read list of enabled ROBs from OKS                           = " << m_readROBfromOKS);
-  if (m_enabledROBs.value().size() == 0) {
+  if (m_enabledROBs.value().empty()) {
     ATH_MSG_INFO(" ---> The list of enabled ROBs has size                            = 0. No check will be performed ");
   } else {
     if (m_readROBfromOKS.value() && robOKSconfigFound) {
@@ -138,9 +138,9 @@ StatusCode HltROBDataProviderSvc::initialize()
   // prefetch all ROBs in a ROS on a first retrieval of ROBs from this ROS
   ATH_MSG_INFO(" ---> Prefetch all ROBs in a ROS on first retrieval                = " << m_prefetchAllROBsfromROS);
 
-  if ( m_prefetchAllROBsfromROS.value() && m_enabledROBs.value().size() != 0 ) {
+  if ( m_prefetchAllROBsfromROS.value() && !m_enabledROBs.value().empty() ) {
     m_prefetchWholeROSList.reserve( m_enabledROBs.value().size() );
-    if ( m_prefetchSubDetROS.value().size() == 0 || 
+    if ( m_prefetchSubDetROS.value().empty() || 
 	 (std::find(m_prefetchSubDetROS.value().begin(),m_prefetchSubDetROS.value().end(),0) != m_prefetchSubDetROS.value().end())
        )
     {
@@ -200,21 +200,21 @@ StatusCode HltROBDataProviderSvc::finalize()
 void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, 
 					 const std::string_view callerName)
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   return addROBData( context, robIds, callerName );
 }
 
 /// Start a new event with a set of ROB fragments, e.g. from LVL1 result, in online and add the fragments to the ROB cache
 void HltROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   return setNextEvent( context, result );
 }
 
 /// Start a new event with a full event fragment and add all ROB fragments in to the ROB cache
 void HltROBDataProviderSvc::setNextEvent(const RawEvent* re)
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   return setNextEvent( context, re );
 }
 
@@ -222,28 +222,28 @@ void HltROBDataProviderSvc::setNextEvent(const RawEvent* re)
 void HltROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, 
 				       const std::string_view callerName)
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   return getROBData( context, robIds, robFragments, callerName );
 }
 
 /// Retrieve the full event fragment
 const RawEvent* HltROBDataProviderSvc::getEvent() 
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   return getEvent( context );
 }
 
 /// Store the status for the event.
 void HltROBDataProviderSvc::setEventStatus(uint32_t status)
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   setEventStatus( context, status );
 }
 
 /// Retrieve the status for the event.
 uint32_t HltROBDataProviderSvc::getEventStatus() 
 {
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   return getEventStatus( context );
 }
 
@@ -268,7 +268,7 @@ void HltROBDataProviderSvc::addROBData(const EventContext& context, const std::v
   eventCache_checkRobListToCache(cache,robIds, robFragments_inCache, robIds_missing ) ;
 
   // call data collector
-  if (robIds_missing.size() > 0) {
+  if (!robIds_missing.empty()) {
     ATH_MSG_DEBUG( __FUNCTION__ << ": Number of ROB Ids to reserve with DCM = " << robIds_missing.size()); 
     // reserve the ROBs in the DCM
     try {  
@@ -345,7 +345,7 @@ void HltROBDataProviderSvc::setNextEvent(const EventContext& context, const RawE
   //------------------------------+
   // Initiate whole ROS retrieval |
   //------------------------------+
-  if ( m_prefetchAllROBsfromROS.value() && m_prefetchWholeROSList.size() != 0 ) {
+  if ( m_prefetchAllROBsfromROS.value() && !m_prefetchWholeROSList.empty() ) {
     addROBData( context, m_prefetchWholeROSList, "prefetch_HLTROBDataProviderSvc" );
     ATH_MSG_DEBUG("      ROS prefetch init. size      =  " << m_prefetchWholeROSList.size() );
   }
@@ -375,7 +375,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
 
   // no missing ROB fragments, return the found ROB fragments 
-  if (robIds_missing.size() == 0) {
+  if (robIds_missing.empty()) {
     ATH_MSG_DEBUG( __FUNCTION__ << ": All requested ROB Ids were found in the cache. "); 
     return;
   }
@@ -539,7 +539,7 @@ int HltROBDataProviderSvc::collectCompleteEventData(const EventContext& context,
 
   typedef std::vector<hltinterface::DCM_ROBInfo> ROBInfoVec;
   ROBInfoVec vRobInfos ;
-  if (m_enabledROBs.value().size() != 0) {
+  if (!m_enabledROBs.value().empty()) {
     vRobInfos.reserve( m_enabledROBs.value().size() ) ;
   } else {
     vRobInfos.reserve( eformat::write::MAX_UNCHECKED_FRAGMENTS ) ;
@@ -587,7 +587,7 @@ int HltROBDataProviderSvc::collectCompleteEventData(const EventContext& context,
 bool HltROBDataProviderSvc::robmap_filterRobWithStatus(const ROBF* rob)
 {
   // No filter criteria defined
-  if ((m_filterRobMap.size() == 0) && (m_filterSubDetMap.size() == 0)) {
+  if (m_filterRobMap.empty() && m_filterSubDetMap.empty()) {
     return(false);
   }
 
@@ -682,7 +682,7 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
     }
 
     // check if ROB is actually enabled for readout
-    if (m_enabledROBs.value().size() != 0) {
+    if (!m_enabledROBs.value().empty()) {
       std::vector<uint32_t>::const_iterator rob_enabled_it = 
         std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),id);
       if(rob_enabled_it == m_enabledROBs.value().end()) {
@@ -735,13 +735,6 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, std::vector
       }
     }
 
-    // check for ROBs with no data 
-    if ((rob.rod_ndata() == 0) && (m_filterEmptyROB)) {
-      ATH_MSG_VERBOSE(__FUNCTION__ << " Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-		      << " removed for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
-      continue;
-    } 
-
     // filter ROBs with external criteria 
     if (robmap_filterRobWithStatus(&rob)) {
       if (rob.nstatus() > 0) {
@@ -758,6 +751,13 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, std::vector
       }
       continue;
     }
+
+    // check for ROBs with no data 
+    if ((rob.rod_ndata() == 0) && (m_filterEmptyROB)) {
+      ATH_MSG_VERBOSE(__FUNCTION__ << " Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
+		      << " removed for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
+      continue;
+    } 
 
     // add ROB to map
     { cache->robmap.insert(std::make_pair(id,std::move(rob))); }

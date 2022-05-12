@@ -96,7 +96,7 @@ StatusCode AFP_Raw2DigiTool::recoToFHits(const EventContext &ctx) const
   for (const AFP_ToFRawCollection& collection: container->collectionsToF())
     for (const AFP_ToFRawData& data : collection.dataRecords())
       if (data.hitDiscConfig() == 3 && (data.header() == 2 || (data.header() == 1 && !data.isTrigger()))) 
-	newXAODHitToF (tofHitContainer.get(), collection, data); // is_ToF && (is_HPTDC || (is_picoTDC && !is_trigger_word))
+	newXAODHitToF (tofHitContainer.get(), collection, data, ctx); // is_ToF && (is_HPTDC || (is_picoTDC && !is_trigger_word))
 
   SG::WriteHandle<xAOD::AFPToFHitContainer> writeHandle{m_AFPHitsContainerNameToF, ctx};
   ATH_CHECK( writeHandle.record(std::move(tofHitContainer), std::move(tofHitAuxContainer)) );
@@ -113,7 +113,7 @@ StatusCode AFP_Raw2DigiTool::finalize(){
 }
 
 
-void AFP_Raw2DigiTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, const AFP_ToFRawCollection& collection, const AFP_ToFRawData& data) const
+void AFP_Raw2DigiTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, const AFP_ToFRawCollection& collection, const AFP_ToFRawData& data, const EventContext& ctx) const
 {
   xAOD::AFPToFHit* xAODToFHit = new xAOD::AFPToFHit();
   tofHitContainer->push_back(xAODToFHit);
@@ -141,7 +141,7 @@ void AFP_Raw2DigiTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer,
     xAODToFHit->setHptdcID(-1);
 
   // set barID
-  setBarAndTrainID(xAODToFHit);
+  setBarAndTrainID(xAODToFHit, ctx);
 }
 
 void AFP_Raw2DigiTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, const AFP_SiRawCollection& collection, const AFP_SiRawData& data) const
@@ -177,8 +177,6 @@ void AFP_Raw2DigiTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, co
     xAODSiHit->setStationID(-1);
   } // end of switch
   
-  ATH_MSG_DEBUG("Filled information about station and detector in xAODSiHit object");
-
   xAODSiHit->setPixelLayerID( hitLink%4 );
   xAODSiHit->setPixelColIDChip( data.column() );
   xAODSiHit->setPixelRowIDChip( data.row() );
@@ -187,10 +185,10 @@ void AFP_Raw2DigiTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, co
   xAODSiHit->setTimeOverThreshold(ToT_value);
   xAODSiHit->setDepositedCharge( m_totToChargeTransformation(ToT_value) );
 
-  ATH_MSG_DEBUG("Filled xAOD::AFPSiHit");
+  ATH_MSG_DEBUG("have AFPSiHit: pixelLayerID "<<xAODSiHit->pixelLayerID()<<", pixelColIDChip "<<xAODSiHit->pixelColIDChip()<<", pixelRowIDChip "<<xAODSiHit->pixelRowIDChip()<<", timeOverThreshold "<<xAODSiHit->timeOverThreshold()<<", depositedCharge "<<xAODSiHit->depositedCharge());
 }
 
-void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
+void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit, const EventContext& ctx) const
 {
   // mapping is implemented according to https://twiki.cern.ch/twiki/bin/view/Atlas/AFPHPTDC#Channel_Mapping
 
@@ -232,7 +230,9 @@ void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
       tofHit->setBarInTrainID(3);
       break;
     default:
-      ATH_MSG_WARNING("Unrecognised hptdcChannel: "<<hptdcChannel);
+      int Run = (ctx.eventID().run_number() > 370000 ? 3 : 2);
+      if(Run==2 && (hptdcChannel==1 || hptdcChannel==4)) ATH_MSG_DEBUG("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
+      else                                               ATH_MSG_WARNING("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
     }
   }
   else if (hptdcID == 2) {
@@ -270,7 +270,9 @@ void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
       tofHit->setBarInTrainID(3);
       break;
     default:
-      ATH_MSG_WARNING("Unrecognised hptdcChannel: "<<hptdcChannel);
+      int Run = (ctx.eventID().run_number() > 370000 ? 3 : 2);
+      if(Run==2 && (hptdcChannel==1 || hptdcChannel==4)) ATH_MSG_DEBUG("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
+      else                                               ATH_MSG_WARNING("Unrecognised hptdcChannel "<<hptdcChannel<<", hptdcID "<<hptdcID);
     }
   }
 }

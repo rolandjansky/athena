@@ -5,8 +5,6 @@
 ## @author Sebastien Binet <binet@cern.ch>
 ###############################################################
 
-from __future__ import print_function
-
 def _setupAtlasUnixStandardJob():
     from .AppMgr import theApp
     from .AppMgr import ServiceMgr as svcMgr
@@ -22,6 +20,7 @@ def _setupAtlasUnixStandardJob():
     svcMgr += GaudiSvcConf.NTupleSvc()
     svcMgr += GaudiSvcConf.RndmGenSvc()
     svcMgr += GaudiCommonSvcConf.ChronoStatSvc()
+    svcMgr += GaudiCommonSvcConf.AlgContextSvc(BypassIncidents=True)
 
     import GaudiAud.GaudiAudConf as GaudiAudConf
     svcMgr.AuditorSvc += GaudiAudConf.AlgContextAuditor()

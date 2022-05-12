@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALOMONITORING_L1CALOL1TOPOMONITORALGORITHM_H
 #define TRIGT1CALOMONITORING_L1CALOL1TOPOMONITORALGORITHM_H
@@ -43,9 +43,9 @@ private:
   StringProperty m_packageName{this,"PackageName","L1CaloL1TopoMonitor",
       "group name for histograming"};
   
-  enum class SummaryErrors : uint8_t {
+  enum class SummaryErrors : int {
     CALO_CONV=0, NO_CMX, DAQ_CONV,
-      NO_DAQ, ROI_CONV, NO_ROI, F_CRC, PAYL_CRC, CMX_MATCH, NUMBEROFBITS
+      NO_DAQ, ROI_CONV, F_CRC, PAYL_CRC, CMX_MATCH, NUMBEROFBITS
       };
   enum TOB_TYPE {JETL_TOB=0, JETS_TOB, TAU_TOB, EM_TOB, MU_TOB, TOB_TYPES};
   static const int MAXTOBS=30;
@@ -62,17 +62,5 @@ private:
   SG::ReadHandleKey<xAOD::L1TopoRawDataContainer> m_l1TopoKey {this,
       "L1TopoRawData", "L1TopoRawData",
       "Key of the L1Topo DAQ object"};
-  /*
-  SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey {this,
-      "RoIBResult", "RoIBResult",
-      "Key to RoIBResult holding decoded L1Topo information from RoIBuilder"};
-  SG::ReadHandleKey<LVL1::FrontPanelCTP> m_simTopoCTPKey {this,
-      "SimTopoCTPLocation", LVL1::DEFAULT_L1TopoLegacyCTPLocation,
-      "Key to simulated topo decision output for CTP"};
-  SG::ReadHandleKey<LVL1::FrontPanelCTP> m_simTopoOverflowCTPKey {this,
-      "SimTopoOverflowCTPLocation",
-      LVL1::DEFAULT_L1TopoLegacyOverflowCTPLocation,
-      "Key of the simulated topo overflow output for CTP"};
-  */
 };
 #endif

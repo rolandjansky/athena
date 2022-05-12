@@ -39,6 +39,7 @@
 #include "LArCalibTools/LArDSPConfig2Ntuple.h"
 //#include "LArCalibTools/LArSFcalFromFcalFromStdNtuple.h"
 #include "LArCalibTools/LArPulseShape.h"
+#include "LArCalibTools/LArSC2Ntuple.h"
 
  
 typedef LArReadParamsFromFile<LArCaliPulseParamsComplete>   LArReadCaliPulseParams ;
@@ -107,4 +108,5 @@ DECLARE_COMPONENT( LArFillDSPConfig )
 DECLARE_COMPONENT( LArDSPConfig2Ntuple )
 DECLARE_COMPONENT( LArMinBias2Ntuple )
 //DECLARE_COMPONENT( LArSFcalFromFcalFromStdNtuple )
+DECLARE_COMPONENT( LArSC2Ntuple )
 

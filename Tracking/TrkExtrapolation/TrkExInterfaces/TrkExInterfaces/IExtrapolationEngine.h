@@ -16,7 +16,7 @@
 #include "TrkExUtils/ExtrapolationCell.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
- 
+#include "CxxUtils/checker_macros.h" 
 namespace Trk {
   
   static const InterfaceID IID_IExtrapolationEngine("IExtrapolationEngine", 1, 0);
@@ -33,7 +33,7 @@ namespace Trk {
       @author Andreas Salzburger -at - cern.ch 
   */
   
-  class IExtrapolationEngine : virtual public IAlgTool {
+  class ATLAS_NOT_THREAD_SAFE IExtrapolationEngine : virtual public IAlgTool {
      public:
      
        /** Virtual destructor */

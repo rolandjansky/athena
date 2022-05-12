@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1TopoAlgorithms )
@@ -11,16 +11,21 @@ find_package( ROOT COMPONENTS Core Hist )
 string( REPLACE "-Wl,--as-needed" "" CMAKE_EXE_LINKER_FLAGS
    "${CMAKE_EXE_LINKER_FLAGS}" )
 
+# Special treatment for xAOD libraries
+if( NOT TRIGCONF_STANDALONE )
+ set( extra_libs xAODTrigger )
+endif()
+
 # The component(s) in the package:
 atlas_add_library( L1TopoAlgorithms
    L1TopoAlgorithms/*.h Root/*.cxx
    PUBLIC_HEADERS L1TopoAlgorithms
-   LINK_LIBRARIES L1TopoEvent L1TopoInterfaces TrigConfBase TrigConfIO TrigConfData
+   LINK_LIBRARIES L1TopoEvent L1TopoInterfaces TrigConfBase TrigConfIO TrigConfData ${extra_libs}
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} L1TopoCommon L1TopoSimulationUtils )
 
 atlas_add_executable( TrigConfL1TopoGenPyAlg
    src/test/L1TopoGenPyAlg.cxx
-   LINK_LIBRARIES L1TopoAlgorithms )
+   LINK_LIBRARIES CxxUtils L1TopoAlgorithms )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -106,6 +106,9 @@ TestChainParts_Default = {
 # Jet
 #==========================================================
 AllowedTopos_jet = []
+# List of keys that pertain to jet reconstruction
+# as opposed to the hypo configuration
+JetRecoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','ionopt']
 # ---- Jet Dictionary of all allowed Values ----
 JetChainParts = {
     # Information common to all signatures
@@ -152,15 +155,16 @@ JetChainParts = {
        'preselj200',
        'preselj225',
        # Multijets
-       'presel2j140',
        'presel2j180',
-       'presel2j200',
        'presel2j225',
        'presel3j45',
-       'presel3j100',
-       'presel3j125',
        'presel3j150',
        'presel4j20',
+       'presel4c20',
+       'presel4c25',
+       'presel4c30',
+       'presel4c35',
+       'presel4c45',
        'presel4j25',
        'presel4c25',
        'presel4j40',
@@ -184,6 +188,29 @@ JetChainParts = {
        'preselc60XXj45XXf40',
        'preselj60XXj45XXf40',
        'presela60XXa40XX2a25',
+       'preseljHT400',
+       'preselcHT400',
+       'preseljHT450',
+       'preselcHT450',
+       'preseljHT500',
+       'preselcHT500',
+       'preseljHT600',
+       'preselcHT600',
+       #b-jet preselections
+       'presel2c20XX2c20b85',
+       'presel2c20XX2c20b90',
+       'preselj20b95',
+       'preselj20b77',
+       'presel3j45b95',
+       'presel4j25b95',
+       'presel2j25b85XX2j25',
+       'presel2j25b85XX3j25',
+       'preselj50b85XX3j50',
+       'preselj80XX2j45b90',
+       'preselj140b85XXj45b85',
+       'presel5c25XXc25b85',
+       'presel2a20b90XX2a20',
+       'presela20b85XX3a20',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -206,59 +233,43 @@ JetChainParts = {
                       #     djdphi sel (optional)
                       #     djdeta sel (optional)
                       #
-                      # et threshold cuts
-                      'DIJET80j12etXX0j12eta240XX700djmass', # Test dijet mass sel
-                      'DIJET80j12etXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
-                      'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
-                      'DIJET50j12etXX1000djmass',
-                      'DIJET50j12etXX1000djmassXXdjdphi240',
-                      'DIJET50j12etXX900djmass',
-                      'DIJET35j12etXX1000djmass',
-                      'DIJET20j12etXX110djmass',  # very loose cuts for testing
                       # pt threshold cuts
-                      'DJMASS200j20', # alias, for TLA
-                      'DJMASS350j20', # alias, for TLA
                       'DJMASS500j35', # alias
                       'DJMASS700j35', # alias
                       'DJMASS1000j35', # alias
-                      'DJMASS700j40', # alias
-                      'DJMASS700j50x0eta240', # alias
-                      'DJMASS700j80x0eta240', # alias
                       'DJMASS900j50', # alias
                       'DJMASS1000j50', # alias
                       'DJMASS1000j50dphi240', # alias
                       'DJMASS1000j50dphi200x400deta', # alias
-                      'DIJET80j12ptXX0j12eta240XX700djmass', # Test dijet mass sel
-                      'DIJET80j12ptXX700djmassXXdjdphi260', # Test dijet mass sel including dphi cut
-                      'DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta', # dijet mass sel including dphi and deta cuts
-                      'DIJET20j12ptXX110djmass',  # very loose cuts for testing
-                      'DIJETaliasExample',        # example of an alias for a dijet scenario with very loose cuts for testing
-                      # no explicit pt cuts
-                      'DIJET35j12ptXX700djmass',
-                      'DIJET35j12ptXX500djmass',
+                      
+                      'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # needed for hypoToolTests.py
+                      'DIJET80j12etXX0j12eta240XX700djmass', # needed for hypoToolTests.py
+
                       # 'ht' category applies a cut on HT (HT>value) computed by aggregation over single jets (default filtering: 30et and 0eta320)
                       'HT0',
                       'HT1000',
                       'HT300',
                       'HT500',
-                      'HT1000XX30et',
-                      'HT500XX30et',
                       'HT50',
-                      'HT50XX010jvt', # example of a HT chain using only jets passing JVT
-                      'HT50XX30et',
-                      'HT50XX30etXX010jvt', # example of a HT chain using only jets passing JVT
-                      'HT100XX10et',
-                      'HT50XX10etXX0eta320', # HT selection with explicit jet et/eta cuts
-                      'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
+                      'HT1000XX0eta240',
+                      'HT1000XX020jvt',
+                      'HT1000XX0eta240XX020jvt',
+                      'HT50XX10etXX0eta320'  # needed for hypoToolTests.py
                       ],
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
                   'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4', 
-                  'tracklessdR1p2',      'tracklessdR0p4'],
+                  'tracklessdR1p2',      'tracklessdR0p4',
+                  'calratio','calratiormbib' # Exotics CalRatio jets (trackless and low-EMF, with option to clean out BIB)
+              ],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
-      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200', '0eta180', '0eta160'],
+      # These atypical explicit values are allowed to be in chain names.
+      # Otherwise use ['','a','c','f'] ==> [0eta320, 0eta490, 0eta240, 320eta490]
+      # suffix after threshold e.g. j420 == j420_0eta320, 6j55c == 6j55_0eta240
+      ['0eta290', '0eta200', '0eta180', '0eta160']
+      +['320eta490'], # TODO: Kept temporarily for validation
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
@@ -275,9 +286,13 @@ JetChainParts = {
     # Setup for alternative data stream readout
     # B-tagging information
     'bTag'         : ['boffperf'  ,
-                      'bdl1r60','bdl1r70','bdl1r77','bdl1r85',
-                      'bdl1d60', 'bdl1d65','bdl1d70','bdl1d77',
-                      'bdl1d80', 'bdl1d85'],
+                      'bdl1r60', 'bdl1r70', 'bdl1r77', 'bdl1r85',
+                      'bdl1d60',  'bdl1d65', 'bdl1d70', 'bdl1d72',
+                      'bdl1d75', 'bdl1d77', 'bdl1d80', 'bdl1d82',
+                      'bdl1d85',
+                      'bdl1d85bb60', 'bdl1d85bb65', 'bdl1d85bb70',
+                      'bdl1d85bb72', 'bdl1d85bb75', 'bdl1d85bb77',
+                      'bdl1d85bb80', 'bdl1d85bb82' ],
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
@@ -353,7 +368,7 @@ MuonChainParts = {
     'etaRange'       : ['0eta105'],
     'threshold'      : '',
     'tnpInfo'        : ['probe'],
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
@@ -404,7 +419,7 @@ AllowedTopos_Bphysics = [
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX',
     # topoExtras
-    'Lxy0','noos','nocut'
+    'Lxy0','noos','nocut','lowpt'
     #########Remove until here############
 
 ]
@@ -412,7 +427,7 @@ AllowedTopos_Bphysics_topoVariant = [
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX'
 ]
-AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut']
+AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut','lowpt']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -498,8 +513,9 @@ METChainParts = {
     'calib'          : ['lcw','em'],
     'jetCalib'       : JetChainParts['jetCalib'],
     'L2recoAlg'      : [],
-    'EFrecoAlg'      : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit'],
+    'EFrecoAlg'      : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit', 'nn'],
     'constitType'    : JetChainParts['constitType'],
+    'nSigma'         : ["default",  "sig30", "sig35", "sig40", "sig45", "sig50", "sig55", "sig60"],
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
@@ -518,6 +534,7 @@ METChainParts_Default = {
     'extra'          : '',
     'calib'          : 'lcw',
     'jetCalib'       : JetChainParts_Default['jetCalib'],
+    'nSigma'         : "default",
     'L2recoAlg'      : '',
     'EFrecoAlg'      : '',
     'L2muonCorr'     : '',
@@ -575,7 +592,7 @@ ElectronChainParts = {
     'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight', 'mergedtight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'idperfInfo'     : ['idperf'],
-    'gsfInfo'        : ['gsf'],
+    'gsfInfo'        : ['nogsf'],
     'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],
     'caloInfo'       : [],
     'lhInfo'         : ['nod0', 'nopix'],
@@ -685,7 +702,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'dijet'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'dijet', 'all'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
@@ -693,8 +710,8 @@ MinBiasChainParts = {
                         'sp1000', 'sp1100', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup0','pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup180', 'pusup190',
-                        'pusup200', 'pusup240', 'pusup250', 'pusup260', 'pusup270', 'pusup280', 'pusup290', 'pusup300'],
+    'pileupInfo'     : ['pusup0', 'pusup7', 'pusup10', 'pusup15', 'pusup20', 'pusup30', 'pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup150', 'pusup180', 'pusup190',
+                        'pusup200', 'pusup220', 'pusup240', 'pusup250', 'pusup260', 'pusup270', 'pusup280', 'pusup290', 'pusup300'],
     'hypoTrkInfo'    : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280', 'trk290',
                          '2trk6', '1trk5'], #ranges for exclusive tracks
@@ -847,7 +864,7 @@ StreamingChainParts = {
     # disambiguation or to allow events from the same L1 seed
     # to be written to different streams
     # New cases should be discussed with Menu Coordinators
-    'streamingInfo'  : ['laser', 'CIS','idmon','mb','l1calo', 'cosmicmuons', 'bkg'],
+    'streamingInfo'  : ['laser', 'CIS','idmon','mb','l1calo', 'cosmicmuons', 'bkg','vdm', 'zb'],
     'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,
@@ -1071,8 +1088,9 @@ UnconventionalTrackingChainParts = {
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk", "dispj"],
+    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "fsvsi", "distrk", "dispj"],
     'addInfo'        : [],
+    'dispjVariant'   : ['2jet','1jet', '2jetperf', '1jetperf'],
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': list(range(0,10))
@@ -1089,7 +1107,8 @@ UnconventionalTrackingChainParts_Default = {
     'isoInfo'        : '',
     'threshold'      : '',
     'extra'          : '',
-    'addInfo'        : [],
+    'addInfo'        : '',
+    'dispjVariant'   : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0

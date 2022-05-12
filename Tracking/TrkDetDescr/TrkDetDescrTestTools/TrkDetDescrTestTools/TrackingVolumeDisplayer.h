@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,11 +57,11 @@ namespace Trk {
         /** Current implementation: write root visualization to file stream */
         StatusCode processNode(const Surface&, size_t level=0) const;
 
-        void openFile(std::ofstream& output, const std::string& filename) const;  //!< File handling: open + write header
-        void closeFile(std::ofstream& output) const;                              //!< File handling: write footer + close
+        static void openFile(std::ofstream& output, const std::string& filename) ;  //!< File handling: open + write header
+        static void closeFile(std::ofstream& output) ;                              //!< File handling: write footer + close
 
         /** calculate the color code from the Material */
-        int colorCodeFromMaterial(const Trk::MaterialProperties* prop, std::ofstream& output) const;
+        static int colorCodeFromMaterial(const Trk::MaterialProperties* prop, std::ofstream& output) ;
 
         mutable int                         m_volumeCounter;                      //!< volume counter
 

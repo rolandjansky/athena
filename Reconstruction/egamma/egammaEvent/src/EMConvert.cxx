@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -49,7 +49,7 @@ EMConvert::EMConvert()
 
 // destructor
 EMConvert::~EMConvert()
-{ }
+= default;
 
 bool EMConvert::hasBoolParameter(egammaParameters::ParamDef key) const {
   if (key == egammaParameters::convTrackMatch)          return true;
@@ -178,7 +178,7 @@ double EMConvert::parameter(egammaParameters::ParamDef key) const {
   }
 
   double result = egammaParameters::EgParamUndefined;
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
   std::vector<elParams>::const_iterator p = m_parameters.begin();
  
   for (;p !=m_parameters.end(); ++p) {

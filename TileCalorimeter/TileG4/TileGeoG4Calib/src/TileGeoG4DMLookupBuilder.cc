@@ -131,7 +131,7 @@ void TileGeoG4DMLookupBuilder::ResetCells() {
   unsigned int l_nSamp, l_nCell;
   unsigned int j;
 
-  for (; first != last; first++) {
+  for (; first != last; ++first) {
     //Reset PlateCells
     for (l_nSamp = 0; l_nSamp < first->second->samples.size(); l_nSamp++) {
       sample = first->second->samples[l_nSamp];

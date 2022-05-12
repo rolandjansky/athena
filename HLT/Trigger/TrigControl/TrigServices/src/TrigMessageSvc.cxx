@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigMessageSvc.h"
 #include "GaudiKernel/IAppMgrUI.h"
@@ -285,21 +285,8 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
   const int key = msg.getType();
   ++m_msgCount[key];
 
-  // Publish message statistics if enabled and only while RUNNING
-  if ( m_doPublish && key>=static_cast<int>(m_publishLevel) ) {
-    m_msgCountHist->Fill(key-m_publishLevel, 1);
-    if (ATH_UNLIKELY(m_msgCountSrcHist->GetYaxis()->FindFixBin(msg.getSource().c_str())<0)) {
-      // Adding bins on the fly needs to be protected by mutex
-      oh_scoped_lock_histogram lock;
-      m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
-      m_msgCountSrcHist->LabelsDeflate("Y");
-    }
-    else {
-      m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
-    }
-  }
-
   const Message* cmsg = &msg;
+  bool doPrint = true;
 
   if (m_doSuppress || m_stats.value()) {
 
@@ -310,7 +297,7 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
     const int msgLimit = m_msgLimit[key].value();
     if (m_doSuppress) {
       if (msgLimit > 0) { // regular suppression
-        if (nmsg > msgLimit) return;
+        if (nmsg > msgLimit) doPrint = false;
         if (nmsg == msgLimit) {
           std::string txt = levelNames[key] + " message limit (" + std::to_string(msgLimit) +
                             ") reached for " + msg.getSource() + ". Suppressing further output.";
@@ -347,7 +334,7 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
   }
 
   // Print the message
-  if (key >= outputLevel) {
+  if (doPrint && key >= outputLevel) {
     if (m_eventIDLevel != MSG::NIL && key >= static_cast<int>(m_eventIDLevel)) {
       cmsg->setFormat(m_defaultFormat + " %E");
     }
@@ -358,8 +345,22 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
     (*m_defaultStream) << *cmsg << std::endl << std::flush;
 
     // ERS forwarding
-    if (passErsFilter(cmsg->getSource(), m_useERS[key])) {
+    if (passErsFilter(cmsg->getSource(), m_useERS[key]) && passErsLimit(*cmsg)) {
       i_reportERS(*cmsg);
+    }
+  }
+
+  // Publish message statistics if enabled and only while RUNNING
+  if ( m_doPublish && key>=static_cast<int>(m_publishLevel) ) {
+    m_msgCountHist->Fill(key-m_publishLevel, 1);
+    if (ATH_UNLIKELY(m_msgCountSrcHist->GetYaxis()->FindFixBin(msg.getSource().c_str())<0)) {
+      // Adding bins on the fly needs to be protected by mutex
+      oh_scoped_lock_histogram lock;
+      m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
+      m_msgCountSrcHist->LabelsDeflate("Y");
+    }
+    else {
+      m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
     }
   }
 
@@ -475,4 +476,24 @@ bool TrigMessageSvc::passErsFilter(const std::string& source,
     if ("!" + source == (*it)) return false; // veto specific source
   }
   return pass;
+}
+
+bool TrigMessageSvc::passErsLimit(const Message& msg)
+{
+  if (m_ersEventLimit < 0) return true;
+
+  const EventContext::ContextID_t slot = msg.getEventSlot();
+  const EventContext::ContextEvt_t evt = msg.getEventNumber();
+  // get or create message statistics for this slot
+  auto [itr, inserted] = m_slotMsgCount.insert( {slot, {evt, MsgAry()} } );
+
+  // if new event in slot then reset counters
+  if ( itr->second.first != evt ) {
+    itr->second = {evt, MsgAry()};
+  }
+
+  // increment number of messages for this level and slot
+  const int N = ++itr->second.second.msg[msg.getType()];
+
+  return N <= m_ersEventLimit;
 }

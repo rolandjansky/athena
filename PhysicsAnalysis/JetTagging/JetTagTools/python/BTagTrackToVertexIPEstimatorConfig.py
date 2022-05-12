@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.BTagFullLinearizedTrackFactoryConfig import BTagFullLinearizedTrackFactoryCfg
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-
-# import the TrackToVertexIPEstimator configurable
-Trk__TrackToVertexIPEstimator=CompFactory.Trk.TrackToVertexIPEstimator
 
 def BTagTrackToVertexIPEstimatorCfg( flags, name = 'TrkToVxIPEstimator', useBTagFlagsDefaults = True, **options ):
     """Sets up a TrackToVertexIPEstimator tool and returns it.
@@ -26,6 +23,6 @@ def BTagTrackToVertexIPEstimatorCfg( flags, name = 'TrkToVxIPEstimator', useBTag
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Trk__TrackToVertexIPEstimator( **options))
+    acc.setPrivateTools(CompFactory.Trk.TrackToVertexIPEstimator( **options))
 
     return acc

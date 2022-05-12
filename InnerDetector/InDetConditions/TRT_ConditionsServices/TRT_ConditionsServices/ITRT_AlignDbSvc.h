@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRT_ALIGNDBSVC_H
@@ -11,12 +11,13 @@
  */
 
 
-#include <string>
+
 #include "GaudiKernel/IService.h"
 #include "AthenaKernel/IOVSvcDefs.h" // For IOVSVC_CALLBACK_ARGS macro def.
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <string>
 
 class AlignableTransform;
 class Identifier; 
@@ -35,18 +36,18 @@ class ITRT_AlignDbSvc: virtual public IService
   virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) =0;
   
   /** write AlignableTransforms to flat text file */
-  virtual StatusCode writeAlignTextFile(std::string) const =0;
-  virtual StatusCode writeStrawAlignTextFile(std::string file) const = 0;
-  virtual StatusCode writeGlobalFolderFile(std::string file) const = 0;
+  virtual StatusCode writeAlignTextFile(const std::string & filename) const =0;
+  virtual StatusCode writeStrawAlignTextFile(const std::string & filename) const = 0;
+  virtual StatusCode writeGlobalFolderFile(const std::string & filename) const = 0;
   
   /** read AlignableTransforms from text file into TDS */
-  virtual StatusCode readAlignTextFile(std::string) =0;
+  virtual StatusCode readAlignTextFile(const std::string & filename) =0;
 
   /** write the alignment objects to output */
   virtual StatusCode streamOutAlignObjects () const =0;
 
   /** register alignment objects with the IoV service */
-  virtual StatusCode registerAlignObjects(std::string, int, int, int, int) const =0;
+  virtual StatusCode registerAlignObjects(const std::string& , int, int, int, int) const =0;
 
   /** set AlignableTransform for an identifier */
   virtual StatusCode setAlignTransform(Identifier ident, Amg::Transform3D trans, unsigned int level) =0;

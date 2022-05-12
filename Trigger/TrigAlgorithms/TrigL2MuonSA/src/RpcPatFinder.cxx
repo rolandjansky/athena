@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcPatFinder.h"
@@ -25,7 +25,7 @@ TrigL2MuonSA::RpcPatFinder::RpcPatFinder(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
+void TrigL2MuonSA::RpcPatFinder::addHit(const std::string& stationName,
 					int stationEta,
 					bool  measuresPhi,
 					unsigned  int gasGap,
@@ -67,7 +67,7 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
 bool TrigL2MuonSA::RpcPatFinder::findPatternPhi(double &phi_middle, 
                                                 double &phi_outer, 
                                                 unsigned int &pattern,
-                                                const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const{
+                                                const TrigL2MuonSA::RpcLayerHits& rpcLayerHits) const{
   double result_dMO;
   bool found=false;
   if (patfinder(true, pattern, phi_middle,phi_outer, result_dMO, rpcLayerHits)>=2) found=true;
@@ -79,7 +79,7 @@ bool TrigL2MuonSA::RpcPatFinder::findPatternPhi(double &phi_middle,
 bool TrigL2MuonSA::RpcPatFinder::findPatternEta(double aw[], 
                                                 double bw[], 
                                                 unsigned int & pattern,
-                                                const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const{
+                                                const TrigL2MuonSA::RpcLayerHits& rpcLayerHits) const{
   double result_delta[3]={9999,9999,9999};
   bool found=false;
   if( patfinder_forEta(false, pattern,  aw, bw, result_delta, rpcLayerHits)>=2) found=true;
@@ -379,7 +379,7 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, double Phi) const{
+double TrigL2MuonSA::RpcPatFinder::calibR(const std::string& stationName, double R, double Phi) const{
   double DeltaPhi, temp_phi;
   double calibPhi = std::acos(std::cos(Phi)); // 0 < Phi < 2PI
   

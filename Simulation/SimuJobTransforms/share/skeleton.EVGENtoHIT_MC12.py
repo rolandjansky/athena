@@ -198,6 +198,8 @@ if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
         atlasG4log.info( 'Overriding run number to be: %s ' % runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
+elif simFlags.RunAndLumiOverrideList.statusOn:
+    atlasG4log.info( 'Overriding run number using simFlags.RunAndLumiOverrideList')
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
@@ -225,6 +227,11 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
         simFlags.WorldZRange.set_Value(26050)
     else:
         simFlags.EventFilter.set_On()
+
+from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
+if not checkForContainerInInput("xAOD::EventInfo"):
+    # If xAOD::EventInfo is not present in the input file then it should be created
+    topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 

@@ -6,6 +6,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+from AthenaConfiguration.Enums import LHCPeriod
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
@@ -14,11 +15,13 @@ from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
-from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg
-from MuonConfig.CscOverlayConfig import CscOverlayCfg
-from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
-from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
-from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
+from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg, LArSuperCellOverlayCfg
+from MuonConfig.CSC_OverlayConfig import CSC_OverlayCfg
+from MuonConfig.MDT_OverlayConfig import MDT_OverlayCfg
+from MuonConfig.MM_OverlayConfig import MM_OverlayCfg
+from MuonConfig.RPC_OverlayConfig import RPC_OverlayCfg
+from MuonConfig.sTGC_OverlayConfig import sTGC_OverlayCfg
+from MuonConfig.TGC_OverlayConfig import TGC_OverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyPileupParticleTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
@@ -89,6 +92,9 @@ def OverlayMainCfg(configFlags):
                 pass  # TODO: not supported for now
             else:
                 acc.merge(LArTTL1OverlayCfg(configFlags))
+                if configFlags.GeoModel.Run in [LHCPeriod.Run3]:
+                    acc.merge(LArSuperCellOverlayCfg(configFlags))
+
     if configFlags.Detector.EnableTile:
         acc.merge(TileDigitizationCfg(configFlags))
         if configFlags.Detector.EnableL1Calo:
@@ -100,12 +106,21 @@ def OverlayMainCfg(configFlags):
 
     # Muon system
     if configFlags.Detector.EnableCSC:
-        acc.merge(CscOverlayCfg(configFlags))
+        acc.merge(CSC_OverlayCfg(configFlags))
     if configFlags.Detector.EnableMDT:
-        acc.merge(MdtOverlayCfg(configFlags))
+        acc.merge(MDT_OverlayCfg(configFlags))
     if configFlags.Detector.EnableRPC:
-        acc.merge(RpcOverlayCfg(configFlags))
+        acc.merge(RPC_OverlayCfg(configFlags))
     if configFlags.Detector.EnableTGC:
-        acc.merge(TgcOverlayCfg(configFlags))
+        acc.merge(TGC_OverlayCfg(configFlags))
+    if configFlags.Detector.EnablesTGC:
+        acc.merge(sTGC_OverlayCfg(configFlags))
+    if configFlags.Detector.EnableMM:
+        acc.merge(MM_OverlayCfg(configFlags))
+
+    # Add MT-safe PerfMon
+    if configFlags.PerfMon.doFastMonMT or configFlags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        acc.merge(PerfMonMTSvcCfg(configFlags))
 
     return acc

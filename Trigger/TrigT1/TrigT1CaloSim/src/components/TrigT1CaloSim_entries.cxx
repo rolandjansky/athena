@@ -8,7 +8,6 @@
 #include "../CPCMX.h"
 #include "../JetCMX.h"
 #include "../EnergyCMX.h"
-#include "../OverlayRun2TriggerTowerMaker.h"
 #include "../TransientDatabaseOverride.h"
 #include "../LArTTL1Overlay.h"
 #include "../TileTTL1Overlay.h"
@@ -27,6 +26,5 @@ DECLARE_COMPONENT( CPCMX )
 DECLARE_COMPONENT( JetCMX )
 DECLARE_COMPONENT( EnergyCMX )
 DECLARE_COMPONENT( TransientDatabaseOverride )
-DECLARE_COMPONENT( OverlayRun2TriggerTowerMaker )
 DECLARE_COMPONENT( LArTTL1Overlay )
 DECLARE_COMPONENT( TileTTL1Overlay )

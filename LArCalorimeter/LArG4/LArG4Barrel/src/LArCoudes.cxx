@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCoudes.h"
 
 PhysicalVolumeAccessor* LArCoudes::s_theCoudes=nullptr;
 
-LArCoudes::LArCoudes(std::string strDetector)
+LArCoudes::LArCoudes(const std::string& strDetector)
 {
   if (s_theCoudes==nullptr)
     {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ class CylinderVolumeBoundaryAccessors {
   CylinderVolumeBoundaryAccessors();
 
   /**Default Constructor*/
-  ~CylinderVolumeBoundaryAccessors();
+  ~CylinderVolumeBoundaryAccessors() = default;
 
   /** Return the accessor for the cylindrical case */
   const ThreeObjectsAccessor& cylinderAccessor(CylinderAccessorType cat) const;

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 #**************************************************************
@@ -225,11 +225,12 @@ if  tileRawMon:
 
         ManagedAthenaTileMon.AthenaMonTools += [ TileDigiNoiseMon ]
 
-
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    rawChannelContainer = ConfigFlags.Tile.RawChannelContainer
     if 'doTileMonOld' in dir() and doTileMonOld:
         TileDQFragMon = CfgMgr.TileDQFragLWMonTool(name                       = 'TileDQFragMon'
                                                    , OutputLevel              = INFO
-                                                   , TileRawChannelContainer  = jobproperties.TileRecFlags.TileRawChannelContainer()
+                                                   , TileRawChannelContainer  = rawChannelContainer
                                                    , TileDigitsContainer      = "TileDigitsCnt"
                                                    , NegAmpHG                 = -200.
                                                    , NegAmpLG                 = -15.
@@ -247,7 +248,7 @@ if  tileRawMon:
 
 
     from TileMonitoring.TileDQFragMonitorAlgorithm import TileDQFragMonitoringConfigOld
-    topSequence += TileDQFragMonitoringConfigOld(DQMonFlags)
+    topSequence += TileDQFragMonitoringConfigOld(DQMonFlags, TileRawChannelContainer=rawChannelContainer)
 
 if jp.ConcurrencyFlags.NumThreads() == 0:
     topSequence += ManagedAthenaTileMon

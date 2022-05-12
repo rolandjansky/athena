@@ -91,9 +91,12 @@ if edmCheck:
 
 if doStream:
   from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
+  from TrigEDMConfig.TriggerEDM import getTriggerEDMList
   StreamESD = createOutputStream('StreamESD', 'ESD.pool.root', True)
-  # populate as needed for testing:
-  StreamESD.ItemList += ['TrigRoiDescriptorCollection#HLT_TrigRoiDescriptorCollection']
+  edmList = getTriggerEDMList("ESD", run)
+  for edmType, edmKeys in edmList.items():
+    for key in edmKeys:
+      StreamESD.ItemList.append(edmType+'#'+key)
   job += StreamESD
 
 print(job)

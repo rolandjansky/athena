@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // New SCT_DCSConditions Tool, based on existing tool in SCT_ConditionsAlgs
@@ -7,6 +7,8 @@
 
 #include "SCT_DCSConditionsTool.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "SCT_DetectorElementStatus.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 
@@ -89,6 +91,44 @@ bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId, const EventCont
   Identifier waferId{m_pHelper->wafer_id(hashId)};
   Identifier moduleId{m_pHelper->module_id(waferId)};
   return isGood(moduleId, ctx, InDetConditions::SCT_MODULE);
+}
+
+void SCT_DCSConditionsTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+   if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+      SG::ReadCondHandle<SCT_DCSStatCondData> condDataHandle{m_condKeyState, ctx};
+      if (not condDataHandle.isValid()) {
+         ATH_MSG_ERROR("Failed to get " << m_condKeyState.key());
+         return;
+      }
+      the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+      const SCT_DCSStatCondData* condDataState{ condDataHandle.cptr() };
+      if (condDataState==nullptr) return;
+      std::vector<bool> &status = element_status.getElementStatus();
+      if (status.empty()) {
+         status.resize(m_pHelper->wafer_hash_max(),true);
+      }
+      std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();
+      constexpr unsigned int N_CHIPS_PER_SIDE = 6;
+      constexpr unsigned int N_SIDES = 2;
+      constexpr InDet::ChipFlags_t all_flags_set = static_cast<InDet::ChipFlags_t>((1ul<<(N_CHIPS_PER_SIDE*N_SIDES)) - 1ul);
+      if (chip_status.empty()) {
+         chip_status.resize(status.size(), all_flags_set);
+      }
+      for ( const std::pair< const CondAttrListCollection::ChanNum, std::vector<std::string> > & dcs_state : condDataState->badChannelsMap() ) {
+         Identifier moduleId{ Identifier32{dcs_state.first} };
+         //find the corresponding hash
+         for (unsigned int side_i=0; side_i<2; ++side_i) {
+            Identifier waferId(m_pHelper->wafer_id(m_pHelper->barrel_ec (moduleId),
+                                                   m_pHelper->layer_disk(moduleId),
+                                                   m_pHelper->phi_module(moduleId),
+                                                   m_pHelper->eta_module(moduleId),
+                                                   side_i) );
+            const IdentifierHash hashId{m_pHelper->wafer_hash(waferId)};
+            status.at(hashId.value() ) = status.at(hashId.value() ) && dcs_state.second.empty();
+            chip_status.at(hashId.value())  = chip_status.at(hashId.value()) & ( dcs_state.second.empty() ? all_flags_set : 0 );
+         }
+      }
+   }
 }
 
 bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) const {

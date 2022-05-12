@@ -13,7 +13,7 @@ def BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags, name='BeampipeFwdCutPhysicsR
         volumeList = ['BeamPipe::SectionF47', 'BeamPipe::SectionF48', 'BeamPipe::SectionF61']
     else:
         volumeList = ['BeamPipe::SectionF198', 'BeamPipe::SectionF199', 'BeamPipe::SectionF200']
-        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run2, LHCPeriod.Run3, LHCPeriod.Run4]:
+        if ConfigFlags.GeoModel.Run > LHCPeriod.Run4:
             print('BeampipeFwdCutPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
 
@@ -45,7 +45,7 @@ def FWDBeamLinePhysicsRegionToolCfg(ConfigFlags, name='FWDBeamLinePhysicsRegionT
         volumeList = ['BeamPipe::SectionF46']
     else:
         volumeList = ['BeamPipe::SectionF197']
-        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run2, LHCPeriod.Run3, LHCPeriod.Run4]:
+        if ConfigFlags.GeoModel.Run > LHCPeriod.Run4:
             print('FWDBeamLinePhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     kwargs.setdefault("VolumeList",  volumeList)
     return RegionCreator(name, **kwargs)
@@ -104,7 +104,9 @@ def ITkStripPhysicsRegionToolCfg(ConfigFlags, name='ITkStripPhysicsRegionTool', 
     kwargs.setdefault("RegionName", 'ITkStrip')
     volumeList = ['ITkStrip::BRLSensorSS', 'ITkStrip::BRLSensorMS',
                   'ITkStrip::ECSensor0', 'ITkStrip::ECSensor1', 'ITkStrip::ECSensor2',
-                  'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5']
+                  'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5',
+                  'ITkStrip::ECSensorBack0', 'ITkStrip::ECSensorBack1', 'ITkStrip::ECSensorBack2',
+                  'ITkStrip::ECSensorBack3', 'ITkStrip::ECSensorBack4', 'ITkStrip::ECSensorBack5']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)
@@ -242,7 +244,7 @@ def DeadMaterialPhysicsRegionToolCfg(ConfigFlags, name='DeadMaterialPhysicsRegio
         sectionList += [ 51, 52, 53, 54 ]
     else:
         sectionList = list(range(191,200)) # does not include 200
-        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run2, LHCPeriod.Run3, LHCPeriod.Run4]:
+        if ConfigFlags.GeoModel.Run > LHCPeriod.Run4:
             print('DeadMaterialPhysicsRegionToolCfg: WARNING check that RUN2 beampipe volume names are correct for this geometry tag')
     for section in sectionList:
         volumeList += ['BeamPipe::SectionF'+str(section)]
@@ -288,7 +290,7 @@ def MuonSystemFastPhysicsRegionToolCfg(ConfigFlags, name='MuonSystemFastPhysicsR
     volumeList = []
     from G4AtlasApps.SimEnums import CavernBackground
     if ConfigFlags.Sim.CavernBackground in [CavernBackground.SignalWorld, CavernBackground.WriteWorld]:
-        if ConfigFlags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+        if ConfigFlags.GeoModel.Run < LHCPeriod.Run4:
             volumeList += ['BeamPipe::BeamPipe', 'IDET::IDET']
         else:
             volumeList += ['BeamPipe::BeamPipe', 'ITK::ITK']

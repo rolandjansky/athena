@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_JETSMEARINGCORRECTION_H
@@ -10,6 +10,8 @@
 
 #include <memory>
 #include <vector>
+
+#include "boost/thread/tss.hpp"
 
 #include "TRandom3.h"
 #include "TEnv.h"
@@ -39,6 +41,7 @@ class JetSmearingCorrection
         StatusCode readHisto(double& returnValue, TH1* histo, double x) const;
         StatusCode readHisto(double& returnValue, TH1* histo, const std::vector< std::unique_ptr<TH1> >& projections, double x, double y) const;
         StatusCode cacheProjections(TH1* fullHistogram, std::vector< std::unique_ptr<TH1> >& cacheLocation, const std::string& type);
+        TRandom3* getTLSRandomGen(unsigned long seed) const;
 
         // Private enums
         enum class SmearType
@@ -69,7 +72,7 @@ class JetSmearingCorrection
         const TString m_jetAlgo;
         const TString m_calibAreaTag;
         const bool m_dev;
-        mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
+        mutable boost::thread_specific_ptr<TRandom3> m_rand_tls; // thread-specific random number generator
         
         // Class variables read in from the config file
         TString m_jetOutScale;

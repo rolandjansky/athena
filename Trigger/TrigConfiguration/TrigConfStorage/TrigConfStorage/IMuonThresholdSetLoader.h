@@ -27,7 +27,7 @@ namespace TrigConf {
    class IMuonThresholdSetLoader : virtual public ILoader {
    public:
 
-      virtual ~IMuonThresholdSetLoader() {};
+      virtual ~IMuonThresholdSetLoader() override = default;
 
       virtual bool load( MuonThresholdSet& data ) = 0;
    };

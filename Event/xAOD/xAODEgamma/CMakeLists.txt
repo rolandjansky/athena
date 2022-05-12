@@ -13,7 +13,7 @@ atlas_add_library( xAODEgamma
    PUBLIC_HEADERS xAODEgamma
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks GeoPrimitives
-   EventPrimitives xAODBase xAODCaloEvent xAODCore xAODPrimitives xAODTracking
+   EventPrimitives xAODBase xAODCaloEvent xAODCore xAODPrimitives xAODTracking xAODPFlow
    xAODTruth )
 
 atlas_add_xaod_smart_pointer_dicts(

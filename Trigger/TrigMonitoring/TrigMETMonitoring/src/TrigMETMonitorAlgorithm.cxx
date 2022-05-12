@@ -8,35 +8,6 @@
 TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
 {
-  declareProperty("eventinfo_key", m_eventinfo_key = "EventInfo");
-  declareProperty("offline_met_key", m_offline_met_key = "MET_Reference_AntiKt4EMPFlow");
-  declareProperty("hlt_electron_key", m_hlt_electron_key = "HLT_egamma_Electrons_GSF");
-  declareProperty("hlt_muon_key", m_hlt_muon_key = "HLT_MuonsCB_FS");
-
-  declareProperty("topoclusters_key", m_topoclusters_key = "HLT_TopoCaloClustersLCFS");
-  declareProperty("tracks_key", m_tracks_key = "HLT_IDTrack_FS_FTF");
-  declareProperty("vertex_key", m_vertex_key = "HLT_IDVertex_FS");
-
-  declareProperty("l1_roi_key", m_lvl1_roi_key = "LVL1EnergySumRoI");
-  declareProperty("l1_jnc_key", m_lvl1_jnc_key = "jNOISECUT_MET");
-  declareProperty("l1_jrho_key", m_lvl1_jrho_key = "jXERHO_MET");
-  declareProperty("l1_gnc_key", m_lvl1_gnc_key = "gXENOISECUT_MET");
-  declareProperty("l1_grho_key", m_lvl1_grho_key = "gXERHO_MET");
-  declareProperty("l1_gjwoj_key", m_lvl1_gjwoj_key = "gXEJWOJ_MET");
-  declareProperty("l1_gpufit_key", m_lvl1_gpufit_key = "gXEPUFIT_MET");
-  declareProperty("hlt_cell_key", m_hlt_cell_met_key = "HLT_MET_cell");
-  declareProperty("hlt_mht_key", m_hlt_mht_met_key = "HLT_MET_mht");
-  declareProperty("hlt_tc_key", m_hlt_tc_met_key = "HLT_MET_tc");
-  declareProperty("hlt_tc_em_key", m_hlt_tc_em_met_key = "HLT_MET_tc_em");
-  declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key = "HLT_MET_tcpufit");
-  declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key = "HLT_MET_trkmht");
-  declareProperty("hlt_pfsum_key", m_hlt_pfsum_met_key = "HLT_MET_pfsum");
-  declareProperty("hlt_pfsum_cssk_key", m_hlt_pfsum_cssk_met_key = "HLT_MET_pfsum_cssk");
-  declareProperty("hlt_pfsum_vssk_key", m_hlt_pfsum_vssk_met_key = "HLT_MET_pfsum_vssk");
-  declareProperty("hlt_pfopufit_key", m_hlt_pfopufit_met_key = "HLT_MET_pfopufit");
-  declareProperty("hlt_cvfpufit_key", m_hlt_cvfpufit_met_key = "HLT_MET_cvfpufit");
-  declareProperty("hlt_mhtpufit_pf_key", m_hlt_mhtpufit_pf_met_key = "HLT_MET_mhtpufit_pf_subjesgscIS");
-  declareProperty("hlt_mhtpufit_em_key", m_hlt_mhtpufit_em_met_key = "HLT_MET_mhtpufit_em_subjesgscIS");
 }
 
 
@@ -44,7 +15,7 @@ TrigMETMonitorAlgorithm::~TrigMETMonitorAlgorithm() {}
 
 
 StatusCode TrigMETMonitorAlgorithm::initialize() {
-    ATH_CHECK( m_eventinfo_key.initialize() );
+    ATH_CHECK( m_EventInfoKey.initialize() );
     ATH_CHECK( m_offline_met_key.initialize() );
     ATH_CHECK( m_hlt_electron_key.initialize() );
     ATH_CHECK( m_hlt_muon_key.initialize() );
@@ -58,6 +29,12 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_lvl1_grho_key.initialize() );
     ATH_CHECK( m_lvl1_gjwoj_key.initialize() );
     ATH_CHECK( m_lvl1_gpufit_key.initialize() );
+    ATH_CHECK( m_l1_jFexMet_key.initialize() );
+    ATH_CHECK( m_l1_jFexSumEt_key.initialize() );
+    ATH_CHECK( m_l1_gFexJwojScalar_key.initialize() );
+    ATH_CHECK( m_l1_gFexJwojMETComponents_key.initialize() );
+    ATH_CHECK( m_l1_gFexJwojMHTComponents_key.initialize() );
+    ATH_CHECK( m_l1_gFexJwojMSTComponents_key.initialize() );
     ATH_CHECK( m_hlt_cell_met_key.initialize() );
     ATH_CHECK( m_hlt_mht_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
@@ -69,6 +46,7 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_cvfpufit_met_key.initialize() );
     ATH_CHECK( m_hlt_mhtpufit_pf_met_key.initialize() );
     ATH_CHECK( m_hlt_mhtpufit_em_met_key.initialize() );
+    ATH_CHECK( m_hlt_met_nn_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_cssk_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_vssk_met_key.initialize() );
 
@@ -80,7 +58,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     using namespace Monitored;
 
     // access event info container
-    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventinfo_key, ctx);
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_EventInfoKey, ctx);
     if (! eventInfo.isValid() ){
         ATH_MSG_DEBUG("Container "<< eventInfo << " does not exist or is empty");
     }
@@ -156,6 +134,32 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         ATH_MSG_DEBUG("Container "<< m_lvl1_gpufit_key << " does not exist or is empty");
     }
 
+    // access L1 Fex Net cintainers
+    SG::ReadHandle<xAOD::jFexMETRoIContainer> l1_jFexMet_cont(m_l1_jFexMet_key, ctx);
+    if (! l1_jFexMet_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_jFexMet_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::jFexSumETRoIContainer> l1_jFexSumEt_cont(m_l1_jFexSumEt_key, ctx);
+    if (! l1_jFexSumEt_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_jFexSumEt_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojScalar_cont(m_l1_gFexJwojScalar_key, ctx);
+    if (! l1_gFexJwojScalar_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojScalar_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMETComponents_cont(m_l1_gFexJwojMETComponents_key, ctx);
+    if (! l1_gFexJwojMETComponents_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMETComponents_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMHTComponents_cont(m_l1_gFexJwojMHTComponents_key, ctx);
+    if (! l1_gFexJwojMHTComponents_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMHTComponents_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMSTComponents_cont(m_l1_gFexJwojMSTComponents_key, ctx);
+    if (! l1_gFexJwojMSTComponents_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMSTComponents_key << " does not exist or is empty");
+    }
+
     // access HLT met containers
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
     if (! hlt_cell_met_cont.isValid() || hlt_cell_met_cont->size()==0 ) {
@@ -221,7 +225,11 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (! hlt_mhtpufit_em_met_cont.isValid() || hlt_mhtpufit_em_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_em_met_key << " does not exist or is empty");
     }
-
+    
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_met_nn_cont(m_hlt_met_nn_key, ctx);
+    if (! hlt_met_nn_cont.isValid() || hlt_met_nn_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_met_nn_key << " does not exist or is empty");
+    }
 
     // define variables
     auto act_IPBC = Monitored::Scalar<float>("act_IPBC",0.0);
@@ -264,22 +272,37 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     fill(tool, act_IPBC);
 
     // access lepton values
+    float leadingElectronPt = 0.0;
+    float leadingElectronEta = 0.0;
     if ( hlt_electron_cont.isValid() && hlt_electron_cont->size() > 0 ) {
       hlt_el_mult = hlt_electron_cont->size();
       if (hlt_el_mult > 0) fill(tool,hlt_el_mult);
       for (auto Electron: *hlt_electron_cont) {
         hlt_el_pt = (Electron->pt())*0.001;
+        if((Electron->pt()) * 0.001 > leadingElectronPt){
+          leadingElectronPt = (Electron->pt() * 0.001);
+          leadingElectronEta = (Electron->eta());
+        }
+
         if (hlt_el_pt > 0) {
           fill(tool, hlt_el_pt);
         }
       }
     }
 
+    float leadingMuonPt = 0.0;
+    float leadingMuonEta = 0.0;
     if( hlt_muon_cont.isValid() && hlt_muon_cont->size() > 0){
       hlt_mu_mult = hlt_muon_cont->size();
       if (hlt_mu_mult > 0) fill(tool,hlt_mu_mult);
       for(auto Muon : *hlt_muon_cont){
         hlt_mu_pt = (Muon->pt())*0.001;
+
+        if(Muon->pt() * 0.001 > leadingMuonPt){
+          leadingMuonPt = (Muon->pt()*0.001);
+          leadingMuonEta = (Muon->eta());
+        }
+
         if(hlt_mu_pt > 0){
           fill(tool, hlt_mu_pt);
         }
@@ -385,6 +408,109 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       }
     }
 
+    // access L1 jFex MET values
+    if (l1_jFexMet_cont.isValid()) {
+      float L1_met_Ex = 0;
+      float L1_met_Ey = 0;
+      for (const auto l1_jmet: *l1_jFexMet_cont) {
+        L1_met_Ex += l1_jmet->Ex()*0.001;
+        L1_met_Ey += l1_jmet->Ey()*0.001;
+      }
+      float L1_met_Et = std::sqrt(L1_met_Ex*L1_met_Ex + L1_met_Ey*L1_met_Ey);
+      float L1_met_Ex_log = signed_log(L1_met_Ex, epsilon);
+      float L1_met_Ey_log = signed_log(L1_met_Ey, epsilon);
+      float L1_met_Et_log = signed_log(L1_met_Et, epsilon);
+      auto L1_Ex = Monitored::Scalar<float>("L1_jFex_Ex", static_cast<float>(L1_met_Ex));
+      auto L1_Ey = Monitored::Scalar<float>("L1_jFex_Ey", static_cast<float>(L1_met_Ey));
+      auto L1_Et = Monitored::Scalar<float>("L1_jFex_Et", static_cast<float>(L1_met_Et));
+      auto L1_Ex_log = Monitored::Scalar<float>("L1_jFex_Ex_log", static_cast<float>(L1_met_Ex_log));
+      auto L1_Ey_log = Monitored::Scalar<float>("L1_jFex_Ey_log", static_cast<float>(L1_met_Ey_log));
+      auto L1_Et_log = Monitored::Scalar<float>("L1_jFex_Et_log", static_cast<float>(L1_met_Et_log));
+     fill(tool, L1_Ex, L1_Ey, L1_Et, L1_Ex_log, L1_Ey_log, L1_Et_log);
+    }
+    if (l1_jFexSumEt_cont.isValid()) {
+      float L1_met_sumEt = 0;
+      for (const auto l1_jsumEt: *l1_jFexSumEt_cont) {
+        L1_met_sumEt += l1_jsumEt->Et_lower()*0.001 + l1_jsumEt->Et_upper()*0.001;
+      }
+      float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
+      auto L1_sumEt = Monitored::Scalar<float>("L1_jFex_sumEt", static_cast<float>(L1_met_sumEt));
+      auto L1_sumEt_log = Monitored::Scalar<float>("L1_jFex_sumEt_log", static_cast<float>(L1_met_sumEt_log));
+      fill(tool, L1_sumEt, L1_sumEt_log);
+    }
+
+    // define L1 gFex MET object
+    const xAOD::gFexGlobalRoI *l1_gmet;
+
+    // access L1 gFex MET values
+    // This will be properly implemented when it's ready
+    if (l1_gFexJwojScalar_cont.isValid()) {
+      l1_gmet = l1_gFexJwojScalar_cont->at(0);
+      float L1_met_Et = l1_gmet->METquantityOne()*0.001;
+      float L1_met_sumEt = l1_gmet->METquantityTwo()*0.001;
+      float L1_met_Et_log = signed_log(L1_met_Et, epsilon);
+      float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
+      auto L1_Et = Monitored::Scalar<float>("L1_gFexJwoj_Et", static_cast<float>(L1_met_Et));
+      auto L1_Et_log = Monitored::Scalar<float>("L1_gFexJwoj_Et_log", static_cast<float>(L1_met_Et_log));
+      auto L1_sumEt = Monitored::Scalar<float>("L1_gFexJwoj_sumEt", static_cast<float>(L1_met_sumEt));
+      auto L1_sumEt_log = Monitored::Scalar<float>("L1_gFexJwoj_sumEt_log", static_cast<float>(L1_met_sumEt_log));
+      fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
+    }
+    
+    if (l1_gFexJwojMETComponents_cont.isValid()) {
+      l1_gmet = l1_gFexJwojMETComponents_cont->at(0);
+      float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_Ey = l1_gmet->METquantityTwo()*0.001;
+      auto L1_Ex = Monitored::Scalar<float>("L1_gFexJwoj_Ex", static_cast<float>(L1_met_Ex));
+      auto L1_Ey = Monitored::Scalar<float>("L1_gFexJwoj_Ey", static_cast<float>(L1_met_Ey));
+      fill(tool, L1_Ex, L1_Ey);
+    }
+
+    if (l1_gFexJwojMHTComponents_cont.isValid()) {
+      l1_gmet = l1_gFexJwojMHTComponents_cont->at(0);
+      float L1_met_HT_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_HT_Ey = l1_gmet->METquantityTwo()*0.001;
+      auto L1_HT_Ex = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ex", static_cast<float>(L1_met_HT_Ex));
+      auto L1_HT_Ey = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ey", static_cast<float>(L1_met_HT_Ey));
+      fill(tool, L1_HT_Ex, L1_HT_Ey);
+    }
+
+    if (l1_gFexJwojMSTComponents_cont.isValid()) {
+      l1_gmet = l1_gFexJwojMSTComponents_cont->at(0);
+      float L1_met_ST_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_ST_Ey = l1_gmet->METquantityTwo()*0.001;
+      auto L1_ST_Ex = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ex", static_cast<float>(L1_met_ST_Ex));
+      auto L1_ST_Ey = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ey", static_cast<float>(L1_met_ST_Ey));
+      fill(tool, L1_ST_Ex, L1_ST_Ey);
+    } 
+
+	if (l1_gFexJwojMETComponents_cont.isValid()) {
+	  l1_gmet = l1_gFexJwojMETComponents_cont->at(0);
+	  float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
+	  float L1_met_Ey = l1_gmet->METquantityTwo()*0.001;
+	  auto L1_Ex = Monitored::Scalar<float>("L1_gFexJwoj_Ex", static_cast<float>(L1_met_Ex));
+	  auto L1_Ey = Monitored::Scalar<float>("L1_gFexJwoj_Ey", static_cast<float>(L1_met_Ey));
+	  fill(tool, L1_Ex, L1_Ey);
+	}
+
+	if (l1_gFexJwojMHTComponents_cont.isValid()) {
+	  l1_gmet = l1_gFexJwojMHTComponents_cont->at(0);
+	  float L1_met_HT_Ex = l1_gmet->METquantityOne()*0.001;
+	  float L1_met_HT_Ey = l1_gmet->METquantityTwo()*0.001;
+	  auto L1_HT_Ex = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ex", static_cast<float>(L1_met_HT_Ex));
+	  auto L1_HT_Ey = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ey", static_cast<float>(L1_met_HT_Ey));
+	  fill(tool, L1_HT_Ex, L1_HT_Ey);
+	}
+	
+	if (l1_gFexJwojMSTComponents_cont.isValid()) {
+	  l1_gmet = l1_gFexJwojMSTComponents_cont->at(0);
+	  float L1_met_ST_Ex = l1_gmet->METquantityOne()*0.001;
+	  float L1_met_ST_Ey = l1_gmet->METquantityTwo()*0.001;
+	  auto L1_ST_Ex = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ex", static_cast<float>(L1_met_ST_Ex));
+	  auto L1_ST_Ey = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ey", static_cast<float>(L1_met_ST_Ey));
+	  fill(tool, L1_ST_Ex, L1_ST_Ey);
+	}
+
     // define TrigMissingET object
     const xAOD::TrigMissingET *hlt_met = 0;
 
@@ -466,6 +592,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         hlt_met = hlt_mhtpufit_pf_met_cont->at(0);
       } else if (alg == "mhtpufit_em" && hlt_mhtpufit_em_met_cont.isValid() && hlt_mhtpufit_em_met_cont->size() > 0) {
         hlt_met = hlt_mhtpufit_em_met_cont->at(0);
+      } else if (alg == "met_nn" && hlt_met_nn_cont.isValid() && hlt_met_nn_cont->size() > 0) {
+        hlt_met = hlt_met_nn_cont->at(0);
       } else {
         hlt_met = 0;
       }
@@ -502,6 +630,85 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
           auto met_presel_Et = Monitored::Scalar<float>(alg+"_presel_Et", static_cast<float>(hlt_Et));
           fill(tool,met_presel_Et);
         }
+      }
+    }
+
+    for (const std::string& alg : m_signalLepAlgs) {
+      if (alg == "cell" && hlt_cell_met_cont.isValid() && hlt_cell_met_cont->size() > 0) {
+      hlt_met = hlt_cell_met_cont->at(0);
+      } else if (alg == "mht" && hlt_mht_met_cont.isValid() && hlt_mht_met_cont->size() > 0) {
+      hlt_met = hlt_mht_met_cont->at(0);
+      } else if (alg == "tc" && hlt_tc_met_cont.isValid() && hlt_tc_met_cont->size() > 0) {
+      hlt_met = hlt_tc_met_cont->at(0);
+      } else if (alg == "tc_em" && hlt_tc_em_met_cont.isValid() && hlt_tc_em_met_cont->size() > 0) {
+      hlt_met = hlt_tc_em_met_cont->at(0);
+      } else if (alg == "tcpufit" && hlt_tcpufit_met_cont.isValid() && hlt_tcpufit_met_cont->size() > 0) {
+      hlt_met = hlt_tcpufit_met_cont->at(0);
+      } else if (alg == "trkmht" && hlt_trkmht_met_cont.isValid() && hlt_trkmht_met_cont->size() > 0) {
+      hlt_met = hlt_trkmht_met_cont->at(0);
+      } else if (alg == "pfsum" && hlt_pfsum_met_cont.isValid() && hlt_pfsum_met_cont->size() > 0) {
+      hlt_met = hlt_pfsum_met_cont->at(0);
+      } else if (alg == "pfsum_cssk" && hlt_pfsum_cssk_met_cont.isValid() && hlt_pfsum_cssk_met_cont->size() > 0) {
+      hlt_met = hlt_pfsum_cssk_met_cont->at(0);
+      } else if (alg == "pfsum_vssk" && hlt_pfsum_vssk_met_cont.isValid() && hlt_pfsum_vssk_met_cont->size() > 0) {
+      hlt_met = hlt_pfsum_vssk_met_cont->at(0);
+      } else if (alg == "pfopufit" && hlt_pfopufit_met_cont.isValid() && hlt_pfopufit_met_cont->size() > 0) {
+      hlt_met = hlt_pfopufit_met_cont->at(0);
+      } else if (alg == "cvfpufit" && hlt_cvfpufit_met_cont.isValid() && hlt_cvfpufit_met_cont->size() > 0) {
+      hlt_met = hlt_cvfpufit_met_cont->at(0);
+      } else if (alg == "mhtpufit_pf" && hlt_mhtpufit_pf_met_cont.isValid() && hlt_mhtpufit_pf_met_cont->size() > 0) {
+      hlt_met = hlt_mhtpufit_pf_met_cont->at(0);
+      } else if (alg == "mhtpufit_em" && hlt_mhtpufit_em_met_cont.isValid() && hlt_mhtpufit_em_met_cont->size() > 0) {
+      hlt_met = hlt_mhtpufit_em_met_cont->at(0);
+      } else {
+      hlt_met = 0;
+      }
+
+      if ( hlt_met ) {
+        float hlt_Ex = (hlt_met->ex())/1000.;
+        float hlt_Ey = (hlt_met->ey())/1000.;
+        float hlt_Ez = (hlt_met->ez())/1000.;
+        float hlt_Et = std::sqrt(hlt_Ex*hlt_Ex + hlt_Ey*hlt_Ey);
+        float hlt_sumEt = (hlt_met->sumEt())/1000.;
+        float hlt_Ex_log = signed_log(hlt_Ex, epsilon);
+        float hlt_Ey_log = signed_log(hlt_Ey, epsilon);
+        float hlt_Et_log = signed_log(hlt_Et, epsilon);
+        float hlt_sumEt_log = signed_log(hlt_sumEt, epsilon); 
+        TVector3 v(hlt_Ex, hlt_Ey, hlt_Ez);
+        float hlt_eta = v.Eta();
+        float hlt_phi = v.Phi();
+
+        if(leadingElectronPt > m_electronPtCut && fabs(leadingElectronEta) < m_electronEtaCut){
+          auto met_Ex = Monitored::Scalar<float>(alg+"_SigEl_Ex", static_cast<float>(hlt_Ex));
+          auto met_Ey = Monitored::Scalar<float>(alg+"_SigEl_Ey", static_cast<float>(hlt_Ey));
+          auto met_Et = Monitored::Scalar<float>(alg+"_SigEl_Et", static_cast<float>(hlt_Et));
+          auto met_sumEt = Monitored::Scalar<float>(alg+"_SigEl_sumEt", static_cast<float>(hlt_sumEt));
+          auto met_Ex_log = Monitored::Scalar<float>(alg+"_SigEl_Ex_log", static_cast<float>(hlt_Ex_log));
+          auto met_Ey_log = Monitored::Scalar<float>(alg+"_SigEl_Ey_log", static_cast<float>(hlt_Ey_log));
+          auto met_Et_log = Monitored::Scalar<float>(alg+"_SigEl_Et_log", static_cast<float>(hlt_Et_log));
+          auto met_sumEt_log = Monitored::Scalar<float>(alg+"_SigEl_sumEt_log", static_cast<float>(hlt_sumEt_log));
+          auto met_eta = Monitored::Scalar<float>(alg+"_SigEl_eta", static_cast<float>(hlt_eta));
+          auto met_phi = Monitored::Scalar<float>(alg+"_SigEl_phi", static_cast<float>(hlt_phi));
+          fill(tool,met_Ex,met_Ey,met_Et,met_sumEt,
+            met_Ex_log,met_Ey_log,met_Et_log,met_sumEt_log,
+            met_eta,met_phi);  
+        }
+		
+        if(leadingMuonPt > m_muonPtCut && fabs(leadingMuonEta) < m_muonEtaCut){
+          auto met_Ex = Monitored::Scalar<float>(alg+"_SigMu_Ex", static_cast<float>(hlt_Ex));
+          auto met_Ey = Monitored::Scalar<float>(alg+"_SigMu_Ey", static_cast<float>(hlt_Ey));
+          auto met_Et = Monitored::Scalar<float>(alg+"_SigMu_Et", static_cast<float>(hlt_Et));
+          auto met_sumEt = Monitored::Scalar<float>(alg+"_SigMu_sumEt", static_cast<float>(hlt_sumEt));
+          auto met_Ex_log = Monitored::Scalar<float>(alg+"_SigMu_Ex_log", static_cast<float>(hlt_Ex_log));
+          auto met_Ey_log = Monitored::Scalar<float>(alg+"_SigMu_Ey_log", static_cast<float>(hlt_Ey_log));
+          auto met_Et_log = Monitored::Scalar<float>(alg+"_SigMu_Et_log", static_cast<float>(hlt_Et_log));
+          auto met_sumEt_log = Monitored::Scalar<float>(alg+"_SigMu_sumEt_log", static_cast<float>(hlt_sumEt_log));
+          auto met_eta = Monitored::Scalar<float>(alg+"_SigMu_eta", static_cast<float>(hlt_eta));
+          auto met_phi = Monitored::Scalar<float>(alg+"_SigMu_phi", static_cast<float>(hlt_phi));
+          fill(tool,met_Ex,met_Ey,met_Et,met_sumEt,
+            met_Ex_log,met_Ey_log,met_Et_log,met_sumEt_log,
+            met_eta,met_phi);  
+        } 
       }
     }
 

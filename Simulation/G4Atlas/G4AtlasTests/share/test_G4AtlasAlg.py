@@ -69,15 +69,12 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc("THistSvc")
 ServiceMgr.THistSvc.Output  = ["atlasTest DATAFILE='atlasTest.histo.root' OPT='RECREATE'"];
 
-from G4AtlasTests.G4AtlasTestsConf import AtlasTestAlg
-job += AtlasTestAlg()
-
 # Control random number seeds so that daily runs are identical
-from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
+from AtlasGeant4.AtlasGeant4Conf import G4AtlasAlg
 g4AtlasAlg = G4AtlasAlg()
 g4AtlasAlg.RandomGenerator = "athena"
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 atRndmGenSvc = AtRndmGenSvc()
 atRndmGenSvc.Seeds += ["AtlasG4 1234 5678"]
 atRndmGenSvc.Seeds += ["SINGLE 2345 6789"]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_MDTRACKING_H
@@ -8,12 +8,9 @@
 #include <iostream>
 #include <vector>
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include "Rtypes.h"
 #include "TMath.h"
@@ -23,7 +20,7 @@
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 #include "ALFA_Geometry/ALFA_constants.h"
 
-class ALFA_MDTracking
+class ALFA_MDTracking : public AthMessaging
 {
 	public:
 		ALFA_MDTracking();
@@ -57,13 +54,5 @@ class ALFA_MDTracking
 		void OverLap();
 		void SetData(Int_t NumU, Int_t NumV, Float_t OL_U, Float_t OL_V);
 
-public:
-	/// Log a message using the Athena controlled logging system
-	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-	/// Check whether the logging system is active at the provided verbosity level
-	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-private:
-	/// Private message stream member
-	mutable Athena::MsgStreamMember m_msg;
 };
 #endif // ALFA_MDTRACKING_H

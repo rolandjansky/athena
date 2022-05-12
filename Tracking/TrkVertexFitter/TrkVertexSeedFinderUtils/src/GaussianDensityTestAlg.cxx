@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // GaussianDensityTestAlg.cxx 
@@ -202,7 +202,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 		bool isAssoc = truthParticleAssoc(**(*lxtp)).isValid();
 		if (isAssoc)
 	        {
-		    auto assocParticle = truthParticleAssoc(**(*lxtp));
+		    const auto& assocParticle = truthParticleAssoc(**(*lxtp));
 		    ATH_MSG_VERBOSE("Found associated truth particle");
 		    for (const auto& truthParticle : evt->truthParticleLinks())
 		    {
@@ -265,7 +265,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 		bool isAssoc = truthParticleAssoc(**(*lxtp)).isValid();
 		if (isAssoc)
 	        {
-		    auto assocParticle = truthParticleAssoc(**(*lxtp));
+		    const auto& assocParticle = truthParticleAssoc(**(*lxtp));
 		    ATH_MSG_VERBOSE("Found associated truth particle");
 		    for (const auto& truthParticle : evt->truthParticleLinks())
 		    {

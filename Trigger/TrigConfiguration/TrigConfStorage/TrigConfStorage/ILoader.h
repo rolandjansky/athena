@@ -16,7 +16,7 @@ namespace TrigConf {
     */
    class ILoader {
    public:
-      virtual ~ILoader() {}
+      virtual ~ILoader() = default;
 
       /**
        * @brief Load the configuration data from the configuration

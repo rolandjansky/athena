@@ -50,10 +50,10 @@ public:
   Imp() {};
 
   //We hold the arguments here until init is called:
-  StoreGateSvc* sg;
-  StoreGateSvc* detstore;
-  ISvcLocator* svclocator;
-  IToolSvc*toolSvc;
+  StoreGateSvc* sg = nullptr;
+  StoreGateSvc* detstore = nullptr;
+  ISvcLocator* svclocator = nullptr;
+  IToolSvc*toolSvc = nullptr;
 };
 
 

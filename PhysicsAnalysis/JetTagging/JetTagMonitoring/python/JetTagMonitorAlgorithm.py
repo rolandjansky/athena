@@ -4,6 +4,7 @@
 
 '''@file JetTagMonitorAlgorithm.py
 @author A. Lapertosa
+@author M. Tanasini
 @author S. Strandberg
 @date 2019-06-17
 @brief JetTagging python configuration for the Run III AthenaMonitoring package, based on the example by C Burton and P Onyisi'''
@@ -54,13 +55,20 @@ def JetTagMonitorConfig(inputFlags):
     # Declare properties
 
     #objects collections
-    jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets"
     jetTagMonAlg.MuonsCollection = "Muons"
     jetTagMonAlg.ElectronsCollection = "Electrons"
 
-    #skip jet filter selection if ion-ion or proton-ion collisions
-    jetTagMonAlg.SkipJetFilter = False
+    #Skip jet filter selection in case of ion-ion or proton-ion collisions
+    if inputFlags.DQ.DataType == 'heavyioncollisions':
+        jetTagMonAlg.SkipPreSelection = True
+        jetTagMonAlg.SkipJetFilter = True
+        jetTagMonAlg.JetsCollection = "AntiKt4HIJets" #Heavy Ion jet collection
+    else:
+        jetTagMonAlg.SkipPreSelection = False
+        jetTagMonAlg.SkipJetFilter = False
+        jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets" #Standard jet collection
 
+    #Additional low-level taggers and extra plots (i.e. pu, pb, pc)
     jetTagMonAlg.DoExtraTaggerHistos = True
 
     #general pT / eta cuts for jets
@@ -71,21 +79,17 @@ def JetTagMonitorConfig(inputFlags):
     jetTagMonAlg.SoftMuonPtMin = 5.0
     jetTagMonAlg.SoftMuonPtMax = 25.0
 
-    #track selection for jet quality 
+    #Track selection Tool, Loose WP: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TrackingCPRecsEarly2018#Track_Selection
+    jetTagMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('jetTagMonAlg_TrackSelectionTool')
+    jetTagMonAlg.TrackSelectionTool.CutLevel = "Loose"
+
+    #Additional track selection for jet quality assessment
     jetTagMonAlg.MinGoodTrackCut = 1
     jetTagMonAlg.TrackPtCut = 1.0 #GeV
-    jetTagMonAlg.TrackEtaCut = 2.5
     jetTagMonAlg.Trackd0Cut = 1.0 #mm
     jetTagMonAlg.Trackz0sinCut = 1.5 #mm
-    jetTagMonAlg.TrackChi2ndfCut = 999.0
     jetTagMonAlg.TrackHitIBLCut = 1
-    jetTagMonAlg.TrackHitPixCut = 1
-    jetTagMonAlg.TrackHolePixCut = 1
-    jetTagMonAlg.TrackHitSCTCut = 0
-    jetTagMonAlg.TrackHoleSCTCut = 999
-    jetTagMonAlg.TrackHitSiCut = 7
-    jetTagMonAlg.TrackHoleSiCut = 2
-    
+
     #lepton pT / eta cuts for TTbar events
     jetTagMonAlg.ElectronPtCut = 25.0
     jetTagMonAlg.MuonPtCut = 25.0
@@ -150,7 +154,7 @@ def JetTagMonitorConfig(inputFlags):
     #General histograms: cutflow, run, PV, tracks, hits
     GeneralGroup.defineHistogram('Cutflow_Event',
                                  title='Event CutFlow;Pass Event CutFlow;Events',
-                                 path='Cutflow',
+                                 path='Shifter',
                                  xbins=8,
                                  xmin=-0.5,
                                  xmax=7.5,
@@ -161,7 +165,7 @@ def JetTagMonitorConfig(inputFlags):
 
     GeneralGroup.defineHistogram('Cutflow_Jet',
                                  title='Jet CutFlow;Pass Jet CutFlow;Jets',
-                                 path='Cutflow',
+                                 path='Shifter',
                                  xbins=9,
                                  xmin=-0.5,
                                  xmax=8.5,
@@ -170,67 +174,70 @@ def JetTagMonitorConfig(inputFlags):
                                           "Suspect", "Bad", ""]
                                 )
 
-    GeneralGroup.defineHistogram('Run_lb',title='Lumi Block;LB;Events',path='Run',xbins=1000,xmin=-0.5,xmax=999.5)
-    GeneralGroup.defineHistogram('Run_mu',title='Mu;<mu>;Events',path='Run',xbins=100,xmin=0,xmax=100.0)
-    GeneralGroup.defineHistogram('PV_n',title='Primary vertices;PV;Events',path='Run',xbins=100,xmin=0,xmax=100.0)
-    GeneralGroup.defineHistogram('PV_x',title='Primary vertices X position;X;Events',path='Run',xbins=40,xmin=-2.0,xmax=2.0)
-    GeneralGroup.defineHistogram('PV_y',title='Primary vertices Y position;Y;Events',path='Run',xbins=40,xmin=-2.0,xmax=2.0)
-    GeneralGroup.defineHistogram('PV_z',title='Primary vertices Z position;Z;Events',path='Run',xbins=100,xmin=-250,xmax=250.0)
-    GeneralGroup.defineHistogram('PV_tracks_n',title='Number of tracks in PV;Tracks in PV;Number of tracks',path='Run',xbins=100,xmin=0,xmax=200)
+    GeneralGroup.defineHistogram('Run_lb',title='Lumi Block;LB;Events',path='Expert',xbins=1000,xmin=-0.5,xmax=999.5)
+    GeneralGroup.defineHistogram('Run_mu',title='Mu;<mu>;Events',path='Expert',xbins=100,xmin=0,xmax=100.0)
+    GeneralGroup.defineHistogram('PV_x',title='Primary vertices X position;X;Events',path='Expert',xbins=40,xmin=-2.0,xmax=2.0)
+    GeneralGroup.defineHistogram('PV_y',title='Primary vertices Y position;Y;Events',path='Expert',xbins=40,xmin=-2.0,xmax=2.0)
+    GeneralGroup.defineHistogram('PV_z',title='Primary vertices Z position;Z;Events',path='Expert',xbins=100,xmin=-250,xmax=250.0)
 
-    GeneralGroup.defineHistogram('Tracks_n',title='Track multiplicity;Tracks per event;Number of events',path='Run',xbins=150,xmin=0,xmax=1500)
-    GeneralGroup.defineHistogram('Hits_IBL',title='Number of IBL hits;Hits on track;Number of IBL hits on track',path='Run',xbins=5,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('Hits_Pixel',title='Number of Pixel hits;Hits on track;Number of Pixel hits on track',path='Run',xbins=10,xmin=0,xmax=10)
-    GeneralGroup.defineHistogram('Hits_SCT',title='Number of SCT hits;Hits on track;Number of SCT hits on track',path='Run',xbins=15,xmin=0,xmax=15)
-    GeneralGroup.defineHistogram('Hits_Si',title='Number of PIX+SCT hits;Hits on track;Number of PIX+SCT hits on track',path='Run',xbins=25,xmin=0,xmax=25)
-    GeneralGroup.defineHistogram('Hits_TRT',title='Number of TRT hits;Hits on track;Number of TRT hits on track',path='Run',xbins=100,xmin=0,xmax=100)
-    GeneralGroup.defineHistogram('Hits_ID',title='Number of ID hits;Hits on track;Number of ID hits on track',path='Run',xbins=150,xmin=0,xmax=150)
+    GeneralGroup.defineHistogram('PV_n',title='Primary vertices;PV;Events',path='Shifter',xbins=100,xmin=0,xmax=100.0)
+    GeneralGroup.defineHistogram('PV_tracks_n',title='Number of tracks in PV;Tracks in PV;Number of tracks',path='Shifter',xbins=100,xmin=0,xmax=200)
 
-    #Jet tracks
-    GeneralGroup.defineHistogram('JetTracks_n',title='Track multiplicity in jet;Tracks;Number of tracks per jet',path='JetTracks',xbins=50,xmin=0,xmax=50)
-    GeneralGroup.defineHistogram('JetTracks_pT',title='pT of tracks in jet;pT;Tracks in jets',path='JetTracks',xbins=100,xmin=0,xmax=100)
-    GeneralGroup.defineHistogram('JetTracks_eta',title='#eta of tracks in jet;#eta;Tracks in jets',path='JetTracks',xbins=100,xmin=-2.5,xmax=2.5)
-    GeneralGroup.defineHistogram('JetTracks_phi',title='#phi of tracks in jet;#phi;Tracks in jets',path='JetTracks',xbins=100,xmin=-1*math.pi,xmax=math.pi)
-    GeneralGroup.defineHistogram('JetTracks_DR',title='DeltaR of tracks in jet;DeltaR;Tracks in jets',path='JetTracks',xbins=100,xmin=0,xmax=1)
-    GeneralGroup.defineHistogram('JetTracks_d0',title='d_0 of tracks in jet;d_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
-    GeneralGroup.defineHistogram('JetTracks_d0s',title='sigma d_0 of tracks in jet;sigma d_0;Tracks in jets',path='JetTracks',xbins=50,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('JetTracks_d0si',title='significance d_0 of tracks in jet;significance d_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
-    GeneralGroup.defineHistogram('JetTracks_z0',title='z_0 of tracks in jet;z_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
-    GeneralGroup.defineHistogram('JetTracks_z0s',title='sigma z_0 of tracks in jet;sigma z_0;Tracks in jets',path='JetTracks',xbins=50,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('JetTracks_z0si',title='significance z_0 of tracks in jet;significance z_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
+    GeneralGroup.defineHistogram('Tracks_n',title='Track multiplicity;Tracks per event;Number of events',path='Shifter',xbins=150,xmin=0,xmax=1500)
+    GeneralGroup.defineHistogram('Hits_IBL',title='Number of IBL hits;Hits on track;Number of IBL hits on track',path='Shifter',xbins=5,xmin=0,xmax=5)
+    GeneralGroup.defineHistogram('Hits_Pixel',title='Number of Pixel hits;Hits on track;Number of Pixel hits on track',path='Shifter',xbins=10,xmin=0,xmax=10)
+    GeneralGroup.defineHistogram('Hits_SCT',title='Number of SCT hits;Hits on track;Number of SCT hits on track',path='Shifter',xbins=15,xmin=0,xmax=15)
+    GeneralGroup.defineHistogram('Hits_Si',title='Number of PIX+SCT hits;Hits on track;Number of PIX+SCT hits on track',path='Shifter',xbins=25,xmin=0,xmax=25)
+    GeneralGroup.defineHistogram('Hits_TRT',title='Number of TRT hits;Hits on track;Number of TRT hits on track',path='Shifter',xbins=100,xmin=0,xmax=100)
+    GeneralGroup.defineHistogram('Hits_ID',title='Number of ID hits;Hits on track;Number of ID hits on track',path='Shifter',xbins=150,xmin=0,xmax=150)
+
+    #Jet tracks hits and impact parameters (loose tracks)
+    GeneralGroup.defineHistogram('JetTracks_eta_loose_IBL,JetTracks_phi_loose_IBL;JetTracks_MAP_loose_IBL',title='2D MAP of loose tracks from jets with IBL hit;Track #eta;Track #phi',type='TH2F',path='JetTracks',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_eta_loose_BL,JetTracks_phi_loose_BL;JetTracks_MAP_loose_BL',title='2D MAP of loose tracks from jets with BL hit;Track #eta;Track #phi',type='TH2F',path='JetTracks',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+
     GeneralGroup.defineHistogram('JetTracks_Hits_IBL',title='Number of IBL hits on tracks in jets;Hits on track;Number of IBL hits on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('JetTracks_Hits_Pixel',title='Number of Pixel hits on tracks in jets;Hits on track;Number of Pixel hits on track',path='JetTracks',xbins=10,xmin=0,xmax=10)
+    GeneralGroup.defineHistogram('JetTracks_Hits_IBL_expect',title='Number of IBL hits on tracks in jets;Hits on track;Number of IBL hits on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_Hits_BL',title='Number of B-Layer hits on tracks in jets;Hits on track;Number of B-Layer hits on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_Hits_BL_expect',title='Number of B-Layer hits on tracks in jets;Hits on track;Number of B-Layer hits on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
+
+    GeneralGroup.defineHistogram('JetTracks_Hits_PIX',title='Number of Pixel hits on tracks in jets;Hits on track;Number of Pixel hits on track',path='JetTracks',xbins=10,xmin=0,xmax=10)
+    GeneralGroup.defineHistogram('JetTracks_Holes_PIX',title='Number of Pixel holes on tracks in jets;Holes on track;Number of Pixel holes on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
     GeneralGroup.defineHistogram('JetTracks_Hits_SCT',title='Number of SCT hits on tracks in jets;Hits on track;Number of SCT hits on track',path='JetTracks',xbins=15,xmin=0,xmax=15)
+    GeneralGroup.defineHistogram('JetTracks_Holes_SCT',title='Number of SCT holes on tracks in jets;Holes on track;Number of SCT holes on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
     GeneralGroup.defineHistogram('JetTracks_Hits_TRT',title='Number of TRT hits on tracks in jets;Hits on track;Number of TRT hits on track',path='JetTracks',xbins=100,xmin=0,xmax=100)
+    GeneralGroup.defineHistogram('JetTracks_Hits_Si',title='Number of Si (PIX+SCT) hits on tracks in jets;Hits on track;Number of Si (PIX+SCT) hits on track',path='JetTracks',xbins=20,xmin=0,xmax=20)
+    GeneralGroup.defineHistogram('JetTracks_Holes_Si',title='Number of Si (PIX+SCT) holes on tracks in jets;Holes on track;Number of Si (PIX+SCT) holes on track',path='JetTracks',xbins=5,xmin=0,xmax=5)
+
+    GeneralGroup.defineHistogram('JetTracks_IP_d0',title='d_0 of tracks in jet;d_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_IP_d0s',title='sigma d_0 of tracks in jet;sigma d_0;Tracks in jets',path='JetTracks',xbins=50,xmin=0,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_IP_d0si',title='significance d_0 of tracks in jet;significance d_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_IP_z0',title='z_0 of tracks in jet;z_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_IP_z0s',title='sigma z_0 of tracks in jet;sigma z_0;Tracks in jets',path='JetTracks',xbins=50,xmin=0,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_IP_z0si',title='significance z_0 of tracks in jet;significance z_0;Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_IP_z0sin',title='z0 #times sin (#theta) of tracks in jet;z0 #times sin (#theta);Tracks in jets',path='JetTracks',xbins=100,xmin=-5,xmax=5)
 
     #Jet quality selection (good, suspect, bad) based on its tracks
-    GeneralGroup.defineHistogram('SelTracks_n_all',title='Jet track multiplicity (before selection);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=50,xmin=0,xmax=50)
-    GeneralGroup.defineHistogram('SelTracks_n_pass',title='Jet track multiplicity (passed selection);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=25,xmin=0,xmax=25)
-    GeneralGroup.defineHistogram('SelTracks_pT_all',title='pT of jet tracks;pT [GeV];Jet tracks',path='TracksInJetSelection',xbins=60,xmin=0,xmax=30)
-    GeneralGroup.defineHistogram('SelTracks_eta_all',title='#eta of jet tracks;#eta;Jet tracks',path='TracksInJetSelection',xbins=100,xmin=-2.5,xmax=2.5)
-    GeneralGroup.defineHistogram('SelTracks_phi_all',title='#phi of jet tracks;#phi;Jet tracks',path='TracksInJetSelection',xbins=100,xmin=-1*math.pi,xmax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_chi2ndof',title='Jet tracks fit #chi^{2}/ndf;#chi^{2}/ndf;Jet tracks',path='TracksInJetSelection',xbins=50,xmin=0,xmax=50)
-    GeneralGroup.defineHistogram('SelTracks_d0',title='d0 of jet tracks;d0;Jet tracks',path='TracksInJetSelection',xbins=100,xmin=-5,xmax=5)
-    GeneralGroup.defineHistogram('SelTracks_z0sin',title='z0 #times sin (#theta) of jet tracks;z0 #times sin(#theta);Jet tracks',path='TracksInJetSelection',xbins=100,xmin=-5,xmax=5)
-    GeneralGroup.defineHistogram('SelTracks_HitIBL',title='Number of IBL hits on tracks in jets;Hits on track;Number of IBL hits on track',path='TracksInJetSelection',xbins=5,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('SelTracks_HitPix',title='Number of Pixel hits on tracks in jets;Hits on track;Number of Pixel hits on track',path='TracksInJetSelection',xbins=10,xmin=0,xmax=10)
-    GeneralGroup.defineHistogram('SelTracks_HitSCT',title='Number of SCT hits on tracks in jets;Hits on track;Number of SCT hits on track',path='TracksInJetSelection',xbins=15,xmin=0,xmax=15)
-    GeneralGroup.defineHistogram('SelTracks_HitSi',title='Number of Si (Pix+SCT) hits on tracks in jets;Hits on track;Number of Si (Pix+SCT) hits on track',path='TracksInJetSelection',xbins=25,xmin=0,xmax=25)
-    GeneralGroup.defineHistogram('SelTracks_HolePix',title='Number of Pixel holes on tracks in jets;Holes on track;Number of Pixel holes on track',path='TracksInJetSelection',xbins=5,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('SelTracks_HoleSCT',title='Number of SCT holes on tracks in jets;Holes on track;Number of SCT holes on track',path='TracksInJetSelection',xbins=5,xmin=0,xmax=5)
-    GeneralGroup.defineHistogram('SelTracks_HoleSi',title='Number of Si (Pix+SCT) holes on tracks in jets;Holes on track;Number of Si (Pix+SCT) holes on track',path='TracksInJetSelection',xbins=5,xmin=0,xmax=5)
+    GeneralGroup.defineHistogram('JetTracks_n_0_all',title='Jet track multiplicity (all);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=50,xmin=0,xmax=50)
+    GeneralGroup.defineHistogram('JetTracks_n_1_loose',title='Jet track multiplicity (loose);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=50,xmin=0,xmax=50)
+    GeneralGroup.defineHistogram('JetTracks_n_2_kin',title='Jet track multiplicity (>1 GeV);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=25,xmin=0,xmax=25)
+    GeneralGroup.defineHistogram('JetTracks_n_3_IP',title='Jet track multiplicity (IP cut);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=25,xmin=0,xmax=25)
+    GeneralGroup.defineHistogram('JetTracks_n_4_IBL',title='Jet track multiplicity (I-BL hit);Tracks;Number of tracks per jet',path='TracksInJetSelection',xbins=25,xmin=0,xmax=25)
+
+    GeneralGroup.defineHistogram('JetTracks_pT_0_all',title='pT of tracks in jet (all);pT [GeV];Tracks in jets',path='TracksInJetSelection',xbins=60,xmin=0,xmax=30)
+    GeneralGroup.defineHistogram('JetTracks_eta_0_all',title='#eta of tracks in jet (all);#eta;Tracks in jets',path='TracksInJetSelection',xbins=100,xmin=-2.5,xmax=2.5)
+    GeneralGroup.defineHistogram('JetTracks_phi_0_all',title='#phi of tracks in jet (all);#phi;Tracks in jets',path='TracksInJetSelection',xbins=100,xmin=-1*math.pi,xmax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_DR_0_all',title='DeltaR of tracks in jet (all);DeltaR;Tracks in jets',path='TracksInJetSelection',xbins=100,xmin=0,xmax=1)
+
+    GeneralGroup.defineHistogram('JetTracks_pT_1_loose',title='pT of tracks in jet (loose);pT [GeV];Tracks in jets',path='TracksInJetSelection',xbins=60,xmin=0,xmax=30)
+    GeneralGroup.defineHistogram('JetTracks_eta_1_loose',title='#eta of tracks in jet (loose);#eta;Tracks in jets',path='TracksInJetSelection',xbins=100,xmin=-2.5,xmax=2.5)
+    GeneralGroup.defineHistogram('JetTracks_phi_1_loose',title='#phi of tracks in jet (loose);#phi;Tracks in jets',path='TracksInJetSelection',xbins=100,xmin=-1*math.pi,xmax=math.pi)
 
     #2D Map of selection of tracks in jets
-    GeneralGroup.defineHistogram('SelTracks_eta_all,SelTracks_phi_all;SelTracks_MAP_0_all',title='2D MAP of all tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_pT,SelTracks_phi_pT;SelTracks_MAP_1_pT',title='2D MAP of discarded (pT and eta) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_d0,SelTracks_phi_d0;SelTracks_MAP_2_d0',title='2D MAP of discarded (d0) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_z0sin,SelTracks_phi_z0sin;SelTracks_MAP_3_z0sin',title='2D MAP of discarded (z0sin#theta) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_fit,SelTracks_phi_fit;SelTracks_MAP_4_fit',title='2D MAP of discarded (fit #chi^{2}/ndf) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_IBL,SelTracks_phi_IBL;SelTracks_MAP_5_IBL',title='2D MAP of discarded (IBL hits) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_Pix,SelTracks_phi_Pix;SelTracks_MAP_6_Pix',title='2D MAP of discarded (Pixel hits and holes) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_SCT,SelTracks_phi_SCT;SelTracks_MAP_7_SCT',title='2D MAP of discarded (SCT hits and holes) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_Si,SelTracks_phi_Si;SelTracks_MAP_8_Si',title='2D MAP of discarded (Pix+SCT hits and holes) tracks from jets;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('SelTracks_eta_pass,SelTracks_phi_pass;SelTracks_MAP_9_pass',title='2D MAP of tracks from jets that passed selection;Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_eta_0_all,JetTracks_phi_0_all;JetTracks_MAP_0_all',title='2D MAP of tracks from jets (all);Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_eta_1_loose,JetTracks_phi_1_loose;JetTracks_MAP_1_loose',title='2D MAP of tracks from jets (loose);Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_eta_2_kin,JetTracks_phi_2_kin;JetTracks_MAP_2_kin',title='2D MAP of tracks from jets (>1 GeV);Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_eta_3_IP,JetTracks_phi_3_IP;JetTracks_MAP_3_IP',title='2D MAP of tracks from jets passed (IP sel);Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('JetTracks_eta_4_IBL,JetTracks_phi_4_IBL;JetTracks_MAP_4_IBL',title='2D MAP of tracks from jets passed (I-BL hit);Track #eta;Track #phi',type='TH2F',path='TracksInJetSelection',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
 
     #Jets from ttbar events histograms
     GeneralGroup.defineHistogram('Muon_pT',title='Muon pT;Muon pT;Events',path='TTbarEventSelection',xbins=100,xmin=0.0,xmax=200000.0)
@@ -240,7 +247,6 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('IsolatedElectrons_n',title='Number of isolated Electrons;Isolated electrons;Number of events',path='TTbarEventSelection',xbins=3,xmin=-0.5,xmax=2.5)
 
     GeneralGroup.defineHistogram('nTTbarGoodJets',title='Number of good jets in ttbar events;Good jets per event;Number of events',path='TTbarEventSelection',xbins=10,xmin=-0.5,xmax=9.5)
-    GeneralGroup.defineHistogram('TTbarJets_MV',title='MV of jets in ttbar events;Jet MV;Number of jets',path='TTbarEventSelection',xbins=int(MV_bins/2),xmin=MV_start,xmax=MV_stop)
 
     GeneralGroup.defineHistogram('TTbarJets_n',title='Total number of ttbar jets;Number of jets;Number of events',path='TTbarEventSelection',xbins=1,xmin=-0.5,xmax=0.5)
     GeneralGroup.defineHistogram('TTbarJets_n_60tag',title='Number of ttbar jets passing 60 tag WP; Jets passing 60 tag WP;Number of ttbar jets',path='TTbarEventSelection',xbins=1,xmin=-0.5,xmax=0.5)
@@ -252,15 +258,16 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('pass77n,TTbarJets_n',type='TEfficiency',title='TTbar jets 77 tag WP Efficiency;ttbar jets;77 tag WP Efficiency',path='TTbarEventSelection',xbins=1,xmin=-0.5,xmax=0.5)
     GeneralGroup.defineHistogram('pass85n,TTbarJets_n',type='TEfficiency',title='TTbar jets 85 tag WP Efficiency;ttbar jets;85 tag WP Efficiency',path='TTbarEventSelection',xbins=1,xmin=-0.5,xmax=0.5)
 
-    GeneralGroup.defineHistogram('TTbarJets_pT',title='Number of ttbar jets vs pT;ttbar jet pT;Number of ttbar jets',path='TTbarEventSelection',xbins=40,xmin=0,xmax=200)
-    GeneralGroup.defineHistogram('TTbarJets_pT_60tag',title='Number of ttbar jets passing 60 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='TTbarEventSelection',xbins=40,xmin=0,xmax=200)
-    GeneralGroup.defineHistogram('TTbarJets_pT_70tag',title='Number of ttbar jets passing 70 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='TTbarEventSelection',xbins=40,xmin=0,xmax=200)
-    GeneralGroup.defineHistogram('TTbarJets_pT_77tag',title='Number of ttbar jets passing 77 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='TTbarEventSelection',xbins=40,xmin=0,xmax=200)
-    GeneralGroup.defineHistogram('TTbarJets_pT_85tag',title='Number of ttbar jets passing 85 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='TTbarEventSelection',xbins=40,xmin=0,xmax=200)
-    GeneralGroup.defineHistogram('pass60p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 60 tag WP Efficiency vs pT;ttbar jet pT;60 tag WP Efficiency',path='TTbarEventSelection',xbins=40,xmin=0.0,xmax=200.0)
-    GeneralGroup.defineHistogram('pass70p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 70 tag WP Efficiency vs pT;ttbar jet pT;70 tag WP Efficiency',path='TTbarEventSelection',xbins=40,xmin=0.0,xmax=200.0)
-    GeneralGroup.defineHistogram('pass77p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 77 tag WP Efficiency vs pT;ttbar jet pT;77 tag WP Efficiency',path='TTbarEventSelection',xbins=40,xmin=0.0,xmax=200.0)
-    GeneralGroup.defineHistogram('pass85p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 85 tag WP Efficiency vs pT;ttbar jet pT;85 tag WP Efficiency',path='TTbarEventSelection',xbins=40,xmin=0.0,xmax=200.0)
+    GeneralGroup.defineHistogram('TTbarJets_MV',title='MV of jets in ttbar events;Jet MV;Number of jets',path='JetTTbarEvents',xbins=int(MV_bins/2),xmin=MV_start,xmax=MV_stop)
+    GeneralGroup.defineHistogram('TTbarJets_pT',title='Number of ttbar jets vs pT;ttbar jet pT;Number of ttbar jets',path='JetTTbarEvents',xbins=40,xmin=0,xmax=200)
+    GeneralGroup.defineHistogram('TTbarJets_pT_60tag',title='Number of ttbar jets passing 60 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='JetTTbarEvents',xbins=40,xmin=0,xmax=200)
+    GeneralGroup.defineHistogram('TTbarJets_pT_70tag',title='Number of ttbar jets passing 70 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='JetTTbarEvents',xbins=40,xmin=0,xmax=200)
+    GeneralGroup.defineHistogram('TTbarJets_pT_77tag',title='Number of ttbar jets passing 77 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='JetTTbarEvents',xbins=40,xmin=0,xmax=200)
+    GeneralGroup.defineHistogram('TTbarJets_pT_85tag',title='Number of ttbar jets passing 85 tag WP vs pT;ttbar jet pT;Number of ttbar jets',path='JetTTbarEvents',xbins=40,xmin=0,xmax=200)
+    GeneralGroup.defineHistogram('pass60p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 60 tag WP Efficiency vs pT;ttbar jet pT;60 tag WP Efficiency',path='JetTTbarEvents',xbins=40,xmin=0.0,xmax=200.0)
+    GeneralGroup.defineHistogram('pass70p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 70 tag WP Efficiency vs pT;ttbar jet pT;70 tag WP Efficiency',path='JetTTbarEvents',xbins=40,xmin=0.0,xmax=200.0)
+    GeneralGroup.defineHistogram('pass77p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 77 tag WP Efficiency vs pT;ttbar jet pT;77 tag WP Efficiency',path='JetTTbarEvents',xbins=40,xmin=0.0,xmax=200.0)
+    GeneralGroup.defineHistogram('pass85p,TTbarJets_pT',type='TEfficiency',title='TTbar jets 85 tag WP Efficiency vs pT;ttbar jet pT;85 tag WP Efficiency',path='JetTTbarEvents',xbins=40,xmin=0.0,xmax=200.0)
 
     # SMT jets histograms
     GeneralGroup.defineHistogram('SoftMuons_n',title='Number of Soft Muons;Muons per event;Number of muons',path='SMTJetSelection',xbins=3,xmin=-0.5,xmax=2.5)
@@ -274,7 +281,7 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('SMTJets_MV',title='MV of SMT Jets;MV;Number of jets',path='SMTJetSelection',xbins=50,xmin=MV_start,xmax=MV_stop)
 
     #Distributions before jet selection (all jets from selected events)
-    GeneralGroup.defineHistogram('jet_n_all',title='Jet multiplicity (before selection);Number of jets;Events',path='JetSelection',xbins=50,xmin=0,xmax=50)
+    GeneralGroup.defineHistogram('jet_n_all',title='Jet multiplicity (before selection);Number of jets;Events',path='Shifter',xbins=50,xmin=0,xmax=50)
     GeneralGroup.defineHistogram('jet_pT_all',title='Jet pT (before selection);Jet pT [GeV];Jets',path='JetSelection',xbins=100,xmin=0.0,xmax=200.0)
     GeneralGroup.defineHistogram('jet_eta_all',title='Jet eta (before selection);Jet #eta;Jets',path='JetSelection',xbins=100,xmin=-2.5,xmax=2.5)
     GeneralGroup.defineHistogram('jet_phi_all',title='Jet phi (before selection);Jet #phi;Jets',path='JetSelection',xbins=100,xmin=-1*math.pi,xmax=math.pi)
@@ -295,15 +302,15 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('jet_MV_3_afterJVTCut',title='Jet MV after JVT cut;Jet MV;Jets',path='JetSelection',xbins=MV_bins,xmin=MV_start,xmax=MV_stop)
     
     #Distributions for good jets (passing Good/Suspect/Bad selection)
-    GeneralGroup.defineHistogram('jet_pT_good',title='Good jets pT;Good Jet pT [GeV];Jets',path='JetGood',xbins=100,xmin=0.0,xmax=200.0)
-    GeneralGroup.defineHistogram('jet_eta_good',title='Good jets #eta;Good Jet #eta;Jets',path='JetGood',xbins=100,xmin=-2.5,xmax=2.5)
-    GeneralGroup.defineHistogram('jet_phi_good',title='Good jets #phi;Good Jet #phi;Jets',path='JetGood',xbins=100,xmin=-1*math.pi,xmax=math.pi)
-    GeneralGroup.defineHistogram('jet_MV_good',title='Good jets MV;Good Jet MV;Jets',path='JetGood',xbins=MV_bins,xmin=MV_start,xmax=MV_stop)
+    GeneralGroup.defineHistogram('jet_pT_good',title='Good jets pT;Good Jet pT [GeV];Jets',path='Shifter',xbins=100,xmin=0.0,xmax=200.0)
+    GeneralGroup.defineHistogram('jet_eta_good',title='Good jets #eta;Good Jet #eta;Jets',path='Shifter',xbins=100,xmin=-2.5,xmax=2.5)
+    GeneralGroup.defineHistogram('jet_phi_good',title='Good jets #phi;Good Jet #phi;Jets',path='Shifter',xbins=100,xmin=-1*math.pi,xmax=math.pi)
+    GeneralGroup.defineHistogram('jet_MV_good',title='Good jets MV;Good Jet MV;Jets',path='Shifter',xbins=MV_bins,xmin=MV_start,xmax=MV_stop)
    
     #Extra Taggers plots
-    GeneralGroup.defineHistogram('jet_MV_pu_good',title='Good jets MV pu;Good Jet MV pu;Jets',path='JetGood',xbins=100,xmin=0,xmax=1.0)
-    GeneralGroup.defineHistogram('jet_MV_pc_good',title='Good jets MV pc;Good Jet MV pc;Jets',path='JetGood',xbins=100,xmin=0,xmax=1.0)
-    GeneralGroup.defineHistogram('jet_MV_pb_good',title='Good jets MV pb;Good Jet MV pb;Jets',path='JetGood',xbins=100,xmin=0,xmax=1.0)
+    GeneralGroup.defineHistogram('jet_MV_pu_good',title='Good jets MV pu;Good Jet MV pu;Jets',path='Shifter',xbins=100,xmin=0,xmax=1.0)
+    GeneralGroup.defineHistogram('jet_MV_pc_good',title='Good jets MV pc;Good Jet MV pc;Jets',path='Shifter',xbins=100,xmin=0,xmax=1.0)
+    GeneralGroup.defineHistogram('jet_MV_pb_good',title='Good jets MV pb;Good Jet MV pb;Jets',path='Shifter',xbins=100,xmin=0,xmax=1.0)
 
 
     #Good jet: tag weight histograms in bins: mu, pt, eta, phi
@@ -354,10 +361,10 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('pass85f,jet_phi',type='TEfficiency',title='Jets 85 tag WP Efficiency vs #phi;Jet #phi;85 tag WP Efficiency',path='JetEtaPhi',xbins=24,xmin=-1*math.pi,xmax=math.pi)
 
     #Good jet: 2D MAP (eta/phi) and 2D TEfficiency of fraction of good jets
-    GeneralGroup.defineHistogram('jet_eta_60tag,jet_phi_60tag;jet_MAP_60tag',title='2D MAP of jets passing 60 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('jet_eta_70tag,jet_phi_70tag;jet_MAP_70tag',title='2D MAP of jets passing 70 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('jet_eta_77tag,jet_phi_77tag;jet_MAP_77tag',title='2D MAP of jets passing 77 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
-    GeneralGroup.defineHistogram('jet_eta_85tag,jet_phi_85tag;jet_MAP_85tag',title='2D MAP of jets passing 85 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetGood',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('jet_eta_60tag,jet_phi_60tag;jet_MAP_60tag',title='2D MAP of jets passing 60 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetEtaPhi',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('jet_eta_70tag,jet_phi_70tag;jet_MAP_70tag',title='2D MAP of jets passing 70 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetEtaPhi',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('jet_eta_77tag,jet_phi_77tag;jet_MAP_77tag',title='2D MAP of jets passing 77 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetEtaPhi',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
+    GeneralGroup.defineHistogram('jet_eta_85tag,jet_phi_85tag;jet_MAP_85tag',title='2D MAP of jets passing 85 tag WP;Jet #eta;Jet #phi',type='TH2F',path='JetEtaPhi',xbins=25,xmin=-2.5,xmax=2.5,ybins=50,ymin=-1*math.pi,ymax=math.pi)
 
     #Suspect jet plots (same definition of good jet plots) --> jet quality from Suspect/Suspect/Bad selection)
     GeneralGroup.defineHistogram('jet_pT_suspect',title='Suspect jets pT;Suspect Jet pT [GeV];Jets',path='JetSuspect',xbins=100,xmin=0.0,xmax=200.0)
@@ -440,7 +447,9 @@ if __name__=='__main__':
     #Select the input (data or MC) and output files
     
     #Data r22 ART input working:
-    ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ_art/myESD.pool.root"] #ESD from ART test, 15 Feb 22, data18
+    #ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_ORD22/run/DQ_ARTs/myESD.data15HI.15Mar.root"] #ESD from ART test, 15 Mar 22, data15_heavy_ion
+    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_ORD22/run/DQ_ARTs/myESD.data18.14Mar.root"] #ESD from ART test, 14 Mar 22, data18_13TeV
+    #ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ_art/myESD.pool.root"] #ESD from ART test, 15 Feb 22, data18
     ConfigFlags.Input.isMC = False
 
     #MC r22 ART input working:
@@ -459,12 +468,12 @@ if __name__=='__main__':
 
     jetTagMonitorAcc = JetTagMonitorConfig(ConfigFlags)
     cfg.merge(jetTagMonitorAcc)
-    
+
     # If you want to turn on more detailed messages ...
-    #trigEgammaMonitorAcc.getEventAlgo('TrigEgammaMonAlg').OutputLevel = 2 # DEBUG
+    #jetTagMonitorAcc.getEventAlgo('JetTagMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     #Select how many events to run on 
     #use cfg.run() empty for all events
-    #use cfg.run(20) to only run on first 20 events
-    cfg.run(20) #22697 for new data, 2157 for data, >20k for ttbar MC
+    #use cfg.run(300) to only run on first 300 events
+    cfg.run(1000)

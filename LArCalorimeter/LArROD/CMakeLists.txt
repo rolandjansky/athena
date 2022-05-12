@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArROD )
@@ -6,22 +6,22 @@ atlas_subdir( LArROD )
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( lwtnn )
 
 # Component(s) in the package:
 atlas_add_library( LArRODLib
-                   src/*.cxx
-                   src/tests/*.cxx
+                   LArROD/*.h
+                   INTERFACE
                    PUBLIC_HEADERS LArROD
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArDigitizationLib LArRecConditions TBEvent StoreGateLib LArCablingLib LArElecCalib LArRawUtilsLib LArRecUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions )
+                   LINK_LIBRARIES CaloIdentifier GaudiKernel Identifier LArRawEvent )
 
 atlas_add_component( LArROD
+                     src/*.cxx
+                     src/tests/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES LArRODLib )
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                     DEFINITIONS ${CLHEP_DEFINITIONS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${LWTNN_LIBRARIES} ${ROOT_LIBRARIES} AthAllocators AthContainers AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier CommissionEvent GaudiKernel GeoModelInterfaces Identifier LArCOOLConditions LArCablingLib LArDigitizationLib LArElecCalib LArIdentifier LArRODLib LArRawConditions LArRawEvent LArRawUtilsLib LArRecConditions LArRecUtilsLib LArSimEvent StoreGateLib TBEvent xAODEventInfo )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

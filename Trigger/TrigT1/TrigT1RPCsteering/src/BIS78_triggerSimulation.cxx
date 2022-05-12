@@ -150,13 +150,14 @@ void BIS78_triggerSimulation::build_trigRawData(Muon::RpcBis78_TrigRawDataContai
 	  + ((position_phi & 0x3f) << 12 )
 	  + ((flag3o3_eta & 0x1)  <<  5 )
 	  + ((flag3o3_phi & 0x1)  <<  4 );
-      }
       
-      auto bis_segment= std::make_unique<Muon::RpcBis78_TrigRawDataSegment>(position_eta,position_phi,
+        auto bis_segment= std::make_unique<Muon::RpcBis78_TrigRawDataSegment>(position_eta,position_phi,
                                                                              delta_strip_eta,delta_strip_phi,
 									     flag3o3_eta,flag3o3_phi,trigword );
-      trgRawData->push_back(std::move(bis_segment));
-      trgContainer->push_back(std::move(trgRawData));
+        
+        trgRawData->push_back(std::move(bis_segment));
+        trgContainer->push_back(std::move(trgRawData));
+      }
 
     
     }

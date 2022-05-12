@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -18,7 +18,7 @@ using namespace HLT;
 Navigation::Navigation(  const std::string& type, const std::string& name,
                          const IInterface* parent )
   : AthAlgTool(type, name, parent),
-    NavigationCore(msg()),
+    NavigationCore(static_cast<AthAlgTool&>(*this)),
     m_serializerServiceHandle("TrigSerializeCnvSvc", name),
     m_clidSvc("ClassIDSvc", name),
     m_fullholderfactory(m_objectsKeyPrefix)

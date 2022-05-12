@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -18,14 +18,32 @@ def setupTgcDigitASDposCondAlg():
     condSequence = AthSequencer("AthCondSeq")
     if not hasattr(condSequence, "TgcDigitASDposCondAlg"):
         from IOVDbSvc.CondDB import conddb
-        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS", className='CondAttrListCollection')
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.UseUpdatedTGCConditions():
+            conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS", className='CondAttrListCollection')
+        else:   # since the folder does not exist in the presented global tag, need explicit tag?
+            conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS <tag>TgcDigitAsdPos-00-01</tag>", className='CondAttrListCollection', forceMC=True)
+
         condSequence += CfgMgr.TgcDigitASDposCondAlg("TgcDigitASDposCondAlg")
+
+def setupTgcDigitTimeOffsetCondAlg():
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence, "TgcDigitTimeOffsetCondAlg"):
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/TOFFSET <tag>TgcDigitTimeOffset-00-01</tag>", className='CondAttrListCollection', forceMC=True)   # TODO remove explicit tag
+        condSequence += CfgMgr.TgcDigitTimeOffsetCondAlg("TgcDigitTimeOffsetCondAlg")
+
 
 def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the TGC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", TGC_FirstXing() ) 
         kwargs.setdefault("LastXing",  TGC_LastXing() )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("PileUpMergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     kwargs.setdefault("OutputObjectName", "TGC_DIGITS")
     if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
@@ -34,10 +52,10 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
 
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.UseUpdatedTGCConditions():
-        setupTgcDigitASDposCondAlg()
-        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    setupTgcDigitASDposCondAlg()
+    kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    setupTgcDigitTimeOffsetCondAlg()
+    kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
 
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
@@ -59,11 +77,6 @@ def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
         kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
-
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.UseUpdatedTGCConditions():
-        setupTgcDigitASDposCondAlg()
-        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")    
 
     return TgcDigitizationTool(name,**kwargs)
 

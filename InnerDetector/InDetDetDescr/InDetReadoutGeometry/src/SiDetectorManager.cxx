@@ -133,9 +133,10 @@ namespace InDetDD
         }
     }
 
-    void SiDetectorManager::addDesign(std::unique_ptr<const SiDetectorDesign>&& design)
+    const SiDetectorDesign * SiDetectorManager::addDesign(std::unique_ptr<const SiDetectorDesign>&& design)
     {
         m_designs.push_back(std::move(design));
+        return m_designs.back().get();
     }
 
     int SiDetectorManager::numDesigns() const

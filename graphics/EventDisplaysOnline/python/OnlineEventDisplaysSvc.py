@@ -25,7 +25,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		self.public = kw.get('Public')
 		self.projecttags = kw.get('ProjectTags')
 
-		self.DQMgid = None
+		self.zpgid = None
 		self.partition = None
 
 		self.StreamToFileTool = None
@@ -46,7 +46,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 
 		self.partition = IPCPartition('ATLAS')
 		self.dict = ISInfoDictionary(self.partition)
-		self.DQMgid = grp.getgrnam("DQM").gr_gid
+		self.zpgid = grp.getgrnam("zp").gr_gid
 		return StatusCode.Success
 
 	def finalize(self):
@@ -125,6 +125,11 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		random.shuffle(streams)
 		self.msg.debug("Event %d/%d has event display stream tags: %s", self.run, self.event, ", ".join(streams))
 
+		## for beam splash, give priority to MinBias
+		#if 'physics_MinBias' in streams:
+		#	streams = ['physics_MinBias']
+		#	self.msg.debug("Modified stream tag: %s", ", ".join(streams))
+
 		# Start from the beginning and send the event to the first stream that passes our directory checks
 		self.directory = ''
 		for self.stream in streams:
@@ -132,9 +137,9 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			if os.access(self.directory, os.F_OK):
 				if os.path.isdir(self.directory) and os.access(self.directory, os.W_OK):
 					self.msg.debug("Going to write file to existing directory: %s", self.directory)
-					if os.stat(self.directory).st_gid != self.DQMgid:
-						self.msg.debug("Setting group to 'DQM' for directory: %s", self.directory)
-						os.chown(self.directory, -1, self.DQMgid)
+					if os.stat(self.directory).st_gid != self.zpgid:
+						self.msg.debug("Setting group to 'zp' for directory: %s", self.directory)
+						os.chown(self.directory, -1, self.zpgid)
 					break
 				else:
 					self.msg.warning("Directory \'%s\' is not usable, trying next alternative", self.directory)
@@ -143,7 +148,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 				try:
 					os.mkdir(self.directory)
 					os.chmod(self.directory, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH)
-					os.chown(self.directory, -1, self.DQMgid)
+					os.chown(self.directory, -1, self.zpgid)
 					self.msg.info("Created output directory \'%s\' for stream \'%s\'", self.directory, self.stream)
 					break
 				except OSError as err:
@@ -163,9 +168,6 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			self.StreamToServerTool.getProperty('StreamName').setValue("%s" % self.stream)
 			self.StreamToFileTool.getProperty('FileNamePrefix').setValue("%s/JiveXML" % self.directory)
 
-			# And also for the VP1 event producer algorithm
-			if self.VP1EventProducer:
-				self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory)
 		except Exception as err:
 			self.msg.error("Exception occured while setting job options: %s", err)
 			return StatusCode.Failure
@@ -174,13 +176,23 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			return StatusCode.Recoverable
 
 	def endEvent(self):
+		# VP1 copied its ESD file of the previous event to the destination directory.
+		# So we set the directory of the current event in endEvent to pass it to the next event.
+		if self.VP1EventProducer:
+			self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory)
+
 		# Prune events and make index file for atlas-live.cern.ch
 		if self.directory:
 			# If VP1 event producer is missing, skip the pair check to make cleanup/sync work
 			if self.VP1EventProducer:
-				EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents, removeunpaired=True)
+				EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents, checkpair=True)
 			else:
-				EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents, removeunpaired=False)
+				EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents, checkpair=False)
+
+			## for beam splashes, disable prepareFilesForTransfer() in EventUtils.py
+			## Activate these lines to zip and transfer every JiveXML file.
+			#event = "%05d" % int(self.event)
+			#EventUtils.zipXMLFile(self.msg, self.directory, f'JiveXML_{self.run}_{event}.xml')
 
 		# And cleanup the variables
 		self.run = 0

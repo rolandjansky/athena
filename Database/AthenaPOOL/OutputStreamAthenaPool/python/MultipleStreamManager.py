@@ -254,6 +254,33 @@ class AugmentedPoolStream( AugmentedStreamBase ):
         print(self.Stream.MetadataItemList)
         return
 
+
+#############################################################
+class AugmentedPoolStreamExtension( AugmentedPoolStream ):
+    def  __init__(self, StreamName, FileName, Parent, asAlg, isVirtual, noTag=True):
+        AugmentedPoolStream.__init__(self, StreamName, FileName, asAlg, isVirtual, noTag)
+        index=0
+        try:
+            #Check wheter a StreamDAOD_PHYS stream exists
+            index=MSMgr.StreamDict[Parent]
+        except KeyError:
+            index=-1
+        self.parentIndex = index
+        return
+
+
+    #########################################
+    #Items & MetaDataItems
+    def AddItem(self, item):
+        if self.parentIndex >= 0:
+            if item in MSMgr.StreamList[self.parentIndex].Stream.ItemList:
+                return
+        self._AddValidItemToList(item, self.Stream.ItemList)
+        return
+
+    def AddMetaDataItem(self, item):
+        return
+
 ##############################################
 # See: Event/ByteStreamCnvSvc/share/BSFilter_test_jobOptions.py
 # requires external: include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
@@ -569,10 +596,16 @@ class MultipleStreamManager:
         # By default use a maximum basket buffer size of 128k and minimum buffer entries of 10
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMaxBufferSize( FileName, "131072" ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMinBufferEntries( FileName, "10" ) ]
-        # By default use 20 MB AutoFlush for event data except for DAOD_PHYS and DAOD_PHYSLITE
+        # By default use 20 MB AutoFlush (or 500 events for SharedWriter w/ parallel compession)
+        # for event data except for a number of select formats (see below)
         TREE_AUTO_FLUSH = -20000000
+        from AthenaMP.AthenaMPFlags import jobproperties as amjp
+        if amjp.AthenaMPFlags.UseSharedWriter() and amjp.AthenaMPFlags.UseParallelCompression():
+            TREE_AUTO_FLUSH = 500
         # By default use split-level 0 except for DAOD_PHYSLITE which is maximally split
         CONTAINER_SPLITLEVEL = 0
+        if StreamName in ["StreamDAOD_PHYSVAL"]:
+            TREE_AUTO_FLUSH = 100
         if StreamName in ["StreamDAOD_PHYS"]:
             TREE_AUTO_FLUSH = 500
         if StreamName in ["StreamDAOD_PHYSLITE"]:
@@ -583,6 +616,27 @@ class MultipleStreamManager:
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setContainerSplitLevel( FileName, "Aux.", str(CONTAINER_SPLITLEVEL) ) ]
         return theStream
 
+
+    def NewPoolRootStreamExtension(self,StreamName,Parent="StreamDAOD_PHYS", asAlg=False):
+        index=0
+        FileName="default"
+        try:
+            #Check wheter a StreamDAOD_PHYS stream exists
+            index=MSMgr.StreamDict[Parent]
+        except KeyError:
+            index=-1
+        if index >= 0:
+            FileName=self.StreamList[index].Stream.OutputFile
+            self.StreamList[index].Stream.WritingTool.SaveDecisions = True
+        theStream = self.NewStream(StreamName,FileName,Parent=Parent,type='extension',asAlg=asAlg, noTag=True)
+        theStream.Stream.MetadataItemList = [ ]
+        theStream.Stream.ItemList = [ ]
+        theStream.Stream.WritingTool.OutputCollection = "POOLContainer_" + StreamName
+        theStream.Stream.WritingTool.PoolContainerPrefix = "CollectionTree_" + StreamName
+        from AthenaCommon.AppMgr import theApp
+        svcMgr = theApp.serviceMgr()
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; INDEX_MASTER = 'POOLContainer(DataHeader)'" ]
+        return theStream
 
     def NewVirtualStream(self,StreamName,FileName="default", asAlg=False):
         return self.NewStream(StreamName,FileName,type='virtual',asAlg=asAlg)
@@ -609,7 +663,7 @@ class MultipleStreamManager:
         return self.NewStream( StreamName, FileName, type='root', asAlg = asAlg,
                                TreeName = TreeName )
 
-    def NewStream(self,StreamName,FileName="default",type='pool',asAlg=False,TreeName=None,noTag=False):
+    def NewStream(self,StreamName,FileName="default",type='pool',asAlg=False,TreeName=None,Parent=None,noTag=False):
         if FileName=="default":
             FileName=StreamName+".pool.root"
         try:
@@ -627,6 +681,8 @@ class MultipleStreamManager:
                 self.StreamList += [ AugmentedPoolStream(StreamName,FileName,asAlg,isVirtual=True) ]
             elif type=='root':
                 self.StreamList += [ AugmentedRootStream(StreamName,FileName,TreeName,asAlg) ]
+            elif type=='extension':
+                self.StreamList += [ AugmentedPoolStreamExtension(StreamName,FileName,Parent,asAlg,isVirtual=False,noTag=True) ]
             else:
                 raise RuntimeError("Unknown type '%s'"%type)
 

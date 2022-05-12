@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_ALPHABETAESTIMATE_H
@@ -27,7 +27,7 @@ class AlphaBetaEstimate: public AthAlgTool
 		    const std::string& name,
 		    const IInterface*  parent);
     
-  void setMCFlag(BooleanProperty use_mcLUT,
+  void setMCFlag(const BooleanProperty& use_mcLUT,
 		 const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
     
  public:

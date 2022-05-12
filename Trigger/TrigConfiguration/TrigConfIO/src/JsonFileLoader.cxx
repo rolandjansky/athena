@@ -20,9 +20,6 @@ TrigConf::JsonFileLoader::JsonFileLoader() :
    TrigConfMessaging( "JsonFileLoader")
 {}
 
-TrigConf::JsonFileLoader::~JsonFileLoader()
-{}
-
 /*
   File will be search first absolute (when starting with "/" or
   relative to the current path.

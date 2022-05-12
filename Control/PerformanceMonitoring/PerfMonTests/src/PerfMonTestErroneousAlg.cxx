@@ -100,6 +100,9 @@ bool ErroneousAlg::invalidRead()
   ATH_MSG_INFO ( "Found, that last element contains " << invalidReadPointer[maximum] ) ;
   
   // and delete
+#if __GNUC__ >= 12
+# pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif  
   delete [] invalidReadPointer;
   
   // and print out element 10 !

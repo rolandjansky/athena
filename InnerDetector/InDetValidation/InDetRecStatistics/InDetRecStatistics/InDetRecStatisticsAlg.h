@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ namespace InDet {
 
       mutable Counter<std::atomic<long> > m_counter ATLAS_THREAD_SAFE;
       /** Calculate pull from residual, track and hit error.*/
-      float calculatePull(const float, const float, const float);   //vv
+      static float calculatePull(const float, const float, const float);   //vv
       /** Get Unbiased Track Parameters */
       const Trk::TrackParameters *  getUnbiasedTrackParameters(const Trk::TrackParameters* , const Trk::MeasurementBase* );
       Identifier  getIdentifier(const Trk::MeasurementBase* measurement );

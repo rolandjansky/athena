@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/MdtPrepDataCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,6 +10,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/MdtPrepDataCnv_p2.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -54,7 +53,7 @@ void testit (const Muon::MdtPrepData& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -82,7 +81,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

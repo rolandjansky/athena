@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source file for the JetConstituentModSequence.h
@@ -31,14 +31,12 @@
 #endif
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
-  asg::AsgTool(name),
-  m_trigInputConstits(NULL), m_trigOutputConstits(NULL){
+  asg::AsgTool(name) {
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
-  declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
 }
@@ -148,31 +146,19 @@ int JetConstituentModSequence::execute() const {
   switch(m_inputType){
 
     case xAOD::Type::CaloCluster: {
-      if (m_trigger){
-        auto clustersin = dynamic_cast<const xAOD::CaloClusterContainer*>(m_trigInputConstits);
-        if(clustersin==nullptr) {
-          ATH_MSG_ERROR("Failed to cast trigInputConstits to CaloCluster");
-          return(3);
-        }
-        auto sc  = copyModForTrigger<xAOD::CaloClusterContainer,xAOD::CaloClusterAuxContainer,xAOD::CaloCluster>(*clustersin);
-        if(!sc.isSuccess()) return 1;
-      } else {
-        auto sc  = copyModRecord(m_inClusterKey, 
-                                m_outClusterKey);
-        if(!sc.isSuccess()) return 1;
-      }
+      auto sc  = copyModRecord(m_inClusterKey,
+                               m_outClusterKey);
+      if(!sc.isSuccess()) return 1;
       break;
     }
 
     case xAOD::Type::ParticleFlow: {
-      if (m_trigger) return 2;
       auto sc = copyModRecordPFO();
       if(!sc.isSuccess()) return 1;
       break;
     }
 
     case xAOD::Type::FlowElement: {
-      if (m_trigger) return 2;
       auto sc = copyModRecordFE();
       if(!sc.isSuccess()) return 1;
       break;
@@ -278,14 +264,18 @@ StatusCode JetConstituentModSequence::copyModRecordFE() const {
   //    Neutral FEs
   std::pair<xAOD::FlowElementContainer*, xAOD::ShallowAuxContainer* > neutralCopy = xAOD::shallowCopyContainer(*inNeutralFEHandle);
   neutralCopy.second->setShallowIO(m_saveAsShallow);
+  xAOD::setOriginalObjectLink(*inNeutralFEHandle, *neutralCopy.first);
 
+  
   SG::WriteHandle<xAOD::FlowElementContainer> outNeutralFEHandle = makeHandle(m_outNeutralFEKey);
   ATH_CHECK(outNeutralFEHandle.record(std::unique_ptr<xAOD::FlowElementContainer>(neutralCopy.first),
                                       std::unique_ptr<xAOD::ShallowAuxContainer>(neutralCopy.second)));
   //    Charged FEs
   std::pair<xAOD::FlowElementContainer*, xAOD::ShallowAuxContainer* > chargedCopy = xAOD::shallowCopyContainer(*inChargedFEHandle);
   chargedCopy.second->setShallowIO(m_saveAsShallow);
+  xAOD::setOriginalObjectLink(*inChargedFEHandle, *chargedCopy.first);
 
+  
   SG::WriteHandle<xAOD::FlowElementContainer> outChargedFEHandle = makeHandle(m_outChargedFEKey);
   ATH_CHECK(outChargedFEHandle.record(std::unique_ptr<xAOD::FlowElementContainer>(chargedCopy.first),
                                       std::unique_ptr<xAOD::ShallowAuxContainer>(chargedCopy.second)));
@@ -303,12 +293,4 @@ StatusCode JetConstituentModSequence::copyModRecordFE() const {
   for (auto t : m_modifiers) {ATH_CHECK(t->process(&*outAllFEHandle));}
 
   return StatusCode::SUCCESS;
-}
-
-void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleContainer *cont) {
-  m_trigInputConstits = cont;
-}
-
-xAOD::IParticleContainer* JetConstituentModSequence::getOutputClusterCollection() {
-  return m_trigOutputConstits;
 }

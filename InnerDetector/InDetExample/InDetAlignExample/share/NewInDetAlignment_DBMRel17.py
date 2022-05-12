@@ -239,7 +239,7 @@ printfunc (inputFiles)
 # ==========================
 # (Collision Specific Options)
 #doReadBS = False
-include("RecJobTransforms/UseFrontier.py")
+include("PyJobTransforms/UseFrontier.py")
 
 include("InDetAlignExample/loadInDetRec_DBMRel17.py")
 

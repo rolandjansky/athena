@@ -1,6 +1,6 @@
 
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -15,6 +15,7 @@ MbtsHypoTool::MbtsHypoTool(const std::string &type, const std::string &name, con
 
 StatusCode MbtsHypoTool::initialize()
 {
+	if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
 	return StatusCode::SUCCESS;
 }
 
@@ -35,7 +36,7 @@ StatusCode MbtsHypoTool::decide(MbtsHypoInfo &info) const
 		ATH_MSG_DEBUG("calculateMultiplicities failed, no multiplicities");
 		return StatusCode::SUCCESS;
 	}
-	bool pass = false;
+	bool pass = m_acceptAll;
 	if (m_coincidence)
 	{ // Coincidence logic
 		if (!m_veto)
@@ -112,6 +113,8 @@ MbtsHypoTool::Counts MbtsHypoTool::calculateMultiplicities(const xAOD::TrigT2Mbt
 
 	std::bitset<16> ebaTriggerBits;
 	std::bitset<16> ebcTriggerBits;
+
+
 	unsigned ibit;
 	int ebaCounters = 0, ebcCounters = 0;
 
@@ -192,6 +195,16 @@ MbtsHypoTool::Counts MbtsHypoTool::calculateMultiplicities(const xAOD::TrigT2Mbt
 
 	ATH_MSG_DEBUG("MBTS EBA trigger bits: " << ebaTriggerBits);
 	ATH_MSG_DEBUG("MBTS EBC trigger bits: " << ebcTriggerBits);
+	if ( ! m_monTool.empty() ) {
+		std::vector<int> counts;
+		counts.reserve(ebaTriggerBits.size() + ebcTriggerBits.size());
 
+		for ( size_t bit = 0; bit <  ebaTriggerBits.size(); ++bit )
+			counts.push_back( ebaTriggerBits[bit] ? bit : -1 );
+		for ( size_t bit = 0; bit <  ebcTriggerBits.size(); ++bit )
+			counts.push_back( ebcTriggerBits[bit] ? bit+ebaTriggerBits.size() : -1 );
+		auto mon_counts = Monitored::Collection("Counts", counts);
+		Monitored::Group(m_monTool, mon_counts);
+	}
 	return {ebaTriggerBits.count(), ebcTriggerBits.count()};
 }

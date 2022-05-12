@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LabelIndex.h
@@ -25,11 +25,6 @@ public:
 
   typedef std::string Label;
   typedef unsigned int Index;
-
-  /// Return a global shared map by name.
-  /// E.g. LabelIndex& labidx = LabelIndex::instance("ConstituentLabels");
-  static LabelIndex& mutable_instance(Label name);
-  static const LabelIndex& instance(Label name);
 
   /// Ctor.
   explicit LabelIndex(Label nam);

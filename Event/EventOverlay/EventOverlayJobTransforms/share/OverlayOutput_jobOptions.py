@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 include.block('EventOverlayJobTransforms/OverlayOutput_jobOptions.py')
 
@@ -81,7 +81,7 @@ if DetFlags.overlay.Truth_on():
     if DetFlags.overlay.sTGC_on():
         outStream.ItemList += [ 'MuonSimDataCollection#sTGC_SDO' ]
 
-    if DetFlags.overlay.Micromegas_on():
+    if DetFlags.overlay.MM_on():
         outStream.ItemList += [ 'MuonSimDataCollection#MM_SDO' ]
 
 # Inner detector
@@ -126,22 +126,42 @@ if DetFlags.overlay.TGC_on():
 
 if DetFlags.overlay.sTGC_on():
     outStream.ItemList += [ 'Muon::STGC_RawDataContainer#sTGCRDO' ]
-    outStream.ItemList += [ "sTgcDigitContainer#sTGC_DIGITS" ]
 
-if DetFlags.overlay.Micromegas_on():
+if DetFlags.overlay.MM_on():
     outStream.ItemList += [ 'Muon::MM_RawDataContainer#MMRDO' ]
-    outStream.ItemList += [ "MmDigitContainer#MM_DIGITS" ]
 
 if DetFlags.overlay.LVL1_on():
     if DetFlags.simulateLVL1.LAr_on():
         outStream.ItemList += [ 'LArTTL1Container#LArTTL1EM' ]
         outStream.ItemList += [ 'LArTTL1Container#LArTTL1HAD' ]
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+        if commonGeoFlags.Run()=="RUN3":
+            outStream.ItemList+=["CaloCellContainer#SCell"]
+
     if DetFlags.simulateLVL1.Tile_on():
         outStream.ItemList += [ 'TileTTL1Container#TileTTL1Cnt' ]
         outStream.ItemList += [ 'TileTTL1Container#TileTTL1MBTS' ]
         outStream.ItemList += [ 'TileDigitsContainer#MuRcvDigitsCnt' ]
         outStream.ItemList += [ 'TileRawChannelContainer#MuRcvRawChCnt' ]
         outStream.ItemList += [ 'TileMuonReceiverContainer#TileMuRcvCnt' ]
+
+#add the tracks
+if overlayFlags.doTrackOverlay():
+    outStream.ItemList += [ 'TrackCollection#Bkg_CombinedInDetTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_DisappearingTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedForwardTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedLargeD0Tracks' ]
+    outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles' ]
+    outStream.ItemList += [ 'InDet::PixelClusterContainer#Bkg_PixelClusters' ]
+    outStream.ItemList += [ 'InDet::SCT_ClusterContainer#Bkg_SCT_Clusters' ]
+    if DetFlags.overlay.Truth_on():
+        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthTRT' ]
+        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthPixel' ]
+        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthSCT' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_DisappearingTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedForwardTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_CombinedInDetTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedLargeD0TracksDetailedTruth' ]
 
 # Temporary to ensure the output is stored
 outStream.TransientItems = outStream.ItemList

@@ -306,7 +306,7 @@ void LUCID_RawData::encodeLumatMapping() {
     if      (tubeID < 16) { data_word0 |= (1 << bit); hitcounter0++; }
     else if (tubeID < 20) { data_word2 |= (1 << bit); hitcounter2++; }
     else if (tubeID < 36) { data_word1 |= (1 << bit); hitcounter1++; }
-    else if (tubeID < 40) { data_word3 |= (1 << bit); hitcounter3++; }
+    else                  { data_word3 |= (1 << bit); hitcounter3++; }
   }
   
   std::cout << " hitcounter0: " << std::setw(10) << hitcounter0 << std::endl

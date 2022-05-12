@@ -86,7 +86,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleTool::~TRT_DriftCircleTool(){}
+InDet::TRT_DriftCircleTool::~TRT_DriftCircleTool()= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
@@ -170,7 +170,12 @@ bool InDet::TRT_DriftCircleTool::passValidityGate(unsigned int word, float lowGa
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const EventContext& ctx, const bool getTRTBadChannel) const
+InDet::TRT_DriftCircleCollection*
+InDet::TRT_DriftCircleTool::convert(
+  int Mode,
+  const InDetRawDataCollection<TRT_RDORawData>* rdo,
+  const EventContext& ctx,
+  const bool getTRTBadChannel) const
 {
 
   //Initialise a new TRT_DriftCircleCollection
@@ -273,28 +278,29 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
            // or if leading edge is too large
            if (rawTime > m_max_drift_time_argon) continue;
          }
-           
+
          if (m_validity_gate_suppression_argon) {
-	    if(!passValidityGate(word, m_low_gate_argon, m_high_gate_argon, t0)) continue;
+           if (!passValidityGate(word, m_low_gate_argon, m_high_gate_argon, t0))
+             continue;
          }
       }
 
-
-      //Require good straw status
-      if(getTRTBadChannel) {
-	if( m_ConditionsSummary->getStatus(id) != TRTCond::StrawStatus::Good) continue;
+      // Require good straw status
+      if (getTRTBadChannel) {
+        if (m_ConditionsSummary->getStatus(id) != TRTCond::StrawStatus::Good)
+          continue;
       }
-      
 
       // Error on Drift Radius
-      double error=0;
+      double error = 0;
       // LE out of range. Make tube hit.
-      if( !isOK || Mode>1) {
-	 ATH_MSG_VERBOSE(" Making tube hit.");
-	 radius = 0.;
-	 error = 4./sqrt(12.);
+      if (!isOK || Mode > 1) {
+        ATH_MSG_VERBOSE(" Making tube hit.");
+        radius = 0.;
+        error = 4. / sqrt(12.);
       } else {
-        error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id,mu,word);
+        error =
+          m_driftFunctionTool->errorOfDriftRadius(driftTime, id, mu, word);
       }
 
       // Fill the RIO collection with TRT_DriftCircle's
@@ -302,7 +308,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       errmat(0,0) = error*error;
       Amg::Vector2D loc(radius, 0.);
       InDet::TRT_DriftCircle* tdc =
-        new InDet::TRT_DriftCircle(id, loc, errmat, pE, word);
+        new InDet::TRT_DriftCircle(id, loc, std::move(errmat), pE, word);
       if (tdc) {
         tdc->setHashAndIndex(rio->identifyHash(), rio->size());
         rio->push_back(tdc);
@@ -327,6 +333,5 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
     } // end loop over rdo's in the rdo collection
 
   return rio;
-}  
-
+}
 

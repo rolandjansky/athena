@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # ********************* WARNING **********************
 #
@@ -35,8 +35,6 @@
 #	Tracking   
 #	Combined   
 #	Unknown    <-- should be temporary until you figure out what to classify it as
-
-from __future__ import print_function
 
 #####################
 #####################
@@ -929,6 +927,7 @@ TriggerResultsList=[
     ('xAOD::TrigDecision#xTrigDecision' ,             'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ('xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.',   'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     ('xAOD::TrigConfKeys#TrigConfKeys' ,              'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
+    ('xAOD::BunchConfKey#BunchConfKey' ,              'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Steer'),
     #    ('HLT::HLTResult#HLTResult_L2',                    'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
     #    ('HLT::HLTResult#HLTResult_EF' ,                   'ESD AODFULL AODSLIM', 'Steer'),#still needed for Run2?
     ('HLT::HLTResult#HLTResult_HLT',                  'ESD', 'Steer'),
@@ -1478,6 +1477,7 @@ EDMDetails["xAOD::JetTrigAuxContainer"]        = {'persistent':"",              
 EDMDetails["xAOD::TrigDecision"]               = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::TrigDecisionAuxInfo"]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrigDecision'}
 EDMDetails["xAOD::TrigConfKeys"]               = {'persistent':"",              'typealias':'' }
+EDMDetails["xAOD::BunchConfKey"]               = {'persistent':"",              'typealias':'' }
 
 EDMDetails["xAOD::TrigNavigation"]          = {'persistent':"",              'typealias':'' } 
 EDMDetails["xAOD::TrigNavigationAuxInfo"]   = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrigNavigation'}

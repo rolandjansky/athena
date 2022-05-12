@@ -124,8 +124,8 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::calibratedCluster
     }
     positionAlongStrip = lp[Trk::locY];
 
-    /// correct the local x-coordinate for the stereo angle (stereo strips only)
-    /// and for as-built conditions (eta and stereo strips), if enabled.
+    /// correct the local x-coordinate for the stereo angle (stereo strips only),
+    /// as-built conditions and b-lines (eta and stereo strips), if enabled.
     /// note: there's no point in correcting the seeded y-coordinate.
     Amg::Vector3D localposition3D;
     const MuonGM::MMReadoutElement* mmEL = dynamic_cast<const MuonGM::MMReadoutElement*>(EL);

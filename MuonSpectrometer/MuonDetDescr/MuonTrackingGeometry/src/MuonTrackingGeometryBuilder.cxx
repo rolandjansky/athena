@@ -2926,19 +2926,14 @@ void Muon::MuonTrackingGeometryBuilder::blendMaterial(LocalVariablesContainer& a
                 std::vector<bool> fEncl;
                 fEncl.clear();
                 // blending factors can be saved, and not recalculated for each clone
-                // for ( ; fIter!=(*mIter).second->end(); fIter++) {
-                for (; fIter != vv->end(); fIter++) {
+                for (; fIter != vv->end(); ++fIter) {
                     fEncl.push_back(enclosed(*fIter, s, aLVC));
                     if (fEncl.back()) enVol += calculateVolume(*fIter);
                 }
                 // diluting factor
                 double dil = enVol > 0. ? csVol / enVol : 0.;
-                // std::cout << "const:dil:"<< ic<<","<<dil<< std::endl;
                 if (dil > 0.) {
-                    // for ( fIter=(*mIter).second->begin(); fIter!=(*mIter).second->end(); fIter++) {
-                    for (fIter = vv->begin(); fIter != vv->end(); fIter++) {
-                        // if (fEncl[fIter-(*mIter).second->begin()]) { (*fIter)->addMaterial(*detMat,dil); if (m_colorCode==0)
-                        // (*fIter)->registerColorCode(12) ;
+                    for (fIter = vv->begin(); fIter != vv->end(); ++fIter) {
                         if (fEncl[fIter - vv->begin()]) {
                             Trk::TrackingVolume* mutablevol = const_cast<Trk::TrackingVolume*>(*fIter);
                             mutablevol->addMaterial(*detMat, dil);

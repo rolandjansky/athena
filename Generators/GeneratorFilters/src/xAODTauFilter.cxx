@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 #include "GeneratorFilters/xAODTauFilter.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -117,12 +117,10 @@ StatusCode xAODTauFilter::filterEvent() {
   const xAOD::TruthParticleContainer* vtruth = nullptr;
   ATH_CHECK( evtStore()->retrieve( vtruth, "TruthTaus" ) );
 
-//get the weight of the event from McEventCollection
-
-setFilterPassed(false);
-McEventCollection::const_iterator itr;
-for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
-    int eventNumber = (*itr)->event_number();
+  //get the weight of the event from McEventCollection
+  setFilterPassed(false);
+  for(const HepMC::GenEvent* genEvt : *events_const()) {
+    int eventNumber = genEvt->event_number();
     if(m_filterEventNumber==1 && (eventNumber%2)==0) {
       setFilterPassed(false);
       return StatusCode::SUCCESS;
@@ -132,10 +130,9 @@ for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       return StatusCode::SUCCESS;
     }
     
-    const HepMC::GenEvent* genEvt = (*itr);
     auto wgtsC = genEvt->weights();
     weight = wgtsC.size() > 0 ? wgtsC[0] : 1;
-}
+  }
 
   
   for (const auto * truthtau : *vtruth) {
@@ -305,7 +302,12 @@ for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       if (!(*mec)[i]) continue;
       double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
       if ((*mec)[i]->weights().size()>0) {
-	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
+        for (unsigned int iw = 0; iw < (*mec)[i]->weights().size(); ++iw) {
+           double existWeight = (*mec)[i]->weights()[iw];
+           (*mec)[i]->weights()[iw] = existWeight*extra_weight;
+        }
+// in case modification of a nominal weight is only needed uncomment the line below
+//	(*mec)[i]->weights()[0] = existingWeight*extra_weight;
       } else {
 	(*mec)[i]->weights().push_back( existingWeight*extra_weight );
       }

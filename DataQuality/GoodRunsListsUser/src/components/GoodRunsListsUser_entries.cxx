@@ -1,7 +1,7 @@
-#include "GoodRunsListsUser/DummyDumperAlg.h"
-#include "GoodRunsListsUser/TriggerSelectorAlg.h"
-#include "GoodRunsListsUser/GoodRunsListSelectorAlg.h"
-#include "GoodRunsListsUser/GRLTriggerSelectorAlg.h"
+#include "../DummyDumperAlg.h"
+#include "../TriggerSelectorAlg.h"
+#include "../GoodRunsListSelectorAlg.h"
+#include "../GRLTriggerSelectorAlg.h"
 
 DECLARE_COMPONENT( DummyDumperAlg )
 DECLARE_COMPONENT( TriggerSelectorAlg )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_RAWDATACONTAINERREADOUT_H
@@ -12,14 +12,10 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "AthenaKernel/MsgStreamMember.h"
 
 #include "eformat/SourceIdentifier.h"
 #include "eformat/Version.h"
 #include "ByteStreamData/RawEvent.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 
 #include "ALFA_RawEv/ALFA_RawDataContainer.h"
 #include "ALFA_RawEv/ALFA_RawDataCollection.h"

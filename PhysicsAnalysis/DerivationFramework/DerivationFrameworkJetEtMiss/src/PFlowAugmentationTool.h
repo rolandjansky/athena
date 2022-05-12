@@ -1,7 +1,7 @@
 ////////////////////-*- C++ -*-////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PFlowAugmentationTool.h, (c) ATLAS Detector software
@@ -39,18 +39,17 @@ namespace DerivationFramework {
     float m_z0sinthcut;
 
     ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;    /// Retrieval tool
-    bool m_useChargedWeights; //If true, them we make use of the charged PFO weighting scheme
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "PrimaryVertices", "Input vertex container"};
-    SG::ReadHandleKey<xAOD::FlowElementContainer> m_pfoContainer_key{this, "JetETMissChargedParticleFlowObjects", "JetETMissChargedParticleFlowObjects", "Input charged PFO"};
+    SG::ReadHandleKey<xAOD::FlowElementContainer> m_pfoContainer_key{this, "GlobalChargedParticleFlowObjects", "GlobalChargedParticleFlowObjects", "Input charged PFO"};
 
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_PVmatchedKey {this, "PVmatchedKey", "JetETMissChargedParticleFlowObjects.DFCommonPFlow_PVMatched", "Boolean indicating if PFO was matched to PV "};
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_corrP4_ptKey {this, "m_corrP4_ptKey", "JetETMissChargedParticleFlowObjects.DFCommonPFlow_CaloCorrectedPt", "Decoration for weighted charged PFO pt"};
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_z0Key {this, "m_z0Key", "JetETMissChargedParticleFlowObjects.DFCommonPFlow_z0", "Decoration for track z0"};
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_vzKey{this, "m_vzKey","JetETMissChargedParticleFlowObjects.DFCommonPFlow_vz", "Decoration for track vz"};
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_d0Key{this, "m_d0Key","JetETMissChargedParticleFlowObjects.DFCommonPFlow_d0", "Decoration for track d0"};
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_thetaKey{this, "m_thetaKey","JetETMissChargedParticleFlowObjects.DFCommonPFlow_theta", "Decoration for track theta"};
-    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_envWeightKey{this, "m_envWeightKey","JetETMissChargedParticleFlowObjects.DFCommonPFlow_envWeight", "Decoration for weight for dense environments"};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_PVmatchedKey {this, "PVmatchedKey", "GlobalChargedParticleFlowObjects.DFCommonPFlow_PVMatched", "Boolean indicating if PFO was matched to PV "};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_corrP4_ptKey {this, "m_corrP4_ptKey", "GlobalChargedParticleFlowObjects.DFCommonPFlow_CaloCorrectedPt", "Decoration for weighted charged PFO pt"};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_z0Key {this, "m_z0Key", "GlobalChargedParticleFlowObjects.DFCommonPFlow_z0", "Decoration for track z0"};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_vzKey{this, "m_vzKey","GlobalChargedParticleFlowObjects.DFCommonPFlow_vz", "Decoration for track vz"};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_d0Key{this, "m_d0Key","GlobalChargedParticleFlowObjects.DFCommonPFlow_d0", "Decoration for track d0"};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_thetaKey{this, "m_thetaKey","GlobalChargedParticleFlowObjects.DFCommonPFlow_theta", "Decoration for track theta"};
+    SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_envWeightKey{this, "m_envWeightKey","GlobalChargedParticleFlowObjects.DFCommonPFlow_envWeight", "Decoration for weight for dense environments"};
     
   }; 
 }

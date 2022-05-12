@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -81,7 +81,6 @@ void InDet::SiDetElementLink_xk::intersect
   if(O[0] < daz) O[0] = daz; 
   if(O[1] < drz) O[1] = drz;
   O[2] = S;
-  return;
 }
 
 

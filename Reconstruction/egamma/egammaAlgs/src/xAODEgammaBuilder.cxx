@@ -225,12 +225,12 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
   if (m_doOQ) {
     if (m_doElectrons) {
       for (xAOD::Electron* electron : *electrons) {
-        ATH_CHECK(m_egammaOQTool->execute(ctx, *calodetdescrmgr, *electron));
+        ATH_CHECK(m_egammaOQTool->execute(ctx, *electron));
       }
     }
     if (m_doPhotons) {
       for (xAOD::Photon* photon : *photons) {
-        ATH_CHECK(m_egammaOQTool->execute(ctx, *calodetdescrmgr, *photon));
+        ATH_CHECK(m_egammaOQTool->execute(ctx, *photon));
       }
     }
   }

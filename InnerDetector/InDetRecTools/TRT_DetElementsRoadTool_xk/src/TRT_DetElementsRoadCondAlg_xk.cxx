@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetElementsRoadUtils_xk.h"
@@ -21,8 +21,7 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_DetElementsRoadCondAlg_xk::TRT_DetElementsRoadCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator)
-  : ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc{"CondSvc", name}
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -35,8 +34,6 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::initialize()
 
   ATH_CHECK(m_trtDetEleContKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
-  ATH_CHECK(m_condSvc.retrieve());
-  ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
   return StatusCode::SUCCESS;
 }
@@ -112,34 +109,48 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
       pE.clear(); // RESET PE
       for(int f=0; f!=NPhi; ++f) {
         pE.push_back(trtDetEleHandle->getBarrelDetElement(0,ring,f,nsl));
-	pE.push_back(trtDetEleHandle->getBarrelDetElement(1,ring,f,nsl));
+        pE.push_back(trtDetEleHandle->getBarrelDetElement(1,ring,f,nsl));
       }
       
       std::sort(pE.begin(),pE.end(),InDet::compTRTDetElements_AZ());
       for(unsigned int j=0; j!=pE.size(); ++j) {
 
-	if(pE[j]) {
+        if (pE[j]) {
 
-	  InDet::TRT_DetElementsRoadUtils_xk::detElementInformation(*(pE[j]),P);
-	  Wf = sqrt(P[20]*P[20]+P[21]*P[21]);
-	  Wz = sqrt(P[22]*P[22]+P[23]*P[23]); 
-	  if( P[ 9] < mrmin[N] ) mrmin[N] = P[ 9]; 
-	  if( P[10] > mrmax[N] ) mrmax[N] = P[10]; 
-	  if( P[11] < mzmin[N] ) mzmin[N] = P[11]; 
-	  if( P[12] > mzmax[N] ) mzmax[N] = P[12]; 
-	  
-	  if( P[ 9] < rmin ) rmin = P[ 9]; 
-	  if( P[10] > rmax ) rmax = P[10]; 
-	  if( P[11] < zmin ) zmin = P[11]; 
-	  if( P[12] > zmax ) zmax = P[12]; 
-	  
-	  double df1 = std::abs(P[13]-P[2]); if(df1>pi) df1 = std::abs(df1-pi2); 
-	  double df2 = std::abs(P[14]-P[2]); if(df2>pi) df2 = std::abs(df2-pi2); 
-	  if(df1>dfm) dfm = df1;
-	  if(df2>dfm) dfm = df2;
-	  InDet::TRT_DetElementLink_xk link(pE[j],P);
-	  layer.add(std::move(link));
-	}
+          InDet::TRT_DetElementsRoadUtils_xk::detElementInformation(*(pE[j]),
+                                                                    P);
+          Wf = sqrt(P[20] * P[20] + P[21] * P[21]);
+          Wz = sqrt(P[22] * P[22] + P[23] * P[23]);
+          if (P[9] < mrmin[N])
+            mrmin[N] = P[9];
+          if (P[10] > mrmax[N])
+            mrmax[N] = P[10];
+          if (P[11] < mzmin[N])
+            mzmin[N] = P[11];
+          if (P[12] > mzmax[N])
+            mzmax[N] = P[12];
+
+          if (P[9] < rmin)
+            rmin = P[9];
+          if (P[10] > rmax)
+            rmax = P[10];
+          if (P[11] < zmin)
+            zmin = P[11];
+          if (P[12] > zmax)
+            zmax = P[12];
+
+          double df1 = std::abs(P[13] - P[2]);
+          if (df1 > pi)
+            df1 = std::abs(df1 - pi2);
+          double df2 = std::abs(P[14] - P[2]);
+          if (df2 > pi)
+            df2 = std::abs(df2 - pi2);
+          if (df1 > dfm)
+            dfm = df1;
+          if (df2 > dfm)
+            dfm = df2;
+          layer.add(InDet::TRT_DetElementLink_xk(pE[j], P));
+        }
       }
       double r  =(rmax+rmin)*.5;
       double dr =(rmax-rmin)*.5; 
@@ -202,8 +213,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
 	      if(df1>dfm) dfm = df1;
 	      if(df2>dfm) dfm = df2;
 	      
-	      InDet::TRT_DetElementLink_xk link(pE[j],P);
-	      layer.add(std::move(link));
+	      layer.add(InDet::TRT_DetElementLink_xk(pE[j],P));
 	    }
 	  }
 	  double r  =(rmax+rmin)*.5;

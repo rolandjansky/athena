@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1TrackSystems/TrkObjToString.h"
@@ -137,7 +137,7 @@ QString TrkObjToString::name(const Trk::MeasurementBase& mb)
 
   if (tmptype==CompetingROT) {
     const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack *>(&mb);
-    if (!crot) return QString("Error!");
+    if (!crot) return {"Error!"};
     tmpname+=" [";
     switch (type (&crot->rioOnTrack(crot->indexOfMaxAssignProb() ) ) ){
       case Pixel:             { tmpname+="Pix"; break; }
@@ -160,7 +160,7 @@ QString TrkObjToString::name(const Trk::MeasurementBase& mb)
     tmpname+="]";
   }
 
-  return QString(tmpname.c_str());
+  return {tmpname.c_str()};
 }
 
 QString
@@ -188,7 +188,7 @@ TrkObjToString::name(const Trk::MaterialEffectsBase& mb){
 
 QString          
 TrkObjToString::name(const Trk::FitQuality& /**mb*/){
-  return QString("FitQuality");
+  return {"FitQuality"};
 }
 
 QString

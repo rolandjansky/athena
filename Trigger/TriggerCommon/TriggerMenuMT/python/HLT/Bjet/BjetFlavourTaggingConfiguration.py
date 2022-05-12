@@ -1,70 +1,51 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-
+# standard b-tagging
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
-from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
-from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
-from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
-from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
-from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
-from BTagging.HighLevelBTagAlgConfig import getStaticTrackVars
+from BTagging.BTagRun3Config import BTagAlgsCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+
+# fast btagging
+from FlavorTagDiscriminants.FlavorTagNNConfig import getStaticTrackVars
+from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
                        inputMuons = ""):
 
+    # because Cfg functions internally re-append the 'Jets' string
+    inputJetsPrefix = inputJets.replace("bJets","b")
+
+    trigFlags = ConfigFlags
+
     acc = ComponentAccumulator()
 
-    inputJetsPrefix = inputJets.replace("bJets","b")  # because Cfg functions internally re-append the 'Jets' string
+    # Jet Calibration
+    acc.merge(JetTagCalibCfg(trigFlags))
+    # "HLT_bJets" is the name of the b-jet JetContainer
 
-    #Particle to Jet Association
-    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets, inputTracks, "TracksForBTagging"))
-
-    if inputMuons:
-        acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets, inputMuons, "MuonsForBTagging"))
-        Muons = "MuonsForBTagging"
-    else:
-        Muons = ""
-
-    #Secondary Vertexing
-    SecVertexers = [ 'JetFitter', 'SV1' ]
-    for sv in SecVertexers:
-        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJetsPrefix, inputVertex, sv, "TracksForBTagging"))
-        acc.merge(JetSecVertexingAlgCfg(ConfigFlags, BTagName, inputJetsPrefix, inputTracks, inputVertex, sv))
-
-    #Run Run2 taggers, i.e. IP2D, IP3D, SV1, JetFitter, MV2c10
-    acc.merge(JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection=BTagName, JetCollection=inputJetsPrefix, PrimaryVertexCollectionName=inputVertex, TaggerList=ConfigFlags.BTagging.Run2TrigTaggers, SetupScheme="Trig", SecVertexers = SecVertexers, Tracks = "TracksForBTagging", Muons = Muons))
-
-    #Track Augmenter
-    acc.merge(BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection=inputTracks, PrimaryVertexCollectionName=inputVertex))
-
-    #Jet Augmenter
-    acc.merge(BTagHighLevelAugmenterAlgCfg(
-        ConfigFlags,
-        JetCollection=inputJets,
-        BTagCollection=BTagName,
-        Associator="BTagTrackToJetAssociator",
+        #Track Augmenter
+    acc.merge(BTagTrackAugmenterAlgCfg(
+        trigFlags,
         TrackCollection=inputTracks,
+        PrimaryVertexCollectionName=inputVertex
     ))
 
-    # Jet Calibration
-    acc.merge(JetTagCalibCfg(ConfigFlags, scheme="Trig",
-                             TaggerList=ConfigFlags.BTagging.Run2TrigTaggers,
-                             NewChannel = [f"{inputJetsPrefix}->{inputJetsPrefix},AntiKt4EMTopo"])) # "HLT_bJets" is the name of the b-jet JetContainer
-
     #Run new Run3 taggers, i.e. DL1, RNNIP, DL1r
-    tagger_list = [
+    nnList = [
         # r21 offline b-tagging NNs
         'BTagging/201903/rnnip/antikt4empflow/network.json',
         'BTagging/201903/dl1r/antikt4empflow/network.json',
         'BTagging/201903/dl1/antikt4empflow/network.json',
 
+        # The following were the best offline R22 taggers according to
+        #
+        # https://ftag-docs.docs.cern.ch/algorithms/available_taggers/
+        #
         # loose track selection, trained on r21
         'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
         # IP3D track selection, trained on r21
@@ -74,93 +55,145 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         # DL1d, uses IP3D dips above
         'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
 
-        # The following were the best online R22 taggers according to
+
+        # These are trigger-specific trainings
         #
-        # https://ftag-docs.docs.cern.ch/algorithms/available_taggers/
-        #
-        # R22 retraining for DIPS, provides dips20211116 with a loose track selection
+        # R22 retraining for DIPS, provides dips20211116 with a loose
+        # track selection
         'BTagging/20211216trig/dips/AntiKt4EMPFlow/network.json',
         # R22 retraining with the above DIPS, provides DL1d20211216
         'BTagging/20211216trig/dl1d/AntiKt4EMPFlow/network.json',
-    ]
-    for jsonFile in tagger_list:
-        acc.merge(HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection=BTagName, TrackCollection=inputTracks, NNFile=jsonFile) )
+        #
+        # anti-bb tagger, see ATLINFR-4511
+        # this is required by the above tagger, but isn't a trigger
+        # training. Ideally should be replaced with 20211216trig
+        'BTagging/20210729/dipsLoose/antikt4empflow/network.json',
+        # This is the trigger specific one
+        'BTagging/20220331trig/DL1bb/antikt4empflow/network.json',
 
+    ]
+
+    acc.merge(BTagAlgsCfg(
+        inputFlags=trigFlags,
+        JetCollection=inputJetsPrefix,
+        nnList=nnList,
+        trackCollection=inputTracks,
+        muons=inputMuons,
+        primaryVertices=inputVertex,
+        BTagCollection=BTagName,
+    ))
 
     return acc
 
-def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
+def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=False, fastDipsMinimumPt=None):
     """
     This function tags jets directly: there is no  b-tagging object
     """
 
     ca = ComponentAccumulator()
 
-    # first add the track augmentation to define peragee coordinates
+    # first add the track augmentation
     jet_name = inputJets
-    trackIpPrefix='simpleIp_'
-    ca.merge(
-        OnlineBeamspotIpAugmenterCfg(
+    if isPFlow:
+        ca.merge(
+            BTagTrackAugmenterAlgCfg(
+                flags,
+                TrackCollection=inputTracks,
+                PrimaryVertexCollectionName=inputVertex,
+            )
+        )
+    else:
+        trackIpPrefix='simpleIp_'
+        ca.merge(
+            OnlineBeamspotIpAugmenterCfg(
             flags,
             tracks=inputTracks,
             vertices=inputVertex,
             trackIpPrefix=trackIpPrefix,
+            )
+        )
+
+    # now we associate the tracks to the jet
+    ## JetParticleAssociationAlgCfg uses a shrinking cone.
+    tracksOnJetDecoratorName = "TracksForMinimalJetTag"
+    pass_flag = 'fastDips_isValid'
+    ca.merge(
+        JetParticleAssociationAlgCfg(
+            flags,
+            JetCollection=jet_name,
+            InputParticleCollection=inputTracks,
+            OutputParticleDecoration=tracksOnJetDecoratorName,
+            MinimumJetPt=fastDipsMinimumPt,
+            MinimumJetPtFlag=pass_flag
         )
     )
-
-    # now we assicoate the tracks to the jet
-    tracksOnJetDecoratorName = "TracksForMinimalJetTag"
-    ca.merge(JetParticleAssociationAlgCfg(
-        flags,
-        JetCollection=jet_name,
-        InputParticleCollection=inputTracks,
-        OutputParticleDecoration=tracksOnJetDecoratorName,
-    ))
 
     # Now we have to add an algorithm that tags the jets with dips
     # The input and output remapping is handled via a map in DL2.
     #
-    # The file above adds dipsLoose20210517_p*, we'll call them
-    # dips_p* on the jet.
-    nnFile = 'BTagging/20210517/dipsLoose/antikt4empflow/network.json'
-    variableRemapping = {
-        'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
-        **{f'dipsLoose20210517_p{x}': f'fastDips_p{x}' for x in 'cub'},
-        'btagIp_': trackIpPrefix,
-    }
+    # The file above adds fastDIPSnoPV20220211_p*, we'll call them
+    # fastDips_p* on the jet.
+    if isPFlow:
+        dl2_configs=[
+            [
+                'BTagging/20211216trig/dips/AntiKt4EMPFlow/network.json',
+                {
+                    'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+                }
+            ],
+            [
+                'BTagging/20211215trig/fastDips/antikt4empflow/network.json',
+                {
+                    'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+                },
+            ]
+        ]
+    else:
+        dl2_configs=[
+            [
+                'BTagging/20220211trig/fastDips/antikt4empflow/network.json',
+                {
+                    'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+                    **{f'fastDIPSnoPV20220211_p{x}': f'fastDips_p{x}' for x in 'cub'},
+                    'btagIp_': trackIpPrefix,
+                }
+            ]
+        ]
+
     # not all the keys that the NN requests are declaired. This will
     # cause an algorithm stall if we don't explicetly tell it that it
     # can ignore some of them.
     missingKeys = getStaticTrackVars(inputTracks)
 
-    nnAlgoKey = nnFile.replace('/','_').split('.')[0]
+    for nnFile, variableRemapping in dl2_configs:
+        nnAlgoKey = nnFile.replace('/','_').split('.')[0]
 
-    ca.addEventAlgo(
-        CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
-            name='_'.join([
-                'simpleJetTagAlg',
-                jet_name,
-                inputTracks,
-                nnAlgoKey,
-            ]),
-            container=jet_name,
-            constituentContainer=inputTracks,
-            undeclaredReadDecorKeys=missingKeys,
-            decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
+        ca.addEventAlgo(
+            CompFactory.FlavorTagDiscriminants.JetTagConditionalDecoratorAlg(
                 name='_'.join([
-                    'simpleDipsToJet',
+                    'simpleJetTagAlg',
+                    jet_name,
+                    inputTracks,
                     nnAlgoKey,
                 ]),
-                nnFile=nnFile,
-                variableRemapping=variableRemapping,
-                # note that the tracks are associated to the jet as
-                # and IParticle container.
-                trackLinkType='IPARTICLE',
-            ),
+                container=jet_name,
+                constituentContainer=inputTracks,
+                undeclaredReadDecorKeys=missingKeys,
+                tagFlag=pass_flag,
+                decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
+                    name='_'.join([
+                        'simpleDipsToJet',
+                        nnAlgoKey,
+                    ]),
+                    nnFile=nnFile,
+                    variableRemapping=variableRemapping,
+                    # note that the tracks are associated to the jet as
+                    # and IParticle container.
+                    trackLinkType='IPARTICLE',
+                ),
+            )
         )
-    )
     return ca
-
 
 def OnlineBeamspotIpAugmenterCfg(cfgFlags, tracks, vertices='',
                                  trackIpPrefix='simpleIp_'):
@@ -181,6 +214,12 @@ def OnlineBeamspotIpAugmenterCfg(cfgFlags, tracks, vertices='',
 
     ca.merge(BeamSpotCondAlgCfg(cfgFlags))
     ca.addEventAlgo(CompFactory.xAODMaker.EventInfoBeamSpotDecoratorAlg(
+        name='_'.join([
+                'EventInfoBeamSpotDecorator',
+                tracks,
+                vertices,
+                trackIpPrefix,
+            ]).replace('__','_').rstrip('_'),
         beamPosXKey=x,
         beamPosYKey=y,
         beamPosZKey=z,

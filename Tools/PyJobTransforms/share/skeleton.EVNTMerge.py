@@ -1,4 +1,4 @@
-#############################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ## basic jobO configuration
 include("PATJobTransforms/CommonSkeletonJobOptions.py")
 ## load pool support
@@ -17,6 +17,8 @@ outStream = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNT_MRGFile, no
 ## must force reading of all input objects
 outStream.TakeItemsFromInput = True
 
+## initialize IOVDbSvc so TagInfoMgr will work
+from IOVDbSvc import IOVDb
 
 #==============================================================
 # Job Configuration parameters:

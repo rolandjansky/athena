@@ -22,7 +22,7 @@ CREATED:  17th May, 2006
 
 const double eflowEEtaBinBase::m_errorReturnValue = -999.0;
 
-eflowEEtaBinBase::~eflowEEtaBinBase() { }
+eflowEEtaBinBase::~eflowEEtaBinBase() = default;
 
 
 int eflowEEtaBinBase::getEBinIndex(double e) const {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -130,11 +130,11 @@ namespace DerivationFramework {
 
       if( !mask[++i] ) continue;
 
-      static SG::AuxElement::Accessor<int> acc_layer("layer");
+      static const SG::AuxElement::Accessor<int> acc_layer("layer");
       int clus_layer = acc_layer(*clusIt);
-      static SG::AuxElement::Accessor<int> acc_eta_module("eta_module");
+      static const SG::AuxElement::Accessor<int> acc_eta_module("eta_module");
       int clus_eta_module = acc_eta_module(*clusIt);
-      static SG::AuxElement::Accessor<int> acc_phi_module("phi_module");
+      static const SG::AuxElement::Accessor<int> acc_phi_module("phi_module");
       int clus_phi_module = acc_phi_module(*clusIt);
 
       int key = clus_layer * 10000 + clus_eta_module * 100 + clus_phi_module;

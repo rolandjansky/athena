@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "FEI4SimTool.h"
@@ -42,8 +42,11 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     return;
   }
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   int maxFEI4SmallHit = 2;
   int overflowToT = moduleData->getFEI4OverflowToT(barrel_ec, layerIndex);
@@ -63,11 +66,11 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     ThermalNoise(moduleData->getThermalNoise(barrel_ec, layerIndex), chargedDiodes, rndmEngine);
 
     // Add random noise
-    RandomNoise(chargedDiodes, rndmEngine);
+    RandomNoise(chargedDiodes, moduleData, calibData, rndmEngine);
   }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
+  RandomDisable(chargedDiodes, moduleData, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeOrderedIterator i_chargedDiode = chargedDiodes.orderedBegin();
        i_chargedDiode != chargedDiodes.orderedEnd(); ++i_chargedDiode) {
@@ -88,19 +91,19 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     }
     charge *= moduleData->getFEI4ChargScaling();
 
-    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    unsigned int FE = m_pixelReadout->getFE(diodeID, moduleID);
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analog threshold, timing simulation
-    double th0 = calibData->getAnalogThreshold((int) moduleHash, circ, type);
+    double th0 = calibData->getAnalogThreshold(type, moduleHash, FE);
 
     double thrand1 = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
     double thrand2 = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-    double threshold = th0 +
-                       calibData->getAnalogThresholdSigma((int) moduleHash, circ,
-                                                          type) * thrand1 + calibData->getAnalogThresholdNoise(
-      (int) moduleHash, circ, type) * thrand2; // This noise check is unaffected by digitizationFlags.doInDetNoise in
-                                               // 21.0 - see PixelCellDiscriminator.cxx in that branch
+    double threshold = th0
+                       + calibData->getAnalogThresholdSigma(type, moduleHash, FE) * thrand1
+                       + calibData->getAnalogThresholdNoise(type, moduleHash, FE) * thrand2;
+                       // This noise check is unaffected by digitizationFlags.doInDetNoise in
+                       // 21.0 - see PixelCellDiscriminator.cxx in that branch
 
     if (charge > threshold) {
       int bunchSim;
@@ -122,9 +125,20 @@ void FEI4SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     }
 
     // charge to ToT conversion
-    double tot = calibData->getToT((int) moduleHash, circ, type, charge);
-    double totsig = calibData->getTotRes((int) moduleHash, circ, tot);
+    double tot = calibData->getToT(type, moduleHash, FE, charge);
+    double totsig = calibData->getTotRes(moduleHash, FE, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine, tot, totsig));
+
+    // This is for new IBL calibration, since above method (stat_cast) is not effective.
+    if (totsig==0.0) {
+      double totIBLsig = moduleData->getFEI4ToTSigma(nToT);
+      if (totIBLsig) {
+        if (CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0)<std::exp(-0.5/totIBLsig/totIBLsig)) {
+          if (CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0)<0.5) { nToT--; }
+          else                                                { nToT++; }
+        }
+      }
+    } 
 
     if (nToT < 1) {
       nToT = 1;

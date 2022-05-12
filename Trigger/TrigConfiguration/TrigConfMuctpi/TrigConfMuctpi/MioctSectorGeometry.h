@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_MioctSectorGeometry
@@ -19,7 +19,7 @@ class MictROIGeometry;
 class MioctSectorGeometry {
    public:
       MioctSectorGeometry();
-      virtual ~MioctSectorGeometry();
+      virtual ~MioctSectorGeometry() = default;
      
       // getters
     unsigned int                            connector() const {return m_connector; };
@@ -29,7 +29,7 @@ class MioctSectorGeometry {
 
       // setters
     void addROI( MioctROIGeometry roi) {m_ROIs.push_back(roi);};
-    void setName(std::string name) { m_name = name; };
+    void setName(const std::string& name) { m_name = name; };
     void setConnector(unsigned int id) { m_connector = id; };
     
     virtual void print(const std::string& indent="", unsigned int detail=1) const;

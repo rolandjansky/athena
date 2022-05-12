@@ -17,9 +17,14 @@ void EllipseBoundsCnv_p1 :: persToTrans( const Trk :: EllipseBounds_p1 *persObj,
                                   persObj->m_hPhiSec);
 }
 
-void EllipseBoundsCnv_p1 :: transToPers( const Trk :: EllipseBounds    * /**transObj*/,
-                                            Trk :: EllipseBounds_p1 * /**persObj*/,
+void EllipseBoundsCnv_p1 :: transToPers( const Trk :: EllipseBounds  *transObj,
+                                            Trk :: EllipseBounds_p1  *persObj,
                                             MsgStream            & )
 {
-  throw std::runtime_error("EllipseBoundsCnv_p1::transToPers is deprecated!");   
+  persObj->m_rMinX    = transObj->rMinX();
+  persObj->m_rMinY    = transObj->rMinY();
+  persObj->m_rMaxX    = transObj->rMaxX();
+  persObj->m_rMaxY    = transObj->rMaxY();
+  persObj->m_avePhi   = transObj->averagePhi();
+  persObj->m_hPhiSec  = transObj->halfPhiSector();
 }

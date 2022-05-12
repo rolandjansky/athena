@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGDJDISPHYPOALG_H
 #define TRIGDJDISPHYPOALG_H
@@ -32,8 +32,11 @@ private:
   ToolHandleArray< DisplacedJetDispHypoTool > m_hypoTools {this, "HypoTools", {},"Tools that perform actual selection"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_lrtTracksKey{this,"lrtTracksKey","Undefined",""};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vtxKey{this,"vtxKey","Undefined",""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_infoKey{this,"infoKey","Undefined",""};
 
   Gaudi::Property<float> m_drcut{this, "dr_cut",{0.4}, "dR cut used for jet matching of trakcs"};
   Gaudi::Property<float> m_min_trk_pt{this, "min_trk_pt",{0}, "Minimum pt for a track [GeV]"};
+
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 #endif

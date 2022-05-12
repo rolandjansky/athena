@@ -127,7 +127,8 @@ if DQMonFlags.doMuonRawMon():
             if MuonDQADetFlags.doRPCMon():
                 include ("RpcRawDataMonitoring/RpcRawESD_MonitoringOptions.py")
             if MuonDQADetFlags.doTGCMon() or MuonDQADetFlags.doTGCL1Mon:
-                include ("TgcRawDataMonitoring/TgcRaw_MonitoringOptions.py")
+                # to be implementd if it is really necessary
+                pass
             if MuonDQADetFlags.doCSCMon():
                 include ("CscRawDataMonitoring/CscRawESD_MonitoringOptions.py")
             if MuonDQADetFlags.doMDTRPCMon():

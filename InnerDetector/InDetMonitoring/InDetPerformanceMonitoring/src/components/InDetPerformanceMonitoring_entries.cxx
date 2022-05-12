@@ -1,6 +1,6 @@
 #include "InDetPerformanceMonitoring/IDPerfMonZee.h"
 #include "InDetPerformanceMonitoring/IDPerfMonWenu.h"
-#include "InDetPerformanceMonitoring/IDPerfMonZmumu.h"
+#include "../IDPerfMonZmumu.h"
 #include "InDetPerformanceMonitoring/IDPerfMonKshort.h"
 #include "InDetPerformanceMonitoring/TRT_Electron_Monitoring_Tool.h"
 #include "InDetPerformanceMonitoring/IDPerfMonEoverP.h"

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECALIBEMSCALECONDALG_H
@@ -16,7 +16,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 /**
@@ -115,12 +114,6 @@ class TileEMScaleCondAlg: public AthAlgorithm {
     */
     SG::WriteCondHandleKey<TileEMScale> m_calibEmsKey{this,
         "TileEMScale", "TileEMScale", "Output Tile EMS calibration constants"};
-
-   /**
-    * @brief Name of conditions service
-    */
-    ServiceHandle<ICondSvc> m_condSvc{this,
-        "CondSvc", "CondSvc", "The conditions service"};
 
    /**
     * @brief Name of Tile cabling service

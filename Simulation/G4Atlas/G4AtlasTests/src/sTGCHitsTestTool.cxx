@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCHitsTestTool.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "Identifier/Identifier.h"
 
 #include "GeoAdaptors/GeoMuonHits.h"
@@ -43,7 +41,7 @@ StatusCode sTGCHitsTestTool::processEvent() {
 
    if (m_DosTGCTest) {
     const DataHandle<sTGCSimHitCollection> p_collection;
-    CHECK(evtStore()->retrieve(p_collection,"sTGCSensitiveDetector"));
+    CHECK(evtStore()->retrieve(p_collection,"sTGC_Hits"));
     for (sTGCSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) { 
       Amg::Vector3D u = (*i_hit).globalPosition();
       CHECK(executeFillHistos(u));

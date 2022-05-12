@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
@@ -124,7 +124,7 @@ private:
   Gaudi::Property<std::string> m_rndmEngineName{this,"RndmEngine","MuonDigitization","Random engine name"};
 
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-  SG::ReadHandleKey<sTGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "sTGCSensitiveDetector", "name of the input object"};
+  SG::ReadHandleKey<sTGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "sTGC_Hits", "name of the input object"};
   std::string m_inputObjectName{""};
 
   Gaudi::Property<int> m_doChannelTypes{this,"doChannelTypes",3};
@@ -135,6 +135,7 @@ private:
   Gaudi::Property<float> m_timeWindowStrip{this,"timeWindowStrip",30};
 
   Gaudi::Property<double> m_energyDepositThreshold{this,"energyDepositThreshold",300.0*CLHEP::eV,"Minimum energy deposit for hit to be digitized"};
+  Gaudi::Property<double> m_limitElectronKineticEnergy{this,"limitElectronKineticEnergy",5.0*CLHEP::MeV,"Minimum kinetic energy for electron hit to be digitized"};
 
   float m_readoutThreshold;
   float m_neighborOnThreshold;

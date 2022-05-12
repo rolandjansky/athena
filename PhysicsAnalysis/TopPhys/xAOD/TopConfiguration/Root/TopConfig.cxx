@@ -92,6 +92,8 @@ namespace top {
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
     m_doLargeJetOverlapRemoval(false),
+    // do electron-electron overlap removal
+    m_doEleEleOverlapRemoval(false),
     // Dumps the normal non-"*_Loose" trees
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
@@ -187,6 +189,11 @@ namespace top {
     // Electron configuration
     m_egammaSystematicModel("1NP_v1"),
     m_electronEfficiencySystematicModel("TOTAL"),
+    m_electronEfficiencySystematicModelNToys(40),
+    m_electronEfficiencySystematicModelToySeed(12345),
+    m_electronEfficiencySystematicModelRecoSize(400),
+    m_electronEfficiencySystematicModelIdSize(400),
+    m_electronEfficiencySystematicModelIsoSize(400),
     m_electronEfficiencySystematicModelEtaBinning(""),
     m_electronEfficiencySystematicModelEtBinning(""),
     m_electronID("SetMe"),
@@ -219,22 +226,34 @@ namespace top {
     m_muonEtacut(2.5),
     m_muonQuality("SetMe"),
     m_muonUseMVALowPt(false),
+    m_muonUseLowPt(false),
     m_muonUse2stationMuonsHighPt(true),
     m_muonQualityLoose("SetMe"),
     m_muonUseMVALowPtLoose(false),
+    m_muonUseLowPtLoose(false),
     m_muonUse2stationMuonsHighPtLoose(true),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_muon_d0SigCut(3.0),
+    m_muon_delta_z0(0.5),
+    m_muonCalibMode("SetMe"),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
+    m_muonBreakDownSystematics(false),
+    m_muonSFCustomInputFolder(" "),
+    m_muonForcePeriod(" "),
+    m_muonForceYear(-1),
+    m_muonForceTrigger(" "),
+    m_electronForceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
     m_softmuonEtacut(2.5),
     m_softmuonQuality("SetMe"),
     m_softmuonUseMVALowPt(false),
+    m_softmuonUseLowPt(false),
     m_softmuonDRJetcut(0.4),
     m_softmuonDRJetcutUseRapidity(false),
     m_softmuonAdditionalTruthInfo(false),
@@ -1070,6 +1089,8 @@ namespace top {
     this->electronEfficiencySystematicModel(settings->value("ElectronEfficiencySystematicModel"));
     this->electronEfficiencySystematicModelEtaBinning(settings->value("ElectronEfficiencySystematicModelEtaBinning"));
     this->electronEfficiencySystematicModelEtBinning(settings->value("ElectronEfficiencySystematicModelEtBinning"));
+    this->electronEfficiencySystematicModelNToys(std::stof(settings->value("ElectronEfficiencySystematicModelNToys")));
+    this->electronEfficiencySystematicModelToySeed(std::stof(settings->value("ElectronEfficiencySystematicModelToySeed")));
     this->electronID(settings->value("ElectronID"));
     this->electronIDLoose(settings->value("ElectronIDLoose"));
     {
@@ -1158,6 +1179,8 @@ namespace top {
     this->fwdElectronBCIDCleaningMinRun(fwdElectronBCIDCleaningMinRun);
     this->fwdElectronBCIDCleaningMaxRun(fwdElectronBCIDCleaningMaxRun);
 
+    m_electronIDSFFile_path = settings->value("ElectronIDSFFilePath");
+
     // Photon configuration
     this->photonPtcut(std::stof(settings->value("PhotonPt")));
     this->photonEtacut(std::stof(settings->value("PhotonEta")));
@@ -1197,7 +1220,8 @@ namespace top {
     settings->retrieve("MuonUse2stationHighPt", muonUse2stationHighPt);
     if (settings->value("MuonQuality") != "HighPt") muonUse2stationHighPt = false;
     this->muonUse2stationMuonsHighPt(muonUse2stationHighPt);
-    bool muonUseMVALowPt = false;
+    if(settings->value("MuonQuality") == "LowPt") this->muonUseLowPt(true);
+    bool muonUseMVALowPt=false;
     settings->retrieve("MuonUseMVALowPt", muonUseMVALowPt);
     if (settings->value("MuonQuality") != "LowPt" && muonUseMVALowPt) {
       ATH_MSG_WARNING("Could not set MuonUseMVALowPt True without using the LowPt muon WP. MuonUseMVALowPt is now setted to the default value (False)");
@@ -1208,22 +1232,25 @@ namespace top {
     settings->retrieve("MuonUse2stationHighPtLoose", muonUse2stationHighPtLoose);
     if (settings->value("MuonQualityLoose") != "HighPt") muonUse2stationHighPtLoose = false;
     this->muonUse2stationMuonsHighPtLoose(muonUse2stationHighPtLoose);
+    if(settings->value("MuonQualityLoose") == "LowPt") this->muonUseLowPtLoose(true);
     bool muonUseMVALowPtLoose = false;
     settings->retrieve("MuonUseMVALowPtLoose", muonUseMVALowPtLoose);
     if (settings->value("MuonQualityLoose") != "LowPt" && muonUseMVALowPtLoose) {
       ATH_MSG_WARNING("Could not set MuonUseMVALowPtLoose True without using the LowPt muon WP. MuonUseMVALowPtLoose is now setted to the default value (False)");
       muonUseMVALowPtLoose = false;
     }
+    
     this->muonUseMVALowPtLoose(muonUseMVALowPtLoose);
-    {
-      std::string const& cut_wp = settings->value("MuonIsolationLoose");
-      std::string const& sf_wp = settings->value("MuonIsolationSFLoose");
-      this->muonIsolationLoose(cut_wp);
-      this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
-      if (cut_wp != "None")
-        m_muonIsolationWPs.emplace_back(cut_wp);
-    }
+    
+    std::string const& cut_wp = settings->value("MuonIsolationLoose");
+    std::string const& sf_wp = settings->value("MuonIsolationSFLoose");
+    this->muonIsolationLoose(cut_wp);
+    this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    if (cut_wp != "None")
+      m_muonIsolationWPs.emplace_back(cut_wp);
     remove_duplicates(m_muonIsolationWPs);
+    
+    m_muonCalibMode = settings->value("MuonCalibrationMode");
     bool muonDoSmearing2stationHighPt = false;
     settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);
     if (settings->value("MuonQuality") != "HighPt" ) muonDoSmearing2stationHighPt = false;
@@ -1240,12 +1267,36 @@ namespace top {
     }
     this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
 
+    bool muonBreakDownSystematics(false);
+    settings->retrieve("MuonBreakDownSystematics", muonBreakDownSystematics);
+    this->muonBreakDownSystematics(muonBreakDownSystematics);
+    {
+      std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
+      this->muonSFCustomInputFolder(customMuonSF);
+    }
+    {
+      int customMuonForceYear = std::stoi(settings->value("MuonForceYear"));
+      this->muonForceYear(customMuonForceYear);
+    }
+    {
+      std::string const& customMuonForcePeriod = settings->value("MuonForcePeriod");
+      this->muonForcePeriod(customMuonForcePeriod);
+    }
+    {
+      std::string const& customMuonForceTrigger = settings->value("MuonForceTrigger");
+      this->muonForceTrigger(customMuonForceTrigger);
+    }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
+    {
+      std::string const& customElectronForceTrigger = settings->value("ElectronForceTrigger");
+      this->electronForceTrigger(customElectronForceTrigger);
+    }
 
     // Soft Muon configuration
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));
     this->softmuonEtacut(readFloatOption(settings, "SoftMuonEta"));
     this->softmuonQuality(settings->value("SoftMuonQuality"));
+    if(settings->value("SoftMuonQuality") == "LowPt") this->softmuonUseLowPt(true);
     bool softmuonUseMVALowPtSoftMuon = false;
     settings->retrieve("SoftMuonUseMVALowPt", softmuonUseMVALowPtSoftMuon);
     if (settings->value("SoftMuonQuality") != "LowPt" && softmuonUseMVALowPtSoftMuon) {
@@ -1413,6 +1464,11 @@ namespace top {
     // (using whatever procedure is used in the official tools)
     if (settings->value("LargeJetOverlapRemoval") == "True") {
       this->setLargeJetOverlapRemoval();// only usefull in case of MC
+    }
+
+    //do electron-electron overlap removal
+    if (settings->value("EleEleOverlapRemoval") == "True"){
+      this->setEleEleOverlapRemoval();
     }
 
     // In the *_Loose trees, lepton SFs are calculated considering
@@ -1724,6 +1780,23 @@ namespace top {
 
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
+
+    const std::string randomRunNumberSetting = settings->value("ForceRandomRunNumber");
+    if (randomRunNumberSetting != " ") {
+      unsigned int randomRunNumber(0);
+      try {
+        randomRunNumber = std::stoul(randomRunNumberSetting);
+      } catch (...) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be converted to an integer"};
+      }
+
+      if (randomRunNumber < 1 || randomRunNumber > 999999) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be smaller than 0 or larger than 999999"};
+      }
+      // disable PRW
+      m_pileup_reweighting.apply = false;
+      this->setForceRandomRunNumber(randomRunNumber);
+    }
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 

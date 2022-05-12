@@ -113,11 +113,12 @@ elif hasattr(runArgs,"outputHitsFile"):
     athenaCommonFlags.PoolHitsOutput=runArgs.outputHitsFile
 else:
     raise RuntimeError("No outputHitsFile provided.")
+
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput(), noTag=True )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput(), noTag=not peekInfo["xAODEventInfoPresent"] )
 except:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=True )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=not peekInfo["xAODEventInfoPresent"] )
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #Stream1.ExcludeList = ['6421#*']
 
@@ -133,12 +134,20 @@ ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Stream1.Ou
 #--------------------------------------------------------------
 
 #Truth
-Stream1.ItemList=["EventInfo#*",
-                  "McEventCollection#TruthEvent", # mc truth (hepmc)
+Stream1.ItemList=["McEventCollection#TruthEvent", # mc truth (hepmc)
                   "JetCollection#*", # Truth jets reconstructed (optionally) during evgen
                   "TrackRecordCollection#MuonEntryLayer"] # others not used in pileup
 #                  "TrackRecordCollection#MuonExitLayer", # not used in pileup
 #                  "TrackRecordCollection#CaloEntryLayer"] # not used in pileup
+
+# event info
+if not peekInfo["xAODEventInfoPresent"]:
+    Stream1.ItemList += ["EventInfo#*"]
+else:
+    Stream1.ItemList += ["xAOD::EventInfo#EventInfo",
+                         "xAOD::EventAuxInfo#EventInfoAux.",
+                         "xAOD::EventInfoContainer#*",
+                         "xAOD::EventInfoAuxContainer#*"]
 
 # Deal with "new" truth jet collections properly
 from PyJobTransforms.trfUtils import releaseIsOlderThan
@@ -195,10 +204,10 @@ Stream1.ItemList+=["RPCSimHitCollection#RPC_Hits"]
 Stream1.ItemList+=["TGCSimHitCollection#TGC_Hits"]
 #STGC
 if DetFlags.detdescr.sTGC_on():
-    Stream1.ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
+    Stream1.ItemList+=["sTGCSimHitCollection#sTGC_Hits"]
 #MM
-if DetFlags.detdescr.Micromegas_on():
-    Stream1.ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
+if DetFlags.detdescr.MM_on():
+    Stream1.ItemList+=["MMSimHitCollection#MM_Hits"]
 
 
 #--------------------------------------------------------------
@@ -248,8 +257,8 @@ if hasattr(runArgs,'TruthReductionScheme'):
         AddressRemappingSvc.addInputRename("MDTSimHitCollection","MDT_Hits","MDT_HitsOLD")
         AddressRemappingSvc.addInputRename("RPCSimHitCollection","RPC_Hits","RPC_HitsOLD")
         AddressRemappingSvc.addInputRename("TGCSimHitCollection","TGC_Hits","TGC_HitsOLD")
-        AddressRemappingSvc.addInputRename("sTGCSimHitCollection","sTGCSensitiveDetector","sTGCSensitiveDetectorOLD")
-        AddressRemappingSvc.addInputRename("MMSimHitCollection","MicromegasSensitiveDetector","MicromegasSensitiveDetectorOLD")
+        AddressRemappingSvc.addInputRename("sTGCSimHitCollection","sTGC_Hits","sTGC_HitsOLD")
+        AddressRemappingSvc.addInputRename("MMSimHitCollection","MM_Hits","MM_HitsOLD")
     except:
         pass
 
@@ -324,7 +333,7 @@ if hasattr(runArgs,'TruthReductionScheme'):
             topSequence += sTGC_HitsTruthRelink("sTGC_HitsTruthRelink")
         except:
             filterHitLog.error('Failed to add sTGC Hits to McEventCollectionFilter - job will fail.')
-    if DetFlags.detdescr.Micromegas_on():
+    if DetFlags.detdescr.MM_on():
         try:
             from McEventCollectionFilter.McEventCollectionFilterConf import MM_HitsTruthRelink
             topSequence += MM_HitsTruthRelink("MM_HitsTruthRelink")

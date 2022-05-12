@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-# import the Mode3dTo1dFinder configurable
-Trk__Mode3dTo1dFinder=CompFactory.Trk.Mode3dTo1dFinder
 
 def JetFitterMode3dTo1dFinderCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterMode3dTo1dFinder tool and returns it.
@@ -17,6 +14,6 @@ def JetFitterMode3dTo1dFinderCfg(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     options['name'] = name
-    acc.setPrivateTools(Trk__Mode3dTo1dFinder(**options))
+    acc.setPrivateTools(CompFactory.Trk.Mode3dTo1dFinder(**options))
 
     return acc

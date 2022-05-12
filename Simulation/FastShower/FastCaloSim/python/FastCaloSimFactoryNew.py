@@ -56,11 +56,12 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
     kwargs.setdefault("Navigator", Navigator)
 
     # PROPAGATORS
-    AtlasRungeKuttaPropagator = result.popToolsAndMerge(TC.AtlasRKPropagatorCfg(flags))
-    result.addPublicTool(AtlasRungeKuttaPropagator)
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    AtlasRungeKuttaPropagator = result.popToolsAndMerge(RungeKuttaPropagatorCfg(flags))
     TimedPropagators  += [AtlasRungeKuttaPropagator]
 
-    AtlasSTEP_Propagator = result.popToolsAndMerge(TC.AtlasNoMatSTEP_PropagatorCfg(flags))
+    from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasNoMatSTEP_PropagatorCfg
+    AtlasSTEP_Propagator = result.popToolsAndMerge(AtlasNoMatSTEP_PropagatorCfg(flags))
     result.addPublicTool(AtlasSTEP_Propagator)
     TimedPropagators += [AtlasSTEP_Propagator]
     kwargs.setdefault("STEP_Propagator", AtlasSTEP_Propagator)

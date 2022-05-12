@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaForwardBuilder.h"
@@ -25,8 +25,7 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name,
 {}
 
 egammaForwardBuilder::~egammaForwardBuilder()
-{
-}
+= default;
 
 StatusCode egammaForwardBuilder::initialize()
 {
@@ -36,7 +35,6 @@ StatusCode egammaForwardBuilder::initialize()
   ATH_CHECK(m_outClusterContainerKey.initialize());
   m_outClusterContainerCellLinkKey = m_outClusterContainerKey.key() + "_links";
   ATH_CHECK(m_outClusterContainerCellLinkKey.initialize());
-  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
 
   // retrieve object quality tool
   if (!m_objectQualityTool.empty()) {
@@ -99,11 +97,6 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container");
     return StatusCode::FAILURE;
   }
-  // retrieve CaloDetDescr
-  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
-  ATH_CHECK(caloDetDescrMgrHandle.isValid());
-
-  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   // loop over input cluster container and create fwd electrons
   xAOD::CaloClusterContainer::const_iterator clus_begin =
@@ -148,7 +141,7 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
     ATH_CHECK(m_fourMomBuilder->execute(ctx, el));
 
     // do object quality
-    ATH_CHECK(ExecObjectQualityTool(ctx, calodetdescrmgr, el));
+    ATH_CHECK(ExecObjectQualityTool(ctx, el));
 
     // Apply the Forward Electron selectors
     size_t size = m_forwardElectronIsEMSelectors.size();
@@ -177,7 +170,6 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
 StatusCode
 egammaForwardBuilder::ExecObjectQualityTool(
   const EventContext& ctx,
-  const CaloDetDescrManager* calodetdescrmgr,
   xAOD::Egamma* eg) const
 {
   //
@@ -187,5 +179,5 @@ egammaForwardBuilder::ExecObjectQualityTool(
   // return success as algorithm can run without it
   if (m_objectQualityTool.name().empty()) return StatusCode::SUCCESS;
   // execute the tool
-  return m_objectQualityTool->execute(ctx, *calodetdescrmgr,*eg);
+  return m_objectQualityTool->execute(ctx,*eg);
 }

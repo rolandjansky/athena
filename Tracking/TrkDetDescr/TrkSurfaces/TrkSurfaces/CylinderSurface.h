@@ -23,6 +23,8 @@
 class MsgStream;
 template<class SURFACE, class BOUNDS_CNV>
 class BoundSurfaceCnv_p1;
+template<class SURFACE, class BOUNDS_CNV>
+class BoundSurfaceCnv_p2;
 
 namespace Trk {
 
@@ -302,6 +304,8 @@ public:
 protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
+  template<class SURFACE, class BOUNDS_CNV>
+  friend class ::BoundSurfaceCnv_p2;
 
   //!< bounds (shared)
   SharedObject<const CylinderBounds> m_bounds;

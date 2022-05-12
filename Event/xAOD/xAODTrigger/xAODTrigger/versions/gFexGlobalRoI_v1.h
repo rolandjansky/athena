@@ -28,8 +28,9 @@ namespace xAOD {
       /// Default constructor
       gFexGlobalRoI_v1();
 
-      /// Initialise the object with its most important properties: only the word for gFEX
-      void initialize( uint32_t word );
+      /// Initialise the object with its properties
+      // void initialize( uint32_t word, int tobEtScaleOne );
+      void initialize( uint32_t word, int tobEtScaleOne, int tobEtScaleTwo = 0 );
 
       /// Object types
       enum ObjectType {
@@ -46,15 +47,22 @@ namespace xAOD {
       /// Set the "raw" 32-bit words describing the object candidate
       void setWord( uint32_t value );
 
+      int tobEtScaleOne() const;
+      /// Set the "raw" 32-bit words describing the object candidate
+      void setScaleOne( int value );
+
+      int tobEtScaleTwo() const;
+      /// Set the "raw" 32-bit words describing the object candidate
+      void setScaleTwo( int value );
 
       /// TOB ET (decoded from TOB, stored for convenience)
-      uint16_t quantityOne() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)
-      void     setQuantityOne( uint16_t value); /// setter for the above
-      unsigned int unpackQuantityOneIndex( ) const; /// retrieves the Et index from the 32-bit word
+      int16_t quantityOne() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)
+      void    setQuantityOne( int16_t value); /// setter for the above
+      int16_t unpackQuantityOne( ) const; /// retrieves the Et index from the 32-bit word
       
-      uint16_t quantityTwo() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)
-      void     setQuantityTwo( uint16_t value); /// setter for the above
-      unsigned int unpackQuantityTwoIndex( ) const; /// retrieves the Et index from the 32-bit word
+      int16_t quantityTwo() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)
+      void    setQuantityTwo( int16_t value); /// setter for the above
+      int16_t unpackQuantityTwo( ) const; /// retrieves the Et index from the 32-bit word
 
       float    METquantityOne() const; /// floating point value (GeV, TOB scale)
       float    METquantityTwo() const; /// floating point value (GeV, TOB scale)
@@ -90,7 +98,7 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_globaltobEtScale;
+      // static const float s_globaltobEtScale;
 
 
       // Constants used in decoding TOB words

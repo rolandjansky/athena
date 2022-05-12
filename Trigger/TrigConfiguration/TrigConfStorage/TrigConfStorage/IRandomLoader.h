@@ -27,7 +27,7 @@ namespace TrigConf {
    class IRandomLoader : virtual public ILoader {
    public:
 
-      virtual ~IRandomLoader() {};
+      virtual ~IRandomLoader() override = default;
 
       virtual bool load( Random& data ) = 0;
    };

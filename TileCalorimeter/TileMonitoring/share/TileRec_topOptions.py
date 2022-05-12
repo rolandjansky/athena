@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -331,7 +331,6 @@ if doAtlantis:
 
 
     include('JiveXML/JiveXML_jobOptionBase.py')
-    include ('TrigJiveXML/TrigJiveXML_DataTypes.py')
 
     theEventData2XML.WriteToFile = False
 

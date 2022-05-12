@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "RD53SimTool.h"
@@ -49,8 +49,11 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     return;
   }
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   //int maxRD53SmallHit = 0; unused
   int overflowToT = moduleData->getFEI4OverflowToT(barrel_ec, layerIndex);
@@ -70,24 +73,24 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     ThermalNoise(moduleData->getThermalNoise(barrel_ec, layerIndex), chargedDiodes, rndmEngine);
 
     // Add random noise
-    RandomNoise(chargedDiodes, rndmEngine);
+    RandomNoise(chargedDiodes, moduleData, calibData, rndmEngine);
   }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
+  RandomDisable(chargedDiodes, moduleData, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeIterator i_chargedDiode = chargedDiodes.begin(); i_chargedDiode != chargedDiodes.end();
        ++i_chargedDiode) {
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    unsigned int FE = m_pixelReadout->getFE(diodeID, moduleID);
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analogu threshold, timing simulation
-    const int th0 = calibData->getAnalogThreshold(static_cast<int>(moduleHash), circ, type);
-    const int sigma = calibData->getAnalogThresholdSigma(static_cast<int>(moduleHash), circ, type);
-    const int noise = calibData->getAnalogThresholdNoise(static_cast<int>(moduleHash), circ, type); 
+    const int th0 = calibData->getAnalogThreshold(type, moduleHash, FE);
+    const int sigma = calibData->getAnalogThresholdSigma(type, moduleHash, FE);
+    const int noise = calibData->getAnalogThresholdNoise(type, moduleHash, FE); 
     double threshold = th0 +
                        sigma * CLHEP::RandGaussZiggurat::shoot(rndmEngine) +
                        noise * CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
@@ -98,6 +101,16 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
         bunchSim =
           static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge()) +
                                   moduleData->getTimeOffset(barrel_ec, layerIndex)) / moduleData->getBunchSpace()));
+	
+	//Timewalk implementation 
+	if(m_doTimeWalk){
+	  if(charge < (threshold + m_overDrive)){
+	    const int timeWalk = 25; // Here it is assumed that the maximum value of timewalk is one bunch crossing (25ns)
+	    bunchSim =
+	      static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge()) +
+				      moduleData->getTimeOffset(barrel_ec, layerIndex)+ timeWalk) / moduleData->getBunchSpace()));
+	  } 
+	}
       } else {
         bunchSim = CLHEP::RandFlat::shootInt(rndmEngine, moduleData->getNumberOfBCID(barrel_ec, layerIndex));
       }
@@ -112,8 +125,8 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     }
 
     // charge to ToT conversion
-    double tot = calibData->getToT((int) moduleHash, circ, type, charge);
-    double totsig = calibData->getTotRes((int) moduleHash, circ, tot);
+    double tot = calibData->getToT(type, moduleHash, FE, charge);
+    double totsig = calibData->getTotRes(moduleHash, FE, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine, tot, totsig));
 
     if (nToT < 1) {

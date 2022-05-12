@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
@@ -54,7 +54,7 @@ CaloGeometry::CaloGeometry() : m_cells_in_sampling(MAX_SAMPLING),m_cells_in_samp
   m_graph_layers.resize(MAX_SAMPLING);
 //  for(unsigned int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
   for(unsigned int i=CaloSampling::PreSamplerB;i<=CaloSampling::FCAL2;++i) {
-    m_graph_layers[i]=0;
+    m_graph_layers[i]=nullptr;
     CaloSampling::CaloSample s=static_cast<CaloSampling::CaloSample>(i);
     m_isCaloBarrel[i]=(CaloSampling::barrelPattern() & CaloSampling::getSamplingPattern(s))!=0;
   }
@@ -62,8 +62,7 @@ CaloGeometry::CaloGeometry() : m_cells_in_sampling(MAX_SAMPLING),m_cells_in_samp
 }
 
 CaloGeometry::~CaloGeometry()
-{
-}
+= default;
 
 void CaloGeometry::addcell(const CaloDetDescrElement* cell) 
 {
@@ -76,7 +75,7 @@ void CaloGeometry::addcell(const CaloDetDescrElement* cell)
   //m_cells[identify]= new CaloDetDescrElement(*cell);
   //m_cells_in_sampling[sampling][identify]= new CaloDetDescrElement(*cell);
   
-  CaloGeometryLookup* lookup=0;
+  CaloGeometryLookup* lookup=nullptr;
   for(unsigned int i=0;i<m_cells_in_regions[sampling].size();++i) {
     if(m_cells_in_regions[sampling][i]->IsCompatible(cell)) {
       lookup=m_cells_in_regions[sampling][i];
@@ -281,7 +280,7 @@ void CaloGeometry::InitRZmaps()
    for(int sample=0;sample<MAX_SAMPLING;++sample)
    {
 
-    if(rz_map_n[side][sample].size()>0)
+    if(!rz_map_n[side][sample].empty())
     {
       for(FSmap< double , int >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter)
       {
@@ -356,7 +355,7 @@ TGraph* CaloGeometry::DrawGeoSampleForPhi0(int sample, int calocol, bool print)
   if (sample < CaloSampling::PreSamplerB || sample >= CaloSampling::Unknown) {
     return nullptr;
   }
-  TGraph* firstgr=0;
+  TGraph* firstgr=nullptr;
   cout<<"Start sample "<<sample<<" ("<<SamplingName(sample)<<")"<<endl;
   int ngr=0;
   for(t_eta_cellmap::iterator calo_iter=m_cells_in_sampling_for_phi0[sample].begin();calo_iter!=m_cells_in_sampling_for_phi0[sample].end();++calo_iter) {
@@ -479,12 +478,12 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,Identifier identify
 
 const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi,float* distance,int* steps) 
 {
-  if(sampling<0) return 0;
-  if(sampling>=MAX_SAMPLING) return 0;
-  if(m_cells_in_regions[sampling].size()==0) return 0;
+  if(sampling<0) return nullptr;
+  if(sampling>=MAX_SAMPLING) return nullptr;
+  if(m_cells_in_regions[sampling].empty()) return nullptr;
   
   float dist = 0;
-  const CaloDetDescrElement* bestDDE=0;
+  const CaloDetDescrElement* bestDDE=nullptr;
   if(!distance) distance=&dist;
   *distance=+10000000;
   int intsteps;
@@ -519,7 +518,7 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi
       if(bestDDE) break;
     }
   } else {
-		return 0;
+		return nullptr;
     //for(int skip_range_check=0;skip_range_check<=1;++skip_range_check) {
       //for(unsigned int j=0;j<m_cells_in_regions[sampling].size();++j) {
         //if(!skip_range_check) {
@@ -622,7 +621,7 @@ bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& iet
     
   }
   if(steps)*steps=i+1;
-  return i<nmax ? true : false;
+  return i<nmax;
 }
 
 bool CaloGeometry::PostProcessGeometry()
@@ -675,7 +674,7 @@ void CaloGeometry::Validate(int nrnd)
       float distance=0;
       bool is_inside;
       bool is_inside_foundcell=false;
-      const CaloDetDescrElement* foundcell=0;
+      const CaloDetDescrElement* foundcell=nullptr;
       if(sampling<21) {
         float eta=cell->eta()+1.95*(gRandom->Rndm()-0.5)*cell->deta();
         float phi=cell->phi()+1.95*(gRandom->Rndm()-0.5)*cell->dphi();

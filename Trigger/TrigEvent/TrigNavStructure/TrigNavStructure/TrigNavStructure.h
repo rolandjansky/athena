@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,10 +11,7 @@
 #include <vector>
 #include <mutex>
 
-#ifndef XAOD_STANDALONE
-#include "AthenaKernel/SlotSpecificObj.h"
-#endif
-
+#include "AsgTools/SlotSpecificObj.h"
 #include "CxxUtils/checker_macros.h"
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigNavStructure/TriggerElementFactory.h"
@@ -335,8 +332,7 @@ namespace HLT {
     virtual bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
 				      const index_or_label_type& index_or_label,
 				      bool only_single_feature,
-			      	      TriggerElement::FeatureVec& features, 
-			              bool with_cache_recording,
+			      	      TriggerElement::FeatureVec& features,
 			              bool travel_backward_recursively,
 			              const TriggerElement*& source = m_unspecifiedTE, 
 			              std::string& sourcelabel  = m_unspecifiedLabel) const;
@@ -346,7 +342,6 @@ namespace HLT {
 					      const index_or_label_type& index_or_label,
 					      bool only_single_feature,
 					      TriggerElement::FeatureVec& features,
-					      bool with_cache_recording,
 					      const TriggerElement*& source,
 					      std::string& sourcelabel ) const ;
     
@@ -371,30 +366,21 @@ namespace HLT {
                      unsigned int maxResults = 1000, bool onlyActive = 1);
 
 
-    TriggerElementFactory& getFactory();
+    TriggerElementFactory& getFactory() { return *m_factory; }
+    TrigHolderStructure& getHolderStorage() { return *m_holderstorage; }
+    std::recursive_mutex& getMutex() { return s_rmutex; }
 
-    TrigHolderStructure& getHolderStorage();
-
-    std::recursive_mutex& getMutex();
-
-    const TriggerElementFactory& getFactory() const;
-
-    const TrigHolderStructure& getHolderStorage() const;  
-
-    std::recursive_mutex& getMutex() const;
+    const TriggerElementFactory& getFactory() const { return *m_factory; }
+    const TrigHolderStructure& getHolderStorage() const { return *m_holderstorage; }
+    std::recursive_mutex& getMutex() const { return s_rmutex; }
 
     static const TriggerElement* m_unspecifiedTE ATLAS_THREAD_SAFE;
     static std::string m_unspecifiedLabel ATLAS_THREAD_SAFE;
 
   private:
 
-#ifndef XAOD_STANDALONE
     SG::SlotSpecificObj<TriggerElementFactory> m_factory;                     //!< factory of trigger elements (one per processing slot)
     SG::SlotSpecificObj<TrigHolderStructure> m_holderstorage;                 //!< structure for feature holders (one per processing slot)
-#else
-    TriggerElementFactory m_factory;                     //!< factory of trigger elements 
-    TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
-#endif
 
     static std::recursive_mutex s_rmutex;
 

@@ -3,6 +3,7 @@
 # art-description: Run MC16 pile-up pre-mixing with 2016d geometry and conditions, 25ns pile-up, MT output containers in AthenaMP
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-output: mc16d_premixing_MT.MP.RDO.pool.root
 
@@ -28,6 +29,7 @@ Digi_tf.py \
 --digiSteeringConf 'StandardSignalOnlyTruth' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC16d.py' \
+--postExec 'RDOMergeAthenaMP0:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1");conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")' \
 --skipEvents 0
 
 rc=$?

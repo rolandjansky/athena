@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RIVET_I_H
 #define RIVET_I_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "Rivet/AnalysisHandler.hh"
 
@@ -51,7 +52,7 @@ private:
 //  StatusCode regGraph(const AIDA::IDataPointSet& dps, const std::string& path);
 
   // Check and potentially modify events for correct units, beam particles, ...
-  const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event);
+  const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event, const EventContext& ctx);
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;
@@ -104,7 +105,7 @@ private:
   /// Flag to determine whether Rivet init has already happened (in execute())
   bool m_init;
 
-  ///Skip variation weights and only run nominal
+  /// Skip variation weights and only run nominal
   bool m_skipweights;
 
   /// String of weight names (or regex) to select multiweights
@@ -113,9 +114,16 @@ private:
   /// String of weight names (or regex) to veto multiweights
   std::string m_unmatchWeights;
 
+  /// String to specify non-standard nominal weight
+  std::string m_nominalWeightName;
+
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey{this
+      , "EventInfo"
+      , "EventInfo"
+      , "ReadHandleKey for xAOD::EventInfo" };
 };
 
 #endif

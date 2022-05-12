@@ -17,7 +17,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 42 CLIDRegistry entries for 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 ChronoStatSvc        INFO Time User   : Tot=  42 [ms]                                             #=  1
 MyAlg               ERROR An error message
-MyAlg                INFO Line with hex number 0x424242
+MyAlg                INFO Line with hex number 0x76786
 MyAlg                       INFO Whitespace changes
 MyAlg   3   4    INFO Line with slot/event number
 MyAlg                INFO A line with XYZ marker

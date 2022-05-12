@@ -27,7 +27,7 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TrackSelector.h"     
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
-#include "TrigInDetAnalysisUtils/TagNProbe.h"
+#include "TrigInDetAnalysisUtils/TagNProbe2.h"
 
 #include "TrigInDetAnalysisExample/AnalysisR3_Tier0.h"
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
@@ -49,8 +49,6 @@
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "xAODEventInfo/EventInfo.h"
 
 
@@ -113,7 +111,7 @@ public:
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
-			 TagNProbe*       TnP_tool = 0) :
+			 TagNProbe2*      TnP_tool = 0) :
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
@@ -128,6 +126,8 @@ public:
     m_doTaus(false),
     m_doBjets(false),
     m_hasTruthMap(false),
+    m_pdgID(0),
+    m_parent_pdgID(0),
     m_NRois(0),
     m_NRefTracks(0),
     m_NTestTracks(0),
@@ -136,10 +136,11 @@ public:
     m_pTthreshold(0),
     m_first(true),
     m_containTracks(false), 
+    m_tnp_flag(false),
     m_invmass(0),
     m_invmass_obj(0)
   {
-    
+
     /// leave in for development
     ///    std::cout << "chain size: " << m_chainNames.size() << "(" << this << ")" << std::endl; 
 
@@ -148,7 +149,6 @@ public:
     ///    std::cout << "chain size: " << m_chainNames.size() << "(" << this << ")" << std::endl; 
 
     m_TnP_tool = TnP_tool;
-    
     
 #if 0
     /// leave for debugging
@@ -169,11 +169,26 @@ public:
 #endif
     
     m_testType = testType;
+
+    if ( m_TnP_tool ) m_tnp_flag = true;
+
   }
 
+
   virtual ~T_AnalysisConfigR3_Tier0() {
-    if ( m_TnP_tool != 0 ) delete m_TnP_tool ;
+    if ( m_TnP_tool )    delete m_TnP_tool;
+    if ( m_invmass )     delete m_invmass;
+    if ( m_invmass_obj ) delete m_invmass_obj;
   }
+
+
+  void initialise() { 
+    if ( m_tnp_flag ) {
+      if ( m_invmass==0 )     m_invmass     = new TIDA::Histogram<float>( monTool(), "invmass" );
+      if ( m_invmass_obj==0 ) m_invmass_obj = new TIDA::Histogram<float>( monTool(), "invmass_obj" );
+    }
+  }
+
 
   void setRunPurity( bool b ) { m_runPurity=b; }
 
@@ -183,13 +198,23 @@ public:
 
   void containTracks( bool b ) { m_containTracks = b; }
 
+  void setPdgID( int i=0 ) { m_pdgID=i; }
+
+  void setParentPdgID( int i=0 ) { m_parent_pdgID=i; }
+
+  void setMCTruthRef( bool b ) { m_mcTruth=b; }
+
+  void setOfflineRef( bool b ) { m_doOffline=b; }
+
   void set_monTool( ToolHandle<GenericMonitoringTool>* m ) { m_monTool=m; }
 
   ToolHandle<GenericMonitoringTool>* monTool() { return m_monTool; }
 
 public:
 
-  A* _analysis;
+  A* m_manalysis;
+
+  using T_AnalysisConfig<T>::name;
 
 protected:
 
@@ -197,7 +222,6 @@ protected:
   using T_AnalysisConfig<T>::m_tdt;
   using T_AnalysisConfig<T>::m_mcTruth;
 
-  using T_AnalysisConfig<T>::name;
   using T_AnalysisConfig<T>::m_analysis;
 
   using T_AnalysisConfig<T>::m_selectorTest;
@@ -205,24 +229,20 @@ protected:
   using T_AnalysisConfig<T>::m_associator;
   using T_AnalysisConfig<T>::m_filters;
   
-  
   virtual void loop() {
-    
-    bool TnP_flag = (m_TnP_tool != 0) ; // flag for tag and probe analysis
- 
-    if ( m_TnP_tool ) {
-      if ( m_invmass==0 )     m_invmass     = new TIDA::Histogram<float>( monTool(), "invmass" );
-      if ( m_invmass_obj==0 ) m_invmass_obj = new TIDA::Histogram<float>( monTool(), "invmass_obj" );
-    }
-    
-   
+
+    const TagNProbe2* pTnP_tool = m_TnP_tool;
+
     if( m_provider->msg().level() <= MSG::VERBOSE) {
       m_provider->msg(MSG::VERBOSE) <<  "AnalysisConfigR3_Tier0::loop() for " << T_AnalysisConfig<T>::m_analysisInstanceName <<  endmsg;
     }
 
+    /// this isn't working yet - will renable once we have a workaround
     // get (offline) beam position
-    double xbeam = 0;
-    double ybeam = 0;
+    //    double xbeam = 0;
+    //    double ybeam = 0;
+
+#if 0
 
     if ( m_first ) {      
 
@@ -244,9 +264,11 @@ protected:
 	
     }
 
+#endif
+
     Filter_True filter;
     
-    Filter_etaPT     filter_etaPT(5,200);
+    Filter_etaPT    filter_etaPT( 5, 200 );
     Filter_Combined filter_truth( &filter_etaPT,   &filter_etaPT);
     
     /// will need to add a vertex filter at some point probably
@@ -260,19 +282,29 @@ protected:
       iTestFilter = 1;
     }
     
-    Filter_Combined filterRef(   m_filters[iRefFilter][0],  &filter );
-    Filter_Combined filterTest(  m_filters[iTestFilter][0], &filter );
+    
+    TrackFilter* rfilter = m_filters[iRefFilter][0];
+    TrackFilter* tfilter = m_filters[iTestFilter][0];
 
+    Filter_Combined filterRef(   rfilter, &filter );
+    Filter_Combined filterTest(  tfilter, &filter );
 
-    TrigTrackSelector selectorTruth( &filter_truth );
-    TrigTrackSelector selectorRef( &filterRef );
-    m_selectorRef = &selectorRef;
-    TrigTrackSelector selectorTest( &filterTest );
-    m_selectorTest = &selectorTest;
+    TrigTrackSelector  selectorTruth( &filter_truth, m_pdgID, m_parent_pdgID );
 
-    if ( xbeam!=0 || ybeam!=0 ) { 
-      m_selectorRef->setBeamline(  xbeam, ybeam );
-    }  
+    TrigTrackSelector  selectorRef( &filterRef );
+    TrigTrackSelector* pselectorRef = &selectorRef;
+
+    TrigTrackSelector  selectorTest( &filterTest );
+    TrigTrackSelector* pselectorTest = &selectorTest;
+    
+    /// switch reference selector to truth if requested
+    if ( m_mcTruth ) pselectorRef = &selectorTruth;
+
+    /// this isn't working yet - will renable once we have a workaround
+    /// if ( xbeam!=0 || ybeam!=0 ) {
+    ///      std::cerr << "Oh no ! setBeamLine() : " << xbeam << " " << ybeam << std::endl;
+    ///     pselectorRef->setBeamline(  xbeam, ybeam );
+    /// }  
 
     /// now start everything going for this event properly ...
 
@@ -375,8 +407,12 @@ protected:
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
+
+#if 0
     const TrigInDetTrackTruthMap* truthMap = 0;
 
+    /// disable the truth match fetching - keep the code in place for when it is needed 
+    /// is this truthmap stuff even used ???
     if ( m_mcTruth ) {
       if(m_provider->msg().level() <= MSG::VERBOSE ) m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
 
@@ -391,7 +427,9 @@ protected:
         m_hasTruthMap = true;
       }
     }
-    
+#else
+    m_hasTruthMap = false;
+#endif    
 
     /// get the offline vertices into our structure
 
@@ -427,6 +465,8 @@ protected:
       }
     }
 
+
+
     /// now add the offline tracks and reco objects
 
     std::vector<TIDA::Track*> offline_tracks;
@@ -449,9 +489,9 @@ protected:
 
     bool foundTruth = false;
 
-    // FIXME: most of the different truth selection can go 
+    /// FIXME: most of the different truth selection can go  
 
-    if ( !m_doOffline && m_mcTruth ) {
+    if ( m_mcTruth ) {
 
       filter_truth.setRoi( 0 ); // don't filter on RoI yet (or until needed)  
 
@@ -486,7 +526,7 @@ protected:
 	}
     }
       
-    if ( !m_doOffline && m_mcTruth && !foundTruth ) {
+    if ( m_mcTruth && !foundTruth ) {
           
       if ( m_provider->msg().level() <= MSG::VERBOSE ) { 
 	m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
@@ -558,18 +598,26 @@ protected:
 
       while ( evitr!=evend ) {
 
-	int _ip = 0; /// count of particles in this interaction
+	int ipc = 0; /// count of particles in this interaction
 
 	int pid = HepMC::signal_process_id((*evitr));
 
 	//The logic should be clarified here
 	if ( pid!=0 ) { /// hooray! actually found a sensible event
 
-	  for (auto pitr: *(*evitr) ) { 
+	  /// remove auto range loop since that unhelpfully obscures what 
+	  /// is actually being done and given the unfriendly nature of the 
+	  /// HepMC code makes it nigh on impossible to actually work out 
+	  /// which types are actually being used and how
 
-	    selectorTruth.selectTrack( pitr );
+	  HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
+	  HepMC::GenEvent::particle_const_iterator pend((*evitr)->particles_end());
 
-	    ++_ip;
+	  while ( pitr!=pend ) {
+
+	    selectorTruth.selectTrack( *pitr++ );
+
+	    ++ipc;
                 
 	  }
 
@@ -577,11 +625,11 @@ protected:
 	++ie;
 	++evitr;
 
-	if ( _ip>0 ) {
+	if ( ipc>0 ) {
 	  /// if there were some particles in this interaction ...
 	  //      m_provider->msg(MSG::VERBOSE) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
 	  ++ie_ip;
-	  ip += _ip;
+	  ip += ipc;
 	}
       }
 
@@ -601,50 +649,24 @@ protected:
 
     // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
 	
-    if ( m_doOffline ) {
+    if ( m_doOffline && !m_mcTruth) {
 	  
       if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
-	this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
+	this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, "InDetTrackParticles" );
 	refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( "InDetTrackParticles" );
       }
       else if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
-	this->template selectTracks<Rec::TrackParticleContainer>( m_selectorRef, "TrackParticleCandidate" );
+	this->template selectTracks<Rec::TrackParticleContainer>( pselectorRef, "TrackParticleCandidate" );
       }
       else if ( m_provider->msg().level() <= MSG::WARNING ) {
 	m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
       }
 
-      // set event configuration for tagnprobe 
-      if ( TnP_flag ) {
+    }
 
-	// dummy values
-	double ZmassMin = 40 ;
-	double ZmassMax = 150 ;
-	m_TnP_tool->SetEventConfiguration( m_selectorRef, &filterRef,    // offline tracks and filter
-					   "Offline",                    // offline chain name
-					   0,                            // trigger object matcher
-					   ZmassMin, ZmassMax );         // set the Zmass range
-      }
-	  
-    }
-    else { 
-      /// what is this ???
-      if ( m_mcTruth && foundTruth ){
-	
-	if ( TnP_flag ) {
-	      
-	  // dummy values
-	  double ZmassMin = 40 ;
-	  double ZmassMax = 150 ;
-	      
-	  m_TnP_tool->SetEventConfiguration( &selectorTruth, &filter_truth,   // truth tracks and filter 
-					     "Truth",                         // truth chain name
-					     0,                               // trigger object matcher
-					     ZmassMin, ZmassMax );            // set the Zmass range
-	}
-	    
-      }
-    }
+    /// clone the asociator
+
+    TrackAssociator* associator = m_associator->clone();
 
     //    std::cout << "\tloop() loop over chains proper ..." << std::endl;
 
@@ -715,12 +737,12 @@ protected:
       // tag and probe analysis processes multiple chains passed in the tag and probe tool at once so loop over vector of chains
       std::vector<std::string> chainNames ;
             
-      if ( !TnP_flag ) {
+      if ( !m_tnp_flag ) {
 	chainNames.push_back(m_chainNames[ichain].raw()) ;
       }
       else {
-	chainNames.push_back(m_TnP_tool->tag()) ;
-	chainNames.push_back(m_TnP_tool->probe()) ;
+	chainNames.push_back(pTnP_tool->tag()) ;
+	chainNames.push_back(pTnP_tool->probe()) ;
       }
 
       // loop over new chainNames vector but doing the same stuff
@@ -737,7 +759,7 @@ protected:
 
 	  /// do we still want the blind chain access for track collections ???
 
-	  m_selectorTest->clear();
+	  pselectorTest->clear();
 	
 	  /// dummy full scan chain 
 
@@ -748,11 +770,11 @@ protected:
 	  chain.addRoi( TIDARoiDescriptor(true) );
 	
 	  if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>(key) ) {
-	    this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, key );
+	    this->template selectTracks<xAOD::TrackParticleContainer>( pselectorTest, key );
 	    refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( key );
 	  }
 
-	  const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
+	  const std::vector<TIDA::Track*>& testtracks = pselectorTest->tracks();
 
 	  chain.back().addTracks(testtracks);
 	
@@ -779,10 +801,6 @@ protected:
 
 	  std::string roi_key = chainConfig.roi();
 	
-	  //	if ( roi_key=="" ) roi_key = "forID";
-	  //	if ( roi_key=="" ) roi_key = "";
-
-
 	  unsigned feature_type =TrigDefs::lastFeatureOfType;
 
 	  if ( roi_key!="" ) feature_type= TrigDefs::allFeaturesOfType;
@@ -826,9 +844,8 @@ protected:
 
 	    const TrigRoiDescriptor* const* roiptr = roi_link.cptr();
 
-	    if ( roiptr == 0 ) { 
-	      continue;
-	    }  
+	    if ( roiptr == 0 ) continue;
+	    
 
 	    /// for debug ...
 	    //	  std::cout << "\troi: link deref ..." << *roiptr << std::endl;
@@ -843,9 +860,9 @@ protected:
 
 	    /// get the tracks 
 
-	    m_selectorTest->clear();
+	    pselectorTest->clear();
 
-	    if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, roi_link,  key ) ) { } 
+	    if ( this->template selectTracks<xAOD::TrackParticleContainer>( pselectorTest, roi_link,  key ) ) { } 
 
 	    // beamspot stuff not needed for xAOD::TrackParticles
 
@@ -855,7 +872,7 @@ protected:
 	
 	    /// get tracks 
 
-	    const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
+	    const std::vector<TIDA::Track*>& testtracks = pselectorTest->tracks();
 
 	    chain.back().addTracks(testtracks);
 	
@@ -905,13 +922,13 @@ protected:
       const std::string&  vtx_name = chainConfig.vtx();
 
       // skip tag chains to avoid performing standard analysis on them (done for tnp at the same time as probes)
-      if ( TnP_flag && chainConfig.extra().find("_tag")!=std::string::npos ) continue ;
+      if ( m_tnp_flag && chainConfig.extra().find("_tag")!=std::string::npos ) continue ;
       
       std::vector<TIDA::Roi*> rois ;
       
-      if (TnP_flag) {
-	rois = m_TnP_tool->GetRois( eventp->chains() );
-	// needs to be done AFTER retrieving offline tracks as m_selectorRef passed as arguement, hence restructuring
+      if (m_tnp_flag) {
+	// needs to be done AFTER retrieving offline tracks as pselectorRef passed as arguement, hence restructuring
+	rois = pTnP_tool->GetRois( eventp->chains(), pselectorRef, &filterRef, m_invmass, m_invmass_obj );
       }
       else {
         rois.reserve( chain.size() );
@@ -924,17 +941,6 @@ protected:
 
       for ( unsigned iroi=0 ; iroi<rois.size() ; iroi++ ) {
 
-	// filling invariant mass histograms for tag and probe analysis
-	/// why the hell is this calling a method to fill the histogram 
-	/// here instead of just filling the histoigram ???
-	/// it is being given the "probe index" what does that have to do
-	/// with the invariant mass ?  
-	/// do we really want this TnP object saving information about 
-	/// the processing of the event ? 
-	if ( TnP_flag ) {
-	  m_TnP_tool->Fill( m_invmass, m_invmass_obj, iroi ) ;
-	}
-	
 	if ( this->filterOnRoi() ) { 
 	  filterRef.setRoi( &(rois.at(iroi)->roi() ) ); 
 	  filterRef.containtracks( m_containTracks ); 
@@ -962,18 +968,18 @@ protected:
         if ( m_provider->msg().level() <= MSG::VERBOSE )
           m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
-	if ( !m_doOffline && m_mcTruth ) {
+	if ( m_mcTruth ) {
 	  if ( this->filterOnRoi() )  filter_truth.setRoi( &(rois.at(iroi)->roi() ) );
-	  ref_tracks = m_selectorRef->tracks(&filter_truth);
+	  ref_tracks = pselectorRef->tracks(&filter_truth);
 	}
 	else { // ie. if ( m_doOffline )
-	  ref_tracks = m_selectorRef->tracks(&filterRef) ; 
+	  ref_tracks = pselectorRef->tracks(&filterRef) ; 
 	}
 	
 	if ( m_provider->msg().level() <= MSG::VERBOSE ) {
-	  m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
-	  for ( int ii=m_selectorRef->tracks().size() ; ii-- ; ) {
-	    m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endmsg;
+	  m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << pselectorRef->tracks().size() << endmsg;
+	  for ( int ii=pselectorRef->tracks().size() ; ii-- ; ) {
+	    m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *pselectorRef->tracks()[ii] << endmsg;
 	  }
 	}
 
@@ -987,10 +993,10 @@ protected:
 	/// debug ...
 	//	std::cout << "sutt track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
 
-        _analysis->setvertices( vertices.size() );  /// what is this for ???
+	m_manalysis->setvertices( vertices.size() );  /// what is this for ???
 
-	if ( refbeamspot.size()>0 )  _analysis->setBeamRef(   refbeamspot ); 
-	if ( testbeamspot.size()>0 ) _analysis->setBeamTest( testbeamspot ); 
+	if ( refbeamspot.size()>0 )  m_manalysis->setBeamRef(   refbeamspot ); 
+	if ( testbeamspot.size()>0 ) m_manalysis->setBeamTest( testbeamspot ); 
 
 	/// if we want a purity, we need to swap round which tracks are the 
 	/// reference tracks and which the test tracks
@@ -1006,11 +1012,10 @@ protected:
 	  m_NRefTracks  += test_tracks.size();
 	  m_NTestTracks += ref_tracks.size();
 
-	  	  	  
 	  /// match test and reference tracks
-	  m_associator->match( test_tracks, ref_tracks );
+	  associator->match( test_tracks, ref_tracks );
 	  
-	  _analysis->execute( test_tracks, ref_tracks, m_associator, eventp );
+	  m_manalysis->execute( test_tracks, ref_tracks, associator, eventp );
 
 	}
 	else { 
@@ -1022,16 +1027,20 @@ protected:
 	  
 	  if ( m_pTthreshold>0 )         FilterPT( ref_tracks, m_pTthreshold );
 
+	  /// should be included - but leave commented out here to allow
+	  /// study of rois with *no relevant truth particles !!!   
+	  // if ( ref_tracks.size()==0 ) continue;
+
 	  /// stats book keeping 
 	  m_NRois++;
 	  m_NRefTracks  += ref_tracks.size();
 	  m_NTestTracks += test_tracks.size();
-	  
+
 	  /// match test and reference tracks
-	  m_associator->match( ref_tracks, test_tracks );
+	  associator->match( ref_tracks, test_tracks );
 	
-	  _analysis->setroi( &rois.at(iroi)->roi() );  
-	  _analysis->execute( ref_tracks, test_tracks, m_associator, eventp );
+	  m_manalysis->setroi( &rois.at(iroi)->roi() );  
+	  m_manalysis->execute( ref_tracks, test_tracks, associator, eventp );
 
 	  if ( vtx_name!="" ) { 
 	    /// get vertices for this roi - have to copy to a vector<Vertex*>
@@ -1047,12 +1056,12 @@ protected:
 	      if ( vertices.size()>unsigned(this->getVtxIndex()) ) vtx.push_back( &vertices[this->getVtxIndex()] );
 	    }
 
-	    _analysis->execute_vtx( vtx, vtx_rec, eventp );
+	    m_manalysis->execute_vtx( vtx, vtx_rec, eventp );
 	  }
 
 	}
  
-	if ( _analysis->debug() ) { 
+	if ( m_manalysis->debug() ) { 
 	  m_provider->msg(MSG::INFO) << "Missing track for " << m_chainNames[ichain]  
 				     << "\trun "             << run_number 
 				     << "\tevent "           << event_number 
@@ -1063,9 +1072,12 @@ protected:
 
     }
     
+    delete associator;
+
     if ( m_provider->msg().level() <= MSG::VERBOSE ) {
       m_provider->msg(MSG::VERBOSE) << "\n\nEvent " << *eventp << endmsg;
     }
+
   }
 
 
@@ -1173,9 +1185,9 @@ protected:
       
       m_provider->msg(MSG::VERBOSE) << " book mongroup " << mongroup << endmsg;
       
-      _analysis = dynamic_cast<A*>(m_analysis);
+      m_manalysis = dynamic_cast<A*>(m_analysis);
  
-      if ( monTool() ) _analysis->set_monTool( monTool() );
+      if ( monTool() ) m_manalysis->set_monTool( monTool() );
 
       m_analysis->initialise();
       
@@ -1196,12 +1208,6 @@ protected:
     
     m_analysis->finalise();
 
-    // deleting instance of TnP_tool and setting pointer to null
-    if ( m_TnP_tool != 0 ) {
-      delete m_TnP_tool ;
-      m_TnP_tool = 0 ;
-    }
-    
     m_provider->msg(MSG::INFO) << m_provider->name() << " " << m_chainNames[0] << "   \tNRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endmsg;
 
     if(m_provider->msg().level() <= MSG::VERBOSE) {
@@ -1232,6 +1238,9 @@ protected:
 
   std::string m_outputFileName;
 
+  int m_pdgID;
+  int m_parent_pdgID;
+
   /// output stats
   int m_NRois;
   int m_NRefTracks;
@@ -1247,7 +1256,9 @@ protected:
   
   bool   m_containTracks;
 
-  TagNProbe* m_TnP_tool ; 
+  TagNProbe2* m_TnP_tool ; 
+
+  bool       m_tnp_flag;
 
   ToolHandle<GenericMonitoringTool>* m_monTool;
 

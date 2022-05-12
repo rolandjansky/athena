@@ -1,10 +1,14 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
  * @authors: Alaettin Serhan Mete, Hasan Ozturk - alaettin.serhan.mete@cern.ch, haozturk@cern.ch
  */
+
+// Thread-safety-checker
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 // Framework includes
 #include "GaudiKernel/IIncidentSvc.h"
@@ -29,7 +33,7 @@
  * Constructor
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthService(name, pSvcLocator), m_isFirstEvent{false}, m_eventCounter{0}, m_eventLoopMsgCounter{0} {
+    : AthService(name, pSvcLocator), m_isFirstEvent{false}, m_eventCounter{0}, m_eventLoopMsgCounter{0}, m_checkPointTime{0} {
   // Five main snapshots : Configure, Initialize, FirstEvent, Execute, and Finalize
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
@@ -124,8 +128,14 @@ void PerfMonMTSvc::handle(const Incident& inc) {
     // Increment the internal counter
     m_eventCounter++;
 
+    // Get current time in seconds
+    double currentTime = PMonMT::get_wall_time()*0.001;
+
     // Monitor
-    if (m_doEventLoopMonitoring && isCheckPoint()) {
+    if (m_doEventLoopMonitoring && (currentTime - m_checkPointTime > m_checkPointThreshold)) {
+      // Overwrite the last measurement time
+      m_checkPointTime = currentTime;
+
       // Capture
       m_measurementEvents.capture();
       m_eventLevelData.recordEvent(m_measurementEvents, m_eventCounter);
@@ -258,9 +268,16 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
   compLevelDataMap[currentState]->addPointStart(meas, doMem);
 
   // Debug
-  ATH_MSG_DEBUG("Start Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
-                " thread index " << ithread << " component " << compName << " step " << stepName);
-  ATH_MSG_DEBUG("Start CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
+  ATH_MSG_DEBUG("Start Audit - Component " << compName       << " , "
+                               "Step "     << stepName       << " , "
+                               "Event "    << ctx.evt()      << " , "
+                               "Slot "     << ctx.slot()     << " , "
+                               "Context "  << ctx.valid()    << " , "
+                               "Thread "   << ithread        << " , "
+                               "Cpu "      << meas.cpu_time  << " ms, "
+                               "Wall "     << meas.wall_time << " ms, "
+                               "Vmem "     << meas.vmem      << " kb, "
+                               "Malloc "   << meas.malloc    << " kb");
 }
 
 /*
@@ -293,40 +310,28 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
   }
 
   // Debug
-  ATH_MSG_DEBUG("Stop Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
-                " thread index " << ithread << " component " << compName << " step " << stepName);
-  ATH_MSG_DEBUG("Stop CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
-  ATH_MSG_DEBUG("  >> Start CPU " << compLevelDataMap[currentState]->m_tmp_cpu << " VMem "
-                                 << compLevelDataMap[currentState]->m_tmp_vmem << " Malloc "
-                                 << compLevelDataMap[currentState]->m_tmp_malloc);
-  ATH_MSG_DEBUG("  >> CSum CPU  " << compLevelDataMap[currentState]->m_delta_cpu << " VMem "
-                                 << compLevelDataMap[currentState]->m_delta_vmem << " Malloc "
-                                 << compLevelDataMap[currentState]->m_delta_malloc);
-}
-
-/*
- * Is it event-level monitoring check point yet?
- */
-bool PerfMonMTSvc::isCheckPoint() {
-  // Always check 1, 2, 10, 25 for short tests
-  if (m_eventCounter <= 2 || m_eventCounter == 10 || m_eventCounter == 25)
-    return true;
-
-  // Check the user settings
-  if (m_checkPointType == "Arithmetic")
-    return (m_eventCounter % m_checkPointFactor == 0);
-  else if (m_checkPointType == "Geometric")
-    return isPower(m_eventCounter, m_checkPointFactor);
-  else
-    return false;
-}
-
-/*
- * Helper function for geometric printing
- */
-bool PerfMonMTSvc::isPower(uint64_t input, uint64_t base) {
-  while (input >= base && input % base == 0) input /= base;
-  return (input == 1);
+  ATH_MSG_DEBUG("Stop Audit - Component " << compName       << " , "
+                              "Step "     << stepName       << " , "
+                              "Event "    << ctx.evt()      << " , "
+                              "Slot "     << ctx.slot()     << " , "
+                              "Context "  << ctx.valid()    << " , "
+                              "Thread "   << ithread        << " , "
+                              "Cpu ("     << compLevelDataMap[currentState]->m_tmp_cpu << ":"
+                                          << meas.cpu_time  << ":"
+                                          << (meas.cpu_time - compLevelDataMap[currentState]->m_tmp_cpu) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_cpu << ") ms, "
+                              "Wall ("    << compLevelDataMap[currentState]->m_tmp_wall << ":"
+                                          << meas.wall_time << ":"
+                                          << (meas.wall_time - compLevelDataMap[currentState]->m_tmp_wall) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_wall << ") ms, "
+                              "Vmem ("    << compLevelDataMap[currentState]->m_tmp_vmem << ":"
+                                          << meas.vmem << ":"
+                                          << (meas.vmem - compLevelDataMap[currentState]->m_tmp_vmem) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_vmem << ") kb, "
+                              "Malloc ("  << compLevelDataMap[currentState]->m_tmp_malloc << ":"
+                                          << meas.malloc    << ":"
+                                          << (meas.malloc - compLevelDataMap[currentState]->m_tmp_malloc) << ":"
+                                          << compLevelDataMap[currentState]->m_delta_malloc << ") kb");
 }
 
 /*

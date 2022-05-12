@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Tauolapp_i/TauolaPP.h"
@@ -33,7 +33,6 @@ RanluxEngine theRanluxEngine(123456,1);
 
 double RanluxGenerator()
 {
-  std::cout<<" called Ranlux "<<std::endl;
   return RandFlat::shoot(&theRanluxEngine);
 }
 
@@ -172,17 +171,18 @@ StatusCode TauolaPP::execute() {
 
 #ifdef HEPMC3
 //move to GeV
-    for (auto p: t_event->getEvent()->particles()) {
-        p->set_momentum(p->momentum()*1.0/1000);
-        p->set_generated_mass(1.0/1000* p->generated_mass());}
+//comment out for this version, as it causes problems (we may need it for a new official version)
+//    for (auto p: t_event->getEvent()->particles()) {
+//        p->set_momentum(p->momentum()*1.0/1000);
+//        p->set_generated_mass(1.0/1000* p->generated_mass());}
     // remove tau decays first
       t_event->undecayTaus();
     // decay taus
       t_event->decayTaus();
 // move back to MeV
-    for (auto p: t_event->getEvent()->particles()) {
-        p->set_momentum(p->momentum()*1000);
-        p->set_generated_mass(1000* p->generated_mass());}
+//    for (auto p: t_event->getEvent()->particles()) {
+//        p->set_momentum(p->momentum()*1000);
+//        p->set_generated_mass(1000* p->generated_mass());}
 
 // for event listing uncomment the line below
 //    HepMC3::Print::listing(std::cout, *(t_event->getEvent()));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SiSpacePointMakerTool_H
@@ -61,7 +61,7 @@ namespace InDet {
                                         const Amg::Vector3D& vertexVec,
                                         const InDetDD::SiDetectorElement* element1, const InDetDD::SiDetectorElement* element2, double stripLengthGapTolerance) const;
     
-    Trk::SpacePoint* makeSCT_SpacePoint(InDet::SCTinformation&,InDet::SCTinformation&,IdentifierHash,IdentifierHash,double,double) const;
+    static Trk::SpacePoint* makeSCT_SpacePoint(InDet::SCTinformation&,InDet::SCTinformation&,IdentifierHash,IdentifierHash,double,double) ;
 
     /// Convert clusters to space points: SCT_Clusters -> SCT_SpacePoints
     void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1,
@@ -75,8 +75,8 @@ namespace InDet {
                                       SpacePointCollection*,SpacePointOverlapCollection*) const;
 
     /// Convert clusters to space points: PixelClusters -> PixelSpacePoints
-    void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters,
-                                       SpacePointCollection* spacepointCollection) const;
+    static void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters,
+                                       SpacePointCollection* spacepointCollection) ;
 
     /// Convert clusters to space points using eta direction overlaps: SCT_Clusters -> OverlapSpacePoints
     void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1,

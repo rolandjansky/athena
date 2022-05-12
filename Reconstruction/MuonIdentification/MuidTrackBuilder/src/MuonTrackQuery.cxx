@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuidTrackBuilder/MuonTrackQuery.h"
+#include "MuonTrackQuery.h"
 
 #include <cmath>
 #include <iomanip>
@@ -31,10 +31,12 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "muonEvent/CaloEnergy.h"
-
+#include "CxxUtils/sincos.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 namespace Units = Athena::Units;
 namespace {
     constexpr double OneOverSqrt2 = M_SQRT1_2;
+    static const Amg::Vector3D origin{0., 0., 0.};
 }
 namespace Rec {
 
@@ -158,7 +160,7 @@ namespace Rec {
         bool haveInDet = false;
         bool haveSpectrometer = false;
 
-        Amg::Vector3D integratedMomentumKick = Amg::Vector3D(0., 0., 0.);
+        Amg::Vector3D integratedMomentumKick = origin;
 
         const Trk::TrackParameters* parameters = nullptr;
 
@@ -194,12 +196,10 @@ namespace Rec {
                 const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
 
                 if (meot && meot->scatteringAngles()) {
-                    double theta = endDirection.theta() - meot->scatteringAngles()->deltaTheta();
-                    double phi = endDirection.phi() - meot->scatteringAngles()->deltaPhi();
-                    double cosTheta = std::cos(theta);
-                    double sinTheta = std::sqrt(1. - cosTheta * cosTheta);
-
-                    endDirection = Amg::Vector3D(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
+                    const double theta = endDirection.theta() - meot->scatteringAngles()->deltaTheta();
+                    const double phi = xAOD::P4Helpers::deltaPhi(endDirection.phi() , meot->scatteringAngles()->deltaPhi());
+                    const CxxUtils::sincos sc_theta {theta}, sc_phi{phi};
+                    endDirection = Amg::Vector3D(sc_theta.sn * sc_phi.cs, sc_theta.sn * sc_phi.sn, sc_theta.cs);
                 }
             }
 
@@ -212,18 +212,18 @@ namespace Rec {
             if (indetVolume->inside(parameters->position())) {
                 if (haveInDet) {
                     betweenInDetMeasurements += integratedMomentumKick.mag();
-                    integratedMomentumKick = Amg::Vector3D(0., 0., 0.);
+                    integratedMomentumKick = origin;
                 } else {
                     haveInDet = true;
-                    integratedMomentumKick = Amg::Vector3D(0., 0., 0.);
+                    integratedMomentumKick = origin;
                 }
             } else {
                 if (haveSpectrometer) {
                     betweenSpectrometerMeasurements += integratedMomentumKick.mag();
-                    integratedMomentumKick = Amg::Vector3D(0., 0., 0.);
+                    integratedMomentumKick = origin;
                 } else {
                     haveSpectrometer = true;
-                    integratedMomentumKick = Amg::Vector3D(0., 0., 0.);
+                    integratedMomentumKick = origin;
                 }
             }
         }
@@ -314,7 +314,7 @@ namespace Rec {
         }
 
         // find outermost measurement
-        DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rs = track.trackStateOnSurfaces()->rbegin();
+        Trk::TrackStates::const_reverse_iterator rs = track.trackStateOnSurfaces()->rbegin();
         for (; rs != track.trackStateOnSurfaces()->rend(); ++rs) {
             if (!(**rs).measurementOnTrack() || (**rs).type(Trk::TrackStateOnSurface::Outlier) ||
                 dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**rs).measurementOnTrack())) {
@@ -374,7 +374,7 @@ namespace Rec {
         }
 
         // find outermost measurement (assume some degree of measurement ordering)
-        DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rs = track.trackStateOnSurfaces()->rbegin();
+        Trk::TrackStates::const_reverse_iterator rs = track.trackStateOnSurfaces()->rbegin();
         for (; rs != track.trackStateOnSurfaces()->rend(); ++rs) {
             if (!(**rs).measurementOnTrack() || (**rs).type(Trk::TrackStateOnSurface::Outlier) ||
                 dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**rs).measurementOnTrack())) {
@@ -421,7 +421,7 @@ namespace Rec {
 
     bool MuonTrackQuery::isProjective(const Trk::Track& track) const {
         // get start and end measured positions
-        Amg::Vector3D startPosition(0., 0., 0.);
+        Amg::Vector3D startPosition{origin};
         for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
             if (tsos->measurementOnTrack() && !tsos->type(Trk::TrackStateOnSurface::Outlier) &&
                 !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) {
@@ -430,9 +430,8 @@ namespace Rec {
             }
         }
 
-        Amg::Vector3D endPosition(0., 0., 0.);
-
-        DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rs = track.trackStateOnSurfaces()->rbegin();
+        Amg::Vector3D endPosition{origin};
+        Trk::TrackStates::const_reverse_iterator rs = track.trackStateOnSurfaces()->rbegin();
         for (; rs != track.trackStateOnSurfaces()->rend(); ++rs) {
             if ((**rs).measurementOnTrack() && !(**rs).type(Trk::TrackStateOnSurface::Outlier) &&
                 !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**rs).measurementOnTrack())) {
@@ -449,28 +448,26 @@ namespace Rec {
         }
 
         // hence change in phi between these measurements
-        double norm = 1. / std::sqrt(startPosition.perp2() * endPosition.perp2());
-        double cosDeltaPhi = norm * (endPosition.x() * startPosition.x() + endPosition.y() * startPosition.y());
-        double sinDeltaPhi = norm * (endPosition.x() * startPosition.y() - endPosition.y() * startPosition.x());
-
+        const CxxUtils::sincos sc_dPhi{startPosition.deltaPhi(endPosition)};
         // cut on change of long phi sector
-        if (std::abs(sinDeltaPhi) > M_PI / 8.) {
-            ATH_MSG_DEBUG("track is not projective: sinDeltaPhi " << sinDeltaPhi);
+        constexpr double PiOver8 = M_PI / 8.;
+        if (std::abs(sc_dPhi.sn) > PiOver8) {
+            ATH_MSG_DEBUG("track is not projective: sinDeltaPhi " << sc_dPhi.sn);
             return false;
         }
 
         // cut on change of hemisphere (except for far forward tracks)
-        if (cosDeltaPhi < 0.) {
+        if (sc_dPhi.cs < 0.) {
             double cotTheta = startPosition.z() / startPosition.perp();
             if (std::abs(startPosition.z()) > std::abs(endPosition.z())) { cotTheta = endPosition.z() / endPosition.perp(); }
 
             // FIXME: isn't this same-side again?
             if (startPosition.z() * endPosition.z() < 0. || std::abs(cotTheta) < 2.0) {
-                ATH_MSG_DEBUG("track is not projective: cosDeltaPhi " << cosDeltaPhi);
+                ATH_MSG_DEBUG("track is not projective: cosDeltaPhi " << sc_dPhi.cs);
                 return false;
             }
 
-            ATH_MSG_WARNING("forward track changes hemisphere: cotTheta " << cotTheta << "  cosDeltaPhi " << cosDeltaPhi);
+            ATH_MSG_WARNING("forward track changes hemisphere: cotTheta " << cotTheta << "  cosDeltaPhi " << sc_dPhi.cs);
         }
 
         // OK - the track is at least roughly projective
@@ -482,13 +479,11 @@ namespace Rec {
         bool isOverlap = true;
         double cosPhi = 0.;
         double sinPhi = 0.;
-
         for (const Trk::TrackStateOnSurface* tsos : *track.trackStateOnSurfaces()) {
             if (!tsos->measurementOnTrack() || dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) { continue; }
 
             if (isOverlap) {
                 isOverlap = false;
-
                 const Amg::Vector3D& position = tsos->measurementOnTrack()->associatedSurface().globalReferencePoint();
 
                 cosPhi = position.x() / position.perp();
@@ -497,7 +492,7 @@ namespace Rec {
                 const Amg::Vector3D& position = tsos->measurementOnTrack()->associatedSurface().globalReferencePoint();
 
                 double sinDeltaPhi = (position.x() * sinPhi - position.y() * cosPhi) / position.perp();
-
+                /// Use the taylor expansion that sin(x) = x for small x
                 if (std::abs(sinDeltaPhi) > sectorOffset) {
                     ATH_MSG_DEBUG("found overlap: sinDeltaPhi " << sinDeltaPhi);
                     isOverlap = true;
@@ -510,7 +505,7 @@ namespace Rec {
     }
 
     bool MuonTrackQuery::isSlimmed(const Trk::Track& track) const {
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
+        Trk::TrackStates::const_iterator s = track.trackStateOnSurfaces()->begin();
         for (; s != track.trackStateOnSurfaces()->end(); ++s) {
             if ((**s).trackParameters()) continue;
 
@@ -591,7 +586,7 @@ namespace Rec {
     unsigned MuonTrackQuery::numberPseudoMeasurements(const Trk::Track& track) const {
         unsigned numberPseudo = 0;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
+        Trk::TrackStates::const_iterator s = track.trackStateOnSurfaces()->begin();
         for (; s != track.trackStateOnSurfaces()->end(); ++s) {
             if ((**s).measurementOnTrack() && dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())) {
                 ++numberPseudo;
@@ -801,7 +796,7 @@ namespace Rec {
         const Trk::TrackStateOnSurface* leadingPhiMeasurement = nullptr;
         const Trk::TrackStateOnSurface* trailingPhiMeasurement = nullptr;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
+        Trk::TrackStates::const_iterator s = track.trackStateOnSurfaces()->begin();
         for (; s != track.trackStateOnSurfaces()->end(); ++s) {
             if (!(**s).measurementOnTrack() || (**s).type(Trk::TrackStateOnSurface::Outlier) ||
                 dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack()) || !(**s).trackParameters() ||
@@ -823,7 +818,7 @@ namespace Rec {
 
         if (!leadingPhiMeasurement) return 2;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator r = track.trackStateOnSurfaces()->rbegin();
+        Trk::TrackStates::const_reverse_iterator r = track.trackStateOnSurfaces()->rbegin();
         for (; r != track.trackStateOnSurfaces()->rend(); ++r) {
             if (!(**r).measurementOnTrack() || (**r).type(Trk::TrackStateOnSurface::Outlier) ||
                 dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**r).measurementOnTrack()) || !(**r).trackParameters()) {
@@ -865,7 +860,7 @@ namespace Rec {
         // fails if track has been slimmed
         std::unique_ptr<const Trk::TrackParameters> parameters;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
+        Trk::TrackStates::const_iterator s = track.trackStateOnSurfaces()->begin();
         for (; s != track.trackStateOnSurfaces()->end(); ++s) {
             if (!(**s).measurementOnTrack() || (**s).type(Trk::TrackStateOnSurface::Outlier) || !(**s).trackParameters() ||
                 !dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>((**s).measurementOnTrack()) ||

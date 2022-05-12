@@ -87,12 +87,10 @@ def createExtendNameIfNotDefaultCfg(alg,
 
     return acc
 
-
-def PhysValMonInDetHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool", **kwargs):
-    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
-    return TrackHoleSearchToolCfg(flags, name=name, **kwargs)
-
 def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
+    if flags.Detector.GeometryITk:
+        return ITkPhysHitDecoratorAlgCfg(flags, **kwargs)
+
     '''
     create decoration algorithm which decorates track particles with the unbiased hit residuals and pulls.
     If the collection name TrackParticleContainerName is specified and differs from the default, the name
@@ -100,18 +98,57 @@ def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
     '''
     acc = ComponentAccumulator()
 
-    kwargs.setdefault( "InDetTrackHoleSearchTool", acc.popToolsAndMerge(PhysValMonInDetHoleSearchToolCfg(flags)) )
+    if 'InDetTrackHoleSearchTool' not in kwargs:
+        from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
+        InDetTrackHoleSearchTool = acc.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags))
+        acc.addPublicTool(InDetTrackHoleSearchTool)
+        kwargs.setdefault("InDetTrackHoleSearchTool", InDetTrackHoleSearchTool)
 
-    from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
-    Updator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
-    kwargs.setdefault( "Updator", Updator )
+    if 'Updator' not in kwargs:
+        from TrkConfig.TrkMeasurementUpdatorConfig import InDetUpdatorCfg
+        Updator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
+        acc.addPublicTool(Updator)
+        kwargs.setdefault( "Updator", Updator )
+
+    if 'LorentzAngleTool' not in kwargs:
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
+        kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool )
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysHitDecoratorAlg,
                                               'TrackParticleContainerName', 'InDetTrackParticles',
                                               kwargs))
     return acc
 
+def ITkPhysHitDecoratorAlgCfg(flags, **kwargs):
+    '''
+    create decoration algorithm which decorates track particles with the unbiased hit residuals and pulls.
+    If the collection name TrackParticleContainerName is specified and differs from the default, the name
+    of the algorithm will be extended by the collection name
+    '''
+    acc = ComponentAccumulator()
 
+    if 'InDetTrackHoleSearchTool' not in kwargs:
+        from InDetConfig.InDetTrackHoleSearchConfig import ITkTrackHoleSearchToolCfg
+        ITkTrackHoleSearchTool = acc.popToolsAndMerge(ITkTrackHoleSearchToolCfg(flags))
+        acc.addPublicTool(ITkTrackHoleSearchTool)
+        kwargs.setdefault("InDetTrackHoleSearchTool", ITkTrackHoleSearchTool)
+
+    if 'Updator' not in kwargs:
+        from TrkConfig.TrkMeasurementUpdatorConfig import ITkUpdatorCfg
+        Updator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
+        acc.addPublicTool(Updator)
+        kwargs.setdefault("Updator", Updator )
+
+    if 'LorentzAngleTool' not in kwargs:
+        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
+        kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
+
+    acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysHitDecoratorAlg,
+                                              'TrackParticleContainerName', 'InDetTrackParticles',
+                                              kwargs))
+    return acc
 
 def ParameterErrDecoratorAlgCfg(flags, **kwargs):
     '''

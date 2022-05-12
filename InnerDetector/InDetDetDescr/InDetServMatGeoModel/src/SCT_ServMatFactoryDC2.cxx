@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryDC2.h"
@@ -20,26 +20,27 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include <stdexcept>
-#define TRTELEMENTSINEL 9
-#define SCTELEMENTSINEL 8
+
+static const int TRTELEMENTSINEL = 9;
+static const int SCTELEMENTSINEL = 8;
 
 #include <sstream>
 
 SCT_ServMatFactoryDC2::SCT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc>& pRDBAccess) :
+  AthMessaging(Athena::getMessageSvc(), "SCT_ServMatFactoryDC2"),
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
-  m_materialManager(nullptr),
-  m_msg("SCT_ServMatFactoryDC2")
+  m_materialManager(nullptr)
 {
   
 }
@@ -48,12 +49,12 @@ SCT_ServMatFactoryDC2::SCT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandl
 void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 {
 
-  msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
+  ATH_MSG_DEBUG("Building SCT Service Material");
 
   // Get the material manager:  
   StatusCode sc = m_detStore->retrieve(m_materialManager, std::string("MATERIALS"));
   if (sc.isFailure() or not m_materialManager){
-    msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
+    ATH_MSG_FATAL("Could not locate Material Manager");
     throw std::runtime_error("SCT_ServMatFactoryDC2::create() cannot retrieve the material manager and must abort");
   }
   

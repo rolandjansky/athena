@@ -26,7 +26,7 @@ namespace ViewHelper
                                      std::vector< T > const& inputData, bool const allowFallThrough = true )
   {
     //Check for spaces in the name
-    if ( viewNameRoot.find( " " ) != std::string::npos )
+    if ( viewNameRoot.find( ' ' ) != std::string::npos )
     {
       return StatusCode::FAILURE;
     }
@@ -185,17 +185,14 @@ namespace ViewHelper
       SG::AuxElement::Accessor< ElementLink< TrigRoiDescriptorCollection > > viewBookkeeper( "viewIndex" );
 
       //Loop over all views
-      unsigned int offset = 0;
-      for ( unsigned int viewIndex = 0; viewIndex < viewVector.size(); ++viewIndex )
+      unsigned int offset = outputData.size(); //allow for existing objects in the container
+      for ( auto inputView : viewVector )
       {
-        SG::View * inputView = viewVector.at( viewIndex );
-
         //Attach the handle to the view
         StatusCode sc = queryHandle.setProxyDict( inputView );
         if ( !sc.isSuccess() )
         {
-          m_msg << MSG::ERROR << "Failed to use view " << inputView->name() << " to read " << queryHandle.key() << " clearing output" << endmsg;
-          outputData.clear();
+          m_msg << MSG::ERROR << "Failed to use view " << inputView->name() << " to read " << queryHandle.key() << endmsg;
           return sc;
         }
 
@@ -244,7 +241,7 @@ namespace ViewHelper
   inline SG::View* makeView( const std::string& common_name, int const unique_index = -1, bool const allowFallThrough = true )
   {
     //Check for spaces in the name
-    if ( common_name.find( " " ) != std::string::npos )
+    if ( common_name.find( ' ' ) != std::string::npos )
     {
       return nullptr;
     }

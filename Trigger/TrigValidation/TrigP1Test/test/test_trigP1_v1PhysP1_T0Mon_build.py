@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Test of P1+Tier0 workflow, runs athenaHLT with PhysicsP1_pp_run3_v1 menu followed by offline reco and monitoring
+# art-description: Test of P1+Tier0 workflow, runs athenaHLT with PhysicsP1_pp_run3_v1 menu followed by offline reco and monitoring (incl. EDM)
 # art-type: build
 # art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 # HLT step (BS->BS)
 hlt = ExecStep.ExecStep()
@@ -32,7 +33,6 @@ tzrecoPreExec = ' '.join([
   "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
   "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
   "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
-  "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
   "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
 ])
 
@@ -63,6 +63,7 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [hlt, filter_bs, tzreco, tzmon]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test)
 
 # Overwrite default histogram file name for checks
 for step in [test.get_step(name) for name in ['HistCount', 'RootComp']]:

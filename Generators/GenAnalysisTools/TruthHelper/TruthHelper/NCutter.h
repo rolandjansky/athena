@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HEPMCHELPER_NCUTTER_H
@@ -21,7 +21,7 @@ namespace TruthHelper {
       m_selectors.push_back( new GenAll() );
     }
 
-    NCutter(const std::vector<GenIMCselector*> selectors) {
+    NCutter(const std::vector<GenIMCselector*>& selectors) {
       std::vector<GenIMCselector*>::const_iterator i = selectors.begin();
       for (; i != selectors.end(); ++i) {
         m_selectors.push_back((*i)->create());

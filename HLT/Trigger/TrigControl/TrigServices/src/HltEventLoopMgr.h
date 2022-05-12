@@ -179,6 +179,9 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
+  /// Reset the timeout flag and the timer, and mark the slot as busy or idle according to the second argument
+  void resetEventTimer(const EventContext& eventContext, bool processing);
+
   /// Perform all start-of-event actions for a single new event and push it to the scheduler
   StatusCode startNextEvent(EventLoopStatus& loopStatus);
 
@@ -233,6 +236,10 @@ private:
 
   Gaudi::Property<float> m_softTimeoutFraction{
     this, "SoftTimeoutFraction", 0.8, "Fraction of the hard timeout to be set as the soft timeout"};
+
+  Gaudi::Property<bool> m_traceOnTimeout{
+    this, "TraceOnTimeout", true,
+    "Print a stack trace on the first soft timeout (might take a while, holding all threads)"};
 
   Gaudi::Property<int> m_popFromSchedulerTimeout{
     this, "PopFromSchedulerTimeout", 200,
@@ -347,6 +354,8 @@ private:
   tbb::concurrent_bounded_queue<DrainSchedulerStatusCode> m_drainSchedulerStatusQueue;
   /// Queue of result codes of startNextEvent
   tbb::concurrent_bounded_queue<StatusCode> m_startNextEventStatusQueue;
+  /// Flag set when a soft timeout produces a stack trace, to avoid producing multiple traces
+  bool m_timeoutTraceGenerated{false};
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer{true};
   /// Counter of framework errors

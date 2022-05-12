@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTChainLoader
@@ -26,7 +26,7 @@ namespace TrigConf {
          DBLoader("HLTChainLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~HLTChainLoader(){};
+      virtual ~HLTChainLoader() override = default;
 
       void loadChains( HLTChainList& chainlist );
       void loadGroups( HLTChainList& chainlist );
@@ -37,8 +37,8 @@ namespace TrigConf {
       virtual bool load( HLTFrame& frame );
 
    private:
-      unsigned int m_smk;
-      unsigned int m_schemaversion;
+      unsigned int m_smk{0};
+      unsigned int m_schemaversion{0};
    };
 }
 

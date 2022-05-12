@@ -28,6 +28,7 @@ int readeventcounts(int run,
   eventcounts.clear();
   char buf[50];
   sprintf(buf, "lbnevents_%d.txt", run);
+  //cppcheck-suppress invalidPrintfArgType_uint
   printf("Opening %s, eventcounts size is %lu\n", buf, eventcounts.size());
   FILE *fp = fopen(buf, "r");
   if (!fp) {
@@ -52,7 +53,7 @@ int readeventcounts(int run,
     }
   }
   delete[] line;
-
+  //cppcheck-suppress invalidPrintfArgType_uint
   printf("Closing %s, eventcounts size is %lu\n", buf, eventcounts.size());
   fclose(fp);
 
@@ -153,10 +154,11 @@ int lbn_analyze(int stream,
   gtotaltotallumiprescaled += gtotallumiprescaled;
 
   fclose(fp);
-
+  //cppcheck-suppress invalidPrintfArgType_uint
   printf("- %lu runs, gtotaltotallumi=%f, gtotaltotallumiprescaled=%f\n", runmap.size(), gtotaltotallumi, gtotaltotallumiprescaled);
 
   if (runmap.size() < 1) {
+    //cppcheck-suppress invalidPrintfArgType_uint
     printf("- runmap size is %lu, quitting!\n", runmap.size());
     return 0;
   }

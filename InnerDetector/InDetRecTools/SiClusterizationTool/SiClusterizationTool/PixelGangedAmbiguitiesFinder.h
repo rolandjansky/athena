@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,9 +75,9 @@ namespace InDet{
     // value of the identifier of the cell it is ganged with. 
     // The second argument is the pixel module the hit belongs to.
 
-    bool isGanged(const Identifier& rdoID,
+    static bool isGanged(const Identifier& rdoID,
                   const InDetDD::SiDetectorElement* element,
-                  Identifier& gangedID) const;
+                  Identifier& gangedID) ;
 
   };
 

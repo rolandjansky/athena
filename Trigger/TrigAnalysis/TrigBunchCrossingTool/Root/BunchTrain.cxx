@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchTrain.cxx 625753 2014-11-03 13:40:15Z krasznaa $
 
 // System include(s):
 #include <cstdlib>
@@ -206,8 +205,7 @@ namespace Trig {
    bool BunchTrain::validate() {
 
       /// Helper object to print logging messages:
-      static asg::AsgMessaging logger( "Trig::BunchTrain" );
-      logger.msg().setLevel( MSG::INFO ); // This is a temporary hack until AsgTools is updated...
+      static const asg::AsgMessaging logger( "Trig::BunchTrain" );
 
       // Reset the gap flag:
       m_gapFound = false;

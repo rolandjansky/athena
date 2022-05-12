@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_STRIPRESPONSESIMULATION_H
@@ -37,8 +37,7 @@ Comments to be added here...
 #include "MM_Digitization/MM_IonizationCluster.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Service.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/StatusCode.h"
 
 /// STD'S
@@ -61,7 +60,7 @@ namespace CLHEP {
 }
 
 
-class MM_StripsResponseSimulation {
+class MM_StripsResponseSimulation : public AthMessaging {
 
 public :
 
@@ -105,11 +104,6 @@ public :
   std::vector < std::vector <float> > getFinaltStrip() const { return m_finaltStrip;};
   std::vector <int>   getNStripElectronics() const { return m_nStripElectronics;};
   std::vector <int>   getFinalNumberofStrip() const { return m_finalNumberofStrip;};
-
-  //Declaring the Message method for further use
-  MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
-  bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
-  void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
 
   inline void writeOutputFile(bool val) {m_writeOutputFile = val;}
 
@@ -179,9 +173,6 @@ private:
   TFile * m_outputFile;
 
  protected:
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
-
   // seperate random number generation for performance monitoring
   float generateTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine) const;
   float getTransverseDiffusion(float posY, CLHEP::HepRandomEngine* rndmEngine);

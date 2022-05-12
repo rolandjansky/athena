@@ -15,7 +15,7 @@ atlas_add_library( DerivationFrameworkMuonsLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel CaloEvent CaloGeoHelpers DerivationFrameworkInterfaces ExpressionEvaluationLib 
 				    FourMomUtils GaudiKernel ICaloTrkMuIdTools InDetTrackSelectionToolLib MCTruthClassifierLib RecoToolInterfaces TrigDecisionToolLib 
 				    TrigMuonMatchingLib TrkExInterfaces TrkParameters TrkSurfaces muonEvent xAODBase xAODCaloEvent xAODEventInfo MuonDetDescrUtils
-				    xAODJet xAODMuon xAODPrimitives xAODTracking xAODTruth )
+				    xAODJet xAODMuon xAODPrimitives xAODTracking xAODTruth MuonAnalysisInterfacesLib)
 
 atlas_add_component( DerivationFrameworkMuons
    src/components/*.cxx

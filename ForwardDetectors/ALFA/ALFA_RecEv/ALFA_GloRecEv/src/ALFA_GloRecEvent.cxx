@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_GloRecEv/ALFA_GloRecEvent.h"
@@ -28,8 +28,8 @@ ALFA_GloRecEvent::ALFA_GloRecEvent(
  	float y_pos,
  	float x_slope,
  	float y_slope,
- 	ALFA_LocRecCorrEvent * near_hit,
- 	ALFA_LocRecCorrEvent * far_hit
+    const ALFA_LocRecCorrEvent * near_hit,
+    const ALFA_LocRecCorrEvent * far_hit
 	):m_arm(arm),
 	m_x(x_pos),
 	m_y(y_pos),

@@ -94,8 +94,7 @@ eflowLayerIntegrator& eflowLayerIntegrator::operator=(const eflowLayerIntegrator
   }//if not assigning to self, then we have copied the data to the new object
 }
 
-eflowLayerIntegrator::~eflowLayerIntegrator() {
-}
+eflowLayerIntegrator::~eflowLayerIntegrator() = default;
 
 void eflowLayerIntegrator::resetAllClustersIntegralForNewTrack(const eflowTrackCaloPoints& trackCalo) {
   for (int iLayer = 0; iLayer < eflowCalo::nRegions; iLayer++) {

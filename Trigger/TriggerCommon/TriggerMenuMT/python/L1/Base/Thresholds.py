@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import re
 from copy import deepcopy
@@ -653,7 +653,7 @@ class eTauThreshold( Threshold ):
 
     def setIsolation(self, rCore = "None", rHad = "None"):
         allowed_rCore = [ "None", "Loose", "Medium", "Tight" ]
-        allowed_rHad = [ "None", "HadLoose", "HadMedium", "HadTight", "Had" ] # Had = HadMedium for backward compatibility
+        allowed_rHad = [ "None", "Loose", "Medium", "Tight"]
         if rCore not in allowed_rCore:
             raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for rCore, must be one of %s", self.name, self.ttype, rCore, ', '.join(allowed_rCore) )
         if rHad not in allowed_rHad:

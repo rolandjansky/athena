@@ -30,8 +30,7 @@ DerivationFramework::ClustersInCone::select(
       mask[i] = true;
     }
   }
-  return;
-}
+  }
 
 // Overload for Egamma
 void
@@ -54,8 +53,7 @@ DerivationFramework::ClustersInCone::select(
       mask[i] = true;
     }
   }
-  return;
-}
+  }
 
 // Helper for the muon overload
 bool
@@ -113,5 +111,4 @@ DerivationFramework::ClustersInCone::select(
       mask[i] = true;
     }
   }
-  return;
-}
+  }

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXFPGA - Defines FPGA tools
@@ -94,7 +94,6 @@ namespace LVL1 {
             const LVL1::gTower * tmpTower = gFEXFPGA_gTowerContainer->findTower(m_gTowersIDs_central[myrow][mycol]);
             if (tmpTower == nullptr) continue;
             output_gTower_energies[myrow][mycol] = tmpTower->getET();
-
          }
       }
    }

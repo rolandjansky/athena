@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerIOVarDepObj.h 770805 2016-08-30 14:03:33Z ssnyder $
 #ifndef RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_H
 #define RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_H
 
@@ -143,7 +142,7 @@
       return base::template procType<T>();                                     \
     }                                                                          \
                                                                                \
-    virtual const char* name() const                                           \
+    virtual std::string name() const                                           \
       override final                                                           \
     {                                                                          \
       return this->RingerIOVarDepObj<self>::name();                            \
@@ -207,7 +206,7 @@ class RingerIOVarDepObj : virtual public VariableDependency
     /**
      * Retrieve name for this RingerIOVarDepObj
      **/
-    const char* name() const;
+    std::string name() const;
 
     /**
      * @brief Read Ringer procedure from configuration dir
@@ -219,10 +218,6 @@ class RingerIOVarDepObj : virtual public VariableDependency
      **/
     void write(TDirectory *baseDir, const char* idxStr="")
       const;
-
-  private:
-    mutable std::string m_name;
-
 };
 
 } // namespace Ringer

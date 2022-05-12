@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -34,9 +34,7 @@ namespace CP {
 
   //____________________________________________________________________________
   ElectronRemovalTool::~ElectronRemovalTool()
-  {
-  
-  }
+  = default;
 
   //____________________________________________________________________________
   StatusCode ElectronRemovalTool::initialize()
@@ -188,7 +186,7 @@ namespace CP {
   }
 
 
-  std::vector<const xAOD::TrackParticle *> ElectronRemovalTool::getElectronTPs( xAOD::ElectronContainer & electrons) const {
+  std::vector<const xAOD::TrackParticle *> ElectronRemovalTool::getElectronTPs( xAOD::ElectronContainer & electrons) {
     
     //get TrackParticles for electrons
     std::vector<const xAOD::TrackParticle *> electronsInDetTrackParticles;

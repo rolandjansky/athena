@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -163,10 +163,20 @@ namespace InDet {
       SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
           "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};
       // For P->T converter of SCT_Clusters
-      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey",
-          "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
       SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
       //@}
+
+      /** @brief Optional read handle to get status data to test whether a pixel detector element is good.
+       * If set to e.g. PixelDetectorElementStatus the event data will be used instead of the pixel conditions summary tool.
+       */
+      SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_pixelDetElStatus
+         {this, "PixelDetElStatus", "", "Key of SiDetectorElementStatus for Pixel"};
+
+      /** @brief Optional read handle to get status data to test whether a SCT detector element is good.
+       * If set to e.g. SCTDetectorElementStatus the event data will be used instead of the SCT conditions summary tool.
+       */
+      SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_sctDetElStatus
+         {this, "SCTDetElStatus", "", "Key of SiDetectorElementStatus for SCT"};
 
       /// @name Properties
       //@{

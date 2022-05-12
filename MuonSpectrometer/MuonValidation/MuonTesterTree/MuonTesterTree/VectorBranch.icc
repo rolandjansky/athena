@@ -1,0 +1,59 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef MUONTESTER_MUONSVECTORBRANCH_IXX
+#define MUONTESTER_MUONSVECTORBRANCH_IXX
+#include <AthenaKernel/getMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <MuonTesterTree/MuonTesterTree.h>
+#include <MuonTesterTree/VectorBranch.h>
+
+template <class T> VectorBranch<T>::VectorBranch(TTree* tree, const std::string& name) : MuonTesterBranch(tree, name) {}
+
+template <class T> VectorBranch<T>::VectorBranch(MuonTesterTree& tree, const std::string& name) : MuonTesterBranch(tree, name) {}
+template <class T> VectorBranch<T>::VectorBranch(TTree* tree, const std::string& name, const T& def) : VectorBranch<T>(tree, name) {
+    setDefault(def);
+}
+template <class T>
+VectorBranch<T>::VectorBranch(MuonTesterTree& tree, const std::string& name, const T& def) : VectorBranch<T>(tree, name) {
+    setDefault(def);
+}
+
+template <class T> bool VectorBranch<T>::fill(const EventContext&) {
+    if (!initialized()) {
+        MsgStream log(Athena::getMessageSvc(), "VectorBranch()");
+        log << MSG::ERROR << "init()  -- The branch " << name() << " is not initialized yet." << endmsg;
+        return false;
+    }
+    if (!m_updated) m_variable.clear();
+    m_updated = false;
+    return true;
+}
+template <class T> bool VectorBranch<T>::init() { return addToTree(m_variable); }
+template <class T> size_t VectorBranch<T>::size() const {
+    if (!m_updated) return 0;
+    return m_variable.size();
+}
+template <class T> T& VectorBranch<T>::operator[](size_t idx) { return get(idx); }
+template <class T> T& VectorBranch<T>::get(size_t idx) {
+    if (!m_updated) m_variable.clear();
+    if (idx >= size()) {
+        if (!initialized()) { throw std::runtime_error(name() + " is not initialized yet"); }
+        m_variable.resize(idx + 1, getDefault()); 
+        m_updated = true;        
+    }
+    return m_variable[idx];
+}
+
+template <class T> void VectorBranch<T>::push_back(const T& value) {
+    if (!m_updated) m_variable.clear();
+    // Throw an exception in cases where the branch is not initialized
+    if (!initialized()) { throw std::runtime_error(name() + " is not initialized yet"); }
+    m_variable.push_back(value);
+    m_updated = true;
+}
+template <class T> void VectorBranch<T>::operator+=(const T& value) { push_back(value); }
+template <class T> bool VectorBranch<T>::isUpdated() const { return m_updated; }
+template <class T> const T& VectorBranch<T>::getDefault() const { return m_default; }
+template <class T> void VectorBranch<T>::setDefault(const T& def) { m_default = def; }
+#endif

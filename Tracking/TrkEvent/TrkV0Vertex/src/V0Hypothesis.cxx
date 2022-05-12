@@ -46,9 +46,8 @@ namespace Trk {
   return *this;
  }
 
- V0Hypothesis::V0Hypothesis(const V0Hypothesis& rhs): ExtendedVxCandidate(rhs), 
-                            m_positiveTrackID(rhs.m_positiveTrackID), m_negativeTrackID(rhs.m_negativeTrackID), m_constraintID(rhs.m_constraintID) {}
+ V0Hypothesis::V0Hypothesis(const V0Hypothesis& rhs) = default;
 
- V0Hypothesis::~V0Hypothesis() {}
+ V0Hypothesis::~V0Hypothesis() = default;
 
 } // end of namespace

@@ -67,9 +67,9 @@ def ITkPixelSensorSDCfg(ConfigFlags, name="ITkPixelSensorSD", **kwargs):
     return result
 
 def PLRSensorSDCfg(ConfigFlags, name="PLRSensorSD", **kwargs):
-    bare_collection_name = "PLRHits"
+    bare_collection_name = "PLR_Hits"
     mergeable_collection_suffix = "_G4"
-    merger_input_property = "PLRHits"
+    merger_input_property = "PLR_Hits"
     region = "ITk"
 
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
@@ -79,7 +79,11 @@ def PLRSensorSDCfg(ConfigFlags, name="PLRSensorSD", **kwargs):
                                                     region)
     # Ensure we create a Gmx sensor 
     kwargs.setdefault("GmxSensor",True)
-    kwargs.setdefault("LogicalVolumeNames", ["PLR::PLR_Sensor"])
+    if ConfigFlags.Detector.GeometryITkPixel:
+       # If ITkPixel has been built, the PLR will be inside an envelope volume within it
+       kwargs.setdefault("LogicalVolumeNames", ["ITkPixel::PLR_Sensor"]) 
+    else:
+        kwargs.setdefault("LogicalVolumeNames", ["PLR::PLR_Sensor"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result = ComponentAccumulator()

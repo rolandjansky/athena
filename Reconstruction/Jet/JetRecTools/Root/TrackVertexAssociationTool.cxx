@@ -60,7 +60,7 @@ int TrackVertexAssociationTool::execute() const {
   // If this is a view container, then we assume that it contains elements from only one owning container
   if ( trackContainer->ownPolicy() != SG::OWN_ELEMENTS ) {
     bool oneOwningContainer(true);
-    for(const auto& track : *trackContainer) {
+    for(const xAOD::TrackParticle* track : *trackContainer) {
       if(track->container() != trackContainer->front()->container()) {
 	oneOwningContainer=false;
 	break;

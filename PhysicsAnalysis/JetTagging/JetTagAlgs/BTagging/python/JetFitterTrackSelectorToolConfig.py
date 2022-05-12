@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -6,9 +6,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.InDetImprovedJetFitterTrackSelectorToolConfig import InDetImprovedJetFitterTrackSelectorToolCfg
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-
-# import the InDetDetailedTrackSelectorTool configurable
-InDet__JetFitterTrackSelectorTool=CompFactory.InDet.JetFitterTrackSelectorTool
 
 def InDetJetFitterTrackSelectorToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True, **options):
     """Sets up a InDetJetFitterTrackSelectorTool  tool and returns it.
@@ -39,7 +36,7 @@ def InDetJetFitterTrackSelectorToolCfg(flags, name, suffix="", useBTagFlagsDefau
             options.setdefault(option, defaults[option])
             
     options['name'] = name
-    acc.setPrivateTools( InDet__JetFitterTrackSelectorTool(**options) )
+    acc.setPrivateTools( CompFactory.InDet.JetFitterTrackSelectorTool(**options) )
     return acc
 
 

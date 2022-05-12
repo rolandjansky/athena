@@ -42,6 +42,10 @@ atlas_add_dictionary( TauAnalysisToolsDict
    TauAnalysisTools/selection.xml
    LINK_LIBRARIES TauAnalysisToolsLib )
 
+atlas_add_dictionary( TauAnalysisToolsEnumDict
+   TauAnalysisTools/Enums.h
+   TauAnalysisTools/selection-enums.xml )
+
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_executable( TauAnalysisToolsExample
@@ -62,4 +66,5 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 # Install files from the package:
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

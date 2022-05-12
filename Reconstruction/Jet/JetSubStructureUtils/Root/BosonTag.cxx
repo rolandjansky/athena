@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureUtils/BosonTag.h"
@@ -23,22 +23,22 @@
 using namespace JetSubStructureUtils;
 
 // make all static accessors static to this file, like extern but hip
-SG::AuxElement::ConstAccessor<int>      BosonTag::s_AlgorithmType ("AlgorithmType");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_SizeParameter ("SizeParameter");
-SG::AuxElement::ConstAccessor<int>      BosonTag::s_InputType ("InputType");
-SG::AuxElement::ConstAccessor<int>      BosonTag::s_TransformType ("TransformType");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_RClus ("RClus");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_PtFrac ("PtFrac");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_RCut ("RCut");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_ZCut ("ZCut");
-SG::AuxElement::ConstAccessor<char>     BosonTag::s_BDRS ("BDRS");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_YMin ("YMin");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_MuMax ("MuMax");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_YFilt ("YFilt");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_D2 ("D2");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF1 ("ECF1");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF2 ("ECF2");
-SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF3 ("ECF3");
+const SG::AuxElement::ConstAccessor<int>      BosonTag::s_AlgorithmType ("AlgorithmType");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_SizeParameter ("SizeParameter");
+const SG::AuxElement::ConstAccessor<int>      BosonTag::s_InputType ("InputType");
+const SG::AuxElement::ConstAccessor<int>      BosonTag::s_TransformType ("TransformType");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_RClus ("RClus");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_PtFrac ("PtFrac");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_RCut ("RCut");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_ZCut ("ZCut");
+const SG::AuxElement::ConstAccessor<char>     BosonTag::s_BDRS ("BDRS");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_YMin ("YMin");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_MuMax ("MuMax");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_YFilt ("YFilt");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_D2 ("D2");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF1 ("ECF1");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF2 ("ECF2");
+const SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF3 ("ECF3");
 
 
 BosonTag::CONFIG::CONFIG() :
@@ -252,13 +252,13 @@ std::pair<bool, std::string> BosonTag::get_algorithm_name(const xAOD::Jet& jet,
   bool error_flag(false);
 
   /* http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODJet/xAODJet/JetContainerInfo.h */
-  static std::map<int, std::string> mapAlgorithmType = {
+  static const std::map<int, std::string> mapAlgorithmType = {
     {xAOD::JetAlgorithmType::kt_algorithm, "KT"},
     {xAOD::JetAlgorithmType::cambridge_algorithm, "CA"},
     {xAOD::JetAlgorithmType::antikt_algorithm, "AK"}
   };
 
-  static std::map<int, std::string> mapInputType {
+  static const std::map<int, std::string> mapInputType {
     {xAOD::JetInput::LCTopo, "LC"},
     {xAOD::JetInput::EMTopo, "EM"},
     {xAOD::JetInput::Truth, "TRU"},
@@ -266,17 +266,17 @@ std::pair<bool, std::string> BosonTag::get_algorithm_name(const xAOD::Jet& jet,
     {xAOD::JetInput::PFlow, "PFL"}
   };
 
-  static std::map<int, std::string> mapTransformType {
+  static const std::map<int, std::string> mapTransformType {
     {xAOD::JetTransform::Trim, "TRIM"},
     {xAOD::JetTransform::Prune, "PRUN"},
     {xAOD::JetTransform::MassDrop, "BDRS"}
   };
 
   // beginning of the algorithm_name
-  std::string algorithm_name = mapAlgorithmType[jet_algorithm]
+  std::string algorithm_name = mapAlgorithmType.at(jet_algorithm)
                               + std::to_string(static_cast<int>(size_parameter*10))
-                              + mapInputType[jet_input]
-                              + mapTransformType[jet_transform];
+                              + mapInputType.at(jet_input)
+                              + mapTransformType.at(jet_transform);
 
 
   // ending of algorithm_name

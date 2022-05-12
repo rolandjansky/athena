@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannelTimingAlg_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -32,8 +31,8 @@ public:
 private:
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey;
   const CaloCell_ID* m_cellID;
-  const DataHandle<LArOnlineID> m_onlineID;
-  const DataHandle<LArEM_ID>    m_emID;
+  const LArOnlineID* m_onlineID = nullptr;
+  const LArEM_ID*    m_emID = nullptr;
   std::vector<unsigned int> m_hwarray;
   bool m_reallyCheck;
 

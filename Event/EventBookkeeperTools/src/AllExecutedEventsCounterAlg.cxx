@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
@@ -18,7 +18,7 @@ AllExecutedEventsCounterAlg::AllExecutedEventsCounterAlg(const std::string& name
 }
 
 
-StatusCode AllExecutedEventsCounterAlg::initialize()
+StatusCode AllExecutedEventsCounterAlg::initialize ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_MSG_DEBUG("Initializing " << this->name() << "...");
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TriggerMatchingTool.h"
@@ -76,19 +76,21 @@ namespace DerivationFramework {
 
   StatusCode TriggerMatchingTool::addBranches() const
   {
-    if (m_firstEvent) {
-      m_firstEvent = false;
+    [[maybe_unused]] static const bool firstEvent = [&](){
       auto itr = m_chainNames.begin();
       while (itr != m_chainNames.end() ) {
         const Trig::ChainGroup* cg = m_tdt->getChainGroup(*itr);
         if (cg->getListOfTriggers().size() == 0){
           if (m_inputDependentConfig)
             ATH_MSG_WARNING("Removing trigger " << (*itr) << " -- suggests a bad tool configuration (asking for triggers not in the menu)");
+          // We are now modifying the mutable m_chainNames but since it is done
+          // within this static initialization this is thread-safe:
           itr = m_chainNames.erase(itr);
         } else
           ++itr;
       }
-    }
+      return false;
+    }();
 
     // Now, get all the possible offline candidates
     std::map<xAOD::Type::ObjectType, particleVec_t> offlineCandidates;
@@ -172,7 +174,7 @@ namespace DerivationFramework {
       for (const particleVec_t& foundCombination : offlineCombinations) {
         xAOD::TrigComposite* composite = new xAOD::TrigComposite();
         container->push_back(composite);
-        static dec_t<vecLink_t<xAOD::IParticleContainer>> dec_links(
+        static const dec_t<vecLink_t<xAOD::IParticleContainer>> dec_links(
             "TrigMatchedObjects");
         vecLink_t<xAOD::IParticleContainer>& links = dec_links(*composite);
         for (const xAOD::IParticle* part : foundCombination) {
@@ -217,7 +219,7 @@ namespace DerivationFramework {
       if (type == xAOD::Type::CaloCluster) {
         // If it's a calo cluster then we need to get the cluster from the
         // egamma types.
-        static constAcc_t<vecLink_t<xAOD::CaloClusterContainer>> acc_calo("caloClusterLinks");
+        static const constAcc_t<vecLink_t<xAOD::CaloClusterContainer>> acc_calo("caloClusterLinks");
         for (xAOD::Type::ObjectType egType : {
             xAOD::Type::Electron, xAOD::Type::Photon})
         {

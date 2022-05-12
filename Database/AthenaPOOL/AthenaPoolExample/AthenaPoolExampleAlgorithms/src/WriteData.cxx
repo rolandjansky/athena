@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolExampleAlgorithms/src/WriteData.cxx
@@ -43,8 +43,8 @@ StatusCode WriteData::execute (const EventContext& ctx) const {
    ATH_CHECK( hits.record( std::make_unique<ExampleHitContainer>() ) );
    for (int i = 0; i < 10; i++) {
       auto hitObj = std::make_unique<ExampleHit>();
-      hitObj->setX(1.2345 + eventNumber * 100 + 3.21 * i);
-      hitObj->setY(-2.345 + runNumber * 100 - 5.6789 * i);
+      hitObj->setX(1.2346 + eventNumber * 100 + 3.21 * i);
+      hitObj->setY(-2.346 + runNumber * 100 - 5.6789 * i);
       hitObj->setZ(34.567 - eventNumber * 100 + 87.6 / (i + 0.456));
       hitObj->setDetector("DummyHitDetector");
       hits->push_back(std::move (hitObj));

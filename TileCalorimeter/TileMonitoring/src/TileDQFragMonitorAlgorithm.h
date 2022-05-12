@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILEDQFRAGMONITORALGORITHM_H
@@ -52,6 +52,7 @@ class TileDQFragMonitorAlgorithm : public AthMonitorAlgorithm {
     Gaudi::Property<bool> m_checkDCS{this, "CheckDCS", false, "Check Tile DCS status"};
     Gaudi::Property<bool> m_skipMasked{this, "SkipMasked", true, "Ignore masked Tile channels"};
     Gaudi::Property<bool> m_skipGapCells{this, "SkipGapCells", true, "Ignore E1-E4 cells in negative amplitude detection"};
+    Gaudi::Property<bool> m_ignoreNoRecoFragError{this, "IgnoreNoRecoFragError", false, "Ignore NO_RECO_FRAG error"};
 
     Gaudi::Property<float> m_negativeAmplitudeCutHG{this,
         "NegativeAmplitudeCutHG", -200.0, "Monitor Tile channels with negative amplitude in HG below this cut"};

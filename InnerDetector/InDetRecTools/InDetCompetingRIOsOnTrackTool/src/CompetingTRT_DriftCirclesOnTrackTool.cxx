@@ -46,7 +46,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::CompetingTRT_DriftCirclesOnTrackToo
 // Destructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::CompetingTRT_DriftCirclesOnTrackTool::~CompetingTRT_DriftCirclesOnTrackTool() {}
+InDet::CompetingTRT_DriftCirclesOnTrackTool::~CompetingTRT_DriftCirclesOnTrackTool() = default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation

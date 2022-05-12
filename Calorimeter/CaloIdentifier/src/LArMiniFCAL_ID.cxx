@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
@@ -40,7 +40,7 @@ LArMiniFCAL_ID::LArMiniFCAL_ID(void)
 {}
 
 LArMiniFCAL_ID::~LArMiniFCAL_ID(void) 
-{}
+= default;
 
 int LArMiniFCAL_ID::eta_min(const Identifier modId) const
 {

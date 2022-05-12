@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_LinkMaskingTool.h"
+#include "SCT_DetectorElementStatus.h"
 
 // Athena includes
 #include "InDetIdentifier/SCT_ID.h"
@@ -62,6 +63,25 @@ bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
 
   return isGood(hashId, ctx);
+}
+
+void SCT_LinkMaskingTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+  SG::ReadCondHandle<SCT_ModuleVetoCondData> condDataHandle{m_condKey, ctx};
+  if (not condDataHandle.isValid()) {
+     ATH_MSG_ERROR("Failed to get " << m_condKey.key());
+     return;
+  }
+  const SCT_ModuleVetoCondData* condData{condDataHandle.cptr()};
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  if (condData) {
+     std::vector<bool> &status = element_status.getElementStatus();
+     if (status.empty()) {
+        status.resize(m_sctHelper->wafer_hash_max(),true);
+     }
+     for (const Identifier &wafer_id: condData->badWaferIds()) {
+        status.at( m_sctHelper->wafer_hash(wafer_id) ) = false;
+     }
+  }
 }
 
 const SCT_ModuleVetoCondData*

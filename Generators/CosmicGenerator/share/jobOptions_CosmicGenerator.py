@@ -25,7 +25,7 @@ topSequence = AlgSequence()
 # The following is needed to load the Athena Random
 # Number Generation Service.
 # Creating and configuring the service in one go
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc(
     Seeds = ["SINGLE 2040160768 443921183"]
     )

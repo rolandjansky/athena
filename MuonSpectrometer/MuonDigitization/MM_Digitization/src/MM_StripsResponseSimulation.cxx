@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// PROJECTS
+#include "AthenaKernel/getMessageSvc.h"
 #include "MM_Digitization/MM_StripsResponseSimulation.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
 #include "MM_Digitization/MM_StripResponse.h"
@@ -36,6 +37,7 @@ namespace {
 
 /*******************************************************************************/
 MM_StripsResponseSimulation::MM_StripsResponseSimulation():
+    AthMessaging(Athena::getMessageSvc(), "MMStripResponseSimulation"),
 
 	// Variables that should be set externally (MM_DigitizationTool)
 	m_qThreshold(0),                 // 0.001

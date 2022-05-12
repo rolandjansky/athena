@@ -125,9 +125,9 @@ def splitChainDictInLegs(chainDict):
 
 
 def splitChainInLegs(chainName):
-      from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+      from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
       from TrigCompositeUtils.TrigCompositeUtils import legName
-      chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
+      chainDict = HLTMenuConfig.getChainDictFromChainName(chainName)
       if len(chainDict['chainParts']) ==1:
         return [deepcopy(chainDict)]
                   

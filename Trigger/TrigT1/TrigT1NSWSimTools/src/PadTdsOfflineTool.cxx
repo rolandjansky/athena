@@ -1,41 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ITHistSvc.h"
-#include "AGDDKernel/AGDDDetector.h"
-#include "AGDDKernel/AGDDDetectorStore.h"
-
 #include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
-#include "TrigT1NSWSimTools/PadOfflineData.h"
-#include "TrigT1NSWSimTools/tdr_compat_enum.h"
-
-#include "EventInfo/EventID.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonDigitContainer/sTgcDigitContainer.h"
-#include "MuonDigitContainer/sTgcDigit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
-
-#include "GaudiKernel/ThreadLocalContext.h"
-#include "GaudiKernel/EventContext.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "AthenaKernel/IAthRNGSvc.h"
-#include "AthenaKernel/RNGWrapper.h"
-
-#include "TTree.h"
-#include "TVector3.h"
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
-
-
 
 namespace NSWL1 {
-    
+
     class PadHits {
     public:
         Identifier      t_id;
@@ -55,44 +25,9 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     PadTdsOfflineTool::PadTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
         AthAlgTool(type,name,parent),
-        m_incidentSvc("IncidentSvc",name),
-        m_detManager(0),
-        m_pad_cache_runNumber(-1),
-        m_pad_cache_eventNumber(-1),
-        m_pad_cache_status(CLEARED),
-        m_rndmEngineName(""),
-        m_VMMTimeOverThreshold(0.),
-        m_VMMShapingTime(0.),
-        m_VMMDeadTime(0.),
-        m_triggerCaptureWindow(0.),
-        m_timeJitter(0.),
-        m_doNtuple(false)
+        m_detManager(0)
     {
         declareInterface<NSWL1::IPadTdsTool>(this);
-        declareProperty("RndmEngineName", m_rndmEngineName = "PadTdsOfflineTool", "the name of the random engine");
-        declareProperty("VMM_TimeOverThreshold", m_VMMTimeOverThreshold = 0., "the time to form a digital signal");
-        declareProperty("VMM_ShapingTime", m_VMMShapingTime = 0., "the time from the leading edge of the signal and its peak");
-        declareProperty("VMM_DeadTime", m_VMMDeadTime = 50., "the dead time of the VMM chip to produce another signal on the same channel");
-        declareProperty("TriggerCaptureWindow", m_triggerCaptureWindow = 30., "time window for valid hit coincidences");
-        declareProperty("TimeJitter", m_timeJitter = 2., "the time jitter");
-        declareProperty("DoNtuple", m_doNtuple = false, "input the PadTds branches into the analysis ntuple");
-
-        // reserve enough slots for the trigger sectors and fills empty vectors
-        m_pad_cache.reserve(PadTdsOfflineTool::numberOfSectors());
-        auto it = m_pad_cache.begin();
-        m_pad_cache.insert(it, PadTdsOfflineTool::numberOfSectors(), std::vector<std::shared_ptr<PadData>>());
-    }
-    //------------------------------------------------------------------------------
-    PadTdsOfflineTool::~PadTdsOfflineTool() {
-        // clear the internal cache
-        this->clear_cache();
-    }
-    //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::clear_cache() {
-        for (unsigned int i=0; i<m_pad_cache.size(); i++) {
-            std::vector<std::shared_ptr<PadData>>& sector_pads = m_pad_cache.at(i);
-            sector_pads.clear();
-        }
     }
     //------------------------------------------------------------------------------
     StatusCode PadTdsOfflineTool::initialize() {
@@ -102,44 +37,57 @@ namespace NSWL1 {
         ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
         ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_triggerCaptureWindow.name() << m_triggerCaptureWindow.value());
         ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_timeJitter.name() << m_timeJitter.value());
-        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMTimeOverThreshold.name() << m_VMMTimeOverThreshold.value());
-        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMShapingTime.name() << m_VMMShapingTime.value());
-        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_VMMDeadTime.name() << m_VMMDeadTime.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_vmmTimeOverThreshold.name() << m_vmmTimeOverThreshold.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_vmmShapingTime.name() << m_vmmShapingTime.value());
+        ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_vmmDeadTime.name() << m_vmmDeadTime.value());
         ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")<< std::setfill(' ') << std::setiosflags(std::ios::right) );
 
-	ATH_CHECK(m_sTgcDigitContainer.initialize());
-	ATH_CHECK(m_sTgcSdoContainer.initialize());
+        ATH_CHECK(m_sTgcDigitContainer.initialize());
+        ATH_CHECK(m_sTgcSdoContainer.initialize(m_isMC));
 
         const IInterface* parent = this->parent();
         const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
         const std::string& algo_name = pnamed->name();
 
         if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-         TTree *tree=nullptr;
-         ATH_CHECK( get_tree_from_histsvc(tree));
+          ITHistSvc* tHistSvc=nullptr;
+          ATH_CHECK(service("THistSvc", tHistSvc));
+
+          TTree *tree = nullptr;
+          std::string treename = algo_name+"Tree";
+          ATH_CHECK(tHistSvc->getTree(treename, tree));
           m_validation_tree.init_tree(tree);
-        }           
+        } else m_validation_tree.clear_ntuple_variables();
+
         // retrieve the Incident Service
-        ATH_CHECK( m_incidentSvc.retrieve() );
+        if( m_incidentSvc.retrieve().isFailure() ) {
+          ATH_MSG_FATAL("Failed to retrieve the Incident Service");
+          return StatusCode::FAILURE;
+        } else {
+          ATH_MSG_DEBUG("Incident Service successfully rertieved");
+        }
         m_incidentSvc->addListener(this,IncidentType::BeginEvent);
+
+        //  retrieve the MuonDetectormanager
+        if( detStore()->retrieve( m_detManager ).isFailure() ) {
+          ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
+          return StatusCode::FAILURE;
+        } else {
+          ATH_MSG_DEBUG("MuonDetectorManager successfully retrieved");
+        }
 
         // retrieve the Random Service
         ATH_CHECK( m_rndmSvc.retrieve() );
 
-        ATH_CHECK(detStore()->retrieve(m_detManager));
+        // retrieve the idHelper Service
         ATH_CHECK(m_idHelperSvc.retrieve());
-        bool testGeometryAccess=false; // for now this is just an example DG-2014-07-11
-        if(testGeometryAccess)
-            printStgcGeometryFromAgdd();
 
         return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     void PadTdsOfflineTool::handle(const Incident& inc) {
         if( inc.type()==IncidentType::BeginEvent ) {
-            this->clear_cache();
             if(m_doNtuple) m_validation_tree.reset_ntuple_variables();
-            m_pad_cache_status = CLEARED;
         }
     }
     //------------------------------------------------------------------------------
@@ -157,13 +105,11 @@ namespace NSWL1 {
         return globalPos;
     }
     //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::fill_pad_validation_id() {
+    void PadTdsOfflineTool::fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) {
         float bin_offset = +0.; // used to center the bin on the value of the Pad Id
-        for (unsigned int i=0; i<m_pad_cache.size(); i++) { 
-            std::vector<std::shared_ptr<PadData>>& pad = m_pad_cache.at(i);
+        for (const std::vector<std::shared_ptr<PadData>>& pad : pad_cache) {
             m_validation_tree.fill_num_pad_hits(pad.size());
-            for (unsigned int p=0; p<pad.size(); p++) {
-                std::shared_ptr<PadData> pd = pad.at(p);
+            for (const std::shared_ptr<PadData> &pd : pad) {
                 Identifier Id( pd->id() );
                 const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
                 const Trk::PlaneSurface &surface = rdoEl->surface(Id);
@@ -172,7 +118,8 @@ namespace NSWL1 {
                 Amg::Vector3D pad_gpos;
                 rdoEl->stripPosition(Id,pad_lpos); // shouldn't this be padPosition? DG 2014-01-17
                 surface.localToGlobal(pad_lpos, pad_gpos, pad_gpos);
-                ATH_MSG_DEBUG("Pad at GposX " << pad_gpos.x() << " GposY " << pad_gpos.y() << " GposZ " << pad_gpos.z()<<" from multiplet "<< pd->multipletId()<<" and gasGapId "<<pd->gasGapId() );
+                ATH_MSG_DEBUG("Pad at GposX " << pad_gpos.x() << " GposY " << pad_gpos.y() << " GposZ " << pad_gpos.z()
+                                              <<" from multiplet "<< pd->multipletId()<<" and gasGapId "<<pd->gasGapId() );
 
                 std::vector<MuonSimData::Deposit> deposits;
                 if(get_truth_hits_this_pad(Id, deposits)){
@@ -189,7 +136,7 @@ namespace NSWL1 {
                 Amg::Vector3D global_corner;
                 surface.localToGlobal(local_corner, global_corner, global_corner);
                 global_pad_corners.push_back(global_corner);
-                } 
+                }
                 m_validation_tree.fill_hit_global_corner_pos(global_pad_corners);
 
                 // gathers the Offline PAD EDM from the interface
@@ -212,69 +159,62 @@ namespace NSWL1 {
             ATH_MSG_ERROR( "requested sector " << sector << " is out of range: [-1==All, 0 - 15]");
             return StatusCode::FAILURE;
         }
-        // retrieve the current run number and event number
-        const EventContext& ctx = Gaudi::Hive::currentContext();
 
-        m_pad_cache_runNumber = ctx.eventID().run_number();
-        m_pad_cache_eventNumber = ctx.eventID().event_number();
+        std::vector< std::vector<std::shared_ptr<PadData>> > pad_cache(PadTdsOfflineTool::numberOfSectors());
+        ATH_CHECK(fill_pad_cache(pad_cache));
+        if(m_doNtuple) this->fill_pad_validation_id(pad_cache);
 
-        if (m_pad_cache_status==CLEARED) {
-            // renew the PAD cache if this is the next event
-            m_pad_cache_status = fill_pad_cache();
-        }
-        // check the PAD cache status
-        if ( m_pad_cache_status!=OK ) {
-            ATH_MSG_ERROR ( "PAD cache is in a bad status!" );
-            return StatusCode::FAILURE;
-        }
         // delivering the required collection
-        bool anySide = side==-1;
-        bool anySector = sector==-1;
+        const bool anySide = (side==-1);
+        const bool anySector = (sector==-1);
         if (anySide && anySector) {
             //return the full set
             ATH_MSG_DEBUG( "copying the full PAD hit set" );
-            for (size_t i=PadTdsOfflineTool::firstSector(); i<=PadTdsOfflineTool::lastSector(); i++)
-                pads.insert( pads.end(), m_pad_cache.at(i).begin(), m_pad_cache.at(i).end() );
+            for (size_t i=PadTdsOfflineTool::firstSector(); i<=PadTdsOfflineTool::lastSector(); i++) {
+              std::vector<std::shared_ptr<PadData>>& pad_sec = pad_cache.at(i);
+              pads.insert( pads.end(), std::make_move_iterator(pad_sec.begin()), std::make_move_iterator(pad_sec.end()));
+            }
         }
         else if (anySector and not anySide) {
             //return all the trigger sectors for the given side
             ATH_MSG_DEBUG( "copying the PAD hit set of all trigger sector in side " << PadTdsOfflineTool::sideLabel(side) );
             unsigned int start = PadTdsOfflineTool::firstSector(side);
             unsigned int stop  = PadTdsOfflineTool::lastSector(side);
-            for (size_t i=start; i<stop; i++)
-                pads.insert( pads.end(), m_pad_cache.at(i).begin(), m_pad_cache.at(i).end() );
+            for (size_t i=start; i<stop; i++) {
+              std::vector<std::shared_ptr<PadData>>& pad_sec = pad_cache.at(i);
+              pads.insert( pads.end(), std::make_move_iterator(pad_sec.begin()), std::make_move_iterator(pad_sec.end()));
+            }
         }
         else if (anySide and not anySector) {
             // return the required trigger sectors
             ATH_MSG_DEBUG( "copying the PAD hit set of all trigger sector " << sector << " in both side" );
             size_t sectorA = sector+PadTdsOfflineTool::firstSectorAside();
+            std::vector<std::shared_ptr<PadData>>& pad_secA = pad_cache.at(sectorA);
+            pads.insert( pads.end(), std::make_move_iterator(pad_secA.begin()), std::make_move_iterator(pad_secA.end()));
+
             size_t sectorC = sector+PadTdsOfflineTool::firstSectorCside();
-            pads.insert( pads.end(), m_pad_cache.at(sectorA).begin(), m_pad_cache.at(sectorA).end() );
-            pads.insert( pads.end(), m_pad_cache.at(sectorC).begin(), m_pad_cache.at(sectorC).end() );
+            std::vector<std::shared_ptr<PadData>>& pad_secC = pad_cache.at(sectorC);
+            pads.insert( pads.end(), std::make_move_iterator(pad_secC.begin()), std::make_move_iterator(pad_secC.end()));
         }
         else {
             // return the required trigger sector
             ATH_MSG_DEBUG("copying the PAD hit set of all trigger sector "<<sector
                         <<" in side "<<PadTdsOfflineTool::sideLabel(side));
             size_t sectorAorC = PadTdsOfflineTool::sectorIndex(side, sector);
-            pads.insert( pads.end(), m_pad_cache.at(sectorAorC).begin(), m_pad_cache.at(sectorAorC).end() );
+            std::vector<std::shared_ptr<PadData>>& pad_secAorC = pad_cache.at(sectorAorC);
+            pads.insert( pads.end(), std::make_move_iterator(pad_secAorC.begin()), std::make_move_iterator(pad_secAorC.end()));
         }
         ATH_MSG_DEBUG( "delivered n. " << pads.size() << " PAD hits." );
+        pad_cache.clear();
         return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
-    PadTdsOfflineTool::cStatus PadTdsOfflineTool::fill_pad_cache() {
-        clear_cache();
-
-	SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
-	if(!sdo_container.isValid()){
-	  ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
-	}
-	SG::ReadHandle<sTgcDigitContainer> digit_container(m_sTgcDigitContainer);
-	if(!digit_container.isValid()){
-	  ATH_MSG_ERROR("could not retrieve the sTGC Digit container: cannot return the STRIP hits");
-	  return FILL_ERROR;
-	}
+    StatusCode PadTdsOfflineTool::fill_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const {
+        SG::ReadHandle<sTgcDigitContainer> digit_container(m_sTgcDigitContainer);
+        if(!digit_container.isValid()){
+          ATH_MSG_ERROR("could not retrieve the sTGC Digit container: cannot return the STRIP hits");
+          return StatusCode::FAILURE;
+        }
 
         sTgcDigitContainer::const_iterator it   = digit_container->begin();
         sTgcDigitContainer::const_iterator it_e = digit_container->end();
@@ -292,7 +232,7 @@ namespace NSWL1 {
                         Identifier Id = digit->identify();
                         // Test bcTag to make sure it's within +/- 1 BC, ref. 0xFFFF
                         uint16_t BCP1 = 1, BC0 = 0, BCM1 = ~BCP1;
-                        if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) { 
+                        if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) {
                             print_digit(digit);
                             //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //S.I
@@ -307,12 +247,10 @@ namespace NSWL1 {
             } //for(item)
         } // for(it)
 
-        store_pads(pad_hits);
-        print_pad_cache();
-        //The other tools should have separated Ntuple filling from the actual trigger stuff at least like this here      
-        if(m_doNtuple) this->fill_pad_validation_id();
+        store_pads(pad_hits, pad_cache);
+        print_pad_cache(pad_cache);
         ATH_MSG_DEBUG( "fill_pad_cache: end of processing" );
-        return OK;
+        return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     double PadTdsOfflineTool::computeTof(const sTgcDigit* digit) const {
@@ -358,7 +296,7 @@ namespace NSWL1 {
             std::vector<PadHits>::iterator p_next = hits.begin();
             std::vector<PadHits>::iterator p = p_next++;
             while ( p_next!=hits.end() ) {
-                if (std::fabs((*p_next).t_pad->time()-(*p).t_pad->time())<=m_VMMDeadTime){
+                if (std::fabs((*p_next).t_pad->time()-(*p).t_pad->time())<=m_vmmDeadTime){
                     p_next = hits.erase(p_next);
                 }else{
                     p=p_next++;
@@ -375,10 +313,6 @@ namespace NSWL1 {
         }
     }
     //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::printStgcGeometryFromAgdd() const
-    {
-    }
-    //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::is_pad_digit(const sTgcDigit* digit) const
     {
         return (digit && m_idHelperSvc->stgcIdHelper().channelType(digit->identify())==0);
@@ -386,7 +320,7 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     int PadTdsOfflineTool::cache_index(const sTgcDigit* digit) const
     {
-        Identifier Id = digit->identify();    
+        Identifier Id = digit->identify();
         int stationEta = m_idHelperSvc->stgcIdHelper().stationEta(Id);
         int stationPhi = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
         std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
@@ -395,24 +329,8 @@ namespace NSWL1 {
         return (stationEta>0)? trigger_sector + 16 : trigger_sector;
     }
     //------------------------------------------------------------------------------
-    StatusCode PadTdsOfflineTool::get_tree_from_histsvc(TTree*& tree)
-    {
-        ITHistSvc* tHistSvc=nullptr;
-        m_validation_tree.clear_ntuple_variables();
-        ATH_CHECK(service("THistSvc", tHistSvc));
-        auto iname = dynamic_cast<const INamedInterface*>(parent());
-        if (!iname) {
-          return StatusCode::FAILURE;
-        }
-        std::string algoname = iname->name();
-        std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
-        ATH_CHECK(tHistSvc->getTree(treename, tree));
-
-        return StatusCode::SUCCESS;
-    }
-    //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,
-                                                double &delayed_time, uint16_t &BCtag)
+                                                   double &delayed_time, uint16_t &BCtag) const
     {
         bool success = false;
         if(!digit) return success;
@@ -420,7 +338,7 @@ namespace NSWL1 {
         double arrival_time = digit->time();
         delayed_time = arrival_time;
         if(m_applyTDS_TofSubtraction)        delayed_time -= computeTof(digit);
-        if(m_applyTDS_TimeJitterSubtraction) delayed_time -= computeTimeJitter();    
+        if(m_applyTDS_TimeJitterSubtraction) delayed_time -= computeTimeJitter();
         double capture_time = delayed_time + m_triggerCaptureWindow;
         if((delayed_time>200 || delayed_time<-200) ||
         (capture_time>200 || capture_time<-200) ){
@@ -444,58 +362,58 @@ namespace NSWL1 {
                 BCtag = BCtag | (0x1<<i);
             }
         }
-        if(msgLvl(MSG::DEBUG)){
-            std::string bctag = "";
-            uint16_t last_bit = 0x8000;
-            for(unsigned int i=0; i<16; i++)
-                if(BCtag & (last_bit>>i))
-                    bctag += "1"; else bctag += "0";
-            ATH_MSG_DEBUG("sTGC Pad hit " << pad_hit_number << ":  arrival time [" << arrival_time << " ns]"
-                        << "  delayed time ["  << delayed_time << " ns]"
-                        << "  capture time ["  << capture_time << " ns]"
-                        << "  BC tag [" << bctag << "]" );
+        std::string bctag = "";
+        uint16_t last_bit = 0x8000;
+        for(unsigned int i=0; i<16; i++) {
+          if(BCtag & (last_bit>>i)) bctag += "1";
+          else bctag += "0";
         }
+        ATH_MSG_DEBUG("sTGC Pad hit " << pad_hit_number << ":  arrival time [" << arrival_time << " ns]"
+                    << "  delayed time ["  << delayed_time << " ns]"
+                    << "  capture time ["  << capture_time << " ns]"
+                    << "  BC tag [" << bctag << "]" );
         success = true;
         return success;
     }
     //------------------------------------------------------------------------------
-    bool PadTdsOfflineTool::get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits)
+    bool PadTdsOfflineTool::get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits) const
     {
         bool success=false;
-	SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
-	if(sdo_container.isValid()){
-            const MuonSimData pad_sdo = (sdo_container->find(pad_id))->second;
-            pad_sdo.deposits(deposits);
-            success = true;
-        } else {
+        const MuonSimDataCollection* ptrMuonSimDataCollection = nullptr;
+        if(m_isMC) {
+          SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
+          if(!sdo_container.isValid()) {
             ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
+            return success;
+          }
+          ptrMuonSimDataCollection = sdo_container.cptr();
+          const MuonSimData pad_sdo = (ptrMuonSimDataCollection->find(pad_id))->second;
+          pad_sdo.deposits(deposits);
+          success = true;
         }
         return success;
     }
     //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits)
+    void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits, std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const
     {
         for (unsigned int i=0; i<pad_hits.size(); i++) {
-            const std::vector<std::shared_ptr<PadData>>& pads = m_pad_cache.at(pad_hits[i].t_cache_index);
-            bool fill = pads.size() == 0 ? true : false;
+            const std::vector<std::shared_ptr<PadData>>& pads = pad_cache.at(pad_hits[i].t_cache_index);
+            bool fill = pads.empty();
             for(unsigned int p=0; p<pads.size(); p++)  {
                 Identifier Id(pads.at(p)->id());
                 if(Id==pad_hits[i].t_id) {
                     fill = false;
                     ATH_MSG_WARNING( "Pad Hits entered multiple times Discarding!!! Id:" << Id );
-                }
-                else { fill = true; }
+                } else fill = true;
             }
-            if( fill ) {
-                m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
-            }
+            if( fill ) pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
         }
     }
     //------------------------------------------------------------------------------
     void PadTdsOfflineTool::print_digit(const sTgcDigit* digit) const
     {
         if(!is_pad_digit(digit)) return;
-        Identifier Id = digit->identify();    
+        Identifier Id = digit->identify();
         std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
         int stationEta     = m_idHelperSvc->stgcIdHelper().stationEta(Id);
         int stationPhi     = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
@@ -521,27 +439,22 @@ namespace NSWL1 {
                     <<" Id Hash ["      <<Id              <<"]");
     }
     //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::print_pad_time(const std::vector<PadHits> &pad_hits, const std::string &msg) const
+    void PadTdsOfflineTool::print_pad_time(const std::vector<PadHits> &pad_hits) const
     {
-        ATH_MSG_DEBUG(msg);
-        for (size_t i=0; i<pad_hits.size(); i++)
-            ATH_MSG_DEBUG("pad hit "<<i<<" has time "<< pad_hits[i].t_pad->time());
+        for (const auto &hit : pad_hits) ATH_MSG_DEBUG("pad hit has time "<< hit.t_pad->time());
     }
 
-    void PadTdsOfflineTool::print_pad_cache() const
+    void PadTdsOfflineTool::print_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const
     {
-        if ( msgLvl(MSG::DEBUG) ) {
-            for (unsigned int i=0; i<m_pad_cache.size(); i++) {
-                const std::vector<std::shared_ptr<PadData>>& pad = m_pad_cache.at(i);
-                for (unsigned int p=0; p<pad.size(); p++)
-                    ATH_MSG_DEBUG("PAD hit cache: hit at side " << ( (pad.at(p)->sideId())? "A":"C")
-                                << ", trigger sector " << pad.at(p)->sectorId()
-                                << ", module " << pad.at(p)->moduleId()
-                                << ", multiplet " << pad.at(p)->multipletId()
-                                << ", gas gap " << pad.at(p)->gasGapId()
-                                << ", pad eta " << pad.at(p)->padEtaId()
-                                << ", pad phi " << pad.at(p)->padPhiId());
-            }
+        for (const std::vector<std::shared_ptr<PadData>>& pad : pad_cache) {
+          for (const auto &padhit : pad)
+            ATH_MSG_DEBUG("PAD hit cache: hit at side " << ( (padhit->sideId())? "A":"C")
+                          << ", trigger sector " << padhit->sectorId()
+                          << ", module " << padhit->moduleId()
+                          << ", multiplet " << padhit->multipletId()
+                          << ", gas gap " << padhit->gasGapId()
+                          << ", pad eta " << padhit->padEtaId()
+                          << ", pad phi " << padhit->padPhiId());
         }
     }
 

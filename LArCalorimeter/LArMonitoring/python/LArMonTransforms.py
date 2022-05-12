@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #
 # Author: Margherita Spalla (margherita.spalla@cern.ch)
@@ -10,7 +10,7 @@
 #
 
 
-from ROOT import TMath, TH2F
+from ROOT import TMath, TH1F, TH2F, TProfile
 import cppyy
 
 def setMaxMin(inputs,maxVal=0,minVal=0,useMax=True,useMin=True):
@@ -204,6 +204,43 @@ def normToEntriesAndSetMin(inputs,minVal=0,maxVal=0,useMax=False):
 
     return [cl]
 
+def normToBinAndSetMinMax(inputs,bin_norm=0,minVal=0,maxVal=0,useMax=False, titleToReplace="",replaceWith="",newYaxis=""):
+    """ This function normalises histogram 1 to the content of bin bin_norm (which is supposed to represent the number of events) and sets the histogram max/min """
+
+    assert len(inputs) == 1 , len(inputs)
+    assert len(inputs[0][1]) == 1 , len(inputs[0][1])
+
+    inh=inputs[0][1][0]
+    cl=TH1F(inh.GetName()+"Yield",inh.GetTitle(),inh.GetNbinsX(),inh.GetBinLowEdge(1),inh.GetBinLowEdge(inh.GetNbinsX()))
+    clx=cl.GetXaxis()
+    clx.SetTitle(inh.GetXaxis().GetTitle())
+    for i in range(0,inh.GetNbinsX()+1):
+       clx.SetBinLabel(i,inh.GetXaxis().GetBinLabel(i))
+    cl.GetYaxis().SetTitle(inh.GetYaxis().GetTitle())
+
+    Nen = inputs[0][1][0].GetBinContent(bin_norm)
+    if Nen!=0:
+        for ibin in range(0,inh.GetNbinsX()+1):
+          cl.SetBinContent(ibin,100.*inh.GetBinContent(ibin)/Nen)
+        pass
+
+    cl.SetMinimum(minVal)
+    if useMax:
+        cl.SetMaximum(maxVal)
+        pass
+
+    if newYaxis!="":
+       cl.GetYaxis().SetTitle(newYaxis)
+
+    if titleToReplace=="":
+        return [cl]
+
+    tit = cl.GetTitle()
+    tit=tit.replace(titleToReplace,replaceWith)
+    cl.SetTitle(tit)
+
+    return [cl]
+
 
 
 def divideHist(inputs,titleToReplace="",replaceWith=""):
@@ -349,5 +386,51 @@ def computeCorrelations(inputs):
     return [cl]
 
 
+def Mean(inputs):
 
+    cl = TProfile("summary","Summary;Partition;Mean",8,0.,8.,0.,10., "s")
+    cl.SetDirectory(0)
+    cl.GetXaxis().SetBinLabel(1,"EMBA")
+    cl.GetXaxis().SetBinLabel(2,"EMBC")
+    cl.GetXaxis().SetBinLabel(3,"EMECA")
+    cl.GetXaxis().SetBinLabel(4,"EMECC")
+    cl.GetXaxis().SetBinLabel(5,"HECA")
+    cl.GetXaxis().SetBinLabel(6,"HECC")
+    cl.GetXaxis().SetBinLabel(7,"FCalA")
+    cl.GetXaxis().SetBinLabel(8,"FCalC") 
+    cl.GetXaxis().SetLabelSize(0.055)
+    cl.GetYaxis().SetLabelSize(0.055)           
 
+    for i in inputs:
+        assert len(i[1])==1, len(i[1])
+        
+        #x bin
+        pr=i[0]['part']
+        if "EMB" in pr:
+            ix=1
+        elif "EMEC" in pr:
+            ix=3
+        elif "HEC" in pr:
+            ix=5
+        elif "FCal" in pr:
+            ix=7
+        else:
+            ix=-10
+            pass
+        if i[0]['side'] == "C":
+            ix=ix+1
+            pass
+        
+        #y bin
+        if i[1][0].GetEntries()==0:
+            continue
+        else: 
+            if ix>=0:
+                #filling the profile histogram for each x_bin separately
+                for xbin in range(0,i[1][0].GetNbinsX()):
+                    #cl.Fill (ix-1, i[1][0].GetBinContent(xbin)) #for all bins
+                    if i[1][0].GetBinContent(xbin) > 0.: 
+                        cl.Fill (ix-1, i[1][0].GetBinContent(xbin)) #only for non-zero bins
+        pass #end of input loop
+
+    return [cl]

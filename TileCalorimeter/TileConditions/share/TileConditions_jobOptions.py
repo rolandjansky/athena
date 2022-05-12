@@ -38,6 +38,8 @@ if not 'TileCablingType' in dir():
                 from Digitization.DigitizationFlags import digitizationFlags
                 if digitizationFlags.dataRunNumber.statusOn:
                     rn = digitizationFlags.dataRunNumber()
+                if rn is None and digitizationFlags.RunAndLumiOverrideList.statusOn:
+                    rn = digitizationFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0]
             except:
                 msg.info("No DigitizationFlags available - looks like HLT job")
         if rn is None:
@@ -45,6 +47,8 @@ if not 'TileCablingType' in dir():
                 from G4AtlasApps.SimFlags import simFlags
                 if simFlags.RunNumber.statusOn:
                     rn = simFlags.RunNumber()
+                if rn is None and simFlags.RunAndLumiOverrideList.statusOn:
+                    rn = simFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0]
             except:
                 msg.info("No SimFlags available - looks like HLT job")
         if rn is None:
@@ -166,3 +170,9 @@ if not TileUse12bit:
 else:
     msg.info("Setting 12-bit ADC configuration")
     tileInfoConfigurator.setupAdcRange(12)
+
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.DataSource() != 'data':
+    # Set up Tile samping fraction for MC jobs
+    from TileConditions.TileCondToolConf import bookTileSamplingFractionCondAlg
+    bookTileSamplingFractionCondAlg(source='FILE')

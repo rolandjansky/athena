@@ -26,7 +26,7 @@ Interface definition for gTowerBuilder
     virtual void BuildEMBgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
     virtual void BuildTransEMBgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
     virtual void BuildEMEgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
-    virtual void BuildTRANSFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
+    virtual void BuildFwdEMECgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
     virtual void BuildFCALgTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
     virtual void BuildAllTowers(std::unique_ptr<gTowerContainer> & gTowerContainerRaw) const = 0;
     virtual void BuildSingleTower(std::unique_ptr<gTowerContainer> & gTowerContainerRaw, int eta, int phi, int nphi, int keybase, int posneg) const = 0;

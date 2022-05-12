@@ -59,7 +59,7 @@ StatusCode MuonSegmentPerformanceAlg::execute() {
         }
         unsigned int index = 0;
         if (seg->nPrecisionHits() < 3) continue;
-        while (seg->nPrecisionHits() > m_nhitCuts[index] && index < m_nhitCuts.size() - 1) ++index;
+        while ((index < m_nhitCuts.size() - 1) && seg->nPrecisionHits() > m_nhitCuts[index] ) ++index;
 
         ++m_ntruth[index][chIndex];
 
@@ -93,7 +93,7 @@ StatusCode MuonSegmentPerformanceAlg::execute() {
 
         unsigned int index = 0;
         if (seg->nPrecisionHits() < 3) continue;
-        while (seg->nPrecisionHits() > m_nhitCuts[index] && index < m_nhitCuts.size() - 1) ++index;
+        while ((index < m_nhitCuts.size() - 1) and (seg->nPrecisionHits() > m_nhitCuts[index]) ) ++index;
         if (missedSegment)
             ATH_MSG_DEBUG(" Fake segment in sector "
                           << seg->sector() << "  " << Muon::MuonStationIndex::chName(static_cast<Muon::MuonStationIndex::ChIndex>(chIndex))

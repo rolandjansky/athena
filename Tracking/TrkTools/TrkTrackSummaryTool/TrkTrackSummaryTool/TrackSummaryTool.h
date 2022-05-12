@@ -247,6 +247,11 @@ private:
      Turning this on will increase processing time.*/
   Gaudi::Property<bool> m_doSharedHits{ this, "doSharedHits", false, "" };
 
+  /** controls whether the expected Hits are added during summary creation*/
+  Gaudi::Property<bool> m_addExpectedHits{ this,
+                                           "AddExpectedHits",
+                                           false,
+                                           "" };
   /** controls whether the detailed summary is added for the indet */
   Gaudi::Property<bool> m_addInDetDetailedSummary{ this,
                                                    "AddDetailedInDetSummary",

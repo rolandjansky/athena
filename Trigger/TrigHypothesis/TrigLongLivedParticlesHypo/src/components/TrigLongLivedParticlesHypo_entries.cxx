@@ -6,8 +6,13 @@
 #include "../TrigdEdxTrackHypoTool.h"
 #include "../TrigHitDVHypoAlg.h"
 #include "../TrigHitDVHypoTool.h"
+#include "../TrigVSIHypoAlg.h"
+#include "../TrigVSIHypoTool.h"
 #include "../TrigDisappearingTrackHypoAlg.h"
 #include "../TrigDisappearingTrackHypoTool.h"
+
+#include "../MuonClusterHypoAlg.h"
+#include "../MuonClusterHypoTool.h"
 
 #include "../DisplacedJetPromptHypoTool.h"
 #include "../DisplacedJetPromptHypoAlg.h"
@@ -28,6 +33,8 @@ DECLARE_COMPONENT( TrigIsoHPtTrackTriggerHypoAlg )
 DECLARE_COMPONENT( TrigIsoHPtTrackTriggerHypoTool )
 DECLARE_COMPONENT( FastTrackFinderLRTHypoTool )
 DECLARE_COMPONENT( FastTrackFinderLRTHypoAlg )
+DECLARE_COMPONENT( TrigVSIHypoAlg )
+DECLARE_COMPONENT( TrigVSIHypoTool )
 
 DECLARE_COMPONENT( DisplacedJetDispHypoAlg )
 DECLARE_COMPONENT( DisplacedJetDispHypoTool )
@@ -35,3 +42,5 @@ DECLARE_COMPONENT( DisplacedJetPromptHypoAlg )
 DECLARE_COMPONENT( DisplacedJetPromptHypoTool )
 DECLARE_COMPONENT( DisplacedJetEventDecisionHypoAlg )
 DECLARE_COMPONENT( DisplacedJetEventDecisionHypoTool )
+DECLARE_COMPONENT( MuonClusterHypoAlg )
+DECLARE_COMPONENT( MuonClusterHypoTool )

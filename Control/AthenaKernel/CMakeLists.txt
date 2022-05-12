@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaKernel )
@@ -62,7 +62,9 @@ atlas_add_test( type_tools_test
 
 atlas_add_test( Units_test
    SOURCES test/Units_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
+   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel
+   # Ignore some objdump warnings we see with clang14.
+   LOG_IGNORE_PATTERN "Warning: Unrecognized form|Warning: DIE at offset" )
 
 atlas_add_test( DataObjectSharedPtr_test
    SOURCES test/DataObjectSharedPtr_test.cxx
@@ -109,7 +111,8 @@ atlas_add_test( SlotSpecificObj_test
 atlas_add_test( DataBucket_test
    SOURCES
    test/DataBucket_test.cxx
-   LINK_LIBRARIES AthenaKernel TestTools )
+   LINK_LIBRARIES AthenaKernel TestTools
+   LOG_IGNORE_PATTERN "DataObject 0x" )
 
 atlas_add_test( RCUUpdater_test
    SOURCES test/RCUUpdater_test.cxx
@@ -150,4 +153,8 @@ atlas_add_test( getThinningCache_test
 
 atlas_add_test( AlgorithmTimer_test
   SOURCES test/AlgorithmTimer_test.cxx
+  LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( ILockableTool_test
+  SOURCES test/ILockableTool_test.cxx
   LINK_LIBRARIES AthenaKernel )

@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 // EDM include(s):
 #include "AthContainers/AuxStoreInternal.h"
@@ -233,6 +235,9 @@ namespace xAOD {
 
       guard_t guard( m_mutex );
 
+      // Check if we already have this variable by any chance.
+      const void* cptr = m_store->getData( auxid );
+
       // If the parent has such a variable, then we need to check one more
       // thing. If it's a decoration on the parent, then we should be allowed
       // to override it in this (possibly locked) shallow copy. But let's leave
@@ -252,6 +257,51 @@ namespace xAOD {
       if( result && ( nids != m_store->getAuxIDs().size() ) ) {
          remakeAuxIDs();
       }
+
+      // If we already had this variable before, then don't try to overwrite it
+      // with the parent's payload, and finish here already.
+      if( cptr != nullptr ) {
+         return result;
+      }
+
+      // If the parent doesn't have this variable, then we're done.
+      if( ! m_parentLink.isValid() ) {
+         return result;
+      }
+      const void* pptr = m_parentLink->getData( auxid );
+      if( pptr == nullptr ) {
+         return result;
+      }
+
+      // If the variable does exist in the parent, then copy it over to this
+      // store before returning.
+
+      // Get the registry.
+      SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
+
+      // Get the type of this variable.
+      const std::type_info* type = reg.getType( auxid );
+      if( type == nullptr ) {
+         std::ostringstream message;
+         message << "Couldn't find the type of auxiliary ID " << auxid;
+         throw std::runtime_error( message.str() );
+      }
+
+      // Get the vector factory of this variable.
+      const SG::IAuxTypeVectorFactory* factory =
+         SG::AuxTypeRegistry::instance().getFactory( *type );
+      if( factory == nullptr ) {
+         std::ostringstream message;
+         message << "Couldn't find a factory for type " << type->name();
+         throw std::runtime_error( message.str() );
+      }
+
+      // Copy each element of the parent's decoration.
+      for( size_t i = 0; i < size; ++i ) {
+         factory->copy( result, i, pptr, i );
+      }
+
+      // Now we're done.
       return result;
    }
 
@@ -310,10 +360,19 @@ namespace xAOD {
 
       guard_t guard (m_mutex);
 
+      // Check if we already have this variable by any chance.
+      const void* cptr = m_store->getData( auxid );
+
       // Create the variable in the dynamic store:
       void* ptr = m_store->getData( auxid, size, capacity );
 
       remakeAuxIDs();
+
+      // If in some weird way we already had this variable before, then don't
+      // try to overwrite it with the parent's payload, and finish here already.
+      if( cptr != nullptr ) {
+         return ptr;
+      }
 
       // If the parent doesn't have this variable, then we're done already:
       if( ! m_parentLink.isValid() ) {
@@ -332,23 +391,19 @@ namespace xAOD {
 
       // Get the type of this variable:
       const std::type_info* type = reg.getType( auxid );
-      if( ! type ) {
-         std::cerr << "xAOD::ShallowAuxContainer::getData ERROR Couldn't find "
-                   << "the type of auxiliary ID " << auxid << std::endl;
-         std::cerr << "xAOD::ShallowAuxContainer::getData ERROR Can't copy the "
-                   << "contents of the parent's decoration" << std::endl;
-         return ptr;
+      if( type == nullptr ) {
+         std::ostringstream message;
+         message << "Couldn't find the type of auxiliary ID " << auxid;
+         throw std::runtime_error( message.str() );
       }
 
       // First let's get the vector factory of this variable:
       const SG::IAuxTypeVectorFactory* factory =
          SG::AuxTypeRegistry::instance().getFactory( *type );
-      if( ! factory ) {
-         std::cerr << "xAOD::ShallowAuxContainer::getData ERROR Couldn't find "
-                   << "factory for type " << type->name() << std::endl;
-         std::cerr << "xAOD::ShallowAuxContainer::getData ERROR Can't copy the "
-                   << "contents of the parent's decoration" << std::endl;
-         return ptr;
+      if( factory == nullptr ) {
+         std::ostringstream message;
+         message << "Couldn't find a factory for type " << type->name();
+         throw std::runtime_error( message.str() );
       }
 
       // Copy each element of the parent's decoration:

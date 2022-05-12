@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVALHISTUTILS_TRUTHINFOPLOTS_H
@@ -13,7 +13,7 @@ namespace Trk{
 class TruthInfoPlots: public PlotBase {
   public:
     TruthInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
-  void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
+  void fill(const xAOD::TruthParticle& truthprt, float weight=1.0) const;
  		
     TH1* truthType;
     TH1* origin;

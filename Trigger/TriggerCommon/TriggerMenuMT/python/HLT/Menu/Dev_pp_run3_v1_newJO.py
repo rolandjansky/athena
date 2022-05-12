@@ -30,6 +30,7 @@ def setupMenu():
         ChainProp(name='HLT_mu20_L1MU14FCH', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU8F', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_L1MU5VF',   groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu4_L12MU3V', groups=MultiMuonGroup),
 
         ChainProp(name='HLT_mu20_msonly_L1MU14FCH', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_msonly_L1MU8F', groups=SingleMuonGroup),
@@ -37,6 +38,10 @@ def setupMenu():
 
         ChainProp(name='HLT_mu8_ivarmedium_L1MU5VF',   groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6noL1_L1MU5VF', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
+         # Test T&P dimuon
+        ChainProp(name='HLT_mu24_mu6_L1MU14FCH', l1SeedThresholds=['MU14FCH','MU3V'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_mu6_probe_L1MU14FCH', l1SeedThresholds=['MU14FCH','PROBEMU3V'], groups=MultiMuonGroup),
+
     ]
     chains["bphysics"] = [
 #        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU3V', groups=BphysicsGroup),
@@ -45,8 +50,7 @@ def setupMenu():
     chains["electron"] = [
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
-# this chain does not work yet
-   #     ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
+        ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_lhvloose_L1EM7', groups=SingleElectronGroup)
@@ -105,14 +109,14 @@ if __name__ == "__main__":
     from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
     from AthenaCommon.Logging import logging
     log = logging.getLogger(__name__)
+    
+    
 
     acc = ComponentAccumulator()
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-
+    
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Trigger.generateMenuDiagnostics = True
+    log.info(" Running Dev_pp_run3_newJO")
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW

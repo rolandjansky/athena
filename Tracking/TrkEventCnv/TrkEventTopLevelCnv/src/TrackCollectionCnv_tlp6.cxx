@@ -100,12 +100,12 @@ void TrackCollectionCnv_tlp6::setPStorage( PERS *storage )
 }
 
 
-BaseTrackCollectionCnv::PERS*
+BaseTrackCollectionCnv_tlp6::PERS*
 TrackCollectionCnv_tlp6::createPersistentWithKey(const TRANS* transObj,
                                                  const std::string& key,
                                                  MsgStream &log)
 {
-   PERS *pers = BaseTrackCollectionCnv::createPersistentWithKey(transObj, key, log);
+   PERS *pers = BaseTrackCollectionCnv_tlp6::createPersistentWithKey(transObj, key, log);
 
    // get extending objects (nullptr if there was no extending data types)
    pers->m_muonMeasurementsExt = m_muonMeasurementsCnv.releaseTLPersObject();

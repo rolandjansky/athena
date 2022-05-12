@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PIXELATHCLUSTERMONTOOL_H
@@ -10,8 +10,6 @@
 
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "PixelReadoutGeometry/IPixelReadoutManager.h"
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "TrkTrack/TrackCollection.h"
@@ -40,19 +38,11 @@ public:
   virtual StatusCode fillHistograms(const EventContext& ctx) const override;
   std::string findComponentString(int bec, int ld) const;
 private:
-  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
-  {
-    this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
-  };
 
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool {
-    this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"
-  };
 
-  const AtlasDetectorID* m_atlasid {};  //tracks only
-  const PixelID* m_pixelid {};
+  const AtlasDetectorID* m_atlasid {};
 
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_clustersKey {
     this, "ClusterName", "PixelClusters", "pixel cluster data key"

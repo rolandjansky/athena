@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaEvent/Electron.h"
@@ -10,8 +10,7 @@ namespace Analysis {
 
 
 Electron::~Electron()
-{
-}
+= default;
 
 
 Electron& Electron::operator=(const Electron& rhs) 

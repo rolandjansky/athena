@@ -14,7 +14,7 @@
  **     @author  mark sutton
  **     @date    Thu 14 Jul 2011 09:50:36 BST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -109,7 +109,7 @@ public:
 
   ~particleType() { } 
 
-  std::string type(int id) { 
+  std::string type(int id) const {
     if ( id>1000000000 ) return "nucleus";
     const_iterator ptype = find( id );
     if ( ptype==end() ) return "unknown";
@@ -118,7 +118,7 @@ public:
 
 
 
-  double charge(int id) { 
+  double charge(int id) const {
     if ( id>1000000000 ) return 0; // "nucleus" - don't care about charge in this context
     const_iterator ptype = find( id );
     if ( ptype==end() ) return 0; // "unknown" - don't care about charge in this context

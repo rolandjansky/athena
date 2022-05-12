@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -77,11 +77,12 @@ void PixelGangedAmbiguitiesFinder::execute(
 			return;
 	  }
     int rowsPerFE = design->rows()/2;
-    const PixelID* pixelID =(dynamic_cast<const PixelID*>(element->getIdHelper()));
-    if (not pixelID){
-			ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of PixelGangedAmbiguitiesFinder.cxx.");
+    auto pHelper = element->getIdHelper();
+    if (pHelper->helper() != AtlasDetectorID::HelperType::Pixel){
+			ATH_MSG_ERROR("The helper type is not Pixel at line "<<__LINE__<<" of PixelGangedAmbiguitiesFinder.cxx.");
 			return;
 	  }
+	  const PixelID* pixelID =static_cast<const PixelID*>(pHelper);
     //Pointer list of clusters to be removed
     std::vector<PixelClusterCollection::iterator> rmList;
 
@@ -321,7 +322,7 @@ void PixelGangedAmbiguitiesFinder::execute(
 
 bool PixelGangedAmbiguitiesFinder::isGanged(const Identifier& rdoID,
 					    const InDetDD::SiDetectorElement* element,
-					    Identifier& gangedID) const
+					    Identifier& gangedID) 
 {
   InDetDD::SiCellId cellID = element->cellIdFromIdentifier (rdoID);
   if (element->numberOfConnectedCells (cellID) > 1) {

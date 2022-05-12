@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CTP_CTPSIMULATION_H
 #define TRIGT1CTP_CTPSIMULATION_H
@@ -78,15 +78,15 @@ namespace LVL1CTP {
 
    private:
       // histogramming related
-      StatusCode bookHists() const;
-      StatusCode setHistLabels(const TrigConf::L1Menu& l1menu) const;
-      StatusCode createMultiplicityHist(const std::string & type, unsigned int maxMult = 10 ) const;
-      StatusCode setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu, const std::string & type) const;
-      StatusCode hbook(const std::string & path, std::unique_ptr<TH1> hist) const;
-      StatusCode hbook(const std::string & path, std::unique_ptr<TH2> hist) const;
-      StatusCode storeMetadata() const;
+      StatusCode bookHists();
+      StatusCode setHistLabels(const TrigConf::L1Menu& l1menu);
+      StatusCode createMultiplicityHist(const std::string & type, unsigned int maxMult = 10 );
+      StatusCode setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu, const std::string & type);
+      StatusCode hbook(const std::string & path, std::unique_ptr<TH1> hist);
+      StatusCode hbook(const std::string & path, std::unique_ptr<TH2> hist);
+      StatusCode storeMetadata();
       LockedHandle<TH1> & get1DHist(const std::string & histName) const;
-      LockedHandle<TH2> & get2DHist(const std::string & histName) const;      
+      LockedHandle<TH2> & get2DHist(const std::string & histName) const;
       std::string getBaseHistPath() const;
 
       // execution related
@@ -114,8 +114,8 @@ namespace LVL1CTP {
       ATHRNG::RNGWrapper m_RNGEngines;
 
       // thread safe histogram handlers
-      mutable std::map<std::string, LockedHandle<TH1>> m_hist1D  ATLAS_THREAD_SAFE;
-      mutable std::map<std::string, LockedHandle<TH2>> m_hist2D  ATLAS_THREAD_SAFE;
+      std::map<std::string, LockedHandle<TH1>> m_hist1D;
+      std::map<std::string, LockedHandle<TH2>> m_hist2D;
 
       // inputs
       // new L1Topo 

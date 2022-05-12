@@ -91,9 +91,8 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
 		        measures_phi, strip);
 
   // Build the pad offline identifier
-  bool check = true;
-  bool valid = false;
-  Identifier id = m_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi, check, &valid);
+  bool valid{false};
+  Identifier id = m_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi, valid);
 
   if ( m_log && !valid ) {
     *m_log << MSG::ERROR << "Invalid pad offline indices " << endmsg;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGACCELEVENT_DATAEXPORTBUFFER_H
@@ -13,11 +13,15 @@ namespace TrigAccel {
 
   typedef struct DataExportBuffer {
   public:
-  DataExportBuffer() : m_size(0), m_buffer(0) {};
-  DataExportBuffer(size_t s) : m_size(s) {
-    m_buffer = new char[s];
-  }
+    DataExportBuffer() : m_size(0), m_buffer(0) {};
+    DataExportBuffer(size_t s) : m_size(s) {
+      m_buffer = new char[s];
+    }
     ~DataExportBuffer() {delete[] m_buffer;}
+
+    // no copy/assign
+    DataExportBuffer(const DataExportBuffer&) = delete;
+    DataExportBuffer& operator=(const DataExportBuffer&) = delete;
 
     inline bool fit(size_t s) {
       return s<=m_size;

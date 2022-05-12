@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/StatusCode.h"
@@ -22,9 +22,7 @@ BCM_ZeroSuppression::BCM_ZeroSuppression(const std::string& name,
 }
 
 BCM_ZeroSuppression::~BCM_ZeroSuppression()
-{
-
-}
+= default;
 
 StatusCode BCM_ZeroSuppression::initialize() {
   ATH_CHECK( m_bcmContainerName.initialize() );

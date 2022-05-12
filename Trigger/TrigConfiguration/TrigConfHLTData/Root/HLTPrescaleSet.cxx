@@ -14,12 +14,9 @@ using namespace std;
 using namespace TrigConf;
 
 TrigConf::HLTPrescaleSet::HLTPrescaleSet() :
-   m_scalers(3),
    m_iovstart(0),
    m_iovend(0)
 {}
-
-TrigConf::HLTPrescaleSet::~HLTPrescaleSet() {}
 
 TrigConf::HLTPrescale&
 TrigConf::HLTPrescaleSet::setPrescale(const HLTPrescale& sc, unsigned int chain_counter, HLTLevel level) {

@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import itertools
 
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-from TriggerMenuMT.HLT.Menu.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLT.Config.Utility.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO import generateDecisionTree
+from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
 from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import MenuAlignment
@@ -96,17 +96,20 @@ def generateChainConfig(flags, chain, sigGenMap):
     return mainChainDict, theChainConfig
 
 
+
 def doMenuAlignment(chains):
     """
-    Invoke menu alignment procedures and register aligned chains in the TriggerConfigHLT
+    Invoke menu alignment procedures and register aligned chains in the HLTMenuConfig
 
     Input is a list of pairs, (chain dict, chain config)
     """
+                        
     groups = [c[0]['alignmentGroups'] for c in chains]
     log.info('Alignment Combinations %s', groups)
-    alignmentCombinations = set([tuple(set(g)) for g in groups if len(g) > 1])
-    alignmentGroups = set(*alignmentCombinations)
-    log.info('Alignment Combinations %s', alignmentCombinations)
+    
+    alignmentCombinations = set([tuple(set(g)) for g in groups if len(set(g)) > 1])
+    log.info('Alignment reduced Combinations %s', alignmentCombinations)
+    alignmentGroups=set(list(itertools.chain(*alignmentCombinations)))
     log.info('Alignment Groups %s', alignmentGroups)
 
     alignmentLengths = dict.fromkeys(list(itertools.chain(*groups)), 0)
@@ -133,12 +136,12 @@ def doMenuAlignment(chains):
             alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, reverseAlignmentLengths)
         else:
             assert False, "Do not handle more than one calignment group"
-        TriggerConfigHLT.registerChain(chainDict, alignedChainConfig)
+        HLTMenuConfig.registerChain(chainDict, alignedChainConfig)
 
 
 def loadChains(flags):
     """
-    Using the menu set in flags load configuration of all needed chains into the TriggerConfigHLT
+    Using the menu set in flags load configuration of all needed chains into the HLTMenuConfig
     return list of pairs(chain dict, chain config)
     """
     log.info('Obtaining Menu Chain objects for menu %s', flags.Trigger.triggerMenuSetup)
@@ -166,7 +169,7 @@ def generateMenu(flags):
     """
     loadChains(flags)
 
-    menuAcc = generateDecisionTree(flags, TriggerConfigHLT.configsList())
+    menuAcc = generateDecisionTree(flags, HLTMenuConfig.configsList())
     menuAcc.wasMerged()
     if log.getEffectiveLevel() <= logging.DEBUG:
         menuAcc.printConfig()
@@ -174,11 +177,11 @@ def generateMenu(flags):
     log.info('CF is built')
 
     # # generate JOSON representation of the config
-    from TriggerMenuMT.HLT.Menu.HLTMenuJSON import generateJSON_newJO
-    generateJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), menuAcc.getSequence("HLTAllSteps"))
+    from TriggerMenuMT.HLT.Config.JSON.HLTMenuJSON import generateJSON_newJO
+    generateJSON_newJO(flags, HLTMenuConfig.dictsList(), HLTMenuConfig.configsList(), menuAcc.getSequence("HLTAllSteps"))
 
-    from TriggerMenuMT.HLT.Menu.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
-    generatePrescaleJSON_newJO(TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList())
+    from TriggerMenuMT.HLT.Config.JSON.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
+    generatePrescaleJSON_newJO(flags, HLTMenuConfig.dictsList(), HLTMenuConfig.configsList())
 
     return menuAcc
 

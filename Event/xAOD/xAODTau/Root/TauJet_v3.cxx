@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -688,7 +688,10 @@ namespace xAOD {
   static const SG::AuxElement::Accessor< TauJet_v3::JetLink_t > jetAcc( "jetLink" );
 
   const Jet* TauJet_v3::jet() const {
-   return ( *jetAcc( *this ) );
+    if (!jetAcc( *this ).isValid()) {
+      return nullptr;
+    }
+    return ( *jetAcc( *this ) );
   }
 
 
@@ -709,7 +712,10 @@ namespace xAOD {
   static const SG::AuxElement::Accessor< TauJet_v3::VertexLink_t > vertexAcc( "vertexLink" );
 
   const Vertex* TauJet_v3::vertex() const {
-   return ( *vertexAcc( *this ) );
+    if ( !vertexAcc(*this).isValid() ) {
+      return nullptr;
+    }
+    return ( *vertexAcc( *this ) );
   }
 
 

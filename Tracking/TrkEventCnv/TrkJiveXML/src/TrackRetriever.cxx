@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkJiveXML/TrackRetriever.h"
@@ -399,7 +399,7 @@ namespace JiveXML {
 			//be verbose
 			if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg;
 			//Generate a list of requested track collections
-			typedef std::pair< TrackCollection , std::string > tracksNamePair;
+			using tracksNamePair = std::pair<TrackCollection, std::string>;
 			std::vector< tracksNamePair > requestedTrackColls;
 			//First try to get hold of the priorty track collection
 			const TrackCollection* tracks = nullptr ;
@@ -471,7 +471,7 @@ namespace JiveXML {
 			const TrackCollection* trackCollection =&((*tracksNamePairItr).first);
 			std::string collectionName = (*tracksNamePairItr).second;
 			//Some sanity checks
-			if ( trackCollection->size() == 0){
+			if ( trackCollection->empty()){
 			  ATH_MSG_DEBUG( "Ignoring empty track collection " << collectionName );
 			} else {
 			  ATH_MSG_DEBUG( "Retrieving data for track collection " << collectionName);
@@ -656,7 +656,7 @@ namespace JiveXML {
 
 			// if perigee parameters are not available, leave the corresponding subtags empty.
 			// This way atlantis knows that such tracks can only be displayed as polylines.
-			if (pt.size() > 0){
+			if (!pt.empty()){
 				DataMap["pt"] = pt;
 				DataMap["d0"] = d0;
 				DataMap["z0"] = z0;
@@ -666,14 +666,14 @@ namespace JiveXML {
 			}
 
 			// vectors with measurement- or TrackStateOnSurface-wise entries
-			if ( polylineX.size() > 0){
+			if ( !polylineX.empty()){
 				std::string numPolyPerTrack = DataType(polylineX.size()/((double)id.size())).toString();
 				DataMap["polylineX multiple=\"" + numPolyPerTrack + "\""] = polylineX;
 				DataMap["polylineY multiple=\"" + numPolyPerTrack + "\""] = polylineY;
 				DataMap["polylineZ multiple=\"" + numPolyPerTrack + "\""] = polylineZ;
 			}
 
-			if ( hits.size() > 0){
+			if ( !hits.empty()){
 				std::string numHitsPerTrack = DataType(hits.size()/((double)id.size())).toString();
 				DataMap["hits multiple=\"" + numHitsPerTrack + "\""] = hits;
 				DataMap["isOutlier multiple=\""+numHitsPerTrack+"\""] = isOutlier;

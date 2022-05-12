@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
@@ -13,7 +13,7 @@
 
 namespace CP {
 
-static SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
+static const SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
 
 JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name ),
   m_appliedSystEnum(NONE),
@@ -86,7 +86,7 @@ StatusCode JetJvtEfficiency::initialize(){
     ATH_MSG_INFO(" Path found = "<<filename);
   }
 
-  TFile *infile = TFile::Open(filename.c_str());
+  std::unique_ptr<TFile> infile(TFile::Open( filename.c_str(), "READ" ));
 
   std::string histname = "Jvt";
 

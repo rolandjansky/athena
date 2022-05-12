@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaSuperClusterBuilder.h"
@@ -20,7 +20,8 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
   , m_egTypeForCalibration(xAOD::EgammaParameters::electron)
-{}
+{
+}
 
 StatusCode
 egammaSuperClusterBuilder::initialize()
@@ -70,12 +71,17 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
     m_egammaSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
+  size_t inputSize = egammaRecs->size();
+  outputClusterContainer->reserve(inputSize);
+  newEgammaRecs->reserve(inputSize);
+
   std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
     precorrClustersH.emplace(m_precorrClustersKey, ctx);
     ATH_CHECK(precorrClustersH->record(
       std::make_unique<xAOD::CaloClusterContainer>(),
       std::make_unique<xAOD::CaloClusterAuxContainer>()));
+    precorrClustersH->ptr()->reserve(inputSize);
   }
 
   // The calo Det Descr manager
@@ -83,12 +89,20 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
     m_caloDetDescrMgrKey, ctx
   };
   ATH_CHECK(caloDetDescrMgrHandle.isValid());
-
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
-  // Reserve a vector to keep track of what is used
-  std::vector<bool> isUsed(egammaRecs->size(), false);
-  std::vector<bool> isUsedRevert(egammaRecs->size(), false);
+  // If no input return
+  if (egammaRecs->empty()) {
+    return StatusCode::SUCCESS;
+  }
+  // Figure the cellCont we need to point to
+  const DataLink<CaloCellContainer>& cellCont =
+    (*egammaRecs)[0]->caloCluster()->getCellLinks()->getCellContainerLink();
+
+    // Loop over input egammaRec objects, build superclusters.
+    size_t numInput = egammaRecs->size();
+  std::vector<bool> isUsed(numInput, false);
+  std::vector<bool> isUsedRevert(numInput, false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
     if (isUsed[i]) {
@@ -101,27 +115,26 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
     if (!seedClusterSelection(clus)) {
       continue;
     }
-    // Passed preliminary custs
-    // Mark seed as used
-    isUsedRevert = isUsed; // save status in case we fail to create supercluster
+    // save status in case we fail to create supercluster
+    isUsedRevert = isUsed;
+    // Mark seed as used,
     isUsed[i] = true;
 
-    // Start accumulating the clusters from the seed
+    // Now we find all the secondary cluster for this seed
+    // and we accumulate them
     std::vector<const xAOD::CaloCluster*> accumulatedClusters;
     accumulatedClusters.push_back(clus);
-
     const std::vector<std::size_t> secondaryIndices =
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
-
     for (const auto secClusIndex : secondaryIndices) {
       const auto* const secRec = (*egammaRecs)[secClusIndex];
       accumulatedClusters.push_back(secRec->caloCluster());
-      // no need to add vertices
     }
 
-   bool clusterAdded =
+    bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
+                       cellCont,
                        *calodetdescrmgr,
                        m_egTypeForCalibration,
                        outputClusterContainer.ptr(),

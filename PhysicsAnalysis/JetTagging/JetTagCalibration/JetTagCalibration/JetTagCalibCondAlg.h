@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGCALIBRATION_JETTAGCALIBCONDALG_H
@@ -8,8 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "JetTagCalibration/JetTagCalibCondData.h"
@@ -84,7 +82,6 @@ class JetTagCalibCondAlg : public AthAlgorithm {
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKeyCalibPath", "/GLOBAL/BTagCalib/RUN12", "Key of input (raw) conditions folder of bration path"}; //   /GLOBAL/BTagCalib/Onl/RUN12 online, /GLOBAL/BTagCalib/RUN12 offline
   SG::WriteCondHandleKey<JetTagCalibCondData> m_writeKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of output (derived) JetTag calibration data"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
   IPoolSvc* m_poolsvc;
 
 

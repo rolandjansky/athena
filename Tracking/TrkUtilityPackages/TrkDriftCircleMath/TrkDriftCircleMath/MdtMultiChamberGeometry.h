@@ -23,8 +23,7 @@ namespace TrkDriftCircleMath {
 
         virtual ~MdtMultiChamberGeometry();
 
-        const std::vector<LocVec2D>& allTubes() const override;
-
+     
         DCVec tubesPassedByLine(const Line& line, int ml) const;
         DCVec tubesPassedByLine(const Line& line) const override { return tubesPassedByLine(line, -1); }
 
@@ -34,19 +33,18 @@ namespace TrkDriftCircleMath {
 
         bool validGeometry() const override { return m_validGeometry; }
 
-        virtual void print() const override;
+        void print(MsgStream& msg) const override;
 
         virtual double tubeRadius() const override;
 
         double stationTheta() const override;
 
-        const MdtStationId& stationId() const override { return m_chambers[0].stationId(); }
+        const Identifier& stationId() const override { return m_chambers[0].stationId(); }
 
         unsigned int nChambers() const { return m_chambers.size(); }
 
     private:
         std::vector<MdtChamberGeometry> m_chambers;
-        std::vector<LocVec2D> m_allTubes;
         bool m_validGeometry{false};
     };
 

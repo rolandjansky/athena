@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -55,7 +55,7 @@ std::string const DATA_NAME = "dataVector";
 
 // Set up storable objects
 CLASS_DEF( DataVector<int>, 345654756, 1 )
-class DummyData: public SG::AuxElement  // Derive from AuxElement to allow for aux data
+class ATLAS_CHECK_THREAD_SAFETY DummyData: public SG::AuxElement  // Derive from AuxElement to allow for aux data
 {
   public:
     DummyData() : m_data(0){}

@@ -7,7 +7,7 @@ atlas_subdir( InDetHardScatterSelectionTool )
 atlas_add_library( InDetHardScatterSelectionToolLib
     Root/*.cxx
     PUBLIC_HEADERS InDetHardScatterSelectionTool
-    LINK_LIBRARIES AthLinks AsgDataHandlesLib AsgTools GaudiKernel InDetRecToolInterfaces InDetTrackSelectionToolLib xAODTracking )
+    LINK_LIBRARIES AthLinks AsgDataHandlesLib AsgTools GaudiKernel InDetRecToolInterfaces InDetTrackSelectionToolLib xAODTracking xAODJet FourMomUtils)
 
 if( NOT XAOD_STANDALONE )
     atlas_add_component( InDetHardScatterSelectionTool
@@ -19,3 +19,5 @@ atlas_add_dictionary( InDetHardScatterSelectionToolDict
     InDetHardScatterSelectionTool/InDetHardScatterSelectionToolDict.h
     InDetHardScatterSelectionTool/selection.xml
     LINK_LIBRARIES InDetHardScatterSelectionToolLib )
+
+atlas_install_python_modules( python/*.py ) 

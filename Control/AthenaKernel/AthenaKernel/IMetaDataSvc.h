@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IMETADATASVC_H
@@ -16,6 +16,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include <string>
+#include <set>
 #include <mutex>
 #include <typeinfo>
 
@@ -30,6 +31,8 @@ public: // Non-static members
    /// used by AthenaPoolCnvSvc
    virtual StatusCode shmProxy(const std::string& filename) = 0;
 
+   /// Get all per-stream Key variants created for in-file metadata object with original key - if none, return key
+   virtual std::set<std::string> getPerStreamKeysFor(const std::string& key ) const;
 
    // =======  Methods for handling metadata objects stored in MetaContainers (EventService)
    template <typename T, class TKEY>
@@ -77,6 +80,12 @@ private: // Data
 inline const InterfaceID& IMetaDataSvc::interfaceID() {
    static const InterfaceID IID("IMetaDataSvc", 1, 0);
    return(IID);
+}
+
+/// default implementation that maps a key to itself - overwritten in MetaDataSvc
+inline std::set<std::string>
+IMetaDataSvc::getPerStreamKeysFor(const std::string& key ) const {
+   return std::set<std::string>( {key} );
 }
 
 /**

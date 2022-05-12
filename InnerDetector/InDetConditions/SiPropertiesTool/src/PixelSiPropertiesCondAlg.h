@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file SiPropertiesTool/PixelSiPropertiesCondAlg.h
@@ -17,7 +17,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "SiPropertiesTool/SiliconPropertiesVector.h"
 #include "InDetIdentifier/PixelID.h"
@@ -33,8 +32,6 @@ class PixelSiPropertiesCondAlg : public AthReentrantAlgorithm {
 
   private:
     const PixelID* m_pixid;
-    
-    ServiceHandle<ICondSvc> m_condSvc;
 
     SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
     {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};

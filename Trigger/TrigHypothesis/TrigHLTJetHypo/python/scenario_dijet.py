@@ -181,29 +181,38 @@ def scenario_dijet(scenario, chainPartInd):
                                            chainPartInd=-1,
                                            condargs=condargs)]
    
+
     # make the condargs and the containing rep condition for j1
 
-    condargs = get_singlejet_args_from_matchdict(groupdict,
-                                                 threshold_var,
-                                                 'j1')
-
-    repcondargs.append(RepeatedConditionParams(tree_id = 2,
-                                           tree_pid=1,
-                                           chainPartInd=chainPartInd,
-                                           condargs=condargs))
-          
-    # make the condargs and the containing rep condition for j2
-
-    condargs = get_singlejet_args_from_matchdict(groupdict,
-                                                 threshold_var,
-                                                 'j2')
-
-    repcondargs.append(RepeatedConditionParams(tree_id = 3,
-                                               tree_pid=1,
-                                               chainPartInd=chainPartInd,
-                                               condargs=condargs))
+    condargs1 = get_singlejet_args_from_matchdict(groupdict,
+                                                  threshold_var,
+                                                  'j1')
     
+    condargs2 = get_singlejet_args_from_matchdict(groupdict,
+                                                  threshold_var,
+                                                  'j2')
 
+    
+    twins =  condargs1 == condargs2
+    if twins:
+        repcondargs.append(RepeatedConditionParams(tree_id = 2,
+                                                   tree_pid=1,
+                                                   multiplicity=2,
+                                                   chainPartInd=chainPartInd,
+                                                   condargs=condargs1))
+    else:
+        
+        repcondargs.append(RepeatedConditionParams(tree_id = 2,
+                                                   tree_pid=1,
+                                                   chainPartInd=chainPartInd,
+                                                   condargs=condargs1))
+        
+        repcondargs.append(RepeatedConditionParams(tree_id = 3,
+                                                   tree_pid=1,
+                                                   chainPartInd=chainPartInd,
+                                                   condargs=condargs1))
+        
+        
     
     # make pass through filter params for each condition in the tree.
     nconds = len(repcondargs)
@@ -216,7 +225,10 @@ def scenario_dijet(scenario, chainPartInd):
     # treevec[i] gives the tree_id of the parent of the
     # node with tree_id = i
     treevec = make_treevec(repcondargs)
-    assert treevec == [0, 0, 1, 1]
+    if twins:
+        assert treevec == [0, 0, 1]
+    else:
+        assert treevec == [0, 0, 1, 1]
     
     helper_params = HelperConfigToolParams(treevec=treevec,
                                            repcondargs=repcondargs,

@@ -301,7 +301,7 @@ class TileRawChannelGetter ( Configured)  :
                     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
                     theTileRawChannelBuilderFitFilter.TileRawChannelContainer = "TileRawChannelFit"
                     theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilter]
-                    self._TileRawChannelBuilderFitFilter = theTileRawChannelBuilderFitFilter
+                    self._TileRawChannelBuilderFitFilter = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderFitFilter']
                     
                 if jobproperties.TileRecFlags.doTileOverflowFit(): 
                     theTileRawChannelMaker.FitOverflow = True
@@ -334,7 +334,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilterCool]
-                self._TileRawChannelBuilderFitFilterCool = theTileRawChannelBuilderFitFilterCool
+                self._TileRawChannelBuilderFitFilterCool = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderFitFilterCool']
                 
             # matched filter 
             if jobproperties.TileRecFlags.doTileMF():
@@ -374,7 +374,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderMF to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderMF]
-                self._TileRawChannelBuilderMF = theTileRawChannelBuilderMF
+                self._TileRawChannelBuilderMF = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderMF']
 
             if jobproperties.TileRecFlags.doTileOF1():
                 try:
@@ -421,7 +421,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderOF1 to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOF1]
-                self._TileRawChannelBuilderOF1 = theTileRawChannelBuilderOF1
+                self._TileRawChannelBuilderOF1 = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderOF1']
 
             if jobproperties.TileRecFlags.doTileOpt2():
                 try:
@@ -457,7 +457,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderOpt2Filter to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOpt2Filter]
-                self._TileRawChannelBuilderOpt2Filter = theTileRawChannelBuilderOpt2Filter
+                self._TileRawChannelBuilderOpt2Filter = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderOpt2Filter']
       
       
             if jobproperties.TileRecFlags.doTileOptATLAS():
@@ -508,7 +508,7 @@ class TileRawChannelGetter ( Configured)  :
                           theTileRawChannelMaker.name())
                 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
-                self._TileRawChannelBuilderOptATLAS = theTileRawChannelBuilderOptATLAS
+                self._TileRawChannelBuilderOptATLAS = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderOptATLAS']
 
             if jobproperties.TileRecFlags.doTileWiener():
                 try:
@@ -544,7 +544,7 @@ class TileRawChannelGetter ( Configured)  :
                 mlog.info(" adding now TileRawChannelBuilderWienerFilter to the algorithm: %s", theTileRawChannelMaker.name())
 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderWienerFilter]
-                self._TileRawChannelBuilderWienerFilter = theTileRawChannelBuilderWienerFilter
+                self._TileRawChannelBuilderWienerFilter = theTileRawChannelMaker.TileRawChannelBuilder['TileRawChannelBuilderWienerFilter']
             
 
             # now add algorithm to topSequence

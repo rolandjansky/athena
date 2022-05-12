@@ -20,7 +20,7 @@ if "EVTMAX" in dir():
 include("PartPropSvc/PartPropSvc.py")
 
 ## Set up the random number service
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 
 ## Get a handle on the top level algorithm sequence

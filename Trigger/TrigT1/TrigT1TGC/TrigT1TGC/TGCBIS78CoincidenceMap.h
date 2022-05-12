@@ -5,23 +5,20 @@
 #include <map>
 #include <string>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonCondInterface/ITGCTriggerDbTool.h"
 #include "TrigT1TGC/TGCNumbering.h"
-
-#include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/MsgStream.h"
-
-class ITGCTriggerDbTool;
 
 namespace LVL1TGCTrigger {
 
 class BIS78TrigOut;
 class TGCArguments;
 
-class TGCBIS78CoincidenceMap {
+class TGCBIS78CoincidenceMap : public AthMessaging {
 
 private:
-  TGCBIS78CoincidenceMap();// hide default constructor
+  TGCBIS78CoincidenceMap() = delete;// hide default constructor
   enum {N_dEta=64,N_dPhi=16,N_PT_THRESH=15};// ?
   std::map<TGCRegionType,int> m_NumberOfEtaRaw={{ENDCAP,37},{FORWARD,16}}; // ?
   std::map<TGCRegionType,int> m_NumberOfRoI={{ENDCAP,148},{FORWARD,64}}; // ?
@@ -33,7 +30,7 @@ public:
 
 
   TGCBIS78CoincidenceMap(TGCArguments* tgcargs,const std::string& version);
-  ~TGCBIS78CoincidenceMap();
+  ~TGCBIS78CoincidenceMap() = default;
 
   int TGCBIS78_pt(const BIS78TrigOut *bis78Out, int /*roi*/) const;
 
@@ -60,12 +57,6 @@ private:
 
   ToolHandle<ITGCTriggerDbTool> m_condDbTool;
   TGCArguments* m_tgcArgs;
-
-  //Declaring private message stream member.
-  Athena::MsgStreamMember m_msg;
-
-
-
 };
 
 

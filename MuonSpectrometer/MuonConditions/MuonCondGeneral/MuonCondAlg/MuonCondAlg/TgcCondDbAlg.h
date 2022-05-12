@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_TGCCONDDBALG_H
@@ -12,7 +12,6 @@
 #include <vector>
 
 // Gaudi includes
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Athena includes
@@ -38,7 +37,6 @@ private:
     bool m_isData{false};
     bool m_isRun1{false};
 
-    ServiceHandle<ICondSvc> m_condSvc;
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     SG::WriteCondHandleKey<TgcCondDbData> m_writeKey{this, "WriteKey", "TgcCondDbData", "Key of output TGC condition data"};

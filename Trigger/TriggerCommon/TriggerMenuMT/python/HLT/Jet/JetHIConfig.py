@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR
@@ -94,6 +94,7 @@ stdJetModifiers.update(
     HLTHIJetCalib = JetModifier("JetCalibrationTool",
                                 "HLTHICalibTool_{modspec}",
                                 JetCollection="AntiKt4HI",
+                                PrimaryVerticesContainerName="",
                                 ConfigFile='JES_MC15c_HI_Nov2016.config',
                                 CalibSequence=lambda _, modspec: modspec.split('___')[0],
                                 IsData=lambda _, modspec: modspec.split('___')[1] == 'True'),
@@ -166,7 +167,7 @@ def jetHIRecoSequence(configFlags, clustersKey, towerKey, **jetRecoDict):
     stdJetModifiers.update(
         # we give a function as PtMin : it will be evaluated when instantiating the tool (modspec will come alias usage like "Filter:10000" --> PtMin=100000) 
         HLTHIJetAssoc = JetModifier("HIJetDRAssociationTool","HIJetDRAssociation", ContainerKey=clustersKey, DeltaR=0.8, AssociationName=associationName), 
-        HLTHIJetMaxOverMean = JetModifier("HIJetMaxOverMeanTool","HIJetMaxOverMean", JetContainer = "PseudoJet"+clustersKey), 
+        HLTHIJetMaxOverMean = JetModifier("HIJetMaxOverMeanTool","HIJetMaxOverMean", JetContainer = jetsFullName_Unsub), 
         HLTHIJetDiscrim = JetModifier("HIJetDiscriminatorTool","HIJetDiscriminator", MaxOverMeanCut = 4, MinimumETMaxCut=3000), 
     )
 
@@ -179,7 +180,8 @@ def jetHIRecoSequence(configFlags, clustersKey, towerKey, **jetRecoDict):
          calib_seq += "_Insitu"
 
     # Copy unsubtracted jets: seed0
-    jetDef_seed0 = JetRecoCommon.defineHIJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix,suffix="_seed0")
+    jetDef_seed0 = jetDef.clone()
+    jetDef_seed0.suffix = jetDef.suffix.replace("Unsubtracted", "seed0")
     jetsFullName_seed0 = jetDef_seed0.fullname()
     jetDef_seed0.modifiers=["HLTHIJetAssoc", "HLTHIJetMaxOverMean", "HLTHIJetDiscrim", "Filter:5000"]
     copySeed0Alg = getJetCopyAlg(jetsin=jetsInUnsub,jetsoutdef=jetDef_seed0,decorations=[],shallowcopy=False,shallowIO=False,monTool=monTool)
@@ -242,8 +244,7 @@ def jetHIRecoSequence(configFlags, clustersKey, towerKey, **jetRecoDict):
 
 def HLTRunTools(toollist, toolName, algoName):
     runner = CompFactory.JetToolRunner(toolName,
-                          Tools=toollist,
-                          Timer=0)
+                          Tools=toollist)
     theAlg = CompFactory.JetAlgorithm(algoName)
     theAlg.Tools = [runner]
    
@@ -428,7 +429,7 @@ def JetHICfg(flags, clustersKey, **jetRecoDict):
     acc = ComponentAccumulator()
 
     if jetRecoDict["ionopt"] == "noion":
-        raise ValueError(f"JetHICfg is called for ion option")
+        raise ValueError("JetHICfg is called for ion option")
 
     _jetNamePrefix = "HLT_"
     jetDef = JetRecoCommon.defineHIJets(

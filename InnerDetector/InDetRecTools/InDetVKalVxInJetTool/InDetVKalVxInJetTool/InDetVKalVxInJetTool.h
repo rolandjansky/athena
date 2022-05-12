@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -65,6 +65,7 @@ class TH1F;
 class TProfile;
 class TTree;
 class IChronoStatSvc;
+class ITHistSvc;
 
 namespace Trk{
   class TrkVKalVrtFitter;
@@ -119,52 +120,59 @@ namespace InDet {
 
     private:
 
-      TTree* m_tuple{};
-      TH1D* m_hb_massPiPi{};
-      TH1D* m_hb_massPiPi1{};
-      TH1D* m_hb_massPPi{};
-      TH1D* m_hb_massEE{};
-      TH1D* m_hb_totmassEE{};
-      TH1D* m_hb_totmass2T0{};
-      TH1D* m_hb_totmass2T1{};
-      TH1D* m_hb_totmass2T2{};
-      TH1D* m_hb_nvrt2{};
-      TH1D* m_hb_ratio{};
-      TH1D* m_hb_totmass{};
-      TH1D* m_hb_impact{};
-      TH1D* m_hb_impactR{};
-      TH2D* m_hb_impactRZ{};
-      TH1D* m_hb_trkD0{};
-      TH1D* m_hb_ntrkjet{};
-      TH1D* m_hb_impactZ{};
-      TH1D* m_hb_r2d{};
-      TH1D* m_hb_r1dc{};
-      TH1D* m_hb_r2dc{};
-      TH1D* m_hb_r3dc{};
-      TH1D* m_hb_rNdc{};
-      TH1D* m_hb_dstToMat{};
-      TH1D* m_hb_jmom{};
-      TH1D* m_hb_mom{};
-      TH1D* m_hb_signif3D{};
-      TH1D* m_hb_impV0{};
-      TH1D* m_hb_sig3DTot{};
-      TH1F* m_hb_goodvrtN{};
-      TH1D* m_hb_distVV{};
-      TH1D* m_hb_diffPS{};
-      TH1D* m_hb_sig3D1tr{};
-      TH1D* m_hb_sig3D2tr{};
-      TH1D* m_hb_sig3DNtr{};
-      TH1D* m_hb_trkPtMax{};
-      TH1F* m_hb_rawVrtN{};
-      TH1F* m_hb_lifetime{};
-      TH1F* m_hb_trkPErr{};
-      TH1F* m_hb_deltaRSVPV{};
+      struct DevTuple;
+      struct Hists {
+        StatusCode book (ITHistSvc& histSvc, const std::string& histDir);
+        TTree* m_tuple{};
+        DevTuple* m_curTup;
+        TH1D* m_hb_massPiPi{};
+        TH1D* m_hb_massPiPi1{};
+        TH1D* m_hb_massPPi{};
+        TH1D* m_hb_massEE{};
+        TH1D* m_hb_totmassEE{};
+        TH1D* m_hb_totmass2T0{};
+        TH1D* m_hb_totmass2T1{};
+        TH1D* m_hb_totmass2T2{};
+        TH1D* m_hb_nvrt2{};
+        TH1D* m_hb_ratio{};
+        TH1D* m_hb_totmass{};
+        TH1D* m_hb_impact{};
+        TH1D* m_hb_impactR{};
+        TH2D* m_hb_impactRZ{};
+        TH1D* m_hb_trkD0{};
+        TH1D* m_hb_ntrkjet{};
+        TH1D* m_hb_impactZ{};
+        TH1D* m_hb_r2d{};
+        TH1D* m_hb_r1dc{};
+        TH1D* m_hb_r2dc{};
+        TH1D* m_hb_r3dc{};
+        TH1D* m_hb_rNdc{};
+        TH1D* m_hb_dstToMat{};
+        TH1D* m_hb_jmom{};
+        TH1D* m_hb_mom{};
+        TH1D* m_hb_signif3D{};
+        TH1D* m_hb_impV0{};
+        TH1D* m_hb_sig3DTot{};
+        TH1F* m_hb_goodvrtN{};
+        TH1D* m_hb_distVV{};
+        TH1D* m_hb_diffPS{};
+        TH1D* m_hb_sig3D1tr{};
+        TH1D* m_hb_sig3D2tr{};
+        TH1D* m_hb_sig3DNtr{};
+        TH1D* m_hb_trkPtMax{};
+        TH1F* m_hb_rawVrtN{};
+        TH1F* m_hb_lifetime{};
+        TH1F* m_hb_trkPErr{};
+        TH1F* m_hb_deltaRSVPV{};
 //--
-      TProfile * m_pr_NSelTrkMean{};
-      TProfile * m_pr_effVrt2tr{};
-      TProfile * m_pr_effVrt2trEta{};
-      TProfile * m_pr_effVrt{};
-      TProfile * m_pr_effVrtEta{};
+        TProfile * m_pr_NSelTrkMean{};
+        TProfile * m_pr_effVrt2tr{};
+        TProfile * m_pr_effVrt2trEta{};
+        TProfile * m_pr_effVrt{};
+        TProfile * m_pr_effVrtEta{};
+      };
+      std::unique_ptr<Hists> m_h;
+      
       long int m_iflag{};
 
       SimpleProperty<int>    m_Robustness;
@@ -192,7 +200,7 @@ namespace InDet {
       double m_cutBVrtScore{};
       double m_vrt2TrMassLimit{};
 
-      bool m_useWrongRadErrorCut{};
+      bool m_useFrozenVersion{};
       bool m_fillHist{};
 
       bool m_existIBL{};
@@ -252,11 +260,11 @@ namespace InDet {
 //-------------------------------------------
 //For ntuples (only for development/tuning!)
 
-      int notFromBC(int PDGID) const;
-      const xAOD::TruthParticle * getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) const;
-      int getIdHF(const xAOD::TrackParticle* TP ) const;
-      int getG4Inter( const xAOD::TrackParticle* TP ) const;
-      int getMCPileup(const xAOD::TrackParticle* TP ) const;
+      static int notFromBC(int PDGID) ;
+      static const xAOD::TruthParticle * getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) ;
+      static int getIdHF(const xAOD::TrackParticle* TP ) ;
+      static int getG4Inter( const xAOD::TrackParticle* TP ) ;
+      static int getMCPileup(const xAOD::TrackParticle* TP ) ;
 
       struct DevTuple 
      { 
@@ -313,7 +321,6 @@ namespace InDet {
        float NVrtAveW[maxNVrt];
        float NVrtDR[maxNVrt];
      };
-     DevTuple*  m_curTup;
 
      struct Vrt2Tr 
      {   int i=0, j=0;
@@ -334,7 +341,7 @@ namespace InDet {
 
 // For multivertex version only
 
-      boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph{};
+      using compatibilityGraph_t = boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>;
       float m_chiScale[11]{};
       struct WrkVrt 
      {   bool Good=true;
@@ -362,21 +369,23 @@ namespace InDet {
                                    std::vector<double>                           & results,
                                    std::vector<const xAOD::TrackParticle*>       & selSecTrk,
                                    std::vector<const xAOD::TrackParticle*>       & trkFromV0,
-				   int & nRefPVTrk) const;
+				   int & nRefPVTrk,
+                                   compatibilityGraph_t                          & compatibilityGraph) const;
 
       std::vector<xAOD::Vertex*> getVrtSecMulti(
         workVectorArrxAOD*,
         const xAOD::Vertex& primVrt,
         const TLorentzVector& jetDir,
-        std::vector<double>& results) const;
+        std::vector<double>& results,
+        compatibilityGraph_t& compatibilityGraph) const;
 
-      void  trackClassification(std::vector<WrkVrt> *wrkVrtSet, 
-                                std::vector< std::deque<long int> > *trkInVrt) const;
+      static void  trackClassification(std::vector<WrkVrt> *wrkVrtSet, 
+                                std::vector< std::deque<long int> > *trkInVrt) ;
 
-      double MaxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
+      static double MaxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
                          std::vector< std::deque<long int> > *trkInVrt,
 			 long int & selectedTrack,
-			 long int & selectedVertex) const;
+			 long int & selectedVertex) ;
       void removeTrackFromVertex(std::vector<WrkVrt> *wrkVrtSet, 
                                  std::vector< std::deque<long int> > *trkInVrt,
 				 long int & selectedTrack,
@@ -390,18 +399,18 @@ namespace InDet {
       StatusCode cutTrk(std::unordered_map<std::string,double> TrkVarDouble,
                         std::unordered_map<std::string,int> TrkVarInt,
 			float evtWgt=1.) const;
-      double coneDist(const AmgVector(5) & , const TLorentzVector & ) const;
+      static double coneDist(const AmgVector(5) & , const TLorentzVector & ) ;
 //
 // Gives correct mass assignment in case of nonequal masses
-      double massV0( std::vector< std::vector<double> >& trkAtVrt, double massP, double massPi ) const;
-      int findMax( std::vector<double>& chi2PerTrk, std::vector<float>&  rank) const;
+      static double massV0( std::vector< std::vector<double> >& trkAtVrt, double massP, double massPi ) ;
+      static int findMax( std::vector<double>& chi2PerTrk, std::vector<float>&  rank) ;
 
 
       TLorentzVector totalMom(const std::vector<const Trk::Perigee*>& inpTrk) const; 
-      TLorentzVector totalMom(const std::vector<const xAOD::TrackParticle*>& inpTrk) const; 
+      static TLorentzVector totalMom(const std::vector<const xAOD::TrackParticle*>& inpTrk) ; 
       TLorentzVector momAtVrt(const std::vector<double>& inpTrk) const; 
-      double           pTvsDir(const Amg::Vector3D &Dir, const std::vector<double>& inpTrk) const; 
-      double           vrtRadiusError(const Amg::Vector3D & secVrt, const std::vector<double>  & vrtErr) const;
+      static double           pTvsDir(const Amg::Vector3D &Dir, const std::vector<double>& inpTrk) ; 
+      static double           vrtRadiusError(const Amg::Vector3D & secVrt, const std::vector<double>  & vrtErr) ;
 
       bool  insideMatLayer(float ,float ) const;
       void  fillVrtNTup( std::vector<Vrt2Tr> & all2TrVrt) const;
@@ -413,12 +422,12 @@ namespace InDet {
                               const xAOD::Vertex    & primVrt,
 			      Amg::Vector3D &V1, Amg::Vector3D &V2) const;
 
-      int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
+      static int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) ;
       double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
-      double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
-      bool isPart( std::deque<long int> test, std::deque<long int> base) const;
-      void clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
-      double jetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &primVrt, const TLorentzVector &JetDir) const;
+      static double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) ;
+      static bool isPart( std::deque<long int> test, std::deque<long int> base) ;
+      static void clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) ;
+      static double jetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &primVrt, const TLorentzVector &JetDir) ;
 
       double vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& VrtErr,double& Signif ) const;
@@ -434,12 +443,12 @@ namespace InDet {
                              std::vector<const Particle*>  AllTracks,
                              Trk::IVKalState& istate) const;
 					  
-      double projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) const;
+      static double projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) ;
 
       double rankBTrk(double TrkPt, double JetPt, double Signif) const;
  
 
-      const Trk::Perigee* getPerigee( const xAOD::TrackParticle* ) const;
+      static const Trk::Perigee* getPerigee( const xAOD::TrackParticle* ) ;
       std::vector<const Trk::Perigee*> GetPerigeeVector( const std::vector<const Trk::TrackParticleBase*>& ) const;
 
 
@@ -500,9 +509,10 @@ namespace InDet {
                         int                      & nRefPVTrk,
                         std::vector<const Trk*>  & TrkFromV0,
                         std::vector<const Trk*>  & ListSecondTracks,
-			float evtWgt=1.) const;
+                        compatibilityGraph_t     & compatibilityGraph,
+                        float evtWgt = 1) const;
 
-     Amg::MatrixX  makeVrtCovMatrix( std::vector<double> & ErrorMatrix ) const;
+     static Amg::MatrixX  makeVrtCovMatrix( std::vector<double> & ErrorMatrix ) ;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -518,7 +528,7 @@ namespace InDet {
      bool  check1TrVertexInPixel( const Track* p1, Amg::Vector3D &, std::vector<double> & ) const;
 
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
-     void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
+     static void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) ;
      void  getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
 
 
@@ -535,6 +545,8 @@ namespace InDet {
 
      StatusCode GetTrkFitWeights(std::vector<double> & wgt,
                                  const Trk::IVKalState& istate) const;
+
+     Hists& getHists() const;
    };
 
 

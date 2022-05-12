@@ -22,7 +22,7 @@
 #include "ParticleEventTPCnv/ParticleShallowCloneContainerCnv_p1.h"
 
 // preallocate converters
-static ParticleShallowCloneCnv_p1 s_cpCnv;
+static const ParticleShallowCloneCnv_p1 s_cpCnv;
 
 
 void 

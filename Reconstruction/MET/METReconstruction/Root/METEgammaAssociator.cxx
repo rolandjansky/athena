@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METEgammaAssociator.cxx 
@@ -599,13 +599,13 @@ namespace met {
 	  float  unmatchedTotEMFrac=0;
 	  double emfrac=0;
 
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFrac("unmatchedFrac");
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracSumpt("unmatchedFracSumpt");
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracPt("unmatchedFracPt");
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracE("unmatchedFracE");
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracEClusterPFO("unmatchedFracEClusterPFO");
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedFracPtClusterPFO("unmatchedFracPtClusterPFO");
-    	  static SG::AuxElement::Decorator<Float_t> dec_unmatchedTotEMFrac("unmatchedTotEMFrac");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedFrac("unmatchedFrac");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedFracSumpt("unmatchedFracSumpt");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedFracPt("unmatchedFracPt");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedFracE("unmatchedFracE");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedFracEClusterPFO("unmatchedFracEClusterPFO");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedFracPtClusterPFO("unmatchedFracPtClusterPFO");
+    	  static const SG::AuxElement::Decorator<Float_t> dec_unmatchedTotEMFrac("unmatchedTotEMFrac");
 
 	  TLorentzVector totVec(0.,0.,0.,0.), unmatchedVec(0.,0.,0.,0.);
 	  const std::vector<const xAOD::CaloCluster*> egClusters = xAOD::EgammaHelpers::getAssociatedTopoClusters(eg->caloCluster());

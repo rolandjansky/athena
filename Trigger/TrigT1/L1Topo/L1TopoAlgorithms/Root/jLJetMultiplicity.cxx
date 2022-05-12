@@ -17,7 +17,7 @@
 #include "L1TopoInterfaces/Count.h"
 
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jLargeRJetTOBArray.h"
+#include "L1TopoEvent/jLJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 
 REGISTER_ALG_TCS(jLJetMultiplicity)
@@ -42,13 +42,11 @@ TCS::jLJetMultiplicity::initialize() {
   m_threshold = getThreshold();
 
   // book histograms
-  bool isMult = true;
+  std::string hname_accept = "jLJetMultiplicity_accept_EtaPt_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "#eta#times40", "E_{t} [GeV]", 200, -200, 200, 600, 0, 600);
 
-  std::string hname_accept = "hjLJetMultiplicity_accept_EtaPt_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 180, 0., 120., isMult);
-
-  hname_accept = "hjLJetMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
+  hname_accept = "jLJetMultiplicity_accept_counts_"+m_threshold->name();
+  bookHistMult(m_histAccept, hname_accept, "Mult_"+m_threshold->name(), "counts", 15, 0, 15);
 
   return StatusCode::SUCCESS;
      
@@ -69,22 +67,22 @@ TCS::jLJetMultiplicity::process( const TCS::InputTOBArray & input,
 {
 
   // Grab the threshold and cast it into the right type
-  auto jLJThr = dynamic_cast<const TrigConf::L1Threshold_jLJ &>(*m_threshold);
+  const auto& jLJThr = dynamic_cast<const TrigConf::L1Threshold_jLJ &>(*m_threshold);
 
   // Grab inputs
-  const jLargeRJetTOBArray & jLargeRjets = dynamic_cast<const jLargeRJetTOBArray&>(input);
+  const jLJetTOBArray & jLjets = dynamic_cast<const jLJetTOBArray&>(input);
 
   int counting = 0; 
   
   // loop over input TOBs
-  for(jLargeRJetTOBArray::const_iterator jLargeRjet = jLargeRjets.begin();
-      jLargeRjet != jLargeRjets.end();
-      ++jLargeRjet ) {
+  for(jLJetTOBArray::const_iterator jLjet = jLjets.begin();
+      jLjet != jLjets.end();
+      ++jLjet ) {
     
-    const GenericTOB gtob(**jLargeRjet);
+    const GenericTOB gtob(**jLjet);
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() >= jLJThr.thrValue100MeV(gtob.eta()/4);
+    bool passed = gtob.Et() > jLJThr.thrValue100MeV(gtob.eta()/4);
 
     if (passed) {
       counting++; 

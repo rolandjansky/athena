@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDPROXYWRAPPER_H
@@ -18,9 +18,4 @@ typedef TileCondProxyCool< TileCalibDrawerOfc > TileCondProxyCoolOfc;
 typedef TileCondProxyFile< TileCalibDrawerFlt > TileCondProxyFileFlt;
 typedef TileCondProxyFile< TileCalibDrawerBch > TileCondProxyFileBch;
 
-#ifndef IOVSVC_CALLBACK_ARGS_K
-#define IOVSVC_CALLBACK_ARGS_K(K) int&,std::list<std::string>& K
 #endif
-
-#endif
-

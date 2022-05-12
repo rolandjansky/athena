@@ -18,6 +18,7 @@ find_package( GeoModel COMPONENTS GeoModelKernel )
 # Component(s) in the package:
 atlas_add_library( Geo2G4Lib
                    src/*.cxx
+                   OBJECT
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
@@ -25,11 +26,9 @@ atlas_add_library( Geo2G4Lib
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${GEOMODEL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel G4AtlasInterfaces G4AtlasToolsLib GeoModelUtilities GeoPrimitives
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GeoSpecialShapes SimHelpers GeoMaterial2G4 AthenaKernel GeoModelInterfaces StoreGateLib )
 
-atlas_add_component( Geo2G4
-                     src/components/*.cxx
-                     LINK_LIBRARIES Geo2G4Lib )
+atlas_add_library( Geo2G4
+                   src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
+                   PRIVATE_LINK_LIBRARIES Geo2G4Lib ) 
 
-atlas_add_dictionary( LArWheelSolidCheckerDict
-                      src/LArWheelSolidDDProxy.h
-                      src/lcg_dict/selection.xml
-                      LINK_LIBRARIES Geo2G4Lib )

@@ -7,13 +7,8 @@
 
 #include <cmath>
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "MuonRDO/RpcPadContainer.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -25,8 +20,7 @@
 TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
-   AthAlgTool(type,name,parent),
-   m_robDataProvider( "ROBDataProviderSvc", name )
+   AthAlgTool(type,name,parent)
 {
 }
 
@@ -37,11 +31,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize ()
 {
    // locate the region selector
    ATH_CHECK( m_regSel_MDT.retrieve() );
-   ATH_CHECK( m_regSel_CSC.retrieve() );
    ATH_CHECK( m_regSel_TGC.retrieve() );
 
-   // Locate ROBDataProvider
-   ATH_CHECK( m_robDataProvider.retrieve() );
 
    m_localBuffer.clear();
 
@@ -49,6 +40,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize ()
 
    ATH_CHECK(m_tgcRdoKey.initialize());
    ATH_CHECK(m_readKey.initialize());
+   ATH_CHECK(m_eventInfoKey.initialize());
+   ATH_CHECK(m_rpcPadKey.initialize());
 
    return StatusCode::SUCCESS;
 
@@ -64,7 +57,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream(int calBufferSize)
   std::string name = m_calBufferName;
   name += "_"+m_algInstanceName;
   
-  if ( m_cid == -1 ) { 
+  if ( m_circ == nullptr ) { 
       try
 	{
 	  m_circ = new TrigL2MuonSA::MuCalCircClient (0, name, calBufferSize);
@@ -93,17 +86,23 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 {
 
   std::string name = m_calBufferName+"_"+m_algInstanceName;
-
+  ATH_MSG_DEBUG("I'm going to close the stream "<<name);
 
   if (m_circ)
     {
       delete m_circ;
-      m_circ = 0;
+      m_circ = nullptr;
     }
 
   return StatusCode::SUCCESS;
 
 }
+
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
 
 
 // --------------------------------------------------------------------------------
@@ -122,11 +121,11 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
    // create the fragment
    // ( dummy input for now )
 
+   ATH_MSG_DEBUG("Data scouting is set to"<<doDataScouting);
 
-
-   // skip the event if it's a data scouting chain and it's a noise burst
+   // skip the event if it's a noise burst
    unsigned int totalHits = mdtHits.size()+rpcHits.size()+tgcHits.size();
-   if ( doDataScouting && totalHits > 500 ) {
+   if (  totalHits > 500 ) {
      ATH_MSG_DEBUG("Too many hits: skip the RoI");
      updateTriggerElement=false;
      return StatusCode::SUCCESS;
@@ -143,23 +142,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
     
 
    // retrieve the event and trigger info
-   const EventInfo* eventInfo(0);
-   ATH_CHECK( evtStore()->retrieve(eventInfo) );
+   SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+   uint32_t runId  = ctx.eventID().run_number();
+   uint32_t lvl1Id = eventInfo->extendedLevel1ID();
 
-   const EventID* eventId = eventInfo->event_ID();
-   if(eventId==0) {
-     ATH_MSG_ERROR("Could not find EventID object");
-     return StatusCode::FAILURE;
-   }
-
-   const TriggerInfo* triggerInfo = eventInfo->trigger_info();
-   if(triggerInfo==0) {
-     ATH_MSG_ERROR("Could not find TriggerInfo object");
-     return StatusCode::FAILURE;
-   }
-
-   uint32_t runId  = eventId->run_number();
-   uint32_t lvl1Id = triggerInfo->extendedLevel1ID();
 
    // get track parameters
    float eta = (float) track.etaVtx;
@@ -184,6 +170,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
    m_regSel_MDT->ROBIDList(*iroi,robIdList_MDT);
 
    // dump the list of robs for debugging 
+   ATH_MSG_DEBUG("Size of the MDT rob list: " << robIdList_MDT.size());
    int isize = robIdList_MDT.size()<5 ? robIdList_MDT.size() : 4;
    for (int ii = 0 ; ii<isize ; ++ii ) {
      ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList_MDT.at(ii) << std::dec);
@@ -195,10 +182,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
    m_regSel_TGC->ROBIDList(*iroi,robIdList_TGC);
    ATH_MSG_DEBUG("Size of the TGC rob list: " << robIdList_TGC.size());
 
-   // get the list of CSC robs
-   std::vector<uint32_t> robIdList_CSC;
-   m_regSel_CSC->ROBIDList(*iroi,robIdList_CSC);
-   ATH_MSG_DEBUG("Size of the CSC rob list: " << robIdList_CSC.size());
 
    LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
    LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
@@ -209,6 +192,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
   
      // add the mdt fragment to the event
      event << mdtFragment;
+   }
+   else{
+     // do not write the calib stream
+     return StatusCode::SUCCESS;
    }
 
    // create the RPC fragment 
@@ -238,19 +225,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 
 
 
-   // if there is any CSC rob, add also the CSC fragment
-   if ( robIdList_CSC.size()>0 ) {
-  
-     LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
-     if ( createCscFragment(robIdList_CSC,cscFragment) != StatusCode::SUCCESS ) {
-       ATH_MSG_ERROR("Could not create the Csc fragment of the calibration stream");
-     }
-     else {
-       ATH_MSG_DEBUG("Adding the CSC fragment to the calibration stream");
-       event << cscFragment;
-     }
-
-   }
+   ATH_MSG_DEBUG("Dumping the event stream");
+   ATH_MSG_DEBUG(event);
   if (m_circ)
   {
     m_circ->dumpToCirc (event);
@@ -290,8 +266,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
  					    trailingCoarseTime,trailingFineTime,adc
  					    ,trackPhi);
 
-     mdtFragment << mdt;
+     ATH_MSG_DEBUG("Dumping MDT Hit");
+     ATH_MSG_DEBUG(mdt);
 
+     mdtFragment << mdt;
    }
 
    return StatusCode::SUCCESS;
@@ -311,18 +289,15 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const xAOD::MuonRo
   if ( roi->getSource() != 0 ) return StatusCode::SUCCESS;
  
   // retrieve the padId from the RecMuonRoi
-  unsigned int    roIWord=roi->roiWord();
 
   //  decode  roIWord
-  unsigned int sectorAddress = (roIWord & 0x003FC000) >> 14;
-  unsigned int sectorRoIOvl  = (roIWord & 0x000007FC) >> 2;
-  unsigned int side =  sectorAddress & 0x00000001;
-  unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
-  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
+  unsigned int side = roi->getHemisphere()==xAOD::MuonRoI::Hemisphere::Positive ? 1 : 0;
+  unsigned int sector = roi->getSectorID();
+  unsigned int roiNumber =  roi->getRoI();
 
   // retrieve the pad container
-  const RpcPadContainer* rpcPadContainer=nullptr;
-  ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
+  SG::ReadHandle<RpcPadContainer> rh_rpcPad{m_rpcPadKey, ctx};
+  const RpcPadContainer* rpcPadContainer=rh_rpcPad.cptr();
 
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey,ctx};
   const RpcCablingCondData* readCdo{*readHandle};
@@ -345,7 +320,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const xAOD::MuonRo
       
       LVL2_MUON_CALIBRATION::RpcCalibFragment frag(sysId,secId,padId,status,error);
       rpcFragment = frag;
-
       RpcPad::const_iterator it3 = rpcPad->begin();
       for (; it3!=rpcPad->end() ; ++it3) {
 	const RpcCoinMatrix * cma = (*it3);
@@ -526,38 +500,3 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
   
   return StatusCode::SUCCESS;
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// prepare the CSC fragment of the stream
-//
-////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createCscFragment(std::vector<uint32_t>& robIdList_CSC,
-							      LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) const
-{
-  
-  // retreive the csc rob data
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
-  m_robDataProvider->getROBData(robIdList_CSC,robFragments);
-
-  // transfer the rob data to the CSC fragment
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it;
-  for ( it = robFragments.begin() ; it != robFragments.end() ; ++it ) {
-    
-    LVL2_MUON_CALIBRATION::CscCalibData CscData;
-    uint32_t rod_words     = (**it).rod_fragment_size_word();
-    OFFLINE_FRAGMENTS_NAMESPACE::PointerType wr;
-    (*it)->rod_start(wr);
-
-    for (uint32_t i=0;i<rod_words;++i) {
-      // CID 22907: CAST_TO_QUALIFIED_TYPE
-      // CscData << static_cast<const uint32_t>(*(wr+i));
-      CscData << static_cast<uint32_t>(*(wr+i));
-    }
-    cscFragment << CscData;
-  }
-
-  return StatusCode::SUCCESS;
-}
-

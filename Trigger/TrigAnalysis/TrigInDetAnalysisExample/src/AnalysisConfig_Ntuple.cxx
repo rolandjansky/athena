@@ -254,15 +254,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 		    for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
  
-		      if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-		      if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-		   
-		      if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element(); 
-		      if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-		      if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-		     
-		      if ( !chainName.passed() )    selectChains[iselected] += ";DTE";
-		     
+		      selectChains[iselected] = chainName.subs( selectChains[iselected] ); 
+
 		      /// replace wildcard with actual matching chains ...
 		      chainNames.push_back( ChainString(selectChains[iselected]) );
 

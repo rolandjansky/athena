@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ LayerMaterialMapCnv_tlp1::LayerMaterialMapCnv_tlp1()
 }
 
 LayerMaterialMapCnv_tlp1::~LayerMaterialMapCnv_tlp1()
-{}
+= default;
 
 void LayerMaterialMapCnv_tlp1::setPStorage( Trk::LayerMaterialMap_tlp1 *storage )
 {

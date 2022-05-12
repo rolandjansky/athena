@@ -36,7 +36,7 @@ public:
   void EndOfAthenaEvent();
 
 private:
-  const TileTBID* m_tileTBID;
+  const TileTBID* m_tileTBID = nullptr;
 
   static const int N_CELLS = 2;
 

@@ -338,13 +338,11 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           }
           else if (eta_index == 1){
             towereta = 13;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if (eta_index == 2){
             towereta = 14;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
         }
         break;
@@ -359,9 +357,8 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           else if (eta_index < 43) {towereta = 11;}
         }
         else if(abs(pos_neg) == 3){
-          towerphi = phi_index/2;
+          towerphi = phi_index;
           towereta = 15;
-          nphi = 16;
         }
         break;
       }
@@ -377,7 +374,7 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
         if(pos_neg < 0){ towerID_Modifier = 300000; }
         else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
-      else if (towereta == 13 || towereta == 14 || towereta == 15){
+      else if (towereta == 12 || towereta == 13 || towereta == 14 || towereta == 15){
         if(pos_neg < 0){ towerID_Modifier = 700000; }
         else if(pos_neg > 0){ towerID_Modifier = 800000; }
       }
@@ -419,21 +416,18 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           }
           else if (eta_index == 1){
             towereta = 13;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if (eta_index == 2){
             towereta = 14;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
         }
         break;
       }
       case 1: { // we only have the case: abs(pos_neg) = 3
-        towerphi = phi_index/2;
+        towerphi = phi_index;
         towereta = 15;
-        nphi = 16;
         break;
       }
       default: {
@@ -447,7 +441,7 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
         if(pos_neg < 0){ towerID_Modifier = 300000; }
         else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
-      else if (towereta == 13 || towereta == 14 || towereta == 15){
+      else if (towereta == 12 || towereta == 13 || towereta == 14 || towereta == 15){
         if(pos_neg < 0){ towerID_Modifier = 700000; }
         else if(pos_neg > 0){ towerID_Modifier = 800000; }
       }
@@ -489,22 +483,18 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
           if (eta_index == 0){
             towereta = 12;
             towerphi = phi_index;
-            nphi = 32;
           }
           else if(eta_index == 1){
             towereta = 13;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if(eta_index == 2){
             towereta = 14;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
           else if(eta_index == 3){
             towereta = 15;
-            towerphi = phi_index/2;
-            nphi = 16;
+            towerphi = phi_index;
           }
         }
         break;
@@ -524,7 +514,7 @@ int gSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<gTowerContainer> 
         if(pos_neg < 0){ towerID_Modifier = 300000; }
         else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
-      else if (towereta == 13 || towereta == 14 || towereta == 15){
+      else if (towereta == 12 || towereta == 13 || towereta == 14 || towereta == 15){
         if(pos_neg < 0){ towerID_Modifier = 700000; }
         else if(pos_neg > 0){ towerID_Modifier = 800000; }
       }

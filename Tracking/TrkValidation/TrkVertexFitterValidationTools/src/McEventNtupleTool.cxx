@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ Trk::McEventNtupleTool::McEventNtupleTool(
 }
 
 // destructor
-Trk::McEventNtupleTool::~McEventNtupleTool() {}
+Trk::McEventNtupleTool::~McEventNtupleTool() = default;
 
 //////////////////
 /// initialize
@@ -213,7 +213,7 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
                 sec_vtx_pos.setZ(sec_vtx_pos.z() + (*map_itr).second->position().z());
                 sec_vtx_pos.setT(sec_vtx_pos.t() + (*map_itr).second->position().t());
           }
-           if (sec_map.size() > 0){
+           if (!sec_map.empty()){
               sec_vtx_pos = sec_vtx_pos/sec_map.size();
               m_true_sec_x->push_back(sec_vtx_pos.x());
               m_true_sec_y->push_back(sec_vtx_pos.y());

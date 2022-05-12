@@ -75,10 +75,8 @@ bool WiredOR::setup(SectorLogicSetup& setup) {
     if (!connect(setup)) return false;
 
     int ch = (m_params.side == Eta) ? give_max_eta_strips() : give_max_phi_strips();
-    m_even_read_mul.resize(ch);
-    m_odd_read_mul.resize(ch);
-    for (int i = 0; i < ch; ++i) { m_even_read_mul.push_back(0); }
-    for (int i = 0; i < ch; ++i) { m_odd_read_mul.push_back(0); }
+    m_even_read_mul.assign(ch, 0);
+    m_odd_read_mul.assign(ch, 0);
     return true;
 }
 

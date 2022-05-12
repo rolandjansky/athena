@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -47,9 +47,9 @@ public:
   StatusCode serialize(uint32_t *serialized, void *instance,
 		       const std::string nameOfClass, int &veclen, const int maxsize);
   */
-  std::vector<uint32_t> serialize(const std::string &nameOfClass, void* instance);
+  std::vector<uint32_t> serialize(const std::string &nameOfClass, const void* instance);
 
-  void serialize(const std::string &nameOfClass, void* instance, std::vector<uint32_t> &v);
+  void serialize(const std::string &nameOfClass, const void* instance, std::vector<uint32_t> &v);
 
   void* deserialize(const std::string &nameOfClass, const std::vector<uint32_t>& v);
   /*

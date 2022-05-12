@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArDSPThresholdsSubsetCnv_p1.h"
@@ -7,7 +7,7 @@
 void
 LArDSPThresholdsSubsetCnv_p1::persToTrans(const DSPThresholdsPersType* persObj, 
 					  DSPThresholdsTransType* transObj, 
-					  MsgStream & /*log*/)
+					  MsgStream & /*log*/) const
 {
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
@@ -49,7 +49,7 @@ LArDSPThresholdsSubsetCnv_p1::persToTrans(const DSPThresholdsPersType* persObj,
 void 
 LArDSPThresholdsSubsetCnv_p1::transToPers(const DSPThresholdsTransType* transObj, 
 					DSPThresholdsPersType* persObj, 
-					MsgStream &log) 
+					MsgStream &log) const
 {
   // Get the number of channels, corrections and the size of pedestal and pedestalrms
   unsigned int ncorrs           = transObj->correctionVecSize();

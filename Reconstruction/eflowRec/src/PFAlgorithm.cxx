@@ -87,7 +87,7 @@ StatusCode PFAlgorithm::execute(const EventContext& ctx) const{
 
   /* Run the other AglTools */
   for (auto thisIPFBaseTool :  m_IPFBaseTools){
-    thisIPFBaseTool->execute(*theElowCaloObjectContainer);
+    ATH_CHECK(thisIPFBaseTool->execute(*theElowCaloObjectContainer));
   }
 
   auto mon = Monitored::Group(m_monTool, t_exec, t_subtract, N_efrClusters);

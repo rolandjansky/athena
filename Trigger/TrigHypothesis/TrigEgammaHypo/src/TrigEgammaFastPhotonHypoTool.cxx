@@ -65,19 +65,20 @@ StatusCode TrigEgammaFastPhotonHypoTool::decide( std::vector<PhotonInfo>& input)
 bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) const {
 
   auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto PhEt =  Monitored::Scalar( "PhEt", -99. );
-  auto PhEta = Monitored::Scalar( "PhEta", -99. );
-  auto PhPhi = Monitored::Scalar( "PhPhi", -99. );
-  auto PhRcore = Monitored::Scalar( "PhRcore", -99. );
-  auto PhEratio = Monitored::Scalar( "PhRcore", -99. );
-  auto PhHadEt = Monitored::Scalar( "PhHadEt", -99. );
-  auto PhF1 = Monitored::Scalar( "PhF1", -99. );
+  auto mon_Et     = Monitored::Scalar( "Et", -99. );
+  auto mon_Eta    = Monitored::Scalar( "Eta", -99. );
+  auto mon_Phi    = Monitored::Scalar( "Phi", -99. );
+  auto mon_Rcore  = Monitored::Scalar( "Rcore", -99. );
+  auto mon_Eratio = Monitored::Scalar( "Eratio", -99. );
+  auto mon_HadEt  = Monitored::Scalar( "Et_had", -99. );
+  auto mon_F1     = Monitored::Scalar( "F1", -99. );
+  auto mon_HadEmRatio = Monitored::Scalar( "HadEmRatio", -99. );
   auto monitorIt  = Monitored::Group( m_monTool,
                                       cutCounter, 
-                                      PhEt,
-                                      PhEta, PhPhi,
-                                      PhRcore, PhEratio,
-                                      PhHadEt, PhF1 );
+                                      mon_Et,
+                                      mon_Eta, mon_Phi,
+                                      mon_Rcore, mon_Eratio,
+                                      mon_HadEt, mon_F1,mon_HadEmRatio );
 
   float EmET         = -99.0;
   float HadEmRatio   = -99.0;
@@ -116,7 +117,8 @@ bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) cons
     ATH_MSG_DEBUG( "eta bin used for cuts " << etaBin );
   }
   cutCounter++; // passed eta cut       
-
+  mon_Eta = photon->eta();
+  mon_Phi = photon->phi();
 
   // ET_em                                                                                                                                                                                                  
   if ( EmET < m_eTthr[etaBin]) {
@@ -124,6 +126,7 @@ bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) cons
 		     << " not in etaBin " << etaBin << " is ET_em < " << m_eTthr[etaBin] );
     return false;
   }
+  mon_Et =  EmET;
   cutCounter++; // passed ET threshold cut
 
   // Reta (was previously called Rcore) 
@@ -132,6 +135,7 @@ bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) cons
                       << etaBin << " is Reta >= "  << m_carcorethr[etaBin]  );
     return  false;
   }
+  mon_Rcore = Reta;
   cutCounter++;
 
 
@@ -149,7 +153,8 @@ bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) cons
   }
   cutCounter++;
   if(inCrack)  Eratio  = -1; //Set default value in crack for monitoring.                                                                                                                                   
-
+  mon_Eratio = Eratio;
+  mon_F1 = f1;
   // ET_had                                                                                                                                                                                                 
   // find which ET_had to apply : this depends on the ET_em and the eta bin                                                                                                                                 
   float hadET_cut=-1;
@@ -161,7 +166,7 @@ bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) cons
     hadET_cut = m_hadeTthr[etaBin];
     ATH_MSG_DEBUG( "ET_em<" << m_eT2thr[etaBin] );
   }
-
+  
   HadEmRatio = (EmET!=0) ? HadET/EmET : -1.0;
 
   if ( HadEmRatio > hadET_cut ){
@@ -170,9 +175,11 @@ bool TrigEgammaFastPhotonHypoTool::decide( const xAOD::TrigPhoton* photon ) cons
     return false;
 
   }
+  mon_HadEt = HadET;
+  mon_HadEmRatio = HadEmRatio;
   cutCounter++;
   ATH_MSG_DEBUG( "FastPhoton PASS");
-  
+
   return true;
   
 }

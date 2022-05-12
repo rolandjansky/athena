@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannelDecoder_H
@@ -21,17 +21,19 @@ class MsgStream;
 class LArBadChannelDecoder {
 public:
 
-  LArBadChannelDecoder(   const LArOnlineID_Base* onlineID, MsgStream& log) :
-    m_onlineID( onlineID), m_log(log) {}
+  LArBadChannelDecoder(   const LArOnlineID_Base* onlineID) :
+    m_onlineID( onlineID) {}
 
   typedef LArBadChannelState                     State;
   typedef LArBadChannelState::BadChanEntry       BadChanEntry;
   typedef std::pair< HWIdentifier, LArBadFeb>    BadFebEntry;
 
   std::vector<BadChanEntry> readASCII( const std::string& name, 
-				       State::CoolChannelEnum coolChan) const; 
+				       State::CoolChannelEnum coolChan,
+                                       MsgStream& log) const; 
 
-  std::vector<BadFebEntry> readFebASCII( const std::string& fname) const;
+  std::vector<BadFebEntry> readFebASCII( const std::string& fname,
+                                         MsgStream& log) const;
 
 private:
 
@@ -40,7 +42,6 @@ private:
   const LArOnlineID_Base*   m_onlineID;
   LArBadChanBitPacking m_packing;
   LArBadFebBitPacking  m_febPacking;
-  MsgStream&           m_log;
 
   HWIdentifier constructChannelId( const std::vector<int>& intVec, 
 				   State::CoolChannelEnum coolChan,

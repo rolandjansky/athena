@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SUSYTOOLS_SUSYOBJDEF_XAODTOOL_H
@@ -163,7 +163,7 @@ namespace ST {
   static inline int getMCShowerType(const std::string& sample_name) {
     /** Get MC generator index for the b-tagging efficiency maps*/
     // This needs VERY careful syncing with m_showerType in SUSYToolsInit!  Change with care!
-    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIA8EVTGEN", "HERWIG", "SHERPA_CT", "SHERPA", "AMCATNLO"};
+    const static std::vector<TString> gen_mc_generator_keys = {"HERWIG", "SHERPA_CT", "SHERPA", "AMCATNLO", "SH_228", "SH_2210"};
     //This was the 20.7 vector... {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
 
     //pre-process sample name
@@ -171,16 +171,20 @@ namespace ST {
     tmp_name.ReplaceAll("Py8EG","PYTHIA8EVTGEN");
     if(tmp_name.Contains("Pythia") && !tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia","PYTHIA8EVTGEN");
     if(tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia8","PYTHIA8EVTGEN");
-
+    if(tmp_name.Contains("Py8") && !tmp_name.Contains("EG")) tmp_name.ReplaceAll("Py8","PYTHIA8EVTGEN");
+    if(tmp_name.Contains("H7")) tmp_name.ReplaceAll("H7","HERWIG");
+    if(tmp_name.Contains("Sh_N30NNLO")) tmp_name.ReplaceAll("Sh_N30NNLO","SH_228");
+    
     //capitalize the entire sample name
     tmp_name.ToUpper();
 
     //find shower type in name
     unsigned int ishower = 0;
     for( const auto & gen : gen_mc_generator_keys ){
-      if( tmp_name.Contains(gen) ){ return ishower; }
+      if( tmp_name.Contains(gen) ){return ishower+1;}
       ishower++;
-    }
+    }  
+    if( tmp_name.Contains("PYTHIA8EVTGEN") ) return 0;
 
     // See if they are doing something really unwise, just in case
     TRegexp is_data("^data1[5-9]_13TeV");
@@ -422,6 +426,7 @@ namespace ST {
 
     virtual StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const = 0;
 
+    virtual ST::SystInfo getSystInfo(const CP::SystematicVariation& sys) const = 0;
     virtual std::vector<ST::SystInfo> getSystInfoList() const = 0;
 
     virtual std::string TrigSingleLep() const = 0;

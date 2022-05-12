@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _MUON_NSW_RESOURCE_ID_H_
 #define _MUON_NSW_RESOURCE_ID_H_
 
+#include <iostream>
 #include "eformat/SourceIdentifier.h"
 
 #include "MuonNSWCommonDecode/NSWDecodeBitmaps.h"
@@ -33,7 +34,8 @@ namespace Muon
       NSW_DATA_FROM_SCA = 3,
       NSW_DATA_TTC = 4,
       NSW_DATA_L1A_INFO = 5,
-      NSW_DATA_AUX = 6
+      NSW_DATA_EXT = 6,
+      NSW_DATA_EXC = 7
     };
 
     class NSWResourceId
@@ -59,42 +61,42 @@ namespace Muon
       explicit NSWResourceId (uint32_t logical_id);
       virtual ~NSWResourceId () {};
 
-      uint8_t elink          () {return m_Elink;};
-      uint8_t radius         () {return m_Radius;};
-      uint8_t layer          () {return m_Layer;};
-      uint8_t sector         () {return m_Sector;};
-      uint8_t resourceType   () {return m_ResourceType;};
-      uint8_t dataType       () {return m_DataType;};
-      uint8_t version        () {return m_Version;};
-      uint8_t detId          () {return m_DetId;};
+      uint8_t elink          () const {return m_Elink;};
+      uint8_t radius         () const {return m_Radius;};
+      uint8_t layer          () const {return m_Layer;};
+      uint8_t sector         () const {return m_Sector;};
+      uint8_t resourceType   () const {return m_ResourceType;};
+      uint8_t dataType       () const {return m_DataType;};
+      uint8_t version        () const {return m_Version;};
+      uint8_t detId          () const {return m_DetId;};
 
       // For obsolete pre-versioned data
 
-      uint8_t group          () {return m_Elink;};
-      uint8_t eta            () {return m_Eta;};
-      uint8_t technology     () {return m_Tech;}
+      uint8_t group          () const {return m_Elink;};
+      uint8_t eta            () const {return m_Eta;};
+      uint8_t technology     () const {return m_Tech;}
 
-      bool pre_version       () {return m_pre_version;};
+      bool pre_version       () const {return m_pre_version;};
 
       // Offline decoder
 
-      bool is_large_station  ();
+      bool is_large_station  () const;
 
-      int8_t  station_eta    ();
-      uint8_t station_phi    ();
-      uint8_t multi_layer    ();
-      uint8_t gas_gap        ();
+      int8_t  station_eta    () const;
+      uint8_t station_phi    () const;
+      uint8_t multi_layer    () const;
+      uint8_t gas_gap        () const;
     };
   }
 }
 
-inline bool Muon::nsw::NSWResourceId::is_large_station ()
+inline bool Muon::nsw::NSWResourceId::is_large_station () const
 {
   // counting from 0, even sectors are large
   return ((m_Sector % 2) == 0);
 }
 
-inline int8_t Muon::nsw::NSWResourceId::station_eta ()
+inline int8_t Muon::nsw::NSWResourceId::station_eta () const
 {
   int8_t mod_eta;
   // Odd identifiers are on side A
@@ -109,19 +111,19 @@ inline int8_t Muon::nsw::NSWResourceId::station_eta ()
   return (side_sign * mod_eta);
 }
 
-inline uint8_t Muon::nsw::NSWResourceId::station_phi ()
+inline uint8_t Muon::nsw::NSWResourceId::station_phi () const
 {
   // Becomes 1 to 8
   return (m_Sector / 2 + 1);
 }
 
-inline uint8_t Muon::nsw::NSWResourceId::multi_layer ()
+inline uint8_t Muon::nsw::NSWResourceId::multi_layer () const
 {
   // 1 = IP; 2 = HO
   return (m_Layer / 4 + 1);
 }
 
-inline uint8_t Muon::nsw::NSWResourceId::gas_gap ()
+inline uint8_t Muon::nsw::NSWResourceId::gas_gap () const
 {
   // 1 to 4
   return (m_Layer + 1 - 4 * (m_Layer / 4));

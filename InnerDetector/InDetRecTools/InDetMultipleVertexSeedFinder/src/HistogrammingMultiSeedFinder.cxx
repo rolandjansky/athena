@@ -78,7 +78,7 @@ namespace InDet
  }//end of constructor
 
  HistogrammingMultiSeedFinder::~HistogrammingMultiSeedFinder()
- {}
+ = default;
 
  std::vector< std::vector<const Trk::Track *> > HistogrammingMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {

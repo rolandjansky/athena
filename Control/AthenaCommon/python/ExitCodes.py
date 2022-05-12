@@ -5,8 +5,6 @@
 
 """Conventional exit codes, returned to shell."""
 
-from __future__ import print_function
-
 
 ### successful run
 ALL_OK                   = 0

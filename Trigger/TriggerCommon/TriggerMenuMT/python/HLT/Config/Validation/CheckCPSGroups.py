@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 Validation of Coherent Prescale Groups
@@ -31,7 +31,7 @@ def checkCPSGroups(chainDicts):
   CPS_OK = True
   for CPS_group, HLT_list in cps_to_chain.items():
     CPS_item = CPS_group.split('CPS_',1)[1]
-
+    
     # Checks for each CPS item
     if len(HLT_list)<2:
       log.error("CPS group %s contains too few chains %s", CPS_group, [hlt['chainName'] for hlt in HLT_list])
@@ -51,4 +51,4 @@ def checkCPSGroups(chainDicts):
       # Passing this check also implies that there is exactly 1 L1 for the CPS group
 
   if not CPS_OK:
-    raise Exception(f"Invalid CPS group assignments found")
+    raise Exception("Invalid CPS group assignments found")
