@@ -96,7 +96,7 @@ namespace Trig {
 
     SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory;
 
-    Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
+    const Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
   };
   
 } // End of namespace
