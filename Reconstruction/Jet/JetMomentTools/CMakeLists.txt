@@ -17,7 +17,7 @@ atlas_add_library( JetMomentToolsLib
    PUBLIC_HEADERS JetMomentTools
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AsgDataHandlesLib AsgTools InDetTrackSelectionToolLib JetCalibToolsLib JetEDM JetInterface JetRecLib JetUtils PFlowUtilsLib TrackVertexAssociationToolLib xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTruth
-   PRIVATE_LINK_LIBRARIES CaloGeoHelpers FourMomUtils xAODPFlow PathResolver nlohmann_json::nlohmann_json
+   PRIVATE_LINK_LIBRARIES CaloGeoHelpers FourMomUtils xAODPFlow CxxUtils PathResolver nlohmann_json::nlohmann_json
    )
 
 if( NOT XAOD_STANDALONE )
