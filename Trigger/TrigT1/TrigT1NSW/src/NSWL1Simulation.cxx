@@ -7,9 +7,7 @@
 namespace NSWL1 {
   NSWL1Simulation::NSWL1Simulation( const std::string& name, ISvcLocator* pSvcLocator )
     : AthReentrantAlgorithm( name, pSvcLocator ),
-      m_tree(nullptr),
-      m_current_run(-1),
-      m_current_evt(-1)
+      m_tree(nullptr)
   {}
 
 
@@ -20,13 +18,10 @@ namespace NSWL1 {
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
       ATH_CHECK(service("THistSvc", tHistSvc));
-      m_current_evt = 0, m_current_run = 0;
 
       // create Ntuple and the branches
       std::string ntuple_name = name()+"Tree";
       m_tree = new TTree(ntuple_name.c_str(), "Ntuple of NSWL1Simulation");
-      m_tree->Branch("runNumber",   &m_current_run, "runNumber/i");
-      m_tree->Branch("eventNumber", &m_current_evt, "eventNumber/i");
 
       std::string tdir_name = "/"+name()+"/"+ntuple_name;
       ATH_CHECK(tHistSvc->regTree(tdir_name,m_tree));
@@ -58,9 +53,6 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::execute(const EventContext& ctx) const {
-    m_current_evt = ctx.eventID().event_number();
-    m_current_run = ctx.eventID().run_number();
-
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
@@ -82,7 +74,7 @@ namespace NSWL1 {
         ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
         ATH_CHECK( m_strip_segment->find_segments(clusters,stripTriggerContainer) );
       }
-      if(m_doPad) ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
+      if(m_doPad) ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, ctx.eventID().event_number()));
     }
 
     //retrive the MM Strip hit data

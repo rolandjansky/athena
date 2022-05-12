@@ -85,8 +85,6 @@ namespace NSWL1 {
 
     // put analysis variables here
     TTree*       m_tree;                                    //!< analysis ntuple
-    mutable unsigned int m_current_run ATLAS_THREAD_SAFE;   //!< current run number
-    mutable unsigned int m_current_evt ATLAS_THREAD_SAFE;   //!< current event number
   };  // end of NSWL1Simulation class
 } // namespace NSWL1
 #endif
