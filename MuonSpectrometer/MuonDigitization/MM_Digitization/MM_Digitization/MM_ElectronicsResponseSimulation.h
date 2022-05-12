@@ -74,6 +74,8 @@ public :
   inline void setPeakTime(float val) { m_peakTime = val;  };
   inline void setTimeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
   inline void setTimeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
+  inline void setVmmDeadtime(float val) {m_vmmDeadtime = val;}
+  inline void setVmmUpperGrazeWindow(float val) {m_vmmUpperGrazeWindow = val;}
   inline void setStripdeadtime(float val) { m_stripDeadTime = val;};
   inline void setARTdeadtime(float val)   { m_artDeadTime = val;};
 
@@ -83,6 +85,8 @@ public :
   float getPeakTime() const { return m_peakTime;};
   float getTimeWindowLowerOffset() const { return m_timeWindowLowerOffset ;};
   float getTimeWindowUpperOffset() const { return m_timeWindowUpperOffset ;};
+  float getVmmDeadTime() {return m_vmmDeadtime;}
+  float getVmmUpperGrazeWindow() {return m_vmmUpperGrazeWindow;}
   float getStripdeadtime() const { return m_stripDeadTime;};
   float getARTdeadtime() const { return m_artDeadTime;};
 
@@ -99,6 +103,8 @@ private:
   float m_timeWindowUpperOffset;
   float m_stripDeadTime;
   float m_artDeadTime;
+  float m_vmmDeadtime;
+  float m_vmmUpperGrazeWindow;
   bool  m_useNeighborLogic;
 
 
