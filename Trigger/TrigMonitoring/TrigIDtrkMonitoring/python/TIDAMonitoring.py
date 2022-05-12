@@ -26,13 +26,11 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         toolkey = ""
 
         if monlevel is not None:
-                log.info( "TIDA monitoring: monlevel: " + monlevel )        
+                log.info( "TIDA monitoring not None: monlevel: " + monlevel )        
                 if "shifter" in monlevel:
                         key     = "Shifter"
                         toolkey = "Shifter"
 
-
-        #### electron #### 
 
         if mcTruth: 
                 tidaegamma = TrigR3Mon_builder( flags, name = "IDEgammaTruth"+toolkey+"Tool", mcTruth=True, pdgID=11 )
@@ -40,6 +38,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         else:
                 tidaegamma = TrigR3Mon_builder( flags, name = "IDEgamma"+toolkey+"Tool", useHighestPT=True )
                 tidaegamma.SliceTag       = "HLT/TRIDT/Egamma/"+key
+
 
         tidaegamma.AnalysisConfig = "Tier0"
 
@@ -69,13 +68,12 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         
         if mcTruth: 
                 tidaegammalrt = TrigR3Mon_builder( flags, name = "IDEgammaLRTTruth"+toolkey+"Tool", mcTruth=True, pdgID=11 )
-                tidaegammalrt.SliceTag       = "HLT/TRIDT/EgammaTruth/"+key
+                tidaegammalrt.SliceTag       = "HLT/TRIDT/EgammaLRTTruth/"+key
         else:
                 tidaegammalrt = TrigR3Mon_builder( flags, name = "IDEgammaLRT"+toolkey+"Tool", useHighestPT=True )
-                tidaegammalrt.SliceTag       = "HLT/TRIDT/Egamma/"+key
+                tidaegammalrt.SliceTag       = "HLT/TRIDT/EgammaLRT/"+key
                                   
         tidaegammalrt.AnalysisConfig = "Tier0"
-        tidaegammalrt.SliceTag = "HLT/TRIDT/Egamma/"+key
 
         chains = getchains( [ "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
                               "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" ], monlevel )
@@ -235,7 +233,13 @@ def TIDAMonitoringCA( flags, monlevels=None ):
         from AthenaMonitoring import AthMonitorCfgHelper
         monConfig = AthMonitorCfgHelper(flags, "TrigIDMon")
 
-        algs = TIDAMonitoring(flags, "SeeminglyIrrelevant", monlevels )
+        algs = TIDAMonitoring(flags, "Tier0", monlevel="idMon:t0" )
+        algs += TIDAMonitoring(flags, "Shifter", monlevel="idMon:shifter", mcTruth=False ) 
+      
+        if flags.Input.isMC:    
+            algs += TIDAMonitoring(flags, name="PhysVal", monlevel="idMon:t0", mcTruth=True )
+            algs += TIDAMonitoring(flags, name="PhysValShifter", monlevel="idMon:shifter", mcTruth=True )
+
         for a in algs:
                 monConfig.addAlgorithm(a)
 
