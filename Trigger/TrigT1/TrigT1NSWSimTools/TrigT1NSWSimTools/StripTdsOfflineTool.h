@@ -29,16 +29,11 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 
 #include "TTree.h"
+#include "CxxUtils/checker_macros.h"
 #include <functional>
 #include <algorithm>
 #include <map>
 #include <utility>
-
-
-//forward declarations
-class IIncidentSvc;
-class sTgcDigit;
-class TTree;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -90,16 +85,16 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc) override;
 
-    virtual StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) override;
+    virtual StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) const override;
 
 
   private:
     // methods implementing the internal data processing
-    StatusCode fill_strip_cache(const std::vector<std::unique_ptr<PadTrigger>>& padTriggers, std::vector<std::unique_ptr<StripData>> &strip_cache);
+    StatusCode fill_strip_cache(const std::vector<std::unique_ptr<PadTrigger>>& padTriggers, std::vector<std::unique_ptr<StripData>> &strip_cache) const;
 
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
-    void fill_strip_validation_id(std::vector<std::unique_ptr<StripData>> &strip_cache);  //!< fill the ntuple branch for the StripTdsOffline
+    void fill_strip_validation_id(std::vector<std::unique_ptr<StripData>> &strip_cache) const;  //!< fill the ntuple branch for the StripTdsOffline
     bool readStrip( StripData* ,const std::vector<std::unique_ptr<PadTrigger>>&) const;
 
     // needed Servives, Tools and Helpers
@@ -117,7 +112,7 @@ namespace NSWL1 {
     TTree* m_tree;                                          //!< ntuple for analysis
 
     // analysis variable to be put into the ntuple
-    int m_nStripHits=0;                                     //!< number of STRIP hit delivered
+    mutable int m_nStripHits ATLAS_THREAD_SAFE;             //!< number of STRIP hit delivered
     std::vector<float > *m_stripCharge=0;                   //!< charge of hit STRIPs
     std::vector<float > *m_stripCharge_6bit=0;              //!< charge of hit STRIPs 6 bit format
     std::vector<float > *m_stripCharge_10bit=0;             //!< charge of hit STRIPs 10 bit format
