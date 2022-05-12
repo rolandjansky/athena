@@ -22,8 +22,7 @@ struct RpcPanel
             const int                        _doubletZ, 
             const int                        _doubletPhi,
             const int                        _gasgap,
-            const int                        _measPhi,
-            int                        &_panelIn);
+            const int                        _measPhi);
 
   const MuonGM::RpcReadoutElement *readoutEl = nullptr;
   
@@ -33,7 +32,8 @@ struct RpcPanel
   std::string     panel_name;
   std::string     stationNameStr;
 
-  void FillRpcId(Identifier id, const RpcIdHelper &rpcIdHelper);
+  void        FillRpcId(Identifier id, const RpcIdHelper &rpcIdHelper);
+  void        SetPanelIndex(int index);
 
   int        stationName  {0};
   int        stationEta   {0};
@@ -43,12 +43,13 @@ struct RpcPanel
   int        doubletPhi   {0};
   int        gasGap       {0};
   int        measPhi      {-1};
-  int        panel_index  {0};
+  int        panel_index  {-1};
   unsigned   NHit_perEvt  {0};
 
 
   std::string         getOnlineConvention() const;
   std::pair<int, int> getSectorLayer() const;
+  std::string         getElementStr() const;
 
   bool operator ==(const RpcPanel &rhs) const;
 
@@ -134,14 +135,6 @@ struct GasGapData
 
   std::pair<std::shared_ptr<RpcPanel>, std::shared_ptr<RpcPanel>> RpcPanel_eta_phi;
 
-};
-
-//================================================================================================
-struct RpcElements
-{
-  RpcElements();
-
-  std::map<int, int> Elements;
 };
 
 #endif

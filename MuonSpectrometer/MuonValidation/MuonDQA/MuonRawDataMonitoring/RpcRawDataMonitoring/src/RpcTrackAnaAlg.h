@@ -50,8 +50,10 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
   private:
     enum BarrelDL { BI = 1, BM1, BM2, BO1, BO2, OUT}; // Barrel doublet: BM_dbR
 
+    StatusCode readElIndexFromXML();
     StatusCode initRpcPanel();
-    StatusCode Testxml();
+    StatusCode setPanelIndex(std::shared_ptr<RpcPanel> panel);
+
     StatusCode initTrigTag();
     StatusCode initArrayHistosMap();
     
@@ -125,6 +127,7 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
 
     // 2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
     std::map<BarrelDL, std::vector<int>>          m_StationNames;
+    std::map<std::string, int>                    m_elementIndex;
 };
 
 #endif

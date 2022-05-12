@@ -61,6 +61,67 @@ def getPanelsPropertiesFromHist(hists):
   return Dic_panels
 
 #############################################################################
+def readElementFromXML():
+  from xml.dom.minidom import parse
+  import xml.dom.minidom as Dom
+  import os
+  import ROOT
+
+  # -- Get the validation xml file path
+  xml_file   = ROOT.PathResolver.find_file("Element.xml", "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+
+  if not os.path.isfile(xml_file):
+    print ("ERROR: can NOT find xml file: %s!" %xml_file)
+    return
+
+  dom       = Dom.parse(xml_file)
+  root_node = dom.documentElement
+  ele_nodes = root_node.childNodes
+
+  Dic_panels        = {}
+  panel_property      = {}
+  BMBO_StationNames = {2, 3, 4, 5, 8, 9, 10, 53};
+  for i_node in ele_nodes:
+    if i_node.nodeType != 1:
+        continue
+
+    node_name   = i_node.nodeName
+    
+    ele_index   = int(i_node.getAttribute("index"))
+    
+    panel_property["stationName"] = int(i_node.getAttribute("stationName"))
+    panel_property["stationEta" ] = int(i_node.getAttribute("stationEta"))
+    panel_property["stationPhi" ] = int(i_node.getAttribute("stationPhi"))
+    panel_property["doubletR"   ] = int(i_node.getAttribute("doubletR"))
+    ["doubletZ"   ] = int(i_node.getAttribute("doubletZ"))
+
+    if panel_property["stationName"] in BMBO_StationNames:
+      ngasgap = 2
+    else:
+      ngasgap = 3
+
+    for dbPhi in [1,2]:
+      for gasgap in range(1, ngasgap+1):
+        for measPhi in [0, 1]:
+          panel_property["doubletPhi"] = dbPhi
+          panel_property["gasGap"]     = gasgap
+          panel_property["measPhi"]    = measPhi
+
+          
+          panel_index = (ele_index-1)*8 + (dbPhi - 1)*4 + (gasgap - 1)*2 + measPhi;
+          i_panel  = RPCRawDataMonUtils.Panel(panel_property, panel_index)
+
+          if not (panel_index in Dic_panels):
+            Dic_panels[panel_index] = i_panel
+          else:
+            print ("ERROR: duplicated panel index!!!")
+
+
+  print ("RPCPostProcessing::readElementFromXML::INFO: count of read panels = %d" %(len(Dic_panels)))
+
+  return Dic_panels
+
+#############################################################################
 def getRun(h_run):
   xbins = h_run.GetNbinsX()
   runs  = []
@@ -358,4 +419,6 @@ def printHistNames():
 #############################################################################
 if __name__ ==  '__main__':
   print ("RPCPostProcessing:  Hello, World !")
-  printHistNames()
+  # printHistNames()
+
+  readElementFromXML()
