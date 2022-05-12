@@ -6,11 +6,11 @@ import ROOT
 import math 
 import importlib.resources
 
-LB_deg = ROOT.TH1F('LB_deg', 'b-tag degradation;LB;total b-tag degradation', 1500, -0.5, 1499.5)
+LB_deg = ROOT.TH1F('LB_deg', 'b-tag degradation;LB;total b-tag degradation', 3000, -0.5, 2999.5)
 degFactor70 = [0.0032, 0.0078, 0.011, 0.020, 0.023, 0.018, 0.098, 0.10, 0.26, 0.36, 0.33, 0.17, 0.65, 0.79, 0.81]
 
 def badEtaPhi_forAllMaskPatterns(inputs):
-    Th = 0.8
+    Th = 0.5
     LB = inputs[0][0]['LB']
     rv = []
     rv1 = []
