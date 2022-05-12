@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,9 +16,10 @@
   Original creator: Simon Heisterkamp (simon.heisterkamp@cern.ch)
 
 \****************************************************************************************/
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
-class InDet::TRT_ElectronPidTool::ToTcalculator : public InDet::BaseTRTPIDCalculator {
+class InDet::TRT_ElectronPidTool::ToTcalculator : public InDet::BaseTRTPIDCalculator,
+                                                  public AthMessaging {
  public:
 
   static const int my_CurrentVersion = 4;
@@ -41,9 +42,6 @@ class InDet::TRT_ElectronPidTool::ToTcalculator : public InDet::BaseTRTPIDCalcul
 
   //void PrintBlob();
   // bool FillBlob(const unsigned char*);
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
  private:
   // as long has reading from database does not work well yet, do this check:
@@ -116,6 +114,4 @@ class InDet::TRT_ElectronPidTool::ToTcalculator : public InDet::BaseTRTPIDCalcul
 
   //  float & UpperLimit;
   //  float & LowerLimit;
-  mutable Athena::MsgStreamMember m_msg;
-   
-};  
+};
