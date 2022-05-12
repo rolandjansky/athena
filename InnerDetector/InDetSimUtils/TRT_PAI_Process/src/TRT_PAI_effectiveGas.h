@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_PAI_effectiveGas_h
 #define TRT_PAI_effectiveGas_h
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <vector>
 
@@ -16,7 +15,7 @@ class TRT_PAI_gasMixture;
  * Effective gas: All quantities necessary to calculate PAI ionisation for
  * gas mixture.
  */
-class TRT_PAI_effectiveGas {
+class TRT_PAI_effectiveGas : public AthMessaging {
 public:
   /**
    * \param gm:    gas mixture
@@ -44,9 +43,6 @@ public:
 	      std::vector< std::vector<float> >& fnArray,
 	      std::vector<float>& dndx);
   
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
 private:
   double XSigma(double lnE, double dummy);
   double XFReal(double lnD, double lnE);
@@ -68,9 +64,6 @@ private:
   double m_Wp2;              // plasma freq**2 {ev}
   double m_S2 ;              // dN/dx scale
   double m_ne ;              // Electron density
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
 };
 
 #endif
