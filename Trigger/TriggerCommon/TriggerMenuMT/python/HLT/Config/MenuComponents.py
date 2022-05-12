@@ -644,7 +644,7 @@ class Chain(object):
             prev_chain_dict = chain_steps_post_split[0].stepDicts
         else:
             if len(chain_steps_post_split) == 0:
-                log.error("Adding empty steps to the end of a chain - why would you do this?")
+                log.error("Adding empty steps to the end of a chain (%s)- why would you do this?",self.name)
             else:
                 prev_step_name = chain_steps_pre_split[-1].name
                 next_step_name = chain_steps_post_split[0].name
@@ -994,6 +994,7 @@ class InViewRecoCA(ComponentAccumulator):
         return self.viewMakerAlg
 
 class SelectionCA(ComponentAccumulator):
+    """ CA component for MenuSequenceCA sequence """
     def __init__(self, name):
         self.name = name
 

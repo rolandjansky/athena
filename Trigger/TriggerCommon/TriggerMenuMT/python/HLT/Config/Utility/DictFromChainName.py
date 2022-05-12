@@ -657,7 +657,7 @@ def dictFromChainName(chainInfo):
     log.debug("Analysing chain with name: %s", chainName)
     chainDict = analyseChainName(chainName,  l1Thresholds, L1item)
     log.debug('ChainProperties: %s', chainDict)
-
+    
     from TriggerMenuMT.HLT.CommonSequences.EventBuildingSequences import isRoIBasedPEB
     _isRoIBasedPEB = isRoIBasedPEB(chainDict['eventBuildType'])
 

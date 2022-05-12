@@ -9,6 +9,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
+
 from . import JetRecoCommon
 from . import JetPresel
 

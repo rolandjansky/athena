@@ -43,6 +43,32 @@ flags.Trigger.enableL1CaloPhase1=False
 flags.Trigger.enableL1CaloLegacy=True
 flags.Concurrency.NumThreads = 1
 
+# disable Prescales for initial dev phase to allow only few chains in the menu
+flags.Trigger.disableCPS=True
+
+# select chains, as in runHLT_standalone
+flags.addFlag("Trigger.enabledSignatures",[])  
+flags.addFlag("Trigger.disabledSignatures",[]) 
+flags.addFlag("Trigger.selectChains",[])       
+flags.addFlag("Trigger.disableChains",[]) 
+
+
+flags.Trigger.enabledSignatures = ['Muon', 'Photon','Electron']
+#flags.Trigger.disableChains=["HLT_2mu4_l2io_invmDimu_L1BPH-2M9-0DR15-2MU3VF", "HLT_2mu4_l2io_invmDimu_L1BPH-2M9-0DR15-2MU3V", "HLT_2mu6_l2io_invmDimu_L1BPH-2M9-2DR15-2MU5VF"]
+# exclude jets for now, since their MenuSeuqnece Structure needs more work to migrate
+
+#--------------#
+#Leave commented lines for tests, since this is under development
+#from AthenaCommon.Constants import DEBUG
+#flags.Exec.OutputLevel=DEBUG
+#flags.Trigger.triggerMenuModifier=[ 'emptyMenu','HLT_mu8_L1MU5VF']
+#flags.Trigger.selectChains = [ 'HLT_mu8_L1MU5VF']#'HLT_j0_perf_L1RD0_FILLED']#'HLT_mu26_ivarmedium_mu6_l2io_probe_L1MU14FCH'] #'HLT_mu0_muoncalib_L1MU14FCH', 'HLT_mu6_L1MU5VF','HLT_mu6_msonly_L1MU5VF'] #'HLT_mu0_muoncalib_L1MU14FCH',#HLT_mu6_L1MU5VF
+#--------------#
+
+# if set to True, use standalone menu generation code
+oldMenuCode=False
+
+
 if flags.Trigger.Online.isPartition:
     flags.GeoModel.AtlasVersion = flags.Trigger.OnlineGeoTag
 # else rely on the auto-configuration from input file
@@ -60,6 +86,7 @@ log.info("Command line arguments:")
 import sys
 log.info(" ".join(sys.argv))
 flags.lock()
+flags.dump()
 # Enable when debugging deduplication issues
 # ComponentAccumulator.debugMode = "trackCA trackEventAlog ... and so on"
 
@@ -82,7 +109,15 @@ else:
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags))
 
-from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
+
+
+if oldMenuCode:
+#  LoadAndGenerateMenu loads test _NewJO menu
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import LoadAndGenerateMenu as generateHLTMenu
+else:
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenuMT as generateHLTMenu
+
+
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # uncomment to obtain printout of menu (and associated components)
@@ -105,16 +140,9 @@ if flags.Trigger.doLVL1:
 
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
-# The L1 presacles do not get created in the menu setup
-from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
-generateL1Menu(flags)
-createL1PrescalesFileFromMenu(flags)
-
-
 
 if log.getEffectiveLevel() <= logging.DEBUG:
     acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
-
 
 fName =  args.configOnly if args.configOnly else "runHLT_standalone_newJO.pkl" 
 log.info("Storing config in the file %s ", fName)

@@ -4,7 +4,6 @@
 
 from ..Config.MenuComponents import MenuSequence, RecoFragmentsPool, algorithmCAToGlobalWrapper
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -110,7 +109,7 @@ def muFastCalibAlgSequence(ConfigFlags):
     l2muFastSequence = seqAND("l2muFastCalibSequence", [ l2MuViewsMaker, muFastSequence ])
     return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
 
-def muFastSequence(is_probe_leg=False):
+def muFastSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
@@ -127,7 +126,7 @@ def muFastSequence(is_probe_leg=False):
                          HypoToolGen = TrigMufastHypoToolFromDict,
                          IsProbe     = is_probe_leg)
 
-def muFastCalibSequence(is_probe_leg=False):
+def muFastCalibSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastCalibAlgSequence, ConfigFlags)
 
@@ -145,7 +144,7 @@ def muFastCalibSequence(is_probe_leg=False):
                          IsProbe     = is_probe_leg)
 
 
-def muFastOvlpRmSequence(is_probe_leg=False):
+def muFastOvlpRmSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
@@ -163,7 +162,7 @@ def muFastOvlpRmSequence(is_probe_leg=False):
                          IsProbe     = is_probe_leg )
 
 
-def mul2mtSAOvlpRmSequence(is_probe_leg=False):
+def mul2mtSAOvlpRmSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
 
@@ -272,7 +271,7 @@ def muCombAlgSequence(ConfigFlags):
 
 
 
-def muCombSequence(is_probe_leg=False):
+def muCombSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -331,7 +330,7 @@ def muCombLRTAlgSequence(ConfigFlags):
 
 
 
-def muCombLRTSequence(is_probe_leg=False):
+def muCombLRTSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muCombLRTSequence, l2muCombLRTViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombLRTAlgSequence, ConfigFlags)
 
@@ -350,7 +349,7 @@ def muCombLRTSequence(is_probe_leg=False):
                          IsProbe     = is_probe_leg )
 
 
-def muCombOvlpRmSequence(is_probe_leg=False):
+def muCombOvlpRmSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -369,7 +368,7 @@ def muCombOvlpRmSequence(is_probe_leg=False):
 
 
 
-def mul2IOOvlpRmSequence(is_probe_leg=False):
+def mul2IOOvlpRmSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -388,7 +387,7 @@ def mul2IOOvlpRmSequence(is_probe_leg=False):
                          IsProbe     = is_probe_leg )
 
 
-def mul2mtCBOvlpRmSequence(is_probe_leg=False):
+def mul2mtCBOvlpRmSequence(ConfigFlags, is_probe_leg=False):
 
     (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
 
@@ -441,7 +440,7 @@ def muEFSAAlgSequence(ConfigFlags):
 
     return (muonEFSAonlySequence, efsaViewsMaker, sequenceOut)
 
-def muEFSASequence(is_probe_leg=False):
+def muEFSASequence(ConfigFlags, is_probe_leg=False):
 
     (muonEFSAonlySequence, efsaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAAlgSequence, ConfigFlags)
 
@@ -513,7 +512,7 @@ def muEFCBAlgSequence(ConfigFlags):
 
     return (muonSequence, efcbViewsMaker, sequenceOut)
 
-def muEFCBSequence(is_probe_leg=False):
+def muEFCBSequence(ConfigFlags, is_probe_leg=False):
 
     (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
 
@@ -558,7 +557,7 @@ def muEFCBLRTAlgSequence(ConfigFlags):
 
     return (muonSequence, efcbViewsMaker, sequenceOut)
 
-def muEFCBLRTSequence(is_probe_leg=False):
+def muEFCBLRTSequence(ConfigFlags, is_probe_leg=False):
 
     (muonEFCBLRTSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBLRTAlgSequence, ConfigFlags)
 
@@ -606,7 +605,7 @@ def muEFSAFSAlgSequence(ConfigFlags):
 
     return (muonEFSAFSSequence, efsafsInputMaker, sequenceOut)
 
-def muEFSAFSSequence(is_probe_leg=False):
+def muEFSAFSSequence(ConfigFlags, is_probe_leg=False):
 
     (muonEFSAFSSequence, efsafsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAFSAlgSequence, ConfigFlags)
 
@@ -675,7 +674,7 @@ def muEFCBFSAlgSequence(ConfigFlags):
 
     return (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut)
 
-def muEFCBFSSequence(is_probe_leg=False):
+def muEFCBFSSequence(ConfigFlags, is_probe_leg=False):
 
     (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBFSAlgSequence, ConfigFlags)
 
@@ -715,7 +714,7 @@ def efLateMuRoIAlgSequence(ConfigFlags):
 
     return (muonSequence, eflateViewsMaker, sequenceOut)
 
-def efLateMuRoISequence():
+def efLateMuRoISequence(ConfigFlags):
 
     (muonEFLateSequence, eflateViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(efLateMuRoIAlgSequence, ConfigFlags)
 
@@ -762,7 +761,7 @@ def efLateMuAlgSequence(ConfigFlags):
 
     return (muonSequence, eflateViewsMaker, sequenceOut)
 
-def efLateMuSequence():
+def efLateMuSequence(ConfigFlags):
 
     (muonEFLateSequence, eflateViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(efLateMuAlgSequence, ConfigFlags)
 
@@ -824,7 +823,7 @@ def muEFIsoAlgSequence(ConfigFlags, doMSiso=False):
 
     return (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut)
 
-def muEFIsoSequence(is_probe_leg=False):
+def muEFIsoSequence(ConfigFlags, is_probe_leg=False):
 
     (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags)
 
@@ -841,7 +840,7 @@ def muEFIsoSequence(is_probe_leg=False):
                          HypoToolGen = TrigMuonEFTrackIsolationHypoToolFromDict,
                          IsProbe     = is_probe_leg )
 
-def muEFMSIsoSequence(is_probe_leg=False):
+def muEFMSIsoSequence(ConfigFlags, is_probe_leg=False):
 
     (efmuIsoSequence, efmuIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFIsoAlgSequence, ConfigFlags, doMSiso=True)
 
@@ -863,7 +862,7 @@ def muEFMSIsoSequence(is_probe_leg=False):
 ##  Muon RoI Cluster Trigger for MS LLP Searches  ##
 ####################################################
 
-def muRoiClusterSequence(ChainFlags):
+def muRoiClusterSequence(ConfigFlags):
 
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
     from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterConfig

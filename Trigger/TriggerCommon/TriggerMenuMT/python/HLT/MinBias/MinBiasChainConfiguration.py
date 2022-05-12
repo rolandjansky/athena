@@ -6,9 +6,11 @@ log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLT.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
-from TriggerMenuMT.HLT.MinBias.ALFAMenuSequences import ALFAPerfSequence
-from TriggerMenuMT.HLT.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
+from AthenaCommon.Configurable import Configurable
+if not Configurable.configurableRun3Behavior: 
+    from TriggerMenuMT.HLT.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
+    from TriggerMenuMT.HLT.MinBias.ALFAMenuSequences import ALFAPerfSequence
+    from TriggerMenuMT.HLT.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 #----------------------------------------------------------------

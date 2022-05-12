@@ -6,12 +6,14 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 from ..Config.ChainConfigurationBase import ChainConfigurationBase
-from ..CommonSequences.CaloSequences import fastCaloMenuSequence
-from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
-from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
-from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
-from ..Photon.HipTRTMenuSequences import hipTRTMenuSequence
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
+from AthenaCommon.Configurable import Configurable
+if not Configurable.configurableRun3Behavior: 
+    from ..CommonSequences.CaloSequences import fastCaloMenuSequence
+    from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
+    from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
+    from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
+    from ..Photon.HipTRTMenuSequences import hipTRTMenuSequence
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
 

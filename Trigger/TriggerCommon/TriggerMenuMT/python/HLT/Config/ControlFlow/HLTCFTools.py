@@ -12,6 +12,17 @@ PassFilter   = CompFactory.PassFilter
 class NoHypoToolCreated(Exception):
     """Exception thrown by HypoTool generators if no HypoTool is needed"""  # see ATR-23920
 
+class NoCAmigration(Exception):
+    """Exception thrown if issues are found during CA migration"""
+    def __init__(self,message=''):
+        self.message=message
+                
+    def __str__(self):        
+        if self.message:
+            return 'CA migration: {0} '.format(self.message)
+        else:
+            return 'CA migration'
+
 
 def algColor(alg):
     """ Set given color to Alg type"""
