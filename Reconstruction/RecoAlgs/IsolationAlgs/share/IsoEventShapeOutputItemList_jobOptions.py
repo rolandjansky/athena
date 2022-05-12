@@ -1,28 +1,24 @@
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 
-#AOD list, also added to the ESD
-IsoAODESList = []
+# ESD List
+IsoESDList = []
 
 if rec.doWriteAOD() or rec.doWriteESD():
     if rec.doMuon() or rec.doEgamma():
-        IsoAODESList += ["xAOD::EventShape#TopoClusterIsoCentralEventShape"]
-        IsoAODESList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux."]
-        IsoAODESList += ["xAOD::EventShape#TopoClusterIsoForwardEventShape"]
-        IsoAODESList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux."]
-        IsoAODESList += ["xAOD::EventShape#TopoClusterIsoVeryForwardEventShape"]
-        IsoAODESList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoVeryForwardEventShapeAux."]
+        IsoESDList += ["xAOD::EventShape#TopoClusterIsoCentralEventShape"]
+        IsoESDList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux."]
+        IsoESDList += ["xAOD::EventShape#TopoClusterIsoForwardEventShape"]
+        IsoESDList += ["xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux."]
         if recAlgs.doEFlow():
-            IsoAODESList += ["xAOD::EventShape#ParticleFlowIsoCentralEventShape"]
-            IsoAODESList += ["xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux."]
-            IsoAODESList += ["xAOD::EventShape#ParticleFlowIsoForwardEventShape"]
-            IsoAODESList += ["xAOD::EventShapeAuxInfo#ParticleFlowIsoForwardEventShapeAux."]
-            IsoAODESList += ["xAOD::EventShape#NeutralParticleFlowIsoCentralEventShape"]
-            IsoAODESList += ["xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoCentralEventShapeAux."]
-            IsoAODESList += ["xAOD::EventShape#NeutralParticleFlowIsoForwardEventShape"]
-            IsoAODESList += ["xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoForwardEventShapeAux."]
-
-## Needless
-#IsoESDESList = []
-#IsoESDESList += IsoAODESList
-
+            IsoESDList += ["xAOD::EventShape#ParticleFlowIsoCentralEventShape"]
+            IsoESDList += ["xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux."]
+            IsoESDList += ["xAOD::EventShape#ParticleFlowIsoForwardEventShape"]
+            IsoESDList += ["xAOD::EventShapeAuxInfo#ParticleFlowIsoForwardEventShapeAux."]
+            IsoESDList += ["xAOD::EventShape#NeutralParticleFlowIsoCentralEventShape"]
+            IsoESDList += ["xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoCentralEventShapeAux."]
+            IsoESDList += ["xAOD::EventShape#NeutralParticleFlowIsoForwardEventShape"]
+            IsoESDList += ["xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoForwardEventShapeAux."]
+# AOD List
+IsoAODList = [i.replace('Aux.', 'Aux.-DensityArea.-DensitySigma')
+              for i in IsoESDList]
