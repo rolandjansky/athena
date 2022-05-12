@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCMPRIMEREADOUTGEOMETRY_BCMPRIMEDETECTORMANAGER_H
@@ -11,9 +11,6 @@
 #include "GeoModelKernel/GeoVDetectorManager.h"
 
 #include "GeoModelKernel/GeoAlignableTransform.h"
-
-// Message Stream Member
-#include "AthenaKernel/MsgStreamMember.h"
 
 #include "AthenaKernel/IIOVSvc.h"
 
@@ -50,12 +47,6 @@ namespace InDetDD {
         void addAlignableTransform (int /*id*/, GeoAlignableTransform * /*transform*/, const GeoVPhysVol * /*child*/);
         StatusCode align( IOVSVC_CALLBACK_ARGS ) const;
 
-        /** Declaring the Message method for further use */
-        MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
-
-        /** Declaring the Method providing Verbosity Level */
-        bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
-
     private:
 
         /** Prevent copy and assignment */
@@ -67,10 +58,6 @@ namespace InDetDD {
 
         /** Detector store */
         StoreGateSvc * m_detStore;
-
-        /** Declaring private message stream member */
-        mutable Athena::MsgStreamMember  m_msg;
-
     };
 
 } // namespace InDetDD
