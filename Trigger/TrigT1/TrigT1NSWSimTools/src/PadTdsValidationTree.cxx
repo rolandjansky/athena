@@ -152,19 +152,19 @@ namespace NSWL1{
         m_padPhiIdFromOldSimu         = NULL;
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_num_pad_hits(size_t num)
+    void PadTdsValidationTree::fill_num_pad_hits(size_t num) const
     {
         m_nPadHits->push_back(num);
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_hit_global_pos(const Amg::Vector3D &pos)
+    void PadTdsValidationTree::fill_hit_global_pos(const Amg::Vector3D &pos) const
     {
         m_padGlobalX->push_back(pos.x());
         m_padGlobalY->push_back(pos.y());
         m_padGlobalZ->push_back(pos.z());
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos)
+    void PadTdsValidationTree::fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos) const
     {
         // Logic is 4-corners:
         //   x1,y1 : Lower left (locally)
@@ -178,14 +178,14 @@ namespace NSWL1{
         }
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_truth_hit_global_pos(const Amg::Vector3D &pos)
+    void PadTdsValidationTree::fill_truth_hit_global_pos(const Amg::Vector3D &pos) const
     {
         m_padTruthHitGlobalX->push_back(pos.x());
         m_padTruthHitGlobalY->push_back(pos.y());
         m_padTruthHitGlobalZ->push_back(pos.z());
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_offlineid_info(const PadOfflineData &o, float bin_offset)
+    void PadTdsValidationTree::fill_offlineid_info(const PadOfflineData &o, float bin_offset) const
     {
         m_padEtaIdFromOfflineId->push_back       ( o.padEtaId() + bin_offset );
         m_padPhiIdFromOfflineId->push_back       ( o.padPhiId() + bin_offset );
@@ -208,7 +208,7 @@ namespace NSWL1{
         m_padBCHR->push_back( bc_hr );
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id)
+    void PadTdsValidationTree::fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id) const
     {
         m_padEtaIdFromOldSimu->push_back(old_id.first );
         m_padPhiIdFromOldSimu->push_back(old_id.second);
