@@ -37,17 +37,17 @@ class PadTdsValidationTree {
     bool init_tree(TTree *tree);
     void reset_ntuple_variables(); ///< clear all vectors of internal containers
     void clear_ntuple_variables(); ///< set to 0 all pointers of internal containers
-    void fill_num_pad_hits(size_t num); ///< store the number of hits for one pad
-    void fill_hit_global_pos(const Amg::Vector3D& pos); ///< store global position of a hit
-    void fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos); ///< store global position of a hit
-    void fill_truth_hit_global_pos(const Amg::Vector3D& pos); ///< store global position of a truth-matched hit
+    void fill_num_pad_hits(size_t num) const; ///< store the number of hits for one pad
+    void fill_hit_global_pos(const Amg::Vector3D& pos) const; ///< store global position of a hit
+    void fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos) const; ///< store global position of a hit
+    void fill_truth_hit_global_pos(const Amg::Vector3D& pos) const; ///< store global position of a truth-matched hit
     /// store eta,phi indices + sector,layer
     /**
        'bin_offset' used to center the bin on the value of the Pad Id.
        Introduced by Alessandro, it's always 0.0. Do we really need it? (DG-2014-09-30)
      */
-    void fill_offlineid_info(const PadOfflineData &o, float bin_offset);
-    void fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id);
+    void fill_offlineid_info(const PadOfflineData &o, float bin_offset) const;
+    void fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id) const;
 
   private:
     std::string m_treename;
