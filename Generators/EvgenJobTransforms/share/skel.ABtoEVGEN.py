@@ -147,7 +147,7 @@ if hasattr(runArgs,"inputEVNT_PreFile"):
    #fix iov metadata
    if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
       ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-   runNum = int(runArgs.jobConfig[0])
+   runNum = int((runArgs.jobConfig[0])[-6:])
    ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runNum, runNum+1]
 
 ## Print out the contents of the first 5 events (after filtering)
