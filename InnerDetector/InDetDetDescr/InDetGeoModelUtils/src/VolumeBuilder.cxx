@@ -1,7 +1,8 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "InDetGeoModelUtils/VolumeBuilder.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -16,7 +17,7 @@
 
 namespace InDetDD {
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services)
-    : m_msg("InDetDDVolumeBuilder"),
+    : AthMessaging(Athena::getMessageSvc(), "InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(nullptr),
@@ -27,7 +28,7 @@ namespace InDetDD {
   }
 
   VolumeBuilder::VolumeBuilder(const std::vector<const ServiceVolume* >& services)
-    : m_msg("InDetDDVolumeBuilder"),
+    : AthMessaging(Athena::getMessageSvc(), "InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(&services),
@@ -39,7 +40,7 @@ namespace InDetDD {
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services,
                                const std::vector<const ServiceVolume* >& servEnvelope,
                                const std::vector<const ServiceVolume* >& servChild)
-    : m_msg("InDetDDVolumeBuilder"),
+    : AthMessaging(Athena::getMessageSvc(), "InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(nullptr),
@@ -198,7 +199,7 @@ namespace InDetDD {
   GeoVPhysVol*
   VolumeBuilder::build(int iElement) {
     if (m_region == "None") {
-      msg(MSG::ERROR) << "No region set. Cannot build services" << endmsg;
+      ATH_MSG_ERROR("No region set. Cannot build services");
       return nullptr;
     }
     const ServiceVolume& param = *(services()[iElement]);
@@ -217,7 +218,7 @@ namespace InDetDD {
         // FIXME
         serviceMat = m_matManager->getMaterialForVolume(materialName, volume);
       } else {
-        msg(MSG::ERROR) << "Material manager not available. Cannot build material." << endmsg;
+        ATH_MSG_ERROR("Material manager not available. Cannot build material.");
         return nullptr;
       }
     } else {
