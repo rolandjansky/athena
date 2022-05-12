@@ -44,7 +44,7 @@ def getEventlist(msg, directory, checkpair, remove=True, patternAtlantis='.xml',
             if remove and i == 0:
                 msg.warning("One of the files is missing for run %s, event %s, removing the other as well.", filelist[i][0], filelist[i][1])
                 try:
-                    msg.verbos("Removing %s/%s", directory, filelist[i][2])
+                    msg.verbose("Removing %s/%s", directory, filelist[i][2])
                     os.unlink("%s/%s" % (directory, filelist[i][2]))
                 except OSError as err:
                     msg.warning("Could not remove '%s': %s", filelist[i][2], err)
