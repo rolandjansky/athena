@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// -*-c++-*-
 #ifndef NSWL1_PADTDSVALIDATIONTREE_H
 #define NSWL1_PADTDSVALIDATIONTREE_H
 
+#include "TrigT1NSWSimTools/PadOfflineData.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h" // Amg::Vector3D (cannot fw declare typedef)
+#include "TTree.h"
 
 #include <string>
 #include <utility> // pair
 #include <vector>
 
-class TTree;
 class Identifier;
 
 // namespace for the NSW LVL1 related classes
@@ -20,15 +21,14 @@ namespace NSWL1 {
 
 class PadOfflineData;
 
-/**
-   @brief TTree maker to store the variables used to validate the input/output to the PadTdsOfflineTool.
-
-   Sept 2014
-   davide.gerbaudo@gmail.com
+/*
+ * @brief TTree maker to store the variables used to validate the input/output to the PadTdsOfflineTool
+ * Sept 2014 : davide.gerbaudo@gmail.com
+ * Major updates for Release 22: francesco.giuseppe.gravili@cern.ch
  */
-class PadTdsValidationTree {
 
-public:
+class PadTdsValidationTree {
+  public:
     PadTdsValidationTree();
     /// initialize the output containers and the tree
     /**
@@ -48,7 +48,8 @@ public:
      */
     void fill_offlineid_info(const PadOfflineData &o, float bin_offset);
     void fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id);
-private:
+
+  private:
     std::string m_treename;
     TTree* m_tree;                                          ///< ntuple for analysis
     int m_nPadHits;                                         ///< number of PAD hit delivered
@@ -75,9 +76,6 @@ private:
     std::vector<int>*   m_offlineIdPadPhiConverted;         ///< PAD phi Id from the offline Id that were converted
     std::vector<int>*   m_padEtaIdFromOldSimu;              ///< PAD eta Id from the standalone simulation code
     std::vector<int>*   m_padPhiIdFromOldSimu;              ///< PAD phi Id from the standalone simulation code
-
-};  // PadTdsValidationTree
-
-
+  };  // PadTdsValidationTree
 } // NSWL1
 #endif
