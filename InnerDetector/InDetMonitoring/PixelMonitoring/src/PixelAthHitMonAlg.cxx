@@ -167,8 +167,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   ATH_MSG_DEBUG("Filling Raw Hit (RDO) Monitoring Histograms");
 
 
-  VecAccumulator2DMap HitMap("HitMap");
-  VecAccumulator2DMap HitFEMap("HitFEMap");
+  VecAccumulator2DMap HitMap(*this, "HitMap");
+  VecAccumulator2DMap HitFEMap(*this, "HitFEMap");
   std::vector<int> hitLvl1a;
   std::unordered_map<int, std::vector<int> > hitLvl1aLayer;
   std::unordered_map<int, std::vector<int> > hitToTLayer;
@@ -189,8 +189,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID));
       if (pixlayer == 99) continue;
 
-      HitMap.add(pixlayer, rdoID, m_pixelid, 1.0);
-      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelid, m_pixelReadout->getFE(rdoID, rdoID), 1.0);
+      HitMap.add(pixlayer, rdoID, 1.0);
+      if (m_doFEPlots) HitFEMap.add(pixlayer, rdoID, m_pixelReadout->getFE(rdoID, rdoID), 1.0);
 
       nhits++;
       hitLvl1a.push_back(p_rdo->getLVL1A());

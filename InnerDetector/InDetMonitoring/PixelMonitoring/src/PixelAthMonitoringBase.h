@@ -103,17 +103,17 @@ public:
     std::unordered_map<int, std::vector<int> > m_pm;
     std::unordered_map<int, std::vector<int> > m_em;
     std::unordered_map<int, std::vector<float> > m_val;
-    bool m_copy2DFEval;
+    const PixelAthMonitoringBase& m_host;
     std::string m_prof2Dname;
-
-    VecAccumulator2DMap(const std::string& prof2Dname, bool copy2DFEval = false)
-      : m_copy2DFEval(copy2DFEval)
-      , m_prof2Dname(prof2Dname) {}
-
+    bool m_copy2DFEval;
+    
+    VecAccumulator2DMap(const PixelAthMonitoringBase& host, const std::string& prof2Dname,  bool copy2DFEval = false) 
+    : m_host(host), 
+      m_prof2Dname(prof2Dname),
+      m_copy2DFEval(copy2DFEval) {}
+    void add(const int layer, const Identifier& id, float value = 1.0);
     void add(const int layer, const Identifier& id,
-             const PixelID* pid, float value = 1.0);
-    void add(const int layer, const Identifier& id,
-             const PixelID* pid, int iFE, float value);
+             int iFE, float value);
   };
   void fill2DProfLayerAccum(const VecAccumulator2DMap& accumulator) const;
 
