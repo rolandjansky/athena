@@ -523,6 +523,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       m_n_hitPDGId = hit.particleEncoding();
       m_n_hitDepositEnergy = hit.depositEnergy();
       m_n_hitKineticEnergy = hit.kineticEnergy();
+      if (m_n_hitKineticEnergy <= 0) continue;
       
       const Amg::Vector3D& globalHitPosition = hit.globalPosition();
       
@@ -985,6 +986,10 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     // Combine all strips (for this VMM) into a single VMM-level object
     //
     MM_ElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
+    if (!m_idHelperSvc->isMM(stripDigitOutputAllHits.digitID())) {
+        ATH_MSG_WARNING("Identifier from stripdigitOutputAllHits "<< stripDigitOutputAllHits.digitID() <<" is not a MM Identifier, skipping");
+        continue;
+    }
     
     
     
@@ -1178,7 +1183,7 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	v_stripThresholdResponseAllHits.clear();
 
 
-	Identifier digitID;
+	Identifier digitID = v_stripDigitOutput[0].digitID();
 	float max_kineticEnergy = 0.0;
 
 	// Loop over strip digit output elements
