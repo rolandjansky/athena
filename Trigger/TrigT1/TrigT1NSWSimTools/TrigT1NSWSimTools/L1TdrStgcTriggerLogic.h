@@ -70,13 +70,12 @@ class L1TdrStgcTriggerLogic : public AthMessaging {
         They are probably obsolete and they should be updated
         \todo update trigger patterns
         */
-         std::vector<std::string> sTGC_triggerPatterns() const;
-         std::vector<std::string> sTGC_triggerPatternsEtaUp() const;
-         std::vector<std::string> sTGC_triggerPatternsEtaDown() const;
-         std::vector<std::string> sTGC_triggerPatternsPhiUp() const;
-         std::vector<std::string> sTGC_triggerPatternsPhiDown() const;
-         std::vector<std::string> sTGC_triggerPatternsPhiDownUp() const;
-         std::vector<std::string> sTGC_triggerPatternsPhiUpDown() const;
+         std::array<std::string_view, 10> sTGC_triggerPatternsEtaUp() const;
+         std::array<std::string_view, 10> sTGC_triggerPatternsEtaDown() const;
+         std::array<std::string_view, 16> sTGC_triggerPatternsPhiUp() const;
+         std::array<std::string_view, 16> sTGC_triggerPatternsPhiDown() const;
+         std::array<std::string_view, 10> sTGC_triggerPatternsPhiDownUp() const;
+         std::array<std::string_view, 10> sTGC_triggerPatternsPhiUpDown() const;
 
          bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad, std::string &pattern) const;
          bool hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1, const int &iPhi1, std::string &pattern) const;

@@ -75,12 +75,12 @@ namespace NSWL1{
     if (isLayer4 && nHL4 == 0)
         return triggers;
 
-    const std::vector<std::string> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
-    const std::vector<std::string> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
-    const std::vector<std::string> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
-    const std::vector<std::string> PatternsPhiDown = sTGC_triggerPatternsPhiDown();
-    const std::vector<std::string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
-    const std::vector<std::string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
+    const std::array<std::string_view, 10> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
+    const std::array<std::string_view, 10> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
+    const std::array<std::string_view, 16> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
+    const std::array<std::string_view, 16> PatternsPhiDown = sTGC_triggerPatternsPhiDown();
+    const std::array<std::string_view, 10> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
+    const std::array<std::string_view, 10> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
 
     int iL1st = -1;
     for (size_t il1 = 0; il1 < nHL1; il1++) {
@@ -444,106 +444,36 @@ namespace NSWL1{
     2013/02/10 now calculating per wedge
     */
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() const {
-        //why dont we make these members ? 
-        return std::vector<std::string>{"1111","1122","3111","3122","1311","1322","1131","1132","1113","1123"};
+    std::array<std::string_view, 10> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() const {
+      constexpr static std::array<std::string_view, 10> patterns = {"1111", "1122", "3111", "3122", "1311", "1322", "1131", "1132", "1113", "1123"};
+      return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() const {
-        std::vector<std::string> patterns;
-        patterns.push_back("1111");
-        patterns.push_back("1100");
-        patterns.push_back("3111");
-        patterns.push_back("3100");
-        patterns.push_back("1311");
-        patterns.push_back("1300");
-        patterns.push_back("1131");
-        patterns.push_back("1130");
-        patterns.push_back("1113");
-        patterns.push_back("1103");
-
-        return patterns;
+    std::array<std::string_view, 10> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() const {
+      constexpr static std::array<std::string_view, 10> patterns = {"1111", "1100", "3111", "3100", "1311", "1300", "1131", "1130", "1113", "1103"};
+      return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() const {
-        std::vector<std::string> patterns;
-        patterns.push_back("1111");
-        patterns.push_back("1112");
-        patterns.push_back("1122");
-        patterns.push_back("1222");
-        patterns.push_back("1113");
-        patterns.push_back("1123");
-        patterns.push_back("1223");
-        patterns.push_back("1131");
-        patterns.push_back("1132");
-        patterns.push_back("1232");
-        patterns.push_back("1311");
-        patterns.push_back("1312");
-        patterns.push_back("1322");
-        patterns.push_back("3111");
-        patterns.push_back("3112");
-        patterns.push_back("3122");
-
-        return patterns;
+    std::array<std::string_view, 16> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() const {
+      constexpr static std::array<std::string_view, 16> patterns = {"1111", "1112", "1122", "1222", "1113", "1123", "1223", "1131", "1132", "1232",
+                                                                    "1311", "1312", "1322", "3111", "3112", "3122"};
+      return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() const {
-        std::vector<std::string> patterns;
-        patterns.push_back("1111");
-        patterns.push_back("1110");
-        patterns.push_back("1100");
-        patterns.push_back("1000");
-        patterns.push_back("1113");
-        patterns.push_back("1103");
-        patterns.push_back("1003");
-        patterns.push_back("1131");
-        patterns.push_back("1130");
-        patterns.push_back("1230");
-        patterns.push_back("1311");
-        patterns.push_back("1310");
-        patterns.push_back("1300");
-        patterns.push_back("3111");
-        patterns.push_back("3110");
-        patterns.push_back("3100");
-
-        return patterns;
+    std::array<std::string_view, 16> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() const {
+      constexpr static std::array<std::string_view, 16> patterns = {"1111", "1110", "1100", "1000", "1113", "1103", "1003", "1131", "1130", "1230",
+                                                                    "1311", "1310", "1300", "3111", "3110", "3100"};
+      return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() const {
-        std::vector<std::string> patterns;
-        patterns.push_back("1111");
-        patterns.push_back("1212");
-        patterns.push_back("1113");
-        patterns.push_back("1213");
-        patterns.push_back("1131");
-        patterns.push_back("1232");
-        patterns.push_back("1311");
-        patterns.push_back("1312");
-        patterns.push_back("3111");
-        patterns.push_back("3101");
-
-        return patterns;
+    std::array<std::string_view, 10> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() const {
+      constexpr static std::array<std::string_view, 10> patterns = {"1111", "1212", "1113", "1213", "1131", "1232", "1311", "1312", "3111", "3101"};
+      return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() const {
-        std::vector<std::string> patterns;
-        patterns.push_back("1111");
-        patterns.push_back("1010");
-        patterns.push_back("1113");
-        patterns.push_back("1013");
-        patterns.push_back("1131");
-        patterns.push_back("1030");
-        patterns.push_back("1311");
-        patterns.push_back("1310");
-        patterns.push_back("3111");
-        patterns.push_back("3121");
-        return patterns;
-    }
-    
-    //whats the function of this ??
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() const {
-        std::vector<std::string> patterns;
-        return patterns;
+    std::array<std::string_view, 10> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() const {
+      constexpr static std::array<std::string_view, 10> patterns = {"1111", "1010", "1113", "1013", "1131", "1030", "1311", "1310", "3111", "3121"};
+      return patterns;
     }
 
     //orphant functions .. mut be members TrigT1NSWSimTools or move into a separate file. 
