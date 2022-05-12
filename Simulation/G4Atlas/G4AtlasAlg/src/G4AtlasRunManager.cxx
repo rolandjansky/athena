@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "G4GeometryManager.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -22,7 +22,7 @@
 
 G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager()
-  , m_msg("G4AtlasRunManager")
+  , AthMessaging(Athena::getMessageSvc(), "G4AtlasRunManager")
   , m_recordFlux(false)
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")

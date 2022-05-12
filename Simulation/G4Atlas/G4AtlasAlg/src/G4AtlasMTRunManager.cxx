@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Hide multi-threading classes from builds without G4MT
@@ -21,12 +21,11 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
+#include "AthenaKernel/getMessageSvc.h"
 
 G4AtlasMTRunManager::G4AtlasMTRunManager()
   : G4MTRunManager()
-  , m_msg("G4AtlasMTRunManager")
+  , AthMessaging(Athena::getMessageSvc(), "G4AtlasMTRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager")
   , m_physListSvc("PhysicsListSvc", "G4AtlasMTRunManager")
   , m_fastSimTool("FastSimulationMasterTool")

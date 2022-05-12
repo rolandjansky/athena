@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4ATLASWORKERRUNMANAGER_H
@@ -13,7 +13,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "G4WorkerRunManager.hh"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
@@ -21,7 +21,7 @@
 
 
 /// @brief ATLAS worker run manager for master-slave multi-threading model
-class G4AtlasWorkerRunManager : public G4WorkerRunManager {
+class G4AtlasWorkerRunManager : public G4WorkerRunManager, public AthMessaging {
 
 public:
 
@@ -67,15 +67,7 @@ private:
   /// This command prints a message about a G4Command depending on its returnCode
   void CommandLog(int returnCode, const std::string& commandString) const;
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
 private:
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 
   /// Handle to the detector service
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
