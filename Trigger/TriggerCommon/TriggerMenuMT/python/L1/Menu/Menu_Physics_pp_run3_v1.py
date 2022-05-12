@@ -216,6 +216,7 @@ def defineMenu():
         'L1_RD0_BGRP7',
         'L1_RD0_FIRSTINTRAIN',
         'L1_RD1_EMPTY',
+        'L1_RD1_FILLED',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',
         'L1_RD3_EMPTY',
