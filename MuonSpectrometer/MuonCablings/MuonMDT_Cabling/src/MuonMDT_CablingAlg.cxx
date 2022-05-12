@@ -204,7 +204,9 @@ bool MuonMDT_CablingAlg::extractStationInfo(const coral::AttributeList& atr, Cab
     }
     /// Temporary hack to remove all EI chambers until the proper data base tag arrives
     if (m_isRun3) {
-        if (stationNameString == "EIS" || chamber_name.find("BIS7A") != std::string::npos) {
+        /// It's still useful to keep the C-side chamber if the asymmetric geometry is loaded
+        if ( ( stationNameString == "EIS" && (!m_idHelperSvc->hasCSC() || chamber_name.find('A') != std::string::npos) ) 
+            || chamber_name.find("BIS7A") != std::string::npos) {
             ATH_MSG_VERBOSE("It's sooo sad but the chamber " << chamber_name << " is no longer with us");
             return false;
         }
