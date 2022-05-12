@@ -86,7 +86,7 @@ namespace LVL1 {
       SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muonROILocation { this, "MuonROILocation", LVL1MUCTPI::DEFAULT_MuonRoIBLocation, "Storegate key for the Muon ROIs" };
       SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation{ this, "ROIBResultLocation", ROIB::DEFAULT_RoIBRDOLocation, "Storegate key for the reading the ROIBResult" };
       SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocation { this, "locationMuCTPItoL1Topo", LVL1MUCTPI::DEFAULT_MuonL1TopoLocation, "Storegate key for MuCTPItoL1Topo "};
-      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne { this, "BCPlusOneLocation", "", "Storegate key for MuCTPItoL1TopoPlusOne"};
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne { this, "locationMuCTPItoL1Topo1", LVL1MUCTPI::DEFAULT_MuonL1TopoLocation, "Storegate key for MuCTPItoL1TopoPlusOne"};
       Gaudi::Property<uint16_t> m_MuonEncoding {this, "MuonEncoding", 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity"};
 
       mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
@@ -99,7 +99,10 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hGoodMFEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hChargeEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hIs2candEta ATLAS_THREAD_SAFE; 
-      mutable LockedHandle<TH2> m_hIsTGCEta ATLAS_THREAD_SAFE; 
+      mutable LockedHandle<TH2> m_hIsTGCEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hLMPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hLMPhiEta ATLAS_THREAD_SAFE;
+ 
    };
 }
 
