@@ -52,23 +52,25 @@ namespace ActsTrk {
 		  const Acts::MagneticFieldContext& magFieldContext,
 		  ActsTrk::SeedContainer& seedContainer ) const override;
     
-  private:    
-    template< 
-      typename spacepoint_iterator_t,
-      typename external_spacepoint_t = typename std::conditional< 
+  private:        
+    // metafunction to obtain correct type in iterated container given the iterator type
+    template<typename spacepoint_iterator_t>
+    struct external_spacepoint {
+      using type = typename std::conditional< 
                        std::is_pointer< typename spacepoint_iterator_t::value_type >::value,  
                        typename std::remove_const< typename std::remove_pointer< typename spacepoint_iterator_t::value_type >::type >::type,
                        typename std::remove_const< typename spacepoint_iterator_t::value_type >::type
-                       >::type
-      >
-      std::vector< Acts::Seed< external_spacepoint_t > >
+                       >::type;
+    };
+
+    template< typename spacepoint_iterator_t >
+      StatusCode
       createSeeds( spacepoint_iterator_t spBegin,
 		   spacepoint_iterator_t spEnd,
 		   const InDet::BeamSpotData& beamSpotData,
-		   const Acts::MagneticFieldContext& magFieldContext ) const;
+		   const Acts::MagneticFieldContext& magFieldContext, 
+       std::vector< Acts::Seed< typename external_spacepoint<spacepoint_iterator_t>::type > >&  seeds) const;
     
-
-
     template< typename external_spacepoint_t >
       const std::pair< 
                    Acts::SpacePointGridConfig, 
