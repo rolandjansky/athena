@@ -107,7 +107,14 @@ MuonInputProvider::handle(const Incident& incident) {
    hIsTGCEta->SetXTitle("#eta#times40");
    hIsTGCEta->SetYTitle("Is a TGC muon");
 
+   auto hLMPt = std::make_unique<TH1I>("LateMuonTOBPt", "Late Muon TOB Pt", 40, 0, 40);
+   hLMPt->SetXTitle("p_{T} [GeV]");
+   hLMPt->SetYTitle("Counts");
 
+   auto hLMPhiEta = std::make_unique<TH2I>("LateMuonTOBPhiEta", "Late Muon TOB Location", 50, -200, 200, 64, 0, 128);
+   hLMPhiEta->SetXTitle("#eta#times40");
+   hLMPhiEta->SetYTitle("#phi#times20");
+   
    if (m_histSvc->regShared( histPath + "TOBPt", std::move(hPt), m_hPt ).isSuccess()){
       ATH_MSG_DEBUG("TOBPt histogram has been registered successfully for MuonProvider.");
    }
@@ -173,6 +180,18 @@ MuonInputProvider::handle(const Incident& incident) {
    }
    else{
       ATH_MSG_WARNING("Could not register TOBIsTGCEta histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "LateMuonTOBPt", std::move(hLMPt), m_hLMPt ).isSuccess()){
+      ATH_MSG_DEBUG("LateMuonTOBPt histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register LateMuonTOBPt histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "LateMuonTOBPhiEta", std::move(hLMPhiEta), m_hLMPhiEta ).isSuccess()){
+      ATH_MSG_DEBUG("LateMuonTOBPhiEta histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register LateMuonTOBPhiEta histogram for MuonProvider");
    }
 }
 
@@ -254,19 +273,25 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
 TCS::LateMuonTOB
 MuonInputProvider::createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
 
+
+   ATH_MSG_DEBUG("Late Muon ROI (MuCTPiToTopo):bcid=1 thr pt = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << roi.getphi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
+
    float phi = roi.getphi();
    if(phi<-M_PI) phi+=2.0*M_PI;
    if(phi> M_PI) phi-=2.0*M_PI;
 
-   ATH_MSG_DEBUG("Late Muon ROI (MuCTPiToTopo):bcid=1 thr pt = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << phi << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
+   unsigned int LMEtTopo = roi.getptValue()*10;
+   int LMetaTopo = topoIndex(roi.geteta(),40);
+   int LMphiTopo = topoIndex(phi,20);
+   
+   TCS::LateMuonTOB muon( LMEtTopo, 0, LMetaTopo, static_cast<unsigned int>(LMphiTopo), roi.getRoiID() );
 
-   TCS::LateMuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*phi), roi.getRoiID() );
-
+   muon.setEtDouble( roi.getptValue() );
    muon.setEtaDouble( roi.geteta() );
-   muon.setPhiDouble( phi );
+   muon.setPhiDouble( LMphiTopo );
 
-   m_hPt->Fill(muon.Et());
-   m_hPhiEta->Fill(muon.eta(),muon.phi());
+   m_hLMPt->Fill(muon.EtDouble());
+   m_hLMPhiEta->Fill(muon.eta(),muon.phi());
 
    ATH_MSG_DEBUG("LateMuon created");
    return muon;
