@@ -1,7 +1,5 @@
-//  -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWL1_IPADTDSTOOL_H
@@ -36,14 +34,12 @@ namespace NSWL1 {
     public:
         virtual ~IPadTriggerLogicTool() {}
 
-        virtual StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers) = 0;
+        virtual StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers) const = 0;
 
         static const InterfaceID& interfaceID() {
             static const InterfaceID IID_IPadTriggerLogicTool("NSWL1::IPadTriggerLogicTool", 1 ,0);
             return IID_IPadTriggerLogicTool;
         }
     };
-
 }
-
 #endif
