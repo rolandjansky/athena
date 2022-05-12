@@ -1009,7 +1009,7 @@ namespace Muon {
             
             // get the intercept of the seed direction with the cluster surface
             Identifier hitID = clus->identify();
-            const Trk::PlaneSurface& surf = clus->associatedSurface();
+            const Trk::Surface& surf = clus->associatedSurface();
             Trk::Intersection intersect = surf.straightLineIntersection(seed.first, seed.second, false, false);
 
             if (m_idHelperSvc->isMM(hitID)) {
