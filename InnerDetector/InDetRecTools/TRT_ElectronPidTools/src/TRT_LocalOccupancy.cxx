@@ -313,17 +313,17 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 	      if (!*r)                                continue;
 	      Identifier   rdo_id  = (*r)->identify    ()                          ;
 
-	      if((m_StrawStatusSummaryTool->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
-		 || (m_StrawStatusSummaryTool->getStatusPermanent(rdo_id))) {
-		continue;
-	      }
-
 	      int det      = m_TRTHelper->barrel_ec(         rdo_id)     ;
 	      int lay      = m_TRTHelper->layer_or_wheel(    rdo_id)     ;
 	      int phi      = m_TRTHelper->phi_module(        rdo_id)     ;
 	      int i_total       = findArrayTotalIndex(det, lay)-1;
 
 	      if (i_total != i || phi != j) continue; // only fill the one region [i][j]
+
+	      if((m_StrawStatusSummaryTool->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
+		 || (m_StrawStatusSummaryTool->getStatusPermanent(rdo_id))) {
+		continue;
+	      }
 
 	      unsigned int word = (*r)->getWord();
 
