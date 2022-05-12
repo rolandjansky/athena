@@ -641,7 +641,7 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const EventContext& context,
       dvContainer->push_back(dv);
 
       float seed_pt = 0;
-      if ( seed_type == 0 ) seed_pt = seeds_pt[iseed];
+      if ( seed_type == SeedType::HLTJet ) seed_pt = seeds_pt[iseed];
       dv->setDetail<float>("hitDV_seed_pt",      seed_pt);
       dv->setDetail<float>("hitDV_seed_eta",     seed_eta);
       dv->setDetail<float>("hitDV_seed_phi",     seed_phi);
