@@ -28,7 +28,8 @@ MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::initialize()
 {
-  m_vmmShaper = std::make_unique<VMM_Shaper>(m_peakTime, m_timeWindowLowerOffset, m_timeWindowUpperOffset);
+  // let the VMM peak search run in a wider window in order to simulate the dead time and to avoid a bug at the upper limit of the time window
+  m_vmmShaper = std::make_unique<VMM_Shaper>(m_peakTime, m_timeWindowLowerOffset - m_vmmDeadtime, m_timeWindowUpperOffset+m_vmmUpperGrazeWindow); 
   m_vmmShaper->initialize();
 }
 /*******************************************************************************/
@@ -86,12 +87,15 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
 
     // Look at strip if it or its neighbor was above threshold  and if neighbor logic of the VMM is enabled:
     if (thisStripFired || (m_useNeighborLogic && neighborFired)) {
-      double charge, time;
+      double charge = FLT_MAX;
+	  double time = FLT_MAX;
 
       // if strip is below threshold but read through NL reduce threshold to low value of 1e to still find the peak
       float tmpScaledThreshold = (thisStripFired ? stripsElectronicsThreshold.at(ii) : 1);
 
-      m_vmmShaper->vmmPeakResponse(qStrip.at(ii), tStrip.at(ii), tmpScaledThreshold, charge, time);
+      bool foundPeak = m_vmmShaper->vmmPeakResponse(qStrip.at(ii), tStrip.at(ii), tmpScaledThreshold, charge, time);
+      if(!foundPeak) continue; // if no peak was found within the enlarged time window the strip is skipped and no digit is created. 
+	  if( time < m_timeWindowLowerOffset || time > m_timeWindowUpperOffset ) continue; // only accept strips in the correct time window
 
       m_nStripElectronics.push_back(numberofStrip.at(ii));
       m_tStripElectronicsAbThr.push_back(time);
@@ -104,16 +108,18 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector
 void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const std::vector<float> &electronicsThreshold){
   
   for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
-    double localThresholdt = 0;
-    double localThresholdq = 0;
+    double localThresholdt = FLT_MAX;
+    double localThresholdq = FLT_MAX;
 
-    m_vmmShaper->vmmThresholdResponse(qStrip.at(ii), tStrip.at(ii), electronicsThreshold.at(ii), localThresholdq, localThresholdt);
+    bool crossedThreshold = m_vmmShaper->vmmThresholdResponse(qStrip.at(ii), tStrip.at(ii), electronicsThreshold.at(ii), localThresholdq, localThresholdt);
+    if(!crossedThreshold) continue; // if no threshold crossing was found within the time window the strip is skipped and no digits are created.
+	if( localThresholdt < m_timeWindowLowerOffset ||  localThresholdt > m_timeWindowUpperOffset ) continue; // only accept strips in the correct time window
 
-    if (localThresholdt  > 0) {
-        m_nStripElectronics.push_back(numberofStrip.at(ii));
-        m_tStripElectronicsAbThr.push_back(localThresholdt);
-        m_qStripElectronics.push_back(localThresholdq);
-    }
+    
+    m_nStripElectronics.push_back(numberofStrip.at(ii));
+    m_tStripElectronicsAbThr.push_back(localThresholdt);
+    m_qStripElectronics.push_back(localThresholdq);
+    
   }
 }
 

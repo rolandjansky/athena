@@ -219,9 +219,12 @@ StatusCode MM_DigitizationTool::initialize() {
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
 	m_ElectronicsResponseSimulation->setPeakTime(peakTime); // VMM peak time parameter
+  m_timeWindowLowerOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
 	m_timeWindowUpperOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
+  m_ElectronicsResponseSimulation->setVmmDeadtime(m_vmmDeadtime);
+  m_ElectronicsResponseSimulation->setVmmUpperGrazeWindow(m_vmmUpperGrazeWindow);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
 	m_ElectronicsResponseSimulation->setNeighborLogic(m_vmmNeighborLogic);
