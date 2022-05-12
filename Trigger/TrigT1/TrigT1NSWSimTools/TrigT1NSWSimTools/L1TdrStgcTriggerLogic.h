@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSW_L1TDRSTGCTRIGGERLOGIC_H
@@ -43,6 +41,8 @@ namespace NSWL1 {
  
   davide.gerbaudo@gmail.com
   April 2013
+
+  Updates for release 22 processing: francesco.giuseppe.gravili@cern.ch
 */
 class L1TdrStgcTriggerLogic : public AthMessaging {
 
@@ -60,11 +60,9 @@ class L1TdrStgcTriggerLogic : public AthMessaging {
 
         */
         
-        bool buildSectorTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads);
-        /// access cached output of buildSectorTriggers()
-        const std::vector< SectorTriggerCandidate >& candidates() const {return m_secTrigCand;}
+        std::vector<SectorTriggerCandidate> buildSectorTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads) const;
         /// simulate efficiency by dropping random pads (their indices)
-        std::vector< size_t > removeRandomPadIndices(const std::vector< size_t > &padIndices);
+        std::vector< size_t > removeRandomPadIndices(const std::vector< size_t > &padIndices) const;
         /**
         @brief trigger patterns that will be stored in the lookup table
 
@@ -72,47 +70,41 @@ class L1TdrStgcTriggerLogic : public AthMessaging {
         They are probably obsolete and they should be updated
         \todo update trigger patterns
         */
-         std::vector<std::string> sTGC_triggerPatterns();
-         std::vector<std::string> sTGC_triggerPatternsEtaUp();
-         std::vector<std::string> sTGC_triggerPatternsEtaDown();
-         std::vector<std::string> sTGC_triggerPatternsPhiUp();
-         std::vector<std::string> sTGC_triggerPatternsPhiDown();
-         std::vector<std::string> sTGC_triggerPatternsPhiDownUp();
-         std::vector<std::string> sTGC_triggerPatternsPhiUpDown();
+         std::vector<std::string> sTGC_triggerPatterns() const;
+         std::vector<std::string> sTGC_triggerPatternsEtaUp() const;
+         std::vector<std::string> sTGC_triggerPatternsEtaDown() const;
+         std::vector<std::string> sTGC_triggerPatternsPhiUp() const;
+         std::vector<std::string> sTGC_triggerPatternsPhiDown() const;
+         std::vector<std::string> sTGC_triggerPatternsPhiDownUp() const;
+         std::vector<std::string> sTGC_triggerPatternsPhiUpDown() const;
 
-         bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
-                            std::string &pattern);
-         bool hitPattern(const int &iEta0, const int &iPhi0,
-                            const int &iEta1, const int &iPhi1,
-                            std::string &pattern);
+         bool hitPattern(const std::shared_ptr<PadOfflineData>  &firstPad, const std::shared_ptr<PadOfflineData> &otherPad, std::string &pattern) const;
+         bool hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1, const int &iPhi1, std::string &pattern) const;
          std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                         const std::vector< size_t > &padIndicesLayer0,
                                                         const std::vector< size_t > &padIndicesLayer1,
                                                         const std::vector< size_t > &padIndicesLayer2,
                                                         const std::vector< size_t > &padIndicesLayer3,
                                                         bool isLayer1, bool isLayer2,
-                                                        bool isLayer3, bool isLayer4);
+                                                        bool isLayer3, bool isLayer4) const;
          std::vector< SingleWedgePadTrigger > build34swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                             const std::vector< size_t > &padIndicesLayer0,
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
-                                                            const std::vector< size_t > &padIndicesLayer3);
+                                                            const std::vector< size_t > &padIndicesLayer3) const;
          std::vector< SingleWedgePadTrigger > build44swt(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                                             const std::vector< size_t > &padIndicesLayer0,
                                                             const std::vector< size_t > &padIndicesLayer1,
                                                             const std::vector< size_t > &padIndicesLayer2,
-                                                            const std::vector< size_t > &padIndicesLayer3);
+                                                            const std::vector< size_t > &padIndicesLayer3) const;
 
     private:
        std::vector<size_t> filterByLayer(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                          const std::vector<size_t> &padSelectedIndices,
-                                         int layer);
+                                         int layer) const;
        std::vector<size_t> filterByMultiplet(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                              const std::vector<size_t> &padSelectedIndices,
-                                             int multiplet);
-        std::vector< SectorTriggerCandidate > m_secTrigCand;
-        
+                                             int multiplet) const;
     };
-
 } // end namespace NSWL1
 #endif // NSW_L1TDRSTGCTRIGGERLOGIC_H

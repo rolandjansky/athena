@@ -15,28 +15,21 @@
 #include <functional>
 #include <numeric>
 
-using std::distance;
-using std::set_intersection;
-
 namespace {
     const double padTimingEfficiency = 0.95; // set to -1 to disable
 }
 
 namespace NSWL1{
-    
-    
     L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic():
       AthMessaging(Athena::getMessageSvc(), "L1TdrStgcTriggerLogic") {}
     //-------------------------------------
 
     bool L1TdrStgcTriggerLogic::hitPattern(const std::shared_ptr<PadOfflineData> &firstPad, const std::shared_ptr<PadOfflineData> &otherPad,
-                        std::string &pattern) {
-        return L1TdrStgcTriggerLogic::hitPattern(firstPad->padEtaId(), firstPad->padPhiId(), otherPad->padEtaId(),
-                                otherPad->padPhiId(), pattern);
+                        std::string &pattern) const {
+        return L1TdrStgcTriggerLogic::hitPattern(firstPad->padEtaId(), firstPad->padPhiId(), otherPad->padEtaId(), otherPad->padPhiId(), pattern);
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
-                        const int &iPhi1, std::string &pattern) {
+    bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1, const int &iPhi1, std::string &pattern) const {
         pattern = "33";
         if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
             return false;
@@ -65,7 +58,7 @@ namespace NSWL1{
     const std::vector< std::shared_ptr<PadOfflineData> > &pads, const std::vector< size_t > &padIndicesLayer0,
     const std::vector< size_t > &padIndicesLayer1, const std::vector< size_t > &padIndicesLayer2,
     const std::vector< size_t > &padIndicesLayer3, bool isLayer1, bool isLayer2,
-    bool isLayer3, bool isLayer4) {
+    bool isLayer3, bool isLayer4) const {
     
     std::vector< SingleWedgePadTrigger > triggers;
     size_t nHL1 = (isLayer1 ? padIndicesLayer0.size() : 1);
@@ -81,7 +74,7 @@ namespace NSWL1{
         return triggers;
     if (isLayer4 && nHL4 == 0)
         return triggers;
-    
+
     const std::vector<std::string> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
     const std::vector<std::string> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
     const std::vector<std::string> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
@@ -127,7 +120,7 @@ namespace NSWL1{
                         if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
                         continue;
                     }
-                    
+
                     std::string pattern(sl4 + sl3 + sl2 + sl1);
                     // the above line is replaced by a normal order l1,l2,l3,l4 and
                     // separated in phi and eta but it remains the same for later usage in
@@ -155,7 +148,7 @@ namespace NSWL1{
                         multipletid = pads.at(l1Idx)->multipletId() ;
                         moduleid = pads.at(l1Idx)->moduleId();
                         sectortype = pads.at(l1Idx)->sectorType();
-                    } 
+                    }
                     else if (sl2 == "11") {
                         multipletid = pads.at(l2Idx)->multipletId() ;
                         moduleid = pads.at(l2Idx)->moduleId();
@@ -171,7 +164,7 @@ namespace NSWL1{
                                 etamove = "U";
                                 phimove = "U";
                             }
-                        } 
+                        }
                         else{ // multiplet = 2   15-7-18 YR - Confirm   new geometry
                             etamove = "U";
                             phimove = "DU";
@@ -192,7 +185,7 @@ namespace NSWL1{
                                 etamove = "U";
                                 phimove = "UD";
                             }
-                        } 
+                        }
                         else { // multiplet = 2
                             if (moduleid == 1) {
                                 etamove = "U";
@@ -225,21 +218,21 @@ namespace NSWL1{
                             continue;
                         }
                     }
-            
+
                     if (phimove == "D") {
                         if (find(PatternsPhiDown.begin(), PatternsPhiDown.end(),
                             patternPhi) == PatternsPhiDown.end()) {
                             continue;
                         }
                     }
-            
+
                     if (phimove == "UD") {
                         if (find(PatternsPhiUpDown.begin(), PatternsPhiUpDown.end(),
                             patternPhi) == PatternsPhiUpDown.end()) {
                             continue;
                         }
                     }
-            
+
                     if (phimove == "DU") {
                         if (find(PatternsPhiDownUp.begin(), PatternsPhiDownUp.end(),
                             patternPhi) == PatternsPhiDownUp.end()) {
@@ -257,12 +250,12 @@ namespace NSWL1{
                         assert(l2Idx > -1);
                         padIndices.push_back(l2Idx);
                     }
-            
+
                     if (isLayer3) {
                         assert(l3Idx > -1);
                         padIndices.push_back(l3Idx);
                     }
-            
+
                     if (isLayer4) {
                         assert(l4Idx > -1);
                         padIndices.push_back(l4Idx);
@@ -282,7 +275,7 @@ namespace NSWL1{
     }
 
     //-------------------------------------
-    std::vector< size_t > L1TdrStgcTriggerLogic::removeRandomPadIndices(const std::vector< size_t > &padIndices) {
+    std::vector< size_t > L1TdrStgcTriggerLogic::removeRandomPadIndices(const std::vector< size_t > &padIndices) const {
         std::vector< size_t > out;
         TRandom rand;
         out.reserve(padIndices.size());
@@ -297,8 +290,8 @@ namespace NSWL1{
                                                                            const std::vector< size_t > &iL0,
                                                                            const std::vector< size_t > &iL1,
                                                                            const std::vector< size_t > &iL2,
-                                                                           const std::vector< size_t > &iL3){
-        
+                                                                           const std::vector< size_t > &iL3) const {
+
         std::vector< SingleWedgePadTrigger > trigNoL0(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, false,true, true, true));
         std::vector< SingleWedgePadTrigger > trigNoL1(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,false, true, true));
         std::vector< SingleWedgePadTrigger > trigNoL2(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,true, false, true));
@@ -314,7 +307,7 @@ namespace NSWL1{
                                                                       const std::vector< size_t > &iL0,
                                                                       const std::vector< size_t > &iL1,
                                                                       const std::vector< size_t > &iL2,
-                                                                      const std::vector< size_t > &iL3) {
+                                                                      const std::vector< size_t > &iL3) const {
         return buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true, true, true,true);
     }
 
@@ -334,7 +327,7 @@ namespace NSWL1{
             sort(idxes.begin(),idxes.end()); // need to be sorted for set_intersection to work
             std::vector< size_t > commonIndices(indices.size() > idxes.size() ? indices.size(): idxes.size());
             bool allIdsPresent(
-                 distance(commonIndices.begin(),set_intersection(indices.begin(), indices.end(),idxes.begin(), idxes.end(),commonIndices.begin())) ==static_cast<int>(idxes.size())
+                 std::distance(commonIndices.begin(),std::set_intersection(indices.begin(), indices.end(),idxes.begin(), idxes.end(),commonIndices.begin())) ==static_cast<int>(idxes.size())
               );
         return allIdsPresent;
        }
@@ -342,13 +335,14 @@ namespace NSWL1{
     
     void remove3of4Redundant4of4(const std::vector< SingleWedgePadTrigger > &trigs4of4,std::vector< SingleWedgePadTrigger > &trigs3of4){//haha :)
       for (std::vector< SingleWedgePadTrigger >::const_iterator t4 = trigs4of4.begin(); t4 != trigs4of4.end();++t4) {
-         trigs3of4.erase(remove_if(trigs3of4.begin(), trigs3of4.end(),TrigIsSubsetOf(*t4)),trigs3of4.end());
+         trigs3of4.erase(std::remove_if(trigs3of4.begin(), trigs3of4.end(),TrigIsSubsetOf(*t4)),trigs3of4.end());
       }
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< std::shared_ptr<PadOfflineData> > &pads) {//sector pads
-       
-        m_secTrigCand.clear();
+    std::vector<SectorTriggerCandidate> L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< std::shared_ptr<PadOfflineData> > &pads) const {
+
+        std::vector<SectorTriggerCandidate> secTrigCand;
+
         std::vector< size_t > indicesSecN(pads.size());
         std::iota(indicesSecN.begin(),indicesSecN.end(),0);
         const int innerMultiplet(1), outerMultiplet(2);
@@ -369,7 +363,7 @@ namespace NSWL1{
 
         remove3of4Redundant4of4(i4of4trig, i3of4trig);
         remove3of4Redundant4of4(o4of4trig, o3of4trig);
-        
+
         ATH_MSG_DEBUG("SingleWedge triggers :"
                 << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
                 << "(4/4)"
@@ -386,10 +380,10 @@ namespace NSWL1{
         bool skipInnerOuterMatchHack = false;
         if (skipInnerOuterMatchHack) {
             for (auto &swpt : innerTrigs){
-                m_secTrigCand.emplace_back(swpt.setCombined());
+                secTrigCand.emplace_back(swpt.setCombined());
             }
             for (auto &swpt : outerTrigs){
-                m_secTrigCand.emplace_back(swpt.setCombined());
+                secTrigCand.emplace_back(swpt.setCombined());
             }
         } 
         //SI ================================================================================
@@ -399,24 +393,23 @@ namespace NSWL1{
                     // Inner-Outer matching based on area
                     Polygon innerArea=SingleWedgePadTrigger::padOverlap3(it.pads());
                     Polygon outerArea=SingleWedgePadTrigger::padOverlap3(ot.pads());
-                    
+
                     float Z1=ot.pads().at(0)->m_cornerXyz[1][2];
                     float Z0=it.pads().at(0)->m_cornerXyz[1][2];
-                    
+
                     Polygon inoutovl=largestIntersection(innerArea,Project(outerArea,Z1,Z0));
 
                     float overlap=area(inoutovl);
 
-                     
                     if (overlap >0) {
-                       ATH_MSG_DEBUG("OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea));                        
-                        m_secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
+                       ATH_MSG_DEBUG("OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea));
+                        secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
                     }
                 } // end for(ot)
             }   // end for(it)
             //***** Transition Region *****
-            
-            
+
+
             if (acceptSingleWedgeInTransition) {
                 for ( auto& it : innerTrigs){
                     if (it.alreadyCombined()){
@@ -424,27 +417,24 @@ namespace NSWL1{
                         continue;
                     }
                     else if ((it.is4outOf4Layers()||it.is3outOf4Layers()) && it.isInTransitionRegion()){
-                        m_secTrigCand.emplace_back(it.setCombined());                
+                        secTrigCand.emplace_back(it.setCombined());
                     }
                 }
                 for ( auto& ot : outerTrigs) {
                     if (ot.alreadyCombined()){
-                         ATH_MSG_DEBUG("Outer SingleWedge trigger already combined, skipping");                        
+                         ATH_MSG_DEBUG("Outer SingleWedge trigger already combined, skipping");
                         continue;
                     }
                     else if ((ot.is4outOf4Layers()||ot.is3outOf4Layers()) && ot.isInTransitionRegion()){
-                        m_secTrigCand.emplace_back(ot.setCombined());
+                        secTrigCand.emplace_back(ot.setCombined());
                     }
                 }
             } // end if(acceptSingleWedgeInTransition)
         }   // if(not skipInnerOuterMatchHack)
-        //m_secTrigCand = trigCandidates;
-        
-         ATH_MSG_DEBUG("found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
-        for (const auto& tc : m_secTrigCand) {
-                ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
-        }
-        return (m_secTrigCand.size() > 0);
+
+        ATH_MSG_DEBUG("found " << secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
+        for (const auto& tc : secTrigCand) ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
+        return secTrigCand;
     }
 
     /**
@@ -454,12 +444,12 @@ namespace NSWL1{
     2013/02/10 now calculating per wedge
     */
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() const {
         //why dont we make these members ? 
         return std::vector<std::string>{"1111","1122","3111","3122","1311","1322","1131","1132","1113","1123"};
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() const {
         std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1100");
@@ -475,7 +465,7 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() const {
         std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1112");
@@ -497,7 +487,7 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() const {
         std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1110");
@@ -519,7 +509,7 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() const {
         std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1212");
@@ -535,7 +525,7 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() const {
         std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1010");
@@ -551,7 +541,7 @@ namespace NSWL1{
     }
     
     //whats the function of this ??
-    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() {
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() const {
         std::vector<std::string> patterns;
         return patterns;
     }
@@ -560,7 +550,7 @@ namespace NSWL1{
   //-------------------------------------
   std::vector<size_t> L1TdrStgcTriggerLogic::filterByLayer(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                          const std::vector<size_t> &padSelectedIndices,
-                                         int layer)
+                                         int layer) const
   {
     std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
@@ -572,7 +562,7 @@ namespace NSWL1{
 
   std::vector<size_t> L1TdrStgcTriggerLogic::filterByMultiplet(const std::vector<std::shared_ptr<PadOfflineData>> &pads,
                                              const std::vector<size_t> &padSelectedIndices,
-                                             int multiplet)
+                                             int multiplet) const
   {
     std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
@@ -581,9 +571,4 @@ namespace NSWL1{
     }
     return indices;
   }
-  //-------------------------------------    
-    
-    
-    
 }
-
