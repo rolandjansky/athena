@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,7 +8,8 @@
  **/
 
 #include "InDetPlotBase.h"
-// bring Gaudi utilities in scope
+// bring Athena/Gaudi utilities in scope
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Service.h"
@@ -38,7 +39,7 @@ namespace {
 
 
 InDetPlotBase::InDetPlotBase(InDetPlotBase* pParent, const std::string& dirName) :
-  PlotBase(pParent, dirName), m_msg("InDetPlotBase"), m_histoDefSvc(nullptr) {
+  PlotBase(pParent, dirName), AthMessaging(Athena::getMessageSvc(), "InDetPlotBase"), m_histoDefSvc(nullptr) {
   // nop
 }
 
