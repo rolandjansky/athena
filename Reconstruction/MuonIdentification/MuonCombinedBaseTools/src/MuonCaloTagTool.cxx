@@ -323,7 +323,7 @@ namespace MuonCombined {
         std::vector<DepositInCalo>::const_iterator depositE = deposits.end();
         double eLoss = 0;  // Energy Loss as measured in the cell closest to the track in each sample
         CaloTag* caloTag = nullptr;
-        for (; deposit != depositE; deposit++) eLoss += deposit->energyDeposited();
+        for (; deposit != depositE; ++deposit) eLoss += deposit->energyDeposited();
 
         if (tag > 0) {
             caloTag = new CaloTag(xAOD::Muon::CaloTag, eLoss, 0);  // set eLoss, sigmaEloss is set to 0.
