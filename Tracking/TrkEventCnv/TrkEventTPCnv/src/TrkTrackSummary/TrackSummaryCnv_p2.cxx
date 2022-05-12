@@ -3,7 +3,6 @@
 */
 
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummaryCnv_p2.h"
 

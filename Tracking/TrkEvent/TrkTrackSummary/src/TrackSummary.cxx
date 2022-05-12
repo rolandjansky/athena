@@ -21,7 +21,6 @@ Trk::TrackSummary::TrackSummary()
   , m_nhitsdedx(-1)
   , m_nhitsoverflowdedx(-1)
   , m_idHitPattern(0)
-  , m_indetTrackSummary(nullptr)
   , m_muonTrackSummary(nullptr)
 {
 #ifndef NDEBUG
@@ -41,7 +40,6 @@ Trk::TrackSummary::TrackSummary(const std::vector<int>& information,
   , m_nhitsdedx(nhitsdedx)
   , m_nhitsoverflowdedx(noverflowdedx)
   , m_idHitPattern(hitPattern.to_ulong())
-  , m_indetTrackSummary(nullptr)
   , m_muonTrackSummary(nullptr)
 {
 #ifndef NDEBUG
@@ -60,12 +58,6 @@ Trk::TrackSummary::TrackSummary(const TrackSummary& rhs)
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
 #endif
-  if (rhs.m_indetTrackSummary) {
-    m_indetTrackSummary =
-      std::make_unique<InDetTrackSummary>(*rhs.m_indetTrackSummary);
-  } else {
-    m_indetTrackSummary = nullptr;
-  }
   if (rhs.m_muonTrackSummary) {
     m_muonTrackSummary =
       std::make_unique<MuonTrackSummary>(*rhs.m_muonTrackSummary);

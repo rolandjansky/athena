@@ -45,7 +45,6 @@
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummary_p1.h"
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummary_p2.h"
-#include "TrkEventTPCnv/TrkTrackSummary/InDetTrackSummary_p1.h"
 #include "TrkEventTPCnv/TrkTrackSummary/MuonTrackSummary_p1.h"
 
 //-----------------------------------------------------------------------------

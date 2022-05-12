@@ -11,7 +11,6 @@ email                : edward.moyse@cern.ch
 #ifndef TRKTRACKSUMMARY_H
 #define TRKTRACKSUMMARY_H
 
-#include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include <atomic>
 #include <bitset>
@@ -376,13 +375,6 @@ public:
   @return true if sub-detector 'type' is hit*/
   bool isHit(const DetectorType& type) const;
 
-  /** returns a const pointer to the InDetTrackSummary if available */
-  [[deprecated]] const InDetTrackSummary* indetTrackSummary() const;
-
-  /** returns a pointer to a modifiable (non-const)  InDetTrackSummary if
-   * available */
-  [[deprecated]] InDetTrackSummary* indetTrackSummary();
-
   /** returns a pointer to the MuonTrackSummary if available */
   const MuonTrackSummary* muonTrackSummary() const;
 
@@ -423,9 +415,6 @@ private: // data members
 
   /** number of objects of this type in memory */
   static std::atomic<unsigned int> s_numberOfInstantiations;
-
-  /** pointer to the InDetTrackSummary */
-  std::unique_ptr<InDetTrackSummary> m_indetTrackSummary;
 
   /** pointer to the MuonTrackSummary */
   std::unique_ptr<MuonTrackSummary> m_muonTrackSummary;

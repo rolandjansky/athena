@@ -19,7 +19,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkTrackSummary/InDetTrackSummary.h"
 
 #include <cassert>
 
