@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from ROOT import gROOT, TFile
@@ -7,6 +7,7 @@ defect_val = collections.namedtuple('defect_val',
                                     'defect, comment, recoverable')
 defect_iov = collections.namedtuple('defect_iov',
                                     'defect, comment, recoverable, since, until')
+
 
 
 def find_standby(nlayer, hhits, lb_max, standby_lb):
@@ -82,9 +83,32 @@ def find_notready(nlayer, hist, pct_low, pct_high, notready_lb):
                 notready_lb.append([i, start_lb, 2000])
 
 
+def find_btagdeg(hist, pct_low, pct_high, btagdeg_lb):
+    start = 0
+    start_lb = 0
+
+    nbin = hist.GetNbinsX()
+    for i in range(1, nbin-1):
+        val = hist.GetBinContent(i+1)
+        if val >= pct_low and val < pct_high:
+            if start == 0:
+                start = 1
+                start_lb = i
+        elif start == 1:
+            btagdeg_lb.append([start_lb, i-1])
+            start = 0
+            start_lb = 0
+    if start == 1:
+        btagdeg_lb.append([start_lb, 2000])
+ 
+
 def print_def(defect_name, defect_lb):
     for i in range(0, len(defect_lb)):
         print(defect_name, "[", defect_lb[i][0], "]:", defect_lb[i][1], "-", defect_lb[i][2])
+
+def print_btagdegdef(defect_name, defect_lb):
+    for i in range(0, len(defect_lb)):
+        print(defect_name, ": ", defect_lb[i][0], "-", defect_lb[i][1])
 
 
 def assign_defect(db, defect_name, run, defect_lb):
@@ -116,6 +140,7 @@ def assign_defect(db, defect_name, run, defect_lb):
         db.append(defect_iov(sdefect, comment, False, start, until))
 
 
+
 def assign_lowstat(db, run, comment):
     sdefect = "PIXEL_LOWSTAT"
     lbstart = 1
@@ -125,7 +150,19 @@ def assign_lowstat(db, run, comment):
     #print(sdefect, ": LB = ", lbstart,"-",lbend,")")
     db.append(defect_iov(sdefect, comment, False, start, until))
 
-# def execute(run, sfile, lb_max,  user, db):
+
+def assign_btagdegdef(db, defect_name, run, defect_lb):
+    for i in range(0, len(defect_lb)):
+        sdefect = "PIXEL_" + defect_name
+        lbstart = defect_lb[i][0]
+        lbend = defect_lb[i][1]
+
+        start = (run << 32) + lbstart
+        until = (run << 32) + lbend + 1
+
+        comment = "assign " + sdefect
+        db.append(defect_iov(sdefect, comment, False, start, until))
+
 
 
 def execute(run, sfile, lb_max):
@@ -133,32 +170,31 @@ def execute(run, sfile, lb_max):
     gROOT.Reset()
     file = TFile(sfile)
 
-    shmu = "Global/Luminosity/AnyTrigger/actualMu_vs_LB"
-    file.Get(shmu)
-
     shits = []
-    shits.append("InnerDetector/Pixel/PIXIBL/Hits/AvgOcc_active_per_lumi_IBL")
-    shits.append("InnerDetector/Pixel/PIX0/Hits/AvgOcc_active_per_lumi_B0")
-    shits.append("InnerDetector/Pixel/PIX1/Hits/AvgOcc_active_per_lumi_B1")
-    shits.append("InnerDetector/Pixel/PIX2/Hits/AvgOcc_active_per_lumi_B2")
-    shits.append("InnerDetector/Pixel/PIXECA/Hits/AvgOcc_active_per_lumi_ECA")
-    shits.append("InnerDetector/Pixel/PIXECC/Hits/AvgOcc_active_per_lumi_ECC")
+    shits.append("InnerDetector/Pixel/IBL/Hits/AvgOccActivePerLumi_IBL2D")
+    shits.append("InnerDetector/Pixel/BLayer/Hits/AvgOccActivePerLumi_BLayer")
+    shits.append("InnerDetector/Pixel/Layer1/Hits/AvgOccActivePerLumi_Layer1")
+    shits.append("InnerDetector/Pixel/Layer2/Hits/AvgOccActivePerLumi_Layer2")
+    shits.append("InnerDetector/Pixel/ECA/Hits/AvgOccActivePerLumi_ECA")
+    shits.append("InnerDetector/Pixel/ECC/Hits/AvgOccActivePerLumi_ECC")
 
     sdisabled = []
     sdisabled.append(
-        "InnerDetector/Pixel/PIXIBL/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL2D_byPostProcess")
-    # sdisabled.append("InnerDetector/Pixel/PIXIBL/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL_byPostProcess")
+        "InnerDetector/Pixel/IBL/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL2D_byPostProcess")
+    # sdisabled.append("InnerDetector/Pixel/IBL/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL_byPostProcess")
     sdisabled.append(
-        "InnerDetector/Pixel/PIX0/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B0_byPostProcess")
+        "InnerDetector/Pixel/BLayer/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B0_byPostProcess")
     sdisabled.append(
-        "InnerDetector/Pixel/PIX1/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B1_byPostProcess")
+        "InnerDetector/Pixel/Layer1/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B1_byPostProcess")
     sdisabled.append(
-        "InnerDetector/Pixel/PIX2/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B2_byPostProcess")
+        "InnerDetector/Pixel/Layer2/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B2_byPostProcess")
     sdisabled.append(
-        "InnerDetector/Pixel/PIXECA/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECA_byPostProcess")
+        "InnerDetector/Pixel/ECA/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECA_byPostProcess")
     sdisabled.append(
-        "InnerDetector/Pixel/PIXECC/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECC_byPostProcess")
+        "InnerDetector/Pixel/ECC/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECC_byPostProcess")
 
+    sbtagdeg = "InnerDetector/Pixel/PixelExpert/BTagDegEstimation/TotalDegradationPerLumi"
+ 
     nlayer = 6
     hhits = []
     hdisabled = []
@@ -197,19 +233,31 @@ def execute(run, sfile, lb_max):
     #user = "atlpixdq"
     #assign_defect(db, "STANDBY", run, standby_lb)
 
+
+    fexist_hbtagdeg = True
+    hbtagdeg = file.Get(sbtagdeg)
+    if not hbtagdeg:
+        fexist_hbtagdeg = False
+    btagdegestim_tolerable_lb = []
+    btagdegestim_intolerable_lb = []
+
+    if fexist_hhits is True and fexist_hbtagdeg is True: 
+        find_btagdeg(hbtagdeg, 0.05, 0.25, btagdegestim_tolerable_lb) 
+        find_btagdeg(hbtagdeg, 0.25, 1., btagdegestim_intolerable_lb)
+
     if 0:
         print_def("5to7pct", notready5to7pct_lb)
         print_def("7to10pct", notready7to10pct_lb)
         print_def("10to20pct", notready10to20pct_lb)
         print_def("20to30pct", notready20to30pct_lb)
         print_def("gt30pct", notready_gt30pct_lb)
+        print_btagdegdef("tolerable", btagdegestim_tolerable_lb)
+        print_btagdegdef("intolerable", btagdegestim_intolerable_lb)
 
     if 1:
-        assign_defect(db, "5to7pct_NOTREADY", run, notready5to7pct_lb)
-        assign_defect(db, "7to10pct_NOTREADY", run, notready7to10pct_lb)
-        assign_defect(db, "10to20pct_NOTREADY", run, notready10to20pct_lb)
-        assign_defect(db, "20to30pct_NOTREADY", run, notready20to30pct_lb)
-        assign_defect(db, "GT30pct_NOTREADY", run, notready_gt30pct_lb)
+        assign_btagdegdef(db, "PERFORMANCE_TOLERABLE", run, btagdegestim_tolerable_lb)
+        assign_btagdegdef(db, "PERFORMANCE_INTOLERABLE", run, btagdegestim_intolerable_lb)
+
 
     #nevent = hmu.GetEntries()
     # if nevent < 100000:
