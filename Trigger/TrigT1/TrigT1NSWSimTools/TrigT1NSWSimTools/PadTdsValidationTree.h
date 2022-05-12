@@ -52,7 +52,7 @@ class PadTdsValidationTree {
   private:
     std::string m_treename;
     TTree* m_tree;                                          ///< ntuple for analysis
-    int m_nPadHits;                                         ///< number of PAD hit delivered
+    std::vector<int>*   m_nPadHits;                         ///< number of PAD hit delivered
     std::vector<float>* m_padGlobalX;                       ///< global position X of the PAD hit
     std::vector<float>* m_padGlobalY;                       ///< global position Y of the PAD hit
     std::vector<float>* m_padGlobalZ;                       ///< global position Z of the PAD hit
