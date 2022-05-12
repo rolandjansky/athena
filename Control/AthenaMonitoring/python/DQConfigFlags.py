@@ -18,7 +18,7 @@ _lowLevelSteeringFlags = [ 'InDet.doGlobalMon', 'InDet.doAlignMon',
                            'Muon.doTrackMon', 'Muon.doAlignMon',
                            'Muon.doSegmentMon',
                            'Muon.doPhysicsMon', 'Muon.doTrkPhysMon',
-                           'Muon.doCombinedMon'
+                           'Muon.doCombinedMon', 'LVL1Calo.doValidation'
                            ]
 
 def createDQConfigFlags():
@@ -50,7 +50,9 @@ def createDQConfigFlags():
         if flag == 'doHLTMon':
             # new HLT monitoring not yet compatible with pre-Run 3 data
             arg = lambda x: x.Trigger.EDMVersion == 3 # noqa: E731
-
+        if flag == 'LVL1Calo.doValidation':
+            arg = False
+            
         acf.addFlag('DQ.Steering.' + flag, arg)
 
     # HLT steering ...

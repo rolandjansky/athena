@@ -21,7 +21,6 @@ StatusCode L1CaloLegacyEDMMonitorAlgorithm::initialize() {
   ATH_CHECK(m_l1TauRoIKey.initialize());
   ATH_CHECK(m_l1JetRoIKey.initialize());
   ATH_CHECK(m_l1EnergySumRoIKey.initialize());
-  // retrieve any tools if needed
   
   return AthMonitorAlgorithm::initialize();
 }
@@ -34,13 +33,13 @@ StatusCode L1CaloLegacyEDMMonitorAlgorithm::fillHistograms( const EventContext& 
 
   SG::ReadHandle<xAOD::EmTauRoIContainer> EmTauRoIs{m_l1TauRoIKey, ctx};
   if(!EmTauRoIs.isValid()){
-    ATH_MSG_ERROR("No eFex Tau container found in storegate  "<< m_l1TauRoIKey);
+    ATH_MSG_ERROR("No EM Tau container found in storegate  "<< m_l1TauRoIKey);
     return StatusCode::SUCCESS;
   }
  
   SG::ReadHandle<xAOD::JetRoIContainer> JetRoIs{m_l1JetRoIKey, ctx};
   if(!JetRoIs.isValid()){
-    ATH_MSG_ERROR("No eFex Tau container found in storegate  "<< m_l1JetRoIKey);
+    ATH_MSG_ERROR("No Jet container found in storegate  "<< m_l1JetRoIKey);
     return StatusCode::SUCCESS;
   }
  

@@ -6,6 +6,9 @@
 #include "../JepCmxMonitorAlgorithm.h"
 #include "../OverviewMonitorAlgorithm.h"
 #include "../L1CaloLegacyEDMMonitorAlgorithm.h"
+// Phase 1
+#include "../EfexMonitorAlgorithm.h"
+#include "../GfexMonitorAlgorithm.h"
 
 // Run 2
 #include "../CPMon.h"
@@ -33,6 +36,9 @@ DECLARE_COMPONENT( JepJemMonitorAlgorithm )
 DECLARE_COMPONENT( JepCmxMonitorAlgorithm )
 DECLARE_COMPONENT( OverviewMonitorAlgorithm )
 DECLARE_COMPONENT( L1CaloLegacyEDMMonitorAlgorithm )
+// Phase 1 systems
+DECLARE_COMPONENT( EfexMonitorAlgorithm )
+DECLARE_COMPONENT( GfexMonitorAlgorithm )
 
 // Run 2
 DECLARE_COMPONENT( LVL1::OverviewMon )
