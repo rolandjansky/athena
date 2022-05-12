@@ -4,11 +4,6 @@
 #include "TrigEFMissingET/PeriodicGridBase.h"
 #include <cmath>
 
-namespace
-{
-  constexpr double pi = 3.141592653589793238462643383279502884;
-}
-
 namespace HLT
 {
   namespace MET
@@ -116,9 +111,9 @@ namespace HLT
         // coordinate. This shifts the grid in the negative direction
         phi += phiWidth() / 2;
       // Apply periodicity
-      phi = std::fmod(phi, 2 * pi);
+      phi = std::fmod(phi, 2 * M_PI);
       if (phi < 0)
-        phi += 2 * pi;
+        phi += 2 * M_PI;
       return phi / phiWidth();
     }
 
@@ -152,6 +147,6 @@ namespace HLT
       return parameters().displacement();
     }
     double PeriodicGridBase::etaWidth() const { return 2 * maxEta() / nEtaTowers(); }
-    double PeriodicGridBase::phiWidth() const { return 2 * pi / nPhiTowers(); }
+    double PeriodicGridBase::phiWidth() const { return 2 * M_PI / nPhiTowers(); }
   } // namespace MET
 } // namespace HLT
