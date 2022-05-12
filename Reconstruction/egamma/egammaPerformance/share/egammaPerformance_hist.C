@@ -27,7 +27,8 @@ public:
     m_tree    = (TTree*) m_file->Get("CollectionTree");
     m_hlist   = new TObjArray(0);
  }
-
+  Hists(const  Hists &) = delete;
+  Hists & operator=(const Hists &) = delete;
   //opens a disk file and writes out the hists
 
   void writeHistsToDisk(char* ofname){

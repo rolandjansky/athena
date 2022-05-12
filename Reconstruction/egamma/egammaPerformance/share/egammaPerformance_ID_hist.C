@@ -18,7 +18,8 @@
      m_tree    = (TTree*) m_file->Get("CollectionTree");
      m_hlist   = new TObjArray(0);
   }
- 
+  Hists(const Hists &) = delete;
+  Hists & operator=(const Hists &) = delete;
    //opens a disk file and writes out the hists
    void writeHistsToDisk(char* ofname){
     cout<<"writing..."<<endl;
@@ -344,8 +345,7 @@
    Ele_Emaxs1 = 0;
    Ele_Fracs1 = 0;
    // Set branch addresses and branch pointers
-   if (!m_tree) return;
-
+   
    m_tree->SetBranchAddress("NPar", &NPar, &b_NPar);
    m_tree->SetBranchAddress("Trk_totalNumTracks", &Trk_totalNumTracks, &b_Trk_totalNumTracks);
    m_tree->SetBranchAddress("Trk_truthNt", &Trk_truthNt, &b_Trk_truthNt);
