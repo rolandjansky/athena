@@ -32,11 +32,6 @@
 #include <map>
 #include <utility>
 
-//forward declarations
-class IIncidentSvc;
-class sTgcDigit;
-class TTree;
-
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -68,7 +63,7 @@ namespace NSWL1 {
     virtual ~StripClusterTool()=default;
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
-    virtual StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters) override;
+    virtual StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters) const override;
 
   private:
     // methods implementing the internal data processing
@@ -76,7 +71,7 @@ namespace NSWL1 {
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis
     StatusCode fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters,
-                                        std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > &cluster_cache);
+                                        std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > &cluster_cache) const;
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};       //!< Athena/Gaudi incident Service
@@ -90,7 +85,7 @@ namespace NSWL1 {
     SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainerKey{this,"sTGC_SdoContainerName", "sTGC_SDO", "the name of the sTGC SDO container"};
 
     // analysis variable to be put into the ntuple
-    int m_cl_n;                                             //!< number of STRIP hit delivered
+    mutable int m_cl_n ATLAS_THREAD_SAFE;                   //!< number of STRIP hit delivered
     std::vector<int> *m_cl_charge;                          //!< charge of hit STRIPs
     std::vector<int> *m_cl_size;                            //!< charge of hit STRIPs
     std::vector<float> *m_cl_x;                             //!<global x position of cluster
