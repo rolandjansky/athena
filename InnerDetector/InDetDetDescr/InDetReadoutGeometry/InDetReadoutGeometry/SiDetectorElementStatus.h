@@ -13,6 +13,7 @@
 #define INDETREADOUTGEOMETRY_SIDETECTORELEMENTINFO_H
 
 #include <vector>
+#include <utility>
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -101,7 +102,7 @@ namespace InDet {
        }
 
        bool isCellGood(IdentifierHash hash, unsigned short cell_i) const {
-          const std::vector<unsigned short> &bad_cells= m_badCells->at(hash);
+          const std::vector<unsigned short> &bad_cells= std::as_const(m_badCells)->at(hash);
           return !std::binary_search(bad_cells.begin(),bad_cells.end(),cell_i);
        }
 
