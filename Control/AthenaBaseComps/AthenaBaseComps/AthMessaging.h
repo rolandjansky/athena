@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthMessaging.h 
@@ -41,8 +41,16 @@ class AthMessaging
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  /// Constructor with parameters: 
+  /** Constructor
+   *  @param msgSvc Pointer to the MessageSvc
+   *  @param name Name of the message stream
+   */
   AthMessaging (IMessageSvc* msgSvc, const std::string& name);
+
+  /** Constructor with auto-retrieval of the MessageSvc
+   *  @param name Name of the message stream
+   */
+  AthMessaging (const std::string& name);
 
   /// Destructor: 
   virtual ~AthMessaging(); 
