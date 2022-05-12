@@ -94,7 +94,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   SG::WriteCondHandle<LArHVCorr> writeHandle{m_outputHVScaleCorrKey, ctx};
   if(m_doHV || m_doAffectedHV) {
     if (writeHandle.isValid()) {
-      ATH_MSG_DEBUG("Found valid write LArHVData handle");
+      ATH_MSG_DEBUG("Found valid write handle for LArHVCorr");
     } else {
       doHVData=true;
     }

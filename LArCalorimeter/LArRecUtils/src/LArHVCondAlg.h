@@ -4,7 +4,7 @@
 */
 
 /**
-  @brief This conditions algo produces both LArHVData and LArAffectedRegions
+  @brief This conditions algo produces both LArHVCorr and LArAffectedRegions
 
 */
 
