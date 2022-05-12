@@ -10,6 +10,7 @@
 #include "TRTTransitionRadiation.h"
 
 // Athena includes
+#include "AthenaKernel/getMessageSvc.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
 // Gaudi includes
@@ -17,7 +18,7 @@
 #include "GaudiKernel/Bootstrap.h"
 
 // Geant4 includes
-#include "G4LogicalVolumeStore.hh"// For logical volume setup
+#include "G4LogicalVolumeStore.hh" // For logical volume setup
 
 // For XML parsigin
 #include "boost/property_tree/xml_parser.hpp"
@@ -30,30 +31,27 @@
 #include <stdexcept>
 
 TRRegionXMLHandler::TRRegionXMLHandler(TRTTransitionRadiation *tr) :
+  AthMessaging(Athena::getMessageSvc(), "TRRegionXMLHandler"),
   m_theProcess(tr),
   m_storeGate(nullptr),
-  m_initialLayoutIdDict(false),
-  m_msg("TRRegionXMLHandler")
+  m_initialLayoutIdDict(false)
 {}
 
 void TRRegionXMLHandler::Process(const std::string& name)
 {
   ISvcLocator * svcLocator = Gaudi::svcLocator(); // from Bootstrap
 
-  if (msgLevel(MSG::DEBUG))
-    msg(MSG::DEBUG) << "This is TRRegionXMLHandler. Handler called" << endmsg;
+  ATH_MSG_DEBUG("This is TRRegionXMLHandler. Handler called");
 
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if( sc.isFailure() ) {
-    if (msgLevel(MSG::ERROR))
-      msg(MSG::ERROR) << "Unable to locate StoreGate! Stopping!" << endmsg;
+    ATH_MSG_ERROR("Unable to locate StoreGate! Stopping!");
     throw std::runtime_error("Unable to locate StoreGate!");
   }
   StoreGateSvc* detStore = nullptr;
   sc = svcLocator->service( "DetectorStore", detStore);
   if( sc.isFailure() ) {
-    if (msgLevel(MSG::ERROR))
-      msg(MSG::ERROR) << "Unable to locate DetectorStore! Leaving!" << endmsg;
+    ATH_MSG_ERROR("Unable to locate DetectorStore! Leaving!");
     throw std::runtime_error("Unable to locate DetectorStore!");
   }
 
@@ -65,16 +63,14 @@ void TRRegionXMLHandler::Process(const std::string& name)
         (tag == "initial_layout" || tag == "destaged_layout");
     }
   } else {
-    if (msgLevel(MSG::FATAL))
-      msg(MSG::FATAL) << "Could not retrieve geometry layout. TR process is not to be trusted in the following "
-                      << endmsg;
+    ATH_MSG_FATAL("Could not retrieve geometry layout. TR process is not to be trusted in the following");
     throw std::runtime_error("Could not retrieve geometry layout!");
   }
 
   // Crack open the XML file
   std::filebuf fb;
   if (!fb.open(name,std::ios::in)){
-    msg(MSG::FATAL) << "Could not open file " << name << " bombing out" << endmsg;
+    ATH_MSG_FATAL("Could not open file " << name << " bombing out");
     throw std::runtime_error("Could not open file!");
   }
   std::istream is(&fb);
@@ -109,10 +105,9 @@ void TRRegionXMLHandler::Process(const std::string& name)
         if ( m_initialLayoutIdDict != 0 ) {
           if  ( ( volName!="TRT::MainRadiatorC" ) &&
                 ( volName!="TRT::ThinRadiatorC" )    ) {
-            if (msgLevel(MSG::FATAL))
-              msg(MSG::FATAL) << " Volume-name " << volName
-                              <<" not found! Geometry layout "
-                              << m_initialLayoutIdDict << endmsg;
+            ATH_MSG_FATAL(" Volume-name " << volName
+                          <<" not found! Geometry layout "
+                          << m_initialLayoutIdDict);
             std::abort();
           }
         }
