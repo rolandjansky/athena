@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*-
@@ -7,12 +7,15 @@
 #define NSWL1_PADTDSVALIDATIONTREE_H
 
 #include "GeoPrimitives/GeoPrimitives.h" // Amg::Vector3D (cannot fw declare typedef)
+#include "TrigT1NSWSimTools/PadOfflineData.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "TTree.h"
 
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <utility> // pair
 #include <vector>
 
-class TTree;
 class Identifier;
 
 // namespace for the NSW LVL1 related classes
@@ -27,8 +30,7 @@ class PadOfflineData;
    davide.gerbaudo@gmail.com
  */
 class PadTdsValidationTree {
-
-public:
+  public:
     PadTdsValidationTree();
     /// initialize the output containers and the tree
     /**
@@ -37,21 +39,21 @@ public:
     bool init_tree(TTree *tree);
     void reset_ntuple_variables(); ///< clear all vectors of internal containers
     void clear_ntuple_variables(); ///< set to 0 all pointers of internal containers
-    void fill_num_pad_hits(size_t num); ///< store the number of hits for one pad
-    void fill_hit_global_pos(const Amg::Vector3D& pos); ///< store global position of a hit
-    void fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos); ///< store global position of a hit
-    void fill_truth_hit_global_pos(const Amg::Vector3D& pos); ///< store global position of a truth-matched hit
+    void fill_num_pad_hits(size_t num) const;
+    void fill_hit_global_pos(const Amg::Vector3D& pos) const; ///< store global position of a hit
+    void fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos) const; ///< store global position of a hit
+    void fill_truth_hit_global_pos(const Amg::Vector3D& pos) const; ///< store global position of a truth-matched hit
     /// store eta,phi indices + sector,layer
     /**
        'bin_offset' used to center the bin on the value of the Pad Id.
        Introduced by Alessandro, it's always 0.0. Do we really need it? (DG-2014-09-30)
      */
-    void fill_offlineid_info(const PadOfflineData &o, float bin_offset);
-    void fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id);
-private:
-    std::string m_treename;
-    TTree* m_tree;                                          ///< ntuple for analysis
-    int m_nPadHits;                                         ///< number of PAD hit delivered
+    void fill_offlineid_info(const PadOfflineData &o, float bin_offset) const;
+    void fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id) const;
+
+  private:
+    TTree* m_tree;                                          ///< ntuple for analysis$;
+    std::vector<int>* m_nPadHits;                           ///< number of PAD hit delivered
     std::vector<float>* m_padGlobalX;                       ///< global position X of the PAD hit
     std::vector<float>* m_padGlobalY;                       ///< global position Y of the PAD hit
     std::vector<float>* m_padGlobalZ;                       ///< global position Z of the PAD hit
@@ -75,9 +77,6 @@ private:
     std::vector<int>*   m_offlineIdPadPhiConverted;         ///< PAD phi Id from the offline Id that were converted
     std::vector<int>*   m_padEtaIdFromOldSimu;              ///< PAD eta Id from the standalone simulation code
     std::vector<int>*   m_padPhiIdFromOldSimu;              ///< PAD phi Id from the standalone simulation code
-
-};  // PadTdsValidationTree
-
-
+  };  // PadTdsValidationTree
 } // NSWL1
 #endif
