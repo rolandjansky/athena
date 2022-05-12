@@ -482,22 +482,6 @@ if rec.doTrigger:
     from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
     triggerGetter = TriggerRecoGetter()
 
-    # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
-    if rec.readESD() and rec.doAOD():
-        if ConfigFlags.Trigger.EDMVersion == 3:
-            # Add HLT output
-            from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-            hltOutput = HLTTriggerResultGetter()
-            # Add Trigger menu metadata
-            if rec.doFileMetaData():
-                from RecExConfig.ObjKeyStore import objKeyStore
-                metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                                "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-                objKeyStore.addManyTypesMetaData( metadataItems )
-            # Add L1 output (to be consistent with R2)
-            from TrigEDMConfig.TriggerEDM import getLvl1AODList
-            objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
-
 AODFix.AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
