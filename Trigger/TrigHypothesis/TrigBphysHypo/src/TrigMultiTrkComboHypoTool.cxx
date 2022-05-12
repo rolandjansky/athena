@@ -57,6 +57,7 @@ StatusCode TrigMultiTrkComboHypoTool::initialize() {
     m_legDecisionIDs.insert(m_legDecisionIDs.end(), m_legMultiplicities[0], decisionId().numeric());
   }
   ATH_CHECK( m_nTrk <= m_legDecisionIDs.size() || m_isMergedElectronChain || m_isMuonTrkPEB );
+  ATH_CHECK( m_trkPt.size() == 2 || !m_isMuonTrkPEB );
 
   if (!m_monTool.empty()) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -91,7 +92,8 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
                       passedChi2Cut(trigBphys->fitchi2()) &&
                       passedChargeCut(totalCharge(trigBphys)) &&
                       trigBphys->lxy() > m_LxyCut &&
-                      passedDeltaRcut(trigBphys))) {
+                      passedDeltaRcut(trigBphys) &&
+                      passedPtCut(trigBphys))) {
     mon_Lxy = trigBphys->lxy();
     mon_totalCharge = totalCharge(trigBphys);
     mon_chi2 = trigBphys->fitchi2();
@@ -208,6 +210,16 @@ bool TrigMultiTrkComboHypoTool::passedDeltaRcut(const xAOD::TrigBphys* trigBphys
       double deltaR = ROOT::Math::VectorUtil::DeltaR(p1, p2);
       if (deltaR > m_deltaRMax || deltaR < m_deltaRMin) return false;
     }
+  }
+  return true;
+}
+
+bool TrigMultiTrkComboHypoTool::passedPtCut(const xAOD::TrigBphys* trigBphys) const {
+  if (!m_isMuonTrkPEB) return true;
+
+  size_t N = trigBphys->nTrackParticles();
+  for (size_t i = 0 ; i < N; ++i) {
+    if (m_trkPt[i] > 0. && trigBphys->trackParticle(i)->pt() < m_trkPt[i]) return false;
   }
   return true;
 }

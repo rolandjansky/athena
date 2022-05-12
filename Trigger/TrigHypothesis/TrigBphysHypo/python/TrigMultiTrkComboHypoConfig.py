@@ -178,7 +178,7 @@ def BmutrkComboHypoCfg(name):
     hypo.nTracks = [ 2 ]
     hypo.totalCharge = [ 0 ]
     hypo.massRange = [ (2500., 4400.) ]
-    hypo.trackPtThresholds = [ [ 10000., 3000. ] ]
+    hypo.trackPtThresholds = [ [ 10000., 2000. ] ]
     return hypo
 
 def DrellYanComboHypoCfg(name):
@@ -300,6 +300,7 @@ class TrigMultiTrkComboHypoConfig(object):
         if 'bJpsimutrk' in chainDict['topo']:
             tool.isMuonTrkPEB = True
             tool.totalCharge = 0
+            tool.trackPtThresholds = [-1., 2000.] if 'lowpt' in chainDict['topo'] else  [-1., 3000.]
 
         if 'bTau' in chainDict['topo']:
             tool.nTrk = sum(int(chainPart['multiplicity']) for chainPart in chainDict['chainParts'])
