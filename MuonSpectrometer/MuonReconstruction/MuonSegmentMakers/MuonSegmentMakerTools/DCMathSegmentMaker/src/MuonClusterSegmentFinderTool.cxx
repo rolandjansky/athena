@@ -1003,44 +1003,25 @@ namespace Muon {
         ATH_MSG_VERBOSE("seed global position theta " << seed.first.theta() << " seed direction theta " << seed.second.theta());
         ATH_MSG_VERBOSE("seed global position phi " << seed.first.phi() << " seed direction phi " << seed.second.phi());
 
-        /// loop on the segment clusters and use the phi of the seed to correct them
+        // loop on the segment clusters and use the phi of the seed to correct them
         for (const Muon::MuonClusterOnTrack* clus : clusters) {
             const Muon::MuonClusterOnTrack* newClus = nullptr;
-            /// get the intercept of the seed direction with the cluster surface
-            const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*>(&clus->associatedSurface());
-            if (surf) {
-                Amg::Vector3D posOnSurf = intersectPlane(*surf, seed.first, seed.second);
-                Amg::Vector2D lpos;
-                surf->globalToLocal(posOnSurf, posOnSurf, lpos);
-                /// correct the eta position of the MM stereo layers only, based on the
-                Identifier clus_id = clus->identify();
-                if (m_idHelperSvc->isMM(clus_id)) {
-                    /// build a  new MM cluster on track with correct position
-                    newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), posOnSurf,seed.second);
-                    // newClus = clus;
-                    ATH_MSG_VERBOSE("Position before correction: " << clus->globalPosition().x() << " " << clus->globalPosition().y() << " "
-                                                                   << clus->globalPosition().z());
-                    ATH_MSG_VERBOSE("Position after correction: " << newClus->globalPosition().x() << " " << newClus->globalPosition().y()
-                                                                  << " " << newClus->globalPosition().z());
-                }
-
-            const Muon::MuonClusterOnTrack* newClus{nullptr};
-
+            
             // get the intercept of the seed direction with the cluster surface
             Identifier hitID = clus->identify();
-            const Trk::Surface& surf = clus->associatedSurface();
+            const Trk::PlaneSurface& surf = clus->associatedSurface();
             Trk::Intersection intersect = surf.straightLineIntersection(seed.first, seed.second, false, false);
 
             if (m_idHelperSvc->isMM(hitID)) {
-                // build a new MMClusterOnTrack with correct position
-                newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), intersect.position);
+                 // build a  new MM cluster on track with correct position
+                 newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), intersect.position,seed.second);
 
-                if (msgLvl(MSG::VERBOSE)) {
-                    const Amg::Vector3D& gpos_hit = clus->globalPosition();
-                    const Amg::Vector3D& gpos_new = newClus->globalPosition();
-                    ATH_MSG_VERBOSE("Position before correction: " << gpos_hit.x() << " " << gpos_hit.y() << " " << gpos_hit.z());
-                    ATH_MSG_VERBOSE("Position after correction: "  << gpos_new.x() << " " << gpos_new.y() << " " << gpos_new.z());
-                }
+                 if (msgLvl(MSG::VERBOSE)) {
+                     const Amg::Vector3D& gpos_hit = clus->globalPosition();
+                     const Amg::Vector3D& gpos_new = newClus->globalPosition();
+                     ATH_MSG_VERBOSE("Position before correction: " << gpos_hit.x() << " " << gpos_hit.y() << " " << gpos_hit.z());
+                     ATH_MSG_VERBOSE("Position after correction: "  << gpos_new.x() << " " << gpos_new.y() << " " << gpos_new.z());
+                 }
 
             } else if (m_idHelperSvc->issTgc(hitID)) {
                 // calibration to be added for sTGCs
