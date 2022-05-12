@@ -223,7 +223,7 @@ namespace NSWL1{
         m_padTriggerlocalmaxYOuter=nullptr;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::fill_num_pad_triggers(size_t num){
+    void PadTriggerValidationTree::fill_num_pad_triggers(size_t num) const {
         m_nPadTriggers = num;
     }
     //------------------------------------------------------------------------------

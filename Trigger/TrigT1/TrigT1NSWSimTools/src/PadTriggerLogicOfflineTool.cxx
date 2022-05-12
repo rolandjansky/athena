@@ -200,7 +200,7 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
     } // for(side)
     // Fill Ntuple
     if(m_doNtuple) {
-      //m_validation_tree.fill_num_pad_triggers(triggers.size());
+      m_validation_tree.fill_num_pad_triggers(triggers.size());
       m_validation_tree.fill_pad_trigger_basics(triggers);
     }
     return StatusCode::SUCCESS;
