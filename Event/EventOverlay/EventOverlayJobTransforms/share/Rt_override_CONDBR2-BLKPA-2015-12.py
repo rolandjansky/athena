@@ -142,7 +142,7 @@ conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs")
 conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True,className="AthenaAttributeList")
 
 conddb.blockFolder('/TILE/OFL02/CALIB/SFR')
-conddb.addFolderWithTag('TILE_OFL','/TILE/OFL02/CALIB/SFR','TileOfl02CalibSfr-SIM-05',force=True,forceMC=True,className='CondAttrListCollection')
+conddb.addFolderWithTag('TILE_OFL','/TILE/OFL02/CALIB/SFR','TileOfl02CalibSfr-SIM-07',force=True,forceMC=True,className='CondAttrListCollection')
 
 dofolderoverrides = True
 if dofolderoverrides:
