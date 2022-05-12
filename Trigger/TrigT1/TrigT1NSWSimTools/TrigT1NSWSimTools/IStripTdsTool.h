@@ -32,7 +32,7 @@ class StripOfflineData;
   public:
     virtual ~IStripTdsTool() {}
 
-    virtual StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) = 0;
+    virtual StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) const = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IStripTdsTool("NSWL1::IStripTdsTool", 1 ,0);
