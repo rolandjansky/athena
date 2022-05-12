@@ -55,10 +55,7 @@ private:
    Gaudi::Property<float> m_jetSeed_etaMax {this, "jetSeed_etaMin",  2.0, "Maximum eta for jet seed"};
 
    // seed type enum
-   enum SeedType {
-      HLTJet = 2,
-      SP = 4
-   };
+   using SeedType = TrigHitDVHypoTool::SeedType;
 
    // monitoring
    ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };

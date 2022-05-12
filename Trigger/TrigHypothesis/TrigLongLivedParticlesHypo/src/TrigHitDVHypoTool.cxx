@@ -259,7 +259,7 @@ bool TrigHitDVHypoTool::decideOnSingleObject( HitDVHypoInfo& input, size_t cutIn
 
    // if only jet pt/eta cut
    if( isOnlyJetCut ) {
-      if( seed_type != 0 )                    return false;
+      if( seed_type != SeedType::HLTJet )     return false;
       if( std::abs(seed_eta) > etaThreshold ) return false;
       if( seed_pt < ptThreshold )             return false;
       // passed
@@ -279,8 +279,8 @@ bool TrigHitDVHypoTool::decideOnSingleObject( HitDVHypoInfo& input, size_t cutIn
       BDTthreshold = getBDTthreshold_1eta2(input.averageMu, eff);
    }
 
-   if( ! doSPseed && seed_type==1 )            return false;
-   if( seed_type==0 && seed_pt < ptThreshold ) return false;
+   if( ! doSPseed                   && seed_type==SeedType::SP ) return false;
+   if( seed_type==SeedType::HLTJet  && seed_pt < ptThreshold   ) return false;
    if( std::abs(seed_eta) > etaThreshold )     return false;
    if( bdt_score < BDTthreshold )              return false;
 

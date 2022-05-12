@@ -40,6 +40,12 @@ public:
       const TrigCompositeUtils::DecisionIDContainer previousDecisionsIDs;
    };
 
+   // seed type enum
+   enum SeedType {
+      HLTJet = 2,
+      SP = 4
+   };
+
    /**
     * @brief decides upon a collection of tracks
     **/
