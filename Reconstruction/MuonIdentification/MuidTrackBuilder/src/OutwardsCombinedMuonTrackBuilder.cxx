@@ -399,7 +399,7 @@ namespace Rec {
 
                 Trk::TrackStates::const_iterator endStates = fittedTrack->trackStateOnSurfaces()->end();
 
-                for (; itStates != endStates; itStates++) {
+                for (; itStates != endStates; ++itStates) {
                     if ((*itStates)->materialEffectsOnTrack()) {
                         const Trk::MaterialEffectsOnTrack* meot =
                             dynamic_cast<const Trk::MaterialEffectsOnTrack*>((*itStates)->materialEffectsOnTrack());

@@ -2503,10 +2503,12 @@ namespace Rec {
                 if (fieldCache.toroidOn()) {
                     const Trk::TrackParameters* oldParameters = caloTSOS.front()->trackParameters();
 
-                    if (oldParameters && !oldParameters->covariance()) { ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (0)"); }
-                    // chickened out of sorting out ownership
-                    track_param_owner = m_propagator->propagate(ctx, *oldParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
-                                                                m_magFieldProperties, Trk::nonInteracting);
+                    if (oldParameters){
+                      if(not oldParameters->covariance()) { ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (0)"); }
+                      // chickened out of sorting out ownership
+                      track_param_owner = m_propagator->propagate(ctx, *oldParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
+                                                                  m_magFieldProperties, Trk::nonInteracting);
+                    }
                 } else {
                     track_param_owner = m_propagatorSL->propagate(ctx, parameters, *mperigeeSurface, Trk::oppositeMomentum, false,
                                                                   m_magFieldProperties, Trk::nonInteracting);
