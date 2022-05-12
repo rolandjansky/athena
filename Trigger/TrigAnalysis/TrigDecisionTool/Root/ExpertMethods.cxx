@@ -64,13 +64,13 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
+const Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
-    if ( !m_cacheGlobalMemory->get()->assert_decision() ) {
+    if ( !std::as_const(m_cacheGlobalMemory)->get()->assert_decision() ) {
       ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
     } 
   } 
-  return m_cacheGlobalMemory->get(); 
+  return std::as_const(m_cacheGlobalMemory)->get(); 
 }
 
 #ifndef XAOD_STANDALONE // AthAnalysis or full Athena
