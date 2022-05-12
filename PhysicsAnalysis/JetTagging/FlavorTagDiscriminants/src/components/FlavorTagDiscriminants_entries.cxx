@@ -18,6 +18,7 @@
 #include "FlavorTagDiscriminants/PoorMansIpAugmenterAlg.h"
 #include "FlavorTagDiscriminants/TrackLeptonDecoratorAlg.h"
 #include "FlavorTagDiscriminants/TrackTruthDecoratorAlg.h"
+#include <FlavorTagDiscriminants/TrackClassifier.h>
 
 using namespace FlavorTagDiscriminants;
 
@@ -37,3 +38,4 @@ DECLARE_COMPONENT(BTaggingBuilderAlg)
 DECLARE_COMPONENT(PoorMansIpAugmenterAlg)
 DECLARE_COMPONENT(TrackLeptonDecoratorAlg)
 DECLARE_COMPONENT(TrackTruthDecoratorAlg)
+DECLARE_COMPONENT (TrackClassifier)
