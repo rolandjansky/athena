@@ -4,11 +4,12 @@
 #ifndef TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 #define TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 
-#include <string>
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCostMonitor/ITrigCostSvc.h"
 #include "HLTSeeding/IPrescalingTool.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include <string>
 
 
 /**
@@ -26,6 +27,9 @@ public:
   virtual StatusCode finalize() override;
 
 private:
+  /// Monitor RoI updates between initial and final RoI
+  void monitorRoIs(const TrigCompositeUtils::Decision* terminusNode) const;
+
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{ this, "DecisionsSummaryKey", "HLTNav_Summary",
       "Location of final decision" };
 
@@ -47,11 +51,17 @@ private:
   ToolHandle<IPrescalingTool> m_prescaler{this, "Prescaler", "PrescalingTool/PrescalingTool",
     "Prescaling tool used to determine express stream prescale decisions"};
 
+  ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "",
+    "Monitoring tool" };
+
   Gaudi::Property< std::map< std::string, std::vector<std::string> > > m_lastStepForChain{ this, "FinalStepDecisions", {},
     "The map of chain name to names of the collections in which the final decision is found" };
 
   Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false,
     "Enables end-of-event cost monitoring behavior."};
+
+  Gaudi::Property<bool> m_warnOnLargeRoIUpdates{this, "WarnOnLargeRoIUpdates", true,
+    "Print warnings from RoI update monitoring if the difference between initial and final RoI is large"};
 
   Gaudi::Property<bool> m_setFilterStatus{this, "SetFilterStatus", false,
     "Enables chain-passed filter. This will cause the downstream EDMCreator to not run if no chains pass, saving CPU in rejected events. "
