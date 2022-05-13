@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "lwtnn/parse_json.hh"
@@ -48,12 +49,10 @@ public:
   void printHistosStatus() const; 
   void printBdtsStatus() const;
   std::string getChannelAlias(const std::string& originalChannel) const;
-  void addHisto(const unsigned int indexTagger, const std::string& name, TH1*);
-  void deleteHistos();
-  void deleteBdts();
+  void addHisto(const unsigned int indexTagger, const std::string& name, std::unique_ptr<TH1>);
   void addDL1NN(const std::string& tagger, const std::string& channel, const lwt::JSONConfig& );
   void addIPRNN(const std::string& tagger, const std::string& channel, const std::string& );
-  void addBdt(const std::string& tagger, const std::string& name, MVAUtils::BDT *);
+  void addBdt(const std::string& tagger, const std::string& name, std::unique_ptr<MVAUtils::BDT>);
   void addInputVars(const std::string& tagger, const std::string& name, const std::vector<std::string> &input);
   void addChannelAlias(const std::string& channel, const std::string& alias);
   TH1* retrieveHistogram(const std::string& folder, const std::string& channel, const std::string& hname) const; 
@@ -68,12 +67,12 @@ public:
   std::string fullHistoName(const std::string& channel, const std::string& histoName) const;
 
 private:
-  std::vector< std::map<std::string, TH1*> > m_histos;
+  std::vector< std::map<std::string, std::unique_ptr<TH1>> > m_histos;
   std::map< std::string, std::string > m_channelAliasesMap;
   std::vector< std::string> m_taggers;
 
   //MV2, MultiSV and SoftMuon BDTs
-  std::map< std::string, std::map<std::string, MVAUtils::BDT*> > m_bdts;
+  std::map< std::string, std::map<std::string, std::unique_ptr<MVAUtils::BDT>> > m_bdts;
   //MV2, MultiSV and SoftMuon input var
   std::map< std::string, std::map<std::string, std::vector<std::string>>> m_inputVars;
   //DL1 NN Json config

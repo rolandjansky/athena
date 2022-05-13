@@ -23,37 +23,14 @@ JetTagCalibCondData::JetTagCalibCondData() :
 }
 
 JetTagCalibCondData::~JetTagCalibCondData() {
-    this->deleteHistos();
-    this->deleteBdts();
-}
-
-void JetTagCalibCondData::deleteHistos() {
-    std::map<std::string, TH1*>::const_iterator iter_hist;
-    for(unsigned int i=0;i<m_histos.size();i++) {
-      iter_hist = m_histos[i].begin();
-      for(;iter_hist!=m_histos[i].end();++iter_hist) {
-        delete iter_hist->second;
-      }
-    }
     m_histos.clear();
-}
-
-void JetTagCalibCondData::deleteBdts() {
-    for( auto const &tagger : m_bdts) {
-      for( auto const &channel : tagger.second) {
-        delete channel.second;
-      }
-    }
     m_bdts.clear();
 }
 
-
 void JetTagCalibCondData::resize(const std::vector<std::string>& taggers) {
-    m_histos.reserve(taggers.size());
-    for(uint i=0;i<taggers.size();i++) {
-      m_taggers.push_back(taggers[i]);
-      std::map<std::string, TH1* > hmap;
-      m_histos.push_back(hmap);
+    m_histos.resize(taggers.size());
+    for(const std::string& t : taggers) {
+      m_taggers.push_back(t);
     }
 }
 
@@ -61,14 +38,14 @@ void JetTagCalibCondData::clear() {
     m_channelAliasesMap.clear();
 }
 
-void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::string& name, TH1* obj) {
-  m_histos[indexTagger].insert(std::make_pair(name, obj));
-  ATH_MSG_DEBUG("#BTAG# histo added " << name << " with pointer " << obj
+void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::string& name, std::unique_ptr<TH1> obj) {
+  m_histos[indexTagger].insert(std::make_pair(name, std::move(obj)));
+  ATH_MSG_DEBUG("#BTAG# histo added " << name << " with pointer " << obj.get()
                 << ", m_histos size " << m_histos.size());
 }
 
-void JetTagCalibCondData::addBdt(const std::string&tagger, const std::string& channel, MVAUtils::BDT* bdt) {
-  m_bdts[tagger].insert(std::make_pair(channel, bdt));
+void JetTagCalibCondData::addBdt(const std::string&tagger, const std::string& channel, std::unique_ptr<MVAUtils::BDT> bdt) {
+  m_bdts[tagger].insert(std::make_pair(channel, std::move(bdt)));
   ATH_MSG_DEBUG("#BTAG# Adding BDT of " << tagger << " in cond data for channel " << channel
                 << ", m_bdts size " << m_bdts.size());
 }
@@ -117,11 +94,9 @@ void JetTagCalibCondData::printAliasesStatus() const {
 
 void JetTagCalibCondData::printHistosStatus() const {
   msg() << MSG::DEBUG << "#BTAG# histograms retrieved from DB" << endmsg;
-  std::map<std::string, TH1*>::const_iterator iter_hist;
-  for(unsigned int i=0;i<m_histos.size();i++) {
-    iter_hist = m_histos[i].begin();
-    for(;iter_hist!=m_histos[i].end();++iter_hist) {
-      msg() << MSG::DEBUG << "#BTAG# histogram name: "<< iter_hist->first << " with pointer " << iter_hist->second << endmsg;
+  for( const auto& hists : m_histos ) {
+    for( const auto& [name, hist] : hists) {
+      msg() << MSG::DEBUG << "#BTAG# histogram name: "<< name << " with pointer " << hist.get() << endmsg;
     }
   }
 }
@@ -146,14 +121,14 @@ MVAUtils::BDT* JetTagCalibCondData::retrieveBdt(const std::string& tagger, const
 
   ATH_MSG_DEBUG("#BTAG# retrieving BDT for " << tagger
                 << " (channel " << channel << " -> " << channelAlias << ")");
-  std::map< std::string , std::map<std::string, MVAUtils::BDT*>>::const_iterator mI;
-  mI = m_bdts.find(tagger);
+
+  auto mI = m_bdts.find(tagger);
   if (mI != m_bdts.end()) {
     ATH_MSG_DEBUG("#BTAG# " << tagger << " BDT config found");
-    std::map<std::string, MVAUtils::BDT*>::const_iterator mJ = mI->second.find(channelAlias);
+    auto mJ = mI->second.find(channelAlias);
     if (mJ != mI->second.end()) {
       ATH_MSG_DEBUG("#BTAG# "<< tagger << " BDT config found for jet collection " << channel);
-      bdt = mJ->second;
+      bdt = mJ->second.get();
     }
     else {
       ATH_MSG_DEBUG("#BTAG# "<< tagger << " BDT config not found for jet collection " << channel);
