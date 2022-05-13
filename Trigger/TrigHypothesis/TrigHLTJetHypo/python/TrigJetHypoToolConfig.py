@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaCommon.SystemOfUnits import GeV
 
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
@@ -114,6 +115,28 @@ def  trigJetEJsHypoToolFromDict(chain_dict):
 
     return  hypo
 
+def  trigJetCRHypoToolFromDict(chain_dict):
+    chain_name = chain_dict['chainName']
+ 
+    doBIBrm = int(0)
+    if 'calratio' in chain_dict['chainParts'][0]['exotHypo'] or 'calratiormbib' in chain_dict['chainParts'][0]['exotHypo']:
+        if 'calratiormbib' in chain_dict['chainParts'][0]['exotHypo']:
+            doBIBrm = int(1)
+    else:
+        raise Exception("misconfiguration of Exotic jet chain")
+
+    hypo = CompFactory.TrigJetCRHypoTool(chain_name)
+
+    hypo.MinjetlogR      = 1.2
+    hypo.MintrackPt      = 2*GeV
+    hypo.MindeltaR       = 0.2
+
+    hypo.countBIBcells   = 4
+
+    hypo.doBIBremoval = doBIBrm
+
+
+    return  hypo
 
 import unittest
 class TestStringMethods(unittest.TestCase):

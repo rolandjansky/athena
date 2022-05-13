@@ -23,6 +23,10 @@ StatusCode JetPFlowSelectionAlg::initialize() {
   ATH_CHECK(m_chargedFEElectronsReadDecorKey.initialize());
   ATH_CHECK(m_chargedFEMuonsReadDecorKey.initialize());
 
+  // it is enough to initialise the keys, ReadDecorHandles won't be needed
+  ATH_CHECK(m_chargedFETausReadDecorKey.initialize());
+  ATH_CHECK(m_neutralFETausReadDecorKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 

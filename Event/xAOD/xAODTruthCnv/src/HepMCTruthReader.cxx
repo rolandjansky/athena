@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -53,7 +53,7 @@ StatusCode HepMCTruthReader::execute() {
     if (cntr>0) ATH_MSG_INFO("Printing pileup events...");  
 
     if (cntr==0) {
-      auto signalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt);
+      auto signalProcessVtx = HepMC::signal_process_vertex(genEvt);
       ATH_MSG_INFO("Signal process vertex position: (" << (signalProcessVtx?signalProcessVtx->position().x():0)
 		   << ", " << (signalProcessVtx?signalProcessVtx->position().y():0)
            << ", " << (signalProcessVtx?signalProcessVtx->position().z():0)
@@ -83,7 +83,7 @@ void HepMCTruthReader::printEvent(const HepMC::GenEvent* event) {
   cout << "        Barcode   PDG ID      ( Px,       Py,       Pz,     E ) Stat  DecayVtx\n";
   cout << "--------------------------------------------------------------------------------\n";
 #ifdef HEPMC3
-  for (auto iv: ((HepMC::GenEvent*)event)->vertices()) {  printVertex(iv);  } 
+  for (auto iv: event->vertices()) {  printVertex(iv);  } 
 #else
   for (HepMC::GenEvent::vertex_const_iterator iv = event->vertices_begin(); iv != event->vertices_end(); ++iv) {
     printVertex(*iv);

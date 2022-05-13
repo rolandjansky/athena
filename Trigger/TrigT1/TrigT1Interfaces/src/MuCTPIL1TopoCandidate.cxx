@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
@@ -14,7 +14,7 @@ namespace LVL1 {
     m_etamin(0), m_etamax(0), m_phimin(0), m_phimax(0), m_roiWord(0), m_mioctID(0), m_ieta(0), m_iphi(0), 
     m_phiOvl(false), m_is2cand(false), m_charge(0), m_bw2or3(false), m_innerCoin(false), m_goodMF(false) {}
 
-  void MuCTPIL1TopoCandidate::setCandidateData(std::string  sectorName, 
+  void MuCTPIL1TopoCandidate::setCandidateData(const std::string&  sectorName, 
 					       unsigned int roiID,     
 					       unsigned int bcid,      
 					       unsigned int ptThresholdID,  

@@ -5,8 +5,8 @@
 
 #include "AthenaBaseComps/AthService.h"
 
-#include "HTTRegionMap.h"
-#include "HTTNNMap.h"
+#include "TrigHTTMaps/HTTRegionMap.h"
+#include "TrigHTTMaps/HTTNNMap.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
 #include "TrigHTTMaps/HTTPlaneMap.h"
 #include "TrigHTTConfTools/IHTTEventSelectionSvc.h"

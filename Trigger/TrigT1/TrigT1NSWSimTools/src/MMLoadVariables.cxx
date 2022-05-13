@@ -4,22 +4,6 @@
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
 
-#include "AtlasHepMC/GenEvent.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-
-#include "Math/Vector4D.h"
-#include <cmath>
-#include <stdexcept>
-
-#include "FourMomUtils/xAODP4Helpers.h"
-
-using std::map;
-using std::vector;
-using std::string;
-
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper):
    AthMessaging(Athena::getMessageSvc(), "MMLoadVariables") {
       m_evtStore = evtStore;
@@ -31,12 +15,11 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
                                             const TrackRecordCollection* trackRecordCollection,
                                             const MmDigitContainer *nsw_MmDigitContainer,
                                             std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-                                            std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+                                            std::map<std::pair<int,unsigned int>,std::map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
                                             std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
-                                            std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
+                                            std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars,
+                                            histogramDigitVariables &histDigVars) const {
       //*******Following MuonPRD code to access all the variables**********
-      histogramVariables fillVars;
-
       std::vector<ROOT::Math::PtEtaPhiEVector> truthParticles, truthParticles_ent, truthParticles_pos;
       std::vector<int> pdg;
       std::vector<ROOT::Math::XYZVector> vertex;
@@ -151,12 +134,12 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
             std::vector<int>    VMM = digit->VMM_idForTrigger();
 
             bool isValid;
-
-            fillVars.NSWMM_dig_stationEta.push_back(stationEta);
-            fillVars.NSWMM_dig_stationPhi.push_back(stationPhi);
-            fillVars.NSWMM_dig_multiplet.push_back(multiplet);
-            fillVars.NSWMM_dig_gas_gap.push_back(gas_gap);
-            fillVars.NSWMM_dig_channel.push_back(channel);
+            histDigVars.NSWMM_dig_stationName.push_back(stName);
+            histDigVars.NSWMM_dig_stationEta.push_back(stationEta);
+            histDigVars.NSWMM_dig_stationPhi.push_back(stationPhi);
+            histDigVars.NSWMM_dig_multiplet.push_back(multiplet);
+            histDigVars.NSWMM_dig_gas_gap.push_back(gas_gap);
+            histDigVars.NSWMM_dig_channel.push_back(channel);
 
             std::vector<double> localPosX;
             std::vector<double> localPosY;
@@ -200,14 +183,14 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
             }//end of strip position loop
 
             //NTUPLE FILL DIGITS
-            fillVars.NSWMM_dig_time.push_back(time);
-            fillVars.NSWMM_dig_charge.push_back(charge);
-            fillVars.NSWMM_dig_stripPosition.push_back(stripPosition);
-            fillVars.NSWMM_dig_stripLposX.push_back(localPosX);
-            fillVars.NSWMM_dig_stripLposY.push_back(localPosY);
-            fillVars.NSWMM_dig_stripGposX.push_back(globalPosX);
-            fillVars.NSWMM_dig_stripGposY.push_back(globalPosY);
-            fillVars.NSWMM_dig_stripGposZ.push_back(globalPosZ);
+            histDigVars.NSWMM_dig_time.push_back(time);
+            histDigVars.NSWMM_dig_charge.push_back(charge);
+            histDigVars.NSWMM_dig_stripPosition.push_back(stripPosition);
+            histDigVars.NSWMM_dig_stripLposX.push_back(localPosX);
+            histDigVars.NSWMM_dig_stripLposY.push_back(localPosY);
+            histDigVars.NSWMM_dig_stripGposX.push_back(globalPosX);
+            histDigVars.NSWMM_dig_stripGposY.push_back(globalPosY);
+            histDigVars.NSWMM_dig_stripGposZ.push_back(globalPosZ);
             if(globalPosY.empty()) continue;
 
             if (!time.empty()) entries_tmp.push_back(
@@ -259,8 +242,8 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
         std::string station = it->second[0].stName;
         bool uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
 
-        map<hitData_key,hitData_entry> hit_info;
-        vector<hitData_key> keys;
+        std::map<hitData_key,hitData_entry> hit_info;
+        std::vector<hitData_key> keys;
 
         //Now we need to loop on digits
         for (const auto &dW : it->second) {
@@ -328,9 +311,9 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
         }
 
         int xhit=0,uvhit=0;
-        vector<bool>plane_hit(pars[station]->setup.size(),false);
+        std::vector<bool>plane_hit(pars[station]->setup.size(),false);
 
-        for(map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
+        for(std::map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
           int plane=it->second.plane;
           plane_hit[plane]=true;
           if (tru_it != Event_Info.end()) tru_it->second.N_hits_postVMM++;
@@ -343,8 +326,6 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
             else if(pars[station]->setup.substr(ipl,1)=="u" || pars[station]->setup.substr(ipl,1)=="v") uvhit++;
           }
         }
-
-        histVars = fillVars;
         ient++;
       }
     return StatusCode::SUCCESS;

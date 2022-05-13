@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetSelectorAttributeRunII.h"
@@ -10,14 +10,14 @@ namespace {
   template <class T>
   struct ValueRetriever : public JetSelectorAttributeRunII::SelValueRetriever {
     ValueRetriever(const std::string &n) : acc(n) {}
-    float value(const xAOD::Jet& j) { return acc(j);}
+    virtual float value(const xAOD::Jet& j) const override { return acc(j);}
     SG::AuxElement::Accessor<T> acc;
   };
 
   template <class T>
   struct VecValueRetriever : public JetSelectorAttributeRunII::SelValueRetriever {
     VecValueRetriever(const std::string &n, int ind) : acc(n), index(ind) {}
-    float value(const xAOD::Jet& j) { return acc(j)[index];}
+    virtual float value(const xAOD::Jet& j) const override { return acc(j)[index];}
     SG::AuxElement::Accessor<std::vector<T> > acc;
     int index;
   };

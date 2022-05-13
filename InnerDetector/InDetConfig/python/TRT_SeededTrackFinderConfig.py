@@ -2,6 +2,7 @@
 # Configuration of TRT_SeededTrackFinder package
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+import AthenaCommon.SystemOfUnits as Units
 
 def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputCollections=[], **kwargs):
 
@@ -56,7 +57,6 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
     kwargs.setdefault("OutputSegments", False)
     kwargs.setdefault("InputSegmentsLocation", 'TRTSegments')
     kwargs.setdefault("OutputTracksLocation", 'TRTSeededTracks')
-    kwargs.setdefault("CaloClusterEt", flags.InDet.Tracking.ActivePass.minRoIClusterEt)
 
     if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
         from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
@@ -65,6 +65,7 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
 
         kwargs.setdefault("RegSelTool", RegSelTool_SCT)
         kwargs.setdefault("CaloSeededRoI", True)
+        kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ%.0fGeVUnordered" % (flags.InDet.Tracking.ActivePass.minRoIClusterEt/Units.GeV))
 
     InDetTRT_SeededTrackFinder = CompFactory.InDet.TRT_SeededTrackFinder(name = name, **kwargs)
     acc.addEventAlgo(InDetTRT_SeededTrackFinder)

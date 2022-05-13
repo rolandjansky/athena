@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXTRA_PARTICLES__CUSTOM_PARTICLE_H
@@ -12,6 +12,8 @@
 // ###                           CustomParticle                       ###
 // ######################################################################
 
+namespace ExtraParticles {
+
 class CustomParticle : public G4ParticleDefinition {
 
   public:
@@ -20,5 +22,7 @@ class CustomParticle : public G4ParticleDefinition {
 
     virtual ~CustomParticle() {}
 };
+
+} // namespace ExtraParticles
 
 #endif // EXTRA_PARTICLES__CUSTOM_PARTICLE_H

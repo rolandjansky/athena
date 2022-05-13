@@ -39,10 +39,11 @@ atlas_add_library( FlavorTagDiscriminants
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
   Root/FTagDataDependencyNames.cxx
+  Root/TrackClassifier.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver CxxUtils
   LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} 
     AsgTools
     AthContainers
@@ -82,3 +83,9 @@ atlas_add_dictionary( FlavorTagDiscriminantsDict
    LINK_LIBRARIES FlavorTagDiscriminants )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# add onnx metadata executable
+atlas_add_executable( get-onnx-metadata
+                      util/get-onnx-metadata.cxx
+                      INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} )

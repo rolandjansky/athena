@@ -37,6 +37,8 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
+
 #include <memory>
 #include <mutex>
 
@@ -634,6 +636,17 @@ namespace Trk {
       const Amg::SymMatrixX &
     ) const;
 
+
+    /**
+     * Update the Pixel ROT using the current trajectory/local track parameters
+     */
+    void updatePixelROTs(
+      GXFTrajectory &,
+      Amg::SymMatrixX &,
+      Amg::VectorX & 
+    ) const;
+
+
     /**
      * @warning This method has some unclear memory ownership mechanics that
      * might not correspond fully with the model described at the beginning of
@@ -954,6 +967,9 @@ namespace Trk {
     Gaudi::Property<int> m_maxit {this, "MaxIterations", 30};
     Gaudi::Property<int> m_miniter {this, "MinimumIterations", 1};
     Gaudi::Property<int> m_fixbrem {this, "FixBrem", -1};
+    Gaudi::Property<int> m_maxitPixelROT {this, "IterationsToRebuildPixelRots", 0};
+
+    SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer{this, "ClusterSplitProbabilityName", "",""};
 
     ParticleMasses m_particleMasses;
 

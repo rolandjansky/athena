@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_PANTAUSEED_H
@@ -115,7 +115,7 @@ namespace PanTau {
 
     /** Main constructor to be used */
     PanTauSeed( std::string                          nameInputAlgorithm,
-		const xAOD::TauJet*                  tauJet,
+		xAOD::TauJet*                        tauJet,
 		std::vector<PanTau::TauConstituent*> tauConstituents,
 		std::vector<PanTau::TauConstituent*> tauConstituentsWithUnselected,
 		std::vector<int>                     pantauSeed_TechnicalQuality
@@ -124,13 +124,15 @@ namespace PanTau {
 
     /** Constructor for invalid seeds */
     PanTauSeed( std::string                          nameInputAlgorithm,
-		 const xAOD::TauJet*                  tauJet,
+		 xAOD::TauJet*                        tauJet,
 		 std::vector<int>                     pantauSeed_TechnicalQuality
 		 );
 
     std::string                                         getNameInputAlgorithm() const;
     const xAOD::TauJet*                                 getTauJet() const;
-    PanTau::TauFeature*                                 getFeatures() const;
+    xAOD::TauJet*                                       getTauJet();
+    const PanTau::TauFeature*                           getFeatures() const;
+    PanTau::TauFeature*                                 getFeatures();
     TLorentzVector                                      getProtoMomentumCore() const;
     TLorentzVector                                      getProtoMomentumWide() const;
 
@@ -160,12 +162,8 @@ namespace PanTau {
 
   private:
 
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-    ///
- 
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
+    /// 4-momentum object
+    FourMom_t m_p4;
 
   protected:
 
@@ -178,7 +176,7 @@ namespace PanTau {
     std::string                                         m_NameInputAlgorithm;
 
     //pointer to the TauJet this PanTauSeed was build from (pointer not owned by PanTauSeed)                                                                                                                                                   
-    const xAOD::TauJet*                                 m_TauJet;
+    xAOD::TauJet*                                       m_TauJet;
 
     //for each type of tauConstituent, a list of constituents (of that type)                                                                                                                                                                   
     // the TauConstituent objects are owned by PanTauSeed (this class), so they need to be deleted in the destructor                                                                                                                           
@@ -228,7 +226,9 @@ namespace PanTau {
 
 inline std::string                                          PanTau::PanTauSeed::getNameInputAlgorithm() const       {return m_NameInputAlgorithm;}
 inline const xAOD::TauJet*                                  PanTau::PanTauSeed::getTauJet() const                   {return m_TauJet;}
-inline PanTau::TauFeature*                                  PanTau::PanTauSeed::getFeatures() const                 {return m_Features;}
+inline xAOD::TauJet*                                        PanTau::PanTauSeed::getTauJet()                         {return m_TauJet;}
+inline const PanTau::TauFeature*                            PanTau::PanTauSeed::getFeatures() const                 {return m_Features;}
+inline PanTau::TauFeature*                                  PanTau::PanTauSeed::getFeatures()                       {return m_Features;}
 inline TLorentzVector                                       PanTau::PanTauSeed::getProtoMomentumWide() const        {return m_ProtoMomentum_Wide;}
 inline TLorentzVector                                       PanTau::PanTauSeed::getProtoMomentumCore() const        {return m_ProtoMomentum_Core;}
 inline std::vector< std::vector<PanTau::TauConstituent*> >  PanTau::PanTauSeed::getConstituents() const             {return m_Constituents;}

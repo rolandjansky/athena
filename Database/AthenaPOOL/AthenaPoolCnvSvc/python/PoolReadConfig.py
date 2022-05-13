@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
+from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg, getMinMaxRunNumbers, getFirstLumiBlock
+from AthenaConfiguration.Enums import ProductionStep
 
 def EventSelectorAthenaPoolCfg(configFlags):
     result=ComponentAccumulator()
@@ -39,6 +40,15 @@ def EventSelectorAthenaPoolCfg(configFlags):
                 evSel.OverrideRunNumberFromInput = configFlags.Input.OverrideRunNumber
             if OldRunNumber > 0:
                 evSel.OldRunNumber = OldRunNumber
+        elif configFlags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain]:
+            # Behaviour for Simulation and FastChain jobs using RunAndLumiOverrideList
+            minMax = getMinMaxRunNumbers(configFlags)
+            evSel.OverrideRunNumber = configFlags.Input.OverrideRunNumber
+            evSel.RunNumber = minMax[0]
+            evSel.FirstLB = getFirstLumiBlock(configFlags, minMax[0])
+            evSel.InitialTimeStamp = configFlags.IOVDb.RunToTimestampDict.get(minMax[0], 1) # TODO fix repeated configuration
+            if hasattr(evSel, "OverrideRunNumberFromInput"):
+                evSel.OverrideRunNumberFromInput = configFlags.Input.OverrideRunNumber
         else:
             # Behaviour for Digitization jobs using RunAndLumiOverrideList
             pass

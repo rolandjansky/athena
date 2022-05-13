@@ -1,5 +1,5 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
@@ -79,7 +79,7 @@ namespace LVL1MUCTPIPHASE1 {
       return prefix;
     }
     
-    std::string make_pair(std::string lhs, std::string rhs) const {
+    std::string make_pair(const std::string& lhs, const std::string& rhs) const {
       return lhs + ":" + rhs;
     }
 
@@ -96,13 +96,13 @@ namespace LVL1MUCTPIPHASE1 {
       }
     }
     
-    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector) const {
+    std::vector<std::string> get_lhs_keys(const std::string& dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector) const {
+    std::vector<std::string> get_rhs_keys(const std::string& dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   

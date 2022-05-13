@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -7,9 +7,6 @@ from BTagging.JetFitterMultiStageFitConfig import InDetJetFitterMultiStageFitCfg
 from BTagging.JetFitterTrackSelectorToolConfig import InDetJetFitterTrackSelectorToolCfg 
 from BTagging.JetFitterTwoTrackVtxFinderToolConfig import InDetJetFitterTwoTrackVtxFinderToolCfg
 from BTagging.JetFitterV0FinderToolConfig import JetFitterV0FinderToolCfg
-
-# import the InDetDetailedTrackSelectorTool configurable
-InDet__InDetImprovedJetFitterVxFinder=CompFactory.InDet.InDetImprovedJetFitterVxFinder
 
 def InDetImprovedJetFitterVxFinderCfg(flags, name, suffix = "", useBTagFlagsDefaults = True, **options):
     """Sets up a InDetJetFitterTrackSelectorTool  tool and returns it.
@@ -34,7 +31,7 @@ def InDetImprovedJetFitterVxFinderCfg(flags, name, suffix = "", useBTagFlagsDefa
             options.setdefault(option, defaults[option])
 
     options['name'] = name
-    acc.setPrivateTools( InDet__InDetImprovedJetFitterVxFinder(**options) )
+    acc.setPrivateTools( CompFactory.InDet.InDetImprovedJetFitterVxFinder(**options) )
     return acc
 
 

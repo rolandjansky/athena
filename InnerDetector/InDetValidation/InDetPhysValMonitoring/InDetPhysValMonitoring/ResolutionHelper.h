@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,9 +14,7 @@
 #include <string>
 #include <utility>
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 class TH1;
 class TH2;
@@ -27,7 +25,7 @@ class TH1D;
 */
 namespace IDPVM {
   
-  class ResolutionHelper {
+  class ResolutionHelper : public AthMessaging {
   public:
     ResolutionHelper();
     ~ResolutionHelper() {
@@ -142,24 +140,6 @@ namespace IDPVM {
     double m_largeErrorFact{10.};
     // maximum fraction of Under- and Overflow events we tolerate
     double m_maxUOflowFrac{0.05};
-
-
-
-    /// Log a message using the Athena controlled logging system
-    MsgStream&
-    msg(MSG::Level lvl) const {
-      return m_msg.get() << lvl;
-    }
-
-    /// Check whether the logging system is active at the provided verbosity level
-    bool
-    msgLvl(MSG::Level lvl) {
-      return m_msg.get().level() <= lvl;
-    }
-
-    /// Private message stream member
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
 
   };
 } // end of namespace

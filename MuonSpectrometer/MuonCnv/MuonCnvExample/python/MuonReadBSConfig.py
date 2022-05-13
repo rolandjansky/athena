@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AppMgr import ServiceMgr
@@ -94,7 +94,7 @@ def MmROD_Decoder(name="MmROD_Decoder",**kwargs):
 
 def MmRawDataProviderTool(name="MmRawDataProviderTool",**kwargs):
     kwargs.setdefault("Decoder", "MmROD_Decoder")
-    if DetFlags.overlay.Micromegas_on() and overlayFlags.isDataOverlay():
+    if DetFlags.overlay.MM_on() and overlayFlags.isDataOverlay():
         if overlayFlags.isOverlayMT():
             kwargs.setdefault("RdoLocation", overlayFlags.bkgPrefix() + "MMRDO")
         else:
@@ -142,7 +142,7 @@ if DetFlags.readRDOBS.CSC_on():
 else:
     MuonCscRawDataProviderTool = None
 
-if DetFlags.readRDOBS.Micromegas_on():
+if DetFlags.readRDOBS.MM_on():
     MuonMmRawDataProviderTool = getPublicTool("MmRawDataProviderTool")
 else:
     MuonMmRawDataProviderTool = None

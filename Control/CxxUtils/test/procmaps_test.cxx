@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include <boost/pool/pool_alloc.hpp>
 #include "CxxUtils/procmaps.h"
 //#define DEBUGIT 1
@@ -29,7 +30,29 @@ int main(void) {
   assert(pCodeEntry->executable);
   assert(pCodeEntry->readable);
   assert(!pCodeEntry->writable);
-  assert(0 != pCodeEntry->inode);
+  //assert(0 != pCodeEntry->inode);
+  if (0 == pCodeEntry->inode) {
+    printf ("Test fail: null inode %0lx-%0lx %u %u %u %u %u %u %u %lu %s\n",
+            pCodeEntry->begAddress,
+            pCodeEntry->endAddress,
+            pCodeEntry->readable,
+            pCodeEntry->writable,
+            pCodeEntry->executable,
+            pCodeEntry->isPrivate,
+            pCodeEntry->offset,
+            pCodeEntry->dev[0],
+            pCodeEntry->dev[1],
+            static_cast<unsigned long>(pCodeEntry->inode),
+            pCodeEntry->pathname.c_str());
+    fflush (stdout);
+    std::ifstream f("/proc/self/maps");
+    const int LMAX=256;
+    char line[LMAX];
+    while ( f.getline(line,LMAX) ) {
+      printf("%s\n",line);
+    }
+    std::abort();
+  }
   //now with a heap page
   int* pi= new int(2);
   const procmaps::Entry* pHeapEntry(pmaps.getEntry(pi));

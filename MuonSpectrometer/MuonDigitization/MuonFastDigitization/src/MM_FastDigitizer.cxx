@@ -88,10 +88,10 @@ MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLoc
     m_surfcentx(0.),
     m_surfcenty(0.),
     m_surfcentz(0.),
-    m_inputObjectName("MicromegasSensitiveDetector"),
+    m_inputObjectName("MM_Hits"),
     m_sdoName("MMfast_SDO")
 {
-  declareProperty("InputObjectName", m_inputObjectName  =  "MicromegasSensitiveDetector", "name of the input object");
+  declareProperty("InputObjectName", m_inputObjectName  =  "MM_Hits", "name of the input object");
   declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
   declareProperty("UseTimeShift", m_useTimeShift = true,        "Use time shift");
   declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy to produce a PRD"  );

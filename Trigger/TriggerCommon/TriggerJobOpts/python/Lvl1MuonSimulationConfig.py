@@ -144,7 +144,7 @@ def MuonRdo2PrdConfig(flags):
                                                           DecodingTool = MdtRdoToMdtPrepDataTool)
     acc.addEventAlgo(MdtRdoToMdtPrepData)
     ### RPC RDO data ###
-    RpcRdoToRpcPrepDataTool = CompFactory.Muon.RpcRdoToPrepDataToolMT(name = "RpcRdoToPrepDataToolMT" + postFix, RDOContainer = "RPCPAD_L1")
+    RpcRdoToRpcPrepDataTool = CompFactory.Muon.RpcRdoToPrepDataToolMT(name = "RpcRdoToPrepDataToolMT" + postFix, OutputCollection = "RPCPAD_L1")
     RpcRdoToRpcPrepData = CompFactory.RpcRdoToRpcPrepData(name = "RpcRdoToRpcPrepData" + postFix,
                                                           DecodingTool = RpcRdoToRpcPrepDataTool)
     acc.addEventAlgo(RpcRdoToRpcPrepData)
@@ -250,26 +250,35 @@ def NSWTriggerConfig(flags):
     PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False, IsMC = flags.Input.isMC, sTGC_DigitContainerName="sTGC_DIGITS_L1")
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
-    StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
-    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False)
+    StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False,IsMC=flags.Input.isMC,sTGC_DigitContainerName="sTGC_DIGITS_L1")
+    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False,IsMC=flags.Input.isMC)
+    StripSegmentTool = CompFactory.NSWL1.StripSegmentTool("NSWL1__StripSegmentTool",DoNtuple=False)
     MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
     MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
-    MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
+    TriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
+
+    dosTGC =  flags.Trigger.L1MuonSim.doPadTrigger or flags.Trigger.L1MuonSim.doStripTrigger
+    if dosTGC:
+        from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
+        stgcRegSel = acc.popToolsAndMerge(regSelTool_STGC_Cfg( flags ))  # noqa: F841 (adds a conditions algo as a side-effect)
+
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
                                                UseLookup = False,
                                                DoNtuple = False,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DoMMDiamonds = flags.Trigger.L1MuonSim.doMMTrigger,
-                                               DosTGC = flags.Trigger.L1MuonSim.doPadTrigger,
+                                               DosTGC = dosTGC,
+                                               DoPad = flags.Trigger.L1MuonSim.doPadTrigger,
                                                DoStrip = flags.Trigger.L1MuonSim.doStripTrigger,
-                                               PadTdsTool = (PadTdsTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
-                                               PadTriggerTool = (PadTriggerLogicTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
-                                               PadTriggerLookupTool = (PadTriggerLookupTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
-                                               StripTdsTool = (StripTdsTool if flags.Trigger.L1MuonSim.doStripTrigger else ""),
-                                               StripClusterTool = (StripClusterTool if flags.Trigger.L1MuonSim.doStripTrigger else ""),
-                                               MMStripTdsTool = (MMStripTdsTool if flags.Trigger.L1MuonSim.doMMTrigger else ""),
-                                               MMTriggerTool = (MMTriggerTool if flags.Trigger.L1MuonSim.doMMTrigger else ""),
-                                               MMTriggerProcessorTool = MMTriggerProcessorTool,
+                                               PadTdsTool = PadTdsTool,
+                                               PadTriggerTool = PadTriggerLogicTool,
+                                               PadTriggerLookupTool = PadTriggerLookupTool,
+                                               StripTdsTool = StripTdsTool,
+                                               StripClusterTool = StripClusterTool,
+                                               StripSegmentTool = StripSegmentTool,
+                                               MMStripTdsTool = MMStripTdsTool,
+                                               MMTriggerTool = MMTriggerTool,
+                                               MMTriggerProcessorTool = TriggerProcessorTool,
                                                NSWTrigRDOContainerName = "NSWTRGRDO" )
     acc.addEventAlgo(nswAlg)
     return acc

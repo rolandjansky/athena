@@ -107,9 +107,8 @@ public:
   /** Virtual destructor */
   virtual ~MultiComponentStateOnSurface() = default;
 
-  /** Clone method for deep copy of MultiComponentStateOnSurface - overidden
-   * from base class */
-  virtual TrackStateOnSurface* clone() const override final;
+  /** Clone method for deep copy of MultiComponentStateOnSurface - overidden*/
+  virtual MultiComponentStateOnSurface* clone() const override final;
 
   /** This is Multi, since we MultiComponent */
   virtual TrackStateOnSurface::Variety variety() const override final;

@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JET_H
@@ -484,7 +484,7 @@ public:
   
   /** @brief Set tag info object */
   void setTagInfo(const mkey_t& key,const taginfo_t* pTagInfo,
-		  bool useLink=false) const ;
+		  bool useLink=false);
   
   /** @brief @b (depreciated) Retrieve vector of tag infos */
   const tagstore_t jetTagInfoVector() const;
@@ -501,14 +501,14 @@ public:
   
   /** @brief Add tag info object */
   template<class TAGINFO>
-  void addInfo(const TAGINFO* tag) const;
+  void addInfo(const TAGINFO* tag);
   
   /** @brief @b (depreciated) Remove tag info object */ 
-  void removeInfo(const mkey_t& key) const;
+  void removeInfo(const mkey_t& key);
 
 private:
   /** @brief Remove tag info for object located at index (internal) */
-  void removeInfo(unsigned int index) const;
+  void removeInfo(unsigned int index);
       
 
 
@@ -527,7 +527,7 @@ public:
   signalstate_t constituentSignalState() const;
   
   /** Set the current Signal state of the jet constituents */
-  void setConstituentSignalState( signalstate_t s ) const;
+  void setConstituentSignalState( signalstate_t s );
 
   /** True if the jet constituent have a calibrated signal state*/
   bool has_calibrated_constit() const {return int(constituentSignalState())>0;};
@@ -617,7 +617,7 @@ public:
 private:
 
   /** @brief Maximum difference up to which weights are considered equal */
-  static double m_ignoreWeight;
+  static const double m_ignoreWeight;
 
   ///////////////////////////////////////////////
   // Protected Kinematics Recombination Scheme //
@@ -738,10 +738,10 @@ protected:
   mutable assostore_t* m_assocStore;
 
   /** @brief Tag info store */
-  mutable tagstore_t*  m_tagInfoStore;
+  tagstore_t*  m_tagInfoStore;
 
   /** @brief Constituent Signal State */
-  mutable signalstate_t m_constituentSigState;
+  signalstate_t m_constituentSigState;
 
   /////////////
   // Helpers //
@@ -834,7 +834,7 @@ private:
 public:
 
   /** @brief <b>(depreciated)</b> Likelihood store access */
-  const std::vector<double>& combinedLikelihood() const;
+  std::vector<double> combinedLikelihood() const;
   
   /** @brief <b>(depreciated)</b> Likelihood store setter */
   void setCombinedLikelihood(const std::vector<double>& combinedLikelihood);

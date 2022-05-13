@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthMessaging.cxx 
@@ -9,49 +7,26 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-// AthenaBaseComps includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-// STL includes
-
-
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-/// Constructor with parameters: 
-AthMessaging::AthMessaging (IMessageSvc* msgSvc, 
-			    const std::string& name) :
+AthMessaging::AthMessaging (IMessageSvc* msgSvc,
+                            const std::string& name) :
   m_imsg(msgSvc), m_nm(name)
 {
   MsgStream ms (msgSvc, name);
   m_lvl = ms.level();
 }
 
-// Destructor
-///////////////
+AthMessaging::AthMessaging (const std::string& name) :
+  AthMessaging(Athena::getMessageSvc(), name)
+{
+}
+
 AthMessaging::~AthMessaging()
 {}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 void AthMessaging::setLevel (MSG::Level lvl)
 {
   m_lvl = lvl;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-

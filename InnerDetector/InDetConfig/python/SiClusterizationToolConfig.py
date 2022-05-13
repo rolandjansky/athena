@@ -10,8 +10,11 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
 
     # This directly needs the following Conditions data:
     # PixelChargeCalibCondData & PixelOfflineCalibData
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeLUTCalibCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
+    if flags.GeoModel.Run is LHCPeriod.Run3:
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))
 
     from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
@@ -100,8 +103,13 @@ def ITkMergedPixelsToolCfg(flags, name="ITkMergedPixelsTool", **kwargs) :
     return acc
 
 def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg
-    acc = PixelChargeCalibCondAlgCfg(flags) # To produce PixelChargeCalibCondData CondHandle
+    acc = ComponentAccumulator()
+
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeLUTCalibCondAlgCfg, PixelChargeCalibCondAlgCfg
+    if flags.GeoModel.Run is LHCPeriod.Run3:
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
 
     if "PixelLorentzAngleTool" not in kwargs:
         from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
@@ -131,8 +139,14 @@ def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
     return acc
 
 def TrigNnClusterizationFactoryCfg(flags, name="TrigNnClusterizationFactory", **kwargs):
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg
-    acc = PixelChargeCalibCondAlgCfg(flags) # To produce PixelChargeCalibCondData CondHandle
+    acc = ComponentAccumulator()
+
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeLUTCalibCondAlgCfg, PixelChargeCalibCondAlgCfg
+    if flags.GeoModel.Run is LHCPeriod.Run3:
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
+
     from InDetConfig.TrackingCommonConfig import PixelClusterNnCondAlgCfg, PixelClusterNnWithTrackCondAlgCfg
     acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
     acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))

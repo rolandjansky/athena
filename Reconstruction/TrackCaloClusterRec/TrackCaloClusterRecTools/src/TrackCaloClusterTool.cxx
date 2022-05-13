@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "StoreGate/ReadDecorHandle.h"
 
@@ -111,10 +111,10 @@ StatusCode TCCCombinedTool::fillTCC(xAOD::FlowElementContainer* tccContainer, co
   }
 
   // declare Decorator in case we want to save out corrected positions
-  static SG::AuxElement::Decorator<int> dec_isCorrected("Corrected");
-  static SG::AuxElement::Decorator<float> dec_calEntryEta("CaloEntryPosEtaCorr") ;
-  static SG::AuxElement::Decorator<float> dec_calEntryPhi("CaloEntryPosPhiCorr") ;
-  static SG::AuxElement::Decorator<float> dec_detEta("DetectorEta") ;
+  static const SG::AuxElement::Decorator<int> dec_isCorrected("Corrected");
+  static const SG::AuxElement::Decorator<float> dec_calEntryEta("CaloEntryPosEtaCorr") ;
+  static const SG::AuxElement::Decorator<float> dec_calEntryPhi("CaloEntryPosPhiCorr") ;
+  static const SG::AuxElement::Decorator<float> dec_detEta("DetectorEta") ;
 
   // it is not possible to prepare a blank ReadDecorHandle (which we need if !m_caloEntryParsDecor.empty()), so instead or re-instantiating a ReadDecorHandle on each
   // track in the loop below, we just instantiate a ConstAccessor  
@@ -206,7 +206,7 @@ StatusCode TCCChargedTool::fillTCC(xAOD::FlowElementContainer* tccContainer, con
   SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinksH(m_assoClustersKey);
   
   // declare Decorator in case we want to save out corrected positions  
-  static SG::AuxElement::Decorator<float> dec_detEta("DetectorEta") ;
+  static const SG::AuxElement::Decorator<float> dec_detEta("DetectorEta") ;
   
   unsigned int i = 0;
   // Loop over ALL tracks at the source of TCC
@@ -260,7 +260,7 @@ StatusCode TCCNeutralTool::fillTCC(xAOD::FlowElementContainer* tccContainer, con
   
   unsigned int i = 0;
   // declare Decorator in case we want to save out corrected positions  
-  static SG::AuxElement::Decorator<float> dec_detEta("DetectorEta") ;
+  static const SG::AuxElement::Decorator<float> dec_detEta("DetectorEta") ;
 
   // Loop over ALL clusters 
   for ( const xAOD::CaloCluster* cluster : *tccInfo.allClusters ) {
@@ -276,7 +276,7 @@ StatusCode TCCNeutralTool::fillTCC(xAOD::FlowElementContainer* tccContainer, con
       setParameters(tcc, cluster->pt(),cluster->eta(),cluster->phi(),cluster->m(),xAOD::FlowElement::SignalType::Neutral,ElementLink<xAOD::TrackParticleContainer>(),ClusterLink);
       ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->signalType());
       
-      static SG::AuxElement::Accessor< float > acc_det_eta ( "DetectorEta" );        
+      static const SG::AuxElement::Accessor< float > acc_det_eta ( "DetectorEta" );
       if(m_saveDetectorEta && acc_det_eta.isAvailable(*cluster)) {
         dec_detEta(*tcc) = dec_detEta(*cluster);
       }
@@ -346,25 +346,25 @@ UFOTool::UFOTool(const std::string& t, const std::string& n, const IInterface*  
 
 StatusCode UFOTool::initialize(){
     //override parent class because of additional requirements on the PFOHandles etc
-    if(!m_trackVertexAssoTool.empty()) ATH_CHECK(m_trackVertexAssoTool.retrieve());
+ ATH_CHECK(m_trackVertexAssoTool.retrieve());
 
     ATH_CHECK(m_assoClustersKey.initialize());
     
     ATH_CHECK(m_caloEntryParsDecor.initialize(!m_caloEntryParsDecor.empty()) );
     ATH_CHECK(m_inputPFOHandle.initialize(!m_inputPFOHandle.empty()));
-    ATH_CHECK(m_orig_pfo.initialize(!m_orig_pfo.empty()));
     return StatusCode::SUCCESS;
 }
+
 StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const TrackCaloClusterInfo & tccInfo ) const {
 
   SG::ReadHandle<xAOD::FlowElementContainer> pfos(m_inputPFOHandle);
+  const EventContext& ctx=Gaudi::Hive::currentContext(); 
 
-  SG::ReadDecorHandle<xAOD::FlowElementContainer, ElementLink<xAOD::FlowElementContainer> > orig_pfo(m_orig_pfo);
-  SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinksH(m_assoClustersKey);
+  SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinksH(m_assoClustersKey,ctx);
 
   // We use a dedicated helper to build the combined UFO. Initialize it :  
   TCCHelpers::UFOBuilder ufoB;
-  ufoB.m_orig_pfoK = m_orig_pfo.key();
+  ufoB.m_orig_pfoK = m_orig_pfo;
   ufoB.m_clustersLinkK = m_assoClustersKey.key();
   ufoB.m_trackVertexAssoTool = m_trackVertexAssoTool.get();
   ufoB.m_clusterEcut = m_clusterEcut;
@@ -373,16 +373,22 @@ StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const Trac
   ufoB.m_pfoContainer = pfos.ptr();
   ufoB.m_tccInfo = &tccInfo;
   ufoB.m_tccContainer = tccContainer;
+  ufoB.m_linkdecorkey=&m_assoClustersKey;
+
   // create a combined UFO for each track matched to some PFO 
+  ufoB.m_linkdecorkey=&m_assoClustersKey;
   ufoB.combinedUFOLoop(&tccInfo, pfos.cptr());
-  
   
   // Create a UFO for all neutral and charged PFO which are not matched to any tracks
   unsigned int i = -1;
   for ( const xAOD::FlowElement* pfo : *pfos ) {
     i++;
     if(pfo->pt() <= 0) continue;
-    if(tccInfo.clusterToTracksWeightMap.find(pfo)!=tccInfo.clusterToTracksWeightMap.end()) continue; // combined
+    if(tccInfo.clusterToTracksWeightMap.find(pfo)!=tccInfo.clusterToTracksWeightMap.end())
+      {
+	// If the pfo is part of clusterToTracksWeightMap, this means it will be included as part of a combined UFO 
+	continue;
+      }
 
     if(pfo->isCharged()) {
       // this decoration is set by JetRecTools/Root/ChargedHadronSubtractionTool.cxx !
@@ -396,15 +402,15 @@ StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const Trac
     tccContainer->push_back(tcc);
 
     if(pfo->isCharged()) {
-	//retrieve the track from the charged PFO
-	const xAOD::IParticle* pfo_chargedobj=pfo->chargedObjects().at(0);
-	const xAOD::TrackParticle* pfo_track=dynamic_cast<const xAOD::TrackParticle*>(pfo_chargedobj);
-	
-	setParameters(tcc, pfo->pt(), pfo->eta(), pfo->phi(), pfo->m(), xAOD::FlowElement::SignalType::Charged, ElementLink<xAOD::TrackParticleContainer>(*tccInfo.allTracks, pfo_track->index()), PFOLink);
+      //retrieve the track from the charged PFO
+      const xAOD::IParticle* pfo_chargedobj=pfo->chargedObjects().at(0);
+      const xAOD::TrackParticle* pfo_track=dynamic_cast<const xAOD::TrackParticle*>(pfo_chargedobj);
+      
+      setParameters(tcc, pfo->pt(), pfo->eta(), pfo->phi(), pfo->m(), xAOD::FlowElement::SignalType::Charged, ElementLink<xAOD::TrackParticleContainer>(*tccInfo.allTracks, pfo_track->index()), PFOLink);
     }else{
       setParameters(tcc, pfo->pt(),pfo->eta(),pfo->phi(),pfo->m(),xAOD::FlowElement::SignalType::Neutral,ElementLink<xAOD::TrackParticleContainer>(),PFOLink);      
     }
   } //  PFO
-    
+  
   return StatusCode::SUCCESS;
 }

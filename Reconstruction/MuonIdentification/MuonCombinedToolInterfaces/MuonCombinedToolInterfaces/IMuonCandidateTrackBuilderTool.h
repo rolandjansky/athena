@@ -23,7 +23,8 @@ namespace Muon {
             return IID_IMuonCandidateTrackBuilderTool;
         }
         /** @brief build a track out of a MuonCandidate */
-        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack, const MuonCandidate& candidate) const = 0;
+        virtual std::unique_ptr<Trk::Track> buildCombinedTrack(const EventContext& ctx, const Trk::Track& idTrack,
+                                                               const MuonCandidate& candidate) const = 0;
 
         virtual ~IMuonCandidateTrackBuilderTool() = default;
     };

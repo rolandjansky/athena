@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_GEOMODEL_TRT_DETDESCRDB_PARAMETERINTERFACE_H
@@ -7,10 +7,8 @@
 
 
 #include "TRTParameterInterface.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "CxxUtils/checker_macros.h"
 
 class IRDBRecord;
 class TopLevelPlacements;

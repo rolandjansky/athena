@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * L1TopoDataTypes.h
@@ -12,14 +12,14 @@
 #define L1TopoSimulationUtils_L1TOPODATATYPES_H
 #include <string>
 #include <iostream>
+#include <stdint.h>
 
 /* Setting maximal number of bits to 32. */
 #ifndef MAXBITS 
-#define MAXBITS 32
+#define MAXBITS 64
 #endif 
 
 
-namespace {
 /// Return a bit mask with the lower @a n bits set.
 template <class T>
 inline
@@ -27,15 +27,13 @@ T ones (unsigned int n)
 {
   if (n >= sizeof(T) * 8)
     return ~static_cast<T>(0);
-  return (static_cast<T>(1) << n) - 1;
+  return (static_cast<T>(1) << n) - 1ul;
 }
-}
-
 
 namespace TSU {
 
-    typedef unsigned int T;
-    T convert(const unsigned int& v, const unsigned& in_p, const unsigned int& in_f, 
+    typedef unsigned long long T;
+    T convert(const unsigned long long& v, const unsigned& in_p, const unsigned int& in_f, 
                                 const unsigned int& out_p, const unsigned int& out_f);
 
 /*********************************
@@ -63,10 +61,14 @@ namespace TSU {
        }
     
        L1TopoDataTypes(double d) : m_tvalue(d) {
-          m_tvalue = d*(1<<F);
+          m_tvalue = d*(1ul<<F);
        }
 
        L1TopoDataTypes(int i) : m_tvalue(i) {
+          m_tvalue = i*(1<<F);
+       }
+
+       L1TopoDataTypes(unsigned i) : m_tvalue(i) {
           m_tvalue = i*(1<<F);
        }
 
@@ -83,12 +85,24 @@ namespace TSU {
            return ones<T>(PREC-F)&((m_tvalue>>F));
        }
 
+       operator unsigned(){
+           return ones<T>(PREC-F)&((m_tvalue>>F));
+       }
+
+       operator int64_t(){
+           return ones<T>(PREC-F)&((m_tvalue>>F));
+       }
+
+       operator unsigned long long(){
+           return ones<T>(PREC-F)&((m_tvalue>>F));
+       }
+
        T value() const {
           return m_tvalue;
        }
     
        T abs() const {
-          T mask = m_tvalue >> (PREC-1); 
+          T mask = m_tvalue >> (PREC-1ul); 
           T res = ((mask ^ m_tvalue) - mask) & ones<T>(PREC);
           return res;
        }
@@ -98,7 +112,7 @@ namespace TSU {
           T res=0;
           T v = m_tvalue;
           for(unsigned j=0;j<PREC;++j){
-             res += v & (1 << j) ? 0 : (1 << j);
+             res += v & (1ul << j) ? 0 : (1ul << j);
           }
           res += 1;
           return res;
@@ -118,7 +132,7 @@ namespace TSU {
 
        // scale value with an integer
        L1TopoDataTypes& operator*=(const int& factor){
-          short int neg = (m_tvalue >> (PREC-1)) ? 1 : 0;
+          short int neg = (m_tvalue >> (PREC-1ul)) ? 1 : 0;
           if(neg && factor<0){
              neg = 0;
              m_tvalue = this->complement() * ::abs(factor);
@@ -169,7 +183,7 @@ namespace TSU {
        friend std::ostream& operator<<(std::ostream& os, const L1TopoDataTypes& d){
           std::string out;
           for(int j=PREC-1;j>=0;--j){
-             out += ((d.m_tvalue>>j)&1) ? "1" : "0";
+             out += ((d.m_tvalue>>j)&1ul) ? "1" : "0";
           }
           os << "integer value " << d.m_tvalue << " binary " << out << " float " << d.to_float();
           return os;
@@ -178,14 +192,14 @@ namespace TSU {
        // return float representation
        float to_float() const {
           // Find sign
-          float res = ((m_tvalue>>(PREC-1))&1) ? -(1<<(PREC-F)) : 0.;
+          float res = ((m_tvalue>>(PREC-1ul))&1ul) ? -(1ul<<(PREC-F)) : 0.;
           // Get integer part
-          res += (m_tvalue>>F)&((1<<(PREC-F))-1) ? float((m_tvalue>>F)&((1<<(PREC-F))-1)) : 0;
+          res += (m_tvalue>>F)&((1ul<<(PREC-F))-1ul) ? float((m_tvalue>>F)&((1ul<<(PREC-F))-1ul)) : 0;
           // Do the fractional part
           if (F > 0) {
-            unsigned frac = m_tvalue & ( (1<<F)-1 );
+            unsigned frac = m_tvalue & ( (1ul<<F)-1ul );
             // cppcheck-suppress shiftNegative; false positive
-            res += static_cast<float>(frac) / (2<<(F-1));
+            res += static_cast<float>(frac) / (2ul<<(F-1ul));
           }
           return res;
        }
@@ -275,10 +289,10 @@ namespace TSU {
        T lhsconvert = lhs.m_tvalue;
        T rhsconvert = rhs.m_tvalue;
        // check if either value is negative and work with the absolute value
-       if((lhs.m_tvalue >> (P1-1)) & 1){
+       if((lhs.m_tvalue >> (P1-1ul)) & 1ul){
           lhsconvert = complement(lhsconvert,P1);
        }
-       if((rhs.m_tvalue >> (P2-1)) & 1){ 
+       if((rhs.m_tvalue >> (P2-1ul)) & 1ul){ 
           rhsconvert = complement(rhsconvert,P2);
        }
        // map numbers into Q1+digit.frac
@@ -294,7 +308,7 @@ namespace TSU {
        result += (prod_frac>>(F1+F2-frac));
        result += (prod_mix1>>((F2>frac ? F2 - frac : 0)));
        result += (prod_mix2>>((F1>frac ? F1 - frac : 0)));
-       if(!(((lhs.m_tvalue >> (P1-1)) & 1) ^ ((rhs.m_tvalue >> (P2-1)) & 1))){
+       if(!(((lhs.m_tvalue >> (P1-1ul)) & 1ul) ^ ((rhs.m_tvalue >> (P2-1ul)) & 1ul))){
             return result;
        } else 
             return -result;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -11,7 +11,7 @@
 namespace CP {
 
     unsigned int MuonCalibrationPeriodTool::getPeriod() const {
-        static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+        static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
         // I've copied the run number ranges from SUSYTools
         // https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/SUSYPhys/SUSYTools/Root/SUSYObjDef_xAOD.cxx#L2438
         static const unsigned int last_run_16 = 320000;

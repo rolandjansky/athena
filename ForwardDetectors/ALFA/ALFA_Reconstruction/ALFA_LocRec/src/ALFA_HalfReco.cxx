@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_HalfReco.h"
 
-ALFA_HalfReco::ALFA_HalfReco()
+ALFA_HalfReco::ALFA_HalfReco() :
+    AthMessaging(Athena::getMessageSvc(), "ALFA_HalfReco")
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::ALFA_HalfReco()");
 	ATH_MSG_DEBUG("begin ALFA_HalfReco::ALFA_HalfReco");
 
 	m_fOvU = 0.0;
@@ -36,7 +37,6 @@ ALFA_HalfReco::~ALFA_HalfReco()
 
 StatusCode ALFA_HalfReco::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iHalf, Int_t fMultiplicityCut, Int_t iUVCut, Float_t fOverlapCut)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Initialize()");
 	ATH_MSG_DEBUG("begin ALFA_HalfReco::Initialize()");
 
 	m_iMultiplicityCut = fMultiplicityCut;
@@ -63,7 +63,6 @@ StatusCode ALFA_HalfReco::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPL
 
 StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const std::list<MDHIT> &ListMDHits)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Execute()");
 	ATH_MSG_DEBUG("ALFA_HalfReco::Execute()");
 
 	FIBERS structFibers;
@@ -122,7 +121,6 @@ StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const std::list<MDHIT> &ListMDHit
 
 StatusCode ALFA_HalfReco::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Finalize()");
 	ATH_MSG_DEBUG("begin ALFA_HalfReco::Finalize()");
 
 	fRecXPos = m_fRecXPos;
@@ -134,7 +132,6 @@ StatusCode ALFA_HalfReco::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 
 void ALFA_HalfReco::HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t &Ov_n, Int_t &NumU, Int_t &NumV, Int_t iFlag)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::HistFill()");
 	ATH_MSG_DEBUG("ALFA_HalfReco::HistFill()");
 
 	Int_t iHit;
@@ -324,7 +321,6 @@ void ALFA_HalfReco::HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t 
 
 void ALFA_HalfReco::OverLap()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::OverLap()");
 	ATH_MSG_DEBUG("ALFA_HalfReco::OverLap()");
 
 	Float_t b_mean_n=-9999.0;
@@ -440,7 +436,6 @@ void ALFA_HalfReco::OverLap()
 
 void ALFA_HalfReco::SetData(Int_t iNumU, Int_t iNumV, Float_t fOvU, Float_t fOvV)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::SetData()");
 	ATH_MSG_DEBUG("begin ALFA_HalfReco::SetData()");
 
 	m_iNumU = iNumU;
@@ -453,7 +448,6 @@ void ALFA_HalfReco::SetData(Int_t iNumU, Int_t iNumV, Float_t fOvU, Float_t fOvV
 
 void ALFA_HalfReco::GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOvU, Float_t &fOvV, Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT])
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::GetData()");
 	ATH_MSG_DEBUG("begin ALFA_HalfReco::GetData()");
 
 	iNumU = m_iNumU;

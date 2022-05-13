@@ -19,6 +19,7 @@ class TrigBphysMonAlgBuilder:
   mc_mode = False
   monitored_mumu_list = []
   monitored_mumux_list = []
+  monitored_elel_list = []
 
   __acceptable_keys_list=['useMonGroups']
   useMonGroups = True
@@ -72,6 +73,8 @@ class TrigBphysMonAlgBuilder:
           return "MuMu"
         elif "_bBmumux_" in self.chain() :
           return "MuMuX"
+        elif "_bBee" in self.chain() :
+          return "ElEl"
         else :
           return "Unknown"
         
@@ -146,6 +149,9 @@ class TrigBphysMonAlgBuilder:
       'HLT_2mu4_bBmumux_BpmumuKp_L12MU3V',
       'HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V',
       'HLT_2mu4_bBmumux_BdmumuKst_L12MU3V',
+      # ElEl
+      'HLT_2e5_lhvloose_bBeeM6000_L1BKeePrimary',
+      'HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary',
       ]
     
     for chain in monitoring_bphys :
@@ -154,9 +160,12 @@ class TrigBphysMonAlgBuilder:
         self.monitored_mumu_list.append(chain)
       elif info.getTopo() == "MuMuX" :
         self.monitored_mumux_list.append(chain)
+      elif info.getTopo() == "ElEl" :
+        self.monitored_elel_list.append(chain)
 
     self.__logger.info('  Configured bphys MuMu chains: %s',self.monitored_mumu_list)
     self.__logger.info('  Configured bphys MuMuX chains: %s',self.monitored_mumux_list)
+    self.__logger.info('  Configured bphys ElEl chains: %s',self.monitored_elel_list)
     
     self.monitored_containers = ['HLT_DimuEF',
                                  'HLT_Bmumux',
@@ -175,8 +184,8 @@ class TrigBphysMonAlgBuilder:
     self.bphysMonAlg = self.helper.addAlgorithm( CompFactory.TrigBphysMonitorAlgorithm, "TrigBphysMonAlg" )
     
     # Uncomment for debugging purposes
-    #from AthenaCommon.Constants import DEBUG,INFO
-    #self.bphysMonAlg.OutputLevel = DEBUG
+    #from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
+    #self.bphysMonAlg.OutputLevel = VERBOSE
     
     ## Vertexing tools
     acc = self.helper.resobj
@@ -200,11 +209,17 @@ class TrigBphysMonAlgBuilder:
                                                     MakeExtendedVertex = True,
                                                     Extrapolator = AtlasExtrapolator)
     acc.addPublicTool(VertexFitter)
-    self.bphysMonAlg.VertexFitter = VertexFitter    
+    self.bphysMonAlg.VertexFitter = VertexFitter
+    
+    V0Tools = CompFactory.Trk.V0Tools(name = "BphysMonV0Tools",
+                                      Extrapolator = AtlasExtrapolator)
+    acc.addPublicTool(V0Tools)
+    self.bphysMonAlg.V0Tools = V0Tools
     
     self.bphysMonAlg.ContainerNames = self.monitored_containers
     self.bphysMonAlg.ChainNames_MuMu = self.monitored_mumu_list
     self.bphysMonAlg.ChainNames_MuMuX = self.monitored_mumux_list
+    self.bphysMonAlg.ChainNames_ElEl = self.monitored_elel_list
 
 
   def configureHistograms(self):
@@ -236,7 +251,7 @@ class TrigBphysMonAlgBuilder:
 
 
   def bookChains(self):
-    fullChainList = self.monitored_mumu_list + self.monitored_mumux_list
+    fullChainList = self.monitored_mumu_list + self.monitored_mumux_list + self.monitored_elel_list
     for chain in fullChainList :
       monGroupName = 'Chain_'+chain
       monGroupPath = 'Chains/'+chain
@@ -247,12 +262,15 @@ class TrigBphysMonAlgBuilder:
       self.bookChainGenericHists(chain, monGroup)
       if chain in self.monitored_mumu_list :
         self.bookBphysObjectHists(chain, monGroup, "dimu")
-        self.bookMuonHists(chain, monGroup)
+        self.bookLeptonHists(chain, monGroup, "mu")
       elif chain in self.monitored_mumux_list :
         self.bookBphysObjectHists(chain, monGroup, "B")
         self.bookBphysObjectHists(chain, monGroup, "dimu")
-        self.bookMuonHists(chain, monGroup)
+        self.bookLeptonHists(chain, monGroup, "mu")
         self.bookTrkHists(chain, monGroup)
+      elif chain in self.monitored_elel_list :
+        self.bookBphysObjectHists(chain, monGroup, "diel")
+        self.bookLeptonHists(chain, monGroup, "el")
         
         
   def bookOfflineDimuons(self):
@@ -266,7 +284,7 @@ class TrigBphysMonAlgBuilder:
       
       self.bookChainGenericHists(chain, monGroup)
       self.bookBphysObjectHists(chain, monGroup, "dimu", offline=True)
-      self.bookMuonHists(chain, monGroup)
+      self.bookLeptonHists(chain, monGroup, "mu")
       
       
   def bookChainGenericHists(self, chain, currentMonGroup) :
@@ -274,41 +292,70 @@ class TrigBphysMonAlgBuilder:
                                 xbins=10,xmin=-0.5,xmax=9.5)
       
   def bookBphysObjectHists(self, chain, currentMonGroup, objStr, offline=False):
-    currentMonGroup.defineHistogram(objStr+'_mass',title='Dimuon mass;m(#mu^{+}#mu^{-}) [GeV];Events / (0.1 GeV)',
+    objTitle = ''
+    objSign = ''
+    if objStr == 'dimu' :
+      objTitle = 'Dimuon'
+      objSign = '#mu^{+}#mu^{-}'
+    elif objStr == 'B' :
+      objTitle = 'B'
+      objSign = 'B'
+    elif objStr == 'diel' :
+      objTitle = 'Dielectron'
+      objSign = 'e^{+}e^{-}'
+    currentMonGroup.defineHistogram(objStr+'_mass',title=f'{objTitle} mass;m({objSign}) [GeV];Events / (0.1 GeV)',
                                 xbins=150,xmin=0.0,xmax=15.0)
-    currentMonGroup.defineHistogram(objStr+'_fitmass',title='Dimuon fitted mass;m(#mu^{+}#mu^{-}) [GeV];Events / (0.1 GeV)',
+    currentMonGroup.defineHistogram(objStr+'_fitmass',title=f'{objTitle} fitted mass;m({objSign}) [GeV];Events / (0.1 GeV)',
                                 xbins=150,xmin=0.0,xmax=15.0)
-    currentMonGroup.defineHistogram(objStr+'_pt',title='Dimuon transverse momentum;p_{T}(#mu^{+}#mu^{-}) [GeV];Events / (1 GeV)',
+    currentMonGroup.defineHistogram(objStr+'_pt',title=f'{objTitle} transverse momentum;p_{{T}}({objSign}) [GeV];Events / (1 GeV)',
                                 xbins=40,xmin=0.0,xmax=40.0)
-    currentMonGroup.defineHistogram(objStr+'_y',title='Dimuon rapidity;y(#mu^{+}#mu^{-}) [GeV];Events / (0.1)',
+    currentMonGroup.defineHistogram(objStr+'_y',title=f'{objTitle} rapidity;y({objSign}) [GeV];Events / (0.1)',
                                 xbins=50,xmin=-2.5,xmax=2.5)
-    currentMonGroup.defineHistogram(objStr+'_chi2',title='Dimuon #chi^{2};#chi^{2}(#mu^{+}#mu^{-});Events / (0.5)',
+    currentMonGroup.defineHistogram(objStr+'_chi2',title=f'{objTitle} #chi^{{2}};#chi^{{2}}({objSign});Events / (0.5)',
                                 xbins=80,xmin=0.0,xmax=40.0)
+    if objStr == 'dimu' or objStr == 'diel' :
+      currentMonGroup.defineHistogram(objStr+'_dR',title=f'{objTitle} dR;dR({objSign});Events / (0.01)',
+                                xbins=100,xmin=0.0,xmax=1.0)
+      currentMonGroup.defineHistogram(objStr+'_deta',title=f'{objTitle} d#eta;d#eta({objSign});Events / (0.01)',
+                                xbins=100,xmin=0.0,xmax=1.0)
+      currentMonGroup.defineHistogram(objStr+'_dphi',title=f'{objTitle} dEphi;d#phi({objSign});Events / (0.04)',
+                                xbins=80,xmin=0.0,xmax=3.2)
     if offline :
-      currentMonGroup.defineHistogram(objStr+'_Lxy',title='Dimuon Lxy;L_{xy} [mm];Events / (0.1 mm)',
-                                  xbins=30,xmin=0.0,xmax=3.0)
-      currentMonGroup.defineHistogram(objStr+'_LxySig',title='Dimuon Lxy significance;L_{xy}/#sigma(L_{xy});Events / (0.2 mm)',
-                                  xbins=30,xmin=0.0,xmax=6.0)
+      currentMonGroup.defineHistogram(objStr+'_Lxy',title=f'{objTitle} Lxy;L_{{xy}}({objSign}) [mm];Events / (0.2 mm)',
+                                  xbins=125,xmin=-5.,xmax=20.0)
+      currentMonGroup.defineHistogram(objStr+'_LxySig',title=f'{objTitle} Lxy significance;L_{{xy}}/#sigma(L_{{xy}})({objSign});Events / (0.5)',
+                                  xbins=90,xmin=-5,xmax=40.)
     
-  def bookMuonHists(self, chain, currentMonGroup):
-    currentMonGroup.defineHistogram('mu1_pt',title='Mu1 transverse momentum;p_{T}(#mu) [GeV];Events / (1 GeV)',
+  def bookLeptonHists(self, chain, currentMonGroup, lepStr):
+    lepTitle = ''
+    lepSign = ''
+    if lepStr == 'mu' :
+      lepTitle = 'Mu'
+      lepSign = '#mu'
+    elif lepStr == 'el' :
+      lepTitle = 'El'
+      lepSign = 'e'
+    else :
+      self.__logger.warning("TrigBphysMonToolBuilder.bookLeptonHists(): wrong lepStr passed: %s, while el or mu expected; won't book anything", lepStr)
+      return
+    currentMonGroup.defineHistogram(lepStr+'1_pt',title=f'{lepTitle}1 transverse momentum;p_{{T}}({lepSign}) [GeV];Events / (1 GeV)',
                                 xbins=40,xmin=0.0,xmax=40.0)
-    currentMonGroup.defineHistogram('mu1_eta',title='Mu1 pseudorapidity;#eta(#mu);Events / (0.1)',
+    currentMonGroup.defineHistogram(lepStr+'1_eta',title=f'{lepTitle}1 pseudorapidity;#eta({lepSign});Events / (0.1)',
                                 xbins=54,xmin=-2.7,xmax=2.7)
-    currentMonGroup.defineHistogram('mu1_d0',title='Mu1 d0;d_{0}(#mu);Events / (0.2 mm)',
+    currentMonGroup.defineHistogram(lepStr+'1_d0',title=f'{lepTitle}1 d0;d_{{0}}({lepSign});Events / (0.2 mm)',
                                 xbins=100,xmin=-10.,xmax=10.)
-    currentMonGroup.defineHistogram('mu2_pt',title='Mu2 transverse momentum;p_{T}(#mu) [GeV];Events / (1 GeV)',
+    currentMonGroup.defineHistogram(lepStr+'2_pt',title=f'{lepTitle}2 transverse momentum;p_{{T}}({lepSign}) [GeV];Events / (1 GeV)',
                                 xbins=40,xmin=0.0,xmax=40.0)
-    currentMonGroup.defineHistogram('mu2_eta',title='Mu2 pseudorapidity;#eta(#mu);Events / (0.1)',
+    currentMonGroup.defineHistogram(lepStr+'2_eta',title=f'{lepTitle}2 pseudorapidity;#eta({lepSign});Events / (0.1)',
                                 xbins=54,xmin=-2.7,xmax=2.7)
-    currentMonGroup.defineHistogram('mu2_d0',title='Mu2 d0;d_{0}(#mu);Events / (0.2 mm)',
+    currentMonGroup.defineHistogram(lepStr+'2_d0',title=f'{lepTitle}2 d0;d_{{0}}({lepSign});Events / (0.2 mm)',
                                 xbins=100,xmin=-10.,xmax=10.)
   
   def bookTrkHists(self, chain, currentMonGroup):
-    currentMonGroup.defineHistogram('trk_pt',title='Track transverse momentum;p_{T}(#mu) [GeV];Events / (0.5 GeV)',
+    currentMonGroup.defineHistogram('trk_pt',title='Track transverse momentum;p_{T}(trk) [GeV];Events / (0.5 GeV)',
                                 xbins=40,xmin=0.0,xmax=20.0)
-    currentMonGroup.defineHistogram('trk_eta',title='Track pseudorapidity;#eta(#mu);Events / (0.1)',
+    currentMonGroup.defineHistogram('trk_eta',title='Track pseudorapidity;#eta(trk);Events / (0.1)',
                                 xbins=54,xmin=-2.7,xmax=2.7)
-    currentMonGroup.defineHistogram('trk_d0',title='Track d0;d_{0}(#mu);Events / (0.2 mm)',
+    currentMonGroup.defineHistogram('trk_d0',title='Track d0;d_{0}(trk);Events / (0.2 mm)',
                                 xbins=100,xmin=-10.,xmax=10.)
 

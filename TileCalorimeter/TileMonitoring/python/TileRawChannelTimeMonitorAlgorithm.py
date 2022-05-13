@@ -74,7 +74,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     # 3) Configure histograms with Tile partition average time vs luminosity block per partition
     addTile2DHistogramsArray(helper, tileRawChanTimeMonAlg, name = 'TileAverageTimeLB',
                              xvalue = 'lumiBlock', yvalue = 'time', type='TH2D',
-                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]',
+                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]', opt = 'kAddBinsDynamically',
                              path = 'Tile/RawChannelTime/Summary', run = run, perPartition = True,
                              xbins = 3000, xmin = -0.5, xmax = 2999.5, ybins = 149, ymin = -74.5, ymax = 74.5)
 

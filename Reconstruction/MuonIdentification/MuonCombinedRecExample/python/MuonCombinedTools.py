@@ -110,7 +110,6 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MuonSelectionTool", "")
         kwargs.setdefault("UseCaloCells", False)
-        kwargs.setdefault("TrackSegmentAssociationTool", "")
     else:
         kwargs.setdefault("MomentumBalanceTool", getPublicTool("MuonMomentumBalanceSignificanceTool"))
         kwargs.setdefault("ScatteringAngleTool", getPublicTool("MuonScatteringAngleSignificanceTool"))
@@ -148,7 +147,7 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
         kwargs.setdefault("TrackSegmentAssociationTool", "" )
     else:
         kwargs.setdefault("TrackBuilder", getPublicTool("CombinedMuonTrackBuilder"))
-        kwargs.setdefault("SegmentContainer", "xaodMuonSegments")
+        kwargs.setdefault("SegmentContainer", "TrackMuonSegments")
   
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 
@@ -183,6 +182,24 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
+
+def MuonCombinedFitTagTool_EMEO(name="MuonCombinedFitTagTool_EMEO",**kwargs):
+    return MuonCombinedFitTagTool(name = name,
+                                  TrackBuilder= getPublicTool("CombinedMuonTrackBuilder_EMEO"),
+                                  **kwargs)
+
+def MuonCombinedTool_EMEO(name="MuonCombinedTool_EMEO",**kwargs):
+    tools = []
+    if muonCombinedRecFlags.doCombinedFit():
+        tools.append(getPublicTool("MuonCombinedFitTagTool_EMEO"))
+    if muonCombinedRecFlags.doStatisticalCombination():
+        tools.append(getPublicTool("MuonCombinedStacoTagTool"))
+    kwargs.setdefault("MuonCombinedTagTools", tools )
+    ### Retune the angular selection for the muons
+    kwargs.setdefault("AlignmentUncertTool", getPublicTool("MuonAlignmentUncertToolTheta"))
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
+    return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
     from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTagTestTool

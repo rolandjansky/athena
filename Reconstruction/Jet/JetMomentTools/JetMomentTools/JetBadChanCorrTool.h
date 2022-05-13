@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -40,6 +40,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "TH1D.h"
+#include <utility>
 
 
 class Identifier;
@@ -113,7 +114,7 @@ protected:
     }
 
     double frac(double dr) const {
-      int idr = m_th->FindBin(dr);
+      int idr = std::as_const(m_th)->FindBin(dr);
       return m_th->GetBinContent(idr);
     }
   private:

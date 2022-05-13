@@ -23,9 +23,6 @@ TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /T
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/STATUS/ADC
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/TIME/CHANNELOFFSET/PHY
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/ONL01/STATUS/ADC
-TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas
-TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas
-TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/AutoCorr
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/LArCellPositionShift
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/DAC2uA
@@ -86,7 +83,6 @@ TagInfoMgr          DEBUG IOV callback
 TagInfoMgr          DEBUG notifyListeners  (1 registered)
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967296:0] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -97,7 +93,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967297:5] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -108,7 +103,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967298:10] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -119,7 +113,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967299:15] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -130,7 +123,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967300:20] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -141,7 +133,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967301:25] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -152,7 +143,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967302:30] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -163,7 +153,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967303:35] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -174,7 +163,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967304:40] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -185,7 +173,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967305:45] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -196,7 +183,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967306:50] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -207,7 +193,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967307:55] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -218,7 +203,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967308:60] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -229,7 +213,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967309:65] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -240,7 +223,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967310:70] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -251,7 +233,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967311:75] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -262,7 +243,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967312:80] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -299,7 +279,6 @@ TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,1:85] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -310,7 +289,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,2:90] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -321,7 +299,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,3:95] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -332,7 +309,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,4:100] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -343,7 +319,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,5:105] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -354,7 +329,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,6:110] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -365,7 +339,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,7:115] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
@@ -376,7 +349,6 @@ EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG Input tags: 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,8:120] 
-EventInfoWriter     DEBUG Event type: user type McEvent
 EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 

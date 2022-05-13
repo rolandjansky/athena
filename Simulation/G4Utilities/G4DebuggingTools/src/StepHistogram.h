@@ -140,7 +140,7 @@ namespace G4UA{
     G4String m_initialVolume;
     G4String m_initialMaterial;
     G4String m_initialProcess;
-    int m_trackID;
+    int m_trackID = 0;
 
   }; // class StepHistogram
   

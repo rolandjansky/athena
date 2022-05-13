@@ -8,7 +8,6 @@
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst
 */
 
 // Framework include(s):
@@ -44,22 +43,7 @@ class SelectionCutRNNEleScore;
 class SelectionCutEleIDWP;
 class SelectionCutMuonOLR;
 
-enum SelectionCuts
-{
-  // FIXME: harmonise names for RNN score cuts: "CutEleRNNScore" vs "CutJetRNNScoreSigTrans"
-  NoCut           = 0,   	 // 000000000000
-  CutPt           = 1,   	 // 000000000001
-  CutAbsEta       = 1<<1,	 // 000000000010
-  CutPhi          = 1<<2,	 // 000000000100
-  CutNTrack       = 1<<3,	 // 000000001000
-  CutAbsCharge    = 1<<4,	 // 000000010000
-  CutJetIDWP      = 1<<5,	 // 000000100000
-  CutEleRNNScore  = 1<<6,	 // 000001000000
-  CutEleIDWP      = 1<<7,	 // 000010000000
-  CutMuonOLR      = 1<<8,        // 000100000000
-  CutJetRNNScoreSigTrans = 1<<9  // 001000000000
-};
-  
+
 class TauSelectionTool : public virtual IAsgSelectionTool,
   public virtual ITauSelectionTool,
   public asg::AsgMetadataTool

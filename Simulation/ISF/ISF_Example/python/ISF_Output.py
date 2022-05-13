@@ -6,17 +6,13 @@ from AthenaCommon.Logging import logging
 isfoplog = logging.getLogger('ISF_Output')
 
 def getHITSStreamItemList():
-    from ISF_Config.ISF_jobProperties import ISF_Flags
 
     hitsItemList=[]
     ## EventInfo & TruthEvent always written by default
     hitsItemList = ["McEventCollection#TruthEvent",
                     "JetCollection#*"]
 
-    if not ISF_Flags.ReSimulation():
-        hitsItemList+=["xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux.", "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*"]
-    else:
-        hitsItemList+=["EventInfo#*"]  ## TODO: update config so that ReSim can use the same xAOD::EventInfo
+    hitsItemList+=["xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux.", "xAOD::EventInfoContainer#*", "xAOD::EventInfoAuxContainer#*"]
 
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.SimulationFlavour() is not None and 'ongLived' in simFlags.SimulationFlavour(): # to catch LongLived and longLived
@@ -179,7 +175,7 @@ class ISF_HITSStream:
         stream1 = None
         if athenaCommonFlags.PoolHitsOutput.statusOn:
             output_file = athenaCommonFlags.PoolHitsOutput()
-            stream1 = AthenaPoolOutputStream("StreamHITS", output_file, noTag=ISF_Flags.ReSimulation()) ## TODO: update config so that ReSim can use the same xAOD::EventInfo
+            stream1 = AthenaPoolOutputStream("StreamHITS", output_file, noTag=False)
             stream1.ItemList = getHITSStreamItemList()
             ## Make stream aware of aborted events
             stream1.AcceptAlgs = [ISF_Flags.Simulator.KernelName()]

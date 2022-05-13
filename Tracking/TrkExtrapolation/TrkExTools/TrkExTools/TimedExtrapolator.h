@@ -159,7 +159,7 @@ struct ParamsNextVolume
   @author sarka.todorova@cern.ch
  */
 
-class TimedExtrapolator
+class TimedExtrapolator final
   : public AthAlgTool
   , virtual public ITimedExtrapolator
 {
@@ -167,7 +167,7 @@ public:
   /**Constructor */
   TimedExtrapolator(const std::string&, const std::string&, const IInterface*);
   /**Destructor*/
-  ~TimedExtrapolator();
+  virtual ~TimedExtrapolator();
 
   /** AlgTool initailize method.
   In this method the extrapolator should retrieve the Propagator of highest
@@ -175,16 +175,15 @@ public:
   itself should be specified whether to use propagators of a lower hirarchy
   level or not.
    */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** AlgTool finalize method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /** Extrapolation method for charged, possibly unstable particles.
       The extrapolation is interrupted at subdetector boundary for
      surviving/stable particles.
   */
-
-  std::unique_ptr<const Trk::TrackParameters> extrapolateWithPathLimit(
+  virtual std::unique_ptr<const Trk::TrackParameters> extrapolateWithPathLimit(
     const Trk::TrackParameters& parm,
     Trk::PathLimit& pathLim,
     Trk::TimeLimit& time,
@@ -192,14 +191,14 @@ public:
     Trk::ParticleHypothesis particle,
     std::vector<Trk::HitInfo>*& hitVector,
     Trk::GeometrySignature& nextGeoID,
-    const Trk::TrackingVolume* boundaryVol = nullptr) const;
+    const Trk::TrackingVolume* boundaryVol = nullptr) const override;
 
   /** Transport method for neutral, possibly unstable particles.
       The extrapolation is interrupted at subdetector boundary for
      surviving/stable particles.
   */
-
-  std::unique_ptr<const Trk::TrackParameters> transportNeutralsWithPathLimit(
+  virtual std::unique_ptr<const Trk::TrackParameters>
+  transportNeutralsWithPathLimit(
     const Trk::TrackParameters& parm,
     Trk::PathLimit& pathLim,
     Trk::TimeLimit& time,
@@ -207,16 +206,16 @@ public:
     Trk::ParticleHypothesis particle,
     std::vector<Trk::HitInfo>*& hitVector,
     Trk::GeometrySignature& nextGeoId,
-    const Trk::TrackingVolume* boundaryVol = nullptr) const;
+    const Trk::TrackingVolume* boundaryVol = nullptr) const override;
 
   /** Return the TrackingGeometry used by the Extrapolator (forward information
    * from Navigator)*/
-  const TrackingGeometry* trackingGeometry() const;
+  virtual const TrackingGeometry* trackingGeometry() const override; 
 
   /** Validation Action:
       Can be implemented optionally, outside access to internal validation steps
    */
-  virtual void validationAction() const;
+  virtual void validationAction() const override;
 
 private:
   struct Cache;

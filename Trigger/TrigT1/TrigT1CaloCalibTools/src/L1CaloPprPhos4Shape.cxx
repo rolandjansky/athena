@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -12,14 +12,12 @@
 //
 // *********************************************************
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPhos4Shape.h"
 
-L1CaloPprPhos4Shape::L1CaloPprPhos4Shape(const L1CaloCoolChannelId& coolId)
+L1CaloPprPhos4Shape::L1CaloPprPhos4Shape(const L1CaloCoolChannelId& coolId) :
+   AthMessaging(Athena::getMessageSvc(), "L1CaloPprPhos4Shape")
 {
-   
-   
-   m_log = new Athena::MsgStreamMember(Athena::Options::Eager,"L1CaloPprPhos4Shape");
-   
    m_coolId                         = coolId;
    m_eta                            = 999.;
    m_phi                            = 999.;
@@ -300,7 +298,7 @@ TF1* L1CaloPprPhos4Shape::FitSignalPeak(TH1* histo,const float maxPeakValue,cons
 void L1CaloPprPhos4Shape::CalculatePedestal(TH1* histo,float& pedMean,float& pedSigma){
    
    if((unsigned int)histo->GetNbinsX() < NANOSEC_PER_LHC_CLOCK_TICK*2){
-      *m_log << MSG::WARNING << "[CalculatePedestal] Could not calculate pedestal due to lack of bins in " << histo->GetName() << endmsg;
+      ATH_MSG_WARNING("[CalculatePedestal] Could not calculate pedestal due to lack of bins in " << histo->GetName());
       return;
    }
    
@@ -371,7 +369,7 @@ unsigned int L1CaloPprPhos4Shape::CalculateFullDelayData(const int truePeakPosit
    
    const int newFullDelayData = (baseDelay + dt);
    if(newFullDelayData < 0){
-      *m_log << MSG::WARNING << "[CalculateFullDelayData]: New Full Delay data was calculated as zero. Should only be greater than zero. Returning 0 for safety. Channel 0x" << CoolIdToString(m_coolId) << ". Peak position passed was: " << truePeakPosition << " and the idealPeakPosition is: " << idealPeakPosition << endmsg;
+      ATH_MSG_WARNING("[CalculateFullDelayData]: New Full Delay data was calculated as zero. Should only be greater than zero. Returning 0 for safety. Channel 0x" << CoolIdToString(m_coolId) << ". Peak position passed was: " << truePeakPosition << " and the idealPeakPosition is: " << idealPeakPosition);
       return 0;
    }
    
@@ -382,7 +380,7 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
    
    // if the signal is not present set the bad data bit
    if(!signalIsPresent){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because signal not present. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
+      ATH_MSG_WARNING("[FillErrorCode] Set bad data bit because signal not present. Channel 0x" << CoolIdToString(m_coolId));
       m_errorCode.badData(true);
       m_errorCode.phos4ScanNoSignal(true);
       
@@ -395,7 +393,7 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
    }
    
    if(signalIsSaturated){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because signal is saturated. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
+      ATH_MSG_WARNING("[FillErrorCode] Set bad data bit because signal is saturated. Channel 0x" << CoolIdToString(m_coolId));
       m_errorCode.badData(true);
       m_errorCode.phos4ScanSignalSaturated(true);
       
@@ -414,9 +412,9 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
    
    // if no Mean or sigma was calculated this usually indicates a bad signal shape
    if((m_risingSlopeMean < 0.0001 || m_risingSlopeSigma < 0.0001)){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
+      ATH_MSG_WARNING("[FillErrorCode] Set bad data bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId));
       m_errorCode.badData(true);
-      *m_log << MSG::WARNING << "[FillErrorCode] Set phos4 scan bad signal bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
+      ATH_MSG_WARNING("[FillErrorCode] Set phos4 scan bad signal bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId));
       m_errorCode.phos4ScanBadSignal(true);
       
       
@@ -427,9 +425,9 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
       m_processed_fitFullDelayData = m_currentFullDelayData;
    }
    else if( m_risingSlopeSigma > 10.0){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
+      ATH_MSG_WARNING("[FillErrorCode] Set bad data because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId));
       m_errorCode.badData(true);
-      *m_log << MSG::WARNING << "[FillErrorCode] Set phos4 scan bad signal bit because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
+      ATH_MSG_WARNING("[FillErrorCode] Set phos4 scan bad signal bit because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId));
       m_errorCode.phos4ScanBadSignal(true);
       
       

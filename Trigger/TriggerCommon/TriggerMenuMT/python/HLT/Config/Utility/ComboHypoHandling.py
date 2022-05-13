@@ -218,12 +218,13 @@ def addTopoInfo(theChainConfig, mainChainDict, listOfChainDefs, lengthOfChainCon
 
     for step,(topoCfg,topoExpr) in theChainConfig.topoMap.items():
         thestep = theChainConfig.steps[-1] if step=="last" else theChainConfig.steps[findStepIndexInChain(theChainConfig,step)]
-        log.debug("[addTopoInfo] Adding %s to step %s",topoExpr,thestep)
+        log.debug("[addTopoInfo] Adding %s to step %s",topoExpr,thestep)        
+
         if thestep is None:
             log.error("Failed to find step %s in Chain! ChainDict follows:", step)
             log.error(mainChainDict)
             raise RuntimeError("Step not found when adding topo to chain")
-
+                
         bonus_debug = False
 
         if bonus_debug:

@@ -1,4 +1,4 @@
-/*
+/*§
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -19,7 +19,6 @@
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
@@ -32,13 +31,17 @@
 #include <vector>
 
 namespace {
+
 std::unique_ptr<Trk::FitQuality>
 buildFitQuality(const Trk::SmoothedTrajectory& smoothedTrajectory)
 {
 
+  /*
+   * Build fit quality by summing the chi2 and ndof for each
+   * measurements
+   */
   double chiSquared = 0.;
   int numberDoF = -5;
-  // Loop over all TrackStateOnSurface objects in trajectory
   Trk::SmoothedTrajectory::const_iterator stateOnSurface =
     smoothedTrajectory.begin();
   for (; stateOnSurface != smoothedTrajectory.end(); ++stateOnSurface) {
@@ -51,11 +54,9 @@ buildFitQuality(const Trk::SmoothedTrajectory& smoothedTrajectory)
     chiSquared += (*stateOnSurface)->fitQualityOnSurface()->chiSquared();
     numberDoF += (*stateOnSurface)->fitQualityOnSurface()->numberDoF();
   }
-
   if (std::isnan(chiSquared) || chiSquared <= 0.) {
     return nullptr;
   }
-
   return std::make_unique<Trk::FitQuality>(chiSquared, numberDoF);
 }
 }
@@ -67,10 +68,10 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   , m_directionToPerigee(Trk::oppositeMomentum)
   , m_trkParametersComparisonFunction{}
   , m_inputPreparator(nullptr)
+  , m_sortingReferencePoint{ 0, 0, 0 }
   , m_cutChiSquaredPerNumberDOF(50.)
   , m_overideMaterialEffects(4)
   , m_overideParticleHypothesis(nonInteracting)
-  , m_overideMaterialEffectsSwitch(false)
   , m_FitPRD{ 0 }
   , m_FitMeasurementBase{ 0 }
   , m_ForwardFailure{ 0 }
@@ -82,14 +83,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   declareInterface<ITrackFitter>(this);
   declareProperty("SortingReferencePoint", m_sortingReferencePoint);
   declareProperty("StateChi2PerNDOFCut", m_cutChiSquaredPerNumberDOF);
-  declareProperty("OverideForwardsMaterialEffects",
-                  m_overideMaterialEffectsSwitch);
   declareProperty("MaterialEffectsInForwardFitter", m_overideMaterialEffects);
-
-  // Estrablish reference point as origin
-  m_sortingReferencePoint.push_back(0.);
-  m_sortingReferencePoint.push_back(0.);
-  m_sortingReferencePoint.push_back(0.);
 }
 
 StatusCode
@@ -102,26 +96,16 @@ Trk::GaussianSumFitter::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Request the GSF extrapolator
+  // GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
 
-  // Request the RIO_OnTrack creator
-  // No need to return if RioOnTrack creator tool, only if PrepRawData is used
+  // We need a to create RIO_OnTrack (calibrated/corrected)
+  // measurements only if we start from PrePRawData.
   if (!m_refitOnMeasurementBase) {
-    ATH_MSG_INFO("NOT refitOnMeasurementBase");
     ATH_CHECK(m_rioOnTrackCreator.retrieve());
   } else {
-    ATH_MSG_INFO("refitOnMeasurementBase");
     m_rioOnTrackCreator.disable();
   }
-
-  if (m_overideMaterialEffectsSwitch) {
-    ATH_MSG_INFO("Material effects in forward fitter have been overiden by "
-                 "jobOptions... New "
-                 "Trk::ParticleHypothesis: "
-                 << m_overideMaterialEffects);
-  }
-
   // Initialise the closest track parameters search algorithm
   Amg::Vector3D referencePosition(m_sortingReferencePoint[0],
                                   m_sortingReferencePoint[1],
@@ -161,7 +145,10 @@ Trk::GaussianSumFitter::finalize()
 }
 
 /*
- * Refitting of a track
+ * Interface Method
+ * Refitting of an input track.
+ * Extract the measurementBase or
+ * PrepRawData and refit.
  */
 std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
@@ -170,55 +157,47 @@ Trk::GaussianSumFitter::fit(
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-
   // Check that the input track has well defined parameters
   if (inputTrack.trackParameters()->empty()) {
-    ATH_MSG_FATAL("No estimation of track parameters near origin... Exiting!");
+    ATH_MSG_FATAL("No track parameters on Track!");
     return nullptr;
   }
   // Check that the input track has associated MeasurementBase objects
   if (inputTrack.trackStateOnSurfaces()->empty()) {
-    ATH_MSG_FATAL("Attempting to fit track to empty MeasurementBase "
-                  "collection... Exiting!");
+    ATH_MSG_FATAL("Empty MeasurementBase ");
     return nullptr;
   }
-
   // Retrieve the set of track parameters closest to the reference point
   const Trk::TrackParameters* parametersNearestReference =
     *(std::min_element(inputTrack.trackParameters()->begin(),
                        inputTrack.trackParameters()->end(),
                        m_trkParametersComparisonFunction));
 
-  // If refitting of track is at the MeasurementBase level
-  // extract the MeasurementBase from the input track and create a new vector
+  // If we refit using measurement base then
+  // extract the measurements from the input track
+  // and fit them
   if (m_refitOnMeasurementBase) {
 
     MeasurementSet measurementSet;
 
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator
-      trackStateOnSurface = inputTrack.trackStateOnSurfaces()->begin();
-    for (; trackStateOnSurface != inputTrack.trackStateOnSurfaces()->end();
-         ++trackStateOnSurface) {
+    for (const auto* tsos : *(inputTrack.trackStateOnSurfaces())) {
 
-      if (!(*trackStateOnSurface)) {
-        ATH_MSG_WARNING("This track contains an empty MeasurementBase object "
-                        "that won't be included in the fit");
+      if (!(tsos)) {
+        ATH_MSG_WARNING("Track contains an empty MeasurementBase object ");
         continue;
       }
 
-      if ((*trackStateOnSurface)->measurementOnTrack()) {
-        if ((*trackStateOnSurface)->type(TrackStateOnSurface::Measurement)) {
-          measurementSet.push_back(
-            (*trackStateOnSurface)->measurementOnTrack());
+      const MeasurementBase* meas = tsos->measurementOnTrack();
+      if (meas) {
+        if (tsos->type(TrackStateOnSurface::Measurement)) {
+          measurementSet.push_back(meas);
         } else if (m_reintegrateOutliers &&
-                   (*trackStateOnSurface)->type(TrackStateOnSurface::Outlier)) {
-          measurementSet.push_back(
-            (*trackStateOnSurface)->measurementOnTrack());
+                   tsos->type(TrackStateOnSurface::Outlier)) {
+          measurementSet.push_back(meas);
         }
       }
     }
 
-    // Apply GSF fit to MeasurementBase objects
     return fit(ctx,
                measurementSet,
                *parametersNearestReference,
@@ -226,40 +205,30 @@ Trk::GaussianSumFitter::fit(
                particleHypothesis);
   }
 
-  // If refitting of the track is at the PrepRawData level then extract the
-  // PrepRawData objects from the input track
-
+  // If we refit using PrepRawData level then
+  // extract the the PrepRawData  from the input track
+  // and fit them
   PrepRawDataSet prepRawDataSet;
 
-  DataVector<const Trk::MeasurementBase>::const_iterator measurementOnTrack =
-    inputTrack.measurementsOnTrack()->begin();
+  for (const auto* meas : *(inputTrack.measurementsOnTrack())) {
 
-  for (; measurementOnTrack != inputTrack.measurementsOnTrack()->end();
-       ++measurementOnTrack) {
-
-    if (!(*measurementOnTrack)) {
+    if (!meas) {
       continue;
     }
-
     const Trk::RIO_OnTrack* rioOnTrack = nullptr;
-    if ((*measurementOnTrack)->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
-      rioOnTrack = static_cast<const Trk::RIO_OnTrack*>(*measurementOnTrack);
+    if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      rioOnTrack = static_cast<const Trk::RIO_OnTrack*>(meas);
     }
-
     if (!rioOnTrack) {
       continue;
     }
-
     const PrepRawData* prepRawData = rioOnTrack->prepRawData();
-
     if (!prepRawData) {
       continue;
     }
-
     prepRawDataSet.push_back(prepRawData);
   }
 
-  // Apply GSF fit to PrepRawData objects
   return fit(ctx,
              prepRawDataSet,
              *parametersNearestReference,
@@ -268,6 +237,7 @@ Trk::GaussianSumFitter::fit(
 }
 
 /*
+ * Interface Method
  * Fitting of a set of PrepRawData objects
  */
 std::unique_ptr<Trk::Track>
@@ -275,23 +245,19 @@ Trk::GaussianSumFitter::fit(
   const EventContext& ctx,
   const Trk::PrepRawDataSet& prepRawDataSet,
   const Trk::TrackParameters& estimatedParametersNearOrigin,
-  const Trk::RunOutlierRemoval outlierRemoval,
+  const Trk::RunOutlierRemoval /* Not used*/,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
   m_FitPRD.fetch_add(1, std::memory_order_relaxed);
 
-  if (outlierRemoval) {
-    ATH_MSG_WARNING(
-      "Outlier removal not yet implemented for the Gaussian Sum Filter");
-  }
   // Protect against empty PrepRawDataSet object
   if (prepRawDataSet.empty()) {
-    ATH_MSG_FATAL("PrepRawData set for fit is empty... Exiting!");
+    ATH_MSG_FATAL("PrepRawData set for fit is empty");
     return nullptr;
   }
 
+  // We need a sorted PrepRawDataSet
   Trk::PrepRawDataSet sortedPrepRawDataSet = PrepRawDataSet(prepRawDataSet);
-
   if (m_doHitSorting) {
     Trk::PrepRawDataComparisonFunction prdComparisonFunction =
       Trk::PrepRawDataComparisonFunction(
@@ -302,54 +268,52 @@ Trk::GaussianSumFitter::fit(
               sortedPrepRawDataSet.end(),
               prdComparisonFunction);
   }
+
   // Create Extrapolator cache that holds material effects cache;
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
-
-  // Perform GSF forwards fit
-  ForwardTrajectory forwardTrajectory = fitPRD(ctx,
-                                               extrapolatorCache,
-                                               sortedPrepRawDataSet,
-                                               estimatedParametersNearOrigin,
-                                               particleHypothesis);
+  // Perform GSF forward fit
+  MultiTrajectory forwardTrajectory = fitPRD(ctx,
+                                             extrapolatorCache,
+                                             sortedPrepRawDataSet,
+                                             estimatedParametersNearOrigin,
+                                             particleHypothesis);
 
   if (forwardTrajectory.empty()) {
     m_ForwardFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
-
   // Perform GSF smoother operation
-  SmoothedTrajectory smoothedTrajectory =
+  MultiTrajectory smoothedTrajectory =
     fit(ctx, extrapolatorCache, forwardTrajectory, particleHypothesis);
-
-  // Protect against failed smoother fit
   if (smoothedTrajectory.empty()) {
     m_SmootherFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
-  // Outlier m_logic and track finalisation
+  // Fit quality
   std::unique_ptr<FitQuality> fitQuality = buildFitQuality(smoothedTrajectory);
   if (!fitQuality) {
     m_fitQualityFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
+  // Create parameters at perigee if needed
   if (m_makePerigee) {
-    const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      makePerigee(
-        ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
+    auto perigeeMultiStateOnSurface = makePerigee(
+      ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
     if (perigeeMultiStateOnSurface) {
-      smoothedTrajectory.push_back(perigeeMultiStateOnSurface);
+      smoothedTrajectory.push_back(perigeeMultiStateOnSurface.release());
     } else {
       m_PerigeeFailure.fetch_add(1, std::memory_order_relaxed);
       return nullptr;
     }
   }
 
-  // Reverse the order of the TSOS's to make be order flow from inside to out
+  // Reverse the order of the TSOS's after the smoother
+  // to make be order flow from inside to out
   std::reverse(smoothedTrajectory.begin(), smoothedTrajectory.end());
 
-  // Create new track
+  // Create Trk::Track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
@@ -359,6 +323,7 @@ Trk::GaussianSumFitter::fit(
 }
 
 /*
+ * Interface method
  * Fitting of a set of MeasurementBase objects
  */
 std::unique_ptr<Trk::Track>
@@ -366,44 +331,38 @@ Trk::GaussianSumFitter::fit(
   const EventContext& ctx,
   const Trk::MeasurementSet& measurementSet,
   const Trk::TrackParameters& estimatedParametersNearOrigin,
-  const Trk::RunOutlierRemoval outlierRemoval,
+  const Trk::RunOutlierRemoval /* Not used*/,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-
-  if (outlierRemoval) {
-    ATH_MSG_WARNING(
-      "Outlier removal not yet implemented for the Gaussian Sum Filter");
-  }
 
   m_FitMeasurementBase.fetch_add(1, std::memory_order_relaxed);
   // Protect against empty PrepRawDataSet object
   if (measurementSet.empty()) {
-    ATH_MSG_FATAL("MeasurementSet for fit is empty... Exiting!");
+    ATH_MSG_FATAL("MeasurementSet for fit is empty");
     return nullptr;
   }
 
-  // Find the CCOT if it exsists
+  // We need to separate the possible CaloCluster on Track
+  // measurement from the rest
   const Trk::CaloCluster_OnTrack* ccot(nullptr);
+
   Trk::MeasurementSet cleanedMeasurementSet;
   cleanedMeasurementSet.reserve(measurementSet.size());
 
-  MeasurementSet::const_iterator itSet = measurementSet.begin();
-  MeasurementSet::const_iterator itSetEnd = measurementSet.end();
-  for (; itSet != itSetEnd; ++itSet) {
-    if (!(*itSet)) {
-      ATH_MSG_WARNING("There is an empty MeasurementBase object in the track! "
-                      "Skip this object..");
+  for (const auto* meas : measurementSet) {
+    if (!meas) {
+      ATH_MSG_WARNING(
+        "There is an empty MeasurementBase object in the track! ");
+      continue;
+    }
+    if (meas->type(Trk::MeasurementBaseType::CaloCluster_OnTrack)) {
+      ccot = static_cast<const Trk::CaloCluster_OnTrack*>(meas);
     } else {
-      ccot = nullptr;
-      if ((*itSet)->type(Trk::MeasurementBaseType::CaloCluster_OnTrack)) {
-        ccot = static_cast<const Trk::CaloCluster_OnTrack*>(*itSet);
-      }
-      if (!ccot) {
-        cleanedMeasurementSet.push_back(*itSet);
-      }
+      cleanedMeasurementSet.push_back(meas);
     }
   }
 
+  // We need a sorted measurement set
   Trk::MeasurementSet sortedMeasurementSet =
     MeasurementSet(cleanedMeasurementSet);
 
@@ -420,8 +379,8 @@ Trk::GaussianSumFitter::fit(
   // Create Extrapolator cache that holds material effects cache;
   Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
 
-  // Perform GSF forwards fit - new memory allocated in forwards fitter
-  ForwardTrajectory forwardTrajectory =
+  // Perform GSF forwards fit
+  MultiTrajectory forwardTrajectory =
     fitMeasurements(ctx,
                     extrapolatorCache,
                     sortedMeasurementSet,
@@ -434,30 +393,26 @@ Trk::GaussianSumFitter::fit(
   }
 
   // Perform GSF smoother operation
-
-  SmoothedTrajectory smoothedTrajectory =
+  MultiTrajectory smoothedTrajectory =
     fit(ctx, extrapolatorCache, forwardTrajectory, particleHypothesis, ccot);
-
-  // Protect against failed smoother fit
   if (smoothedTrajectory.empty()) {
     m_SmootherFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
-  // Outlier m_logic and track finalisation
+  // fit quality
   std::unique_ptr<FitQuality> fitQuality = buildFitQuality(smoothedTrajectory);
-
   if (!fitQuality) {
     m_fitQualityFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
+  // Create parameters at perigee if needed
   if (m_makePerigee) {
-    const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      makePerigee(
-        ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
+    auto perigeeMultiStateOnSurface = makePerigee(
+      ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
     if (perigeeMultiStateOnSurface) {
-      smoothedTrajectory.push_back(perigeeMultiStateOnSurface);
+      smoothedTrajectory.push_back(perigeeMultiStateOnSurface.release());
     } else {
       m_PerigeeFailure.fetch_add(1, std::memory_order_relaxed);
       return nullptr;
@@ -467,7 +422,7 @@ Trk::GaussianSumFitter::fit(
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory.begin(), smoothedTrajectory.end());
 
-  // Create new track
+  // Create track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
@@ -476,7 +431,8 @@ Trk::GaussianSumFitter::fit(
     info, std::move(smoothedTrajectory), fitQuality.release());
 }
 
-/**
+/*
+ * Interface method
  * Refit a track adding a PrepRawData  set
  */
 std::unique_ptr<Trk::Track>
@@ -486,17 +442,13 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
 {
-
   // protection, if empty PrepRawDataSet
   if (addPrdColl.empty()) {
     ATH_MSG_WARNING(
       "client tries to add an empty PrepRawDataSet to the track fit.");
     return fit(ctx, intrk, runOutlier, matEffects);
   }
-
-  /*  determine the Track Parameter which is the start of the trajectory,
-      i.e. closest to the reference point */
-
+  // determine the Track Parameter which is the start of the trajectory
   const TrackParameters* estimatedStartParameters =
     m_doHitSorting ? *(std::min_element(intrk.trackParameters()->begin(),
                                         intrk.trackParameters()->end(),
@@ -504,21 +456,15 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
                    : *intrk.trackParameters()->begin();
 
   // use external preparator class to prepare PRD set for fitter interface
+  PrepRawDataSet PRDColl = Trk::TrackFitInputPreparator::stripPrepRawData(
+    intrk, addPrdColl, false, true);
 
-  Amg::Vector3D referencePosition(m_sortingReferencePoint[0],
-                                  m_sortingReferencePoint[1],
-                                  m_sortingReferencePoint[2]);
-
-  TrackFitInputPreparator inputPreparator(referencePosition);
-  PrepRawDataSet orderedPRDColl =
-    Trk::TrackFitInputPreparator::stripPrepRawData(
-      intrk, addPrdColl, m_doHitSorting, true /* do not lose outliers! */);
-
-  return fit(
-    ctx, orderedPRDColl, *estimatedStartParameters, runOutlier, matEffects);
+  // delegate to fitting PrepRawData interface method
+  return fit(ctx, PRDColl, *estimatedStartParameters, runOutlier, matEffects);
 }
 
 /*
+ *  Interface method
  *  Refit a track adding a RIO_OnTrack set
  */
 std::unique_ptr<Trk::Track>
@@ -535,20 +481,17 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
       "Client tries to add an empty MeasurementSet to the track fit.");
     return fit(ctx, inputTrack, runOutlier, matEffects);
   }
-
   // Check that the input track has well defined parameters
   if (inputTrack.trackParameters()->empty()) {
-    ATH_MSG_FATAL("No estimation of track parameters near origin... Exiting!");
+    ATH_MSG_FATAL("No estimation of track parameters near origin!");
     return nullptr;
   }
-
   // Check that the input track has associated MeasurementBase objects
   if (inputTrack.trackStateOnSurfaces()->empty()) {
     ATH_MSG_FATAL("Attempting to fit track to empty MeasurementBase "
-                  "collection... Exiting!");
+                  "collection!");
     return nullptr;
   }
-
   // Retrieve the set of track parameters closest to the reference point
   const Trk::TrackParameters* parametersNearestReference =
     *(std::min_element(inputTrack.trackParameters()->begin(),
@@ -558,12 +501,13 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
   MeasurementSet combinedMS = m_inputPreparator->stripMeasurements(
     inputTrack, measurementSet, true, false);
 
-  // Apply GSF fit to MeasurementBase objects
+  // delegate to  measurementBase fit method
   return fit(
     ctx, combinedMS, *parametersNearestReference, runOutlier, matEffects);
 }
 
 /*
+ * Interface method
  * Combine two tracks by refitting
  */
 std::unique_ptr<Trk::Track>
@@ -573,7 +517,7 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
 {
-  // Not a great implementation but simple...  Just add the hits on track
+  // Just add the hits on tracks
   // protection against not having measurements on the input tracks
   if (!intrk1.trackStateOnSurfaces() || !intrk2.trackStateOnSurfaces() ||
       intrk1.trackStateOnSurfaces()->size() < 2) {
@@ -581,94 +525,66 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
                     "information, reject fit");
     return nullptr;
   }
-
   if (!intrk1.trackParameters() || intrk1.trackParameters()->empty()) {
     ATH_MSG_WARNING("input #1 fails to provide track parameters for "
                     "seeding the GXF, reject fit");
     return nullptr;
   }
 
-  const TrackParameters* minPar = *intrk1.trackParameters()->begin();
-  DataVector<const TrackStateOnSurface>::const_iterator itStates =
-    intrk1.trackStateOnSurfaces()->begin();
-  DataVector<const TrackStateOnSurface>::const_iterator endState =
-    intrk1.trackStateOnSurfaces()->end();
-  DataVector<const TrackStateOnSurface>::const_iterator itStates2 =
-    intrk2.trackStateOnSurfaces()->begin();
-  DataVector<const TrackStateOnSurface>::const_iterator endState2 =
-    intrk2.trackStateOnSurfaces()->end();
-
+  const TrackParameters* minPar = *(intrk1.trackParameters()->begin());
   Trk::MeasurementSet ms;
-
-  for (; itStates != endState; ++itStates) {
-    if (!((*itStates)->type(Trk::TrackStateOnSurface::Measurement) ||
-          (*itStates)->type(Trk::TrackStateOnSurface::Outlier))) {
+  for (const auto* tsos : *(intrk1.trackStateOnSurfaces())) {
+    if (!(tsos->type(Trk::TrackStateOnSurface::Measurement) ||
+          tsos->type(Trk::TrackStateOnSurface::Outlier))) {
       continue;
     }
 
-    if ((*itStates)->measurementOnTrack()->type(
+    if (tsos->measurementOnTrack()->type(
           Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
       continue;
     }
 
-    ms.push_back((*itStates)->measurementOnTrack());
+    ms.push_back(tsos->measurementOnTrack());
   }
 
-  for (; itStates2 != endState2; ++itStates2) {
+  for (const auto* tsos : *(intrk2.trackStateOnSurfaces())) {
 
-    if (!((*itStates2)->type(Trk::TrackStateOnSurface::Measurement) ||
-          (*itStates2)->type(Trk::TrackStateOnSurface::Outlier))) {
+    if (!(tsos->type(Trk::TrackStateOnSurface::Measurement) ||
+          tsos->type(Trk::TrackStateOnSurface::Outlier))) {
       continue;
     }
 
-    if ((*itStates2)
-          ->measurementOnTrack()
-          ->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
+    if (tsos->measurementOnTrack()->type(
+          Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
       continue;
     }
-
-    ms.push_back((*itStates2)->measurementOnTrack());
+    ms.push_back(tsos->measurementOnTrack());
   }
-
+  // call measurement base interface
   return fit(ctx, ms, *minPar, runOutlier, matEffects);
 }
 
-const Trk::MultiComponentStateOnSurface*
+/*
+ * Helper creating a multicomponent
+ * perigee TrackStateOnSurface
+ */
+std::unique_ptr<Trk::MultiComponentStateOnSurface>
 Trk::GaussianSumFitter::makePerigee(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
-  const Trk::SmoothedTrajectory& smoothedTrajectory,
+  const MultiTrajectory& smoothedTrajectory,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  // Propagate track to perigee
-  const Trk::PerigeeSurface perigeeSurface;
-  const Trk::TrackStateOnSurface* stateOnSurfaceNearestOrigin =
-    smoothedTrajectory.back();
+  // Start at the end of the smoothed trajectory
+  // we should be the closest to perigee/origin.
   const Trk::MultiComponentStateOnSurface*
-    multiComponentStateOnSurfaceNearestOrigin = nullptr;
+    multiComponentStateOnSurfaceNearestOrigin = smoothedTrajectory.back();
+  const Trk::MultiComponentState* multiComponentState =
+    &(multiComponentStateOnSurfaceNearestOrigin->components());
 
-  if (stateOnSurfaceNearestOrigin->variety() ==
-      Trk::TrackStateOnSurface::MultiComponent) {
-
-    multiComponentStateOnSurfaceNearestOrigin =
-      static_cast<const Trk::MultiComponentStateOnSurface*>(
-        stateOnSurfaceNearestOrigin);
-  }
-
-  const Trk::MultiComponentState* multiComponentState = nullptr;
-  if (!multiComponentStateOnSurfaceNearestOrigin) {
-    // we need to make a dummy multicomponent surface
-    Trk::ComponentParameters dummyComponent(
-      stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
-    auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
-    tmp_multiComponentState->push_back(std::move(dummyComponent));
-    multiComponentState = tmp_multiComponentState.release();
-  } else {
-    multiComponentState =
-      &(multiComponentStateOnSurfaceNearestOrigin->components());
-  }
-  // Extrapolate to perigee, taking material effects considerations into account
+  // Extrapolate to perigee
+  const Trk::PerigeeSurface perigeeSurface;
   Trk::MultiComponentState stateExtrapolatedToPerigee =
     m_extrapolator->extrapolate(ctx,
                                 extrapolatorCache,
@@ -682,48 +598,36 @@ Trk::GaussianSumFitter::makePerigee(
     return nullptr;
   }
 
-  // Clean-up & pointer reset
-  if (!multiComponentStateOnSurfaceNearestOrigin) {
-    delete multiComponentState;
-  }
-  multiComponentState = nullptr;
-
-  // Calculate the mode of the q/p distribution
-  double modeQoverP = 0;
-
   // Determine the combined state as well to be passed to the
   // MultiComponentStateOnSurface object
   std::unique_ptr<Trk::TrackParameters> combinedPerigee =
     MultiComponentStateCombiner::combine(stateExtrapolatedToPerigee, true);
 
-  // Perigee is given as an additional MultiComponentStateOnSurface
+  // Perigee is an additional MultiComponentStateOnSurface
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
     pattern(0);
   pattern.set(Trk::TrackStateOnSurface::Perigee);
 
   if (std::abs(combinedPerigee->parameters()[Trk::qOverP]) > 1e8) {
-    // Protection against 0-momentum track .. this check should NEVER be needed.
-    // actual cutoff is 0.01eV track
     ATH_MSG_ERROR(
       "makePerigee() about to return with 0 momentum!! Returning null instead");
     return nullptr;
   }
 
-  const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-    new MultiComponentStateOnSurface(nullptr,
-                                     std::move(combinedPerigee),
-                                     std::move(stateExtrapolatedToPerigee),
-                                     nullptr,
-                                     nullptr,
-                                     pattern,
-                                     modeQoverP);
-  return perigeeMultiStateOnSurface;
+  return std::make_unique<MultiComponentStateOnSurface>(
+    nullptr,
+    std::move(combinedPerigee),
+    std::move(stateExtrapolatedToPerigee),
+    nullptr,
+    nullptr,
+    pattern);
 }
 
 /*
- * Forwards fit on a set of PrepRawData
+ * Private method for
+ * Forward fit on a  set of PrepRawData
  */
-Trk::ForwardTrajectory
+Trk::GaussianSumFitter::MultiTrajectory
 Trk::GaussianSumFitter::fitPRD(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
@@ -732,32 +636,19 @@ Trk::GaussianSumFitter::fitPRD(
   const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  // Configure for forwards filtering material effects overide
-  Trk::ParticleHypothesis configuredParticleHypothesis =
-    m_overideMaterialEffectsSwitch ? m_overideParticleHypothesis
-                                   : particleHypothesis;
-
   // Extract PrepRawDataSet into new local object and check that the PrepRawData
   // is associated with a detector element
   Trk::PrepRawDataSet prepRawDataSet;
-  Trk::PrepRawDataSet::const_iterator prepRawData = inputPrepRawDataSet.begin();
-
-  for (; prepRawData != inputPrepRawDataSet.end(); ++prepRawData) {
-
-    if (!(*prepRawData)->detectorElement()) {
+  for (const auto* rawData : inputPrepRawDataSet) {
+    if (!(rawData->detectorElement())) {
       ATH_MSG_WARNING("PrepRawData has no Element link... disregard it");
     } else {
-      prepRawDataSet.push_back(*prepRawData);
+      prepRawDataSet.push_back(rawData);
     }
   }
-
-  // Create new trajectory
-  Trk::ForwardTrajectory forwardTrajectory{};
-
-  // Prepare the multi-component state. For starting guess this has single
-  // component, weight 1
+  // For starting guess a multicompoment state
+  // that has single component with weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
-
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
       .createUniqueTrackParameters(par[Trk::loc1],
@@ -772,34 +663,33 @@ Trk::GaussianSumFitter::fitPRD(
   multiComponentStateNearOrigin.push_back(
     std::move(componentParametersNearOrigin));
 
-  // Loop over all PrepRawData measurements
-  prepRawData = prepRawDataSet.begin();
+  // Create new trajectory
+  MultiTrajectory forwardTrajectory{};
   forwardTrajectory.reserve(prepRawDataSet.size());
-  for (; prepRawData != prepRawDataSet.end(); ++prepRawData) {
-
-    // Every valid step the ForwardTrajectory object passed to the
-    // stepForwardFit method is updated
+  for (const auto* prepRawData : prepRawDataSet) {
+    // Every step the ForwardTrajectory is updated
     bool stepIsValid = stepForwardFit(
       ctx,
       extrapolatorCache,
       forwardTrajectory,
-      *prepRawData,
+      prepRawData,
       nullptr,
-      (*prepRawData)->detectorElement()->surface((*prepRawData)->identify()),
+      prepRawData->detectorElement()->surface(prepRawData->identify()),
       multiComponentStateNearOrigin,
-      configuredParticleHypothesis);
+      particleHypothesis);
 
     if (!stepIsValid) {
-      return Trk::ForwardTrajectory{};
+      return MultiTrajectory{};
     }
   }
   return forwardTrajectory;
 }
 
 /*
- * Forwards fit on a set of Measurements
+ * Private method for
+ * forward fit on a set of Measurements
  */
-Trk::ForwardTrajectory
+Trk::GaussianSumFitter::MultiTrajectory
 Trk::GaussianSumFitter::fitMeasurements(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
@@ -809,20 +699,12 @@ Trk::GaussianSumFitter::fitMeasurements(
 {
 
   if (inputMeasurementSet.empty()) {
-    ATH_MSG_ERROR("Input MeasurementSet is empty... Exiting!");
-    return Trk::ForwardTrajectory{};
+    ATH_MSG_ERROR("fitMeasurements: Input MeasurementSet is empty!");
+    return MultiTrajectory{};
   }
-
-  // Configure for forwards filtering material effects overide
-  Trk::ParticleHypothesis configuredParticleHypothesis =
-    m_overideMaterialEffectsSwitch ? m_overideParticleHypothesis
-                                   : particleHypothesis;
-
-  Trk::ForwardTrajectory forwardTrajectory{};
-  // Prepare the multi-component state. For starting guess this has single
-  // component, weight 1
+  // For starting guess a multicompoment state
+  // that has single component with weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
-
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface()
       .createUniqueTrackParameters(par[Trk::loc1],
@@ -832,40 +714,39 @@ Trk::GaussianSumFitter::fitMeasurements(
                                    par[Trk::qOverP],
                                    std::nullopt /*no errors*/),
     1.);
-
   Trk::MultiComponentState multiComponentStateNearOrigin{};
   multiComponentStateNearOrigin.push_back(
     std::move(componentParametersNearOrigin));
 
-  // Loop over all MeasurementBase objects in set
-  Trk::MeasurementSet::const_iterator measurement = inputMeasurementSet.begin();
+  MultiTrajectory forwardTrajectory{};
   forwardTrajectory.reserve(inputMeasurementSet.size());
-  for (; measurement != inputMeasurementSet.end(); ++measurement) {
-
+  for (const auto* measurement : inputMeasurementSet) {
+    // Every step the ForwardTrajectory is updated
     bool stepIsValid = stepForwardFit(ctx,
                                       extrapolatorCache,
                                       forwardTrajectory,
                                       nullptr,
-                                      *measurement,
-                                      (*measurement)->associatedSurface(),
+                                      measurement,
+                                      measurement->associatedSurface(),
                                       multiComponentStateNearOrigin,
-                                      configuredParticleHypothesis);
+                                      particleHypothesis);
 
     if (!stepIsValid) {
-      return Trk::ForwardTrajectory{};
+      return MultiTrajectory{};
     }
   }
   return forwardTrajectory;
 }
 
 /*
- *   StepForwardFit() private method
+ * Actual
+ * Implementation method for StepForwardFit
  */
 bool
 Trk::GaussianSumFitter::stepForwardFit(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
-  ForwardTrajectory& forwardTrajectory,
+  MultiTrajectory& forwardTrajectory,
   const Trk::PrepRawData* originalPrepRawData,
   const Trk::MeasurementBase* originalMeasurement,
   const Trk::Surface& surface,
@@ -874,18 +755,18 @@ Trk::GaussianSumFitter::stepForwardFit(
 {
   // Protect against undefined Measurement or PrepRawData
   if (!originalPrepRawData && !originalMeasurement) {
-    ATH_MSG_WARNING("No measurement base or PrepRawData  passed to "
-                    "StepForwardFit... Exiting!");
+    ATH_MSG_WARNING("No measurement base or PrepRawData passed to "
+                    "StepForwardFit!");
     return false;
   }
 
   if (!originalMeasurement && m_refitOnMeasurementBase) {
-    ATH_MSG_WARNING(
-      "No measurement base information passed to StepForwardFit... Exiting!");
+    ATH_MSG_WARNING("No measurement base information passed to StepForwardFit");
     return false;
   }
-
-  // Extrapolate multi-component state to the next measurement surface
+  // Propagate the multi-component state to the next measurement surface
+  // accounting for the material effects. This gives us
+  // the prediction at that surface.
   Trk::MultiComponentState extrapolatedState =
     m_extrapolator->extrapolate(ctx,
                                 extrapolatorCache,
@@ -897,46 +778,44 @@ Trk::GaussianSumFitter::stepForwardFit(
   if (extrapolatedState.empty()) {
     return false;
   }
-  // =======================
-  // Measurement Preparation
-  // =======================
-  std::unique_ptr<Trk::TrackParameters> combinedState = nullptr;
+
+  // we need to account for either measurement base input
+  // or PrepRawData input.
   std::unique_ptr<const Trk::MeasurementBase> measurement = nullptr;
-  if (originalMeasurement) {
-    // Clone original MeasurementBase object (refit with no new calibration)
+  if (originalMeasurement) { // clone original MeasurementBase object
     measurement.reset(originalMeasurement->clone());
   } else {
-    combinedState = MultiComponentStateCombiner::combine(extrapolatedState);
+    std::unique_ptr<Trk::TrackParameters> combinedState =
+      MultiComponentStateCombiner::combine(extrapolatedState);
     if (!combinedState) {
       ATH_MSG_WARNING("State combination failed... exiting");
       return false;
     }
-    // Create a new MeasurementBase object from PrepRawData using new
-    // calibration
+    // Create a new MeasurementBase object from PrepRawData
     measurement.reset(
       m_rioOnTrackCreator->correct(*originalPrepRawData, *combinedState));
     combinedState.reset();
   }
-
-  // Perform measurement update
   if (!measurement) {
-    ATH_MSG_WARNING("Cannot use MeasurementBase for measurement update, it is "
-                    "not defined... Exiting!");
+    ATH_MSG_WARNING("stepForwardFit no measurement to update with");
     return false;
   }
 
+  // Perform measurement update
   auto fitQuality = std::make_unique<Trk::FitQualityOnSurface>();
-  // Here we need to clone as the extrapolated state can be used
-  // afterwards
+  // We need to keep the extrapolatedState so clone
   updatedState = Trk::GsfMeasurementUpdator::update(
     MultiComponentStateHelpers::clone(extrapolatedState),
     *measurement,
     *fitQuality);
+
   if (updatedState.empty()) {
     return false;
   }
 
-  // Reject hits with excessive Chi2
+  // Hits with excessive chi2 are outliers.
+  // We ingore the update, reset back to the extrapolated
+  // state before the update
   if (fitQuality->chiSquared() >
       m_cutChiSquaredPerNumberDOF * fitQuality->numberDoF()) {
     fitQuality = std::make_unique<FitQuality>(1, 1);
@@ -950,9 +829,9 @@ Trk::GaussianSumFitter::stepForwardFit(
         std::move(fitQuality),
         nullptr,
         type);
-
     forwardTrajectory.push_back(multiComponentStateOnSurface);
-    // Clean up objects associated with removed measurement
+    // reset the updated state to the extrapolated state
+    // before the measurement update
     updatedState = std::move(extrapolatedState);
   } else {
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
@@ -964,38 +843,30 @@ Trk::GaussianSumFitter::stepForwardFit(
   return true;
 }
 
-Trk::SmoothedTrajectory
+/*
+ * Actual
+ * Implementation of the smoothing of the trajectory.
+ */
+Trk::GaussianSumFitter::MultiTrajectory
 Trk::GaussianSumFitter::fit(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
-  const ForwardTrajectory& forwardTrajectory,
+  const MultiTrajectory& forwardTrajectory,
   const ParticleHypothesis particleHypothesis,
   const Trk::CaloCluster_OnTrack* ccot) const
 {
-  // Check that the forward trajectory is filled
   if (forwardTrajectory.empty()) {
     ATH_MSG_ERROR(
       "Attempting to smooth an empty forward trajectory... Exiting!");
-    return Trk::SmoothedTrajectory();
+    return MultiTrajectory();
   }
-  /* Instantiate the returned trajectoy. This is a vector of TrackStateOnSurface
-     object In the GSF Smoother these TrackStateOnSurface objects are the base
-     class for the MultiComponentStateOnSurface. This memory should be freed by
-     the fitter / smoother master method */
 
-  /*
-   * In general for things we want to control their lifetime
-   * we use unique_ptr
-   * For things where we will not really own, but we need to point at
-   * we opt for const ptr*
-   */
-  auto smoothedTrajectory = Trk::SmoothedTrajectory();
-  auto smootherPredictionMultiState = Trk::MultiComponentState();
-
-  // Loop over TrackStateOnSurface objects in the forward
-  // trajectory to find the first measurement (i.e. not an outlier)
+  auto smoothedTrajectory = MultiTrajectory();
   smoothedTrajectory.reserve(forwardTrajectory.size());
-  Trk::ForwardTrajectory::const_reverse_iterator trackStateOnSurface =
+  // For the smoother we start from the end and we go
+  // to begin. We need to find the the first track
+  // state on surface  in this reverse direction
+  MultiTrajectory::const_reverse_iterator trackStateOnSurface =
     forwardTrajectory.rbegin();
   for (; trackStateOnSurface != forwardTrajectory.rend();
        ++trackStateOnSurface) {
@@ -1005,70 +876,36 @@ Trk::GaussianSumFitter::fit(
       break;
     }
   }
-  // trackStateOnSurface is now the first measurement on the track
-
-  /*
-   * Get the initial smoother prediction. It is the last prediction in the
-   * forwards trajectory
-   */
-  const Trk::TrackStateOnSurface* smootherPredictionStateOnSurface =
+  // This is the 1st track state on surface for a measurement
+  // in the reverse direction. Our starting point for the smoother
+  const MultiComponentStateOnSurface* smootherPredictionMultiStateOnSurface =
     *trackStateOnSurface;
-  // We can have single or Multi components here, so we choose what to clone
-  const Trk::MultiComponentStateOnSurface*
-    smootherPredictionMultiStateOnSurface = nullptr;
-  // Check if we already have a MultiComponent state
-  if (smootherPredictionStateOnSurface->variety() ==
-      Trk::TrackStateOnSurface::MultiComponent) {
-    smootherPredictionMultiStateOnSurface =
-      static_cast<const Trk::MultiComponentStateOnSurface*>(
-        smootherPredictionStateOnSurface);
-  }
-  if (!smootherPredictionMultiStateOnSurface) {
-    auto dummyMultiState = Trk::MultiComponentState();
-    Trk::ComponentParameters dummyParams(
-      smootherPredictionStateOnSurface->trackParameters()->clone(), 1.0);
-    dummyMultiState.push_back(std::move(dummyParams));
-    smootherPredictionMultiState = std::move(dummyMultiState);
-  } else {
-    smootherPredictionMultiState = MultiComponentStateHelpers::clone(
+  MultiComponentState smootherPredictionMultiState =
+    MultiComponentStateHelpers::clone(
       (smootherPredictionMultiStateOnSurface->components()));
-  }
-  /*
-   * Perform the measurement update
-   * The first smoother prediction state is equivalent to the last forwards
-   * prediction updated with the last measurement Retrieve the first
-   * MeasurementBase object for the smoother
-   */
+
+  // Perform the  update with the measurement and create the
+  // the 1st updated/smoothed entry in the trajectory
   Trk::FitQualityOnSurface fitQuality;
-  /*
-   * The following pointer if not null will be owned by the
-   * MultiComponentStateOnSurface* updatedFirstStateOnSurface
-   */
   std::unique_ptr<Trk::MeasurementBase> firstSmootherMeasurementOnTrack =
-    smootherPredictionStateOnSurface->measurementOnTrack()->uniqueClone();
+    smootherPredictionMultiStateOnSurface->measurementOnTrack()->uniqueClone();
   if (!firstSmootherMeasurementOnTrack) {
     ATH_MSG_WARNING(
       "Initial state on surface in smoother does not have an associated "
-      "MeasurementBase object... returning 0");
-    return Trk::SmoothedTrajectory();
+      "MeasurementBase object");
+    return MultiTrajectory();
   }
   Trk::MultiComponentState firstSmoothedState =
     Trk::GsfMeasurementUpdator::update(std::move(smootherPredictionMultiState),
                                        *firstSmootherMeasurementOnTrack,
                                        fitQuality);
-
   if (firstSmoothedState.empty()) {
-    return Trk::SmoothedTrajectory();
+    return MultiTrajectory();
   }
-
   std::unique_ptr<Trk::TrackParameters> combinedFirstSmoothedState =
     MultiComponentStateCombiner::combine(firstSmoothedState, true);
 
-  /*
-   * Create updatedFirstStateOnSurface , owned by the tragectory
-   * We clone do not just move firstSmoothedState as used
-   * afterwards
-   */
+  // The 1st updated/smoothed state owned  by the trajectory
   const Trk::MultiComponentStateOnSurface* updatedFirstStateOnSurface =
     new MultiComponentStateOnSurface(
       std::move(firstSmootherMeasurementOnTrack),
@@ -1080,50 +917,38 @@ Trk::GaussianSumFitter::fit(
   if (!MultiComponentStateHelpers::isMeasured(firstSmoothedState)) {
     ATH_MSG_WARNING(
       "Updated state is not measured. Rejecting smoothed state... returning 0");
-    return Trk::SmoothedTrajectory();
+    return MultiTrajectory();
   }
-  /*
-   * Generate prediction by scaling the covariance of all components in the
-   * initial state
-   * Generate a large prediction for extrapolation. This way there is no
-   * dependance on error of prediction NB local Y and theta are not blown out
-   * too much to help in the TRT
-   */
+  // Generate prediction by scaling the covariance of all components in the
+  // first smoothed state and perform a measurement update to it.
+  // This way there is no
+  // dependance on error of prediction NB local Y and theta are not blown out
+  // too much to help in the TRT.
   Trk::MultiComponentState smoothedStateWithScaledError =
     MultiComponentStateHelpers::WithScaledError(
       std::move(firstSmoothedState), 15., 5., 15., 5., 15.);
-
-  // Perform a measurement update on this new state before loop
   Trk::MultiComponentState updatedState = Trk::GsfMeasurementUpdator::update(
     std::move(smoothedStateWithScaledError),
     *(updatedFirstStateOnSurface->measurementOnTrack()));
-
   if (updatedState.empty()) {
-    ATH_MSG_WARNING(
-      "Smoother prediction could not be determined... returning 0");
-    return Trk::SmoothedTrajectory();
+    ATH_MSG_WARNING("Smoother prediction could not be determined");
+    return MultiTrajectory();
   }
 
-  // Clear rioOnTrack pointer
-  firstSmootherMeasurementOnTrack = nullptr;
-
-  // Loop over all remaining TrackStateOnSurface objects in the forward
-  // trajectory
+  // continue the reverse looping of the TrackStateOnSurfaces
+  // in the forward trajectory
   ++trackStateOnSurface;
 
-  Trk::ForwardTrajectory::const_reverse_iterator lasttrackStateOnSurface =
-    forwardTrajectory.rend() - 1;
-  // TSOS that the cluster measuremenet will added on after .. can not be the
-  // last as the impact parameters will be compromised
-  Trk::ForwardTrajectory::const_reverse_iterator secondLastTrackStateOnSurface =
-    forwardTrajectory.rend() - 2;
+  // The is the last one we will see
+  auto lasttrackStateOnSurface = forwardTrajectory.rend() - 1;
+  // TSOS that the cluster measuremenet will added on after
+  // can not be the last
+  auto secondLastTrackStateOnSurface = forwardTrajectory.rend() - 2;
 
   // loopUpdatedState is a plain not owning ptr,
-  // We point to the starting point
   // As the loop progress we fill the trajectory.
-  // At that point  we pick the last state to be added and
-  // update what we point to with it.
-  // Then continue to the next iteration
+  // At that point we pick the last state  added and
+  // point to  it. Then continue to the next iteration
   Trk::MultiComponentState* loopUpdatedState = &updatedState;
   for (; trackStateOnSurface != forwardTrajectory.rend();
        ++trackStateOnSurface) {
@@ -1136,11 +961,10 @@ Trk::GaussianSumFitter::fit(
       continue;
     }
     // Clone the MeasurementBase object
-    auto measurement =
-      std::unique_ptr<const Trk::MeasurementBase>(measurement_in->clone());
-    /* Extrapolate the current multi-component state to the
-     next measurement surface. For the smoother the direction of propagation
-     is opposite to the direction of momentum */
+    auto measurement = measurement_in->uniqueClone();
+    // Create prediction for the next measurement surface.
+    // For the smoother the direction of propagation
+    // is opposite to the direction of momentum
     Trk::MultiComponentState extrapolatedState =
       m_extrapolator->extrapolate(ctx,
                                   extrapolatorCache,
@@ -1151,22 +975,18 @@ Trk::GaussianSumFitter::fit(
                                   particleHypothesis);
 
     if (extrapolatedState.empty()) {
-      return Trk::SmoothedTrajectory();
+      return MultiTrajectory();
     }
 
-    // In the following the updated state is reset
-    // Original measurement was flagged as  an outlier
+    // Handle the case where Original measurement was flagged as an outlier
     if (!(*trackStateOnSurface)->type(TrackStateOnSurface::Measurement)) {
-      (*loopUpdatedState) = std::move(extrapolatedState);
-
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(
         0);
       type.set(TrackStateOnSurface::Outlier);
-
       Trk::MultiComponentStateOnSurface* updatedStateOnSurface =
         new Trk::MultiComponentStateOnSurface(
           std::move(measurement),
-          std::move(*loopUpdatedState),
+          std::move(extrapolatedState),
           std::make_unique<FitQuality>(1, 1),
           nullptr,
           type);
@@ -1175,73 +995,51 @@ Trk::GaussianSumFitter::fit(
       continue;
     }
 
+    // Update with the measurement
     (*loopUpdatedState) = Trk::GsfMeasurementUpdator::update(
       std::move(extrapolatedState), *measurement, fitQuality);
     if (loopUpdatedState->empty()) {
       ATH_MSG_WARNING(
         "Could not update the multi-component state... rejecting track!");
-      return Trk::SmoothedTrajectory();
+      return MultiTrajectory();
     }
 
-    /* =============================================================
-       Optional combine smoother state with fitter state
-       ============================================================= */
+    // Optional combine smoother state with fitter state
     if (m_combineWithFitter) {
-      const Trk::MultiComponentState* forwardsMultiState = nullptr;
-      std::unique_ptr<Trk::MultiComponentState> forwardsMultiStateOwn;
-
+      // compine the current tsos (from the forward) with
+      // the updated from the smoother
       const Trk::MultiComponentStateOnSurface* forwardsMultiStateOnSurface =
-        nullptr;
-      // Check if we already have a MultiComponent state on surface
-      if ((*trackStateOnSurface)->variety() ==
-          Trk::TrackStateOnSurface::MultiComponent) {
-        forwardsMultiStateOnSurface =
-          static_cast<const Trk::MultiComponentStateOnSurface*>(
-            *trackStateOnSurface);
-      }
-
-      if (!forwardsMultiStateOnSurface) {
-        // Create new multiComponentState from single state
-        Trk::ComponentParameters componentParameters(
-          (*trackStateOnSurface)->trackParameters()->clone(), 1.);
-        forwardsMultiStateOwn = std::make_unique<Trk::MultiComponentState>();
-        forwardsMultiStateOwn->push_back(std::move(componentParameters));
-        forwardsMultiState = forwardsMultiStateOwn.get();
-      } else {
-        forwardsMultiState = &(forwardsMultiStateOnSurface->components());
-      }
+        *trackStateOnSurface;
+      const Trk::MultiComponentState* forwardsMultiState =
+        &(forwardsMultiStateOnSurface->components());
       Trk::MultiComponentState combinedState2 =
         combine((*forwardsMultiState), (*loopUpdatedState));
 
       if (combinedState2.empty()) {
         ATH_MSG_WARNING("Could not combine state from forward fit with "
-                        "smoother state... rejecting track!");
-        return Trk::SmoothedTrajectory();
+                        "smoother state");
+        return MultiTrajectory();
       }
+
       auto combinedFitQuality = std::make_unique<Trk::FitQualityOnSurface>(
         Trk::GsfMeasurementUpdator::fitQuality(combinedState2, *measurement));
-      // In the case of combination with forwards state - push back the combined
-      // state
+      // Push back the combined
       Trk::MultiComponentStateOnSurface* combinedStateOnSurface =
         new MultiComponentStateOnSurface(std::move(measurement),
                                          std::move(combinedState2),
                                          std::move(combinedFitQuality));
-      //
-      // For the next iteration start from last added
-      //
+      // For the next iteration start from the combined
       loopUpdatedState = &(combinedStateOnSurface->components());
       smoothedTrajectory.push_back(combinedStateOnSurface);
-    } // m_combineWithFitter false
-    else {
-      // If combination with forwards state is not done - push back updated
-      // state
+    } else { // If combination with forwards state is not done
       Trk::MultiComponentStateOnSurface* updatedStateOnSurface = nullptr;
 
+      // If is the last we want also to do the combine
+      // the state components in a single TrackParameter
       if (trackStateOnSurface == lasttrackStateOnSurface) {
         std::unique_ptr<Trk::TrackParameters> combinedLastState =
           MultiComponentStateCombiner::combine((*loopUpdatedState), true);
 
-        // Here we can move the updated state we created above
         if (combinedLastState) {
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
             std::move(measurement),
@@ -1254,20 +1052,17 @@ Trk::GaussianSumFitter::fit(
             std::move(*loopUpdatedState),
             (std::make_unique<Trk::FitQualityOnSurface>(fitQuality)));
         }
-      } else {
+      } else { // not the last state
         updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
           std::move(measurement),
           std::move(*loopUpdatedState),
           (std::make_unique<Trk::FitQualityOnSurface>(fitQuality)));
       }
-      //
       // For the next iteration start from last added
-      //
       loopUpdatedState = &(updatedStateOnSurface->components());
       smoothedTrajectory.push_back(updatedStateOnSurface);
-      /* =============================================================
-         Add measurement from calo if  it is present
-         ============================================================= */
+
+      // Handle adding measurement from calo if it is present
       if (ccot && trackStateOnSurface == secondLastTrackStateOnSurface) {
         Trk::MultiComponentState ccotState =
           addCCOT(ctx, updatedStateOnSurface, ccot, smoothedTrajectory);
@@ -1281,6 +1076,10 @@ Trk::GaussianSumFitter::fit(
   return smoothedTrajectory;
 }
 
+/*
+ * Helper to combine forward with
+ * smoother MultiComponentStates
+ */
 Trk::MultiComponentState
 Trk::GaussianSumFitter::combine(
   const Trk::MultiComponentState& forwardsMultiState,
@@ -1289,26 +1088,20 @@ Trk::GaussianSumFitter::combine(
 
   std::unique_ptr<Trk::MultiComponentState> combinedMultiState =
     std::make_unique<MultiComponentState>();
-  /* ================================================
-     Loop over all components in forwards multi-state
-     ================================================ */
 
+  // Loop over all components in forwards multi-state
   for (const auto& forwardsComponent : forwardsMultiState) {
     // Need to check that all components have associated weight matricies
     const AmgSymMatrix(5)* forwardMeasuredCov =
       forwardsComponent.first->covariance();
-
-    /* ====================================================
-       Loop over all components in the smoother multi-state
-       ==================================================== */
-
+    // Loop over all components in the smoother multi-state
     for (const auto& smootherComponent : smootherMultiState) {
       // Need to check that all components have associated weight matricies
       const AmgSymMatrix(5)* smootherMeasuredCov =
         smootherComponent.first->covariance();
       if (!smootherMeasuredCov && !forwardMeasuredCov) {
         ATH_MSG_WARNING("Cannot combine two components both without associated "
-                        "errors... returning 0");
+                        "errors");
         return {};
       }
 
@@ -1350,8 +1143,6 @@ Trk::GaussianSumFitter::combine(
                                        newParameters[Trk::theta],
                                        newParameters[Trk::qOverP],
                                        std::move(covarianceOfNewParameters));
-      // Covariance matrix object now owned by TrackParameters object. Reset
-      // pointer to prevent delete
       const AmgSymMatrix(5) invertedSummedCovariance =
         summedCovariance.inverse();
       // Determine the scaling factor for the new weighting. Determined from the
@@ -1366,47 +1157,40 @@ Trk::GaussianSumFitter::combine(
       combinedMultiState->push_back(std::move(combinedComponent));
     }
   }
-
   // Component reduction on the combined state
   Trk::MultiComponentState mergedState =
     QuickCloseComponentsMultiStateMerger::merge(std::move(*combinedMultiState),
                                                 m_maximumNumberOfComponents);
-
   // Before return the weights of the states need to be renormalised to one.
   MultiComponentStateHelpers::renormaliseState(mergedState);
 
   return mergedState;
 }
 
+/*
+ * Account for additional measurement from
+ * the calorimeter
+ */
 Trk::MultiComponentState
 Trk::GaussianSumFitter::addCCOT(
   const EventContext& ctx,
-  const Trk::TrackStateOnSurface* currentState,
+  const Trk::MultiComponentStateOnSurface* currentState,
   const Trk::CaloCluster_OnTrack* ccot,
-  Trk::SmoothedTrajectory& smoothedTrajectory) const
+  MultiTrajectory& smoothedTrajectory) const
 {
 
-  const Trk::MultiComponentStateOnSurface* currentMultiStateOS = nullptr;
-
-  // Check if we already have a MultiComponent state
-  if (currentState->variety() == Trk::TrackStateOnSurface::MultiComponent) {
-    currentMultiStateOS =
-      static_cast<const Trk::MultiComponentStateOnSurface*>(currentState);
-  }
-
+  const Trk::MultiComponentStateOnSurface* currentMultiStateOS = currentState;
   if (!currentMultiStateOS || !ccot) {
     return {};
   }
-
   const auto& currentMultiComponentState = currentMultiStateOS->components();
   const Trk::MeasurementBase* measurement = currentState->measurementOnTrack();
   const Trk::Surface* currentSurface(nullptr);
-
   if (measurement) {
     currentSurface = &(measurement->associatedSurface());
   }
   Trk::MultiComponentState extrapolatedState{};
-  // Extrapolate to the Calo
+  // Extrapolate to the Calo to get prediction
   if (currentSurface) {
     extrapolatedState =
       m_extrapolator->extrapolateDirectly(ctx,
@@ -1416,16 +1200,13 @@ Trk::GaussianSumFitter::addCCOT(
                                           false,
                                           Trk::nonInteracting);
   }
-
-  // Extrapolation Failed continue
   if (extrapolatedState.empty()) {
     return {};
   }
-  // Update newly extrapolated state with MeasurementBase measurement
+  // Update newly extrapolated state with measurement
   Trk::FitQualityOnSurface fitQuality;
   Trk::MultiComponentState updatedState = Trk::GsfMeasurementUpdator::update(
     std::move(extrapolatedState), *ccot, fitQuality);
-
   if (updatedState.empty()) {
     return {};
   }
@@ -1437,21 +1218,21 @@ Trk::GaussianSumFitter::addCCOT(
                                                           Trk::oppositeMomentum,
                                                           false,
                                                           Trk::nonInteracting);
+  if (extrapolatedState.empty()) {
+    return {};
+  }
 
-  // Build TSOS with CCOT at the surface of the surface of calo
+  // Build TSOS with CCOT at the surface of calo
   // updated state not used after this point
   auto updatedMCSOS = std::make_unique<Trk::MultiComponentStateOnSurface>(
     std::unique_ptr<Trk::CaloCluster_OnTrack>(ccot->clone()),
     std::move(updatedState),
     (std::make_unique<Trk::FitQualityOnSurface>(fitQuality)));
 
-  if (extrapolatedState.empty()) {
-    return {};
-  }
-
   // Now build a dummy measurement ....  we dont want to a double count the
   // measurement but we need to extrapolate back to origin to allow for the
-  // perigee parameters to be estimated Note this only important if the track is
+  // perigee parameters to be estimated.
+  // Note this only important if the track is
   // refit otherwise it has no influence.
   AmgSymMatrix(5) covMatrix;
   covMatrix.setZero();
@@ -1465,7 +1246,7 @@ Trk::GaussianSumFitter::addCCOT(
   auto pseudoMeasurement = std::make_unique<Trk::PseudoMeasurementOnTrack>(
     locpars, covMatrix, *currentSurface);
 
-  //  Combine the state using and find the mode of the distribution
+  //  Combine the state  and find the mode of the distribution
   std::unique_ptr<Trk::TrackParameters> combinedState =
     MultiComponentStateCombiner::combine(extrapolatedState, true);
   auto combinedFitQuality = std::make_unique<Trk::FitQualityOnSurface>(

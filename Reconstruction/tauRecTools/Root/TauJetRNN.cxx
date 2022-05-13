@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNN.h"
@@ -82,8 +82,8 @@ TauJetRNN::TauJetRNN(const std::string &filename, const Config &config)
         throw;
     }
 
-    // Load the default variable calculator
-    m_var_calc = TauJetRNNUtils::get_default_calculator();
+    // Load the variable calculator
+    m_var_calc = TauJetRNNUtils::get_calculator(m_scalar_inputs, m_track_inputs, m_cluster_inputs);
 }
 
 TauJetRNN::~TauJetRNN() {}

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -19,17 +19,13 @@ def StandaloneMuonOutputCfg(flags):
     result.addPublicTool(cnvTool)
 
     aod_items=[]
-    # Segments 
-    aod_items+=[ "xAOD::MuonSegmentContainer#MuonSegments" ]
-    aod_items+=[ "xAOD::MuonSegmentAuxContainer#MuonSegmentsAux." ]
-
     aod_items+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
     aod_items+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
     if flags.Muon.runCommissioningChain:
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
-    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+    if flags.Detector.EnableMM or flags.Detector.EnablesTGC:
          aod_items+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
          aod_items+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
 
@@ -69,7 +65,8 @@ def StandaloneMuonOutputCfg(flags):
         aod_items += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_RDO_MeasurementsAux."] 
 
     # ESD list includes all AOD items
-    esd_items = aod_items
+    esd_items = []
+    esd_items += aod_items
 
     #PRDs
     if flags.Detector.EnableMM: esd_items+=["Muon::MMPrepDataContainer#MM_Measurements"]
@@ -88,8 +85,7 @@ def StandaloneMuonOutputCfg(flags):
     esd_items+=["Muon::RpcCoinDataContainer#RPC_triggerHits"]
     esd_items+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
-    # Segments
-    esd_items+=["Trk::SegmentCollection#TrackMuonSegments"]
+    # Segments   
     esd_items+=["Trk::SegmentCollection#NCB_TrackMuonSegments"]
 
     # Tracks
@@ -132,11 +128,12 @@ def MuonReconstructionCfg(flags):
     from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg, MuonTrackSummaryToolCfg
     from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
 
     # Many components need these services, so setup once here.
     result=MuonIdHelperSvcCfg(flags)
-    result.addService( CompFactory.Muon.MuonEDMHelperSvc(name="MuonEDMHelperSvc") )
-
+    result.merge(MuonEDMHelperSvcCfg(flags))
+  
     # Now setup reconstruction steps
     result.merge(MuonPrepDataConvCfg(flags))
     result.merge( MuonSegmentFindingCfg(flags))

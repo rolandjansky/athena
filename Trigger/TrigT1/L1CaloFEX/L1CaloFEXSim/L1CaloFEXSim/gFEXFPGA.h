@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXFPGA - Defines FPGA tools
@@ -15,7 +15,6 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "L1CaloFEXToolInterfaces/IgFEXFPGA.h"
 #include "L1CaloFEXSim/gTowerContainer.h"
-#include "L1CaloFEXToolInterfaces/IgFEXJetAlgo.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 
 #include <vector>

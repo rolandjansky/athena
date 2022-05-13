@@ -16,6 +16,7 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "MuonAlignmentData/CorrContainer.h"
+#include "MuonAlignmentData/NswAsBuiltDbData.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/MmIdHelper.h"
@@ -187,11 +188,14 @@ namespace MuonGM {
         inline int  mdtDeformationFlag() const { return m_applyMdtDeformations; }
         void setMdtAsBuiltParamsFlag(int flag) { m_applyMdtAsBuiltParams = flag; }
         inline int  mdtAsBuiltParamsFlag() const { return m_applyMdtAsBuiltParams; }
+        void setNswAsBuiltParamsFlag(int flag) { m_applyNswAsBuiltParams = flag; }
+        inline int  nswAsBuiltParamsFlag() const { return m_applyNswAsBuiltParams; }
         void setControlAlinesFlag(int flag) { m_controlAlines = flag; }
         inline int  controlAlinesFlag() const { return m_controlAlines; }
         void setApplyCscIntAlignment(bool x) { m_useCscIntAlign = x; }
         inline bool applyMdtDeformations() const { return (bool)m_applyMdtDeformations; }
         inline bool applyMdtAsBuiltParams() const { return (bool)m_applyMdtAsBuiltParams; }
+        inline bool applyNswAsBuiltParams() const { return (bool)m_applyNswAsBuiltParams; }
         inline bool applyCscIntAlignment() const { return m_useCscIntAlign; }
         void setCscIlinesFlag(int flag) { m_controlCscIlines = flag; }
         inline int  CscIlinesFlag() const { return m_controlCscIlines; }
@@ -299,17 +303,15 @@ namespace MuonGM {
         inline ciMdtAsBuiltMap MdtAsBuiltMapEnd() const;
         StatusCode updateAlignment(const ALineMapContainer& a, bool isData = true);
         StatusCode updateDeformations(const BLineMapContainer& a, bool isData = true);
-        StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer& a);
+        StatusCode updateMdtAsBuiltParams(const MdtAsBuiltMapContainer& a);
         StatusCode initCSCInternalAlignmentMap();
         StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer& cscIntAline);
 
         void initABlineContainers();
-        void setMMAsBuiltCalculator(const std::string& jsonPath);
-        void setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; }  // temporary way for passing MM passivation
+        void setMMAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData);
 #ifndef SIMULATIONBASE
         const NswAsBuilt::StripCalculator* getMMAsBuiltCalculator() const { return m_MMAsBuiltCalculator.get(); }
 #endif
-        double getMMPassivationCorrection() const { return m_MM_passivationCorr; }  // temporary way for passing MM passivation
 
         // get Mdt AsBuilt parameters for chamber specified by Identifier
         const MdtAsBuiltPar* getMdtAsBuiltParams(const Identifier& id) const;
@@ -348,6 +350,7 @@ namespace MuonGM {
         int m_controlAlines{111111};
         int m_applyMdtDeformations{0};
         int m_applyMdtAsBuiltParams{0};
+        int m_applyNswAsBuiltParams{0};
         bool m_useCscIntAlign{false};
         int m_controlCscIlines{111111};
         bool m_useCscIlinesFromGM{true};

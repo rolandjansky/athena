@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include <string>
 
@@ -38,9 +39,13 @@ private:
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_trkCountsKey{this, "TrkCountsKey", "HLT_TrackCount", "Name of Online track counts info object produced by the HLT track counting FEX algorithm"};
   SG::ReadHandleKey<xAOD::TrigT2MbtsBitsContainer> m_TrigT2MbtsBitsContainerKey{this, "MBTSbitsKey", "HLT_MbtsBitsContainer", "Name of MbtsBitsContainer"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_offlineTrkKey{this, "OfflineTrkKey", "InDetTrackParticles", "Name of Offline track counts info object produced by the HLT track counting FEX algorithm"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "Vertex", "PrimaryVertices", "Offline vertices key"};
 
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool{this, "TrackSelectionTool", "InDetTrackSelectionTool", "Tool for selecting tracks"};
-  Gaudi::Property<float> m_minPt{ this, "minPt", 200.0, "Consider offline tracks only if above this threshold (in MeV)"};
+  Gaudi::Property<float> m_minPt{ this, "minPt", 100.0, "Consider offline tracks only if above this threshold (in MeV)"};
+  Gaudi::Property<float> m_z0{ this, "z0", 3.0, "Longitudinal DCA"};
+  Gaudi::Property<float> m_d0{ this, "d0", 3.0, "Transverse DCA"};
+
   
 };
 

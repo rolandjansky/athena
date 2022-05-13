@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/RDOindex.h"
@@ -8,19 +8,26 @@
 
 #include "MuonCablingTools/RPCdecoder.h"
 
-RDOindex::RDOindex(unsigned int PAD, unsigned int code) : m_PADid{static_cast<unsigned short int>(PAD)}, m_lvl1_code{code} {
+RDOindex::RDOindex(unsigned int PAD, unsigned int code,
+                   const RpcIdHelper& helper)
+  : m_PADid{static_cast<unsigned short int>(PAD)}, m_lvl1_code{code},
+    m_rpcIdHelper (helper)
+{
     set_indexes();
 }
 
-RDOindex::RDOindex(unsigned int PAD, unsigned int code, const std::string& Name, int sEta, int sPhi, int dR, int dZ, int dP) :
+RDOindex::RDOindex(unsigned int PAD, unsigned int code, const std::string& Name, int sEta, int sPhi, int dR, int dZ, int dP,
+                   const RpcIdHelper& helper) :
     m_PADid(static_cast<unsigned short int>(PAD)),
     m_lvl1_code{code},
+    m_stationName {helper.stationNameIndex(Name)},
     m_stationEta{sEta},
     m_stationPhi{sPhi},
     m_doubletR{dR},
     m_doubletZ{dZ},
-    m_doubletPhi{dP} {
-    if (s_rpcIdHelper) m_stationName = s_rpcIdHelper->stationNameIndex(Name);
+    m_doubletPhi{dP},
+    m_rpcIdHelper (helper)
+{
     set_indexes();
 }
 
@@ -41,10 +48,6 @@ bool RDOindex::operator!() const { return !m_status; }
 
 void RDOindex::set_hash(unsigned int h) { m_hash = h; }
 
-
-const RpcIdHelper* RDOindex::s_rpcIdHelper = nullptr;
-
-void RDOindex::setRpcIdHelper(const RpcIdHelper* helper) { s_rpcIdHelper = helper; }
 
 void RDOindex::offline_indexes(int& name, int& eta, int& phi, int& doublet_r, int& doublet_z, int& doublet_phi, int& gas_gap,
                                int& measures_phi, int& strip) const {
@@ -81,7 +84,7 @@ void RDOindex::pad_identifier(Identifier& id) const {
             doublet_phi = m_doubletPhi;
         }
 
-        if (s_rpcIdHelper != nullptr) id = s_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
+        id = m_rpcIdHelper.padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
     }
 }
 

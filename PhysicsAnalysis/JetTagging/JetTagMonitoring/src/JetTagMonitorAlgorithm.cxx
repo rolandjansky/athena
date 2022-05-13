@@ -669,7 +669,7 @@ bool JetTagMonitorAlgorithm::passJVTCut(const xAOD::Jet *jet) const {
 
   ATH_MSG_DEBUG("passJVTCut()");
   
-  static SG::AuxElement::Accessor<float> JVT( "Jvt" );
+  static const SG::AuxElement::Accessor<float> JVT( "Jvt" );
   float jvt = JVT(*jet);
 
   if( (jet->pt()/Gaudi::Units::GeV < m_JVTpTCut) && (std::abs(jet->eta())<m_JVTetaCut) && (jvt < m_JVTCut) )

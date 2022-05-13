@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
@@ -188,7 +188,7 @@ StatusCode sTgcFastDigitizer::execute() {
   std::vector<int> sTgcflag;
 
   const DataHandle< sTGCSimHitCollection > collGMSH;
-  ATH_CHECK(evtStore()->retrieve( collGMSH,"sTGCSensitiveDetector"));
+  ATH_CHECK(evtStore()->retrieve( collGMSH, "sTGC_Hits"));  // TODO: move to data handles
 
   ATH_MSG_DEBUG( "Retrieved " <<  collGMSH->size() << " sTgc hits!");
   sTgcHitIdHelper* hitHelper=sTgcHitIdHelper::GetHelper();

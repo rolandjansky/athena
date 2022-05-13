@@ -5,6 +5,7 @@
 #include "./DipsCondition.h"
 #include "./ITrigJetHypoInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"
 
 #include <sstream>
 #include <cmath>
@@ -13,12 +14,15 @@
 DipsCondition::DipsCondition(double workingPoint,
                              const float &cfrac,
                              const std::string &decName_pb,
+                             const std::string &decName_pc,
                              const std::string &decName_pu,
-                             const std::string &decName_pc) : m_workingPoint(workingPoint),
-                                                              m_cfrac(cfrac),
-                                                              m_decName_pb(decName_pb),
-                                                              m_decName_pu(decName_pu),
-                                                              m_decName_pc(decName_pc)
+                             const std::string &decName_isValid) :
+  m_workingPoint(workingPoint),
+  m_cfrac(cfrac),
+  m_decName_pb(decName_pb),
+  m_decName_pc(decName_pc),
+  m_decName_pu(decName_pu),
+  m_decName_isValid(decName_isValid)
 {
 
 }
@@ -58,7 +62,18 @@ float DipsCondition::evaluateDips(const float &dips_pb,
 bool DipsCondition::isSatisfied(const pHypoJet &ip,
                                 const std::unique_ptr<ITrigJetHypoInfoCollector> &collector) const
 {
+  if (!m_decName_isValid.empty()) {
+    // short circuit if dips is invalid and we ask for a check
+    //
+    // we have to dynamic cast to xAOD jets here because there's no char
+    // accessor on IJet and it's not clear if we need one generally.
+    const auto* jet = dynamic_cast<const HypoJet::xAODJetAsIJet*>(ip.get());
+    if (!jet) throw std::runtime_error("Fast dips has to run on xAOD::Jet");
+    char valid = (*jet->xAODJet())->getAttribute<char>(m_decName_isValid);
+    if (valid == 0) return false;
+  }
 
+  // if we got this far check the dips hypo
   float dips_pb = getDipsDecValue(ip, collector, m_decName_pb);
   float dips_pc = getDipsDecValue(ip, collector, m_decName_pc);
   float dips_pu = getDipsDecValue(ip, collector, m_decName_pu);

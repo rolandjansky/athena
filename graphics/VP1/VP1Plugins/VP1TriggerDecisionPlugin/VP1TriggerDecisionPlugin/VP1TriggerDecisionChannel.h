@@ -17,6 +17,7 @@
 #define VP1TRIGDECCHANNEL_H
 
 #include "VP1Base/IVP1ChannelWidget.h"
+#include <memory>
 
 class QTableWidget;
 class VP1TriggerDecisionSystem;
@@ -27,7 +28,7 @@ class VP1TriggerDecisionChannel : public IVP1ChannelWidget
 
 public:
   VP1TriggerDecisionChannel();
-  virtual ~VP1TriggerDecisionChannel(){}
+  virtual ~VP1TriggerDecisionChannel();
   void init();
 
   Type type() const { return NUMBERS; };
@@ -42,7 +43,7 @@ void entriesChanged(const QStringList& entry_key,const QStringList& entry_type);
 private:
   QTableWidget * m_tableWidget;
   void clearAll();
-  VP1TriggerDecisionSystem * m_trigdecsystem;
+  std::unique_ptr<VP1TriggerDecisionSystem> m_trigdecsystem;
 };
 
 #endif

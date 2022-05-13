@@ -37,17 +37,11 @@ if( NOT XAOD_STANDALONE )
   set( pool_lib POOLRootAccessLib )
 endif()
 
-# Only add the fbtTestBasics for rel. 22 for the time being
-#foreach( exec fbtNtupleTester fbtTestBasics fbtTestToyMC )
-#  atlas_add_executable( ${exec} util/${exec}.cxx
-#      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-#      LINK_LIBRARIES ${ROOT_LIBRARIES} FakeBkgToolsLib xAODEgamma xAODMuon ${pool_lib})
-#endforeach()
-
-atlas_add_executable( fbtTestBasics
-  util/fbtTestBasics.cxx
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} FakeBkgToolsLib xAODEgamma xAODMuon ${pool_lib} )
+foreach( exec fbtNtupleTester fbtTestBasics fbtTestToyMC )
+  atlas_add_executable( ${exec} util/${exec}.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} FakeBkgToolsLib xAODEgamma xAODMuon ${pool_lib})
+endforeach()
 
 atlas_add_test( ut_fbtTestBasics
       SCRIPT $<TARGET_FILE:fbtTestBasics>

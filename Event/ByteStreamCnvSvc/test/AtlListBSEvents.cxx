@@ -17,7 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <limits>
-
+#include <iomanip>
 #include <ctype.h>
 #include <stdlib.h>
 
@@ -190,7 +190,9 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 	if (listevents) {
 	  std::cout << "Index=" << eventCounter <<" Run=" << runNo << " Event=" << eventNo 
 		    << " LB=" <<  fe.lumi_block() << " Size=" << fe. fragment_size_word()*4./1024 <<"kB" 
-		    << " Offset=" << pDR->getPosition() << " " << ctime(&sec);// << std::endl;
+		    << " Offset=" << pDR->getPosition() << " " << std::put_time(std::gmtime(&sec),"%Y-%m-%d:%H:%m:%S") << " UTC" << std::endl;
+
+	  //2017-07-24:03:55:00
 	}
 	if (showSizes) {
 	  std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > robIndex;

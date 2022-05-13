@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "InDetServMatGeoModel/Routing2.h"
 
 #include "InDetServMatGeoModel/ServicesLayer.h"
@@ -10,10 +11,10 @@
 #include <algorithm>
 
 #include <iostream>
-using namespace std; // for DEBUG
+using namespace std;
 
-Routing2::Routing2(const Athena::MsgStreamMember& msg):
-  m_msg(msg)
+Routing2::Routing2():
+  AthMessaging(Athena::getMessageSvc(), "Routing2")
 {
   m_routePixelBarrelOnPST = false;
   m_pixelAlongBarrelStrip = false;
@@ -100,7 +101,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
     bpVertRouteRmax = 0.5*(epRmax + m_c_epEosLength + tracker.geoMgr()->sctInnerSupport());
     // Pixel horizontal route in the middle between pixel disks and first strip layer
     if ( epRmax + m_c_epEosLength + m_c_ServiceCylinderThickness > tracker.geoMgr()->sctInnerSupport())
-      msg(MSG::WARNING)<< " No space for services between pixel diskd and sct support" << endmsg;
+      ATH_MSG_WARNING("No space for services between pixel diskd and sct support");
   }
   else {
     // services along PST, as close as they can get
@@ -110,7 +111,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   double bpHorRouteR = bpVertRouteRmax;
   double bpHRouteZmin = bpVertRouteZpos +  0.5*m_c_ServiceDiskThickness + m_c_safetyGap;
   double bpHRouteZmax = eplc.back()->zPos(); // prolong if along PST ?
-  msg(MSG::INFO) << "Route2: setting bpHRouteZmax to " << bpHRouteZmax << endmsg;
+  ATH_MSG_INFO("Route2: setting bpHRouteZmax to " << bpHRouteZmax);
 
   /// Assume same length barrel, the loop is to make sure there are no volume overlaps
   /// in case strip barrel layers are slightly different
@@ -130,7 +131,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   if(bMSTI||bMSTM||bMSTO)
     if(bpHRouteZmax_mode>0.1&&bpHRouteZmax_mode<bpHRouteZmax) bpHRouteZmax = bpHRouteZmax_mode-0.001;
 
-  msg(MSG::INFO)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endmsg;
+  ATH_MSG_INFO("Changing bpHRouteZmax to " << bpHRouteZmax);
 
   double bsVertRouteRmin = bpHorRouteR + 0.5*m_c_ServiceCylinderThickness + m_c_safetyGap;
   double bsVertRouteRmax = bslc.back()->radius() + m_c_ServiceCylinderThickness; // approx
@@ -315,8 +316,8 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
     zEosMax = route.position() - 0.5*m_c_ServiceDiskThickness - m_c_safetyGap;
   }
   else {
-    msg(MSG::WARNING) << "not enough space for end of stave of barrel layer at radius "
-		      << (**bl).radius() << endmsg;
+    ATH_MSG_WARNING("not enough space for end of stave of barrel layer at radius "
+                    << (**bl).radius());
   }
   double halfEosThick = eosHalfThickness( (*bl)->type(), DetType::Barrel);
   ServiceVolume* eosCylinder = new ServiceVolume( ServiceVolume::Cylinder,
@@ -378,7 +379,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
     rEosMin = (*bl)->rMax() + eosTolerance( (*bl)->type(), DetType::Endcap);   // Disk outer edge + safety
     rEosMax = route.position() - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap; // support tube - safety
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
-    if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endmsg;
+    if (rEosMax < rEosMin) ATH_MSG_WARNING("No space for routing of endcap layer at Z = " << (**bl).zPos());
   }
   else if (SupportName == "MST")
   {
@@ -391,7 +392,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
     rEosMin = route.position() + 0.5*m_c_ServiceCylinderThickness + m_c_safetyGap; // support tube + safety
     rEosMax = (*bl)->rMin() - eosTolerance( (*bl)->type(), DetType::Endcap);   // Disk outer edge - safety
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
-    if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endmsg;
+    if (rEosMax < rEosMin) ATH_MSG_WARNING("No space for routing of endcap layer at Z = " << (**bl).zPos());
   }
   else if (SupportName == "MSTO" || SupportName == "MSTM" || SupportName == "MSTI" )
   {
@@ -414,18 +415,16 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
       rEosMax = rEosMin + eosLength( (*bl)->type(), DetType::Endcap);
       EOSZOffset = 0;
       if (rEosMax > route.position() - 0.5*m_c_ServiceCylinderThickness) {
-	msg(MSG::WARNING) << "not enough space for end of stave of endcap layer at Z = "
-			  << (**bl).zPos() << endmsg;
+        ATH_MSG_WARNING("not enough space for end of stave of endcap layer at Z = " << (**bl).zPos());
       }
       rEosMax = route.position() - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap;
       if (rEosMax < rEosMin) {
-	msg(MSG::WARNING) << "no space for routing of endcap layer at Z = "
-			  << (**bl).zPos() << endmsg;
+        ATH_MSG_WARNING("no space for routing of endcap layer at Z = " << (**bl).zPos());
       }
     }
   else
   {
-    msg(MSG::ERROR) << "Specified support name (" << SupportName<< ") not recognised - EOS not created!" << endmsg;
+    ATH_MSG_ERROR("Specified support name (" << SupportName<< ") not recognised - EOS not created!");
     return;
   }
 
@@ -518,9 +517,9 @@ void Routing2::connect( ServiceVolume* prev, ServiceVolume* newv)
 void Routing2::connectRoutes( Route& in, Route& out)
 {
   // choose volume to connect to
-  ServiceVolume* entryVol = out.entryVolume(in.position(),true,msgStream());
+  ServiceVolume* entryVol = out.entryVolume(in.position(),true,msg());
   if (entryVol == nullptr) entryVol = createSingleRouteVolume( out);
-  ServiceVolume* exitVol = in.exitVolume(true,msgStream());
+  ServiceVolume* exitVol = in.exitVolume(true,msg());
   // maybe check volumes are connectable?
   entryVol->addPrevious(exitVol);
   exitVol->setNext(entryVol);
@@ -581,9 +580,7 @@ double Routing2::eosHalfThickness( DetType::Type /*type*/, DetType::Part /*part*
 
 void Routing2::dumpRoute( const Route& route) 
 {
-  using namespace std;
-  msg(MSG::INFO)<< "Dumping route at pos " << route.position() 
-		<< " with exit at " << route.exit() << endmsg;
+  ATH_MSG_INFO("Dumping route at pos " << route.position() << " with exit at " << route.exit());
   for ( Route::VolumeContainer::const_iterator iv = route.volumes().begin(); 
 	iv != route.volumes().end(); ++iv) {
     (**iv).dump(false);

@@ -34,6 +34,7 @@ def TriggerRecoCfg(flags):
     acc.merge( L1PrescaleCondAlgCfg(flags) )
     acc.merge( HLTPrescaleCondAlgCfg(flags) )
 
+    # Run 3+
     if flags.Trigger.EDMVersion >= 3:
         acc.merge(Run3TriggerBSUnpackingCfg(flags))
         from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
@@ -41,6 +42,7 @@ def TriggerRecoCfg(flags):
         if flags.Trigger.doNavigationSlimming:
             from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTCfg
             acc.merge(TrigNavSlimmingMTCfg(flags))
+    # Run 1+2
     elif flags.Trigger.EDMVersion in [1, 2]:
         acc.merge( Run1Run2BSExtractionCfg(flags) )
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
@@ -53,10 +55,10 @@ def TriggerRecoCfg(flags):
         acc.addEventAlgo( menuwriter )
         if flags.Trigger.doNavigationSlimming:
             acc.merge(Run2Run1NavigationSlimingCfg(flags))
-
     else:
         raise RuntimeError("Invalid EDMVersion=%s " % flags.Trigger.EDMVersion)
-    if flags.Output.doWriteESD  or flags.Output.doWriteAOD:
+
+    if flags.Output.doWriteESD or flags.Output.doWriteAOD:
         acc.merge(TriggerEDMCfg(flags))
 
     return acc
@@ -76,6 +78,10 @@ def TriggerEDMCfg(flags):
     menuMetadata = ["xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*",]
     if flags.Trigger.EDMVersion in [1,2]:
         menuMetadata += ['xAOD::TriggerMenuAuxContainer#*', 'xAOD::TriggerMenuContainer#*',]
+        # Add LVL1 collections (for Run-3 they are part of the "regular" EDM lists)
+        from TrigEDMConfig.TriggerEDM import getLvl1ESDList, getLvl1AODList
+        acc.merge(addToESD(flags, _asList(getLvl1ESDList())))
+        acc.merge(addToAOD(flags, _asList(getLvl1AODList())))
 
     _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
     _TriggerAODList = getTriggerEDMList(flags.Trigger.AODEDMSet,  flags.Trigger.EDMVersion)
@@ -110,11 +116,8 @@ def TriggerEDMCfg(flags):
 
     # RoIs
     if flags.Output.doWriteAOD and flags.Trigger.EDMVersion == 2:
-        roiWriter = CompFactory.RoiWriter( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput"),]) 
-        acc.addEventAlgo(roiWriter)
-
-        from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
-        acc.merge(addToAOD(flags, TriggerRoiList))
+        from TrigRoiConversion.TrigRoiConversionConfig import RoiWriterCfg
+        acc.merge(RoiWriterCfg(flags))
 
     return acc
 

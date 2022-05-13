@@ -4,12 +4,12 @@
 # Job options file for the AFP_LocReco package
 #==============================================================
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-def AFP_LocReco_SiD_Cfg(kwargs={}):
+def AFP_LocReco_SiD_Cfg(flags, kwargs={}):
 
         # prepare track reconstruction algorithm tools - one for each station
         kalmanTool0 = CompFactory.AFPSiDBasicKalmanTool("AFPSiDBasicKalmanTool0", stationID=0, **kwargs)
@@ -51,10 +51,13 @@ def AFP_LocReco_SiD_Cfg(kwargs={}):
         trackRecoTool = CompFactory.AFP_SIDLocRecoTool("AFP_SIDLocRecoTool", RecoToolsList=kalmanToolsList, AFPTrackContainerList=outputKalmanList )
 
         # actually setup the track reco
-        return CompFactory.AFP_SIDLocReco("AFP_SIDLocReco", recoTool = trackRecoTool)
+        acc = ComponentAccumulator()
+        acc.addEventAlgo(CompFactory.AFP_SIDLocReco("AFP_SIDLocReco", recoTool = trackRecoTool))
+        
+        return acc
 
 
-def AFP_LocReco_TD_Cfg(kwargs={}):
+def AFP_LocReco_TD_Cfg(flags, kwargs={}):
 
         # Prepare ToF reconstruction algorithm tools - one for each station
         BarWeight = [1.0, 1.0, 1.0, 1.0]
@@ -71,16 +74,16 @@ def AFP_LocReco_TD_Cfg(kwargs={}):
                        1500, 1500, 1500, 1500]
         basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=1500, TimeOffset=TimeOffset3, BarWeight=BarWeight, **kwargs)
 
-        if ConfigFlags.Input.Format is Format.POOL:
-                if "AFPToFHitContainer" not in ConfigFlags.Input.Collections:
+        acc = ComponentAccumulator()
+
+        if flags.Input.Format is Format.POOL:
+                if "AFPToFHitContainer" not in flags.Input.Collections:
                         basicTool0.AFPToFHitContainerKey=""
                         basicTool3.AFPToFHitContainerKey=""
                 else:
-                        from AthenaCommon.AlgSequence import AlgSequence
-                        topSequence = AlgSequence()
-                        if hasattr(topSequence,'SGInputLoader'):
-                                topSequence.SGInputLoader.Load += [('xAOD::AFPToFHitContainer' , 'StoreGateSvc+AFPToFHitContainer')]
-
+                        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+                        acc.merge(SGInputLoaderCfg(flags, Load=[('xAOD::AFPToFHitContainer' , 'StoreGateSvc+AFPToFHitContainer')]))
+                        
         basicToolsList=[basicTool0, basicTool3]
 
         # collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_SIDLocRecoTool::initialize() will complain
@@ -99,21 +102,25 @@ def AFP_LocReco_TD_Cfg(kwargs={}):
         ToFtrackRecoTool = CompFactory.AFP_TDLocRecoTool("AFP_TDLocRecoTool", RecoToolsList=basicToolsList, AFPToFTrackContainerList=outputBasicList )
 
         # actually setup the ToF track reco
-        return CompFactory.AFP_TDLocReco("AFP_TDLocReco", recoTool=ToFtrackRecoTool)
+        acc.addEventAlgo(CompFactory.AFP_TDLocReco("AFP_TDLocReco", recoTool=ToFtrackRecoTool))
+        
+        return acc
 
 
-def AFP_LocReco_SiD_HLT():
-
-        AFP_SID = AFP_LocReco_SiD_Cfg({"tracksContainerName": recordable("HLT_AFPTrackContainer"), "AFPSiHitsClusterContainerKey": "HLT_AFPSiHitsClusterContainer"})
+def AFP_LocReco_SiD_HLT(flags):
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        acc = ComponentAccumulator()
+        acc.merge(AFP_LocReco_SiD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPTrackContainer"), "AFPSiHitsClusterContainerKey": "HLT_AFPSiHitsClusterContainer"}))
+        AFP_SID = acc.getEventAlgo("AFP_SIDLocReco")
 
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
         monTool_AFP_SIDLocRecoTool = GenericMonitoringTool("MonTool_AFP_SIDLocRecoTool")
         monTool_AFP_SIDLocRecoTool.defineHistogram( 'TrkSize', path='EXPERT', type='TH1F', title='AFP tracks size',xbins=50, xmin=0, xmax=50 )
         AFP_SID.recoTool.MonTool = monTool_AFP_SIDLocRecoTool
-
+                
         for i, kalmanTool in enumerate(AFP_SID.recoTool.RecoToolsList):
-               monTool_AFP_BasicKalman = GenericMonitoringTool("MonTool_AFP_"+kalmanTool.name())
+               monTool_AFP_BasicKalman = GenericMonitoringTool("MonTool_AFP_"+kalmanTool.getName())
 
                monTool_AFP_BasicKalman.defineHistogram( 'TrkStationID', path='EXPERT', type='TH1F', title='Track station ID',xbins=4, xmin=0, xmax=4, cutmask='TrkMask' )
                monTool_AFP_BasicKalman.defineHistogram( 'TrkXLocal', path='EXPERT', type='TH1F', title='Track xLocal',xbins=100, xmin=-200, xmax=200, cutmask='TrkMask' )
@@ -127,14 +134,15 @@ def AFP_LocReco_SiD_HLT():
 
                AFP_SID.recoTool.RecoToolsList[i].MonTool = monTool_AFP_BasicKalman	
 
-        return AFP_SID
+        return acc
 
-def AFP_LocReco_TD_HLT():
+def AFP_LocReco_TD_HLT(flags):
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        acc = ComponentAccumulator()
 
-        AFP_TD = AFP_LocReco_TD_Cfg({"tracksContainerName": recordable("HLT_AFPToFTrackContainer")})
+        acc.merge(AFP_LocReco_TD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPToFTrackContainer")}))
 
-        return AFP_TD
-
+        return acc
 
 #-- SiAlignDBTester part ------------------------------------------------------------
 # this is a setup for ReadCondHandle (see AFP_DBTools/SiAlignDBTester)

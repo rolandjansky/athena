@@ -33,10 +33,12 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
     thePrecisionElectronHypo.ElectronCBSelectorTools = acc_ElectronCBSelectorTools.getPublicTools()
     thePrecisionElectronHypo.ElectronLHSelectorTools = acc_ElectronLHSelectorTools.getPublicTools()
     thePrecisionElectronHypo.ElectronDNNSelectorTools = acc_ElectronDNNSelectorTools.getPublicTools()
-    thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose"] # just like the pidnames
     thePrecisionElectronHypo.CBNames = ["medium", "loose", "mergedtight"] # just like the pidnames
     thePrecisionElectronHypo.LHNames = ["lhtight", "lhmedium", "lhloose", "lhvloose", 
-                                        "lhtight_nopix", "lhmedium_nopix","lhloose_nopix","lhvloose_nopix"] # just like the pidnames
+                                        "lhtight_nopix", "lhmedium_nopix","lhloose_nopix","lhvloose_nopix",
+                                        "lhtight_nogsf", "lhmedium_nogsf","lhloose_nogsf","lhvloose_nogsf",
+                                        "lhtight_nogsf_nopix", "lhmedium_nogsf_nopix","lhloose_nogsf_nopix","lhvloose_nogsf_nopix"] # just like the pidnames
+    thePrecisionElectronHypo.DNNNames = ["dnntight", "dnnmedium", "dnnloose"] # just like the pidnames
     MonTool.Histograms = [ 
                 defineHistogram('TIME_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo Algtime; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0),
                 defineHistogram('TIME_LH_exec', type='TH1F', path='EXPERT', title="Precision Electron Hypo LH Algtime; time [ us ] ; Nruns", xbins=20, xmin=0.0, xmax=2000),
@@ -73,6 +75,14 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
                            'lhmedium_nopix' ,
                            'lhloose_nopix'  ,
                            'lhvloose_nopix' ,
+                           'lhtight_nogsf'  ,
+                           'lhmedium_nogsf' ,
+                           'lhloose_nogsf'  ,
+                           'lhvloose_nogsf' ,
+                           'lhtight_nogsf_nopix'  ,
+                           'lhmedium_nogsf_nopix' ,
+                           'lhloose_nogsf_nopix'  ,
+                           'lhvloose_nogsf_nopix' ,
                            'dnntight' ,
                            'dnnmedium',
                            'dnnloose' ,
@@ -81,6 +91,10 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
 
   __operation_points_lhInfo = [
         'nopix'
+        ]
+
+  __operation_points_gsfInfo = [
+        'nogsf'
         ]
 
   # isolation cuts:w
@@ -142,10 +156,15 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   #
   def pidname( self ):
     # if LLH, we should append the LH extra information if exist
+    pidname = self.__sel
+
+    extra = ""
+    if 'lh' in self.__sel and self.__gsfInfo and self.__gsfInfo in self.__operation_points_gsfInfo:
+      extra += '_' + self.__gsfInfo
     if 'lh' in self.__sel and self.__lhInfo and self.__lhInfo in self.__operation_points_lhInfo:
-      return self.__sel + '_' + self.__lhInfo
-    else:
-      return self.__sel
+      extra += '_' + self.__lhInfo
+
+    return pidname+extra
 
   def etthr(self):
     return self.__threshold
@@ -314,42 +333,56 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
 #
 # Electron LH Selectors
 #
-def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None):
+def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None, ConfigFileNoPixPath=None, ConfigFileNoGSFPath=None, ConfigFileNoGSFNoPixPath=None):
 
     # Configure the LH selectors
     acc = ComponentAccumulator()
-    if not ConfigFilePath:
-        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
 
+    # Must be careful that order matches LHNames at the start of the file!
     import collections.abc
-    SelectorNames = collections.OrderedDict({
-          'lhtight'       :'AsgElectronLHTightSelector',
-          'lhmedium'      :'AsgElectronLHMediumSelector',
-          'lhloose'       :'AsgElectronLHLooseSelector',
-          'lhvloose'      :'AsgElectronLHVLooseSelector',
-          'lhtight_nopix' :'AsgElectronLHTightSelectorNoPix',
-          'lhmedium_nopix':'AsgElectronLHMediumSelectorNoPix',
-          'lhloose_nopix' :'AsgElectronLHLooseSelectorNoPix',
-          'lhvloose_nopix':'AsgElectronLHVLooseSelectorNoPix',
-          })
-     
-    ElectronToolConfigFile = collections.OrderedDict({
-          'lhtight'         :'ElectronLikelihoodTightTriggerConfig.conf',
-          'lhmedium'        :'ElectronLikelihoodMediumTriggerConfig.conf',
-          'lhloose'         :'ElectronLikelihoodLooseTriggerConfig.conf',
-          'lhvloose'        :'ElectronLikelihoodVeryLooseTriggerConfig.conf',
-          'lhtight_nopix'   :'ElectronLikelihoodTightTriggerConfig_NoPix.conf',
-          'lhmedium_nopix'  :'ElectronLikelihoodMediumTriggerConfig_NoPix.conf',
-          'lhloose_nopix'   :'ElectronLikelihoodLooseTriggerConfig_NoPix.conf',
-          'lhvloose_nopix'  :'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
-          })
+    SelectorConfigFiles = collections.OrderedDict({
+        'lhtight'  : 'ElectronLikelihoodTightTriggerConfig',
+        'lhmedium' : 'ElectronLikelihoodMediumTriggerConfig',
+        'lhloose'  : 'ElectronLikelihoodLooseTriggerConfig',
+        'lhvloose' : 'ElectronLikelihoodVeryLooseTriggerConfig'
+    })
 
-    for pidname, name in SelectorNames.items():
-      SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
-      SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
-      SelectorTool.usePVContainer = False 
-      SelectorTool.skipDeltaPoverP = True
-      acc.addPublicTool(SelectorTool)
+    VariationConfigInfos = collections.OrderedDict({
+        '_default'     : {},
+        '_nopix'       : {},
+        '_nogsf'       : {},
+        '_nogsf_nopix' : {}
+    })
+
+    VariationConfigInfos['_default']['postfix']      = ''
+    VariationConfigInfos['_nopix']['postfix']        = '_NoPix'
+    VariationConfigInfos['_nogsf']['postfix']        = ''
+    VariationConfigInfos['_nogsf_nopix']['postfix']  = '_NoPix'
+    
+    VariationConfigInfos['_default']['path']      = ConfigFilePath           if ConfigFilePath           else ConfigFlags.Trigger.egamma.electronPidVersion
+    VariationConfigInfos['_nopix']['path']        = ConfigFileNoPixPath      if ConfigFileNoPixPath      else ConfigFlags.Trigger.egamma.electronNoPixPidVersion
+    VariationConfigInfos['_nogsf']['path']        = ConfigFileNoGSFPath      if ConfigFileNoGSFPath      else ConfigFlags.Trigger.egamma.electronNoGSFPidVersion
+    VariationConfigInfos['_nogsf_nopix']['path']  = ConfigFileNoGSFNoPixPath if ConfigFileNoGSFNoPixPath else ConfigFlags.Trigger.egamma.electronNoGSFNoPixPidVersion
+    
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('TrigEgammaPrecisionElectronHypoTool')
+    log.debug( 'TrigEgammaPrecisionElectronLHSelectorCfg, order of LH tools:' )
+
+    for pidvar, config in VariationConfigInfos.items():
+        for pidname, configfilebase in SelectorConfigFiles.items():
+            fullpidname = pidname if pidvar == '_default' else pidname + pidvar
+            toolname = 'AsgElectronSelector_' + fullpidname
+            configfile = config['path'] + configfilebase + config['postfix'] + '.conf'
+            skipdeltapcheck = True if 'nogsf' in pidvar else False
+
+            log.debug( ' --> %s, config file: %s', fullpidname, configfile )
+
+            SelectorTool = CompFactory.AsgElectronLikelihoodTool(toolname)
+            SelectorTool.ConfigFile = configfile
+            SelectorTool.usePVContainer = False 
+            SelectorTool.skipDeltaPoverP = skipdeltapcheck
+            acc.addPublicTool(SelectorTool)
+
     return acc
 
 
@@ -381,7 +414,7 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
     )
 
     if not ConfigFilePath:
-        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
+        ConfigFilePath = ConfigFlags.Trigger.egamma.electronHIPidVersion
 
     from collections import OrderedDict
     SelectorNames = OrderedDict({

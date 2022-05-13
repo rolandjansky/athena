@@ -109,9 +109,9 @@ def SimpleAmbiguityProcessorTool_Trig_Cfg(flags, name='InDetTrig_SeededAmbiguity
     kwargs.setdefault("tryBremFit", True if flags.InDet.Tracking.ActivePass.name == 'electron' and flags.InDet.Tracking.doBremRecovery else False)
     kwargs.setdefault("pTminBrem", 5*Units.GeV)
     kwargs.setdefault("MatEffects", 3)
-    
+
     from TrigInDetConfig.TrigInDetConfig import FitterToolCfg, ambiguityScoringToolCfg, TrackSummaryToolCfg
-    kwargs.setdefault("Fitter",acc.getPrimaryAndMerge(FitterToolCfg(flags)))
+    kwargs.setdefault("Fitter", acc.getPrimaryAndMerge(FitterToolCfg(flags)))
     kwargs.setdefault("ScoringTool", acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)))
     kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(TrackSummaryToolCfg(flags, useTRT=False, makePublic=False)))
     from InDetConfig.InDetAssociationToolsConfig import TrigPRDtoTrackMapToolGangedPixelsCfg
@@ -119,7 +119,7 @@ def SimpleAmbiguityProcessorTool_Trig_Cfg(flags, name='InDetTrig_SeededAmbiguity
 
     from InDetConfig.InDetAmbiTrackSelectionToolConfig import InDetTrigTrackSelectionToolCfg
     kwargs.setdefault("SelectionTool", acc.getPrimaryAndMerge(InDetTrigTrackSelectionToolCfg(flags)))
-    
+
     acc.setPrivateTools(CompFactory.Trk.SimpleAmbiguityProcessorTool(name, **kwargs))
     return acc
 
@@ -235,14 +235,6 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
                                                                            name='InDetTrackFitterAmbi'+flags.InDet.Tracking.ActivePass.extension,
                                                                            **fitter_args))
         fitter_list.append(InDetTrackFitterAmbi)
-
-    if flags.InDet.Tracking.doRefitInvalidCov:
-        from InDetConfig.TrackingCommonConfig import KalmanFitterCfg, ReferenceKalmanFitterCfg
-        KalmanFitter = acc.popToolsAndMerge(KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.ActivePass.extension))
-        fitter_list.append(KalmanFitter)
-
-        ReferenceKalmanFitter = acc.popToolsAndMerge(ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.ActivePass.extension))
-        fitter_list.append(ReferenceKalmanFitter)
 
     from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))

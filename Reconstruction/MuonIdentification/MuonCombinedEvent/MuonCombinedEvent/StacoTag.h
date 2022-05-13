@@ -5,74 +5,71 @@
 #ifndef MUONCOMBINEDEVENT_STACOTAG_H
 #define MUONCOMBINEDEVENT_STACOTAG_H
 
-
-#include "MuonCombinedEvent/TagBase.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
+#include "MuonCombinedEvent/TagBase.h"
 #include "TrkParameters/TrackParameters.h"
 
 namespace Trk {
-  class Track;
- 
+    class Track;
+
 }
 
 namespace MuonCombined {
-  
-  class MuonCandidate;
 
-  /** TagBase implementation for a combined fit */
-  class StacoTag : public TagBase {
-  public:
-    
-    /** Constructor taking a MuonCandidate, a combined perigee and match chi2 as input
-	Users should ensure that the life time of the MuonCandidate 
-	The class takes ownership of the combined perigee 
-    */
-    StacoTag( const MuonCandidate& muonCandidate, std::unique_ptr<const Trk::Perigee> &perigee, double chi2 );
+    class MuonCandidate;
 
-    /** destructor */
-    ~StacoTag();
+    /** TagBase implementation for a combined fit */
+    class StacoTag : public TagBase {
+    public:
+        /** Constructor taking a MuonCandidate, a combined perigee and match chi2 as input
+            Users should ensure that the life time of the MuonCandidate
+            The class takes ownership of the combined perigee
+        */
+        StacoTag(const MuonCandidate& muonCandidate, std::unique_ptr<const Trk::Perigee>& perigee, double chi2);
 
-    /** access combined parameters */
-    const Trk::Perigee& combinedParameters() const;
+        /** destructor */
+        ~StacoTag();
 
-    /** release combined parameters, user gets ownership */
-    std::unique_ptr<const Trk::Perigee> releaseCombinedParameters();
+        /** access combined parameters */
+        const Trk::Perigee& combinedParameters() const;
 
-    /** access to MuonCandidate */
-    const MuonCandidate& muonCandidate() const;
+        /** release combined parameters, user gets ownership */
+        std::unique_ptr<const Trk::Perigee> releaseCombinedParameters();
 
-    /** access to match chi2 */
-    double matchChi2() const;
+        /** access to MuonCandidate */
+        const MuonCandidate& muonCandidate() const;
 
-    /** name string */
-    std::string name() const override;
+        /** access to match chi2 */
+        double matchChi2() const;
 
-    /** print content to string */
-    std::string toString() const override;
+        /** name string */
+        std::string name() const override;
 
-    /** access to primary muon system track, zero if non available */
-    const Trk::Track* primaryTrack() const override;
+        /** print content to string */
+        std::string toString() const override;
 
-    /** Returns whether the muon belongs to the commissioning chain **/
-    bool isCommissioning() const override;
+        /** access to primary muon system track, zero if non available */
+        const Trk::Track* primaryTrack() const override;
 
-       
-  private:
-    /** block copy and assignment */
-    StacoTag(const StacoTag&) = delete;
-    StacoTag& operator=(const StacoTag&) = delete;
+        /** Returns whether the muon belongs to the commissioning chain **/
+        bool isCommissioning() const override;
 
-    /** data content */
-    const MuonCandidate* m_muonCandidate{nullptr};  /// MuonCandidate 
-    std::unique_ptr<const Trk::Perigee>  m_combinedParameters{nullptr};  /// combined parameters 
-    double m_chi2{0.};
-    
-  };  
+        /** access to associated segments, empty vector if non available */
+        std::vector<const Muon::MuonSegment*> associatedSegments() const override;
 
-  bool operator<( const StacoTag& t1,  const StacoTag& t2 );
-    
-}
+    private:
+        /** block copy and assignment */
+        StacoTag(const StacoTag&) = delete;
+        StacoTag& operator=(const StacoTag&) = delete;
 
+        /** data content */
+        const MuonCandidate* m_muonCandidate{nullptr};                      /// MuonCandidate
+        std::unique_ptr<const Trk::Perigee> m_combinedParameters{nullptr};  /// combined parameters
+        double m_chi2{0.};
+    };
+
+    bool operator<(const StacoTag& t1, const StacoTag& t2);
+
+}  // namespace MuonCombined
 
 #endif
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -14,7 +14,7 @@
    1.) An ADC value > m_minADC  OR
    2.) A Calo Cell ET > m_minCaloCellET
 
-   For a random (TRandom3) m_minRandom % of events, all Trigger Towers are saved.
+   For a random m_minRandom % of events, all Trigger Towers are saved.
    This is very useful for pedestal and noise studies
 
 **/
@@ -23,7 +23,10 @@
 // TrigT1 common definitions
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "StoreGate/ThinningHandle.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
 
 namespace DerivationFramework {
 
@@ -37,8 +40,7 @@ namespace DerivationFramework {
     m_nEventsAllTriggerTowersKeptByRandom(0),
     m_nTriggerTowersProcessed(0),
     m_nTriggerTowersKept(0),
-    m_nTriggerTowersRejected(0),
-    m_random(0)
+    m_nTriggerTowersRejected(0)
   {
     declareProperty("MinCaloCellET",m_minCaloCellET);
     declareProperty("MinADC",m_minADC);
@@ -55,10 +57,7 @@ namespace DerivationFramework {
 
     ATH_CHECK( m_triggerTowerLocation.initialize (m_streamName) );
 
-    // Random number generator
-    if(m_useRandom == true){
-      m_random = new TRandom3(0);
-    }  
+    ATH_CHECK( m_rndmSvc.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -90,7 +89,10 @@ namespace DerivationFramework {
     // Random number save all
     if(m_useRandom == true){
       if(globalSaveMe == false){
-        if(m_random->Rndm() < m_minRandom){
+        ATHRNG::RNGWrapper* wrapper = m_rndmSvc->getEngine (this);
+        wrapper->setSeed (this->name(), ctx);
+        CLHEP::HepRandomEngine* engine = wrapper->getEngine (ctx);
+        if (CLHEP::RandFlat::shoot (engine) < m_minRandom) {
           globalSaveMe = true;
           m_nEventsAllTriggerTowersKeptByRandom++;
         }
@@ -170,8 +172,6 @@ namespace DerivationFramework {
             << 100.0 * m_nEventsAllTriggerTowersKeptByRandom / (double)m_nEventsProcessed);
         }
       
-    delete m_random;
-
 
     return StatusCode::SUCCESS;
   }

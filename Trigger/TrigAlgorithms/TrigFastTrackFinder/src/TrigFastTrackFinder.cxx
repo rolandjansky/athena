@@ -59,7 +59,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_disTrkFitter("Trk::KalmanFitter/InDetTrackFitter"),
+  m_disTrkFitter("Trk::GlobalChi2Fitter/InDetTrackFitter"),
   m_accelTool("TrigInDetAccelerationTool"),
   m_accelSvc("TrigInDetAccelerationSvc", name),
   m_doCloneRemoval(true),
@@ -281,10 +281,10 @@ StatusCode TrigFastTrackFinder::initialize() {
   if( m_doDisappearingTrk ) {
      ATH_CHECK(m_extrapolator.retrieve());
      ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
-
      ATH_CHECK(m_disTrkFitter.retrieve());
      ATH_MSG_DEBUG("Retrieved tool " << m_disTrkFitter);
   } else {
+    m_extrapolator.disable();
     m_disTrkFitter.disable();
   }
 

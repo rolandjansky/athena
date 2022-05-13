@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.JetFitterNtupleWriterNNConfig import JetFitterNtupleWriterNNCfg
 from JetTagTools.JetFitterNNToolConfig import JetFitterNNToolCfg
-
-# import the JetFitterTag configurable
-Analysis__JetFitterTag=CompFactory.Analysis.JetFitterTag
 
 def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, useBTagFlagsDefaults = True, runNN=False, **options):
     """Sets up a JetFitterTagNN tool and returns it.
@@ -73,6 +70,6 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
                 }
     for option in defaults:
         options.setdefault(option, defaults[option])
-    acc.setPrivateTools(Analysis__JetFitterTag(**options))
+    acc.setPrivateTools(CompFactory.Analysis.JetFitterTag(**options))
 
     return acc

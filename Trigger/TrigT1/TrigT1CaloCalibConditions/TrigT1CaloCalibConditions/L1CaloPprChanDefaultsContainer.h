@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCHANDEFAULTSCONTAINER_H
@@ -35,7 +35,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&);
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>&);
   virtual DataObject* makePersistent() const;
   virtual std::vector<std::string> coolInputKeys() const { return {m_coolFolderKey}; }
   virtual std::string coolOutputKey() const { return m_coolFolderKey; }
@@ -63,6 +63,7 @@ private:
   std::string m_coolFolderKey = "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults";
 };
 
-CLASS_DEF( L1CaloPprChanDefaultsContainer, 1269446613, 1 )
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(  L1CaloPprChanDefaultsContainer,1267912987);
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCHANDEFAULTSCONTAINER_H

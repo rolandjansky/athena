@@ -174,6 +174,11 @@ def ITkTrackRecoCfg(flags):
         from InDetConfig.InDetPrepRawDataToxAODConfig import ITkPixelPrepDataToxAODCfg, ITkStripPrepDataToxAODCfg
         result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
         result.merge(ITkStripPrepDataToxAODCfg(flags))
+
+        from DerivationFrameworkInDet.InDetToolsConfig import ITkTrackStateOnSurfaceDecoratorCfg
+        TrackStateOnSurfaceDecorator = result.getPrimaryAndMerge(ITkTrackStateOnSurfaceDecoratorCfg(flags, name="ITkTrackStateOnSurfaceDecorator"))
+        result.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation("ITkCommonKernel", AugmentationTools = [TrackStateOnSurfaceDecorator]))
+
         if flags.Input.isMC:
             from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
             result.merge(InDetPhysHitDecoratorAlgCfg(flags))
@@ -188,17 +193,31 @@ def ITkTrackRecoOutputCfg(flags):
     toAOD = []
     toESD = []
 
-    toAOD += [
-        "xAOD::TrackParticleContainer#InDetTrackParticles",
-        "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."
-    ]
+    # excluded track aux data
+    excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
+    # remove track decorations used internally by FTAG software
+    excludedAuxData += ('.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow'
+                        '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
+                        '.-VxTrackAtVertex')
+
+    # exclude IDTIDE/IDTRKVALID decorations
+    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'
+    if not flags.ITk.Tracking.writeExtendedPRDInfo:
+        excludedAuxData += '.-msosLink'
+
+    toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
+    toAOD += [f"xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.{excludedAuxData}"]
 
     if flags.ITk.Tracking.writeExtendedPRDInfo:
         toAOD += [
             "xAOD::TrackMeasurementValidationContainer#ITkPixelClusters",
             "xAOD::TrackMeasurementValidationAuxContainer#ITkPixelClustersAux.",
             "xAOD::TrackMeasurementValidationContainer#ITkStripClusters",
-            "xAOD::TrackMeasurementValidationAuxContainer#ITkStripClustersAux."
+            "xAOD::TrackMeasurementValidationAuxContainer#ITkStripClustersAux.",
+            "xAOD::TrackStateValidationContainer#ITkPixelMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#ITkPixelMSOSsAux.",
+            "xAOD::TrackStateValidationContainer#ITkStripMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#ITkStripMSOSsAux."
         ]
 
     result = ComponentAccumulator()

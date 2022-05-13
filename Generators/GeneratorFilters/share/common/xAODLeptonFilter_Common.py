@@ -17,6 +17,11 @@ if not hasattr(prefiltSeq, "xAODTruthParticleSlimmerMuon"):
   prefiltSeq += xAODTruthParticleSlimmerMuon('xAODTruthParticleSlimmerMuon')
 
 from GeneratorFilters.GeneratorFiltersConf import xAODLeptonFilter
+xAODLeptonFilter = xAODLeptonFilter("xAODLeptonFilter")
+filtSeq += xAODLeptonFilter
 
-
+# to modiify cuts put into JOs e.g.:
+#filtSeq.xAODLeptonFilter.Ptcut = 12000.0
+#filtSeq.xAODLeptonFilter.Etacut = 10.0
+#filtSeq.xAODLeptonFilter.PtcutMax = 90000000000.0
 

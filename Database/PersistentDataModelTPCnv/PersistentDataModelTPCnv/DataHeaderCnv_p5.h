@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODELTPCNV_DATAHEADERCNV_P5_H
@@ -16,6 +16,7 @@
 #include "PersistentDataModelTPCnv/DataHeader_p5.h"
 
 #include <map>
+#include <memory>
 
 /** @class DataHeaderElementCnv_p5
  *  @brief This class provides the converter to customize the saving of DataHeaderElement_p5.
@@ -23,12 +24,16 @@
 class DataHeaderElementCnv_p5 {
 public:
    DataHeaderElementCnv_p5();
-   virtual ~DataHeaderElementCnv_p5();
+   ~DataHeaderElementCnv_p5();
 
-   void persToTrans(const DataHeaderElement_p5* pers, DataHeaderElement* trans, const DataHeaderForm_p5& form);
-   void transToPers(const DataHeaderElement* trans, DataHeaderElement_p5* pers, DataHeaderForm_p5& form);
-
-friend class DataHeaderCnv_p5;
+   void persToTrans(const DataHeaderElement_p5& pers,
+                    DataHeaderElement& trans,
+                    const DataHeaderForm_p5& form,
+                    unsigned int entry) const;
+   void transToPers(const DataHeaderElement& trans,
+                    DataHeaderElement_p5& pers,
+                    DataHeaderForm_p5& form,
+                    unsigned int entry) const;
 };
 
 /** @class DataHeaderCnv_p5
@@ -37,27 +42,45 @@ friend class DataHeaderCnv_p5;
 class DataHeaderCnv_p5 {
 public:
    DataHeaderCnv_p5();
-   virtual ~DataHeaderCnv_p5();
+   ~DataHeaderCnv_p5();
 
-   DataHeader* createTransient(const DataHeader_p5* persObj);
-   void persToTrans(const DataHeader_p5* pers, DataHeader* trans);
-   DataHeader_p5* createPersistent(const DataHeader* transObj);
-   void transToPers(const DataHeader* trans, DataHeader_p5* pers);
+   std::unique_ptr<DataHeader>
+   createTransient(const DataHeader_p5& persObj,
+                   const DataHeaderForm_p5& dhForm) const;
+   void persToTrans(const DataHeader_p5& pers,
+                    DataHeader& trans,
+                    const DataHeaderForm_p5& dhForm) const;
+   std::unique_ptr<DataHeader_p5>
+   createPersistent(const DataHeader& transObj,
+                    DataHeaderForm_p5& dhForm) const;
+   void transToPers(const DataHeader& trans,
+                    DataHeader_p5& pers,
+                    DataHeaderForm_p5& dhForm) const;
 
-   void insertDHRef(DataHeader_p5* pers, const std::string& key, const std::string& strToken);
+   void insertDHRef(DataHeader_p5& pers,
+                    DataHeaderForm_p5& dhForm,
+                    const std::string& key, const std::string& strToken) const;
 
 private:
    DataHeaderElementCnv_p5 m_elemCnv;
 };
 
-inline DataHeader* DataHeaderCnv_p5::createTransient(const DataHeader_p5* persObj) {
-   DataHeader* trans = new DataHeader();
-   persToTrans(persObj, trans);
+inline
+std::unique_ptr<DataHeader>
+DataHeaderCnv_p5::createTransient(const DataHeader_p5& persObj,
+                                  const DataHeaderForm_p5& dhForm) const
+{
+   auto trans = std::make_unique<DataHeader>();
+   persToTrans(persObj, *trans, dhForm);
    return(trans);
 }
-inline DataHeader_p5* DataHeaderCnv_p5::createPersistent(const DataHeader* transObj){
-   DataHeader_p5* pers = new DataHeader_p5();
-   transToPers(transObj, pers);
+inline
+std::unique_ptr<DataHeader_p5>
+DataHeaderCnv_p5::createPersistent(const DataHeader& transObj,
+                                   DataHeaderForm_p5& dhForm) const
+{
+   auto pers = std::make_unique<DataHeader_p5>();
+   transToPers(transObj, *pers, dhForm);
    return(pers);
 }
 

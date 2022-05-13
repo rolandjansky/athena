@@ -23,22 +23,15 @@
 Trk::TrackFitInputPreparator::TrackFitInputPreparator()
   : m_sortingRefPoint(0., 0., 0.)
 {
-  m_TP_ComparisonFunction =
-    new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
 }
 
 Trk::TrackFitInputPreparator::TrackFitInputPreparator(
   const Amg::Vector3D& gp)
   : m_sortingRefPoint(gp)
 {
-  m_TP_ComparisonFunction =
-    new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
 }
 
-Trk::TrackFitInputPreparator::~TrackFitInputPreparator()
-{
-  delete m_TP_ComparisonFunction;
-}
+
 
 // fill a new track object from track+measurements using flags for sorting and
 // outliers.
@@ -145,18 +138,10 @@ Trk::TrackFitInputPreparator::stripPrepRawData(
         dynamic_cast<const Trk::RIO_OnTrack*>((*it)->measurementOnTrack());
       if (rot) {
         const PrepRawData* prepRD = rot->prepRawData();
-        if (!prepRD) {
-          std::cout
-            << "TrackFitInputPreparator: WARNING, RIO_OnTrack->prepRawRata() "
-            << "returns no object, ignore... " << std::endl;
-        } else
+        if (prepRD) {
           newPrdSet.push_back(prepRD);
-      } else {
-        std::cout
-          << "ITrackFitter::fit(TRK,PRDset) implementation "
-          << "is not designed for other than track with 100% RIO_OnTrack."
-          << std::endl;
-      }
+        }
+      } 
     }
   }
   Trk::PrepRawDataSet::const_iterator itSet = inputPrds.begin();
@@ -165,14 +150,12 @@ Trk::TrackFitInputPreparator::stripPrepRawData(
       newPrdSet.push_back(*itSet);
 
   if (doSorting) {
-    // sort PrepRawData Set in increasing distance from origin using STL sorting
-    Trk::PrepRawDataComparisonFunction* PRD_CompFunc =
-      new Trk::PrepRawDataComparisonFunction(
-        (*inputTrk.trackParameters()->begin())->position(),
-        (*inputTrk.trackParameters()->begin())->momentum());
-    if (!is_sorted(newPrdSet.begin(), newPrdSet.end(), *PRD_CompFunc))
-      std::sort(newPrdSet.begin(), newPrdSet.end(), *PRD_CompFunc);
-    delete PRD_CompFunc;
+    Trk::PrepRawDataComparisonFunction PRD_CompFunc(
+      (*inputTrk.trackParameters()->begin())->position(),
+      (*inputTrk.trackParameters()->begin())->momentum());
+
+    if (!is_sorted(newPrdSet.begin(), newPrdSet.end(), PRD_CompFunc))
+      std::sort(newPrdSet.begin(), newPrdSet.end(), PRD_CompFunc);
   }
   return newPrdSet;
 }

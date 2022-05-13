@@ -486,8 +486,8 @@ void Prophecy4fMerger::merge(){
     }
 }
 
-bool Prophecy4fMerger::isPHevent(TLorentzVector higgs,
-                                 TLorentzVector sum_daugh_rest_init){
+bool Prophecy4fMerger::isPHevent(const TLorentzVector& higgs,
+                                 const TLorentzVector& sum_daugh_rest_init){
 
     if( std::abs(higgs.M()-sum_daugh_rest_init.M())>m_deltaM ){
         ANA_MSG_INFO("POWHEG event with Higgs off-mass shell: " << higgs.M() << " GeV");

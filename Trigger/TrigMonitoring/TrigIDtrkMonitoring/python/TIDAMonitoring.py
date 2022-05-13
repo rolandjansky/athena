@@ -9,92 +9,123 @@
 # actual code to configure al;l the different algorithm instances for 
 # the different slices 
 
-def TIDAMonitoring( flags=None, name=None, monlevel=None ) :  
+
+def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :  
 
         tools = []
 
         from AthenaCommon.Logging import logging
         log = logging.getLogger("TIDAMonitoring")
 
-        log.info( "Creating TIDA monitoring: "+ name )
+        log.info( "Creating  TIDA monitoring: " + name )
+        log.info( "                  mcTruth: " + str(mcTruth) )
 
         from TrigIDtrkMonitoring.TIDAChains import getchains
         
+        key     = "Expert"
+        toolkey = ""
 
-        #### electron #### 
+        if monlevel is not None:
+                log.info( "TIDA monitoring not None: monlevel: " + monlevel )        
+                if "shifter" in monlevel:
+                        key     = "Shifter"
+                        toolkey = "Shifter"
 
-        tidaegamma = TrigR3Mon_builder( flags, name = "IDEgammaTool" )
+
+        if mcTruth: 
+                tidaegamma = TrigR3Mon_builder( flags, name = "IDEgammaTruth"+toolkey+"Tool", mcTruth=True, pdgID=11 )
+                tidaegamma.SliceTag       = "HLT/TRIDT/EgammaTruth/"+key
+        else:
+                tidaegamma = TrigR3Mon_builder( flags, name = "IDEgamma"+toolkey+"Tool", useHighestPT=True )
+                tidaegamma.SliceTag       = "HLT/TRIDT/Egamma/"+key
+
+
         tidaegamma.AnalysisConfig = "Tier0"
-        tidaegamma.SliceTag       = "HLT/TRIDT/Egamma/Expert"
-        tidaegamma.UseHighestPT   = True
 
         chains = getchains( [ "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
                               "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
                               "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
                               "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
-                              "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el0_tag:te=0",
-                              "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el0_probe:te=1",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1eEM26M:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1eEM26M:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_tag:te=0",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_probe:te=1" ], monlevel )
+                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_tag:te=0",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_probe:te=1",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_probe:te=1",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_gsf_probe_.*inv.*:key=HLT_IDTrack_Electron_GSF:extra=el_tag:te=0",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_gsf_probe_.*inv.*:key=HLT_IDTrack_Electron_GSF:extra=el_probe:te=1" ], monlevel )
 
-        tidaegamma.ntupleChainNames = chains
+        if  len(chains)>0 : 
 
-        tidaegamma.MonTools = createMonTools( flags, tidaegamma.SliceTag, chains )
+                tidaegamma.ntupleChainNames = chains
 
-        tools += [ tidaegamma ]
+                tidaegamma.MonTools = createMonTools( flags, tidaegamma.SliceTag, chains )
+
+                tools += [ tidaegamma ]
+
 
 
 
         #### LRT Egamma ####
         
-        tidaegammalrt = TrigR3Mon_builder( flags, name = "IDEgammaLRTTool" ) 
+        if mcTruth: 
+                tidaegammalrt = TrigR3Mon_builder( flags, name = "IDEgammaLRTTruth"+toolkey+"Tool", mcTruth=True, pdgID=11 )
+                tidaegammalrt.SliceTag       = "HLT/TRIDT/EgammaLRTTruth/"+key
+        else:
+                tidaegammalrt = TrigR3Mon_builder( flags, name = "IDEgammaLRT"+toolkey+"Tool", useHighestPT=True )
+                tidaegammalrt.SliceTag       = "HLT/TRIDT/EgammaLRT/"+key
                                   
         tidaegammalrt.AnalysisConfig = "Tier0"
-        tidaegammalrt.SliceTag = "HLT/TRIDT/Egamma/Expert"
 
         chains = getchains( [ "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
                               "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" ], monlevel )
         
-        tidaegammalrt.ntupleChainNames = chains
+        if len(chains)>0 : 
 
-        tidaegammalrt.MonTools = createMonTools( flags, tidaegammalrt.SliceTag, chains )
+                tidaegammalrt.ntupleChainNames = chains
+
+                tidaegammalrt.MonTools = createMonTools( flags, tidaegammalrt.SliceTag, chains )
         
-        tools += [ tidaegammalrt ]
+                tools += [ tidaegammalrt ]
                 
                 
 
 
         #### muon ####
 
-        tidamuon = TrigR3Mon_builder( flags, name = "IDMuonTool" )
+        if mcTruth: 
+                tidamuon = TrigR3Mon_builder( flags, name = "IDMuonTruth"+toolkey+"Tool", mcTruth=True, pdgID=13 )
+                tidamuon.SliceTag = "HLT/TRIDT/MuonTruth/"+key
+        else:
+                tidamuon = TrigR3Mon_builder( flags, name = "IDMuon"+toolkey+"Tool", useHighestPT=True )
+                tidamuon.SliceTag = "HLT/TRIDT/Muon/"+key
+
         tidamuon.AnalysisConfig = "Tier0"
-        tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
-        tidamuon.UseHighestPT = True
 
         chains = getchains( [ "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
                               "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
                               "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
                               "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso" ], monlevel )
                               
+        if len(chains)>0 : 
 
-        tidamuon.ntupleChainNames += chains
+                tidamuon.ntupleChainNames += chains
         
-        tidamuon.MonTools = createMonTools( flags,  tidamuon.SliceTag, chains )
+                tidamuon.MonTools = createMonTools( flags,  tidamuon.SliceTag, chains )
         
-
-        tools += [ tidamuon ]
+                tools += [ tidamuon ]
 
 
 
 
         #### tau ####
 
-        tidatau = TrigR3Mon_builder( flags, name = "IDTauTool" )
+        if mcTruth: 
+                tidatau = TrigR3Mon_builder( flags, name = "IDTauTruth"+toolkey+"Tool", mcTruth=True, pdgID=15 )
+                tidatau.SliceTag = "HLT/TRIDT/TauTruth/"+key
+        else:
+                tidatau = TrigR3Mon_builder( flags, name = "IDTau"+toolkey+"Tool", useHighestPT=True )
+                tidatau.SliceTag = "HLT/TRIDT/Tau/"+key
+
         tidatau.AnalysisConfig = "Tier0"
-        tidatau.SliceTag = "HLT/TRIDT/Tau/Expert"
-        tidatau.UseHighestPT = True
 
         chains = getchains( [ "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
                               "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
@@ -102,31 +133,39 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None ) :
                               "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
                               "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT" ], monlevel )
 
-        tidatau.ntupleChainNames += chains
+        if len(chains)>0 : 
+
+                tidatau.ntupleChainNames += chains
         
-        tidatau.MonTools = createMonTools( flags,  tidatau.SliceTag, chains )
-
-        tools += [ tidatau ]
-
+                tidatau.MonTools = createMonTools( flags,  tidatau.SliceTag, chains )
+                
+                tools += [ tidatau ]
 
 
 
         #### bjets ####
 
-        tidabjet = TrigR3Mon_builder( flags, name = "IDBjetTool" )
+        if mcTruth:
+                tidabjet = TrigR3Mon_builder( flags, name = "IDBjetTruth"+toolkey+"Tool", mcTruth=True )
+                tidabjet.SliceTag = "HLT/TRIDT/BjetTruth/"+key
+        else:
+                tidabjet = TrigR3Mon_builder( flags, name = "IDBjet"+toolkey+"Tool" )
+                tidabjet.SliceTag = "HLT/TRIDT/Bjet/"+key
+
         tidabjet.AnalysisConfig = "Tier0"
-        tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
         
         chains = getchains( [ "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                               "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                               "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                               "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig" ], monlevel )
+
+        if len(chains)>0 : 
                         
-        tidabjet.ntupleChainNames += chains
+                tidabjet.ntupleChainNames += chains
 
-        tidabjet.MonTools = createMonTools( flags,  tidabjet.SliceTag, chains )
-
-        tools += [ tidabjet ]
+                tidabjet.MonTools = createMonTools( flags,  tidabjet.SliceTag, chains )
+                
+                tools += [ tidabjet ]
 
 
         return tools
@@ -151,19 +190,36 @@ def createMonTools( flags, label, chains, excludeTagChains=True ):
 
 # create the actual algorithm - calling with this wrapper lets us use the same 
 # code for the old, or new configuration 
-def TrigR3Mon_builder( flags=None, name="NoName" ):
+def TrigR3Mon_builder( flags=None, name="NoName", useHighestPT=False, mcTruth=False, pdgID=0 ):
 
         if flags is None:
                 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigR3Mon
                 alg = TrigR3Mon( name = name )
         else:
                 from AthenaConfiguration.ComponentFactory import CompFactory
-                alg =  CompFactory.TrigR3Mon( name = name )
+                alg =  CompFactory.TrigR3Mon( name=name )
 
+        alg.UseHighestPT = useHighestPT
+        alg.mcTruth      = False
+
+        if mcTruth :
+                alg.mcTruth = True
+                alg.pixHitsOffline = -1
+                alg.sctHitsOffline = -1
+                alg.siHitsOffline  = -1
+
+                if pdgID != 0 :
+                        if pdgID == 15 :
+                                alg.SelectParentTruthPdgId = 15
+                        else :
+                                alg.SelectTruthPdgId = pdgID
+                        
         return alg
 
 
-#wrapper function for the central moniotring configuration 
+
+
+# wrapper function for the central monitoring configuration 
 
 def TrigInDetMonConfig( flags, monlevels=None ):
         return TIDAMonitoringCA( flags, monlevels )
@@ -177,7 +233,13 @@ def TIDAMonitoringCA( flags, monlevels=None ):
         from AthenaMonitoring import AthMonitorCfgHelper
         monConfig = AthMonitorCfgHelper(flags, "TrigIDMon")
 
-        algs = TIDAMonitoring(flags, "SeeminglyIrrelevant", monlevels )
+        algs = TIDAMonitoring(flags, "Tier0", monlevel="idMon:t0" )
+        algs += TIDAMonitoring(flags, "Shifter", monlevel="idMon:shifter", mcTruth=False ) 
+      
+        if flags.Input.isMC:    
+            algs += TIDAMonitoring(flags, name="PhysVal", monlevel="idMon:t0", mcTruth=True )
+            algs += TIDAMonitoring(flags, name="PhysValShifter", monlevel="idMon:shifter", mcTruth=True )
+
         for a in algs:
                 monConfig.addAlgorithm(a)
 

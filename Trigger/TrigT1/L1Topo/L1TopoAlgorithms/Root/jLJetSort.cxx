@@ -3,17 +3,17 @@
 */
 //  jLJetSort.cxx
 //  TopoCore
-//  algorithm to make sorted jLargeRJets lists
+//  algorithm to make sorted jLJets lists
 //
 #include "L1TopoAlgorithms/jLJetSort.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jLargeRJetTOBArray.h"
+#include "L1TopoEvent/jLJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
 REGISTER_ALG_TCS(jLJetSort)
 
-bool SortByEtLargestjLargeRJet(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
+bool SortByEtLargestjLJet(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 {
    return tob1->Et() > tob2->Et();
 }
@@ -47,17 +47,17 @@ TCS::jLJetSort::initialize() {
 TCS::StatusCode
 TCS::jLJetSort::sort(const InputTOBArray & input, TOBArray & output) {
   
-  const jLargeRJetTOBArray & jets = dynamic_cast<const jLargeRJetTOBArray&>(input);
+  const jLJetTOBArray & jets = dynamic_cast<const jLJetTOBArray&>(input);
    
   // fill output array with GenericTOBs builds from jets
-  for(jLargeRJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+  for(jLJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
     if ( parType_t(std::abs((*jet)-> eta())) < m_minEta) continue; 
     if ( parType_t(std::abs((*jet)-> eta())) > m_maxEta) continue;      	
     output.push_back( GenericTOB(**jet)  );
   }
 
    // sort
-   output.sort(SortByEtLargestjLargeRJet);
+   output.sort(SortByEtLargestjLJet);
    
    // keep only max number of jets
    int par = m_numberOfJets;

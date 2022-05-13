@@ -12,5 +12,6 @@ typedef std::vector<CaloAffectedRegionInfo>  CaloAffectedRegionInfoVec;
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( CaloAffectedRegionInfoVec , 36372397, 1 )
-CLASS_DEF( CondCont<CaloAffectedRegionInfoVec>, 162668004 , 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_MIXED_DEF(CaloAffectedRegionInfoVec, 162668004);
 #endif

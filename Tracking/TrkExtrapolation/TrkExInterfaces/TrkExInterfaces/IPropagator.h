@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,26 +48,17 @@ static const InterfaceID IID_IPropagator("IPropagator", 1, 0);
 /** @class IPropagator
   Interface class IPropagators
   It inherits from IAlgTool.
-
-
   */
 class IPropagator : virtual public IAlgTool
 {
 public:
   /**Virtual destructor*/
-  virtual ~IPropagator() {}
+  virtual ~IPropagator() = default;
 
   /** AlgTool and IAlgTool interface methods */
   static const InterfaceID& interfaceID() { return IID_IPropagator; }
 
-  /** [NeutralParameters]
-   * ------------------------------------------------------------- */
-
-  /** N 0) <b>Neutral parameters method </b>
-      - returns a ParametersBase object as well, 0 if the extrapolation did not
-     succeed
-    */
-
+  /** Main propagation method for NeutralParameters */
   virtual std::unique_ptr<NeutralParameters> propagate(
     const NeutralParameters& parameters,
     const Surface& sf,
@@ -75,32 +66,7 @@ public:
     const BoundaryCheck& bcheck,
     bool returnCurv = false) const = 0;
 
-  /** N 0) <b>Neutral parameters method </b>
-      - symmetric interface for new Extrapolation engine
-    */
-
-  std::unique_ptr<NeutralParameters> propagate(
-    const NeutralParameters& parameters,
-    const Surface& sf,
-    PropDirection dir,
-    const BoundaryCheck& bcheck,
-    const MagneticFieldProperties&,
-    ParticleHypothesis,
-    bool returnCurv,
-    const TrackingVolume* tVol = nullptr) const
-  { // avoid warning for tVol
-    return propagate(parameters, sf, dir, bcheck, returnCurv);
-    if (tVol)
-      return nullptr;
-  }
-
-  /** [TrackParameters] new interfaces WITH EventContext
-   * ------------------------------------------ */
-
-  /** Propagation interface:
-    The propagation method called by the TrkExtrapolator. The extrapolator
-    is responsible for the underlying logic of which surface to go to.
-    */
+  /** Main propagation method without transport jacobian production*/
   virtual std::unique_ptr<TrackParameters> propagate(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -112,11 +78,7 @@ public:
     bool returnCurv = false,
     const TrackingVolume* tVol = nullptr) const = 0;
 
-  /** Propagation interface:
-
-    The propagation method called by the TrkExtrapolator. The propagator
-    finds the closest surface.
-    */
+  /** Propagate parameters and covariance with search of closest surface */
   virtual std::unique_ptr<TrackParameters> propagate(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -130,11 +92,8 @@ public:
     bool returnCurv = false,
     const TrackingVolume* tVol = nullptr) const = 0;
 
-  /** Propagation interface:
-
-    The propagation method called by the TrkExtrapolator. The propagator
-    finds the closest surface. Timing included.
-    */
+  /** Propagate parameters and covariance with search of closest surface 
+   * time included*/
   virtual std::unique_ptr<TrackParameters> propagateT(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -149,35 +108,15 @@ public:
     const TrackingVolume* tVol,
     std::vector<Trk::HitInfo>*& hitVector) const;
 
-  /** Propagation interface:
-
-    The propagation method called by the TrkExtrapolator. The propagator
-    finds the closest surface. Timing included.
-    */
-  virtual std::unique_ptr<TrackParameters> propagateT(
-    const EventContext& ctx,
-    const TrackParameters& parm,
-    TargetSurfaces& sfs,
-    PropDirection dir,
-    const MagneticFieldProperties& mprop,
-    ParticleHypothesis particle,
-    TargetSurfaceVector& solutions,
-    PathLimit& pathLim,
-    TimeLimit& timeLim,
-    bool returnCurv,
-    std::vector<Trk::HitInfo>*& hitVector) const;
-
-  /** Propagation interface:
-
-    The propagation method called by the TrkExEngine. All options included.
-    */
+  /** Propagate parameters and covariance with search of closest surface and
+   * material collection */
   virtual Trk::ExtrapolationCode propagate(
     const EventContext& ctx,
     Trk::ExCellCharged& eCell,
     Trk::TargetSurfaces& sfs,
     Trk::TargetSurfaceVector& solutions) const;
+  
   /** Propagation interface:
-
     The propagation method with internal material collection. The propagator
     finds the closest surface.
     */
@@ -197,11 +136,7 @@ public:
     const TrackingVolume* tVol = nullptr,
     Trk::ExtrapolationCache* cache = nullptr) const;
 
-  /** Propagation interface:
-
-    The propagation method including the return of the TransportJacobian matrix.
-
-    */
+  /** Main propagation method with transport jacobian production*/
   virtual std::unique_ptr<TrackParameters> propagate(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -215,10 +150,7 @@ public:
     bool returnCurv = false,
     const TrackingVolume* tVol = nullptr) const = 0;
 
-  /** Propagation interface without Covariance matrix propagation
-    the pathlength has to be returned for eventual following propagateCovariance
-    */
-
+  /** Main propagation method for parameters only. Without transport jacobian production*/
   virtual std::unique_ptr<TrackParameters> propagateParameters(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -230,6 +162,7 @@ public:
     bool returnCurv = false,
     const TrackingVolume* tVol = nullptr) const = 0;
 
+  /** Main propagation method for parameters only with transport jacobian production*/
   virtual std::unique_ptr<TrackParameters> propagateParameters(
     const EventContext& ctx,
     const TrackParameters& parm,
@@ -243,7 +176,6 @@ public:
     const TrackingVolume* tVol = nullptr) const = 0;
 
   /** Intersection interface:
-
      The intersection interface might be used by the material service as well to
      estimate the surfaces (sensitive and nonesensitive) while propagation
     */
@@ -257,7 +189,6 @@ public:
 
   /** Intersection and Intersector interface:
    */
-
   virtual const TrackSurfaceIntersection* intersectSurface(
     const EventContext& ctx,
     const Surface& surface,

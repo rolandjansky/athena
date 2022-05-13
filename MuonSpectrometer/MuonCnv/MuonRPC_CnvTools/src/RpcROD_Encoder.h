@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_RPCROD_ENCODER_H
 #define MUONBYTESTREAM_RPCROD_ENCODER_H
 
 #include <stdint.h>
-
-#include "AthenaKernel/MsgStreamMember.h"
 
 #include "TrigT1RPChardware/MatrixReadOutStructure.h"
 
@@ -19,8 +17,6 @@
 #include "ByteStreamData/RawEvent.h"
 
 #include "RPC_Hid2RESrcID.h"
-
-#include "CxxUtils/checker_macros.h"
 
 /** This class provides conversion from BS to ROD format. 
    * @author H. Ma
@@ -64,10 +60,7 @@ public:
 	  a vector of 32bit words
 	*/ 
 
-        void fillROD(std::vector<uint32_t>& v) ; 
-
-	MsgStream & msg (MSG::Level lvl) const {return m_msg << lvl;};
-	bool msgLevel (MSG::Level lvl) {return m_msg.get().level() <= lvl;};
+        void fillROD(std::vector<uint32_t>& v) ;
 
 private:
 	void packFragments(const std::vector<uint16_t>& v16, 
@@ -83,8 +76,6 @@ private:
 	const RPC_Hid2RESrcID* m_hid2re; 
 	std::vector<const RpcPad*> m_vRpcPad;  
 
-
-	mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 } ; 
 
 #endif

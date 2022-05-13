@@ -33,5 +33,9 @@ def getAFP_PileUpTool(name="AFP_PileUpTool",**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", AFP_FirstXing() )
         kwargs.setdefault("LastXing", AFP_LastXing() )
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("mergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     return CfgMgr.AFP_PileUpTool(name, **kwargs)

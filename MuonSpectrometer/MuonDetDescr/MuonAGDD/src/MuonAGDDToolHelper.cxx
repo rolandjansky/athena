@@ -140,7 +140,7 @@ bool MuonAGDDToolHelper::BuildMScomponents() const
   MuonGM::MuonDetectorManager* muonMgr=nullptr;
   if (pDetStore->retrieve(muonMgr).isFailure()) return false;
   BuildNSWReadoutGeometry theBuilder = BuildNSWReadoutGeometry();
-  bool readoutGeoDone =  theBuilder.BuildReadoutGeometry(muonMgr/*, GetMSdetectors*/);
+  bool readoutGeoDone =  theBuilder.BuildReadoutGeometry(muonMgr, nullptr/*, GetMSdetectors*/);
   if (!readoutGeoDone) return false;
   return true;
 }

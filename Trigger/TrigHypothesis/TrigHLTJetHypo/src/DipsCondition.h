@@ -26,10 +26,11 @@ class ITrigJetHypoInfoCollector;
 class DipsCondition: public ICondition{
  public:
    DipsCondition(double workingPoint,
-                 const float &cfrac = 0.018,
-                 const std::string &decName_pb = "fastDips_pb",
-                 const std::string &decName_pu = "fastDips_pu",
-                 const std::string &decName_pc = "fastDips_pc" );
+                 const float &cfrac,
+                 const std::string &decName_pb,
+                 const std::string &decName_pc,
+                 const std::string &decName_pu,
+                 const std::string &decName_isValid = "");
 
    float getDipsDecValue(const pHypoJet &ip,
                          const std::unique_ptr<ITrigJetHypoInfoCollector> &collector,
@@ -50,8 +51,9 @@ class DipsCondition: public ICondition{
    double      m_workingPoint;
    float       m_cfrac;
    std::string m_decName_pb;
-   std::string m_decName_pu;
    std::string m_decName_pc;
+   std::string m_decName_pu;
+   std::string m_decName_isValid;
 
    bool isSatisfied(const pHypoJet &,
                     const std::unique_ptr<ITrigJetHypoInfoCollector> &) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackParticleClusterAssociationAlg.h"
@@ -54,7 +54,7 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
   // pre-calculate a width of clusters, set it as dynamica attribute so we don't have to recalculate it
   SG::ReadHandle<xAOD::CaloClusterContainer> clusterContainer(m_caloClusters);
   ATH_MSG_DEBUG("retrieved "<< m_caloClusters.key() << " size = "<< clusterContainer->size() );
-  static SG::AuxElement::Decorator<float> sig_dec("sigmaWidth");
+  static const SG::AuxElement::Decorator<float> sig_dec("sigmaWidth");
   //for(const xAOD::CaloCluster *cl : *clusterContainer){
   for(const xAOD::CaloCluster *cl : *clusterContainer){
     double rad;
@@ -166,7 +166,7 @@ std::vector<const xAOD::CaloCluster* > TrackParticleClusterAssociationAlg::assoc
 
   float dr2Cut0 = m_dr*m_dr;
   // to access the pre-calculated width :
-  static SG::AuxElement::ConstAccessor<float> sig_acc("sigmaWidth");
+  static const SG::AuxElement::ConstAccessor<float> sig_acc("sigmaWidth");
 
   for(const xAOD::CaloCluster * cl : allClusters){
 

@@ -22,22 +22,18 @@
 /** Constructor **/
 Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
-  m_idHelper(nullptr),
-  m_idPrdProvider(""),
-  m_msPrdProvider("")
+  m_idHelper(nullptr)
 {
     declareInterface<Trk::IPRD_TruthTrajectoryBuilder>(this);
     // the PRD providers that turn Identifier -> IdentiferHash and get the PRD
-    declareProperty("InDetPRD_Provider", m_idPrdProvider);
-    declareProperty("MuonPRD_Provider",  m_msPrdProvider);
-    // the PRD manipulators
-    declareProperty("PRD_TruthTrajectoryManipulators", m_prdTruthTrajectoryManipulators);
 }
 
 // Athena algtool's Hooks - initialize
 StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
 {
-    ATH_MSG_VERBOSE("Initializing ...");
+    std::cout << "Nora: min pT " << m_minPt << "\n";
+    
+    ATH_MSG_INFO("Initializing ...");
     // Set up ATLAS ID helper to be able to identify the PRD's det-subsystem
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
          ATH_MSG_ERROR ("Could not get AtlasDetectorID helper. Arborting ...");
@@ -58,6 +54,7 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
         ATH_MSG_ERROR ("Could not get configured " << m_prdTruthTrajectoryManipulators << ". Arborting ..." );
         return StatusCode::FAILURE;
     }
+    
     ATH_CHECK( m_prdMultiTruthCollectionNames.initialize() );
 
     return StatusCode::SUCCESS;
@@ -65,7 +62,7 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
 
 StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
 
-   ATH_MSG_VERBOSE("Calling refreshEvent() to reset cache and retrieve collections");
+   ATH_MSG_INFO("Calling refreshEvent() to reset cache and retrieve collections");
    // clear the cache & reserve
    m_gpPrdTruthTrajectories.clear();
    m_prdMultiTruthCollections.clear();
@@ -78,7 +75,7 @@ StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
        ATH_MSG_WARNING("Could not retrieve " << pmtCollNameIter << ". Ignoring ... ");
      }
      else{
-       ATH_MSG_VERBOSE("Added " << pmtCollNameIter << " to collection list for truth track creation.");
+       ATH_MSG_INFO("Added " << pmtCollNameIter << " to collection list for truth track creation.");
        m_prdMultiTruthCollections.push_back(curColl.cptr());
      }
    }
@@ -106,9 +103,11 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
     std::vector<const PRD_MultiTruthCollection*>::const_iterator pmtCollIterE = m_prdMultiTruthCollections.end();
     for ( ; pmtCollIter != pmtCollIterE; ++pmtCollIter ){
         // loop over the map and get the identifier, GenParticle relation
+        std::cout << "Nora: size of collection: " << (*pmtCollIter)->size() << "\n";
         PRD_MultiTruthCollection::const_iterator prdMtCIter  = (*pmtCollIter)->begin();
         PRD_MultiTruthCollection::const_iterator prdMtCIterE = (*pmtCollIter)->end();
         for ( ; prdMtCIter != prdMtCIterE; ++ prdMtCIter ){
+
             // check if entry exists and if   
 #ifdef HEPMC3
             HepMC::ConstGenParticlePtr curGenP       = (*prdMtCIter).second.scptr();
@@ -117,11 +116,14 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
             HepMC::ConstGenParticlePtr curGenP       = (*prdMtCIter).second;
 #endif
             Identifier                curIdentifier = (*prdMtCIter).first;
+            if(m_idHelper->is_trt(curIdentifier)) std::cout << "I'm a trt thingy hi\n";
             // apply the min pT cut 
+            std::cout << "Nora: pt " << curGenP->momentum().perp() << " pgid " << std::abs(curGenP->pdg_id()) << " geantino " << m_geantinos << "\n";
             if ( curGenP->momentum().perp() < m_minPt ) continue;
             // skip geantinos if required
             if (!m_geantinos && std::abs(curGenP->pdg_id())==999) continue;
             // get the associated PRD from the provider
+            std::cout << "Is id? " << m_idHelper->is_indet(curIdentifier) << "\n";
             const Trk::PrepRawData* prd = m_idHelper->is_indet(curIdentifier) ?
                 m_idPrdProvider->prdFromIdentifier(curIdentifier,ndof) : m_msPrdProvider->prdFromIdentifier(curIdentifier,ndof);
             // stuff it into the trajectory if you found a PRD
@@ -144,11 +146,17 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
                     (prdTrajIter->second).nDoF += ndof;
                     ndofTotal = (prdTrajIter->second).nDoF;
                 }
-                ATH_MSG_VERBOSE("  Associating PRD with " << ndof << " degrees of freedom, total N.d.o.F : " << ndofTotal );
-                ATH_MSG_VERBOSE("  Associating Identifier " << curIdentifier << " with particle at [ " << curGenP << " ]." );
+                ATH_MSG_INFO("  Associating PRD with " << ndof << " degrees of freedom, total N.d.o.F : " << ndofTotal );
+                ATH_MSG_INFO("  Associating Identifier " << curIdentifier << " with particle at [ " << curGenP << " ]." );
+                std::string prdtype = m_idHelper->is_pixel(curIdentifier) ? "Pixel" : m_idHelper->is_sct(curIdentifier) ?  "SCT" : "TRT";
+                ATH_MSG_INFO("  PRD is a " << prdtype);
+            } else {
+                std::string prdtype = m_idHelper->is_pixel(curIdentifier) ? "Pixel" : m_idHelper->is_sct(curIdentifier) ?  "SCT" : "TRT";
+                ATH_MSG_INFO("  Failed to get " << prdtype << " PRD");
             }
         }        
     }
+    std::cout << "Nora found " << m_gpPrdTruthTrajectories.size() << " tracks\n";
     // PART 2 --------------------------------------------------------------------------------------------------------
     // loop through the provided list of manipulators ( sorter is included )
     auto prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
@@ -159,7 +167,7 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();
             for ( ; prdTTMIter != prdTTMIterE; ++prdTTMIter ){
                 if ((*prdTTMIter)->manipulateTruthTrajectory((*prdTruthTrajIter).second))
-                    ATH_MSG_VERBOSE("PRD truth trajectory got manipulated by: " << (*prdTTMIter).name() );
+                    ATH_MSG_INFO("PRD truth trajectory got manipulated by: " << (*prdTTMIter).name() );
             }
         }
     }
@@ -172,7 +180,7 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::finalize()
     // clear the cache a last time
     m_gpPrdTruthTrajectories.clear();
     m_prdMultiTruthCollections.clear();    
-    ATH_MSG_VERBOSE("Finalizing ...");
+    ATH_MSG_INFO("Finalizing ...");
     return StatusCode::SUCCESS;
 }
 

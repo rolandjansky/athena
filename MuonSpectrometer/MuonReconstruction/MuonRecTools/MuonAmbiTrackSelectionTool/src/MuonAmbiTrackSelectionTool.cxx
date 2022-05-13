@@ -18,22 +18,14 @@
 
 //================ Constructor =================================================
 
-Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string &t, const std::string &n,
-                                                             const IInterface *p)
-    : AthAlgTool(t, n, p)
-{
+Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string &t, const std::string &n, const IInterface *p) :
+    AthAlgTool(t, n, p) {
     declareInterface<IAmbiTrackSelectionTool>(this);
-
-    declareProperty("MaxOverlapFraction", m_maxOverlapFraction = 0.1);
-    declareProperty("KeepPartialOverlaps", m_keepPartial = true);
-    declareProperty("KeepMoreThanOneShare", m_keepMoreThanOne = true);
 }
 
 //================ Initialisation =================================================
 
-StatusCode
-Muon::MuonAmbiTrackSelectionTool::initialize()
-{
+StatusCode Muon::MuonAmbiTrackSelectionTool::initialize() {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
 
@@ -41,44 +33,46 @@ Muon::MuonAmbiTrackSelectionTool::initialize()
 }
 
 //============================================================================================
-std::tuple<Trk::Track *, bool>
-Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *track, const Trk::TrackScore score,
-                                                     [[maybe_unused]] Trk::ClusterSplitProbabilityContainer &splitProbContainer,
-                                                     Trk::PRDtoTrackMap &prd_to_track_map,
-                                                     int trackId /*= -1*/, int subtrackId /*= -1*/) const
-{
-    (void)score;  //@TODO unused ?
-
-    unsigned int numshared = 0;
-    unsigned int numhits   = 0;
+std::tuple<Trk::Track *, bool> Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(
+    const Trk::Track *track, const Trk::TrackScore /*score*/, Trk::ClusterSplitProbabilityContainer & /*splitProbContainer*/,
+    Trk::PRDtoTrackMap &prd_to_track_map, int trackId /*= -1*/, int subtrackId /*= -1*/) const {
+    unsigned int numshared{0}, numhits{0}, numPhiHits{0};
 
     if (!track) {
-        return std::make_tuple(static_cast<Trk::Track *>(nullptr), false);  // "reject" invalid input track
+        return std::make_tuple(nullptr, false);  // "reject" invalid input track
     }
 
-    // get all TSOS
-    const DataVector<const Trk::TrackStateOnSurface> *tsos = track->trackStateOnSurfaces();
-
-
     ATH_MSG_VERBOSE("New Track " << m_printer->print(*track));
-    ATH_MSG_VERBOSE("trackId "<< trackId <<", subtrackId "<<subtrackId);  
+    ATH_MSG_VERBOSE("trackId " << trackId << ", subtrackId " << subtrackId);
 
     std::map<Muon::MuonStationIndex::StIndex, int> sharedPrecisionPerLayer;
     std::map<Muon::MuonStationIndex::StIndex, int> precisionPerLayer;
+    auto is_shared = [&sharedPrecisionPerLayer, &precisionPerLayer, this, &numshared, &numhits, &prd_to_track_map,
+                      &numPhiHits](const Trk::RIO_OnTrack *rot) {
+        if (!rot || !rot->prepRawData()) return;
+        const Identifier rot_id = rot->prepRawData()->identify();
+        numPhiHits += m_idHelperSvc->isMuon(rot_id) && m_idHelperSvc->measuresPhi(rot_id);
+        if (!(m_idHelperSvc->isMdt(rot_id) || m_idHelperSvc->isMM(rot_id) || m_idHelperSvc->issTgc(rot_id) ||
+              (m_idHelperSvc->isCsc(rot_id) && !m_idHelperSvc->measuresPhi(rot_id)))) {
+            ATH_MSG_VERBOSE("Measurement " << m_printer->print(*rot) << " is not a precision one");
+            return;
+        }
+        const Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(rot_id);
+        ++precisionPerLayer[stIndex];
+        ++numhits;
+        if (!prd_to_track_map.isUsed(*(rot->prepRawData()))) { return; }
 
-    // loop over TSOS
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();
-    for (; iTsos != iTsosEnd; ++iTsos) {
-
+        ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperSvc->toString(rot_id));
+        ++numshared;
+        ++sharedPrecisionPerLayer[stIndex];
+    };
+    for (const Trk::TrackStateOnSurface *iTsos : *track->trackStateOnSurfaces()) {
         // get measurment from TSOS
-        const Trk::MeasurementBase *meas = (*iTsos)->measurementOnTrack();
+        const Trk::MeasurementBase *meas = iTsos->measurementOnTrack();
         if (!meas) continue;
 
         // only look at measurements
-        if (!(*iTsos)->type(Trk::TrackStateOnSurface::Measurement)) continue;
-
-
+        if (!iTsos->type(Trk::TrackStateOnSurface::Measurement)) continue;
         const Trk::RIO_OnTrack *rot = dynamic_cast<const Trk::RIO_OnTrack *>(meas);
         if (!rot) {
             // we are only interested in precision hits since only they have the resolution to distinguish between
@@ -87,74 +81,44 @@ Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *track, co
             if (competingROT) {
                 const unsigned int numROTs = competingROT->numberOfContainedROTs();
                 for (unsigned int i = 0; i < numROTs; ++i) {
-                    const Trk::RIO_OnTrack *rot = &competingROT->rioOnTrack(i);
-                    if (!rot || !rot->prepRawData() || !m_idHelperSvc->isMuon(rot->identify())) continue;
-                    // only use precision hits for muon track overlap
-                    if (!m_idHelperSvc->isMdt(rot->identify())
-                        && !(m_idHelperSvc->isCsc(rot->identify()) && !m_idHelperSvc->measuresPhi(rot->identify()))
-                        && !m_idHelperSvc->isMM(rot->identify()) && !m_idHelperSvc->issTgc(rot->identify()))
-                        continue;
-                    Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(rot->identify());
-                    ++precisionPerLayer[stIndex];
-                    if (prd_to_track_map.isUsed(*(rot->prepRawData()))) {
-                        ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperSvc->toString(rot->identify()));
-                        ++numshared;
-                        ++sharedPrecisionPerLayer[stIndex];
-                    }
+                    const Trk::RIO_OnTrack *comp_rot = &competingROT->rioOnTrack(i);
+                    is_shared(comp_rot);
                 }
             }
         } else {
-
-            if (!m_idHelperSvc->isMuon(rot->identify())) continue;
-            if (!m_idHelperSvc->isMdt(rot->identify())
-                && !(m_idHelperSvc->isCsc(rot->identify()) && !m_idHelperSvc->measuresPhi(rot->identify()))
-                && !m_idHelperSvc->isMM(rot->identify()) && !m_idHelperSvc->issTgc(rot->identify()))
-                continue;  // only precision hits used for overlap
-
-            ++numhits;
-
-
-            Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(rot->identify());
-            ++precisionPerLayer[stIndex];
-            // allow no overlap
-            if (prd_to_track_map.isUsed(*(rot->prepRawData()))) {
-                ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperSvc->toString(rot->identify()));
-                ++numshared;
-                ++sharedPrecisionPerLayer[stIndex];
-            }
+            is_shared(rot);
         }
     }
-    if (numhits == 0) {
-        ATH_MSG_WARNING("Got track without Muon hits " << m_printer->print(*track));
-        return std::make_tuple(static_cast<Trk::Track *>(nullptr), false);  // reject input track
+    if (!numhits) {
+        /// Do not trigger the warning if the segment consists purely of phi hits
+        if (!numPhiHits)
+            ATH_MSG_WARNING("Got track without Muon hits " << m_printer->print(*track) << std::endl
+                                                           << m_printer->printMeasurements(*track));
+        return std::make_tuple(nullptr, false);  // reject input track
     }
-    double overlapFraction = (double)numshared / (double)numhits;
+    const double overlapFraction = (double)numshared / (double)numhits;
 
-    ATH_MSG_DEBUG("Track " << track << " has " << numhits << " hit, shared " << numshared << " overlap fraction "
-                           << overlapFraction << " layers " << precisionPerLayer.size() << " shared "
-                           << sharedPrecisionPerLayer.size());
+    ATH_MSG_VERBOSE("Track " << m_printer->print(*track) << " has " << numhits << " hit, shared " << numshared << " overlap fraction "
+                             << overlapFraction << " layers " << precisionPerLayer.size() << " shared " << sharedPrecisionPerLayer.size());
 
     if (overlapFraction > m_maxOverlapFraction) {
         if (m_keepPartial) {
             if (sharedPrecisionPerLayer.empty()) {
                 ATH_MSG_DEBUG("Track is not sharing precision hits, keeping ");
-                return std::make_tuple(static_cast<Trk::Track *>(nullptr), true);  // keep input track
+                return std::make_tuple(nullptr, true);  // keep input track
             }
-            if (overlapFraction < 0.25 && precisionPerLayer.size() > 2
-                && precisionPerLayer.size() - sharedPrecisionPerLayer.size() == 1)
-            {
+            if (overlapFraction < 0.25 && precisionPerLayer.size() > 2 && precisionPerLayer.size() - sharedPrecisionPerLayer.size() == 1) {
                 ATH_MSG_DEBUG("Three station track differing by one precision layer, keeping ");
-                return std::make_tuple(static_cast<Trk::Track *>(nullptr), true);  // keep input track
+                return std::make_tuple(nullptr, true);  // keep input track
             }
-            if (overlapFraction < 0.35 && precisionPerLayer.size() > 2
-                && precisionPerLayer.size() - sharedPrecisionPerLayer.size() > 1 && m_keepMoreThanOne)
-            {
+            if (overlapFraction < 0.35 && precisionPerLayer.size() > 2 && precisionPerLayer.size() - sharedPrecisionPerLayer.size() > 1 &&
+                m_keepMoreThanOne) {
                 ATH_MSG_DEBUG("Three station track differing by more than one precision layer, keeping ");
-                return std::make_tuple(static_cast<Trk::Track *>(nullptr), true);  // keep input track
+                return std::make_tuple(nullptr, true);  // keep input track
             }
         }
-        return std::make_tuple(static_cast<Trk::Track *>(nullptr), false);  // reject input track
+        return std::make_tuple(nullptr, false);  // reject input track
     }
 
-    return std::make_tuple(static_cast<Trk::Track *>(nullptr), true);  // keep input track
+    return std::make_tuple(nullptr, true);  // keep input track
 }

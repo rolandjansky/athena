@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETMATERIALMANAGER_H
 #define INDETMATERIALMANAGER_H
 
-// Message Stream Member
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-
-#include "CxxUtils/checker_macros.h"
 
 class GeoMaterial;
 class GeoElement;
@@ -32,7 +29,7 @@ namespace InDetDD
 /// materials with a density such that the the total weight is correct.
 
 
-class InDetMaterialManager 
+class InDetMaterialManager : public AthMessaging
 {
 
 public:
@@ -131,12 +128,6 @@ public:
   /// Add material
   void addMaterial(GeoMaterial *material);
 
-  //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
-  //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl){ return m_msg.get().level() <= lvl; }
-
 
 private:
 
@@ -232,10 +223,7 @@ private:
   typedef std::map<std::string, double > ExtraScaleFactorMap;
   ExtraScaleFactorMap m_scalingMap;
 
-  //Declaring private message stream member.
-  Athena::MsgStreamMember m_msg;
-
-  // Has linear weight flag. 
+  // Has linear weight flag.
   bool m_extraFunctionality;
 
   const InDetDD::AthenaComps * m_athenaComps;

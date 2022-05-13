@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
@@ -10,6 +10,7 @@
 #include <TH2.h>
 #include <TRandom3.h>
 #include <TFile.h>
+#include <utility>
 
 using std::make_unique;
 
@@ -17,7 +18,7 @@ namespace InDet {
 
   static const CP::SystematicSet FilterSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_TIDE]
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_TIDE)
     };
 
   JetTrackFilterTool::JetTrackFilterTool(const std::string& name) :
@@ -149,7 +150,7 @@ namespace InDet {
     }
     // this histogram has pt on the x-axis and eta on the y-axis, unlike some other histograms used in this package
     // make sure to convert to GeV
-    return m_trkNomEff->GetBinContent(m_trkNomEff->FindBin(track->pt()*1e-3, track->eta()));
+    return m_trkNomEff->GetBinContent(std::as_const(m_trkNomEff)->FindBin(track->pt()*1e-3, track->eta()));
   }
 
   bool JetTrackFilterTool::isAffectedBySystematic( const CP::SystematicVariation& syst ) const

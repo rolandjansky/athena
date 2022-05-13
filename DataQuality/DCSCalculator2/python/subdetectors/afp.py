@@ -13,9 +13,7 @@ from DCSCalculator2.variable import DefectIOV, DCSC_Variable_With_Mapping, DCSC_
 class DCSC_Merged_Variable(DCSC_Variable):
     def __init__(self, evaluator, folders, **kwargs):
         mapping = kwargs.pop('mapping', None)
-        folder_merge = ''
-        for folder in folders:
-            folder_merge += (',' if folder_merge else '') + folder
+        folder_merge = ','.join(folders)
             
         super(DCSC_Merged_Variable, self).__init__(folder_merge, evaluator, **kwargs)
         self.folder_names = folders
@@ -29,7 +27,9 @@ class DCSC_Merged_Variable(DCSC_Variable):
 
     def read(self, query_range, folder_base, folder_name):
         var_iovs = []
-        for folder in self.folder_names:
+        folders = folder_name.split(',')
+
+        for folder in folders:
             iovs = DCSC_Variable.read(self, query_range, folder_base, folder)
             if folder in self.variable_channels_map:
                 iovs = map_channels(iovs, self.variable_channels_map[folder], folder)
@@ -87,24 +87,29 @@ TOF_DEAD_BAND = 0.9
 
 LV_CURRENT_LOW, LV_CURRENT_HIGH = 0.4, 0.6
 
+def remove_None(value, default):
+    return value if value is not None else default
+
 class AFP(DCSC_DefectTranslate_Subdetector):
     folder_base = '/AFP/DCS'
     variables = [
-        DCSC_Merged_Variable(lambda iov: abs(iov.hv_voltage_set.voltageSet + iov.hv.voltage) < HV_DEAD_BAND,
+        DCSC_Merged_Variable(
+            lambda iov: -remove_None(iov.hv.voltage, 0) > iov.hv_voltage_set.voltageSet - HV_DEAD_BAND,
             ['SIT/HV', 'SIT/HV_VOLTAGE_SET'],
             mapping={
                 'SIT/HV': dict(zip([6,7,1,2,8,3,4,9,10,11,12,5,13,14,15,16], range(1,17)))
             }
         ),
-        DCSC_Variable_With_Mapping('SIT/LV', lambda iov: LV_CURRENT_LOW <= iov.current <= LV_CURRENT_HIGH),
-        DCSC_Merged_Variable(lambda iov: abs(iov.tof_pmt_voltage_set.pmt_voltageSet + iov.tof.pmt_voltage) < TOF_DEAD_BAND,
+        DCSC_Variable_With_Mapping('SIT/LV', lambda iov: LV_CURRENT_LOW <= remove_None(iov.current, 0) <= LV_CURRENT_HIGH),
+        DCSC_Merged_Variable(
+            lambda iov: -remove_None(iov.tof.pmt_voltage, 0) > iov.tof_pmt_voltage_set.pmt_voltageSet - TOF_DEAD_BAND,
             ['TOF', 'TOF_PMT_VOLTAGE_SET'],
             mapping={
                 'TOF': {1: TOF_A, 2: TOF_C},
                 'TOF_PMT_VOLTAGE_SET': {1: TOF_A, 2: TOF_C},
             }
         ),
-        DCSC_Variable_With_Mapping('STATION', lambda x: x.inphysics is True),
+        DCSC_Variable_With_Mapping('STATION', lambda iov: iov.inphysics is True),
     ]
 
     dead_fraction_caution = 0.01
@@ -191,11 +196,11 @@ class AFP(DCSC_DefectTranslate_Subdetector):
         """
         Merge input channel states across variables, taking the worst.
         
-        Ignore configuration variables and variables without that channel.
+        Ignore configuration variables and variables without channel.
         """
 
-        # Remove variables without that channel
-        states = filter(lambda x: x and x.channel is not None, states)
+        # Remove variables without channel
+        states = [state for state in states if state and state.channel is not None]
                 
         # More simplistic way of doing the above, but cannot handle config vars:
-        return min(None if not state else state.good for state in states)
+        return min(state.good for state in states) if len(states) > 0 else None

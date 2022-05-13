@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-# import the MultiSVTag configurable
-
-Analysis__MultiSVTag=CompFactory.Analysis.MultiSVTag
 
 def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a MultiSVTag tool and returns it.
@@ -32,7 +29,7 @@ def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', 
                      'SecVxFinderName'                  : 'MSV' }
         for option in defaults:
             options.setdefault(option, defaults[option])
-    acc.setPrivateTools(Analysis__MultiSVTag( **options))
+    acc.setPrivateTools(CompFactory.Analysis.MultiSVTag( **options))
 
     return acc
 

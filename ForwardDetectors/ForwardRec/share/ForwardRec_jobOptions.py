@@ -41,29 +41,16 @@ if rec.doAlfa() and rec.doESD():
     include("ALFA_CLinkAlg/ALFA_CLinkAlg_joboption.py")        
 
 if rec.doAFP() and rec.doESD():
+  from AthenaCommon.Configurable import Configurable
+  from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from ForwardRec.AFPRecConfig import AFPRecCfg
   
-  # Real-data reconstruction:
-  if DetFlags.readRDOBS.AFP_on():
-    from AFP_ByteStream2RawCnv.AFP_ByteStream2RawCnvConf import AFP_RawDataProvider
-    topSequence+=AFP_RawDataProvider()
-
-    from AFP_Raw2Digi.AFP_Raw2DigiConf import AFP_Raw2Digi
-    topSequence+=AFP_Raw2Digi()
+  wasRun3=Configurable.configurableRun3Behavior
+  Configurable.configurableRun3Behavior=1
   
-  #cluster reconstruction
-  from AFP_SiClusterTools.AFP_SiClusterTools import AFP_SiClusterTools_Cfg
-  topSequence+=AFP_SiClusterTools_Cfg()
+  acc=AFPRecCfg(ConfigFlags)
+  appendCAtoAthena(acc)
   
-  # tracks reconstruction
-  from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_Cfg, AFP_LocReco_TD_Cfg
-  topSequence+=AFP_LocReco_SiD_Cfg()
-  topSequence+=AFP_LocReco_TD_Cfg()
-   
-  # protons reconstruction
-  from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_Cfg
-  topSequence+=AFP_GlobReco_Cfg()
-  
-  # vertex reconstruction
-  from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_Cfg
-  topSequence+=AFP_VertexReco_Cfg()
-  
+  Configurable.configurableRun3Behavior=wasRun3
+ 

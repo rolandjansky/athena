@@ -152,7 +152,20 @@ def CscCondDbAlgCfg(flags, **kwargs):
 def TgcDigitASDposCondAlgCfg(flags):
     result  = ComponentAccumulator()
     result.addCondAlgo(CompFactory.TgcDigitASDposCondAlg())
-    result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"] , detDb="TGC_OFL", className="CondAttrListCollection"))
+    if flags.Digitization.UseUpdatedTGCConditions:
+        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], detDb="TGC_OFL", className="CondAttrListCollection"))
+    else:  # Since the folder new and not defined at the presented global tag, it needs an explicit tag
+        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], tag='TgcDigitAsdPos-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+    return result
+
+def TgcDigitTimeOffsetCondAlgCfg(flags):
+    result = ComponentAccumulator()
+    result.addCondAlgo(CompFactory.TgcDigitTimeOffsetCondAlg())
+
+    if flags.Digitization.UseUpdatedTGCConditions:
+        result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))   # TODO The explicit tag will be removed, once this is available in the global tag.
+    else:  # Since the folder new and not defined at the presented global tag, it needs an explicit tag
+        result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
     return result
 
 def NswCalibDbAlgCfg(flags, **kwargs):
@@ -176,6 +189,13 @@ def NswCalibDbAlgCfg(flags, **kwargs):
     alg     = CompFactory.NswCalibDbAlg(**kwargs)
     result.addCondAlgo(alg)
     return result
+
+def NswPassivationDbAlgCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    acc.merge(addFolders(flags, "/MDT/MM/PASSIVATION", "MDT_OFL", className="CondAttrListCollection", tag="MmPassiv2022Feb26")) ## force explicit tag for now, to be removed later once folder tag is resolved via global tag
+    alg = CompFactory.NswPassivationDbAlg("NswPassivationDbAlg", **kwargs)
+    acc.addCondAlgo(alg)
+    return acc
 
 def MuonStationIntersectCondAlgCfg(flags, name='MuonStationIntersectCondAlg',**kwargs):
     # Has dependency IdHelperTool (which we ignore for now)

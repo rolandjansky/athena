@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCHANCALIBCONTAINER_H
@@ -15,7 +15,7 @@
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprChanCalib.h"
-
+#include "AthenaKernel/CondCont.h"
 class CondAttrListCollection;
 
 /***
@@ -34,7 +34,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&);
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>&);
   virtual DataObject* makePersistent() const;
   virtual std::vector<std::string> coolInputKeys() const { return {m_coolFolderKey}; }
   virtual std::string coolOutputKey() const { return m_coolFolderKey; }
@@ -61,6 +61,5 @@ private:
   std::string m_coolFolderKey = "/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib";
 };
 
-CLASS_DEF( L1CaloPprChanCalibContainer, 1220333813, 1 )
-
+CONDCONT_DEF(L1CaloPprChanCalibContainer, 1264520813);
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCHANCALIBCONTAINER_H

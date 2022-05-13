@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXSim - Simulation of the gFEX module
@@ -19,6 +19,7 @@
 #include "L1CaloFEXSim/gFEXJetTOB.h"
 #include "L1CaloFEXSim/gFEXJwoJAlgo.h"
 #include "L1CaloFEXSim/gFEXJwoJTOB.h"
+#include "L1CaloFEXSim/gFEXaltMetAlgo.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include "TrigConfData/L1Menu.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
@@ -66,6 +67,15 @@ namespace LVL1 {
 
     virtual std::vector<uint32_t> getgMSTComponentsJwojTOBs() const override;
 
+    virtual std::vector<uint32_t> getgMETComponentsNoiseCutTOBs() const override;
+
+    virtual std::vector<uint32_t> getgMETComponentsRmsTOBs() const override;
+
+    virtual std::vector<uint32_t> getgScalarENoiseCutTOBs() const override;
+
+    virtual std::vector<uint32_t> getgScalarERmsTOBs() const override;
+
+
 
     /** Internal data */
   private:
@@ -88,6 +98,14 @@ namespace LVL1 {
 
     std::vector<uint32_t>  m_gMSTComponentsJwojTobWords;
 
+    std::vector<uint32_t>  m_gMETComponentsNoiseCutTobWords;
+
+    std::vector<uint32_t>  m_gMETComponentsRmsTobWords;
+
+    std::vector<uint32_t>  m_gScalarENoiseCutTobWords;
+
+    std::vector<uint32_t>  m_gScalarERmsTobWords;
+
 
 
     ToolHandle<IgFEXFPGA> m_gFEXFPGA_Tool {this, "gFEXFPGATool", "LVL1::gFEXFPGA", "Tool that simulates the FPGA hardware"};
@@ -95,6 +113,8 @@ namespace LVL1 {
     ToolHandle<IgFEXJetAlgo> m_gFEXJetAlgoTool {this, "gFEXJetAlgoTool", "LVL1::gFEXJetAlgo", "Tool that runs the gFEX jet algorithm"};
 
     ToolHandle<IgFEXJwoJAlgo> m_gFEXJwoJAlgoTool {this, "gFEXJwoJAlgoTool", "LVL1::gFEXJwoJAlgo", "Tool that runs the gFEX Jets without Jets algorithm"};
+
+    ToolHandle<IgFEXaltMetAlgo> m_gFEXaltMetAlgoTool {this, "gFEXaltMetAlgoTool", "LVL1::gFEXaltMetAlgo", "Tool that runs the gFEX noise cut and rho+RMS algorithms for MET"};
 
     SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"}; 
   };

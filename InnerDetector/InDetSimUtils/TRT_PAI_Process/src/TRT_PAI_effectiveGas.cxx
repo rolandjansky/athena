@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_PAI_Process.h"
@@ -16,6 +16,7 @@
 #include <cmath>
 #include <algorithm> //for std::max, std::clamp
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 //____________________________________________________________________________
@@ -25,10 +26,10 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 					   double Emax,
 					   double tempK,
 					   double eps)
-  : m_lnEmin(std::log(Emin)),
+  : AthMessaging(Athena::getMessageSvc(), "TRT_PAI_effectiveGas"),
+    m_lnEmin(std::log(Emin)),
     m_lnEmax(std::log(Emax)),
-    m_eps(eps),
-    m_msg("TRT_PAI_effectiveGas")
+    m_eps(eps)
 {
   using namespace TRT_PAI_physicsConstants;
 

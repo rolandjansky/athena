@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionSvc.h"
@@ -358,12 +358,14 @@ StatusCode DecisionSvc::start()
   }
 
   //Now that everything is said and done, match filters with stream and logic in CutFlowSvc
-  DeclareToCutFlowSvc();
+  StatusCode sc ATLAS_THREAD_SAFE = DeclareToCutFlowSvc();
+  //            ^ FIXME: Should really mark start() as ATLAS_NOT_THREAD_SAFE but that is currently
+  //              not possible with the thread-checker.
 
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
-void DecisionSvc::DeclareToCutFlowSvc()
+StatusCode DecisionSvc::DeclareToCutFlowSvc ATLAS_NOT_THREAD_SAFE ()
 {
   // Declare all decisions to CutFlowSvc for bookkeeping
   
@@ -443,5 +445,5 @@ void DecisionSvc::DeclareToCutFlowSvc()
     }
   }
 
-  return;
+  return StatusCode::SUCCESS;
 }

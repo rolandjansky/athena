@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrackCaloClusterRecValidationTool.h"
 //
@@ -475,8 +475,8 @@ TrackCaloClusterRecValidationTool::calibrateAndRecordShallowCopyJetCollection(co
     return nullptr;
   }
 
-  static SG::AuxElement::Accessor<xAOD::IParticleLink> accSetOriginLink("originalObjectLink");
-  static SG::AuxElement::Decorator<float> decJvt("JvtUpdate");
+  static const SG::AuxElement::Accessor<xAOD::IParticleLink> accSetOriginLink("originalObjectLink");
+  static const SG::AuxElement::Decorator<float> decJvt("JvtUpdate");
 
   int pos = std::find(m_jetCalibrationCollections.begin(), m_jetCalibrationCollections.end(), name) -
             m_jetCalibrationCollections.begin();

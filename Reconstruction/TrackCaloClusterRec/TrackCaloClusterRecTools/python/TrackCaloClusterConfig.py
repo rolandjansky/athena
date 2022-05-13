@@ -23,36 +23,7 @@ def _unifyPV0onlyTrkClustAssoc( vxContName1, vxContName2):
 
 
 
-def setupTrackVertexAssocTool():
-    #from AthenaCommon import CfgMgr
-    # do as in jet config :
-    return CompFactory.getComp("CP::TrackVertexAssociationTool")("jetLooseTVAtool", WorkingPoint='Loose')
 
-
-def tmpSetupTrackServices(inputFlags):
-    """This temporary function ensure the tracking services necessary for TCC/UFO building are set up in a RunIII compatible way"""
-    
-     
-    result=ComponentAccumulator()
-    StoreGateSvc=CompFactory.StoreGateSvc
-    result.addService(StoreGateSvc("DetectorStore"))
-  
-    #Setup up tracking geometry
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc = TrackingGeometrySvcCfg(inputFlags)
-    result.merge(acc)
-    
-
-    #setup magnetic field service
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(inputFlags))
-  
-    #hard-code MC conditions tag needed for my ESD file - must be a better way? how to auto-configure?
-    #iovDbSvc=result.getService("IOVDbSvc")
-    #iovDbSvc.GlobalTag="OFLCOND-MC16-SDR-20"    
-     
-
-    return result 
 
 
 def getDecorationKeyFunc(trackParticleName, assocPostfix):
@@ -73,7 +44,6 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",detec
 
     components = ComponentAccumulator()
 
-    components.merge( tmpSetupTrackServices(configFlags) )
 
     from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg 
     caloExtAlg =CaloExtensionBuilderAlgCfg( configFlags )
@@ -81,7 +51,9 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",detec
     components.merge(caloExtAlg)    #since its a stack of algorithms
 
     from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
-    TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"jetLooseTVAtool",WorkingPoint="Loose"))
+    TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"tvaTool",WorkingPoint="Nonprompt_All_MaxWeight"))
+
+
 
     trackParticleClusterAssociation = CompFactory.TrackParticleClusterAssociationAlg(
         "TrackParticleClusterAssociationAlg"+assocPostfix,
@@ -127,7 +99,7 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", det
 
     from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
     commonArgs=dict(
-        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"jetLooseTVAtool",WorkingPoint="Loose")),
+        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"tvaTool",WorkingPoint="Nonprompt_All_MaxWeight")),
         AssoClustersDecor=decorKey("AssoClusters"),            
     )    
 
@@ -151,14 +123,14 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", det
     # Create the TCC creator alg. TrackCaloClusterAlg makes use of the TrackCaloClusterInfo object
     # and a list of tools to build the various TCC types.
     tccTools = []
-    #commonArgs = dict( TrackVertexAssoTool = setupTrackVertexAssocTool(),
-    #       AssoClustersDecor = decorKey("AssoClusters") )
+
 
     from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
     commonArgs=dict(
-        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"jetLooseTVAtool",WorkingPoint="Loose")),
+        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"tvaTool",WorkingPoint="Nonprompt_All_MaxWeight")),
         AssoClustersDecor=decorKey("AssoClusters"),            
-    )
+    )    
+
     if doCombined:
         tccCombined = CompFactory.TCCCombinedTool("TCCcombined", **commonArgs)
         tccTools.append(tccCombined)
@@ -213,27 +185,30 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", det
 
 
 
-def runUFOReconstruction(constits, configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", trackParticleName="InDetTrackParticles",assocPostfix="UFO", inputFEcontainerkey=""):
+def runUFOReconstruction(constits, configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", assocPostfix="UFO", inputFEcontainerkey=""):
     
-
-    """Create a TrackCaloCluster collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
+    """Create a UFO collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
     This functions schedules 2 UFO specific algs : 
        * a TrackCaloClusterInfoUFOAlg to build the TrackCaloClusterInfo object
        * a TrackCaloClusterAlg to build the UFO
     """
 
-    from JetRecConfig.JetRecConfig import JetInputCfg
+    from JetRecConfig.JetDefinition import JetDefinition
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     components=ComponentAccumulator()
-    components.merge(JetInputCfg(jetOrConstitdef=constits, configFlags=configFlags))
-    #components = JetInputCfg(jetOrConstitdef=constits, configFlags=configFlags)
 
-
-    constitAlg = components.getEventAlgos()[0]
-    PFOPrefix = constitAlg.Tools[0].OutputContainer
+    if isinstance(constits, JetDefinition):
+        jdef = constits 
+        constits = jdef.inputdef
+        from JetRecConfig.StandardJetContext import jetContextDic
+        trackParticleName = jetContextDic[jdef.context]['Tracks'] # defaults to "InDetTrackParticles"
+    else:
+        trackParticleName = "InDetTrackParticles"
+        
+    pfoVariant= constits.label.split("PFlow")[-1] # We expect label to be EMPFlowXYZ or LCPFlowXYZ -> extrat XYZ
 
     decorKey = getDecorationKeyFunc(trackParticleName,assocPostfix)    
-
+    
     
 
     components.merge(
@@ -244,54 +219,42 @@ def runUFOReconstruction(constits, configFlags, caloClusterName="CaloCalTopoClus
     
     from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
     commonArgs=dict(
-        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"jetLooseTVAtool",WorkingPoint="Loose")),
-        AssoClustersDecor=decorKey("AssoClusters"),            
-    )
+        TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"tvaTool",WorkingPoint="Nonprompt_All_MaxWeight")),
+        AssoClustersDecor=decorKey("AssoClusters"),
+    )    
     
     
-    #InputTrackCaloAssoc = trackParticleName+"ClusterAssociationsTCC",
-
-    FE_container_name=inputFEcontainerkey
-    
-    if (FE_container_name==""):
-        ufolog.error("runUFOReconstruction: No PFO (Flow Element) container input specified. You're gonna have a bad time, so skip this algo")
-        return components
+    inputFEcontainerkey = inputFEcontainerkey or constits.containername
+            
         
-        
-    UFOInfoAlg = CompFactory.TrackCaloClusterInfoUFOAlg("UFOInfoAlg_"+PFOPrefix,
-                                                        TCCInfoName = PFOPrefix+"UFOInfo",
+    UFOInfoAlg = CompFactory.TrackCaloClusterInfoUFOAlg(f"UFOInfoAlg{pfoVariant}",
+                                                        TCCInfoName = pfoVariant+"UFOInfo",
                                                         InputTracks = trackParticleName,
                                                         InputClusters = caloClusterName,
                                                         VertexContainer = "PrimaryVertices",
-                                                        InputPFO=FE_container_name,
-                                                        OriginPFO=FE_container_name,
+                                                        InputPFO=inputFEcontainerkey, 
+                                                        OriginPFO=inputFEcontainerkey+'.originalObjectLink',
                                                         ClusterECut = 0.,
-                                                        #TrackVertexAssoTool=commonArgs["TrackVertexAssoTool"],
-                                                        #AssoClustersDecor=commonArgs["AssoClustersDecor"]
                                                         **commonArgs
     )
         
         
     components.addEventAlgo( UFOInfoAlg) 
 
-    tccUFO = CompFactory.UFOTool("UFOtool",
-                                 #                                 TrackVertexAssoTool = setupTrackVertexAssocTool(), 
-                                 #                                 PFOPrefix = FE_container_name,
+    tccUFO = CompFactory.UFOTool(f"UFOtool{pfoVariant}",
                                  ClusterECut = UFOInfoAlg.ClusterECut,                     
-                                 InputPFO=FE_container_name,
-                                 OriginPFO=FE_container_name,
+                                 InputPFO=inputFEcontainerkey, 
+                                 OriginPFO=inputFEcontainerkey+'.originalObjectLink',
                                  **commonArgs
                                  )    
 
-    UFOAlg = CompFactory.TrackCaloClusterAlg(name = "TrackCaloClusterAlgUFO"+PFOPrefix,
-                                             OutputTCCName = "UFO"+FE_container_name,
-                                             TCCInfo = UFOInfoAlg.TCCInfoName,
-                                             TCCTools = [tccUFO,],                                             
+    UFOAlg = CompFactory.TrackCaloClusterAlg(name = f"TrackCaloClusterAlgUFO{pfoVariant}",
+                                             OutputTCCName = f"UFO{pfoVariant}",
+                                             TCCInfo = UFOInfoAlg.TCCInfoName ,
+                                             TCCTools = [tccUFO,],
     )
 
     
-
-
 
     components.addEventAlgo( UFOAlg)
     return components

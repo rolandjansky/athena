@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "METUtilities/METSystematicsTool.h"
@@ -39,7 +39,6 @@ namespace met {
   m_jet_systRpt_pt_eta(nullptr),
   m_h_calosyst_scale(nullptr),
   m_h_calosyst_reso (nullptr),
-  m_rand(0),
   m_units(-1),
   m_VertexContKey(""),
   m_TruthContKey(""),
@@ -118,7 +117,8 @@ namespace met {
     ATH_CHECK( m_EventInfoKey.initialize() );
 
 
-    const char lastchar = m_configPrefix.back();
+    const auto lastchar = m_configPrefix.back();
+    //cppcheck-suppress invalidFunctionArgStr
     if(std::strncmp(&lastchar,"/",1)!=0) {
       m_configPrefix.append("/");
     }
@@ -434,13 +434,13 @@ namespace met {
       const xAOD::MissingET* jetterm = *METcont->find( MissingETBase::Source::jet() );
       size_t njet = (jetterm==nullptr) ? 0 : acc_constitObjLinks(*jetterm ).size();
 
-      int          phbin                                     = m_shiftpara_pthard_njet_mu->GetXaxis()->FindBin( ptHardMet  ) ;
+      int          phbin                                     = std::as_const(m_shiftpara_pthard_njet_mu)->GetXaxis()->FindBin( ptHardMet  ) ;
       if(phbin>m_shiftpara_pthard_njet_mu->GetNbinsX())  phbin = m_shiftpara_pthard_njet_mu->GetNbinsX();
-      int    const jetbin                                    = m_shiftpara_pthard_njet_mu->GetYaxis()->FindBin(njet);
-      int    const mubin                                     = m_shiftpara_pthard_njet_mu->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
+      int    const jetbin                                    = std::as_const(m_shiftpara_pthard_njet_mu)->GetYaxis()->FindBin(njet);
+      int    const mubin                                     = std::as_const(m_shiftpara_pthard_njet_mu)->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
       double const ptHardShift                               = m_shiftpara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin);
 
-      double const randGaus = m_rand.Gaus(0.,1.);
+      double const randGaus = getTLSRandomGen()->Gaus(0.,1.);
 
       ATH_MSG_DEBUG("About to apply systematic " << appliedSystematicsString() );
 
@@ -522,10 +522,10 @@ namespace met {
       xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(helper.map(),jet);
       MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec(helper);
 
-      int phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+      int phbin  = std::as_const(m_jet_systRpt_pt_eta)->GetXaxis()->FindBin(jet->pt()/1e3);
       if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-      int etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(std::abs( jet->eta()  ));
+      int etabin  = std::as_const(m_jet_systRpt_pt_eta)->GetYaxis()->FindBin(std::abs( jet->eta()  ));
       if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 
       double uncert = 0.;
@@ -589,10 +589,10 @@ namespace met {
 	if(std::abs(jet->eta())<=2.5)
 	  {
 	    jetCount++;
-	    int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+	    int         phbin  = std::as_const(m_jet_systRpt_pt_eta)->GetXaxis()->FindBin(jet->pt()/1e3);
 	    if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-	    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(std::abs( jet->eta()  ));
+	    int         etabin  = std::as_const(m_jet_systRpt_pt_eta)->GetYaxis()->FindBin(std::abs( jet->eta()  ));
 	    if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 	    float uncert_frac=(trkvec.sumpt())*(m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
 
@@ -670,7 +670,7 @@ namespace met {
 					   softTerms.mpy * softTerms.mpy );
 
 
-    double const rand  = gRandom->Gaus(0.,1.);
+    double const rand  = getTLSRandomGen()->Gaus(0.,1.);
     double const shift = softTermsMet<1e-9 ? 0. : rand*smearedSigma / softTermsMet;
 
     ATH_MSG_VERBOSE("caloSyst_reso: shift = " << shift);
@@ -909,9 +909,18 @@ namespace met {
     return NPV;
   }
 
+  TRandom3* METSystematicsTool::getTLSRandomGen() const {
+    TRandom3* random = m_rand_tls.get();
+    if (!random) {
+      random = new TRandom3();
+      m_rand_tls.reset(random);
+    }
+    return random;
+  }
+
   void METSystematicsTool::setRandomSeed(int seed) const {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
-    m_rand.SetSeed(seed);
+    getTLSRandomGen()->SetSeed(seed);
   }
 }
 

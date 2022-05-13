@@ -78,6 +78,7 @@
 #include "InDetCoolCoralClientUtils/ConfDBif.h"
 
 #include "InDetCoolCoralClientUtils/CoolCoralClient.h"
+#include <memory>
 
 using namespace cool;
 using namespace std;
@@ -1670,7 +1671,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   int total_usecs;
   gettimeofday(&start_time, nullptr);
 
-  TTCobj_t *ttc_param=nullptr;
+  std::unique_ptr<TTCobj_t> ttc_param;
   TTCGroupobj_t ttcgr_param;
   DTMROCobj_t  dtmroc_param;
 
@@ -1828,7 +1829,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   coral::ICursor& cursor0 = query0->execute();
   while ( cursor0.next() ) {
     const coral::AttributeList &row0 = cursor0.currentRow();
-    ttc_param = new TTCobj_t;
+    ttc_param = std::make_unique< TTCobj_t>();
 
     ttc_param->VMEslot = row0[1].data<int>();
     ttc_param->Delay = row0[2].data<int>();
@@ -1945,7 +1946,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   if(m_verbose) std::cout << "****************************" << std::endl;
 
 
-  return ttc_param;
+  return ttc_param.release();
 
 }
 

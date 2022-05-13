@@ -9,15 +9,15 @@ TCS::jTETOB::jTETOB() : BaseTOB(0,"jTETOB")
 {}
 
 // constructor with initial values
-TCS::jTETOB::jTETOB(int sumEt) : BaseTOB(0,"jTETOB")
+TCS::jTETOB::jTETOB(unsigned int sumEt, inputTOBType_t tobType) : BaseTOB(0,"jTETOB")
    , m_sumEt( sumEt )
+   , m_tobType( tobType )
 {}
 
-// constructor with initial values
-TCS::jTETOB::jTETOB(const jTETOB & jte) : BaseTOB(0,"jTETOB")
-   , m_sumEt( jte.m_sumEt )
-   , m_sumEtDouble( jte.m_sumEtDouble )
-{}
+
+// copy constructor
+TCS::jTETOB::jTETOB(const TCS::jTETOB & jte) = default;
+
 
 // destructor
 TCS::jTETOB::~jTETOB() = default;
@@ -33,5 +33,5 @@ TCS::jTETOB::clearHeap() {
 }
 
 void TCS::jTETOB::print(std::ostream &o) const {
-   o << "jTE sumEt: " << sumEt();
+   o << "jTE type: " << tobType() << ",  sumEt: " << sumEt();
 }

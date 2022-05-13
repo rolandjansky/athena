@@ -52,15 +52,15 @@ def InDetAmbiTrackSelectionToolCfg(flags, name = "InDetAmbiTrackSelectionTool", 
         kwargs.setdefault("phiWidth"                  , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidth"                  , 0.05)     #Split cluster ROI size
         kwargs.setdefault("doEmCaloSeed"              , flags.InDet.Tracking.doCaloSeededAmbi and flags.Detector.EnableCalo)   #Only split in cluster in region of interest
-        kwargs.setdefault("InputEmClusterContainerName", 'InDetCaloClusterROIs')
+        kwargs.setdefault("EMROIPhiRZContainer"       , "InDetCaloClusterROIPhiRZ10GeV")
         if flags.InDet.Tracking.doCaloSeededAmbi:
-            from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-            acc.merge(CaloClusterROI_SelectorCfg(flags))
+            from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROIPhiRZContainerMakerCfg
+            acc.merge(CaloClusterROIPhiRZContainerMakerCfg(flags))
         kwargs.setdefault("doHadCaloSeed"             , flags.InDet.Tracking.doCaloSeededAmbi)   #Do special cuts in region of interest
-        kwargs.setdefault("InputHadClusterContainerName", "InDetHadCaloClusterROIs" + "Bjet")
+        kwargs.setdefault("HadROIPhiRZContainer"      , "InDetHadCaloClusterROIPhiRZBjet")
         if flags.InDet.Tracking.doCaloSeededAmbi:
-            from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROI_SelectorCfg
-            acc.merge(HadCaloClusterROI_SelectorCfg(flags))
+            from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROIPhiRZContainerMakerCfg
+            acc.merge(HadCaloClusterROIPhiRZContainerMakerCfg(flags))
         kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("minPtBjetROI"              , 10000)
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
@@ -156,15 +156,15 @@ def ITkAmbiTrackSelectionToolCfg(flags, name = "ITkAmbiTrackSelectionTool", **kw
     kwargs.setdefault("phiWidth"                  , 0.05)     #Split cluster ROI size
     kwargs.setdefault("etaWidth"                  , 0.05)     #Split cluster ROI size
     kwargs.setdefault("doEmCaloSeed"              , flags.ITk.Tracking.doCaloSeededAmbi)   #Only split in cluster in region of interest
-    kwargs.setdefault("InputEmClusterContainerName", 'ITkCaloClusterROIs')
+    kwargs.setdefault("EMROIPhiRZContainer"       , "InDetCaloClusterROIPhiRZ10GeV")    # @TODO prefix always InDet
     if flags.Detector.EnableCalo:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITKCaloClusterROIPhiRZContainerMakerCfg(flags))
     kwargs.setdefault("doHadCaloSeed"             , flags.ITk.Tracking.doCaloSeededAmbi)   #Do special cuts in region of interest
-    kwargs.setdefault("InputHadClusterContainerName", "ITkHadCaloClusterROIs" + "Bjet")
+    kwargs.setdefault("HadROIPhiRZContainer"      , "InDetHadCaloClusterROIPhiRZBjet")  # @TODO prefix always InDet
     if flags.Detector.EnableCalo:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROI_SelectorCfg
-        acc.merge(HadCaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKHadCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITKHadCaloClusterROIPhiRZContainerMakerCfg(flags))
     kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
     kwargs.setdefault("minPtBjetROI"              , 10000)
     kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size

@@ -7,28 +7,29 @@
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonPRDTest/PrdTesterModule.h"
-class MdtDigitVariables : public PrdTesterModule {
-public:
-    MdtDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl);
+namespace MuonPRDTest {
+    class MdtDigitVariables : public PrdTesterModule {
+    public:
+        MdtDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl);
 
-    ~MdtDigitVariables() = default;
+        ~MdtDigitVariables() = default;
 
-    bool fill(const EventContext& ctx) override final;
+        bool fill(const EventContext& ctx) override final;
 
-    bool declare_keys() override final;
+        bool declare_keys() override final;
 
-private:
-    SG::ReadHandleKey<MdtDigitContainer> m_digitKey{};
-    
-    ScalarBranch<int>& m_MDT_nDigits{parent().newScalar<int>("Digits_MDT_n")};
-    MdtIdentifierBranch m_MDT_digit_id{parent(),"Digits_MDT", idHelperSvc()};
+    private:
+        SG::ReadHandleKey<MdtDigitContainer> m_digitKey{};
 
-    VectorBranch<float>& m_MDT_dig_time{parent().newVector<float>("Digits_MDT_time")};
-    VectorBranch<float>& m_MDT_dig_charge{parent().newVector<float>("Digits_MDT_charge")};
-    VectorBranch<int>& m_MDT_dig_numberOfMultilayers{parent().newVector<int>("Digits_MDT_numberOfMultilayers")};
+        ScalarBranch<int>& m_MDT_nDigits{parent().newScalar<int>("Digits_MDT_n")};
+        MdtIdentifierBranch m_MDT_digit_id{parent(), "Digits_MDT"};
 
-    ThreeVectorBranch m_MDT_dig_globalPos{parent(), "Digits_MDT_globalPos"};
-    ThreeVectorBranch m_MDT_dig_localTubePos{parent(), "Digits_MDT_localTubePos"};
-};
+        VectorBranch<float>& m_MDT_dig_time{parent().newVector<float>("Digits_MDT_time")};
+        VectorBranch<float>& m_MDT_dig_charge{parent().newVector<float>("Digits_MDT_charge")};
+        VectorBranch<int>& m_MDT_dig_numberOfMultilayers{parent().newVector<int>("Digits_MDT_numberOfMultilayers")};
 
+        ThreeVectorBranch m_MDT_dig_globalPos{parent(), "Digits_MDT_globalPos"};
+        ThreeVectorBranch m_MDT_dig_localTubePos{parent(), "Digits_MDT_localTubePos"};
+    };
+}  // namespace MuonPRDTest
 #endif  // MuonPRDTEST_MDTDigitVARIABLES_H

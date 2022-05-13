@@ -123,17 +123,19 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
     }
 
     // Forward Electrons
-    if (!m_fwdElectronsKey.empty()){
-      SG::ReadHandle<xAOD::ElectronContainer> fwdElectrons(m_fwdElectronsKey, ctx);
+    if (!m_fwdElectronsKey.empty()) {
+      SG::ReadHandle<xAOD::ElectronContainer> fwdElectrons(m_fwdElectronsKey,
+                                                           ctx);
       if (!fwdElectrons.isValid()) {
-	ATH_MSG_WARNING("No forward electron container with key " << m_fwdElectronsKey.key() << " found.");
+        ATH_MSG_WARNING("No forward electron container with key "
+                        << m_fwdElectronsKey.key() << " found.");
       }
       for (const xAOD::Electron* electron : *fwdElectrons) {
-	const xAOD::TruthParticle* truthElectron =
-	  xAOD::TruthHelpers::getTruthParticle(*electron);
-	if (truthElectron) {
-	  recoParticleTruthIndices.push_back(truthElectron->index());
-	}
+        const xAOD::TruthParticle* truthElectron =
+          xAOD::TruthHelpers::getTruthParticle(*electron);
+        if (truthElectron) {
+          recoParticleTruthIndices.push_back(truthElectron->index());
+        }
       }
     }
 
@@ -184,12 +186,11 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
   }
 
   // Set up masks
-
   std::vector<bool> particleMask, vertexMask;
   int nTruthParticles = truthParticles->size();
   int nTruthVertices = truthVertices->size();
-  m_nParticlesProcessed += nTruthParticles;
-  m_nVerticesProcessed += nTruthVertices;
+  m_nParticlesProcessed.fetch_add(nTruthParticles, std::memory_order_relaxed);
+  m_nVerticesProcessed.fetch_add(nTruthVertices, std::memory_order_relaxed);
   particleMask.assign(nTruthParticles, false);
   vertexMask.assign(nTruthVertices, false);
 
@@ -278,13 +279,15 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
   // Loop over truth vertices and update mask
   // Those for which all incoming and outgoing particles are to be thinned, will
   // be thinned as well
+  unsigned int nVerticesThinned = 0;
   for (int i = 0; i < nTruthVertices; ++i) {
     if (vertexLinksCounts[i].first != 0 || vertexLinksCounts[i].second != 0) {
       vertexMask[i] = true;
     } else {
-      ++m_nVerticesThinned;
+      ++nVerticesThinned;
     }
   }
+  m_nVerticesThinned.fetch_add(nVerticesThinned, std::memory_order_relaxed);
   // Apply masks to thinning
   truthParticles.keep(particleMask);
   truthVertices.keep(vertexMask);

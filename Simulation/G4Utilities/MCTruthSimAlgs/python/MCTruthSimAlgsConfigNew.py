@@ -1,6 +1,6 @@
 """ComponentAccumulator configuration for Monte Carlo Truth simulation algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -333,7 +333,7 @@ def MergeGenericMuonSimHitCollCfg(flags, name="MergeGenericMuonSimHitCollTool", 
 
 def MergeMicromegasSimHitCollCfg(flags, name="MergeMicromegasSimHitCollTool", **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault("SimHitContainerNames", ["MicromegasSensitiveDetector"])
+    kwargs.setdefault("SimHitContainerNames", ["MM_Hits"])
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", -250)
         kwargs.setdefault("LastXing",   200)
@@ -344,7 +344,7 @@ def MergeMicromegasSimHitCollCfg(flags, name="MergeMicromegasSimHitCollTool", **
 
 def MergeSTGCSimHitCollCfg(flags, name="MergeSTGCSimHitCollTool", **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault("SimHitContainerNames", ["sTGCSensitiveDetector"])
+    kwargs.setdefault("SimHitContainerNames", ["sTGC_Hits"])
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", -50)
         kwargs.setdefault("LastXing",   75)

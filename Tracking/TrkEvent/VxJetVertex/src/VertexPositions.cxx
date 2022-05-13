@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -86,7 +86,7 @@ std::atomic<unsigned int> VertexPositions::s_numberOfInstantiations{0};
     }
     std::cout << "FATAL: VertexPositions is not able to return a valid position " << 
       " as a const object: need to go from Update to Use mode. Unrecovered Bug!" << std::endl;
-    throw;
+    std::abort();
     //    return m_position;
 
   }

@@ -18,7 +18,7 @@ def SiDetElementsRoadMaker_xkCfg(flags, name="InDetSiRoadMaker", **kwargs) :
     acc.merge(SCT_ReadoutGeometryCfg(flags)) # To produce SCT_DetectorElementCollection
 
     # Create ReadCondHandle SiDetElementsLayerVectors_xk
-    acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
+    acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "SiDetElementsRoadCondAlg_xk"))
 
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
     InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
@@ -56,7 +56,7 @@ def ITkSiDetElementsRoadMaker_xkCfg(flags, name="ITkSiRoadMaker", **kwargs) :
     acc.merge(ITkStripReadoutGeometryCfg(flags)) # To produce ITkStripDetectorElementCollection
 
     # Create ReadCondHandle SiDetElementsLayerVectors_xk
-    acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
+    acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "SiDetElementsRoadCondAlg_xk",
                                                                   PixelDetEleCollKey = "ITkPixelDetectorElementCollection",
                                                                   SCTDetEleCollKey = "ITkStripDetectorElementCollection"))
 

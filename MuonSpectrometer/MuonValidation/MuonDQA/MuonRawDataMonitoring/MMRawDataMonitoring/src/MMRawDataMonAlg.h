@@ -62,6 +62,10 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
 
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool{this,"MuonSelectionTool","CP::MuonSelectionTool/MuonSelectionTool"};
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", "MuonDetectorManager","Key of input MuonDetectorManager condition data"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
+  SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MMContainerKey{this,"MMPrepDataContainerName","MM_Measurements"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"MuonKey","Muons","muons"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_meTrkKey{this, "METrkContainer", "ExtrapolatedMuonTrackParticles"};
 
   virtual StatusCode  fillMMOverviewVects(const Muon::MMPrepData*, MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2]) const;
   virtual void  fillMMOverviewHistograms(const MMOverviewHistogramStruct& vects, MMByPhiStruct (&occupancyPlots)[16][2], const int lb) const;
@@ -70,6 +74,7 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
   virtual StatusCode  fillMMSummaryHistograms( const MMSummaryHistogramStruct (&vects)[2][16][2][2][4]) const;
 
   void clusterFromTrack(const xAOD::TrackParticleContainer*,const int lb) const;
+  void clusterFromSegments(const Trk::SegmentCollection*, const int lb) const;
   
   int get_PCB_from_channel(const int channel) const;
   int get_sectorPhi_from_stationPhi_stName(const int stationPhi, const std::string& stName) const;
@@ -89,9 +94,6 @@ class MMRawDataMonAlg: public AthMonitorAlgorithm {
 
   void MMEfficiency(const xAOD::TrackParticleContainer*) const;
 
-  SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MMContainerKey{this,"MMPrepDataContainerName","MM_Measurements"};
-  SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"MuonKey","Muons","muons"};
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_meTrkKey{this, "METrkContainer", "ExtrapolatedMuonTrackParticles"};
 
   Gaudi::Property<bool> m_doMMESD{this,"DoMMESD",true};
   Gaudi::Property<bool> m_do_mm_overview{this,"do_mm_overview",true};

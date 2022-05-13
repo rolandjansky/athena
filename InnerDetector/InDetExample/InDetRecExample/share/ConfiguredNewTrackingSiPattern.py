@@ -17,7 +17,8 @@ class  ConfiguredNewTrackingSiPattern:
                 NewTrackingCuts = None,
                 TrackCollectionKeys=[] ,
                 TrackCollectionTruthKeys=[],
-                ClusterSplitProbContainer=''):
+                ClusterSplitProbContainer='',
+                doTrackOverlay=False):
 
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
@@ -284,8 +285,8 @@ class  ConfiguredNewTrackingSiPattern:
                                           doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
                                           phiWidth                  = NewTrackingCuts.phiWidthBrem(),
                                           etaWidth                  = NewTrackingCuts.etaWidthBrem(),
-                                          InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                          InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
+                                          EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ0GeV",
+                                          HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZ",
                                           UseAssociationTool        = usePrdAssociationTool)
 
          if NewTrackingCuts.mode() == "DBM":
@@ -448,7 +449,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = nhitsToAllowSplitting
            InDetAmbiTrackSelectionTool.minUniqueSCTHits          = 4
            InDetAmbiTrackSelectionTool.minTrackChi2ForSharedHits = 3
-           InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet"
+           InDetAmbiTrackSelectionTool.HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZBjet"
            InDetAmbiTrackSelectionTool.doHadCaloSeed             = InDetFlags.doCaloSeededAmbi()   #Do special cuts in region of interest
            InDetAmbiTrackSelectionTool.minPtSplit                = InDetFlags.pixelClusterSplitMinPt()       #Only allow split clusters on track withe pt greater than this MeV
            InDetAmbiTrackSelectionTool.maxSharedModulesInROI     = 3     #Maximum number of shared modules for tracks in ROI
@@ -456,7 +457,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplittingInROI = 8  #Minimum number of Si hits to allow splittings for tracks in ROI
            InDetAmbiTrackSelectionTool.phiWidth                  = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.etaWidth                  = 0.05     #Split cluster ROI size
-           InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
+           InDetAmbiTrackSelectionTool.EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ10GeV"
            InDetAmbiTrackSelectionTool.minPtBjetROI              = 10000
            InDetAmbiTrackSelectionTool.doEmCaloSeed              = InDetFlags.doCaloSeededAmbi()   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV
@@ -536,10 +537,9 @@ class  ConfiguredNewTrackingSiPattern:
                DoHoleSearch                 = True,
                BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
                
-
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
-
+                      
            if InDetFlags.doRefitInvalidCov() :
               from AthenaCommon import CfgGetter
               if len(NewTrackingCuts.extension()) > 0 :
@@ -630,8 +630,11 @@ class  ConfiguredNewTrackingSiPattern:
          # --- set input and output collection
          #
          InputTrackCollection     = self.__SiTrackCollection
+         from OverlayCommonAlgs.OverlayFlags import overlayFlags
          self.__SiTrackCollection = ResolvedTrackCollectionKey
-
+         #if track overlay, this isn't the final track collection
+         if doTrackOverlay:
+            self.__SiTrackCollection = overlayFlags.sigPrefix()+self.__SiTrackCollection
          #
          # --- configure Ambiguity (score) solver
          #
@@ -660,6 +663,24 @@ class  ConfiguredNewTrackingSiPattern:
          topSequence += InDetAmbiguitySolver
          if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetAmbiguitySolver)
+
+         if doTrackOverlay:
+            MergingTrackCollections=[self.__SiTrackCollection, overlayFlags.bkgPrefix()+ResolvedTrackCollectionKey]
+            merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = NewTrackingCuts.extension()+'SplitProb',
+                                                                                          ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
+            from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
+            from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+            TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_"+NewTrackingCuts.extension(),
+                                                                  TracksLocation          = MergingTrackCollections,
+                                                                  OutputTracksLocation    = ResolvedTrackCollectionKey,
+                                                                  AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
+                                                                  UpdateSharedHits        = True,
+                                                                  UpdateAdditionalInfo    = True,
+                                                                  DoTrackOverlay          = True,
+                                                                  SummaryTool             = merger_track_summary_tool)
+            topSequence += TrkTrackCollectionMerger
+            self.__SiTrackCollection = ResolvedTrackCollectionKey
+            
 
          #
          # --- Delete Silicon Sp-Seeded tracks
@@ -693,8 +714,9 @@ class  ConfiguredNewTrackingSiPattern:
            # add truth and trackParticles
            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.ObservedTracks(),
-                                                           InDetKeys.ObservedDetailedTracksTruth(),
-                                                           InDetKeys.ObservedTracksTruth())
+                                                        InDetKeys.ObservedDetailedTracksTruth(),
+                                                        InDetKeys.ObservedTracksTruth(),
+                                                        doTrackOverlay)
            include ("InDetRecExample/ConfiguredxAODTrackParticleCreation.py")
            InDetxAOD = ConfiguredxAODTrackParticleCreation(InDetKeys.ObservedTracks(),
                                                            InDetKeys.ObservedTracksTruth(),

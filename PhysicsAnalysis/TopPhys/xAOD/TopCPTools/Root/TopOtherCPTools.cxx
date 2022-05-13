@@ -88,6 +88,10 @@ namespace top {
       path += "pileup_" + campaign + "_dsid" + std::to_string(dsid) + "_";
       path += isFS ? "FS" : "AFII";
       path += ".root";
+
+      // if running on data, give any valid MC file
+      if (!this->m_config->isMC()) path = "dev/PileupReweighting/share/DSID410xxx/pileup_mc20e_dsid410470_FS.root";
+
       ATH_MSG_INFO("Using the default PRW file: " + path);
 
       return path;

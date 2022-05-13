@@ -10,7 +10,6 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 
-
 namespace Muon {
 
     class MuonSegment;
@@ -18,16 +17,15 @@ namespace Muon {
     /** Interface for tools calculating hit count summaries for track */
     class IMuonLayerSegmentMatchingTool : virtual public IAlgTool {
     public:
-       virtual ~IMuonLayerSegmentMatchingTool() = default;
+        virtual ~IMuonLayerSegmentMatchingTool() = default;
         /** IAlgTool interface */
         static const InterfaceID& interfaceID() {
             static const InterfaceID IID_IMuonLayerSegmentMatchingTool("Muon::IMuonLayerSegmentMatchingTool", 1, 0);
-            return IID_IMuonLayerSegmentMatchingTool; 
+            return IID_IMuonLayerSegmentMatchingTool;
         }
 
         /** @brief Match segments for to a given MuonSystemExtension::Intersection, return selected segments */
-        virtual void select(const EventContext& ctx,
-                            const MuonSystemExtension::Intersection& intersection,
+        virtual void select(const EventContext& ctx, const MuonSystemExtension::Intersection& intersection,
                             const std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
                             std::vector<std::shared_ptr<const Muon::MuonSegment> >& selectedSegments) const = 0;
     };

@@ -1,20 +1,48 @@
 // emacs: this is -*- c++ -*-                                                                                                                                                                                 
 
+panels = { vtx_eff_panel, vtx_res_panel, vtx_kin_panel, vtx_beam_panel, vtx_pos_panel };
 
-panels = { vtx_eff_panel, vtx_res_panel, vtx_kin_panel };
 
 vtx_eff_panel = {
 
-  "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:0:200",      "Number of tracks",                  "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
+  "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:auto:0:20",      "Number of tracks",                  "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
   "zed_eff",       "Efficiency z",                "xaxis:lin:-175:175",  "Offline vertex z [mm]",             "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
   "mu_eff",        "efficiency vs mu",            "xaxis:lin:auto",      "pileup <#mu>",                      "yaxis:auto:lin:80:102",        "Efficiency"  ,
 
   //  "nvtx_eff",      "Vertices efficiency",         "xaxis:lin:auto",     "Number of vertices",                 "yaxis:lin:auto:0.5:1.05",   "Vertex finding efficiency" ,                                  
   //  "lb_eff",       "Efficiency lb",                "xaxis:lin:auto",     "luminosity block",                  "yaxis:lin:auto:0.50:1.05",       "Vertex finding efficiency" ,                              
 
-  "ntrax",        "Number of tracks",    "xaxis:lin:auto",              "Offline track multiplcicty",    "yaxis:log:autow",          "Entries"  ,
+  "ntrax",        "Number of tracks",    "xaxis:lin:auto:0:20",              "Offline track multiplcicty",    "yaxis:log:autow",          "Entries"  ,
   "zed",          "Vertex z position",   "xaxis:lin:auto:-175:175",     "Offline vertex z [mm]",         "yaxis:log:auto",           "Entries"  ,
   "mu",            "mu",                 "xaxis:lin:auto",              "pileup <#mu>",                  "yaxis:lin:auto",           "Entries"	
+
+};
+
+
+
+vtx_pos_panel = {
+
+  "x_eff",         "Efficiency x",                "xaxis:lin:auto",      "Offline vertex x [mm]",             "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
+  "y_eff",         "Efficiency y",                "xaxis:lin:auto",      "Offline vertex y [mm]",             "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
+  "zed_eff",       "Efficiency z",                "xaxis:lin:-175:175",  "Offline vertex z [mm]",             "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
+
+  "y",            "Vertex z position",   "xaxis:lin:auto",             "Offline vertex ODy [mm]",     "yaxis:log:auto",          "Entries",
+  "x",            "Vertex z position",   "xaxis:lin:auto",             "Offline vertex x [mm]",       "yaxis:log:auto",         "Entries",
+  "zed",          "Vertex z position",   "xaxis:lin:auto:-175:175",    "Offline vertex z [mm]",       "yaxis:log:auto",           "Entries" 
+
+};
+
+
+
+vtx_beam_panel = {
+
+  "x",            "Vertex z position",   "xaxis:lin:auto",      "Offline vertex x [mm]",        "yaxis:log:auto",         "Entries",
+  "x_rec",        "Vertex z position",   "xaxis:lin:auto",      "Trigger vertex x [mm]",        "yaxis:log:auto",         "Entries",
+  "x_res",        "Vertex z position",   "xaxis:lin:-0.1:0.1",  "#Delta x [mm]",                "yaxis:log:auto",         "Entries",
+
+  "y",            "Vertex z position",   "xaxis:lin:auto",      "Offline vertex ODy [mm]",     "yaxis:log:auto",          "Entries",
+  "y_rec",        "Vertex z position",   "xaxis:lin:auto",      "Trigger vertex y [mm]",       "yaxis:log:auto",          "Entries",
+  "y_res",        "Vertex z position",   "xaxis:lin:-0.1:0.1",   "#Delta y [mm]",              "yaxis:log:auto",          "Entries",
 
 };
 

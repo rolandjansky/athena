@@ -521,6 +521,8 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
                  x0 += matEf->thicknessInX0();
                  const Trk::MaterialEffectsOnTrack* matEfs =
                    dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEf);
+                 if (not matEfs) continue;
+                 //
                  double eloss0 = 0.;
                  double meanIoni = 0.;
                  double sigmaIoni = 0.;
@@ -528,23 +530,23 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
                  double sigmaRad = 0.;
                  double sigmaTheta = 0.;
                  double sigmaPhi = 0.;
-                 if (matEfs) {
-                   const Trk::EnergyLoss* eLoss = (matEfs)->energyLoss();
-                   if (eLoss) {
-                     Eloss += eLoss->deltaE();
-                     eloss0 = eLoss->deltaE();
-                     meanIoni = eLoss->meanIoni();
-                     sigmaIoni = eLoss->sigmaIoni();
-                     meanRad = eLoss->meanRad();
-                     sigmaRad = eLoss->sigmaRad();
-                     if (m_treeData->m_trk_status[m_treeData->m_g4_steps] ==
-                         1000)
-                       ATH_MSG_DEBUG(" mmat " << mmat << " eLoss->deltaE() "
-                                              << eLoss->deltaE()
-                                              << "  eLoss->length() "
-                                              << eLoss->length());
-                   }
+                 
+                 const Trk::EnergyLoss* eLoss = (matEfs)->energyLoss();
+                 if (eLoss) {
+                   Eloss += eLoss->deltaE();
+                   eloss0 = eLoss->deltaE();
+                   meanIoni = eLoss->meanIoni();
+                   sigmaIoni = eLoss->sigmaIoni();
+                   meanRad = eLoss->meanRad();
+                   sigmaRad = eLoss->sigmaRad();
+                   if (m_treeData->m_trk_status[m_treeData->m_g4_steps] ==
+                       1000)
+                     ATH_MSG_DEBUG(" mmat " << mmat << " eLoss->deltaE() "
+                                            << eLoss->deltaE()
+                                            << "  eLoss->length() "
+                                            << eLoss->length());
                  }
+                 
                  const Trk::ScatteringAngles* scatAng =
                    (matEfs)->scatteringAngles();
                  if (scatAng) {

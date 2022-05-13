@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigFastTrackFinder.TrigFastTrackFinderConf import TrigFastTrackFinder
 
@@ -437,9 +437,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         if not config.doZFinderOnly:
 
-          TrackMaker_FTF.InputClusterContainerName = ""
-          TrackMaker_FTF.InputHadClusterContainerName = ""
-          
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 

@@ -8,7 +8,6 @@
 #include <vector>
 #include <cmath>
 
-#include "CxxUtils/no_bitwise_op_warning.h"
 #include "TFile.h"
 #include "TGraph2DErrors.h"
 #include "TF2.h"

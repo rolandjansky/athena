@@ -19,6 +19,8 @@ public:
     using VectorBranch<T>::getDefault;
 
     AuxElementBranch(TTree* t, const std::string& var_name, const std::string& acc = "");
+    AuxElementBranch(MuonTesterTree& t, const std::string& var_name, const std::string& acc = "");
+
     virtual ~AuxElementBranch() = default;
 
     void setDefault(const T& val) override;
@@ -30,6 +32,7 @@ private:
 template <class T> class ParticleVariableBranch : public AuxElementBranch<T>, virtual public IParticleDecorationBranch {
 public:
     ParticleVariableBranch(TTree* t, const std::string& var_name, const std::string& acc = "");
+    ParticleVariableBranch(MuonTesterTree& t, const std::string& var_name, const std::string& acc = "");
     virtual ~ParticleVariableBranch() = default;
 
     void push_back(const xAOD::IParticle* p) override;
@@ -38,6 +41,18 @@ public:
     using AuxElementBranch<T>::operator+=;
     void operator+=(const xAOD::IParticle* p) override;
     void operator+=(const xAOD::IParticle& p) override;
+};
+
+template <class T> class ParticleVariableBranchGeV : public ParticleVariableBranch<T> {
+public:
+    ParticleVariableBranchGeV(TTree* t, const std::string& var_name, const std::string& acc = "");
+    ParticleVariableBranchGeV(MuonTesterTree& t, const std::string& var_name, const std::string& acc = "");
+
+    using ParticleVariableBranch<T>::push_back;
+    using ParticleVariableBranch<T>::get;
+    using ParticleVariableBranch<T>::size;
+    void push_back(const xAOD::IParticle* p) override;
+    void push_back(const xAOD::IParticle& p) override;
 };
 
 #include <MuonTesterTree/AuxElementBranch.icc>

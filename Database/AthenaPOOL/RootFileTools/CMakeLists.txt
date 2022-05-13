@@ -15,4 +15,4 @@ atlas_add_executable( mergePOOL
 atlas_add_executable( compressionTool
    src/compressionTool.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} )

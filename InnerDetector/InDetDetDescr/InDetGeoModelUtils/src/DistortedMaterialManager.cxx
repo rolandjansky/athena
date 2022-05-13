@@ -1,27 +1,26 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 
 #include "InDetGeoModelUtils/DistortedMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 namespace InDetDD {
   DistortedMaterialManager::DistortedMaterialManager() {
     ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
 
-    Athena::MsgStreamMember log("ExtraMaterialManager");
+    MsgStream log(Athena::getMessageSvc(), "ExtraMaterialManager");
     log << MSG::DEBUG << "Initialized InDet Distorted Material Manager" << endmsg;
 
     StoreGateSvc* detStore;
-    StatusCode sc;
-    sc = svcLocator->service("DetectorStore", detStore);
+    StatusCode sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) log << MSG::FATAL << "Could not locate DetectorStore" << endmsg;
 
     IRDBAccessSvc* rdbSvc;

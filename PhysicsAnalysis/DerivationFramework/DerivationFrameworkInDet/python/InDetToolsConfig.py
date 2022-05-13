@@ -35,6 +35,60 @@ def HardScatterVertexDecoratorCfg(ConfigFlags, name, **kwargs):
                        primary = True)
     return acc
 
+# TrackStateOnSurface decorator
+def TrackStateOnSurfaceDecoratorCfg(ConfigFlags, name, **kwargs):
+    """Configure the TSOS decorator"""
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc = SCT_ReadoutGeometryCfg(ConfigFlags) # To produce SCT_DetectorElementCollection
+
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    AtlasExtrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(ConfigFlags))
+    acc.addPublicTool(AtlasExtrapolator)
+    kwargs.setdefault("TrackExtrapolator", AtlasExtrapolator)
+
+    from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
+    InDetHoleSearchTool = acc.popToolsAndMerge(InDetTrackHoleSearchToolCfg(ConfigFlags))
+    acc.addPublicTool(InDetHoleSearchTool)
+    kwargs.setdefault("HoleSearch", InDetHoleSearchTool)
+
+    kwargs.setdefault("DecorationPrefix", "")
+    kwargs.setdefault("PRDtoTrackMap", "PRDtoTrackMapCombinedInDetTracks")
+
+    TrackStateOnSurfaceDecorator = CompFactory.DerivationFramework.TrackStateOnSurfaceDecorator
+    acc.addPublicTool(TrackStateOnSurfaceDecorator(name, **kwargs),
+                      primary = True)
+    return acc
+
+def ITkTrackStateOnSurfaceDecoratorCfg(ConfigFlags, name, **kwargs):
+    """Configure the TSOS decorator"""
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc = ITkStripReadoutGeometryCfg(ConfigFlags) # To produce ITkStripDetectorElementCollection
+
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    AtlasExtrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(ConfigFlags))
+    acc.addPublicTool(AtlasExtrapolator)
+    kwargs.setdefault("TrackExtrapolator", AtlasExtrapolator)
+
+    from InDetConfig.InDetTrackHoleSearchConfig import ITkTrackHoleSearchToolCfg
+    ITkHoleSearchTool = acc.popToolsAndMerge(ITkTrackHoleSearchToolCfg(ConfigFlags))
+    acc.addPublicTool(ITkHoleSearchTool)
+    kwargs.setdefault("HoleSearch", ITkHoleSearchTool)
+
+    kwargs.setdefault("DecorationPrefix", "")
+    kwargs.setdefault("PixelMapName", "ITkPixelClustersOffsets")
+    kwargs.setdefault("SctMapName", "ITkStripClustersOffsets")
+    kwargs.setdefault("PixelClustersName", "ITkPixelClusters")
+    kwargs.setdefault("SctClustersName", "ITkStripClusters")
+    kwargs.setdefault("PRDtoTrackMap", "ITkPRDToTrackMapCombinedITkTracks")
+    kwargs.setdefault("PixelMsosName", "ITkPixelMSOSs")
+    kwargs.setdefault("SctMsosName", "ITkStripMSOSs")
+    kwargs.setdefault("SCTDetEleCollKey", "ITkStripDetectorElementCollection")
+
+    TrackStateOnSurfaceDecorator = CompFactory.DerivationFramework.TrackStateOnSurfaceDecorator
+    acc.addPublicTool(TrackStateOnSurfaceDecorator(name, **kwargs),
+                      primary = True)
+    return acc
+
 # Expression of Z0 at the primary vertex
 def TrackParametersAtPVCfg(ConfigFlags, name, **kwargs):
     """Configure the TrackParametersAtPV tool"""
@@ -97,4 +151,3 @@ def DiTauTrackParticleThinningCfg(ConfigFlags, name, **kwargs):
     acc.addPublicTool(DiTauTrackParticleThinning(name, **kwargs),
                       primary = True)
     return acc
-

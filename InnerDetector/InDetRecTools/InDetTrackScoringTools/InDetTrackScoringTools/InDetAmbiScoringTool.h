@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -14,7 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
-#include "InDetTrackScoringTools/ROIInfoVec.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -27,7 +27,6 @@
 #include <vector>
 #include <string>
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "ROIInfoVec.h"
 
 namespace Trk {
   class IExtrapolator;
@@ -35,6 +34,7 @@ namespace Trk {
   class TrackSummary;
 
 }
+class EventContext;
 
 namespace InDet {
 class ITrtDriftCircleCutTool;
@@ -62,7 +62,7 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   
   
     /** Check if the cluster is compatible with a EM cluster*/
-  bool isEmCaloCompatible(const Trk::Track& track) const;
+  bool isEmCaloCompatible(const Trk::Track& track, const EventContext& ctx) const;
   
   
   //these are used for ScoreModifiers 
@@ -117,8 +117,8 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   float m_phiWidthEm;
   float m_etaWidthEm;
 
-  SG::ReadHandleKey<InDet::ROIInfoVec> m_caloROIInfoKey
-     {this,"CaloROIInfoName", "ROIInfoVec","Name of the calo cluster ROI vector."};
+  SG::ReadHandleKey<ROIPhiRZContainer> m_caloClusterROIKey
+     {this, "EMROIPhiRZContainer", "", "Name of the calo cluster ROIs in Phi,R,Z parameterization"};
 
   /** use the ITk scoring tuned to Ambiguity processing or not */
   bool m_useITkAmbigFcn;

@@ -5,16 +5,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from G4AtlasApps.SimEnums import CalibrationRun, LArParameterization
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
-LArG4__EMBSDTool=CompFactory.LArG4.EMBSDTool
-LArG4__EMECSDTool=CompFactory.LArG4.EMECSDTool
-LArG4__FCALSDTool=CompFactory.LArG4.FCALSDTool
-LArG4__HECSDTool=CompFactory.LArG4.HECSDTool
-LArG4__MiniFCALSDTool=CompFactory.LArG4.MiniFCALSDTool
-LArG4__DeadSDTool=CompFactory.LArG4.DeadSDTool
-LArG4__ActiveSDTool=CompFactory.LArG4.ActiveSDTool
-LArG4__InactiveSDTool=CompFactory.LArG4.InactiveSDTool
-LArG4__CalibrationDefaultCalculator=CompFactory.LArG4.CalibrationDefaultCalculator
-
 #to be migrated: getCalibrationDefaultCalculator, getDeadMaterialCalibrationHitMerger
 
 def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetector", **kwargs):
@@ -81,7 +71,7 @@ def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetec
     kwargs.setdefault("MiniFCALActiveCalibrationCalculator",
                       result.getPrimaryAndMerge (MiniFCALActiveCalibrationCalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools( LArG4__ActiveSDTool(name, **kwargs))
+    result.setPrivateTools( CompFactory.LArG4.ActiveSDTool(name, **kwargs))
     return result
 
 
@@ -194,7 +184,7 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
     from LArG4HEC.LArG4HECConfigNew import HECCalibrationWheelDeadCalculatorCfg
     kwargs.setdefault("HECWheelDeadCalculator", result.getPrimaryAndMerge(HECCalibrationWheelDeadCalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools(LArG4__DeadSDTool(name, **kwargs))
+    result.setPrivateTools(CompFactory.LArG4.DeadSDTool(name, **kwargs))
     return result
 
 
@@ -223,7 +213,7 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     kwargs.setdefault("EMBPSCalculator", result.getPrimaryAndMerge(EMBPresamplerCalculatorCfg(ConfigFlags)).name)
     kwargs.setdefault("EMBCalculator", result.getPrimaryAndMerge(EMBCalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools( LArG4__EMBSDTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.LArG4.EMBSDTool(name, **kwargs) )
     return result
 
 
@@ -263,7 +253,7 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     kwargs.setdefault("EMECPosBOBCalculator", result.getPrimaryAndMerge(EMECPosBackOuterBarretteCalculatorCfg(ConfigFlags)).name)
     kwargs.setdefault("EMECNegBOBCalculator", result.getPrimaryAndMerge(EMECNegBackOuterBarretteCalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools( LArG4__EMECSDTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.LArG4.EMECSDTool(name, **kwargs) )
     return result
 
 
@@ -294,7 +284,7 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     kwargs.setdefault("FCAL2Calculator", result.getPrimaryAndMerge(FCAL2CalculatorCfg(ConfigFlags)).name)
     kwargs.setdefault("FCAL3Calculator", result.getPrimaryAndMerge(FCAL3CalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools( LArG4__FCALSDTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.LArG4.FCALSDTool(name, **kwargs) )
     return result
 
 
@@ -321,7 +311,7 @@ def LArHECSensitiveDetectorCfg(ConfigFlags, name="LArHECSensitiveDetector", **kw
     from LArG4HEC.LArG4HECConfigNew import HECWheelCalculatorCfg
     kwargs.setdefault("HECWheelCalculator", result.getPrimaryAndMerge(HECWheelCalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools( LArG4__HECSDTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.LArG4.HECSDTool(name, **kwargs) )
     return result
 
 
@@ -437,7 +427,7 @@ def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveD
     from LArG4MiniFCAL.LArG4MiniFCALConfigNew import MiniFCALInactiveCalibrationCalculatorCfg
     kwargs.setdefault("MiniFCALInactiveCalibrationCalculator", result.getPrimaryAndMerge(MiniFCALInactiveCalibrationCalculatorCfg(ConfigFlags)).name)
 
-    result.setPrivateTools( LArG4__InactiveSDTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.LArG4.InactiveSDTool(name, **kwargs) )
     return result
 
 
@@ -447,13 +437,13 @@ def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveD
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", ["LArHitMiniFCAL"])
 
-    result.setPrivateTools(LArG4__MiniFCALSDTool(name, **kwargs))
+    result.setPrivateTools(CompFactory.LArG4.MiniFCALSDTool(name, **kwargs))
     return result
 
 
 def CalibrationDefaultCalculatorCfg(ConfigFlags, name="CalibrationDefaultCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__CalibrationDefaultCalculator(name, **kwargs), primary = True)
+    result.addService( CompFactory.LArG4.CalibrationDefaultCalculator(name, **kwargs), primary = True)
     return result
 
 #todo -> migrate this

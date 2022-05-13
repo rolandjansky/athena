@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "TRT_TrackSegmentsFinder/TRT_TrackSegmentsFinder.h"
 
-#include "TrkCaloClusterROI/CaloClusterROI.h"
 
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
@@ -35,7 +34,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   ATH_CHECK( m_segmentsMakerTool.retrieve() );
   ATH_CHECK( m_roadtool.retrieve( DisableTool{ !m_useCaloSeeds }) );
 
-  ATH_CHECK( m_caloKey.initialize(m_useCaloSeeds) );
+  ATH_CHECK( m_caloClusterROIKey.initialize(m_useCaloSeeds) );
   ATH_CHECK( m_foundSegmentsKey.initialize() );
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -74,27 +73,23 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
   } else   {
     Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
     std::vector<IdentifierHash>      vTR;
-    SG::ReadHandle calo(m_caloKey,ctx);
-    if(calo.isValid()) {
-      for (const Trk::CaloClusterROI *c: *calo) {
-        if ( c->energy()/std::cosh(c->globalPosition().eta()) < m_ClusterEt) {
-          continue;
-        }
-        Amg::Vector3D global_pos(c->globalPosition());
-        double x = global_pos.x();
-        double y = global_pos.y();
-        double z = global_pos.z();
-        std::unique_ptr<Trk::TrackParameters> par = PS.createUniqueTrackParameters(
-          0., 0., std::atan2(y, x), std::atan2(1., z / std::sqrt(x * x + y * y)), 0., std::nullopt);
+    SG::ReadHandle<ROIPhiRZContainer> calo_rois(m_caloClusterROIKey, ctx);
+    if (!calo_rois.isValid()) {
+       ATH_MSG_FATAL("Failed to get EM Calo cluster collection " << m_caloClusterROIKey );
+       return StatusCode::FAILURE;
+    }
+    MagField::AtlasFieldCache fieldCache;
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+       ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+       return StatusCode::FAILURE;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    for (const ROIPhiRZ &roi : *calo_rois) {
+        if (std::abs(roi[0])>M_PI) continue; // reject duplicates;
+        std::unique_ptr<Trk::TrackParameters> par = PS.createUniqueTrackParameters(0., 0., roi.phi(), roi.theta(), 0., std::nullopt);
         // Get AtlasFieldCache
-        MagField::AtlasFieldCache fieldCache;
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-        if (fieldCondObj == nullptr) {
-            ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-            return StatusCode::FAILURE;
-        }
-        fieldCondObj->getInitializedCache (fieldCache);
         // TRT detector elements road builder
         //
         const auto & DE = m_roadtool->detElementsRoad(ctx, fieldCache, *par, Trk::alongMomentum);
@@ -112,10 +107,6 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute(const EventContext &ctx) cons
 	        found_segments->push_back(segment);
 	      }
       }//end of loopover *calo
-    } else {
-        ATH_MSG_WARNING("Could not find calo cluster seeds in container " << m_caloKey.key());
-        return StatusCode::SUCCESS; // @TODO correct ?
-    }
   }
   if (event_data_p) {
      m_segmentsMakerTool->endEvent(*event_data_p);

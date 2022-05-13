@@ -30,7 +30,7 @@ StatusCode MuonCombinedMuonCandidateAlg::execute(const EventContext& ctx) const 
     ATH_CHECK(muonCandidates.record(std::make_unique<MuonCandidateCollection>()));
     SG::WriteHandle<TrackCollection> msOnlyTracks(m_msOnlyTracks, ctx);
     ATH_CHECK(msOnlyTracks.record(std::make_unique<TrackCollection>()));
-    m_muonCandidateTool->create(*muonTrackParticles, *muonCandidates, *msOnlyTracks,ctx);
+    m_muonCandidateTool->create(*muonTrackParticles, *muonCandidates, *msOnlyTracks, ctx);
 
     return StatusCode::SUCCESS;
 }

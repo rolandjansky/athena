@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_TrigConfCoolWriter
@@ -393,14 +393,12 @@ namespace TrigConf {
 
       /**@brief default constructor*/
       TrigConfCoolWriter():
-         m_ostream(std::cout),
-         m_verbosityLevel(0)
+         m_ostream(std::cout)
       {};
 
       /**@brief copy constructor*/
       TrigConfCoolWriter(const TrigConfCoolWriter & orig) :
-         m_ostream(orig.m_ostream),
-         m_verbosityLevel(0)
+         m_ostream(orig.m_ostream)
       {};
 
 
@@ -446,7 +444,7 @@ namespace TrigConf {
       std::vector<std::string> m_writeFolderList; ///< list of folders to which writing is restricted
       std::ostream & m_ostream; ///< output stream for all messages
 
-      int m_verbosityLevel;
+      int m_verbosityLevel{0};
    };
 
 }

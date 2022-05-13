@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 
-#include <memory>
 
 #include "EgammaMonitoring.h"
+
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "IHistograms.h"
+
+#include <memory>
 
 
 EgammaMonitoring::EgammaMonitoring(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -364,6 +364,14 @@ StatusCode EgammaMonitoring::initialize() {
   //*****************MC Truth Classifier Requirement********************
   ATH_CHECK(m_mcTruthClassifier.retrieve());
 
+  //***************** The handles ********************
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_egTruthParticlesKey.initialize());
+  ATH_CHECK(m_truthParticlesKey.initialize());
+  ATH_CHECK(m_ElectronsKey.initialize());
+  ATH_CHECK(m_PhotonsKey.initialize());
+  ATH_CHECK(m_InDetTrackParticlesKey.initialize());
+  ATH_CHECK(m_GSFTrackParticlesKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -383,49 +391,23 @@ StatusCode EgammaMonitoring::firstExecute() {
 
 StatusCode EgammaMonitoring::execute() {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  
   // Retrieve things from the event store
-  const xAOD::EventInfo *eventInfo = nullptr;
-  ATH_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
   const float mu = eventInfo->averageInteractionsPerCrossing();
 
   // Retrieve egamma truth particles
-  const xAOD::TruthParticleContainer *egTruthParticles = nullptr;
-  if (!evtStore()->retrieve(egTruthParticles, "egammaTruthParticles").isSuccess()) {
-    ATH_MSG_ERROR("Failed to retrieve egamma truth particle container. Exiting.");
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<xAOD::TruthParticleContainer> egTruthParticles (m_egTruthParticlesKey, ctx);
 
-  const xAOD::TruthParticleContainer *truthParticles = nullptr;
-  if (!evtStore()->retrieve(truthParticles,
-                            "TruthParticles").isSuccess()) { // retrieve arguments: container type, container key
-    Error("execute()", "Failed to retrieve Truth Particle container. Exiting.");
-    return StatusCode::FAILURE;
-  }
-
+  // Retrieve truth particles
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticles(m_truthParticlesKey, ctx);
 
   if ("electron" == m_sampleType) {
 
-    // Retrieve electrons
-    const xAOD::ElectronContainer *RecoEl = nullptr;
-    if (!evtStore()->retrieve(RecoEl, "Electrons").isSuccess()) {
-      ATH_MSG_ERROR("Failed to retrieve electron container. Exiting.");
-      return StatusCode::FAILURE;
-    }
-
-    // InDet track particles:
-    const xAOD::TrackParticleContainer *InDetTracks = nullptr;
-    if (!evtStore()->retrieve(InDetTracks, "InDetTrackParticles").isSuccess()) {
-      ATH_MSG_ERROR( "Failed to retrieve InDetTrackParticles. Exiting.");
-      return StatusCode::FAILURE;
-    }
-
-    //  track particles:
-    const xAOD::TrackParticleContainer *GSFTracks = nullptr;
-    if (!evtStore()->retrieve(GSFTracks, "GSFTrackParticles").isSuccess()) {
-      ATH_MSG_ERROR( "Failed to retrieve GSFTrackParticles. Exiting.");
-      return StatusCode::FAILURE;
-    }
-
+    SG::ReadHandle<xAOD::ElectronContainer > RecoEl(m_ElectronsKey, ctx);
+    SG::ReadHandle<xAOD::TrackParticleContainer > InDetTracks(m_InDetTrackParticlesKey, ctx);
+    SG::ReadHandle<xAOD::TrackParticleContainer > GSFTracks(m_GSFTrackParticlesKey, ctx);
 
     ATH_MSG_DEBUG( "------------ Truth Egamma Container ---------------" );
     for (const auto *egtruth : *egTruthParticles) {
@@ -440,10 +422,6 @@ StatusCode EgammaMonitoring::execute() {
       if (egtruth->pt() > 10*Gaudi::Units::GeV) {
         clusterPrompt10GeV->fill(*electron,mu);
       }
-     
-
-      
-
     }
 
     ATH_MSG_DEBUG( "------------ Truth Particles Container ---------------" );
@@ -670,11 +648,7 @@ StatusCode EgammaMonitoring::execute() {
 
   if ("gamma" == m_sampleType) {
 
-    const xAOD::PhotonContainer *RecoPh = nullptr;
-    if (!evtStore()->retrieve(RecoPh, "Photons").isSuccess()) {
-      ATH_MSG_ERROR("Failed to retrieve photon container. Exiting.");
-      return StatusCode::FAILURE;
-    }
+    SG::ReadHandle<xAOD::PhotonContainer > RecoPh(m_PhotonsKey, ctx);
 
     for (const auto *phrec : *RecoPh) {
 
@@ -708,7 +682,7 @@ StatusCode EgammaMonitoring::execute() {
       if(!isTrueConv && !isTrueLateConv) truthPhotonAllUnconv->fill(*egtruth, mu);
 
       if(photon || electron)
-	truthPhotonRecoPhotonOrElectron->fill(*egtruth, mu);
+        truthPhotonRecoPhotonOrElectron->fill(*egtruth, mu);
 
       if (!photon) continue;
 
@@ -765,7 +739,7 @@ StatusCode EgammaMonitoring::execute() {
         truthPhotonUnconvPhoton->fill(*egtruth, mu);
 
         if (isRecoConv) {
-	  truthPhotonUnconvRecoConv->fill(*egtruth, mu);
+          truthPhotonUnconvRecoConv->fill(*egtruth, mu);
 
           if (convType == xAOD::EgammaParameters::singleSi) {
             truthPhotonUnconvRecoConv1Si->fill(*egtruth, mu);
@@ -783,7 +757,7 @@ StatusCode EgammaMonitoring::execute() {
             truthPhotonUnconvRecoConv2SiTRT->fill(*egtruth, mu);
             clusterConvPhotonSiTRT->fill(*photon,mu); 
           }
-	}
+        }
         else           truthPhotonUnconvRecoUnconv->fill(*egtruth, mu);
 
         if (m_IsoFixedCutTight->accept(*photon)) recoPhotonUnconvIsoFixedCutTight->fill(*egtruth, mu);
@@ -811,14 +785,22 @@ StatusCode EgammaMonitoring::execute() {
       if(notMatchedToTruth(*tp)) InDetTracksNotMatched->fill(*tp, mu);
 
       if(tp->pt() > 3000.){
-	InDetTrackshighpT->fill(*tp, mu);
-	if(matchedToElectron(*tp)) InDetTracksMatchElectronhighpT->fill(*tp, mu);
-	if(!matchedToElectron(*tp)) InDetTracksNotElectronhighpT->fill(*tp, mu);
-	if(matchedToPion(*tp)) InDetTracksMatchPionhighpT->fill(*tp, mu);
-	if(notMatchedToTruth(*tp)) InDetTracksNotMatchedhighpT->fill(*tp, mu);
+        InDetTrackshighpT->fill(*tp, mu);
+        if (matchedToElectron(*tp)){
+          InDetTracksMatchElectronhighpT->fill(*tp, mu);
+        }
+        if (!matchedToElectron(*tp)){
+          InDetTracksNotElectronhighpT->fill(*tp, mu);
+        }
+        if (matchedToPion(*tp)){
+          InDetTracksMatchPionhighpT->fill(*tp, mu);
+        }
+        if (notMatchedToTruth(*tp)){
+          InDetTracksNotMatchedhighpT->fill(*tp, mu);
+        }
       }
 
-	 if(xAOD::EgammaHelpers::numberOfSiHits(tp)==0) { //TRTSA tracks
+         if(xAOD::EgammaHelpers::numberOfSiHits(tp)==0) { //TRTSA tracks
 	   InDetTracksTRT->fill(*tp, mu);
 	   if(matchedToElectron(*tp)) InDetTracksTRTMatchElectron->fill(*tp, mu);
 	   if(!matchedToElectron(*tp)) InDetTracksTRTNotElectron->fill(*tp, mu);

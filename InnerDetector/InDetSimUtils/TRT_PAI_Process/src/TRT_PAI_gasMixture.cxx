@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TRT_PAI_gasMixture.h"
 #include "TRT_PAI_gasComponent.h"
@@ -9,13 +11,18 @@
 #include <cmath>
 
 //____________________________________________________________________________
+TRT_PAI_gasMixture::TRT_PAI_gasMixture(const std::string& nm) :
+  AthMessaging(Athena::getMessageSvc(), nm),
+  m_name(nm),
+  m_gasFrozen(0)
+{};
 
+
+//____________________________________________________________________________
 void TRT_PAI_gasMixture::addComponent(TRT_PAI_gasComponent* pgc, double frac) {
   if ( m_gasFrozen ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-      << "gasMixture::addComponent: "
-      << "cannot add new gasComponent - gas already frozen"
-      << endmsg;
+    ATH_MSG_ERROR("gasMixture::addComponent: cannot add new gasComponent "
+                  "- gas already frozen");
     return;
   }
 
@@ -33,21 +40,17 @@ void TRT_PAI_gasMixture::freezeGas() {
   double wtot  = 0.;
   for (int j=0; j<nComp; j++) {
     if ( m_compFracs[j] <= 0. ) {
-      if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-	<< "gasMixture::freezeGas: "
-	<< "A gasComponent has non-positive fraction"
-	<< endmsg;
+      ATH_MSG_ERROR("gasMixture::freezeGas: "
+                    "A gasComponent has non-positive fraction");
       return;
     }
     wtot += m_compFracs[j];
   }
 
   if ( std::abs(wtot-1.) > 1e-5 ) {
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)
-      << "gasMixture::freezeGas: "
-      << "Gas fractions do not add to unity but " << wtot
-      << ". Re-normalizing!!"
-      << endmsg;
+    ATH_MSG_WARNING("gasMixture::freezeGas: "
+                    "Gas fractions do not add to unity but " << wtot
+                    << ". Re-normalizing!!");
   }
 
   for (int j=0; j<nComp; ++j ) {
@@ -87,27 +90,20 @@ void TRT_PAI_gasMixture::freezeGas() {
 void TRT_PAI_gasMixture::showStructure() {
 
   if ( !m_gasFrozen ) {
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)
-      << "gasMixture::showStructure: "
-      << "Showing structure of non-frozen gas"
-      << endmsg;
+    ATH_MSG_WARNING("gasMixture::showStructure: Showing structure of non-frozen gas");
   }
 
-  if (msgLevel(MSG::INFO)) msg(MSG::INFO)
-    << "The gas named '" << m_name
-    << "' has the following components:"
-    << endmsg;
+  ATH_MSG_INFO("The gas named '" << m_name << "' has the following components:");
+
   for (unsigned int i=0; i<m_compFracs.size(); i++) {
-    if (msgLevel(MSG::INFO)) msg(MSG::INFO)
-      << " - " << m_compFracs[i]*100. << " percent "
-      << m_pcomp[i]->getName() << " consisting of: ";
+    msg(MSG::INFO) << " - " << m_compFracs[i]*100. << " percent "
+                   << m_pcomp[i]->getName() << " consisting of: ";
     for (int j=0; j<m_pcomp[i]->getNElementTypes(); j++) {
-      if ( j>0 ) if (msgLevel(MSG::INFO)) msg(MSG::INFO) << ",";
-      if (msgLevel(MSG::INFO)) msg(MSG::INFO)
-	<< " " << m_pcomp[i]->getElementMultiplicity(j)
-	<< " atoms " << m_pcomp[i]->getElement(j)->getName();
+      if ( j>0 ) msg(MSG::INFO) << ",";
+      msg(MSG::INFO) << " " << m_pcomp[i]->getElementMultiplicity(j)
+                     << " atoms " << m_pcomp[i]->getElement(j)->getName();
     }
-    if (msgLevel(MSG::INFO)) msg(MSG::INFO) << endmsg;
+    msg(MSG::INFO) << endmsg;
   }
   return;
 }
@@ -117,9 +113,7 @@ void TRT_PAI_gasMixture::showStructure() {
 TRT_PAI_gasComponent* TRT_PAI_gasMixture::getComponent(unsigned int n) {
 
   if ( n >= m_pcomp.size() ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-      << "gasMixture::getComponent: out of bounds"
-      << endmsg;
+    ATH_MSG_ERROR("gasMixture::getComponent: out of bounds");
     return m_pcomp[0];
   };
 
@@ -131,9 +125,7 @@ TRT_PAI_gasComponent* TRT_PAI_gasMixture::getComponent(unsigned int n) {
 double TRT_PAI_gasMixture::getCompFraction(unsigned int n) {
 
   if ( n >= m_compFracs.size() ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-      << "gasMixture::getCompFraction: out of bounds"
-      << endmsg;
+    ATH_MSG_ERROR("gasMixture::getCompFraction: out of bounds");
     return m_compFracs[0];
   }
 
@@ -145,9 +137,7 @@ double TRT_PAI_gasMixture::getCompFraction(unsigned int n) {
 TRT_PAI_element* TRT_PAI_gasMixture::getElement(unsigned int n) {
 
   if ( n >= m_pelem.size() ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-      << "TRT_PAI_gasMixture::getElement: out of bounds"
-      << endmsg;
+    ATH_MSG_ERROR("TRT_PAI_gasMixture::getElement: out of bounds");
     return m_pelem[0];
   };
 
@@ -159,37 +149,9 @@ TRT_PAI_element* TRT_PAI_gasMixture::getElement(unsigned int n) {
 double TRT_PAI_gasMixture::getElemWeight(unsigned int n) {
 
   if ( n >= m_elemWeights.size() ) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
-      << "gasMixture::getElemFraction:Error:out of bounds"
-      << endmsg;
+    ATH_MSG_ERROR("gasMixture::getElemFraction:Error:out of bounds");
     return 0;
   };
 
   return m_elemWeights[n];
-}
-
-//____________________________________________________________________________
-
-void TRT_PAI_gasMixture::display (const std::string& msg, int lvl) const
-{
-  this->msg() << static_cast<MSG::Level>(lvl) << msg << endmsg;
-}
-
-void TRT_PAI_gasMixture::setLvl (int lvl)
-{
-  msg().setLevel ((MSG::Level)lvl);
-}
-
-void TRT_PAI_gasMixture::setLvl (const std::string& lvl)
-{
-  MSG::Level new_lvl = MSG::INFO;
-  if (lvl=="debug")          { new_lvl = MSG::DEBUG;
-  } else if (lvl=="info")    { new_lvl = MSG::INFO;
-  } else if (lvl=="warning") { new_lvl = MSG::WARNING;
-  } else if (lvl=="error")   { new_lvl = MSG::ERROR;
-  } else {
-    msg() << MSG::WARNING << "lvl [" << lvl << "] UNKNOWN !" << endmsg;
-    return;
-  }
-  msg().setLevel (new_lvl);
 }

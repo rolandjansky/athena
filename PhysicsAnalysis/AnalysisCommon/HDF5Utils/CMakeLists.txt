@@ -34,7 +34,7 @@ set( _exe_sources
 atlas_add_executable(ttree2hdf5 ${_exe_sources}
   DEFINITIONS ${HDF5_CXX_DEFINITIONS}
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} util ${Boost_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
-  LINK_LIBRARIES HDF5Utils CxxUtils ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${HDF5_LIBRARIES} )
+  LINK_LIBRARIES HDF5Utils ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${HDF5_LIBRARIES} )
 
 unset(_exe_sources)
 

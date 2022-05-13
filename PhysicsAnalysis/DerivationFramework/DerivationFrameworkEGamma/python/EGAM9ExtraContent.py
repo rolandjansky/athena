@@ -66,10 +66,7 @@ ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
                       "egammaTruthParticles"
-                      #,"BTagging_AntiKt4TruthWZ"
-                      #,"AntiKt4TruthWZJets"
                       ]
 
 ExtraContainersElectrons=["Electrons",

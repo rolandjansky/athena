@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalBCMTool.cxx
@@ -14,8 +14,6 @@
 
 //Local
 #include "InDetGlobalBCMTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
 //Framework
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
@@ -31,8 +29,6 @@
 #include "InDetGlobalPrimaryVertexMonTool.h"
 //Pixel and SCT stuff
 #include "InDetRawData/PixelRDORawData.h"
-//EventInfo
-#include "EventInfo/EventID.h"
 
 //Standard c++
 #include <string>
@@ -604,14 +600,14 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   m_nExamplePlot->Fill(m_nExampleInt);
 
   //retrieve LB number for plots vs LB
-  SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey,Gaudi::Hive::currentContext());
   if (!evtInfo.isValid()) {
     m_current_LB = 0;
     if ( msgLvl(MSG::WARNING) ){
       msg(MSG::WARNING) << "Could not retrieve the event information container" << endmsg;
     }
   } else {
-      m_current_LB = evtInfo->event_ID()->lumi_block();
+      m_current_LB = evtInfo->lumiBlock();
   }
 
   //lists for calculation of deltat  
@@ -753,15 +749,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	    }
 	        
 	    //Event information to get ECR
-	    ecr = 0;
-	    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
-	    if (!evtInfo.isValid()) {
-	      if ( msgLvl(MSG::WARNING) ){
-		msg(MSG::WARNING) << "Could not retrieve the event information container" << endmsg;
-	      }
-	    } else {
-		ecr = (evtInfo->trigger_info()->extendedLevel1ID() &  0xff000000) >> 24;   // Returns the extendedLevel1ID of the trigger information object
-	    }
+	    ecr = evtInfo.isValid() ? (evtInfo->extendedLevel1ID() & 0xff000000) >> 24 : 0;
 	        
 	    /******************************************************************************************
 	     *Global Histograms

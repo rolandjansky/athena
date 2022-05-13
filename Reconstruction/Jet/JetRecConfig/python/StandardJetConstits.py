@@ -30,7 +30,7 @@ stdContitModifDic = ldict()
 # to Jet domain
 import JetRecConfig.JetInputConfig as inputcfg
 import JetRecTools.JetRecToolsConfig as jrtcfg
-
+import TrackCaloClusterRecTools.TrackCaloClusterConfig as tcccfg
 def isMC(flags):
     """A simple filter function for  testing if we're running in MC
     returns (bool, str) where the str contains an explanation of why the bool is False.
@@ -180,6 +180,13 @@ _stdInputList = [
     JetInputExternal("PV0JetSelectedTracks", xAODType.TrackParticle,
                      prereqs=["input:JetSelectedTracks_trackSelOpt", "input:JetTrackUsedInFitDeco"],
                      algoBuilder = inputcfg.buildPV0TrackSel ),
+
+
+    JetInputExternal("UFOCSSK", xAODType.FlowElement,
+                     prereqs = ['input:GPFlowCSSK'],
+                     algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(stdConstitDic['GPFlowCSSK'], jdef._cflags)
+                     ),
+    
 ]
 
 
@@ -256,6 +263,10 @@ _stdSeqList = [
 
     JetInputConstitSeq("GPFlowCSSK", xAODType.FlowElement,["CorrectPFO",  "CS","SK", "CHS"] ,
                        'GlobalParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
+
+
+
+    JetInputConstit("UFOCSSK", xAODType.FlowElement, "UFOCSSK" ),
     
     # *****************************
     # Tower (used only as ghosts atm)
@@ -294,6 +305,7 @@ _stdSeqList = [
 
     JetInputConstit("TruthCharged", xAODType.TruthParticle, "JetInputTruthParticlesCharged", jetinputtype="TruthCharged"),
 
+    
 ]
 
 for label in  _truthFlavours:    

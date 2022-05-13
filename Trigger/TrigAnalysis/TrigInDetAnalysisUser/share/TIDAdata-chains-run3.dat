@@ -21,8 +21,8 @@ testChains = {
     "HLT_mu26_ivarperf_L1MU14FCH:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso",
     "HLT_mu26_ivarperf_L1MU14FCH:HLT_IDTrack_MuonIso_IDTrig:HLT_Roi_MuonIso",
 
-    "HLT_mu24_LRT_idperf_L1MU14FCH:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu24_LRT_idperf_L1MU14FCH:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu20_LRT_idperf_L1MU14FCH:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu20_LRT_idperf_L1MU14FCH:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_LRT_idperf_L1MU5VF:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_LRT_idperf_L1MU5VF:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
     "HLT_mu6_idperf_L1MU5VF:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
@@ -72,11 +72,9 @@ testChains = {
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso",
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau:post:rvtx=HLT_IDVertex_Tau",
     
-    
-    
     "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF",
-    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig",
-    
+    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig:HLT_Roi_Bjet:HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx:post:rvtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
+
     "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig",
     
     "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FSLRT_FTF;DTE",

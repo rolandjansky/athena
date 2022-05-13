@@ -33,7 +33,6 @@
 #include <string>
 // ATH_MSG macros
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/MsgStreamMember.h"
 
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/checker_macros.h"
@@ -378,8 +377,7 @@ public:
 
 protected:
   /** clone at new position */
-  TrackingVolume* cloneTV
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const;
+  TrackingVolume* cloneTV (Amg::Transform3D& transform) const;
 
 private:
   /** reIndex the static layers of the TrackingVolume */
@@ -419,7 +417,7 @@ private:
                               const Layer& second);
 
   /** move the Tracking Volume*/
-  void moveTV ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const;
+  void moveTV ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform);
 
   /** Forbidden copy constructor */
   TrackingVolume(const TrackingVolume&) = delete;

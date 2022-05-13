@@ -1,6 +1,6 @@
 """Define methods to construct configured TGC Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -56,10 +56,11 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
 
-    if flags.Digitization.UseUpdatedTGCConditions:
-        from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
-        acc.merge(TgcDigitASDposCondAlgCfg(flags))
-        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg, TgcDigitTimeOffsetCondAlgCfg
+    acc.merge(TgcDigitASDposCondAlgCfg(flags))
+    kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    acc.merge(TgcDigitTimeOffsetCondAlgCfg(flags))
+    kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
 
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
@@ -76,10 +77,11 @@ def TGC_OverlayDigitizationToolCfg(flags, name="Tgc_OverlayDigitizationTool", **
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TGC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TGC_SDO")
 
-    if flags.Digitization.UseUpdatedTGCConditions:
-        from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg
-        acc.merge(TgcDigitASDposCondAlgCfg(flags))
-        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg, TgcDigitTimeOffsetCondAlgCfg
+    acc.merge(TgcDigitASDposCondAlgCfg(flags))
+    kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    acc.merge(TgcDigitTimeOffsetCondAlgCfg(flags))
+    kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
 
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)

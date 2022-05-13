@@ -58,8 +58,8 @@ TrigConf::L1CTPFiles::print() const
    std::cout << "   nbits: " << m_muctpi_Nbits.size() << std::endl;
    std::cout << "TMC information (" << (m_hasCompleteTmcData? "complete" : "incomplete") << ")" << std::endl;
    std::cout << "   CTPCore inputs    : " << m_Tmc_CtpcoreInputs.size() << std::endl;
-   std::cout << "   CTPIN map entries : " << m_Tmc_CtpinCounters.size() << std::endl;
-   std::cout << "   CTPMON map entries: " << m_Tmc_CtpmonCounters.size() << std::endl;
+   std::cout << "   CTPIN counters : " << m_Tmc_CtpinCounters.size() << std::endl;
+   std::cout << "   CTPMON counters : " << m_Tmc_CtpmonCounters.size() << std::endl;
 }
 
 /**
@@ -201,12 +201,12 @@ TrigConf::L1CTPFiles::tmc_CtpcoreInputs() const {
    return m_Tmc_CtpcoreInputs;
 }
 
-const std::map<std::string, size_t> &
+const std::vector<TrigConf::L1CTPFiles::CTPInCounter> &
 TrigConf::L1CTPFiles::tmc_CtpinCounters() const {
    return m_Tmc_CtpinCounters;
 }
 
-const std::map<std::string, size_t> &
+const std::vector<TrigConf::L1CTPFiles::CTPMonCounter> &
 TrigConf::L1CTPFiles::tmc_CtpmonCounters() const {
    return m_Tmc_CtpmonCounters;
 }
@@ -351,12 +351,12 @@ TrigConf::L1CTPFiles::set_Tmc_CtpcoreInputs(std::vector<TrigConf::L1CTPFiles::CT
 }
 
 void
-TrigConf::L1CTPFiles::set_Tmc_CtpinCounters(std::map<std::string, size_t> data) {
+TrigConf::L1CTPFiles::set_Tmc_CtpinCounters(std::vector<TrigConf::L1CTPFiles::CTPInCounter> data) {
    m_Tmc_CtpinCounters = std::move(data);
 }
 
 void
-TrigConf::L1CTPFiles::set_Tmc_CtpmonCounters(std::map<std::string, size_t> data) {
+TrigConf::L1CTPFiles::set_Tmc_CtpmonCounters(std::vector<TrigConf::L1CTPFiles::CTPMonCounter> data) {
    m_Tmc_CtpmonCounters = std::move(data);
 }
 

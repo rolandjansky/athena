@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_ExpertMethods_H
@@ -19,6 +19,7 @@
  ***********************************************************************************/
 #include <string>
 
+#include "AsgTools/SlotSpecificObj.h"
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/Conditions.h"
@@ -29,7 +30,6 @@
 
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigNavigation/NavigationCore.h"
-#include "AthenaKernel/SlotSpecificObj.h"
 #endif
 
 namespace HLT {
@@ -49,11 +49,7 @@ namespace Trig {
   class ExpertMethods : public virtual Logger {
   public:      
 
-#ifndef XAOD_STANDALONE // AthAnalysis and AnalysisBase
     ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory);
-#else // AnalysisBase
-    ExpertMethods(Trig::CacheGlobalMemory* m_cacheGlobalMemory);
-#endif
 
     virtual ~ExpertMethods();
 
@@ -98,13 +94,9 @@ namespace Trig {
 
   private:
 
-#ifndef XAOD_STANDALONE // AthAnalysis and AnalysisBase
     SG::SlotSpecificObj<Trig::CacheGlobalMemory>* m_cacheGlobalMemory;
-#else // AthAnalysis or AnalysisBase
-    Trig::CacheGlobalMemory* m_cacheGlobalMemory;
-#endif    
 
-    Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
+    const Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
   };
   
 } // End of namespace

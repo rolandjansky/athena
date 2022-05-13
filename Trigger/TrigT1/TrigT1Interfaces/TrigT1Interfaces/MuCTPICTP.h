@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_MUCTPICTP_H
 #define TRIGT1INTERFACES_MUCTPICTP_H
@@ -25,7 +25,7 @@ namespace LVL1 {
    public:
       /* constructor and destructor */
       MuCTPICTP( unsigned int word = 0 );
-      MuCTPICTP( std::vector<unsigned int> word);
+      MuCTPICTP( const std::vector<unsigned int>& word);
       ~MuCTPICTP();
 
       /**

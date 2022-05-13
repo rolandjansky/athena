@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017, 2019, 2020, 2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019, 2020, 2021, 2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerElectronsReader.cxx 786306 2016-11-24 13:40:42Z wsfreund $
 // =============================================================================
 #include "CaloRingerElectronsReader.h"
 
 #include <algorithm>
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "PATCore/AcceptData.h"
 #include "StoreGate/ReadHandle.h"
 
@@ -55,8 +55,8 @@ StatusCode CaloRingerElectronsReader::initialize()
       new BuildCaloRingsFctor<xAOD::ElectronContainer>(
         m_inputElectronContainerKey.key(),
         m_crBuilder,
-        msg(),
-	this
+        Athena::getMessageSvc(),
+        this
       );
     ATH_CHECK( m_clRingsBuilderElectronFctor->initialize() );
   }

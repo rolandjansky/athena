@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************************************
@@ -26,6 +26,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 #include <cmath>
 #include <cfloat>
 #include <stdexcept>
+#include <utility>
 // ROOT includes
 #include "TEnv.h"
 
@@ -435,8 +436,8 @@ StatusCode JetCleaningTool::decorate(const xAOD::JetContainer &jets) const
 bool JetCleaningTool::containsHotCells( const xAOD::Jet& jet, const unsigned int runNumber) const
 {
     // Check if the runNumber contains bad cells
-    std::unordered_map<unsigned int, std::vector<JCT::HotCell*>*>::const_iterator hotCells = m_hotCellsMap->find(runNumber);
-    if (hotCells != m_hotCellsMap->end())
+    std::unordered_map<unsigned int, std::vector<JCT::HotCell*>*>::const_iterator hotCells = std::as_const(m_hotCellsMap)->find(runNumber);
+    if (hotCells != std::as_const(m_hotCellsMap)->end())
     {
         // The run contains hot cells
         // Check if the jet is affected by one of the hot cells

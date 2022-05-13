@@ -467,6 +467,9 @@ namespace FlavorTagDiscriminants {
       {
         const std::string prefix = options.track_prefix;
         switch (cfg.type) {
+          case EDMType::INT: return {
+              SequenceGetter<int>(cfg.name), {cfg.name}
+            };
           case EDMType::FLOAT: return {
               SequenceGetter<float>(cfg.name), {cfg.name}
             };
@@ -478,7 +481,7 @@ namespace FlavorTagDiscriminants {
               cfg.name, options.track_prefix);
           }
           default: {
-            throw std::logic_error("Unknown EDM type");
+            throw std::logic_error("Unknown EDM type for tracks");
           }
         }
       }
@@ -657,7 +660,8 @@ namespace FlavorTagDiscriminants {
         {"(log_)?(ptfrac|dr|pt).*"_r, EDMType::CUSTOM_GETTER},
         {"(deta|dphi)"_r, EDMType::CUSTOM_GETTER},
         {"phi|theta|qOverP"_r, EDMType::FLOAT},
-        {"(phi|theta|qOverP)Uncertainty"_r, EDMType::CUSTOM_GETTER}
+        {"(phi|theta|qOverP)Uncertainty"_r, EDMType::CUSTOM_GETTER},
+        {"leptonID"_r, EDMType::INT}
       };
       // We have a number of special naming conventions to sort and
       // filter tracks. The track nodes should be named according to

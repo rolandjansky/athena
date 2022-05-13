@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
 #include "G4SimTimer.h"
 
 // Infrastructure includes
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace G4UA
 {
@@ -34,7 +34,8 @@ namespace G4UA
   // G4SimTimer constructor
   //---------------------------------------------------------------------------
   G4SimTimer::G4SimTimer()
-    : m_msg("G4SimTimer"), m_firstEvent(true)
+    : AthMessaging(Athena::getMessageSvc(), "G4SimTimer"),
+      m_firstEvent(true)
   {}
 
   //---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/Tool_DecayModeDeterminator.h"
@@ -74,7 +74,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed* inSee
   bool    invalidForDecayMode = (noValidInput || noAnyConstituents || noSelConstituents || badPt);
 
   int decayMode_PanTauExtended = PanTau::PanTauSeed::t_ExtModeNotSet;
-  xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
+  xAOD::TauJet* tauJet = inSeed->getTauJet();
 
   if(invalidForDecayMode) {
     ATH_MSG_DEBUG("Seed has no constituents assigned and/or input seed has no substructure info - use NotSet mode for this");

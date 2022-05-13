@@ -30,6 +30,7 @@ import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
@@ -54,6 +55,8 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
                                                  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+flags.Trigger.InDetTracking.Muon.tracks_FTF ),
+                                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
     if flags.Input.Format is Format.BS:
         EFMuonCBViewDataVerifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -238,6 +241,12 @@ def _muFastStepSeq(flags):
 
     return (selAcc , l2muFastSequence)
 
+def muFastSequence(flags, is_probe_leg=False): 
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.SA.Muon')
+    selAcc , l2muFastSequence =  _muFastStepSeq(muonflags)
+    return l2muFastSequence
+
+
 def muFastStep(flags, chainDict):
 
     selAcc , l2muFastSequence = _muFastStepSeq(flags)
@@ -269,6 +278,11 @@ def _muCombStepSeq(flags):
                                       HypoToolGen = TrigmuCombHypoToolFromDict)
 
     return (selAccL2CB , l2muCombSequence)
+
+def muCombSequence(flags, is_probe_leg=False):
+    muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')    
+    selAccL2CB , l2muCombSequence = _muCombStepSeq(muonflagsCB)
+    return l2muCombSequence
 
 def muCombStep(flags, chainDict):
 
@@ -322,6 +336,11 @@ def _muEFSAStepSeq(flags, name='RoI'):
 
     return (selAccMS , efmuMSSequence)
 
+def muEFSASequence(flags, is_probe_leg=False):
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.SA.Muon')
+    selAccMS , efmuMSSequence = _muEFSAStepSeq(muonflags, 'RoI')
+    return efmuMSSequence
+
 def muEFSAStep(flags, chainDict, name='RoI'):
 
     selAccMS , efmuMSSequence = _muEFSAStepSeq(flags, name)
@@ -369,7 +388,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
     recoCB.mergeReco(muonCombCfg)
 
     muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[muonCandName], TagMaps=["muidcoTagMap"], 
-                                         InDetCandidateLocation="InDetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
+                                         InDetCandidateLocation="InDetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, 
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)
 
@@ -392,8 +411,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
         muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "InDetCandidatesSystemExtended_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
         insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
-                                                   MuonContainerLocation = "MuonsInsideOut_"+name, SegmentContainerName = "xaodInsideOutCBSegments", 
-                                                   TrackSegmentContainerName = "TrkInsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
+                                                   MuonContainerLocation = "MuonsInsideOut_"+name, ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
                                                    MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon")
         acc.merge(insideOutCreatorAlgCfg, sequenceName=seqIOreco.name)
 
@@ -415,6 +433,11 @@ def _muEFCBStepSeq(flags, name='RoI'):
                                     HypoToolGen = TrigMuonEFCombinerHypoToolFromDict)
    
     return (selAccEFCB , efmuCBSequence)
+
+def muEFCBSequence(flags, is_probe_leg=False):
+    muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')
+    selAccEFCB , efmuCBSequence = _muEFCBStepSeq(muonflagsCB, name='RoI')
+    return efmuCBSequence
 
 def muEFCBStep(flags, chainDict, name='RoI'):
 
@@ -492,5 +515,7 @@ def generateChains( flags, chainDict ):
                 chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict), muEFIsoStep(muonflagsCB, chainDict) ] )
             else:
                 chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict) ] )
+    
+    log.info('Steps for %s are %s', chain.name, chain.steps)
     return chain
 

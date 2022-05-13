@@ -5,6 +5,8 @@ from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 from ..Jet.JetChainConfiguration import JetChainConfiguration
+from AthenaCommon.Configurable import Configurable
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 log = logging.getLogger(__name__)
 
 
@@ -94,6 +96,11 @@ def alignTLASteps(chain_configs, chain_dicts):
 
     def getTLAStepPosition(chainConfig):
         tlaStep = findTLAStep(chainConfig)
+        try:
+            if Configurable.configurableRun3Behavior and tlaStep is None:
+                raise NoCAmigration ("[alignTLASteps] Missing TLA sequence with CA configurables")
+        except NoCAmigration:
+            return 0
         return chainConfig.steps.index(tlaStep) + 1
 
     # First loop to find the maximal TLA step positions to which we need to align

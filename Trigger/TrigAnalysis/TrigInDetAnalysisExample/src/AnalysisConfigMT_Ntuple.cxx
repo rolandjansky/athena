@@ -107,15 +107,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  
 		  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
  
-		      if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-		      if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-		   
-		      if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element(); 
-		      if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-		      if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-		     
-		      if ( !chainName.passed() )    selectChains[iselected] += ";DTE";
-		     
+		      selectChains[iselected] = chainName.subs( selectChains[iselected] );
+
 		      /// replace wildcard with actual matching chains ...
 		      chainNames.push_back( ChainString(selectChains[iselected]) );
 
@@ -265,7 +258,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		}
 
 	} /// finished loop over chains
-
+ 
 
 
 	/// bomb out if no chains passed and not told to keep all events and found no 
@@ -345,28 +338,49 @@ void AnalysisConfigMT_Ntuple::loop() {
 	
 
 	/// get the offline vertices into our structure
-	
-	std::vector<TIDA::Vertex> vertices;
-	
-	m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
+	for ( size_t iv=0; iv<m_vertexType.size(); iv++ ) {
 
-	const xAOD::VertexContainer* xaodVtxCollection = 0;
+		std::vector<TIDA::Vertex> vertices;
+		
+		std::string vertexType = "PrimaryVertices";
+		std::string vertexChainname = "Vertex";
+		if ( m_vertexType[iv]!="" ) { 
+			vertexType = m_vertexType[iv];
+			vertexChainname += ":" + vertexType;
+		}
 
-	if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "PrimaryVertices" ).isFailure()) {
-	  m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endmsg;
+		m_provider->msg(MSG::VERBOSE) << "fetching offline AOD vertex container with key " << vertexType << endmsg;
+
+		const xAOD::VertexContainer* xaodVtxCollection = 0;
+
+		if ( m_provider->evtStore()->retrieve( xaodVtxCollection, vertexType ).isFailure()) {
+			m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vertexType <<  endmsg;
+		}
+		
+		if ( xaodVtxCollection!=0 ) { 
+		
+			m_provider->msg(MSG::DEBUG) << "xAOD vertex container " << vertexType << " found with " << xaodVtxCollection->size() <<  " entries" << endmsg;
+			
+			// Vertex types in some secondary vertex collections are not properly set and are all 0, 
+			// allow these vertices if primary vertices are not used
+			if ( vertexType.find("SecVtx") != std::string::npos ) {
+				vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks(), true );
+			}
+			else {
+				vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks() );
+			}
+		}
+
+		// now add the offline vertices
+		if ( m_doOffline || m_doVertices ) { 	  
+			m_event->addChain( vertexChainname );
+			m_event->back().addRoi(TIDARoiDescriptor(true));
+			m_event->back().back().addVertices( vertices );
+		}	 
 	}
-	
-	if ( xaodVtxCollection!=0 ) { 
-	  
-	  m_provider->msg(MSG::DEBUG) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
-
-	  vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks() );
-	}
-
 
 	/// add offline Vertices to the Offline chain
-	
-	
+
 	/// add the truth particles if needed
 	
 	if ( m_mcTruth ) {
@@ -374,9 +388,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorTruth.tracks());
 	}
-
-
-	/// now add the vertices
 
 	/// useful debug information - leave in  
 	//	std::cout << "SUTT Nvertices " << vertices.size() << "\ttype 101 " << vertices_full.size() << std::endl;
@@ -395,16 +406,6 @@ void AnalysisConfigMT_Ntuple::loop() {
 	int Nmu   = 0;
 	int Nel   = 0;
         int Ntau  = 0;
-
-
-	/// now add the offline vertices
-
-	if ( m_doOffline || m_doVertices ) { 	  
-	  m_event->addChain( "Vertex" );
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addVertices( vertices );
-	}	 
-
 
 	/// now add the offline tracks
 
@@ -506,7 +507,14 @@ void AnalysisConfigMT_Ntuple::loop() {
 	      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
 					  << "\t" << vtx_name << endmsg;
 
-		  tidavertices = vertexBuilder.select( xaodVtxCollection );  
+		  // Vertex types in some secondary vertex collections are not properly set and are all 0, 
+	      // allow these vertices if primary vertices are not used
+		  if ( vtx_name.find("SecVtx") != std::string::npos ) {
+		    tidavertices = vertexBuilder.select( xaodVtxCollection, 0, true );
+		  }
+		  else {
+		    tidavertices = vertexBuilder.select( xaodVtxCollection );
+		  }		   
 		}
 
 	  }
@@ -889,10 +897,15 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first) 
 						 << "\t" << vtx_name << endmsg;
 
-			  tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorTest.tracks() );
-		      
+			  // Vertex types in some secondary vertex collections are not properly set and are all 0, 
+			  // allow these vertices if primary vertices are not used
+			  if ( vtx_name.find("SecVtx") != std::string::npos ) {
+				tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorRef.tracks(), true );
+			  }
+			  else {
+				tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorTest.tracks() );
+			  }		      
 			}
-		    
 		  }
 
 #if 0 

@@ -5,6 +5,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 
 def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
@@ -45,6 +46,7 @@ def EventInfoOverlayAlgCfg(flags, name="EventInfoOverlay", **kwargs):
     kwargs.setdefault("OutputKey", "EventInfo")
 
     kwargs.setdefault("DataOverlay", flags.Overlay.DataOverlay)
+    kwargs.setdefault("ValidateBeamSpot", not flags.Overlay.DataOverlay and flags.GeoModel.Run is LHCPeriod.Run3)
 
     # Do the xAOD::EventInfo overlay
     xAODMaker__EventInfoOverlay = CompFactory.xAODMaker.EventInfoOverlay

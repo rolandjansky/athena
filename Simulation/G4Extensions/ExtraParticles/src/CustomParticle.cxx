@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CustomParticle.hh"
@@ -7,6 +7,8 @@
 // ######################################################################
 // ###                           CustomParticle                       ###
 // ######################################################################
+
+using namespace ExtraParticles;
 
 CustomParticle::CustomParticle(const G4String &name, G4double mass,
                                G4double width, G4int charge, G4int pdg,

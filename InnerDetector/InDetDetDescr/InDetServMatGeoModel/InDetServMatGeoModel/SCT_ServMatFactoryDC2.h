@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SCT_SERVMATFACTORYDC2_H
 #define INDETSERVMATGEOMODEL_SCT_SERVMATFACTORYDC2_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -18,7 +17,7 @@ class IRDBAccessSvc;
 
 #include <string>
 
-class SCT_ServMatFactoryDC2   {
+class SCT_ServMatFactoryDC2 : public AthMessaging {
 
  public:
   
@@ -30,8 +29,6 @@ class SCT_ServMatFactoryDC2   {
   
   // Creation of geometry:
   void create(GeoPhysVol *mother);
-
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
  private:  
   const GeoShape* createShape(int volType, 
@@ -58,7 +55,6 @@ class SCT_ServMatFactoryDC2   {
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
   const StoredMaterialManager    *m_materialManager;
-  Athena::MsgStreamMember m_msg;
 };
 
 #endif //  INDETSERVMATGEOMODEL_SCT_SERVMATFACTORYDC2_H

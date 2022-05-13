@@ -20,6 +20,8 @@ def SetupMuonStandaloneArguments():
     parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
                         action="store_true")
     parser.add_argument("-d","--debug", default=None, help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
+    parser.add_argument("--input", "-i", help="Input file to run the config", nargs="+",
+                                        default= ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root'])
     args = parser.parse_args()
     
     # Setup for new config
@@ -33,7 +35,7 @@ def SetupMuonStandaloneConfigFlags(args):
     # Keeping this commented out so we can easily switch to the default for testing against that.
     # from AthenaConfiguration.TestDefaults import defaultTestFiles
     # ConfigFlags.Input.Files = defaultTestFiles.ESD
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
+    ConfigFlags.Input.Files = args.input
     
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.

@@ -178,8 +178,8 @@ namespace ITk
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_strip{this, "useStrip", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
-    IntegerProperty m_maxsize{this, "maxSize", 50000};
-    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 5000};
+    IntegerProperty m_maxsize{this, "maxSize", 10000};
+    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 4096};
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
     FloatProperty m_etamax{this, "etaMax", 2.7};
     FloatProperty m_r1minv{this, "minVRadius1", 0.};

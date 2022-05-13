@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -313,7 +313,7 @@ float CalibrationNtupleMakerTool::DetectorEta(const xAOD::Jet* jet) {
     
     const xAOD::TrackCaloCluster* tcc = dynamic_cast<const xAOD::TrackCaloCluster*>(*link);
     
-    static SG::AuxElement::Accessor< float > acc_detEta( "DetectorEta" );
+    static const SG::AuxElement::Accessor< float > acc_detEta( "DetectorEta" );
     float det_eta = tcc->eta();
     
     if (acc_detEta.isAvailable(*tcc)) {

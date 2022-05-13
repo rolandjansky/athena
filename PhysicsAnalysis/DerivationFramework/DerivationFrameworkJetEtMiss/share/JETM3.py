@@ -5,7 +5,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt
+from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt, AntiKt4LCTopo
 from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
 
 if DerivationFrameworkIsMonteCarlo:
@@ -101,15 +101,18 @@ thinningTools.append(JETM3PhotonTPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-JETM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                   = "JETM3TauTPThinningTool",
-                                                                        StreamName             = streamName,
-                                                                        TauKey                 = "TauJets",
-                                                                        InDetTrackParticlesKey = "InDetTrackParticles")
+JETM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "JETM3TauTPThinningTool",
+                                                                      StreamName             = streamName,
+                                                                      TauKey                 = "TauJets",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                      DoTauTracksThinning    = True,
+                                                                      TauTracksKey           = "TauTracks")
+
 
 ToolSvc += JETM3TauTPThinningTool
 thinningTools.append(JETM3TauTPThinningTool)
 
-thinning_expression = "( abs(InDetTrackParticles.d0) < 2 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
+thinning_expression = "( abs(InDetTrackParticles.d0) < 5*mm ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 5*mm )"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM3TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "JETM3TPThinningTool",
                                                                   StreamName              = streamName,
@@ -171,11 +174,12 @@ OutputJets["JETM3"] = ["AntiKt4EMPFlowLowPtJets","AntiKt4EMTopoLowPtJets"]
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
-# To be restored after fixing the errors caused by these lines
-#if DerivationFrameworkIsMonteCarlo:
-    ###addMETTruthMap('AntiKt4EMTopo',"JETMX")
-    ###addMETTruthMap('AntiKt4EMPFlow',"JETMX")
-    ##scheduleMETAssocAlg(jetm3Seq,"JETMX")
+if DerivationFrameworkIsMonteCarlo:
+  from JetRecConfig.StandardSmallRJets import calibmods, standardmods, clustermods
+  AntiKt4LCTopo_deriv = AntiKt4LCTopo.clone(modifiers = calibmods+("Filter:1","OriginSetPV")+standardmods+clustermods)
+  addDAODJets([AntiKt4LCTopo_deriv],DerivationFrameworkJob)
+  addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+  scheduleMETAssocAlg(sequence=DerivationFrameworkJob,configlist="JETMX")
 
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
@@ -192,9 +196,12 @@ JETM3SlimmingHelper = SlimmingHelper("JETM3SlimmingHelper")
 JETM3SlimmingHelper.AppendToDictionary = {'GlobalChargedParticleFlowObjects':'xAOD::FlowElementContainer','GlobalChargedParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
                                           'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
                                           'CHSGChargedParticleFlowObjects':'xAOD::FlowElementContainer','CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
-                                          'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer'}
+                                          'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                          'Kt4EMPFlowNeutEventShape':'xAOD::EventShape','Kt4EMPFlowNeutEventShapeAux':'xAOD::EventShapeAuxInfo'
+}
 
-JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
+JETM3SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Baseline_AntiKt4EMTopo",
                                         "MET_Baseline_AntiKt4EMPFlow",
@@ -205,8 +212,7 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TruthSoftDropBeta100Zcut10Jets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt4EMPFlow",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMPFlow"
 					]
 
 JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
@@ -216,7 +222,7 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "LVL1JetRoIs",
-                                    "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                    "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape",
                                     ]
 
 JETM3SlimmingHelper.ExtraVariables = [

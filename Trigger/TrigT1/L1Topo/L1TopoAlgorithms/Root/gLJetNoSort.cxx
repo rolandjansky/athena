@@ -3,11 +3,11 @@
 */
 // gLJetNoSort.cxx
 // TopoCore
-// Algorithm to generate ALL lists of gLargeRJet TOBs
+// Algorithm to generate ALL lists of gLJet TOBs
 
 #include "L1TopoAlgorithms/gLJetNoSort.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/gLargeRJetTOBArray.h"
+#include "L1TopoEvent/gLJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -37,19 +37,19 @@ TCS::gLJetNoSort::initialize() {
 
 TCS::StatusCode
 TCS::gLJetNoSort::sort(const InputTOBArray & input, TOBArray & output) {
-   const gLargeRJetTOBArray & jets = dynamic_cast<const gLargeRJetTOBArray&>(input);
+   const gLJetTOBArray & jets = dynamic_cast<const gLJetTOBArray&>(input);
 
    // fill output array with GenericTOBs builds from jets
-   for(gLargeRJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+   for(gLJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
        output.push_back( GenericTOB(**jet) );
    }
 
 
    // keep only max number of jets
    int par = m_numberOfgLJets ;
-   unsigned int maxNumberOfgLargeRJets = (unsigned int)(par<0?0:par);
-   if(maxNumberOfgLargeRJets>0) {
-      while( output.size()> maxNumberOfgLargeRJets ) {
+   unsigned int maxNumberOfgLJets = (unsigned int)(par<0?0:par);
+   if(maxNumberOfgLJets>0) {
+      while( output.size()> maxNumberOfgLJets ) {
          output.pop_back();
       }
    }   

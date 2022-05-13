@@ -21,17 +21,18 @@ logging.info("Identifiers file: %s", args.identifiers)
 logging.info("High thresholds enabled: %s", args.highThresholds)
 
 dbName = "OFLP200"
-dbFolder = "/ITK/PixelChargeCalib"
-dbTag = "PixelChargeCalib-RUN4-00"
+dbFolder = "/ITk/PixelChargeCalib"
+dbTag = "ChargeCalib-MC21-01"
 dbFile = "ITkPixelChargeCalib.db"
 
 runSince = 0
-runUntil = 999999
+runUntil = 'inf'
 
 logging.info("Database name: %s", dbName)
 logging.info("Folder name: %s", dbFolder)
 logging.info("Folder tag: %s", dbTag)
 logging.info("Output file: %s", dbFile)
+logging.info("Run range: %s - %s", runSince, runUntil)
 
 dbFilePath = Path(dbFile)
 if dbFilePath.exists():
@@ -64,7 +65,9 @@ data = cool.Record(spec)
 
 # define IoVs
 iovMin = runSince << 32 | 0
-iovMax = runUntil << 32 | 0
+iovMax = cool.ValidityKeyMax if runUntil == 'inf' else runUntil << 32 | 0
+
+logging.info("IoV range: %s - %s", iovMin, iovMax)
 
 ## Format:
 # analog threshold value, sigma, nose and timewalk for normal, long and large pixels
@@ -119,7 +122,7 @@ with open(args.identifiers, "r") as identifiers:
         else:
             output[ids[0]] = calibSingle
 
-data["data_array"] = dumps(output)
+data["data_array"] = dumps(output, separators=(',', ':'))
 folder.storeObject(iovMin, iovMax, data, 0, dbTag)
 
 # close the database

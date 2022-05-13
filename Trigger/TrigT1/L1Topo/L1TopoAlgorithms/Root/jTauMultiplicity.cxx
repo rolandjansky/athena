@@ -84,7 +84,7 @@ TCS::jTauMultiplicity::process( const TCS::InputTOBArray & input,
     const GenericTOB gtob(**jtau);
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() >= jTAUThr.thrValue100MeV(gtob.eta()/4);
+    bool passed = gtob.Et() > jTAUThr.thrValue100MeV(gtob.eta()/4);
 
     if (passed) {
       counting++; 

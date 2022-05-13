@@ -2,9 +2,10 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR
+from AthenaCommon.CFElements import parOR, findAllAlgorithms
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import RecoFragmentsPool
-from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
 from JetRecConfig import JetInputConfig, JetRecConfig
 from JetRecConfig.DependencyHelper import solveDependencies, solveGroomingDependencies
 
@@ -13,6 +14,11 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from . import JetRecoCommon
 from TriggerMenuMT.HLT.CommonSequences.CaloSequences import caloClusterRecoSequence, LCCaloClusterRecoSequence
 from eflowRec.PFHLTSequence import PFHLTSequence
+
+# this code uses CA internally, needs to be in this context manager,
+# at least until ATLASRECTS-6635 is closed
+with ConfigurableRun3Behavior():
+    from ..Bjet.BjetFlavourTaggingConfiguration import getFastFlavourTagging
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -182,6 +188,8 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     jetDef.modifiers = JetRecoCommon.getCalibMods(jetRecoDict,dataSource,rhoKey)
     # If we need JVT, just rerun the JVT modifier
     decorList = JetRecoCommon.getDecorList(jetRecoDict)
+    decorList.append("GhostTrack_ftf")
+
     if JetRecoCommon.doTracking(jetRecoDict):
         jetDef.modifiers.append("JVT")
     #Configuring jet cleaning mods now
@@ -195,6 +203,27 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+jetDef.fullname()+"/")
     copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef,decorations=decorList,monTool=monTool)
     recoSeq += copyCalibAlg
+
+    # Check conditions before adding fast flavour tag info to jets
+    jetCalibDef=JetRecoCommon.getJetCalibDefaultString(jetRecoDict)
+    if(
+        configFlags.Trigger.Jet.fastbtagPFlow
+        and JetRecoCommon.isPFlow(jetRecoDict)   # tag only PFlow jets
+        and jetRecoDict['recoAlg']=='a4'         # tag only anti-kt with R=0.4
+        and jetRecoDict['constitMod']==''        # exclude SK and CSSK chains
+        and jetRecoDict['jetCalib']==jetCalibDef # exclude jets with not full default calibration
+    ):
+
+        # Adding Fast flavor tagging
+        jetFTagSeq = getFastFlavourTaggingSequence(
+            configFlags,
+            "jetFtagSeq_"+jetRecoDict["trkopt"],
+            jetDef.fullname(),
+            jetRecoDict["Vertices"],
+            jetRecoDict["Tracks"],
+            isPFlow=True,
+        )
+        recoSeq += jetFTagSeq
 
     jetPtMin = 10e3 # 10 GeV minimum pt for jets to be seen by hypo
     from JetRec.JetRecConf import JetViewAlg
@@ -243,6 +272,33 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
         jetRecoSequence, configFlags, clustersKey=clustersKey, **jetRecoDict )
 
     return [topoClusterSequence,jetRecoSeq], jetsOut, jetDef, clustersKey
+
+# This function is for conversion of flavour-tagging algorithms from new to old-style
+def getFastFlavourTaggingSequence( dummyFlags, name, inputJets, inputVertex, inputTracks, 
+                                   addAlgs=[], isPFlow=False):
+
+    with ConfigurableRun3Behavior():
+        ca_ft_algs = getFastFlavourTagging( dummyFlags, inputJets, inputVertex, inputTracks, isPFlow)
+
+    # 1) We need to do the algorithms manually and then remove them from the CA
+    #
+    # Please see the discussion on
+    # https://gitlab.cern.ch/atlas/athena/-/merge_requests/46951#note_4854474
+    # and the description in that merge request.
+
+    ft_algs = [conf2toConfigurable(alg) for alg in findAllAlgorithms(ca_ft_algs._sequence)]
+    jetFFTSeq = parOR(name, addAlgs+ft_algs)
+
+    # you can't use accumulator.wasMerged() here because the above
+    # code only merged the algorithms. Instead we rely on this hacky
+    # looking construct.
+    ca_ft_algs._sequence = []
+    # 2) the rest is done by the generic helper
+    # this part is needed to accomodate parts of flavor tagging that
+    # aren't algorithms, e.g. JetTagCalibration.
+    appendCAtoAthena(ca_ft_algs)
+
+    return jetFFTSeq
 
 # This sets up the reconstruction where tracks are required.
 # Topoclustering will not be scheduled, we just pass in the name of the cluster collection.

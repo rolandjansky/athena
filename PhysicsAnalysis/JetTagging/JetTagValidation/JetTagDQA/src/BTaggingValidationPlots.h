@@ -7,8 +7,7 @@
     
 #include "xAODBase/IParticle.h"
 #include "TrkValHistUtils/PlotBase.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODBTagging/BTagging.h" 
 #include "xAODJet/JetContainer.h"
@@ -18,7 +17,6 @@
 #include "xAODJet/Jet.h"
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
-//#include "GAFlavourLabel.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
@@ -26,7 +24,7 @@
     
 namespace JetTagDQA{
  
-  class BTaggingValidationPlots:public PlotBase {
+  class BTaggingValidationPlots : public PlotBase, public AthMessaging {
     public:
       // constructor
       BTaggingValidationPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
@@ -575,18 +573,6 @@ namespace JetTagDQA{
       void bookDiscriminantVsPTAndLxyHistograms(const std::string& tagger_name, const std::map<std::string, double>& workingPoints, const bool& isOldTagger, std::map<std::string, int>::const_iterator label_iter, const std::string& m_sParticleType);
       template <class T>
       void fillHistoWithTruthCases(T value, TH1* histo_incl, TH1* histo_b, TH1* histo_c, TH1* histo_l, TH1* histo_muon, const int& truth_label, const bool& has_muon, const xAOD::EventInfo* event);
-
-    protected:
-      // Log a message using the Athena controlled logging system
-      MsgStream& msg(MSG::Level lvl) const {
-        return m_msg.get() << lvl;
-      }
-      // Check whether the logging system is active at the provided verbosity level
-      bool msgLvl(MSG::Level lvl) {
-        return m_msg.get().level() <= lvl;
-      }
-      // Private message stream member
-      mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   };
     

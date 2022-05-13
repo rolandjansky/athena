@@ -26,7 +26,7 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 
-class ThinGeantTruthAlg : public AthReentrantAlgorithm
+class ThinGeantTruthAlg final: public AthReentrantAlgorithm
 {
 public:
   using AthReentrantAlgorithm::AthReentrantAlgorithm;

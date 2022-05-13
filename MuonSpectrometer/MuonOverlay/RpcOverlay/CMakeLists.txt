@@ -11,7 +11,7 @@ find_package( GTest )
 atlas_add_test( RpcOverlay_test
                 SOURCES src/*.cxx test/RpcOverlay_test.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES GaudiKernel TestTools MuonDigitContainer MuonOverlayBase StoreGateLib MuonIdHelpersLib ${GTEST_LIBRARIES}
+                LINK_LIBRARIES CxxUtils GaudiKernel TestTools MuonDigitContainer MuonOverlayBase StoreGateLib MuonIdHelpersLib ${GTEST_LIBRARIES}
                 POST_EXEC_SCRIPT nopost.sh )
 
 # Component(s) in the package:

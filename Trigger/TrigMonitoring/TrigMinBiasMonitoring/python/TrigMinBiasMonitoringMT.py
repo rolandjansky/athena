@@ -11,14 +11,16 @@ from TrigMinBiasMonitoring.TrigMinBiasEffMonitoring import TrigMinBiasEff
 from TrigMinBiasMonitoring.TrigAFPSidHypoMonitoring import TrigAFPSidHypoMonitoring
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType
 
 
 def TrigMinBias(configFlags):
     acc = ComponentAccumulator()
-    acc.merge(TrigSPTRK(configFlags))
     acc.merge(TrigMBTS(configFlags))
-    acc.merge(TrigMinBiasEff(configFlags))
-    acc.merge(TrigAFPSidHypoMonitoring(configFlags))
+    if configFlags.Beam.Type is not BeamType.Cosmics:
+        acc.merge(TrigSPTRK(configFlags))
+        acc.merge(TrigMinBiasEff(configFlags))
+        acc.merge(TrigAFPSidHypoMonitoring(configFlags))
     return acc
 
 
@@ -42,6 +44,9 @@ if __name__ == "__main__":
     cfg = MainServicesCfg(flags)
     cfg.merge(PoolReadCfg(flags))
     cfg.merge(TrigMinBias(flags))
+
+    with open("cfg.pkl", "wb") as f:
+        cfg.store(f)
 
     status = cfg.run()
     if status.isFailure():

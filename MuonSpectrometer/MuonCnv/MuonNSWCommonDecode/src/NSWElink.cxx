@@ -1,7 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include <vector>
+#include <exception>
+#include <sstream>
 
 #include "ers/ers.h"
 
@@ -12,7 +14,7 @@
 #include "MuonNSWCommonDecode/VMMChannel.h"
 #include "MuonNSWCommonDecode/NSWResourceId.h"
 
-Muon::nsw::NSWElink::NSWElink (uint32_t *bs)
+Muon::nsw::NSWElink::NSWElink (const uint32_t *bs, const uint32_t remaining)
   : m_wordCount (0)
 {
   // Felix header (2 words)
@@ -21,6 +23,22 @@ Muon::nsw::NSWElink::NSWElink (uint32_t *bs)
   uint32_t word = bs[m_wordCount++];
   unsigned int packet_nbytes = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskFlxLENGTH, Muon::nsw::bitPosFlxLENGTH);
   m_packet_status  = Muon::nsw::helper::get_bits (word, Muon::nsw::bitMaskFlxSTATUS, Muon::nsw::bitPosFlxSTATUS);
+
+  if (m_packet_status != 0)
+  {
+    std::ostringstream s;
+    s << "Packet status in FELIX header 0x" << std::hex << m_packet_status << std::dec;
+    Muon::nsw::NSWElinkFelixHeaderException e (s.str ().c_str ());
+    throw e;
+  }
+
+  if (remaining * sizeof (uint32_t) < packet_nbytes)
+  {
+    std::ostringstream s;
+    s << "Packet length in FELIX header " << packet_nbytes << " is larger than available data";
+    Muon::nsw::NSWElinkFelixHeaderException e (s.str ().c_str ());
+    throw e;
+  }
 
   m_elinkWord = bs[m_wordCount++];
   m_elinkId = new Muon::nsw::NSWResourceId (m_elinkWord);
@@ -43,9 +61,20 @@ Muon::nsw::NSWElink::NSWElink (uint32_t *bs)
   }
   else
   {
+    // It may happen that the null packet flag is wrong (or the size is wrong)
+    // In that case, throw an exception
+
+    if (packet_nbytes == s_null_packet_length)
+    {
+      std::ostringstream s;
+      s << "Packet length in FELIX header " << packet_nbytes << " and null event flag in packet are inconsistent";
+      Muon::nsw::NSWElinkROCHeaderException e (s.str ().c_str ());
+      throw e;
+    }
+
     // Calculate packet checksum
 
-    uint8_t *p = reinterpret_cast <uint8_t *> (bs + 2);
+    const uint8_t *p = reinterpret_cast <const uint8_t *> (bs + 2);
     m_running_checksum = this->test_checksum (p, (packet_nbytes - 2 * sizeof (uint32_t)));
 
     // m_noTDC will only affect data size, hit words should be re-aligned to uint32_t

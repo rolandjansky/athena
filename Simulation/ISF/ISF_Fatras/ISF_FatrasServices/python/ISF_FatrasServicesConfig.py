@@ -548,21 +548,6 @@ def getFatrasStaticExtrapolator(name="ISF_FatrasStaticExEngine", **kwargs):
     from TrkExEngine.TrkExEngineConf import Trk__StaticEngine
     return Trk__StaticEngine(name, **kwargs)
 
-# Used only in TransportEngine config (getFatrasSimEngine) which is not migrated to CA config
-# getFatrasExEngine not migrated to CA
-def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
-    # load the tracking geometry service
-    # assign the tools
-    kwargs.setdefault("ExtrapolationEngines"    , [ getPublicTool('ISF_FatrasStaticExEngine') ] )
-    kwargs.setdefault("PropagationEngine"       , getPublicTool('ISF_FatrasStaticPropagator'))
-    # configure output formatting 
-    kwargs.setdefault("OutputPrefix"     , '[ME] - ')
-    kwargs.setdefault("OutputPostfix"    , ' - ')
-    kwargs.setdefault("OutputLevel"      ,  ISF_FatrasFlags.OutputLevelGeneral())
-       
-    from TrkExEngine.TrkExEngineConf import Trk__ExtrapolationEngine
-    return Trk__ExtrapolationEngine(name="ISF_FatrasExEngine", **kwargs )
-
 ################################################################################
 # HIT CREATION SECTION
 ################################################################################
@@ -738,32 +723,6 @@ def getFatrasSimTool(name="ISF_FatrasSimTool", **kwargs):
 
     from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__TransportTool
     return iFatras__TransportTool(name, **kwargs )
-
-# Not used anywhere - not migrated to CA config
-def getFatrasSimEngine(name="ISF_FatrasSimEngine", **kwargs):
-    kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasSimHitCreatorID'))
-    # TODO: G4 Tools can not be used at the same time as Geant4 inside ISF
-    kwargs.setdefault("ParticleDecayHelper" , getPublicTool('ISF_FatrasParticleDecayHelper'))
-    # the filter setup
-    kwargs.setdefault("TrackFilter"         , getPublicTool('ISF_FatrasKinematicFilter'))
-    kwargs.setdefault("NeutralFilter"       , getPublicTool('ISF_FatrasKinematicFilter'))
-    kwargs.setdefault("PhotonFilter"        , getPublicTool('ISF_FatrasKinematicFilter'))
-    # extrapolator - test setup
-    kwargs.setdefault("Extrapolator"        , getPublicTool('ISF_FatrasExEngine'))
-    #
-    kwargs.setdefault("ProcessSamplingTool" , getPublicTool('ISF_FatrasProcessSamplingTool'))
-    # set the output level
-    # kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
-    # the validation
-    kwargs.setdefault("ValidationMode"              , ISF_Flags.ValidationMode())
-    kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
-    # random number service
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault( "RandomNumberService", simFlags.RandomSvc())
-
-    from ISF_FatrasTools.ISF_FatrasToolsConf import iFatras__TransportEngine
-    return iFatras__TransportEngine(name, **kwargs )
-
 
 def getFatrasPileupSimTool(name="ISF_FatrasPileupSimTool", **kwargs):
     kwargs.setdefault("SimHitCreatorID" , getPublicTool('ISF_FatrasPileupSimHitCreatorID'))

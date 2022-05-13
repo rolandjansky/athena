@@ -190,6 +190,8 @@ JetChainParts = {
        'presela60XXa40XX2a25',
        'preseljHT400',
        'preselcHT400',
+       'preseljHT450',
+       'preselcHT450',
        'preseljHT500',
        'preselcHT500',
        'preseljHT600',
@@ -199,6 +201,16 @@ JetChainParts = {
        'presel2c20XX2c20b90',
        'preselj20b95',
        'preselj20b77',
+       'presel3j45b95',
+       'presel4j25b95',
+       'presel2j25b85XX2j25',
+       'presel2j25b85XX3j25',
+       'preselj50b85XX3j50',
+       'preselj80XX2j45b90',
+       'preselj140b85XXj45b85',
+       'presel5c25XXc25b85',
+       'presel2a20b90XX2a20',
+       'presela20b85XX3a20',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -247,7 +259,9 @@ JetChainParts = {
 
     'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
                   'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4', 
-                  'tracklessdR1p2',      'tracklessdR0p4'],
+                  'tracklessdR1p2',      'tracklessdR0p4',
+                  'calratio','calratiormbib' # Exotics CalRatio jets (trackless and low-EMF, with option to clean out BIB)
+              ],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
@@ -272,9 +286,13 @@ JetChainParts = {
     # Setup for alternative data stream readout
     # B-tagging information
     'bTag'         : ['boffperf'  ,
-                      'bdl1r60','bdl1r70','bdl1r77','bdl1r85',
-                      'bdl1d60', 'bdl1d65','bdl1d70','bdl1d77',
-                      'bdl1d80', 'bdl1d85'],
+                      'bdl1r60', 'bdl1r70', 'bdl1r77', 'bdl1r85',
+                      'bdl1d60',  'bdl1d65', 'bdl1d70', 'bdl1d72',
+                      'bdl1d75', 'bdl1d77', 'bdl1d80', 'bdl1d82',
+                      'bdl1d85',
+                      'bdl1d85bb60', 'bdl1d85bb65', 'bdl1d85bb70',
+                      'bdl1d85bb72', 'bdl1d85bb75', 'bdl1d85bb77',
+                      'bdl1d85bb80', 'bdl1d85bb82' ],
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
@@ -401,7 +419,7 @@ AllowedTopos_Bphysics = [
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX',
     # topoExtras
-    'Lxy0','noos','nocut'
+    'Lxy0','noos','nocut','lowpt'
     #########Remove until here############
 
 ]
@@ -409,7 +427,7 @@ AllowedTopos_Bphysics_topoVariant = [
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX'
 ]
-AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut']
+AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut','lowpt']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -574,7 +592,7 @@ ElectronChainParts = {
     'IDinfo'         : ['dnnloose','dnnmedium','dnntight','lhvloose','lhloose','lhmedium','lhtight','vloose','loose','medium','tight', 'mergedtight'],
     'isoInfo'        : ['ivarloose','ivarmedium','ivartight'],
     'idperfInfo'     : ['idperf'],
-    'gsfInfo'        : ['gsf'],
+    'gsfInfo'        : ['nogsf'],
     'lrtInfo'        : ['lrtloose','lrtmedium','lrttight'],
     'caloInfo'       : [],
     'lhInfo'         : ['nod0', 'nopix'],
@@ -692,7 +710,7 @@ MinBiasChainParts = {
                         'sp1000', 'sp1100', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup0', 'pusup20', 'pusup30', 'pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup150', 'pusup180', 'pusup190',
+    'pileupInfo'     : ['pusup0', 'pusup7', 'pusup10', 'pusup15', 'pusup20', 'pusup30', 'pusup40','pusup50','pusup60', 'pusup70', 'pusup80', 'pusup90', 'pusup100', 'pusup110', 'pusup120', 'pusup130', 'pusup150', 'pusup180', 'pusup190',
                         'pusup200', 'pusup220', 'pusup240', 'pusup250', 'pusup260', 'pusup270', 'pusup280', 'pusup290', 'pusup300'],
     'hypoTrkInfo'    : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280', 'trk290',
@@ -846,7 +864,7 @@ StreamingChainParts = {
     # disambiguation or to allow events from the same L1 seed
     # to be written to different streams
     # New cases should be discussed with Menu Coordinators
-    'streamingInfo'  : ['laser', 'CIS','idmon','mb','l1calo', 'cosmicmuons', 'bkg','vdm'],
+    'streamingInfo'  : ['laser', 'CIS','idmon','mb','l1calo', 'cosmicmuons', 'bkg','vdm', 'zb'],
     'trigType'       : 'streamer',
     'extra'          : '',
     'streamType'     : AllowedStreamingChainIdentifiers,
@@ -1070,8 +1088,9 @@ UnconventionalTrackingChainParts = {
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "distrk", "dispj"],
+    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "fsvsi", "distrk", "dispj"],
     'addInfo'        : [],
+    'dispjVariant'   : ['2jet','1jet', '2jetperf', '1jetperf'],
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': list(range(0,10))
@@ -1089,6 +1108,7 @@ UnconventionalTrackingChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'addInfo'        : '',
+    'dispjVariant'   : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0

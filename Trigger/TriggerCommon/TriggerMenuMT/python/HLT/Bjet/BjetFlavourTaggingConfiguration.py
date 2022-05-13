@@ -11,7 +11,7 @@ from BTagging.BTagRun3Config import BTagAlgsCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
 # fast btagging
-from BTagging.HighLevelBTagAlgConfig import getStaticTrackVars
+from FlavorTagDiscriminants.FlavorTagNNConfig import getStaticTrackVars
 from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
@@ -85,79 +85,115 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
 
     return acc
 
-
-def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
+def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=False, fastDipsMinimumPt=None):
     """
     This function tags jets directly: there is no  b-tagging object
     """
 
     ca = ComponentAccumulator()
 
-    # first add the track augmentation to define peragee coordinates
+    # first add the track augmentation
     jet_name = inputJets
-    trackIpPrefix='simpleIp_'
-    ca.merge(
-        OnlineBeamspotIpAugmenterCfg(
+    if isPFlow:
+        ca.merge(
+            BTagTrackAugmenterAlgCfg(
+                flags,
+                TrackCollection=inputTracks,
+                PrimaryVertexCollectionName=inputVertex,
+            )
+        )
+    else:
+        trackIpPrefix='simpleIp_'
+        ca.merge(
+            OnlineBeamspotIpAugmenterCfg(
             flags,
             tracks=inputTracks,
             vertices=inputVertex,
             trackIpPrefix=trackIpPrefix,
+            )
+        )
+
+    # now we associate the tracks to the jet
+    ## JetParticleAssociationAlgCfg uses a shrinking cone.
+    tracksOnJetDecoratorName = "TracksForMinimalJetTag"
+    pass_flag = 'fastDips_isValid'
+    ca.merge(
+        JetParticleAssociationAlgCfg(
+            flags,
+            JetCollection=jet_name,
+            InputParticleCollection=inputTracks,
+            OutputParticleDecoration=tracksOnJetDecoratorName,
+            MinimumJetPt=fastDipsMinimumPt,
+            MinimumJetPtFlag=pass_flag
         )
     )
-
-    # now we assicoate the tracks to the jet
-    tracksOnJetDecoratorName = "TracksForMinimalJetTag"
-    ca.merge(JetParticleAssociationAlgCfg(
-        flags,
-        JetCollection=jet_name,
-        InputParticleCollection=inputTracks,
-        OutputParticleDecoration=tracksOnJetDecoratorName,
-    ))
 
     # Now we have to add an algorithm that tags the jets with dips
     # The input and output remapping is handled via a map in DL2.
     #
     # The file above adds fastDIPSnoPV20220211_p*, we'll call them
-    # dips_p* on the jet.
-    nnFile = 'BTagging/20220211trig/fastDips/antikt4empflow/network.json'
-    variableRemapping = {
-        'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
-        **{f'fastDIPSnoPV20220211_p{x}': f'fastDips_p{x}' for x in 'cub'},
-        'btagIp_': trackIpPrefix,
-    }
+    # fastDips_p* on the jet.
+    if isPFlow:
+        dl2_configs=[
+            [
+                'BTagging/20211216trig/dips/AntiKt4EMPFlow/network.json',
+                {
+                    'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+                }
+            ],
+            [
+                'BTagging/20211215trig/fastDips/antikt4empflow/network.json',
+                {
+                    'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+                },
+            ]
+        ]
+    else:
+        dl2_configs=[
+            [
+                'BTagging/20220211trig/fastDips/antikt4empflow/network.json',
+                {
+                    'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+                    **{f'fastDIPSnoPV20220211_p{x}': f'fastDips_p{x}' for x in 'cub'},
+                    'btagIp_': trackIpPrefix,
+                }
+            ]
+        ]
+
     # not all the keys that the NN requests are declaired. This will
     # cause an algorithm stall if we don't explicetly tell it that it
     # can ignore some of them.
     missingKeys = getStaticTrackVars(inputTracks)
 
-    nnAlgoKey = nnFile.replace('/','_').split('.')[0]
+    for nnFile, variableRemapping in dl2_configs:
+        nnAlgoKey = nnFile.replace('/','_').split('.')[0]
 
-    ca.addEventAlgo(
-        CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
-            name='_'.join([
-                'simpleJetTagAlg',
-                jet_name,
-                inputTracks,
-                nnAlgoKey,
-            ]),
-            container=jet_name,
-            constituentContainer=inputTracks,
-            undeclaredReadDecorKeys=missingKeys,
-            decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
+        ca.addEventAlgo(
+            CompFactory.FlavorTagDiscriminants.JetTagConditionalDecoratorAlg(
                 name='_'.join([
-                    'simpleDipsToJet',
+                    'simpleJetTagAlg',
+                    jet_name,
+                    inputTracks,
                     nnAlgoKey,
                 ]),
-                nnFile=nnFile,
-                variableRemapping=variableRemapping,
-                # note that the tracks are associated to the jet as
-                # and IParticle container.
-                trackLinkType='IPARTICLE',
-            ),
+                container=jet_name,
+                constituentContainer=inputTracks,
+                undeclaredReadDecorKeys=missingKeys,
+                tagFlag=pass_flag,
+                decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
+                    name='_'.join([
+                        'simpleDipsToJet',
+                        nnAlgoKey,
+                    ]),
+                    nnFile=nnFile,
+                    variableRemapping=variableRemapping,
+                    # note that the tracks are associated to the jet as
+                    # and IParticle container.
+                    trackLinkType='IPARTICLE',
+                ),
+            )
         )
-    )
     return ca
-
 
 def OnlineBeamspotIpAugmenterCfg(cfgFlags, tracks, vertices='',
                                  trackIpPrefix='simpleIp_'):
@@ -178,6 +214,12 @@ def OnlineBeamspotIpAugmenterCfg(cfgFlags, tracks, vertices='',
 
     ca.merge(BeamSpotCondAlgCfg(cfgFlags))
     ca.addEventAlgo(CompFactory.xAODMaker.EventInfoBeamSpotDecoratorAlg(
+        name='_'.join([
+                'EventInfoBeamSpotDecorator',
+                tracks,
+                vertices,
+                trackIpPrefix,
+            ]).replace('__','_').rstrip('_'),
         beamPosXKey=x,
         beamPosYKey=y,
         beamPosZKey=z,

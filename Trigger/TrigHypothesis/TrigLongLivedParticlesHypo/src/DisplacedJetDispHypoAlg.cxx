@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DisplacedJetDispHypoAlg.h"
@@ -31,7 +31,7 @@ StatusCode DisplacedJetDispHypoAlg::initialize()
   renounce(m_lrtTracksKey);
   ATH_CHECK(m_vtxKey.initialize());
   ATH_CHECK(m_infoKey.initialize());
-
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   ATH_CHECK(m_hypoTools.retrieve());
   return StatusCode::SUCCESS;
@@ -75,6 +75,11 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
   infoContainer->setStore(infoContainerAux.get());
 
   std::map<TrigCompositeUtils::Decision*, int> info_index_map;
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, context };
+
+  ATH_CHECK(beamSpotHandle.isValid());
+
+  DisplacedJetBeamspotInfo beamspot_info(beamSpotHandle.retrieve());
 
   for(const TrigCompositeUtils::Decision* previousDecision: *previousDecisionsHandle){
     const auto viewELInfo = findLink< ViewContainer >( previousDecision, viewString() );
@@ -127,7 +132,7 @@ StatusCode DisplacedJetDispHypoAlg::execute(const EventContext& context) const
     //if pass also attach a decoration to the jet for the pass type
     //third hypo step will generate the event level decision
 
-    DisplacedJetDispHypoTool::Info info{d, prev, jet, lrtTracks, primary_vertex, count, info_cn};
+    DisplacedJetDispHypoTool::Info info{d, prev, jet, lrtTracks, primary_vertex, count, info_cn, beamspot_info};
 
     for(auto &tool:m_hypoTools)
     {

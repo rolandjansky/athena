@@ -8,7 +8,7 @@ def L1MuonBSConverterMonitoring(name, encoder=False):
     tool.HistPath = f'HLTFramework/L1BSConverters/{name}'
     tool.defineHistogram('NumWordsInROD', path='EXPERT', type='TH1F',
                          title='Size of the MUCTPI ROD payload;N words;N events',
-                         xbins=100, xmin=0, xmax=100, opt='kCanRebin')
+                         xbins=100, xmin=0, xmax=100)
     tool.defineHistogram('WordType,WordTypeCount;WordTypeCounts', path='EXPERT', type='TH2F',
                          title='Counts of each word type in MUCTPI ROD payload;;Count per event',
                          xbins=6, xmin=0, xmax=6,

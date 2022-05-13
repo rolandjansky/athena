@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SECTORLOGICSETUP_H
@@ -61,7 +61,7 @@ namespace RPC_CondCabling {
         EvenPhiCMAmap::iterator find_evenphiCMA(int Eta, int Phi);
         OddPhiCMAmap::iterator find_oddphiCMA(int Eta, int Phi);
 
-        const static std::map<std::string, std::string>* s_trigroads;
+        const std::map<std::string, std::string>* m_trigroads = nullptr;
 
     public:
         SectorLogicSetup(int, const std::string&, const std::string&, bool);
@@ -148,8 +148,8 @@ namespace RPC_CondCabling {
         void PrintElement(std::ostream&, int, const std::string&, int, bool) const;
         friend std::ostream& operator<<(std::ostream&, const SectorLogicSetup&);
 
-        static void SetPtoTrigRoads(const std::map<std::string, std::string>*);
-        const std::map<std::string, std::string>* GetPtoTrigRoads() const { return s_trigroads; }  // LBTAG
+        void SetPtoTrigRoads(const std::map<std::string, std::string>*);
+        const std::map<std::string, std::string>* GetPtoTrigRoads() const { return m_trigroads; }  // LBTAG
     };
 
 }  // namespace RPC_CondCabling

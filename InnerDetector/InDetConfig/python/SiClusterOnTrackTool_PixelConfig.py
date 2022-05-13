@@ -50,8 +50,6 @@ def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrack
         kwargs.setdefault("NNIBLcorrection", False)
         kwargs.setdefault("ErrorStrategy", 2)
         kwargs.setdefault("PositionStrategy", 1)
-    else:
-        kwargs.setdefault("SplitClusterAmbiguityMap", "")
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
     return acc
@@ -145,26 +143,6 @@ def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", 
     acc.setPrivateTools(CompFactory.ITk.PixelClusterOnTrackTool(name, **kwargs))
     return acc
 
-def ITkPixelClusterOnTrackToolDigitalCfg(flags, name='ITkPixelClusterOnTrackToolDigital', **kwargs):
-    acc = ComponentAccumulator()
-
-    if 'LorentzAngleTool' not in kwargs:
-        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
-        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
-        kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
-
-    if flags.ITk.Tracking.doDigitalROTCreation:
-        kwargs.setdefault("applyNNcorrection", False )
-        kwargs.setdefault("NNIBLcorrection", False )
-        kwargs.setdefault("ErrorStrategy", 2 )
-        kwargs.setdefault("PositionStrategy", 1 )
-
-    kwargs.setdefault("SplitClusterAmbiguityMap", "" )
-
-    ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs))
-    acc.setPrivateTools(ITkPixelClusterOnTrackTool)
-    return acc
-
 def ITkPixelClusterOnTrackToolTruthSplittingCfg(flags, name='ITkPixelClusterOnTrackToolTruthSplitting', **kwargs):
     acc = ComponentAccumulator()
 
@@ -186,12 +164,11 @@ def ITkPixelClusterOnTrackToolCfg(flags, name='ITkPixelClusterOnTrackTool', **kw
         ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
 
-    ITkPixelClusterOnTrackTool = None
-    if flags.ITk.Tracking.doDigitalROTCreation:
-        ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
-    else:
-        ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolTruthSplittingCfg(flags, name, **kwargs))
+    if flags.ITk.Tracking.doDigitalClustering:
+        kwargs.setdefault("PositionStrategy", 0)
+        kwargs.setdefault("ErrorStrategy", 1)
 
+    ITkPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolTruthSplittingCfg(flags, name, **kwargs))
     acc.setPrivateTools(ITkPixelClusterOnTrackTool)
     return acc
 

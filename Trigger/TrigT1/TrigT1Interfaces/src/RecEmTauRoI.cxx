@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // $Id: RecEmTauRoI.cxx 796120 2017-02-08 03:20:47Z ssnyder $
 /***************************************************************************
@@ -272,7 +272,7 @@ void LVL1::RecEmTauRoI::constructRun3(const TrigConf::L1Menu *const l1menu)
   int ieta = int((m_coordRange.etaRange().min() + 0.025) / 0.1) +
               ((m_coordRange.etaRange().min() + 0.025 > 0) ? 0 : -1);
 
-  unsigned int isolWord = isolation();
+  unsigned int isolWord = RecEmTauRoI::isolation();
 
   // Iterate through the configured thresholds and see which ones this RoI satisfies
   for (shared_ptr<TrigConf::L1Threshold> thr : l1menu->thresholds(triggerType))
@@ -287,7 +287,7 @@ void LVL1::RecEmTauRoI::constructRun3(const TrigConf::L1Menu *const l1menu)
     // test eT
     unsigned int etCut = std::round(caloThr->thrValue(ieta)); // threshold value in GeV (integer for legacy thr)
     unsigned int etCounts = caloThr->thrValueCounts(ieta);    // threshold counts (threshold value * emscale)
-    bool eTPassed = (et() > etCounts);
+    bool eTPassed = (RecEmTauRoI::et() > etCounts);
 
     // test isolation
     unsigned int isolMask = 0;

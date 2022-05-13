@@ -7,7 +7,6 @@
 #include "TileRec/TileHitVecToNtuple.h"
 #include "TileRec/TileDigitsToNtuple.h"
 #include "TileRec/TileTTL1ToNtuple.h"
-#include "TileRec/TileEventFilter.h"
 #include "TileRec/TileMuonReceiverDecisionToNtuple.h"
 
 DECLARE_COMPONENT( TileAANtuple )
@@ -19,6 +18,5 @@ DECLARE_COMPONENT( TileTBHitToNtuple )
 DECLARE_COMPONENT( TileHitVecToNtuple )
 DECLARE_COMPONENT( TileDigitsToNtuple )
 DECLARE_COMPONENT( TileTTL1ToNtuple )
-DECLARE_COMPONENT( TileEventFilter )
 DECLARE_COMPONENT( TileMuonReceiverDecisionToNtuple )
 

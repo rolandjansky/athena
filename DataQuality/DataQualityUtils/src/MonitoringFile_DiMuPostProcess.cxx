@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DataQualityUtils/MonitoringFile.h"
@@ -284,7 +284,7 @@ void MonitoringFile::fitHistos (TH2F* hin, std::vector<TH1F*> hout, int mode, co
 	
 	m.setBins(5000);
 	RooFFTConvPdf bxc("bxc", "BW (X) CB", m, bw, cb) ;
-	bxc.fitTo(*data, RooFit::PrintLevel(-1), RooFit::FitOptions("QN"), RooFit::PrintEvalErrors(-1), RooFit::Warnings(kFALSE));
+	bxc.fitTo(*data, RooFit::PrintLevel(-1), RooFit::PrintEvalErrors(-1), RooFit::Warnings(kFALSE));
         RooPlot* frame;
 	if (saveHistos==true){
 	  frame= m.frame();

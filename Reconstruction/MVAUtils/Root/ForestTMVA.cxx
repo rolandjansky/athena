@@ -3,8 +3,6 @@
 */
 
 #include "MVAUtils/ForestTMVA.h"
-#include "TMVA/MethodBDT.h"
-#include "TMVA/DecisionTree.h"
 #include "TTree.h"
 #include <iostream>
 #include <stdexcept>

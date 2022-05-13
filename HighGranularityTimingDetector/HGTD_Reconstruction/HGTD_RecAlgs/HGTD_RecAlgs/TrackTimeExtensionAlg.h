@@ -36,9 +36,6 @@
 
 namespace HGTD {
 
-using HGTDExtension_t =
-    std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>;
-
 class TrackTimeExtensionAlg : public AthAlgorithm {
 
 public:
@@ -51,7 +48,7 @@ private:
   StatusCode execute_r (const EventContext& ctx);
 
   StatusCode decorateTrackParticle(const xAOD::TrackParticle* track_ptkl,
-                                   const HGTDExtension_t& extension,
+                                   const HGTD::ExtensionObject& extension,
                                    const InDetSimDataCollection* sdo_collection,
                                    const HepMC::GenEvent* hs_event,
                                    bool skip_deco = false) const;
@@ -80,13 +77,13 @@ private:
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<int>>>
       m_dec_layer_cluster_truth_class;
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
-      m_dec_layer_cluster_cluster_shadowed;
+      m_dec_layer_cluster_shadowed;
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
-      m_dec_layer_cluster_cluster_merged;
-  // to look for primary hits that have been missed, additional info is needed.
-  // this will go in in a next iteration
-  // std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
-  //     m_dec_layer_cluster_cluster_expected;
+      m_dec_layer_cluster_merged;
+  std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
+      m_dec_layer_primary_expected;
+  std::unique_ptr<SG::AuxElement::Decorator<float>> m_dec_extrap_x;
+  std::unique_ptr<SG::AuxElement::Decorator<float>> m_dec_extrap_y;
 };
 
 } // namespace HGTD

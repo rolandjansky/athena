@@ -79,7 +79,8 @@ int MdtStringUtils::atoi(std::string_view str){
 }
 
 float MdtStringUtils::stof(std::string_view str){
-    //TODO: Replace this with from_chars once the compilers support it!
-   return std::stof(std::string(str));
+   float result=-9999;
+   std::from_chars(str.data(), str.data() + str.size(), result);
+   return result;
 }
 }

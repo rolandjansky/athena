@@ -264,14 +264,18 @@ StatusCode JetConstituentModSequence::copyModRecordFE() const {
   //    Neutral FEs
   std::pair<xAOD::FlowElementContainer*, xAOD::ShallowAuxContainer* > neutralCopy = xAOD::shallowCopyContainer(*inNeutralFEHandle);
   neutralCopy.second->setShallowIO(m_saveAsShallow);
+  xAOD::setOriginalObjectLink(*inNeutralFEHandle, *neutralCopy.first);
 
+  
   SG::WriteHandle<xAOD::FlowElementContainer> outNeutralFEHandle = makeHandle(m_outNeutralFEKey);
   ATH_CHECK(outNeutralFEHandle.record(std::unique_ptr<xAOD::FlowElementContainer>(neutralCopy.first),
                                       std::unique_ptr<xAOD::ShallowAuxContainer>(neutralCopy.second)));
   //    Charged FEs
   std::pair<xAOD::FlowElementContainer*, xAOD::ShallowAuxContainer* > chargedCopy = xAOD::shallowCopyContainer(*inChargedFEHandle);
   chargedCopy.second->setShallowIO(m_saveAsShallow);
+  xAOD::setOriginalObjectLink(*inChargedFEHandle, *chargedCopy.first);
 
+  
   SG::WriteHandle<xAOD::FlowElementContainer> outChargedFEHandle = makeHandle(m_outChargedFEKey);
   ATH_CHECK(outChargedFEHandle.record(std::unique_ptr<xAOD::FlowElementContainer>(chargedCopy.first),
                                       std::unique_ptr<xAOD::ShallowAuxContainer>(chargedCopy.second)));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@ LUCID_RodEncoder::LUCID_RodEncoder() {
 
 LUCID_RodEncoder::~LUCID_RodEncoder() {}
     
-void LUCID_RodEncoder::encode(std::vector<uint32_t>& data_block) {
+void LUCID_RodEncoder::encode(std::vector<uint32_t>& data_block, MsgStream& log) {
 
   VDIGIT::iterator digit_it     = m_Digits.begin(); 
   VDIGIT::iterator digit_it_end = m_Digits.end();
@@ -39,16 +39,16 @@ void LUCID_RodEncoder::encode(std::vector<uint32_t>& data_block) {
     else if (tubeID < 20) { data_word2 |= (isHit << (tubeID - 16)); m_hitcounter2 += isHit; }
     else if (tubeID < 36) { data_word1 |= (isHit << (tubeID - 20)); m_hitcounter1 += isHit; }
     else if (tubeID < 40) { data_word3 |= (isHit << (tubeID - 36)); m_hitcounter3 += isHit; }
-    else if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Unknown tubeID: " << tubeID << endmsg;
+    else log << MSG::ERROR << " Unknown tubeID: " << tubeID << endmsg;
     
-    if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) 
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG
       << " tubeID: " << std::setw(10) << tubeID
       << " npe: "    << std::setw(10) << (*digit_it)->getNpe() 
       << " isHit:  " << std::setw(10) << isHit 
       << endmsg;
   }
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) 
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG
     << " m_hitcounter0: " << std::setw(10) << m_hitcounter0 << endmsg
     << " m_hitcounter1: " << std::setw(10) << m_hitcounter1 << endmsg
     << " m_hitcounter2: " << std::setw(10) << m_hitcounter2 << endmsg
@@ -58,8 +58,8 @@ void LUCID_RodEncoder::encode(std::vector<uint32_t>& data_block) {
   data_word1 |= (m_hitcounter1 << 24);
   data_word2 |= (m_hitcounter2 << 24);
   data_word3 |= (m_hitcounter3 << 24);
-  
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) 
+
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG
     << std::hex
     << " data_word0: " << data_word0 << endmsg
     << " data_word1: " << data_word1 << endmsg

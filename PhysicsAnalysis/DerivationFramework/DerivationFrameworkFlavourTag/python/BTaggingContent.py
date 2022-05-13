@@ -87,6 +87,8 @@ BTaggingHighLevelAux = [
     "JetFitterSecondaryVertex_maximumTrackRelativeEta",
     "JetFitterSecondaryVertex_minimumTrackRelativeEta",
     "JetFitterSecondaryVertex_averageTrackRelativeEta",
+    "JetFitterDMeson_mass",
+    "JetFitterDMeson_isDefaults",
     "maximumTrackRelativeEta",
     "minimumTrackRelativeEta",
     "averageTrackRelativeEta",

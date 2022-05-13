@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -16,6 +16,8 @@
 #include "G4Version.hh"
 #include "G4hIonisation.hh"
 #include "G4hMultipleScattering.hh"
+
+using namespace ExtraParticles;
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : ExtraParticlesPhysicsTool

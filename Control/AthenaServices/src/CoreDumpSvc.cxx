@@ -120,7 +120,20 @@ namespace CoreDumpSvcHandler
     static std::atomic<int> inThreads = 0;
     ++inThreads;
 
-    unsigned int timeoutSeconds = static_cast<unsigned int>(round(coreDumpSvc->m_timeout * 1e-9));
+    const unsigned int timeoutSeconds = static_cast<unsigned int>(round(coreDumpSvc->m_timeout * 1e-9));
+
+    if ( sig == SIGALRM) {
+      if (dumpCoreFile) {
+        log() << "Received SIGALRM. Aborting job..." << std::endl;
+        // Restore default abort handler that should create a core file
+        Athena::Signal::revert (SIGABRT);
+        std::abort();
+      }
+      else {
+        log() << "Received SIGALRM. Terminating job..." << std::endl;
+        _exit(97);   // exit without raising any further signals
+      }
+    }
 
     // Only allow one thread past at a time.
     // Try to assume as little as possible about the state of the library.
@@ -140,10 +153,7 @@ namespace CoreDumpSvcHandler
 
     // setup timeout
     if ( timeoutSeconds > 0 && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
-      struct sigaction sa;
-      memset(&sa, 0, sizeof(sa));
-      sa.sa_handler = SIG_DFL;
-      if (sigaction(SIGALRM, &sa, nullptr) < 0) std::abort();
+      // This will trigger SIGALRM, which we then handle ourselves above
       alarm(timeoutSeconds);
     }
 

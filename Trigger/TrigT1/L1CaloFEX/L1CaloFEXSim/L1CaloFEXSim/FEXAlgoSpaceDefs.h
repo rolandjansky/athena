@@ -26,6 +26,7 @@ namespace LVL1 {
     constexpr static int jFEX_wide_algoSpace_width = 45;
     constexpr static int jFEX_thin_algoSpace_width = 24;
     constexpr static int jFEX_algoSpace_height = 32; 
+    constexpr static int jFEX_FCAL_start = 700000; 
  
 //Array breakdown of jFEX_wide_algoSpace_width matric to indicate different eta and phi regions
 

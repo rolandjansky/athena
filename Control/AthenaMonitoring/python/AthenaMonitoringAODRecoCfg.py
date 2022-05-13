@@ -11,13 +11,13 @@ def AthenaMonitoringAODRecoCfg(flags):
     if flags.DQ.Environment == 'AOD':
         info('Running on AOD: Scheduling rebuild of standard jet collections if necessary')
         from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo
-        from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
+        from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR, AntiKt10LCTopoTrimmed_trigger
         # first, check small R jets
         jets_to_schedule = [_ for _ in (AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo)
                             if _.fullname() not in flags.Input.Collections]
         # if we reschedule small R jets, check if we need to reschedule large R as well
         if jets_to_schedule:
-            jets_to_schedule += [_ for _ in (AntiKt10LCTopo_noVR,)
+            jets_to_schedule += [_ for _ in (AntiKt10LCTopo_noVR, AntiKt10LCTopoTrimmed_trigger)
                                  if _.fullname() not in flags.Input.Collections]
 
         if jets_to_schedule:

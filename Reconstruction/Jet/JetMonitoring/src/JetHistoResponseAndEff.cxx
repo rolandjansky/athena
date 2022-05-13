@@ -61,6 +61,7 @@ StatusCode JetHistoResponseAndEff::processJetContainer(const JetMonitoringAlg& p
     }
 
     // calculate efficiency and response from matched jet
+    //cppcheck-suppress derefInvalidIterator
     const xAOD::Jet* matched = *itmin;
     listJets.erase(itmin);
     

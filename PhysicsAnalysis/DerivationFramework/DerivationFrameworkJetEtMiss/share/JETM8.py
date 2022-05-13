@@ -3,10 +3,10 @@
 # reductionConf flag JETM8 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
-DerivationFrameworkJob, buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SKIMMING TOOL 
@@ -166,7 +166,8 @@ evtStream = augStream.GetEventStream()
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM8SlimmingHelper = SlimmingHelper("JETM8SlimmingHelper")
-JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
+JETM8SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons", "Photons", "Muons",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "AntiKt2TruthJets",
                                         "AntiKt2LCTopoJets",

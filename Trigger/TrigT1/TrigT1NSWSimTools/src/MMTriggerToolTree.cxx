@@ -123,23 +123,6 @@ namespace NSWL1 {
       m_NSWMM_dig_stripGposY    = new std::vector< std::vector<double> >;
       m_NSWMM_dig_stripGposZ    = new std::vector< std::vector<double> >;
 
-      m_NSWMM_dig_sr_time          = new std::vector< std::vector<float> >;
-      m_NSWMM_dig_sr_charge        = new std::vector< std::vector<float> >;
-      m_NSWMM_dig_sr_stripPosition = new std::vector< std::vector<int> >;
-      m_NSWMM_dig_sr_stripLposX    = new std::vector< std::vector<double> >;
-      m_NSWMM_dig_sr_stripLposY    = new std::vector< std::vector<double> >;
-      m_NSWMM_dig_sr_stripGposX    = new std::vector< std::vector<double> >;
-      m_NSWMM_dig_sr_stripGposY    = new std::vector< std::vector<double> >;
-      m_NSWMM_dig_sr_stripGposZ    = new std::vector< std::vector<double> >;
-
-      m_NSWMM_dig_truth_barcode    = new std::vector<int>;
-      m_NSWMM_dig_truth_localPosX  = new std::vector<double>;
-      m_NSWMM_dig_truth_localPosY  = new std::vector<double>;
-      m_NSWMM_dig_truth_XZ_angle   = new std::vector<float>;
-      m_NSWMM_dig_truth_globalPosX = new std::vector<double>;
-      m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
-      m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
-
       if (m_tree) {
         std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
         const char* n = ToolName.c_str();
@@ -241,23 +224,6 @@ namespace NSWL1 {
         m_tree->Branch("Digits_MM_stripGposX",    &m_NSWMM_dig_stripGposX);
         m_tree->Branch("Digits_MM_stripGposY",    &m_NSWMM_dig_stripGposY);
         m_tree->Branch("Digits_MM_stripGposZ",    &m_NSWMM_dig_stripGposZ);
-
-        m_tree->Branch("Digits_MM_stripResponse_time",          &m_NSWMM_dig_sr_time);
-        m_tree->Branch("Digits_MM_stripResponse_charge",        &m_NSWMM_dig_sr_charge);
-        m_tree->Branch("Digits_MM_stripResponse_stripPosition", &m_NSWMM_dig_sr_stripPosition);
-        m_tree->Branch("Digits_MM_stripResponse_stripLposX",    &m_NSWMM_dig_sr_stripLposX);
-        m_tree->Branch("Digits_MM_stripResponse_stripLposY",    &m_NSWMM_dig_sr_stripLposY);
-        m_tree->Branch("Digits_MM_stripresponse_stripGposX",    &m_NSWMM_dig_sr_stripGposX);
-        m_tree->Branch("Digits_MM_stripResponse_stripGposY",    &m_NSWMM_dig_sr_stripGposY);
-        m_tree->Branch("Digits_MM_stripResponse_stripGposZ",    &m_NSWMM_dig_sr_stripGposZ);
-
-        m_tree->Branch("Digits_MM_truth_barcode",    &m_NSWMM_dig_truth_barcode);
-        m_tree->Branch("Digits_MM_truth_localPosX",  &m_NSWMM_dig_truth_localPosX);
-        m_tree->Branch("Digits_MM_truth_localPosY",  &m_NSWMM_dig_truth_localPosY);
-        m_tree->Branch("Digits_MM_truth_XZ_angle",   &m_NSWMM_dig_truth_XZ_angle);
-        m_tree->Branch("Digits_MM_truth_globalPosX", &m_NSWMM_dig_truth_globalPosX);
-        m_tree->Branch("Digits_MM_truth_globalPosY", &m_NSWMM_dig_truth_globalPosY);
-        m_tree->Branch("Digits_MM_truth_globalPosZ", &m_NSWMM_dig_truth_globalPosZ);
       } else {
         return StatusCode::FAILURE;
       }
@@ -371,58 +337,22 @@ namespace NSWL1 {
       m_NSWMM_dig_stripGposX->clear();
       m_NSWMM_dig_stripGposY->clear();
       m_NSWMM_dig_stripGposZ->clear();
-
-      // vectors of size m_NSWMM_nDigits that hold vectors in which an entry
-      // corresponds to a strip that was decided to be fired by the digit
-      // (information from VMM chip strip emulation)
-      m_NSWMM_dig_sr_time->clear();
-      m_NSWMM_dig_sr_charge->clear();
-      m_NSWMM_dig_sr_stripPosition->clear();
-      m_NSWMM_dig_sr_stripLposX->clear();
-      m_NSWMM_dig_sr_stripLposY->clear();
-      m_NSWMM_dig_sr_stripGposX->clear();
-      m_NSWMM_dig_sr_stripGposY->clear();
-      m_NSWMM_dig_sr_stripGposZ->clear();
-
-      // truth information of the (1st) Geant4 hits that caused this
-      // digit to be recorded (size is m_NSWMM_nDigits)
-      m_NSWMM_dig_truth_barcode->clear();
-      m_NSWMM_dig_truth_localPosX->clear();
-      m_NSWMM_dig_truth_localPosY->clear();
-      m_NSWMM_dig_truth_XZ_angle->clear();
-      m_NSWMM_dig_truth_globalPosX->clear();
-      m_NSWMM_dig_truth_globalPosY->clear();
-      m_NSWMM_dig_truth_globalPosZ->clear();
     }
-    void MMTriggerTool::fillNtuple(const MMLoadVariables& loadedVariables){
+    void MMTriggerTool::fillNtuple(const histogramDigitVariables& histDigVars) const {
 
-      *m_NSWMM_dig_stationEta  = loadedVariables.histVars.NSWMM_dig_stationEta;
-      *m_NSWMM_dig_stationPhi  = loadedVariables.histVars.NSWMM_dig_stationPhi;
-      *m_NSWMM_dig_multiplet   = loadedVariables.histVars.NSWMM_dig_multiplet;
-      *m_NSWMM_dig_gas_gap     = loadedVariables.histVars.NSWMM_dig_gas_gap;
-      *m_NSWMM_dig_channel     = loadedVariables.histVars.NSWMM_dig_channel;
-      *m_NSWMM_dig_time          = loadedVariables.histVars.NSWMM_dig_time;
-      *m_NSWMM_dig_charge        = loadedVariables.histVars.NSWMM_dig_charge;
-      *m_NSWMM_dig_stripPosition = loadedVariables.histVars.NSWMM_dig_stripPosition;
-      *m_NSWMM_dig_stripLposX    = loadedVariables.histVars.NSWMM_dig_stripLposX;
-      *m_NSWMM_dig_stripLposY    = loadedVariables.histVars.NSWMM_dig_stripLposY;
-      *m_NSWMM_dig_stripGposX    = loadedVariables.histVars.NSWMM_dig_stripGposX;
-      *m_NSWMM_dig_stripGposY    = loadedVariables.histVars.NSWMM_dig_stripGposY;
-      *m_NSWMM_dig_stripGposZ    = loadedVariables.histVars.NSWMM_dig_stripGposZ;
-      *m_NSWMM_dig_sr_time          = loadedVariables.histVars.NSWMM_dig_sr_time;
-      *m_NSWMM_dig_sr_charge        = loadedVariables.histVars.NSWMM_dig_sr_charge;
-      *m_NSWMM_dig_sr_stripPosition = loadedVariables.histVars.NSWMM_dig_sr_stripPosition;
-      *m_NSWMM_dig_sr_stripLposX    = loadedVariables.histVars.NSWMM_dig_sr_stripLposX;
-      *m_NSWMM_dig_sr_stripLposY    = loadedVariables.histVars.NSWMM_dig_sr_stripLposY;
-      *m_NSWMM_dig_sr_stripGposX    = loadedVariables.histVars.NSWMM_dig_sr_stripGposX;
-      *m_NSWMM_dig_sr_stripGposY    = loadedVariables.histVars.NSWMM_dig_sr_stripGposY;
-      *m_NSWMM_dig_sr_stripGposZ    = loadedVariables.histVars.NSWMM_dig_sr_stripGposZ;
-      *m_NSWMM_dig_truth_barcode    = loadedVariables.histVars.NSWMM_dig_truth_barcode;
-      *m_NSWMM_dig_truth_localPosX  = loadedVariables.histVars.NSWMM_dig_truth_localPosX;
-      *m_NSWMM_dig_truth_localPosY  = loadedVariables.histVars.NSWMM_dig_truth_localPosY;
-      *m_NSWMM_dig_truth_XZ_angle   = loadedVariables.histVars.NSWMM_dig_truth_XZ_angle;
-      *m_NSWMM_dig_truth_globalPosX = loadedVariables.histVars.NSWMM_dig_truth_globalPosX;
-      *m_NSWMM_dig_truth_globalPosY = loadedVariables.histVars.NSWMM_dig_truth_globalPosY;
-      *m_NSWMM_dig_truth_globalPosZ = loadedVariables.histVars.NSWMM_dig_truth_globalPosZ;
+      *m_NSWMM_dig_stationName = histDigVars.NSWMM_dig_stationName;
+      *m_NSWMM_dig_stationEta  = histDigVars.NSWMM_dig_stationEta;
+      *m_NSWMM_dig_stationPhi  = histDigVars.NSWMM_dig_stationPhi;
+      *m_NSWMM_dig_multiplet   = histDigVars.NSWMM_dig_multiplet;
+      *m_NSWMM_dig_gas_gap     = histDigVars.NSWMM_dig_gas_gap;
+      *m_NSWMM_dig_channel     = histDigVars.NSWMM_dig_channel;
+      *m_NSWMM_dig_time          = histDigVars.NSWMM_dig_time;
+      *m_NSWMM_dig_charge        = histDigVars.NSWMM_dig_charge;
+      *m_NSWMM_dig_stripPosition = histDigVars.NSWMM_dig_stripPosition;
+      *m_NSWMM_dig_stripLposX    = histDigVars.NSWMM_dig_stripLposX;
+      *m_NSWMM_dig_stripLposY    = histDigVars.NSWMM_dig_stripLposY;
+      *m_NSWMM_dig_stripGposX    = histDigVars.NSWMM_dig_stripGposX;
+      *m_NSWMM_dig_stripGposY    = histDigVars.NSWMM_dig_stripGposY;
+      *m_NSWMM_dig_stripGposZ    = histDigVars.NSWMM_dig_stripGposZ;
     }
 }//end namespace

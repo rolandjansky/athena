@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -165,7 +165,7 @@ namespace HLT {
    }
 
    template<typename T>
-   T FlagAs(const std::vector<bool> flag) {
+   T FlagAs(const std::vector<bool>& flag) {
       if(8*sizeof(T)<flag.size()) // check of T has enough bits to represent flag
          throw std::runtime_error("FlagAs(): the flag size does not fit into the requested type");
       T v = 0;

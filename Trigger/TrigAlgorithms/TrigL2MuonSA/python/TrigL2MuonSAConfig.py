@@ -53,6 +53,11 @@ if MuonGeometryFlags.hasMM():
     from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
     theDataPreparator.MMDataPreparator.RegSel_MM = makeRegSelTool_MM()
 
+theCalStreamerTool = MuonSA.TrigL2MuonSA__MuCalStreamerTool()
+theCalStreamerTool.RegSel_MDT = makeRegSelTool_MDT()
+from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
+theCalStreamerTool.RegSel_TGC = makeRegSelTool_TGC()
+
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()
@@ -125,6 +130,7 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         self.StationFitter     = theStationFitter
         self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
         self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()
+        self.CalibrationStreamer = theCalStreamerTool
 
         self.R_WIDTH_TGC_FAILED = 200
         self.R_WIDTH_RPC_FAILED = 400

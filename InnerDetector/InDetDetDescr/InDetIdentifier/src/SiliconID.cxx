@@ -38,8 +38,7 @@ SiliconID::SiliconID(const PixelID* pixel_helper, const SCT_ID* sct_helper)
 {}
 
 
-SiliconID::~SiliconID(void)
-{}
+SiliconID::~SiliconID() = default;
 
 
 

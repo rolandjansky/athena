@@ -65,30 +65,6 @@ namespace InDet {
     return m_dbm;
   }
 
-  std::list<double>& SiTrackMakerEventData_xk::caloF() {
-    return m_caloF;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::caloR() {
-    return m_caloR;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::caloZ() {
-    return m_caloZ;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::hadF() {
-    return m_hadF;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::hadR() {
-    return m_hadR;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::hadZ() {
-    return m_hadZ;
-  }
-
   std::array<double, 2>& SiTrackMakerEventData_xk::xybeam() {
     return m_xybeam;
   }

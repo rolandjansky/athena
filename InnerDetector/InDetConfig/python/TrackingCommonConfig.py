@@ -322,6 +322,7 @@ def InDetTrackFitterAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
         InDetTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     elif flags.InDet.Tracking.trackFitterType=='GlobalChi2Fitter':
+        InDetTrackFitter.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         InDetTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         InDetTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         # Name change for tools can be cleaned ultimately when config is validated
@@ -660,16 +661,6 @@ def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHol
     acc.setPrivateTools(InDetTrackSummaryTool)
     return acc
 
-def ROIInfoVecAlgCfg(flags, name='InDetROIInfoVecCondAlg', **kwargs) :
-    acc = ComponentAccumulator()
-    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-    acc.merge(CaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("InputEmClusterContainerName", "InDetCaloClusterROIs")
-    kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
-    kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
-    return acc
-
 def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
@@ -684,8 +675,9 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
 
     have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
-        alg = acc.getPrimaryAndMerge(ROIInfoVecAlgCfg(flags))
-        kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(CaloClusterROIPhiRZContainerMakerCfg(flags))
+        kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ5GeV")
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
@@ -804,8 +796,9 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
 
     have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois :
-        alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg(flags))
-        kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(CaloClusterROIPhiRZContainerMakerCfg(flags))
+        kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ5GeV")
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))

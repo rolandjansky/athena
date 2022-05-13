@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AutoConfigFlags import DetDescrInfo
 from AthenaConfiguration.Enums import BeamType, ProductionStep
 import re
 
@@ -33,15 +32,7 @@ def _muonAlignMode(flags):
 
 def createMuonConfigFlags(): 
     mcf=AthConfigFlags()
- 
-    # Geometry flags
-    mcf.addFlag("Muon.doMDTs",True)
-    mcf.addFlag("Muon.doTGCs",True)
-    mcf.addFlag("Muon.doRPCs",True)
-    mcf.addFlag("Muon.doCSCs",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasCSC'])
-    mcf.addFlag("Muon.doMicromegas",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasMM'])
-    mcf.addFlag("Muon.dosTGCs",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasSTGC'])
-    
+
     # stages of processing
     # 1. Digitization
     mcf.addFlag("Muon.doDigitization",True)
@@ -83,7 +74,7 @@ def createMuonConfigFlags():
     
     mcf.addFlag("Muon.useSegmentMatching", lambda prevFlags : prevFlags.Beam.Type is BeamType.Collisions) # Do not use for cosmics or singlebeam 
     mcf.addFlag("Muon.useTrackSegmentMatching", True )
-    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Muon.doMicromegas or prevFlags.Muon.dosTGCs) \
+    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Detector.EnableMM or prevFlags.Detector.EnablesTGC) \
                                                                  and prevFlags.Beam.Type is BeamType.Collisions) )
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders

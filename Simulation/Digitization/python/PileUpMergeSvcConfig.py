@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgGetter
 #FIXME no need for all these getPrivateTool calls.
@@ -62,7 +62,7 @@ def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
             IntervalsList += [ CfgGetter.getPrivateTool("TgcRange",       checkType=True) ]
         if DetFlags.pileup.sTGC_on():
             IntervalsList += [ CfgGetter.getPrivateTool("sTgcRange",      checkType=True) ]
-        if DetFlags.pileup.Micromegas_on():
+        if DetFlags.pileup.MM_on():
             IntervalsList += [ CfgGetter.getPrivateTool("MMRange",        checkType=True) ]
         # RecoTimingObj
         if DetFlags.pileup.any_on():

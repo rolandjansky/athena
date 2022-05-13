@@ -36,7 +36,6 @@
 // Athena includes
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "EventInfo/EventInfo.h"
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IThreadInitTool.h"
@@ -96,6 +95,7 @@ StatusCode G4AtlasAlg::initialize()
   // I/O
   ATH_CHECK( m_inputTruthCollectionKey.initialize());
   ATH_CHECK( m_outputTruthCollectionKey.initialize());
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   ATH_CHECK(m_inputConverter.retrieve());
 
@@ -312,10 +312,11 @@ StatusCode G4AtlasAlg::execute()
     }
   }
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( m_randomStreamName,  ctx);
   G4Random::setTheEngine(*rngWrapper);
 
   ATH_MSG_DEBUG("Calling SimulateG4Event");
@@ -366,20 +367,14 @@ StatusCode G4AtlasAlg::execute()
       setFilterPassed(false);
     }
     if (m_flagAbortedEvents) {
-      // FIXME This code is updating an object which is already in
-      // StoreGate, which is not really allowed. The long term
-      // solution is to switch Simulation to use xAOD::EventInfo, then
-      // use an SG::WriteDecorHandle (when available) to set the error
-      // state.
-      const DataHandle<EventInfo> eic = 0;
-      if ( sgSvc()->retrieve( eic ).isFailure() || !eic ) {
-        ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
+      if (!eventInfo.isValid()) {
+        ATH_MSG_FATAL( "Failed to retrieve xAOD::EventInfo while trying to update the error state!" );
+        return StatusCode::FAILURE;
       }
       else {
-        // Gotta cast away the const... sadface
-        EventInfo *ei = const_cast< EventInfo * > (&(*eic));
-        ei->setErrorState(EventInfo::Core,EventInfo::Error);
-        ATH_MSG_WARNING( "Set error state in event info!" );
+        eventInfo->updateErrorState(xAOD::EventInfo::Core,xAOD::EventInfo::Error);
+        ATH_MSG_WARNING( "Set error state in xAOD::EventInfo!" );
       }
     }
   }

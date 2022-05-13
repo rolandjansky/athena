@@ -6,9 +6,10 @@
 #********************************************************************
 
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4PV0Track
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthDressedWZ,AntiKt4PV0Track
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM7ExtraContent import *
@@ -24,11 +25,10 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 thinCells = True
 
 #====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 #====================================================================
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM7 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource()!='geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
 
@@ -185,7 +185,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         thinningTools.append(EGAM7TPThinningTool)
 
 # Truth thinning
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
@@ -355,7 +355,18 @@ EGAM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-addDAODJets([AntiKt4Truth,AntiKt4PV0Track], EGAM7Sequence)
+jetList = [AntiKt4PV0Track]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM7Sequence)
+
+
+#====================================================================
+# FLAVOUR TAGGING
+#====================================================================
+#not available yet in r22
+#from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollections
+#FtagJetCollections(['AntiKt4PV0TrackJets'], EGAM7Sequence)
 
 
 #====================================================================
@@ -370,8 +381,12 @@ EGAM7SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Baseline_AntiKt4EMPFlow",
                                         "AntiKt4EMPFlowJets",
                                         "BTagging_AntiKt4EMPFlow",
+#                                        "BTagging_AntiKt4Track",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM7SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM7SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -381,7 +396,12 @@ EGAM7SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM7SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM7SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+# not available yet in R22
+#from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+#EGAM7SlimmingHelper.ExtraVariables.extend(BTaggingStandardContent("AntiKt4PV0TrackJets"))
+
+
+if DerivationFrameworkIsMonteCarlo:
     EGAM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM7SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

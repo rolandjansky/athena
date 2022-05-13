@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprPedestalPlotManager.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "LWHists/TProfile_LW.h"
@@ -107,7 +106,7 @@ double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower
 	  }
 	  else
 	  {
-	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endmsg;
+          ATH_MSG_WARNING("No L1CaloPprConditions available");
 	  }
 	}
 	if (m_isRun2 == true) {
@@ -118,13 +117,13 @@ double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower
 	  }
 	  else
 	  {
-	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endmsg;
+	     ATH_MSG_WARNING("No L1CaloPprConditions available");
 	  }
 	}
     }
     else
     {
-        *m_log<<MSG::WARNING<< "No Conditions Container available" << endmsg;
+       ATH_MSG_WARNING("No Conditions Container available");
     }
 
     double pedestal = 0;  // to be returned
@@ -509,7 +508,7 @@ void L1CaloPprPedestalPlotManager::loadConditionsContainer()
 {
     if (m_l1CondSvc)
     {
-        *m_log<<MSG::DEBUG<< "Retrieving Conditions Container" << endmsg;
+        ATH_MSG_DEBUG("Retrieving Conditions Container");
 	StatusCode sc;
 	if (m_isRun2 == true) {
 	  sc = m_l1CondSvc->retrieve(m_conditionsContainerRun2);
@@ -519,15 +518,15 @@ void L1CaloPprPedestalPlotManager::loadConditionsContainer()
 	}
 	if (sc.isFailure()) 
 	{
-	    *m_log<<MSG::WARNING<< "Could not retrieve Conditions Container" << endmsg;
+	   ATH_MSG_WARNING("Could not retrieve Conditions Container");
 	}
 	else 
 	{
-	    *m_log<<MSG::DEBUG<< "Retrieved Conditions Container" << endmsg;
+	    ATH_MSG_DEBUG("Retrieved Conditions Container");
 	}
     }
     else 
     {
-        *m_log<<MSG::WARNING<< "Could not retrieve Conditions Containers" << endmsg;
+       ATH_MSG_WARNING("Could not retrieve Conditions Containers");
     }
 }

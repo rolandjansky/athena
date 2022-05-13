@@ -15,7 +15,7 @@ StatusCode HTTClusteringOfflineTool::DoClustering(HTTLogicalEventInputHeader &he
 
     clusters = header.optional().getOfflineClusters();
     //fill the multitruth
-    for(auto& cluster:clusters){
+    for( auto& cluster:clusters){
         HTTHit clusterEquiv = cluster.getClusterEquiv();
         HTTMultiTruth mt;
         HTTMultiTruth::Barcode uniquecode(clusterEquiv.getEventIndex(),clusterEquiv.getBarcode());

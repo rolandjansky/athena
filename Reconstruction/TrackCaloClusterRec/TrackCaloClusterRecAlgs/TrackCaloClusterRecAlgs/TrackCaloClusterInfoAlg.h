@@ -84,14 +84,17 @@ protected:
 
 
   SG::ReadHandleKey< xAOD::FlowElementContainer > m_inputPFOHandle {this, "InputPFO", "JetEtMissChargedParticleFlowObjects_DEFAULT", "Key"};
-  SG::ReadDecorHandleKey<xAOD::FlowElementContainer> m_orig_pfo{this, "OriginPFO", "Origin_pfo", "Key to access original un-modified pfo"};
 
+  // non need for a ReadDecorHandleKey here : access to this deco is optional (tested through is isAvailable, see TCCHelpers.h)
+  Gaudi::Property<std::string> m_orig_pfo{this, "OriginPFO", "originalObjectLink", "Key to access original un-modified pfo"};
+  
   
   /// cluster with E below this cut won't be considered in the TCC alg. WARNING cut must be configured as in UFOTool
   Gaudi::Property<float> m_clusterEcut{this , "ClusterECut", 0, " Important !! : must be the same value as in UFOTool"};
 
   ToolHandle<CP::ITrackVertexAssociationTool> m_trackVertexAssoTool {this, "TrackVertexAssoTool", "" };
 
+  
 };
 
 #endif //

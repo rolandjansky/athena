@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class CutFlowSvc
@@ -100,7 +100,7 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
 
 
 // This method is probably only called by the DecionsSvc
-CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
+CutIdentifier CutFlowSvc::registerTopFilter ATLAS_NOT_THREAD_SAFE ( const std::string& name,
                                              const std::string& description,
                                              unsigned int logic,
                                              const std::string& outputStream,
@@ -236,7 +236,7 @@ void CutFlowSvc::handle( const Incident& inc )
     // Look up input stream name from FileMetaData
     std::string inputstream = "";
     if (m_inMetaDataStore->contains<xAOD::FileMetaData>("FileMetaData")) {
-      const xAOD::FileMetaData* fmd;
+      const xAOD::FileMetaData* fmd = nullptr;
       if (m_inMetaDataStore->retrieve(fmd).isFailure()) {
         ATH_MSG_ERROR("Failed to retrieve input FileMetaData");
       } else if (fmd &&

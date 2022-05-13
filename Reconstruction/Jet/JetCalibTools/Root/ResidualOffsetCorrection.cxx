@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
 #include "JetCalibTools/JetCalibUtils.h"
 #include "PathResolver/PathResolver.h"
+#include <utility>
 
 ResidualOffsetCorrection::ResidualOffsetCorrection()
   : asg::AsgMessaging("ResidualOffsetCorrection"),
@@ -171,7 +172,7 @@ double ResidualOffsetCorrection::GetResidualOffsetET( double abseta, double mu, 
 }
 
 double ResidualOffsetCorrection::GetNPVBeamspotCorrection(double NPV) const {
-  if(!m_isData && m_applyNPVBeamspotCorrection) return m_npvBeamspotCorr->GetNVertexBsCorrection(NPV);
+  if(!m_isData && m_applyNPVBeamspotCorrection) return std::as_const(m_npvBeamspotCorr)->GetNVertexBsCorrection(NPV);
   return NPV;
 }
 

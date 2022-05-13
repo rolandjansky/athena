@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,11 +12,6 @@
  */
 
 #include "EventInfoReader.h"
-
-// Event includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 // Constructor with parameters:
 EventInfoReader::EventInfoReader(const std::string &name, 
@@ -32,6 +27,7 @@ StatusCode EventInfoReader::initialize()
     ATH_MSG_INFO( "EventInfoReader::initialize()"  );
     ATH_CHECK( m_geoModel.retrieve() );
     ATH_CHECK( m_tagInfoMgr.retrieve() );
+    ATH_CHECK( m_eventInfoKey.initialize() );
     return StatusCode::SUCCESS;
 }
 
@@ -40,25 +36,25 @@ StatusCode EventInfoReader::execute()
 {
     ATH_MSG_DEBUG("EventInfoReader::execute()" );
 
-    const EventInfo * evt = nullptr;
-    ATH_CHECK( evtStore()->retrieve( evt ) );
+    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, getContext());
+    if(!eventInfo.isValid()) {
+      ATH_MSG_ERROR("  Could not get event info");      
+      return StatusCode::FAILURE;
+    }
+
     ATH_MSG_DEBUG( "Event ID: ["
-                   << evt->event_ID()->run_number()   << ","
-                   << evt->event_ID()->event_number() << ":"
-                   << evt->event_ID()->time_stamp() << "] " );
-    ATH_MSG_DEBUG( "Event type: user type "
-                   << evt->event_type()->user_type() << " weight "
-                   << evt->event_type()->mc_event_weight()  );
+                   << eventInfo->runNumber()   << ","
+                   << eventInfo->eventNumber() << ":"
+                   << eventInfo->timeStamp() << "] " );
+    ATH_MSG_DEBUG( "Event type: IS_SIMULATION " << std::boolalpha
+		   << eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) << " weight "
+                   << eventInfo->mcEventWeight()  );
  
 
     // Print out the tags found
     ATH_MSG_DEBUG("Tag pairs from EventInfo: " );
-    EventType::NameTagPairVec pairs1;
-    evt->event_type()->get_detdescr_tags(pairs1);
-    for (unsigned int i = 0; i < pairs1.size(); ++i) {
-	std::string name = pairs1[i].first;
-	std::string tag  = pairs1[i].second;
-	ATH_MSG_DEBUG( name << " : " << tag );
+    for (const auto& ddTag : eventInfo->detDescrTags() ) {
+      ATH_MSG_DEBUG( ddTag.first << " : " << ddTag.second);
     }
 
     // Dump out Tags

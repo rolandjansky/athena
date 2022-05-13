@@ -10,6 +10,7 @@
 #include "xAODTau/TauxAODHelpers.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODTruth/TruthVertexContainer.h"
 
@@ -56,17 +57,17 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillbasicVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, const std::string& nProng, bool online) const;
   void fillDiTauVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec) const;
   void fillTagAndProbeVars(const std::string& trigger, const std::vector<TLorentzVector>& tau_vec, const std::vector<TLorentzVector>& lep_vec) const;
-  void fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois)  const;
+  void fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& eFexphase1L1rois, const std::vector<const xAOD::jFexTauRoI*>& jFexphase1L1rois)  const;
   void fillDistributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger, float HLTthr) const;
   void fillL1Distributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger, const std::string& trigL1Item, float L1thr) const;
   void fillHLTEfficiencies(const EventContext& ctx,const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec, const std::string& nProng) const;
   void fillDiTauHLTEfficiencies(const EventContext& ctx,const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const;
   void fillTAndPHLTEfficiencies(const EventContext& ctx, const std::string& trigger, const std::vector<TLorentzVector>& offline_lep_vec, const std::vector<TLorentzVector>& online_lep_vec, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const;
-  void fillL1Efficiencies(const EventContext& ctx, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois) const;
-  void fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec_all, const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger, const std::string& nProng) const;
+  void fillL1Efficiencies(const EventContext& ctx, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& eFexphase1L1rois, const std::vector<const xAOD::jFexTauRoI*>& jFexphase1L1rois) const;
+  void fillTruthEfficiency(const std::vector<const xAOD::TauJet*>& online_tau_vec_all, const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string& trigger, const std::string& nProng) const;
   
   StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
-  void fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& tau_vec, const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger, const std::string& nProng) const; 
+  void fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& tau_vec, const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string& trigger, const std::string& nProng) const; 
 
   inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
   {
@@ -120,7 +121,18 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   }; 
 
  
-  inline bool phase1L1Matching(const xAOD::TauJet* offline_tau, const xAOD::eFexTauRoI* l1roi, float threshold) const
+  inline bool eFexphase1L1Matching(const xAOD::TauJet* offline_tau, const xAOD::eFexTauRoI* l1roi, float threshold) const
+  {
+    float deltaR = dR(offline_tau->eta(),offline_tau->phi(), l1roi->eta(),l1roi->phi());
+    if(deltaR < threshold){
+       return true;
+    } else {
+       return false;
+    }
+  };
+
+
+  inline bool jFexphase1L1Matching(const xAOD::TauJet* offline_tau, const xAOD::jFexTauRoI* l1roi, float threshold) const
   {
     float deltaR = dR(offline_tau->eta(),offline_tau->phi(), l1roi->eta(),l1roi->phi());
     if(deltaR < threshold){
@@ -136,6 +148,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey< xAOD::EmTauRoIContainer> m_legacyl1TauRoIKey { this, "legacyl1TauRoIKey","LVL1EmTauRoIs","Tau Legacy L1 RoI key"};
   SG::ReadHandleKey< xAOD::eFexTauRoIContainer>  m_phase1l1eTauRoIKey {this, "phase1l1eTauRoIKey", "L1_eTauRoI","eTau Phase1 L1 RoI key"};
   SG::ReadHandleKey< xAOD::eFexTauRoIContainer>  m_phase1l1cTauRoIKey {this, "phase1l1cTauRoIKey", "L1_cTauRoI","cTau Phase1 L1 RoI key"};
+  SG::ReadHandleKey< xAOD::jFexTauRoIContainer>  m_phase1l1jTauRoIKey {this, "phase1l1jTauRoIKey", "L1_jFexTauRoI","jTau Phase1 L1 RoI key"};
   SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetKey { this, "hltTauJetKey", "HLT_TrigTauRecMerged_MVA", "HLT taujet container key" };
   SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetCaloMVAOnlyKey { this, "hltTauJetCaloMVAOnlyKey", "HLT_TrigTauRecMerged_CaloMVAOnly", "HLT taujet container key" };
   SG::ReadHandleKey< xAOD::JetContainer> m_hltSeedJetKey { this, "hltSeedJetKey", "HLT_jet_seed", "HLT jet seed container key" };

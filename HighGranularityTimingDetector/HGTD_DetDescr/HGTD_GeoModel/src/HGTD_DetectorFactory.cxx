@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /*  Three-ring detector layout, created by Christian and David
@@ -64,21 +64,8 @@ HGTD_DetectorFactory::HGTD_DetectorFactory( HGTD_GeoModelAthenaComps* athComps )
     // create the detector manager
     m_detectorManager = new HGTD_DetectorManager( detStore() );
 
-    // read HGTD geo tag from global geo tag
-    DecodeVersionKey versionKey( m_athComps->geoDbTagSvc(), "HGTD");
-    std::string hgtdTag = m_athComps->rdbAccessSvc()->getChildTag("HGTD", versionKey.tag(), versionKey.node());
-    ATH_MSG_INFO( "HGTD tag from geometry db: " << hgtdTag <<  ", package Name: " << ATLAS_PACKAGE_NAME );
+    ATH_MSG_INFO( "HGTD geometry from hard-coded definition - No Information being taken from Geometry Tag!" );
 
-    // set m_geomVersion based on HGTD tag in global geo tag
-    if ( !hgtdTag.empty() ) {
-        // for the *full-sim studies* in the TDR, only the two-ring layout was used
-        if ( hgtdTag.find( "HGTD-TDR-" ) != std::string::npos ) m_geomVersion = 0;
-        if ( hgtdTag.find( "HGTD-3-ring-" ) != std::string::npos ) m_geomVersion = 1; // to be created
-    }
-    else {
-        // fail already here if no HGTD info exists in db
-        ATH_MSG_ERROR( "No HGTD child tag in global geo tag. HGTD will not be built.");
-    }
     
     // Create SiCommonItems. These are items that are shared by all elements
     m_commonItems = std::make_unique<const InDetDD::SiCommonItems>(m_athComps->getIdHelper());

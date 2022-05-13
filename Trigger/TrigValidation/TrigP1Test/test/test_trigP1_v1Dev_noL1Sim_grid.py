@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu
 # art-type: grid
@@ -28,7 +28,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;"'  
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;enableL1MuonPhase1=False;forceEnableAllChains=True;"'  
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

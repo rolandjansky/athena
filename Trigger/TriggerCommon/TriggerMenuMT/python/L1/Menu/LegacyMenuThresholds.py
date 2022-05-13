@@ -43,8 +43,9 @@ legacyThresholds = [
     "NIMLHCF", "NIMTGC", "NIMTRT", 
     "MBTS_A", "MBTS_C", 
     "CAL1", "CAL2", 
-    "BCM_AtoC", "BCM_CtoA", "BCM_Wide", "BCM_Comb",
+    "BCM_AtoC", "BCM_CtoA", "BCM_Wide", "BCM_Comb", "BCM6", "BCM7", "BCM8"
     "BPTX0", "BPTX1",
+    "BMA0", "BMA1",
     "LUCID_A", "LUCID_C",
     "ZDC_0", "ZDC_1", "ZDC_2",
     "AFP_NSA", "AFP_FSA", "AFP_FSA_TOF_T0", "AFP_FSA_TOF_T1", "AFP_FSA_TOF_T2", "AFP_FSA_TOF_T3",

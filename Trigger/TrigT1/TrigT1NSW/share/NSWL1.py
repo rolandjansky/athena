@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import glob
 import os
 
@@ -30,8 +30,8 @@ else:
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.Muon_setOn()
 DetFlags.sTGC_setOn()
-DetFlags.Micromegas_setOn()
-DetFlags.digitize.Micromegas_setOn()
+DetFlags.MM_setOn()
+DetFlags.digitize.MM_setOn()
 DetFlags.digitize.sTGC_setOn()
 DetFlags.Truth_setOn()
 DetFlags.Print()

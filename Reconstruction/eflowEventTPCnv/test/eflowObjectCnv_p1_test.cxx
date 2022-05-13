@@ -17,7 +17,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
-
+#include "CxxUtils/checker_macros.h"
 
 #if 0
 void compare (const CaloRecoStatus& p1,
@@ -120,7 +120,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE()
 {
   SGTest::initTestStore();
   test1();

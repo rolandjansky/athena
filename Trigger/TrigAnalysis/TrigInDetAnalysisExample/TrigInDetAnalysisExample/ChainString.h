@@ -29,6 +29,7 @@ public:
   ChainString( const ChainString& s );
 
   ChainString& operator=(const ChainString&) = default;
+
   std::string head()  { return m_head;  }
   std::string tail()  { return m_tail;  }
   std::string extra() { return m_extra; }
@@ -71,6 +72,8 @@ public:
   const std::string& post() const { return m_post; }
 
   size_t postcount() const { return m_postcount; }
+
+  std::string subs( std::string s ) const; 
 
 public:   
 
@@ -161,5 +164,16 @@ private:
 };
 
 
+inline  bool operator==( const ChainString& cs, const ChainString& s ) { 
+   return cs.raw() == ChainString(s).raw();
+}
+
+inline  bool operator==( const ChainString& cs, const std::string& s ) { 
+   return cs.raw() == ChainString(s).raw();
+}
+
+inline bool operator==( const std::string& s, const ChainString& cs ) { 
+  return cs.raw() == ChainString(s).raw();
+}
 
 #endif // TrigInDetAnalysisExample_ChainString_H

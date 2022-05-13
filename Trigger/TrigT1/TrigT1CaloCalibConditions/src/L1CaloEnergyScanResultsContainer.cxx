@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloEnergyScanResultsContainer.h"
@@ -93,16 +93,16 @@ DataObject* L1CaloEnergyScanResultsContainer::makePersistent() const {
     return (DataObject*) attrListCollection;
 }
 
-void L1CaloEnergyScanResultsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
+void L1CaloEnergyScanResultsContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap) {
 
     this->clear();
 
-    std::map<std::string, CondAttrListCollection*>::const_iterator
+    std::map<std::string, const CondAttrListCollection*>::const_iterator
       it_map(condAttrListCollectionMap.find(this->coolFolderKey(L1CaloEnergyScanResultsContainer::eEnergyScanResults)));
 
     if(it_map!=condAttrListCollectionMap.end()) {
 
-        CondAttrListCollection* attrListCollection = it_map->second;
+        const CondAttrListCollection* attrListCollection = it_map->second;
 
         //loop over CondAttrListCollection
         CondAttrListCollection::const_iterator pos = attrListCollection->begin();

@@ -1,13 +1,12 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.Enums import Format
 
 from RecExConfig.Configured import Configured
 from RecExConfig.RecFlags import rec
-
-from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 
 class ByteStreamUnpackGetter(Configured):
@@ -36,27 +35,7 @@ class ByteStreamUnpackGetter(Configured):
         return True
 
 
-class TrigDecisionGetter(Configured):
-    def configure(self):
-        log = logging.getLogger("TrigDecisionGetter")
-        from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
-        CAtoGlobalWrapper( Run3DecisionMakerCfg, ConfigFlags)
-        log.info('xTrigDecision writing enabled')
 
-        return True
-
-class TrigDecisionGetterRun1or2(Configured):
-    #class to setup the writing or just making of TrigDecisionObject
-    def configure(self):
-        if ( rec.doWriteESD() or rec.doWriteAOD() or rec.doESD() or rec.doAOD() ) and \
-               ( not ( rec.readAOD() or rec.readESD() or rec.doWriteBS()) ):
-            log = logging.getLogger("TrigDecisionGetterRun1or2")
-            from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
-            CAtoGlobalWrapper(Run1Run2DecisionMakerCfg, ConfigFlags)
-            log.info('xTrigDecision writing enabled')
-        return True
-    
-    
 class HLTTriggerResultGetter(Configured):
 
     log = logging.getLogger("HLTTriggerResultGetter.py")
@@ -66,26 +45,28 @@ class HLTTriggerResultGetter(Configured):
         log = logging.getLogger("HLTTriggerResultGetter.py")
         from RecExConfig.ObjKeyStore import objKeyStore
 
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        log.info("BS unpacking (ConfigFlags.Trigger.readBS): %d", ConfigFlags.Trigger.readBS )
-        if ConfigFlags.Trigger.readBS:
-            if ConfigFlags.Trigger.EDMVersion == 1 or \
-               ConfigFlags.Trigger.EDMVersion == 2:
+        if ConfigFlags.Input.Format is Format.BS:
+            log.info("Configuring BS unpacking")
+            if ConfigFlags.Trigger.EDMVersion in [1, 2]:
                 from TriggerJobOpts.TriggerRecoConfig import Run1Run2BSExtractionCfg
                 CAtoGlobalWrapper(Run1Run2BSExtractionCfg, ConfigFlags)
-            elif ConfigFlags.Trigger.EDMVersion >=3:
+            elif ConfigFlags.Trigger.EDMVersion >= 3:
                 bs = ByteStreamUnpackGetter()  # noqa: F841
             else:
                 raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
-        if ConfigFlags.Trigger.EDMVersion == 1 or \
-           ConfigFlags.Trigger.EDMVersion == 2:
-            if rec.doTrigger():
-                tdt = TrigDecisionGetterRun1or2()  # noqa: F841
+        if ConfigFlags.Trigger.EDMVersion in [1, 2]:
+            if rec.doTrigger() and ( (rec.doWriteESD() or rec.doWriteAOD() or rec.doESD() or rec.doAOD()) and
+                                     (not (rec.readAOD() or rec.readESD() or rec.doWriteBS())) ):
+                from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
+                CAtoGlobalWrapper(Run1Run2DecisionMakerCfg, ConfigFlags)
+                log.info('Run-1&2 xTrigDecision writing enabled')
+
         elif ConfigFlags.Trigger.EDMVersion >= 3:
-            if ConfigFlags.Trigger.readBS:
-                tdt = TrigDecisionGetter()  # noqa: F841
+            if ConfigFlags.Input.Format is Format.BS:
+                from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
+                CAtoGlobalWrapper( Run3DecisionMakerCfg, ConfigFlags)
+                log.info('Run-3 xTrigDecision writing enabled')
         else:
             raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
@@ -97,14 +78,13 @@ class HLTTriggerResultGetter(Configured):
         if rec.doWriteAOD():
             objKeyStore.addStreamAOD("JetKeyDescriptor","JetKeyMap")
             objKeyStore.addStreamAOD("JetMomentMap","TrigJetRecMomentMap")
-                    
+
+        # schedule the RoiDescriptorStore conversion
         if rec.doAOD() or rec.doWriteAOD():
-            # schedule the RoiDescriptorStore conversion
-            roiWriter = RoiWriter()
-            # Add fictional input to ensure data dependency in AthenaMT
-            roiWriter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
-            topSequence += roiWriter
-            # write out the RoiDescriptorStores
+            from TrigRoiConversion.TrigRoiConversionConfig import RoiWriterCfg
+            CAtoGlobalWrapper(RoiWriterCfg, ConfigFlags)
+
+            # output needs to be configured explicitly even if done in CA already
             from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
@@ -155,7 +135,7 @@ class HLTTriggerResultGetter(Configured):
             log.info("Configured slimming of HLT for %s with %s", stream, svc)
 
 
-        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
+        if ConfigFlags.Trigger.EDMVersion in [1, 2]:
 
             # Run 1, 2 slimming
             if ConfigFlags.Trigger.doNavigationSlimming and rec.readRDO() and rec.doWriteAOD():

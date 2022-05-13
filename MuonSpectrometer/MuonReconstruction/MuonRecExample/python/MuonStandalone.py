@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction"""
 
@@ -48,7 +48,6 @@ def MuonTrackSteering(name="MuonTrackSteering", extraFlags=None, **kwargs):
         kwargs.setdefault("StrategyList", MoorelikeStrategy)  
 
     kwargs.setdefault("DoSummary", extraFlags.printSummary)
-    kwargs.setdefault("OutputSingleStationTracks", True)
     kwargs.setdefault("HoleRecoveryTool",getPublicTool("MuonEORecoveryTool"))
     if "TrackBuilderTool" not in kwargs:
         extraFlags.setFlagDefault('UseTrackingHistory',True)
@@ -182,7 +181,18 @@ def MuonStationsInterSectAlg(**kwargs):
     if athenaCommonFlags.isOnline:
         kwargs.setdefault("MdtCondKey", "")
     condSequence += MuonStationIntersectCondAlg("MuonStationIntersectCondAlg",**kwargs)
- 
+
+def MuonLayerHoughAlg(name="MuonLayerHoughAlg", **kwargs):
+    reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mircomegas = muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()
+    reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
+    return CfgMgr.MuonLayerHoughAlg(name,
+                             MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
+                             PrintSummary = muonStandaloneFlags.printSummary(),
+                             CscPrepDataContainer = ("CSC_Clusters" if reco_cscs else ""),
+                             sTgcPrepDataContainer = ("STGC_Measurements" if reco_stgc else ""),
+                             MMPrepDataContainer = ("MM_Measurements" if reco_mircomegas else ""),
+                             TgcPrepDataContainer = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  )
 #
 # The top level configurator
 #
@@ -200,18 +210,12 @@ class MuonStandalone(ConfiguredMuonRec):
         if not self.isEnabled(): return        
         # do the following in case of (at least one) NSW
         reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-        reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+        reco_mircomegas = muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()
         reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
         
         MuonStationsInterSectAlg()
 
-        self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",
-            MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
-            PrintSummary = muonStandaloneFlags.printSummary(),
-            CscPrepDataContainer = ("CSC_Clusters" if reco_cscs else ""),
-            sTgcPrepDataContainer = ("STGC_Measurements" if reco_stgc else ""),
-            MMPrepDataContainer = ("MM_Measurements" if reco_mircomegas else ""),
-            TgcPrepDataContainer = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  ) )
+        self.addAlg( MuonLayerHoughAlg("MuonLayerHoughAlg"))
         if not muonStandaloneFlags.patternsOnly():
             self.addAlg( MuonSegmentFinderAlg("MuonSegmentMaker" ))
             if reco_cscs:
@@ -221,9 +225,6 @@ class MuonStandalone(ConfiguredMuonRec):
                      self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",
                                                                       SegmentContainerName="NCB_TrackMuonSegments",
                                                                       xAODContainerName="NCB_MuonSegments") )
-
-        if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
-            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
 
         if reco_stgc or reco_mircomegas:
             self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("QuadNSW_MuonSegmentCnvAlg",

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGDJPROMPTHYPOALG_H
 #define TRIGDJPROMPTHYPOALG_H
@@ -40,5 +40,7 @@ private:
   Gaudi::Property<float> m_min_evt_jet_pt{this, "min_evt_jet_pt",{0}, "Minimum pt for the leading jet [GeV]"};
 
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 };
 #endif

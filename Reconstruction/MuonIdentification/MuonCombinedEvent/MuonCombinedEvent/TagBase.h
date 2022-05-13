@@ -83,7 +83,6 @@ namespace MuonCombined {
         /** author and type info */
         Author m_author;  /// author
         Type m_type;      /// type
- 
     };
 
     inline bool TagBase::isCommissioning() const { return false; }

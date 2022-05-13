@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- ////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetVertexTaggerTool.cxx
@@ -13,6 +13,7 @@
 #include "PathResolver/PathResolver.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 #include "AsgDataHandles/WriteDecorHandle.h"
+#include <utility>
 
 using std::string;
 using xAOD::JetFourMom_t;
@@ -127,7 +128,7 @@ float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
     jvt = -0.1;
   } else {
     float rpt_inputtojvt = std::min(rpt, (float) 1. );
-    int bin = m_jvthisto->FindBin(jvfcorr, rpt_inputtojvt);
+    int bin = std::as_const(m_jvthisto)->FindBin(jvfcorr, rpt_inputtojvt);
     jvt = m_jvthisto->GetBinContent(bin);
     jvt = m_jvthisto->Interpolate(jvfcorr, rpt_inputtojvt);
   }

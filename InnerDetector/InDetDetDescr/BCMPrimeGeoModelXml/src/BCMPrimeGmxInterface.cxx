@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCMPrimeGmxInterface.h"
 
-#include <BCMPrimeReadoutGeometry/BCMPrimeDetectorManager.h>
-#include <InDetSimEvent/SiHitIdHelper.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "BCMPrimeReadoutGeometry/BCMPrimeDetectorManager.h"
+#include "InDetSimEvent/SiHitIdHelper.h"
 
 namespace InDetDD
 {

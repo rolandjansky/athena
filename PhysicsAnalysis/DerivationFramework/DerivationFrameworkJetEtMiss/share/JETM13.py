@@ -7,7 +7,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFramewor
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
 from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
 
-#
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth import MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
@@ -79,32 +78,37 @@ jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKer
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM13SlimmingHelper = SlimmingHelper("JETM13SlimmingHelper")
-JETM13SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
+JETM13SlimmingHelper.SmartCollections = ["EventInfo",
+                                         "Electrons", "Photons", "Muons", "TauJets",
                                          "InDetTrackParticles", "PrimaryVertices",
                                          "MET_Baseline_AntiKt4EMTopo",
                                          "MET_Baseline_AntiKt4EMPFlow",
                                          "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
                                          "AntiKt4TruthJets","AntiKt10TruthJets",
                                         ]
+
 JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
-                                     "TrackCaloClustersCombinedAndNeutral",
-                                     "JetETMissChargedParticleFlowObjects",
-                                     "JetETMissNeutralParticleFlowObjects",
-                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                     "GlobalChargedParticleFlowObjects", "GlobalNeutralParticleFlowObjects",
+                                     "CHSGChargedParticleFlowObjects","CHSGNeutralParticleFlowObjects",
+                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape",
                                      "TruthParticles",
                                      "TruthVertices",
                                      "TruthEvents",
                                     ]
+
 JETM13SlimmingHelper.ExtraVariables = [
   "InDetTrackParticles.particleHypothesis.vx.vy.vz",
   "GSFTrackParticles.particleHypothesis.vx.vy.vz",
   "PrimaryVertices.x.y.z",
   "TauJets.clusterLinks",
   "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus.clusterLinks.FSR_CandidateEnergy",
-  "MuonSegments.x.y.z.px.py.pz",
-  "AntiKt4LCTopoJets.pt.eta.phi.m",
-  ]
+  "MuonSegments.x.y.z.px.py.pz"]
 
+JETM13SlimmingHelper.AppendToDictionary = {'GlobalChargedParticleFlowObjects':'xAOD::FlowElementContainer','GlobalChargedParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                           'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                           'CHSGChargedParticleFlowObjects':'xAOD::FlowElementContainer','CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                           'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                           'Kt4EMPFlowNeutEventShape':'xAOD::EventShape','Kt4EMPFlowNeutEventShapeAux':'xAOD::EventShapeAuxInfo'}
 
 JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
 JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'

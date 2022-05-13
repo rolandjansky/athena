@@ -61,11 +61,32 @@ StatusCode AFP_PileUpTool::initialize()
   ATH_CHECK(m_randomSvc.retrieve());
   ATH_MSG_DEBUG("Retrieved RandomNumber Service");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
-  ATH_MSG_DEBUG("Retrieved PileUpMergeSvc");
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+    ATH_MSG_DEBUG("Retrieved PileUpMergeSvc");
+  }
+
 
   m_mergedTDSimHitList = AFP_TDSimHitCollection("mergedTDSimHitList");
   m_mergedSIDSimHitList = AFP_SIDSimHitCollection("mergedSIDSimHitList");
+
+  // check the input object names
+  if (m_TDSimHitCollectionKey.key().empty()) {
+    ATH_MSG_FATAL("Property TDSimHitCollectionName not set !");
+    return StatusCode::FAILURE;
+  }
+  if (m_SIDSimHitCollectionKey.key().empty()) {
+    ATH_MSG_FATAL("Property SIDSimHitCollectionName not set !");
+    return StatusCode::FAILURE;
+  }
+  if(m_onlyUseContainerName) m_TDSimHitCollectionName = m_TDSimHitCollectionKey.key();
+  ATH_MSG_DEBUG("Input TD SimHits in container : '" <<m_TDSimHitCollectionName  << "'");
+  if(m_onlyUseContainerName) m_SIDSimHitCollectionName = m_SIDSimHitCollectionKey.key();
+  ATH_MSG_DEBUG("Input SID SimHits in container : '" <<m_SIDSimHitCollectionName  << "'");
+
+  // Initialize ReadHandleKeys
+  ATH_CHECK(m_TDSimHitCollectionKey.initialize());
+  ATH_CHECK(m_SIDSimHitCollectionKey.initialize());
 
   ATH_CHECK(m_TDDigiCollectionKey.initialize());
   ATH_CHECK(m_SiDigiCollectionKey.initialize());
@@ -170,45 +191,74 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx)
 {
   ATH_MSG_DEBUG ( "AFP_PileUpTool::processAllSubEvents()" );
 
-  typedef PileUpMergeSvc::TimedList<AFP_TDSimHitCollection>::type TimedTDSimHitCollList;
-  typedef PileUpMergeSvc::TimedList<AFP_SIDSimHitCollection>::type TimedSIDSimHitCollList;
-
-  TimedTDSimHitCollList TDSimHitCollList;
-  unsigned int numberOfTDSimHits{0};
-  if (not (m_mergeSvc->retrieveSubEvtsData(m_TDSimHitCollectionName, TDSimHitCollList, numberOfTDSimHits).isSuccess()) and TDSimHitCollList.size() == 0) {
-    ATH_MSG_FATAL ( "Could not fill TimedTDSimHitCollList" );
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG ( " PileUp: Merge " << TDSimHitCollList.size() << " AFP_TDSimHitCollections with key " << m_TDSimHitCollectionName << " found." );
-
-  TimedSIDSimHitCollList SIDSimHitCollList;
-  unsigned int numberOfSIDSimHits{0};
-  if (not (m_mergeSvc->retrieveSubEvtsData(m_SIDSimHitCollectionName, SIDSimHitCollList, numberOfSIDSimHits).isSuccess()) and SIDSimHitCollList.size() == 0) {
-    ATH_MSG_FATAL ( "Could not fill TimedSIDSimHitCollList" );
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG ( " PileUp: Merge " << SIDSimHitCollList.size() << " AFP_SIDSimHitCollections with key " << m_SIDSimHitCollectionName << " found." );
+  using TimedTDSimHitCollList = PileUpMergeSvc::TimedList<AFP_TDSimHitCollection>::type;
+  using TimedSIDSimHitCollList = PileUpMergeSvc::TimedList<AFP_SIDSimHitCollection>::type;
 
   TimedHitCollection<AFP_TDSimHit> thpcAFP_TDPmt;
-  TimedTDSimHitCollList::iterator iColl  (TDSimHitCollList.begin());
-  TimedTDSimHitCollList::iterator endColl(TDSimHitCollList.end());
+  TimedHitCollection<AFP_SIDSimHit> thpcAFP_SiPmt;
 
-  while (iColl != endColl) {
-    const AFP_TDSimHitCollection* tmpColl(iColl->second);
-    thpcAFP_TDPmt.insert(iColl->first, tmpColl);
-    ATH_MSG_DEBUG ( " AFP_TDSimHitCollection found with " << tmpColl->size() << " hits " << iColl->first );
-    ++iColl;
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<AFP_TDSimHitCollection> hitCollection(m_TDSimHitCollectionKey, ctx);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get SCT AFP_TDSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    thpcAFP_TDPmt = TimedHitCollection<AFP_TDSimHit>(1);
+    thpcAFP_TDPmt.insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("AFP_TDSimHitCollection found with " << hitCollection->size() << " hits");
+  }
+  else {
+    TimedTDSimHitCollList TDSimHitCollList;
+    unsigned int numberOfTDSimHits{0};
+    if (not (m_mergeSvc->retrieveSubEvtsData(m_TDSimHitCollectionName, TDSimHitCollList, numberOfTDSimHits).isSuccess()) and TDSimHitCollList.size() == 0) {
+      ATH_MSG_FATAL ( "Could not fill TimedTDSimHitCollList" );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG ( " PileUp: Merge " << TDSimHitCollList.size() << " AFP_TDSimHitCollections with key " << m_TDSimHitCollectionName << " found." );
+
+    TimedTDSimHitCollList::iterator iColl  (TDSimHitCollList.begin());
+    TimedTDSimHitCollList::iterator endColl(TDSimHitCollList.end());
+
+    while (iColl != endColl) {
+      const AFP_TDSimHitCollection* tmpColl(iColl->second);
+      thpcAFP_TDPmt.insert(iColl->first, tmpColl);
+      ATH_MSG_DEBUG ( " AFP_TDSimHitCollection found with " << tmpColl->size() << " hits " << iColl->first );
+      ++iColl;
+    }
   }
 
-  TimedHitCollection<AFP_SIDSimHit> thpcAFP_SiPmt;
-  TimedSIDSimHitCollList::iterator iSiColl  (SIDSimHitCollList.begin());
-  TimedSIDSimHitCollList::iterator endSiColl(SIDSimHitCollList.end());
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<AFP_SIDSimHitCollection> hitCollection(m_SIDSimHitCollectionKey, ctx);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get SCT AFP_SIDSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
 
-  while (iSiColl != endSiColl) {
-    const AFP_SIDSimHitCollection* tmpSiColl(iSiColl->second);
-    thpcAFP_SiPmt.insert(iSiColl->first, tmpSiColl);
-    ATH_MSG_DEBUG ( " AFP_SIDSimHitCollection found with " << tmpSiColl->size() << " hits " << iSiColl->first );
-    ++iSiColl;
+    // create a new hits collection
+    thpcAFP_SiPmt = TimedHitCollection<AFP_SIDSimHit>(1);
+    thpcAFP_SiPmt.insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("AFP_SIDSimHitCollection found with " << hitCollection->size() << " hits");
+  }
+  else {
+    TimedSIDSimHitCollList SIDSimHitCollList;
+    unsigned int numberOfSIDSimHits{0};
+    if (not (m_mergeSvc->retrieveSubEvtsData(m_SIDSimHitCollectionName, SIDSimHitCollList, numberOfSIDSimHits).isSuccess()) and SIDSimHitCollList.size() == 0) {
+      ATH_MSG_FATAL ( "Could not fill TimedSIDSimHitCollList" );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG ( " PileUp: Merge " << SIDSimHitCollList.size() << " AFP_SIDSimHitCollections with key " << m_SIDSimHitCollectionName << " found." );
+
+    TimedSIDSimHitCollList::iterator iSiColl  (SIDSimHitCollList.begin());
+    TimedSIDSimHitCollList::iterator endSiColl(SIDSimHitCollList.end());
+
+    while (iSiColl != endSiColl) {
+      const AFP_SIDSimHitCollection* tmpSiColl(iSiColl->second);
+      thpcAFP_SiPmt.insert(iSiColl->first, tmpSiColl);
+      ATH_MSG_DEBUG ( " AFP_SIDSimHitCollection found with " << tmpSiColl->size() << " hits " << iSiColl->first );
+      ++iSiColl;
+    }
   }
 
   ATHRNG::RNGWrapper* rngWrapper = m_randomSvc->getEngine(this, m_randomStreamName);

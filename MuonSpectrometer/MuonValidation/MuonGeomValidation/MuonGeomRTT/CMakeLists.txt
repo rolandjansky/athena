@@ -1,14 +1,7 @@
-################################################################################
-# Package: MuonGeomRTT
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonGeomRTT )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/MuonGeomRTT_TestConfiguration.xml share/*.C )
-
+atlas_install_scripts( test/test_*.sh )

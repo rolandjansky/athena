@@ -115,7 +115,7 @@ namespace Trk{
   Cache::retrieveBoundaries(){
    m_staticBoundaries.clear();
    for (const auto &thisSharedBound: m_currentStatic->boundarySurfaces()) {
-     const Trk::Surface& surf = (thisSharedBound.get())->surfaceRepresentation();
+     const Trk::Surface& surf = (thisSharedBound)->surfaceRepresentation();
      m_staticBoundaries.emplace_back(&surf, true);
    }
   }

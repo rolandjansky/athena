@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 include.block('EventOverlayJobTransforms/OverlayOutput_jobOptions.py')
 
@@ -81,7 +81,7 @@ if DetFlags.overlay.Truth_on():
     if DetFlags.overlay.sTGC_on():
         outStream.ItemList += [ 'MuonSimDataCollection#sTGC_SDO' ]
 
-    if DetFlags.overlay.Micromegas_on():
+    if DetFlags.overlay.MM_on():
         outStream.ItemList += [ 'MuonSimDataCollection#MM_SDO' ]
 
 # Inner detector
@@ -127,7 +127,7 @@ if DetFlags.overlay.TGC_on():
 if DetFlags.overlay.sTGC_on():
     outStream.ItemList += [ 'Muon::STGC_RawDataContainer#sTGCRDO' ]
 
-if DetFlags.overlay.Micromegas_on():
+if DetFlags.overlay.MM_on():
     outStream.ItemList += [ 'Muon::MM_RawDataContainer#MMRDO' ]
 
 if DetFlags.overlay.LVL1_on():
@@ -150,6 +150,7 @@ if overlayFlags.doTrackOverlay():
     outStream.ItemList += [ 'TrackCollection#Bkg_CombinedInDetTracks' ]
     outStream.ItemList += [ 'TrackCollection#Bkg_DisappearingTracks' ]
     outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedForwardTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedLargeD0Tracks' ]
     outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles' ]
     outStream.ItemList += [ 'InDet::PixelClusterContainer#Bkg_PixelClusters' ]
     outStream.ItemList += [ 'InDet::SCT_ClusterContainer#Bkg_SCT_Clusters' ]
@@ -160,6 +161,7 @@ if overlayFlags.doTrackOverlay():
         outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_DisappearingTracksDetailedTruth' ]
         outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedForwardTracksDetailedTruth' ]
         outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_CombinedInDetTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedLargeD0TracksDetailedTruth' ]
 
 # Temporary to ensure the output is stored
 outStream.TransientItems = outStream.ItemList

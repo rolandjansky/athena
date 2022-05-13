@@ -31,11 +31,8 @@ from .Physics_pp_run3_v1 import (
 def setupMenu():
 
     chains = ChainStore()
-    chains["Cosmic"] = [        
-        ChainProp(name='HLT_cosmic_id_L1MU3V_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
-        ChainProp(name='HLT_cosmic_id_L1MU8VF_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
-    ]
     
+
     chains['Muon'] = [
         ChainProp(name='HLT_mu4_cosmic_L1MU3V_EMPTY', l1SeedThresholds=['MU3V'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
         ChainProp(name='HLT_mu4_cosmic_L1MU3V', l1SeedThresholds=['MU3V'], stream=['CosmicMuons'], groups=['RATE:Cosmic_Muon','BW:Muon']),
@@ -52,7 +49,7 @@ def setupMenu():
         ChainProp(name='HLT_mu4_idperf_L1MU3V', l1SeedThresholds=['MU3V'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
 
         # ATR-24977 - LRT muon chains
-        ChainProp(name='HLT_mu24_LRT_d0loose_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu20_LRT_d0loose_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu6_LRT_idperf_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
     ]
 

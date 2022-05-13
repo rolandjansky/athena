@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_DigitToRDO.h"
@@ -61,6 +61,9 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
         unsigned int nstrips = digit->stripResponsePosition().size();
 
         for ( unsigned int i=0 ; i<nstrips ; ++i ) {
+
+          // For the sTGCs there is a timing cut in DigitToRDO converter while for the MMs this cut is already applied in the 
+          // simulation of the electronics response.    pscholer May 2022
 
           ///
           /// set the rdo id to a value consistent with the channel number

@@ -105,9 +105,9 @@ In one side there
 is ExtrapolateDirectly which is a thinwrapper
 over the [Global] Propagator call (can be replaced completely by a call 
 to it in client code).
-In the other side there is an extrapolate overlaod
+In the other side there is an extrapolate overload
 that allows to find and collect all intersections
-for a particle (typically muon) trasversing the 
+for a particle (typically muon) traversing the
 ATLAS calorimeters. 
 
 @author Andreas.Salzburger@cern.ch
@@ -207,8 +207,9 @@ public:
     Trk::ExtrapolationCache* cache = nullptr) const override final;
 
   /** extrapolateBlindly like step-wise extrapolation, but without
-   * a destination surface.  Blind inside the given tracking Volume (boundaryVol),
-   * if none is given the reference surface for destination is used
+   * a destination surface.  Blind inside the given tracking Volume (boundaryVol).
+   * If none is give stops at last boundary surface of the known 
+   * TrackingGeometry
    */
   virtual TrackParametersUVector extrapolateBlindly(
     const EventContext& ctx,
@@ -234,7 +235,7 @@ public:
   /** Extrapolation method collecting intersections with subdetector
    * boundaries and active volumes/layers. Destination
    * (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
-   * Employs the STEP propagator, used in the ParticleCaloExtension
+   * Employs the STEP_propagator, used to create ParticleCaloExtensions
    * mainly for muons and Particle Flow.
    */
   virtual std::unique_ptr<
@@ -270,12 +271,8 @@ public:
   /** Validation Action,*/
   virtual void validationAction() const override final;
 private:
-  /**
-   * Cache to be passed to and between the private methods
-   */
-  typedef std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>> identifiedParameters_t;
-  
 
+  typedef std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>> identifiedParameters_t;
   /**
    * Actual heavy lifting implementation for  extrapolate
    */
@@ -659,10 +656,10 @@ private:
 
   // ---------------- For Extrapolation handling ------------ //
 
-  std::vector<const IPropagator*>
-    m_subPropagators; //!< Propagators to chose from (steered by signature)
-  std::vector<const IMaterialEffectsUpdator*>
-    m_subupdaters; //!< updaters to chose from (steered by signature)
+   //!< Propagators to chose from (steered by signature)
+  std::vector<const IPropagator*> m_subPropagators; 
+  //!< updaters to chose from (steered by signature) 
+  std::vector<const IMaterialEffectsUpdator*> m_subupdaters; 
 
   // ---------------- For Extrapolator configuration ------------ //
 
@@ -689,8 +686,7 @@ private:
   unsigned int m_meotpIndex; //!< if several meotps are available in a volume steer which one to use
   unsigned int m_configurationLevel; //!< see the supported levels of configuration above
   unsigned int m_searchLevel;        //!< see the supported search levels above
-  unsigned int
-    m_initialLayerAttempts; //!< allowed layer intersection attempts at the start of a volume
+  unsigned int m_initialLayerAttempts; //!< allowed layer intersection attempts at the start of a volume
   unsigned int m_successiveLayerAttempts; //!< layer intersection attemps after one layer has been
                                           //!< hit sucessfully
   unsigned int m_maxMethodSequence;

@@ -13,7 +13,7 @@
 
 namespace CP {
 
-static SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
+static const SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
 
 JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name ),
   m_appliedSystEnum(NONE),

@@ -61,20 +61,21 @@ double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const 
     return response;
 }
 
-void VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const{
+bool VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const{
     double t_peak = findPeak(effectiveCharge, electronsTime, electronicsThreshold);
     
-    if (t_peak == -9999 ) return;  // no peak found
+    if (t_peak == -9999 ) return false;  // no peak found
 
     amplitudeFirstPeak = vmmResponse(effectiveCharge, electronsTime, t_peak);
     timeFirstPeak = t_peak;
+    return true;
 }
 
 
-void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const {
-    if (!aboveThresholdSimple(effectiveCharge, electronsTime, electronicsThreshold)) return;
+bool VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const {
+    if (!aboveThresholdSimple(effectiveCharge, electronsTime, electronicsThreshold)) return false;
 
-    if (effectiveCharge.empty()) return;  // protect min_element
+    if (effectiveCharge.empty()) return false;  // protect min_element
     double startTime = m_lowerTimeWindow;
     double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
     if (startTime < minElectronTime) startTime = minElectronTime;  // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
@@ -103,13 +104,14 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge,
     
     }
 
-    if (tmpTimeAtThreshold == -9999) return;
+    if (tmpTimeAtThreshold == -9999) return false;
 
     double t_peak = findPeak(effectiveCharge, electronsTime, electronicsThreshold);
-    if (t_peak == -9999) return;
+    if (t_peak == -9999) return false;
 
     timeAtThreshold = tmpTimeAtThreshold;
     amplitudeAtFirstPeak = vmmResponse(effectiveCharge, electronsTime, t_peak);
+    return true;
 }
 
 

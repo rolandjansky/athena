@@ -18,11 +18,11 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
 
     # Common augmentations
     from DerivationFrameworkPhys.PhysCommonConfig import PhysCommonAugmentationsCfg
-    acc.merge(PhysCommonAugmentationsCfg(ConfigFlags))
+    acc.merge(PhysCommonAugmentationsCfg(ConfigFlags, TriggerListsHelper = kwargs['TriggerListsHelper']))
 
     # Thinning tools...
     from DerivationFrameworkInDet.InDetToolsConfig import TrackParticleThinningCfg, MuonTrackParticleThinningCfg, TauTrackParticleThinningCfg, DiTauTrackParticleThinningCfg 
-    #from DerivationFrameworkTools.DerivationFrameworkToolsConfig import GenericObjectThinningCfg
+    from DerivationFrameworkTools.DerivationFrameworkToolsConfig import GenericObjectThinningCfg
 
     # Inner detector group recommendations for indet tracks in analysis
     # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
@@ -61,25 +61,27 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
         InDetTrackParticlesKey  = "InDetTrackParticles"))
 
     ## Low-pt di-tau thinning
-    #PHYSDiTauLowPtThinningTool = acc.getPrimaryAndMerge(GenericObjectThinningCfg(name            = "PHYSDiTauLowPtThinningTool",
-    #                                                                             StreamName      = kwargs['StreamName'],
-    #                                                                             ContainerName   = "DiTauJetsLowPt",
-    #                                                                             SelectionString = "DiTauJetsLowPt.nSubjets > 1"))
-    #
-    ## ID tracks associated with low-pt ditau
-    #PHYSDiTauLowPtTPThinningTool = acc.getPrimaryAndMerge(DiTauTrackParticleThinningCfg(name                    = "PHYSDiTauLowPtTPThinningTool",
-    #                                                                                    StreamName              = kwargs['StreamName'],
-    #                                                                                    DiTauKey                = "DiTauJetsLowPt",
-    #                                                                                    InDetTrackParticlesKey  = "InDetTrackParticles",
-    #                                                                                    SelectionString         = "DiTauJetsLowPt.nSubjets > 1"))
+    PHYSDiTauLowPtThinningTool = acc.getPrimaryAndMerge(GenericObjectThinningCfg(ConfigFlags,
+                                                                                 name            = "PHYSDiTauLowPtThinningTool",
+                                                                                 StreamName      = kwargs['StreamName'],
+                                                                                 ContainerName   = "DiTauJetsLowPt",
+                                                                                 SelectionString = "DiTauJetsLowPt.nSubjets > 1"))
+    
+    # ID tracks associated with low-pt ditau
+    PHYSDiTauLowPtTPThinningTool = acc.getPrimaryAndMerge(DiTauTrackParticleThinningCfg(ConfigFlags,
+                                                                                        name                    = "PHYSDiTauLowPtTPThinningTool",
+                                                                                        StreamName              = kwargs['StreamName'],
+                                                                                        DiTauKey                = "DiTauJetsLowPt",
+                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                        SelectionString         = "DiTauJetsLowPt.nSubjets > 1"))
 
     # Finally the kernel itself
     thinningTools = [PHYSTrackParticleThinningTool,
                      PHYSMuonTPThinningTool,
                      PHYSTauTPThinningTool,
-                     PHYSDiTauTPThinningTool]
-                     #PHYSDiTauLowPtThinningTool,
-                     #PHYSDiTauLowPtTPThinningTool ]
+                     PHYSDiTauTPThinningTool,
+                     PHYSDiTauLowPtThinningTool,
+                     PHYSDiTauLowPtTPThinningTool ]
     DerivationKernel = CompFactory.DerivationFramework.DerivationKernel
     acc.addEventAlgo(DerivationKernel(name, ThinningTools = thinningTools))       
     return acc
@@ -88,8 +90,17 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
 def PHYSCfg(ConfigFlags):
 
     acc = ComponentAccumulator()
-    acc.merge(PHYSKernelCfg(ConfigFlags, name="PHYSKernel", StreamName = 'StreamDAOD_PHYS'))
-  
+
+    # Get the lists of triggers needed for trigger matching.
+    # This is needed at this scope (for the slimming) and further down in the config chain
+    # for actually configuring the matching, so we create it here and pass it down
+    # TODO: this should ideally be called higher up to avoid it being run multiple times in a train
+    from DerivationFrameworkPhys.TriggerListsHelper import TriggerListsHelper
+    PHYSTriggerListsHelper = TriggerListsHelper()
+
+    # Common augmentations
+    acc.merge(PHYSKernelCfg(ConfigFlags, name="PHYSKernel", StreamName = 'StreamDAOD_PHYS', TriggerListsHelper = PHYSTriggerListsHelper))
+
     # ============================
     # Define contents of the format
     # =============================
@@ -127,18 +138,6 @@ def PHYSCfg(ConfigFlags):
     
     PHYSSlimmingHelper.StaticContent = StaticContent
     
-    # Trigger content
-    PHYSSlimmingHelper.IncludeTriggerNavigation = False
-    PHYSSlimmingHelper.IncludeJetTriggerContent = False
-    PHYSSlimmingHelper.IncludeMuonTriggerContent = False
-    PHYSSlimmingHelper.IncludeEGammaTriggerContent = False
-    PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = False
-    PHYSSlimmingHelper.IncludeTauTriggerContent = False
-    PHYSSlimmingHelper.IncludeEtMissTriggerContent = False
-    PHYSSlimmingHelper.IncludeBJetTriggerContent = False
-    PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
-    PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
-
     # Truth containers
     if ConfigFlags.Input.isMC:
         PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
@@ -179,20 +178,46 @@ def PHYSCfg(ConfigFlags):
                                               "TauJets.dRmax.etOverPtLeadTrk",
                                               "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET.ex.ey",
                                               "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
-    
+
+    # Trigger content
+    PHYSSlimmingHelper.IncludeTriggerNavigation = False
+    PHYSSlimmingHelper.IncludeJetTriggerContent = False
+    PHYSSlimmingHelper.IncludeMuonTriggerContent = False
+    PHYSSlimmingHelper.IncludeEGammaTriggerContent = False
+    PHYSSlimmingHelper.IncludeJetTauEtMissTriggerContent = False
+    PHYSSlimmingHelper.IncludeTauTriggerContent = False
+    PHYSSlimmingHelper.IncludeEtMissTriggerContent = False
+    PHYSSlimmingHelper.IncludeBJetTriggerContent = False
+    PHYSSlimmingHelper.IncludeBPhysTriggerContent = False
+    PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
+
+    # Trigger matching
+    # Run 2
+    if ConfigFlags.Trigger.EDMVersion == 2:
+        from DerivationFrameworkPhys.TriggerMatchingCommonConfig import AddRun2TriggerMatchingToSlimmingHelper
+        AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSSlimmingHelper, 
+                                         OutputContainerPrefix = "PhysCommonTau", 
+                                         TriggerList = PHYSTriggerListsHelper.Run2TriggerNamesTau)
+        AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSSlimmingHelper, 
+                                         OutputContainerPrefix = "PhysCommonNoTau",
+                                         TriggerList = PHYSTriggerListsHelper.Run2TriggerNamesNoTau)
+    # Run 3
+    if ConfigFlags.Trigger.EDMVersion == 3:
+        from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import AddRun3TrigNavSlimmingCollectionsToSlimmingHelper
+        AddRun3TrigNavSlimmingCollectionsToSlimmingHelper(PHYSSlimmingHelper)        
+        # Run 2 is added here temporarily to allow testing/comparison/debugging
+        from DerivationFrameworkPhys.TriggerMatchingCommonConfig import AddRun2TriggerMatchingToSlimmingHelper
+        AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSSlimmingHelper, 
+                                         OutputContainerPrefix = "PhysCommonTau", 
+                                         TriggerList = PHYSTriggerListsHelper.Run3TriggerNamesTau)
+        AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSSlimmingHelper, 
+                                         OutputContainerPrefix = "PhysCommonNoTau",
+                                         TriggerList = PHYSTriggerListsHelper.Run3TriggerNamesNoTau)
+
+
     # Output stream    
     PHYSItemList = PHYSSlimmingHelper.GetItemList()
     acc.merge(OutputStreamCfg(ConfigFlags, "DAOD_PHYS", ItemList=PHYSItemList, AcceptAlgs=["PHYSKernel"]))
 
     return acc
-
-
-# Add trigger matching
-# Run 2
-#PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
-#PhysCommonTrigger.trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
-# Run 3
-#from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import AddRun3TrigNavSlimmingCollectionsToEDM
-#AddRun3TrigNavSlimmingCollectionsToEDM(PHYSStream)
-
 

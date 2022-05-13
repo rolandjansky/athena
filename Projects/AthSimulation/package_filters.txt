@@ -339,6 +339,7 @@
 + Simulation/ISF/ISF_SimulationSelectors
 + Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces
 + Simulation/Interfaces/HepMC_Interfaces
++ Simulation/RunDependentSim/RunDependentSimData
 + Simulation/RunDependentSim/RunDependentSimComps
 + Simulation/SimuJobTransforms
 + Simulation/SimulationJobOptions

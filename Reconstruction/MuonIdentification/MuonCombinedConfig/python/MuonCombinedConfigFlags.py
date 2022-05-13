@@ -17,6 +17,7 @@ def createMuonCombinedConfigFlags():
     mcf.addFlag("MuonCombined.doCaloTrkMuId",True) 
     # Switch on/off algorithms that make Muons for the MuGirlLowBetaMuonCollection         
     mcf.addFlag("MuonCombined.doMuGirlLowBeta",lambda prevFlags : prevFlags.doMuGirl is True )
+    mcf.addFlag("MuonCombined.writeUnAssocSegments", True)
 
     return mcf
     

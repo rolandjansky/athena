@@ -40,8 +40,8 @@ class opt:
     endJobAfterGenerate = False       # Finish job after menu generation
     strictDependencies = True         # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
-    enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
-    enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
+    enableL1MuonPhase1   = None       # option to overwrite flags.Trigger.enableL1MuonPhase1
+    enableL1CaloPhase1   = False      # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
@@ -179,6 +179,9 @@ ConfigFlags.Trigger.EDMVersion = 3
 # Some legacy b-tagging configuration is trigger specific
 ConfigFlags.BTagging.databaseScheme = 'Trig'
 ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
+# track association for trigger b-tagging might be inconsistent with
+# offline, override the default for now
+ConfigFlags.BTagging.minimumJetPtForTrackAssociation = 5e3
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
@@ -226,17 +229,13 @@ if 'enableL1CaloPhase1' not in globals():
                  'are%s available in the input file',
                  opt.enableL1CaloPhase1, ConfigFlags.Input.Format, ('' if scell_available else ' not'))
 
-# Set default enableL1MuonPhase1 option to True if running L1Sim (ATR-23973)
-if 'enableL1MuonPhase1' not in globals():
-    opt.enableL1MuonPhase1 = opt.doL1Sim
-    log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
-
 if ConfigFlags.Input.Format is Format.BS or opt.doL1Sim:
     ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
 
 # Translate a few other flags
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
-ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
+if opt.enableL1MuonPhase1 is not None:
+    ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValBTag.cxx
@@ -102,9 +102,9 @@ namespace JetTagDQA {
     m_antiKt4EMPFlowJetsPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
     m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots.setIsDataJVTCutsAndTMPCut(m_isData, m_JVTCutAntiKt4EMTopoJets, m_JVTCutLargerEtaAntiKt4EMTopoJets, m_JVTCutAntiKt4EMPFlowJets, m_truthMatchProbabilityCut);
 
-    m_btagplots.insert(std::make_pair(m_jetName1, m_antiKt4EMTopoPlots));
-    m_btagplots.insert(std::make_pair(m_jetName2, m_antiKt4EMPFlowJetsPlots));
-    m_btagplots.insert(std::make_pair(m_jetName3, m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots));
+    m_btagplots.insert(std::make_pair(m_jetName1, &m_antiKt4EMTopoPlots));
+    m_btagplots.insert(std::make_pair(m_jetName2, &m_antiKt4EMPFlowJetsPlots));
+    m_btagplots.insert(std::make_pair(m_jetName3, &m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots));
    
     return StatusCode::SUCCESS;
   }
@@ -127,8 +127,8 @@ namespace JetTagDQA {
 
     if (m_detailLevel < 10) return StatusCode::SUCCESS;
 
-    for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
-      ATH_CHECK(book(plot_i->second));
+    for(const auto& [name, plot] : m_btagplots ){
+      ATH_CHECK(book(*plot));
     }
       
     return StatusCode::SUCCESS;
@@ -208,11 +208,11 @@ namespace JetTagDQA {
     ATH_CHECK(evtStore()->retrieve(tracks, m_trackName));
 
     // loop over the jet collections
-    for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
+    for(const auto& [name, plot] : m_btagplots){
       
       // get the jets
       const xAOD::JetContainer* jets(0);
-      StatusCode jetException = evtStore()->retrieve(jets, plot_i->first);
+      StatusCode jetException = evtStore()->retrieve(jets, name);
       // If StatusCode is not SUCCESS, no jet collection with this name, continue loop
       if (jetException != StatusCode::SUCCESS) continue;
 
@@ -220,7 +220,7 @@ namespace JetTagDQA {
       int nJets_containing_moun = 0; 
       int nJets_containing_SV = 0; 
       std::map<std::string, int> nJetsThatPassedWPCuts;
-      (plot_i->second).initializeNJetsThatPassedWPCutsMap(nJetsThatPassedWPCuts);
+      plot->initializeNJetsThatPassedWPCutsMap(nJetsThatPassedWPCuts);
 
       // check if the muon info is available on the first jet (since isAvailable gives the same result on all jets)
       bool muon_info_available = false;
@@ -238,8 +238,8 @@ namespace JetTagDQA {
         if(jet->pt() <= m_jetPtCut) continue;
         if(std::abs(jet->eta()) >= 2.5) continue;
         //Arnaud: JVT cut to remove horns in jet eta 
-        if (((plot_i->second).m_JVT_defined) &&  (jet->getAttribute<float>("Jvt")) < ((plot_i->second).m_JVT_cut) && jet->pt() > 20e3 && jet->pt() < 60e3 && (std::abs(jet->eta()) < 2.4) ) continue;
-        if (((plot_i->second).m_JVTLargerEta_defined) &&  (jet->getAttribute<float>("Jvt")) < ((plot_i->second).m_JVTLargerEta_cut) && jet->pt() > 20e3 && jet->pt() < 60e3 && (std::abs(jet->eta()) > 2.4) && (std::abs(jet->eta()) < 2.5) ) continue;
+        if ((plot->m_JVT_defined) &&  (jet->getAttribute<float>("Jvt")) < (plot->m_JVT_cut) && jet->pt() > 20e3 && jet->pt() < 60e3 && (std::abs(jet->eta()) < 2.4) ) continue;
+        if ((plot->m_JVTLargerEta_defined) &&  (jet->getAttribute<float>("Jvt")) < (plot->m_JVTLargerEta_cut) && jet->pt() > 20e3 && jet->pt() < 60e3 && (std::abs(jet->eta()) > 2.4) && (std::abs(jet->eta()) < 2.5) ) continue;
 
         // get the btagging
         const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
@@ -255,7 +255,7 @@ namespace JetTagDQA {
         }
 
         // fill the jet related histograms
-        (plot_i->second).fillJetKinVars(jet, truth_label, m_onZprime, event);
+        plot->fillJetKinVars(jet, truth_label, m_onZprime, event);
 
         // fill the jet, btag & vertex related plots
         if (btag){
@@ -267,7 +267,7 @@ namespace JetTagDQA {
           // fill other variables
           bool contains_muon;
           double jet_Lxy = -1;
-          (plot_i->second).fillOther(jet, btag, contains_muon, jet_Lxy, truth_label, event);
+          plot->fillOther(jet, btag, contains_muon, jet_Lxy, truth_label, event);
           if(contains_muon) nJets_containing_moun++;
 
           // get the track to truth associations
@@ -275,13 +275,13 @@ namespace JetTagDQA {
 
           // fill track related variables
           int num_HF_tracks_in_jet;
-          (plot_i->second).fillTrackVariables(jet, btag, myVertex, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, event);
+          plot->fillTrackVariables(jet, btag, myVertex, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, event);
           // fill SV related vars
           bool contains_SV;
-          (plot_i->second).fillSVVariables(btag, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, contains_SV, event);
+          plot->fillSVVariables(btag, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, contains_SV, event);
           if(contains_SV) nJets_containing_SV++;
           // fill discriminant related vars
-          (plot_i->second).fillDiscriminantVariables(btag, jet, jet_Lxy, truth_label, contains_muon, m_onZprime, nJetsThatPassedWPCuts, event);
+          plot->fillDiscriminantVariables(btag, jet, jet_Lxy, truth_label, contains_muon, m_onZprime, nJetsThatPassedWPCuts, event);
         }
         else{
           ATH_MSG_WARNING("btag (obtained by xAOD::BTaggingUtilities::getBTagging(*jet)) is a null pointer.");
@@ -289,9 +289,9 @@ namespace JetTagDQA {
       }
 
       // fill multiplicities
-      (plot_i->second).fillMultiplicities(nJets_withCut, tracks->size(), npv, myVertex->nTrackParticles(), nJets_containing_moun, nJets_containing_SV, nJetsThatPassedWPCuts, event);
+      plot->fillMultiplicities(nJets_withCut, tracks->size(), npv, myVertex->nTrackParticles(), nJets_containing_moun, nJets_containing_SV, nJetsThatPassedWPCuts, event);
       // fill PV variables
-      (plot_i->second).fillPVVariables(m_PV_x, m_PV_y, m_PV_z, event);
+      plot->fillPVVariables(m_PV_x, m_PV_y, m_PV_z, event);
 
     }
 
@@ -302,8 +302,8 @@ namespace JetTagDQA {
   {
     ATH_MSG_INFO ("Finalising hists " << name() << "...");
 
-    for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
-      (plot_i->second).finalize();
+    for(const auto& [name, plot] : m_btagplots ){
+      plot->finalize();
 
     }
     return StatusCode::SUCCESS;

@@ -52,15 +52,21 @@ private:
 
   TH1F*    hnvtx = 0;
   TH1F*    hzed = 0;
+  TH1F*    hx = 0;
+  TH1F*    hy = 0;
   TH1F*    hntrax = 0;
   TH1F*    hmu = 0;
   TH1F*    hlb = 0;
 
   TH1F*    hnvtx_rec = 0;
   TH1F*    hzed_rec = 0;
+  TH1F*    hx_rec   = 0;
+  TH1F*    hy_rec   = 0;
   TH1F*    hntrax_rec = 0;
 
   TH1F*    hzed_res = 0;
+  TH1F*    hx_res = 0;
+  TH1F*    hy_res = 0;
 
   Resplot* rdz_vs_zed = 0;
   Resplot* rdz_vs_ntrax = 0;
@@ -70,6 +76,8 @@ private:
   Resplot* rnvtxrec_nvtx = 0;
 
   Efficiency* eff_zed = 0;
+  Efficiency* eff_x = 0;
+  Efficiency* eff_y = 0;
   Efficiency* eff_ntrax = 0;
   Efficiency* eff_nvtx = 0;
   Efficiency* eff_mu = 0;

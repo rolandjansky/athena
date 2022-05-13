@@ -65,6 +65,32 @@ namespace TrigConf {
          InputType   m_inputType;
       };
 
+     class CTPInCounter {
+      public:
+         CTPInCounter(const std::string& name, size_t slot, size_t cable, size_t number) :
+            m_name(name), m_slot(slot), m_cable(cable), m_number(number) {}
+         std::string name() const { return m_name; }
+         size_t      slot() const { return m_slot; }
+         size_t      cable() const { return m_cable; }
+         size_t      number() const { return m_number; }
+      private:
+         std::string m_name;
+         size_t      m_slot;
+         size_t      m_cable;
+         size_t      m_number;
+      };
+
+     class CTPMonCounter {
+      public:
+         CTPMonCounter(const std::string& name, size_t number) :
+            m_name(name), m_number(number) {}
+         std::string name() const { return m_name; }
+         size_t      number() const { return m_number; }
+      private:
+         std::string m_name;
+         size_t      m_number;
+      };
+
       /** Constructor */
       L1CTPFiles();
 
@@ -104,8 +130,8 @@ namespace TrigConf {
       const std::vector<uint32_t> & muctpi_Nbits() const;
 
       const std::vector<TrigConf::L1CTPFiles::CTPCoreInput> & tmc_CtpcoreInputs() const;
-      const std::map<std::string, size_t> & tmc_CtpinCounters() const;
-      const std::map<std::string, size_t> & tmc_CtpmonCounters() const;
+      const std::vector<TrigConf::L1CTPFiles::CTPInCounter> & tmc_CtpinCounters() const;
+      const std::vector<TrigConf::L1CTPFiles::CTPMonCounter> & tmc_CtpmonCounters() const;
 
       /**
        * Setters of the various CTP data
@@ -144,8 +170,8 @@ namespace TrigConf {
       void set_Muctpi_Nbits(std::vector<uint32_t> data);
 
       void set_Tmc_CtpcoreInputs(std::vector<TrigConf::L1CTPFiles::CTPCoreInput> data);
-      void set_Tmc_CtpinCounters(std::map<std::string, size_t> data);
-      void set_Tmc_CtpmonCounters(std::map<std::string, size_t> data);
+      void set_Tmc_CtpinCounters(std::vector<TrigConf::L1CTPFiles::CTPInCounter> data);
+      void set_Tmc_CtpmonCounters(std::vector<TrigConf::L1CTPFiles::CTPMonCounter> data);
 
       void set_Tmc_Data(DataStructure data);
 
@@ -200,8 +226,8 @@ namespace TrigConf {
        * L1 TMC output informaion
        */
       std::vector<TrigConf::L1CTPFiles::CTPCoreInput> m_Tmc_CtpcoreInputs;
-      std::map<std::string, size_t> m_Tmc_CtpinCounters;
-      std::map<std::string, size_t> m_Tmc_CtpmonCounters;
+      std::vector<TrigConf::L1CTPFiles::CTPInCounter> m_Tmc_CtpinCounters;
+      std::vector<TrigConf::L1CTPFiles::CTPMonCounter> m_Tmc_CtpmonCounters;
       DataStructure m_Tmc;
 
    };

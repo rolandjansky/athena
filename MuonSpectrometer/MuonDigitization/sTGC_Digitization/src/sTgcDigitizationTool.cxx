@@ -709,7 +709,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float vmmStartTime = (*(merged_pad_digits.begin())).time();
 
       std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_pad_digits), vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
-      theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+      theVMM->setLevel(static_cast<MSG::Level>(msgLevel()));
       theVMM->initialReport();
 
       bool vmmControl = true;
@@ -809,7 +809,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       vmmArray[it_DETEL->first][it_REID->first].first = true;
       std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(std::move(merged_strip_digits), (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
       vmmArray[it_DETEL->first][it_REID->first].second = std::move(vMMSimPtr);
-      vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+      vmmArray[it_DETEL->first][it_REID->first].second->setLevel(static_cast<MSG::Level>(msgLevel()));
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
     }
   }
@@ -952,7 +952,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
       std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_wire_digits), vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
-      theVMM->setMessageLevel(msgLevel());
+      theVMM->setLevel(msgLevel());
       theVMM->initialReport();
 
       bool vmmControl = true;
@@ -1014,6 +1014,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       */
       chargeAfterSmearing = 1000*chargeAfterSmearing;
       chargeAfterSmearing = chargeAfterSmearing*1.0304;
+      
+      if (chargeAfterSmearing < 1.0) continue;
     }
 
     std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
@@ -1067,13 +1069,11 @@ void sTgcDigitizationTool::readDeadtimeConfig()
     ifs.open(fileWithPath, std::ios::in);
   }
   else {
-    ATH_MSG_FATAL("readDeadtimeConfig(): Could not find file " << fileName );
-    exit(-1);
+    throw std::runtime_error("readDeadtimeConfig(): Could not find file " + fileName );
   }
 
   if(ifs.bad()){
-    ATH_MSG_FATAL("readDeadtimeConfig(): Could not open file "<< fileName );
-    exit(-1);
+    throw std::runtime_error("readDeadtimeConfig(): Could not open file " + fileName );
   }
 
   std::string var;

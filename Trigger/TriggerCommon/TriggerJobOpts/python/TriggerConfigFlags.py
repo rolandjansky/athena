@@ -23,7 +23,7 @@ def createTriggerFlags():
     flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
 
     # Enable Run-3 LVL1 muon decoding
-    flags.addFlag('Trigger.enableL1MuonPhase1', False)
+    flags.addFlag('Trigger.enableL1MuonPhase1', lambda prevFlags: prevFlags.Trigger.EDMVersion >= 3 or prevFlags.Detector.EnableMM or prevFlags.Detector.EnablesTGC)
 
     # Enable Run-3 LVL1 calo simulation and/or decoding
     flags.addFlag('Trigger.enableL1CaloPhase1', False)
@@ -116,10 +116,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
     flags.addFlag('Trigger.doEDMVersionConversion', False)
 
-    # Unpack trigger bytestream
-    flags.addFlag('Trigger.readBS', False)
-
-    # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework). 
+    # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework).
     flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
 
     # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
@@ -226,16 +223,8 @@ def createTriggerFlags():
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
-    # Particle ID tune
-    flags.addFlag('Trigger.egamma.pidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
-    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20220103/')
-    flags.addFlag('Trigger.egamma.ringerVersion', 'RingerSelectorTools/TrigL2_20210702_r4/')
-
-    # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
-    flags.addFlag('Trigger.egamma.clusterCorrectionVersion', 'v12phiflip_noecorrnogap')
-
-    # tune of MVA
-    flags.addFlag('Trigger.egamma.calibMVAVersion', 'egammaMVACalib/online/v6')
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaConfigFlags import createTrigEgammaConfigFlags
+    flags.addFlagsCategory('Trigger.egamma', createTrigEgammaConfigFlags)
 
     # muon offline reco flags varaint for trigger
     def __muonSA():
@@ -292,8 +281,18 @@ def createTriggerFlags():
     # ATR-24619 - to be removed after validation
     flags.addFlag("Trigger.usexAODFlowElements", False)
 
+    # enable fast b-tagging for all fully calibrated HLT PFlow jets
+    flags.addFlag("Trigger.Jet.fastbtagPFlow", True)
+
     # enables or disables the addition of VR track jet reconstruction sequence
     flags.addFlag("Trigger.Jet.doVRJets", False)
+
+    def __httFlags():
+        """Additional function delays import"""
+        from TrigHTTConfTools.HTTConfigFlags import createHTTConfigFlags
+        return createHTTConfigFlags()
+    flags.addFlagsCategory("Trigger.HTT", __httFlags, prefix=True )
+
 
     return flags
 
@@ -305,15 +304,15 @@ if __name__ == "__main__":
         def test_recoFlags(self):
             """Check if offline reco flags can be added to trigger"""
             from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-            flags.Trigger.Offline.Muon.doMDTs=False
-            flags.Muon.doMDTs=True
-            self.assertEqual(flags.Trigger.Offline.Muon.doMDTs, False, " dependent flag setting does not work")
-            self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+            flags.Trigger.Offline.Tau.doTauRec=False
+            flags.Tau.doTauRec=True
+            self.assertEqual(flags.Trigger.Offline.Tau.doTauRec, False, " dependent flag setting does not work")
+            self.assertEqual(flags.Tau.doTauRec, True, " dependent flag setting does not work")
 
-            newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+            newflags = flags.cloneAndReplace('Tau', 'Trigger.Offline.Tau')
 
-            self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
-            self.assertEqual(newflags.Muon.doMDTs, False, " dependent flag setting does not work")
+            self.assertEqual(flags.Tau.doTauRec, True, " dependent flag setting does not work")
+            self.assertEqual(newflags.Tau.doTauRec, False, " dependent flag setting does not work")
             newflags.dump()
 
     unittest.main()

@@ -13,18 +13,14 @@ namespace TCS {
    class jXETOB : public BaseTOB {
    public:
       
-      static unsigned int nBitsEx() { return g_nBitsEx; }
-      static unsigned int nBitsEy() { return g_nBitsEy; }
-      static unsigned int nBitsEt() { return g_nBitsEt; }
-
-
       // default constructor
       jXETOB();
 
-      // constructor with individual values
-      jXETOB(int ex, int ey, unsigned int et);
-
       // constructor with initial values
+      // input TOB type can be jXE, jXEC, jXEPERF
+      jXETOB(int ex, int ey, unsigned int et, inputTOBType_t tobType = NONE);
+
+      // copy constructor
       jXETOB(const jXETOB & jxe);
 
       // destructor
@@ -50,8 +46,6 @@ namespace TCS {
       void setEyDouble(double ey) { m_EyDouble = ey; }
       void setEtDouble(double et) { m_EtDouble = et; }
       
-      inputTOBType_t tobType() const { return JXE; }    
-
       // memory management
       static jXETOB* createOnHeap(const jXETOB& jxe);
       static void clearHeap();
@@ -59,11 +53,13 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
+      void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
+
+      inputTOBType_t tobType() const { return m_tobType; }
+
+
    private:
-      static const unsigned int g_nBitsEx;
-      static const unsigned int g_nBitsEy;
-      static const unsigned int g_nBitsEt;
-      
+
       int m_Ex {0};
       int m_Ey {0};
       unsigned int m_Et {0};
@@ -72,6 +68,8 @@ namespace TCS {
       double m_ExDouble {0};
       double m_EyDouble {0};
       double m_EtDouble {0};
+
+      inputTOBType_t  m_tobType { NONE };
 
       static thread_local Heap<TCS::jXETOB> fg_heap;
    };

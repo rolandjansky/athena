@@ -54,7 +54,7 @@ namespace G4UA
   {
     if(eventSteps.size()<49000){
 
-      stepdata theInfo;
+      stepdata theInfo{};
 
       theInfo.dep=aStep->GetTotalEnergyDeposit();
       theInfo.time=aStep->GetPreStepPoint()->GetGlobalTime();

@@ -310,7 +310,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
     # tools so create them once and pass them into the builders ...  
     trackSummaryTool = None
     extrapolator     = TrackingCommon.getInDetExtrapolator()
-    doVtx3DFinding   = True # TODO!!!! InDetFlags.doPrimaryVertex3DFinding()
+    doVtx3DFinding   = False # TODO!!!! InDetFlags.doPrimaryVertex3DFinding()
 
     # get the selection cuts use to select the actual tracks in the tool ...
     from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
@@ -351,7 +351,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
                                                                     VertexFitterTool  = vertexFitterTool,
                                                                     TrackSelector     = trackSelectorTool,
                                                                     useBeamConstraint = True,
-                                                                    m_useSeedConstraint = False,  # default parameter is True sop use ACTS default value
+                                                                    useSeedConstraint = False,  # default parameter is True sop use ACTS default value
                                                                     TracksMaxZinterval  = tracksMaxZinterval,
                                                                     addSingleTrackVertices = singleTrackVertices,
                                                                     selectiontype     = 0, # what is this? - ACTS equivalent ? 
@@ -391,7 +391,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
                                                                   useBeamConstraint  = True,
                                                                   useSeedConstraint  = False, # use explicit ACTS default parameter
                                                                   tracksMaxZinterval = tracksMaxZinterval,
-                                                                  do3dSplitting      = doVtx3DFinding,
+                                                                  do3dSplitting      = False, # disable for ACTS (not doVtx3DFinding)
                                                                   addSingleTrackVertices = singleTrackVertices,
                                                                   TrackingGeometryTool = actsTrackingGeometryTool,
                                                                   ExtrapolationTool  = actsExtrapolationTool )

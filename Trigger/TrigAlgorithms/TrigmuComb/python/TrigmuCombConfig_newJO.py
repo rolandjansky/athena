@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #  This file configs the muComb reco alg with the newJO
 
@@ -18,7 +18,7 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
     chi2Weight  = 2.0
         
     # pt resolution parameters for ID-SAmuon match from SAmuon developers (2016 data)
-    if flags.Muon.doCSCs:
+    if flags.Detector.EnableCSC:
         idScanBarrelRes  = [0.02169,0.0004186]
         idScanEndcap1Res = [0.03054,0.000325]
         idScanEndcap2Res = [0.03557,0.0005383]

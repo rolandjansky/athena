@@ -5,7 +5,6 @@
 #include "TrigL1JFexSRJetMonitorAlgorithm.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 
-
 TrigL1JFexSRJetMonitorAlgorithm::TrigL1JFexSRJetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
 {
@@ -61,6 +60,10 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hltptrefKey.initialize());
     ATH_CHECK( m_hltetarefKey.initialize());
 
+
+    ATH_MSG_INFO("Match hists " <<   m_l1jetContainerkey.key()  << " hlt: " << m_matchedHLTJetContainer
+		 << " offline: " << m_matchedOfflineJetContainer);
+
   } else {
     // declare the keys unused if no matching is configured
 
@@ -85,6 +88,8 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hltmassrespKey.initialize(false));
     ATH_CHECK( m_hltptrefKey.initialize(false));
     ATH_CHECK( m_hltetarefKey.initialize(false));
+
+    ATH_MSG_INFO("No Match hists ");
 
   }
     
@@ -140,7 +145,8 @@ void TrigL1JFexSRJetMonitorAlgorithm::fillMatchedHistograms(const xAOD::jFexSRJe
   for(const xAOD::jFexSRJetRoI* jet : jets){
     bool offmatched = offmatchedHandle(*jet);
     bool hltmatched = hltmatchedHandle(*jet);
-    if(offmatched){
+    if(offmatched){ 
+
       offdPt = offptdiffHandle(*jet);
       offdEnergy = offenergydiffHandle(*jet);
       offdMass = offmassdiffHandle(*jet);

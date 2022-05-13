@@ -9,6 +9,9 @@ from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
 
 log = logging.getLogger('skeleton.RDOtoRDOtrigger')
 
@@ -55,6 +58,9 @@ athenaCommonFlags.SkipEvents = skipEvents
 setGlobalTag = getFromRunArgs("conditionsTag", False)
 setDetDescr = getFromRunArgs("geometryVersion", False)
 
+# PerfMon setup (ATR-25439)
+setPerfmonFlagsFromRunArgs(ConfigFlags, ra)
+
 ##################################################
 # Parse preExec / preInclude
 ##################################################
@@ -75,6 +81,18 @@ if preInclude:
 # Include the main job options
 ##################################################
 include("TriggerJobOpts/runHLT_standalone.py")
+
+##################################################
+# Include PerfMon configuration (ATR-25439)
+##################################################
+# Translate old concurrency flags to new for PerfMon
+# - do that only here as runHLT_standalone must be independent of these flags
+flagsForPerfMon = ConfigFlags.clone()
+flagsForPerfMon.Concurrency.NumProcs = cfjp.ConcurrencyFlags.NumProcs()
+flagsForPerfMon.Concurrency.NumThreads = cfjp.ConcurrencyFlags.NumThreads()
+flagsForPerfMon.Concurrency.NumConcurrentEvents = cfjp.ConcurrencyFlags.NumConcurrentEvents()
+flagsForPerfMon.lock()
+CAtoGlobalWrapper(PerfMonMTSvcCfg, flagsForPerfMon)
 
 ##################################################
 # Parse postExec / postInclude

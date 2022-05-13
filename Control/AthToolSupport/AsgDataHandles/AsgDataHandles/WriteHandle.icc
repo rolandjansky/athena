@@ -35,19 +35,16 @@ namespace SG {
 // }
 
 
-// /**
-//  * @brief Constructor with full arguments.
-//  * @param sgkey StoreGate key of the referenced object.
-//  * @param storename Name of the referenced event store.
-//  */
-// template <class T>
-// inline
-// WriteHandle<T>::WriteHandle (const std::string& sgkey,
-//                              const std::string& storename /* ="StoreGateSvc"*/)
-//   : VarHandleBase (ClassID_traits<T>::ID(), sgkey,
-//                    Gaudi::DataHandle::Writer, storename)
-// {
-// }
+/**
+ * @brief Constructor with full arguments.
+ * @param sgkey StoreGate key of the referenced object.
+ */
+template <class T>
+inline
+WriteHandle<T>::WriteHandle (const std::string& sgkey)
+  : VarHandleBase (sgkey)
+{
+}
 
 
 /**

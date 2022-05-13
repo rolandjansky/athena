@@ -408,8 +408,8 @@ EGAM10Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM10Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthWZ,AntiKt4PV0Track
-jetList = [AntiKt4Truth,AntiKt4TruthWZ,AntiKt4PV0Track]
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthDressedWZ,AntiKt4PV0Track
+jetList = [AntiKt4Truth,AntiKt4TruthDressedWZ,AntiKt4PV0Track]
 addDAODJets(jetList, EGAM10Sequence)
 
 
@@ -422,7 +422,7 @@ EGAM10SlimmingHelper.SmartCollections = ["Electrons",
                                          "Photons",
                                          "AntiKt4EMPFlowJets",
                                          "InDetTrackParticles",
-                                         "PrimaryVertices",
+                                         "PrimaryVertices"
 ]
 EGAM10SlimmingHelper.IncludeEGammaTriggerContent = True
 

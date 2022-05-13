@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Geo2G4Builder.h"
@@ -149,7 +149,7 @@ G4LogicalVolume* Geo2G4Builder::BuildTree()
       }
 
       // Add the temporary physical volume to the GeoModelExperiment
-      GeoModelExperiment * theExpt;
+      GeoModelExperiment * theExpt = nullptr;
       StatusCode sc = m_pDetStore->retrieve(theExpt,"ATLAS");
       if(sc.isFailure())
         ATH_MSG_WARNING("Unable to retrieve GeoModelExperiment. Temporary volume cannot be released");

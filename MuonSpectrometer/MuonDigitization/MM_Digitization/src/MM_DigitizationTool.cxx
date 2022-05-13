@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,6 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "PathResolver/PathResolver.h"
-#include "AIDA/IHistogram1D.h"
 #include "TrkSurfaces/Surface.h"
 
 //Truth
@@ -220,9 +219,12 @@ StatusCode MM_DigitizationTool::initialize() {
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
 	m_ElectronicsResponseSimulation->setPeakTime(peakTime); // VMM peak time parameter
+  m_timeWindowLowerOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
 	m_timeWindowUpperOffset += peakTime; // account for peak time in time window
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
+  m_ElectronicsResponseSimulation->setVmmDeadtime(m_vmmDeadtime);
+  m_ElectronicsResponseSimulation->setVmmUpperGrazeWindow(m_vmmUpperGrazeWindow);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
 	m_ElectronicsResponseSimulation->setNeighborLogic(m_vmmNeighborLogic);
@@ -484,12 +486,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
 
-  MMSimHitCollection* inputSimHitColl=nullptr;
-  
   IdentifierHash moduleHash=0;
-  
-  inputSimHitColl = new MMSimHitCollection("MicromegasSensitiveDetector");
-  ATH_CHECK( evtStore()->record(inputSimHitColl,"InputMicroMegasHits") );
   
   if( m_maskMultiplet == 3 ) {
     
@@ -529,6 +526,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       m_n_hitPDGId = hit.particleEncoding();
       m_n_hitDepositEnergy = hit.depositEnergy();
       m_n_hitKineticEnergy = hit.kineticEnergy();
+      if (m_n_hitKineticEnergy <= 0) continue;
       
       const Amg::Vector3D& globalHitPosition = hit.globalPosition();
       
@@ -606,18 +604,8 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       
       // For collection of inputs to throw back in SG
      
-      inputSimHitColl->Emplace(hitID,
-		       m_globalHitTime+m_eventTime,
-		       globalHitPosition,
-		       hit.particleEncoding(),
-		       hit.kineticEnergy(),
-		       hit.globalDirection(),
-		       hit.depositEnergy(),
-		       particleLink);
-      
       // remove hits in masked multiplet
       if( m_maskMultiplet == m_idHelperSvc->mmIdHelper().multilayer(layerID) ) continue;
-      
       
       //
       // Hit Information And Preparation
@@ -1001,6 +989,10 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     // Combine all strips (for this VMM) into a single VMM-level object
     //
     MM_ElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
+    if (!m_idHelperSvc->isMM(stripDigitOutputAllHits.digitID())) {
+        ATH_MSG_WARNING("Identifier from stripdigitOutputAllHits "<< stripDigitOutputAllHits.digitID() <<" is not a MM Identifier, skipping");
+        continue;
+    }
     
     
     
@@ -1194,7 +1186,7 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	v_stripThresholdResponseAllHits.clear();
 
 
-	Identifier digitID;
+	Identifier digitID = v_stripDigitOutput[0].digitID();
 	float max_kineticEnergy = 0.0;
 
 	// Loop over strip digit output elements

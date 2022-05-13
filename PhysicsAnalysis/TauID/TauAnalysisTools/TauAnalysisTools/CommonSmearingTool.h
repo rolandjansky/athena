@@ -108,7 +108,7 @@ protected:
 
   asg::AnaToolHandle<ITauToolBase> m_tTauCombinedTES;
 
-  e_TruthMatchedParticleType m_eCheckTruth;
+  TruthMatchedParticleType m_eCheckTruth;
   CP::SystematicSet m_sAffectingSystematics;
   CP::SystematicSet m_sRecommendedSystematics;
   

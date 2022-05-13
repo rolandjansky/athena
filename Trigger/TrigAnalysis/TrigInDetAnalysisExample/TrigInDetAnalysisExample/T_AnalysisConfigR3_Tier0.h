@@ -49,8 +49,6 @@
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "xAODEventInfo/EventInfo.h"
 
 
@@ -113,7 +111,7 @@ public:
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
-			 TagNProbe2*       TnP_tool = 0) :
+			 TagNProbe2*      TnP_tool = 0) :
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
@@ -128,6 +126,8 @@ public:
     m_doTaus(false),
     m_doBjets(false),
     m_hasTruthMap(false),
+    m_pdgID(0),
+    m_parent_pdgID(0),
     m_NRois(0),
     m_NRefTracks(0),
     m_NTestTracks(0),
@@ -198,6 +198,14 @@ public:
 
   void containTracks( bool b ) { m_containTracks = b; }
 
+  void setPdgID( int i=0 ) { m_pdgID=i; }
+
+  void setParentPdgID( int i=0 ) { m_parent_pdgID=i; }
+
+  void setMCTruthRef( bool b ) { m_mcTruth=b; }
+
+  void setOfflineRef( bool b ) { m_doOffline=b; }
+
   void set_monTool( ToolHandle<GenericMonitoringTool>* m ) { m_monTool=m; }
 
   ToolHandle<GenericMonitoringTool>* monTool() { return m_monTool; }
@@ -260,7 +268,7 @@ protected:
 
     Filter_True filter;
     
-    Filter_etaPT     filter_etaPT(5,200);
+    Filter_etaPT    filter_etaPT( 5, 200 );
     Filter_Combined filter_truth( &filter_etaPT,   &filter_etaPT);
     
     /// will need to add a vertex filter at some point probably
@@ -281,14 +289,16 @@ protected:
     Filter_Combined filterRef(   rfilter, &filter );
     Filter_Combined filterTest(  tfilter, &filter );
 
-
-    TrigTrackSelector  selectorTruth( &filter_truth );
+    TrigTrackSelector  selectorTruth( &filter_truth, m_pdgID, m_parent_pdgID );
 
     TrigTrackSelector  selectorRef( &filterRef );
     TrigTrackSelector* pselectorRef = &selectorRef;
 
     TrigTrackSelector  selectorTest( &filterTest );
     TrigTrackSelector* pselectorTest = &selectorTest;
+    
+    /// switch reference selector to truth if requested
+    if ( m_mcTruth ) pselectorRef = &selectorTruth;
 
     /// this isn't working yet - will renable once we have a workaround
     /// if ( xbeam!=0 || ybeam!=0 ) {
@@ -397,9 +407,11 @@ protected:
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
+
+#if 0
     const TrigInDetTrackTruthMap* truthMap = 0;
 
-
+    /// disable the truth match fetching - keep the code in place for when it is needed 
     /// is this truthmap stuff even used ???
     if ( m_mcTruth ) {
       if(m_provider->msg().level() <= MSG::VERBOSE ) m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
@@ -415,7 +427,9 @@ protected:
         m_hasTruthMap = true;
       }
     }
-    
+#else
+    m_hasTruthMap = false;
+#endif    
 
     /// get the offline vertices into our structure
 
@@ -475,9 +489,9 @@ protected:
 
     bool foundTruth = false;
 
-    // FIXME: most of the different truth selection can go 
+    /// FIXME: most of the different truth selection can go  
 
-    if ( !m_doOffline && m_mcTruth ) {
+    if ( m_mcTruth ) {
 
       filter_truth.setRoi( 0 ); // don't filter on RoI yet (or until needed)  
 
@@ -512,7 +526,7 @@ protected:
 	}
     }
       
-    if ( !m_doOffline && m_mcTruth && !foundTruth ) {
+    if ( m_mcTruth && !foundTruth ) {
           
       if ( m_provider->msg().level() <= MSG::VERBOSE ) { 
 	m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
@@ -584,18 +598,26 @@ protected:
 
       while ( evitr!=evend ) {
 
-	int _ip = 0; /// count of particles in this interaction
+	int ipc = 0; /// count of particles in this interaction
 
 	int pid = HepMC::signal_process_id((*evitr));
 
 	//The logic should be clarified here
 	if ( pid!=0 ) { /// hooray! actually found a sensible event
 
-	  for (auto pitr: *(*evitr) ) { 
+	  /// remove auto range loop since that unhelpfully obscures what 
+	  /// is actually being done and given the unfriendly nature of the 
+	  /// HepMC code makes it nigh on impossible to actually work out 
+	  /// which types are actually being used and how
 
-	    selectorTruth.selectTrack( pitr );
+	  HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
+	  HepMC::GenEvent::particle_const_iterator pend((*evitr)->particles_end());
 
-	    ++_ip;
+	  while ( pitr!=pend ) {
+
+	    selectorTruth.selectTrack( *pitr++ );
+
+	    ++ipc;
                 
 	  }
 
@@ -603,11 +625,11 @@ protected:
 	++ie;
 	++evitr;
 
-	if ( _ip>0 ) {
+	if ( ipc>0 ) {
 	  /// if there were some particles in this interaction ...
 	  //      m_provider->msg(MSG::VERBOSE) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
 	  ++ie_ip;
-	  ip += _ip;
+	  ip += ipc;
 	}
       }
 
@@ -627,7 +649,7 @@ protected:
 
     // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
 	
-    if ( m_doOffline ) {
+    if ( m_doOffline && !m_mcTruth) {
 	  
       if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
 	this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, "InDetTrackParticles" );
@@ -779,10 +801,6 @@ protected:
 
 	  std::string roi_key = chainConfig.roi();
 	
-	  //	if ( roi_key=="" ) roi_key = "forID";
-	  //	if ( roi_key=="" ) roi_key = "";
-
-
 	  unsigned feature_type =TrigDefs::lastFeatureOfType;
 
 	  if ( roi_key!="" ) feature_type= TrigDefs::allFeaturesOfType;
@@ -826,9 +844,8 @@ protected:
 
 	    const TrigRoiDescriptor* const* roiptr = roi_link.cptr();
 
-	    if ( roiptr == 0 ) { 
-	      continue;
-	    }  
+	    if ( roiptr == 0 ) continue;
+	    
 
 	    /// for debug ...
 	    //	  std::cout << "\troi: link deref ..." << *roiptr << std::endl;
@@ -951,7 +968,7 @@ protected:
         if ( m_provider->msg().level() <= MSG::VERBOSE )
           m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
-	if ( !m_doOffline && m_mcTruth ) {
+	if ( m_mcTruth ) {
 	  if ( this->filterOnRoi() )  filter_truth.setRoi( &(rois.at(iroi)->roi() ) );
 	  ref_tracks = pselectorRef->tracks(&filter_truth);
 	}
@@ -1010,11 +1027,15 @@ protected:
 	  
 	  if ( m_pTthreshold>0 )         FilterPT( ref_tracks, m_pTthreshold );
 
+	  /// should be included - but leave commented out here to allow
+	  /// study of rois with *no relevant truth particles !!!   
+	  // if ( ref_tracks.size()==0 ) continue;
+
 	  /// stats book keeping 
 	  m_NRois++;
 	  m_NRefTracks  += ref_tracks.size();
 	  m_NTestTracks += test_tracks.size();
-	  
+
 	  /// match test and reference tracks
 	  associator->match( ref_tracks, test_tracks );
 	
@@ -1216,6 +1237,9 @@ protected:
   bool m_tauEtCutOffline;
 
   std::string m_outputFileName;
+
+  int m_pdgID;
+  int m_parent_pdgID;
 
   /// output stats
   int m_NRois;

@@ -151,7 +151,7 @@ except Exception:
 #isolation, EventShape containers for ED correction
 try:
     include("IsolationAlgs/IsoEventShapeOutputItemList_jobOptions.py")
-    fullESDList += CfgItemList( "Isolation", items = IsoAODESList)
+    fullESDList += CfgItemList( "Isolation", items = IsoESDList)
 except Exception:
     treatException("Could not load IsoEventShape item list")   
 

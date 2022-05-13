@@ -166,7 +166,8 @@ namespace MuonCombined {
                           const ToolHandle<Muon::IMuonSegmentMaker>& segmentMaker) const;
 
         /** associate Hough maxima and associate time measurements */
-        bool extractTimeMeasurements(const EventContext& ctx, const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData) const;
+        bool extractTimeMeasurements(const EventContext& ctx, const Muon::MuonSystemExtension& muonSystemExtension,
+                                     AssociatedData& associatedData) const;
 
         /** create candidates from the beta seeds */
         bool createCandidates(const AssociatedData& associatedData, CandidateVec& candidates) const;

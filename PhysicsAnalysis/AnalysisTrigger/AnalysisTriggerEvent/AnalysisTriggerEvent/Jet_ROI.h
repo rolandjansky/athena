@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Jet_ROI.h,v 1.8 2008-05-16 08:34:32 watsona Exp $
 #ifndef ANALYSISTRIGGEREVENT_JET_ROI_H
 #define ANALYSISTRIGGEREVENT_JET_ROI_H
 
@@ -25,8 +24,6 @@
  *          handling it a bit easier in analyses.
  *
  *  @author Tadashi Maeno, Alan Watson, Attila Krasznahorkay
- * @version $Revision: 1.8 $
- *    @date $Date: 2008-05-16 08:34:32 $
  */
 class Jet_ROI : public P4PtEtaPhiMBase,
                 public NavigableTerminalNode,
@@ -100,8 +97,6 @@ private:
    float m_ET4x4; //!< ET sum in a 4x4 cluster
    float m_ET6x6; //!< ET sum in a 6x6 cluster
    float m_ET8x8; //!< ET sum in an 8x8 cluster
-
-   mutable float m_highestThreshold; //!< return value for inherited pt() accessor
 
 }; // class Jet_ROI
 

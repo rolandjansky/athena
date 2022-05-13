@@ -22,7 +22,7 @@ TrigBphysMonitorAlgorithm::~TrigBphysMonitorAlgorithm() {}
 
 StatusCode TrigBphysMonitorAlgorithm::initialize() {
   
-  for(auto MonitoredContainerName : m_ContainerNames) {
+  for(const auto& MonitoredContainerName : m_ContainerNames) {
     SG::ReadHandleKey<xAOD::TrigBphysContainer> BphysContainerKey(MonitoredContainerName);
     ATH_CHECK( BphysContainerKey.initialize() );
     m_TrigBphysContainerKeys.push_back(BphysContainerKey);
@@ -30,6 +30,7 @@ StatusCode TrigBphysMonitorAlgorithm::initialize() {
   
   ATH_CHECK( m_offlineMuonCollectionKey.initialize() );
   ATH_CHECK( m_offlineIDTrackCollectionKey.initialize() );
+  ATH_CHECK( m_offlinePvCollectionKey.initialize() );
   
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
   
@@ -118,6 +119,17 @@ StatusCode TrigBphysMonitorAlgorithm::fillChains(const EventContext& ctx) const 
     }
   }
   
+  for(const auto& monitoredChain : m_ChainNames_ElEl) {
+    ATH_MSG_DEBUG("Process chain " << monitoredChain);
+    if( !getTrigDecisionTool()->isPassed(monitoredChain) ) {
+      ATH_MSG_DEBUG("Chain " << monitoredChain << " is not passed");
+      continue;
+    }
+    if(fillDielectronChainHists(ctx, monitoredChain).isFailure()) {
+      ATH_MSG_ERROR(Form("Problems filling %s chain histograms", monitoredChain.c_str()));
+    }
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -138,7 +150,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillDimuonChainHists(const EventContext& c
     if (fillBphysObjectHists(monGroup, featLink, "dimu").isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling bphys object histograms for %s chain",chainName.c_str()));
     }
-    if (fillMuonHists(monGroup, featLink).isFailure()) {
+    if (fillTrigLeptonHists(monGroup, featLink, "mu").isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling muon histograms for %s chain",chainName.c_str()));
     }
   }
@@ -163,7 +175,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillBmumuxChainHists(const EventContext& c
     if (fillBphysObjectHists(monGroup, featLink, "B").isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling bphys object histograms for %s chain",chainName.c_str()));
     }
-    if (fillTrkHists(monGroup, featLink).isFailure()) {
+    if (fillTrigBmumuxTrkHists(monGroup, featLink).isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling muon histograms for %s chain",chainName.c_str()));
     }
     
@@ -172,11 +184,35 @@ StatusCode TrigBphysMonitorAlgorithm::fillBmumuxChainHists(const EventContext& c
     if (fillBphysObjectHists(monGroup, dimuonLink, "dimu").isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling dimuon object histograms for %s chain",chainName.c_str()));
     }
-    if (fillMuonHists(monGroup, dimuonLink).isFailure()) {
+    if (fillTrigLeptonHists(monGroup, dimuonLink, "mu").isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling muon histograms for %s chain",chainName.c_str()));
     }
   }
   
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigBphysMonitorAlgorithm::fillDielectronChainHists(const EventContext& ctx, const std::string& chainName) const {
+  ATH_MSG_DEBUG("Filling  " << chainName << " chain histograms");
+  
+  std::string monGroupName = std::string("Chain_")+chainName;
+  auto monGroup = getGroup(monGroupName);
+    
+  if (fillChainGenericHists(ctx, monGroup, chainName).isFailure()) {
+    ATH_MSG_ERROR(Form("Problems filling generic histograms for %s chain",chainName.c_str()));
+  }
+  
+  std::vector< TrigCompositeUtils::LinkInfo<xAOD::TrigBphysContainer> > chainFeatureContainer = getTrigDecisionTool()->features<xAOD::TrigBphysContainer>(chainName, TrigDefs::Physics);
+  for (const auto& featLinkInfo: chainFeatureContainer){
+    ATH_CHECK(featLinkInfo.isValid());
+    const auto featLink = featLinkInfo.link;
+    if (fillBphysObjectHists(monGroup, featLink, "diel").isFailure()) {
+      ATH_MSG_ERROR(Form("Problems filling bphys object histograms for %s chain",chainName.c_str()));
+    }
+    if (fillTrigLeptonHists(monGroup, featLink, "el").isFailure()) {
+      ATH_MSG_ERROR(Form("Problems filling muon histograms for %s chain",chainName.c_str()));
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -195,7 +231,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillChainGenericHists(const EventContext& 
 
 
 // Function to fill per-object hists (e.g. for dimuon, B from Bmumux, or X from Bmumux)
-StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink, const std::string& objStr) const {
+StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, const std::string& objStr) const {
   
   auto dimu_mass = Monitored::Scalar<float>(objStr+"_mass",-999.);
   auto dimu_fitmass = Monitored::Scalar<float>(objStr+"_fitmass",-999.);
@@ -216,45 +252,24 @@ StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<Gene
 
 
 // Function to fill per-muon hists, assuming that the passed object is a dimuon
-StatusCode TrigBphysMonitorAlgorithm::fillMuonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink) const {
+StatusCode TrigBphysMonitorAlgorithm::fillTrigLeptonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, const std::string& name_prefix) const {
   
   const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphysLink)->trackParticleLinks();
-  if (trackVector.size() <2) {
-      ATH_MSG_ERROR("Unexpected number of tracks in a dimuon: " << trackVector.size());
-      return StatusCode::FAILURE;
+  ATH_MSG_DEBUG("fillTrigLeptonHists: number of lepton tracks: " << trackVector.size());
+  if( fillTracksHists(currentMonGroup, trackVector, name_prefix, true).isFailure() ) {
+    ATH_MSG_ERROR(Form("Problems filling muon histograms for a chain"));
+    return StatusCode::FAILURE;
   }
-  
-  const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
-  ATH_CHECK(trackVector.at(0).isValid());
-  ATH_CHECK(trackVector.at(1).isValid());
-  trk1 = *trackVector.at(0);
-  trk2 = *trackVector.at(1);
-  if (!trk1 || !trk2) {
-      ATH_MSG_ERROR("Null pointer for track in a dimuon!");
-      return StatusCode::FAILURE;
+  if( fillDiTracksHists(currentMonGroup, trackVector, std::string("di")+name_prefix).isFailure() ) {
+    ATH_MSG_ERROR(Form("Problems filling two-muon histograms for a chain"));
+    return StatusCode::FAILURE;
   }
-  
-  auto mu1_pt  = Monitored::Scalar<float>("mu1_pt",-999.);
-  auto mu1_eta = Monitored::Scalar<float>("mu1_eta",-999.);
-  auto mu1_d0  = Monitored::Scalar<float>("mu1_d0",-999.);
-  auto mu2_pt  = Monitored::Scalar<float>("mu2_pt",-999.);
-  auto mu2_eta = Monitored::Scalar<float>("mu2_eta",-999.);
-  auto mu2_d0  = Monitored::Scalar<float>("mu2_d0",-999.);
-  
-  mu1_pt  = trk1->pt() / GeV;
-  mu1_eta = trk1->eta();
-  mu1_d0  = trk1->d0();
-  mu2_pt  = trk2->pt() / GeV;
-  mu2_eta = trk2->eta();
-  mu2_d0  = trk2->d0();
-  
-  fill(currentMonGroup, mu1_pt, mu1_eta, mu1_d0, mu2_pt, mu2_eta, mu2_d0);
   
   return StatusCode::SUCCESS;
 }
 
 // Function to fill per-track hists for Bmumux candidates
-StatusCode TrigBphysMonitorAlgorithm::fillTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, UInt_t tracksStartFrom) const {
+StatusCode TrigBphysMonitorAlgorithm::fillTrigBmumuxTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, UInt_t tracksStartFrom) const {
   
   const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphysLink)->trackParticleLinks();
   if (trackVector.size() < tracksStartFrom) {
@@ -262,23 +277,73 @@ StatusCode TrigBphysMonitorAlgorithm::fillTrkHists(const ToolHandle<GenericMonit
       return StatusCode::SUCCESS;
   }
   
-  for(UInt_t i = tracksStartFrom; i < trackVector.size(); ++i) {
-    ATH_CHECK(trackVector.at(i).isValid());
-    const xAOD::TrackParticle* trk = *trackVector.at(i);
-    if (!trk) {
-      ATH_MSG_ERROR("Null pointer for a track in a BMuMux candidate");
+  if (fillTracksHists(currentMonGroup, trackVector, "trk", false, tracksStartFrom).isFailure()) {
+    ATH_MSG_ERROR(Form("Problems filling track histograms for a BMuMuX chain"));
+    return StatusCode::FAILURE;
+  }
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigBphysMonitorAlgorithm::fillTracksHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, 
+                                                      const std::vector<ElementLink<xAOD::TrackParticleContainer> >& tpLinkVector, 
+                                                      const std::string& prefix, 
+                                                      bool separateHists, 
+                                                      UInt_t offsetIndex) const {
+  for(UInt_t i = offsetIndex; i < tpLinkVector.size(); ++i) {
+    ATH_CHECK(tpLinkVector.at(i).isValid());
+    std::string curPrefix = prefix;
+    if(separateHists)
+      curPrefix += std::to_string(i+1);
+    if (fillTrkHists(currentMonGroup, *tpLinkVector.at(i), curPrefix).isFailure()) {
+      ATH_MSG_ERROR(Form("Problems filling track histograms"));
       return StatusCode::FAILURE;
     }
-    auto trk_pt  = Monitored::Scalar<float>("trk_pt",-999.);
-    auto trk_eta = Monitored::Scalar<float>("trk_eta",-999.);
-    auto trk_d0  = Monitored::Scalar<float>("trk_d0",-999.);
-    
-    trk_pt  = trk->pt() / GeV;
-    trk_eta = trk->eta();
-    trk_d0  = trk->d0();
-    
-    fill(currentMonGroup, trk_pt, trk_eta, trk_d0);
   }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigBphysMonitorAlgorithm::fillDiTracksHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, 
+                                                        const std::vector<ElementLink<xAOD::TrackParticleContainer> >& tpLinkVector,
+                                                        const std::string& name_prefix) const {
+  // Use first two tracks
+  if (tpLinkVector.size() <2) {
+      ATH_MSG_ERROR("Unexpected number of tracks in a dimuon: " << tpLinkVector.size());
+      return StatusCode::FAILURE;
+  }
+  ATH_CHECK(tpLinkVector.at(0).isValid());
+  ATH_CHECK(tpLinkVector.at(1).isValid());
+  const xAOD::TrackParticle* trk1 = *tpLinkVector.at(0);
+  const xAOD::TrackParticle* trk2 = *tpLinkVector.at(1);
+  
+  auto ditrk_dR   = Monitored::Scalar<float>(name_prefix+"_dR",-999.);
+  auto ditrk_deta = Monitored::Scalar<float>(name_prefix+"_deta",-999.);
+  auto ditrk_dphi = Monitored::Scalar<float>(name_prefix+"_dphi",-999.);
+  
+  ditrk_dR = xAOD::P4Helpers::deltaR(*trk1, *trk2, false); // false for pseudo, not true rapidity
+  ditrk_deta = std::abs(trk1->eta()-trk2->eta());
+  ditrk_dphi = std::abs(xAOD::P4Helpers::deltaPhi(*trk1, *trk2));
+  
+  fill(currentMonGroup, ditrk_dR, ditrk_deta, ditrk_dphi);
+  
+  return StatusCode::SUCCESS;
+}
+
+// Generic function to fill track hists
+StatusCode TrigBphysMonitorAlgorithm::fillTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const xAOD::TrackParticle* trk, const std::string& name_prefix) const {
+  if (!trk) {
+    ATH_MSG_ERROR("Null pointer for a track");
+    return StatusCode::FAILURE;
+  }
+  auto trk_pt  = Monitored::Scalar<float>(name_prefix+"_pt",-999.);
+  auto trk_eta = Monitored::Scalar<float>(name_prefix+"_eta",-999.);
+  auto trk_d0  = Monitored::Scalar<float>(name_prefix+"_d0",-999.);
+  
+  trk_pt  = trk->pt() / GeV;
+  trk_eta = trk->eta();
+  trk_d0  = trk->d0();
+  
+  fill(currentMonGroup, trk_pt, trk_eta, trk_d0);
   
   return StatusCode::SUCCESS;
 }
@@ -328,6 +393,12 @@ StatusCode TrigBphysMonitorAlgorithm::fillOfflineDimuonHists(const EventContext&
     if (fillVertexHists(monGroup, matchedDimuon, "dimu").isFailure()) {
       ATH_MSG_ERROR(Form("Problems filling histogram for an offline dimuon vertex in %s", dimuonMonGroupName.c_str()));
     }
+    if (fillTracksHists(monGroup, matchedDimuon->trackParticleLinks(), "mu", true).isFailure()) {
+      ATH_MSG_ERROR(Form("Problems filling histogram for offline dimuon muons in %s", dimuonMonGroupName.c_str()));
+    }
+    if (fillDiTracksHists(monGroup, matchedDimuon->trackParticleLinks(), "dimu").isFailure()) {
+      ATH_MSG_ERROR(Form("Problems filling histogram for offline dimuon muon pairs in %s", dimuonMonGroupName.c_str()));
+    }
   }
   
   return StatusCode::SUCCESS;
@@ -356,8 +427,8 @@ StatusCode TrigBphysMonitorAlgorithm::fillVertexHists(const ToolHandle<GenericMo
   dimu_pt   = dimuonMom.Pt() / GeV;
   dimu_chi2 = vertex->chiSquared();
   dimu_y    = dimuonMom.Rapidity();
-  dimu_Lxy  = dimuonVertexHelper.lxy();
-  dimu_Lxy  = dimuonVertexHelper.lxy()/dimuonVertexHelper.lxyErr();
+  dimu_Lxy  = dimuonVertexHelper.lxy(xAOD::BPhysHelper::PV_MIN_A0);
+  dimu_LxySig = dimuonVertexHelper.lxy(xAOD::BPhysHelper::PV_MIN_A0)/dimuonVertexHelper.lxyErr(xAOD::BPhysHelper::PV_MIN_A0);
   
   fill(currentMonGroup, dimu_mass, dimu_pt, dimu_y, dimu_chi2, dimu_Lxy, dimu_LxySig);
   
@@ -386,12 +457,13 @@ StatusCode TrigBphysMonitorAlgorithm::buildDimuons(const EventContext& ctx, std:
     ATH_MSG_DEBUG("Only " << selectedMuons.size() << "muons pass preselection");
     return StatusCode::SUCCESS;
   }
+  std::sort(selectedMuons.begin(), selectedMuons.end(), [](const auto mu1, const auto mu2){ return mu1->pt() > mu2->pt(); });
   
   // Build dimuons
   for(auto outerItr=selectedMuons.begin(); outerItr<selectedMuons.end(); ++outerItr){
     for(auto innerItr=(outerItr+1); innerItr!=selectedMuons.end(); ++innerItr){
-      const auto muon1 = *innerItr;
-      const auto muon2 = *outerItr;
+      const auto muon1 = *outerItr;
+      const auto muon2 = *innerItr;
       const auto trackParticle1 = muon1->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       const auto trackParticle2 = muon2->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       // Charge selection
@@ -405,9 +477,28 @@ StatusCode TrigBphysMonitorAlgorithm::buildDimuons(const EventContext& ctx, std:
       std::unique_ptr<xAOD::Vertex> dimuon = dimuonFit(trackParticle1, trackParticle2);
       if(!dimuon) continue;
       if(dimuon->chiSquared() > m_dimuChi2Cut) continue;
+      vxContainer.push_back(std::move(dimuon));
+    }
+  }
+  ATH_MSG_DEBUG("Found " << vxContainer.size() << " good dimuons");
+  
+  // Augment the dimuon vertices
+  if( !vxContainer.empty() ) {
+    SG::ReadHandle<xAOD::VertexContainer> pvHandle(m_offlinePvCollectionKey,ctx);
+    ATH_CHECK(pvHandle.isValid());
+    const xAOD::VertexContainer* pvContainer = pvHandle.cptr();
+    std::vector<const xAOD::Vertex*> goodPVs = GetGoodPVs(pvContainer);
+    ATH_MSG_DEBUG("Found " << goodPVs.size() << " good PVs");
+    for(auto& dimuon : vxContainer) {
       xAOD::BPhysHelper jpsiHelper(dimuon.get());
       jpsiHelper.setRefTrks();
-      vxContainer.push_back(std::move(dimuon));
+      const xAOD::Vertex* lowestA0Pv = getPvForDimuon_lowestA0(dimuon.get(), goodPVs);
+      if(lowestA0Pv) {
+        jpsiHelper.setLxy   ( m_v0Tools->lxy     ( dimuon.get(),lowestA0Pv ), xAOD::BPhysHelper::PV_MIN_A0 );
+        jpsiHelper.setLxyErr( m_v0Tools->lxyError( dimuon.get(),lowestA0Pv ), xAOD::BPhysHelper::PV_MIN_A0 );
+        ATH_MSG_VERBOSE("Lxy    = " << m_v0Tools->lxy     ( dimuon.get(),lowestA0Pv ));
+        ATH_MSG_VERBOSE("LxyErr = " << m_v0Tools->lxyError( dimuon.get(),lowestA0Pv ));
+      }
     }
   }
 
@@ -486,4 +577,25 @@ double TrigBphysMonitorAlgorithm::dimuonMass(const xAOD::TrackParticle* mu1, con
   mom2.SetM(TrigParticleMasses().mass[TrigParticleName::muon]);
   xAOD::TrackParticle::GenVecFourMom_t dimu_mom = mom1 + mom2;
   return dimu_mom.M();
+}
+
+std::vector<const xAOD::Vertex*> TrigBphysMonitorAlgorithm::GetGoodPVs(const xAOD::VertexContainer* pvContainer) const {
+  std::vector<const xAOD::Vertex*> goodPrimaryVertices;
+  goodPrimaryVertices.reserve(pvContainer->size());
+  for (auto pv : *pvContainer) {
+      xAOD::VxType::VertexType pvType = pv->vertexType();
+      if ( pvType == xAOD::VxType::PriVtx || pvType == xAOD::VxType::PileUp ) {
+        goodPrimaryVertices.push_back(pv);
+      } 
+  }
+  return goodPrimaryVertices;
+}
+
+const xAOD::Vertex* TrigBphysMonitorAlgorithm::getPvForDimuon_lowestA0(const xAOD::Vertex* vtx, const std::vector<const xAOD::Vertex*>& PVs) const {
+  std::vector<const xAOD::Vertex*>::const_iterator pv = std::min_element(PVs.begin(), PVs.end(), 
+                                                                    [&, vtx](const xAOD::Vertex* pv1, const xAOD::Vertex* pv2)
+                                                                    { return (std::abs(m_v0Tools->a0(vtx, pv1)) < std::abs(m_v0Tools->a0(vtx, pv2)));}
+                                                                  );
+  ATH_MSG_VERBOSE("Min-a0 PV has index " << std::distance(PVs.begin(), pv) << ", a0 = " << m_v0Tools->a0(vtx, *pv));
+  return *pv;
 }

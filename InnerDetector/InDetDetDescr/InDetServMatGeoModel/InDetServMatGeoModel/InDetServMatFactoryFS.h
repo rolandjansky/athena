@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATFACTORYFS_H
 #define INDETSERVMATGEOMODEL_INDETSERVMATFACTORYFS_H
 
-
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "InDetServMatGeoModel/InDetServMatManager.h"
 
@@ -17,7 +15,7 @@ class StoreGateSvc;
 class IRDBAccessSvc;
 
 // InDet service material factory for Frozen Showers (FS)
-class InDetServMatFactoryFS : public GeoVDetectorFactory  {
+class InDetServMatFactoryFS : public GeoVDetectorFactory, public AthMessaging  {
 
  public:
   
@@ -33,8 +31,6 @@ class InDetServMatFactoryFS : public GeoVDetectorFactory  {
   // manager
   virtual const InDetDD::InDetServMatManager* getDetectorManager () const;
 
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
  private:  
   
   // Illegal operations:
@@ -45,7 +41,6 @@ class InDetServMatFactoryFS : public GeoVDetectorFactory  {
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
   InDetDD::InDetServMatManager   *m_manager;
-  Athena::MsgStreamMember m_msg;
 };
 
 #endif

@@ -13,17 +13,30 @@
 #include "xAODTruth/TruthVertexContainer.h"
 
 
+/// NB: This was 47 for Run 2, but wit the addition of the IBL it should be 32 
+///     It was kept at 47 for all Run 2 and mogration to MT, but for Run 3 we 
+///     really want it changed to be 32  
+const double TrigTrackSelector::s_default_radius = 47;
+
+
 TrigTrackSelector::TrigTrackSelector( TrackFilter* selector, double radius, int selectPdgId, int selectParentPdgId ) : 
     TrackSelector(selector), m_id(0), m_xBeam(0), m_yBeam(0), m_zBeam(0),
     m_correctTrkTracks(false), 
     m_radius(radius), m_selectPdgId(selectPdgId), m_selectParentPdgId(selectParentPdgId) { 
- } 
+} 
 
 
 
-const xAOD::TruthParticle* TrigTrackSelector::fromParent(const int pdg_id,  const xAOD::TruthParticle *p) const { 
+/// recursive function to identify whether a particle comes from some other 
+/// ancestor particle at any point in it's history - checks it's parents and 
+/// then function calls itself to check their parents etc, until it either 
+/// finds the pdgid it is looking for, or it has no more ancestors
+/// if it finds an appropriate ancestor it returns the pointer to it, 
+/// otherwise it returns a nullptr 
+
+const xAOD::TruthParticle* TrigTrackSelector::fromAncestor(const int pdg_id,  const xAOD::TruthParticle *p) const { 
   if ( p==nullptr ) return nullptr;
-  if (p->absPdgId()==11 || p->absPdgId()==13 ) return nullptr; //don't want light leptons from tau decays
+  if (p->absPdgId()==11 || p->absPdgId()==13 ) return nullptr; //don't want light leptons from eg tau decays - they are found directly
   if ( p->absPdgId()==pdg_id ) {
     return p;   // recursive stopping conditions
   }
@@ -36,7 +49,7 @@ const xAOD::TruthParticle* TrigTrackSelector::fromParent(const int pdg_id,  cons
   }
   for( unsigned ip = 0; ip < vertex->nIncomingParticles(); ip++ ) {
     auto* in = vertex->incomingParticle(ip);
-    auto parent = fromParent( pdg_id, in);
+    auto parent = fromAncestor( pdg_id, in);
     if ( parent!=nullptr ) { 
       if (parent->absPdgId()==pdg_id) return parent;
     }
@@ -44,6 +57,56 @@ const xAOD::TruthParticle* TrigTrackSelector::fromParent(const int pdg_id,  cons
   
   return nullptr;
 }
+
+
+/// recursive function to identify whether a particle comes from some other 
+/// number of ancestor particles, with the pdgids passed in as a vector.
+/// Any such ancestors at point in it's history will do - checks it's parents 
+/// and then calls the function calls itself to check the parent's parents etc, 
+/// until it either finds one of the pdgids it is looking for, or it has no 
+/// more ancestors 
+/// if it finds an appropriate ancestor it returns the pointer to it, otherwise 
+/// it returns a nullptr 
+
+const xAOD::TruthParticle* TrigTrackSelector::fromAncestor( const std::vector<int>& ids,  const xAOD::TruthParticle *p ) const { 
+  if ( p==nullptr ) return nullptr;
+  if (p->absPdgId()==11 || p->absPdgId()==13 ) return nullptr; //don't want light leptons from eg tau decays - they are found directly
+  for ( size_t i=ids.size() ; i-- ; ) { 
+    if ( p->absPdgId()==ids[i] ) return p; // recursive stopping conditions
+  }
+
+  auto vertex = p->prodVtx();
+  if ( vertex == nullptr ) return nullptr; // has no production vertex !!!
+ 
+  if ( vertex->nIncomingParticles()<1 ) return nullptr;  // recursive stopping conditions
+ 
+  for( unsigned ip = 0; ip < vertex->nIncomingParticles(); ip++ ) {
+    auto* in = vertex->incomingParticle(ip);
+    auto parent = fromAncestor( ids, in);
+    if ( parent!=nullptr ) { 
+      for ( size_t i=ids.size() ; i-- ; ) { 
+	if ( parent->absPdgId()==ids[i] ) return parent; 
+      }
+    }
+  }  
+
+  return nullptr;
+}
+
+
+
+/// neater code to make use of vector function also for a single ancestor pdgid, instead of 
+/// the full code duplication, but less efficienct as it then needs to create a single element 
+/// vector for each particle, to avoid the code duplication.
+/// Perhaps something can be done for the compiler optimisation to realise this and somehow  
+/// reduce the opverhead of creating the single int vector - need to investiogate this more
+/// thoroghly before including this, as it would be a much neater solution
+
+// const xAOD::TruthParticle* TrigTrackSelector::fromAncestor(const int pdg_id,  const xAOD::TruthParticle *p) const { 
+//   return fromAncestor( std::vector<int>(1,pdg_id), p );
+// }
+  
+
   
 
 
@@ -419,9 +482,11 @@ void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* trutht
 
     // select based on the pdg of the parent or ancestor
     bool gotParentPdgId = true;
-    if (gotPdgId && m_selectParentPdgId!=0) gotParentPdgId = fromParent(m_selectParentPdgId, (*trackitr))!=nullptr;
+    if   ( gotPdgId && m_selectParentPdgId!=0 )         gotParentPdgId = fromAncestor(m_selectParentPdgId, (*trackitr))!=nullptr;
+    /// not just yet - save for later ...
+    /// else ( gotPdgId && m_selectParentPdgIds.size()!=0 ) gotParentPdgId = fromAncestor(m_selectParentPdgIds, (*trackitr))!=nullptr;
 
-    if ( gotParentPdgId && gotPdgId) selectTrack( *trackitr, x0, y0);
+    if ( gotParentPdgId && gotPdgId ) selectTrack( *trackitr, x0, y0);
 
   } // loop over tracks
     
@@ -542,7 +607,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0
     ///     then you will miss that track, and
     ///     also the resulting track, even if it is
     ///     a high et track  
-    const double inner_radius = m_radius; /// was hardcoded as 47 - now this can be set from the constructor
+    const double inner_radius = m_radius; /// was hardcoded as 47 - now is set from the constructor
     const double outer_radius = m_radius;
 
     if ( (  track->hasProdVtx() && rp<=inner_radius ) && 
@@ -681,9 +746,8 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     ///     then you will miss that track, and
     ///     also the resulting track, even if it is
     ///     a high et track  
-    const double inner_radius = 47;
-    //    const double outer_radius = 47;
-    const double outer_radius = 47;
+    const double inner_radius = m_radius;
+    const double outer_radius = m_radius;
     if ( ( track->genParticle()->production_vertex() && rp<=inner_radius ) && 
 	 ( track->genParticle()->end_vertex()==0 || rd>outer_radius ) ) final_state = true; 
       

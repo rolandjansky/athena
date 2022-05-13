@@ -7,6 +7,7 @@
 #include "CxxUtils/FPControl.h"
 #include "CxxUtils/SealDebug.h"
 #include "CxxUtils/SealSignal.h"
+#include "CxxUtils/hexdump.h"
 #include "RootUtils/WithRootErrorHandler.h"
 #include "SGTools/DataProxy.h"
 #include "TrigSerializeResult/StringSerializer.h"
@@ -92,21 +93,44 @@ namespace  {
   /**
    * Temporary ROOT error handler for deserialization (ATR-25049)
    */
-  bool handleError(int level, bool /*abort*/, const char* location, const char* /*msg*/) {
-    if ( level >= kError && location && strstr(location, "TBufferFile::ReadClass")) {
-      // Raise soft core dump size limit to hard limit
-      struct rlimit core_limit;
-      getrlimit(RLIMIT_CORE, &core_limit);
-      core_limit.rlim_cur = core_limit.rlim_max;
-      setrlimit(RLIMIT_CORE, &core_limit);
+  struct handleError
+  {
+    using Payload = std::vector<uint32_t>;
 
-      std::cout << "TriggerEDMDeserialiserAlg: Raising core dump soft size limit to " << core_limit.rlim_cur
-                << " and trying to dump core file..." << std::endl;
-      Athena::DebugAids::coredump(SIGSEGV);   // this is non-fatal, job continues
+    bool operator()(int level, bool /*abort*/, const char* location, const char* /*msg*/) {
+      if ( level >= kError && location && strstr(location, "TBufferFile::ReadClass")) {
+        // Raise soft core dump size limit to hard limit
+        struct rlimit core_limit;
+        getrlimit(RLIMIT_CORE, &core_limit);
+        core_limit.rlim_cur = core_limit.rlim_max;
+        setrlimit(RLIMIT_CORE, &core_limit);
+        
+        std::cout << "TriggerEDMDeserialiserAlg: Raising core dump soft size limit to " << core_limit.rlim_cur
+                  << " and trying to dump core file..." << std::endl;
+        Athena::DebugAids::coredump(SIGSEGV);   // this is non-fatal, job continues
+      }
+
+      if ( level >= kError && location && strstr(location, "TClass::Load")) {
+        std::cout << "TriggerEDMDeserialiserAlg: buff dump; start " << m_start << "\n";
+        CxxUtils::hexdump (std::cout, m_buf, m_bufsize);
+        std::cout << "TriggerEDMDeserialiserAlg: payload dump\n";
+        CxxUtils::hexdump (std::cout, m_payload->data(), m_payload->size() * sizeof(Payload::value_type));
+      }
+
+      return true;  // call default handlers
     }
 
-    return true;  // call default handlers
-  }
+    handleError (const char* buf, size_t bufsize, const Payload* payload,
+                 const void* start)
+      : m_buf (buf), m_bufsize (bufsize), m_payload (payload), m_start(start)
+    {
+    }
+
+    const char* m_buf;
+    size_t m_bufsize;
+    const Payload* m_payload;
+    const void* m_start;
+  };
 
 }
 
@@ -269,7 +293,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
     void* obj{ nullptr };
     {
       // Temporary error handler to debug ATR-25049
-      RootUtils::WithRootErrorHandler hand( handleError );
+      RootUtils::WithRootErrorHandler hand( handleError(buff.get(), usedBytes, dataptr, &*start) );
       obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
     }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIJetConstituentModifierTool.h"
@@ -37,9 +37,9 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
     }
 
     /// The accessor for the cluster element links
-   static SG::AuxElement::Accessor< std::vector< ElementLink< xAOD::IParticleContainer > > >
+   static const SG::AuxElement::Accessor< std::vector< ElementLink< xAOD::IParticleContainer > > >
      constituentAcc( "constituentLinks" );
-   static SG::AuxElement::Accessor< std::vector< float> >
+   static const SG::AuxElement::Accessor< std::vector< float> >
      constituentWeightAcc( "constituentWeights" );
 
    if( constituentAcc.isAvailable(jet) ) constituentAcc( jet ).resize(0);
@@ -61,7 +61,7 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
 
    for(auto index : cluster_indices)
    {
-     const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(ccl->at(index));
+     const xAOD::CaloCluster* cl= ccl->at(index);
 
      jet.addConstituent(cl);
      xAOD::IParticle::FourMom_t subtractedClusterP4;

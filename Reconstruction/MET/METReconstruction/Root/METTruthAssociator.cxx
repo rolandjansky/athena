@@ -342,7 +342,7 @@ namespace met {
       case xAOD::CaloCluster::SuperCluster:
 	isSuperCluster = true;
 	Rsize = el->caloCluster()->getMomentValue( xAOD::CaloCluster::SECOND_R );
-	if (Rsize<0.) {ATH_MSG_WARNING("Invalid SECOND_R moment retrieved!");}
+	if (Rsize<0.) {ATH_MSG_VERBOSE("Invalid SECOND_R moment retrieved!");}
 	break;
       default:
 	ATH_MSG_WARNING("Unexpected electron cluster size " << el->caloCluster()->clusterSize() << " received!");
@@ -439,7 +439,7 @@ namespace met {
       case xAOD::CaloCluster::SuperCluster:
 	isSuperCluster = true;
 	Rsize = ph->caloCluster()->getMomentValue( xAOD::CaloCluster::SECOND_R );
-	if (Rsize<0.) {ATH_MSG_WARNING("Invalid SECOND_R moment retrieved!");}
+	if (Rsize<0.) {ATH_MSG_VERBOSE("Invalid SECOND_R moment retrieved!");}
 	break;
       default:
 	ATH_MSG_WARNING("Unexpected photon cluster size " << ph->caloCluster()->clusterSize() << " received!");

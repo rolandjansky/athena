@@ -136,10 +136,11 @@ def ITkTrackFitterAmbiCfg(flags, name='ITkTrackFitterAmbi', **kwargs) :
     ITkTrackFitter = acc.popToolsAndMerge(ITkTrackFitterCfg(flags, name, **kwargs))
     ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension
 
-    if flags.ITk.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter', 'DistributedKalmanFilter']:
+    if flags.ITk.Tracking.trackFitterType in ['DistributedKalmanFilter']:
         ITkTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     elif flags.ITk.Tracking.trackFitterType=='GlobalChi2Fitter':
+        ITkTrackFitter.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         ITkTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         ITkTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
@@ -193,28 +194,6 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
     acc.setPrivateTools(GlobalChi2Fitter)
     return acc
 
-def ITkFKFCfg(flags, name='ITkFKF', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("StateChi2PerNDFPreCut", 30.0)
-    PublicFKF = CompFactory.Trk.ForwardKalmanFitter(name = name, **kwargs)
-    acc.setPrivateTools(PublicFKF)
-    return acc
-
-def ITkBKSCfg(flags, name='ITkBKS', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("InitialCovarianceSeedFactor", 200.)
-    PublicBKS = CompFactory.Trk.KalmanSmoother(name = name, **kwargs)
-    acc.setPrivateTools(PublicBKS)
-    return acc
-
-def ITkKOLCfg(flags, name = 'ITkKOL', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("TrackChi2PerNDFCut", 17.0)
-    kwargs.setdefault("StateChi2PerNDFCut", 12.5)
-    PublicKOL = CompFactory.Trk.KalmanOutlierLogic(name = name, **kwargs)
-    acc.setPrivateTools(PublicKOL)
-    return acc
-
 #############################################################################################
 # BackTracking
 #############################################################################################
@@ -222,16 +201,6 @@ def ITkKOLCfg(flags, name = 'ITkKOL', **kwargs):
 def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSearch',**kwargs) :
     kwargs.setdefault('doHolesInDet', False)
     return ITkTrackSummaryToolCfg(flags, name=name, **kwargs)
-
-def ITkROIInfoVecCondAlgCfg(flags, name='ITkROIInfoVecCondAlg', **kwargs) :
-    acc = ComponentAccumulator()
-    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-    acc.merge(CaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("InputEmClusterContainerName", "ITkCaloClusterROIs")
-    kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
-    kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
-    return acc
 
 def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
@@ -243,8 +212,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
     have_calo_rois = flags.ITk.Tracking.doBremRecovery and flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
-        alg = acc.getPrimaryAndMerge(ITkROIInfoVecCondAlgCfg(flags))
-        kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITKCaloClusterROIPhiRZContainerMakerCfg(flags))
+        kwargs.setdefault("EMROIPhiRZContainer","InDetCaloClusterROIPhiRZ0GeV")
     kwargs.setdefault("SummaryTool", ITkTrackSummaryTool )
     kwargs.setdefault("DriftCircleCutTool", None )
     kwargs.setdefault("useAmbigFcn", True )

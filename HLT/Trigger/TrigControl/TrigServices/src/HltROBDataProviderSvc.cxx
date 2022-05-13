@@ -75,7 +75,7 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // print list of ROBs to filter out by status code
   ATH_MSG_INFO(" ---> Filter out specific ROBs by Status Code: # ROBs              = " << m_filterRobMap.size());
-  for (auto it : m_filterRobMap) {
+  for (const auto& it : m_filterRobMap) {
     eformat::helper::SourceIdentifier tmpsrc(it.first);
     ATH_MSG_INFO("      RobId=0x" << MSG::hex << it.first << " -> in Sub Det = " << tmpsrc.human_detector());
 
@@ -90,7 +90,7 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // print list of subdetectors to filter out by status code
   ATH_MSG_INFO(" ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = " << m_filterSubDetMap.size());
-  for (auto it : m_filterSubDetMap) {
+  for (const auto& it : m_filterSubDetMap) {
     eformat::helper::SourceIdentifier tmpsrc(it.first, 0);
     ATH_MSG_INFO("      SubDetId=0x" << MSG::hex << it.first << " -> " << tmpsrc.human_detector());
     for (auto it_status : it.second) {

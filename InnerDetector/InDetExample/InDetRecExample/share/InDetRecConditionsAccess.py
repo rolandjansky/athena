@@ -95,14 +95,14 @@ if DetFlags.pixel_on():
 
             condSeq += alg
 
-    if not (athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200'):
+    if not conddb.dbdata=='COMP200':
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
         alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-        if athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200':
+        if conddb.dbdata=='COMP200':
             alg.ReadKey = ''
         condSeq += alg
 
@@ -434,6 +434,10 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
     InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
+    # straw status  algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawStatusCondAlg
+    TRTStrawStatusCondAlg = TRTStrawStatusCondAlg(name = "TRTStrawStatusCondAlg")
+
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
@@ -464,6 +468,8 @@ if DetFlags.haveRIO.TRT_on():
         condSeq += TRTPhaseCondAlg
 
     # Condition algorithms for straw conditions
+    if not hasattr(condSeq, "TRTStrawStatusCondAlg"):
+        condSeq += TRTStrawStatusCondAlg
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg
     if not hasattr(condSeq, "TRTActiveCondAlg"):

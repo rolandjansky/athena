@@ -13,8 +13,6 @@
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include "TrigT1NSWSimTools/sTGCTriggerBandsInEta.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"

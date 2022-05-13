@@ -8,9 +8,6 @@
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-		    or
-                    https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/README.rst
 */
 
 // Framework include(s):
@@ -55,7 +52,7 @@ public:
 protected:
   std::string convertPeriodToStr() const;
 
-  e_DataPeriod m_ePeriod;
+  DataPeriod m_ePeriod;
   int m_ePeriodBinning;
 
   int m_iMinRunNumber;

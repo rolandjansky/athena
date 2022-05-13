@@ -7,6 +7,8 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 #include "CoralBase/Blob.h"
+#include <string_view>
+
 
 TgcDigitASDposCondAlg::TgcDigitASDposCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
@@ -56,33 +58,37 @@ StatusCode TgcDigitASDposCondAlg::execute(const EventContext& ctx) const
 
   // Fill
   auto outputCdo = std::make_unique<TgcDigitASDposData>();
-  outputCdo->asdPos.assign(TgcDigitASDposData::N_STRIPASDPOS + TgcDigitASDposData::N_WIREASDPOS, std::vector<float>(readHandle_ASDpos->size(), 0));
-  size_t dbLine{};
-
-  std::string delimiter{";"};
+  using namespace MuonCalib;
+  char delimiter{';'};
   for(const auto &[channel, attribute] : *readHandle_ASDpos.cptr()) {
     const coral::Blob& blob = attribute["bASDPos"].data<coral::Blob>();
     const char *blobCStr = reinterpret_cast<const char *>(blob.startingAddress());
-    std::string blobline(blobCStr);
-    std::vector<std::string> tokens;
-    MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+    std::string_view blobline(blobCStr, blob.size()/sizeof(char));
+    std::vector<std::string_view> tokens = MuonCalib::MdtStringUtils::tokenize(blobline, delimiter);
     auto it = std::begin(tokens);
-    outputCdo->stationNum.push_back(stoi(*it));
+    uint16_t station = static_cast<uint16_t>(MdtStringUtils::stoi(*it));
     ++it;
-    outputCdo->stationEta.push_back(stoi(*it));
+    uint16_t eta = static_cast<uint16_t>(MdtStringUtils::stoi(*it));
     ++it;
-    outputCdo->stationPhi.push_back(stoi(*it));
+    uint16_t phi = (MdtStringUtils::stoi(*it) == -99) ? 0x1f : static_cast<uint16_t>(MdtStringUtils::stoi(*it));
+    uint16_t chamberId = (station << 8)  + (eta << 5) + phi;
 
-    for(int i=0;i<TgcDigitASDposData::N_STRIPASDPOS;i++){
+    std::vector<float> strip_pos(TgcDigitASDposData::N_STRIPASDPOS, 0);
+    //strip_pos initialized to size N_STRIPASDPOS
+    for (int i=0; i < TgcDigitASDposData::N_STRIPASDPOS; i++) {
       ++it;
-      outputCdo->asdPos[i][dbLine] = stof(*it);
+      strip_pos[i] = MdtStringUtils::stof(*it);
     }
-    for(int i=0;i<TgcDigitASDposData::N_WIREASDPOS;i++){
+    outputCdo->stripAsdPos.emplace(chamberId, std::move(strip_pos));
+
+    std::vector<float> wire_pos(TgcDigitASDposData::N_WIREASDPOS, 0);
+    //TgcDigitASDposData initialized to size N_WIREASDPOS
+    for (int i=0; i < TgcDigitASDposData::N_WIREASDPOS; i++) {
       ++it;
-      outputCdo->asdPos[i + (int)TgcDigitASDposData::N_STRIPASDPOS][dbLine] = stof(*it);
+      wire_pos[i] = MdtStringUtils::stof(*it);
     }
-    dbLine += 1;
-  } // end of for(attrmap)
+    outputCdo->wireAsdPos.emplace(chamberId, std::move(wire_pos));
+  }  // end of for(attrmap)
 
   // Record
   if (writeHandle.record(rangeIntersection, std::move(outputCdo)).isFailure()) {

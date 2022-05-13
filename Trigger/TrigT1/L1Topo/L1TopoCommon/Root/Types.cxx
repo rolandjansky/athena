@@ -16,8 +16,8 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   else if(type == TCS::ETAU) return "eTaus";
   else if(type == TCS::JTAU) return "jTaus";
   else if(type == TCS::CTAU) return "cTaus";
-  else if(type == TCS::JLARGERJET) return "jLargeRJets";
-  else if(type == TCS::GLARGERJET) return "gLargeRJets";
+  else if(type == TCS::JLJET) return "jLJets";
+  else if(type == TCS::GLJET) return "gLJets";
   else if(type == TCS::JJET) return "jJets";
   else if(type == TCS::GJET) return "gJets";
   else if(type == TCS::MET) return "MET";
@@ -25,8 +25,16 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   else if(type == TCS::MUONNEXTBC) return "MuonsNextBC";
   else if(type == TCS::LATEMUON) return "LateMuons";
   else if(type == TCS::JXE ) return "jXE";
+  else if(type == TCS::JXEC ) return "jXEC";
+  else if(type == TCS::JXEPERF ) return "jXEPerf";
   else if(type == TCS::JTE ) return "jTE";
-  else if(type == TCS::GXE ) return "gXE";
+  else if(type == TCS::JTEC ) return "jTEC";
+  else if(type == TCS::JTEFWD ) return "jTEFWD";
+  else if(type == TCS::JTEFWDA ) return "jTEFWDA";
+  else if(type == TCS::JTEFWDC ) return "jTEFWDC";
+  else if(type == TCS::GXEJWOJ ) return "gXEJWOJ";
+  else if(type == TCS::GXENC ) return "gXENC";
+  else if(type == TCS::GXERHO ) return "gXERHO";
   else if(type == TCS::GMHT ) return "gMHT";
   else if(type == TCS::GTE ) return "gTE";
   else return "None";
@@ -57,19 +65,19 @@ TCS::inputType(const std::string& input) {
    if ( input == "Jets" || input == "JetTobArray" )
       return TCS::JET;
 
-   if ( input == "jJ" || input == "jJetTobArray" || input == "jJetTobs" )
+   if ( input == "jJ" || input == "jJetTobArray" || input == "jJetTobs" || input == "jJets" )
       return TCS::JJET;
 
-   if ( input == "gJ" || input == "gJetTobArray" || input == "gJetTobs" )
+   if ( input == "gJ" || input == "gJetTobArray" || input == "gJetTobs" || input == "gJets" )
       return TCS::GJET;
 
-   if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" || input == "jLJet" || input == "jLJ")
-      return TCS::JLARGERJET;
+   if ( input == "jLJ" || input == "jLJetTobArray" || input == "jLJetTobs" || input == "jLJets" )
+      return TCS::JLJET;
 
-   if ( input == "gLargeRJet" || input == "gLargeRJetTobArray" || input == "gLargeRJetTobs" || input == "gLJet" || input == "gLJ")
-      return TCS::GLARGERJET;
+   if ( input == "gLJ" || input == "gLJetTobArray" || input == "gLJetTobs" || input == "gLJets" )
+      return TCS::GLJET;
 
-   if ( input == "Muons" || input == "MuonTobArray" || input == "MuonTobs")
+   if ( input == "Muons" || input == "MuonTobArray" || input == "MuonTobs" || input == "MU" )
       return TCS::MUON;
 
    if ( input == "MuonsNextBC" || input == "MuonNextBCTobArray" )
@@ -92,12 +100,30 @@ TCS::inputType(const std::string& input) {
 
    if ( input == "jXE")
       return TCS::JXE;
- 
+
+   if ( input == "jXEC")
+      return TCS::JXEC;
+
+   if ( input == "jXEPerf")
+      return TCS::JXEPERF;
+
    if ( input == "jTE")
       return TCS::JTE;
+
+   if ( input == "jTEC")
+      return TCS::JTEC;
+
+   if ( input == "jTEFWD")
+      return TCS::JTEFWD;
+
+   if ( input == "jTEFWDA")
+      return TCS::JTEFWDA;
+
+   if ( input == "jTEFWDC")
+      return TCS::JTEFWDC;
  
-   if ( input == "gXE")
-      return TCS::GXE;
+   if ( input == "gXEJWOJ")
+      return TCS::GXEJWOJ;
  
    if ( input == "gMHT")
       return TCS::GMHT;
@@ -105,7 +131,6 @@ TCS::inputType(const std::string& input) {
    if ( input == "gTE")
       return TCS::GTE;
           
-
    TCS_EXCEPTION("L1TopoCommon: unknown input type " + input);
    
    return TCS::NONE;

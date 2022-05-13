@@ -27,8 +27,6 @@ Trig::TrigDecisionToolCore::TrigDecisionToolCore() :
 {
 }
 
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
-
 Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() {
   Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
   // A consequence of placing the cache in a slot-specific wrapper
@@ -43,19 +41,6 @@ const Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
   p->navigation (m_navigation);
   return ptr;
 }
-
-#else // AnalysisBase
-
-Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() {
-  return &m_cacheGlobalMemory;
-}
-
-const Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
-  return &m_cacheGlobalMemory;
-}
-
-#endif
-
 
 Trig::TrigDecisionToolCore::~TrigDecisionToolCore() {
 }

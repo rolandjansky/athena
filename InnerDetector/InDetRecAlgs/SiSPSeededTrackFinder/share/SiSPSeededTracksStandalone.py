@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -683,8 +683,6 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
 useBremMode = False ###
 InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False) ###
 InDetFlags.doHadCaloSeededSSS.set_Value_and_Lock(False) ###
-InDetKeys.CaloClusterROIContainer.set_Value_and_Lock("") ###
-InDetKeys.HadCaloClusterROIContainer.set_Value_and_Lock("") ###
 from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
 InDetSiTrackMaker = SiTrackMaker(name                      = "InDetSiTrackMaker"+NewTrackingCuts.extension(),
                                  useSCT                    = NewTrackingCuts.useSCT(),
@@ -710,8 +708,8 @@ InDetSiTrackMaker = SiTrackMaker(name                      = "InDetSiTrackMaker"
                                  doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
                                  phiWidth                  = NewTrackingCuts.phiWidthBrem(),
                                  etaWidth                  = NewTrackingCuts.etaWidthBrem(),
-                                 InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                 InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
+                                 EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ0GeV",
+                                 HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZ",
                                  UseAssociationTool        = usePrdAssociationTool)
 InDetSiTrackMaker.TrackPatternRecoInfo = "SiSPSeededFinder"
 if not doBeamSpot:

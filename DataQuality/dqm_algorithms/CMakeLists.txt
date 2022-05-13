@@ -1,6 +1,4 @@
-################################################################################
-# Package: dqm_algorithms
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( dqm_algorithms )
@@ -41,7 +39,7 @@ atlas_add_dictionary( dqm_algorithmsDict
                       dqm_algorithms/dqm_algorithmsDict.h
                       dqm_algorithms/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} dqm_algorithms dqm_tools dqm_summaries CxxUtils )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} dqm_algorithms dqm_tools dqm_summaries )
 
 atlas_add_dictionary( dqm_toolsDict
                       dqm_algorithms/tools/dqm_toolsDict.h
@@ -58,8 +56,4 @@ atlas_add_executable( dqm_print_summarymakers
                       test/print_summarymakers.cpp
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} dqm_algorithms dqm_tools dqm_summaries )
-
-# Aliases:
-atlas_add_alias( dqm_print_algorithms "dqm_print_algorithms.exe" )
-atlas_add_alias( dqm_print_summarymakers "dqm_print_summarymakers.exe" )
 

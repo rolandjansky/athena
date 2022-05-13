@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************-*-c++-*-*************************************
@@ -47,14 +47,14 @@ public:
 
   // --- lookup strings for backward compatibility  ---
 
-  static const char* N_VTX; 
-  static const char* N_SINGLE_TRACKS;
-  static const char* N_TRACKS_AT_VTX; 
-  static const char* MASS;
-  static const char* ENERGY_FRACTION;
-  static const char* SIGNIFICANCE_3D;
-  static const char* DELTA_ETA;
-  static const char* DELTA_PHI;
+  static const char* const N_VTX;
+  static const char* const N_SINGLE_TRACKS;
+  static const char* const N_TRACKS_AT_VTX;
+  static const char* const MASS;
+  static const char* const ENERGY_FRACTION;
+  static const char* const SIGNIFICANCE_3D;
+  static const char* const DELTA_ETA;
+  static const char* const DELTA_PHI;
 
   /** default constructor */
   JetFitterGenericTagInfo();

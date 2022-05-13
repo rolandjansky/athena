@@ -29,7 +29,7 @@ DetFlags.DBM_setOff()
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
-if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.MM_setOff()
 if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 
 ## Switch off tasks

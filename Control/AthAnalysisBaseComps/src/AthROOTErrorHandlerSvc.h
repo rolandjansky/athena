@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __ATHROOTERRORHANDLERSVC__
 #define __ATHROOTERRORHANDLERSVC__
 
 #include "AthenaBaseComps/AthService.h"
-
+#include "CxxUtils/checker_macros.h"
 
 /// AthROOTErrorHandlerSvc: 
 ///   Replaces ROOT's standard error handler in order to detect
@@ -33,28 +33,33 @@ Error("test1","hello"); //should throw exception
 
 */
 
-
 #include "TError.h"
+
+namespace Handler {
+  void ErrorHandler ATLAS_NOT_THREAD_SAFE ( Int_t level, Bool_t abort, const char* location, const char* message );
+}
 
 class AthROOTErrorHandlerSvc : public AthService {
 
 public:
-  
-  // Constructors, destructor
+  friend void Handler::ErrorHandler( Int_t level, Bool_t abort, const char* location, const char* message );
+
   AthROOTErrorHandlerSvc(const std::string& name, ISvcLocator *svcLoc);
   virtual ~AthROOTErrorHandlerSvc();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-
-  static void ErrorHandler( Int_t level, Bool_t abort, const char* location, const char* message );
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
+  virtual StatusCode finalize ATLAS_NOT_THREAD_SAFE() override;
 
 private:  
 
-  static ErrorHandlerFunc_t s_oldHandler;
-  static std::map<std::string,int> s_throwSources;
-  static int s_catchLevel;
+  Gaudi::Property<int> m_catchLevel{
+    this, "CatchLevel", kFatal+1,
+    "Throw runtime error for all messages at this level or HIGHER"};
 
+  Gaudi::Property<std::map<std::string,int>> m_throwSources{
+    this, "ThrowSources", {{"TBranch::GetBasket", kError},
+                           {"TFile::ReadBuffer", kError}},
+    "Map from source to error level. Any message at level or HIGHER will trigger runtime error"};
 };
 
 

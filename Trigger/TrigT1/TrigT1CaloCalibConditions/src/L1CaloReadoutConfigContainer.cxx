@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainer.h"
 
@@ -10,7 +10,6 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "TrigT1CaloCalibConditions/L1CaloReadoutConfig.h"
 
 L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
   : AbstractL1CaloPersistentCondition("CondAttrListCollection") 
@@ -141,7 +140,7 @@ DataObject* L1CaloReadoutConfigContainer::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
+void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 

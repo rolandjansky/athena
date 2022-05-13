@@ -410,10 +410,6 @@ if rec.doTruth():
 from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
 ConfigFlags = getNewConfigFlags()
 
-# Apply additional changes to the ConfigFlags:
-if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
-    ConfigFlags.Trigger.readBS = True
-
 # For cosmics runs, we need to turn off doTIDE_Ambi to be consistent
 # with the settings in InDetJobProperties.py.
 # We used to do that there, but that doesn't work anymore
@@ -485,22 +481,6 @@ if not globalflags.InputFormat.is_bytestream():
 if rec.doTrigger:
     from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
     triggerGetter = TriggerRecoGetter()
-
-    # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
-    if rec.readESD() and rec.doAOD():
-        if ConfigFlags.Trigger.EDMVersion == 3:
-            # Add HLT output
-            from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-            hltOutput = HLTTriggerResultGetter()
-            # Add Trigger menu metadata
-            if rec.doFileMetaData():
-                from RecExConfig.ObjKeyStore import objKeyStore
-                metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                                "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-                objKeyStore.addManyTypesMetaData( metadataItems )
-            # Add L1 output (to be consistent with R2)
-            from TrigEDMConfig.TriggerEDM import getLvl1AODList
-            objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
 
 AODFix.AODFix_postTrigger()
 

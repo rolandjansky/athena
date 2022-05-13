@@ -34,7 +34,7 @@ Mark Tibbetts 6/3/2012
 
 */
 
-#include "RecBackgroundAlgs/BackgroundWordFiller.h"
+#include "BackgroundWordFiller.h"
 #include "TileEvent/MBTSCollisionTime.h"
 
 //----------------------------------------------------------------

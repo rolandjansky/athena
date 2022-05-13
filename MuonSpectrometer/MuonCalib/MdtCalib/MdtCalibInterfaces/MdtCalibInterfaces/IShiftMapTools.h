@@ -20,14 +20,14 @@ namespace MuonCalib {
 
     class IShiftMapTools : virtual public IAlgTool {
     public:
-        IShiftMapTools() { ; }
-        virtual ~IShiftMapTools() { ; }
+       
+        virtual ~IShiftMapTools() = default;
 
         /* Creates the InterfaceID and interfaceID() method */
         DeclareInterfaceID(IShiftMapTools, 1, 0);
 
         /* get shift value */
-        virtual float getValue(const Identifier& id) = 0;
+        virtual float getValue(const Identifier& id) const = 0;
     };
 
 }  // namespace MuonCalib

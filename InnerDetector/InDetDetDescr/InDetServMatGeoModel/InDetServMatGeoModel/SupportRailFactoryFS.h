@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SUPPORTRAILFACTORYFS_H
 #define INDETSERVMATGEOMODEL_SUPPORTRAILFACTORYFS_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
 class GeoPhysVol;
 class IRDBAccessSvc;
 
-class SupportRailFactoryFS {
+class SupportRailFactoryFS : public AthMessaging {
 
  public:
   
@@ -27,8 +26,6 @@ class SupportRailFactoryFS {
   // Creation of geometry:
   void create(GeoPhysVol *motherP,GeoPhysVol *motherM);
 
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
  private:  
   
   // Illegal operations:
@@ -38,8 +35,6 @@ class SupportRailFactoryFS {
   // private data
   StoreGateSvc                    *m_detStore;
   ServiceHandle<IRDBAccessSvc>     m_rdbAccess;
-  Athena::MsgStreamMember  m_msg;
-
 };
 
 #endif 

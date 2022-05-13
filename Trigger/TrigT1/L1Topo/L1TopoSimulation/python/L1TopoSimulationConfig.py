@@ -73,7 +73,7 @@ def L1TopoSimulationCfg(flags):
         jetProvider.jFexTERoIKey = ""
         energyProvider.gFexSRJetRoIKey = ""
         energyProvider.gFexLRJetRoIKey = ""
-        energyProvider.gFexXERoIKey = ""
+        energyProvider.gFexXEJWOJRoIKey = ""
         energyProvider.gFexMHTRoIKey = ""
         energyProvider.gFexTERoIKey = ""
 
@@ -83,7 +83,7 @@ def L1TopoSimulationCfg(flags):
                                                     JetInputProvider = jetProvider,
                                                     EnergyInputProvider = energyProvider,
                                                     IsLegacyTopo = False,
-                                                    EnableInputDump = flags.Trigger.enableL1TopoDump 
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump
                                                     #UseBitwise = True
                                                     )
     acc.addEventAlgo(topoSimAlg)

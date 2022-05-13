@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGITRAWDATACNV_H
@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include <string>
 
-#include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "LUCID_RawEvent/LUCID_DigitContainer.h"

@@ -49,7 +49,7 @@ StatusCode HTTClusteringTool::DoClustering(HTTLogicalEventInputHeader &header, s
         if(i > 1)
           ATH_MSG_WARNING("more than one tower, m_clusters is only going to contain those from the last one");
         unsigned cluster_count = 0;
-        for (auto &cluster:towerClusters){
+        for ( auto &cluster: towerClusters){
           HTTHit cluster_as_HTThit = cluster.getClusterEquiv();
           cluster_as_HTThit.setHitType(HitType::clustered);
           cluster_as_HTThit.setParentageMask(cluster_count); // making use of unused m_parentageMask to keep track of cluster index
@@ -67,7 +67,7 @@ StatusCode HTTClusteringTool::DoClustering(HTTLogicalEventInputHeader &header, s
 void HTTClusteringTool::SortedClustering(std::vector<std::vector<HTTHit> > sorted_hits, std::vector<HTTCluster> &clusters) const {
   std::vector<HTTCluster> moduleClusters;
   //Loop over the sorted modules that we have
-  for(auto& moduleHits:sorted_hits){
+  for( auto& moduleHits:sorted_hits){
     //Make the clusters for this module
     Clustering(moduleHits, moduleClusters);
     //Put these clusters into the output list
@@ -81,16 +81,16 @@ void HTTClusteringTool::Clustering(std::vector<HTTHit> moduleHits, std::vector<H
   //To hold the current cluster vars for comparison
   int count = 0;
   //loop over the hits that we have been passed for this module
-  for(auto& hit: moduleHits){
+  for( auto& hit: moduleHits){
     int is_clustered_hit =0;
     // int nclustered =0;
     //Loop over the clusters we have already made, check if this hit should be added to them?
-    for(auto& cluster:moduleClusters){
+    for( auto& cluster: moduleClusters){
       if(hit.isPixel()){
-	is_clustered_hit = HTTCLUSTERING::updatePixelCluster(cluster, hit, false);
+	        is_clustered_hit = HTTCLUSTERING::updatePixelCluster(cluster, hit, false);
       }
       if(hit.isStrip()){
-	is_clustered_hit = HTTCLUSTERING::updateStripCluster(cluster, hit, false);
+	        is_clustered_hit = HTTCLUSTERING::updateStripCluster(cluster, hit, false);
       }
     }
     //If it is the first hit or a not clustered hit, then start a new cluster and add it to the output vector
@@ -126,7 +126,7 @@ void HTTClusteringTool::splitHitsToModules(std::vector<HTTHit> &hits, std::vecto
   std::vector<HTTHit> currentModule;
   uint hashing = 0;
   //Split the incoming hits into hits by module
-  for (auto& hit:hits){
+  for ( auto& hit:hits){
     if(hashing == 0){
       currentModule.push_back(hit);
       hashing = hit.getHTTIdentifierHash();
@@ -146,7 +146,7 @@ void HTTClusteringTool::splitHitsToModules(std::vector<HTTHit> &hits, std::vecto
 
 void HTTClusteringTool::sortHitsOnModules(std::vector<std::vector<HTTHit> > &hitsPerModule, int &eta_phi) const{
   //Loop over the module separated hits
-  for (auto& module:hitsPerModule){
+  for ( auto& module:hitsPerModule){
     //Work out if columns are ETA (1) || PHI (0)
     if(etaOrPhi(module.at(0)) == true){
       //Sort by ETA first
@@ -164,7 +164,7 @@ void HTTClusteringTool::sortHitsOnModules(std::vector<std::vector<HTTHit> > &hit
 
 void HTTClusteringTool::sortHitsOnModules(std::vector<std::vector<HTTHit> > &hitsPerModule) const{
   //Loop over the module separated hits
-  for (auto& module:hitsPerModule){
+  for ( auto& module:hitsPerModule){
     if (module.size() > 1) std::stable_sort(module.begin(), module.end(), HTTCLUSTERING::sortITkInputEta);
     if (module.size() > 1) std::stable_sort(module.begin(), module.end(), HTTCLUSTERING::sortITkInputPhi);
   }
@@ -174,7 +174,7 @@ void HTTClusteringTool::sortHitsOnModules(std::vector<std::vector<HTTHit> > &hit
 
 //Need to remove the htt::scaleHitFactor and normalise the widths
 void HTTClusteringTool::normaliseClusters(std::vector<HTTCluster> &clusters) const {
-  for(auto &cluster:clusters){
+  for( auto &cluster:clusters){
     //Grab the cluster equiv
     HTTHit clusterEquiv = cluster.getClusterEquiv();
     //Update the clusterEquiv's position and width
@@ -263,7 +263,7 @@ bool HTTClusteringTool::etaOrPhi(const HTTHit& hit) const {
 
 
 void HTTCLUSTERING::attachTruth(std::vector<HTTHit> &hits){
-  for(auto& hit : hits) {
+  for( auto& hit : hits) {
     HTTMultiTruth mt;
     // record highest pt contribution to the combination (cluster
     if(!hit.getTruth().isEmpty()) {

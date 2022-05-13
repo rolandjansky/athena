@@ -68,6 +68,7 @@ class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
     DoubleProperty           m_nominalField  {this, "NominalField", 2.0834*Gaudi::Units::tesla, "Default nominal field"};
     BooleanProperty          m_useMagFieldCache{this, "UseMagFieldCache", true};
     BooleanProperty          m_useMagFieldDcs{this, "UseMagFieldDcs", true};
+    BooleanProperty          m_disable3D{this, "Disable3DCorrection", false};
 
     unsigned int             m_maxHash{};
 

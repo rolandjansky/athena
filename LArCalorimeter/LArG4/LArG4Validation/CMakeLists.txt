@@ -20,5 +20,4 @@ atlas_add_component( LArG4Validation
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
-atlas_install_runtime( test/*.xml )
 atlas_install_scripts( share/AODElectronContainerReader.py share/LArG4ValidationGenerate.py share/LArG4ValidationGenerateBody.py share/LArG4AODNtuplePlotter.py share/LArG4ValidationPlotter.py )

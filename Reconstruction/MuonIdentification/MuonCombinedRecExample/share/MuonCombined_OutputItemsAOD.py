@@ -7,6 +7,21 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec as rec
 from IsolationAlgs.IsoUpdatedTrackCones import iso_vars
 from MuonCombinedRecExample.MuonCombinedAlgs import GetCombinedTrackParticles
+
+
+# Segments 
+MuonCombinedAODList+=[ "xAOD::MuonSegmentContainer#MuonSegments" ]
+MuonCombinedAODList+=[ "xAOD::MuonSegmentAuxContainer#MuonSegmentsAux."]
+### Segments that were not combined to muon tracks or matched to extrapolated ID tracks
+if muonCombinedRecFlags.saveUnassocSegments():
+   MuonCombinedAODList+=[ "xAOD::MuonSegmentContainer#UnAssocMuonSegments" ]
+   MuonCombinedAODList+=[ "xAOD::MuonSegmentAuxContainer#UnAssocMuonSegmentsAux."]
+if muonCombinedRecFlags.doMuGirlLowBeta() and muonCombinedRecFlags.doMuGirl():
+   MuonCombinedAODList+=[ "xAOD::MuonSegmentContainer#StauSegments" ]
+   MuonCombinedAODList+=[ "xAOD::MuonSegmentAuxContainer#StauSegmentsAux."]
+
+          
+
 if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make sense. EJWM
    MuonCombinedAODList+=["xAOD::CaloClusterContainer#MuonClusterCollection"]
    MuonCombinedAODList+=["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
@@ -35,5 +50,4 @@ if DetFlags.detdescr.Muon_on():
    MuonCombinedAODList+=[ "xAOD::SlowMuonContainer#SlowMuons" ]
    MuonCombinedAODList+=[ "xAOD::SlowMuonAuxContainer#SlowMuonsAux." ]  
   
-   #Slimmed Track Collection
-   #MuonCombinedAODList+=["TrackCollection#MuonSlimmedTrackCollection"]
+   

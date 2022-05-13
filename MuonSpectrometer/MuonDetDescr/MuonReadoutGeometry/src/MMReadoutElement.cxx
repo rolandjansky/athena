@@ -42,9 +42,10 @@ namespace Trk {
 namespace MuonGM {
 
     //============================================================================
-    MMReadoutElement::MMReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr) 
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
-    , m_ml(mL) {
+    MMReadoutElement::MMReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr, const NswPassivationDbData* passivData) 
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+      m_passivData(passivData),
+      m_ml(mL) {
 
         // get the setting of the caching flag from the manager
         setCachingFlag(mgr->cachingFlag());

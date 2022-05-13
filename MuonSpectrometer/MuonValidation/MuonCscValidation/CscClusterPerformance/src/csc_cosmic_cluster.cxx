@@ -20,7 +20,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
-#include "CxxUtils/no_bitwise_op_warning.h"
+
 #include "TTree.h"
 #include "TTreeIndex.h"
 #include "SimposAccessor.h"

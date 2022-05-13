@@ -115,6 +115,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   title='# of readout FEB/DSP header',
                                   type='TH1I',
                                   path=summary_hist_path,
+                                  opt='kAlwaysCreate',
                                   xbins=lArDQGlobals.N_FEB+11, xmin=-0.5, xmax=lArDQGlobals.N_FEB+10+0.5)
     Group.defineHistogram('nbFEBpart,part;NbOfEvts2d', 
                                   title='# of readout FEB/DSP header;Num. FEBs;Partition',
@@ -349,6 +350,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               title='Nb of events (DSP header check only) ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
@@ -356,6 +358,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               title='Average # of cells with (qfactor+time) readout ;Slot;FT',
                               type='TProfile2D',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
@@ -363,6 +366,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               title='Average # of cells with samples readout ;Slot;FT',
                               type='TProfile2D',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
@@ -391,6 +395,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                 title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
+                                opt='kAlwaysCreate',
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
                                 title='LAr event size per stream per LB (w/o ROS headers)',

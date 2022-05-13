@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod, ProductionStep
-LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg
@@ -59,7 +58,6 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
     if configFlags.LAr.ROD.forceIter or configFlags.LAr.RawChannelSource is RawChannelSource.Calculated:
        # iterative OFC procedure
-       LArRawChannelBuilderIterAlg=CompFactory.LArRawChannelBuilderIterAlg
        kwargs.setdefault('minSample',2)
        kwargs.setdefault('maxSample',12)
        kwargs.setdefault('minADCforIterInSigma',4)
@@ -78,10 +76,10 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
        else :
           kwargs.setdefault('DefaultShiftTimeSample',0)   
 
-       acc.addEventAlgo(LArRawChannelBuilderIterAlg(**kwargs))
+       acc.addEventAlgo(CompFactory.LArRawChannelBuilderIterAlg(**kwargs))
     else:
        #fixed OFC, as in DSP
-       acc.addEventAlgo(LArRawChannelBuilderAlg(**kwargs))
+       acc.addEventAlgo(CompFactory.LArRawChannelBuilderAlg(**kwargs))
 
     return acc
 

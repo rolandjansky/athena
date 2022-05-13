@@ -74,4 +74,3 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4ZLeptonsCone_FatrasID_FastCa
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4ZLeptonsConeSticky_FatrasID_FastCalo", "ISF_Kernel_G4ZLeptonsConeSticky_FatrasID_FastCalo"    )
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4ZDecayProducts_FatrasID_FastCalo"  , "ISF_Kernel_G4ZDecayProducts_FatrasID_FastCalo"  )
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4JPsiLeptonsCone_FatrasID_FastCalo" , "ISF_Kernel_G4JPsiLeptonsCone_FatrasID_FastCalo" )
-addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ParametricSimulation",                 "ISF_Kernel_ParametricSimulation"                )

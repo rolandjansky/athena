@@ -21,6 +21,10 @@ def RecoSteering(flags):
     if flags.Input.Format is Format.BS:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
+        # Decorate EventInfo obj with Beam Spot information
+        from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import (
+            EventInfoBeamSpotDecoratorAlgCfg)
+        acc.merge(EventInfoBeamSpotDecoratorAlgCfg(flags))
         log.info("---------- Configured BS reading")
     else:
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -54,13 +58,19 @@ def RecoSteering(flags):
             from ThinningUtils.ThinNegativeEnergyCaloClustersConfig import (
                 ThinNegativeEnergyCaloClustersCfg)
             acc.merge(ThinNegativeEnergyCaloClustersCfg(flags))
-    log.info("---------- Configured calorimeter reconstruction")
+        log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
     if flags.Reco.EnableTracking:
         from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
         acc.merge(InDetTrackRecoCfg(flags))
         log.info("---------- Configured tracking")
+
+    # HGTD
+    if flags.Reco.EnableHGTDExtension:
+        from HGTD_Config.HGTD_RecoConfig import HGTD_RecoCfg
+        acc.merge(HGTD_RecoCfg(flags))
+        log.info("---------- Configured HGTD track extension")
 
     # Muon
     if flags.Detector.EnableMuon:
@@ -89,6 +99,13 @@ def RecoSteering(flags):
         acc.merge(MuonCombinedReconstructionCfg(flags))
         log.info("---------- Configured combined muon reconstruction")
 
+    # TrackParticleCellAssociation = add cells crossed by high pt ID tracks
+    if flags.Reco.EnableTrackCellAssociation:
+        from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConfig import (
+            TrackParticleCellAssociationAlgCfg)
+        acc.merge(TrackParticleCellAssociationAlgCfg(flags))
+        log.info("---------- Configured track particle-cell association")
+
     # PFlow
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFCfg
@@ -109,9 +126,6 @@ def RecoSteering(flags):
 
     # btagging
     if flags.Reco.EnableBTagging:
-        # hack to prevent btagging fragments to rename top sequence
-        from AthenaCommon.ConcurrencyFlags import jobproperties
-        jobproperties.ConcurrencyFlags.NumThreads = flags.Concurrency.NumThreads
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
@@ -122,22 +136,28 @@ def RecoSteering(flags):
         acc.merge(TauReconstructionCfg(flags))
         log.info("---------- Configured tau reconstruction")
 
+    if flags.Reco.EnablePFlow:
+        from eflowRec.PFRun3Config import PFTauFELinkCfg
+        acc.merge(PFTauFELinkCfg(flags))
+        log.info("---------- Configured particle flow tau FE linking")
+
     # MET
     if flags.Reco.EnableMet:
         from METReconstruction.METRecCfg import METCfg
         acc.merge(METCfg(flags))
         log.info("---------- Configured MET")
 
-    if flags.Reco.EnablePFlow:
-        from eflowRec.PFRun3Config import PFTauFELinkCfg
-        acc.merge(PFTauFELinkCfg(flags))
-        log.info("---------- Configured particle flow tau FE linking")
-
     # HI
     if flags.Reco.EnableHI:
         from HIRecConfig.HIRecConfig import HIRecCfg
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
+
+    # AFP
+    if flags.Reco.EnableAFP:
+        from ForwardRec.AFPRecConfig import AFPRecCfg
+        acc.merge(AFPRecCfg(flags))
+        log.info("---------- Configured AFP reconstruction")
 
     # Setup the final post-processing
     if flags.Reco.EnablePostProcessing:
@@ -153,12 +173,17 @@ def RecoSteering(flags):
         log.info("setup POOL format writing")
 
     if flags.Output.doWriteESD:
+        # Needed for Trk::Tracks TPCnv/
+        # Assumes we write Trk::Track on ESD
+        from TrkEventCnvTools.TrkEventCnvToolsConfigCA import (
+            TrkEventCnvSuperToolCfg)
+        acc.merge(TrkEventCnvSuperToolCfg(flags))
         log.info("ESD ItemList: %s", acc.getEventAlgo(
             "OutputStreamESD").ItemList)
         log.info("---------- Configured ESD writing")
 
     if flags.Output.doWriteAOD:
-        log.info("ESD ItemList: %s", acc.getEventAlgo(
+        log.info("AOD ItemList: %s", acc.getEventAlgo(
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/PanTauProcessor.h"
@@ -108,28 +108,28 @@ StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::Part
 
   // if there is substructure info available, get constituents, perform selection and recombination
   //these vectors will be owned by the PanTauSeed object.
-  std::vector<TauConstituent*> l_List_TauConstituents = std::vector<TauConstituent*>(0);
-  std::vector<TauConstituent*> l_List_SelectedTauConstituents = std::vector<TauConstituent*>(0);
+  std::vector<TauConstituent*> list_TauConstituents = std::vector<TauConstituent*>(0);
+  std::vector<TauConstituent*> list_SelectedTauConstituents = std::vector<TauConstituent*>(0);
     
   if(pantauSeed_TechnicalQuality.at((int)PanTau::PanTauSeed::t_NoValidInputTau) == 0) {
     // Get the constituents for the current tau
-    ATH_CHECK( m_Tool_TauConstituentGetter->GetTauConstituents(curTauJet, l_List_TauConstituents, m_Name_InputAlg) );
-    if(l_List_TauConstituents.size() == 0)  {
+    ATH_CHECK( m_Tool_TauConstituentGetter->GetTauConstituents(curTauJet, list_TauConstituents, m_Name_InputAlg) );
+    if(list_TauConstituents.empty())  {
       pantauSeed_TechnicalQuality.at((int)PanTau::PanTauSeed::t_NoConstituentsAtAll) = 1;
       ATH_MSG_DEBUG("Seed has no associated constituents!");
     }
       
     // Call the TauConstituentSelector tool to throw out bad constituents
-    ATH_CHECK(m_Tool_TauConstituentSelector->SelectTauConstituents(l_List_TauConstituents, l_List_SelectedTauConstituents) );
-    if(l_List_SelectedTauConstituents.size() == 0) {
+    ATH_CHECK(m_Tool_TauConstituentSelector->SelectTauConstituents(list_TauConstituents, list_SelectedTauConstituents) );
+    if(list_SelectedTauConstituents.empty()) {
       pantauSeed_TechnicalQuality.at((int)PanTau::PanTauSeed::t_NoSelectedConstituents) = 1;
       ATH_MSG_DEBUG("Seed has no associated constituents that pass selection!");
     }
       
     //check if there are core objects in the selected constituents
     bool hasCoreConstituents = false;
-    for(unsigned int iConst=0; iConst<l_List_SelectedTauConstituents.size(); iConst++) {
-      PanTau::TauConstituent* curConst = l_List_SelectedTauConstituents.at(iConst);
+    for(unsigned int iConst=0; iConst<list_SelectedTauConstituents.size(); iConst++) {
+      PanTau::TauConstituent* curConst = list_SelectedTauConstituents.at(iConst);
       if(curConst->isOfType(PanTau::TauConstituent::t_Charged) == true) {hasCoreConstituents = true; break;};
       if(curConst->isOfType(PanTau::TauConstituent::t_Neutral) == true) {hasCoreConstituents = true; break;};
       if(curConst->isOfType(PanTau::TauConstituent::t_Pi0Neut) == true) {hasCoreConstituents = true; break;};
@@ -155,8 +155,8 @@ StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::Part
   // Now build the PanTauSeed with the new Constituents
   PanTau::PanTauSeed* curPanTauSeed = new PanTau::PanTauSeed(m_Name_InputAlg,
 							     curTauJet,
-							     l_List_SelectedTauConstituents,
-							     l_List_TauConstituents,
+							     list_SelectedTauConstituents,
+							     list_TauConstituents,
 							     pantauSeed_TechnicalQuality);
 
   curPanTauSeed->makePrivateStore();

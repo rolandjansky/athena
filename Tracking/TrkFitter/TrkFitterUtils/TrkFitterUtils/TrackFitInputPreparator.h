@@ -46,7 +46,7 @@ namespace Trk {
     TrackFitInputPreparator(const Amg::Vector3D&);
 
     //! destructor
-    ~TrackFitInputPreparator();
+    ~TrackFitInputPreparator() = default;
 
     /** @brief fill a new track object from track+measurements using flags
         for sorting and outliers. This method is a factory, that is the
@@ -72,7 +72,6 @@ namespace Trk {
         parameters in those cases when the first measurement does not have
         TPs stored with it. */
     const Amg::Vector3D           m_sortingRefPoint;
-    TrkParametersComparisonFunction*    m_TP_ComparisonFunction;
     
 
   };

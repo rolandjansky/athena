@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon import CfgMgr
@@ -428,14 +428,14 @@ def MergeGenericMuonSimHitCollTool(name="MergeGenericMuonSimHitCollTool", **kwar
     return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
 
 def MergeMicromegasSimHitCollTool(name="MergeMicromegasSimHitCollTool", **kwargs):
-    kwargs.setdefault("SimHitContainerNames", ["MicromegasSensitiveDetector"])
+    kwargs.setdefault("SimHitContainerNames", ["MM_Hits"])
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -250)
         kwargs.setdefault("LastXing",   200)
     return CfgMgr.MergeGenericMuonSimHitCollTool(name, **kwargs)
 
 def MergeSTGCSimHitCollTool(name="MergeSTGCSimHitCollTool", **kwargs):
-    kwargs.setdefault("SimHitContainerNames", ["sTGCSensitiveDetector"])
+    kwargs.setdefault("SimHitContainerNames", ["sTGC_Hits"])
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -50)
         kwargs.setdefault("LastXing",   75)

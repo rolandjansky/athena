@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATIONTOOL_H
@@ -131,15 +131,15 @@ class MM_DigitizationTool : public PileUpToolBase {
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
   	Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-  	SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MicromegasSensitiveDetector", "name of the input objects"};
+  	SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MM_Hits", "name of the input objects"};
   	std::string m_inputObjectName{""};
 
 		Gaudi::Property<std::string> m_vmmReadoutMode{this,"vmmReadoutMode","peak","For readout (DAQ) path. Can be peak or threshold"};
 		Gaudi::Property<std::string> m_vmmARTMode{this,"vmmARTMode","threshold","For ART (trigger) path. Can be peak or threshold"};
 
 		Gaudi::Property<double> m_energyThreshold{this,"EnergyThreshold",50,"Minimal energy to produce a PRD"};
-		Gaudi::Property<double> m_timeWindowLowerOffset{this,"WindowLowerOffset",-300,"processBunchXing between -250 and 150 ns (look at config file)"};
-		Gaudi::Property<double> m_timeWindowUpperOffset{this,"WindowUpperOffset",200};
+		Gaudi::Property<double> m_timeWindowLowerOffset{this,"WindowLowerOffset",0,"lower boundary of the time window in which digits are accepted"};
+		Gaudi::Property<double> m_timeWindowUpperOffset{this,"WindowUpperOffset",200,"upper boundary of the time window in which digits are accepted"};
 		Gaudi::Property<double> m_DiffMagSecondMuonHit{this,"DiffMagSecondMuonHit",0.1};
 
 		Gaudi::Property<int> m_maskMultiplet{this,"MaskMultiplet",0,"0: all, 1: first, 2: second, 3: both"};
@@ -176,6 +176,9 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
 		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
+		Gaudi::Property<float> m_vmmDeadtime{this,"vmmDeadtime",200,"Specifies how much before the lower time limit the VMM simulation should start evaluating the signal"};
+		// The following job option is a hack until the underlying bug in the VMM sim is found which creates a peak at the upper boundary of the time window.
+		Gaudi::Property<float> m_vmmUpperGrazeWindow{this,"vmmUpperGrazeWindow",150,"Specifies how much above the upper time window boundary the VMM sim evaluates the signal."};
 
 		TFile *m_file{};
 		TTree *m_ntuple{};

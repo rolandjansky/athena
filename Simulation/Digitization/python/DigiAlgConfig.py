@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -312,7 +312,7 @@ def getStandardMuonPileUpTools():
         PileUpToolsList += [ "TgcDigitizationTool" ]
     if DetFlags.digitize.sTGC_on():
         PileUpToolsList += [ "sTgcDigitizationTool" ]
-    if DetFlags.digitize.Micromegas_on():
+    if DetFlags.digitize.MM_on():
         PileUpToolsList += [ "MM_DigitizationTool" ]
     return PileUpToolsList
 

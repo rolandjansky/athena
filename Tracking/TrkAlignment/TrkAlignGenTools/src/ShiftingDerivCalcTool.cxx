@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -32,7 +32,6 @@
 #include "TPaveText.h"
 #include "TAxis.h"
 
-using namespace std;
 
 namespace Trk {
 
@@ -262,7 +261,10 @@ namespace Trk {
     const Trk::Track* trackForRefit =
       (m_removeScatteringBeforeRefit) ? alignTrack->trackWithoutScattering():
       dynamic_cast<const Trk::Track*>(alignTrack);
-    if (!trackForRefit) ATH_MSG_ERROR("no track for refit!");
+    if (!trackForRefit) {
+      ATH_MSG_ERROR("no track for refit!");
+      return false;
+    }
 
     const Track* refittedTrack = m_fitter->alignmentFit( alignCache,
             *trackForRefit,
@@ -270,7 +272,7 @@ namespace Trk {
             m_particleHypothesis);
 
     if (!refittedTrack) {
-      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;
+      ATH_MSG_WARNING( "initial track refit failed" );
       return false;
     }
     else
@@ -651,7 +653,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
     AlignTSOSCollection::const_iterator atsosItr=alignTrack->firstAtsos();
     for (; atsosItr != alignTrack->lastAtsos(); ++atsosItr) {
       if (!(*atsosItr)->isValid()) continue;
-      for (vector<Residual>::const_iterator itRes=(**atsosItr).firstResidual();
+      for (std::vector<Residual>::const_iterator itRes=(**atsosItr).firstResidual();
            itRes!=(**atsosItr).lastResidual();++itRes,++imeas) {
 
         if (refittedTrack) {
@@ -675,7 +677,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
   AlignTSOSCollection::const_iterator aatsosItr=alignTrack->firstAtsos();
   for (; aatsosItr != alignTrack->lastAtsos(); ++aatsosItr) {
     if (!(*aatsosItr)->isValid()) continue;
-    for (vector<Residual>::const_iterator itRes=(**aatsosItr).firstResidual();
+    for (std::vector<Residual>::const_iterator itRes=(**aatsosItr).firstResidual();
          itRes!=(**aatsosItr).lastResidual();++itRes,++iimeas) {
       for (int ifit=0;ifit<NFITS;ifit++) {
         ATH_MSG_DEBUG("["<<ifit<<"]["<<iimeas<<"]   res="<<residuals[ifit][iimeas]<<
@@ -810,7 +812,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(
 
         pave->AddText(measType.str().c_str());
 
-        stringstream firstderivtxt,secndderivtxt,aptxt,chi2txt;
+        std::stringstream firstderivtxt,secndderivtxt,aptxt,chi2txt;
         firstderivtxt<<fit->GetParameter(1)<<" +/- "<<fit->GetParError(1);
         secndderivtxt<<fit->GetParameter(2)<<" +/- "<<fit->GetParError(2);
         aptxt  <<"alignPar "<<alignPar->paramType()<<", RIO in "<<(*atsosItr)->identify();

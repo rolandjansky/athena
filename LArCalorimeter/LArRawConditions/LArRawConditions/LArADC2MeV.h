@@ -67,7 +67,6 @@ class LArADC2MeV {
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( LArADC2MeV, 87645297, 1)
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF (LArADC2MeV, 155872295);
-
+CONDCONT_MIXED_DEF(LArADC2MeV, 155872295);
 #endif
 

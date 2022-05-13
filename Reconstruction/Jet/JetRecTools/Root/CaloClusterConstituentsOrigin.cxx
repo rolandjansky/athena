@@ -31,7 +31,7 @@ StatusCode CaloClusterConstituentsOrigin::process_impl(xAOD::IParticleContainer*
    ATH_CHECK(handle.isValid());
    auto vertexContainer = handle.cptr();
        
-   for(const auto& pv : *vertexContainer) {
+   for(const xAOD::Vertex* pv : *vertexContainer) {
      // Apply the origin correction iff a PV is identified
      if(pv->vertexType()==xAOD::VxType::PriVtx) {return correctToOriginVtx(*clust, *pv);}
    }

@@ -234,12 +234,14 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   Monitored::Scalar<int> cmx_tob_right_y = Monitored::Scalar<int>("cmx_tob_right_y", 0);
   Monitored::Scalar<int> cmx_thresh_y = Monitored::Scalar<int>("cmx_thresh_y", 0);
 
-
+  // set maximum number of error events per lumiblock(per type) to avoid histograms with many x-bins
+  const int maxErrorsPerLB=10;
+  auto lb = GetEventInfo(ctx)->lumiBlock();
   //
   ErrorVector crateErr(m_crates);
   const int cpmBins = m_crates * m_modules;
   const int cmxBins = m_crates * m_cmxs; 
-  int errCounter[7][72]={};
+  
   for (int err = 0; err < NumberOfSummaryBins; ++err) {
     int error = 0;
     for (int loc = 0; loc < cpmBins; ++loc) {
@@ -256,33 +258,59 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
         error = 1;
         crateErr[loc / m_modules] |= (1 << err);	
 	if (err<7) {
-	  if (err==0) {
-	    auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
-	    em_tt_y=loc;
-	    fill(m_packageName,em_tt_evtstr,em_tt_y);
-	  } else if (err==1) {
-	    auto had_tt_evtstr = Monitored::Scalar<std::string>("had_tt_evtstr", std::to_string(eventNumber));
-	    had_tt_y=loc;
-	    fill(m_packageName,had_tt_evtstr,had_tt_y);
-	  } else if (err==2) {
-	    auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
-	    em_roi_y=loc;
-	    fill(m_packageName,em_roi_evtstr,em_roi_y);
-	  } else if (err==3) {
-	    auto tau_roi_evtstr = Monitored::Scalar<std::string>("tau_roi_evtstr", std::to_string(eventNumber));
-	    tau_roi_y=loc;
-	    fill(m_packageName,tau_roi_evtstr,tau_roi_y);
-	  } else if (err==4) {
-	    auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
-	    cmx_tob_left_y=loc;
-	    fill(m_packageName,cmx_tob_left_evtstr,cmx_tob_left_y);
-	  } else if (err==5) {
-	    auto cmx_tob_right_evtstr = Monitored::Scalar<std::string>("cmx_tob_right_evtstr", std::to_string(eventNumber));
-	    cmx_tob_right_y=loc;
-	    fill(m_packageName,cmx_tob_right_evtstr,cmx_tob_right_y);
+	  if (err==0 || err==1) {
+	    // scope for mutable error event per lumi block tt counter
+	    {
+	      std::lock_guard<std::mutex> lock(m_mutex);
+	      m_errorLB_tt_counter[lb]+=1;
+	      if (m_errorLB_tt_counter[lb]<=maxErrorsPerLB) {
+		if (err==0) {
+		  auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
+		  em_tt_y=loc;
+		  fill(m_packageName,em_tt_evtstr,em_tt_y);
+		} else {
+		  auto had_tt_evtstr = Monitored::Scalar<std::string>("had_tt_evtstr", std::to_string(eventNumber));
+		  had_tt_y=loc;
+		  fill(m_packageName,had_tt_evtstr,had_tt_y);
+		}
+	      }
+	    }
+	  } else if (err==2 || err==3) {
+	    // scope for mutable error event per lumi block roi counter
+	    {
+	      std::lock_guard<std::mutex> lock(m_mutex);
+	      m_errorLB_roi_counter[lb]+=1;
+	      if (m_errorLB_roi_counter[lb]<=maxErrorsPerLB) {
+		if (err==2) {
+		  auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
+		  em_roi_y=loc;
+		  fill(m_packageName,em_roi_evtstr,em_roi_y);
+		} else {
+		  auto tau_roi_evtstr = Monitored::Scalar<std::string>("tau_roi_evtstr", std::to_string(eventNumber));
+		  tau_roi_y=loc;
+		  fill(m_packageName,tau_roi_evtstr,tau_roi_y);
+		}
+	      }
+	    }
+	  } else if (err==4 || err==5) {
+	    // scope for mutable error event per lumi block tob counter
+	    {
+	      std::lock_guard<std::mutex> lock(m_mutex);
+	      m_errorLB_tob_counter[lb]+=1;
+	      if(m_errorLB_tob_counter[lb]<=maxErrorsPerLB) {
+		if (err==4) {
+		  auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
+		  cmx_tob_left_y=loc;
+		  fill(m_packageName,cmx_tob_left_evtstr,cmx_tob_left_y);
+		} else {
+		  auto cmx_tob_right_evtstr = Monitored::Scalar<std::string>("cmx_tob_right_evtstr", std::to_string(eventNumber));
+		  cmx_tob_right_y=loc;
+		  fill(m_packageName,cmx_tob_right_evtstr,cmx_tob_right_y);
+		}
+	      }
+	    }
 	  }
-	  errCounter[err][loc]+=1;
-	}
+	} // err<7
       }
       if (loc < cmxBins) {
         if ((errorsCMX[loc] >> err) & 0x1) {
@@ -303,28 +331,36 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
           else if (err == TopoMismatch) {
             offset = 16;
 	  }
-	  auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
-	  cmx_thresh_y=loc+offset;
-	  fill(m_packageName,cmx_thresh_evtstr,cmx_thresh_y);
-	  errCounter[6][loc+offset]+=1;
-        }
+
+	  // scope for mutable error event per lumi block threshold counter
+	  {
+	    std::lock_guard<std::mutex> lock(m_mutex);
+	    m_errorLB_thresh_counter[lb]+=1;
+	    if(m_errorLB_thresh_counter[lb]<=maxErrorsPerLB) {
+	      auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
+	      cmx_thresh_y=loc+offset;
+	      fill(m_packageName,cmx_thresh_evtstr,cmx_thresh_y);
+	    }
+	  }
+        } 
       }
     }
     if (error) {
       cpmErrorSummary=err;
       fill(m_packageName,cpmErrorSummary);    
-    }
-
-
-  } // summary bind
+    }    
+  } // summary bins
 
   //
   // Save error vector for global summary
-  ErrorVector *save = new ErrorVector(crateErr);
-  StatusCode sc = evtStore()->record(save, m_errorLocation);
-  if (sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Error recording CPM mismatch vector in TES");
-    return sc;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);  
+    ErrorVector *save = new ErrorVector(crateErr);
+    StatusCode sc = evtStore()->record(save, m_errorLocation);
+    if (sc != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Error recording CPM mismatch vector in TES");
+      return sc;
+    }
   }
 
   

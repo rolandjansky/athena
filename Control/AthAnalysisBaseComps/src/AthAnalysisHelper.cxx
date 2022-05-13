@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -12,9 +12,7 @@
 
 const std::string AthAnalysisHelper::UNDEFINED = "__UNDEFINED__";
 
-ServiceHandle<Gaudi::Interfaces::IOptionsSvc> AthAnalysisHelper::joSvc = ServiceHandle<Gaudi::Interfaces::IOptionsSvc>("JobOptionsSvc","AthAnalysisHelper");
-
-//need a constructor, implemented here, so that the dictionary library is linked to 
+//need a constructor, implemented here, so that the dictionary library is linked to
 //the implementation library (see ldd libAthAnalysisBaseCompsDict.so ... needs a link)
 AthAnalysisHelper::AthAnalysisHelper() { } 
 

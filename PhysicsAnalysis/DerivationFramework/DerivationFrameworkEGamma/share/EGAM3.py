@@ -6,7 +6,8 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM3ExtraContent import *
@@ -30,11 +31,10 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 
 
 #====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 #====================================================================
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM3 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource()!='geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     DoCellReweighting = False
     DoCellReweightingVariations = False
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
@@ -518,8 +518,11 @@ EGAM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth
-addDAODJets([AntiKt4Truth], EGAM3Sequence)
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth, AntiKt4TruthDressedWZ
+jetList=[]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM3Sequence)
 
 
 #====================================================================
@@ -536,16 +539,34 @@ EGAM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Append cell-reweighted collections to dictionary
 if DoCellReweighting:
-    EGAM3SlimmingHelper.AppendToDictionary = {"NewSwPhotons": "xAOD::PhotonContainer", "NewSwPhotonsAux": "xAOD::PhotonAuxContainer", "NewSwElectrons": "xAOD::ElectronContainer", "NewSwElectronsAux": "xAOD::ElectronAuxContainer" }
+    EGAM3SlimmingHelper.AppendToDictionary = {
+        "NewSwPhotons": "xAOD::PhotonContainer",
+        "NewSwPhotonsAux": "xAOD::PhotonAuxContainer",
+        "NewSwElectrons": "xAOD::ElectronContainer",
+        "NewSwElectronsAux": "xAOD::ElectronAuxContainer"
+    }
     if DoCellReweightingVariations:
-        EGAM3SlimmingHelper.AppendToDictionary.update({ "MaxVarSwPhotons": "xAOD::PhotonContainer", "MaxVarSwPhotonsAux": "xAOD::PhotonAuxContainer", "MinVarSwPhotons": "xAOD::PhotonContainer", "MinVarSwPhotonsAux": "xAOD::PhotonAuxContainer" })
-        EGAM3SlimmingHelper.AppendToDictionary.update({ "MaxVarSwElectrons": "xAOD::ElectronContainer", "MaxVarSwElectronsAux": "xAOD::ElectronAuxContainer", "MinVarSwElectrons": "xAOD::ElectronContainer", "MinVarSwElectronsAux": "xAOD::ElectronAuxContainer" })
+        EGAM3SlimmingHelper.AppendToDictionary.update({
+            "MaxVarSwPhotons": "xAOD::PhotonContainer",
+            "MaxVarSwPhotonsAux": "xAOD::PhotonAuxContainer",
+            "MinVarSwPhotons": "xAOD::PhotonContainer",
+            "MinVarSwPhotonsAux": "xAOD::PhotonAuxContainer"
+        })
+        EGAM3SlimmingHelper.AppendToDictionary.update({
+            "MaxVarSwElectrons": "xAOD::ElectronContainer",
+            "MaxVarSwElectronsAux": "xAOD::ElectronAuxContainer",
+            "MinVarSwElectrons": "xAOD::ElectronContainer",
+            "MinVarSwElectronsAux": "xAOD::ElectronAuxContainer"
+        })
 
 
 # Extra variables
@@ -553,7 +574,13 @@ EGAM3SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM3SlimmingHelper.AllVariables = ExtraContainersPhotons
 EGAM3SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+if DoCellReweighting:
+    EGAM3SlimmingHelper.AllVariables += ["NewSwPhotons"]
+    if DoCellReweightingVariations:
+        EGAM3SlimmingHelper.AllVariables += ["MaxVarSwPhotons", "MinVarSwPhotons"]
+    EGAM3SlimmingHelper.ExtraVariables += ExtraContentReweightedElectrons
+        
+if DerivationFrameworkIsMonteCarlo:
     EGAM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM3SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

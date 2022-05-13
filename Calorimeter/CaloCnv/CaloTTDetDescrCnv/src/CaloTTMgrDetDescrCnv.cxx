@@ -128,7 +128,7 @@ CaloTTMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
  
     // Get idhelper from detector store and add to mgr
     //const DataHandle<CaloLVL1_ID> lvl1_id;
-    const CaloLVL1_ID* lvl1_id;
+    const CaloLVL1_ID* lvl1_id = nullptr;
     status = detStore->retrieve(lvl1_id, "CaloLVL1_ID");
     if (status.isFailure()) {
 	log << MSG::FATAL << "Could not get CaloLVL1_ID helper !" << endmsg;

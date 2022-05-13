@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Hide multi-threading classes from builds without G4MT
@@ -23,7 +23,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <mutex>
 
@@ -31,7 +31,7 @@ static std::mutex workerInitMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   : G4WorkerRunManager()
-  , m_msg("G4AtlasWorkerRunManager")
+  , AthMessaging(Athena::getMessageSvc(), "G4AtlasWorkerRunManager")
     // TODO: what if we need to make these configurable?
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager")
   , m_fastSimTool("FastSimulationMasterTool")

@@ -202,12 +202,12 @@ public:
   /// Create compact id from hash id (return == 0 for OK)
   virtual int get_id(const IdentifierHash& hash_id,
                      Identifier& id,
-                     const IdContext* context = 0) const override;
+                     const IdContext* context = 0) const override final;
 
   /// Create hash id from compact id (return == 0 for OK)
   virtual int get_hash(const Identifier& id,
                        IdentifierHash& hash_id,
-                       const IdContext* context = 0) const override;
+                       const IdContext* context = 0) const override final;
   //@}
 
   /// Create a compact id from a value (e.g., from a persistent object).

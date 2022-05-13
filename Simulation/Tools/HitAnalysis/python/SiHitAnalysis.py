@@ -67,7 +67,7 @@ def PLRHitAnalysisCfg(flags):
     acc = PLRGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('PLRHitAnalysis')
-    alg.CollectionName = 'PLRHits'
+    alg.CollectionName = 'PLR_Hits'
     alg.HistPath='/SiHitAnalysis/histos/'
     alg.NtuplePath='/SiHitAnalysis/ntuples/'
     acc.addEventAlgo(alg)

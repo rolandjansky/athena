@@ -78,8 +78,8 @@ class TCPufitConfig(AlgConfig):
         )
         if nSigma == "default":
             nSigma = "sig50"
-        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
-        self.n_sigma = int(nSigma[3:]) / 10.0
+        # Strip off the 'sig' part of the string, convert the end to a float, then divide by 10
+        self.n_sigma = float(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::TCPufitFex")(
@@ -157,8 +157,8 @@ class PFOPufitConfig(AlgConfig):
         )
         if nSigma == "default":
             nSigma = "sig50"
-        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
-        self.n_sigma = int(nSigma[3:]) / 10.0
+        # Strip off the 'sig' part of the string, convert the end to a float, then divide by 10
+        self.n_sigma = float(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::PUSplitPufitFex")(
@@ -241,7 +241,7 @@ class NNHLTConfig(AlgConfig):
         return "nn"
 
     def __init__(self, **recoDict):
-        self.file_name = "TrigEFMissingET/20220211/NNsingleLayerRed.json"
+        self.file_name = "TrigEFMissingET/20220429/NNsingleLayerRed.json"
         # Locate the file on the calib path
         full_name = find_datafile(self.file_name, os.environ["CALIBPATH"].split(os.pathsep))
         if full_name is None:

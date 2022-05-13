@@ -130,37 +130,40 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
     }
 
-    std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
+    std::map<uint32_t, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by hash_bandid and seperate in wedge
 
-    int bcid=-1;
-    int sectorid=-1;
-    int sideid=-1;
+    int sectorid=-1;     // [1,8]
+    int sideid=-1;       // sideid==0: C
+    int sectorNumber=-1; // [1,16]
+    int hash=-1;         // [1,32]
+
+    int bandId=-1;       // bandId is different for large and small sector type, the same for side / specific sector
 
     for(auto& cl : clusters){
-      bcid=cl->BCID();
+      // combine the side, sectortype, sectorid to form the hash
       sideid=cl->sideId();
-      /* S.I : For the sector logic I guess we need sector Ids from 1 to 16 / per side
-         The convention followed by different people throghout this simulation chain (starting from padTDs Tool upto here) is :
-         sector Id ranges from 1 to 8 + combined with the info Small or Large.
-      */
       sectorid=cl->sectorId();
-      if(cl->isSmall()) sectorid*=2;
-      else sectorid=sectorid*2-1;
+      if(cl->isSmall()) sectorNumber=2*sectorid;
+      else sectorNumber=2*sectorid-1;
+      hash=16*sideid+sectorNumber;
 
-      if(sideid == 0 ) sectorid+=16; //C
+      bandId=cl->bandId();
 
+      std::string id_str=std::to_string(hash)+std::to_string(bandId);
+      uint32_t hash_bandid=atoi(id_str.c_str());
+
+      // use the clusters in 2 wedges, with the same bandId, to form the sector segment
       /*****************************************************************************************************/
-      auto item =cluster_map.find(cl->bandId());
+      auto item =cluster_map.find(hash_bandid);
       if (item != cluster_map.end()){
         item->second[cl->wedge()-1].push_back(std::move(cl));
       }
       else{
-        cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
+        cluster_map[hash_bandid][cl->wedge()-1].push_back(std::move(cl));
       }
     }
 
-    ATH_MSG_DEBUG(" Building NSW Segment RDO at sector=" << sectorid);
-    auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>((uint16_t)(sectorid), (uint16_t)(bcid));
+    ATH_MSG_DEBUG(" Building NSW Segment RDO at hash=" << hash);
 
     for(const auto& band : cluster_map){//main band loop
       int bandId=band.first;
@@ -188,23 +191,36 @@ namespace NSWL1 {
       float dtheta=0;
       float eta_inf=0;
 
-      //first measuement
+      // First measurement, corresponding to the inner wedge
       float z1=0;
-      for( const auto& cl : band.second[0] ){//inner
+      uint16_t sectorID = 0, bcID = 0;
+      char sectorSide = '-';
+      for( const auto& cl : band.second[0] ){
         z1+=cl->globZ()*cl->charge();
         glx1+=cl->globX()*cl->charge();
         gly1+=cl->globY()*cl->charge();
         charge1+=cl->charge();
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+	sectorID--; // ID should start from zero
+        sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
+        bcID = cl->BCID();
       }
+      auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>(sectorID, sectorSide, bcID);
 
-      //first measurement
-      //S.I : This is SECOND measurement, not the 1st. Please be careful while copy/pasting
+      // Second measurement, corresponding to the outer wedge
       float z2=0;
-      for( const auto& cl : band.second[1] ){//outer
+      for( const auto& cl : band.second[1] ){
         z2+=cl->globZ()*cl->charge();
         glx2+=cl->globX()*cl->charge();
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+	sectorID--; // ID should start from zero
+        sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
+        bcID = cl->BCID();
+        if (( sectorID != trgRawData->sectorId() ) ||
+            ( sectorSide != trgRawData->sectorSide() ) ||
+            ( bcID != trgRawData->bcId() )) ATH_MSG_WARNING("Possible mismatch between inner and outer wedge RDO parameters");
       }
       if(charge1!=0){
         z1=z1/charge1;
@@ -217,7 +233,7 @@ namespace NSWL1 {
         gly2=gly2/charge2;
       }
 
-      // //centroid calc
+      //centroid calc
       glx=(glx1+glx2)/2.;
       gly=(gly1+gly2)/2.;
       float avg_z=(z1+z2)/2.;
@@ -235,9 +251,9 @@ namespace NSWL1 {
       dtheta=(theta_inf-theta)*1000;//In Milliradian
 
       ATH_MSG_DEBUG("StripSegmentTool: phi:" << phi << " theta:" << theta << " eta: " << eta << " theta_inf: " << theta_inf << " eta_inf: " << eta_inf << " dtheta: " << dtheta);
-      
+
       //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
-      //if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
+      if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
 
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
@@ -282,10 +298,9 @@ namespace NSWL1 {
         m_seg_global_x->push_back(glx);
         m_seg_global_y->push_back(gly);
         m_seg_global_z->push_back(avg_z);
-
       }
+      trgContainer->push_back(std::move(trgRawData));
     }//end of clmap loop
-    trgContainer->push_back(std::move(trgRawData));
     return StatusCode::SUCCESS;
   }
 
@@ -346,3 +361,4 @@ namespace NSWL1 {
     m_seg_wedge1_size->clear();
   }
 }
+

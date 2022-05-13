@@ -78,9 +78,10 @@ class TrigInDetReco(ExecStep):
         flags = ''
         for i in self.slices:
             if (i=='L2muonLRT') :
-                chains += "'HLT_mu24_LRT_idperf_L1MU14FCH',"
+                chains += "'HLT_mu20_LRT_idperf_L1MU14FCH',"
                 chains += "'HLT_mu6_LRT_idperf_L1MU5VF',"
                 chains += "'HLT_mu6_idperf_L1MU5VF',"
+                chains += "'HLT_mu24_idperf_L1MU14FCH',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
                 chains += "'HLT_unconvtrk0_fslrt_L1J100',"
@@ -99,8 +100,7 @@ class TrigInDetReco(ExecStep):
             if (i=='electron') :
                 # chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH',"
-                chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
+                # chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_loose_L1EM22VHI',"
                 chains += "'HLT_e5_idperf_tight_L1EM3',"
                 flags += 'doEgammaSlice=True;'
@@ -258,7 +258,6 @@ class TrigTZReco(ExecStep):
             "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
             "ConfigFlags.Trigger.triggerMenuSetup=\'Cosmic_run3_v1\';",
             "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
-            "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
             "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
             ])
         self.threads = 1

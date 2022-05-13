@@ -92,6 +92,11 @@ private:
   std::vector<float> m_tau_floatEta;
   std::vector<float> m_tau_floatPhi;
   std::vector<float> m_tau_isCentralTowerSeed;
+  std::vector<float> m_tau_CenterTowerEt;
+  std::vector<float> m_tau_OneOffEtaTowerEt;
+  std::vector<float> m_tau_OneBelowEtaTowerEt;
+  std::vector<float> m_tau_eFEXID;
+  std::vector<float> m_tau_FPGAID;
   
   std::vector<int> m_eFex_number; ///< eFex number
   std::vector<uint32_t> m_eg_tob; ///< e-gamma TOB words

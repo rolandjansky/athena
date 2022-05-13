@@ -13,149 +13,147 @@
 #include "Acts/Definitions/Units.hpp"
 
 namespace ActsTrk {
-  
+
   SeedingTool::SeedingTool(const std::string& type,
-				   const std::string& name,
-				   const IInterface* parent) 
-    : base_class(type, name, parent)  
+    const std::string& name,
+    const IInterface* parent)
+    : base_class(type, name, parent)
   {}
-  
+
   StatusCode SeedingTool::initialize() {
-    ATH_MSG_INFO( "Initializing " << name() << "..." );
-    
-    ATH_MSG_DEBUG( "Properties Summary:" );
-    ATH_MSG_DEBUG( "   " << m_zBinNeighborsTop );
-    ATH_MSG_DEBUG( "   " << m_zBinNeighborsBottom );
+    ATH_MSG_INFO("Initializing " << name() << "...");
 
-    ATH_MSG_DEBUG( " * Used by SeedfinderConfig:");
-    ATH_MSG_DEBUG( "   " << m_minPt );
-    ATH_MSG_DEBUG( "   " << m_cotThetaMax );
-    ATH_MSG_DEBUG( "   " << m_deltaRMin );
-    ATH_MSG_DEBUG( "   " << m_deltaRMax );
-    ATH_MSG_DEBUG( "   " << m_deltaRMinTopSP );
-    ATH_MSG_DEBUG( "   " << m_deltaRMaxTopSP );
-    ATH_MSG_DEBUG( "   " << m_deltaRMinBottomSP );
-    ATH_MSG_DEBUG( "   " << m_deltaRMaxBottomSP );
-    ATH_MSG_DEBUG( "   " << m_useVariableMiddleSPRange );
-    ATH_MSG_DEBUG( "   " << m_deltaRMiddleSPRange );
-    ATH_MSG_DEBUG( "   " << m_seedConfirmation );
-    ATH_MSG_DEBUG( "   " << m_enableCutsForSortedSP );
-    ATH_MSG_DEBUG( "   " << m_impactMax );
-    ATH_MSG_DEBUG( "   " << m_sigmaScattering );    
-    ATH_MSG_DEBUG( "   " <<  m_maxPtScattering );
-    ATH_MSG_DEBUG( "   " << m_maxSeedsPerSpM );
-    ATH_MSG_DEBUG( "   " << m_collisionRegionMin );
-    ATH_MSG_DEBUG( "   " << m_collisionRegionMax );
-    ATH_MSG_DEBUG( "   " <<  m_phiMin );
-    ATH_MSG_DEBUG( "   " <<  m_phiMax );
-    ATH_MSG_DEBUG( "   " << m_zMin );
-    ATH_MSG_DEBUG( "   " << m_zMax );
-    ATH_MSG_DEBUG( "   " << m_rMax );
-    ATH_MSG_DEBUG( "   " <<  m_rMin );
-    ATH_MSG_DEBUG( "   " << m_radLengthPerSeed );
-    ATH_MSG_DEBUG( "   " <<  m_zAlign );
-    ATH_MSG_DEBUG( "   " <<  m_rAlign );
-    ATH_MSG_DEBUG( "   " <<  m_sigmaError );
+    ATH_MSG_DEBUG("Properties Summary:");
+    ATH_MSG_DEBUG("   " << m_zBinNeighborsTop);
+    ATH_MSG_DEBUG("   " << m_zBinNeighborsBottom);
+
+    ATH_MSG_DEBUG(" * Used by SeedfinderConfig:");
+    ATH_MSG_DEBUG("   " << m_minPt);
+    ATH_MSG_DEBUG("   " << m_cotThetaMax);
+    ATH_MSG_DEBUG("   " << m_deltaRMin);
+    ATH_MSG_DEBUG("   " << m_deltaRMax);
+    ATH_MSG_DEBUG("   " << m_deltaRMinTopSP);
+    ATH_MSG_DEBUG("   " << m_deltaRMaxTopSP);
+    ATH_MSG_DEBUG("   " << m_deltaRMinBottomSP);
+    ATH_MSG_DEBUG("   " << m_deltaRMaxBottomSP);
+    ATH_MSG_DEBUG("   " << m_useVariableMiddleSPRange);
+    ATH_MSG_DEBUG("   " << m_deltaRMiddleSPRange);
+    ATH_MSG_DEBUG("   " << m_seedConfirmation);
+    ATH_MSG_DEBUG("   " << m_enableCutsForSortedSP);
+    ATH_MSG_DEBUG("   " << m_impactMax);
+    ATH_MSG_DEBUG("   " << m_sigmaScattering);
+    ATH_MSG_DEBUG("   " << m_maxPtScattering);
+    ATH_MSG_DEBUG("   " << m_maxSeedsPerSpM);
+    ATH_MSG_DEBUG("   " << m_collisionRegionMin);
+    ATH_MSG_DEBUG("   " << m_collisionRegionMax);
+    ATH_MSG_DEBUG("   " << m_phiMin);
+    ATH_MSG_DEBUG("   " << m_phiMax);
+    ATH_MSG_DEBUG("   " << m_zMin);
+    ATH_MSG_DEBUG("   " << m_zMax);
+    ATH_MSG_DEBUG("   " << m_rMax);
+    ATH_MSG_DEBUG("   " << m_rMin);
+    ATH_MSG_DEBUG("   " << m_radLengthPerSeed);
+    ATH_MSG_DEBUG("   " << m_zAlign);
+    ATH_MSG_DEBUG("   " << m_rAlign);
+    ATH_MSG_DEBUG("   " << m_sigmaError);
 
 
-    ATH_MSG_DEBUG( " * Used by SeedFilterConfig:");
-    ATH_MSG_DEBUG( "   " << m_deltaInvHelixDiameter );
-    ATH_MSG_DEBUG( "   " << m_impactWeightFactor);
-    ATH_MSG_DEBUG( "   " << m_compatSeedWeight);
-    ATH_MSG_DEBUG( "   " << m_deltaRMin );
-    ATH_MSG_DEBUG( "   " << m_maxSeedsPerSpM );
-    ATH_MSG_DEBUG( "   " << m_compatSeedLimit);
+    ATH_MSG_DEBUG(" * Used by SeedFilterConfig:");
+    ATH_MSG_DEBUG("   " << m_deltaInvHelixDiameter);
+    ATH_MSG_DEBUG("   " << m_impactWeightFactor);
+    ATH_MSG_DEBUG("   " << m_compatSeedWeight);
+    ATH_MSG_DEBUG("   " << m_deltaRMin);
+    ATH_MSG_DEBUG("   " << m_maxSeedsPerSpM);
+    ATH_MSG_DEBUG("   " << m_compatSeedLimit);
 
-    ATH_MSG_DEBUG( " *  Used by SpacePointGridConfig" );
-    ATH_MSG_DEBUG( "   " << m_minPt );
-    ATH_MSG_DEBUG( "   " << m_rMax );
-    ATH_MSG_DEBUG( "   " << m_zMax );
-    ATH_MSG_DEBUG( "   " << m_zMin );
-    ATH_MSG_DEBUG( "   " << m_deltaRMax );
-    ATH_MSG_DEBUG( "   " << m_cotThetaMax );
-    ATH_MSG_DEBUG( "   " << m_impactMax );
-    ATH_MSG_DEBUG( "   " << m_numPhiNeighbors );
-    ATH_MSG_DEBUG( "   " << m_zBinEdges );
+    ATH_MSG_DEBUG(" *  Used by SpacePointGridConfig");
+    ATH_MSG_DEBUG("   " << m_minPt);
+    ATH_MSG_DEBUG("   " << m_rMax);
+    ATH_MSG_DEBUG("   " << m_zMax);
+    ATH_MSG_DEBUG("   " << m_zMin);
+    ATH_MSG_DEBUG("   " << m_deltaRMax);
+    ATH_MSG_DEBUG("   " << m_cotThetaMax);
+    ATH_MSG_DEBUG("   " << m_impactMax);
+    ATH_MSG_DEBUG("   " << m_numPhiNeighbors);
+    ATH_MSG_DEBUG("   " << m_zBinEdges);
 
-    if (m_zBinEdges.size() - 1 != 
-	m_zBinNeighborsTop.size() and
-	not m_zBinNeighborsTop.empty()) {
+    if (m_zBinEdges.size() - 1 !=
+      m_zBinNeighborsTop.size() and
+      not m_zBinNeighborsTop.empty()) {
       ATH_MSG_ERROR("Inconsistent config zBinNeighborsTop");
       return StatusCode::FAILURE;
     }
 
     if (m_zBinEdges.size() - 1 !=
-	m_zBinNeighborsBottom.size() and
-	not m_zBinNeighborsBottom.empty()) {
+      m_zBinNeighborsBottom.size() and
+      not m_zBinNeighborsBottom.empty()) {
       ATH_MSG_ERROR("Inconsistent config zBinNeighborsBottom");
       return StatusCode::FAILURE;
     }
-    
+
     return StatusCode::SUCCESS;
   }
-  
+
   StatusCode
   SeedingTool::createSeeds(const EventContext& /*ctx*/,
-                           const ActsTrk::SpacePointContainer& spContainer,
+                           const std::vector<const ActsTrk::SpacePoint*>& spContainer,
                            const InDet::BeamSpotData& beamSpotData,
                            const Acts::MagneticFieldContext& magFieldContext,
                            ActsTrk::SeedContainer& seedContainer ) const
   {
     // Create Seeds
-    auto groupSeeds =
-      createSeeds( spContainer.begin(),
-		   spContainer.end(),
-		   beamSpotData,
-		   magFieldContext );
+    //TODO POSSIBLE OPTIMISATION come back here: see MR !52399 ( i.e. use static thread_local)
+    std::vector<Acts::Seed< external_spacepoint< ActsTrk::SpacePointContainer::const_iterator>::type >> groupSeeds;
+    ATH_CHECK(createSeeds(spContainer.begin(),
+        spContainer.end(),
+        beamSpotData,
+        magFieldContext, 
+        groupSeeds));
 
     // Store seeds
     seedContainer.reserve(groupSeeds.size());
-    for (unsigned int i(0);i<groupSeeds.size();i++) {
-      std::unique_ptr< ActsTrk::Seed > to_add = 
-	std::make_unique<ActsTrk::Seed>(std::forward<ActsTrk::Seed>(groupSeeds.at(i)));
-      seedContainer.push_back( std::move(to_add) );
+    for( const auto& seed: groupSeeds) {
+      std::unique_ptr< ActsTrk::Seed > to_add = std::make_unique<ActsTrk::Seed>(seed);
+      seedContainer.push_back(std::move(to_add));  
     }
 
     return StatusCode::SUCCESS;
   }
 
 
-  
-  template<
-    typename spacepoint_iterator_t,
-    typename external_spacepoint_t
-    >
-  std::vector< Acts::Seed< external_spacepoint_t > >
-  SeedingTool::createSeeds( spacepoint_iterator_t spBegin,
-                            spacepoint_iterator_t spEnd,
-                            const InDet::BeamSpotData& beamSpotData,
-                            const Acts::MagneticFieldContext& magFieldContext ) const {
-    
+
+  template< typename spacepoint_iterator_t >
+   StatusCode
+    SeedingTool::createSeeds(spacepoint_iterator_t spBegin,
+      spacepoint_iterator_t spEnd,
+      const InDet::BeamSpotData& beamSpotData,
+      const Acts::MagneticFieldContext& magFieldContext, 
+      std::vector<Acts::Seed< typename external_spacepoint<spacepoint_iterator_t>::type >>& seeds) const {
+
+    using external_spacepoint_t = typename external_spacepoint<spacepoint_iterator_t>::type;
     using seed_t = Acts::Seed< external_spacepoint_t >;
-    
-    static thread_local std::vector< seed_t > seeds;
     seeds.clear();
-    if ( spBegin == spEnd )
-      return seeds;
-    
+    if (spBegin == spEnd)
+      return StatusCode::SUCCESS;
+
     // Beam Spot Position
-    Acts::Vector2 beamPos( beamSpotData.beamPos()[ Amg::x ] * Acts::UnitConstants::mm,
-			   beamSpotData.beamPos()[ Amg::y ] * Acts::UnitConstants::mm );
+    const Acts::Vector3& cb = beamSpotData.beamPos();
+
+    Acts::Vector2 beamPos( cb[Amg::x] * Acts::UnitConstants::mm,
+                           cb[Amg::y] * Acts::UnitConstants::mm);
     
     // Magnetic Field
     ATLASMagneticFieldWrapper magneticField;
     Acts::MagneticFieldProvider::Cache magFieldCache = magneticField.makeCache( magFieldContext );
     Acts::Vector3 bField = *magneticField.getField( Acts::Vector3(beamPos.x(), beamPos.y(), 0),
 						    magFieldCache );
-    
-    auto Configs = prepareConfiguration< external_spacepoint_t >( beamPos,bField );
-    auto gridCfg = Configs.first;
-    auto finderCfg = Configs.second;
-    
-    
-    auto extractCovariance = [=](const external_spacepoint_t& sp, float, float,
+
+    auto [gridCfg, finderCfg] = prepareConfiguration< external_spacepoint_t >(beamPos, bField);
+        
+    auto extractCovariance = [cb](const external_spacepoint_t& sp, float, float,
                                  float) -> std::pair<Acts::Vector3, Acts::Vector2> {
-      Acts::Vector3 position(sp.x(), sp.y(), sp.z());
+      /// Convert coordinates w.r.t. beam spot
+      Acts::Vector3 position(sp.x() - cb[Amg::x], sp.y() - cb[Amg::y], sp.z() - cb[Amg::z]);
       Acts::Vector2 covariance(sp.varianceR(), sp.varianceZ());
       return std::make_pair(position, covariance);
     };
@@ -164,40 +162,41 @@ namespace ActsTrk {
       std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsBottom, m_numPhiNeighbors);
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > topBinFinder =
       std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsTop, m_numPhiNeighbors);
-    
-    std::unique_ptr< Acts::SpacePointGrid< external_spacepoint_t > > grid = 
+
+    std::unique_ptr< Acts::SpacePointGrid< external_spacepoint_t > > grid =
       Acts::SpacePointGridCreator::createGrid< external_spacepoint_t >(gridCfg);
     Acts::BinnedSPGroup< external_spacepoint_t > spacePointsGrouping(spBegin, spEnd, extractCovariance,
-								     bottomBinFinder, topBinFinder, std::move(grid), finderCfg);
-    
+      bottomBinFinder, topBinFinder, std::move(grid), finderCfg);
+
     Acts::Seedfinder< external_spacepoint_t > finder(finderCfg);
-    
-    static thread_local typename decltype(finder)::State state;
+
+    //TODO POSSIBLE OPTIMISATION come back here: see MR !52399 ( i.e. use static thread_local)
+    typename decltype(finder)::State state;
 
     Acts::Extent rRangeSPExtent;
 
-    for(auto it = spBegin; it!=spEnd; ++it) {
+    for (auto it = spBegin; it != spEnd; ++it) {
       const auto& sp = *it;
-      rRangeSPExtent.check({sp->x(), sp->y(), sp->z()}); 
+      rRangeSPExtent.check({sp->x(), sp->y(), sp->z()});
     }
 
     auto group = spacePointsGrouping.begin();
     auto groupEnd = spacePointsGrouping.end();
     for (; group != groupEnd; ++group) {
       finder.createSeedsForGroup(state, std::back_inserter(seeds), group.bottom(),
-                                 group.middle(), group.top(), rRangeSPExtent);
+        group.middle(), group.top(), rRangeSPExtent);
     }
-    
-    return seeds;
+
+    return StatusCode::SUCCESS;
   }
-  
-  
-  
+
+
+
   template< typename external_spacepoint_t >
-  const std::pair< Acts::SpacePointGridConfig,Acts::SeedfinderConfig< external_spacepoint_t > >
-  SeedingTool::prepareConfiguration( const Acts::Vector2& beamPos,
-                                     const Acts::Vector3& bField ) const {
-    
+  const std::pair< Acts::SpacePointGridConfig, Acts::SeedfinderConfig< external_spacepoint_t > >
+    SeedingTool::prepareConfiguration(const Acts::Vector2& beamPos,
+      const Acts::Vector3& bField) const {
+
     // Configuration for Acts::SpacePointGrid
     // These values will not be changed during execution
     // B Field will be updated for each event (gridCfg.bFieldInZ)
@@ -225,7 +224,8 @@ namespace ActsTrk {
     filterCfg.compatSeedLimit = m_compatSeedLimit;
 
     Acts::SeedfinderConfig< external_spacepoint_t > finderCfg;
-    finderCfg.seedFilter = std::make_unique<Acts::SeedFilter< external_spacepoint_t > >(Acts::SeedFilter< external_spacepoint_t >(filterCfg));
+    finderCfg.seedFilter = std::make_unique<Acts::SeedFilter< external_spacepoint_t > >(filterCfg);
+  
     finderCfg.minPt = m_minPt;
     finderCfg.cotThetaMax = m_cotThetaMax;
     finderCfg.deltaRMin = m_deltaRMin;
@@ -254,10 +254,10 @@ namespace ActsTrk {
     finderCfg.sigmaError = m_sigmaError;
 
     finderCfg.rRangeMiddleSP.reserve(m_rRangeMiddleSP.size());
-    for(const std::vector<double>& inner : m_rRangeMiddleSP) {
+    for (const std::vector<double>& inner : m_rRangeMiddleSP) {
       std::vector<float> fInner;
       fInner.reserve(inner.size());
-      for(double value : inner) {
+      for (double value : inner) {
         fInner.push_back(static_cast<float>(value));
       }
       finderCfg.rRangeMiddleSP.push_back(std::move(fInner));
@@ -282,10 +282,10 @@ namespace ActsTrk {
     finderCfg.forwardSeedConfirmationRange.nTopForSmallR = m_seedConfForwardNTopSR;
 
     finderCfg.zBinEdges = m_zBinEdges;
-    
+
     finderCfg.enableCutsForSortedSP = m_enableCutsForSortedSP;
 
-    return std::make_pair( gridCfg,finderCfg );
-  }  
+    return std::make_pair(gridCfg, finderCfg);
+  }
 
 } // namespace ActsTrk

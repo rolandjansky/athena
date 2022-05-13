@@ -13,9 +13,9 @@ except Exception:
 from ROOT import xAODType
 xAODType.ObjectType
 
-def config_CHS_CSSK(inputFlags,**kwargs):
 
-    #Trigger xAODType.ObjectType dict entry loading
+def config_CHS_CSSK_merged(inputFlags,**kwargs):
+    #
     import cppyy
     try:
         cppyy.load_library('libxAODBaseObjectTypeDict')
@@ -23,30 +23,20 @@ def config_CHS_CSSK(inputFlags,**kwargs):
         pass
     from ROOT import xAODType
     xAODType.ObjectType
-    CHS_CSSK_CA=ComponentAccumulator()
-    # add storegate
+
+    output_CA=ComponentAccumulator()
     StoreGateSvc=CompFactory.StoreGateSvc
-    CHS_CSSK_CA.addService(StoreGateSvc("DetectorStore"))
-    from JetRec.JetRecStandardToolManager import jtm
-    from JetRecTools.ConstitToolManager import ctm
-    from JetRecTools.JetRecToolsConf import CorrectPFOTool
-    from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
-    ctm.add( CorrectPFOTool("CorrectPFOTool",
-                            WeightPFOTool = jtm.pflowweighter,
-                            InputIsEM = True,
-                            CalibratePFO = False,
-                            UseChargedWeights = True,
-                            InputType = xAODType.FlowElement
-                        ),
-             alias = 'correctPFO' )
+    output_CA.addService(StoreGateSvc("DetectorStore"))
+
+    from JetRecConfig.JetRecConfig import JetInputCfg
+    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     
-    jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
-                                          InputContainer = "JetETMiss",
-                                          OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
-                                          modList = ['correctPFO', 'chsPFO'] )
+
+    output_CA.merge(JetInputCfg(inputFlags, cst.EMPFlowCSSK))
+    return output_CA
     
-    CHS_CSSK_CA.merge(jtm)
-    return CHS_CSSK_CA
+    
+                       
 
 
 
@@ -59,14 +49,9 @@ def UFOConfig(inputFlags, **kwargs):
     UFO_CA.addService(StoreGateSvc("DetectorStore"))
     from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
-    constituents=cst.EMPFlow
-    inputFEcontainer=""
-    charged= True #
-    # for test, put in the original PFO(FE) containers. Can replace these with CSSK/CHS FEs instead for free.
-    if(charged):
-        inputFEcontainer="JetETMissChargedParticleFlowObjects"
-    else:
-        inputFEcontainer="JetETMissNeutralParticleFlowObjects"
+    constituents=cst.EMPFlowCSSK
+    inputFEcontainer="CSSKParticleFlowObjects"
+    
     UFO_reco=runUFOReconstruction(configFlags=inputFlags,constits=constituents,inputFEcontainerkey=inputFEcontainer)
     UFO_CA.merge(UFO_reco)
 
@@ -86,8 +71,8 @@ if __name__=="__main__":
     
     #    cfgFlags.Input.Files=["/scratch/anthony/TEST_AOD/TCC/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.AOD.e6337_s3126_r10724/mc16_13TeV/AOD.14795494._007454.pool.root.1"]
     #    cfgFlags.Input.Files=["/scratch/anthony/TEST_AOD/TCC/valid1_test/valid1/AOD.24855256._000001.pool.root.1"]
-    cfgFlags.Input.Files=["/scratch/anthony/GPF_CODE//TCC_STUDIES/CustomAlg/myAOD.root"]
-    cfgFlags.Output.AODFileName="/scratch/anthony/GPF_CODE/TCC_STUDIES/CustomAlg/output_UFO_AOD.root"
+    cfgFlags.Input.Files=["myAOD.root"]
+    cfgFlags.Output.AODFileName="output_UFO_DAOD.root"
     cfgFlags.Exec.MaxEvents=20
     cfgFlags.Output.doWriteAOD=True
     #cfgFlags.Common.ProductionStep=0 # I think this is default
@@ -110,6 +95,10 @@ if __name__=="__main__":
     inputList.append("xAOD::FlowElementAuxContainer#TrackCaloClustersNeutralAux.")
     inputList.append("xAOD::FlowElementContainer#UFO*")
     inputList.append("xAOD::FlowElementAuxContainer#UFO*")
+    inputList.append("xAOD::FlowElementContainer#CHS*")
+    inputList.append("xAOD::FlowElementAuxContainer#CHS*")
+    inputList.append("xAOD::FlowElementContainer#CSSK*")
+    inputList.append("xAOD::FlowElementAuxContainer#CSSK*")
     inputList.append("xAOD::FlowElementContainer#*")
     inputList.append("xAOD::FlowElementAuxContainer#*")
     inputList.append("xAOD::MuonContainer#Muons")
@@ -128,8 +117,11 @@ if __name__=="__main__":
 
     
     cfg.merge(PoolReadCfg(cfgFlags))
-    #cfg.merge(config_CHS_CSSK(cfgFlags)) # configure CHS and CSSK. FIXME
-    cfg.merge(UFOConfig(cfgFlags))
+
+    cfg.merge(config_CHS_CSSK_merged(cfgFlags))
+
+    cfg.merge(UFOConfig(cfgFlags)) 
+
     cfg.printConfig()
 
     cfg.run()

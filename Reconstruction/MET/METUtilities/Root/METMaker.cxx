@@ -721,9 +721,10 @@ namespace met {
         } // end ele-track removal
 
         for(const xAOD::Muon* mu_in_jet : muons_in_jet) {
+          if (not mu_in_jet) continue;
           float mu_Eloss = acc_Eloss(*mu_in_jet);
 
-          if(!JVT_reject && mu_in_jet) {
+          if(!JVT_reject) {
             if (m_doRemoveMuonJets) {
               // need to investigate how this is affected by the recording of muon clusters in the map
               float mu_id_pt = mu_in_jet->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) ? mu_in_jet->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->pt() : 0.;

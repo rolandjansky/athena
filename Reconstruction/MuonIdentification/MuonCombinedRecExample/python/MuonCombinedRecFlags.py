@@ -31,6 +31,11 @@ class doMuGirl(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class saveUnassocSegments(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 
 #
 # Switch on/off algorithms that make Muons for the new chain based on muon standalone tracking

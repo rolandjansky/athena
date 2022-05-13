@@ -74,13 +74,13 @@ class MonitorDef:
 
         cThr = {}
         cThr[1] = [ 
-#                    'AFP_NSA', 'AFP_NSC', 'AFP_FSA', 'AFP_FSC', 'AFP_FSA_TOF_T0', 'AFP_FSC_TOF_T0',
-#                    'AFP_FSA_TOF_T1', 'AFP_FSC_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSC_TOF_T2', 'AFP_FSA_TOF_T3', 'AFP_FSC_TOF_T3',
-#                    'BPTX0', 'BPTX1', 
-#                    'LUCID_A', 'LUCID_C', 
-#                    'J20', 'MU3V', 'TE50', 'XE35', 'XE50',
-#                    'ZDC_0', 'ZDC_1', 'ZDC_2',
-#                    'MBTS_A', 'MBTS_C',
+                   'AFP_NSA', 'AFP_NSC', 'AFP_FSA', 'AFP_FSC', 'AFP_FSA_TOF_T0', 'AFP_FSC_TOF_T0',
+                   'AFP_FSA_TOF_T1', 'AFP_FSC_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSC_TOF_T2', 'AFP_FSA_TOF_T3', 'AFP_FSC_TOF_T3',
+                   'BPTX0', 'BPTX1', 
+                   'LUCID_A', 'LUCID_C', 
+                   'J20', 'MU3V', 'TE50', 'XE35', 'XE50',
+                   'ZDC_0', 'ZDC_1', 'ZDC_2',
+                   'MBTS_A', 'MBTS_C',
 #                    'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
 #                    'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',
 #                    'MBTS_C0', 'MBTS_C1', 'MBTS_C2',  'MBTS_C3',  'MBTS_C4',  'MBTS_C5',  'MBTS_C6',  'MBTS_C7',
@@ -116,22 +116,39 @@ class MonitorDef:
 
         if 'HI' not in menuName:
             monItems[TBP|TAP|TAV] = [
+                ## Legacy L1 items
+                # L1Calo
                 "L1_EM12", # keep for LUMI group
+                "L1_EM3", "L1_EM20VH", "L1_EM22VHI", "L1_EM24VHI",
+                "L1_TAU12IM", "L1_TAU20IM", "L1_TAU40", "L1_TAU100",
+                "L1_J100", "L1_J75p31ETA49", "L1_4J15p0ETA25", "L1_J30p31ETA49",
+                "L1_XE35", "L1_XE50",
+                # L1Muon
+                "L1_MU10BO", "L1_MU10BOM", "L1_MU12BOM", "L1_MU14FCH",
+                "L1_MU3V", "L1_MU3V_EMPTY", "L1_MU4BOM", "L1_MU5VF", "L1_MU5VF_EMPTY",
+                "L1_MU8VFC",
+                # L1Topo
+                "L1_BPH-0DR3-EM7J15_MU5VF", "L1_HT190-J15s5pETA21", "L1_LLP-RO", # Board 0 FPGA 0
+                "L1_MJJ-500-NFF",                                                # Board 0 FPGA 1
+                "L1_SC111-CJ15",                                                 # Board 1 FPGA 0
+                "L1_TAU60_DR-TAU20ITAU12I", "L1_DR-TAU20ITAU12I-J25",            # Board 1 FPGA 1
+            ]
+                # Add triggers that are not in the MC menu
+            if 'P1' in menuName:
+                monItems[TBP|TAP|TAV] += [
+                    # Detector items
+                    # "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1_A", "L1_MBTS_1_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
+                    # "L1_ALFA_ANY", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L",
+                    # "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
+                    "AFP_FSA", "AFP_FSC", "AFP_NSA", "AFP_NSC", "AFP_FSA_TOF_T0", "AFP_FSC_TOF_T0",
+                    "L1_BPTX0_BGRP12","L1_BPTX1_BGRP12",
+                    "L1_CALREQ2",
+                    # "L1_TGC_BURST",
 
-#                "L1_EM20VH","L1_EM22VHI", "L1_EM24VHI",
-#                "L1_MU8F","L1_MU8VF","L1_MU14FCH", "L1_MU14FCHR",
-#                "L1_TAU12IM", "L1_TAU20IM", "L1_TAU40", "L1_TAU100",
-#                "L1_J100", "L1_J75p31ETA49", "L1_4J15p0ETA25", "L1_J30p31ETA49",
-#                "L1_XE35", "L1_XE50",
-#                #"L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1_A", "L1_MBTS_1_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
-#                #"L1_ALFA_ANY", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L",
-#                "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
-#                #"L1_BPTX0_BGRP12","L1_BPTX1_BGRP12",
-#                "L1_CALREQ2",
-#                "L1_TGC_BURST",
-#                "L1_EM20VH_3J20", "L1_EM15VH_MU8F", "L1_EM15VHI_2TAU12IM", "L1_EM15VHI_2TAU12IM_J25_3J12", "L1_EM15VHI_2TAU12IM_XE35",
-#                "L1_MU8VF_2MU5VF", "L1_MU8F_TAU12IM", "L1_MU8F_TAU12IM_J25_2J12", "L1_MU8F_TAU12IM_XE35",
-#                "L1_MU8F_2J15_J20", "L1_MU14FCH_XE30", "L1_J40_XE50", "L1_J25p0ETA23_2J15p31ETA49", "L1_J45p0ETA21_3J15p0ETA25", "L1_MU14FCH_J40", 
+                    "L1_TRT_FILLED",
+                    # Other triggers disabled in MC
+                    "L1_MU3VF", "L1_MU8F", "L1_MU8FC", "L1_MU8VF", "L1_MU8VF_EMPTY",
+                    "L1_MU14FCHR", "L1_MU15VFCH",
                 ]
         else:
             monItems[TBP|TAP|TAV] = [
@@ -150,12 +167,12 @@ class MonitorDef:
                 ]
 
         monItemsHF[TBP|TAP|TAV] = [
-           "L1_BCM_Wide_BGRP12",
-           "L1_BCM_AC_CA_BGRP12",
            "L1_BCM_AC_UNPAIRED_ISO",
            "L1_BCM_CA_UNPAIRED_ISO",
            "L1_J12",
            "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
+           "L1_BCM_2A_UNPAIRED_ISO",
+           "L1_BCM_2C_UNPAIRED_ISO",
             ]
 
 

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlantisDumper.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "G4Event.hh"
 #include "G4Run.hh"
@@ -110,15 +110,14 @@ namespace G4UA
   {
     m_nsteps = 0;
 
-    const EventInfo* evt = 0;
-    if (!m_evtStore->retrieve(evt, "McEventInfo").isSuccess() || 0==evt) {
+    SG::ReadHandle<xAOD::EventInfo> evt("EventInfo");
+    if(!evt.isValid()) {
       ATH_MSG_INFO("G4AtlantisDumper could not get event info!");
       return;
     }
 
-    const EventID* eid = evt->event_ID();
-    int athevent = eid->event_number();
-    int athrun = eid->run_number();
+    int athevent = evt->eventNumber();
+    int athrun = evt->runNumber();
     ATH_MSG_INFO("G4AtlantisDumper: Athena run event is "<<athrun<<" "<<athevent);
     char buf[1000];
     int length=snprintf(buf, 1000, "G4Atlantis_%d_%d.txt", athrun, athevent);

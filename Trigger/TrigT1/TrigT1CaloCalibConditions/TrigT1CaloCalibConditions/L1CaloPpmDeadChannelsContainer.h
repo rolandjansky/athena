@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPMDEADCHANNELSCONTAINER_H
@@ -34,7 +34,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&);
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>&);
   virtual DataObject* makePersistent() const;
   virtual std::vector<std::string> coolInputKeys() const { return {m_coolFolderKey}; }
   virtual std::string coolOutputKey() const { return m_coolFolderKey; }
@@ -55,9 +55,10 @@ public:
 
 private:
   std::vector<L1CaloPpmDeadChannels> m_ppmDeadChannelss;
-  std::string m_coolFolderKey = "/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels";
+  std::string m_coolFolderKey = "/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels";
 };
 
-CLASS_DEF( L1CaloPpmDeadChannelsContainer, 1134360424, 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( L1CaloPpmDeadChannelsContainer, 1082931680);
 
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALOPPMDEADCHANNELSCONTAINER_H

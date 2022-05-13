@@ -167,9 +167,9 @@ except Exception:
 #isolation, EventShape containers for ED correction
 try:
     include("IsolationAlgs/IsoEventShapeOutputItemList_jobOptions.py")
-    fullAODList += CfgItemList( "Isolation", items = IsoAODESList)
+    fullAODList += CfgItemList("Isolation", items=IsoAODList)
 except Exception:
-    treatException("Could not load IsoEventShape item list")   
+    treatException("Could not load IsoEventShape item list")
 
 # uncomment
 # FIXME : there is a logic inconsistency

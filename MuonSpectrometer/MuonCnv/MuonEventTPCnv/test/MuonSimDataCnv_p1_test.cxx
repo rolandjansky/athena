@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/MuonSimDataCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,6 +10,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCnv_p1.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -73,7 +72,7 @@ void testit (const MuonSimData& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
+void test1 ATLAS_NOT_THREAD_SAFE (std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
   auto particle = genPartVector.at(0);
@@ -95,7 +94,7 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc = nullptr;
   std::vector<HepMC::GenParticlePtr> genPartVector;

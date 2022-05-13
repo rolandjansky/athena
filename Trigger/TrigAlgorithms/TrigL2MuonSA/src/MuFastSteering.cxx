@@ -1414,8 +1414,8 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       muonCB->setStrategy(-9);
       muonCB->setErrorFlag(-9);
       muonCB->setPt(0);
-      muonCB->setEta(0);
-      muonCB->setPhi(0);
+      muonCB->setEta(99999.);
+      muonCB->setPhi(99999.);
       ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
       muonCB->setMuSATrackLink(muonSAEL);
       outputCBs.push_back(muonCB);
@@ -1724,8 +1724,8 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
       muonCB->setStrategy(-9);
       muonCB->setErrorFlag(-9);
       muonCB->setPt(0);
-      muonCB->setEta(0);
-      muonCB->setPhi(0);
+      muonCB->setEta(99999.);
+      muonCB->setPhi(99999.);
       ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
       muonCB->setMuSATrackLink(muonSAEL);
       outputCBs.push_back(muonCB);

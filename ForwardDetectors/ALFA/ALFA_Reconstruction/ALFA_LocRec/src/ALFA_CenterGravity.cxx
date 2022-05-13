@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_CenterGravity.h"
+
 using namespace std;
 
-ALFA_CenterGravity::ALFA_CenterGravity()
+ALFA_CenterGravity::ALFA_CenterGravity() :
+    AthMessaging(Athena::getMessageSvc(), "ALFA_CenterGravity")
 {
 	m_histU_PT = NULL;
 	m_histV_PT = NULL;
@@ -92,7 +95,6 @@ StatusCode ALFA_CenterGravity::Initialize(const eRPotName &eRPName, const std::l
 StatusCode ALFA_CenterGravity::Execute()
 {
 	StatusCode sc;
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CenterGravity::Execute()");
 
   // SELECT CANDIDATE HITS
 	sc = SelectHitInLayer();
@@ -268,8 +270,6 @@ StatusCode ALFA_CenterGravity::SelectHitInLayer()
 
 StatusCode ALFA_CenterGravity::CenterGravity()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CenterGravity::CenterGravity()");
-
 	Int_t n_p = 0;
 	Int_t n_n = 0;
 	Float_t faMeanP = 0;

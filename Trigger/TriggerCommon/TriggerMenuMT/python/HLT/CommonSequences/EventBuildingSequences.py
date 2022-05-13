@@ -14,6 +14,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from .LATOMESourceIDs import LATOMESourceIDs
 from AthenaCommon.Logging import logging
+from AthenaCommon.Configurable import Configurable
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 log = logging.getLogger(__name__)
 
 
@@ -275,10 +277,15 @@ def alignEventBuildingSteps(chain_configs, chain_dicts):
 
     def getPebStepPosition(chainConfig):
         pebStep = findEventBuildingStep(chainConfig)
+        try:
+            if Configurable.configurableRun3Behavior and pebStep is None:
+                raise NoCAmigration ("[alignTLASteps] Missing TLA sequence with CA configurables")
+        except NoCAmigration:
+            return 0
         return chainConfig.steps.index(pebStep) + 1
 
     # First loop to find the maximal PEB step positions to which we need to align
-    for chainName, chainConfig in all_peb_chain_configs.items():
+    for chainName, chainConfig in all_peb_chain_configs.items():        
         pebStepPosition = getPebStepPosition(chainConfig)
         ebt = all_peb_chain_dicts[chainName]['eventBuildType']
         if ebt not in maxPebStepPosition or pebStepPosition > maxPebStepPosition[ebt]:

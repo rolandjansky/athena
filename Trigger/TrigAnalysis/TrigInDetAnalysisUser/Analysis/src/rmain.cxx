@@ -865,6 +865,10 @@ int main(int argc, char** argv)
   bool useVertexTracks = false;
   if ( inputdata.isTagDefined("UseVertexTracks") ) useVertexTracks = ( inputdata.GetValue("UseVertexTracks") > 0 );
   
+  // option to vary default "PrimaryVertices" offline reference collection
+  std::string vertex_refname = "Vertex";
+  if ( inputdata.isTagDefined("VertexReference") ) vertex_refname += ":" + inputdata.GetString("VertexReference");
+
   /// is this option needed any longer ???
   int NVtxTrackCut = 2;
   if ( inputdata.isTagDefined("NVtxTrackCut") ) NVtxTrackCut = inputdata.GetValue("NVtxTrackCut");
@@ -1516,7 +1520,7 @@ int main(int argc, char** argv)
     /// we like, rather than run on all of them
     for (unsigned int i=0; skip && run && i<cNentries ; i++ ) {
 
-      
+
       //      if ( _Nentries<Nentries ) { 
       //        run = false;
       //        break;
@@ -1661,7 +1665,7 @@ int main(int argc, char** argv)
   
     //    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
     
-    const TIDA::Chain* vtxchain = track_ev->chain("Vertex");
+    const TIDA::Chain* vtxchain = track_ev->chain(vertex_refname);
 
     if ( vtxchain && vtxchain->size()>0 ) { 
  

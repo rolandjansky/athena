@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <random>
@@ -11,14 +11,16 @@
 #include "TrigT2CaloCommon/LArCellCont.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloEvent/CaloConstCellContainer.h"
+#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "TestCaloDataAccess.h"
 #include <sys/time.h>
 
 
 #define DIFF(_name, _a, _b) if ( _a != _b )				\
-    m_msg << MSG::WARNING << "Difference in " << _name << " " << _a << "  ref " << _b  << endmsg; \
+    ATH_MSG_WARNING( "Difference in " << _name << " " << _a << "  ref " << _b ); \
   else									\
-    m_msg << MSG::DEBUG  << "Identical " << _name << " " << _a << "  ref " << _b  << endmsg; 
+    ATH_MSG_DEBUG( "Identical " << _name << " " << _a << "  ref " << _b  ); 
 
 
 /**
@@ -26,15 +28,14 @@
  * for each RoI returned bunch of quantiries are checked, RoI et, actual RoI span, and cells count
  **/
 
-class AskForRoI : public ParallelCallTest {
+class AskForRoI : public ParallelCallTest, public AthMessaging {
 public:
   AskForRoI( const EventContext& context,
 	     const ServiceHandle<ITrigCaloDataAccessSvc>& svc,  	     
-	     MsgStream& msg,
 	     const TrigRoiDescriptor& roi ) 
-    : m_context( context ),
+    : AthMessaging (Athena::getMessageSvc(), "TestCaloDataAccess"),
+      m_context( context ),
       m_svc( svc ),
-      m_msg( msg ),
       m_roi ( roi ) {
     m_colRef = new CaloConstCellContainer(SG::VIEW_ELEMENTS);
   }
@@ -68,7 +69,7 @@ public:
   void firstCall() override { 
     Gaudi::Hive::setCurrentContext (m_context);
     if ( m_roi.isFullscan() ) {
-      struct timeval t1,t2;
+      struct timeval t1{},t2{};
       gettimeofday(&t1,NULL);
       m_statusRef = request( *m_colRef );
       m_statusRef.ignore(); 
@@ -87,7 +88,7 @@ public:
       
     } else {
       
-      struct timeval t1,t2;
+      struct timeval t1{},t2{};
       gettimeofday(&t1,NULL);
       m_statusRef = request( m_selRef );
       m_statusRef.ignore();
@@ -170,8 +171,8 @@ public:
 	const LArCell* refCell = *refIter;
 	const LArCell* thisCell = *thisIter;
 	if ( thisCell->et() != refCell->et() ) {
-	  m_msg << MSG::WARNING <<"eta/phi/et Reference cell " << refCell->eta() << "/" << refCell->phi() << "/" << refCell->et() 
-		<<    " differ from the one in this request " << thisCell->eta() << "/" << thisCell->phi() << "/" << thisCell->et() << endmsg;
+	  ATH_MSG_WARNING( "eta/phi/et Reference cell " << refCell->eta() << "/" << refCell->phi() << "/" << refCell->et() 
+                           <<    " differ from the one in this request " << thisCell->eta() << "/" << thisCell->phi() << "/" << thisCell->et() );
 	}
       }
     }
@@ -182,8 +183,6 @@ public:
 private:
   const EventContext& m_context;
   const ServiceHandle<ITrigCaloDataAccessSvc>& m_svc;
-  MsgStream& m_msg;
-  MsgStream& msg(){ return m_msg; }
   const TrigRoiDescriptor m_roi;
 
   LArTT_Selector<LArCellCont> m_selRef;
@@ -234,7 +233,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
   TrigRoiDescriptor roi( RoI_eta1, RoI_eta1-width, RoI_eta1+width, // eta
 			 RoI_phi1, RoI_phi1-width, RoI_phi1+width, // phi
 			 0 );
-  AskForRoI* afr = new AskForRoI( context,  m_dataAccessSvc, msg(), roi );
+  AskForRoI* afr = new AskForRoI( context,  m_dataAccessSvc, roi );
   allRoIs.push_back( afr );
 
   chance = U(generator);
@@ -246,7 +245,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
     TrigRoiDescriptor roi( RoI_eta2, RoI_eta2-width, RoI_eta2+width, // eta
 			   RoI_phi2, RoI_phi2-width, RoI_phi2+width, // phi
 			   0 );
-    AskForRoI* afr = new AskForRoI( context,  m_dataAccessSvc, msg(), roi );
+    AskForRoI* afr = new AskForRoI( context,  m_dataAccessSvc, roi );
     allRoIs.push_back( afr );
   }
 
@@ -262,7 +261,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
       TrigRoiDescriptor roi( RoI_eta3, RoI_eta3-width, RoI_eta3+width, // eta
                              RoI_phi3, RoI_phi3-width, RoI_phi3+width, // phi
                              0 );
-      AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+      AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, roi );
       allRoIs.push_back( afr );
     }
   }
@@ -270,7 +269,7 @@ void TestCaloDataAccess::emulateRoIs( const EventContext& context, std::vector<P
   chance = U(generator);
   if ( chance > 0.6 ) {
     TrigRoiDescriptor roi( true );
-    AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, msg(), roi );
+    AskForRoI* afr = new AskForRoI( context, m_dataAccessSvc, roi );
     allRoIs.push_back( afr );
   }
 
@@ -297,10 +296,10 @@ void TestCaloDataAccess::emulateFixedRoIs( const EventContext& context, std::vec
   rois.push_back(roi4);
   TrigRoiDescriptor roi5( true );
   for( int i=0;i<std::min(m_nFixedRoIs,4);++i) {
-    AskForRoI* t1 = new AskForRoI( context, m_dataAccessSvc, msg(), rois[i]);
+    AskForRoI* t1 = new AskForRoI( context, m_dataAccessSvc, rois[i]);
     allRoIs.push_back(t1);
   }
-  AskForRoI* t6 = new AskForRoI( context, m_dataAccessSvc, msg(), roi5);  // FS
+  AskForRoI* t6 = new AskForRoI( context, m_dataAccessSvc, roi5);  // FS
   allRoIs.push_back(t6);
 
 
@@ -315,7 +314,7 @@ StatusCode TestCaloDataAccess::execute( const EventContext& context ) const {
   if ( m_emulateFixedRoIs ) emulateFixedRoIs ( context, allRoIs );
 
     
-  timeval ti1,ti2;
+  timeval ti1{},ti2{};
   gettimeofday(&ti1,NULL);
   bool result = ParallelCallTest::launchTests( 2, allRoIs);
   gettimeofday(&ti2,NULL);

@@ -9,7 +9,6 @@
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -21,8 +20,7 @@
 TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
-   AthAlgTool(type,name,parent),
-   m_robDataProvider( "ROBDataProviderSvc", name )
+   AthAlgTool(type,name,parent)
 {
 }
 
@@ -33,11 +31,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize ()
 {
    // locate the region selector
    ATH_CHECK( m_regSel_MDT.retrieve() );
-   ATH_CHECK( m_regSel_CSC.retrieve() );
    ATH_CHECK( m_regSel_TGC.retrieve() );
 
-   // Locate ROBDataProvider
-   ATH_CHECK( m_robDataProvider.retrieve() );
 
    m_localBuffer.clear();
 
@@ -175,6 +170,7 @@ bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
    m_regSel_MDT->ROBIDList(*iroi,robIdList_MDT);
 
    // dump the list of robs for debugging 
+   ATH_MSG_DEBUG("Size of the MDT rob list: " << robIdList_MDT.size());
    int isize = robIdList_MDT.size()<5 ? robIdList_MDT.size() : 4;
    for (int ii = 0 ; ii<isize ; ++ii ) {
      ATH_MSG_DEBUG("robId: 0x" << std::hex << robIdList_MDT.at(ii) << std::dec);
@@ -186,10 +182,6 @@ bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
    m_regSel_TGC->ROBIDList(*iroi,robIdList_TGC);
    ATH_MSG_DEBUG("Size of the TGC rob list: " << robIdList_TGC.size());
 
-   // get the list of CSC robs
-   std::vector<uint32_t> robIdList_CSC;
-   m_regSel_CSC->ROBIDList(*iroi,robIdList_CSC);
-   ATH_MSG_DEBUG("Size of the CSC rob list: " << robIdList_CSC.size());
 
    LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
    LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
@@ -233,19 +225,6 @@ bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
 
 
 
-   // if there is any CSC rob, add also the CSC fragment
-   if ( robIdList_CSC.size()>0 ) {
-  
-     LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
-     if ( createCscFragment(robIdList_CSC,cscFragment) != StatusCode::SUCCESS ) {
-       ATH_MSG_ERROR("Could not create the Csc fragment of the calibration stream");
-     }
-     else {
-       ATH_MSG_DEBUG("Adding the CSC fragment to the calibration stream");
-       event << cscFragment;
-     }
-
-   }
    ATH_MSG_DEBUG("Dumping the event stream");
    ATH_MSG_DEBUG(event);
   if (m_circ)
@@ -287,8 +266,10 @@ bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
  					    trailingCoarseTime,trailingFineTime,adc
  					    ,trackPhi);
 
-     mdtFragment << mdt;
+     ATH_MSG_DEBUG("Dumping MDT Hit");
+     ATH_MSG_DEBUG(mdt);
 
+     mdtFragment << mdt;
    }
 
    return StatusCode::SUCCESS;
@@ -519,38 +500,3 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
   
   return StatusCode::SUCCESS;
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// prepare the CSC fragment of the stream
-//
-////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createCscFragment(std::vector<uint32_t>& robIdList_CSC,
-							      LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) const
-{
-  
-  // retreive the csc rob data
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
-  m_robDataProvider->getROBData(robIdList_CSC,robFragments);
-
-  // transfer the rob data to the CSC fragment
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it;
-  for ( it = robFragments.begin() ; it != robFragments.end() ; ++it ) {
-    
-    LVL2_MUON_CALIBRATION::CscCalibData CscData;
-    uint32_t rod_words     = (**it).rod_fragment_size_word();
-    OFFLINE_FRAGMENTS_NAMESPACE::PointerType wr;
-    (*it)->rod_start(wr);
-
-    for (uint32_t i=0;i<rod_words;++i) {
-      // CID 22907: CAST_TO_QUALIFIED_TYPE
-      // CscData << static_cast<const uint32_t>(*(wr+i));
-      CscData << static_cast<uint32_t>(*(wr+i));
-    }
-    cscFragment << CscData;
-  }
-
-  return StatusCode::SUCCESS;
-}
-

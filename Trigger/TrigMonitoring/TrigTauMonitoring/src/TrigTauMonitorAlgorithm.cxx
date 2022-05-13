@@ -24,6 +24,7 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
   ATH_CHECK( m_offlineMuonKey.initialize() );
   ATH_CHECK( m_legacyl1TauRoIKey.initialize() );
   ATH_CHECK( m_phase1l1eTauRoIKey.initialize() );
+  ATH_CHECK( m_phase1l1jTauRoIKey.initialize() );
   ATH_CHECK( m_phase1l1cTauRoIKey.initialize() );
   ATH_CHECK( m_hltTauJetKey.initialize() );
   ATH_CHECK( m_hltTauJetCaloMVAOnlyKey.initialize() );
@@ -401,7 +402,8 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
     std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_1p; // offline 1p taus
     std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_3p; // offline 3p taus
     std::vector<const xAOD::EmTauRoI*> legacyL1rois; //  used for studying legacy L1 performance
-    std::vector<const xAOD::eFexTauRoI*> phase1L1rois; // used for studying phase1 L1 performance 
+    std::vector<const xAOD::eFexTauRoI*> eFexphase1L1rois; // used for studying phase1 L1 performance 
+    std::vector<const xAOD::jFexTauRoI*> jFexphase1L1rois; // used for studying phase1 L1 performance 
 
     for( auto pairObj: pairObjs )
     {
@@ -429,7 +431,22 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
       for(const auto *eFexTauRoI : *eFexTauRoIs){
       
           if( eFexTauRoI->et()/1e3 > L1thr){
-              phase1L1rois.push_back(eFexTauRoI);
+              eFexphase1L1rois.push_back(eFexTauRoI);
+          }
+      }
+    } else if (trigL1Item.find("L1jTAU") != std::string::npos){
+
+      SG::ReadHandle<xAOD::jFexTauRoIContainer> jFexTauRoIs(m_phase1l1jTauRoIKey, ctx);
+      if(!jFexTauRoIs.isValid())
+      {
+          ATH_MSG_WARNING("Failed to retrieve jFexTauRoI for L1jTAU ");
+          return;
+      }
+
+      for(const auto *jFexTauRoI : *jFexTauRoIs){
+
+          if( jFexTauRoI->et()/1e3 > L1thr){
+              jFexphase1L1rois.push_back(jFexTauRoI);
           }
       }
     } else if (trigL1Item.find("L1cTAU") != std::string::npos){
@@ -444,7 +461,7 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
       for(const auto *eFexTauRoI : *eFexTauRoIs){
 
           if( eFexTauRoI->et()/1e3 > L1thr){
-              phase1L1rois.push_back(eFexTauRoI);
+             eFexphase1L1rois.push_back(eFexTauRoI);
           }
       }
     } else{
@@ -500,17 +517,18 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
     }    
 
      
-    fillL1(trigL1Item, legacyL1rois, phase1L1rois);
+    fillL1(trigL1Item, legacyL1rois, eFexphase1L1rois, jFexphase1L1rois);
 
-    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_1p, "1P", trigL1Item, legacyL1rois, phase1L1rois);
-    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_3p, "3P", trigL1Item, legacyL1rois, phase1L1rois);
+    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_1p, "1P", trigL1Item, legacyL1rois, eFexphase1L1rois, jFexphase1L1rois);
+    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_3p, "3P", trigL1Item, legacyL1rois, eFexphase1L1rois, jFexphase1L1rois);
   
    
 
     offline_for_l1_tau_vec_1p.clear();
     offline_for_l1_tau_vec_3p.clear();
     legacyL1rois.clear();
-    phase1L1rois.clear();
+    eFexphase1L1rois.clear();
+    jFexphase1L1rois.clear();
 }
 
 void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec, const std::string& nProng) const
@@ -622,7 +640,7 @@ void TrigTauMonitorAlgorithm::fillTAndPHLTEfficiencies(const EventContext& ctx, 
   
 }
 
-void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois) const
+void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& eFexphase1L1rois, const std::vector<const xAOD::jFexTauRoI*>& jFexphase1L1rois) const
 {
   ATH_MSG_DEBUG("Fill L1 efficiencies: " << trigL1Item);
   std::string monGroupName = trigL1Item+"_L1_Efficiency_"+nProng;
@@ -644,8 +662,15 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , cons
        L1_match = false;
 
        if(trigL1Item.find("L1eTAU") != std::string::npos || trigL1Item.find("L1cTAU") != std::string::npos){
-          for( const auto *L1roi : phase1L1rois){
-             L1_match = phase1L1Matching(offline_tau, L1roi, 0.3 );
+          for( const auto *L1roi : eFexphase1L1rois){
+             L1_match = eFexphase1L1Matching(offline_tau, L1roi, 0.3 );
+             if( L1_match ){
+                break;
+              }
+          }
+       } else if(trigL1Item.find("L1jTAU") != std::string::npos){ 
+          for( const auto *L1roi : jFexphase1L1rois){
+             L1_match = jFexphase1L1Matching(offline_tau, L1roi, 0.3 );
              if( L1_match ){
                 break;
               }
@@ -663,7 +688,7 @@ void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , cons
   }
 } 
 
-void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois)  const
+void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& eFexphase1L1rois, const std::vector<const xAOD::jFexTauRoI*>& jFexphase1L1rois)  const
 {
    ATH_MSG_DEBUG("Fill L1: " << trigL1Item);
 
@@ -673,13 +698,22 @@ void TrigTauMonitorAlgorithm::fillL1(const std::string& trigL1Item, const std::v
 
    if(trigL1Item.find("L1eTAU") != std::string::npos || trigL1Item.find("L1cTAU") != std::string::npos){
 
-       auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->et()/1e3;});
-       auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->eta();});
-       auto L1RoIPhi          = Monitored::Collection("L1RoIPhi"    , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->phi();});
-       auto L1RoIRCore        = Monitored::Collection("L1RoIRCore"  , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->rCore();});
-       auto L1RoIRHad         = Monitored::Collection("L1RoIRHad"   , phase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->rHad();});
+       auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , eFexphase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->et()/1e3;});
+       auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , eFexphase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->eta();});
+       auto L1RoIPhi          = Monitored::Collection("L1RoIPhi"    , eFexphase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->phi();});
+       auto L1RoIRCore        = Monitored::Collection("L1RoIRCore"  , eFexphase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->rCore();});
+       auto L1RoIRHad         = Monitored::Collection("L1RoIRHad"   , eFexphase1L1rois,  [] (const xAOD::eFexTauRoI* L1roi){ return L1roi->rHad();});
    
        fill(monGroup,L1RoIEt,L1RoIEta,L1RoIPhi,L1RoIRCore,L1RoIRHad);
+   } else if (trigL1Item.find("L1jTAU") != std::string::npos){
+  
+       auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , jFexphase1L1rois,  [] (const xAOD::jFexTauRoI* L1roi){ return L1roi->et()/1e3;});
+       auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , jFexphase1L1rois,  [] (const xAOD::jFexTauRoI* L1roi){ return L1roi->eta();});
+       auto L1RoIPhi          = Monitored::Collection("L1RoIPhi"    , jFexphase1L1rois,  [] (const xAOD::jFexTauRoI* L1roi){ return L1roi->phi();});
+       auto L1RoIIso          = Monitored::Collection("L1RoIIso"    , jFexphase1L1rois,  [] (const xAOD::jFexTauRoI* L1roi){ return L1roi->iso()/1e3;});
+
+       fill(monGroup,L1RoIEt,L1RoIEta,L1RoIPhi,L1RoIIso);
+
    } else {
 
        auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , legacyL1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->eT()/1e3;});
@@ -1117,19 +1151,23 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
     } 
     else if (names[3].find("L1eTAU") !=std::string::npos){
       l1thr = std::stof(names[3].substr(6,names[3].length()));
-    } else if (names[3].find("L1cTAU") !=std::string::npos){
+    } 
+    else if (names[3].find("L1jTAU") !=std::string::npos){
+      l1thr = std::stof(names[3].substr(6,names[3].length()));
+    }
+    else if (names[3].find("L1cTAU") !=std::string::npos){
       l1thr = std::stof(names[3].substr(6,names[3].length()));
     }
    
   } 
-  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos )  {
+  else if ( names[4].find("L1TAU") !=std::string::npos || names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1jTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos )  {
     type=names[3];
     l1item =names[4];
 
     if(names[4].find("L1TAU") !=std::string::npos){
       l1thr = std::stof(names[4].substr(5,names[4].length())); 
     }
-    else if(names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos){
+    else if(names[4].find("L1eTAU") !=std::string::npos || names[4].find("L1jTAU") !=std::string::npos || names[4].find("L1cTAU") !=std::string::npos){
       l1thr = std::stof(names[4].substr(6,names[4].length()));
     }
   }else l1thr = -1.; //This applies to T&P chains
@@ -1207,7 +1245,7 @@ StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& x
   return StatusCode::SUCCESS;
 }
 
-void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger, const std::string& nProng) const
+void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string& trigger, const std::string& nProng) const
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillEFTauVsTruth");
 
@@ -1260,7 +1298,7 @@ void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::Tau
 
 }
 
-void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger, const std::string& nProng) const
+void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*>& online_tau_vec,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string& trigger, const std::string& nProng) const
 {
 
   ATH_MSG_DEBUG("Truth Tau Matching to Offline and Online Taus for trigger");

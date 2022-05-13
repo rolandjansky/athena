@@ -79,6 +79,11 @@ StatusCode LVL1::eFEXNtupleWriter::initialize () {
   m_myTree->Branch ("tau_floatEta",  &m_tau_floatEta);
   m_myTree->Branch ("tau_floatPhi",  &m_tau_floatPhi);
   m_myTree->Branch ("tau_isCentralTowerSeed",  &m_tau_isCentralTowerSeed);
+  m_myTree->Branch ("tau_CenterTowerEt",  &m_tau_CenterTowerEt);
+  m_myTree->Branch ("tau_OneOffEtaTowerEt",  &m_tau_OneOffEtaTowerEt);
+  m_myTree->Branch ("tau_OneBelowEtaTowerEt",  &m_tau_OneBelowEtaTowerEt);
+  m_myTree->Branch ("tau_eFEXID",  &m_tau_eFEXID);
+  m_myTree->Branch ("tau_FPGAID",  &m_tau_FPGAID);
   m_myTree->Branch ("eFEXnumber",  &m_eFex_number);
   m_myTree->Branch ("eg_nTOBs",  &m_eg_nTOBs);
 
@@ -142,6 +147,11 @@ StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables(SG::ReadHandle<LVL1::eFE
   m_tau_floatEta.clear();
   m_tau_floatPhi.clear();
   m_tau_isCentralTowerSeed.clear();
+  m_tau_CenterTowerEt.clear();
+  m_tau_OneOffEtaTowerEt.clear();
+  m_tau_OneBelowEtaTowerEt.clear();
+  m_tau_eFEXID.clear();
+  m_tau_FPGAID.clear();
   for (int i = 0; i < eFEXOutputCollectionobj->tau_size(); i++)
   {
     m_tau_isCentralTowerSeed.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["isCentralTowerSeed"]);
@@ -160,6 +170,11 @@ StatusCode LVL1::eFEXNtupleWriter::loadtauAlgoVariables(SG::ReadHandle<LVL1::eFE
     m_tau_rHadWP.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["RHadWP"]);
     m_tau_seed.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["Seed"]);
     m_tau_und.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["UnD"]);
+    m_tau_CenterTowerEt.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["CenterTowerEt"]);
+    m_tau_OneOffEtaTowerEt.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["OneOffEtaTowerEt"]);
+    m_tau_OneBelowEtaTowerEt.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["OneBelowEtaTowerEt"]);
+    m_tau_eFEXID.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["eFEXID"]);
+    m_tau_FPGAID.push_back((*(eFEXOutputCollectionobj->get_tau(i)))["FPGAID"]);
   }
   return StatusCode::SUCCESS;
 }

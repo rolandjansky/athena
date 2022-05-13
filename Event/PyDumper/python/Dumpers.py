@@ -4220,7 +4220,12 @@ def dump_SCT_RDORawData (p, f):
 def dump_IDC (payload_dumper, p, f):
     beg = p.begin()
     end = p.end()
-    nextfunc = beg.__next__ if hasattr (beg.__class__, '__next__') else beg.next
+    if hasattr(beg.__class__, '__preinc__'):
+        nextfunc = beg.__preinc__
+    elif hasattr(beg.__class__, '__next__'):
+        nextfunc = beg.__next__
+    else:
+        nextfunc = beg.next
     while beg != end:
         coll = beg.cptr()
         fprint (f, 'IDC', beg.hashId().value(), coll.identifyHash().value(), coll.size())
@@ -4385,7 +4390,12 @@ def dump_TileDigitsContainer (p, f):
     fwrite (f, '\n')
     beg = p.begin()
     end = p.end()
-    nextfunc = beg.__next__ if hasattr (beg.__class__, '__next__') else beg.next
+    if hasattr(beg.__class__, '__preinc__'):
+        nextfunc = beg.__preinc__
+    elif hasattr(beg.__class__, '__next__'):
+        nextfunc = beg.__next__
+    else:
+        nextfunc = beg.next
     while beg != end:
         coll = beg.cptr()
         fprint (f, 'TDC',

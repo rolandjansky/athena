@@ -1,35 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TFile.h"
-#include<string.h>
-#include<stdio.h>
+#include <string>
+#include <cstdio>
 #include "TCanvas.h"
 #include "TString.h"
 #include "TProfile2D.h"
 #include <iostream>
 
-using namespace std;
 
 
 
-void reweight(string  mcname, string  dtname)
+
+void reweight(const std::string  & mcname, const std::string  & dtname)
 {
 
   TFile *mcfile = new TFile(mcname.c_str());
   TFile *dtfile = new TFile(dtname.c_str());
 
-  string histoName("trk_pT_vs_eta");
-  string path("IDAlignMon/ExtendedTracks_noTrigSel_15GeV/GenericTracks/");
-  string hh = path + histoName;
-  cout << "name " << hh << endl;
+  std::string histoName("trk_pT_vs_eta");
+  std::string path("IDAlignMon/ExtendedTracks_noTrigSel_15GeV/GenericTracks/");
+  std::string hh = path + histoName;
+  std::cout << "name " << hh << std::endl;
 
   TH2F * mchisto = (TH2F*) mcfile->GetObjectUnchecked( hh.c_str() );
   TH2F * dthisto = (TH2F*) dtfile->GetObjectUnchecked( hh.c_str() );
 
-  // mchisto->Scale(1./mchisto->Integral());
-  // dthisto->Scale(1./dthisto->Integral());
+
 
   //  
   // 

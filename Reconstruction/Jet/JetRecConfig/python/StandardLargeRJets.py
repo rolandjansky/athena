@@ -52,7 +52,7 @@ lctopo_trimmed_mods = ("planarflow","angularity","comshapes","ktdr","TrackSumMom
 
 AntiKt10LCTopo = JetDefinition("AntiKt",1.0,cst.LCTopoOrigin,
                                ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJets"] ,
-                               modifiers = ("Sort", "Filter:50000","TrackMoments"),
+                               modifiers = ("Sort", "Filter:50000","TrackMoments","JetGhostLabel"),
                                standardRecoMode = True,                               
                                lock = True
 )
@@ -81,6 +81,21 @@ AntiKt10LCTopoSoftDrop = JetSoftDrop(AntiKt10LCTopo,
                                      modifiers = standardrecomods+substrmods,
                                      Beta = 1., ZCut= 0.1,
                                      )
+
+
+
+
+AntiKt10UFOCSSK = JetDefinition("AntiKt",1.0,cst.UFOCSSK,
+                                ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJets"] ,
+                                modifiers = ("Sort", "Filter:50000","TrackMoments", "JetGhostLabel"),
+                                standardRecoMode = True,                               
+                                )                                   
+AntiKt10UFOCSSKSoftDrop = JetSoftDrop(AntiKt10UFOCSSK,
+                                      modifiers = standardrecomods+substrmods+("JetGhostLabel",),
+                                      Beta = 1., ZCut= 0.1,
+                                      )
+
+
 
 
 AntiKt10Truth = JetDefinition("AntiKt",1.0,cst.Truth,

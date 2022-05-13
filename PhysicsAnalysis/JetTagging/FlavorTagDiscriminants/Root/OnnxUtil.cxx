@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -7,6 +7,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "FlavorTagDiscriminants/OnnxUtil.h"
 #include "PathResolver/PathResolver.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -99,7 +100,11 @@ namespace FlavorTagDiscriminants {
     }
 
     // score model & input tensor, get back output tensor
-    auto output_tensors = m_session->Run(Ort::RunOptions{nullptr},
+    // Although Session::Run is non-const, the onnx authors say
+    // it is safe to call from multiple threads:
+    //  https://github.com/microsoft/onnxruntime/discussions/10107
+    Ort::Session& session ATLAS_THREAD_SAFE = *m_session;
+    auto output_tensors = session.Run(Ort::RunOptions{nullptr},
       input_node_names.data(), input_tensors.data(), input_node_names.size(),
       output_node_names.data(), output_node_names.size()
     );

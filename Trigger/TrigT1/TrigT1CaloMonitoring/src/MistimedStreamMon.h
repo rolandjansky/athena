@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -81,7 +81,7 @@ private:
     
   StatusCode retrieveConditions();
   void fillEtaPhiMap(TH2F* hist, double eta, double phi, double weight, bool shrinkEtaBins = true);
-  TH2F* createEtaPhiMap(std::string name, std::string title, bool isHADLayer = false, bool shrinkEtaBins = true);
+  TH2F* createEtaPhiMap(const std::string& name, const std::string& title, bool isHADLayer = false, bool shrinkEtaBins = true);
   bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
    
   /// Tool to retrieve bytestream errors

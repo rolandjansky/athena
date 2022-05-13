@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthTestTool.h"
 
 #include "AtlasHepMC/GenEvent.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include <TH1.h>
@@ -36,6 +34,7 @@ TruthTestTool::TruthTestTool(const std::string& type, const std::string& name, c
 
 StatusCode TruthTestTool::initialize() 
 {
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   // initialize standard TruthTestTool
   std::string histdirname("Truth");
@@ -146,11 +145,10 @@ StatusCode TruthTestTool::initialize()
 
 StatusCode TruthTestTool::processEvent() 
 {
-  const DataHandle<EventInfo> event;
-  if (!evtStore()->retrieve(event,"McEventInfo").isSuccess())
-    return StatusCode::FAILURE;
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey,Gaudi::Hive::currentContext());
+  ATH_CHECK(eventInfo.isValid());
 
-  const int evtnum(event->event_ID()->event_number());
+  const int evtnum(eventInfo->eventNumber());
 
   const DataHandle<McEventCollection> mcCollection;
   if (evtStore()->retrieve(mcCollection,m_key).isSuccess()) {

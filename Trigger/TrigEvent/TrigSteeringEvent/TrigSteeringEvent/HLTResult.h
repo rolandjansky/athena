@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -27,7 +27,6 @@
 #endif
 
 #include "xAODCore/CLASS_DEF.h"
-#include "CxxUtils/checker_macros.h"
 
 /****************************************************************************************
  * (June 2006; comments on documentation to: Andreas.Hoecker@cern.ch)
@@ -304,15 +303,12 @@ namespace HLT {
     std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& getScoutingMap() {return  m_modID_id_name;}
     const std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& getScoutingMap() const {return  m_modID_id_name;}
     
-    void  setScoutingMap(std::map<unsigned int, std::set<std::pair<CLID, std::string> > > map_modid_clid_name) {m_modID_id_name = map_modid_clid_name;}  
+    void  setScoutingMap(const std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& map_modid_clid_name) {m_modID_id_name = map_modid_clid_name;}  
 
     /*
      * @brief Return object representing the extra payload
      */
     HLTExtraData& getExtraData();
-    inline const HLTExtraData& getExtraData ATLAS_NOT_THREAD_SAFE () const {
-      return const_cast<HLTResult*>(this)->getExtraData();
-    }
 
     /*
      * @brief gets size of the rawResult (in words)

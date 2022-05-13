@@ -807,8 +807,12 @@ def getPixelActiveDetectorElementStatusTool(name = "PixelActiveDetectorElementSt
 def getPixelByteStreamErrorDetectorElementStatusTool(name = "PixelByteStreamErrorDetectorElementStatusTool",**kwargs) :
     the_name = makeName( name, kwargs)
     from RecExConfig.AutoConfiguration import IsInInputFile
-    has_bytestream_errors= globalflags.DataSource=='data' and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
-                                                                   or globalflags.InputFormat() == 'bytestream' )
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    has_bytestream_errors= globalflags.DataSource=='data' \
+                           and not (globalflags.isOverlay() and  overlayFlags.isDataOverlay()) \
+                           and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
+                                              or globalflags.InputFormat() == 'bytestream' )
     if has_bytestream_errors :
         from PixelConditionsTools.PixelConditionsToolsConf import PixelByteStreamErrorDetectorElementStatusTool
         return PixelByteStreamErrorDetectorElementStatusTool(the_name, **setDefaults(kwargs,
@@ -1033,7 +1037,12 @@ def getInDetSCT_DetectorElementStatusAddByteStreamErrorsTool(name ='InDetSCT_Det
     from SCT_ConditionsTools.SCT_ConditionsToolsHelper import getSCT_ByteStreamErrorsTool
 
     if "ConditionsTools" not in kwargs :
-        kwargs = setDefaults(kwargs, ConditionsTools = [getSCT_ByteStreamErrorsTool()])
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        has_bytestream_errors= globalflags.DataSource=='data' \
+                               and (IsInInputFile('IDCInDetBSErrContainer','SCT_ByteStreamErrs')
+                                    or globalflags.InputFormat() == 'bytestream' )
+
+        kwargs = setDefaults(kwargs, ConditionsTools = [getSCT_ByteStreamErrorsTool()] if has_bytestream_errors else [])
 
     kwargs = setDefaults(kwargs,
                          SCTDetEleCollKey               = "SCT_DetectorElementCollection")
@@ -1536,17 +1545,6 @@ def getTRT_DetElementsRoadCondAlg(**kwargs):
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
     return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)
 
-def getInDetROIInfoVecCondAlg(name='InDetROIInfoVecCondAlg',**kwargs) :
-    the_name = makeName(name, kwargs)
-    from InDetRecExample.InDetKeys import InDetKeys
-    kwargs=setDefaults(kwargs,
-                       InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
-                       WriteKey                    = kwargs.get("namePrefix","")+"ROIInfoVec"+kwargs.get("nameSuffix",""),
-                       minPtEM                     = 5000.  # in MeV
-                       )
-    from InDetTrackScoringTools.InDetTrackScoringToolsConf import ROIInfoVecAlg
-    return ROIInfoVecAlg(the_name,**kwargs)
-
 @makePublicTool
 def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     NewTrackingCuts = kwargs.pop("NewTrackingCuts")
@@ -1555,8 +1553,7 @@ def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     from AthenaCommon.DetFlags              import DetFlags
     have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
-        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+        kwargs=setDefaults(kwargs, EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ5GeV")
     if 'DriftCircleCutTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
@@ -1606,8 +1603,8 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     from AthenaCommon.DetFlags              import DetFlags
     have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
-        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+        kwargs=setDefaults(kwargs, EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ5GeV")
+
     if 'DriftCircleCutTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
@@ -1670,9 +1667,6 @@ def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringT
 
 
 def getInDetExtenScoringTool(NewTrackingCuts,name='InDetExtenScoringTool', **kwargs) :
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
-        kwargs=setDefaults(kwargs, minTRTPrecisionFraction = 0.2)
     return getInDetAmbiScoringTool(NewTrackingCuts,
                                    name,
                                    **setDefaults(kwargs,

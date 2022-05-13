@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // ALFA_BeamTransport.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "ALFA_BeamTransport/ALFA_BeamTransport.h"
+#include "ALFA_BeamTransport.h"
 #include "StoreGate/StoreGateSvc.h"
 
 
@@ -18,8 +18,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "Gaudi/Property.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "AtlasHepMC/GenEvent.h"
@@ -74,7 +72,7 @@ ALFA_BeamTransport::~ALFA_BeamTransport()
 StatusCode ALFA_BeamTransport::initialize()
 {
      ATH_MSG_INFO ("Initializing " << name() << "...");
-     
+     ATH_CHECK(m_eventInfoKey.initialize());
        //open files for beamtracking output
   //string in char
   char * cBeam1Name = new char[m_FPOutputBeam1.length()]; 
@@ -137,17 +135,17 @@ StatusCode ALFA_BeamTransport::execute()
      //counter for particles marked as incomming in event record
      m_pint=0;
 
-       //Load event info
-     const EventInfo* mcInfoptr;
-     if ( evtStore()->retrieve(mcInfoptr, m_infokey).isFailure() ) {
-	  msg(MSG::ERROR) << "Could not retrieve EventInfo" << endmsg;
-	  return StatusCode::FAILURE;
+     //Load event info
+     SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey,getContext());
+     if(!eventInfo.isValid()) {
+       ATH_MSG_ERROR("Could not retrieve EventInfo");
+       return StatusCode::FAILURE;
      }
-     else{
-	  run_number=mcInfoptr->event_ID()->run_number();
-	  evt_number=mcInfoptr->event_ID()->event_number();
+     else {
+       run_number=eventInfo->runNumber();
+       evt_number=eventInfo->eventNumber();
  
-	  msg(MSG::DEBUG) << "run: " << run_number << " event: " << evt_number << endmsg;
+       ATH_MSG_DEBUG("run: " << run_number << " event: " << evt_number);
      }
      
        const McEventCollection* mcCollptr;

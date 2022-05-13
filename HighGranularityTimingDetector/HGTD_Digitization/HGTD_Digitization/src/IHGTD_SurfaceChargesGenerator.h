@@ -52,10 +52,6 @@ public:
                               CLHEP::HepRandomEngine* rndmEngine,
                               const EventContext& ctx) const = 0;
 
-  virtual void setIntegratedLuminosity(float integrated_luminosity) = 0;
-
-  virtual void setSmearingTime(bool smear_meantime) = 0;
-
   // Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(IHGTD_SurfaceChargesGenerator, 1, 0);
 

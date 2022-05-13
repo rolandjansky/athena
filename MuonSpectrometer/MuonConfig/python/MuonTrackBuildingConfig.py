@@ -376,9 +376,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     kwargs.setdefault("HoleRecoveryTool",       muon_eo_recovery_tool)
     kwargs.setdefault("SegSeedQCut", 2)
     kwargs.setdefault("Seg2ndQCut", 1)
-    
-    kwargs.setdefault("OutputSingleStationTracks", True) # default is False
-
+   
     if "TrackBuilderTool" not in kwargs:
         #Old config had: kwargs["TrackBuilderTool"] = getPublicToolClone("MooMuonTrackBuilder", "MooTrackBuilderTemplate",
         #                                                extraFlags=extraFlags)
@@ -522,10 +520,8 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder", **kwargs):
     #Arguably this should be somewhere deeper - not quite sure where yet though. FIXME
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
-    
-    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    result.addService( muon_edm_helper_svc )
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
+    result.merge(MuonEDMHelperSvcCfg(flags))
     
     
 

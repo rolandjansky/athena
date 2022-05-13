@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDTracking.h"
 
-ALFA_MDTracking::ALFA_MDTracking()
+ALFA_MDTracking::ALFA_MDTracking() :
+    AthMessaging(Athena::getMessageSvc(), "ALFA_MDTracking")
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::ALFA_MDTracking()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::ALFA_MDTracking");
 
 	m_iNumU = 0;
@@ -30,14 +31,12 @@ ALFA_MDTracking::ALFA_MDTracking()
 
 ALFA_MDTracking::~ALFA_MDTracking()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::~ALFA_MDTracking()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::~ALFA_MDTracking");
 	ATH_MSG_DEBUG("end ALFA_MDTracking::~ALFA_MDTracking");
 }
 
 StatusCode ALFA_MDTracking::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iMultiplicityCut, Int_t iUVCut, Float_t fOverlapCut)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Initialize()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::Initialize()");
 
 	m_iMultiplicityCut = iMultiplicityCut;
@@ -63,7 +62,6 @@ StatusCode ALFA_MDTracking::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFA
 
 StatusCode ALFA_MDTracking::Execute(Int_t iRPot, const std::list<MDHIT> &ListMDHits)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Execute()");
 	ATH_MSG_DEBUG("ALFA_MDTracking::Execute()");
 
 	FIBERS structFibers;
@@ -118,7 +116,6 @@ StatusCode ALFA_MDTracking::Execute(Int_t iRPot, const std::list<MDHIT> &ListMDH
 
 StatusCode ALFA_MDTracking::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Finalize()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::Finalize()");
 
 	fRecXPos = m_fRecXPos;
@@ -131,7 +128,6 @@ StatusCode ALFA_MDTracking::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 
 void ALFA_MDTracking::HistFill(Float_t &b_p, Float_t &b_n, Float_t &fOverP, Float_t &fOverN, Int_t &iNumU, Int_t &iNumV, Int_t iFlag)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::HistFill()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::HistFill()");
 
 	Int_t iHit;
@@ -328,7 +324,6 @@ void ALFA_MDTracking::HistFill(Float_t &b_p, Float_t &b_n, Float_t &fOverP, Floa
 
 void ALFA_MDTracking::OverLap()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::OverLap()");
 	ATH_MSG_DEBUG("ALFA_MDTracking::OverLap()");
 
 	Float_t fBMeanN = -9999.0;
@@ -443,7 +438,6 @@ void ALFA_MDTracking::OverLap()
 
 void ALFA_MDTracking::SetData(Int_t iNumU, Int_t iNumV, Float_t fOverlapU, Float_t fOverlapV)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::SetData()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::SetData()");
 
 	m_iNumU = iNumU;
@@ -456,7 +450,6 @@ void ALFA_MDTracking::SetData(Int_t iNumU, Int_t iNumV, Float_t fOverlapU, Float
 
 void ALFA_MDTracking::GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOverlapU, Float_t &fOverlapV, Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT])
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::GetData()");
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::GetData()");
 
 	iNumU = m_iNumU;

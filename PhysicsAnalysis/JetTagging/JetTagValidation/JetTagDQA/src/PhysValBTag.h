@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValBTag.h
@@ -93,7 +93,7 @@ namespace JetTagDQA {
     std::string m_trackName;
     std::string m_vertexName;
 
-    std::map<std::string, JetTagDQA::BTaggingValidationPlots> m_btagplots;
+    std::map<std::string, JetTagDQA::BTaggingValidationPlots*> m_btagplots;
     
     // histogram definitions
     // the first one is a vector because I can only pass vectors from the joboptions to the algs (and no maps)

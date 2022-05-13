@@ -185,7 +185,7 @@ void AFP_Raw2DigiTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, co
   xAODSiHit->setTimeOverThreshold(ToT_value);
   xAODSiHit->setDepositedCharge( m_totToChargeTransformation(ToT_value) );
 
-  ATH_MSG_DEBUG("Filled xAOD::AFPSiHit");
+  ATH_MSG_DEBUG("have AFPSiHit: pixelLayerID "<<xAODSiHit->pixelLayerID()<<", pixelColIDChip "<<xAODSiHit->pixelColIDChip()<<", pixelRowIDChip "<<xAODSiHit->pixelRowIDChip()<<", timeOverThreshold "<<xAODSiHit->timeOverThreshold()<<", depositedCharge "<<xAODSiHit->depositedCharge());
 }
 
 void AFP_Raw2DigiTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit, const EventContext& ctx) const

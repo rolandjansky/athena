@@ -11,7 +11,7 @@ Offline configurations are available here:
 
 """
 # athena imports
-from AthenaCommon.BeamFlags import jobproperties
+from AthenaConfiguration.Enums import BeamType
 
 # flags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -147,7 +147,7 @@ TrigEMTrackMatchBuilder = ToolFactory( egammaToolsConf.EMTrackMatchBuilder,
                       useScoring         = True,
                       SecondPassRescale  = True,
                       UseRescaleMetric   = True,
-                      isCosmics          = (jobproperties.Beam.beamType()=="cosmics"))
+                      isCosmics          = (ConfigFlags.Beam.Type == BeamType.Cosmics) )
 
 """Configuring the builder of Egamma shower shapes"""
 TrigEMShowerBuilder = ToolFactory( egammaToolsConf.EMShowerBuilder,

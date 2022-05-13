@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisAlgorithm.cxx 
@@ -46,16 +46,6 @@ void AthAnalysisAlgorithm::updateEvtStore(Gaudi::Details::PropertyBase& prop) {
   evtStore().release().ignore(); 
   evtStore().setTypeAndName(prop.toString());
 }
-
-
-ServiceHandle<StoreGateSvc>& AthAnalysisAlgorithm::inputMetaStore() const {
-  return m_inputMetaStore;
-}
-
-ServiceHandle<StoreGateSvc>& AthAnalysisAlgorithm::outputMetaStore() const {
-  return m_outputMetaStore;
-}
-
 
 StatusCode AthAnalysisAlgorithm::sysInitialize() {
 

@@ -26,6 +26,8 @@ StatusCode TrigBjetBtagHypoAlg::initialize() {
   renounce( m_trackKey );
   renounce( m_inputPrmVtx );
 
+  ATH_CHECK(m_beamSpotKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -158,6 +160,9 @@ StatusCode TrigBjetBtagHypoAlg::execute( const EventContext& context ) const {
   //    ** Prepare input to Hypo Tools  
   // ==========================================================================================================================
 
+  SG::ReadCondHandle< InDet::BeamSpotData > beamSpotHandle(
+    m_beamSpotKey, context);
+  const InDet::BeamSpotData* beamSpot = beamSpotHandle.retrieve();
 
   std::vector< TrigBjetBtagHypoTool::TrigBjetBtagHypoToolInfo > bTagHypoInputs;
 
@@ -171,7 +176,6 @@ StatusCode TrigBjetBtagHypoAlg::execute( const EventContext& context ) const {
       TrigCompositeUtils::decisionIDs( previousDecision ).begin(),
       TrigCompositeUtils::decisionIDs( previousDecision ).end() };
 
-    
     // Retrieve PV from navigation
     ElementLink< xAOD::VertexContainer > vertexEL;
     CHECK( retrieveObjectFromNavigation(  m_prmVtxLink.value(), vertexEL, previousDecision ) );
@@ -183,13 +187,14 @@ StatusCode TrigBjetBtagHypoAlg::execute( const EventContext& context ) const {
 								  m_bTagKey,
 								  previousDecision ) );
     CHECK( bTaggingELs.size() == 1 );
-    
+
     // Put everything in place
     TrigBjetBtagHypoTool::TrigBjetBtagHypoToolInfo infoToAdd;
     infoToAdd.previousDecisionIDs = previousDecisionIDs;
     infoToAdd.btaggingEL = bTaggingELs.front();
     infoToAdd.vertexEL = vertexEL;
     infoToAdd.decision = newDecisions.at( index );
+    infoToAdd.beamSpot = beamSpot;
     bTagHypoInputs.push_back( infoToAdd );
   }
 

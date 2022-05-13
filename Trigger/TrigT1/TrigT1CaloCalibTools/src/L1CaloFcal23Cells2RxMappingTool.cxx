@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -34,16 +34,16 @@ namespace LVL1{
   }
 
   unsigned int L1CaloFcal23Cells2RxMappingTool::offlineCell2RxId(const unsigned int& cellId) const{
-    std::map<unsigned int,unsigned int>::iterator itr = m_mapOfflineCell2RxId->find(cellId);
-    if(itr != m_mapOfflineCell2RxId->end()){
+    std::map<unsigned int,unsigned int>::iterator itr = std::as_const(m_mapOfflineCell2RxId)->find(cellId);
+    if(itr != std::as_const(m_mapOfflineCell2RxId)->end()){
       return itr->second;
     }
     return 0;
   }
 
   unsigned int L1CaloFcal23Cells2RxMappingTool::onlineCell2RxId(const unsigned int& cellId) const{
-    std::map<unsigned int,unsigned int>::iterator itr = m_mapOnlineCell2RxId->find(cellId);
-    if(itr != m_mapOnlineCell2RxId->end()){
+    std::map<unsigned int,unsigned int>::iterator itr = std::as_const(m_mapOnlineCell2RxId)->find(cellId);
+    if(itr != std::as_const(m_mapOnlineCell2RxId)->end()){
       return itr->second;
     }
     return 0;

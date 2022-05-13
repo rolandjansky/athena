@@ -132,7 +132,7 @@ else:
 
         # Set geometry version
         if (not "DetDescrVersion" in dir()):
-            DetDescrVersion = "ATLAS-GEO-10-00-02"
+            DetDescrVersion = "ATLAS-R2-2016-01-00-01" # default Run 2 geometry
         globalflags.DetDescrVersion = DetDescrVersion
             
         # Set conditions tag
@@ -244,7 +244,7 @@ if (vp1Muon):
     DetFlags.Muon_setOn()
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
-    if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+    if not MuonGeometryFlags.hasMM(): DetFlags.MM_setOff()
     if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
 else:         DetFlags.Muon_setOff()
 if (vp1LUCID): DetFlags.Lucid_setOn()

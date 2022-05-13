@@ -53,7 +53,7 @@ def MuonCurvedSegmentCombiner(flags, **kwargs):
 
     kwargs.setdefault("DoCosmics", flags.Beam.Type is not BeamType.Collisions)
     kwargs.setdefault( "AddAll2DCscs", False )
-    kwargs.setdefault( "UseCscSegments", flags.Muon.doCSCs )
+    kwargs.setdefault( "UseCscSegments", flags.Detector.EnableCSC )
     kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", True )
     return Muon__MuonCurvedSegmentCombiner("MuonCurvedSegmentCombiner", **kwargs)
     
@@ -472,7 +472,7 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     result.merge(acc)
     result.addPublicTool(muon_pattern_segment_maker)
     
-    if flags.Muon.doCSCs:
+    if flags.Detector.EnableCSC:
         acc = Csc2dSegmentMakerCfg(flags)
         csc_2d_segment_maker = acc.getPrimary()        
         result.merge(acc)
@@ -490,8 +490,8 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     kwargs.setdefault('MdtSegmentMaker', muon_pattern_segment_maker)
     kwargs.setdefault('DoSegmentCombinations', False)
     kwargs.setdefault('DoSegmentCombinationCleaning', False)
-    kwargs.setdefault('DoCscSegments', flags.Muon.doCSCs)
-    kwargs.setdefault('DoMdtSegments', flags.Muon.doMDTs)
+    kwargs.setdefault('DoCscSegments', flags.Detector.EnableCSC)
+    kwargs.setdefault('DoMdtSegments', flags.Detector.EnableMDT)
     kwargs.setdefault('Csc2dSegmentMaker', csc_2d_segment_maker)
     kwargs.setdefault('Csc4dSegmentMaker', csc_4d_segment_maker)
     kwargs.setdefault('DoSummary', flags.Muon.printSummary)
@@ -576,12 +576,12 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
         result.merge(acc)
         kwargs.setdefault('MuonClusterSegmentFinderTool', muon_cluster_segment_finder)
         
-    kwargs.setdefault('UseCSC', flags.Muon.doCSCs)
-    kwargs.setdefault('UseMDT', flags.Muon.doMDTs)
-    kwargs.setdefault('UseRPC', flags.Muon.doRPCs)
-    kwargs.setdefault('UseTGC', flags.Muon.doTGCs)
-    kwargs.setdefault('UseTGCPriorBC', flags.Muon.doTGCs and flags.Muon.useTGCPriorNextBC)
-    kwargs.setdefault('UseTGCNextBC', flags.Muon.doTGCs and flags.Muon.useTGCPriorNextBC)
+    kwargs.setdefault('UseCSC', flags.Detector.EnableCSC)
+    kwargs.setdefault('UseMDT', flags.Detector.EnableMDT)
+    kwargs.setdefault('UseRPC', flags.Detector.EnableRPC)
+    kwargs.setdefault('UseTGC', flags.Detector.EnableTGC)
+    kwargs.setdefault('UseTGCPriorBC', flags.Detector.EnableTGC and flags.Muon.useTGCPriorNextBC)
+    kwargs.setdefault('UseTGCNextBC', flags.Detector.EnableTGC and flags.Muon.useTGCPriorNextBC)
     kwargs.setdefault('doTGCClust', flags.Muon.doTGCClusterSegmentFinding)
     kwargs.setdefault('doRPCClust', flags.Muon.doRPCClusterSegmentFinding)
     # When reading ESDs, where prior/next BC TGCs are merged, just retrieve that.
@@ -631,7 +631,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     kwargs.setdefault('MuonPatternCombinationLocation', "NCB_MuonHoughPatternCombinations" )
     kwargs.setdefault('MuonSegmentOutputLocation', "NCB_TrackMuonSegments" )
     kwargs.setdefault('Key_MuonLayerHoughToolHoughDataPerSectorVec', '')
-    kwargs.setdefault('UseCSC', flags.Muon.doCSCs)
+    kwargs.setdefault('UseCSC', flags.Detector.EnableCSC)
     kwargs.setdefault('UseMDT', False)
     kwargs.setdefault('UseRPC', False)
     kwargs.setdefault('UseTGC', False)
@@ -658,10 +658,10 @@ def MuonLayerHoughAlgCfg(flags, name = "MuonLayerHoughAlg", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    kwargs.setdefault("CscPrepDataContainer", "CSC_Clusters" if flags.Muon.doCSCs else "")
-    kwargs.setdefault("sTgcPrepDataContainer", "STGC_Measurements" if flags.Muon.dosTGCs else "")
+    kwargs.setdefault("CscPrepDataContainer", "CSC_Clusters" if flags.Detector.EnableCSC else "")
+    kwargs.setdefault("sTgcPrepDataContainer", "STGC_Measurements" if flags.Detector.EnablesTGC else "")
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    kwargs.setdefault("MMPrepDataContainer", "MM_Measurements" if flags.Muon.doMicromegas else "")
+    kwargs.setdefault("MMPrepDataContainer", "MM_Measurements" if flags.Detector.EnableMM else "")
     kwargs.setdefault("PrintSummary", flags.Muon.printSummary)
     acc = MuonLayerHoughToolCfg(flags,name = "MuonLayerHoughTool")
     hough_tool = acc.getPrimary()
@@ -731,7 +731,7 @@ def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     kwargs.setdefault("MuonPatternSegmentMaker",muon_pattern_segment_maker)
     
     ### we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction    
-    if flags.Muon.doCSCs:
+    if flags.Detector.EnableCSC:
         acc = Csc2dSegmentMakerCfg(flags)
         csc_2d_segment_maker = acc.getPrimary()
         result.merge(acc)
@@ -771,11 +771,8 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
-
-    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    result.addService( muon_edm_helper_svc )
-    
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
+    result.merge(MuonEDMHelperSvcCfg(flags))
     if flags.Input.Format is Format.BS:
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
@@ -799,7 +796,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
 
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
 
-    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+    if flags.Detector.EnableMM or flags.Detector.EnablesTGC:
         result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("QuadNSW_MuonSegmentCnvAlg",
                                                                     SegmentContainerName="TrackMuonNSWSegments",
                                                                     xAODContainerName="xAODNSWSegments"))

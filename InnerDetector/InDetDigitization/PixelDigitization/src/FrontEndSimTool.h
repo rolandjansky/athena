@@ -133,8 +133,8 @@ public:
       if (roCell.isValid()) {
         InDetDD::SiCellId diodeNoise = roCell;
 
-        double x = CLHEP::RandFlat::shoot(rndmEngine, 0., 1.);
-        int bin = 0;
+        float x = static_cast<float>(CLHEP::RandFlat::shoot(rndmEngine, 0., 1.));  // returns double
+        size_t bin{};
         const std::vector<float> &noiseShape = moduleData->getNoiseShape(barrel_ec, layerIndex);
         for (size_t j = 1; j < noiseShape.size(); j++) {
           if (x > noiseShape[j - 1] && x <= noiseShape[j]) {
@@ -142,22 +142,22 @@ public:
             continue;
           }
         }
-        double noiseToTm = bin + 1.5;
-        double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine, noiseToTm, 1.);
-        if (noiseToT<1) { continue; }  // throw away unphysical noise
+        float noiseToTm = bin + 1.5f;
+        float noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine, noiseToTm, 1.f);
+        if (noiseToT < 1.f) { continue; }  // throw away unphysical noise
 
         // protection to the overflow ToT, that depends on the sensor technology
-        double overflowToT = std::numeric_limits<double>::max();
-        if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4) {
-          overflowToT = moduleData->getFEI4OverflowToT(barrel_ec,layerIndex);
+        float overflowToT = std::numeric_limits<float>::max();
+        if (p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::FEI4) {
+          overflowToT = moduleData->getFEI4OverflowToT(barrel_ec, layerIndex);
         }
         else if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI3) {
-          overflowToT = moduleData->getFEI3Latency(barrel_ec,layerIndex);
+          overflowToT = moduleData->getFEI3Latency(barrel_ec, layerIndex);
         }
-        noiseToT = std::min(noiseToT,overflowToT);
+        noiseToT = std::min(noiseToT, overflowToT);
 
         InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(noisyID);
-        double chargeShape = chargeCalibData->getCharge(type, moduleHash, circuit, noiseToT);
+        float chargeShape = chargeCalibData->getCharge(type, moduleHash, circuit, noiseToT);
 
         chargedDiodes.add(diodeNoise, SiCharge(chargeShape, 0, SiCharge::noise));
       }

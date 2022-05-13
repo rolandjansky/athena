@@ -833,8 +833,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                       TrackSelector     = InDetTrackSelectorTool,
                                                                       useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                       selectiontype     = 0,
-  								      TracksMaxZinterval = 3,#mm 
-                                                                      m_useSeedConstraint = False, #switching off seed constraint
+                                                                      TracksMaxZinterval = 3,#mm 
+                                                                      useSeedConstraint = False, #switching off seed constraint
                                                                       do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
     else:
       from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
@@ -931,18 +931,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
       from TrkVertexWeightCalculators.TrkVertexWeightCalculatorsConf import Trk__SumPtVertexWeightCalculator
       VertexWeightCalculator = Trk__SumPtVertexWeightCalculator(name              = "InDetSumPtVertexWeightCalculator",
                                                                 DoSumPt2Selection = True)
-
-    elif InDetFlags.primaryVertexSortingSetup() == 'VxProbSorting':
-
-      from TrkVertexWeightCalculators.TrkVertexWeightCalculatorsConf import Trk__VxProbVertexWeightCalculator
-      VertexWeightCalculator = Trk__VxProbVertexWeightCalculator(name          = "InDetVxProbVertexWeightCalculator",
-                                                                 HistogramPath = "/VxProbHisto/h_sTrkPdfminBias")
-
-    elif InDetFlags.primaryVertexSortingSetup() == 'NNSorting':
-
-      from TrkVertexWeightCalculators.TrkVertexWeightCalculatorsConf import Trk__NNVertexWeightCalculator
-      VertexWeightCalculator = Trk__NNVertexWeightCalculator(name = "InDetNNVertexWeightCalculator",
-                                                             HistoFilePath ="/NNHisto/")
+      decorName = "sumPt2"
     #
     ToolSvc += VertexWeightCalculator
     if InDetFlags.doPrintConfigurables():
@@ -953,7 +942,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     from TrkVertexTools.TrkVertexToolsConf import Trk__VertexCollectionSortingTool
     VertexCollectionSortingTool = Trk__VertexCollectionSortingTool(name                   = "InDetVertexCollectionSortingTool",
-                                                                   VertexWeightCalculator = VertexWeightCalculator)
+                                                                   VertexWeightCalculator = VertexWeightCalculator,
+                                                                   decorationName=decorName)
     ToolSvc += VertexCollectionSortingTool
     if InDetFlags.doPrintConfigurables():
       printfunc (VertexCollectionSortingTool)

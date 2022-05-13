@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/InDetTrackTruthFilterTool.h"
@@ -17,16 +17,16 @@ namespace InDet {
 
   static const CP::SystematicSet FilterSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_FAKE_RATE_LOOSE],
-      InDet::TrackSystematicMap[TRK_FAKE_RATE_TIGHT],
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_GLOBAL],
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_IBL],
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_PP0],
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_PHYSMODEL],
-      InDet::TrackSystematicMap[TRK_EFF_TIGHT_GLOBAL],
-      InDet::TrackSystematicMap[TRK_EFF_TIGHT_IBL],
-      InDet::TrackSystematicMap[TRK_EFF_TIGHT_PP0],
-      InDet::TrackSystematicMap[TRK_EFF_TIGHT_PHYSMODEL]
+      InDet::TrackSystematicMap.at(TRK_FAKE_RATE_LOOSE),
+      InDet::TrackSystematicMap.at(TRK_FAKE_RATE_TIGHT),
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_GLOBAL),
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_IBL),
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_PP0),
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_PHYSMODEL),
+      InDet::TrackSystematicMap.at(TRK_EFF_TIGHT_GLOBAL),
+      InDet::TrackSystematicMap.at(TRK_EFF_TIGHT_IBL),
+      InDet::TrackSystematicMap.at(TRK_EFF_TIGHT_PP0),
+      InDet::TrackSystematicMap.at(TRK_EFF_TIGHT_PHYSMODEL)
     };
 
   InDetTrackTruthFilterTool::InDetTrackTruthFilterTool(const string& name) :

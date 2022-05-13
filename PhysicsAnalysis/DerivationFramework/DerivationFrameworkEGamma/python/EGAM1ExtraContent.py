@@ -55,7 +55,10 @@ ExtraContentGSFConversionVertices=[
 #]
 
 ExtraContentTrackJets=["AntiKt4PV0TrackJets.pt.eta.phi.e.m.btaggingLink.constituentLinks"]
-ExtraContentBtagging=["BTagging_AntiKt4Track.SV1_pb.SV1_pc.SV1_pu.IP2D_pb.IP2D_pc.IP2D_pu.IP3D_pb.IP3D_pc.IP3D_pu.JetFitter_pb.JetFitter_pc.JetFitter_pu.JetFitterCombNN_pb.JetFitterCombNN_pc.JetFitterCombNN_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant"]
+
+# not in R22 yet for AntiKt4PV0TrackJets
+ExtraContentBtagging=[]
+#ExtraContentBtagging=["BTagging_AntiKt4Track.SV1_pb.SV1_pc.SV1_pu.IP2D_pb.IP2D_pc.IP2D_pu.IP3D_pb.IP3D_pc.IP3D_pu.JetFitter_pb.JetFitter_pc.JetFitter_pu.JetFitterCombNN_pb.JetFitterCombNN_pc.JetFitterCombNN_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant"]
 
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
@@ -64,19 +67,21 @@ ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
 ExtraContentElectrons.extend( getGainDecorations(GainDecoratorTool) )
 
 ExtraContentAll=ExtraContentElectrons+ExtraContentMuons+ExtraContentPhotons+ExtraContentGSFConversionVertices+ExtraContentPrimaryVertices+ExtraContentTrackJets+ExtraContentBtagging
+
 ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
                       "egammaTruthParticles"
                       ]
 
 ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
                           "egammaClusters",
-                          "CaloCalTopoClusters",
+                          "CaloCalTopoClusters"]
+
+ExtraContainersReweightedElectrons=[
                           "NewSwElectrons",    # only if DoCellReweighting is ON
                           "MaxVarSwElectrons", # if variations are ON
                           "MinVarSwElectrons"  # if variations are ON

@@ -22,6 +22,9 @@ StatusCode EventInfoOverlay::initialize()
   ATH_MSG_DEBUG("Initializing...");
 
   ATH_MSG_INFO("Data overlay: " << m_dataOverlay.value());
+  if (m_validateBeamSpot.value()) {
+    ATH_MSG_INFO("Will validate beam spot size");
+  }
 
   // Check and initialize keys
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
@@ -57,15 +60,9 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Found signal xAOD::EventInfo " << signalEvent.name() << " in store " << signalEvent.store());
 
-  // Creating output timings container
-  SG::WriteHandle<xAOD::EventInfo> outputEvent(m_outputKey, ctx);
-  ATH_CHECK(outputEvent.record(std::make_unique<xAOD::EventInfo>(), std::make_unique<xAOD::EventAuxInfo>()));
-  if (!outputEvent.isValid()) {
-    ATH_MSG_ERROR("Could not record output xAOD::EventInfo " << outputEvent.name() << " to store " << outputEvent.store());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Recorded output xAOD::EventInfo " << outputEvent.name() << " in store " << outputEvent.store());
-
+  auto outputEvent = std::make_unique<xAOD::EventInfo>();
+  auto outputEventAux = std::make_unique<xAOD::EventAuxInfo>();
+  outputEvent->setStore (outputEventAux.get());
 
   // Copy the eventInfo data from background event
   *outputEvent = *bkgEvent;
@@ -96,22 +93,34 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
 
   // Ensure correct beam spot info
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-  if (!beamSpotHandle.isValid()) {
-    ATH_MSG_ERROR("Beam spot information not valid");
-    return StatusCode::FAILURE;
+  if (m_validateBeamSpot.value()) {
+    if (std::abs(signalEvent->beamPosSigmaZ() - bkgEvent->beamPosSigmaZ()) > 1e-5f) {
+      ATH_MSG_ERROR("Beam spot size does not match between signal and background events");
+      return StatusCode::FAILURE;
+    }
+  } else {
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+    if (!beamSpotHandle.isValid()) {
+      ATH_MSG_ERROR("Beam spot information not valid");
+      return StatusCode::FAILURE;
+    }
+    outputEvent->setBeamPos( beamSpotHandle->beamPos()[ Amg::x ],
+                            beamSpotHandle->beamPos()[ Amg::y ],
+                            beamSpotHandle->beamPos()[ Amg::z ] );
+    outputEvent->setBeamPosSigma( beamSpotHandle->beamSigma( 0 ),
+                                  beamSpotHandle->beamSigma( 1 ),
+                                  beamSpotHandle->beamSigma( 2 ) );
+    outputEvent->setBeamPosSigmaXY( beamSpotHandle->beamSigmaXY() );
+    outputEvent->setBeamTiltXZ( beamSpotHandle->beamTilt( 0 ) );
+    outputEvent->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
+    outputEvent->setBeamStatus( beamSpotHandle->beamStatus() );
   }
-  outputEvent->setBeamPos( beamSpotHandle->beamPos()[ Amg::x ],
-                           beamSpotHandle->beamPos()[ Amg::y ],
-                           beamSpotHandle->beamPos()[ Amg::z ] );
-  outputEvent->setBeamPosSigma( beamSpotHandle->beamSigma( 0 ),
-                                beamSpotHandle->beamSigma( 1 ),
-                                beamSpotHandle->beamSigma( 2 ) );
-  outputEvent->setBeamPosSigmaXY( beamSpotHandle->beamSigmaXY() );
-  outputEvent->setBeamTiltXZ( beamSpotHandle->beamTilt( 0 ) );
-  outputEvent->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
-  outputEvent->setBeamStatus( beamSpotHandle->beamStatus() );
 #endif
+
+  // Creating output timings container
+  SG::WriteHandle<xAOD::EventInfo> outputEventH(m_outputKey, ctx);
+  ATH_CHECK(outputEventH.record(std::move(outputEvent), std::move(outputEventAux)));
+  ATH_MSG_DEBUG("Recorded output xAOD::EventInfo " << outputEventH.name() << " in store " << outputEventH.store());
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;

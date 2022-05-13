@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileRawUtils/TileRoI_Map.h" 
@@ -167,7 +167,7 @@ const TileRoI_Map::COLL_ID_VEC& TileRoI_Map::CollectionID
 	return (*it).second; 
    }
    std::cout <<" TileRoI_Map::CollectionID: can not find RoI" << std::endl;
-   static COLL_ID_VEC v ; 
+   static const COLL_ID_VEC v ;
    return v; 
 }
 

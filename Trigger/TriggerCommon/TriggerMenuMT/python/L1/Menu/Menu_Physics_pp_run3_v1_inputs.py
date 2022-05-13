@@ -30,7 +30,9 @@ def defineInputsMenu():
             "thresholds" : [
                 'BCM_AtoC', 'BCM_CtoA', 'BCM_Wide', # 3 x 1-bit BCM
                 ('BCM_Comb',3), # 1x 3-bit BCM
-                (None,11),
+                'BCM6', 'BCM7', 'BCM8', # 2-hit BCM, for Run 3. 8 is not used
+                (None, 6),
+                'BMA0', 'BMA0',  # 2x BMA demonstrator
                 'BPTX0','BPTX1', # 2x BPTX
                 'LUCID_A', 'LUCID_C', # 2x LUCID 
                 (None,4),

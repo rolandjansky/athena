@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Digitization legacy configuration helpers
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 
@@ -40,6 +40,6 @@ def setupDigitizationLegacyDetectorFlags(detectors):
     if not detectors or 'sTGC' in detectors or 'Muon' in detectors:
         DetFlags.sTGC_setOn()
     if not detectors or 'MM' in detectors or 'Muon' in detectors:
-        DetFlags.Micromegas_setOn()
+        DetFlags.MM_setOn()
 
     return DetFlags

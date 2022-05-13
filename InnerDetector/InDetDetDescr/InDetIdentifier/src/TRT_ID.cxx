@@ -41,8 +41,7 @@ TRT_ID::TRT_ID(void)
   m_barrel_field.add_value(1);
 }
 
-TRT_ID::~TRT_ID(void)
-{}
+TRT_ID::~TRT_ID() = default;
 
 void
 TRT_ID::barrel_ec_id_checks(int barrel_ec) const {

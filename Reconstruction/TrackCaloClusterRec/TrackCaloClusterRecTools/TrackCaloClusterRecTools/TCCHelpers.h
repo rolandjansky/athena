@@ -1,11 +1,12 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TCCHELPERS_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TCCHELPERS_H
 #include "GaudiKernel/MsgStream.h"
+#
 #include <AsgMessaging/MessageCheck.h>
 /////////////////////////////////////////////////////////
 /// \bried Internal helper class for TCC & UFO building.
@@ -41,26 +42,27 @@ namespace TCCHelpers {
     std::string m_clustersLinkK;
 
   
-    std::vector<ElementLink<xAOD::CaloClusterContainer>> Links;  
     
     const CP::ITrackVertexAssociationTool* m_trackVertexAssoTool;
     float m_clusterEcut;
     bool m_useEnergy;
-    
+    const SG::ReadDecorHandleKey<xAOD::TrackParticleContainer>* m_linkdecorkey=nullptr;   // in order to access ReadDecorHandles inside the struct, pass the (initialised) key as a pointer from the parent algorithm into the struct, so we can build the ReadDecorHandle inside the struct function. 
 
     virtual void processPFO(const xAOD::TrackParticle* trk, const xAOD::FlowElement* pfo) = 0;
     virtual void processTrk(const xAOD::TrackParticle* trk) = 0;
     
     virtual void combinedUFOLoop(const TrackCaloClusterInfo *tccInfo, const xAOD::FlowElementContainer* pfos){
-      SG::AuxElement::ConstAccessor<ElementLink<xAOD::FlowElementContainer> > orig_pfo(m_orig_pfoK);
+      SG::AuxElement::ConstAccessor<ElementLink<xAOD::IParticleContainer> > orig_pfo(m_orig_pfoK);
       SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::CaloClusterContainer> > > clusterLinks(m_clustersLinkK);
+      
+      
       
       // For performance reasons, we create a map<track, bool> before looping on the tracks.
       std::map<const xAOD::TrackParticle*, bool> isIsolatedMatchedTrack;
       for(const xAOD::FlowElement* pfo: *pfos ){
 	if( ! pfo->isCharged() ) continue;
         	
-	static SG::AuxElement::ConstAccessor<int> acc_isInDenseEnvironment("IsInDenseEnvironment");
+	static const SG::AuxElement::ConstAccessor<int> acc_isInDenseEnvironment("IsInDenseEnvironment");
 	if(!acc_isInDenseEnvironment.isAvailable(*pfo)){
 	    asg::msgUserCode::ANA_MSG_ERROR("TCCHelpers.h: Dense environ variable not found, skipping given FE");
 	    continue;
@@ -73,25 +75,35 @@ namespace TCCHelpers {
 	const xAOD::TrackParticle* pfoTrack=dynamic_cast<const xAOD::TrackParticle*>(pfo_iparticle);
 	isIsolatedMatchedTrack[pfoTrack] = true;
       }
-      
 
+      if(m_linkdecorkey==nullptr){
+	  asg::msgUserCode::ANA_MSG_ERROR("TCCHelpers.h m_linkdecorkey is not initialised in the struct to do anything, not sure what this means? Skip this case");
+	  return;
+      }
+      const EventContext& ctx =Gaudi::Hive::currentContext();
+      SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > trackcalodecor(*m_linkdecorkey,ctx); //init the handle
+
+      if(!trackcalodecor.isPresent()){	    
+	asg::msgUserCode::ANA_MSG_ERROR("TCCHelpers.h: no link between track and cluster. We need these links : "<<m_linkdecorkey->key());
+      }
+      
       for(const xAOD::TrackParticle * trk: *tccInfo->allTracks){
 	// Only include tracks which aren't associated to a charged PFO -- don't want to double count!
 	if (isIsolatedMatchedTrack.find(trk) != isIsolatedMatchedTrack.end() ) continue;
 
 	// if not matched to PV0, ignore track
 	if (! m_trackVertexAssoTool->isCompatible(*trk, *tccInfo->pv0) ) continue ;
-    
-	if(!clusterLinks.isAvailable(*trk)){
-            asg::msgUserCode::ANA_MSG_WARNING("TCCHelpers.h dud link between track and clus, skipping");
-	    if(trk==nullptr){
-		asg::msgUserCode::ANA_MSG_ERROR("TCCHelpers.h: dud track");
-	    }
-	    continue;
-	}
-	const auto & clustLinks = clusterLinks( *trk );
-	if(clustLinks.empty() ) continue;
-	//asg::msgUserCode::ANA_MSG_INFO("N (valid links): "<<clustLinks.size()<<"");
+	//access the link ReadDecorHandle (saved as struct), and then apply it
+	
+	
+	
+	
+	
+        const auto& clustLinks=trackcalodecor(*trk);
+	if(clustLinks.empty() ){ 
+	  continue;
+	}	
+
 	
 	// follow the link to the calorimeter clusters
 	for( const auto& clLink : clustLinks) {
@@ -102,18 +114,28 @@ namespace TCCHelpers {
 	  for ( const xAOD::FlowElement* pfo : *pfos ){
 	    if(pfo->pt()<=0.) continue;
 	    
-	    //const xAOD::FlowElement* pfo_orig = *orig_pfo( *pfo );
-	    //if( !(fabs(pfo_orig->eta() - cluster->rawEta() )<0.01 && fabs( pfo_orig->phi()  - cluster->rawPhi() )<0.01)) continue; // temp disable origin logic. Matt A: not 100% sure if its needed now anyway
-	    //asg::msgUserCode::ANA_MSG_INFO("end ORIG correction block");
+	    const xAOD::IParticle* pfo_orig = nullptr;
+	    if ( orig_pfo.isAvailable(*pfo) ) pfo_orig = *orig_pfo( *pfo ) ;
+	    else pfo_orig = pfo;
+	    
+	    if( !(std::abs(pfo_orig->eta() - cluster->rawEta() )<0.01 && std::abs( pfo_orig->phi()  - cluster->rawPhi() )<0.01)) continue; // temp disable origin logic. Matt A: not 100% sure if its needed now anyway	    
 	    
 	    if( ! pfo->isCharged() ){
 	      // Only want to apply this to PFO which aren't able to be subtracted with E/p
 	      if(cluster->rawE() < m_clusterEcut) continue;
 	    }
 
+	    // this pfo is matched to a cluster associated to the track -->
+	    // Call the specialized function to accumulate either :
+	    // - E sharing weights (ex: in TrackCaloClusterInfoAlg.cxx)
+	    // - clusters/pfo mometum associated to the current trk (ex: TrackCaloClusterTool)
 	    processPFO(trk, pfo);
+
 	  } // pfo loop
-	} // cluster associated to trk loop    
+	} // cluster associated to trk loop
+
+	// When building UFO, the specialized func below will create a combined UFO from this
+	// track and the accumulated momentum from the associated cluster/pfo
 	processTrk(trk);
     
       } // track loop

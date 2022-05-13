@@ -7,7 +7,8 @@ atlas_subdir( TrkExEngine )
 atlas_add_component( TrkExEngine
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils TrkDetDescrUtils )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives 
+		     TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils TrkDetDescrUtils CxxUtils)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -13,9 +13,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -266,16 +263,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event, const E
 
   // overwrite the HEPMC dummy event number with the proper ATLAS event number
   SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey, ctx);
-  if (evtInfo.isValid()) { // EVTN file uses xAOD::EventInfo
-    modEvent->set_event_number(static_cast<int>(evtInfo->eventNumber()));
-  }
-  else { // EVNT file uses legacy EventInfo
-    const DataHandle<EventInfo> eventInfo;
-    if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
-      uint64_t eventNumber = eventInfo->event_ID()->event_number();
-      modEvent->set_event_number(static_cast<int>(eventNumber));
-    }
-  }
+  modEvent->set_event_number(static_cast<int>(evtInfo->eventNumber()));
 
   // weight-name cleaning
 #ifdef HEPMC3
@@ -375,6 +363,16 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event, const E
 #else
   modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
   if (modEvent->particles_size() == 1)  modEvent->set_beam_particles(*modEvent->particles_begin(), *modEvent->particles_begin());
+  if (modEvent->beam_particles().first->momentum().e() > 50000.0) {
+    for (HepMC::GenEvent::particle_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
+      const HepMC::FourVector fv((*p)->momentum().px() * 0.001,
+                                 (*p)->momentum().py() * 0.001,
+                                 (*p)->momentum().pz() * 0.001,
+                                 (*p)->momentum().e()  * 0.001);
+      (*p)->set_momentum(fv);
+      (*p)->set_generated_mass((*p)->generated_mass() * 0.001);
+    }
+  }
 #endif
 
   return modEvent;

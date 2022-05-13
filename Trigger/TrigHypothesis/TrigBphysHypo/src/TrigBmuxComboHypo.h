@@ -168,7 +168,7 @@ class TrigBmuxComboHypo: public ::ComboHypo {
   Gaudi::Property<double> m_BToD0_minD0Pt {this,
     "BToD0_minD0Pt", -1., "minimum pT of D0"};
   Gaudi::Property<double> m_BToD0_minDstarPt {this,
-    "BToD0_minDstarPt", 4500., "minimum pT of D*-"};
+    "BToD0_minDstarPt", 5500., "minimum pT of D*-"};
   Gaudi::Property<double> m_BToD0_minDstarPionPt {this,
     "BToD0_minDstarPionPt", 1000., "minimum pT of pion track from D*-"};
   Gaudi::Property<double> m_BToD0_maxDstarPionZ0 {this,
@@ -181,6 +181,12 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     "BToD0_DstarMassRange", {-1., 2110.}, "D*+ mass range"};
   Gaudi::Property<float> m_BToD0_chi2 {this,
     "BToD0_chi2", 20., "maximum chi2 of the fitted D0 vertex"};
+  Gaudi::Property<float> m_BToD0_LxyB {this,
+    "BToD0_LxyB", 0.1, "Lxy(B+,BeamSpot) for B+ -> mu+ nu_mu anti-D0"};
+  Gaudi::Property<float> m_BToD0_LxyBd {this,
+    "BToD0_LxyBd", 0.05, "Lxy(B0,BeamSpot) for B0 -> mu+ nu_mu D*-"};
+  Gaudi::Property<float> m_BToD0_LxyD0 {this,
+    "BToD0_LxyD0", 0., "Lxy(D0,B+/B0) for both B+ and B0 decays"};
 
   // B0 -> mu+ nu_mu D-(-> K+ pi- pi-)
   Gaudi::Property<bool> m_BdToD {this,
@@ -197,6 +203,10 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     "BdToD_DMassRange", {1750., 2000.}, "D+ mass range"};
   Gaudi::Property<float> m_BdToD_chi2 {this,
     "BdToD_chi2", 27., "maximum chi2 of the fitted D- vertex"};
+  Gaudi::Property<float> m_BdToD_LxyBd {this,
+    "BdToD_LxyBd", 0.1, "Lxy(B0,BeamSpot) for B0 -> mu+ nu_mu D-"};
+  Gaudi::Property<float> m_BdToD_LxyD {this,
+    "BdToD_LxyD", 0.05, "Lxy(D-,B0) for D- -> K+ pi- pi-"};
 
   // B_s0 -> mu+ nu_mu D_s-(->phi(-> K+ K-) pi-)
   Gaudi::Property<bool> m_BsToDs {this,
@@ -206,7 +216,7 @@ class TrigBmuxComboHypo: public ::ComboHypo {
   Gaudi::Property<double> m_BsToDs_minPionPt {this,
     "BsToDs_minPionPt", 1000., "minimum pT of pion track from D_s-"};
   Gaudi::Property<double> m_BsToDs_minDsPt {this,
-    "BsToDs_minDsPt", 3500., "minimum pT of D_s-"};
+    "BsToDs_minDsPt", 5500., "minimum pT of D_s-"};
   Gaudi::Property<std::pair<double, double>> m_BsToDs_massRange {this,
     "BsToDs_massRange", {-1., 10000.}, "B_s0 mass range"};
   Gaudi::Property<std::pair<double, double>> m_BsToDs_phiMassRange {this,
@@ -215,24 +225,32 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     "BsToDs_DsMassRange", {1750., 2100.}, "D_s- mass range"};
   Gaudi::Property<float> m_BsToDs_chi2 {this,
     "BsToDs_chi2", 27., "maximum chi2 of the fitted D_s- vertex"};
+  Gaudi::Property<float> m_BsToDs_LxyBs {this,
+    "BsToDs_LxyBs", 0.1, "Lxy(B_s0,BeamSpot) for B_s0 -> mu+ nu_mu D_s-"};
+  Gaudi::Property<float> m_BsToDs_LxyDs {this,
+    "BsToDs_LxyDs", 0.02, "Lxy(D_s-,B_s0) for D_s- -> phi pi-"};
 
   // anti-Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-)
   Gaudi::Property<bool> m_LambdaBToLambdaC {this,
     "LambdaBToLambdaC", true, "switch on/off Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-) decay"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minProtonPt {this,
-    "LambdaBToLambdaC_minProtonPt", 2500., "minimum pT of proton track"};
+    "LambdaBToLambdaC_minProtonPt", 2750., "minimum pT of proton track"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minKaonPt {this,
     "LambdaBToLambdaC_minKaonPt", 1250., "minimum pT of kaon track"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minPionPt {this,
     "LambdaBToLambdaC_minPionPt", 1000., "minimum pT of pion track"};
   Gaudi::Property<double> m_LambdaBToLambdaC_minLambdaCPt {this,
-    "LambdaBToLambdaC_minLambdaCPt", 4500., "minimum pT of Lambda_c-"};
+    "LambdaBToLambdaC_minLambdaCPt", 5500., "minimum pT of Lambda_c-"};
   Gaudi::Property<std::pair<double, double>> m_LambdaBToLambdaC_massRange {this,
     "LambdaBToLambdaC_massRange", {-1., 10000.}, "Lambda_b0 mass range"};
   Gaudi::Property<std::pair<double, double>> m_LambdaBToLambdaC_LambdaCMassRange {this,
     "LambdaBToLambdaC_LambdaCMassRange", {2190., 2390.}, "Lambda_c- mass range"};
   Gaudi::Property<float> m_LambdaBToLambdaC_chi2 {this,
     "LambdaBToLambdaC_chi2", 27., "maximum chi2 of the fitted Lambda_c- vertex"};
+  Gaudi::Property<float> m_LambdaBToLambdaC_LxyLb {this,
+    "LambdaBToLambdaC_LxyLb", 0.1, "Lxy(Lambda_b0,BeamSpot) for Lambda_b0 -> mu- anti-nu_mu Lambda_c+"};
+  Gaudi::Property<float> m_LambdaBToLambdaC_LxyLc {this,
+    "LambdaBToLambdaC_LxyLc", 0.02, "Lxy(Lambda_c+,Lambda_b0) for Lambda_c+-> p K- pi+"};
 
   // external tools
   ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator {this,

@@ -1,9 +1,9 @@
-Package.SUSYToolsTester  INFO    ===== Processing key /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4631-iso.PHYS.pool.root with value 
+Package.SUSYToolsTester  INFO    ===== Processing key /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p5057.PHYS.pool.root with value 
 Package.SUSYToolsTester  INFO    ===== Processing key maxEvents with value 500
 Package.SUSYToolsTester  INFO    ===== Processing key isData with value 1
 Package.SUSYToolsTester  INFO    ===== Processing key isAtlfast with value 0
 Package.SUSYToolsTester  INFO    ===== Processing key Debug with value 0
-Package.SUSYToolsTester  INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4631-iso.PHYS.pool.root
+Package.SUSYToolsTester  INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p5057.PHYS.pool.root
 Warning in <TClass::Init>: no dictionary for class DataHeader_p6 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderForm_p6 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderForm_p6::DbRecord is available
@@ -17,18 +17,18 @@ Warning in <TClass::Init>: no dictionary for class IOVPayloadContainer_p1::IOVRa
 Warning in <TClass::Init>: no dictionary for class ILockable is available
 Warning in <TClass::Init>: no dictionary for class ByteStreamMetadataContainer_p1 is available
 Warning in <TClass::Init>: no dictionary for class ByteStreamMetadata_p1 is available
-Warning in <TClass::Init>: no dictionary for class EventStreamInfo_p3 is available
-Warning in <TClass::Init>: no dictionary for class EventType_p3 is available
 Warning in <TClass::Init>: no dictionary for class EventInfo_p4 is available
 Warning in <TClass::Init>: no dictionary for class EventID_p1 is available
+Warning in <TClass::Init>: no dictionary for class EventType_p3 is available
 Warning in <TClass::Init>: no dictionary for class TriggerInfo_p2 is available
-Package.SUSYToolsTester  INFO    Number of events in the file: 2000
+Warning in <TClass::Init>: no dictionary for class EventStreamInfo_p3 is available
+Package.SUSYToolsTester  INFO    Number of events in the file: 41724
 --- TGRLCollection      : Now merging GRLs where possible. Metadata required to be identical.[0m
 Package.SUSYToolsTester  INFO    GRL tool retrieve & initialized... 
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /SomeLocalPath/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /nfs/dust/atlas/user/mrimoldi/software/DevelopST_R22/Btagging/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -168,14 +168,12 @@ SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.enable"
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.Tagger" with value DL1r
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.WP" with value FixedCutBEff_85
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.MinPt" with value 20000
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.TimeStamp" with value 201903
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.CalibPath" with value xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_v3.root
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.CalibPath" with value xAODBTaggingEfficiency/13TeV/2021-22-13TeV-MC16-CDI-2021-12-02_v2.root
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.SystStrategy" with value Envelope
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "BtagTrkJet.enable" with value 1
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "BtagTrkJet.Tagger" with value DL1r
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "BtagTrkJet.WP" with value FixedCutBEff_77
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "BtagTrkJet.MinPt" with value 10000
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "BtagTrkJet.TimeStamp" with value 201903
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Btag.KeyOverride" with value 
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "OR.DoBoostedElectron" with value 1
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "OR.BoostedElectronC1" with value -999
@@ -264,10 +262,8 @@ Info in <CP::TPileupReweighting::UsePeriodConfig>: Using MC16 Period configurati
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xd410c60
-ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
-ToolSvc.JetCalibTool_A...INFO    ===================================
-ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0x9af2940
+ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow to calibrate AntiKt4EMPFlowjets
 ToolSvc.JetCalibTool_A...INFO    Reading global JES settings from: JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config
 ToolSvc.JetCalibTool_A...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationConfigs/JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config
 ToolSvc.JetCalibTool_A...INFO    Reading time-dependent insitu settings from: InsituConfig_1516_PF_Nov2018.config
@@ -282,20 +278,18 @@ ToolSvc.JetCalibTool_A...INFO    Description: MC16 residual mu- and N_{PV}-depen
 ToolSvc.JetCalibTool_A...INFO    Initializing JES correction.
 ToolSvc.JetCalibTool_A...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationFactors/MC16a_MCJES_4EMPFlow_Oct2017.config
 ToolSvc.JetCalibTool_A...INFO    Description: MCJES derived in October 2017 for MC16
-ToolSvc.JetCalibTool_A...INFO    Initializing GSC correction.
 ToolSvc.JetCalibTool_A...INFO    Initializing the Global Sequential Calibration tool
 ToolSvc.JetCalibTool_A...INFO    GSC Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationFactors/MC16a_GSC_R21_PF_28Nov2017.root
 ToolSvc.JetCalibTool_A...INFO    Initializing Time-Dependent Insitu Corrections
+ToolSvc.JetCalibTool_A...INFO    Initializing In Situ correction.
 ToolSvc.JetCalibTool_A...INFO    Reading In-situ correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/InsituCalibration/InsituCalibration_80ifb_1516_Nov_2018_4PF_Consolidated.root
 ToolSvc.JetCalibTool_A...INFO    Tool configured to calibrate data
 ToolSvc.JetCalibTool_A...INFO    In-situ correction to be applied: PFlow Eta-Intercalibration and Absolute Insitu for R21 data, Consolidated Recommendations (80 fb-1).
+ToolSvc.JetCalibTool_A...INFO    Initializing In Situ correction.
 ToolSvc.JetCalibTool_A...INFO    Reading In-situ correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/InsituCalibration/InsituCalibration_80ifb_17_Nov_2018_4PF_Consolidated.root
 ToolSvc.JetCalibTool_A...INFO    Tool configured to calibrate data
 ToolSvc.JetCalibTool_A...INFO    In-situ correction to be applied: PFlow Eta-Intercalibration and Absolute Insitu for R21 data, Consolidated Recommendations (80 fb-1).
-ToolSvc.JetCalibTool_A...INFO    ===================================
-ToolSvc.JetFatCalibToo...INFO    Initializing ToolSvc.JetFatCalibTool_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets...
-ToolSvc.JetFatCalibToo...INFO    ===================================
-ToolSvc.JetFatCalibToo...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt10LCTopoTrimmedPtFrac5SmallR20jets
+ToolSvc.JetFatCalibToo...INFO    Initializing ToolSvc.JetFatCalibTool_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets to calibrate AntiKt10LCTopoTrimmedPtFrac5SmallR20jets
 ToolSvc.JetFatCalibToo...INFO    Reading global JES settings from: JES_MC16recommendation_FatJet_Trimmed_JMS_comb_March2021.config
 ToolSvc.JetFatCalibToo...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationConfigs/JES_MC16recommendation_FatJet_Trimmed_JMS_comb_March2021.config
 ToolSvc.JetFatCalibToo...INFO    Reading time-dependent insitu settings from: InsituConfig_1516_10LCTrimmed_Combination_Mar2021.config
@@ -307,27 +301,26 @@ ToolSvc.JetFatCalibToo...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/datab
 ToolSvc.JetFatCalibToo...INFO    Initializing JES correction.
 ToolSvc.JetFatCalibToo...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationFactors/MC16d_MCJES_akt10_Trimmed_12Oct2018.config
 ToolSvc.JetFatCalibToo...INFO    Description: JES for fat jets for MC16
-ToolSvc.JetFatCalibToo...INFO    Initializing JMS correction.
 ToolSvc.JetFatCalibToo...INFO    Initializing the JMS Calibration tool
 ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationFactors/MC16d_MCJMS_akt10_Trimmed_calo_12Oct2018.root
 ToolSvc.JetFatCalibToo...INFO    Track Assisted Jet Mass will be calibrated
 ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationFactors/MC16d_MCJMS_akt10_Trimmed_TA_12Oct2018.root
 ToolSvc.JetFatCalibToo...INFO    JMS Tool will use the e_LOGmOe_eta binning strategy
 ToolSvc.JetFatCalibToo...INFO    Initializing Time-Dependent Insitu Corrections
+ToolSvc.JetFatCalibToo...INFO    Initializing In Situ correction.
 ToolSvc.JetFatCalibToo...INFO    Reading In-situ correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/InsituCalibration/InsituCalibration_80ifb_1516_Mar_2019_10LCTrimmed_Consolidated.root
 ToolSvc.JetFatCalibToo...INFO    Reading In-situ JMS correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/InsituCalibration/InsituJMSCalibration_80ifb_151617_March_2021_10LCTrimmed_Consolidated.root
 ToolSvc.JetFatCalibToo...INFO    Tool configured to calibrate data
 ToolSvc.JetFatCalibToo...INFO    In-situ correction to be applied: Large-radius LCTopo Trimmed (fCut=0.05, Rsub=0.2) Eta-Intercalibration and Absolute Insitu for R21 data, Consolidated Recommendations (80 fb-1).
+ToolSvc.JetFatCalibToo...INFO    Initializing In Situ correction.
 ToolSvc.JetFatCalibToo...INFO    Reading In-situ correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/InsituCalibration/InsituCalibration_80ifb_17_Mar_2019_10LCTrimmed_Consolidated.root
 ToolSvc.JetFatCalibToo...INFO    Reading In-situ JMS correction factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/InsituCalibration/InsituJMSCalibration_80ifb_151617_March_2021_10LCTrimmed_Consolidated.root
 ToolSvc.JetFatCalibToo...INFO    Tool configured to calibrate data
 ToolSvc.JetFatCalibToo...INFO    In-situ correction to be applied: Large-radius LCTopo Trimmed (fCut=0.05, Rsub=0.2) Eta-Intercalibration and Absolute Insitu for R21 data, Consolidated Recommendations (80 fb-1).
-ToolSvc.JetFatCalibToo...INFO    Initializing Combined Mass Correction
 ToolSvc.JetFatCalibToo...INFO    Initializing the JMS Calibration tool
 ToolSvc.JetFatCalibToo...INFO    Mass Combination: ON
 ToolSvc.JetFatCalibToo...INFO    JMS Tool has been initialized with mass combination weights from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationFactors/QCD_Combination_Trimmed_17Oct2018.root
 ToolSvc.JetFatCalibToo...INFO    JMS Tool will use the e_LOGmOe_eta binning strategy
-ToolSvc.JetFatCalibToo...INFO    ===================================
 ToolSvc.WTagger          INFO    Initializing SmoothedWZTagger tool
 ToolSvc.WTagger          INFO    Using config file : SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat
 ToolSvc.WTagger          INFO    Smoothed WZ Tagger tool initialized
@@ -715,14 +708,14 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-01-05T0524/AnalysisBase/22.2.56/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-05-05T0220/AnalysisBase/22.2.73/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
 ToolSvc.FJVTTool_Tight...INFO    Initializing ToolSvc.FJVTTool_Tight_NOfJVT...
 ToolSvc.FJVTEfficiency...INFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/May2020/fJvtSFFile.EMPFlow.root
 ToolSvc.MuonCalibratio...INFO    The assignment of the calibration tools will be based on the random run number. Please make sure to call the pileup-tool before applying this tool
-ToolSvc.MuonCalibratio...INFO    Data will be untouched. Instead an additional systematic will be added (recommended setup 2)
+ToolSvc.MuonCalibratio...INFO    Data will be corrected for sagitta bias with ID+MS calibration
 ToolSvc.MuonCalibratio...INFO    Setup the MuonMomentum calibration tool for 2015-2016 & mc16a
 ToolSvc.MuonCalibratio...INFO    Setup the MuonMomentum calibration tool for 2017 & mc16c/d
 ToolSvc.MuonCalibratio...INFO    Setup the MuonMomentum calibration tool for 2018 & mc16e
@@ -737,50 +730,14 @@ ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram
 ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram: tightWP_mediumPt_rhoCuts
 ToolSvc.MCaST_Own_MST    INFO    Successfully read tight working point histogram: tightWP_highPt_rhoCuts
 ToolSvc.MCaST_Own_MST    INFO    Reading bad muon veto cut functions from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter0/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter1/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter2/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter3/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter0/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter1/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter2/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter3/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter0/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter1/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter2/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data16/outqDeltamPlots_iter3/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Not correcting data, only using systematic uncertainty
-ToolSvc.ToolSvc.MuonCa...INFO    Using only statistical combination of sagitta bias ID and sagitta bias MS with rho 0
+ToolSvc.ToolSvc.MuonCa...INFO    Will be correcting the sagitta for data 
+ToolSvc.ToolSvc.MuonCa...INFO    Setting up the tool for sinlge histogram input for sagitta bias corrections
 ToolSvc.ToolSvc.MuonCa...INFO    Initialising...
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter0/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter1/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter2/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter3/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter0/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter1/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter2/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter3/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter0/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter1/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter2/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data17/outqDeltamPlots_iter3/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Not correcting data, only using systematic uncertainty
-ToolSvc.ToolSvc.MuonCa...INFO    Using only statistical combination of sagitta bias ID and sagitta bias MS with rho 0
+ToolSvc.ToolSvc.MuonCa...INFO    Will be correcting the sagitta for data 
+ToolSvc.ToolSvc.MuonCa...INFO    Setting up the tool for sinlge histogram input for sagitta bias corrections
 ToolSvc.ToolSvc.MuonCa...INFO    Initialising...
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter0/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter1/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter2/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter3/CB_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter0/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter1/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter2/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter3/ID_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter0/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter1/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter2/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19_Data18/outqDeltamPlots_iter3/ME_data.root
-ToolSvc.ToolSvc.MuonCa...INFO    Not correcting data, only using systematic uncertainty
-ToolSvc.ToolSvc.MuonCa...INFO    Using only statistical combination of sagitta bias ID and sagitta bias MS with rho 0
+ToolSvc.ToolSvc.MuonCa...INFO    Will be correcting the sagitta for data 
+ToolSvc.ToolSvc.MuonCa...INFO    Setting up the tool for sinlge histogram input for sagitta bias corrections
 ToolSvc.MuonSelectionT...INFO    Initialising...
 ToolSvc.MuonSelectionT...INFO    Maximum eta: 2.7
 ToolSvc.MuonSelectionT...INFO    Muon quality: 1
@@ -890,12 +847,12 @@ ToolSvc.TauSelectionTo...INFO    Initializing TauSelectionTool
 ToolSvc.TauEffTool_MediumINFO    Initializing TauEfficiencyCorrectionsTool
 ToolSvc.TauEffTool_MediumWARNING Scale factors for RNN eVeto are not available yet
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
-ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/Reco_TrueHadTau_2019-summer.root
+ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-04-00/EfficiencyCorrections/Reco_TrueHadTau_2019-summer.root
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
-ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/RNNID_TrueHadTau_2019-summer.root
+ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-04-00/EfficiencyCorrections/RNNID_TrueHadTau_2019-summer.root
 ToolSvc.TauSmearingTool  INFO    Initializing TauSmearingTool
 ToolSvc.TauSmearingToo...INFO    Initializing CommonSmearingTool
-ToolSvc.TauSmearingToo...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/Smearing/TES_TrueHadTau_2019-summer.root
+ToolSvc.TauSmearingToo...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-04-00/Smearing/TES_TrueHadTau_2019-summer.root
 ToolSvc.TauTruthMatch    INFO    Initializing TauTruthMatchingTool
 ToolSvc.TauTruthMatch    INFO    Initializing BuildTruthTaus
 ToolSvc.TauTruthMatch....INFO     Initializing MCTruthClassifier
@@ -907,22 +864,22 @@ ToolSvc.BTagSF_AntiKt4...INFO     b-jet     SF/eff calibration = default / 41047
 ToolSvc.BTagSF_AntiKt4...INFO     c-jet     SF/eff calibration = default / 410470
 ToolSvc.BTagSF_AntiKt4...INFO     tau-jet   SF/eff calibration = default / 410470
 ToolSvc.BTagSF_AntiKt4...INFO     light-jet SF/eff calibration = default / 410470
-ToolSvc.BTagSF_AntiKt4...INFO     JetAuthor = AntiKt4EMPFlowJets_BTagging201903
+ToolSvc.BTagSF_AntiKt4...INFO     JetAuthor = AntiKt4EMPFlowJets
 === CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT ===
  taggerName           : DL1r
- SF         file name : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_v3.root
+ SF         file name : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/xAODBTaggingEfficiency/13TeV/2021-22-13TeV-MC16-CDI-2021-12-02_v2.root
 
- CDI file build number: 8007724
+ CDI file build number: Custom
 
 ======= end of CalibrationDataInterfaceROOT instantiation ========
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/Light/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/Light/default_SF (with comment: 'negative_tag_Zjet+extrap[Run2MCcalib]' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/C/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/C/default_SF (with comment: 'ttbarC+extrap[Run2MCcalib_ttC]' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/B/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/B/default_SF (with comment: 'ttbar_PDF+extrap[Run2MCcalib]' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/T/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
-CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging201903/FixedCutBEff_85/T/default_SF (with comment: 'ttbarC+addSys[newsys]+extrap[Run2MCcalib_ttC]' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/Light/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/Light/default_SF (with comment: 'negative_tag_Zjet+extrap[Run2MCcalib]' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/C/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/C/default_SF (with comment: 'ttbarC+extrap[Run2MCcalib_ttC]' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/B/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/B/default_SF (with comment: 'ttbar_PDF+extrap[Run2MCcalib]' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/T/410470_Eff (with comment: 'efficiencies from sample PowhegPythia8' and hadronisation setting 'Pythia8EvtGen')
+CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets/FixedCutBEff_85/T/default_SF (with comment: 'ttbarC+addSys[newsys]+extrap[Run2MCcalib_ttC]' and hadronisation setting 'Pythia8EvtGen')
 ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
@@ -938,9 +895,7 @@ ToolSvc.METSystTool      INFO    MET_SoftTrk_ScaleUp
 ToolSvc.metSignificanc...INFO    Initializing ToolSvc.metSignificance_AntiKt4EMPFlow...
 ToolSvc.metSignificanc...INFO    Set up JER tools
 ToolSvc.metSignificanc...INFO    Set up jet resolution tool
-ToolSvc.jetCalibTool_A...INFO    Initializing ToolSvc.jetCalibTool_AntiKt4EMPFlow...
-ToolSvc.jetCalibTool_A...INFO    ===================================
-ToolSvc.jetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
+ToolSvc.jetCalibTool_A...INFO    Initializing ToolSvc.jetCalibTool_AntiKt4EMPFlow to calibrate AntiKt4EMPFlowjets
 ToolSvc.jetCalibTool_A...INFO    Reading global JES settings from: JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config
 ToolSvc.jetCalibTool_A...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-81/CalibrationConfigs/JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config
 ToolSvc.jetCalibTool_A...INFO    Initializing pileup correction.
@@ -951,29 +906,12 @@ ToolSvc.jetCalibTool_A...INFO    Description: MC16 residual mu- and N_{PV}-depen
 ToolSvc.jetCalibTool_A...INFO    Initializing JES correction.
 ToolSvc.jetCalibTool_A...INFO    Reading absolute calibration factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-81/CalibrationFactors/MC16a_MCJES_4EMPFlow_Oct2017.config
 ToolSvc.jetCalibTool_A...INFO    Description: MCJES derived in October 2017 for MC16
-ToolSvc.jetCalibTool_A...INFO    Initializing GSC correction.
 ToolSvc.jetCalibTool_A...INFO    Initializing the Global Sequential Calibration tool
 ToolSvc.jetCalibTool_A...INFO    GSC Tool has been initialized with binning and eta fit factors from: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-81/CalibrationFactors/MC16a_GSC_R21_PF_28Nov2017.root
-ToolSvc.jetCalibTool_A...INFO    Initializing jet smearing correction
 ToolSvc.jetCalibTool_A...INFO    Initializing the jet smearing correction tool
 ToolSvc.jetCalibTool_A...INFO    Reading from JetGSCScaleMomentum and writing to JetSmearedMomentum
-ToolSvc.jetCalibTool_A...INFO    ===================================
 ToolSvc.metSignificanc...INFO    Set up MuonCalibrationAndSmearing tools
 ToolSvc.METSigAutoConf...INFO    Initialising...
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter0/CB_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter1/CB_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter2/CB_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter3/CB_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter0/ID_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter1/ID_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter2/ID_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter3/ID_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter0/ME_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter1/ME_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter2/ME_data.root
-ToolSvc.METSigAutoConf...INFO    Opening correction file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonMomentumCorrections/sagittaBiasDataAll_03_02_19/outqDeltamPlots_iter3/ME_data.root
-ToolSvc.METSigAutoConf...INFO    Not correcting data, only using systematic uncertainty
-ToolSvc.METSigAutoConf...INFO    Using only statistical combination of sagitta bias ID and sagitta bias MS with rho 0
 ToolSvc.METSigAutoConf...INFO    Initialization
 GainUncertainty          INFO    opening file /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonFourMomentumCorrection/v14/gain_uncertainty_specialRun.root
 egammaLayerRecalibTool   INFO    using scale es2017_21.0_v0
@@ -1050,61 +988,66 @@ SUSYObjDef_xAOD          INFO    Done initialising SUSYTools
 Package.SUSYToolsTester  INFO    SUSYObjDef_xAOD initialized...
 Package.SUSYToolsTester  INFO    Initialized SUSYTools
 Package.SUSYToolsTester  INFO    Config file opened
-ToolSvc.xAODConfigTool   INFO    Loaded xAOD::TriggerMenu configuration:
-ToolSvc.xAODConfigTool   INFO      SMK = 2740, L1PSK = 23209, HLTPSK = 17444
-ToolSvc.TrigDecisionTool INFO    Tool: updating config in slot 0 with SMK: 2740 and L1PSK: 23209 and HLTPSK: 17444 getForceConfigUpdate()=1 HLT Chains: 3171
+ToolSvc.TrigDecisionTool INFO    Tool: updating config in slot 0 with SMK: 2740 and L1PSK: 23194 and HLTPSK: 17429 getForceConfigUpdate()=1 HLT Chains: 3171
 Package.SUSYToolsTester  INFO    == cbkname: AllExecutedEvents, description: Number of processed events before any cut, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: AllStreams
-Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 2000
+Package.SUSYToolsTester  INFO       cycle: 2,  allEvents = 41724
 Package.SUSYToolsTester  INFO    == cbkname: TauAugmentationKernelTopAlg, description: N/A, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: 
-Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 2000
+Package.SUSYToolsTester  INFO       cycle: 2,  allEvents = 41724
+Package.SUSYToolsTester  INFO    == cbkname: TauWPDecoratorTopAlg, description: N/A, stream: StreamAOD
+Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: 
+Package.SUSYToolsTester  INFO       cycle: 2,  allEvents = 41724
 Package.SUSYToolsTester  INFO    == cbkname: PHYSKernel, description: N/A, stream: StreamAOD
 Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: StreamDAOD_PHYS
-Package.SUSYToolsTester  INFO       cycle: 0,  allEvents = 2000
+Package.SUSYToolsTester  INFO       cycle: 2,  allEvents = 41724
+Package.SUSYToolsTester  INFO    == cbkname: PHYSLITEKernel, description: N/A, stream: StreamAOD
+Package.SUSYToolsTester  INFO       inputStream: StreamAOD, outputStreams: StreamDAOD_PHYSLITE
+Package.SUSYToolsTester  INFO       cycle: 2,  allEvents = 41724
 Package.SUSYToolsTester  INFO    No relevent CutBookKeepers found
-Package.SUSYToolsTester  INFO    Found kernel: PHYS
+Package.SUSYToolsTester  INFO    Found kernel: PHYSLITE
 Package.SUSYToolsTester  INFO    Found stream: StreamAOD
 Info in <CP::TPileupReweighting::GetLumiBlockMu>: Initializing the subtool..
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836030867run #358031 0 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #836030867, run #358031 1 events processed so far  <<<===
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1433622078run #358031 0 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #-1433622078, run #358031 1 events processed so far  <<<===
 ToolSvc.TrigDecisionTool INFO    decision not set on first (?) assert. deciding how to unpack
 ToolSvc.TrigDecisionTool INFO    SG contains xAOD decision, use DecisionUnpackerStandalone
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 835983333run #358031 99 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #835983333, run #358031 100 events processed so far  <<<===
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 Warning in <SUSYToolsTester>: No PV found for this event! Skipping...
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Warning in <SUSYToolsTester>: No PV found for this event! Skipping...
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1433562229run #358031 99 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #-1433562229, run #358031 100 events processed so far  <<<===
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1433104331run #358031 199 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #-1433104331, run #358031 200 events processed so far  <<<===
 ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 835764972run #358031 199 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #835764972, run #358031 200 events processed so far  <<<===
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836098077run #358031 299 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #836098077, run #358031 300 events processed so far  <<<===
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836130511run #358031 399 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #836130511, run #358031 400 events processed so far  <<<===
-Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 836035578run #358031 499 events processed so far  <<<===
-Info in <SUSYToolsTester>: ===>>>  done processing event #836035578, run #358031 500 events processed so far  <<<===
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1432733778run #358031 299 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #-1432733778, run #358031 300 events processed so far  <<<===
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1432262825run #358031 399 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #-1432262825, run #358031 400 events processed so far  <<<===
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-of-range value, setting score to -666
+Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1431858503run #358031 499 events processed so far  <<<===
+Info in <SUSYToolsTester>: ===>>>  done processing event #-1431858503, run #358031 500 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 258.860000 / 258.863062 ms
-  First event           - 380.000000 / 383.266926 ms
-  Excluding first event - 258.617234 / 258.613756 ms
+  Entire loop           - 204.600000 / 257.382166 ms
+  First event           - 960.000000 / 26385.806084 ms
+  Excluding first event - 203.086172 / 205.020593 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
-Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 499, mu: 499
-Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 499, mu: 499
-Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 499, mu: 499
-Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 499, mu: 499
-Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 494, mu: 494
-Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 52, mu: 71
-Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 42, mu: 49
-Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 41, mu: 47
-Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 41, mu: 46
+Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 498, mu: 498
+Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 498, mu: 498
+Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 498, mu: 498
+Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 498, mu: 498
+Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 492, mu: 492
+Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 65, mu: 65
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 46, mu: 46
+Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 44, mu: 40
+Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 42, mu: 35
 Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 1, mu: 1
 ToolSvc.TrigDecisionTool INFO    Finalized
 		CalibrationDataInterfaceROOT object out-of-bounds summary:

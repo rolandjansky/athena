@@ -204,13 +204,15 @@ bool MuonMDT_CablingAlg::extractStationInfo(const coral::AttributeList& atr, Cab
     }
     /// Temporary hack to remove all EI chambers until the proper data base tag arrives
     if (m_isRun3) {
-        if (stationNameString == "EIS" || chamber_name.find("BIS7A") != std::string::npos) {
+        /// It's still useful to keep the C-side chamber if the asymmetric geometry is loaded
+        if ( ( stationNameString == "EIS" && (!m_idHelperSvc->hasCSC() || chamber_name.find('A') != std::string::npos) ) 
+            || chamber_name.find("BIS7A") != std::string::npos) {
             ATH_MSG_VERBOSE("It's sooo sad but the chamber " << chamber_name << " is no longer with us");
             return false;
         }
     }
     map_data.stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameString);
-    ATH_MSG_VERBOSE("station name: " << stationNameString << " index: " << map_data.stationIndex);
+    ATH_MSG_VERBOSE("station name: " << stationNameString << " index: " << static_cast<int>(map_data.stationIndex));
     // convert the subdetector id to integer
     map_data.subdetectorId = atoi(subdetector_id.c_str());
 
@@ -222,7 +224,7 @@ bool MuonMDT_CablingAlg::extractStationInfo(const coral::AttributeList& atr, Cab
     if (map_data.stationIndex < 0) {
         static std::atomic<bool> stWarningPrinted{false};
         if (!stWarningPrinted) {
-            ATH_MSG_WARNING("Found stationIndex=" << map_data.stationIndex
+            ATH_MSG_WARNING("Found stationIndex=" << static_cast<int>(map_data.stationIndex)
                                                   << " which is not reasonable, maybe related to ATLASRECTS-5961, continuing...");
             stWarningPrinted = true;
         }

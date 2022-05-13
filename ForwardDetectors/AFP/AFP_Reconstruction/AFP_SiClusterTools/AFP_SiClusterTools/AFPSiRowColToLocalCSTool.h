@@ -19,25 +19,26 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TVector3.h"
-
-#include "AFP_Geometry/AFP_GeometryTool.h"
-#include "AFP_Geometry/AFP_ConfigParams.h"
-
 #include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
+#include "AFP_Geometry/AFP_constants.h"
+#include "AFP_DBTools/SiLocAlignData.h"
+#include "AFP_DBTools/SiGlobAlignData.h"
 
 // using root transformations because CLHEP does not allow to directly set transformation matrix 
 #include <Math/Point3D.h>
 #include <Math/RotationY.h>
+#include <Math/RotationZYX.h>
+#include <Math/Translation3D.h>
 #include <Math/Transform3D.h>
+
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
 /**
- * @brief Translates pixels rows and columns to position in station local coordinates system.
+ * @brief Translates pixels rows and columns to position in standard ATLAS coordinates system.
  *
  * The class rewrites AFPSiClusterBasicObj into xAOD::AFPSiHitsCluster
- * objects and changes columns and rows into position in station local
+ * objects and changes columns and rows into position in standard ATLAS
  * coordinate system.
  */
 class AFPSiRowColToLocalCSTool
@@ -56,7 +57,7 @@ public:
 
   
   /// @copydoc IAFPSiRowColToLocalCSTool::newxAODLocal
-  virtual xAOD::AFPSiHitsCluster* newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const override;
+  virtual xAOD::AFPSiHitsCluster* newXAODLocal (const int stationID, const int layerID, const AFP::SiLocAlignData& LA, const AFP::SiGlobAlignData& GA, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const override;
 
 
   /**
@@ -68,20 +69,9 @@ public:
    * param[in] positionError point object with the uncertainty of the position of the cluster centre
    * param[out] xAODCluster xAOD object to be filled with provided information
    */
-  
   void fillXAOD (const int stationID, const int layerID, const ROOT::Math::XYZPoint& position, const ROOT::Math::XYZPoint& positionError, xAOD::AFPSiHitsCluster* xAODCluster) const;
-
-  virtual TVector3 localToGlobalCS(const double localX, const double localY, const double localZ, const int stationID, const int layerID) const;  
-
+  
 private:
-
-  /// Object storing AFP geometry configuration. Used to initialise #m_geometry.
-  AFP_CONFIGURATION m_geoConfig;
-
-  /// tool describing AFP geometry and doing local to global transformation.
-  ToolHandle<AFP_GeometryTool> m_geometry {this, "AFP_Geometry", "AFP_GeometryTool", "Tool that provides AFP geometry"};
-
-
   /// @brief Vector defining number of stations and number of layers in each station.
   ///
   /// The size of the vector sets number of stations. Each element
@@ -133,7 +123,8 @@ private:
   /// This value is used to multiply pixel vertical ID in order to
   /// obtain position.
   Gaudi::Property<double>  m_pixelVertSize {this, "pixelVertSize", 0.25, "Size of the pixel in vertical direction when mounted (default = 0.25 mm)"};
-
+  
+  const AFP_CONSTANTS m_afpconstants;
 
   /// The method initialises matrices to have the size defined in layersInStations
   void initTransformationMatricesSize (std::list<std::vector< std::vector<ROOT::Math::Transform3D> >* >& matrices, const std::vector<int>& layersInStations);

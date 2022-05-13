@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Local include(s):
 #include "CalibratedMuonsProvider.h"
@@ -8,7 +8,7 @@
 #include "xAODCore/ShallowCopy.h"
 
 namespace CP {
-    static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+    static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
 
     CalibratedMuonsProvider::CalibratedMuonsProvider(const std::string& name, ISvcLocator* svcLoc) : AthAlgorithm(name, svcLoc) {}
 

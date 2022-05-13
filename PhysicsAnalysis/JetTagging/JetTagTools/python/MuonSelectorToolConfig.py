@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-# import the MuonSelectionTool configurable
-CP__MuonSelectionTool=CompFactory.CP.MuonSelectionTool
 
 def MuonSelectorToolCfg( name = 'MuonSelectorTool', useBTagFlagsDefaults = True, **options ):
     """Sets up a MuonSelectorTool tool and returns it.
@@ -22,6 +19,6 @@ def MuonSelectorToolCfg( name = 'MuonSelectorTool', useBTagFlagsDefaults = True,
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(CP__MuonSelectionTool( **options))
+    acc.setPrivateTools(CompFactory.CP.MuonSelectionTool( **options))
 
     return acc

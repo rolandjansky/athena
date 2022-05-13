@@ -62,6 +62,13 @@ class ParamsInputFilename(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'FastCaloSim/MC16/TFCSparam_run2_reprocessing.root'
 
+class RunOnGPU(JobProperty):
+    """Determines if run the FastCaloSim on GPU or not"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
 class DoPunchThroughSimulation(JobProperty):
     """ Determines whether to run the punch through simulation"""
     statusOn     = True
@@ -97,6 +104,7 @@ jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( CaloCellsName       
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( FastShowerInputCollection  )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoRandomFluctuations       )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( ParamsInputFilename        )
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( RunOnGPU)
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoPunchThroughSimulation   )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( PunchThroughParamsInputFilename)
 

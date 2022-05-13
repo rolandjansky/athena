@@ -110,9 +110,9 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     for(unsigned int ith=0; ith<nHLTChains; ++ith) {
       if( chainNames[ith] != "" ) {
 
-	ATH_MSG_DEBUG("HLTChain " << ith << " " << chainNames[ith] );
-	if(m_trigDecTool->isPassed(chainNames[ith])) {
-	  ATH_MSG_DEBUG( "    Chain " << chainNames[ith] << " IS passed");
+	ATH_MSG_DEBUG("HLTChain " << ith << " " << chainNames[ith] );  
+	if(m_trigDecTool->isPassed(chainNames[ith], TrigDefs::requireDecision)) {
+	  ATH_MSG_DEBUG( "    Chain " << chainNames[ith] << " IS passed");  
 
 	  /// Fill plain chains histogram
 	  HLT_RAW = chainNames[ith];
@@ -120,11 +120,19 @@ StatusCode TrigHLTMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 	  fill(tool,HLT_RAW);
 	
 	  //If the chain is prescaled
-	  ATH_MSG_DEBUG( "Prescale: " << m_trigDecTool->getPrescale(chainNames[ith]) );
-	  if(m_trigDecTool->getPrescale(chainNames[ith])!=1) {
+	  const TrigConf::HLTChain* c = m_trigDecTool->ExperimentalAndExpertMethods().getChainConfigurationDetails(chainNames[ith]);
+	  float prescale = 0;
+	  if (c) {
+	    prescale = c->prescale();
+	  }
+	  else {
+	    ATH_MSG_WARNING("No chain found in m_trigDecTool->ExperimentalAndExpertMethods().getChainConfigurationDetails(" <<  chainNames[ith] << "). Using prescale 0");
+	  }
+	  ATH_MSG_DEBUG( "Prescale: " << prescale );
+	  if(prescale>1. || prescale<1.) {
 	    //NB! Right now very few chains are prescaled, so this histogram is seldom filled
 	    HLT_PS = chainNames[ith];
-	    ATH_MSG_DEBUG( "Fill HLT_PS for " << signaturename << " and " << chainNames[ith]); 
+	    ATH_MSG_DEBUG( "HLT_PS: " << chainNames[ith] << " has PS = " << prescale); 
 	    fill(tool,HLT_PS);
 	  }
 

@@ -17,7 +17,7 @@
 namespace {
     inline double calcChi2 (const Trk::Track& trk) {
         const Trk::FitQuality* fq = trk.fitQuality();
-        if (!fq) { return FLT_MAX;}
+        if (!fq || !fq->numberDoF()) { return FLT_MAX;}
         return fq->chiSquared() / fq->numberDoF();
     }
 }
@@ -148,7 +148,7 @@ namespace Muon {
             return;
         }
 
-        Amg::Vector2D lpos;
+        Amg::Vector2D lpos{0., 0.};
         surf.globalToLocal(exPars->position(), exPars->position(), lpos);
         Trk::LocalDirection ldir;
         surf.globalToLocalDirection(exPars->momentum().unit(), ldir);

@@ -46,6 +46,7 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_cvfpufit_met_key.initialize() );
     ATH_CHECK( m_hlt_mhtpufit_pf_met_key.initialize() );
     ATH_CHECK( m_hlt_mhtpufit_em_met_key.initialize() );
+    ATH_CHECK( m_hlt_met_nn_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_cssk_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_vssk_met_key.initialize() );
 
@@ -224,7 +225,11 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (! hlt_mhtpufit_em_met_cont.isValid() || hlt_mhtpufit_em_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_em_met_key << " does not exist or is empty");
     }
-
+    
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_met_nn_cont(m_hlt_met_nn_key, ctx);
+    if (! hlt_met_nn_cont.isValid() || hlt_met_nn_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_met_nn_key << " does not exist or is empty");
+    }
 
     // define variables
     auto act_IPBC = Monitored::Scalar<float>("act_IPBC",0.0);
@@ -407,7 +412,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (l1_jFexMet_cont.isValid()) {
       float L1_met_Ex = 0;
       float L1_met_Ey = 0;
-      for (const auto &l1_jmet: *l1_jFexMet_cont) {
+      for (const auto l1_jmet: *l1_jFexMet_cont) {
         L1_met_Ex += l1_jmet->Ex()*0.001;
         L1_met_Ey += l1_jmet->Ey()*0.001;
       }
@@ -425,7 +430,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
     if (l1_jFexSumEt_cont.isValid()) {
       float L1_met_sumEt = 0;
-      for (const auto &l1_jsumEt: *l1_jFexSumEt_cont) {
+      for (const auto l1_jsumEt: *l1_jFexSumEt_cont) {
         L1_met_sumEt += l1_jsumEt->Et_lower()*0.001 + l1_jsumEt->Et_upper()*0.001;
       }
       float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
@@ -478,6 +483,33 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       auto L1_ST_Ey = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ey", static_cast<float>(L1_met_ST_Ey));
       fill(tool, L1_ST_Ex, L1_ST_Ey);
     } 
+
+	if (l1_gFexJwojMETComponents_cont.isValid()) {
+	  l1_gmet = l1_gFexJwojMETComponents_cont->at(0);
+	  float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
+	  float L1_met_Ey = l1_gmet->METquantityTwo()*0.001;
+	  auto L1_Ex = Monitored::Scalar<float>("L1_gFexJwoj_Ex", static_cast<float>(L1_met_Ex));
+	  auto L1_Ey = Monitored::Scalar<float>("L1_gFexJwoj_Ey", static_cast<float>(L1_met_Ey));
+	  fill(tool, L1_Ex, L1_Ey);
+	}
+
+	if (l1_gFexJwojMHTComponents_cont.isValid()) {
+	  l1_gmet = l1_gFexJwojMHTComponents_cont->at(0);
+	  float L1_met_HT_Ex = l1_gmet->METquantityOne()*0.001;
+	  float L1_met_HT_Ey = l1_gmet->METquantityTwo()*0.001;
+	  auto L1_HT_Ex = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ex", static_cast<float>(L1_met_HT_Ex));
+	  auto L1_HT_Ey = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ey", static_cast<float>(L1_met_HT_Ey));
+	  fill(tool, L1_HT_Ex, L1_HT_Ey);
+	}
+	
+	if (l1_gFexJwojMSTComponents_cont.isValid()) {
+	  l1_gmet = l1_gFexJwojMSTComponents_cont->at(0);
+	  float L1_met_ST_Ex = l1_gmet->METquantityOne()*0.001;
+	  float L1_met_ST_Ey = l1_gmet->METquantityTwo()*0.001;
+	  auto L1_ST_Ex = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ex", static_cast<float>(L1_met_ST_Ex));
+	  auto L1_ST_Ey = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ey", static_cast<float>(L1_met_ST_Ey));
+	  fill(tool, L1_ST_Ex, L1_ST_Ey);
+	}
 
     // define TrigMissingET object
     const xAOD::TrigMissingET *hlt_met = 0;
@@ -560,6 +592,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         hlt_met = hlt_mhtpufit_pf_met_cont->at(0);
       } else if (alg == "mhtpufit_em" && hlt_mhtpufit_em_met_cont.isValid() && hlt_mhtpufit_em_met_cont->size() > 0) {
         hlt_met = hlt_mhtpufit_em_met_cont->at(0);
+      } else if (alg == "met_nn" && hlt_met_nn_cont.isValid() && hlt_met_nn_cont->size() > 0) {
+        hlt_met = hlt_met_nn_cont->at(0);
       } else {
         hlt_met = 0;
       }

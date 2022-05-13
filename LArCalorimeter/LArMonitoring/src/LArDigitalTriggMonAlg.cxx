@@ -30,8 +30,6 @@
 // ********************************************************************
 
 #include "LArDigitalTriggMonAlg.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 //Histograms
 //LAr infos:

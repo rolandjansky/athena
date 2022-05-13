@@ -154,7 +154,7 @@ StatusCode TRTActiveCondAlg::execute()
         float etaMax = etaCheck[1];
 	int etaMinBin = writeCdo->findEtaBin( etaMin );
 	int etaMaxBin = writeCdo->findEtaBin( etaMax ); 
-        if (etaMin>=etaMax) ATH_MSG_WARNING("TRTCond::ActiveFractionSvc: etaMaxBin<etaMinBin " << etaMin << " " << etaMax << " " << thetaMin << " " << thetaMax);
+        if (etaMin>=etaMax) ATH_MSG_WARNING("TRTCond::ActiveFraction: etaMaxBin<etaMinBin " << etaMin << " " << etaMax << " " << thetaMin << " " << thetaMax);
 	if (etaMinBin<0 && etaMaxBin<0) { 
            ATH_MSG_WARNING("TRTCond::ActiveFraction: etaMaxBin<etaMinBin " << thetaMin << " " << thetaMax 
 			   << " " << etaMin << " " << etaMax << " " << etaMinBin << " " << etaMaxBin << ", side: " << side);
@@ -188,7 +188,7 @@ StatusCode TRTActiveCondAlg::execute()
                                   << ", count dead straws: " << countDead << " (" << deadStrawFraction 
                                   << "%), straws skipped due to invalid phi, eta range: " << countPhiSkipped << " " << countEtaSkipped );
 
-  if (countInvalidEtaValues) ATH_MSG_WARNING("TRT_ActiveFractionSvc: found invalid eta range, check: " << countInvalidEtaValues);
+  if (countInvalidEtaValues) ATH_MSG_WARNING("TRT_ActiveFraction: found invalid eta range, check: " << countInvalidEtaValues);
 
 
 

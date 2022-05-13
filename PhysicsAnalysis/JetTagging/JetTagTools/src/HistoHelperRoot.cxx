@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -408,19 +408,19 @@ void HistoHelperRoot::smoothASH3D(TH3* input3D, int m1, int m2, int m3, bool deb
     wgt = new float**[dimension];
     if (!wgt) {
       std::cout <<"HistoHelperRoot::smoothASH3D: problem to allocate memory, exiting"<<std::endl;
-      exit(-1);
+      std::abort();
     }
     for(x = 0; x < dimension; x++) {
       wgt[x] = new float*[dimension];
       if (!wgt) {
         std::cout <<"HistoHelperRoot::smoothASH3D: problem to allocate memory, exiting"<<std::endl;
-	exit(-1);
+        std::abort();
       }
       for(y = 0; y < dimension; y++) {
 	wgt[x][y] = new float[dimension];
 	if (!wgt) {
           std::cout <<"HistoHelperRoot::smoothASH3D: problem to allocate memory, exiting"<<std::endl;
-	  exit(-1);
+          std::abort();
 	}
 	for(z = 0; z < dimension; z++)
 	  wgt[x][y][z] = 0;

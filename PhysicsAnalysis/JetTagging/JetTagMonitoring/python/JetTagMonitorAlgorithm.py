@@ -42,8 +42,12 @@ def JetTagMonitorConfig(inputFlags):
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
     from AthenaConfiguration.ComponentFactory import CompFactory
-    jetTagMonAlg = helper.addAlgorithm(CompFactory.JetTagMonitorAlgorithm,'JetTagMonAlg')
-    #anotherJetTagMonAlg = helper.addAlgorithm(JetTagMonitorAlgorithm,'AnotherJetTagMonAlg')
+    from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+   
+    jetTagMonAlg = helper.addAlgorithm(CompFactory.JetTagMonitorAlgorithm,'JetTagMonAlg', addFilterTools = [FilledBunchFilterToolCfg(inputFlags), LArBadLBFilterToolCfg(inputFlags)])
+       
+   #anotherJetTagMonAlg = helper.addAlgorithm(JetTagMonitorAlgorithm,'AnotherJetTagMonAlg')
 
     # If for some really obscure reason you need to instantiate an algorithm
     # yourself, the AddAlgorithm method will still configure the base 
@@ -448,7 +452,7 @@ if __name__=='__main__':
     
     #Data r22 ART input working:
     #ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_ORD22/run/DQ_ARTs/myESD.data15HI.15Mar.root"] #ESD from ART test, 15 Mar 22, data15_heavy_ion
-    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_ORD22/run/DQ_ARTs/myESD.data18.14Mar.root"] #ESD from ART test, 14 Mar 22, data18_13TeV
+    ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ/dq_devel/run/AOD_folder/AOD.27639508._001258.pool.root.1"] #AOD, data18_13TeV
     #ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ_art/myESD.pool.root"] #ESD from ART test, 15 Feb 22, data18
     ConfigFlags.Input.isMC = False
 
@@ -476,4 +480,4 @@ if __name__=='__main__':
     #Select how many events to run on 
     #use cfg.run() empty for all events
     #use cfg.run(300) to only run on first 300 events
-    cfg.run(1000)
+    cfg.run(10)

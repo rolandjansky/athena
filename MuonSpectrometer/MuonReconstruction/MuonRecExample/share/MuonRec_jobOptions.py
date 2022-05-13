@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 ## @file MuonRec_jobOptions.py
 #
@@ -42,9 +42,9 @@ if rec.readESD() or rec.readAOD():
 
 if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
-if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
+if muonRecFlags.doMMs() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMMs = False
 
-muonRecFlags.runCommissioningChain = muonRecFlags.doMicromegas() or muonRecFlags.dosTGCs()
+muonRecFlags.runCommissioningChain = muonRecFlags.doMMs() or muonRecFlags.dosTGCs()
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
 

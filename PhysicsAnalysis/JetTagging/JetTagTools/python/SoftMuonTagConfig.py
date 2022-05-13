@@ -1,13 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 from JetTagTools.MuonSelectorToolConfig import MuonSelectorToolCfg
-
-# import the SoftMuonTag configurable
-Analysis__SoftMuonTag=CompFactory.Analysis.SoftMuonTag
 
 def SoftMuonTagCfg( flags, name = 'SoftMu', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a SoftMuonTag tool and returns it.
@@ -45,7 +42,7 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', scheme = '', useBTagFlagsDefaults = 
     options['name'] = name
     if scheme == 'Trig':
         options['HistosKey'] = 'JetTagTrigCalibHistosKey'
-    acc.setPrivateTools(Analysis__SoftMuonTag( **options))
+    acc.setPrivateTools(CompFactory.Analysis.SoftMuonTag( **options))
 
     return acc
 

@@ -4,6 +4,14 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include "TClass.h"
+#ifdef USE_GPU
+//for purpose of copying all parameterization files to GPU in initialization
+#include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
+#include "TString.h"
+#endif
 
 //=============================================
 //======= TFCSParametrizationBase =========
@@ -199,3 +207,31 @@ void TFCSParametrizationBase::RemoveNameTitle()
   }  
 }
 
+#ifdef USE_GPU
+void TFCSParametrizationBase::Copy2GPU()
+{
+  for( unsigned int i=0; i<size(); ++i )  {
+    if(!((*this)[i])) continue;
+    TFCSParametrizationBase* param=(*this)[i];
+    TString name=param->ClassName();
+    if(name.EqualTo("TFCSLateralShapeParametrizationHitChain")){
+      auto size=((TFCSLateralShapeParametrizationHitChain*)param)->size();
+      for(size_t ichain=0; ichain < size; ++ichain){
+	TFCSParametrizationBase* hitsim=(*((TFCSLateralShapeParametrizationHitChain*)param))[ichain];
+	TString hitsimname = hitsim->ClassName();
+	if(hitsimname.EqualTo("TFCSHistoLateralShapeParametrization")){
+	  ( (TFCSHistoLateralShapeParametrization*)hitsim)->LoadHistFuncs();
+	}
+	else if( hitsimname.EqualTo("TFCSHitCellMappingWiggle")){
+	  ( (TFCSHitCellMappingWiggle*)hitsim )->LoadHistFuncs();
+	}
+	else if( hitsimname.EqualTo("TFCSHistoLateralShapeGausLogWeight")){
+	  ( (TFCSHistoLateralShapeGausLogWeight*)hitsim )->LoadHist();
+	}
+
+      }
+    }
+    param->Copy2GPU();
+  }
+}
+#endif

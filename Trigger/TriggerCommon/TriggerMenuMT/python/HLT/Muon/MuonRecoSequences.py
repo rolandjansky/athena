@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -27,8 +27,7 @@ MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-from AthenaCommon.BeamFlags import jobproperties
-beamFlags = jobproperties.Beam
+from AthenaConfiguration.Enums import BeamType
 
 class muonNames(object):
   def __init__(self):
@@ -66,7 +65,7 @@ muNamesLRT = muonNames().getNames('LRT')
 
 def isCosmic():
   #FIXME: this might not be ideal criteria to determine if this is cosmic chain but used to work in Run2 and will do for now, ATR-22758
-  return (beamFlags.beamType() == 'cosmics')
+  return (ConfigFlags.Beam.Type == BeamType.Cosmics)
 
 def isLRT(name):
   return "LRT" in name
@@ -394,7 +393,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg, MuonLayerHoughAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -420,9 +419,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   MuonStationsInterSectAlg()
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",  CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
-                                                    sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),
-                                                    MMPrepDataContainer = ("MM_Measurements" if MuonGeometryFlags.hasMM() else ""))
+      theMuonLayerHough = MuonLayerHoughAlg("TrigMuonLayerHoughAlg")
       efAlgs.append(theMuonLayerHough)
 
       theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
@@ -516,7 +513,14 @@ def muEFCBRecoSequence( RoIs, name ):
     #Need to run tracking for full scan chains
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     viewAlgs, viewVerify = makeInDetTrigFastTracking(config = IDTrigConfig, rois = RoIs) 
-
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifierFS")
+    ViewVerifyTrk.DataObjects = [
+      ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+      ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+    ]
+      
+    muEFCBRecoSequence += ViewVerifyTrk
+    
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
 
@@ -524,7 +528,10 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifierLRT")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks(name) ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks(name) )]
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks(name) ),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+                                 ]
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -535,7 +542,10 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks() ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() )]
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() ),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+                                 ]
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -607,7 +617,7 @@ def muEFCBRecoSequence( RoIs, name ):
     cbMuonName = muNamesLRT.EFCBName
 
   themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[candidatesName], TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
-                                       MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",
+                                       MuonContainerLocation = cbMuonName, ExtrapolatedLocation = "CBExtrapolatedMuons",
                                        MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name,
                                        MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name))
 
@@ -734,7 +744,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                                           WriteInDetCandidates="InDetCandidatesSystemExtended_"+name)
     theInsideOutRecoAlg = MuonInsideOutRecoAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidatesSystemExtended_"+name)
     insideoutcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgInsideOut_"+name,  MuonCandidateLocation={candidatesName}, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
-                                         MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodInsideOutCBSegments", TrackSegmentContainerName = "TrkInsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
+                                         MuonContainerLocation = cbMuonName, ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
                                          MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon", MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgInsideOut_"+name))
     efAlgs.append(inDetExtensionAlg)
 
@@ -785,11 +795,19 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   PTAlgs = [] #List of precision tracking algs
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
+  import AthenaCommon.CfgMgr as CfgMgr
+  PTViewVerifier = CfgMgr.AthViews__ViewDataVerifier("PTMuonViewVerifier"+name)
+  #this part should be done by makeInDetTrigPrecisionTracking below
+  PTViewVerifier.DataObjects = [
+    ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+    ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+  ]
   
   from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs )
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs, 
+                                                                      )
 
-  PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs  )
+  PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs+[PTViewVerifier] )
   efmuisoRecoSequence += PTSeq
 
   # set up algs

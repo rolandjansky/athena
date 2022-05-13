@@ -28,5 +28,18 @@ atlas_add_component(
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 
-# Add tests
+atlas_add_test(         HTTPlaneMap
+    SOURCES             test/HTTPlaneMap_test.cxx
+    LINK_LIBRARIES      TrigHTTMapsLib TestTools
+    PROPERTIES
+        TIMEOUT         120
+)
+
+atlas_add_test(         HTTRegionMap
+    SOURCES             test/HTTRegionMap_test.cxx
+    LINK_LIBRARIES      TrigHTTMapsLib TestTools
+    PROPERTIES
+        TIMEOUT         120
+)
+
 

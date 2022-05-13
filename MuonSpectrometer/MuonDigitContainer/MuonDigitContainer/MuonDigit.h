@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonDigit.h
@@ -26,7 +26,8 @@ protected:  // data
 public:  // functions
 
   MuonDigit () { }
-  MuonDigit(const Identifier& id) {m_muonId = id;}
+  MuonDigit(const Identifier& id)
+    : m_muonId(id) {}
   void setID(const Identifier id) {m_muonId = id;}
   Identifier identify() const {return m_muonId;}
 

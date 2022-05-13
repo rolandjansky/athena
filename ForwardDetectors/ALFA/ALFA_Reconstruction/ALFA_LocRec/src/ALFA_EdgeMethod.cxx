@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_EdgeMethod.h"
 #include <algorithm>
 
 using namespace std;
 
-ALFA_EdgeMethod::ALFA_EdgeMethod()
+ALFA_EdgeMethod::ALFA_EdgeMethod() :
+    ALFA_EdgeMethod(kFALSE, kFALSE)
 {
-	m_bOpt_Sisters = kFALSE;
-	m_bOpt_UseGaps = kFALSE;
 }
 
-ALFA_EdgeMethod::ALFA_EdgeMethod(Bool_t bOpt_Sisters, Bool_t bOpt_UseGaps)
+ALFA_EdgeMethod::ALFA_EdgeMethod(Bool_t bOpt_Sisters, Bool_t bOpt_UseGaps) :
+    AthMessaging(Athena::getMessageSvc(), "ALFA_EdgeMethod")
 {
 	m_bOpt_Sisters = bOpt_Sisters;
 	m_bOpt_UseGaps = bOpt_UseGaps;
@@ -26,7 +27,6 @@ ALFA_EdgeMethod::~ALFA_EdgeMethod()
 
 void ALFA_EdgeMethod::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], const std::list<MDHIT> &ListMDHits)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Initialize()");
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::Initialize()");
 
 	for (Int_t iPot = 0; iPot < RPOTSCNT; iPot++)

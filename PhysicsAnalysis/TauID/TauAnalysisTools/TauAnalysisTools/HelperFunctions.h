@@ -5,21 +5,12 @@
  * @brief 
  * @date 2021-02-19
  * 
- * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * @copyright Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  * 
  */
 
 #ifndef TAUANALYSISTOOLS_HELPERFUNCTIONS_H
 #define TAUANALYSISTOOLS_HELPERFUNCTIONS_H
-
-/*
-  mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-*/
 
 // stl include(s)
 #include <vector>
@@ -104,9 +95,9 @@ void truthHadrons(const xAOD::TruthParticle* xTruthTau, std::vector<const xAOD::
 /** return charged and neutral daughters of hadronic truth matched taujet */
 void truthHadrons(const xAOD::TauJet* xTau, std::vector<const xAOD::TruthParticle*>& vChargedHadrons, std::vector<const xAOD::TruthParticle*>& vNeutralHadrons);
 /** return TauJet match type*/
-e_TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau);
+TruthMatchedParticleType getTruthParticleType(const xAOD::TauJet& xTau);
 /** return DiTauJet match type*/
-e_TruthMatchedParticleType getTruthParticleType(const xAOD::DiTauJet& xDiTau); 
+TruthMatchedParticleType getTruthParticleType(const xAOD::DiTauJet& xDiTau); 
 double average_mu(const xAOD::TauJet& xTau);
 void set_mu(unsigned int mu);
 }

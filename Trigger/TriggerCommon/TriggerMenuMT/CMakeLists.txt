@@ -107,11 +107,11 @@ atlas_test_l1defined_menu( PhysicsP1_pp_run3_v1 )
 atlas_test_l1defined_menu( PhysicsP1_pp_lowMu_run3_v1 )
 
 # New job options test:
-atlas_add_test( generateMenuMT_newJO
-                SCRIPT python -m TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1_newJO
-                PRIVATE_WORKING_DIRECTORY
-                PROPERTIES TIMEOUT 500
-                POST_EXEC_SCRIPT noerror.sh )
+atlas_add_test(generateMenuMT_newJO
+   SCRIPT python -m TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1_newJO 
+   PRIVATE_WORKING_DIRECTORY
+   PROPERTIES TIMEOUT 500
+   POST_EXEC_SCRIPT noerror.sh )
 
 # test for menu name consistency
 atlas_add_test( test_menu_dump

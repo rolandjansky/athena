@@ -7,9 +7,9 @@
 #include "GaudiKernel/Service.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
 #include "TrigHTTBanks/ITrigHTTBankSvc.h"
-#include "HTTFitConstantBank.h"
+#include "TrigHTTBanks/HTTFitConstantBank.h"
 #include "HTTSectorSlice.h"
-#include "HTTSectorBank.h"
+#include "TrigHTTBanks/HTTSectorBank.h"
 
 
 class TrigHTTBankSvc : public extends< AthService, ITrigHTTBankSvc >

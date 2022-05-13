@@ -33,7 +33,7 @@ StatusCode SiHitAnalysis::initialize()
     detName = "ITkPixel";
     ntupName = "SiITkPixel";
   }
-  else if (m_hitsContainerKey.key()=="PLRHits") {
+  else if (m_hitsContainerKey.key()=="PLR_Hits") {
     detName = "PLR";
     ntupName = "SiPLR";
   }

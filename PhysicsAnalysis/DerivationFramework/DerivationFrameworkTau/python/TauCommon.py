@@ -36,7 +36,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doVeryLoose:
         if not hasattr(ToolSvc,"TauVeryLooseWrapper"):
             TauSelectorVeryLoose = TauAnalysisTools__TauSelectionTool(name="TauSelectorVeryLoose")
-            TauSelectorVeryLoose.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNVERYLOOSE
+            TauSelectorVeryLoose.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNVERYLOOSE
             TauSelectorVeryLoose.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorVeryLoose.ConfigPath = ''
             ToolSvc += TauSelectorVeryLoose
@@ -55,7 +55,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doLoose:
         if not hasattr(ToolSvc,"TauLooseWrapper"):
             TauSelectorLoose = TauAnalysisTools__TauSelectionTool(name="TauSelectorLoose")
-            TauSelectorLoose.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNLOOSE
+            TauSelectorLoose.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNLOOSE
             TauSelectorLoose.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorLoose.ConfigPath = ''
             ToolSvc += TauSelectorLoose
@@ -74,7 +74,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doMedium:
         if not hasattr(ToolSvc,"TauMediumWrapper"):
             TauSelectorMedium = TauAnalysisTools__TauSelectionTool(name="TauSelectorMedium")
-            TauSelectorMedium.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNMEDIUM
+            TauSelectorMedium.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNMEDIUM
             TauSelectorMedium.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorMedium.ConfigPath = ''
             ToolSvc += TauSelectorMedium
@@ -93,7 +93,7 @@ def AddTauAugmentation(Seq=None, doVeryLoose=None, doLoose=None, doMedium=None, 
     if doTight:
         if not hasattr(ToolSvc,"TauTightWrapper"):
             TauSelectorTight = TauAnalysisTools__TauSelectionTool(name="TauSelectorTight")
-            TauSelectorTight.JetIDWP = ROOT.TauAnalysisTools.e_JETID.JETIDRNNTIGHT
+            TauSelectorTight.JetIDWP = ROOT.TauAnalysisTools.JetID.JETIDRNNTIGHT
             TauSelectorTight.SelectionCuts = ROOT.TauAnalysisTools.SelectionCuts.CutJetIDWP
             TauSelectorTight.ConfigPath = ''
             ToolSvc += TauSelectorTight

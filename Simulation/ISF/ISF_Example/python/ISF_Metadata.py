@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
@@ -71,11 +71,11 @@ def patch_mc_channel_numberMetadata(addToFile=True):
 
 
 ###
-def checkForContainerInInput(container):
+def checkForContainerInInput(container, streamName='StreamEVGEN'):
     """Check for the presence of a particular container type in the input file"""
     if metadata_full is not None:
         for key in metadata_full.keys():
-            if 'EventStreamInfo' in key and 'StreamEVGEN' in key:
+            if 'EventStreamInfo' in key and streamName in key:
                 for entry in metadata_full[key]['itemList']:
                     if entry[0] == container:
                         simMDlog.info("Input contains: %s", entry)
@@ -128,7 +128,7 @@ def fillAtlasMetadata(dbFiller):
     simParams = [sf for sf in dir(simFlags) if isinstance(getattr(simFlags, sf), JobProperty)]
     for sp in simParams:
         ## Don't write out random number seeds or RunDict as metadata
-        if sp in ("RandomSeedList", "RandomSeedOffset", "RunDict"):
+        if sp in ("RandomSeedList", "RandomSeedOffset", "RunDict", "RunAndLumiOverrideList"):
             continue
         ## Don't write out Tool and Service names
         if sp in ("TruthService"):
@@ -154,7 +154,7 @@ def fillAtlasMetadata(dbFiller):
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
     from AthenaCommon.DetFlags import DetFlags
     simDets = []
-    for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
+    for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth']:
         attrname = det+"_on"
         checkfn = getattr(DetFlags.geometry, attrname, None)
         if checkfn is None:
@@ -276,11 +276,43 @@ def createTBSimulationParametersMetadata():
 # Check on run numbers and update them if necessary
 # copied from do_run_number_modifications() in PyG4Atlas.py
 def configureRunNumberOverrides():
+    simMDlog.info("starting configureRunNumberOverrides")
     myRunNumber = 1
     myFirstLB = 1
     myInitialTimeStamp = 0
     from G4AtlasApps.SimFlags import simFlags
-    if hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
+    if simFlags.RunAndLumiOverrideList.statusOn:
+        myRunNumber = simFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0]
+        simMDlog.info('Found run number %d in RunAndLumiOverrideList.', myRunNumber)
+        myFirstLB = simFlags.RunAndLumiOverrideList.getFirstLumiBlock(myRunNumber)
+        try:
+          from RunDependentSimComps.RunDMCFlags import runDMCFlags
+          myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+          #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+        except Exception:
+          myInitialTimeStamp = 1
+        ######update the run/event info for each event
+        from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+        if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+            if not hasattr(ServiceMgr, 'AthenaHiveEventLoopMgr'):
+                from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+                ServiceMgr += AthenaHiveEventLoopMgr()
+            ServiceMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"
+        else:
+            if not hasattr(ServiceMgr, 'AthenaEventLoopMgr'):
+                from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+                ServiceMgr += AthenaEventLoopMgr()
+        if not hasattr(ServiceMgr,'EvtIdModifierSvc'):
+            from AthenaCommon.CfgGetter import getService
+            getService("EvtIdModifierSvc")
+        #fix iov metadata
+        if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+            from AthenaCommon import CfgMgr
+            ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+        ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
+        ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
+    elif hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
         myRunNumber = simFlags.RunNumber.get_Value()
         simMDlog.info('Found run number %d in sim flags.', myRunNumber)
         ## Set event selector details based on evgen metadata

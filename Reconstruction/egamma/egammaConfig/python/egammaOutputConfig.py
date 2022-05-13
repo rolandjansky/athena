@@ -114,12 +114,12 @@ def egammaOutputCfg(flags, name="EGOutputList"):
 
     if flags.Egamma.doTruthAssociation:
         toESD += [
-            f"TruthParticleContainer#{outFlags.TruthParticles}",
-            f"TruthParticleAuxContainer#{outFlags.TruthParticles}"
+            f"xAOD::TruthParticleContainer#{outFlags.TruthParticles}",
+            f"xAOD::TruthParticleAuxContainer#{outFlags.TruthParticles}"
             f"Aux.{outFlags.TruthParticlesSuppESD}"]
 
-        toAOD += [f"TruthParticleContainer#{outFlags.TruthParticles}",
-                  f"TruthParticleAuxContainer#{outFlags.TruthParticles}"
+        toAOD += [f"xAOD::TruthParticleContainer#{outFlags.TruthParticles}",
+                  f"xAOD::TruthParticleAuxContainer#{outFlags.TruthParticles}"
                   f"Aux.{outFlags.TruthParticlesSuppAOD}"]
 
     if flags.Output.doWriteESD:

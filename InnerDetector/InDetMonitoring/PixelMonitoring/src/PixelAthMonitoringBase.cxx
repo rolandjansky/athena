@@ -14,22 +14,22 @@
 /// helper class to accumulate points to fill a 2D per-module plot with
 ///
 void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Identifier& id,
-                                                      const PixelID* pid, float value) {
-  m_pm[layer].push_back(pid->phi_module(id));
-  int ld = pid->layer_disk(id);
+                                                      float value) {
+  m_pm[layer].push_back(m_host.m_pixelid->phi_module(id));
+  int ld = m_host.m_pixelid->layer_disk(id);
   int em = ld;
   m_val[layer].push_back(value);
 
   bool copy = false;
-  if (pid->barrel_ec(id) == 0) {
-    em = pid->eta_module(id);
+  if (m_host.m_pixelid->barrel_ec(id) == 0) {
+    em = m_host.m_pixelid->eta_module(id);
     if (ld == 0) {
       int feid = 0;
       int emf = 0;
       if (em < -6) {
         emf = em - 6;
       } else if (em > -7 && em < 6) {
-        if (pid->eta_index(id) >= 80) feid = 1;
+        if (m_host.m_pixelid->eta_index(id) >= 80) feid = 1;
         emf = 2 * em + feid;
         copy = true;
       } else {
@@ -42,7 +42,7 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Ide
 
   if (m_copy2DFEval && copy) {
     ++em;
-    m_pm[layer].push_back(pid->phi_module(id));
+    m_pm[layer].push_back(m_host.m_pixelid->phi_module(id));
     m_em[layer].push_back(em);
     m_val[layer].push_back(value);
   }
@@ -53,24 +53,24 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Ide
 /// helper class to accumulate points to fill a 2D per-FE plot with
 ///
 void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Identifier& id,
-                                                      const PixelID* pid, int iFE, float value) {
+                                                      int iFE, float value) {
   // value
   m_val[layer].push_back(value);
 
   // for old pixel see https://twiki.cern.ch/twiki/pub/Atlas/PixelCOOLoffline/pixel_modules_sketch.png
   //
   // phi (Y) coordinate
-  if (layer == PixLayers::kIBL) m_pm[layer].push_back(pid->phi_module(id));
+  if (layer == PixLayers::kIBL) m_pm[layer].push_back(m_host.m_pixelid->phi_module(id));
   else {
-    if ((layer == PixLayers::kECA || layer == PixLayers::kECC) && (pid->phi_module(id) % 2 == 0)) {
+    if ((layer == PixLayers::kECA || layer == PixLayers::kECC) && (m_host.m_pixelid->phi_module(id) % 2 == 0)) {
       // even disk modules
-      m_pm[layer].push_back(pid->phi_module(id) * 2 + iFE / 8);
+      m_pm[layer].push_back(m_host.m_pixelid->phi_module(id) * 2 + iFE / 8);
     } else {
-      m_pm[layer].push_back(pid->phi_module(id) * 2 + 1 - iFE / 8);
+      m_pm[layer].push_back(m_host.m_pixelid->phi_module(id) * 2 + 1 - iFE / 8);
     }
   }
   // eta (X) coordinate
-  int ld = pid->layer_disk(id);
+  int ld = m_host.m_pixelid->layer_disk(id);
   int em(0);
   // endcaps
   em = ld * 8;
@@ -79,9 +79,9 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Ide
 
   // barrel
   //
-  if (pid->barrel_ec(id) == 0) {
+  if (m_host.m_pixelid->barrel_ec(id) == 0) {
     if (ld == 0) {  //ibl
-      em = pid->eta_module(id);
+      em = m_host.m_pixelid->eta_module(id);
       int emf;
       if (em < -6) {
         emf = em - 6;
@@ -92,7 +92,7 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Ide
       }
       em = emf;
     } else {
-      em = pid->eta_module(id) * 8 - 4;
+      em = m_host.m_pixelid->eta_module(id) * 8 - 4;
       if (iFE < 8) em += (7 - iFE % 8);
       else em += iFE % 8;
     }
@@ -356,21 +356,21 @@ int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
 ///
 /// helper function to get eta phi coordinates of per-layer arrays
 ///
-void PixelAthMonitoringBase::getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod,
+void PixelAthMonitoringBase::getPhiEtaMod(Identifier& id, int& phiMod, int& etaMod,
                                           bool& copyFE) const {
-  phiMod = pid->phi_module(id);
+  phiMod = m_pixelid->phi_module(id);
 
-  int layerDisk = pid->layer_disk(id);
+  int layerDisk = m_pixelid->layer_disk(id);
   etaMod = layerDisk;
   copyFE = false;
-  if (pid->barrel_ec(id) == 0) {
-    etaMod = pid->eta_module(id);
+  if (m_pixelid->barrel_ec(id) == 0) {
+    etaMod = m_pixelid->eta_module(id);
     if (layerDisk == 0) {
       if (etaMod < -6) {
         etaMod = etaMod - 6;
       } else if (etaMod > -7 && etaMod < 6) {
         int feid = 0;
-        if (pid->eta_index(id) >= 80) feid = 1;
+        if (m_pixelid->eta_index(id) >= 80) feid = 1;
         etaMod = 2 * etaMod + feid;
         copyFE = true;
       } else {

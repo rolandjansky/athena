@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 This is a temporary file which holds the older version of JetSelectorAttribute used in RunII
@@ -26,7 +26,7 @@ class JetSelectorAttributeRunII : public asg::AsgTool , virtual public IJetSelec
    /// SelValueRetriever retrieves the value on which this tool select jets.
    /// concrete classes are used internally to retrieve the attribute according to its type. 
    struct SelValueRetriever {
-     virtual float value(const xAOD::Jet& j) = 0;
+     virtual float value(const xAOD::Jet& j) const = 0;
      virtual ~SelValueRetriever(){};
    };
    

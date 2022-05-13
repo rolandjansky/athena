@@ -22,7 +22,7 @@ namespace {
         track_link(std::unique_ptr<Trk::Track> _trk, unsigned int _idx, bool _succeed) :
             track{std::move(_trk)}, container_index{_idx}, extp_succeed{_succeed} {}
     };
-}
+}  // namespace
 
 namespace MuonCombined {
 
@@ -47,9 +47,7 @@ namespace MuonCombined {
         ATH_CHECK(m_beamSpotKey.initialize());
 
         ATH_CHECK(m_segmentKey.initialize(!m_segmentKey.empty()));
-        if (!m_segmentKey.empty()) {
-            ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
-        }
+        if (!m_segmentKey.empty()) { ATH_CHECK(m_trackSegmentAssociationTool.retrieve()); }
         return StatusCode::SUCCESS;
     }
     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
@@ -62,10 +60,9 @@ namespace MuonCombined {
             ATH_MSG_ERROR("Could not retrieve the BeamSpot data from key " << m_beamSpotKey.objKey());
             return;
         }
-      
+
         ATH_MSG_DEBUG("Beamspot position bs_x=" << beamSpotHandle->beamPos());
-        
-        
+
         std::vector<track_link> trackLinks;
 
         unsigned int index = -1;
@@ -84,7 +81,7 @@ namespace MuonCombined {
                                                 << m_printer->printStations(msTrack));
             std::unique_ptr<Trk::Track> standaloneTrack;
             if (m_extrapolationStrategy == 0u) {
-                standaloneTrack = m_trackBuilder->standaloneFit(ctx, msTrack,  beamSpotHandle->beamPos(), nullptr);
+                standaloneTrack = m_trackBuilder->standaloneFit(ctx, msTrack, beamSpotHandle->beamPos(), nullptr);
             } else {
                 standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack, ctx);
             }
@@ -151,12 +148,13 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Finished ambiguity solving: " << extrapTracks->size() << " track(s) in -> " << resolvedTracks->size()
                                                      << " track(s) out");
 
-        const xAOD::MuonSegmentContainer* segments{nullptr};
+        const Trk::SegmentCollection* segments{nullptr};
         if (!m_segmentKey.empty()) {
-            SG::ReadHandle<xAOD::MuonSegmentContainer> readHandle{m_segmentKey,ctx};
+            SG::ReadHandle<Trk::SegmentCollection> readHandle{m_segmentKey, ctx};
             if (!readHandle.isValid()) {
-                ATH_MSG_WARNING("Failed to retrieve the segment container "<<m_segmentKey.fullKey());
-            } else segments = readHandle.cptr();
+                ATH_MSG_WARNING("Failed to retrieve the segment container " << m_segmentKey.fullKey());
+            } else
+                segments = readHandle.cptr();
         }
 
         // Loop over resolved tracks and build MuonCondidate collection
@@ -174,8 +172,7 @@ namespace MuonCombined {
             if (tLink->extp_succeed) {
                 outputTracks.push_back(std::move(tLink->track));
                 ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1, ctx);
-                muon_candidate =
-                    std::make_unique<MuonCandidate>(MS_TrkLink, saLink, outputTracks.size() - 1);
+                muon_candidate = std::make_unique<MuonCandidate>(MS_TrkLink, saLink, outputTracks.size() - 1);
                 // remove track from set so it is not deleted
             } else {
                 // in this case the extrapolation failed
@@ -184,7 +181,7 @@ namespace MuonCombined {
             muon_candidate->setCommissioning(m_commissioning);
             /// Last but not least set the segments
             if (segments) {
-                std::vector<ElementLink<xAOD::MuonSegmentContainer>> assoc_segs;
+                std::vector<const Muon::MuonSegment*> assoc_segs;
                 m_trackSegmentAssociationTool->associatedSegments(*muon_candidate->primaryTrack(), segments, assoc_segs);
                 muon_candidate->setSegments(std::move(assoc_segs));
             }

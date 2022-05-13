@@ -25,8 +25,7 @@ public:
   TrackingGeometryCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TrackingGeometryCondAlg() override = default;
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
-  virtual StatusCode finalize() override final {return StatusCode::SUCCESS;}
+  virtual StatusCode execute() override final; 
 
 private:
 
@@ -44,6 +43,7 @@ private:
   };
   ToolHandleArray<Trk::IGeometryProcessor>
     m_geometryProcessors{ this, "GeometryProcessors", {}, "" };
+  Gaudi::Property<bool> m_dumpGeo{this, "DumpGeo", false, "Dumps the Tracking geometry for debugging purposes"};
 };
 }
 #endif //TRACKINGGEOMETRYCONDALG_H

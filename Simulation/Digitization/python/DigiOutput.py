@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #from AthenaCommon import CfgMgr
 #from AthenaCommon.CfgGetter import getPrivateTool
@@ -192,7 +192,7 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
             StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
-        if DetFlags.writeRDOPool.Micromegas_on():
+        if DetFlags.writeRDOPool.MM_on():
             StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():

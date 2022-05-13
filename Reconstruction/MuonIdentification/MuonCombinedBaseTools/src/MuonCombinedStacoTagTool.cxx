@@ -12,11 +12,11 @@
 #include "MuonCombinedStacoTagTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/StacoTag.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 namespace MuonCombined {
 
     MuonCombinedStacoTagTool::MuonCombinedStacoTagTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -33,7 +33,7 @@ namespace MuonCombined {
     }
 
     void MuonCombinedStacoTagTool::combine(const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates,
-                                           InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection* ,
+                                           InDetCandidateToTagMap& tagMap, TrackCollection* combTracks, TrackCollection*,
                                            const EventContext& ctx) const {
         if (!combTracks) {
             ATH_MSG_WARNING("No TrackCollection passed");
@@ -69,11 +69,11 @@ namespace MuonCombined {
                 exPars = m_extrapolator->extrapolate(ctx, *muonCandidate.extrapolatedTrack(), idPer->associatedSurface());
                 if (!exPars) {
                     ATH_MSG_DEBUG("The ID and MS candidates are not expressed at the same surface: id r "
-                                    << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().perp() << " z "
-                                    << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().z() << " ms r "
-                                    << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().perp() << " z "
-                                    << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().z()
-                                    << " and extrapolation failed");
+                                  << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().perp() << " z "
+                                  << idTP->indetTrackParticle().perigeeParameters().associatedSurface().center().z() << " ms r "
+                                  << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().perp() << " z "
+                                  << muonCandidate.extrapolatedTrack()->perigeeParameters()->associatedSurface().center().z()
+                                  << " and extrapolation failed");
                     continue;
                 }
                 msPer = dynamic_cast<const Trk::Perigee*>(exPars.get());
@@ -95,7 +95,8 @@ namespace MuonCombined {
             }
         }
         if (bestCandidate) {
-            const double outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack(), ctx);
+            const double outerMatchChi2 =
+                m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack(), ctx);
             ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(*bestPerigee) << " match chi2 " << bestChi2 << " outer match "
                                                    << outerMatchChi2);
             StacoTag* tag = new StacoTag(muonCandidate, bestPerigee, bestChi2);
@@ -103,8 +104,8 @@ namespace MuonCombined {
         }
     }
 
-    std::unique_ptr<Trk::Perigee> MuonCombinedStacoTagTool::theCombIdMu(const Trk::Perigee& indetPerigee,
-                                                                              const Trk::Perigee& extrPerigee, double& chi2) const {
+    std::unique_ptr<Trk::Perigee> MuonCombinedStacoTagTool::theCombIdMu(const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee,
+                                                                        double& chi2) const {
         chi2 = 1e20;
         if (!indetPerigee.covariance() || !extrPerigee.covariance()) {
             ATH_MSG_WARNING("Perigee parameters without covariance");
@@ -146,14 +147,14 @@ namespace MuonCombined {
         }
 
         AmgVector(5) parsMS(extrPerigee.parameters());
-       
+
         AmgVector(5) diffPars = indetPerigee.parameters() - parsMS;
-        chi2  = (diffPars.transpose() * invCovSum * diffPars);
+        chi2 = (diffPars.transpose() * invCovSum * diffPars);
         chi2 /= 5.;
-       
+
         AmgVector(5) parsCB = (covCB) * (weightID * indetPerigee.parameters() + weightMS * parsMS);
 
-        parsCB[Trk::phi] = xAOD::P4Helpers::deltaPhi(parsCB[Trk::phi] ,0.);
+        parsCB[Trk::phi] = xAOD::P4Helpers::deltaPhi(parsCB[Trk::phi], 0.);
         return indetPerigee.associatedSurface().createUniqueParameters<5, Trk::Charged>(
             parsCB[Trk::locX], parsCB[Trk::locY], parsCB[Trk::phi], parsCB[Trk::theta], parsCB[Trk::qOverP], covCB);
     }

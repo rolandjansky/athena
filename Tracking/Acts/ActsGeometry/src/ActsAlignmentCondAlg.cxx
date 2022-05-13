@@ -12,8 +12,6 @@
 
 
 // ATHENA
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/ICondSvc.h"

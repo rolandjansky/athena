@@ -13,8 +13,7 @@
 
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "../src/HTTRegionMap.h"
-#include "PathResolver/PathResolver.h"
+#include "TrigHTTMaps/HTTRegionMap.h"
 
 using namespace std;
 
@@ -46,27 +45,11 @@ int main(int, char**)
         return 1;
     }
 
-    // remove local file since filesystem copy overwrite doesn't always work if there is a duplicate, even with flags
-    std::filesystem::remove("./step3_01eta03_03phi05_region.pmap");
+    string pmap_path="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/step3_01eta03_03phi05.pmap";
+    string rmap_path="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/rmaps/eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap";
 
-    // find the file
-    std::string pmap_path = PathResolver::find_file("step3_01eta03_03phi05.pmap","DATAPATH", PathResolver::RecursiveSearch);
-
-    //copy it over
-    std::filesystem::copy(pmap_path,"./step3_01eta03_03phi05_region.pmap",std::filesystem::copy_options::overwrite_existing);
-
-    // remove local file since filesystem copy overwrite doesn't always work if there is a duplicate, even with flags
-    std::filesystem::remove("./eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap");
-
-    // find the file
-    std::string rmap_path = PathResolver::find_file("eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap","DATAPATH", PathResolver::RecursiveSearch);
-
-    //copy it over
-    std::filesystem::copy(rmap_path,"./eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap",std::filesystem::copy_options::overwrite_existing);
-
-
-    HTTPlaneMap pmap("./step3_01eta03_03phi05_region.pmap", 0, 1);
-    HTTRegionMap rmap(&pmap, "./eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap");
+    HTTPlaneMap pmap(pmap_path, 0, 1);
+    HTTRegionMap rmap(&pmap, rmap_path);
 
     test(rmap);
     test_LUT(rmap);

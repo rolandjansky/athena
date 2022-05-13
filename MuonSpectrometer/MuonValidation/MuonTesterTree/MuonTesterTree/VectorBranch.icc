@@ -37,7 +37,11 @@ template <class T> size_t VectorBranch<T>::size() const {
 template <class T> T& VectorBranch<T>::operator[](size_t idx) { return get(idx); }
 template <class T> T& VectorBranch<T>::get(size_t idx) {
     if (!m_updated) m_variable.clear();
-    if (idx >= size()) m_variable.resize(idx, getDefault());
+    if (idx >= size()) {
+        if (!initialized()) { throw std::runtime_error(name() + " is not initialized yet"); }
+        m_variable.resize(idx + 1, getDefault()); 
+        m_updated = true;        
+    }
     return m_variable[idx];
 }
 

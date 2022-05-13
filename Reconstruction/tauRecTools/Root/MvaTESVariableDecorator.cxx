@@ -183,11 +183,11 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   // no seed jets in AOD
   if (!inAOD()){
     // retrieve Ghost Muon Segment Count (for punch-through studies)
-    if (! xTau.jetLink().isValid()) {
+    const xAOD::Jet* jetSeed = xTau.jet();
+    if (jetSeed == nullptr) {
       ATH_MSG_ERROR("Tau jet link is invalid.");
       return StatusCode::FAILURE;
     }
-    const xAOD::Jet* jetSeed = xTau.jet(); 
     
     int nMuSeg=0;
     if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
