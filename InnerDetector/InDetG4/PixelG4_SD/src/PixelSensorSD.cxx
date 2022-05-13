@@ -62,7 +62,10 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   // Get the Touchable History:
   //
   const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
-
+  if (not myTouch) {
+    G4cout << "PixelSensorSD::ProcessHits bad dynamic_cast" << G4endl;
+    return false;
+  }
   if(verboseLevel>5){
     for (int i=0;i<myTouch->GetHistoryDepth();i++){
       std::string detname=myTouch->GetVolume(i)->GetLogicalVolume()->GetName();

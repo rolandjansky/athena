@@ -39,6 +39,10 @@ G4bool SctSensorGmxSD::ProcessHits(G4Step *aStep, G4TouchableHistory * /* not us
   edep *= CLHEP::MeV;
 
   const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
+  if (not myTouch) {
+    G4cout << "SctSensorGmxSD::ProcessHits bad dynamic_cast" << G4endl;
+    return false;
+  }
   //
   // Get the hit start and end point local coordinates
   //
