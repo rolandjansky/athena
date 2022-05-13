@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Lhood_MM_tools_h
@@ -105,8 +105,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
 
   bool m_alreadyMerged;
 
-  static const int nLepMax = 6;
-  static const int maxRank =  64; // i.e. 2^nLepMax
+  inline static const int s_nLepMax = 6;
+  inline static const int s_maxRank =  64; // i.e. 2^nLepMax
 
 
   std::vector < std::vector < std::vector < double > > > m_coeffs;
@@ -135,8 +135,8 @@ class LhoodMM_tools : public BaseFakeBkgTool
   unsigned m_lastSaveIndex;
 
   //mathematical constants
-  const double _piover2 = 1.57079632679489661923;
-  const double _piover4 = 0.785398163397448309616;
+  inline static const double s_piover2 = 1.57079632679489661923;
+  inline static const double s_piover4 = 0.785398163397448309616;
 
   StatusCode setup();
 
