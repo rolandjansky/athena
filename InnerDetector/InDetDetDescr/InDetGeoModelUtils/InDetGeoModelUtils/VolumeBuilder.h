@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_VolumeBuilder_H
 #define InDetGeoModelUtils_VolumeBuilder_H
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
 #include "InDetGeoModelUtils/VolumeSplitter.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -23,7 +22,7 @@ class GeoShape;
 namespace InDetDD {
   class ServiceVolume;
  
-  class VolumeBuilder
+  class VolumeBuilder : public AthMessaging
   {
   public:
     VolumeBuilder( const Zone & zone, const std::vector<const ServiceVolume * > & services);
@@ -47,9 +46,6 @@ namespace InDetDD {
     GeoTransform * getPlacement(int iElement, int iCopy);
     GeoTransform * getPlacementEnvelope(int iElement, int iCopy,  int iMothElement);
 
-    MsgStream& msg (MSG::Level lvl) { return m_msg.get() << lvl; }
-    bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-
     bool isEnvelopeOrChild(int iElement);
     int  getEnvelopeNum(int iElement);
     int  getParentNum(int iElement);
@@ -57,9 +53,6 @@ namespace InDetDD {
     double getZcenter(int iElt);
 
   private:
-    //const GeoShape * getShape(const ServiceVolume & param, double & volume);
-    
-    Athena::MsgStreamMember m_msg;
     std::string m_region;
     double m_zcenter;
     const std::vector<const ServiceVolume *>* m_services;
