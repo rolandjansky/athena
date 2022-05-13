@@ -19,10 +19,6 @@ def StandaloneMuonOutputCfg(flags):
     result.addPublicTool(cnvTool)
 
     aod_items=[]
-    # Segments 
-    aod_items+=[ "xAOD::MuonSegmentContainer#MuonSegments" ]
-    aod_items+=[ "xAOD::MuonSegmentAuxContainer#MuonSegmentsAux." ]
-
     aod_items+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
     aod_items+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
     if flags.Muon.runCommissioningChain:
@@ -89,8 +85,7 @@ def StandaloneMuonOutputCfg(flags):
     esd_items+=["Muon::RpcCoinDataContainer#RPC_triggerHits"]
     esd_items+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
-    # Segments
-    esd_items+=["Trk::SegmentCollection#TrackMuonSegments"]
+    # Segments   
     esd_items+=["Trk::SegmentCollection#NCB_TrackMuonSegments"]
 
     # Tracks

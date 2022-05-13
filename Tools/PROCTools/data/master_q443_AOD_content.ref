@@ -2178,6 +2178,12 @@ TruthParticlesAuxDyn.polarizationPhi
 TruthParticlesAuxDyn.polarizationTheta
 TruthVertices
 TruthVerticesAux.
+UnAssocMuonSegments
+UnAssocMuonSegmentsAux.
+UnAssocMuonSegmentsAuxDyn.clusterTime
+UnAssocMuonSegmentsAuxDyn.clusterTimeError
+UnAssocMuonSegmentsAuxDyn.clusterTimeValid
+UnAssocMuonSegmentsAuxDyn.muonSegment
 _Digitization_Parameters
 _GLOBAL_BField_Maps
 _Generation_Parameters

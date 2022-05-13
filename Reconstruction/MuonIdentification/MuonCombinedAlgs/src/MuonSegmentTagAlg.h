@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONSEGMENTAGALG_H
@@ -13,7 +13,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "xAODMuon/MuonSegmentContainer.h"
+#include "TrkSegment/SegmentCollection.h"
 
 class MuonSegmentTagAlg : public AthReentrantAlgorithm {
 public:
@@ -21,7 +21,7 @@ public:
 
     ~MuonSegmentTagAlg() = default;
 
-    virtual StatusCode initialize()override;
+    virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
@@ -29,8 +29,8 @@ private:
         this, "MuonSegmentTagTool", "MuonCombined::MuonSegmentTagTool/MuonSegmentTagTool", "Muon segment tag tool"};
     SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this, "InDetCandidateLocation", "InDetCandidates",
                                                                                "name of ID candidate collection"};
-    SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_muonSegmentCollectionName{this, "MuonSegmentLocation", "xaodMuonSegments",
-                                                                              "name of muon segment container"};
+    SG::ReadHandleKey<Trk::SegmentCollection> m_muonSegmentCollectionName{this, "MuonSegmentLocation", "TrackMuonSegments",
+                                                                          "name of muon segment container"};
     SG::WriteHandleKey<MuonCombined::InDetCandidateToTagMap> m_tagMap{this, "TagMap", "segmentTagMap", "tag map"};
 };
 

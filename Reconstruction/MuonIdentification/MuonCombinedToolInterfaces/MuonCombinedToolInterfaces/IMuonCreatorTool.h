@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// IMuonCombinedTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef IRECMUONCREATORTOOL_H
 #define IRECMUONCREATORTOOL_H
 
@@ -15,6 +11,7 @@
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonCombinedEvent/MuonTagToSegMap.h"
 #include "TrkTrack/TrackCollection.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -23,8 +20,6 @@
 
 namespace MuonCombined {
 
- 
- 
     /** @class IMuonCreatorTool
         @brief interface for tools building combined muons from ID and Muon candidates
 
@@ -37,12 +32,10 @@ namespace MuonCombined {
 
     class IMuonCreatorTool : virtual public IAlgTool {
     public:
-      
-        using InDetCandidateTags = std::pair<const InDetCandidate*, std::vector<const TagBase*> > ;
+        using InDetCandidateTags = std::pair<const InDetCandidate*, std::vector<const TagBase*> >;
 
         struct OutputData {
-            OutputData(xAOD::MuonContainer& container) :
-                muonContainer(&container){}
+            OutputData(xAOD::MuonContainer& container) : muonContainer(&container) {}
             /** MuonContainer to be filled with the Muon objects */
             xAOD::MuonContainer* muonContainer{nullptr};
 
@@ -64,11 +57,10 @@ namespace MuonCombined {
             /** container for the extrapolated tracks */
             TrackCollection* msOnlyExtrapolatedTrackCollection{nullptr};
 
-            /** container for the xAOD segments from MuGirl */
-            xAOD::MuonSegmentContainer* xaodSegmentContainer{nullptr};
-
-            /** collection for the segments from MuGirl */
-            Trk::SegmentCollection* muonSegmentCollection{nullptr};
+            /** container for the xAOD segments*/
+            const xAOD::MuonSegmentContainer* xaodSegmentContainer{nullptr};
+            /** container to map the segments from the tag maps to the ones stored in the container */
+            const MuonCombined::MuonTagToSegMap* tagToSegmentAssocMap{nullptr};
 
             /** container for the Slow muon content */
             xAOD::SlowMuonContainer* slowMuonContainer{nullptr};
@@ -77,15 +69,14 @@ namespace MuonCombined {
             xAOD::CaloClusterContainer* clusterContainer{nullptr};
         };
 
-        static const InterfaceID& interfaceID(){
-               static const InterfaceID IID_IMuonCreatorTool("MuonCombined::IMuonCreatorTool", 1, 0);
-                return IID_IMuonCreatorTool;
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IMuonCreatorTool("MuonCombined::IMuonCreatorTool", 1, 0);
+            return IID_IMuonCreatorTool;
         }
-
 
         /**IMuonCreatorTool interface: build muons from ID and MS candidates */
 
-        virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates, 
+        virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
                             const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData) const = 0;
 
         /** create a muon from a muon candidate */
@@ -97,7 +88,6 @@ namespace MuonCombined {
         virtual ~IMuonCreatorTool() = default;
     };
 
- 
 }  // namespace MuonCombined
 
 #endif

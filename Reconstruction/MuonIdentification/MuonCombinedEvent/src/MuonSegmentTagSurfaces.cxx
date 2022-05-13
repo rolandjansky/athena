@@ -3,6 +3,7 @@
 */
 
 #include "MuonCombinedEvent/MuonSegmentTagSurfaces.h"
+
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -18,7 +19,7 @@ namespace {
 
 namespace MuonCombined {
     int MuonSegmentTagSurfaces::stIdxToSurfDef(StationIndex stIndex, bool pos_eta) {
-        if (stIndex == StationIndex::BI  || stIndex == StationIndex::BE) return SurfDef::BI;
+        if (stIndex == StationIndex::BI || stIndex == StationIndex::BE) return SurfDef::BI;
         if (stIndex == StationIndex::BM) return SurfDef::BM;
         if (stIndex == StationIndex::BO) return SurfDef::BO;
         if (pos_eta) {
@@ -31,8 +32,8 @@ namespace MuonCombined {
         if (stIndex == StationIndex::EM) return SurfDef::EMC;
         if (stIndex == StationIndex::EO) return SurfDef::EOC;
         if (stIndex == StationIndex::EE) return SurfDef::EEC;
-        return SurfDef::NumSurf;    
-    }    
+        return SurfDef::NumSurf;
+    }
     MuonSegmentTagSurfaces::MuonSegmentTagSurfaces() {
         const Amg::Vector3D posEI(0., 0., 7500.), posEM(0., 0., 13500.), posEO(0., 0., 21000.), posEE(0., 0., 10000.);
         Amg::Transform3D transEIA = Amg::Transform3D(Amg::Translation3D(posEI));
@@ -51,7 +52,7 @@ namespace MuonCombined {
         m_station[BM] = "BM";
 
         m_vec[BO] = std::make_unique<Trk::CylinderSurface>(rBO, lenBO);
-        m_station[BO] = "BO";      
+        m_station[BO] = "BO";
 
         m_vec[EIA] = std::make_unique<Trk::DiscSurface>(transEIA, rMinEI, rMaxEI);
         m_station[EIA] = "EIA";
@@ -77,4 +78,4 @@ namespace MuonCombined {
         m_vec[EEC] = std::make_unique<Trk::DiscSurface>(transEEC, rMinEE, rMaxEE);
         m_station[EEC] = "EEC";
     }
-}
+}  // namespace MuonCombined

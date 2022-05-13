@@ -1108,6 +1108,12 @@ SlowMuonsAuxDyn.hitPropagationTime
 SlowMuonsAuxDyn.hitShift
 SlowMuonsAuxDyn.hitTOF
 SlowMuonsAuxDyn.hitTechnology
+StauSegments
+StauSegmentsAux.
+StauSegmentsAuxDyn.clusterTime
+StauSegmentsAuxDyn.clusterTimeError
+StauSegmentsAuxDyn.clusterTimeValid
+StauSegmentsAuxDyn.muonSegment
 Staus
 StausAux.
 StausAuxDyn.CT_EL_Type
@@ -1298,6 +1304,12 @@ TriggerMenuJson_L1
 TriggerMenuJson_L1Aux.
 TriggerMenuJson_L1PS
 TriggerMenuJson_L1PSAux.
+UnAssocMuonSegments
+UnAssocMuonSegmentsAux.
+UnAssocMuonSegmentsAuxDyn.clusterTime
+UnAssocMuonSegmentsAuxDyn.clusterTimeError
+UnAssocMuonSegmentsAuxDyn.clusterTimeValid
+UnAssocMuonSegmentsAuxDyn.muonSegment
 _TagInfo
 egammaClusters
 egammaClustersAux.
