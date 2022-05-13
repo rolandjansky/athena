@@ -4,6 +4,8 @@
 #include "TrigHTTObjects/HTTLogicalEventOutputHeader.h"
 #include "TrigHTTObjects/HTTTowerInputHeader.h"
 #include "TrigHTTObjects/HTTCluster.h"
+#include "TrigHTTInput/IHTTEventInputHeaderTool.h"
+#include "TrigHTTInput/IHTTEventOutputHeaderTool.h"
 
 #include "TH1F.h"
 #include "TH2F.h"

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HTTReadRawRandomHitsTool.h"
+#include "TrigHTTInput/HTTReadRawRandomHitsTool.h"
 #include "TrigHTTObjects/HTTEventInputHeader.h"
 
 

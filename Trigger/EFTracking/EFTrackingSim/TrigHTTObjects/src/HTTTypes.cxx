@@ -3,7 +3,6 @@
 #include "TrigHTTObjects/HTTTypes.h"
 
 
-
 std::ostream& operator<<(std::ostream& os, SiliconTech t)
 {
     switch (t)

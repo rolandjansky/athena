@@ -8,7 +8,7 @@
  */
 
 
-#include "HTTSectorBank.h"
+#include "TrigHTTBanks/HTTSectorBank.h"
 #include "TrigHTTObjects/HTTHit.h"
 #include "TrigHTTObjects/HTTTypes.h"
 
