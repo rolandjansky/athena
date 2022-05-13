@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
-
+#include "AthenaBaseComps/AthMessaging.h"
 #include "Identifier/Identifier.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
@@ -11,8 +11,6 @@
 #include "RDBAccessSvc/IRDBRecord.h" //IRDBRecord used in code in the header
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h" //for IRDBRecordset_ptr typedef
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -377,7 +375,7 @@ class GeoPixelTubeCables : public GeoVPixelFactory {
 #ifndef PixelGeometryManager_H
 #define PixelGeometryManager_H
 
-class PixelGeometryManager {
+class PixelGeometryManager : public AthMessaging {
 
 
  public:
@@ -604,18 +602,6 @@ class PixelGeometryManager {
 
   // ID helper
   virtual const PixelID * getIdHelper()=0;
-
-  //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
-  //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-
- private:
-  
-  //Declaring private message stream member.
-  Athena::MsgStreamMember m_msg;
-
 
 };
 #endif
