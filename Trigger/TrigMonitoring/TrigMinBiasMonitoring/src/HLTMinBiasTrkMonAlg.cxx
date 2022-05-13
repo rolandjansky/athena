@@ -111,13 +111,16 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   float priVtxZ = 999; // intentionally - initial zPos
   auto vertexHandle = SG::makeHandle(m_vertexKey, context);
   const xAOD::Vertex* priVtx = nullptr;
-  for (auto vtx : *vertexHandle) {
-    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-      priVtxZ = vtx->z();
-      priVtx = vtx;
-      break;
+  if(vertexHandle.isValid()){
+    for (auto vtx : *vertexHandle) {
+      if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	priVtxZ = vtx->z();
+	priVtx = vtx;
+	break;
+      }
     }
   }
+
   auto offlineVtxZ = Scalar("offlineVtxZ", priVtxZ);
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
