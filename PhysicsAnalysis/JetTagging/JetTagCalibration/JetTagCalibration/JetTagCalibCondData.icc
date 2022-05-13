@@ -1,40 +1,39 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TObject.h"
 #include <string>
 #include <utility>
 #include <algorithm>
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace Analysis {
 
 template <class T> T* JetTagCalibCondData::retrieveTObject(const std::string& folder, const std::string& channel, const std::string& hname) const {
   T* h = 0;
   std::string channelAlias = this->getChannelAlias(channel);
-  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
-  log << MSG::DEBUG << "#BTAG# retrieving " << hname 
-	   << " (channel " << channel << " -> " << channelAlias << ") "
-	   << " in folder " << folder << endmsg;
+
+  ATH_MSG_DEBUG("#BTAG# retrieving " << hname
+                << " (channel " << channel << " -> " << channelAlias << ") "
+                << " in folder " << folder);
   for(unsigned int i=0;i<m_taggers.size();i++) {
       if(folder==m_taggers[i]) {
         std::string fname = this->fullHistoName(channelAlias,hname);
-        log << MSG::DEBUG << "#BTAG#    folder " << folder << " found in pos " << i
-            << " , retrieving " << fname << endmsg;
+        ATH_MSG_DEBUG("#BTAG#    folder " << folder << " found in pos " << i
+                      << " , retrieving " << fname);
         std::map<std::string, TH1*>::const_iterator mI = m_histos[i].find(fname);
         std::map<std::string, TH1*>::const_iterator mE = m_histos[i].end();
         if(mI!=mE) {
-          log << MSG::DEBUG << "#BTAG#    histo found: " << hname << endmsg;
+          ATH_MSG_DEBUG("#BTAG#    histo found: " << hname);
           h = (*mI).second;
           if(h) {
-            log << MSG::DEBUG << "#BTAG#    histo pointer is valid." << endmsg;
+            ATH_MSG_DEBUG("#BTAG#    histo pointer is valid.");
           } else {
-            log << MSG::DEBUG << "#BTAG#    histo pointer is NOT valid." << endmsg;
+            ATH_MSG_DEBUG("#BTAG#    histo pointer is NOT valid.");
           }  
           break;
         } else {
-          log << MSG::DEBUG << "#BTAG#    histo not found in folder: " << hname << endmsg;
+          ATH_MSG_DEBUG("#BTAG#    histo not found in folder: " << hname);
         }
      }
   }

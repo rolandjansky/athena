@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/NNLayerConfig.hh"
 #include "lwtnn/LightweightNeuralNetwork.hh"
@@ -33,7 +34,7 @@ namespace lwt {
 
 namespace Analysis {
 
-class JetTagCalibCondData {
+class JetTagCalibCondData : public AthMessaging {
 public:
   // Constructor
   JetTagCalibCondData();
