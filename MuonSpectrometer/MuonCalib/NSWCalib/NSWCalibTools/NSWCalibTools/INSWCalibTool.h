@@ -27,7 +27,7 @@ namespace NSWCalib {
     double resTransDistDrift = 0;
     double resLongDistDrift = 0;
     double dx = 0;
-    Amg::Vector2D locPos = Amg::Vector2D(-FLT_MAX,-FLT_MAX);
+    Amg::Vector2D locPos{-FLT_MAX,FLT_MAX};
     Identifier identifier;
   };
 
@@ -49,7 +49,7 @@ namespace Muon {
     
     virtual StatusCode calibrateClus(const Muon::MMPrepData* prepRawData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const = 0;
     virtual StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const = 0;
-    virtual StatusCode calibrateStrip(const Identifier id, const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip&calibStrip) const = 0;
+    virtual StatusCode calibrateStrip(const Identifier& id, const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip&calibStrip) const = 0;
     virtual StatusCode calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const = 0;
     virtual StatusCode distToTime(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos,const std::vector<double>& driftDistances, std::vector<double>& driftTimes) const = 0;
     

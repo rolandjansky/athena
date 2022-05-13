@@ -144,7 +144,7 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
 
 
 
-StatusCode Muon::NSWCalibTool::calibrateStrip(const Identifier id, const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
+StatusCode Muon::NSWCalibTool::calibrateStrip(const Identifier& id, const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
   //get local positon
   Amg::Vector2D locPos;
   if(!localStripPosition(id,locPos)) {
