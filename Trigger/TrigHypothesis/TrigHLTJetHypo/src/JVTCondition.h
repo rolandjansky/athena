@@ -35,7 +35,7 @@ class JVTCondition: public ICondition{
 
   double m_workingPoint;
   double m_maxEta = 2.5;
-  double m_maxPt  = 120;
+  double m_maxPt  = 60;
 
   const static unsigned int s_capacity{1};
 
