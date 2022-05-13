@@ -22,7 +22,7 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
 
     # Thinning tools...
     from DerivationFrameworkInDet.InDetToolsConfig import TrackParticleThinningCfg, MuonTrackParticleThinningCfg, TauTrackParticleThinningCfg, DiTauTrackParticleThinningCfg 
-    #from DerivationFrameworkTools.DerivationFrameworkToolsConfig import GenericObjectThinningCfg
+    from DerivationFrameworkTools.DerivationFrameworkToolsConfig import GenericObjectThinningCfg
 
     # Inner detector group recommendations for indet tracks in analysis
     # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
@@ -61,25 +61,27 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
         InDetTrackParticlesKey  = "InDetTrackParticles"))
 
     ## Low-pt di-tau thinning
-    #PHYSDiTauLowPtThinningTool = acc.getPrimaryAndMerge(GenericObjectThinningCfg(name            = "PHYSDiTauLowPtThinningTool",
-    #                                                                             StreamName      = kwargs['StreamName'],
-    #                                                                             ContainerName   = "DiTauJetsLowPt",
-    #                                                                             SelectionString = "DiTauJetsLowPt.nSubjets > 1"))
-    #
-    ## ID tracks associated with low-pt ditau
-    #PHYSDiTauLowPtTPThinningTool = acc.getPrimaryAndMerge(DiTauTrackParticleThinningCfg(name                    = "PHYSDiTauLowPtTPThinningTool",
-    #                                                                                    StreamName              = kwargs['StreamName'],
-    #                                                                                    DiTauKey                = "DiTauJetsLowPt",
-    #                                                                                    InDetTrackParticlesKey  = "InDetTrackParticles",
-    #                                                                                    SelectionString         = "DiTauJetsLowPt.nSubjets > 1"))
+    PHYSDiTauLowPtThinningTool = acc.getPrimaryAndMerge(GenericObjectThinningCfg(ConfigFlags,
+                                                                                 name            = "PHYSDiTauLowPtThinningTool",
+                                                                                 StreamName      = kwargs['StreamName'],
+                                                                                 ContainerName   = "DiTauJetsLowPt",
+                                                                                 SelectionString = "DiTauJetsLowPt.nSubjets > 1"))
+    
+    # ID tracks associated with low-pt ditau
+    PHYSDiTauLowPtTPThinningTool = acc.getPrimaryAndMerge(DiTauTrackParticleThinningCfg(ConfigFlags,
+                                                                                        name                    = "PHYSDiTauLowPtTPThinningTool",
+                                                                                        StreamName              = kwargs['StreamName'],
+                                                                                        DiTauKey                = "DiTauJetsLowPt",
+                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                        SelectionString         = "DiTauJetsLowPt.nSubjets > 1"))
 
     # Finally the kernel itself
     thinningTools = [PHYSTrackParticleThinningTool,
                      PHYSMuonTPThinningTool,
                      PHYSTauTPThinningTool,
-                     PHYSDiTauTPThinningTool]
-                     #PHYSDiTauLowPtThinningTool,
-                     #PHYSDiTauLowPtTPThinningTool ]
+                     PHYSDiTauTPThinningTool,
+                     PHYSDiTauLowPtThinningTool,
+                     PHYSDiTauLowPtTPThinningTool ]
     DerivationKernel = CompFactory.DerivationFramework.DerivationKernel
     acc.addEventAlgo(DerivationKernel(name, ThinningTools = thinningTools))       
     return acc
