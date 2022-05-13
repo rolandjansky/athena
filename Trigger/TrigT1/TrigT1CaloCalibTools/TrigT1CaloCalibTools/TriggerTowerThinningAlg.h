@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -28,9 +28,10 @@
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "AthenaKernel/IAthRNGSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <vector>
-#include <TRandom3.h>
 
 
 namespace DerivationFramework {
@@ -65,7 +66,8 @@ namespace DerivationFramework {
     mutable std::atomic<unsigned long> m_nTriggerTowersRejected;
 
     // Tools and random number generator
-    TRandom3* m_random;
+    ServiceHandle<IAthRNGSvc> m_rndmSvc
+      { this, "RndmSvc", "AthRNGSvc", "" };
   };	
 } // namespace
 
