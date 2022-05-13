@@ -224,7 +224,11 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
 
 	  //set the BLM_GeometryManeger
 	  manager->ModuleOn(moduleNo);
-	  manager->Module(moduleNo)->Set(moduleNo, module_property);
+	  if (module_property){
+	    manager->Module(moduleNo)->Set(moduleNo, module_property);
+	  } else {
+	    ATH_MSG_ERROR("module_property is null in BLM_Builder.cxx");
+	  }
 	}
     }
 
