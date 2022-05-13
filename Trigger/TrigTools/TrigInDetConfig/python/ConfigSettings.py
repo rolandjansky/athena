@@ -451,8 +451,8 @@ class _ConfigSettings_DJetLRT( _ConfigSettingsBase ):
       self._suffix   = "DJLRT"
       self._roi      = "HLT_Roi_DJ"
       self._doFullScan      = False
-      self._etaHalfWidth    = 3.
-      self._phiHalfWidth    = 3.14159
+      self._etaHalfWidth    = 0.4
+      self._phiHalfWidth    = 0.4
       self._doTRT           = False
       self._doSeedRedundancyCheck = True
       self._UsePixelSpacePoints   = False
