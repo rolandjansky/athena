@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MicromegasSensitiveDetector.h"
@@ -47,6 +47,7 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   float globalTime=postStep->GetGlobalTime();
   float eKin=postStep->GetKineticEnergy();
+  if (eKin<= 0. && (!geantinoHit)) return false;
 
   Amg::Vector3D direction = Amg::Hep3VectorToEigen( postStep->GetMomentumDirection() );
   float depositEnergy=post_Step->GetTotalEnergyDeposit();
