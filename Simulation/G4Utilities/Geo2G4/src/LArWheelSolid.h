@@ -5,7 +5,7 @@
 #ifndef GEO2G4_LARWHEELSOLID_H
 #define GEO2G4_LARWHEELSOLID_H
 #ifndef PORTABLE_LAR_SHAPE
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #endif
 #include "G4VSolid.hh"
 
@@ -87,6 +87,9 @@ inline const char *LArWheelSolidTypeString(LArWheelSolid_t type)
 }
 
 class LArWheelSolid : public G4VSolid
+#ifndef PORTABLE_LAR_SHAPE
+, public AthMessaging
+#endif
 {
 public:
 
@@ -216,17 +219,9 @@ private:
   void test(void);
   void clean_tests(void);
   void init_tests(void);
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 #endif
 
 protected:
-  /// Private message stream member
-#ifndef PORTABLE_LAR_SHAPE
-  mutable Athena::MsgStreamMember m_msg;
-#endif
 
   TF1 *m_f_area, *m_f_vol, *m_f_area_on_pc, *m_f_length, *m_f_side_area;
 

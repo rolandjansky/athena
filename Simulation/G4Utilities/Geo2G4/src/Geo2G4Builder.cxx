@@ -33,11 +33,11 @@
 #include <utility>
 
 Geo2G4Builder::Geo2G4Builder(const std::string& detectorName)
-  : m_detectorName(detectorName)
+  : AthMessaging("Geo2G4Builder")
+  , m_detectorName(detectorName)
   , m_motherTransform(GeoTrf::Transform3D::Identity())
   , m_matAir(nullptr)
   , m_pDetStore(nullptr)
-  , m_msg("Geo2G4Builder")
 {
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   StatusCode sc=svcLocator->service("DetectorStore",m_pDetStore);
