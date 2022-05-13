@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTTRANSITIONRADIATION_H
@@ -14,17 +14,14 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <vector>
 
-//using namespace std;
 
 class TRRegionXMLHandler;
-//class TRTParameters;
 
-class TRTTransitionRadiation : public G4VDiscreteProcess {
+class TRTTransitionRadiation : public G4VDiscreteProcess, public AthMessaging {
 
 public:
 
@@ -41,9 +38,6 @@ public:
   G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep);
 
   void AddRadiatorParameters(TRTRadiatorParameters p);
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
 private:
 
@@ -106,9 +100,6 @@ private:
   G4double* m_Omg;
   G4double* m_sigmaGas;
   G4double* m_sigmaFoil;
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
 };
 
 #endif

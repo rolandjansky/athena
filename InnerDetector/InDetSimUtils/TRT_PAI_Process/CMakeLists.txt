@@ -1,6 +1,4 @@
-################################################################################
-# Package: TRT_PAI_Process
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_PAI_Process )
@@ -19,7 +17,7 @@ atlas_add_component( TRT_PAI_Process
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TRT_PAI_ProcessLib AthenaBaseComps AthenaKernel StoreGateLib InDetReadoutGeometry TRT_ReadoutGeometry )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel TRT_PAI_ProcessLib AthenaBaseComps AthenaKernel TRT_ReadoutGeometry )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

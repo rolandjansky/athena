@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_PAI_gasMixture_h
 #define TRT_PAI_gasMixture_h
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "TRT_PAI_gasComponent.h"
 
@@ -16,20 +15,15 @@
 /**
  * Gas mixture = mixture of gas components
  */
-class TRT_PAI_gasMixture {
+class TRT_PAI_gasMixture : public AthMessaging {
 
  public:
   
   /**
    * Construct gas mixture
    * \param nm:   mixture name
-   * \param mlog: message stream
    */
-  TRT_PAI_gasMixture(const std::string& nm) :
-    m_name(nm),
-    m_gasFrozen(0),
-    m_msg (nm)
-    {};
+  TRT_PAI_gasMixture(const std::string& nm);
 
   /**
    * Add gas component to gas mixture
@@ -88,24 +82,6 @@ class TRT_PAI_gasMixture {
    */
   void freezeGas();
   
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-  
-  MsgStream& msg() const { return m_msg.get(); }
-  void display (const std::string& msg, int lvl = (int)MSG::INFO) const;
-  void info (const std::string& msg) const
-  { display (msg, (int)MSG::INFO); }
-  void debug (const std::string& msg) const
-  { display (msg, (int)MSG::DEBUG); }
-  void warning (const std::string& msg) const
-  { display (msg, (int)MSG::WARNING); }
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  void setLvl (int lvl = (int)MSG::INFO);
-  void setLvl (const std::string& lvl);
 private:
   std::vector<TRT_PAI_gasComponent*> m_pcomp;
   std::vector<double> m_compFracs;
@@ -113,7 +89,6 @@ private:
   std::vector<double> m_elemWeights;
   std::string m_name;
   bool m_gasFrozen;
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif
