@@ -141,7 +141,7 @@ void MuonChamber::makesTgc (const Identifier& id)
 void MuonChamber::makeMm (const Identifier& id)
 {
   auto elt = std::make_unique<MuonGM::MMReadoutElement>
-    (&m_pvol, "MMS", 1, 2, 1, false, &m_muo_dd);
+    (&m_pvol, "MMS", 1, 2, 1, false, &m_muo_dd, nullptr);
   elt->setIdentifier (id);
   elt->initDesign (0, 0, 0, 0, 0);
   //elt->m_ngasgaps = 2;
