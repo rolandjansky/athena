@@ -434,10 +434,10 @@ namespace met {
       const xAOD::MissingET* jetterm = *METcont->find( MissingETBase::Source::jet() );
       size_t njet = (jetterm==nullptr) ? 0 : acc_constitObjLinks(*jetterm ).size();
 
-      int          phbin                                     = m_shiftpara_pthard_njet_mu->GetXaxis()->FindBin( ptHardMet  ) ;
+      int          phbin                                     = std::as_const(m_shiftpara_pthard_njet_mu)->GetXaxis()->FindBin( ptHardMet  ) ;
       if(phbin>m_shiftpara_pthard_njet_mu->GetNbinsX())  phbin = m_shiftpara_pthard_njet_mu->GetNbinsX();
-      int    const jetbin                                    = m_shiftpara_pthard_njet_mu->GetYaxis()->FindBin(njet);
-      int    const mubin                                     = m_shiftpara_pthard_njet_mu->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
+      int    const jetbin                                    = std::as_const(m_shiftpara_pthard_njet_mu)->GetYaxis()->FindBin(njet);
+      int    const mubin                                     = std::as_const(m_shiftpara_pthard_njet_mu)->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
       double const ptHardShift                               = m_shiftpara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin);
 
       double const randGaus = getTLSRandomGen()->Gaus(0.,1.);
@@ -522,10 +522,10 @@ namespace met {
       xAOD::MissingETAssociation const * const assoc = MissingETComposition::getAssociation(helper.map(),jet);
       MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec(helper);
 
-      int phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+      int phbin  = std::as_const(m_jet_systRpt_pt_eta)->GetXaxis()->FindBin(jet->pt()/1e3);
       if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-      int etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(std::abs( jet->eta()  ));
+      int etabin  = std::as_const(m_jet_systRpt_pt_eta)->GetYaxis()->FindBin(std::abs( jet->eta()  ));
       if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 
       double uncert = 0.;
@@ -589,10 +589,10 @@ namespace met {
 	if(std::abs(jet->eta())<=2.5)
 	  {
 	    jetCount++;
-	    int         phbin  = m_jet_systRpt_pt_eta->GetXaxis()->FindBin(jet->pt()/1e3);
+	    int         phbin  = std::as_const(m_jet_systRpt_pt_eta)->GetXaxis()->FindBin(jet->pt()/1e3);
 	    if(phbin>m_jet_systRpt_pt_eta->GetNbinsX())  phbin  = m_jet_systRpt_pt_eta->GetNbinsX();
 
-	    int         etabin  = m_jet_systRpt_pt_eta->GetYaxis()->FindBin(std::abs( jet->eta()  ));
+	    int         etabin  = std::as_const(m_jet_systRpt_pt_eta)->GetYaxis()->FindBin(std::abs( jet->eta()  ));
 	    if(etabin>m_jet_systRpt_pt_eta->GetNbinsY()) etabin = m_jet_systRpt_pt_eta->GetNbinsY();
 	    float uncert_frac=(trkvec.sumpt())*(m_jet_systRpt_pt_eta->GetBinContent(phbin, etabin));
 
