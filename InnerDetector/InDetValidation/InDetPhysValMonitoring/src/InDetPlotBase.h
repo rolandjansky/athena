@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPLOTBASE
@@ -10,9 +10,7 @@
  * @date 11/9/2015
  **/
 #include "TrkValHistUtils/PlotBase.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "InDetPhysValMonitoring/SingleHistogramDefinition.h" // to make available to children
 
 #include <string>
@@ -30,7 +28,7 @@ class TEfficiency;
  * external configuration file (txt or xml) to define the plot
  * limits and titles.
  **/
-class InDetPlotBase: public PlotBase {
+class InDetPlotBase: public PlotBase, public AthMessaging {
 public:
   /// Constructor taking parent node and directory name for plots
   InDetPlotBase(InDetPlotBase* pParent, const std::string& dirName);
@@ -84,20 +82,6 @@ protected:
     return book(pHisto, histoIdentifier.substr(2));
   }
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream&
-  msg(MSG::Level lvl) const {
-    return m_msg.get() << lvl;
-  }
-
-  /// Check whether the logging system is active at the provided verbosity level
-  bool
-  msgLvl(MSG::Level lvl) {
-    return m_msg.get().level() <= lvl;
-  }
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 private:
   IHistogramDefinitionSvc* m_histoDefSvc;
 };
