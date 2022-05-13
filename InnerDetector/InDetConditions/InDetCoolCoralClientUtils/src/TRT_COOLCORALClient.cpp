@@ -511,7 +511,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
       int start = bg+1;
       int length = ed - bg - 1;
       std::string PadNumAsString( theString, start, length );
-      int padnr;
+      int padnr=0;
       FromString(padnr, PadNumAsString);
       if (padnr == pad) {
         pad_node_id = (*PadMap_iter).first;
