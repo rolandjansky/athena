@@ -827,6 +827,13 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigMissingETContainer#HLT_MET_nn',                'BS ESD AODFULL AODSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_nnAux.',          'BS ESD AODFULL AODSLIM', 'MET'),
 
+    # ATR-25509 MET Containers needed to test nSigma=3
+    ('xAOD::TrigMissingETContainer#HLT_MET_pfopufit_sig30',                'BS ESD AODFULL', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_pfopufit_sig30Aux.',         'BS ESD AODFULL', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_tcpufit_sig30',                 'BS ESD AODFULL', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcpufit_sig30Aux.',          'BS ESD AODFULL', 'MET'),
+
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL', 'Calo'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODFULL', 'Calo'),
 

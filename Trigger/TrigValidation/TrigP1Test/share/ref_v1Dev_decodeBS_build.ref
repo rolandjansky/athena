@@ -7173,6 +7173,14 @@ HLT_xe30_pfopufit_L1XE30:
   stepFeatures:
     0: 2
     1: 1
+HLT_xe30_pfopufit_sig30_L1XE30:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 1
+  stepFeatures:
+    0: 2
+    1: 1
 HLT_xe30_pfsum_L1XE30:
   eventCount: 1
   stepCounts:
@@ -7198,6 +7206,12 @@ HLT_xe30_pfsum_vssk_L1XE30:
     0: 2
     1: 1
 HLT_xe30_tcpufit_L1XE30:
+  eventCount: 2
+  stepCounts:
+    0: 2
+  stepFeatures:
+    0: 2
+HLT_xe30_tcpufit_sig30_L1XE30:
   eventCount: 2
   stepCounts:
     0: 2
@@ -7259,6 +7273,8 @@ HLT_xe65_cell_xe110_tcpufit_L1XE50:
   eventCount: 0
 HLT_xe65_cell_xe110_tcpufit_L1jXE100:
   eventCount: 0
+HLT_xe65_cell_xe110_tcpufit_sig30_L1XE50:
+  eventCount: 0
 HLT_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 0
   stepFeatures:
@@ -7273,6 +7289,10 @@ HLT_xe65_cell_xe90_pfopufit_L1gXERHO100:
   eventCount: 0
 HLT_xe65_cell_xe90_pfopufit_L1jXE100:
   eventCount: 0
+HLT_xe65_cell_xe90_pfopufit_sig30_L1XE50:
+  eventCount: 0
+  stepFeatures:
+    0: 1
 HLT_xe65_cell_xe95_pfsum_vssk_L1XE50:
   eventCount: 0
   stepFeatures:
@@ -7294,6 +7314,8 @@ HLT_xe80_cell_xe115_tcpufit_L1gXENC100:
 HLT_xe80_cell_xe115_tcpufit_L1gXERHO100:
   eventCount: 0
 HLT_xe80_cell_xe115_tcpufit_L1jXE100:
+  eventCount: 0
+HLT_xe80_cell_xe115_tcpufit_sig30_L1XE50:
   eventCount: 0
 HLT_xe80_tcpufit_unconvtrk100_isohpttrack_medium_iaggrmedium_L1XE50:
   eventCount: 0

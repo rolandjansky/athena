@@ -169,6 +169,13 @@ def setupMenu():
         # Test chains to determine rate after calo-only preselection for tracking
         ChainProp(name='HLT_xe60_cell_L1XE50', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup+DevGroup),
         ChainProp(name='HLT_xe55_cell_xe70_tcpufit_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=MultiMETGroup+DevGroup),
+
+        # ATR-25509 Triggers needed to test nSigma=3
+        ChainProp(name='HLT_xe30_pfopufit_sig30_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup+DevGroup),
+        ChainProp(name='HLT_xe30_tcpufit_sig30_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=SingleMETGroup+DevGroup),
+        ChainProp(name='HLT_xe65_cell_xe90_pfopufit_sig30_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=MultiMETGroup+DevGroup),
+        ChainProp(name='HLT_xe80_cell_xe115_tcpufit_sig30_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=MultiMETGroup+DevGroup),
+        ChainProp(name='HLT_xe65_cell_xe110_tcpufit_sig30_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=MultiMETGroup+DevGroup),
     ]
 
 
