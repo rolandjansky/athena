@@ -15,7 +15,9 @@ int main() {
 
   // CrestApi Library innitialization for local data storage:
 
-  std::string work_dir = "/tmp/crest_dump";
+  
+  //std::string work_dir = "/tmp/crest_dump";
+  std::string work_dir=std::filesystem::current_path();
   bool rewrite = true;
   CrestClient testCrestClient = CrestClient(rewrite, work_dir); // CrestClient();
 
