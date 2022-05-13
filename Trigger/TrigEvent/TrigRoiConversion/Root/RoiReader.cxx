@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RoiReader.cxx         
@@ -65,7 +65,7 @@ void RoiReader::execute( std::vector<std::string>& keys ) {
 
 
 
-void RoiReader::deserialiser( TrigRoiDescriptorCollection& collection, const std::string key ) const {
+void RoiReader::deserialiser( TrigRoiDescriptorCollection& collection, const std::string& key ) const {
   xAOD::RoiDescriptorStore* fetchedstore = 0;
   if ( evtStore()->retrieve( fetchedstore, key ).isSuccess() && fetchedstore!=0 ) { 
     RoiUtil::deserialise( fetchedstore->serialised(), collection );

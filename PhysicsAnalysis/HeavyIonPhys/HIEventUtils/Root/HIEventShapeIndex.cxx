@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/HIEventShapeIndex.h"
@@ -252,7 +252,7 @@ void HIEventShapeIndex::initializeEventShapeContainer(xAOD::HIEventShapeContaine
 
 	}
 
-	for(auto pp : m_edges)
+	for(const auto& pp : m_edges)
 	{
 		for(auto ri : pp.second)
 		{
@@ -286,7 +286,7 @@ std::string HIEventShapeIndex::print() const
 {
 	std::stringstream ss;
 	ss.precision(3);
-	for(auto pp : m_edges)
+	for(const auto& pp : m_edges)
 	{
 		for(auto ri : pp.second)
 		{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HIEVENTUTILS_HIPILEUPTOOL_H
@@ -54,17 +54,17 @@ namespace HI
     std::vector<double> m_etCutAndPurity;
     std::string m_fname;
 
-    double m_etThreshold;
-    double m_purityCut;
+    double m_etThreshold = 0.0;
+    double m_purityCut = 0.0;
     bool m_setup;
     //Average energy deposited in the ZDC by neutrons
     const double m_npeak = 2510.;
 
-    TH2D* m_hEvents;
-    TH2D* m_hPileUp;
-    TH1D* m_hCut;
-    TH1D* m_hEff;
-    TH1D* m_hPurity;
+    TH2D* m_hEvents = nullptr;
+    TH2D* m_hPileUp = nullptr;
+    TH1D* m_hCut = nullptr;
+    TH1D* m_hEff = nullptr;
+    TH1D* m_hPurity = nullptr;
   };
 }
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HIEVENTUTILS_HIEVENTSHAPEMAP_H
@@ -15,9 +15,9 @@ class HIEventShapeMap
 {
   public:
 
-    static const HIEventShapeIndex* insert(std::string key, const HIEventShapeIndex& index, bool clobber=false);
-    static const HIEventShapeIndex* getIndex(std::string key);
-    static bool hasKey(std::string key);
+    static const HIEventShapeIndex* insert(const std::string& key, const HIEventShapeIndex& index, bool clobber=false);
+    static const HIEventShapeIndex* getIndex(const std::string& key);
+    static bool hasKey(const std::string& key);
     static HIEventShapeMap* getMap();
 
   private:
