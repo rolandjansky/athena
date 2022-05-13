@@ -69,10 +69,14 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                              MergeLRT = False)) 
     acc.merge(MuonsCommonCfg(ConfigFlags))
     acc.merge(EGammaCommonCfg(ConfigFlags))
-    # Jets and flavour tagging
+    # Jets, di-taus, tau decorations and flavour tagging
     from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
     from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollectionsCfg
+    from DerivationFrameworkTau.TauCommonConfig import AddDiTauLowPtCfg
+    from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg 
     acc.merge(JetCommonCfg(ConfigFlags))
+    acc.merge(AddDiTauLowPtCfg(ConfigFlags, prefix = 'PhysCommon'))
+    acc.merge(AddTauWPDecorationCfg(ConfigFlags, prefix = 'PhysCommon', evetoFixTag="v1"))
     acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
     # Trigger matching
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
@@ -102,7 +106,6 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                                                TriggerList = triggerListsHelper.Run3TriggerNamesTau, 
                                                DRThreshold = 0.2))
 
-    # Tau...
 
     return acc
 
