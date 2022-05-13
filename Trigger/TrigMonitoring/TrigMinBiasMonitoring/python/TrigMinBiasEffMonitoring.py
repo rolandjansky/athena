@@ -108,8 +108,9 @@ def TrigMinBiasEff(flags):
         # monitor first hmt w.r.t sptrk
         triggerAndRef += [ _c(hmt[0], "HLT_mb_sptrk_L1RD0_FILLED", xmax=_trk(hmt[0])+30)]
 
-        # group set the ref for each trigger to be one of lower threshold
-        triggerAndRef += [  _c(chain, ref, xmin=_trk(chain)-20, xmax=_trk(chain)+50) for chain,ref in zip(hmt[1:], hmt) ]
+        # group set the ref for each trigger to be one of lower threshold : ordering of chains needs to be reviewed  
+        # triggerAndRef += [  _c(chain, ref, xmin=_trk(chain)-20, xmax=_trk(chain)+50) for chain,ref in zip(hmt[1:], hmt) ]
+        triggerAndRef += [  _c(chain, "HLT_mb_sptrk_L1RD0_FILLED", xmin=_trk(chain)-20, xmax=_trk(chain)+50) for chain in hmt[1:] ]
 
         # pu suppressing trigger should be monitored using trigger of the same threshold w/o pu suppression
         pusup = [c for c in mbChains if '_hmt_' in c and '_pusup' in c]
