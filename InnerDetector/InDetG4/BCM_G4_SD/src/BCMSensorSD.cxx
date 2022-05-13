@@ -54,7 +54,11 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
 
   //Get the Touchable History:
   const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
-
+  if (not myTouch) {
+    G4cout << "BCMSensorSD::ProcessHits bad dynamic_cast" << G4endl;
+    return false;
+  }
+  
   int BEcopyNo =  myTouch->GetVolume()->GetCopyNo();
 
   // Get the hit coordinates. Start and End Point

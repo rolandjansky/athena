@@ -59,6 +59,10 @@ G4bool SctSensor_CTB::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   // Get the Touchable History:
   //
   const G4TouchableHistory*  myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
+  if (not myTouch) {
+    G4cout << "SctSensor_CTB::ProcessHits bad dynamic_cast" << G4endl;
+    return false;
+  }
   //
   // Get the hit coordinates. Start and End Point
   //
