@@ -34,6 +34,7 @@ def RpcMonitoringConfig(inputFlags):
 
     rpcTrackAnaAlg.plotMuonEff = True
     rpcTrackAnaAlg.plotPRD     = True
+    rpcTrackAnaAlg.ElementsFileName = "Element.xml"
 
     # rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     rpcTrackAnaAlg.TagAndProbe         = False
