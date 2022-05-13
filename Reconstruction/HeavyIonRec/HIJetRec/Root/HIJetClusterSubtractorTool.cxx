@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIJetClusterSubtractorTool.h"
@@ -219,15 +219,15 @@ StatusCode HIJetClusterSubtractorTool::initialize()
 
 float HIJetClusterSubtractorTool::getWeight(float eta, float phi, int sample) const
 {
-  return m_h3W->GetBinContent(m_h3W->FindBin(eta,phi,sample));
+  return m_h3W->GetBinContent(m_h3W->FindFixBin(eta,phi,sample));
 }
 float HIJetClusterSubtractorTool::getWeightEta(float eta, float phi, int sample) const
 {
-  return m_h3Eta->GetBinContent(m_h3Eta->FindBin(eta,phi,sample));
+  return m_h3Eta->GetBinContent(m_h3Eta->FindFixBin(eta,phi,sample));
 }
 float HIJetClusterSubtractorTool::getWeightPhi(float eta, float phi, int sample) const
 {
-  return m_h3Phi->GetBinContent(m_h3Phi->FindBin(eta,phi,sample));
+  return m_h3Phi->GetBinContent(m_h3Phi->FindFixBin(eta,phi,sample));
 }
 
 void HIJetClusterSubtractorTool::updateSlice(xAOD::HIEventShape* slice, float ET, float phi0, float area_cluster) const
