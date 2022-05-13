@@ -286,9 +286,9 @@ MuonInputProvider::createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    
    TCS::LateMuonTOB muon( LMEtTopo, 0, LMetaTopo, static_cast<unsigned int>(LMphiTopo), roi.getRoiID() );
 
-   muon.setEtDouble( roi.getptValue() );
-   muon.setEtaDouble( roi.geteta() );
-   muon.setPhiDouble( LMphiTopo );
+   muon.setEtDouble(static_cast<double>(LMEtTopo/10.));
+   muon.setEtaDouble(static_cast<double>(LMetaTopo/40.));
+   muon.setPhiDouble(static_cast<double>(LMphiTopo/20.));
 
    m_hLMPt->Fill(muon.EtDouble());
    m_hLMPhiEta->Fill(muon.eta(),muon.phi());
