@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4AtlasRunManager_h
@@ -13,7 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Athena headers
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListSvc.h"
@@ -26,7 +26,7 @@
 /// @todo sync and reduce code duplication with MT run managers.
 ///
 
-class G4AtlasRunManager: public G4RunManager {
+class G4AtlasRunManager: public G4RunManager, public AthMessaging {
 
 public:
 
@@ -79,14 +79,6 @@ private:
   G4AtlasRunManager();
 
   void EndEvent();
-
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 
   bool m_recordFlux;
 

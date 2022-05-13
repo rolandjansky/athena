@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaTrackingAction.h"
@@ -14,7 +14,7 @@
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruthBase/AtlasTrajectory.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace G4UA
 {
@@ -24,11 +24,11 @@ namespace G4UA
   //---------------------------------------------------------------------------
   AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl,
                                              int secondarySavingLevel, int subDetVolLevel)
-    : m_msg("AthenaTrackingAction")
+    : AthMessaging(Athena::getMessageSvc(), "AthenaTrackingAction")
     , m_secondarySavingLevel(secondarySavingLevel)
     , m_subDetVolLevel(subDetVolLevel)
   {
-    m_msg.get().setLevel(lvl);
+    setLevel(lvl);
   }
 
   //---------------------------------------------------------------------------

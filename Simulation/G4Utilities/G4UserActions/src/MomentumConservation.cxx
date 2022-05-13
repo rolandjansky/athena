@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MomentumConservation.h"
@@ -7,13 +7,17 @@
 #include "G4Step.hh"
 #include "G4PrimaryVertex.hh"
 #include "G4PrimaryParticle.hh"
-//#include "G4FourVector.hh"
 #include <iostream>
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace G4UA
 {
+
+  MomentumConservation::MomentumConservation()
+    : AthMessaging(Athena::getMessageSvc(), "MomentumConservation"),
+      _sum_edep(0), _sum_eesc(0)
+  {}
 
   void MomentumConservation::EndOfEventAction(const G4Event* anEvent)
   {
