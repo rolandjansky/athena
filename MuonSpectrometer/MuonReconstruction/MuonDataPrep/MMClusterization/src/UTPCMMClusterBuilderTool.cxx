@@ -168,7 +168,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             double sigmaLocalClusterPosition=0;
             double finalFitAngle,finalFitChiSqProb;
 
-            //sc=finalFit(MMprdsOfLayer,idx_goodStrips,localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
             sc=finalFit(stripsOfCluster, stripsOfClusterLocalPos, stripsOfClusterDriftDists, stripsOfClusterDriftDistErrors, localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
             
             ATH_MSG_DEBUG("final fit done");
