@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
@@ -10,15 +10,14 @@
 #include "GeoModelUtilities/GeoExtendedMaterial.h"
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 #include "G4Material.hh"
 
 
 matList  Geo2G4MaterialFactory::m_geoMaterialToG4Material;
 matNames Geo2G4MaterialFactory::m_geoMaterialNameToObject;
 
-Geo2G4MaterialFactory::Geo2G4MaterialFactory(): m_msg("Geo2G4MaterialFactory")
+Geo2G4MaterialFactory::Geo2G4MaterialFactory() :
+  AthMessaging("Geo2G4MaterialFactory")
 {
 }
 
