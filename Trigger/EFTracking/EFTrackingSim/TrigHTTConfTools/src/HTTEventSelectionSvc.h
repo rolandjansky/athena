@@ -10,6 +10,7 @@
 
 #include "TrigHTTConfTools/IHTTEventSelectionSvc.h"
 #include "TrigHTTObjects/HTTTrackPars.h"
+#include "TrigHTTObjects/HTTTypes.h"
 
 class HTTHit;
 class HTTTrack;
@@ -19,7 +20,6 @@ class HTTRegionSlices;
 class HTTEventInputHeader;
 class HTTLogicalEventInputHeader;
 
-enum class SampleType { skipTruth, singleElectrons=11, singleMuons=13, singlePions=211, LLPs=1000 };
 
 class HTTEventSelectionSvc : public extends< AthService, IHTTEventSelectionSvc >
 {

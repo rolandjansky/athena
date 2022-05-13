@@ -23,10 +23,9 @@ class IHTTEventOutputHeaderTool : virtual public ::IAlgTool
   virtual StatusCode writeData(HTTLogicalEventInputHeader* INheader_1st, HTTLogicalEventInputHeader* INheader_2nd, HTTLogicalEventOutputHeader* OUTheader) = 0;
   
   virtual TTree* getEventTree() {return m_EventTree;};
-  // commented because are not thread-safe: need to redisign this
-  //virtual  HTTLogicalEventInputHeader*  getLogicalEventInputHeader_1st() const  {return m_eventInputHeader_1st; };
-  //virtual  HTTLogicalEventInputHeader*  getLogicalEventInputHeader_2nd() const  {return m_eventInputHeader_2nd; };
-  //virtual  HTTLogicalEventOutputHeader* getLogicalEventOutputHeader() const  {return m_eventOutputHeader;};
+  virtual  HTTLogicalEventInputHeader*  getLogicalEventInputHeader_1st()  {return m_eventInputHeader_1st; };
+  virtual  HTTLogicalEventInputHeader*  getLogicalEventInputHeader_2nd()  {return m_eventInputHeader_2nd; };
+  virtual  HTTLogicalEventOutputHeader* getLogicalEventOutputHeader()   {return m_eventOutputHeader;};
  
  protected:
   

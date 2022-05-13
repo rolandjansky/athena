@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #define MODULE_BADMODULE -1
 #define SECTOR_NOTFOUND -1
@@ -34,6 +35,8 @@ enum class TrackStage { FIRST, SECOND };
 // Enum to hold the type of correction for hits on track
 enum class TrackCorrType { None = 0, First = 1, Second = 2 };
 
+// Enum to hold type of sample (for truth cuts)
+enum class SampleType { skipTruth, singleElectrons=11, singleMuons=13, singlePions=211, LLPs=1000 };
 
 std::ostream& operator<<(std::ostream& os, SiliconTech t);
 std::ostream& operator<<(std::ostream& os, DetectorZone t);
@@ -50,6 +53,8 @@ inline double eucangle(double x, double y, double z, double u, double v, double 
   return acos((x * u + y * v + z * w) / (eucnorm(x, y, z) * eucnorm(u, v, w)));
 }
 
+const std::vector< double > TARGET_R_1STAGE = { 290.516, 396.066, 558.552, 564.953, 758.321, 764.665, 996.384, 1002.72 };
+const std::vector< double > TARGET_R_2STAGE = { 33.3024, 99.1959, 159.543, 227.638, 290.516, 396.066, 402.463, 558.552, 564.953, 758.321, 764.665, 996.384, 1002.72 };
 
 
 #endif

@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include <Eigen/StdVector>
-#include "HTTFitConstantBank.h"
+#include "TrigHTTBanks/HTTFitConstantBank.h"
 #include "TrigHTTObjects/HTTTrack.h"
 #include "TrigHTTObjects/HTTConstants.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -24,10 +24,13 @@ HTTFitConstantBank::HTTFitConstantBank(HTTPlaneMap const * pmap, int ncoords, st
     AthMessaging (Athena::getMessageSvc(), "HTTFitConstantBank"),
     m_pmap(pmap),
     m_bankID(0),
+    m_nsectors(0),
     m_ncoords(ncoords),
+    m_nconstr(0),
+    m_npixcy(0),
     m_missingPlane(missingPlane),
     m_isFirstStage(isFirstStage),
-    m_isIdealCoordFit(false)
+    m_isIdealCoordFit(true)
 {
   std::ifstream geocfile(fname);
   if (!(geocfile.is_open())) ATH_MSG_ERROR("FitConstants file: " << fname << " invalid");
@@ -46,6 +49,11 @@ HTTFitConstantBank::HTTFitConstantBank(HTTPlaneMap const * pmap, int ncoords, st
   
   if (sizeof(float) * CHAR_BIT != 32)
     ATH_MSG_WARNING("Floating points on this computer are not 32 bit. This may cause a problem for the hardware agreement. Be careful!");
+
+  setIdealCoordFit(true);
+
+  prepareInvFitConstants();
+  
 }
 
 
