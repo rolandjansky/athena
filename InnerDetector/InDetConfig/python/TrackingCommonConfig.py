@@ -322,6 +322,7 @@ def InDetTrackFitterAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
         InDetTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     elif flags.InDet.Tracking.trackFitterType=='GlobalChi2Fitter':
+        InDetTrackFitter.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         InDetTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         InDetTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         # Name change for tools can be cleaned ultimately when config is validated

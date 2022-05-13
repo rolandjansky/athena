@@ -140,6 +140,7 @@ def ITkTrackFitterAmbiCfg(flags, name='ITkTrackFitterAmbi', **kwargs) :
         ITkTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     elif flags.ITk.Tracking.trackFitterType=='GlobalChi2Fitter':
+        ITkTrackFitter.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         ITkTrackFitter.RotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
         ITkTrackFitter.BroadRotCreatorTool.ToolPixelCluster.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 

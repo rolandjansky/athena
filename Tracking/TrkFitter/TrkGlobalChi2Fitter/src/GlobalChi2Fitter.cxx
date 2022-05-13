@@ -51,6 +51,7 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetPrepRawData/PixelCluster.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -254,6 +255,8 @@ namespace Trk {
     else{
       m_caloMaterialProvider.disable();
     }
+
+    ATH_CHECK(m_clusterSplitProbContainer.initialize( !m_clusterSplitProbContainer.empty() ));
 
     /*
      * Doing a hole search only makes sense if we are also creating a track
@@ -4990,6 +4993,10 @@ namespace Trk {
         int nsihits = trajectory.numberOfSiliconHits();
         double redchi2 =  (trajectory.nDOF() > 0) ? trajectory.chi2() / trajectory.nDOF() : 0;
         double prevredchi2 = (trajectory.nDOF() > 0) ? trajectory.prevchi2() / trajectory.nDOF() : 0;
+        
+        
+        if( nsihits > 0 && it > 0 && it < m_maxitPixelROT )
+          updatePixelROTs( trajectory, a, b );
 
         if (
           it > 0 && 
@@ -5012,18 +5019,18 @@ namespace Trk {
           }
         }
 
-	// PHF cut at iteration 3 (to save CPU time)
-	int ntrtprechits = trajectory.numberOfTRTPrecHits();
-	int ntrttubehits = trajectory.numberOfTRTTubeHits();
-	float phf = 1.;
-	if (ntrtprechits+ntrttubehits) {
-	  phf = float(ntrtprechits)/float(ntrtprechits+ntrttubehits);
-	}
-	if (phf<m_minphfcut && it>=3) {
-	  if ((ntrtprechits+ntrttubehits)>=15) {
-	    return nullptr;
-	  }
-	}
+        // PHF cut at iteration 3 (to save CPU time)
+        int ntrtprechits = trajectory.numberOfTRTPrecHits();
+        int ntrttubehits = trajectory.numberOfTRTTubeHits();
+        float phf = 1.;
+        if (ntrtprechits+ntrttubehits) {
+          phf = float(ntrtprechits)/float(ntrtprechits+ntrttubehits);
+        }
+        if (phf<m_minphfcut && it>=3) {
+          if ((ntrtprechits+ntrttubehits)>=15) {
+            return nullptr;
+          }
+        }
         ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits
                                 << " | nTRTPrecHits = " << ntrtprechits
                                 << " | nTRTTubeHits = " << ntrttubehits
@@ -6027,6 +6034,127 @@ namespace Trk {
     return FitterStatusCode::Success;
   }
 
+  void GlobalChi2Fitter::updatePixelROTs(
+    GXFTrajectory & trajectory,
+    Amg::SymMatrixX & a,
+    Amg::VectorX & b 
+  ) const{
+    if ( trajectory.numberOfSiliconHits() == 0) {
+      return;
+    }
+    
+    if ( m_clusterSplitProbContainer.empty() ){
+      return;
+    } 
+
+    const EventContext &evtctx = Gaudi::Hive::currentContext();
+
+    SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(m_clusterSplitProbContainer, evtctx);
+    if (!splitProbContainer.isValid()) {
+      ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
+    }
+
+    std::vector<std::unique_ptr<GXFTrackState>> & states = trajectory.trackStates();
+    Amg::VectorX & res = trajectory.residuals();
+    Amg::VectorX & err = trajectory.errors();
+    Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
+    int nfitpars = trajectory.numberOfFitParameters();
+
+    int measno = 0;
+    for (size_t stateno = 0; stateno < states.size(); stateno++) {
+      
+      // Increment the measurement counter everytime we have crossed a measurement/outlier surface
+      if ( stateno > 0 && ( states[stateno-1]->getStateType(TrackStateOnSurface::Measurement) ||
+                            states[stateno-1]->getStateType(TrackStateOnSurface::Outlier) ) ) {
+        measno += states[stateno-1]->numberOfMeasuredParameters();
+      }
+      
+      std::unique_ptr<GXFTrackState> & state = states[stateno];
+      if (!state->getStateType(TrackStateOnSurface::Measurement)) { 
+        continue;
+      }
+
+      TrackState::MeasurementType hittype = state->measurementType();
+      if (hittype != TrackState::Pixel) {
+        continue;
+      }
+
+      const PrepRawData *prd{};
+      if (const auto *const pMeas = state->measurement(); pMeas->type(Trk::MeasurementBaseType::RIO_OnTrack)){
+        const auto *const rot = static_cast<const RIO_OnTrack *>(pMeas);
+        prd = rot->prepRawData();
+      }
+
+      if(!prd)
+        continue;
+
+      if(!prd->type(Trk::PrepRawDataType::PixelCluster)){
+        continue;
+      }
+      const InDet::PixelCluster* pixelCluster = static_cast<const InDet::PixelCluster*> ( prd );
+      auto &splitProb = splitProbContainer->splitProbability(pixelCluster);
+      if (!splitProb.isSplit()) {
+        ATH_MSG_DEBUG( "Pixel cluster is not split so no need to update" );
+        continue;
+      }
+
+      std::unique_ptr < const RIO_OnTrack > newrot;
+      double *olderror = state->measurementErrors();
+      const TrackParameters *trackpars = state->trackParameters();
+
+      double newerror[5] = {-1,-1,-1,-1,-1};
+      double newres[2] = {-1,-1};
+
+      newrot.reset(m_ROTcreator->correct(*prd, *trackpars));
+      
+      if(!newrot)
+        continue;
+
+      const Amg::MatrixX & covmat = newrot->localCovariance();
+      
+      newerror[0] = std::sqrt(covmat(0, 0));
+      newres[0] = newrot->localParameters()[Trk::locX] - trackpars->parameters()[Trk::locX];  
+      newerror[1] = std::sqrt(covmat(1, 1));
+      newres[1] = newrot->localParameters()[Trk::locY] - trackpars->parameters()[Trk::locY];
+      
+      if (a.cols() != nfitpars) {
+        ATH_MSG_ERROR("Your assumption is wrong!!!!");
+      }
+
+      //loop over both measurements  --  treated as uncorrelated 
+      for( int k =0; k<2; k++ ){
+        double oldres = res[measno+k];
+        res[measno+k] = newres[k];
+        err[measno+k] = newerror[k];
+        
+        for (int i = 0; i < nfitpars; i++) {
+          if (weightderiv(measno+k, i) == 0) {
+            continue;
+          }
+
+          b[i] -= weightderiv(measno+k, i) * (oldres / olderror[k] - (newres[k] * olderror[k]) / (newerror[k] * newerror[k]));
+          
+          for (int j = i; j < nfitpars; j++) {
+            a.fillSymmetric(
+              i, j,
+              a(i, j) + (
+                weightderiv(measno+k, i) *
+                weightderiv(measno+k, j) *
+                ((olderror[k] * olderror[k]) / (newerror[k] * newerror[k]) - 1)
+              )
+            );
+          }
+          weightderiv(measno+k, i) *= olderror[k] / newerror[k];
+        }
+      }
+
+      state->setMeasurement(std::move(newrot));
+      state->setMeasurementErrors(newerror);
+
+    }// end for
+  }
+
+
   void GlobalChi2Fitter::runTrackCleanerTRT(
     Cache & cache,
     GXFTrajectory & trajectory,
@@ -6079,7 +6207,7 @@ namespace Trk {
             double *errors = state->measurementErrors();
             double olderror = errors[0];
 
-	    trajectory.updateTRTHitCount(stateno, olderror);
+            trajectory.updateTRTHitCount(stateno, olderror);
             
             for (int i = 0; i < nfitpars; i++) {
               if (weightderiv(measno, i) == 0) {
@@ -6139,7 +6267,7 @@ namespace Trk {
                 errors[0] = newerror;
                 state->setMeasurement(std::move(newrot));
 
-		trajectory.updateTRTHitCount(stateno, olderror);
+                trajectory.updateTRTHitCount(stateno, olderror);
 
                 for (int i = 0; i < nfitpars; i++) {
                   if (weightderiv(measno, i) == 0) {
@@ -6199,12 +6327,9 @@ namespace Trk {
   GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(
     const EventContext& ctx,
     Cache & cache,
-    GXFTrajectory &
-    trajectory,
+    GXFTrajectory &trajectory,
     Amg::SymMatrixX & a,
-    Amg::
-    SymMatrixX &
-    fullcov,
+    Amg::SymMatrixX &fullcov,
     Amg::VectorX & b,
     bool runoutlier
   ) const {
@@ -6331,6 +6456,7 @@ namespace Trk {
         double *olderror = state_maxsipull->measurementErrors();
         TrackState::MeasurementType hittype_maxsipull = state_maxsipull->measurementType();
         const TrackParameters *trackpar_maxsipull = state_maxsipull->trackParameters();
+
         Amg::VectorX parameterVector = trackpar_maxsipull->parameters();
         std::unique_ptr<const TrackParameters> trackparForCorrect(
           trackpar_maxsipull->associatedSurface().createUniqueTrackParameters(
