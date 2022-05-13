@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef BASIC_CELLBUILDERTOOL_H
-#define BASIC_CELLBUILDERTOOL_H
-//
-// CellBuilderTool.cxx
-//     Building Cells objects from Atlfast
-//
-// Michael Duehrssen
+#ifndef FASTCALOSIM_BASICCELLBUILDERTOOL_H
+#define FASTCALOSIM_BASICCELLBUILDERTOOL_H
+
+/**
+ *  @file   CellBuilderTool.cxx
+ *  @brief  Building Cells objects from Atlfast
+ *  @author Michael Duehrssen
+ */
 
 #include "GaudiKernel/AlgTool.h"
 
@@ -142,6 +143,36 @@ private:
   map_type m_map;
 };
 
+class CellInfoContainer
+{
+ public:
+  CellInfoContainer() = default;
+  ~CellInfoContainer() = default;
+
+  friend class BasicCellBuilderTool;
+  friend class CellInfoContainerCondAlg;
+  friend class FastShowerCellBuilderTool;
+
+  inline const cellinfo_map& getCellistMap(int sample) const {return m_celllist_maps[sample];}
+  inline const cellinfo_map& getEmCellistMap() const {return m_em_celllist_map;}
+  inline const cellinfo_map& getEmMap() const {return m_em_map;}
+  inline const cellinfo_map& getEmFineMap() const {return m_em_fine_map;}
+  inline const cellinfo_map& getHadMap() const {return m_had_map;}
+
+ protected:
+  inline cellinfo_map& getCellistMap(int sample) {return m_celllist_maps[sample];}
+  inline cellinfo_map& getEmCellistMap() {return m_em_celllist_map;}
+  inline cellinfo_map& getEmMap() {return m_em_map;}
+  inline cellinfo_map& getEmFineMap() {return m_em_fine_map;}
+  inline cellinfo_map& getHadMap() {return m_had_map;}
+
+ private:
+  cellinfo_map m_celllist_maps[CaloCell_ID_FCS::MaxSample];
+  cellinfo_map m_em_celllist_map;
+  cellinfo_map m_em_map;
+  cellinfo_map m_em_fine_map;
+  cellinfo_map m_had_map;
+};
 
 class BasicCellBuilderTool: public extends<AthAlgTool, ICaloCellMakerTool>
 {
@@ -181,11 +212,7 @@ protected:
   double m_phi0_em;
   double m_phi0_had;
 
-  cellinfo_map m_celllist_maps[CaloCell_ID_FCS::MaxSample];
-  cellinfo_map m_em_celllist_map;
-  cellinfo_map m_em_map;
-  cellinfo_map m_em_fine_map;
-  cellinfo_map m_had_map;
+  CellInfoContainer m_cellinfoCont;
 
   double                   m_min_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
   double                   m_max_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]

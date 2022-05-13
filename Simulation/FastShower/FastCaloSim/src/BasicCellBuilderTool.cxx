@@ -227,10 +227,10 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
   int naccept=0;
   bool doem_celllist_map=false;
   bool do_celllist_map=false;
-  int emcl_neta=m_em_celllist_map.leta()-1;
-  int emcl_nphi=m_em_celllist_map.lphi()-1;
-  if(m_em_celllist_map.leta()>1 && m_em_celllist_map.lphi()>1) doem_celllist_map=true;
-  if(m_celllist_maps[0].leta()>1 && m_celllist_maps[0].lphi()>1) do_celllist_map=true;
+  int emcl_neta=m_cellinfoCont.getEmCellistMap().leta()-1;
+  int emcl_nphi=m_cellinfoCont.getEmCellistMap().lphi()-1;
+  if(m_cellinfoCont.getEmCellistMap().leta()>1 && m_cellinfoCont.getEmCellistMap().lphi()>1) doem_celllist_map=true;
+  if(m_cellinfoCont.getCellistMap(0).leta()>1 && m_cellinfoCont.getCellistMap(0).lphi()>1) do_celllist_map=true;
 
   FSmap< double , double > rz_map_eta [2][CaloCell_ID_FCS::MaxSample];
   FSmap< double , double > rz_map_rmid[2][CaloCell_ID_FCS::MaxSample];
@@ -289,28 +289,28 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
       rz_map_n   [side][sample][eta_raw]++;
 
       if(do_celllist_map) {
-        int cl_neta=m_celllist_maps[sample].leta()-1;
-        int cl_nphi=m_celllist_maps[sample].lphi()-1;
-        double ceta_min=theDDE->eta()-m_celllist_maps[sample].deta()*cl_neta;
-        double ceta_max=theDDE->eta()+m_celllist_maps[sample].deta()*cl_neta;
-        double cphi_min=theDDE->phi()-m_celllist_maps[sample].dphi()*cl_nphi;
-        double cphi_max=theDDE->phi()+m_celllist_maps[sample].dphi()*cl_nphi;
+        int cl_neta=m_cellinfoCont.getCellistMap(sample).leta()-1;
+        int cl_nphi=m_cellinfoCont.getCellistMap(sample).lphi()-1;
+        double ceta_min=theDDE->eta()-m_cellinfoCont.getCellistMap(sample).deta()*cl_neta;
+        double ceta_max=theDDE->eta()+m_cellinfoCont.getCellistMap(sample).deta()*cl_neta;
+        double cphi_min=theDDE->phi()-m_cellinfoCont.getCellistMap(sample).dphi()*cl_nphi;
+        double cphi_max=theDDE->phi()+m_cellinfoCont.getCellistMap(sample).dphi()*cl_nphi;
 
-        int iphi1=m_celllist_maps[sample].phi_to_index_cont(cphi_min);
-        int iphi2=m_celllist_maps[sample].phi_to_index_cont(cphi_max);
-        int ieta1=m_celllist_maps[sample].eta_to_index(ceta_min);
-        int ieta2=m_celllist_maps[sample].eta_to_index(ceta_max);
+        int iphi1=m_cellinfoCont.getCellistMap(sample).phi_to_index_cont(cphi_min);
+        int iphi2=m_cellinfoCont.getCellistMap(sample).phi_to_index_cont(cphi_max);
+        int ieta1=m_cellinfoCont.getCellistMap(sample).eta_to_index(ceta_min);
+        int ieta2=m_cellinfoCont.getCellistMap(sample).eta_to_index(ceta_max);
 
         for(int ieta=ieta1;ieta<=ieta2;++ieta) {
           if(ieta<0)          continue;
-          if((unsigned int)ieta>=m_celllist_maps[sample].neta()) continue;
+          if((unsigned int)ieta>=m_cellinfoCont.getCellistMap(sample).neta()) continue;
 
           for(int s_iphi=iphi1;s_iphi<=iphi2;++s_iphi) {
             int iphi=s_iphi;
-            if(iphi<0)           iphi+=m_celllist_maps[sample].nphi();
-            if((unsigned int)iphi>=m_celllist_maps[sample].nphi()) iphi-=m_celllist_maps[sample].nphi();
+            if(iphi<0)           iphi+=m_cellinfoCont.getCellistMap(sample).nphi();
+            if((unsigned int)iphi>=m_cellinfoCont.getCellistMap(sample).nphi()) iphi-=m_cellinfoCont.getCellistMap(sample).nphi();
 
-            m_celllist_maps[sample].vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
+            m_cellinfoCont.getCellistMap(sample).vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
           }
         }
 
@@ -329,26 +329,26 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
         ++naccept;
 
         if(doem_celllist_map && calo==CaloCell_ID::LAREM) {
-          double ceta_min=theDDE->eta()-m_em_celllist_map.deta()*emcl_neta;
-          double ceta_max=theDDE->eta()+m_em_celllist_map.deta()*emcl_neta;
-          double cphi_min=theDDE->phi()-m_em_celllist_map.dphi()*emcl_nphi;
-          double cphi_max=theDDE->phi()+m_em_celllist_map.dphi()*emcl_nphi;
+          double ceta_min=theDDE->eta()-m_cellinfoCont.getEmCellistMap().deta()*emcl_neta;
+          double ceta_max=theDDE->eta()+m_cellinfoCont.getEmCellistMap().deta()*emcl_neta;
+          double cphi_min=theDDE->phi()-m_cellinfoCont.getEmCellistMap().dphi()*emcl_nphi;
+          double cphi_max=theDDE->phi()+m_cellinfoCont.getEmCellistMap().dphi()*emcl_nphi;
 
-          int iphi1=m_em_celllist_map.phi_to_index_cont(cphi_min);
-          int iphi2=m_em_celllist_map.phi_to_index_cont(cphi_max);
-          int ieta1=m_em_celllist_map.eta_to_index(ceta_min);
-          int ieta2=m_em_celllist_map.eta_to_index(ceta_max);
+          int iphi1=m_cellinfoCont.getEmCellistMap().phi_to_index_cont(cphi_min);
+          int iphi2=m_cellinfoCont.getEmCellistMap().phi_to_index_cont(cphi_max);
+          int ieta1=m_cellinfoCont.getEmCellistMap().eta_to_index(ceta_min);
+          int ieta2=m_cellinfoCont.getEmCellistMap().eta_to_index(ceta_max);
 
           for(int ieta=ieta1;ieta<=ieta2;++ieta) {
             if(ieta<0)          continue;
-            if((unsigned int)ieta>=m_em_celllist_map.neta()) continue;
+            if((unsigned int)ieta>=m_cellinfoCont.getEmCellistMap().neta()) continue;
 
             for(int s_iphi=iphi1;s_iphi<=iphi2;++s_iphi) {
               int iphi=s_iphi;
-              if(iphi<0)           iphi+=m_em_celllist_map.nphi();
-              if((unsigned int)iphi>=m_em_celllist_map.nphi()) iphi-=m_em_celllist_map.nphi();
+              if(iphi<0)           iphi+=m_cellinfoCont.getEmCellistMap().nphi();
+              if((unsigned int)iphi>=m_cellinfoCont.getEmCellistMap().nphi()) iphi-=m_cellinfoCont.getEmCellistMap().nphi();
 
-              m_em_celllist_map.vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
+              m_cellinfoCont.getEmCellistMap().vec(ieta,iphi).push_back( cellinfo( theDDE,1),2);
             }
           }
 
@@ -357,8 +357,8 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
         curmap=nullptr;
         curmap2=nullptr;
         if(calo==CaloCell_ID::LAREM)   {
-          curmap=&m_em_map;
-          if(fabs(theDDE->eta())<2.9 && m_em_fine_map.neta()>0) curmap2=&m_em_fine_map;
+          curmap=&(m_cellinfoCont.getEmMap());
+          if(fabs(theDDE->eta())<2.9 && m_cellinfoCont.getEmFineMap().neta()>0) curmap2=&(m_cellinfoCont.getEmFineMap());
 /*
           if(log.level()<=MSG::DEBUG) {
             if(theDDE->phi()>0.0 && theDDE->phi()<0.1 && theDDE->eta()>0) {
@@ -368,11 +368,11 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
           }
 */
         }
-        if(sample==CaloCell_ID_FCS::FCAL0) curmap=&m_em_map;
+        if(sample==CaloCell_ID_FCS::FCAL0) curmap=&(m_cellinfoCont.getEmMap());
 
-        if(calo==CaloCell_ID::LARHEC)  curmap=&m_had_map;
-        if(calo==CaloCell_ID::TILE)    curmap=&m_had_map;
-        if(sample==CaloCell_ID_FCS::FCAL1 || sample==CaloCell_ID_FCS::FCAL2) curmap=&m_had_map;
+        if(calo==CaloCell_ID::LARHEC)  curmap=&(m_cellinfoCont.getHadMap());
+	if(calo==CaloCell_ID::TILE)    curmap=&(m_cellinfoCont.getHadMap());
+        if(sample==CaloCell_ID_FCS::FCAL1 || sample==CaloCell_ID_FCS::FCAL2) curmap=&(m_cellinfoCont.getHadMap());
 
         if(curmap2) {
           init_cell(*curmap2,theDDE);

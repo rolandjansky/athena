@@ -674,34 +674,34 @@ StatusCode FastShowerCellBuilderTool::caloAligned( IOVSVC_CALLBACK_ARGS)
   find_phi0(caloDDM);
 
   ATH_MSG_INFO("========================= Init EM map =============================");
-  m_em_map.init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64);
-  m_em_map.setname("EM");
+  m_cellinfoCont.getEmFineMap().init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64);
+  m_cellinfoCont.getEmFineMap().setname("EM");
 
   ATH_MSG_INFO("========================= Init EM fine map ========================");
-  m_em_fine_map.init(-2.8,+2.8,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,224,256);
-  m_em_fine_map.setname("EM fine");
+  m_cellinfoCont.getEmFineMap().init(-2.8,+2.8,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,224,256);
+  m_cellinfoCont.getEmFineMap().setname("EM fine");
 
   ATH_MSG_INFO("========================= Init HAD map ============================");
-  m_had_map.init(-5,+5,-M_PI+m_phi0_had,+M_PI+m_phi0_had,100,64);
-  m_had_map.setname("HAD");
+  m_cellinfoCont.getHadMap().init(-5,+5,-M_PI+m_phi0_had,+M_PI+m_phi0_had,100,64);
+  m_cellinfoCont.getHadMap().setname("HAD");
 
   ATH_MSG_INFO("========================= Init EM celllist map =============================");
-  m_em_celllist_map.init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,2,2);
-  m_em_celllist_map.setname("EMlist");
+  m_cellinfoCont.getEmCellistMap().init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,2,2);
+  m_cellinfoCont.getEmCellistMap().setname("EMlist");
 
   ATH_MSG_INFO("========================= Init celllist maps sample 0 ... "<< CaloCell_ID_FCS::LastSample);
   for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
     //log << MSG::INFO <<  "========================= Init celllist map sample "<<sample<<" =============================" <<endmsg;
-    m_celllist_maps[sample].init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,3,3);
-    m_celllist_maps[sample].setname("samplecelllist");
+    m_cellinfoCont.getCellistMap(sample).init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,3,3);
+    m_cellinfoCont.getCellistMap(sample).setname("samplecelllist");
     //    m_celllist_maps[sample];
   }
 
   init_all_maps(caloDDM);
   ATH_MSG_INFO("========================= Init volume all maps =========================");
-  init_volume(m_em_map);
-  init_volume(m_em_fine_map);
-  init_volume(m_had_map);
+  init_volume(m_cellinfoCont.getEmMap());
+  init_volume(m_cellinfoCont.getEmFineMap());
+  init_volume(m_cellinfoCont.getHadMap());
 
   return StatusCode::SUCCESS;
 }
@@ -1711,9 +1711,9 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
         }
 
         // Ugly code: does a fast lookup which cells should be considered to be filled with energy
-        int iphi=m_celllist_maps[sample].phi_to_index(lookup_lphiCalo);
-        int ieta=m_celllist_maps[sample].eta_to_index(lookup_letaCalo);
-        const cellinfo_map::cellinfo_vec& vec=m_celllist_maps[sample].vec(ieta,iphi);
+        int iphi=m_cellinfoCont.getCellistMap(sample).phi_to_index(lookup_lphiCalo);
+        int ieta=m_cellinfoCont.getCellistMap(sample).eta_to_index(lookup_letaCalo);
+        const cellinfo_map::cellinfo_vec& vec=m_cellinfoCont.getCellistMap(sample).vec(ieta,iphi);
         int n_cells=vec.size();
 
         ATH_MSG_DEBUG("  n_cells=" <<n_cells);
