@@ -1014,6 +1014,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       */
       chargeAfterSmearing = 1000*chargeAfterSmearing;
       chargeAfterSmearing = chargeAfterSmearing*1.0304;
+      
+      if (chargeAfterSmearing < 1.0) continue;
     }
 
     std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
