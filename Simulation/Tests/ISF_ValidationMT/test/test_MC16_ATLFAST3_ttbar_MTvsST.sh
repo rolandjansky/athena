@@ -19,13 +19,9 @@ Sim_tf.py \
 --maxEvents 10 \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---DataRunNumber '284500' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --simulator 'ATLFAST3MTEnergyOrdered' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' #\
 #--postExec 'EVNTtoHITS:ServiceMgr.MessageSvc.enableSuppression=False;topSeq.ISF_Kernel_ATLFAST3MT.OutputLevel=VERBOSE;' \
 #--imf False
 
@@ -45,13 +41,9 @@ then
   --maxEvents 10 \
   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
   --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-  --DataRunNumber '284500' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'ATLFAST3MTEnergyOrdered' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-  --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
+  --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' #\
 #  --postExec 'EVNTtoHITS:ServiceMgr.MessageSvc.enableSuppression=False;topSeq.ISF_Kernel_ATLFAST3MT.OutputLevel=VERBOSE;' \
 #  --imf False
   rc2=$?
@@ -70,13 +62,9 @@ then
   --maxEvents 10 \
   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
   --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-  --DataRunNumber '284500' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'ATLFAST3EnergyOrdered' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-  --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' #\
+  --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' #\
 #  --postExec 'EVNTtoHITS:ServiceMgr.MessageSvc.enableSuppression=False;topSeq.ISF_Kernel_ATLFAST3.OutputLevel=VERBOSE;ServiceMgr.ISF_AFIIParticleBrokerSvc.OutputLevel=VERBOSE;' \
 #  --imf False
   rc3=$?

@@ -9,8 +9,6 @@
 # art-output: Config*.pkl
 
 unset ATHENA_CORE_NUMBER
-#  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;import InDetRecExample.TrackingCommon as kludgeTheConfig;kludgeTheConfig.use_tracking_geometry_cond_alg=False' \
-
 
 # RUN3 setup
 # ATLAS-R3S-2021-01-00-02 and OFLCOND-MC16-SDR-RUN3-01
@@ -21,7 +19,7 @@ Sim_tf.py \
     --truthStrategy 'MC15aPlus' \
     --simulator 'ATLFASTIIMT' \
     --postInclude 'PyJobTransforms.UseFrontier' \
-    --preInclude 'EVNTtoHITS:SimuJobTransforms.BeamPipeKill,SimuJobTransforms.TightMuonStepping' \
+    --preInclude 'EVNTtoHITS:Campaigns.MC16Simulation' \
     --DataRunNumber '330000' \
     --geometryVersion 'default:ATLAS-R3S-2021-01-00-02' \
     --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
@@ -40,12 +38,9 @@ if [ $rc -eq 0 ]
 then
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-RUN3-01' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'ATLFASTIIMT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
@@ -56,12 +51,9 @@ then
 
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-RUN3-01' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'ATLFASTIIMT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --DataRunNumber '330000' \
         --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \

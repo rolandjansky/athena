@@ -16,6 +16,7 @@ Sim_tf.py \
 --truthStrategy 'MC12' \
 --simulator 'ATLFASTIIF' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
 --DataRunNumber '222525' \
 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" \
