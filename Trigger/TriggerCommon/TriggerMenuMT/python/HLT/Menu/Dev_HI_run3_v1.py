@@ -42,23 +42,23 @@ def setupMenu():
     chains['Egamma'] += [
         # ElectronChains----------
         #--------- e etcut
-        ChainProp(name='HLT_e15_etcut_ion_L1EM12', stream=[HardProbesStream] ,groups=SingleElectronGroup+SupportLegGroup),
-        ChainProp(name='HLT_e20_etcut_ion_L1EM16', stream=[HardProbesStream] ,groups=SingleElectronGroup+SupportLegGroup),
+        ChainProp(name='HLT_e15_etcut_nogsf_ion_L1EM12', stream=[HardProbesStream] ,groups=SingleElectronGroup+SupportLegGroup),
+        ChainProp(name='HLT_e20_etcut_nogsf_ion_L1EM16', stream=[HardProbesStream] ,groups=SingleElectronGroup+SupportLegGroup),
         
         #--------- e lh
-        ChainProp(name='HLT_e15_lhloose_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
-        ChainProp(name='HLT_e20_lhloose_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
-        ChainProp(name='HLT_e15_lhmedium_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
-        ChainProp(name='HLT_e20_lhmedium_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e15_lhloose_nogsf_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e20_lhloose_nogsf_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e15_lhmedium_nogsf_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e20_lhmedium_nogsf_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
         
         #--------- e isEM
-        ChainProp(name='HLT_e15_loose_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
-        ChainProp(name='HLT_e20_loose_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
-        ChainProp(name='HLT_e15_medium_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
-        ChainProp(name='HLT_e20_medium_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e15_loose_nogsf_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e20_loose_nogsf_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e15_medium_nogsf_ion_L1EM12', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_e20_medium_nogsf_ion_L1EM16', stream=[HardProbesStream], groups=SingleElectronGroup+PrimaryLegGroup),
         
         #---------- 2e
-        ChainProp(name='HLT_2e20_loose_ion_L12EM16', stream=[HardProbesStream], groups=MultiElectronGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_2e20_loose_nogsf_ion_L12EM16', stream=[HardProbesStream], groups=MultiElectronGroup+PrimaryLegGroup),
         
         # PhotonChains----------
         #----------- g etcut
