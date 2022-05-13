@@ -31,8 +31,8 @@ class PFCellEOverPTool : public IEFlowCellEOverPTool {
   std::vector<std::string> m_eBinLabels;
   std::vector<std::string> m_etaBinLabels;
 
-  constexpr std::string_view eBinsToString(const E_BINS& e_bins) const;
-  constexpr std::string_view etaBinsToString(const ETA_BINS& eta_bins) const;
+  std::string_view eBinsToString(const E_BINS& e_bins) const;
+  std::string_view etaBinsToString(const ETA_BINS& eta_bins) const;
 
   const std::array<E_BINS,6>   m_e_bins{E001bin,E003point5bin,E010bin,E020bin,E032point5bin,E040bin};
   const std::array<ETA_BINS,4> m_eta_bins{eta050bin,eta100bin,eta150bin,eta250bin};
