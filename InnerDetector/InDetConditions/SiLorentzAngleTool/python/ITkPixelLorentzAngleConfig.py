@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure ITkPixelLorentzAngleTool
 """
@@ -28,6 +28,7 @@ def ITkPixelLorentzAngleCondAlgCfg(flags, name="ITkPixelSiLorentzAngleCondAlg", 
     kwargs.setdefault("SiPropertiesTool", acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags)))
     kwargs.setdefault("UseMagFieldCache", True)
     kwargs.setdefault("UseMagFieldDcs", not flags.Common.isOnline)
+    kwargs.setdefault("Disable3DCorrection", True) # ITk-specific
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("ReadKeyeTemp", "ITkPixelDCSTempCondData")
     kwargs.setdefault("ReadKeyHV", "ITkPixelDCSHVCondData")

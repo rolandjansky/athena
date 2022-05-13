@@ -33,6 +33,8 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
   ATH_CHECK(m_readKeyBFieldSensor.initialize( m_useMagFieldCache && m_useMagFieldDcs ));
 
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
+  if(m_disable3D) ATH_MSG_INFO("Running with Lorentz correction disabled for 3D pixels");
   
   return StatusCode::SUCCESS;
 }
@@ -146,7 +148,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
       return StatusCode::FAILURE;
     }
     double forceLorentzToZero = 1.0;
-    if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4 && p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
+    if ((p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4 && p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) // IBL 3D
+	|| (m_disable3D && p_design->is3D())) {  // ITk L0 + L0.5
       forceLorentzToZero = 0.0;
     }
 
