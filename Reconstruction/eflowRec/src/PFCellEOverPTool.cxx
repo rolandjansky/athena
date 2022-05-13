@@ -39,7 +39,7 @@ StatusCode PFCellEOverPTool::initialize(){
 }
 
 
-constexpr std::string_view PFCellEOverPTool::eBinsToString(const E_BINS& e_bins) const {
+std::string_view PFCellEOverPTool::eBinsToString(const E_BINS& e_bins) const {
 
   switch(e_bins){
     case E001bin : return "E001bin";
@@ -52,7 +52,7 @@ constexpr std::string_view PFCellEOverPTool::eBinsToString(const E_BINS& e_bins)
   }
 }
 
-constexpr std::string_view PFCellEOverPTool::etaBinsToString(const ETA_BINS& eta_bins) const {
+std::string_view PFCellEOverPTool::etaBinsToString(const ETA_BINS& eta_bins) const {
 
   switch(eta_bins){
     case eta050bin : return "eta050bin";
