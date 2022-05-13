@@ -91,10 +91,9 @@ void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const Ro
       obj = new char[nbytes];
       std::memcpy(obj, buffer, nbytes); static_cast<char*>(obj)[nbytes - 1] = 0;
    } else {
-      TBufferFile readBuffer(TBuffer::kRead, nbytes, buffer, kTRUE);
+      TBufferFile readBuffer(TBuffer::kRead, nbytes, buffer, kFALSE);
       obj = readBuffer.ReadObjectAny(cltype);
       nbytes = readBuffer.Length();
-      readBuffer.ResetBit(TBuffer::kIsOwner); readBuffer.SetBuffer(nullptr);
    }
    return(obj);
 }
