@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,14 +42,14 @@
 #include <cmath>
 #include <iostream>
 #include "GaudiKernel/ISvcLocator.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace G4UA{
 
   namespace iGeant4 {
 
     PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config)
-      : m_config(config)
+      : AthMessaging("PhysicsValidationUserAction")
+      , m_config(config)
       , m_geoIDSvcQuick(nullptr)
       // branches
       , m_particles(nullptr)
@@ -76,9 +76,8 @@ namespace G4UA{
       , m_volumeOffset(1)
       , m_minHistoryDepth(0)
       , m_currentTrack(0)
-      , m_msg("PhysicsValidationUserAction")
     {
-      m_msg.get().setLevel(m_config.verboseLevel);
+      setLevel(m_config.verboseLevel);
     }
 
     void PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)
