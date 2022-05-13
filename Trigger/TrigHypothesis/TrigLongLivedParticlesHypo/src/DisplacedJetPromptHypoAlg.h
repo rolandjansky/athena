@@ -37,7 +37,6 @@ private:
 
   Gaudi::Property<float> m_drcut{this, "dr_cut",{0.4}, "dR cut used for jet matching of trakcs"};
   Gaudi::Property<float> m_min_trk_pt{this, "min_trk_pt",{0}, "Minimum pt for a track [GeV]"};
-  Gaudi::Property<float> m_min_evt_jet_pt{this, "min_evt_jet_pt",{0}, "Minimum pt for the leading jet [GeV]"};
 
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 

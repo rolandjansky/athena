@@ -115,14 +115,6 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
 
   ATH_MSG_DEBUG("have "<<jets->size()<<" jets");
 
-  if((max_pt/Gaudi::Units::GeV)<m_min_evt_jet_pt){
-    //reject event
-    //do not add a decision id which is how athena does its rejection
-    //this has to happen after the output decision handle has been created (createAndStore)
-    ATH_MSG_DEBUG("Event rejected DJ prompt min_evt_pt pT="<<max_pt/Gaudi::Units::GeV);
-    return StatusCode::SUCCESS;
-  }
-
   auto countsContainer = std::make_unique< xAOD::TrigCompositeContainer>();
   auto countsContainerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();
   countsContainer->setStore(countsContainerAux.get());

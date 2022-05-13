@@ -24,7 +24,6 @@ def DJPromptStep():
     fscfg = getInDetTrigConfig("jet")
 
     hypo_alg.min_trk_pt = 1.0
-    hypo_alg.min_evt_jet_pt = 180
     hypo_alg.stdTracksKey = fscfg.tracks_FTF()
     hypo_alg.jetContainerKey = recordable("HLT_AntiKt4EMTopoJets_subjesIS")
     hypo_alg.vtxKey = fscfg.vertex_jet
@@ -63,7 +62,7 @@ def DJEDStep():
 
 def DJDispFragment(ConfigFlags):
     lrtcfg = getInDetTrigConfig( 'DJetLRT' )
-    roiTool = ViewCreatorCentredOnIParticleROITool('ViewCreatorDJRoI', RoisWriteHandleKey = recordable(lrtcfg.roi), RoIEtaWidth = 0.4, RoIPhiWidth = 0.4)
+    roiTool = ViewCreatorCentredOnIParticleROITool('ViewCreatorDJRoI', RoisWriteHandleKey = recordable(lrtcfg.roi), RoIEtaWidth = lrtcfg.etaHalfWidth, RoIPhiWidth = lrtcfg.phiHalfWidth)
     InputMakerAlg = EventViewCreatorAlgorithm("IMDJRoIFTF",mergeUsingFeature = True, RoITool = roiTool,Views = "DJRoIViews",InViewRoIs = "InViewRoIs",RequireParentView = False,ViewFallThrough = True)
     fscfg = getInDetTrigConfig("jet")
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
