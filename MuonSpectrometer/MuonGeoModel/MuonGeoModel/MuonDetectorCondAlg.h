@@ -11,8 +11,10 @@
 #include "MuonAlignmentData/NswAsBuiltDbData.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/NswPassivationDbData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MuonDetectorCondAlg : public AthAlgorithm {
 
@@ -27,9 +29,11 @@ class MuonDetectorCondAlg : public AthAlgorithm {
     virtual StatusCode execute() override final;
 
     Gaudi::Property<bool> m_isData{this, "IsData", true};
+    Gaudi::Property<bool> m_applyMmPassivation{this, "applyMmPassivation", false};
 
   private:
     ToolHandle<MuonDetectorTool> m_iGeoModelTool{this, "MuonDetectorTool", "MuonDetectorTool", "The MuonDetector tool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // Read Handles
     SG::ReadCondHandleKey<ALineMapContainer> m_readALineKey{this, "ReadALineKey", "ALineMapContainer", "Key of input muon alignment ALine condition data"};
@@ -38,6 +42,7 @@ class MuonDetectorCondAlg : public AthAlgorithm {
                                                                            "Key of input muon alignment CSC/ILine condition data"};
     SG::ReadCondHandleKey<MdtAsBuiltMapContainer> m_readMdtAsBuiltKey{this, "ReadMdtAsBuiltKey", "MdtAsBuiltMapContainer", "Key of output muon alignment MDT/AsBuilt condition data"};
     SG::ReadCondHandleKey<NswAsBuiltDbData> m_readNswAsBuiltKey{this, "ReadNswAsBuiltKey", "NswAsBuiltDbData", "Key of NswAsBuiltDbData object containing conditions data for NSW as-built params!"};
+    SG::ReadCondHandleKey<NswPassivationDbData> m_condMmPassivKey {this, "condMmPassivKey", "NswPassivationDbData", "Key of NswPassivationDbData object containing passivation data for MMs"};
 
     // Write Handle
     SG::WriteCondHandleKey<MuonGM::MuonDetectorManager> m_writeDetectorManagerKey{this, "WriteDetectorManagerKey", "MuonDetectorManager",

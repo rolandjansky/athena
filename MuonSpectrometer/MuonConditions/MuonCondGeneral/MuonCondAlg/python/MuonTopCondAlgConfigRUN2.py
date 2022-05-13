@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-## Configuration Access to OFFLINE DB (COMP200)
+## Configuration Access to OFFLINE DB (e.g. COMP200)
 
 from IOVDbSvc.CondDB import conddb
 
@@ -8,11 +8,17 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 
 def addFolder(parent, db, folder):
     log = logging.getLogger(parent.getName())        
     log.info("Adding folder %s:%s to IOVDbSvc", db, folder)
     conddb.addFolder(db, folder, className='CondAttrListCollection')
+
+def addFolderWithTag(parent, db, folder, tag):
+    log = logging.getLogger(parent.getName())        
+    log.info("Adding folder %s:%s to IOVDbSvc", db, folder)
+    conddb.addFolderWithTag(db, folder, tag, className='CondAttrListCollection')
 
 
 class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):
@@ -151,4 +157,12 @@ class TgcCondDbAlg(CfgMgr.TgcCondDbAlg):
         super(TgcCondDbAlg,self).__init__(name,**kwargs)
         if athenaCommonFlags.isOnline: return
         addFolder(self, "", "") # which folder?
+
+
+class NswPassivationDbAlg(CfgMgr.NswPassivationDbAlg):
+    def __init__(self,name="NswPassivationDbAlg",**kwargs):
+        if athenaCommonFlags.isOnline: return
+        if CommonGeometryFlags.Run in ["RUN1","RUN2"]: return
+        super(NswPassivationDbAlg,self).__init__(name,**kwargs)
+        addFolderWithTag(self, "MDT_OFL", "/MDT/MM/PASSIVATION", "MmPassiv2022Feb26") ## force explicit tag for now, to be removed later once folder tag is resolved via global tag
 

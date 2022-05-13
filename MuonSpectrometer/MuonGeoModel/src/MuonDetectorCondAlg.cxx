@@ -40,6 +40,9 @@ StatusCode MuonDetectorCondAlg::initialize() {
     ATH_CHECK(m_readMdtAsBuiltKey.initialize(MuonDetMgrDS->applyMdtAsBuiltParams()));
     ATH_CHECK(m_readNswAsBuiltKey.initialize(MuonDetMgrDS->applyNswAsBuiltParams()));
 
+    ATH_CHECK(m_condMmPassivKey.initialize(m_applyMmPassivation));
+    ATH_CHECK(m_idHelperSvc.retrieve());
+
     // Write Handles
     // std::string ThisKey = "MuonDetectorManager";
     // std::size_t pos = name().find("MuonDetectorCondAlg");
@@ -80,9 +83,21 @@ StatusCode MuonDetectorCondAlg::execute() {
     // =======================
     if (MuonMgrData->mmIdHelper() && MuonMgrData->stgcIdHelper()) {
         BuildNSWReadoutGeometry theBuilder = BuildNSWReadoutGeometry();
-        if (!theBuilder.BuildReadoutGeometry(MuonMgrData.get())) {
-            ATH_MSG_FATAL("unable to add NSW ReadoutGeometry in the MuonDetectorManager in conditions store");
+        bool success=false;
+        if(m_applyMmPassivation){
+            const EventContext& ctx = Gaudi::Hive::currentContext();
+            SG::ReadCondHandle<NswPassivationDbData> readMmPass{m_condMmPassivKey, ctx};
+            if(!readMmPass.isValid()){
+              ATH_MSG_ERROR("Cannot find conditions data container for MM passivation!");
+              return StatusCode::FAILURE;
+            }
+            success = theBuilder.BuildReadoutGeometry(MuonMgrData.get(), readMmPass.cptr());
         }
+        else {
+            success = theBuilder.BuildReadoutGeometry(MuonMgrData.get(), nullptr);
+        }
+        if(!success)
+            ATH_MSG_FATAL("unable to add NSW ReadoutGeometry in the MuonDetectorManager in conditions store");
     }
 
     // =======================

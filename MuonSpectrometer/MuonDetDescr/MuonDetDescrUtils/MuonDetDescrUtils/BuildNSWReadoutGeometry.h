@@ -10,12 +10,13 @@
 namespace MuonGM {
     class MuonDetectorManager;
 }
+class NswPassivationDbData;
 
 class BuildNSWReadoutGeometry {
 public:
     BuildNSWReadoutGeometry();
 
-    bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
+    bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr, const NswPassivationDbData*) const;
 
 private:
 };

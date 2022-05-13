@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -25,10 +25,6 @@ def MuonDetectorToolCfg(flags):
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
-
-    # temporary way to pass MM correction for edge passivation
-    from MuonGeoModel.MMPassivationFlag import MMPassivationFlag
-    detTool.passivationWidthMM = MMPassivationFlag.correction
 
     if flags.Muon.enableAlignment:
         # Condition DB is needed only if A-lines or B-lines are requested
@@ -174,7 +170,13 @@ def MuonAlignmentCondAlgCfg(flags):
 
 def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
+    from AthenaConfiguration.Enums import LHCPeriod
+    applyPassivation = flags.GeoModel.Run>=LHCPeriod.Run3 and not flags.Common.isOnline
+    if applyPassivation:
+        from MuonConfig.MuonCondAlgConfig import NswPassivationDbAlgCfg
+        acc.merge(NswPassivationDbAlgCfg(flags))
     MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
+    MuonDetectorCondAlg.applyMmPassivation = applyPassivation
     MuonDetectorManagerCond = MuonDetectorCondAlg()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool

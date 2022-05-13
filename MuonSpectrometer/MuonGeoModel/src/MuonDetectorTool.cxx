@@ -297,9 +297,6 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         if ((theManager->initCSCInternalAlignmentMap()).isFailure())
             return StatusCode::FAILURE; // does nothing other then checking the size (map is built while reading data from the primary source)
 
-        // temporary MM passivation width (for tests)
-        theManager->setMMPassivationCorrection(m_testPassivationWidthMM);
-
         if (m_fillCache_initTime) {
             theManager->fillCache();
         } else {

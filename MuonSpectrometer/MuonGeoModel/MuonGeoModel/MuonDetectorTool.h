@@ -50,9 +50,6 @@ class MuonDetectorTool final : public GeoModelTool {
     Gaudi::Property<bool> m_hasSTgc{this, "HasSTgc", true};
     Gaudi::Property<bool> m_hasMM{this, "HasMM", true};
    
-    /// temporary to test the effect MM passivation
-    Gaudi::Property<double> m_testPassivationWidthMM{this, "passivationWidthMM", 0.}; // temporary to test the effect MM passivation
-  
     Gaudi::Property<bool> m_stationSelection{this, "StationSelection", false};
     Gaudi::Property<std::vector<std::string>> m_selectedStations{this, "SelectedStations", {}};
     Gaudi::Property<std::vector<int>> m_selectedStEta{this,"SelectedStJzz",{}};

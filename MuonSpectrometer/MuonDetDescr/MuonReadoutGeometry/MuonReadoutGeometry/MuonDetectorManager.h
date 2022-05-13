@@ -309,11 +309,9 @@ namespace MuonGM {
 
         void initABlineContainers();
         void setMMAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData);
-        void setMMPassivationCorrection(double corr) { m_MM_passivationCorr = corr; }  // temporary way for passing MM passivation
 #ifndef SIMULATIONBASE
         const NswAsBuilt::StripCalculator* getMMAsBuiltCalculator() const { return m_MMAsBuiltCalculator.get(); }
 #endif
-        double getMMPassivationCorrection() const { return m_MM_passivationCorr; }  // temporary way for passing MM passivation
 
         // get Mdt AsBuilt parameters for chamber specified by Identifier
         const MdtAsBuiltPar* getMdtAsBuiltParams(const Identifier& id) const;

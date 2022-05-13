@@ -112,8 +112,15 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
     conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS",className='CondAttrListCollection')
     condSequence += MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg")
 
+if not conddb.isOnline:
+    if CommonGeometryFlags.Run not in ["RUN1","RUN2"]:
+        from MuonCondAlg.MuonTopCondAlgConfigRUN2 import NswPassivationDbAlg
+        NswPassAlg = NswPassivationDbAlg("NswPassivationDbAlg")
+        condSequence += NswPassAlg
+
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
+MuonDetectorManagerCond.applyMmPassivation = False if CommonGeometryFlags.Run in ["RUN1","RUN2"] or conddb.isOnline else True
 MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
 MuonDetectorManagerCond.MuonDetectorTool.FillCacheInitTime = 1 # CondAlg cannot update itself later - not threadsafe
 

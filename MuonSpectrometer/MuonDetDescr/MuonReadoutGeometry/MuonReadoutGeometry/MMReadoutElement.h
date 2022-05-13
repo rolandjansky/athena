@@ -10,7 +10,7 @@
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/ArrayHelper.h"
-
+#include "MuonReadoutGeometry/NswPassivationDbData.h"
 
 class BLinePar;
 class GeoVFullPhysVol;
@@ -24,7 +24,7 @@ namespace MuonGM {
     class MMReadoutElement final : public MuonClusterReadoutElement {
     public:
         /** constructor */
-        MMReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
+        MMReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr, const NswPassivationDbData*);
 
         /** destructor */
         ~MMReadoutElement();
@@ -162,6 +162,8 @@ namespace MuonGM {
         std::vector<int> m_nStrips;  // #of active strips
         int m_nlayers{0};            // #of gas gaps
 
+        const NswPassivationDbData* m_passivData{nullptr};
+
         int m_ml{0};  // multilayer (values: 1,2)
         Identifier m_parentId;
 
@@ -233,30 +235,64 @@ namespace MuonGM {
     }
 
     inline double MMReadoutElement::stripActiveLength(const Identifier& id) const {
+        float passivLeft=0; float passivRight=0;
+        if(m_passivData!=nullptr){
+            if(!m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return false;
+        }
         double l = stripLength(id);
         if (l < 0) return -1;
-        return std::max(0., l - manager()->getMMPassivationCorrection());  // temporary way to pass MM correction for passivation
+        return std::max(0., l - passivLeft - passivRight);
     }
 
     inline double MMReadoutElement::stripActiveLengthLeft(const Identifier& id) const {
+        float passivLeft=0; float passivRight=0;
+        if(m_passivData!=nullptr){
+            if(!m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return false;
+        }
         double l = stripLength(id);
         if (l < 0) return -1;
-        return 0.5 * std::max(0., l - manager()->getMMPassivationCorrection());  // temporary way to pass MM correction for passivation
+        return 0.5 * std::max(0., l - passivLeft);
     }
 
     inline double MMReadoutElement::stripActiveLengthRight(const Identifier& id) const {
+        float passivLeft=0; float passivRight=0;
+        if(m_passivData!=nullptr){
+            if(!m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return false;
+        }
         double l = stripLength(id);
         if (l < 0) return -1;
-        return 0.5 * std::max(0., l - manager()->getMMPassivationCorrection());  // temporary way to pass MM correction for passivation
+        return 0.5 * std::max(0., l - passivRight);
     }
 
     inline bool MMReadoutElement::insideActiveBounds(const Identifier& id, const Amg::Vector2D& locpos, double tol1, double tol2) const {
-        // TODO: when the full passivation info is available (left/right), we should check here
-        // on which side locpos is (sign of locpos.y()) to get the correct passivated width.
+        if(m_passivData==nullptr) return true;
+        const MuonChannelDesign* design = getDesign(id);
+        if(!design) return false;
+        // Get the nearest strip number; not the time yet to check boundaries (in case of tolerance) 
         int stripNo = stripNumber(locpos, id);
-        if (stripNo < 0) return false;
-        double passiveW = manager()->getMMPassivationCorrection();
-        return bounds(id).inside(locpos, tol1, tol2 - passiveW);
+        if (stripNo < 0) stripNo = (locpos.x()<0) ? 1 : design->totalStrips;
+        Identifier channelId = manager()->mmIdHelper()->channelID(id, m_ml, manager()->mmIdHelper()->gasGap(id), stripNo);
+
+        // ** Horizontal passivation: mask entire strips
+        //==============================================
+        int pcb      = (stripNo-1)/1024 + 1; // starts from 1
+        int pcbStrip = stripNo - 1024*(pcb - 1);
+        float passivTop=0; float passivBottom=0;
+        if(!m_passivData->getPassivatedHeight(channelId, passivTop, passivBottom)) return false;
+        // the passivated width is constant along the PCB edge (not along y for stereo strips)
+        if(pcb != 1) passivBottom /= std::cos(design->sAngle);
+        bool topPcb{pcb == 5 || (std::abs(getStationEta()) == 2 && pcb == 3)};
+        if(!topPcb) passivTop     /= std::cos(design->sAngle);
+        int pcbStripMin =    1 + (int)std::floor((passivBottom + 0.5*design->inputPitch - tol1)/design->inputPitch); // first pcb strip surviving passivation
+        int pcbStripMax = 1024 - (int)std::floor((passivTop    + 0.5*design->inputPitch - tol1)/design->inputPitch); //  last pcb strip surviving passivation
+        if(pcbStrip < pcbStripMin || pcbStrip > pcbStripMax) return false;
+
+        // ** Vertical passivation: cut strips from left and right
+        //=======================================
+        float passivLeft=0; float passivRight=0;
+        if(!m_passivData->getPassivatedWidth(channelId, passivLeft, passivRight)) return false;
+        float& passivW = (locpos[1]<0) ? passivLeft : passivRight;
+        return bounds(id).inside(locpos, tol1, tol2 - passivW);
     }
 
     inline bool MMReadoutElement::stripGlobalPosition(const Identifier& id, Amg::Vector3D& gpos) const {
