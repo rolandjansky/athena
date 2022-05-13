@@ -45,7 +45,7 @@ namespace NSWL1 {
 
   StatusCode StripSegmentTool::FetchDetectorEnvelope(std::pair<float, float> &rbounds, std::pair<float, float> &etabounds, std::pair<float, float> &zbounds) const {
     const MuonGM::MuonDetectorManager* p_det;
-    if(detStore()->retrieve(p_det).isFailure()) ATH_MSG_ERROR( "Could not retrieve Muon Detector Manager");
+    ATH_CHECK(detStore()->retrieve(p_det));
     SG::ReadCondHandle<IRegSelLUTCondData> rh_stgcLUT(m_regSelTableKey);
     const auto regSelector = dynamic_cast<const RegSelSiLUT*>(rh_stgcLUT->payload());
     std::vector<const RegSelModule*> moduleList;
