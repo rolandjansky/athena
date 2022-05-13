@@ -16,6 +16,7 @@ __doc__ = "provide components to POOL2EI"
 
 
 # imports -----------------------------------------------------------------
+import os
 import AthenaPython.PyAthena as PyAthena
 from .compressB64 import compressB64
 from .EI_Lib import IOV
@@ -89,7 +90,6 @@ class POOL2EI(PyAthena.Alg):
             self._dsname = self.EiDsName
         else:
             # try to get dataset name from pathena INDS environment variable
-            import os
             inds = os.getenv('INDS')
             if inds is not None:
                 _info("## INDS: {}".format(inds))
