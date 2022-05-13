@@ -215,7 +215,11 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
 	  	  
 	  //set the BCM_GeometryManeger
 	  manager->ModuleOn(moduleNo);
-	  manager->Module(moduleNo)->Set(moduleNo, module_property);
+	  if (module_property){
+	    manager->Module(moduleNo)->Set(moduleNo, module_property);
+	  } else {
+	    ATH_MSG_ERROR("module_property pointer is null in BCM_Builder.cxx");
+	  }
 	}
     }
   
