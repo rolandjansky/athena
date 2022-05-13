@@ -251,7 +251,9 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs):
 
 def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
+    if 'ClusterSplitProbabilityName' in pix_cluster_on_track_args:
+      kwargs=setDefaults(kwargs,
+                       ClusterSplitProbabilityName = pix_cluster_on_track_args['ClusterSplitProbabilityName'] )
     from InDetRecExample import TrackingCommon as TrackingCommon
 
     # PHF cut during fit iterations to save CPU time

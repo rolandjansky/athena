@@ -13,7 +13,7 @@ atlas_add_component (
     src/*.cxx
     src/components/*.cxx
     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AtlasDetDescr EventPrimitives GaudiKernel IdDictDetDescr InDetReadoutGeometry MagFieldConditions MagFieldElements TrkCompetingRIOsOnTrack TrkDetDescrInterfaces TrkEventPrimitives TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkGeometry TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkSurfaces TrkToolInterfaces TrkTrack TrkTrackSummary TrkVertexOnTrack TrkVolumes )
+    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AtlasDetDescr EventPrimitives GaudiKernel IdDictDetDescr InDetReadoutGeometry MagFieldConditions MagFieldElements TrkCompetingRIOsOnTrack TrkDetDescrInterfaces TrkEventPrimitives TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkGeometry TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkSurfaces TrkToolInterfaces TrkTrack TrkTrackSummary TrkVertexOnTrack TrkVolumes InDetPrepRawData )
 
 
 # Code in this file makes heavy use of eigen and runs orders of magnitude

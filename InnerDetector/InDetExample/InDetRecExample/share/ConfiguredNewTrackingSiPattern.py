@@ -534,10 +534,9 @@ class  ConfiguredNewTrackingSiPattern:
                DoHoleSearch                 = True,
                BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
                
-
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
-
+                      
            if InDetFlags.doRefitInvalidCov() :
               from AthenaCommon import CfgGetter
               if len(NewTrackingCuts.extension()) > 0 :
