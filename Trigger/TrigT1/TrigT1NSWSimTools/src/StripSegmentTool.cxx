@@ -73,7 +73,7 @@ namespace NSWL1 {
     std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->zMax()) > std::abs(M2->zMax());} );
     zmax=moduleList.at(0)->zMax();
 
-    if(rmin<=0 || rmax<=0) ATH_MSG_ERROR("Unable to fetch NSW r/z boundaries");
+    if(rmin<=0 || rmax<=0) ATH_MSG_WARNING("Unable to fetch NSW r/z boundaries");
     rbounds= std::make_pair(rmin,rmax);
     etabounds=std::make_pair(etamin,etamax);
     zbounds=std::make_pair(zmin,zmax);
