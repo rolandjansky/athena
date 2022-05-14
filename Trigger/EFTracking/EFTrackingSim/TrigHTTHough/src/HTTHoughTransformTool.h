@@ -174,8 +174,8 @@ class HTTHoughTransformTool : public extends <AthAlgTool, IHTTRoadFinderTool>
         ///////////////////////////////////////////////////////////////////////
         // Convenience
 
-        unsigned m_nLayers; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
-        unsigned m_nCombineLayers; // number of layers after combined
+        unsigned m_nLayers = 0U; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
+        unsigned m_nCombineLayers = 0U; // number of layers after combined
 
         double m_step_x = 0; // step size of the bin boundaries in x
         double m_step_y = 0; // step size of the bin boundaries in y
