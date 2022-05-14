@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METPhotonAssociator.h 
@@ -37,11 +37,10 @@ namespace met{
 
     // Constructor with name
     METPhotonAssociator(const std::string& name);
-    ~METPhotonAssociator();
+    ~METPhotonAssociator() = default;
 
     // AsgTool Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -62,7 +61,8 @@ namespace met{
  
     /// Default constructor: 
     METPhotonAssociator();
-    SG::ReadHandleKey<xAOD::PhotonContainer> m_phContKey;
+
+    SG::ReadHandleKey<xAOD::PhotonContainer> m_phContKey{this, "InputCollection", "Photons", "photons input key"};
 
   }; 
 

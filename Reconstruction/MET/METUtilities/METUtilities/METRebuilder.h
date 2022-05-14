@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRebuilder.h
@@ -18,6 +18,7 @@
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/WriteHandleKey.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "AsgTools/ToolHandle.h"
 
 
@@ -71,69 +72,69 @@ namespace met {
     METRebuilder(const std::string& name);
 
     /// Destructor:
-    virtual ~METRebuilder();
+    virtual ~METRebuilder() = default;
 
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
-    StatusCode  execute();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
 
-    StatusCode copyMET(const std::string& metKey,
-                       xAOD::MissingETContainer* metCont,
-                       const xAOD::MissingETComponentMap* metMap);
+    virtual StatusCode copyMET(const std::string& metKey,
+                               xAOD::MissingETContainer* metCont,
+                               const xAOD::MissingETComponentMap* metMap) override;
 
-    StatusCode rebuildMET(const std::string& metKey,
-                          xAOD::MissingETContainer* metCont,
-                          const xAOD::IParticleContainer* collection,
-                          const xAOD::MissingETComponentMap* metMap,
-                          bool doTracks=true);
+    virtual StatusCode rebuildMET(const std::string& metKey,
+                                  xAOD::MissingETContainer* metCont,
+                                  const xAOD::IParticleContainer* collection,
+                                  const xAOD::MissingETComponentMap* metMap,
+                                  bool doTracks=true) override;
 
-    StatusCode rebuildMET(xAOD::MissingET* met,
-                          const xAOD::IParticleContainer* collection,
-                          const xAOD::MissingETComponent* component,
-                          bool doTracks=true);
+    virtual StatusCode rebuildMET(xAOD::MissingET* met,
+                                  const xAOD::IParticleContainer* collection,
+                                  const xAOD::MissingETComponent* component,
+                                  bool doTracks=true) override;
 
-    StatusCode rebuildJetMET(const std::string& jetKey,
-                             const std::string& softKey,
-                             xAOD::MissingETContainer* metCont,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETComponentMap* metMap,
-                             bool doTracks=true) {
+    virtual StatusCode rebuildJetMET(const std::string& jetKey,
+                                     const std::string& softKey,
+                                     xAOD::MissingETContainer* metCont,
+                                     const xAOD::JetContainer* jets,
+                                     const xAOD::MissingETComponentMap* metMap,
+                                     bool doTracks=true) override
+    {
       return rebuildJetMET(jetKey,softKey,metCont,jets,metMap,doTracks,
                            m_jetDoJvf,m_pureTrkSoft,m_softJetScale);
     }
 
-    StatusCode rebuildJetMET(const std::string& jetKey,
-                             const std::string& softKey,
-                             xAOD::MissingETContainer* metCont,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETComponentMap* metMap,
-                             bool doTracks,
-                             bool doJvfCut,
-                             bool pureTrkSoft,
-                             const std::string& softJetScale);
+    virtual StatusCode rebuildJetMET(const std::string& jetKey,
+                                     const std::string& softKey,
+                                     xAOD::MissingETContainer* metCont,
+                                     const xAOD::JetContainer* jets,
+                                     const xAOD::MissingETComponentMap* metMap,
+                                     bool doTracks,
+                                     bool doJvfCut,
+                                     bool pureTrkSoft,
+                                     const std::string& softJetScale) override;
 
-    StatusCode rebuildJetMET(const std::string& jetKey,
-                             const std::string& softKey,
-                             xAOD::MissingETContainer* metCont,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETComponentMap* metMap,
-                             bool doTracks,
-                             bool doJvfCut,
-                             bool pureTrkSoft,
-                             const std::string& softJetScale,
-			     float& stvf);
+    virtual StatusCode rebuildJetMET(const std::string& jetKey,
+                                     const std::string& softKey,
+                                     xAOD::MissingETContainer* metCont,
+                                     const xAOD::JetContainer* jets,
+                                     const xAOD::MissingETComponentMap* metMap,
+                                     bool doTracks,
+                                     bool doJvfCut,
+                                     bool pureTrkSoft,
+                                     const std::string& softJetScale,
+                                     float& stvf) override;
 
-    StatusCode rebuildJetMET(xAOD::MissingET* metJet,
-                             xAOD::MissingET* metSoft,
-                             const xAOD::JetContainer* jets,
-                             const xAOD::MissingETComponent* component,
-                             bool doTracks,
-                             bool doJvfCut,
-                             bool pureTrkSoft,
-                             const std::string& softJetScale,
-			     float& stvf,
-			     const xAOD::MissingETComponent* comp_softtrk=0);
+    virtual StatusCode rebuildJetMET(xAOD::MissingET* metJet,
+                                     xAOD::MissingET* metSoft,
+                                     const xAOD::JetContainer* jets,
+                                     const xAOD::MissingETComponent* component,
+                                     bool doTracks,
+                                     bool doJvfCut,
+                                     bool pureTrkSoft,
+                                     const std::string& softJetScale,
+			                               float& stvf,
+			                               const xAOD::MissingETComponent* comp_softtrk=0) override;
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -155,67 +156,52 @@ namespace met {
     METRebuilder();
 
     // ReadHandleKey(s)
-    SG::ReadHandleKey<xAOD::MissingETComponentMap>  m_METMapKey;
-    SG::ReadHandleKey<xAOD::MissingETContainer>     m_METContainerKey;
-    SG::ReadHandleKey<xAOD::MissingETAuxContainer>  m_METAuxContainerKey;
-    SG::ReadHandleKey<xAOD::ElectronContainer>      m_ElectronContainerKey;
-    SG::ReadHandleKey<xAOD::PhotonContainer>        m_PhotonContainerKey;
-    SG::ReadHandleKey<xAOD::TauJetContainer>        m_TauJetContainerKey;
-    SG::ReadHandleKey<xAOD::MuonContainer>          m_MuonContainerKey;
-    SG::ReadHandleKey<xAOD::JetContainer>           m_JetContainerKey;
-    SG::ReadHandleKey<xAOD::VertexContainer>        m_PVKey;
+    SG::ReadHandleKey<xAOD::MissingETComponentMap>  m_METMapKey{this, "InputMap", "METMap_RefFinal", ""};
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_ElectronContainerKey{this, "EleColl", "ElectronCollection", ""};
+    SG::ReadHandleKey<xAOD::PhotonContainer>        m_PhotonContainerKey{this, "GammaColl", "PhotonCollection", ""};
+    SG::ReadHandleKey<xAOD::TauJetContainer>        m_TauJetContainerKey{this, "TauColl", "TauRecContainer", ""};
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_MuonContainerKey{this, "MuonColl", "Muons", ""};
+    SG::ReadHandleKey<xAOD::JetContainer>           m_JetContainerKey{this, "JetColl", "AntiKt4LCTopoJets", ""};
+    SG::ReadHandleKey<xAOD::VertexContainer>        m_PVKey{this, "VertexColl", "PrimaryVertices", ""};
     // WriteHandleKey(s)
-    SG::WriteHandleKey<xAOD::MissingETContainer>    m_OutMETKey;
+    SG::WriteHandleKey<xAOD::MissingETContainer>    m_OutMETKey{this, "OutputContainer", "MET_MyRefFinal", ""};
 
-    std::string m_eleColl;
-    std::string m_gammaColl;
-    std::string m_tauColl;
-    std::string m_jetColl;
-    std::string m_muonColl;
     //
-    std::string m_eleTerm;
-    std::string m_gammaTerm;
-    std::string m_tauTerm;
-    std::string m_jetTerm;
-    std::string m_muonTerm;
-    std::string m_softTerm;
-    std::string m_softTermType;
+    Gaudi::Property<std::string> m_eleTerm{this, "EleTerm", "RefEle", ""};
+    Gaudi::Property<std::string> m_gammaTerm{this, "GammaTerm", "RefGamma", ""};
+    Gaudi::Property<std::string> m_tauTerm{this, "TauTerm", "RefTau", ""};
+    Gaudi::Property<std::string> m_jetTerm{this, "JetTerm", "RefJet", ""};
+    Gaudi::Property<std::string> m_muonTerm{this, "MuonTerm", "Muons", ""};
+    Gaudi::Property<std::string> m_softTerm{this, "SoftTerm", "", ""};
+    Gaudi::Property<std::string> m_softTermType{this, "SoftTermType", "TrackSoftTerm", ""};
     //
-    std::string m_inputMap;
-    std::string m_outMETCont;
-    std::string m_outMETTerm;
+    Gaudi::Property<std::string> m_outMETTerm{this, "OutputTotal", "Final", ""};
 
 
+    bool m_doEle{};
+    bool m_doGamma{};
+    bool m_doTau{};
+    bool m_doMuon{};
 
-
-    bool m_warnOfDupes;
-
-    bool m_doEle;
-    bool m_doGamma;
-    bool m_doTau;
-    bool m_doMuon;
-
-    bool m_rebuildEle;
-    bool m_rebuildGamma;
-    bool m_rebuildTau;
-    bool m_rebuildMuon;
+    bool m_rebuildEle{};
+    bool m_rebuildGamma{};
+    bool m_rebuildTau{};
+    bool m_rebuildMuon{};
 
     // For jet/soft term -- eventually break off into a separate tool
-    double m_jetPtCut;
-    bool m_jetDoJvf;
-    double m_jetJvfCut;
-    std::string m_softJetScale;
-    bool m_doTracks;
-    bool m_pureTrkSoft;
-    bool m_doSTVF;
+    Gaudi::Property<double> m_jetPtCut{this, "CalibJetPtCut", 20e3, ""};
+    Gaudi::Property<bool> m_jetDoJvf{this, "DoJetJVFCut", true, ""};
+    Gaudi::Property<double> m_jetJvfCut{this, "CalibJetJvfCut", 0.25, ""};
+    Gaudi::Property<std::string> m_softJetScale{this, "SoftJetScale", "", ""};
+    bool m_doTracks{true};
+    bool m_pureTrkSoft{true};
+    Gaudi::Property<bool> m_doSTVF{this, "ComputeSTVF", false, ""};
 
     // Decorate tracks to state that they have been used for a MET calc
-    SG::AuxElement::Decorator<char>  m_trkUsedDec;
+    SG::AuxElement::Decorator<char> m_trkUsedDec{"usedByMET"};
 
-    bool m_trk_doPVsel;
+    Gaudi::Property<bool> m_trk_doPVsel{this, "DoTrackPVSel", true, ""};
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
-    std::string m_vtxColl;
-    std::string m_clusColl;
   };
 
 } //> end namespace met

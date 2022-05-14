@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTruthTool.cxx 
@@ -55,21 +55,9 @@ namespace met {
   ////////////////
   METTruthTool::METTruthTool(const std::string& name) : 
     AsgTool(name),
-    METBuilderTool(name),
-    m_truth_type(0),
-    m_truthEventKey("")
+    METBuilderTool(name)
   {
-    // NonInt, Int, IntMuons, IntOut
-    declareProperty( "InputComposition", m_inputType = "NonInt" ); // Truth type
-    declareProperty( "MaxEtaDet",        m_det_maxEta = 5.      ); // Nominal max detector eta
-    declareProperty( "MinPtMu"  ,        m_truthmu_minPt = 6e3  ); // Nominal min muon pt
-    declareProperty( "MaxEtaMu",         m_truthmu_maxEta = 2.7  ); // Nominal max MS eta
   }
-
-  // Destructor
-  ///////////////
-  METTruthTool::~METTruthTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -90,16 +78,8 @@ namespace met {
       ATH_MSG_FATAL("Invalid input type provided");
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( m_truthEventKey.assign(m_input_data_key));
+
     ATH_CHECK( m_truthEventKey.initialize());
-
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METTruthTool::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }

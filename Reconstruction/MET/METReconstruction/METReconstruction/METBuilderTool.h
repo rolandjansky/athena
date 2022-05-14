@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METBuilderTool.h 
@@ -40,7 +40,6 @@ namespace met {
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METBuilderTool, IMETToolBase)
 
-
     /////////////////////////////////////////////////////////////////// 
     // Public methods: 
     /////////////////////////////////////////////////////////////////// 
@@ -49,12 +48,11 @@ namespace met {
     // Constructor with name (does this have to be a non-const
     // std::string and not a const reference?)
     METBuilderTool(const std::string& name);
-    virtual ~METBuilderTool();
+    virtual ~METBuilderTool() = default;
 
     // AsgTool Hooks
-    virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -68,12 +66,10 @@ namespace met {
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected:
-
-    std::string m_input_data_key;
-    std::string m_output_met_key;
-    std::string m_mod_clus_key;
-    bool m_useRapidity; // by default, use pseudorapidity for matching
-    bool m_useModClus;  // use modified e.g. origin-corrected clusters
+    Gaudi::Property<std::string> m_output_met_key{this, "MissingETKey", "", "output MET key"};
+    Gaudi::Property<std::string> m_mod_clus_key{this, "ModifiedClusKey", "", "modified clusters key"};
+    Gaudi::Property<bool> m_useRapidity{this, "UseRapidity", false, }; // by default, use pseudorapidity for matching
+    bool m_useModClus{};  // use modified e.g. origin-corrected clusters
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default

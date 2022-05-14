@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METElectronAssociator.h 
@@ -36,11 +36,10 @@ namespace met{
 
     // Constructor with name
     METElectronAssociator(const std::string& name);
-    ~METElectronAssociator();
+    ~METElectronAssociator() = default;
 
     // AsgTool Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -61,7 +60,8 @@ namespace met{
  
     /// Default constructor: 
     METElectronAssociator();
-    SG::ReadHandleKey<xAOD::ElectronContainer> m_elContKey;    
+
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_elContKey{this, "InputCollection", "Electrons", "electrons input key"};    
 
   }; 
 

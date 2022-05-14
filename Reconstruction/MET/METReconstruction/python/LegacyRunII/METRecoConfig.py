@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaCommon import CfgMgr
@@ -81,12 +81,17 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType == 'SoftTrk':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftTrkTool_'+suffix)
         tool.InputComposition = 'Tracks'
+        tool.TrackKey = defaultInputKey[config.objType]
+        config.inputKey = defaultInputKey[config.objType]
     if config.objType.endswith('SoftClus'):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
+        tool.CaloClusterKey = defaultInputKey[config.objType]
+        config.inputKey = defaultInputKey[config.objType]
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
         tool.InputComposition = config.objType
+        tool.InputCollection = defaultInputKey['Truth']
         config.inputKey = defaultInputKey['Truth']
         config.outputKey = config.objType
     if suffix == 'Calo':
@@ -96,10 +101,12 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         if doCells:
             tool.UseCells     = True
             tool.DoTriggerMET = doTriggerMET
+            tool.CaloCellKey  = defaultInputKey['Calo']
             config.inputKey   = defaultInputKey['Calo'] 
         else:
             tool.UseCells     = False                   
             tool.DoTriggerMET = False
+            tool.CaloClusterKey = defaultInputKey['SoftClus']
             config.inputKey   = defaultInputKey['SoftClus']
         config.outputKey = config.objType
 
@@ -107,7 +114,7 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-    else:
+    elif hasattr(tool, 'InputCollection'):
         tool.InputCollection = config.inputKey
     if not suffix=='Calo':
         if config.outputKey == '':

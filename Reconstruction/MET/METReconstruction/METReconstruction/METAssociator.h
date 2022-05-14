@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METAssociator.h
@@ -74,9 +74,8 @@ namespace met {
     virtual ~METAssociator();
 
     // AsgTool Handles
-    virtual StatusCode initialize();
-    virtual StatusCode execute   (xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
-    virtual StatusCode finalize  ();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute (xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const override;
 
     ///////////////////////////////////////////////////////////////////
     // Protected methods:
@@ -87,7 +86,6 @@ namespace met {
     ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
 
-    std::string m_input_data_key;
     std::string m_neutralFELinksKey; 
     std::string m_chargedFELinksKey; 
     std::string m_neutralPFOLinksKey; 
