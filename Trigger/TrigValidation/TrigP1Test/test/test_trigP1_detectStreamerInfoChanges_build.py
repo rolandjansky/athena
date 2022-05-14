@@ -4,6 +4,7 @@
 # art-description: Detect TStreamerInfo changes of classes in the given build
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # Skipping art-output which has no effect for build tests.
 #
 # The test performs the following:

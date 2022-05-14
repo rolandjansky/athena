@@ -3,6 +3,7 @@
 # art-description: art job for bjet_lowpt
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-memory: 4096

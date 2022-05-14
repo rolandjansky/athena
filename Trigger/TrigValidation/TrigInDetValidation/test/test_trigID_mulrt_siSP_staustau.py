@@ -3,6 +3,7 @@
 # art-description: art job for mu_Zmumu_pu40
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-input-nfiles: 4
 # art-athena-mt: 8
 # art-memory: 4096

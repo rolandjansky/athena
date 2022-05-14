@@ -3,6 +3,7 @@
 # art-description: art job for fsjet_pu55
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 8
 # art-memory: 4096

@@ -4,6 +4,7 @@
 # art-description: Trigger RDO->RDO_TRIG athena test of the b-physics slice in Dev_pp_run3_v1 menu (Jpsimu6mu6 input)
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 

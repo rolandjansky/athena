@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test of cosmic P1+Tier0 workflow, runs athenaHLT with Cosmic_run3_v1 menu followed by offline reco and monitoring
 # art-type: grid
 # art-athena-mt: 4
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*

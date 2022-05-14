@@ -4,6 +4,7 @@
 # art-description: Test running HITS->RDO in master, then RDO->RDO_TRIG in 21.0-mc16a, then RDO_TRIG->AOD in master, then AOD->DAOD with multiprocess in master
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 

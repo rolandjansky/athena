@@ -4,6 +4,7 @@
 # art-description: art job for minbias
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-athena-mt: 8
 # art-memory: 4096

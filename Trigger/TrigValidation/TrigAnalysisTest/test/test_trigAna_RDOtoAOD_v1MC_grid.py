@@ -4,6 +4,7 @@
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=4, MC_pp_run3_v1 and AODSLIM
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 4
 # art-memory: 7000
 # art-output: *.txt
