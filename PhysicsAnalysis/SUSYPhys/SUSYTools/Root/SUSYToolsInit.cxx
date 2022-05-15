@@ -510,6 +510,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("MaxPtForJvt", m_fJvtPtMax) );
     ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("UseMuSFFormat", true) );
     ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("SFFile", m_fJvtConfig_SFFile) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("TruthJetContainerName", m_defaultTruthJets ) );
     ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFwdJvtEfficiencyTool.retrieve() );
   } else  ATH_CHECK( m_jetFwdJvtEfficiencyTool.retrieve() );
