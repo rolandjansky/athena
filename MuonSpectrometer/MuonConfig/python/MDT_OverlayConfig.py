@@ -58,6 +58,10 @@ def MDT_TruthOverlayCfg(flags, name="MdtTruthOverlay", **kwargs):
     else:
         kwargs.setdefault("BkgInputKey", f"{flags.Overlay.BkgPrefix}MDT_SDO")
 
+    if kwargs["BkgInputKey"]:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'MuonSimDataCollection#{kwargs["BkgInputKey"]}']))
+
     kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}MDT_SDO")
     kwargs.setdefault("OutputKey", "MDT_SDO")
 
