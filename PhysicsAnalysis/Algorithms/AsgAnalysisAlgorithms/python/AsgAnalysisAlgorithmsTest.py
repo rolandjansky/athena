@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 # @author Tadej Novak
@@ -205,7 +205,7 @@ def makeGeneratorAlgorithmsSequence (dataType) :
     # Include, and then set up the generator analysis sequence:
     from AsgAnalysisAlgorithms.GeneratorAnalysisSequence import \
         makeGeneratorAnalysisSequence
-    generatorSequence = makeGeneratorAnalysisSequence( dataType, saveCutBookkeepers=True, runNumber=284500, cutBookkeepersSystematics=True )
+    generatorSequence = makeGeneratorAnalysisSequence( dataType, saveCutBookkeepers=True, runNumber=284500, cutBookkeepersSystematics=True, prodFractionWeight=True )
     algSeq += generatorSequence
 
     # Set up an ntuple to check the job with:
@@ -218,6 +218,7 @@ def makeGeneratorAlgorithmsSequence (dataType) :
         'EventInfo.runNumber   -> runNumber',
         'EventInfo.eventNumber -> eventNumber',
         'EventInfo.generatorWeight_%SYS% -> generatorWeight_%SYS%',
+        'EventInfo.prodFracWeight_%SYS% -> prodFracWeight_%SYS%',
     ]
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
