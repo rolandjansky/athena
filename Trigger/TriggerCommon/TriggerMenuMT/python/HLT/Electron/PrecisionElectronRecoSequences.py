@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-
 from AthenaCommon.CFElements import parOR
 
 #logging
@@ -25,6 +24,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     tag+=variant
     
     import AthenaCommon.CfgMgr as CfgMgr
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import  TrigEMClusterTool
     # First the data verifiers:
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run       
     # precision Tracking related data dependencies
@@ -72,6 +72,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     ## TrigTopoEgammaElectronCfg_noGSF ##
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF" + tag)
     thesequence += TrigTopoEgammaAlgo
+    TrigTopoEgammaAlgo.EMClusterTool = TrigEMClusterTool("electron",variant)
     TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys.precisionElectronContainer
     TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
@@ -79,7 +80,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
 
     ## TrigElectronIsoBuilderCfg_noGSF ##
     if variant == '_LRT': # LRT sequence noGSF, NOTE: variant can be: _LRT, _GSF or ''
-        from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import  TrigElectronIsoBuilderCfg_LRT
+        from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import  TrigElectronIsoBuilderCfg_LRT,TrigEMClusterTool
         isoBuilder = TrigElectronIsoBuilderCfg_LRT("TrigElectronIsoBuilderCfg_noGSF" + tag)
     else: # standard sequence noGSF
         from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import  TrigElectronIsoBuilderCfg

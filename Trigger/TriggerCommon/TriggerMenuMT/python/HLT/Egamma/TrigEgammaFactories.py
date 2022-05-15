@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 __doc__ = "ToolFactories to configure common TrigEgamma Tools" 
 
 """
@@ -10,6 +11,7 @@ Offline configurations are available here:
 
 
 """
+
 # athena imports
 from AthenaConfiguration.Enums import BeamType
 
@@ -40,7 +42,9 @@ from egammaMVACalib import egammaMVACalibConf
 from xAODEgamma.xAODEgammaParameters import xAOD
 
 TrigEgammaKeys = getTrigEgammaKeys()
-TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT') 
+TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT')
+TrigEgammaKeys_GSF = getTrigEgammaKeys('_GSF')
+TrigEgammaKeys_LRTGSF = getTrigEgammaKeys('_LRTGSF') 
 TrigEgammaKeys_HI = getTrigEgammaKeys(ion=True) 
 
 
@@ -134,7 +138,7 @@ tit_lrt.TrackSelectionTool.minPt         = 1000
 tit_lrt.TrackSelectionTool.CutLevel      = "Loose"
 tit_lrt.TrackParticleLocation = TrigEgammaKeys_LRT.precisionTrackingContainer
 tit_lrt.VertexLocation = ''
-tit_lrt.TracksInConeTool	  = tpict_lrt
+tit_lrt.TracksInConeTool    = tpict_lrt
 
     
 """Configuring EMTrackMatchBuilder Tool """
@@ -177,11 +181,35 @@ TrigEgammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
         affectedTool = CaloAffectedTool())
 
 """ This is an instance of TrigEMClusterTool to be used at TrigTopoEgammaPhotons and TrigTopoEgammaElectrons """
-TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
-        name = 'TrigEMClusterTool',
-        OutputClusterContainerName = TrigEgammaKeys.precisionEMClusterContainer, 
-        MVACalibSvc = egammaMVASvc                             
-        )
+def TrigEMClusterTool(type='',variant =''):
+ 
+    if type == "electron":
+        if variant == '_LRT':
+            TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
+            name = 'TrigEMClusterTool'+type+variant,
+                OutputClusterContainerName = TrigEgammaKeys_LRT.precisionElectronEMClusterContainer,
+            MVACalibSvc = egammaMVASvc)
+        elif variant == '_GSF':
+            TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
+                name = 'TrigEMClusterTool'+type+variant,
+                OutputClusterContainerName = TrigEgammaKeys_GSF.precisionElectronEMClusterContainer,
+                MVACalibSvc = egammaMVASvc)
+        elif variant == '_LRTGSF':
+            TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
+                name = 'TrigEMClusterTool'+type+variant,
+                OutputClusterContainerName = TrigEgammaKeys_LRTGSF.precisionElectronEMClusterContainer,
+                MVACalibSvc = egammaMVASvc)
+        else:
+            TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
+                name = 'TrigEMClusterTool'+type+variant,
+                OutputClusterContainerName = TrigEgammaKeys.precisionElectronEMClusterContainer,
+                MVACalibSvc = egammaMVASvc)     
+    else:
+        TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
+                name = 'TrigEMClusterTool'+type+variant,
+                OutputClusterContainerName = TrigEgammaKeys.precisionPhotonEMClusterContainer,
+                MVACalibSvc = egammaMVASvc)
+    return TrigEMClusterTool()
 
 from xAODPrimitives.xAODIso import xAODIso as isoPar
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
@@ -213,7 +241,7 @@ def TrigElectronIsoBuilderCfg_LRT(name='TrigElectronIsolationBuilder_LRT'):
                                     TrackIsolationTool    = TrigTrackIsolationTool_LRT,
                                     ElIsoTypes            = [[isoPar.ptcone20]],
                                     ElCorTypes            = [[isoPar.coreTrackPtr]],
-                                    ElCorTypesExtra	      = [[]],
+                                    ElCorTypesExtra       = [[]],
                                      )
     return TrigElectronIsolationBuilder()
 
