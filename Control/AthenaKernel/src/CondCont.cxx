@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/src/CondCont.cpp
@@ -1210,18 +1210,4 @@ CondContMixedBase::findMixed (const EventIDBase& t,
 CondContBase::delete_function* CondContMixedBase::payloadDelfcn() const
 {
   return m_payloadDelfcn;
-}
-
-
-/**
- * @brief Do pointer conversion for the payload type.
- * @param clid CLID for the desired pointer type.
- * @param ptr Pointer of type @c T*.
- *
- * This just aborts, since we don't currently implement inheritance
- * for mixed types.
- */
-const void* CondContMixedBase::doCast (CLID /*clid*/, const void* /*ptr*/) const
-{
-  std::abort();
 }

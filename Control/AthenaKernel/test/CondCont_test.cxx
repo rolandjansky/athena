@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/test/CondCont_test.cxx
@@ -129,7 +129,40 @@ CONDCONT_BASE(D, B);
 CLASS_DEF(CondCont<B>, 932847546, 0)
 CLASS_DEF(CondCont<D>, 932847547, 0)
 
-CLASS_DEF(CondContMixed<B>, 932847548, 0)
+
+class BM
+{
+public:
+  BM(int x) : m_x(x) {}
+  int m_x;
+};
+
+
+class DM
+  : public Pad, public BM
+{
+public:
+  DM(int x) : BM(x*10) {}
+};
+
+
+CLASS_DEF(BM, 932847549, 0)
+CONDCONT_MIXED_DEF(BM, 932847548);
+CLASS_DEF(DM, 932847550, 0)
+CONDCONT_MIXED_DEF(DM, 932847551, BM);
+
+
+#if 0
+// This should give a compilation error.
+class DM2
+  : public Pad, public B
+{
+public:
+  DM2(int x) : B(x*10) {}
+};
+CLASS_DEF(DM2, 932847560, 0)
+CONDCONT_MIXED_DEF(DM2, 932847561, B);
+#endif
 
 
 bool succ (StatusCode sc)
@@ -458,19 +491,7 @@ void test3 (TestRCUSvc& rcusvc)
 }
 
 
-class CondContMixedTest
-  : public CondContMixed<B>
-{
-public:
-  CondContMixedTest (Athena::IRCUSvc& rcusvc, const DataObjID& id)
-    : CondContMixed<B> (rcusvc, ClassID_traits<CondContMixed<B> >::ID(),
-                        id, nullptr, 16)
-  {
-  }
-};
-
-
-// Testing overlaps keys.
+// Testing overlapping keys.
 void test4 (TestRCUSvc& rcusvc)
 {
   std::cout << "test4\n";
@@ -594,44 +615,44 @@ void test5 (TestRCUSvc& rcusvc)
   std::cout << "test5\n";
   DataObjID id ("cls", "key");
 
-  std::vector<B*> bptrs;
+  std::vector<BM*> bptrs;
   for (int i=0; i < 6; i++) {
-    bptrs.push_back (new B(i+1));
+    bptrs.push_back (new BM(i+1));
   }
 
   // Insert
 
-  CondContMixedTest cc (rcusvc, id);
+  CondCont<BM> cc (rcusvc, id);
   assert (cc.keyType() == CondContBase::KeyType::MIXED);
 
   assert (succ (cc.insert (EventIDRange (mixed(1, 10, 1),
                                          mixed(1, 20, 2)),
-                           std::unique_ptr<B>(bptrs[0]))) );
+                           std::unique_ptr<BM>(bptrs[0]))) );
   assert (succ (cc.insert (EventIDRange (mixed(1, 10, 2),
                                          mixed(1, 20, 4.5)),
-                           std::unique_ptr<B>(bptrs[1]))) );
+                           std::unique_ptr<BM>(bptrs[1]))) );
 
   assert (succ (cc.insert (EventIDRange (mixed(1, 30, 25),
                                          mixed(1, 40, 30)),
-                           std::unique_ptr<B>(bptrs[2]))) );
+                           std::unique_ptr<BM>(bptrs[2]))) );
 
   assert (succ (cc.insert (EventIDRange (mixed(2, 10, 100),
                                          mixed(2, 20, 103.5)),
-                           std::unique_ptr<B>(bptrs[3]))) );
+                           std::unique_ptr<BM>(bptrs[3]))) );
   assert (succ (cc.insert (EventIDRange (mixed(2, 10, 103.5),
                                          mixed(2, 20, 110)),
-                           std::unique_ptr<B>(bptrs[4]))) );
+                           std::unique_ptr<BM>(bptrs[4]))) );
   assert (succ (cc.typelessInsert (EventIDRange (mixed(2, 10, 120),
                                                  mixed(2, 20, 130)),
                                    bptrs[5])) );
 
   assert (cc.insert (EventIDRange (mixed(2, 10, 150),
                                    mixed(2, 15, 150)),
-                     std::make_unique<B>(7)).isFailure());
+                     std::make_unique<BM>(7)).isFailure());
 
   StatusCode sc = cc.insert (EventIDRange (mixed(2, 10, 120),
                                            mixed(2, 20, 130)),
-                             std::make_unique<B>(9));
+                             std::make_unique<BM>(9));
   assert (sc.isSuccess());
   assert (CondContBase::Category::isDuplicate (sc));
 
@@ -664,7 +685,7 @@ void test5 (TestRCUSvc& rcusvc)
 
   // Find
   const EventIDRange* range = nullptr;
-  const B* obj = nullptr;
+  const BM* obj = nullptr;
   assert (!cc.find (runlbn(1, 10), obj, &range));
   assert (!cc.find (timestamp(110), obj, &range));
   assert (cc.find (runlbn(1, 10)) == nullptr);
@@ -710,17 +731,17 @@ void test5 (TestRCUSvc& rcusvc)
 
 
   // Insert w/overlap
-  bptrs.push_back (new B (11));
+  bptrs.push_back (new BM (11));
   sc = cc.insert (EventIDRange (mixed (2, 10, 125),
                                 mixed (2, 20, 127)),
-                  std::unique_ptr<B> (bptrs.back()));
+                  std::unique_ptr<BM> (bptrs.back()));
   assert (CondContBase::Category::isDuplicate (sc));
 
 
-  bptrs.push_back (new B (11));
+  bptrs.push_back (new BM (11));
   sc = cc.insert (EventIDRange (mixed (2, 10, 125),
                                 mixed (2, 20, 135)),
-                  std::unique_ptr<B> (bptrs.back()));
+                  std::unique_ptr<BM> (bptrs.back()));
   assert (CondContBase::Category::isOverlap (sc));
 
 
@@ -733,24 +754,24 @@ void test5 (TestRCUSvc& rcusvc)
   // Multiple TS ranges in last RL range.
   assert ( cc.insert (EventIDRange (mixed (2, 10, 120),
                                     mixed (2, 30, 130)),
-                      std::make_unique<B> (12)).isFailure() );
+                      std::make_unique<BM> (12)).isFailure() );
   // Insert new last RL range with one TS range.
-  bptrs.push_back (new B(13));
+  bptrs.push_back (new BM(13));
   assert ( cc.insert (EventIDRange (mixed (20, 10, 120),
                                     mixed (20, 30, 130)),
-                      std::unique_ptr<B> (bptrs.back())).isSuccess() );
+                      std::unique_ptr<BM> (bptrs.back())).isSuccess() );
   // TS range doesn't match.
   assert ( cc.insert (EventIDRange (mixed (20, 10, 120),
                                     mixed (20, 40, 150)),
-                      std::make_unique<B> (14)).isFailure() );
+                      std::make_unique<BM> (14)).isFailure() );
   // RL range isn't last.
   assert ( cc.insert (EventIDRange (mixed (1, 30, 25),
                                     mixed (1, 50, 30)),
-                      std::make_unique<B> (15)).isFailure() );
+                      std::make_unique<BM> (15)).isFailure() );
   // Should work.
   sc = cc.insert (EventIDRange (mixed (20, 10, 120),
                                 mixed (20, 40, 130)),
-                  std::make_unique<B> (16));
+                  std::make_unique<BM> (16));
   assert (sc.isSuccess());
   assert (CondContBase::Category::isExtended (sc));
 
@@ -769,6 +790,71 @@ void test5 (TestRCUSvc& rcusvc)
   //                                                  xxx 
   //std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
   assert (ss2.str() == exp2.str());
+}
+
+
+// Testing mixed keys with derivation.
+void test6 (TestRCUSvc& rcusvc)
+{
+  std::cout << "test6\n";
+  SG::DataProxy proxy;
+  DataObjID id ("cls", "key");
+
+  std::vector<DM*> dptrs;
+  for (int i=0; i < 6; i++) {
+    dptrs.push_back (new DM(i+1));
+  }
+
+  CondCont<DM> cc (rcusvc, id, &proxy);
+  assert (cc.proxy() == &proxy);
+  assert (cc.id() == id);
+  assert (cc.keyType() == CondContBase::KeyType::MIXED);
+
+  assert (succ (cc.insert (EventIDRange (mixed(1, 10, 1),
+                                         mixed(1, 20, 2)),
+                           std::unique_ptr<DM>(dptrs[0]))) );
+  assert (succ (cc.insert (EventIDRange (mixed(1, 10, 2),
+                                         mixed(1, 20, 4.5)),
+                           std::unique_ptr<DM>(dptrs[1]))) );
+
+  assert (succ (cc.insert (EventIDRange (mixed(1, 30, 25),
+                                         mixed(1, 40, 30)),
+                           std::unique_ptr<DM>(dptrs[2]))) );
+
+  assert (succ (cc.insert (EventIDRange (mixed(2, 10, 100),
+                                         mixed(2, 20, 103.5)),
+                           std::unique_ptr<DM>(dptrs[3]))) );
+  assert (succ (cc.insert (EventIDRange (mixed(2, 10, 103.5),
+                                         mixed(2, 20, 110)),
+                           std::unique_ptr<DM>(dptrs[4]))) );
+  assert (succ (cc.typelessInsert (EventIDRange (mixed(2, 10, 120),
+                                                 mixed(2, 20, 130)),
+                                   dptrs[5])) );
+
+  auto check = [] (auto& cc) {
+    using Payload = typename std::remove_reference<decltype(cc)>::type::Payload;
+    const Payload* obj = nullptr;
+    const EventIDRange* range = nullptr;
+    assert (cc.find (mixed(1, 12, 3), obj, &range));
+    assert (obj->m_x == 20);
+    assert (*range == EventIDRange (mixed(1, 10,   2),   mixed(1, 20,   4.5)));
+    assert (cc.find (mixed(1, 12, 3)) == obj);
+
+    assert (cc.find (mixed(1, 35, 25), obj, &range));
+    assert (obj->m_x == 30);
+    assert (*range == EventIDRange (mixed(1, 30,  25),   mixed(1, 40,  30)));
+                             
+    assert (cc.find (mixed(2, 12, 103.7), obj, &range));
+    assert (obj->m_x == 50);
+    assert (*range == EventIDRange (mixed(2, 10, 103.5), mixed(2, 20, 110)));
+  };
+  check (cc);
+
+  CondCont<BM>& bcc = cc;
+  check (bcc);
+
+  auto b4 = std::make_unique<BM> (4);
+  assert( ! bcc.insert (EventIDRange (runlbn (40, 2), runlbn (40, 5)), std::move(b4)).isSuccess() );
 }
 
 
@@ -989,16 +1075,16 @@ class testThread_MixedWriter
   : public testThread_Base
 {
 public:
-  testThread_MixedWriter (int slot, CondContMixedTest& map);
+  testThread_MixedWriter (int slot, CondCont<BM>& map);
   void operator()();
   EventIDRange makeRange (int i);
 
 private:
-  CondContMixedTest& m_map;
+  CondCont<BM>& m_map;
 };
 
 
-testThread_MixedWriter::testThread_MixedWriter (int slot, CondContMixedTest& map)
+testThread_MixedWriter::testThread_MixedWriter (int slot, CondCont<BM>& map)
   : testThread_Base (slot),
     m_map (map)
 {
@@ -1021,7 +1107,7 @@ void testThread_MixedWriter::operator()()
     }
     EventIDRange r = makeRange(i);
     int payload = r.start().lumi_block() + r.start().time_stamp();
-    assert (m_map.insert (r, std::make_unique<B> (payload), ctx()).isSuccess());
+    assert (m_map.insert (r, std::make_unique<BM>(payload), ctx()).isSuccess());
     m_map.quiescent (ctx());
     if (((i+1)%128) == 0) {
       usleep (1000);
@@ -1050,15 +1136,15 @@ class testThread_MixedIterator
   : public testThread_Base
 {
 public:
-  testThread_MixedIterator (int slot, CondContMixedTest& map);
+  testThread_MixedIterator (int slot, CondCont<BM>& map);
   void operator()();
 
 private:
-  CondContMixedTest& m_map;
+  CondCont<BM>& m_map;
 };
 
 
-testThread_MixedIterator::testThread_MixedIterator (int slot, CondContMixedTest& map)
+testThread_MixedIterator::testThread_MixedIterator (int slot, CondCont<BM>& map)
   : testThread_Base (slot),
     m_map (map)
 {
@@ -1087,7 +1173,7 @@ void testThread_MixedIterator::operator()()
     }
 
     for (const EventIDRange& r : rvec) {
-      const B* obj;
+      const BM* obj;
       if (m_map.find (r.start(), obj)) {
         assert (obj->m_x == static_cast<int>(r.start().lumi_block() + r.start().time_stamp()));
       }
@@ -1104,16 +1190,16 @@ class testThread_MixedReader
   : public testThread_Base
 {
 public:
-  testThread_MixedReader (int slot, CondContMixedTest& map);
+  testThread_MixedReader (int slot, CondCont<BM>& map);
   void operator()();
 
 private:
-  CondContMixedTest& m_map;
+  CondCont<BM>& m_map;
   uint32_t m_seed;
 };
 
 
-testThread_MixedReader::testThread_MixedReader (int slot, CondContMixedTest& map)
+testThread_MixedReader::testThread_MixedReader (int slot, CondCont<BM>& map)
   : testThread_Base (slot),
     m_map (map),
     m_seed (slot * 123)
@@ -1138,7 +1224,7 @@ void testThread_MixedReader::operator()()
                                                stop.time_stamp()-1,
                                                start.time_stamp());
     EventIDBase key (0, 0, ts, 0, lb);
-    const B* obj = nullptr;
+    const BM* obj = nullptr;
     const EventIDRange* rr = nullptr;
     if (m_map.find (key, obj, &rr)) {
       assert (lb >= rr->start().lumi_block() && lb < rr->stop().lumi_block());
@@ -1155,7 +1241,7 @@ void testThread_MixedReader::operator()()
 void testThreadMixed_iter (TestRCUSvc& rcusvc)
 {
   DataObjID id ("cls", "key");
-  CondContMixedTest condcont (rcusvc, id);
+  CondCont<BM> condcont (rcusvc, id);
 
   const int nthread = 4;
   std::thread threads[nthread];
@@ -1204,6 +1290,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test3 (rcusvc);
   test4 (rcusvc);
   test5 (rcusvc);
+  test6 (rcusvc);
   testThread (rcusvc);
   testThreadMixed (rcusvc);
   return 0;
