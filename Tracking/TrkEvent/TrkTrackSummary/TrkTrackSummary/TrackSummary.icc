@@ -7,13 +7,6 @@ Trk::TrackSummary::get(const Trk::SummaryType& type) const
   return m_information.at(type);
 }
 
-// Troels.Petersen@cern.ch:
-inline float
-Trk::TrackSummary::getPID(const Trk::eProbabilityType& PIDtype) const
-{
-  return (PIDtype < m_eProbability.size() ? m_eProbability[PIDtype] : 0.);
-}
-
 inline bool
 Trk::TrackSummary::update(Trk::SummaryType type, int new_value)
 {
@@ -22,24 +15,6 @@ Trk::TrackSummary::update(Trk::SummaryType type, int new_value)
   }
   m_information[type] = new_value;
   return true;
-}
-
-inline float
-Trk::TrackSummary::getPixeldEdx() const
-{
-  return m_dedx;
-}
-
-inline int
-Trk::TrackSummary::numberOfUsedHitsdEdx() const
-{
-  return m_nhitsdedx;
-}
-
-inline int
-Trk::TrackSummary::numberOfOverflowHitsdEdx() const
-{
-  return m_nhitsoverflowdedx;
 }
 
 inline bool

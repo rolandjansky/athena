@@ -16,10 +16,6 @@ const int Trk::TrackSummary::SummaryTypeNotSet = -1;
 
 Trk::TrackSummary::TrackSummary()
   : m_information(numberOfTrackSummaryTypes, SummaryTypeNotSet)
-  , m_eProbability(Trk::eProbabilityDefault)
-  , m_dedx(-1)
-  , m_nhitsdedx(-1)
-  , m_nhitsoverflowdedx(-1)
   , m_idHitPattern(0)
   , m_muonTrackSummary(nullptr)
 {
@@ -29,16 +25,8 @@ Trk::TrackSummary::TrackSummary()
 }
 
 Trk::TrackSummary::TrackSummary(const std::vector<int>& information,
-                                const std::vector<float>& eProbability,
-                                std::bitset<numberOfDetectorTypes>& hitPattern,
-                                float dedx,
-                                int nhitsdedx,
-                                int noverflowdedx)
+                                std::bitset<numberOfDetectorTypes>& hitPattern)
   : m_information(information)
-  , m_eProbability(eProbability)
-  , m_dedx(dedx)
-  , m_nhitsdedx(nhitsdedx)
-  , m_nhitsoverflowdedx(noverflowdedx)
   , m_idHitPattern(hitPattern.to_ulong())
   , m_muonTrackSummary(nullptr)
 {
@@ -49,10 +37,6 @@ Trk::TrackSummary::TrackSummary(const std::vector<int>& information,
 
 Trk::TrackSummary::TrackSummary(const TrackSummary& rhs)
   : m_information(rhs.m_information)
-  , m_eProbability(rhs.m_eProbability)
-  , m_dedx(rhs.m_dedx)
-  , m_nhitsdedx(rhs.m_nhitsdedx)
-  , m_nhitsoverflowdedx(rhs.m_nhitsoverflowdedx)
   , m_idHitPattern(rhs.m_idHitPattern)
 {
 #ifndef NDEBUG

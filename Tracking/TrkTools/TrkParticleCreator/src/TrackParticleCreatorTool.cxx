@@ -882,9 +882,12 @@ void
 TrackParticleCreatorTool::setTrackSummary(xAOD::TrackParticle& tp, const TrackSummary& summary) const
 {
   // ensure that xAOD TrackSummary and TrackSummary enums are in sync.
-  constexpr unsigned int xAodReferenceEnum = static_cast<unsigned int>(xAOD::pixeldEdx);
-  constexpr unsigned int TrkReferenceEnum = static_cast<unsigned int>(Trk::pixeldEdx_res);
-  static_assert(xAodReferenceEnum == TrkReferenceEnum, "Trk and xAOD enums differ in their indices");
+  constexpr unsigned int xAodReferenceEnum1 = static_cast<unsigned int>(xAOD::numberOfTRTXenonHits);
+  constexpr unsigned int TrkReferenceEnum1 = static_cast<unsigned int>(Trk::numberOfTRTXenonHits);
+  static_assert(xAodReferenceEnum1 == TrkReferenceEnum1, "Trk and xAOD enums differ in their indices");
+  constexpr unsigned int xAodReferenceEnum2 = static_cast<unsigned int>(xAOD::numberOfTRTSharedHits);
+  constexpr unsigned int TrkReferenceEnum2 = static_cast<unsigned int>(Trk::numberOfTRTSharedHits);
+  static_assert(xAodReferenceEnum2 == TrkReferenceEnum2, "Trk and xAOD enums differ in their indices");
 
   for (unsigned int i = 0; i < Trk::numberOfTrackSummaryTypes; i++) {
     // Only add values which are +ve (i.e., which were created)
@@ -898,14 +901,10 @@ TrackParticleCreatorTool::setTrackSummary(xAOD::TrackParticle& tp, const TrackSu
       continue;
     }
     // skip values which are floats
-    if (std::find(floatSummaryTypes.begin(), floatSummaryTypes.end(), i) != floatSummaryTypes.end()) {
+    if (std::find(unusedSummaryTypes.begin(), unusedSummaryTypes.end(), i) != unusedSummaryTypes.end()) {
       continue;
     }
     if (i >= Trk::numberOfStgcEtaHits && i <= Trk::numberOfMmHoles) {
-      continue;
-    }
-    // coverity[mixed_enums]
-    if (i == Trk::numberOfTRTHitsUsedFordEdx) {
       continue;
     }
 

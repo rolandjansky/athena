@@ -203,10 +203,6 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
   std::vector<int>& information = ts.m_information;
   information.resize(std::min(information.size(),
                               static_cast<size_t>(numberOfTrackSummaryTypes)));
-  std::vector<float> eProbability = Trk::eProbabilityDefault;
-  float dedx = -1;
-  int nHitsUsed_dEdx = -1;
-  int nOverflowHits_dEdx = -1;
 
   constexpr int toZero{ 0 };
   if (!m_idTool.empty()) {
@@ -250,10 +246,6 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
     };
     setTheseElements(information, atSctOrTrtIndices, toZero);
   }
-
-  ts.m_dedx = dedx;
-  ts.m_nhitsdedx = nHitsUsed_dEdx;
-  ts.m_nhitsoverflowdedx = nOverflowHits_dEdx;
 
   if (m_doSharedHits) {
     // Shared hits counters set to 0
@@ -356,20 +348,12 @@ Trk::TrackSummaryTool::updateSharedHitCount(
  */
 void
 Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,
-                                            TrackSummary& summary,
-                                            bool initialiseToZero) const
+                                            TrackSummary& summary) const
 {
-  std::vector<float> eProbability = Trk::eProbabilityDefault;
-  const int initialValue(initialiseToZero ? 0 : -1);
-  float dedx = initialValue;
-  int nHitsUsed_dEdx = initialValue;
-  int nOverflowHits_dEdx = initialValue;
   if (m_idTool) {
-    m_idTool->updateAdditionalInfo(
-      summary, eProbability, dedx, nHitsUsed_dEdx, nOverflowHits_dEdx);
     m_idTool->updateExpectedHitInfo(track, summary);
   } else {
-    ATH_MSG_INFO(
+    ATH_MSG_DEBUG(
       "No updates attempted, as the SummaryHelperTool is not defined.");
   }
 }

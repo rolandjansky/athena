@@ -10,8 +10,6 @@ void TrackSummaryCnv_p2::dbgPrint( const Trk::TrackSummary *t){
 
     std::cout << "-------------------------------------------" <<std::endl;
     std::cout << "m_idHitPattern:\t" << t->m_idHitPattern << std::endl;
-    std::cout << "m_dedx        :\t" << t->m_dedx << std::endl;
-    std::cout << "m_nhitsdedx   :\t" << t->m_nhitsdedx << std::endl;
 
     std::cout << " std::vector m_information size: "<< t->m_information.size() <<std::endl;
     for (std::vector<int>::const_iterator i=t->m_information.begin();i!=t->m_information.end();++i) std::cout<<"\t "<<(*i);

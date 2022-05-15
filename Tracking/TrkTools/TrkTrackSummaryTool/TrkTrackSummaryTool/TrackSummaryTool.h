@@ -201,10 +201,6 @@ private:
                      const Trk::PRDtoTrackMap* pPrdToTrackMap,
                      bool suppress_hole_search) const;
 
-  void updateAdditionalInfo(const Track& track,
-                            TrackSummary& summary,
-                            bool initialise_to_zero) const;
-
   /** use this method to update a track. this means a tracksummary is created
   for this track but not returned. the summary can then be obtained from the
   track. Because it is taken from the track the ownership stays with the track

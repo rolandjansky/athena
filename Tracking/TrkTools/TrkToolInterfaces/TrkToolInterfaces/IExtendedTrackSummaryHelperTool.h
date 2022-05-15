@@ -99,12 +99,6 @@ namespace Trk {
       const Trk::PRDtoTrackMap*,
       Trk::TrackSummary&) const {};
 
-   virtual void updateAdditionalInfo(Trk::TrackSummary&,
-                                      std::vector<float>&,
-                                      float&,
-                                      int&,
-                                      int&) const {};
-
     /*
      * Implement the ITrackSummaryHelperTool part
      * of the interface for  the methods with the same
