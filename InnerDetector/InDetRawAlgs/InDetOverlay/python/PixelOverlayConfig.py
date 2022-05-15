@@ -1,6 +1,6 @@
 """Define methods to construct configured Pixel overlay algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -14,7 +14,7 @@ def PixelDataOverlayExtraCfg(flags, **kwargs):
 
     # We need to convert BS to RDO for data overlay
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
-    acc.merge(PixelRawDataProviderAlgCfg(flags, RDOKey = flags.Overlay.BkgPrefix + "PixelRDOs"))
+    acc.merge(PixelRawDataProviderAlgCfg(flags, RDOKey=f"{flags.Overlay.BkgPrefix}PixelRDOs"))
 
     return acc
 
@@ -23,14 +23,16 @@ def PixelOverlayAlgCfg(flags, name="PixelOverlay", **kwargs):
     """Return a ComponentAccumulator for PixelOverlay algorithm"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "PixelRDOs")
-    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "PixelRDOs")
+    kwargs.setdefault("BkgInputKey", f"{flags.Overlay.BkgPrefix}PixelRDOs")
+    kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}PixelRDOs")
     kwargs.setdefault("OutputKey", "PixelRDOs")
 
+    if not flags.Overlay.DataOverlay:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'PixelRDO_Container#{kwargs["BkgInputKey"]}']))
+
     # Do Pixel overlay
-    PixelOverlay = CompFactory.PixelOverlay
-    alg = PixelOverlay(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.PixelOverlay(name, **kwargs))
 
     # Setup output
     if flags.Output.doWriteRDO:
@@ -47,7 +49,7 @@ def PixelOverlayAlgCfg(flags, name="PixelOverlay", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
-            "PixelRDO_Container#" + flags.Overlay.SigPrefix + "PixelRDOs"
+            f"PixelRDO_Container#{flags.Overlay.SigPrefix}PixelRDOs"
         ]))
 
     return acc
@@ -60,14 +62,11 @@ def PixelTruthOverlayCfg(flags, name="PixelSDOOverlay", **kwargs):
     # We do not need background Pixel SDOs
     kwargs.setdefault("BkgInputKey", "")
 
-    kwargs.setdefault("SignalInputKey",
-                      flags.Overlay.SigPrefix + "PixelSDO_Map")
+    kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}PixelSDO_Map")
     kwargs.setdefault("OutputKey", "PixelSDO_Map")
 
     # Do Pixel truth overlay
-    InDetSDOOverlay = CompFactory.InDetSDOOverlay
-    alg = InDetSDOOverlay(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.InDetSDOOverlay(name, **kwargs))
 
     # Setup output
     if flags.Output.doWriteRDO:
@@ -79,7 +78,7 @@ def PixelTruthOverlayCfg(flags, name="PixelSDOOverlay", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
-            "InDetSimDataCollection#" + flags.Overlay.SigPrefix + "PixelSDO_Map"
+            f"InDetSimDataCollection#{flags.Overlay.SigPrefix}PixelSDO_Map"
         ]))
 
     return acc

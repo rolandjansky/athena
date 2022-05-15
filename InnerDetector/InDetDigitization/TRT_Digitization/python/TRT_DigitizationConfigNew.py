@@ -1,6 +1,6 @@
 """Define methods to construct configured TRT Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -201,6 +201,10 @@ def TRT_DigitizationBasicCfg(flags, **kwargs):
 def TRT_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with TRT Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["TRTUncompressedHitCollection#TRTUncompressedHits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(TRT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

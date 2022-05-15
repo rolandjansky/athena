@@ -1,6 +1,6 @@
 """Define methods to construct configured SCT overlay algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -26,14 +26,16 @@ def SCTOverlayAlgCfg(flags, name="SCTOverlay", **kwargs):
     """Return a ComponentAccumulator for SCTOverlay algorithm"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
-    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("BkgInputKey", f"{flags.Overlay.BkgPrefix}SCT_RDOs")
+    kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}SCT_RDOs")
     kwargs.setdefault("OutputKey", "SCT_RDOs")
 
+    if not flags.Overlay.DataOverlay:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'SCT_RDO_Container#{kwargs["BkgInputKey"]}']))
+
     # Do SCT overlay
-    SCTOverlay = CompFactory.SCTOverlay
-    alg = SCTOverlay(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.SCTOverlay(name, **kwargs))
 
     # Setup output
     if flags.Output.doWriteRDO:
@@ -50,7 +52,7 @@ def SCTOverlayAlgCfg(flags, name="SCTOverlay", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
-            "SCT_RDO_Container#" + flags.Overlay.SigPrefix + "SCT_RDOs"
+            f"SCT_RDO_Container#{flags.Overlay.SigPrefix}SCT_RDOs"
         ]))
 
     return acc
@@ -63,14 +65,11 @@ def SCTTruthOverlayCfg(flags, name="SCTSDOOverlay", **kwargs):
     # We do not need background SCT SDOs
     kwargs.setdefault("BkgInputKey", "")
 
-    kwargs.setdefault("SignalInputKey",
-                      flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}SCT_SDO_Map")
     kwargs.setdefault("OutputKey", "SCT_SDO_Map")
 
     # Do SCT truth overlay
-    InDetSDOOverlay = CompFactory.InDetSDOOverlay
-    alg = InDetSDOOverlay(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.InDetSDOOverlay(name, **kwargs))
 
     # Setup output
     if flags.Output.doWriteRDO:
@@ -82,7 +81,7 @@ def SCTTruthOverlayCfg(flags, name="SCTSDOOverlay", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
-            "InDetSimDataCollection#" + flags.Overlay.SigPrefix + "SCT_SDO_Map"
+            f"InDetSimDataCollection#{flags.Overlay.SigPrefix}SCT_SDO_Map"
         ]))
 
     return acc

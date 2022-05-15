@@ -288,6 +288,10 @@ def SCT_DigitizationBasicCfg(flags, **kwargs):
 def SCT_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with SCT Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["SiHitCollection#SCT_Hits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(SCT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
