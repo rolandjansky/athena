@@ -19,12 +19,12 @@
 
 namespace {
 
-// Actual implementation method for combining a multi component state
+// Actual implementation method for combining
+// a multi component state.
 std::unique_ptr<Trk::ComponentParameters>
-computeImpl(
-  const Trk::MultiComponentState* uncombinedState,
-  const bool useMode,
-  const double fractionPDFused)
+computeImpl(const Trk::MultiComponentState* uncombinedState,
+            const bool useMode,
+            const double fractionPDFused)
 {
   if (uncombinedState->empty()) {
     return nullptr;
@@ -93,15 +93,9 @@ computeImpl(
     // \sigma = \Sum_{m=1}^{M} w_{m}(\sigma_m + (\mu_m-\mu)(\mu_m-\mu)^{T})
     if (measuredCov) {
       // Changed from errorMatrixInMeasurementFrame
-
       covariancePart1 += weight * (*measuredCov);
-
-      /* ============================================================================
-         Loop over all remaining components to find the second part of the
-         covariance
-         ============================================================================
-       */
-
+      // Loop over all remaining components to find the second part of the
+      // covariance
       Trk::MultiComponentState::const_iterator remainingComponentIterator =
         component;
 
@@ -123,8 +117,8 @@ computeImpl(
                            parameterDifference.transpose();
 
       } // end loop over remaining components
+    }   // end clause if errors are involved
 
-    } // end clause if errors are involved
     if (weight / totalWeight > fractionPDFused) {
       break;
     }
@@ -220,6 +214,7 @@ computeImpl(
   return std::make_unique<Trk::ComponentParameters>(
     std::move(combinedTrackParameters), totalWeight);
 }
+
 } // end anonymous namespace
 
 std::unique_ptr<Trk::TrackParameters>
@@ -233,60 +228,92 @@ Trk::MultiComponentStateCombiner::combine(
   return std::move(combinedComponent->first);
 }
 
-std::unique_ptr<Trk::ComponentParameters>
-Trk::MultiComponentStateCombiner::combineWithWeight(
-  const Trk::MultiComponentState& uncombinedState,
-  const bool useMode,
-  const double fractionPDFused)
-
-{
-  return computeImpl(&uncombinedState, useMode, fractionPDFused);
-}
-
 void
 Trk::MultiComponentStateCombiner::combineWithWeight(
   Trk::ComponentParameters& mergeTo,
   const Trk::ComponentParameters& addThis)
 {
-  const Trk::TrackParameters* secondParameters = addThis.first.get();
-  combineWithWeight(
-    mergeTo,
-    secondParameters->parameters(),
-    secondParameters->covariance(),
-    addThis.second);
-}
-
-void
-Trk::MultiComponentStateCombiner::combineWithWeight(
-  Trk::ComponentParameters& mergeTo,
-  const AmgVector(5) & secondParameters,
-  const AmgSymMatrix(5) * secondMeasuredCov,
-  const double secondWeight)
-{
+  const Trk::TrackParameters* firstTrackParameters = mergeTo.first.get();
+  const AmgVector(5)& firstParameters = firstTrackParameters->parameters();
   double firstWeight = mergeTo.second;
-  auto* trackParameters = mergeTo.first.get();
-  const AmgVector(5)& firstParameters = trackParameters->parameters();
+
+  const Trk::TrackParameters* secondTrackParameters = addThis.first.get();
+  const AmgVector(5)& secondParameters = secondTrackParameters->parameters();
+  double secondWeight = addThis.second;
+
+  // copy over the first
   AmgVector(5) finalParameters(firstParameters);
-  // Check to see if first track parameters are measured or not
   double finalWeight = firstWeight;
   combineParametersWithWeight(
     finalParameters, finalWeight, secondParameters, secondWeight);
 
-  if (trackParameters->covariance() && secondMeasuredCov) {
-    AmgSymMatrix(5) finalMeasuredCov(*trackParameters->covariance());
-    combineCovWithWeight(
-      firstParameters,
-      finalMeasuredCov,
-      firstWeight,
-      secondParameters,
-      *secondMeasuredCov,
-      secondWeight);
-
+  const AmgSymMatrix(5)* firstMeasuredCov = firstTrackParameters->covariance();
+  const AmgSymMatrix(5)* secondMeasuredCov = secondTrackParameters->covariance();
+  // Check to see if first track parameters are measured or not
+  if (firstMeasuredCov && secondMeasuredCov) {
+    AmgSymMatrix(5) finalMeasuredCov(*firstMeasuredCov);
+    combineCovWithWeight(firstParameters,
+                         finalMeasuredCov,
+                         firstWeight,
+                         secondParameters,
+                         *secondMeasuredCov,
+                         secondWeight);
     mergeTo.first->updateParameters(finalParameters, finalMeasuredCov);
     mergeTo.second = finalWeight;
   } else {
     mergeTo.first->updateParameters(finalParameters);
     mergeTo.second = finalWeight;
   }
+}
+
+void
+Trk::MultiComponentStateCombiner::combineParametersWithWeight(
+  AmgVector(5) & firstParameters,
+  double& firstWeight,
+  const AmgVector(5) & secondParameters,
+  const double secondWeight)
+{
+
+  double totalWeight = firstWeight + secondWeight;
+  // Ensure that we don't have any problems with the cyclical nature of phi
+  // Use first state as reference poin
+  double deltaPhi = firstParameters[2] - secondParameters[2];
+  if (deltaPhi > M_PI) {
+    firstParameters[2] -= 2 * M_PI;
+  } else if (deltaPhi < -M_PI) {
+    firstParameters[2] += 2 * M_PI;
+  }
+  firstParameters =
+    firstWeight * firstParameters + secondWeight * secondParameters;
+  firstParameters /= totalWeight;
+  // Ensure that phi is between -pi and pi
+  firstParameters[2] = CxxUtils::wrapToPi(firstParameters[2]);
+  firstWeight = totalWeight;
+}
+
+// The following does heave use of Eigen
+// for covariance. Avoid out-of-line calls
+// to Eigen
+#if defined(__GNUC__)
+[[gnu::flatten]]
+#endif
+void
+Trk::MultiComponentStateCombiner::combineCovWithWeight(
+  const AmgVector(5) & firstParameters,
+  AmgSymMatrix(5) & firstMeasuredCov,
+  const double firstWeight,
+  const AmgVector(5) & secondParameters,
+  const AmgSymMatrix(5) & secondMeasuredCov,
+  const double secondWeight)
+{
+  double totalWeight = firstWeight + secondWeight;
+  AmgVector(5) parameterDifference = firstParameters - secondParameters;
+  parameterDifference[2] = CxxUtils::wrapToPi(parameterDifference[2]);
+  parameterDifference /= totalWeight;
+  firstMeasuredCov *= firstWeight;
+  firstMeasuredCov += secondWeight * secondMeasuredCov;
+  firstMeasuredCov /= totalWeight;
+  firstMeasuredCov += firstWeight * secondWeight * parameterDifference *
+                      parameterDifference.transpose();
 }
 
