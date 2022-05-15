@@ -5,4 +5,5 @@
   <class name="PMGTools::IPMGCrossSectionTool" />
   <class name="PMGTools::IPMGSherpaVjetsSysTool" />
   <class name="PMGTools::IPMGTruthWeightTool" />
+  <class name="PMGTools::ISysTruthWeightTool" />
 </lcgdict>

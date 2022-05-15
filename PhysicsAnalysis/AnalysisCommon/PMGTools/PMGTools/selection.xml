@@ -6,5 +6,6 @@
   <class name="PMGTools::PMGSherpa22VJetsWeightTool" />
   <class name="PMGTools::PMGSherpaVjetsSysTool" />
   <class name="PMGTools::PMGTruthWeightTool" />
+  <class name="PMGTools::PMGHFProductionFractionTool" />
 
 </lcgdict>

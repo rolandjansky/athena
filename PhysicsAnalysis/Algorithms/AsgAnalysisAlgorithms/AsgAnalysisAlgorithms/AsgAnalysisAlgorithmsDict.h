@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -27,6 +27,7 @@
 #include <AsgAnalysisAlgorithms/OverlapRemovalAlg.h>
 #include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 #include <AsgAnalysisAlgorithms/PMGTruthWeightAlg.h>
+#include <AsgAnalysisAlgorithms/SysTruthWeightAlg.h>
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>
 #include <AsgAnalysisAlgorithms/TreeMakerAlg.h>

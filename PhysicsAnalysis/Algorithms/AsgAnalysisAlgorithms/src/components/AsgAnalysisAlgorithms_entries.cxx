@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -26,6 +26,7 @@
 #include <AsgAnalysisAlgorithms/OverlapRemovalAlg.h>
 #include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 #include <AsgAnalysisAlgorithms/PMGTruthWeightAlg.h>
+#include <AsgAnalysisAlgorithms/SysTruthWeightAlg.h>
 #include <AsgAnalysisAlgorithms/SysListDumperAlg.h>
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>
 #include <AsgAnalysisAlgorithms/TreeMakerAlg.h>
@@ -49,6 +50,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, ObjectCutFlowHistAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, OverlapRemovalAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, PileupReweightingAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, PMGTruthWeightAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, SysTruthWeightAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, SysListDumperAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeFillerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeMakerAlg)
@@ -72,6 +74,7 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGORITHM (CP, OverlapRemovalAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, PileupReweightingAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, PMGTruthWeightAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, SysTruthWeightAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, SysListDumperAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, TreeFillerAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, TreeMakerAlg)
