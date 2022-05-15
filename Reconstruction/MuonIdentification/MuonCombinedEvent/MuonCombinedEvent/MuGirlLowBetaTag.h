@@ -67,13 +67,13 @@ namespace MuonCombined {
         MuGirlNS::RHExtras* getRHExtras();
 
         /** name string */
-        std::string name() const { return "MuGirlLowBetaTag"; }
+        std::string name() const override { return "MuGirlLowBetaTag"; }
 
         /** print content to string */
-        std::string toString() const { return name(); }
+        std::string toString() const override { return name(); }
 
         /** access to primary muon system track, zero if non available */
-        const Trk::Track* primaryTrack() const;
+        const Trk::Track* primaryTrack() const override;
 
     private:
         /** block copy and assignment */
