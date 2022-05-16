@@ -33,7 +33,7 @@
 #include "HepPDT/ParticleData.hh"
 
 // For the Athena-based random numbers.
-#include "CLHEP/Random/RandPoisson.h"//randpoissonq? (fixme)
+#include "CLHEP/Random/RandPoisson.h" //randpoissonq? (fixme)
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandBinomial.h"
 #include "CLHEP/Random/RandExpZiggurat.h"
@@ -41,8 +41,6 @@
 #include <cmath>
 #include <cstdlib> //Always include this when including cmath!
 
-// Logging
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 //________________________________________________________________________________
 TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
@@ -58,7 +56,8 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            ITRT_PAITool* paitoolKr,
                                            const ITRT_CalDbTool* calDbTool)
 
-: m_settings(digset),
+: AthMessaging("TRTProcessingOfStraw"),
+  m_settings(digset),
   m_detmgr(detmgr),
   m_pPAItoolXe(paitoolXe),
   m_pPAItoolAr(paitoolAr),
@@ -72,21 +71,16 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
   m_pDigConditions(digcond),
   m_pParticleTable(pdt),
   m_alreadywarnedagainstpdg0(false),
-  m_msg("TRTProcessingOfStraw"),
   m_id_helper(trt_id)
 
 {
-  ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Constructor begin" );
   Initialize(calDbTool);
-  ATH_MSG_VERBOSE ( "Constructor done" );
 }
 
 //________________________________________________________________________________
 TRTProcessingOfStraw::~TRTProcessingOfStraw()
 {
-  ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Destructor begin" );
   delete m_pTimeCorrection;
-  ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Destructor done" );
 }
 
 //________________________________________________________________________________

@@ -40,18 +40,16 @@
 
 //_________________________________________________________________________________________________________
 TRTDigSettings::TRTDigSettings()
-  : m_digversion(-1),
+  : AthMessaging("TRTDigSettings"),
+    m_digversion(-1),
     m_propertyNotSetMagicNumber(-999.0e50),
-    m_propertyNotSetMagicNumber_int(-9999),
-    m_msg("TRTDigSettings")
+    m_propertyNotSetMagicNumber_int(-9999)
 {
   defineVariables();
 }
 
 //_________________________________________________________________________________________________________
 void TRTDigSettings::initialize(const InDetDD::TRT_DetectorManager* detmgr) {
-
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing" << endmsg;
 
   //1) Fill defaults based on digversion
   fillDefaults(detmgr);
@@ -236,7 +234,7 @@ StatusCode TRTDigSettings::DigSettingsFromCondDB(int dig_vers_from_condDB) {
   if (dig_vers_from_condDB==12) {
     // the settings are default now
   } else {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endmsg;
+    ATH_MSG_ERROR("Error in settings / condDB");
     return StatusCode::FAILURE;
   }
 
@@ -322,10 +320,12 @@ void TRTDigSettings::defineNewVariable(const std::string & name, double * datame
 
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Multiple definitions of "<<name);
+    return;
   }
   if (lowrange > highrange || lowrange*unitval<=m_propertyNotSetMagicNumber ) {
-    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Problem in range of par "<<name);
+    return;
   }
 
   doubleparameter p;
@@ -346,10 +346,12 @@ void TRTDigSettings::defineNewUIntVariable(const std::string &name,unsigned int 
                                            unsigned int lowrange, unsigned int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Multiple definitions of "<<name);
+    return;
   }
   if (lowrange > highrange ) {
-    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Problem in range of par "<<name);
+    return;
   }
 
   intboolparameter p;
@@ -371,10 +373,12 @@ void TRTDigSettings::defineNewIntVariable(const std::string & name,int * datamem
                                           int lowrange, int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Multiple definitions of "<<name);
+    return;
   }
   if (lowrange > highrange || lowrange<=m_propertyNotSetMagicNumber_int ) {
-    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Problem in range of par "<<name);
+    return;
   }
 
   intboolparameter p;
@@ -395,7 +399,8 @@ void TRTDigSettings::defineNewIntVariable(const std::string & name,int * datamem
 void TRTDigSettings::defineNewBoolVariable(const std::string & name,bool * datamember,const std::string & description) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
+    ATH_MSG_FATAL("TRTDigSettings: Multiple definitions of "<<name);
+    return;
   }
 
   intboolparameter p;
@@ -431,7 +436,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // After TRT_Digitization-00-10-74 (end of Run1) we will no longer support m_digversion<11
   if (m_digversion<11) {
-    if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
+    ATH_MSG_FATAL("digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now.");
     throw std::runtime_error("fillDefaults: digversion is not supported");
   }
 
@@ -439,8 +444,8 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   if ( activegastype == InDetDD::TRT_DetectorManager::newgas ) gasok = true;
 
   if (!gasok) {
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Active gas setting seems incompatible with dig. version number."<<endmsg;
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "If not deliberate, it might indicate a configuration or DB problem."<<endmsg;
+    ATH_MSG_WARNING("Active gas setting seems incompatible with dig. version number.");
+    ATH_MSG_WARNING("If not deliberate, it might indicate a configuration or DB problem.");
   }
 
   // miscellaneous
@@ -547,7 +552,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
     m_trEfficiencyBarrel = 0.95;
     m_trEfficiencyEndCapA = 1.00;
     m_trEfficiencyEndCapB = 1.00;
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Setting up non suppressed double counted delta-ray xenon tune"<<endmsg;
+    ATH_MSG_WARNING("Setting up non suppressed double counted delta-ray xenon tune");
   }
 
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
@@ -605,12 +610,12 @@ void TRTDigSettings::processOverrides() {
   for (;itd!=itdE;++itd) {
     if (itd->second.valueSetByUser != m_propertyNotSetMagicNumber) {
       if (itd->second.valueSetByUser < itd->second.okrange_low || itd->second.valueSetByUser > itd->second.okrange_high) {
-        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endmsg;
+        ATH_MSG_ERROR("Can not override value of "<<itd->first<<" : New value outside allowed range");
       } else {
         if ( static_cast<float>(*(itd->second.directvaraddress)) != static_cast<float>(itd->second.valueSetByUser) ) {
-          if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itd->first<<" flag ("
-                                                        << (*(itd->second.directvaraddress))/itd->second.unit<<" "<<itd->second.unitname<<" -> "
-                                                        << itd->second.valueSetByUser/itd->second.unit<<" "<<itd->second.unitname<<")"<<endmsg;
+          ATH_MSG_WARNING("Overriding "<<itd->first<<" flag ("
+                          << (*(itd->second.directvaraddress))/itd->second.unit<<" "<<itd->second.unitname<<" -> "
+                          << itd->second.valueSetByUser/itd->second.unit<<" "<<itd->second.unitname<<")");
           *(itd->second.directvaraddress) = itd->second.valueSetByUser;
           anyoverrides = true;
         }
@@ -624,21 +629,21 @@ void TRTDigSettings::processOverrides() {
   for (;itib!=itibE;++itib) {
     if (itib->second.valueSetByUser != m_propertyNotSetMagicNumber_int) {
       if (itib->second.valueSetByUser < itib->second.okrange_low || itib->second.valueSetByUser > itib->second.okrange_high) {
-        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endmsg;
+        ATH_MSG_ERROR("Can not override value of "<<itib->first<<" : New value outside allowed range");
       } else {
         if (itib->second.directvaraddress_int) {
           //int
           if ( (*(itib->second.directvaraddress_int)) != itib->second.valueSetByUser ) {
-            if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-                                                          << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
+            ATH_MSG_WARNING("Overriding "<<itib->first<<" flag ("
+                            << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")");
             *(itib->second.directvaraddress_int) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
         } else if (itib->second.directvaraddress_uint) {
           //unsigned int
           if ( (*(itib->second.directvaraddress_uint)) != static_cast<unsigned int>(itib->second.valueSetByUser) ) {
-            if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-                                                          << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
+            ATH_MSG_WARNING("Overriding "<<itib->first<<" flag ("
+                            << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")");
             *(itib->second.directvaraddress_uint) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
@@ -646,9 +651,9 @@ void TRTDigSettings::processOverrides() {
           //bool
           assert(itib->second.directvaraddress_bool);
           if ( (*(itib->second.directvaraddress_bool)) != itib->second.valueSetByUser ) {
-            if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-                                                          << (*(itib->second.directvaraddress_bool)?1:0)<<" -> "
-                                                          << (itib->second.valueSetByUser?1:0)<<")"<<endmsg;
+            ATH_MSG_WARNING("Overriding "<<itib->first<<" flag ("
+                            << (*(itib->second.directvaraddress_bool)?1:0)<<" -> "
+                            << (itib->second.valueSetByUser?1:0)<<")");
             *(itib->second.directvaraddress_bool) = itib->second.valueSetByUser == 1;
             anyoverrides = true;
           }
@@ -658,6 +663,6 @@ void TRTDigSettings::processOverrides() {
   }
 
   if (anyoverrides)
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Settings overridden from joboptions => possible deviation from version defaults." << endmsg;
+    ATH_MSG_WARNING("Settings overridden from joboptions => possible deviation from version defaults.");
 
 }

@@ -46,7 +46,8 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
                     int UseGasMix,
                     ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
                     )
-: m_settings(digset),
+: AthMessaging("TRTNoise"),
+  m_settings(digset),
   m_detmgr(detmgr),
   m_pDigConditions(digcond),
   m_pElectronicsProcessing(ep),
@@ -54,20 +55,15 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
   m_id_helper(trt_id),
   m_digitPoolLength(5000),
   m_digitPoolLength_nextaccessindex(0),
-  m_msg("TRTNoise"),
   m_UseGasMix(UseGasMix),
   m_sumTool(std::move(sumTool))
 {
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
   InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine);
   if ( m_settings->noiseInSimhits() ) m_pElectronicsNoise->reinitElectronicsNoise( 1000, elecNoiseResetRndmEngine );
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Constructor done" << endmsg; }
 }
 
 //_____________________________________________________________________________
 TRTNoise::~TRTNoise() {
-
-  if (msgLevel(MSG::VERBOSE)) {msg(MSG::VERBOSE) << "TRTNoise::Destructor" << endmsg; }
 }
 
 //_____________________________________________________________________________
@@ -95,9 +91,6 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
   // through the straws and set LT_i and NA_i.                       //
   /////////////////////////////////////////////////////////////////////
 
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE)
-      << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Begin" << endmsg;
-  }
 
   ///////////////////////////////////////////////////////////////////
   // Step 1 - create lookup table for mapping: noiselevel -> LT/NA //
@@ -145,13 +138,12 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
 
   m_pDigConditions->resetGetNextStraw();
 
-  MsgStream* amsg = &(m_msg.get());
   /// Loop through all non-dead straws (there are no dead straws since 2009!):
   while ( m_pDigConditions->getNextStraw(hitid, noiselevel, noiseamp) ) {
 
     const bool isBarrel(!(hitid & 0x00200000));
     const int statusHT =  m_sumTool->getStatusHT(getStrawIdentifier(hitid));
-    const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
+    const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, &msg());
     float lt = useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
 
     if (strawGasType==0) {
@@ -203,7 +195,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
   while ( m_pDigConditions->getNextStraw( hitid, noiselevel, noiseamp) ) {
 
     const int statusHT =  m_sumTool->getStatusHT(getStrawIdentifier(hitid));
-    const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
+    const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, &msg());
 
     const bool isBarrel(!(hitid & 0x00200000));
     if      (strawGasType==0) { actualNA = noiseamp*( isBarrel ? kBa_Xe : kEC_Xe ); }
@@ -237,29 +229,29 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
   };
 
 
-  if (msgLevel(MSG::INFO)) {
+  if (msgLvl(MSG::INFO)) {
 
     unsigned long nstraws_Kr = nstrawsBa_Kr + nstrawsEC_Kr;
     unsigned long nstraws_Xe = nstrawsBa_Xe + nstrawsEC_Xe;
     unsigned long nstraws_Ar = nstrawsBa_Ar + nstrawsEC_Ar;
 
     if (nstraws_Xe) {
-      msg(MSG::INFO) << "Xe Average LT is " << sumLT_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
-                     << sqrt((sumLTsq_Xe/nstraws_Xe)-(sumLT_Xe/nstraws_Xe)*(sumLT_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endmsg;
-      msg(MSG::INFO) << "Xe Average NA is " << sumNA_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
-                     << sqrt((sumNAsq_Xe/nstraws_Xe)-(sumNA_Xe/nstraws_Xe)*(sumNA_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endmsg;
+      ATH_MSG_INFO("Xe Average LT is " << sumLT_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
+                   << sqrt((sumLTsq_Xe/nstraws_Xe)-(sumLT_Xe/nstraws_Xe)*(sumLT_Xe/nstraws_Xe))/CLHEP::eV << " eV");
+      ATH_MSG_INFO("Xe Average NA is " << sumNA_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
+                   << sqrt((sumNAsq_Xe/nstraws_Xe)-(sumNA_Xe/nstraws_Xe)*(sumNA_Xe/nstraws_Xe))/CLHEP::eV << " eV");
     }
     if (nstraws_Kr) {
-      msg(MSG::INFO) << "Kr Average LT is " << sumLT_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
-                     << sqrt((sumLTsq_Kr/nstraws_Kr)-(sumLT_Kr/nstraws_Kr)*(sumLT_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endmsg;
-      msg(MSG::INFO) << "Kr Average NA is " << sumNA_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
-                     << sqrt((sumNAsq_Kr/nstraws_Kr)-(sumNA_Kr/nstraws_Kr)*(sumNA_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endmsg;
+      ATH_MSG_INFO("Kr Average LT is " << sumLT_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
+                   << sqrt((sumLTsq_Kr/nstraws_Kr)-(sumLT_Kr/nstraws_Kr)*(sumLT_Kr/nstraws_Kr))/CLHEP::eV << " eV");
+      ATH_MSG_INFO("Kr Average NA is " << sumNA_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
+                   << sqrt((sumNAsq_Kr/nstraws_Kr)-(sumNA_Kr/nstraws_Kr)*(sumNA_Kr/nstraws_Kr))/CLHEP::eV << " eV");
     }
     if (nstraws_Ar) {
-      msg(MSG::INFO) << "Ar Average LT is " << sumLT_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
-                     << sqrt((sumLTsq_Ar/nstraws_Ar)-(sumLT_Ar/nstraws_Ar)*(sumLT_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endmsg;
-      msg(MSG::INFO) << "Ar Average NA is " << sumNA_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
-                     << sqrt((sumNAsq_Ar/nstraws_Ar)-(sumNA_Ar/nstraws_Ar)*(sumNA_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endmsg;
+      ATH_MSG_INFO("Ar Average LT is " << sumLT_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
+                   << sqrt((sumLTsq_Ar/nstraws_Ar)-(sumLT_Ar/nstraws_Ar)*(sumLT_Ar/nstraws_Ar))/CLHEP::eV << " eV");
+      ATH_MSG_INFO("Ar Average NA is " << sumNA_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
+                   << sqrt((sumNAsq_Ar/nstraws_Ar)-(sumNA_Ar/nstraws_Ar)*(sumNA_Ar/nstraws_Ar))/CLHEP::eV << " eV");
     }
 
   }
@@ -270,9 +262,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(CLHEP:
   if ( m_settings->noiseInUnhitStraws() ) {
     ProduceNoiseDigitPool( actual_LTs, actual_noiseamps, strawTypes, noiseRndmEngine, elecNoiseRndmEngine, elecProcRndmEngine );
   }
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE)
-      << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Done" << endmsg;
-  }
+
   return;
 }
 
@@ -286,8 +276,6 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 
   unsigned int nstraw = lowthresholds.size();
   unsigned int istraw;
-
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Producing noise digit pool" << endmsg; }
 
   m_digitPool.resize( m_digitPoolLength );
 
@@ -330,14 +318,13 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
     ntries++;
   };
 
-  if (msgLevel(MSG::VERBOSE)) {
+  if (msgLvl(MSG::VERBOSE)) {
     if(0==ntries) {
-      if (msgLevel(MSG::FATAL)) { msg(MSG::FATAL) << "ntries==0 this should not be possible!" << endmsg; }
+      ATH_MSG_FATAL("ntries==0 this should not be possible!");
       throw std::exception();
     }
-    msg(MSG::VERBOSE)
-      << "Produced noise digit pool of size " << m_digitPool.size()
-      << " (efficiency was " << static_cast<double>(m_digitPool.size())/ntries << ")" << endmsg;
+    ATH_MSG_VERBOSE("Produced noise digit pool of size " << m_digitPool.size()
+                    << " (efficiency was " << static_cast<double>(m_digitPool.size())/ntries << ")");
   }
 
   m_digitPoolLength_nextaccessindex = 0;
@@ -412,7 +399,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
           case -1:  barrel_endcap = 0; isneg = 0; break;
           case  1:  barrel_endcap = 0; isneg = 1; break;
           default:
-            if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTNoise - identifier problems - skipping detector element!!" <<  endmsg; }
+            ATH_MSG_WARNING("TRTDigitization::TRTNoise - identifier problems - skipping detector element!!");
             continue;
           }
           const int ringwheel(m_id_helper->layer_or_wheel(CrossTalkIds[i]));
@@ -439,7 +426,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
           case -1:  barrel_endcap = 0; isneg = 0; break;
           case  1:  barrel_endcap = 0; isneg = 1; break;
           default:
-            if (msgLevel(MSG::WARNING)) { msg(MSG::WARNING) << "TRTDigitization::TRTNoise - identifier problems - skipping detector element!!" <<  endmsg; }
+            ATH_MSG_WARNING("TRTDigitization::TRTNoise - identifier problems - skipping detector element!!");
             continue;
           }
 
@@ -629,10 +616,10 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
       IdLayer = barrelElement->identify();
       IdStraw = m_id_helper->straw_id(IdLayer, strawID);
     } else {
-      msg(MSG::ERROR) << "Could not find detector element for barrel identifier with "
-                      << "(ipos,iring,imod,ilayer,istraw) = ("
-                      << trtID << ", " << ringID << ", " << moduleID << ", "
-                      << layerID << ", " << strawID << ")" << endmsg;
+      ATH_MSG_ERROR("Could not find detector element for barrel identifier with "
+                    << "(ipos,iring,imod,ilayer,istraw) = ("
+                    << trtID << ", " << ringID << ", " << moduleID << ", "
+                    << layerID << ", " << strawID << ")");
     }
   } else {                           // endcap
     strawID   = hitID & mask;
@@ -654,14 +641,14 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
       IdLayer = endcapElement->identify();
       IdStraw = m_id_helper->straw_id(IdLayer, strawID);
     } else {
-      msg(MSG::ERROR) << "Could not find detector element for endcap identifier with "
-                      << "(ipos,iwheel,isector,iplane,istraw) = ("
-                      << trtID << ", " << wheelID << ", " << sectorID << ", "
-                      << planeID << ", " << strawID << ")" << endmsg;
-      msg(MSG::ERROR) << "If this happens very rarely, don't be alarmed "
-                      << "(it is a Geant4 'feature')" << endmsg;
-      msg(MSG::ERROR) << "If it happens a lot, you probably have misconfigured geometry "
-                      << "in the sim. job." << endmsg;
+      ATH_MSG_ERROR("Could not find detector element for endcap identifier with "
+                    << "(ipos,iwheel,isector,iplane,istraw) = ("
+                    << trtID << ", " << wheelID << ", " << sectorID << ", "
+                    << planeID << ", " << strawID << ")");
+      ATH_MSG_ERROR("If this happens very rarely, don't be alarmed "
+                    "(it is a Geant4 'feature')");
+      ATH_MSG_ERROR("If it happens a lot, you probably have misconfigured geometry "
+                    "in the sim. job.");
     }
 
   }

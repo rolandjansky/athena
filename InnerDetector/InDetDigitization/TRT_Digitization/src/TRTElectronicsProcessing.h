@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTELECTRONICSPROCESSING_H
 #define TRT_DIGITIZATION_TRTELECTRONICSPROCESSING_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
-
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "CLHEP/Random/RandomEngine.h"
@@ -22,14 +20,11 @@ class TRTElectronicsNoise;
 /**
  * Electronics Processing
  */
-class TRTElectronicsProcessing {
+class TRTElectronicsProcessing : public AthMessaging {
 public:
   TRTElectronicsProcessing( const TRTDigSettings* digset,
                             TRTElectronicsNoise * electronicsnoise );
   ~TRTElectronicsProcessing();
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel  (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
   /**
    * TRT energy deposit
@@ -167,8 +162,6 @@ private:
   // LT and HT discriminated signals (bits).
   int* m_lowThresholdDiscriminator = nullptr;  /**< Signal after discrimination */
   int* m_highThresholdDiscriminator = nullptr; /**< Signal after discrimination */
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   mutable std::atomic<bool> m_first{true};
 };

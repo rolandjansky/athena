@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTTIMECORRECTION_H
 #define TRT_DIGITIZATION_TRTTIMECORRECTION_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "Identifier/Identifier.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
@@ -24,7 +23,7 @@ class TRT_ID;
 /**
  * Time correction
  */
-class TRTTimeCorrection {
+class TRTTimeCorrection : public AthMessaging {
 
 public:
 
@@ -58,10 +57,6 @@ public:
                        const double& meanZ,
                        double& propagationTime1,
                        double& propagationTime2);
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
 
 private:
 
@@ -145,9 +140,6 @@ private:
   bool m_getT0FromData = false;
 
   const ITRT_CalDbTool* m_trtcaldbtool;
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
 };
 
 #endif
