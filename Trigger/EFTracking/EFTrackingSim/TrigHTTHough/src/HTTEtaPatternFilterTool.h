@@ -105,7 +105,7 @@ class HTTEtaPatternFilterTool : public extends<AthAlgTool, IHTTRoadFilterTool>
   ///////////////////////////////////////////////////////////////////////
   // Convenience
   
-  unsigned m_nLayers; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
+  unsigned m_nLayers = 0U; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
   
   // The below maps are created in initialize, with fixed keys. But the counters (values)
   // are reset every input road.

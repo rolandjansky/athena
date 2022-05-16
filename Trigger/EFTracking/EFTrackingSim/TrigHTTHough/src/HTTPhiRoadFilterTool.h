@@ -71,7 +71,7 @@ class HTTPhiRoadFilterTool : public extends <AthAlgTool, IHTTRoadFilterTool>
   
         ///////////////////////////////////////////////////////////////////////
         // Convenience
-        unsigned m_nLayers; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
+        unsigned m_nLayers = 0U; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
   
         ///////////////////////////////////////////////////////////////////////
         // Metadata and Monitoring
