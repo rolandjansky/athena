@@ -20,7 +20,7 @@ def ActsWriteTrackingGeometryCfg(configFlags, name="ActsWriteTrackingGeometry", 
 
   result = ComponentAccumulator()
 
-  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  acc = ActsTrackingGeometryToolCfg(configFlags) 
   result.merge(acc)
   ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "geometry-maps.json",
                                                              processSensitives = False,

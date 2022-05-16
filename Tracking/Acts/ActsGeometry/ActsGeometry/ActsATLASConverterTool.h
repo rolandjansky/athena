@@ -61,13 +61,13 @@ public:
   /// A pointer to the measurment is kept in the SourceLink
   virtual 
   const ATLASSourceLink
-  ATLASMeasurementToSourceLink(const Trk::MeasurementBase *measurement) const override;
+  ATLASMeasurementToSourceLink(const Acts::GeometryContext& gctx, const Trk::MeasurementBase *measurement) const override;
 
   /// Transform an ATLAS track into a vector of SourceLink to be use in the avts tracking
   /// Transform both measurement and outliers.
   virtual 
   const std::vector<ATLASSourceLink>
-  ATLASTrackToSourceLink(const Trk::Track &track) const override;
+  ATLASTrackToSourceLink(const Acts::GeometryContext& gctx, const Trk::Track &track) const override;
 
   /// Create Acts TrackParameter from ATLAS one.
   /// Take care of unit conversion between the two.  
@@ -92,6 +92,9 @@ private:
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
   std::map<Identifier, const Acts::Surface&> m_actsSurfaceMap;
+
+  Gaudi::Property<bool> m_visualDebugOutput{this, "VisualDebugOutput", 
+    false, "Print additional output for debug plots"};
 };
 
 

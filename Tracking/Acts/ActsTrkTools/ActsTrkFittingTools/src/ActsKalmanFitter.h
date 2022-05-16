@@ -173,12 +173,6 @@ private:
   // Create a track from the fitter result
   std::unique_ptr<Trk::Track> makeTrack(const EventContext& ctx, Acts::GeometryContext& tgContext, TrackFitterResult& fitResult) const;
 
-  /// Create the track fitter function implementation.
-  ///
-  /// The magnetic field is intentionally given by-value since the variant
-  /// contains shared_ptr anyways.
-
-
   ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
   ToolHandle<IActsATLASConverterTool> m_ATLASConverterTool{this, "ATLASConverterTool", "ActsATLASConverterTool"};
