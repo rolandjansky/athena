@@ -364,7 +364,6 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 	OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
 	robFrag->rod_status( vint );
       
-	//     uint32_t v_size = robFrag->rod_nstatus();
 	int v_index=0;
       
 	/*
@@ -374,7 +373,21 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 	v_index++;
       
 	uint32_t n_status = vint[v_index++];
-      
+
+        if (n_status > robFrag->rod_nstatus() ) {
+           if (n_status > robFrag->rod_fragment_size_word()) {
+              ATH_MSG_WARNING("Rejecting fragment because the number of status words exceeds the fragement size: "
+                              << n_status << " > " << robFrag->rod_fragment_size_word()
+                              << " (nstatus from fragment header = " << robFrag->rod_nstatus()  << ")");
+              return StatusCode::RECOVERABLE;
+           }
+           else {
+              ATH_MSG_WARNING("The number of status words exceeds the number of status words marked in the header: "
+                              << n_status << " !< " << robFrag->rod_nstatus()
+                              << " (fragment size = " << robFrag->rod_fragment_size_word() << ")");
+           }
+        }
+
       //     cout << "TRT v_size: " << v_size << " & n_status: " << n_status << endl;
       
       //     for (uint32_t ii=0; ii<v_size; ii++)
