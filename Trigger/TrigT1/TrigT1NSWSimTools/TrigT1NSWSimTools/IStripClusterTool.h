@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISTRIPCLUSTERTOOL_H
@@ -36,7 +36,7 @@ namespace NSWL1 {
   public:
     virtual ~IStripClusterTool() {}
 
-    virtual StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData> >& clusters) = 0;
+    virtual StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData> >& clusters) const = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IStripClusterTool("NSWL1::IStripClusterTool", 1 ,0);

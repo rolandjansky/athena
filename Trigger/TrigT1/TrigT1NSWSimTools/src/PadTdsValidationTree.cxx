@@ -1,21 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadTdsValidationTree.h"
-
-#include "TrigT1NSWSimTools/PadOfflineData.h"
-
-#include "GaudiKernel/ITHistSvc.h"
-
-#include "TTree.h"
-
 
 namespace NSWL1{
     //------------------------------------------------------------------------------
     PadTdsValidationTree::PadTdsValidationTree():
         m_tree(NULL),
-        m_nPadHits(0),
+        m_nPadHits(NULL),
         m_padGlobalX(NULL),
         m_padGlobalY(NULL),
         m_padGlobalZ(NULL),
@@ -47,7 +40,7 @@ namespace NSWL1{
         bool success=false;
         if(tree){
             m_tree = tree;
-            m_nPadHits = 0;
+            m_nPadHits                    = new std::vector<int>();
             m_padGlobalX                  = new std::vector<float>();
             m_padGlobalY                  = new std::vector<float>();
             m_padGlobalZ                  = new std::vector<float>();
@@ -72,7 +65,7 @@ namespace NSWL1{
             m_padEtaIdFromOldSimu         = new std::vector<int>();
             m_padPhiIdFromOldSimu         = new std::vector<int>();
 
-            m_tree->Branch("nPadHits",                    &m_nPadHits,"nPadHits/i");
+            m_tree->Branch("nPadHits",                    &m_nPadHits);
             m_tree->Branch("padGlobalX",                  &m_padGlobalX);
             m_tree->Branch("padGlobalY",                  &m_padGlobalY);
             m_tree->Branch("padGlobalZ",                  &m_padGlobalZ);
@@ -96,7 +89,6 @@ namespace NSWL1{
             m_tree->Branch("offlineIdPadPhiIdConverted",  &m_offlineIdPadPhiConverted);
             m_tree->Branch("padEtaIdFromOldSimu",         &m_padEtaIdFromOldSimu);
             m_tree->Branch("padPhiIdFromOldSimu",         &m_padPhiIdFromOldSimu);
-    /**/
             success = true;
         }
         return success;
@@ -105,7 +97,7 @@ namespace NSWL1{
     void PadTdsValidationTree::reset_ntuple_variables()
     {
         if(m_tree){
-            m_nPadHits = 0;
+            m_nPadHits->clear();
             m_padGlobalX->clear();
             m_padGlobalY->clear();
             m_padGlobalZ->clear();
@@ -134,7 +126,7 @@ namespace NSWL1{
     //------------------------------------------------------------------------------
     void PadTdsValidationTree::clear_ntuple_variables()
     {
-        m_nPadHits                    = 0;
+        m_nPadHits                    = NULL;
         m_padGlobalX                  = NULL;
         m_padGlobalY                  = NULL;
         m_padGlobalZ                  = NULL;
@@ -150,8 +142,8 @@ namespace NSWL1{
         m_padPhiIdFromOfflineId       = NULL;
         m_padSectorIdFromOfflineId    = NULL;
         m_padSectorTypeFromOfflineId  = NULL;
-        m_padGasGapIdFromOfflineId    = NULL;    
-        m_padModuleIdFromOfflineId    = NULL;    
+        m_padGasGapIdFromOfflineId    = NULL;
+        m_padModuleIdFromOfflineId    = NULL;
         m_padMultipletIdFromOfflineId = NULL;
         m_padSideIdFromOfflineId      = NULL;
         m_offlineIdPadEtaConverted    = NULL;
@@ -160,19 +152,19 @@ namespace NSWL1{
         m_padPhiIdFromOldSimu         = NULL;
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_num_pad_hits(size_t num)
+    void PadTdsValidationTree::fill_num_pad_hits(size_t num) const
     {
-        m_nPadHits = num;
+        m_nPadHits->push_back(num);
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_hit_global_pos(const Amg::Vector3D &pos)
+    void PadTdsValidationTree::fill_hit_global_pos(const Amg::Vector3D &pos) const
     {
         m_padGlobalX->push_back(pos.x());
         m_padGlobalY->push_back(pos.y());
         m_padGlobalZ->push_back(pos.z());
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos)
+    void PadTdsValidationTree::fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos) const
     {
         // Logic is 4-corners:
         //   x1,y1 : Lower left (locally)
@@ -186,14 +178,14 @@ namespace NSWL1{
         }
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_truth_hit_global_pos(const Amg::Vector3D &pos)
+    void PadTdsValidationTree::fill_truth_hit_global_pos(const Amg::Vector3D &pos) const
     {
         m_padTruthHitGlobalX->push_back(pos.x());
         m_padTruthHitGlobalY->push_back(pos.y());
         m_padTruthHitGlobalZ->push_back(pos.z());
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_offlineid_info(const PadOfflineData &o, float bin_offset)
+    void PadTdsValidationTree::fill_offlineid_info(const PadOfflineData &o, float bin_offset) const
     {
         m_padEtaIdFromOfflineId->push_back       ( o.padEtaId() + bin_offset );
         m_padPhiIdFromOfflineId->push_back       ( o.padPhiId() + bin_offset );
@@ -216,7 +208,7 @@ namespace NSWL1{
         m_padBCHR->push_back( bc_hr );
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id)
+    void PadTdsValidationTree::fill_matched_old_id_new_id(const std::pair<int,int> &old_id, std::pair<int,int> &new_id) const
     {
         m_padEtaIdFromOldSimu->push_back(old_id.first );
         m_padPhiIdFromOldSimu->push_back(old_id.second);

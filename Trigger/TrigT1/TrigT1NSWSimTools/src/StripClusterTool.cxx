@@ -187,7 +187,7 @@ namespace NSWL1 {
   }
 
   StatusCode StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters, 
-                                                        std::vector<std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > &cluster_cache) {
+                                                        std::vector<std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > &cluster_cache) const {
 
     ATH_MSG_DEBUG("Cluster cache received " << cluster_cache.size());
 
@@ -365,7 +365,7 @@ namespace NSWL1 {
   }
 
 
-  StatusCode StripClusterTool::cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips, std::vector< std::unique_ptr<StripClusterData> >& clusters){
+  StatusCode StripClusterTool::cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips, std::vector< std::unique_ptr<StripClusterData> >& clusters) const {
 
       if(strips.empty()){
         ATH_MSG_WARNING("Received 0 strip hits... Skip event");
@@ -457,4 +457,3 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
   }
 }
-
