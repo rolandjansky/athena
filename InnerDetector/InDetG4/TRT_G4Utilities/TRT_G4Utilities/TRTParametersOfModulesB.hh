@@ -9,6 +9,7 @@
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "CxxUtils/checker_macros.h"
+#include <vector>
 
 class TRTParameters;
 
@@ -28,7 +29,7 @@ class TRTParametersOfModulesB
     TRTParametersOfModulesB (const TRTParametersOfModulesB&); 
     TRTParametersOfModulesB& operator= (const TRTParametersOfModulesB&); 
     void DefineParameters();
-    void PrintParameters(MsgStream& msg, double*, double*) const;
+    void PrintParameters(MsgStream& msg, const  std::vector<double> & xGlobalOfHolesB, const  std::vector<double> & yGlobalOfHolesB) const;
 
     double m_baseOfShellTrd1B = 0.0;
     double m_heightOfShellTrd1B = 0.0;
@@ -62,18 +63,18 @@ class TRTParametersOfModulesB
 
     int m_numberOfHolesB = 0;
 
-    double* m_xLocalOfHolesB = nullptr;
-    double* m_zLocalOfHolesB = nullptr;
+    std::vector<double> m_xLocalOfHolesB;
+    std::vector<double> m_zLocalOfHolesB;
 
     int m_numberOfCoolingTubesB = 0;
 
-    double* m_xOfCoolingTubesB = nullptr;
-    double* m_zOfCoolingTubesB = nullptr;
+    std::vector<double> m_xOfCoolingTubesB;
+    std::vector<double> m_zOfCoolingTubesB;
 
     double m_radiusOfHoleForCoolingTubeB = 0.0;
 
-    double* m_xOfHolesForCoolingTubesB = nullptr;
-    double* m_zOfHolesForCoolingTubesB = nullptr;
+    std::vector<double> m_xOfHolesForCoolingTubesB;
+    std::vector<double> m_zOfHolesForCoolingTubesB;
 
     const TRTParameters* m_pParameters;
 

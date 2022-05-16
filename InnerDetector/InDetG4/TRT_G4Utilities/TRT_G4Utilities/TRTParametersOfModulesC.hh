@@ -9,6 +9,7 @@
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "CxxUtils/checker_macros.h"
+#include <vector>
 
 class TRTParameters;
 
@@ -28,7 +29,7 @@ private:
   TRTParametersOfModulesC (const TRTParametersOfModulesC&); 
   TRTParametersOfModulesC& operator= (const TRTParametersOfModulesC&); 
   void DefineParameters();
-  void PrintParameters(MsgStream& msg, double*, double*) const;
+  void PrintParameters(MsgStream& msg, const std::vector<double> &, const std::vector<double> &) const;
   
   double m_baseOfShellTrd1C = 0.0;
   double m_heightOfShellTrd1C = 0.0;
@@ -62,18 +63,18 @@ private:
   
   int m_numberOfHolesC = 0;
   
-  double* m_xLocalOfHolesC = nullptr;
-  double* m_zLocalOfHolesC = nullptr;
+  std::vector<double> m_xLocalOfHolesC ;
+  std::vector<double> m_zLocalOfHolesC ;
   
   int m_numberOfCoolingTubesC = 0;
   
-  double* m_xOfCoolingTubesC = nullptr;
-  double* m_zOfCoolingTubesC = nullptr;
+  std::vector<double> m_xOfCoolingTubesC;
+  std::vector<double> m_zOfCoolingTubesC;
   
   double m_radiusOfHoleForCoolingTubeC = 0.0;
 
-  double* m_xOfHolesForCoolingTubesC = nullptr;
-  double* m_zOfHolesForCoolingTubesC = nullptr;
+  std::vector<double> m_xOfHolesForCoolingTubesC ;
+  std::vector<double> m_zOfHolesForCoolingTubesC ;
   
   const TRTParameters* m_pParameters;
 
