@@ -141,8 +141,7 @@ class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
       self._suffix   = "JetSuper"
       self._vertex   = "HLT_IDVertex_JetSuper"
       self._adaptiveVertex = True
-      # still not for some reason
-      # self._actsVertex     = True
+      self._actsVertex     = True
       self._addSingleTrackVertices = True
       self._roi      = "HLT_Roi_JetSuper"
       self._etaHalfWidth = 0.3
@@ -200,8 +199,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._vertex              = "HLT_IDVertex_FS"
       self._adaptiveVertex      = True
-      # not just yet 
-      # self._actsVertex          = True
+      self._actsVertex          = True
       # these are being evaluated and may be added
       # self._addSingleTrackVertices = True
       # self._TracksMaxZinterval = 3
@@ -258,8 +256,7 @@ class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
       self._RoadWidth       = 5
       self._UseTrigSeedML   = 4
       self._vertex          = "HLT_IDVertex_FS"
-      # not yet
-      # self._actsVertex      = True
+      self._actsVertex      = True
 
 
 class _ConfigSettings_cosmics( _ConfigSettingsBase ):
