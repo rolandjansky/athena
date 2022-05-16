@@ -1878,8 +1878,7 @@ def getTrackToVertexIPEstimator(name='TrackToVertexIPEstimator', **kwargs) :
 def getV0Tools(name='V0Tools', **kwargs) :
     the_name                    = makeName( name, kwargs)
     if 'Extrapolator' not in kwargs :
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+        kwargs=setDefaults(kwargs,Extrapolator = getInDetExtrapolator()) # @TODO AtlasExtrapolator ?
     from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
     return Trk__V0Tools(the_name, **kwargs)
 
