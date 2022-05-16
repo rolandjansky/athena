@@ -3,7 +3,8 @@
 
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu with detector ROBs removed
 # art-type: build                                                                  
-# art-include: master/Athena                                                       
+# art-include: master/Athena
+# art-include: 22.0/Athena                                                       
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

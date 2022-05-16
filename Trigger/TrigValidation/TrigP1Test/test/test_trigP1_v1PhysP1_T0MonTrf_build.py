@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: transform test of BSRDOtoRAW + T0Reco + T0Mon, using v1PhysP1 menu
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

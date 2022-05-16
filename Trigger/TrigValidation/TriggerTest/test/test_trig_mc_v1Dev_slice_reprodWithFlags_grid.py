@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Compares results of a slice chains when running in full menu and when running alone with other slices disabled by doXYZFlag=False
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Test running on ALFACalib data with ALFA ROB Monitor chains, 2 forks, 3 slots, 6 threads
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

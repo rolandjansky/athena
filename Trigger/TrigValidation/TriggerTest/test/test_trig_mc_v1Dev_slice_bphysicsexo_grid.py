@@ -4,6 +4,7 @@
 # art-description: Trigger RDO->RDO_TRIG athena test of the b-physics slice in Dev_pp_run3_v1 menu (Wtaunu_3mu input)
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log

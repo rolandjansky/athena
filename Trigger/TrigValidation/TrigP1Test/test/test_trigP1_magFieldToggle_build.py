@@ -4,6 +4,7 @@
 # art-description: magnetic field toggle (on->off->on) test with dummy job options
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 

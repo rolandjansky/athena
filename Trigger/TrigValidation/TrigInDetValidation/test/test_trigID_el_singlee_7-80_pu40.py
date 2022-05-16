@@ -3,6 +3,7 @@
 # art-description: art job for el_singlee_7-80_pu40
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-input: mc15_13TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s2726_r7772
 # art-input-nfiles: 10
 # art-athena-mt: 8
