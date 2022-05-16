@@ -1389,8 +1389,11 @@ Trk::RungeKuttaUtils::stepEstimator(
 
 /////////////////////////////////////////////////////////////////////////////////
 // New covariance matrix calculation from old matrix and jacobian
+// We use Eigen so we use flatten to avoid out of line calls
 /////////////////////////////////////////////////////////////////////////////////
-
+#if defined(__GNUC__)
+[[gnu::flatten]]
+#endif
 AmgSymMatrix(5) Trk::RungeKuttaUtils::newCovarianceMatrix(
   const double* ATH_RESTRICT J,
   const AmgSymMatrix(5) & M)
