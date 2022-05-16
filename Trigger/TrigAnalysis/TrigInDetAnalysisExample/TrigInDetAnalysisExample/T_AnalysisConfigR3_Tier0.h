@@ -107,7 +107,6 @@ public:
   T_AnalysisConfigR3_Tier0(const std::string& analysisInstanceName,
 			 const std::string& testChainName,      const std::string& testType,      const std::string& testKey,
 			 const std::string& referenceChainName, const std::string& referenceType, const std::string& referenceKey,
-			 TIDARoiDescriptor* roiInfo,
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
@@ -115,7 +114,6 @@ public:
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
-			 roiInfo,
 			 testFilter, referenceFilter,
 			 associator,
 			 analysis),
@@ -1133,6 +1131,10 @@ protected:
       
       std::string mongroup;
       
+#if 0   
+      /// this isn;t working correctly at the moment, but we don;t want to 
+      /// remove it, so leave it here until we can fix it 
+   
       if ( name().find("Shifter")!=std::string::npos || m_shifter ) {
 	/// shifter histograms - do not encode chain names
 	if      ( m_chainNames.at(ic).tail().find("_FTF") != std::string::npos )              mongroup = folder_name + "/FTF";
@@ -1145,11 +1147,13 @@ protected:
 	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();
 
       }
-      else { 
+#endif 
+      //      else {
 	/// these are the Expert / non-Shifter histograms - encode the full chain names
 
 	if ( m_chainNames[ic].head() == "" ) mongroup = folder_name + "/Fullscan";
 	else                                 mongroup = folder_name + "/" + m_chainNames[ic].head();
+
 	std::string track_collection = ""; 
 
 	if ( m_chainNames.at(ic).tail()!="" )  { 
@@ -1177,11 +1181,7 @@ protected:
 
 	if ( !m_chainNames.at(ic).passed() )      mongroup += "/DTE";
 
-	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
-	
-      }
-
-      //      std::cout << "SUTT chain " << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
+	//      }
       
       m_provider->msg(MSG::VERBOSE) << " book mongroup " << mongroup << endmsg;
       

@@ -63,9 +63,6 @@
 #define endmsg endmsg
 
 
-bool tida_first = true;
-
-
 
 std::string date() { 
   time_t t;
@@ -85,28 +82,25 @@ HepMC::ConstGenParticlePtr fromParent( int pdg_id, HepMC::ConstGenParticlePtr p,
     
   auto vertex = p->production_vertex();
   if ( !vertex) return 0; // has no production vertex !!!
+
 #ifdef HEPMC3
   if ( vertex->particles_in().size() < 1 ) return 0;  /// recursive stopping conditions
-  
-  if ( printout ) { 
-    TruthParticle t(p);
-  }
 
+  /// useful debug
+  //  if ( printout ) { 
+  //     TruthParticle t(p);
+  //     std::cout << "particle " << *p << "  " << t.pdgId() << "\tparent " << p << std::endl;
+  //  }
+  
   for ( auto in: vertex->particles_in()) {
     auto parent = fromParent( pdg_id, in, printout );
     TruthParticle t(in);
     if ( parent && std::abs(parent->pdg_id())==pdg_id) { 
       return parent;
-    } 
+    }  /// recursive stopping conditions
   }
 #else  
   if ( vertex->particles_in_size() < 1 ) return 0;  /// recursive stopping conditions
-  //if ( vertex->particles_in_size() > 1 ) std::cout << "more than 1 parent!!!" << std::endl;
-  
-  if ( printout ) { 
-    TruthParticle t(p);
-    // std::cout << "particle " << *p << "  " << t.pdgId() << "\tparent " << p << std::endl;
-  }
 
   HepMC::GenVertex::particles_in_const_iterator in  = vertex->particles_in_const_begin();
   HepMC::GenVertex::particles_in_const_iterator end = vertex->particles_in_const_end();
@@ -125,8 +119,6 @@ HepMC::ConstGenParticlePtr fromParent( int pdg_id, HepMC::ConstGenParticlePtr p,
   return 0;
 }
   
-
-
 
 
 template<class T>
@@ -207,7 +199,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 	std::vector<ChainString> chainNames;
 
-	if ( tida_first ) { 
+	if ( m_tida_first ) { 
 
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
@@ -218,7 +210,7 @@ void AnalysisConfig_Ntuple::loop() {
 		  
 		}
 
-		tida_first = false;
+		m_tida_first = false;
 
 		//		std::cout << "input chains" << std::endl;
 		//		for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) std::cout << "chains " << ic << "\t" << m_chainNames[ic] << std::endl;
@@ -1741,12 +1733,11 @@ void AnalysisConfig_Ntuple::book() {
 
 	m_finalised = false; // flag we have an open file that is not yet finalised
 
-	tida_first = true;
+	m_tida_first = true;
 
 	m_provider->msg(MSG::INFO) << "AnalysisConfig_Ntuple::book() exiting" << endmsg;   
 
 }
-
 
 
 
