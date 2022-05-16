@@ -172,9 +172,8 @@ StatusCode HTTHoughTransform_d0phi0_Tool::getRoads(const std::vector<const HTTHi
   roads.reserve(m_roads.size());
   for (HTTRoad_Hough & r : m_roads) roads.push_back(&r);
 
-  if (roads.empty())
-    if (m_event >= 5 && m_event < 200)
-      drawImage(image, m_name + "_" + std::to_string(m_event));
+  if (roads.empty() && m_event >= 5 && m_event < 200)
+    drawImage(image, m_name + "_" + std::to_string(m_event));
 
   m_event++;
   return StatusCode::SUCCESS;
@@ -256,8 +255,8 @@ HTTHoughTransform_d0phi0_Tool::Image HTTHoughTransform_d0phi0_Tool::convolute(Im
   for (unsigned y0 = 0; y0 < m_imageSize_y; y0++) { // Loop over out
     for (unsigned x0 = 0; x0 < m_imageSize_x; x0++) { //
       for (unsigned r = 0; r < m_convSize_y; r++) { // Loop over conv
+	int y = -static_cast<int>(m_convSize_y) / 2 + r + y0; // Indices of input
 	for (unsigned c = 0; c < m_convSize_x; c++) {
-	  int y = -static_cast<int>(m_convSize_y) / 2 + r + y0; // Indices of input
 	  int x = -static_cast<int>(m_convSize_x) / 2 + c + x0; //
 
 	  if (y >= 0 && y < static_cast<int>(m_imageSize_y) && x >= 0 && x < static_cast<int>(m_imageSize_x)) {
@@ -404,13 +403,12 @@ void HTTHoughTransform_d0phi0_Tool::matchIdealGeoSector(HTTRoad_Hough & r) const
       wc_layers |= (0x1 << il);
       r.setWCLayers(wc_layers);
 
-      HTTHit *wcHit = new HTTHit();
+      std::unique_ptr<HTTHit> wcHit = std::unique_ptr<HTTHit>(new HTTHit());
       wcHit->setHitType(HitType::wildcard);
       wcHit->setLayer(il);
       wcHit->setDetType(m_HTTMapping->PlaneMap_1st()->getDetType(il));
-      std::vector<const HTTHit*> wcHits;
-      wcHits.push_back(wcHit);
-      r.setHits(il,wcHits);
+      r.setHits(il,std::vector<const HTTHit*>({wcHit.get()}));
+
     }
     else
       modules.push_back(sectorbin);
@@ -488,7 +486,8 @@ void HTTHoughTransform_d0phi0_Tool::addRoad(std::vector<const HTTHit*> const & h
     // get bin scaling for the hit
     unsigned bin_scale = 0;
     for (unsigned i = 0; i < m_nCombineLayers; i++) {
-      for (unsigned const layer : m_combineLayer2D[i]) {
+      for (unsigned ilayer = 0; ilayer < m_combineLayer2D[i].size(); ilayer++) {
+	unsigned layer = m_combineLayer2D[i][ilayer];
 	if (hit->getLayer() == layer) {
 	  bin_scale = m_binScale[layer];
 	}

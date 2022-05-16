@@ -64,17 +64,19 @@ StatusCode HTTLLPDoubletHoughTransformTool::getRoads(const std::vector<const HTT
     m_roads.clear();
     m_eventsProcessed++;
     Image image(m_imageSize_x, m_imageSize_y); // not quite optimal to allocate this memory in evey event, but following nominal HT
-    for ( auto hit1 = hits.begin(); hit1 != hits.end(); ++hit1 ) {
-        for ( auto hit2 = hit1+1; hit2 != hits.end(); ++hit2 ) {
-            ATH_MSG_DEBUG("Hits pair R: " << (*hit1)->getR() << " " << (*hit2)->getR());
+    for (unsigned ihit1 = 0; ihit1 < hits.size(); ihit1++) {
+      const HTTHit *hit1 = hits[ihit1];
+      for (unsigned ihit2 = ihit1+1; ihit2 < hits.size(); ihit2++) {
+	const HTTHit *hit2 = hits[ihit2];
+            ATH_MSG_DEBUG("Hits pair R: " << hit1->getR() << " " << hit2->getR());
             //TODO: replace with qualification by layer IDs
-            const double radiusDifference =  (*hit2)->getR() - (*hit1)->getR();
+            const double radiusDifference =  hit2->getR() - hit1->getR();
 
             if (  not (m_acceptedDistanceBetweenLayersMin < radiusDifference && radiusDifference < m_acceptedDistanceBetweenLayersMax) ) 
                 continue;
-            if ( (*hit1)->getLayer() == (*hit2)->getLayer() )
+            if ( hit1->getLayer() == hit2->getLayer() )
                 continue;
-            ATH_CHECK(fillImage( *hit1, *hit2, image ));
+            ATH_CHECK(fillImage( hit1, hit2, image ));
         }
     } 
     if ( m_event < 20 )
