@@ -19,13 +19,9 @@ Sim_tf.py \
 --maxEvents 10 \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---DataRunNumber '284500' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --simulator 'FullG4MT' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
 --imf False
 
 rc=$?
@@ -43,13 +39,9 @@ then
   --maxEvents 10 \
   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
   --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-  --DataRunNumber '284500' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'FullG4MT' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-  --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+  --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
   --imf False
     mv log.EVNTtoHITS log.FullG4MTAthena
     rc2=$?
@@ -67,13 +59,9 @@ then
   --maxEvents 10 \
   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
   --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-  --DataRunNumber '284500' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'FullG4' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-  --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+  --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
   --imf False
     mv log.EVNTtoHITS log.FullG4Athena
     rc3=$?
