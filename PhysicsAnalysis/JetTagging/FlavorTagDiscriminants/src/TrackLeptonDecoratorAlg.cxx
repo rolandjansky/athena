@@ -68,7 +68,7 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_DEBUG( "Retrieved " << muons->size() << " muons..." );
 
     using TPC = xAOD::TrackParticleContainer;
-    SG::WriteDecorHandle<TPC, int> decor_lepton_id(m_dec_lepton_id, ctx);
+    SG::WriteDecorHandle<TPC, char> decor_lepton_id(m_dec_lepton_id, ctx);
 
     // give all tracks a default starting value
     for ( const xAOD::TrackParticle* track : *tracks ) {

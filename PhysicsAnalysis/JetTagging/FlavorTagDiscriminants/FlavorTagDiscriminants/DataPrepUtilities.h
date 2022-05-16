@@ -29,7 +29,7 @@
 
 namespace FlavorTagDiscriminants {
 
-  enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
+  enum class EDMType {CHAR, UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
   enum class SortOrder {
    ABS_D0_SIGNIFICANCE_DESCENDING,
     D0_SIGNIFICANCE_DESCENDING,

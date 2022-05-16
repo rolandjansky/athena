@@ -310,7 +310,8 @@ namespace FlavorTagDiscriminants {
             case EDMType::INT: return BVarGetterNoDefault<int>(name);
             case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
             case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
-            case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
+            case EDMType::CHAR: return BVarGetterNoDefault<char>(name);
+            case EDMType::UCHAR: return BVarGetterNoDefault<unsigned char>(name);
             default: {
               throw std::logic_error("Unknown EDM type");
             }
@@ -321,7 +322,8 @@ namespace FlavorTagDiscriminants {
             case EDMType::INT: return BVarGetter<int>(name, default_flag);
             case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
             case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
-            case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
+            case EDMType::CHAR: return BVarGetter<char>(name, default_flag);
+            case EDMType::UCHAR: return BVarGetter<unsigned char>(name, default_flag);
             default: {
               throw std::logic_error("Unknown EDM type");
             }
@@ -473,6 +475,9 @@ namespace FlavorTagDiscriminants {
           case EDMType::FLOAT: return {
               SequenceGetter<float>(cfg.name), {cfg.name}
             };
+          case EDMType::CHAR: return {
+              SequenceGetter<char>(cfg.name), {cfg.name}
+            };
           case EDMType::UCHAR: return {
               SequenceGetter<unsigned char>(cfg.name), {cfg.name}
             };
@@ -587,7 +592,7 @@ namespace FlavorTagDiscriminants {
 
       // type and default value-finding regexes are hardcoded for now
       TypeRegexes type_regexes = {
-        {".*_isDefaults"_r, EDMType::UCHAR},
+        {".*_isDefaults"_r, EDMType::CHAR},
         // TODO: in the future we should migrate RNN and IPxD
         // variables to floats. This is outside the scope of the
         // current flavor tagging developments and AFT-438.
@@ -661,7 +666,7 @@ namespace FlavorTagDiscriminants {
         {"(deta|dphi)"_r, EDMType::CUSTOM_GETTER},
         {"phi|theta|qOverP"_r, EDMType::FLOAT},
         {"(phi|theta|qOverP)Uncertainty"_r, EDMType::CUSTOM_GETTER},
-        {"leptonID"_r, EDMType::INT}
+        {"leptonID"_r, EDMType::CHAR}
       };
       // We have a number of special naming conventions to sort and
       // filter tracks. The track nodes should be named according to
