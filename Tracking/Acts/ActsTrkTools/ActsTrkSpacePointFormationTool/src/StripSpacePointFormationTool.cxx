@@ -147,13 +147,6 @@ namespace ActsTrk {
                 // first the eta overlaps and then the phi ones
                 const std::array<size_t, nNeighbours> neigbourIndices{ThisOne, Opposite, EtaMinus, EtaPlus, PhiMinus, PhiPlus};
 
-                // if searching for phi overlaps, check if you are on
-                // the positive side of ITk strip detector.
-                // Here a different convention of prev/pos phi element
-                // is configured wrt negative side of the ITk
-                bool isPositiveEndcapITk = processOverlaps and
-                  thisElement->isEndcap() and m_stripId->barrel_ec(thisId)==2;
-
                 for (const auto& otherHash : *others) {
 
                     if(++n==Nmax) break;
@@ -182,12 +175,6 @@ namespace ActsTrk {
                             overlapExtents[ 7] =-hwidth+m_overlapLimitPhi;
                             overlapExtents[ 8] = hwidth-m_overlapLimitPhi;
                             overlapExtents[ 9] = hwidth;
-                            if (isPositiveEndcapITk) {
-                                overlapExtents[ 6] = hwidth-m_overlapLimitPhi;
-                                overlapExtents[ 7] = hwidth;
-                                overlapExtents[ 8] =-hwidth;
-                                overlapExtents[ 9] =-hwidth+m_overlapLimitPhi;
-                            }
                             break;
                         }
                         case PhiPlus: {
@@ -195,12 +182,6 @@ namespace ActsTrk {
                             overlapExtents[11] = hwidth;
                             overlapExtents[12] =-hwidth;
                             overlapExtents[13] =-hwidth+m_overlapLimitPhi;
-                            if (isPositiveEndcapITk) {
-                                overlapExtents[10] =-hwidth;
-                                overlapExtents[11] =-hwidth+m_overlapLimitPhi;
-                                overlapExtents[12] = hwidth-m_overlapLimitPhi;
-                                overlapExtents[13] = hwidth;
-                            }
                             break;
                         }
                         case EtaMinus: {
@@ -323,15 +304,13 @@ namespace ActsTrk {
                     correctPolarRange(element, min, max, minStrip, maxStrip);
                 }
 
-                float sign = isEndcap ? ( std::signbit(currentElement->normal().z()*element->normal().z()) ? -1. : 1.) : 1.;
-
                 StripInformationHelper currentStripInfo;
                 for (auto& cluster_index : clusters[currentIndex]) {
                     bool processed = false;
                     const auto& currentLocalPos = cluster_index.first->localPosition<1>();
 
                     for(auto& stripInfo : stripInfos) {
-                        double diff = currentLocalPos(0, 0)-sign*stripInfo.locX();
+                        double diff = currentLocalPos(0, 0)-stripInfo.locX();
 
                         if(diff < min || diff > max) continue;
 
@@ -365,11 +344,8 @@ namespace ActsTrk {
                 int currentIndex = elementIndex[n];
                 const InDetDD::SiDetectorElement* currentElement = elements[currentIndex];
 
-                bool isOpposite = isEndcap and std::signbit(currentElement->normal().z()*element->normal().z());
-                float sign = isOpposite ? element->normal().z() : 1.;
-
-                double min = sign*overlapExtents[4*currentIndex-10];
-                double max = sign*overlapExtents[4*currentIndex- 9];
+                double min = overlapExtents[4*currentIndex-10];
+                double max = overlapExtents[4*currentIndex- 9];
 
                 size_t minStrip, maxStrip = 0;
 
@@ -400,9 +376,8 @@ namespace ActsTrk {
                 // continue if you have no cluster from the phi overlapping region of the trigger element
                 if(stripPhiInfos.empty()) continue;
 
-                sign = isOpposite ? currentElement->normal().z() : 1.;
-                min = sign*overlapExtents[4*currentIndex-8];
-                max = sign*overlapExtents[4*currentIndex-7];
+                min = overlapExtents[4*currentIndex-8];
+                max = overlapExtents[4*currentIndex-7];
 
                 if (m_stripGapParameter != 0.) {
                     updateRange(element, currentElement, slimit, min, max);
