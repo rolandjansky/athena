@@ -205,7 +205,12 @@ StatusCode TRT_RodDecoder::initialize()
 StatusCode TRT_RodDecoder::finalize() {
 
   ATH_MSG_VERBOSE( "in TRT_RodDecoder::finalize" );
-  ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
+  if (m_skip>0) {
+     ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos << " hashes: accept " << m_accept << " skipped " << m_skip );
+  }
+  else {
+     ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -601,7 +606,18 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 		}
 	    }
 	}
+      else {
+	  if (idHash == skipHash)
+	    {
+               ++m_skip;
+#ifdef TRT_BSC_DEBUG
+	       ATH_MSG_DEBUG( "Collection for Hash not to be decoded, skip" );
+#endif
+	      continue;
+	    }
+          ++m_accept;
 
+      }
       // Skip if this collection has already been done.
       if (rdoIdc->indexFindPtr (idHash)) {
         continue;
@@ -1106,7 +1122,18 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 		}
 	    }
 	}
-      
+      else {
+         if (idHash == skipHash)
+	    {
+               ++m_skip;
+#ifdef TRT_BSC_DEBUG
+	       ATH_MSG_DEBUG( "Collection for Hash not to be decoded, skip" );
+#endif
+               continue;
+	    }
+         ++m_accept;
+      }
+
       // Skip if this collection has already been done.
       if (rdoIdc->indexFindPtr (idHash)) {
         continue;
