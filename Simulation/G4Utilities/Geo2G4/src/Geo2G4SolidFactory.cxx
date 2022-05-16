@@ -37,7 +37,6 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
 #include "GeoSpecialShapes/EMECData.h"
@@ -145,7 +144,7 @@ const Geo2G4SolidFactory::LArWheelSolid_typemap Geo2G4SolidFactory::s_lwsTypes =
 };
 
 Geo2G4SolidFactory::Geo2G4SolidFactory() :
-    m_msg("Geo2G4SolidFactory"),
+    AthMessaging("Geo2G4SolidFactory"),
     m_detStore( "StoreGateSvc/DetectorStore", "Geo2G4SolidFactory" )
 {
 }

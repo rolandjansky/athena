@@ -25,7 +25,6 @@
 #include "GeoSpecialShapes/EMECData.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #ifndef PORTABLE_LAR_SHAPE
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #endif
 #include "G4GeometryTolerance.hh"
@@ -51,20 +50,21 @@ LArWheelSliceSolid::LArWheelSliceSolid(
     G4int zside,
     const LArWheelCalculator *calc,
     const EMECData           *emecData
-) : G4VSolid(name), m_Pos(pos), m_Type(type),
-    m_Calculator(calc)
-#ifndef PORTABLE_LAR_SHAPE    
-  ,m_msg("LArWSS")
+) : G4VSolid(name)
+#ifndef PORTABLE_LAR_SHAPE
+  , AthMessaging("LArWSS")
 #endif
+  , m_Pos(pos), m_Type(type), m_Calculator(calc)
 {
   createSolid(name, zside, slice, emecData);
 }
 
 LArWheelSliceSolid::LArWheelSliceSolid(const G4String& name, const EMECData *emecData)
-  : G4VSolid(name), m_Calculator(0)
+  : G4VSolid(name)
 #ifndef PORTABLE_LAR_SHAPE    
-  , m_msg("LArWSS")
+  , AthMessaging("LArWSS")
 #endif
+  , m_Calculator(0)
 {
     if(name.find("::Inner") != G4String::npos) m_Pos = Inner;
     else if(name.find("::Outer") != G4String::npos) m_Pos = Outer;

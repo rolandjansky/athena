@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtParameterisedVolumeBuilder.h"
@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include <iostream>
@@ -31,10 +30,10 @@
 
 ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(const std::string& n, Geo2G4AssemblyFactory* G4AssemblyFactory):
   VolumeBuilder(n),
+  AthMessaging(n),
   m_getMatEther(true),
   m_matEther(nullptr),
   m_matHypUr(nullptr),
-  m_msg(n),
   m_G4AssemblyFactory(G4AssemblyFactory)
 {
 }
