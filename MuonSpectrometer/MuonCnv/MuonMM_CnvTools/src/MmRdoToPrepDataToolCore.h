@@ -64,16 +64,15 @@ namespace Muon
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     /// MdtPrepRawData containers
-    SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey;
-    SG::ReadHandleKey<MM_RawDataContainer> m_rdoContainerKey;
+    SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey {this,"OutputCollection", "MM_Measurements","Muon::MMPrepDataContainer to record"};
+    SG::ReadHandleKey<MM_RawDataContainer> m_rdoContainerKey{this,"InputCollection","MMRDO","MM RDO to read"};
 
-    std::string m_outputCollectionLocation;            
-    bool m_merge; 
+    Gaudi::Property<bool> m_merge {this,"MergePrds",true};
+    // charge cut is temporarily disabled for comissioning studies. Should be reenabled at some point. pscholer 13.05.2022
+    Gaudi::Property<float> m_singleStripChargeCut {this,"singleStripChargeCut", FLT_MIN /*6241 * 0.4*/}; // 0.4 fC from BB5 cosmics
 
     ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool{this,"ClusterBuilderTool","Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool"};
     ToolHandle<INSWCalibTool> m_calibTool{this,"NSWCalibTool","Muon::NSWCalibTool/NSWCalibTool"};
-
-    float m_singleStripChargeCut;
   }; 
 } // end of namespace
 
