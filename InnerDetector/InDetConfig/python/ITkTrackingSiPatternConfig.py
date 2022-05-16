@@ -83,15 +83,15 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("doCaloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
-        acc.merge(ITKCaloClusterROIPhiRZContainerMakerCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITkCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITkCaloClusterROIPhiRZContainerMakerCfg(flags))
     if kwargs["doHadCaloSeedSSS"]:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKHadCaloClusterROIPhiRZContainerMakerCfg
-        acc.merge(ITKHadCaloClusterROIPhiRZContainerMakerCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITkHadCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITkHadCaloClusterROIPhiRZContainerMakerCfg(flags))
     kwargs.setdefault("phiWidth", flags.ITk.Tracking.ActivePass.phiWidthBrem[0])
     kwargs.setdefault("etaWidth", flags.ITk.Tracking.ActivePass.etaWidthBrem[0])
-    kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ0GeV") # @TODO current the CaloClusterROIPhiRZContainerMaker will always use the prefix InDet
-    kwargs.setdefault("HadROIPhiRZContainer", "InDetHadCaloClusterROIPhiRZ")
+    kwargs.setdefault("EMROIPhiRZContainer", "ITkCaloClusterROIPhiRZ0GeV")
+    kwargs.setdefault("HadROIPhiRZContainer", "ITkHadCaloClusterROIPhiRZ")
 
     kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.ITk.Tracking.ActivePass.usePrdAssociationTool))
     kwargs.setdefault("ITKGeometry", True)
@@ -173,17 +173,15 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     return acc
 
 def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", InputCollections = None, SiSPSeededTrackCollectionKey = None, **kwargs) :
-    from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
-    acc = ITKCaloClusterROIPhiRZContainerMakerCfg(flags)
+    from InDetConfig.InDetCaloClusterROISelectorConfig import ITkCaloClusterROIPhiRZContainerMakerCfg
+    acc = ITkCaloClusterROIPhiRZContainerMakerCfg(flags)
 
     from RegionSelector.RegSelToolConfig import regSelTool_ITkStrip_Cfg
     RegSelTool_ITkStrip   = acc.popToolsAndMerge(regSelTool_ITkStrip_Cfg(flags))
 
     kwargs.setdefault("RegSelTool_Strip", RegSelTool_ITkStrip)
     kwargs.setdefault("useITkConvSeeded", True)
-
-    # @TODO need to instruct CaloClusterROIPhiRZContainerMaker to create the output container below
-    kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ15GeVUnordered")
+    kwargs.setdefault("EMROIPhiRZContainer", "ITkCaloClusterROIPhiRZ15GeVUnordered")
 
     acc.merge(ITkSiSPSeededTrackFinderCfg(flags, name = name,
                                           InputCollections = InputCollections,
