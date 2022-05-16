@@ -68,6 +68,7 @@ namespace InDet {
           : m_detectorElements(si_detector_element_status.m_detectorElements),
             m_elementStatus( si_detector_element_status.m_elementStatus ),
             m_elementChipStatus( si_detector_element_status.m_elementChipStatus ),
+            // cppcheck-suppress copyCtorPointerCopying
             m_badCells( si_detector_element_status.m_badCells ),
             m_owner( false )
        {
@@ -81,6 +82,8 @@ namespace InDet {
        {}
 
        virtual ~SiDetectorElementStatus() { if (m_owner) delete m_badCells; }
+
+       SiDetectorElementStatus& operator= (const SiDetectorElementStatus &) = delete;
 
        unsigned int numberOfChips(const IdentifierHash& hash) const {
           return numberOfChips(getDetectorElement(hash)->design());
