@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -35,8 +35,6 @@ using std::string;
 using std::vector;
 using Clock=std::chrono::high_resolution_clock;
 
-const int LhoodMM_tools::nLepMax;
-const int LhoodMM_tools::maxRank; 
 
 LhoodMM_tools* LhoodMM_tools::m_current_lhoodMM_tool;
 
@@ -92,9 +90,9 @@ void LhoodMM_tools::reset() {
   m_fixNormalization = false;
 
   m_coeffs.clear();
-  m_coeffs.resize(nLepMax);
+  m_coeffs.resize(s_nLepMax);
 
-  for (int ilep = 0; ilep < nLepMax; ilep++) {
+  for (int ilep = 0; ilep < s_nLepMax; ilep++) {
     m_coeffs[ilep].clear();
     m_coeffs[ilep].resize((0x1 << (ilep+1)) );
     for (int ientry = 0; ientry < (0x1 << (ilep+1)); ientry++) {
@@ -106,9 +104,9 @@ void LhoodMM_tools::reset() {
   }
  
   m_real_indices.clear();
-  m_real_indices.resize(nLepMax);
+  m_real_indices.resize(s_nLepMax);
   m_fake_indices.clear();
-  m_fake_indices.resize(nLepMax);
+  m_fake_indices.resize(s_nLepMax);
 
   m_maxnlep_loose = 0;
 
@@ -116,12 +114,12 @@ void LhoodMM_tools::reset() {
   m_requireOS = false;
 
   m_fsvec.clear();
-  m_fsvec.resize(nLepMax);
+  m_fsvec.resize(s_nLepMax);
 
   m_OSfrac.clear();
-  m_OSfrac.resize(nLepMax);
+  m_OSfrac.resize(s_nLepMax);
 
-  for (int ilep = 0; ilep <nLepMax; ilep++) {
+  for (int ilep = 0; ilep <s_nLepMax; ilep++) {
     m_OSfrac[ilep].resize(ilep);
   }
 
@@ -129,11 +127,11 @@ void LhoodMM_tools::reset() {
 
   m_nrf_mat_vec.clear();
   m_MMmatrix_vec.clear();
-  m_nrf_mat_vec.resize(nLepMax);
-  m_MMmatrix_vec.resize(nLepMax);
+  m_nrf_mat_vec.resize(s_nLepMax);
+  m_MMmatrix_vec.resize(s_nLepMax);
   m_ntlpred_vec.clear();
-  m_ntlpred_vec.resize(nLepMax);
-  for (int ilep = 0; ilep < nLepMax; ilep++) {
+  m_ntlpred_vec.resize(s_nLepMax);
+  for (int ilep = 0; ilep < s_nLepMax; ilep++) {
     m_nrf_mat_vec[ilep] = std::shared_ptr<TMatrixT<double>>(std::make_shared<TMatrixT<double>>(0x1 << (ilep+1),1) );
     m_MMmatrix_vec[ilep] =  std::shared_ptr<TMatrixT<double>>(std::make_shared<TMatrixT<double>> ((0x1 << (ilep+1)),(0x1 << (ilep+1))));
     m_ntlpred_vec[ilep] = std::shared_ptr<TMatrixT<double>>(std::make_shared< TMatrixT<double>>(0x1 << (ilep+1),1));
@@ -425,7 +423,7 @@ StatusCode LhoodMM_tools::incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
   fitInfo.eventCount[lepidx]++;
 
 
-  if (nlep <= nLepMax) {
+  if (nlep <= s_nLepMax) {
     ATH_MSG_VERBOSE("In incrementMatrices, how many uncertainties? " << mmevt.realEffObj(0).uncertainties.size());
     ATH_MSG_VERBOSE("In incrementMatrices, m_totEvents = " << fitInfo.totEvents);
 
@@ -450,7 +448,7 @@ StatusCode LhoodMM_tools::incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
     //check to see if there is at least one OS pair...
     for (int icomb = 0; icomb < (0x1 << nlep); icomb++) {
       int totcharge = 0;
-      std::bitset<nLepMax+1> tights(icomb);
+      std::bitset<s_nLepMax+1> tights(icomb);
       int ntight = tights.count();
       
       for (int jlep = 0; jlep < nlep; jlep++) {
@@ -519,7 +517,7 @@ StatusCode LhoodMM_tools::incrementOneMatrixSet(LhoodMMFitInfo& fitInfo,
     }
     return StatusCode::SUCCESS;
   }  else {
-    ATH_MSG_ERROR( "Error: can only handle " << nLepMax << " leptons; you tried " << nlep);
+    ATH_MSG_ERROR( "Error: can only handle " << s_nLepMax << " leptons; you tried " << nlep);
     return StatusCode::FAILURE;
   }
   
@@ -585,7 +583,7 @@ void LhoodMM_tools::fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f,
     ASG_MSG_VERBOSE("theta_nlep_index for ilep = " << ilep << " = " << theta_nlep_index);
   }
 
-  Double_t pars_thisnlep[maxRank];  // a bit of a waste of memory, but avoids compiler warnings for variable-     
+  Double_t pars_thisnlep[s_maxRank];  // a bit of a waste of memory, but avoids compiler warnings for variable-
 
   if(verbose) ASG_MSG_VERBOSE("theta_nlep_index = " << theta_nlep_index);
 
@@ -755,13 +753,13 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
 
   m_fitStatus = 0;
 
-  m_minnlep = nLepMax;
+  m_minnlep = s_nLepMax;
   m_maxnlep = 0;
 
   m_requireSS = false;
   m_requireOS = false;
 
-  for (int ilep = 0; ilep < nLepMax; ilep++) {
+  for (int ilep = 0; ilep < s_nLepMax; ilep++) {
     string error;
     // possible issue here -- reassigning vector elements?
     m_fsvec[ilep].reset(new FakeBkgTools::FinalState(0, ilep+1, m_selection, m_process, error));
@@ -954,7 +952,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
       ATH_MSG_VERBOSE("nfakes for nlep = " << ilep << " used to find theta_tot = " << loc_init_pars[ilep-1][0]);
       theta_tot[theta_index] = TMath::ACos(TMath::Sqrt(TMath::Max(loc_init_pars[ilep-1][0],0.)/(m_nfakes_std))/sinterm);
       if (TMath::IsNaN( theta_tot[theta_index] ) ) {
-	theta_tot[theta_index] = _piover4; 
+	theta_tot[theta_index] = s_piover4;
       }
       sinterm *= TMath::Sin(theta_tot[theta_index]);
       theta_index++;
@@ -962,7 +960,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   } else {
     int theta_index = 0;
     for (int ilep = m_minnlep; ilep < m_maxnlep_loose; ilep++ ){
-      theta_tot[theta_index] = _piover4; 
+      theta_tot[theta_index] = s_piover4;
       theta_index++;
     }
   }
@@ -982,7 +980,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   }
   
   for (int ipar = real_index; ipar < npar; ipar++) {
-    upper_limits[ipar] = _piover2; 
+    upper_limits[ipar] = s_piover2;
   }
   
   //re-organize from "per-lepton" parameters to global parameters
@@ -1056,7 +1054,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
       }
       //now the theta_tot angle associated with this multiplicity
       arglist[0] = m_theta_tot_start_index + ilep - m_minnlep +1;
-      arglist[1] = _piover2; 
+      arglist[1] = s_piover2;
       lhoodFit->mnexcm("SET PAR", arglist, 2, ierflg);
       lhoodFit->mnexcm("FIX PAR", arglist, 1, ierflg);
       
@@ -1310,7 +1308,7 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
     }
   } else {
     for (int ipar = m_real_indices[lepidx].size()+1; ipar < (0x1 << nlep); ipar++) {
-      init_pars[ipar] =  _piover4;  
+      init_pars[ipar] = s_piover4;
     }
   }
 
