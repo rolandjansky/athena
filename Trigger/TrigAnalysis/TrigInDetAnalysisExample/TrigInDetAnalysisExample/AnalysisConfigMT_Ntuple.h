@@ -30,14 +30,11 @@ public:
     // - xxxChainName: the name of the chain to be used as test/reference/selection; must be "StoreGate" in case of direct access to SG containers
     // - xxxType: the type of tracks to be retrieved from the test/reference/selection chain or container
     // - xxxKey:  the key for tracks to be retrieved from the test/reference/selection chain or container
-    // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths; in case the test chain is a fake chain, this is used 
-    //   for RoI position too
     // - all standard operations are performed in loops over 0=test 1=reference 2=selection
 
-  AnalysisConfigMT_Ntuple( TIDARoiDescriptor* roiInfo, 
-			   const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
+  AnalysisConfigMT_Ntuple(const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
 			   double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents_=false, int parentTruthId = 0 ) : 
-    AnalysisConfig_Ntuple( roiInfo, chainNames, outputFileName, tauEtCutOffline, TruthPdgId, keepAllEvents_ , parentTruthId),
+    AnalysisConfig_Ntuple( chainNames, outputFileName, tauEtCutOffline, TruthPdgId, keepAllEvents_ , parentTruthId),
     m_fiducial_radius(47),
     m_ptmin(1000)
   { }  

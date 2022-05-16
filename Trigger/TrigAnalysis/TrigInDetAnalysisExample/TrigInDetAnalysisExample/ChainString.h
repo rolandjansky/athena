@@ -30,31 +30,33 @@ public:
 
   ChainString& operator=(const ChainString&) = default;
 
-  std::string head()  { return m_head;  }
-  std::string tail()  { return m_tail;  }
-  std::string extra() { return m_extra; }
-  std::string element() { return m_element; }
-  std::string roi()     { return m_roi; }
-  std::string vtx()     { return m_vtx; }
+  std::string head()    const { return m_head;  }
+  std::string tail()    const { return m_tail;  }
+  std::string roi()     const { return m_roi;   }
+  std::string vtx()     const { return m_vtx;   }
+  std::string element() const { return m_element; }
+  std::string extra()   const { return m_extra; }
 
-  bool        passed()  { return m_passed; }
+  bool        passed()  const { return m_passed; }
 
-  const std::string& head()  const { return m_head;  }
-  const std::string& tail()  const { return m_tail;  }
-  const std::string& extra() const { return m_extra; }
-  const std::string& element() const { return m_element; }
-  const std::string& roi()     const { return m_roi; }
-  const std::string& vtx()     const { return m_vtx; }
+  // const std::string& head()    const { return m_head;    }
 
-  const bool&        passed()  const { return m_passed; }
+  // const std::string& tail()    const { return m_tail;    }
+  // const std::string& roi()     const { return m_roi;     }
+  // const std::string& vtx()     const { return m_vtx;     }
 
-  const std::string& raw() const { return m_raw; }
+  // const std::string& element() const { return m_element; }
+  // const std::string& extra()   const { return m_extra;   }
+
+  //  const bool&        passed()  const { return m_passed;  }
+
+  std::string raw() const { return m_raw; }
   
   /// can't make this return a reference in case there 
   /// is no such key - could throw an exception then it 
   /// would work, but that is far too excessive 
   std::string value( const std::string& key ) const { 
-    int i=find(key);
+    int i=findkey(key);
     if ( i>=0 ) return m_values[i];
     return "";
   }
@@ -73,7 +75,7 @@ public:
 
   size_t postcount() const { return m_postcount; }
 
-  std::string subs( std::string s ) const; 
+ std::string subs( std::string s ) const; 
 
 public:   
 
@@ -134,10 +136,10 @@ protected:
 protected:
 
   /// parse the full specification string
-  void parse();
+
   void parse( std::string s );
 
-  int find( const std::string& key ) const { 
+  int findkey( const std::string& key ) const { 
     for ( int i=m_keys.size() ; i-- ; ) if ( key==m_keys[i] ) return i;
     return -1;
   }
@@ -146,22 +148,23 @@ private:
 
   std::string m_head;
   std::string m_tail;
-  std::string m_extra;
-  std::string m_element;
   std::string m_roi;
   std::string m_vtx;
+  std::string m_element;
+  std::string m_extra;
 
   bool        m_passed;
-
-  std::vector<std::string> m_keys;
-  std::vector<std::string> m_values;
 
   std::string m_raw;
 
   std::string m_post;
   size_t      m_postcount;
 
+  std::vector<std::string> m_keys;
+  std::vector<std::string> m_values;
+
 };
+
 
 
 inline  bool operator==( const ChainString& cs, const ChainString& s ) { 
@@ -175,5 +178,7 @@ inline  bool operator==( const ChainString& cs, const std::string& s ) {
 inline bool operator==( const std::string& s, const ChainString& cs ) { 
   return cs.raw() == ChainString(s).raw();
 }
+
+
 
 #endif // TrigInDetAnalysisExample_ChainString_H

@@ -12,8 +12,6 @@
 #ifndef TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H
 #define TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H
 
-#include "TrigHLTMonitoring/IHLTMonTool.h"
-
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
@@ -23,12 +21,15 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
+// #include "AthenaMonitoring/AthMonitorAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+
 #include "TTree.h"
 #include "TFile.h"
 
 #define endmsg endmsg
 
-class AnalysisConfig_Ntuple : public T_AnalysisConfig<IHLTMonTool> { 
+class AnalysisConfig_Ntuple : public T_AnalysisConfig<AthReentrantAlgorithm> {
     
 public:
     
@@ -37,18 +38,14 @@ public:
     // - xxxChainName: the name of the chain to be used as test/reference/selection; must be "StoreGate" in case of direct access to SG containers
     // - xxxType: the type of tracks to be retrieved from the test/reference/selection chain or container
     // - xxxKey:  the key for tracks to be retrieved from the test/reference/selection chain or container
-    // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths; in case the test chain is a fake chain, this is used 
-    //   for RoI position too
     // - all standard operations are performed in loops over 0=test 1=reference 2=selection
 
-  AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
-			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
-			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false, int parentTruthPdgId = 0) : 
-    T_AnalysisConfig<IHLTMonTool>( "Ntple",
+  AnalysisConfig_Ntuple(const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
+			  double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false, int parentTruthPdgId = 0) : 
+    T_AnalysisConfig<AthReentrantAlgorithm>( "Ntple",
 				   "", "", "",
 				   "", "", "",
 				   "", "", "",
-				   roiInfo,
 				   0, 0, 0,
 				   0,
 				   0 ),
@@ -72,59 +69,63 @@ public:
     m_finalised(true),
     m_printInfo(true),
     m_ptmin(0),
-    m_parentTruthPdgId(parentTruthPdgId)
+    m_parentTruthPdgId(parentTruthPdgId),
+    m_tida_first(true)
   {  
-    //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
+    /// leave in this debug printout ...
+    /// std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
 
     this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
 
-    for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
-      if ( chainNames[i] != "Offline"         &&
-	   chainNames[i] != "Vertex"          &&
-	   chainNames[i] != "Bjets"           &&
-	   chainNames[i].find("Muons")!=0     &&
-	   chainNames[i].find("Electrons")!=0 &&
-	   chainNames[i].find("Taus")!=0  )   { 
+    for ( unsigned i=0 ; i<chainNames.size() ; i++ ) {
 
-	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
-	
-	m_chainNames.push_back( ChainString(chainNames[i]) );
-	
-      }
+      if ( chainNames[i].empty() ) continue;
 
       ChainString chain(chainNames[i]);
-
-      //      std::cout << "\tchain " << i << "\t" << chainNames[i] << std::endl;
-      //      std::cout << "\t\t\t"                << chain         << std::endl;
-
-      if ( chainNames[i]=="Offline" )     m_doOffline     = true;
-      if ( chain.head()=="Vertex" ) {
+      
+      std::string cs = chain.head();
+ 
+      if      ( cs=="Offline" )     m_doOffline     = true;
+      else if ( cs=="Truth"   )     m_mcTruth       = true;
+      else if ( cs=="Vertex" ) {
         m_vertexType.push_back(chain.tail());
         m_doVertices    = true;
       }    
-      if ( chainNames[i]=="MuonsSP" )     m_doMuonsSP     = true;
-      if ( chain.head()=="Muons" )        m_muonType.push_back(chain.tail());
-
-      if ( chain.head()=="Electrons" ) { 
+      else if ( cs=="MuonsSP" )     m_doMuonsSP     = true;
+      else if ( cs=="Muons" )       m_muonType.push_back(chain.tail());
+      else if ( cs=="Electrons" ) { 
         m_electronType.push_back(chain.tail());
-        m_rawElectrons.push_back(chain.extra());
+        m_rawElectrons.push_back(chain.roi()); /// abuse the ChainString, now use the roi as the default third field
       }
-      
-      if ( chain.head()=="Taus" ) { 
+      else if ( cs=="Taus" ) { 
         m_tauType.push_back(chain.tail());
-        m_tauProngs.push_back(chain.extra());
+        m_tauProngs.push_back(chain.roi()); /// abuse the ChainString, now use the roi as the default third field
       }  
+      else if ( cs=="Bjets" )       m_doBjets       = true;
+      else { 
 
-      if ( chainNames[i]=="Bjets" )       m_doBjets       = true;
+	if ( cs!="" && cs.find("HLT")==std::string::npos ) { 
+	  /// provider is not assigned yet ...
+	  //	  if ( m_provider ) m_provider->msg(MSG::WARNING) << "Unknown chain type: " << cs << endmsg; 
+	  //	  else              std::cout << "Unknown chain type: " << cs << std::endl;
+	  continue;
+      	}
+
+	m_chainNames.push_back( chain );
+	
+      }
     }
+
     m_event = new TIDA::Event();
     m_outputFileName=outputFileName;
+
   }
   
   
 
   virtual ~AnalysisConfig_Ntuple() {
-    //    std::cout << "AnalysisConfig_Ntuple::~AnalysisConfig_Ntuple() running destructor" << std::endl;
+    /// leave in this debug printout ...
+    ///    std::cout << "AnalysisConfig_Ntuple::~AnalysisConfig_Ntuple() running destructor" << std::endl;
     if ( !m_finalised ) finalize();
     delete m_event;
   }
@@ -185,7 +186,8 @@ protected:
 
   int m_parentTruthPdgId;
 
-
+  bool m_tida_first;
+  
 };
 
 
