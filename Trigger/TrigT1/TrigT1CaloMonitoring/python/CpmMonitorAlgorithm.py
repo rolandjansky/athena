@@ -5,6 +5,7 @@ def CpmMonitoringConfig(inputFlags):
     '''Function to configure LVL1 Cpm algorithm in the monitoring system.'''
 
     import math 
+    labelDebug = False
     # get the component factory - used for getting the algorithms
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -13,6 +14,15 @@ def CpmMonitoringConfig(inputFlags):
     # make the athena monitoring helper
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'CpmMonitoringCfg')
+
+    # Use metadata to check Run3 compatible trigger info is available  
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
+    from AthenaConfiguration.Enums import Format
+    md = GetFileMD(inputFlags.Input.Files)
+    inputContainsRun3FormatConfigMetadata = ("metadata_items" in md and any(('TriggerMenuJson' in key) for key in md["metadata_items"].keys()))
+    if inputFlags.Input.Format is Format.POOL and not inputContainsRun3FormatConfigMetadata:
+        # No L1 menu available in the POOL file.
+        return helper.result()
 
     # get any algorithms
     CpmMonAlg = helper.addAlgorithm(CompFactory.CpmMonitorAlgorithm,'CpmMonAlg')
@@ -59,6 +69,20 @@ def CpmMonitoringConfig(inputFlags):
     phibins_2d=64
     phimin_2d=0.0
     phimax_2d=64.0    
+    # Labels from TrigT1CaloLWHistogramTool::bookCPMEmEtaVsPhi
+    etalabels=[""]*66
+    for i in range(-25,25,4):
+        chan = i if i < -1 else i+1
+        eta = (chan/10.)+0.05
+        etalabels[chan+33] = f"{chan}/{eta:.2f}"
+    for i in range(8):
+        etalabels[i] = "+"
+        etalabels[i+58] = "+"
+    philabels=[""]*64
+    for chan in range(0,64,4):
+        rad = (chan+.5)*math.pi/32
+        philabels[chan] = f"{chan}/{rad:.2f}"
+    philabels[63] = "etaVphi"
     # for 2D histograms x,y;histogram alias
     myGroup.defineHistogram('etaTT,phiTT;ppm_em_2d_etaPhi_tt_Hitmap',title='PPM Trigger Tower EM eta/phi;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_em_TT',path=monCPMinputPath,
@@ -80,7 +104,9 @@ def CpmMonitoringConfig(inputFlags):
     myGroup.defineHistogram('etaCpmTT_em,phiScaledCpmTT_em;cpm_em_2d_etaPhi_tt_Hitmap',
                             title='CPM Tower EM eta/phi;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='',path=monCPMinputPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d)
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d,
+                            xlabels=etalabels,ylabels=philabels,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('etaCpmTT_em,phiScaledCpmTT_em;cpm_em_2d_etaPhi_tt_EtWeighted',
                             title='CPM Tower EM eta/phi weighted;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='',path=monCPMinputPath,
@@ -103,7 +129,9 @@ def CpmMonitoringConfig(inputFlags):
     myGroup.defineHistogram('etaCpmTT_had,phiScaledCpmTT_had;cpm_had_2d_etaPhi_tt_Hitmap',
                             title='CPM Tower HAD eta/phi;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='',path=monCPMinputPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d)
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d,
+                            xlabels=etalabels,ylabels=philabels,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('etaCpmTT_had,phiScaledCpmTT_had;cpm_had_2d_etaPhi_tt_EtWeighted'
                             ,title='CPM Tower HAD eta/phi weighted;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='',path=monCPMinputPath,
@@ -143,13 +171,28 @@ def CpmMonitoringConfig(inputFlags):
     #
     #  CPM TOB RoIs - monRoIPath
     #
+    # Labels from TrigT1CaloLWHistogramTool::bookCPMRoIEtaVsPhi
+    etalabels_roi=[""]*66
+    for chan in range(-24,26,4):
+        eta = (chan/10.)
+        etalabels_roi[chan+32] = f"{chan}/{eta:.2f}"
+    for i in range(8):
+        etalabels_roi[i] = "+"
+        etalabels_roi[i+58] = "+"
+    philabels_roi=[""]*64
+    for chan in range(0,64,4):
+        rad = (chan+1)*math.pi/32
+        philabels_roi[chan] = f"{chan}/{rad:.2f}"
+    philabels_roi[63] = "etaVphi"
     isolRange=32 # Maximum range for encoded isolation
     myGroup.defineHistogram('energyTobRoIsEner;cpm_1d_roi_EnergyEm', title='CPM TOB RoI Cluster Energy EM;Cluster Energy;',
                             cutmask='mask_tobroi_ener_em',path=monRoIPath,
-                            xbins=maxEnergyRange,xmin=0,xmax=maxEnergyRange)
+                            xbins=maxEnergyRange,xmin=0,xmax=maxEnergyRange,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('energyTobRoIsEner;cpm_1d_roi_EnergyTau', title='CPM TOB RoI Cluster Energy Tau;Cluster Energy;',
                             cutmask='mask_tobroi_ener_tau',path=monRoIPath,
-                            xbins=maxEnergyRange,xmin=0,xmax=maxEnergyRange)
+                            xbins=maxEnergyRange,xmin=0,xmax=maxEnergyRange,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     myGroup.defineHistogram('energyTobRoIsIsol;cpm_1d_roi_IsolationEm', title='CPM TOB RoI Encoded Isolation Value EM;;',
                             cutmask='mask_tobroi_isol_em',path=monRoIPath,
@@ -174,30 +217,42 @@ def CpmMonitoringConfig(inputFlags):
     myGroup.defineHistogram('etaTobRoIsIsol,phiTobRoIsIsol;cpm_2d_etaPhi_roi_HitmapIsolEm',
                             title='CPM TOB RoIs EM Non-zero Isolation Hit Map;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_tobroi_isol_em',path=monRoIPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d)
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d,
+                            xlabels=etalabels_roi,ylabels=philabels_roi,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('etaTobRoIsIsol,phiTobRoIsIsol;cpm_2d_etaPhi_roi_HitmapIsolTau',
                             title='CPM TOB RoIs Tau Non-zero Isolation Hit Map;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_tobroi_isol_tau',path=monRoIPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d)
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d,
+                            xlabels=etalabels_roi,ylabels=philabels_roi,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     # energy
     myGroup.defineHistogram('etaTobRoIsEner,phiTobRoIsEner;cpm_2d_etaPhi_roi_HitmapEm',
                             title='CPM TOB RoIs EM Hit Map;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_tobroi_ener_em',path=monRoIPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d)
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d,
+                            xlabels=etalabels_roi,ylabels=philabels_roi,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('etaTobRoIsEner,phiTobRoIsEner;cpm_2d_etaPhi_roi_EtWeightedEm',
                             title='CPM TOB RoIs EM Weighted by Energy;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_tobroi_ener_em',path=monRoIPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d, weight="energyTobRoIsEner")
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d, weight="energyTobRoIsEner",
+                            xlabels=etalabels_roi,ylabels=philabels_roi,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     myGroup.defineHistogram('etaTobRoIsEner,phiTobRoIsEner;cpm_2d_etaPhi_roi_HitmapTau',
                             title='CPM TOB RoIs Tau Hit Map;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_tobroi_ener_tau',path=monRoIPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d)
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d,
+                            xlabels=etalabels_roi,ylabels=philabels_roi,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('etaTobRoIsEner,phiTobRoIsEner;cpm_2d_etaPhi_roi_EtWeightedTau',
                             title='CPM TOB RoIs Tau Weighted by Energy;Tower #eta; Tower #phi',type='TH2F',
                             cutmask='mask_tobroi_ener_tau',path=monRoIPath,
-                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d, weight="energyTobRoIsEner")
+                            xbins=etabins_2d,xmin=etamin_2d,xmax=etamax_2d,ybins=phibins_2d,ymin=phimin_2d,ymax=phimax_2d, weight="energyTobRoIsEner",
+                            xlabels=etalabels_roi,ylabels=philabels_roi,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     # TOBs per CPM 
     myGroup.defineHistogram('tobPerCPMEm;cpm_1d_roi_TOBsPerCPMEm', title='CPM TOB RoI TOBs per CPM EM;Number of TOBs;',
@@ -218,10 +273,12 @@ def CpmMonitoringConfig(inputFlags):
                             xbins=maxEnergyRange,xmin=0,xmax=maxEnergyRange)
     myGroup.defineHistogram('cmxCpmTobsLeft;cmx_1d_tob_TOBsPerCPMLeft', title='CMX-CP TOBs per CPM Left CMX;Number of TOBs;',
                             cutmask='',path=monCMXinPath,
-                            xbins=tobsPerCPM+1,xmin=1,xmax=tobsPerCPM+2)
+                            xbins=tobsPerCPM+1,xmin=1,xmax=tobsPerCPM+2,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('cmxCpmTobsRight;cmx_1d_tob_TOBsPerCPMRight', title='CMX-CP TOBs per CPM Right CMX;Number of TOBs;',
                             cutmask='',path=monCMXinPath,
-                            xbins=tobsPerCPM+1,xmin=1,xmax=tobsPerCPM+2)
+                            xbins=tobsPerCPM+1,xmin=1,xmax=tobsPerCPM+2,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     #
     myGroup.defineHistogram('cmxCpmTobsIsolLeft;cmx_1d_tob_IsolationLeft', title='CMX-CP TOBs Encoded Isolation Value Left CMX;;',
@@ -304,31 +361,50 @@ def CpmMonitoringConfig(inputFlags):
                             cutmask='',path=monCMXoutPath,
                             xbins=14,xmin=1.,xmax=15.0,ybins=8,ymin=0.,ymax=8.0,weight='cmxCpCountsHit')
 
+    # labels from TrigT1CaloLWHistogramTool::numbers
+    number_labels=[f'{i+1}' if i < tobsPerCPM else '' for i in range(7)]
     #
     myGroup.defineHistogram('cmxTopoTobsCpmRight;cmx_1d_topo_TOBsPerCPMRight', title='CMX-CP Topo TOBs per CPM Right CMX;Number of TOBs',
                             cutmask='',path=monCMXoutPath,
-                            xbins=7,xmin=1,xmax=8)
+                            xbins=7,xmin=1,xmax=8,
+                            xlabels=number_labels,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('cmxTopoTobsCpmLeft;cmx_1d_topo_TOBsPerCPMLeft', title='CMX-CP Topo TOBs per CPM Left CMX;Number of TOBs',
                             cutmask='',path=monCMXoutPath,
-                            xbins=7,xmin=1,xmax=8)
+                            xbins=7,xmin=1,xmax=8,
+                            xlabels=number_labels,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     #
+    # X labels from TrigT1CaloLWHistogramTool::bookCPMSumVsThreshold
+    sumvsthreshold_labels = ["L0","L1","L2","L3","R0","R1","R2","T"]
+    # Trigger threshold labels from menu
+    from TrigConfigSvc.TriggerConfigAccess import getL1MenuAccess
+    l1menu = getL1MenuAccess(inputFlags)
+    emThresholdNames = list(l1menu.thresholdNames('EM'))
+    #
     myGroup.defineHistogram('cmxCpThresBinLeftX,cmxCpThresBinLeftY;cmx_2d_thresh_SumsWeightedLeft',
-                            title="CMX-CP Hit Sums Thresholds Weighted Left CMX;;",type='TH2F',
+                            title="CMX-CP Hit Sums Thresholds Weighted Left CMX;Sum (Local/Remote/Total);",type='TH2F',
                             cutmask='',path=monCMXoutPath,
-                            xbins=8,xmin=0.,xmax=8.0,ybins=16,ymin=0.,ymax=16.0,weight='cmxCpThresBinLeftHit')
+                            xbins=8,xmin=0.,xmax=8.0,ybins=16,ymin=0.,ymax=16.0,weight='cmxCpThresBinLeftHit',
+                            xlabels=sumvsthreshold_labels, ylabels=emThresholdNames,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('cmxCpThresBinRightX,cmxCpThresBinRightY;cmx_2d_thresh_SumsWeightedRight',
-                            title="CMX-CP Hit Sums Thresholds Weighted Right CMX;;",type='TH2F',
+                            title="CMX-CP Hit Sums Thresholds Weighted Right CMX;Sum (Local/Remote/Total);",type='TH2F',
                             cutmask='',path=monCMXoutPath,
-                            xbins=8,xmin=0.,xmax=8.0,ybins=16,ymin=0.,ymax=16.0,weight='cmxCpThresBinRightHit')
+                            xbins=8,xmin=0.,xmax=8.0,ybins=16,ymin=0.,ymax=16.0,weight='cmxCpThresBinRightHit',
+                            xlabels=sumvsthreshold_labels, ylabels=emThresholdNames,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
     # 
     myGroup.defineHistogram('cmxCpTopoTobsCmxLeft;cmx_1d_topo_TOBsPerCMXLeft', title='CMX-CP Topo TOBs per CMX Left;Number of TOBs;',
                             cutmask='',path=monCMXoutPath,
-                            xbins=maxTobsPerCmx,xmin=0,xmax=maxTobsPerCmx)
+                            xbins=maxTobsPerCmx,xmin=0,xmax=maxTobsPerCmx,
+                            opt='kAlwaysCreate' if labelDebug else '')
     myGroup.defineHistogram('cmxCpTopoTobsCmxRight;cmx_1d_topo_TOBsPerCMXRight', title='CMX-CP Topo TOBs per CMX Right;Number of TOBs;',
                             cutmask='',path=monCMXoutPath,
-                            xbins=maxTobsPerCmx,xmin=0,xmax=maxTobsPerCmx)
+                            xbins=maxTobsPerCmx,xmin=0,xmax=maxTobsPerCmx,
+                            opt='kAlwaysCreate' if labelDebug else '')
 
 
     #
