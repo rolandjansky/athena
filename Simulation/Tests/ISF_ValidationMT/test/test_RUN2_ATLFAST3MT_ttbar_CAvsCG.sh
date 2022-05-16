@@ -15,12 +15,9 @@ unset ATHENA_CORE_NUMBER
   Sim_tf.py \
   --CA \
   --conditionsTag 'default:OFLCOND-MC16-SDR-RUN3-01' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'ATLFAST3MT' \
   --postInclude 'PyJobTransforms.UseFrontier' \
-  --preInclude 'EVNTtoHITS:SimuJobTransforms.BeamPipeKill,SimuJobTransforms.TightMuonStepping' \
-  --DataRunNumber '284500' \
+  --preInclude 'EVNTtoHITS:Campaigns.MC16Simulation' \
   --geometryVersion 'default:ATLAS-R2-2016-01-02-01' \
   --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
   --outputHITSFile "test.CA.HITS.pool.root" \
@@ -38,13 +35,9 @@ if [ $rc -eq 0 ]
 then
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-RUN3-01' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
         --outputHITSFile "test.CA.HITS.pool.root" \
@@ -54,13 +47,9 @@ then
 
     Sim_tf.py \
         --conditionsTag 'default:OFLCOND-MC16-SDR-RUN3-01' \
-        --physicsList 'FTFP_BERT_ATL' \
-        --truthStrategy 'MC15aPlus' \
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-        --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '284500' \
+        --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
         --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
         --outputHITSFile "test.CG.HITS.pool.root" \

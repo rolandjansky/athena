@@ -14,12 +14,9 @@
 
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --simulator 'ATLFASTIIF_G4MS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'EVNTtoHITS:G4AtlasTests/postInclude.DCubeTest.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
---DataRunNumber '284500' \
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "test.HITS.pool.root" \

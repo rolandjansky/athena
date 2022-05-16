@@ -19,13 +19,9 @@ Sim_tf.py \
 --maxEvents 10 \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---DataRunNumber '284500' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --simulator 'PassBackG4MT' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
 --imf False
 
 rc=$?
@@ -43,13 +39,9 @@ then
   --maxEvents 10 \
   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
   --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-  --DataRunNumber '284500' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'PassBackG4MT' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-  --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+  --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
   --imf False
     rc2=$?
     mv log.EVNTtoHITS log.PassBackG4MTAthena
@@ -67,13 +59,9 @@ then
   --maxEvents 10 \
   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
   --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-  --DataRunNumber '284500' \
-  --physicsList 'FTFP_BERT_ATL' \
-  --truthStrategy 'MC15aPlus' \
   --simulator 'PassBackG4' \
   --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-  --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-  --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+  --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
   --postExec 'svcMgr.ISF_ParticleBrokerSvcNoOrdering.ParticleOrderingTool="ISF__EnergyParticleOrderingTool";svcMgr.ISF_ParticleBrokerSvcNoOrdering.AlwaysUseGeoIDSvc=True' \
   --imf False
     rc3=$?
