@@ -14,7 +14,8 @@ atlas_add_component( L1TopoOnlineMonitoring
                      ${TDAQ-COMMON_INCLUDE_DIRS}
                      LINK_LIBRARIES
                      ${TDAQ-COMMON_LIBRARIES}
-                     GaudiKernel AthenaKernel AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib
+                     GaudiKernel AthenaKernel AthenaMonitoringLib AthenaMonitoringKernelLib
+		     ByteStreamCnvSvcBaseLib
                      L1TopoRDO TrigT1Result TrigT1Interfaces xAODTrigger DecisionHandlingLib
                      TrigCompositeUtilsLib )
 
