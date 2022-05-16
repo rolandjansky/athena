@@ -23,7 +23,6 @@
 #include "TrigHTTBanks/ITrigHTTBankSvc.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
   
-
 #include "TFile.h"
 
 #include <string>
@@ -56,7 +55,6 @@ class HTTHoughTransform_d0phi0_Tool : public extends <AthAlgTool, IHTTRoadFinder
 
         ///////////////////////////////////////////////////////////////////////
         // Handles
-
 
 	ServiceHandle<ITrigHTTBankSvc> m_HTTBankSvc {this, "TrigHTTBankSvc", "TrigHTTBankSvc"};
 	ServiceHandle<ITrigHTTMappingSvc> m_HTTMapping {this, "TrigHTTMappingSvc", "TrigHTTMappingSvc"};
