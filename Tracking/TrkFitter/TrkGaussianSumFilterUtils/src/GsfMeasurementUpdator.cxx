@@ -5,7 +5,7 @@
  * @file   GsfMeasurementUpdator.cxx
  * @date   Friday 25th February 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief  Implementation code for GsfMeasurementUpdator class
+ * @brief  Implementation code for Gsf Measurement Update
  */
 
 #include "TrkGaussianSumFilterUtils/GsfMeasurementUpdator.h"
@@ -28,7 +28,7 @@ const AmgVector(5) s_cov0Vec = [] {
   return tmp;
 }();
 const AmgMatrix(5, 5) s_unitMatrix(AmgMatrix(5, 5)::Identity());
-const AmgVector(2) thetaMin(0.0, -M_PI);
+const AmgVector(2) s_thetaMin(0.0, -M_PI);
 enum RangeCheckDef
 {
   absoluteCheck = 0,
@@ -46,52 +46,23 @@ struct componentsCache
   size_t numElements = 0;
 };
 
-/**
- * Avoid multiplications with sparse H matrices by cutting 2D rows&columns
- * out of the full cov matrix.
- */
-template<int DIM>
-AmgSymMatrix(DIM) projection_T(const AmgSymMatrix(5) & M, int key)
-{
-  if (key == 3 || key == 7 || key == 15) { // shortcuts for the most common use
-                                           // cases
-    return M.block<DIM, DIM>(0, 0);
-  } else {
-    Eigen::Matrix<int, DIM, 1, 0, DIM, 1> iv;
-    iv.setZero();
-    for (int i = 0, k = 0; i < 5; ++i) {
-      if (key & (1 << i))
-        iv[k++] = i;
-    }
-    AmgSymMatrix(DIM) covSubMatrix;
-    covSubMatrix.setZero();
-    for (int i = 0; i < DIM; ++i) {
-      for (int j = 0; j < DIM; ++j) {
-        covSubMatrix(i, j) = M(iv(i), iv(j));
-      }
-    }
-    return covSubMatrix;
-  }
-}
-
 /** Absolute phi values should be in [-pi, pi]
     absolute theta values should be in [0, +pi]
     phi differences should also be in [-pi, pi] - else go other way round,
     theta differences should be smaller than pi but can be negative
     => other constraint than absolute theta.
 */
-bool
+inline bool
 thetaPhiWithinRange_5D(const AmgVector(5) & V, const RangeCheckDef rcd)
 {
-  static const AmgVector(2) thetaMin(0.0, -M_PI);
-  return ((std::abs(V(Trk::phi)) <= M_PI) && (V(Trk::theta) >= thetaMin(rcd)) &&
-          (V(Trk::theta) <= M_PI));
+  return ((std::abs(V(Trk::phi)) <= M_PI) &&
+          (V(Trk::theta) >= s_thetaMin(rcd)) && (V(Trk::theta) <= M_PI));
 }
 
 /**
  * Test if theta angle is inside boundaries. No differential-check option.
  */
-bool
+inline bool
 thetaWithinRange_5D(const AmgVector(5) & V)
 {
   return (V(Trk::theta) >= 0.0 && (V(Trk::theta) <= M_PI));
@@ -104,7 +75,7 @@ correctThetaPhiRange_5D(AmgVector(5) & V,
 {
 
   // correct theta coordinate
-  if (V(Trk::theta) < thetaMin((int)rcd) || V(Trk::theta) > M_PI) {
+  if (V(Trk::theta) < s_thetaMin((int)rcd) || V(Trk::theta) > M_PI) {
     // absolute theta: repair if between -pi and +2pi.
     // differential theta: repair if between -pi and +pi
     if ((V(Trk::theta) < -M_PI) ||
@@ -133,6 +104,34 @@ correctThetaPhiRange_5D(AmgVector(5) & V,
   }
 
   return true;
+}
+
+/**
+ * Avoid multiplications with sparse H matrices by cutting 2D rows&columns
+ * out of the full cov matrix.
+ */
+template<int DIM>
+AmgSymMatrix(DIM) projection_T(const AmgSymMatrix(5) & M, int key)
+{
+  if (key == 3 || key == 7 || key == 15) { // shortcuts for the most common use
+                                           // cases
+    return M.block<DIM, DIM>(0, 0);
+  } else {
+    Eigen::Matrix<int, DIM, 1, 0, DIM, 1> iv;
+    iv.setZero();
+    for (int i = 0, k = 0; i < 5; ++i) {
+      if (key & (1 << i))
+        iv[k++] = i;
+    }
+    AmgSymMatrix(DIM) covSubMatrix;
+    covSubMatrix.setZero();
+    for (int i = 0; i < DIM; ++i) {
+      for (int j = 0; j < DIM; ++j) {
+        covSubMatrix(i, j) = M(iv(i), iv(j));
+      }
+    }
+    return covSubMatrix;
+  }
 }
 
 /**
