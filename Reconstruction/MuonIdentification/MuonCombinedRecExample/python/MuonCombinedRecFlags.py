@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 __doc__ = """Flags to steer Muon Combined Reconstruction."""
@@ -182,15 +182,9 @@ class MuonCombinedRec(JobPropertyContainer):
             # Algorithms for MuGirlLowBetaCollection
             setDefault(self.doMuGirlLowBeta,self.doAOD())
 
-        #else: # collisions
-            # Algorithms for CaloMuonCollection
-            #setDefault(self.doCaloTrkMuId,self.doAOD())
-            # Algorithms for MuGirlLowBetaCollection
-            #setDefault(self.doMuGirlLowBeta,self.doAOD())
-            #setDefault(self.doMuGirl,self.doAOD())    # also for new MuonCollection
-
         if jobproperties.Beam.beamType()=='cosmics':
             setDefault(self.doLArMuId,True)
+            setDefault(self.doStatisticalCombination, False)
         else:
             setDefault(self.doLArMuId,False)
 
