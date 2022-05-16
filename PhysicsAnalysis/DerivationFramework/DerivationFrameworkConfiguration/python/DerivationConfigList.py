@@ -27,7 +27,12 @@ from DerivationFrameworkMCTruth.TRUTH3 import TRUTH3Cfg
 # PHYS - uncalibrated, full slimming list
 from DerivationFrameworkPhys.PHYS import PHYSCfg
 
+# Physics validation for run 3
+# PHYSVAL - large bulk of the variables from AOD plus PHYS augmentations
+from DerivationFrameworkPhysicsValidation.PHYSVAL import PHYSVALCfg
+
 # Avoids compilation warnings from Flake8
 __all__ = ['TEST1Cfg','TEST2Cfg','TEST3Cfg','TEST4Cfg','TEST5Cfg','TEST6Cfg',
            'TRUTH0Cfg','TRUTH1Cfg','TRUTH3Cfg',
-           'PHYSCfg']
+           'PHYSCfg',
+           'PHYSVALCfg']
