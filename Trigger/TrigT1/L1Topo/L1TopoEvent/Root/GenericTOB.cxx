@@ -187,9 +187,9 @@ TCS::GenericTOB::GenericTOB(const LateMuonTOB & lateMuon) :
    , m_Et(lateMuon.Et())
    , m_eta(lateMuon.eta())
    , m_phi(lateMuon.phi())
-   , m_EtDouble((double)lateMuon.Et())
-   , m_etaDouble(((double)lateMuon.eta())/10.)
-   , m_phiDouble(((double)lateMuon.phi())/10.)
+   , m_EtDouble(lateMuon.EtDouble())
+   , m_etaDouble(lateMuon.EtaDouble())
+   , m_phiDouble(lateMuon.PhiDouble())
    , m_tobType(LATEMUON) 
 {}
 
