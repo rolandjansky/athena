@@ -61,7 +61,8 @@ def TauTruthToolsCfg(ConfigFlags):
             name                            = "DFCommonTauTruthMatchingTool",
             WriteTruthTaus                  = True,
             WriteInvisibleFourMomentum      = True,
-            WriteVisibleNeutralFourMomentum = True))
+            WriteVisibleNeutralFourMomentum = True,
+            TruthJetContainerName           = "AntiKt4TruthDressedWZJets"))
         DFCommonTauTruthWrapperTool = acc.getPrimaryAndMerge(TauTruthMatchingWrapperCfg(
             ConfigFlags, 
             name                 = "DFCommonTauTruthMatchingWrapper",

@@ -11,8 +11,7 @@ from DerivationFrameworkMCTruth.TruthDerivationToolsConfig import TruthDecayColl
 def TruthMetaDataWriterCfg(flags, name):
     acc = ComponentAccumulator()
     theTruthMetaDataWriter =  CompFactory.DerivationFramework.TruthMetaDataWriter(name)
-    #acc.addPublicTool(TruthMetaDataWriter(name), primary = True)
-    #theTruthMetaDataWriter = acc.getPrimaryAndMerge(TruthMetaDataWriter(name))
+    acc.addPublicTool(theTruthMetaDataWriter)
     CommonAugmentation = CompFactory.DerivationFramework.CommonAugmentation
     acc.addEventAlgo(CommonAugmentation(f"{name}Kernel", AugmentationTools = [theTruthMetaDataWriter]))
     return acc 
@@ -27,7 +26,7 @@ def HepMCtoXAODTruthCfg(ConfigFlags):
 
     # Local steering flag to identify EVNT input
     # Commented because the block it is needed for isn't working (TruthMetaData)
-    #isEVNT = False
+    isEVNT = False
 
     # Ensure EventInfoCnvAlg is scheduled
     if ("EventInfo#EventInfo" and "xAOD::EventInfo#EventInfo") not in ConfigFlags.Input.TypedCollections:
@@ -39,7 +38,7 @@ def HepMCtoXAODTruthCfg(ConfigFlags):
     from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_EVNT2xAODCfg 
     if "McEventCollection#GEN_EVENT" in ConfigFlags.Input.TypedCollections:                  
         acc.merge(GEN_EVNT2xAODCfg(ConfigFlags,name="GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
-        #isEVNT = True -- temporarily commented until TruthMetaData sorted out
+        isEVNT = True 
     # Input file is simulation output (HITS)
     elif "McEventCollection#TruthEvent" in ConfigFlags.Input.TypedCollections:
         acc.merge(GEN_EVNT2xAODCfg(name="GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
@@ -49,11 +48,10 @@ def HepMCtoXAODTruthCfg(ConfigFlags):
     else:
         raise RuntimeError("No recognised HepMC truth information found in the input")
 
-    # TODO: not working, /TagInfo not available
     # If it isn't available, make a truth meta data object (will hold MC Event Weights)
-    #if "TruthMetaDataContainer#TruthMetaData" not in ConfigFlags.Input.TypedCollections and not isEVNT:
-    #    # If we are going to be making the truth collection (isEVNT) then this will be made elsewhere
-    #    acc.merge(TruthMetaDataWriterCfg(ConfigFlags, name = 'DFCommonTruthMetaDataWriter'))
+    if "TruthMetaDataContainer#TruthMetaData" not in ConfigFlags.Input.TypedCollections and not isEVNT:
+        # If we are going to be making the truth collection (isEVNT) then this will be made elsewhere
+        acc.merge(TruthMetaDataWriterCfg(ConfigFlags, name = 'DFCommonTruthMetaDataWriter'))
 
     return acc
 
