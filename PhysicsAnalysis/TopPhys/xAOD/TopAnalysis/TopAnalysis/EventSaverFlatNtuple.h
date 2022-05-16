@@ -770,6 +770,12 @@ namespace top {
     float m_met_met;
     float m_met_sumet;
     float m_met_phi;
+    float m_met_sig;
+    float m_met_sigHT;
+    float m_met_sigET;
+    float m_met_sigRho;
+    float m_met_sigVarL;
+    float m_met_sigVarT;
     //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
     float m_met_met_withLooseObjects;
     float m_met_phi_withLooseObjects;
