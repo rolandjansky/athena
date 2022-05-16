@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.cxx 
@@ -34,19 +34,9 @@ namespace met {
   ////////////////
   METMuonAssociator::METMuonAssociator(const std::string& name) : 
     AsgTool(name),
-    METAssociator(name),
-    m_muContKey("")
-
+    METAssociator(name)
   {
-    declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
-    declareProperty("MuonKey",m_muContKey);
-    declareProperty("UseFEMuonLinks", m_useFEMuonLinks = false ); 
   }
-
-  // Destructor
-  ///////////////
-  METMuonAssociator::~METMuonAssociator()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -54,27 +44,16 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
-    ATH_CHECK( m_muContKey.assign(m_input_data_key));
     ATH_CHECK( m_muContKey.initialize());
     if (m_useFEMuonLinks || m_useFELinks) {
-      if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
-      if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+      if (m_neutralFEReadDecorKey.empty()) {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_muContKey.key()+"."+m_neutralFELinksKey));}
+      if (m_chargedFEReadDecorKey.empty()) {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_muContKey.key()+"."+m_chargedFELinksKey));}
       ATH_CHECK( m_neutralFEReadDecorKey.initialize());
       ATH_CHECK( m_chargedFEReadDecorKey.initialize());
     }
 
-    if (m_doMuonClusterMatch) {
-      ATH_CHECK(m_elementLinkName.initialize());
-    }
-    else {
-      m_elementLinkName="";
-    }
-    return StatusCode::SUCCESS;
-  }
+    ATH_CHECK(m_elementLinkName.initialize(m_doMuonClusterMatch));
 
-  StatusCode METMuonAssociator::finalize()
-  {
-    ATH_MSG_VERBOSE ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 
@@ -96,13 +75,13 @@ namespace met {
 
     SG::ReadHandle<xAOD::MuonContainer> muonCont(m_muContKey);
     if (!muonCont.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve input muon container " << m_input_data_key);
+      ATH_MSG_WARNING("Unable to retrieve input muon container " << m_muContKey.key());
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved muon collection");
     if (fillAssocMap(metMap,muonCont.cptr()).isFailure()) {
-      ATH_MSG_WARNING("Unable to fill map with muon container " << m_input_data_key);
+      ATH_MSG_WARNING("Unable to fill map with muon container " << m_muContKey.key());
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

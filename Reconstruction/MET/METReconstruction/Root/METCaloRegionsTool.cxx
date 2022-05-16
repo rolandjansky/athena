@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METCaloRegionsTool.cxx 
@@ -55,15 +55,7 @@ namespace met {
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
     AsgTool(name)
   {
-    declareProperty( "InputCollection", m_input_data_key            );
-    declareProperty( "UseCells"       , m_calo_useCells      = true );
-    declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
   }
-
-  // Destructor
-  ///////////////
-  METCaloRegionsTool::~METCaloRegionsTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -71,25 +63,12 @@ namespace met {
   {
     ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
+  #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     ATH_CHECK( m_noiseCDOKey.initialize() );
-    #endif
+  #endif
     // Either Cells or Clusters
-    if(m_calo_useCells) {
-      ATH_CHECK( m_caloCellKey.assign(m_input_data_key));
-    } else {
-      ATH_CHECK( m_caloClusterKey.assign(m_input_data_key));
-    } // end if use clusters if/else
     ATH_CHECK( m_caloCellKey.initialize(m_calo_useCells) );
     ATH_CHECK( m_caloClusterKey.initialize(!m_calo_useCells) );
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METCaloRegionsTool::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }
@@ -150,7 +129,7 @@ namespace met {
       #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
       #else
       if (!caloCellCont.isValid()) {
-        ATH_MSG_WARNING("Couldn't set up ReadHandle for Calo Cell Container "<<m_input_data_key);
+        ATH_MSG_WARNING("Couldn't set up ReadHandle for Calo Cell Container "<<m_caloCellKey.key());
         ATH_MSG_WARNING("Unable to retrieve input cell cluster container");
           return StatusCode::SUCCESS;
 
@@ -162,7 +141,7 @@ namespace met {
       // Retrieve the calo container
       SG::ReadHandle<CaloClusterContainer> caloClusCont(m_caloClusterKey);
       if (!caloClusCont.isValid()) {
-        ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
+        ATH_MSG_WARNING("Unable to retrieve input calo cluster container"<<m_caloClusterKey.key());
           return StatusCode::SUCCESS;
 
       }

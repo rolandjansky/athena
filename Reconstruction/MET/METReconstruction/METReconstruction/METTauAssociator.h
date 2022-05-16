@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTauAssociator.h 
@@ -36,11 +36,10 @@ namespace met{
 
     // Constructor with name
     METTauAssociator(const std::string& name);
-    ~METTauAssociator();
+    ~METTauAssociator() = default;
 
     // AsgTool Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -86,11 +85,11 @@ namespace met{
  
     /// Default constructor: 
     METTauAssociator();
-    SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey;
+
+    SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey{this, "InputCollection", "TauJets", "taus input key"};
     SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_neutralFEReadDecorKey{this,"NeutralFEReadDecorKey","", "Neutral FlowElement links key"};
     SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_chargedFEReadDecorKey{this,"ChargedFEReadDecorKey","", "Charged FlowElement links key"};
-    bool m_useFETauLinks;
-
+    Gaudi::Property<bool> m_useFETauLinks{this, "UseFETauLinks", false, ""};
   }; 
 
 }

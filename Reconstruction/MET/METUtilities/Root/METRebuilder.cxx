@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRebuilder.cxx
@@ -61,71 +61,15 @@ namespace met {
 
   // Constructors
   ////////////////
-  METRebuilder::METRebuilder(const std::string& name) :
-  AsgTool(name),
-  m_METMapKey(""),
-  m_ElectronContainerKey(""),
-  m_PhotonContainerKey(""),
-  m_TauJetContainerKey(""),
-  m_MuonContainerKey(""),
-  m_JetContainerKey(""),
-  m_PVKey(""),
-  m_doEle(false),
-  m_doGamma(false),
-  m_doTau(false),
-  m_doMuon(false),
-  m_rebuildEle(false),
-  m_rebuildGamma(false),
-  m_rebuildTau(false),
-  m_rebuildMuon(false),
-  m_doTracks(true),
-  m_pureTrkSoft(true),
-  m_trkUsedDec("usedByMET"),
-  m_trkseltool("")
+  METRebuilder::METRebuilder(const std::string& name)
+    : AsgTool(name),
+      m_trkseltool("")
   {
     //
     // Property declaration
     //
-    declareProperty( "EleColl",         m_eleColl    = "ElectronCollection" );
-    declareProperty( "GammaColl",       m_gammaColl  = "PhotonCollection"   );
-    declareProperty( "TauColl",         m_tauColl    = "TauRecContainer"    );
-    declareProperty( "JetColl",         m_jetColl    = "AntiKt4LCTopoJets"  );
-    declareProperty( "MuonColl",        m_muonColl   = "Muons"              );
-    //
-    declareProperty( "EleTerm",         m_eleTerm    = "RefEle"             );
-    declareProperty( "GammaTerm",       m_gammaTerm  = "RefGamma"           );
-    declareProperty( "TauTerm",         m_tauTerm    = "RefTau"             );
-    declareProperty( "JetTerm",         m_jetTerm    = "RefJet"             );
-    declareProperty( "MuonTerm",        m_muonTerm   = "Muons"              );
-    declareProperty( "SoftTerm",        m_softTerm   = ""                   );
-    //
-    declareProperty( "InputMap",        m_inputMap   = "METMap_RefFinal"    );
-    declareProperty( "OutputContainer", m_outMETCont = "MET_MyRefFinal"     );
-    declareProperty( "OutputTotal",     m_outMETTerm = "Final"              );
-    declareProperty( "WarnIfDuplicate", m_warnOfDupes = true                );
-    //
-    // for partial autoconfiguration
-    declareProperty( "SoftTermType",    m_softTermType = "TrackSoftTerm"    );
-    // or "ClusterSoftTerm" or "Reference"
-    //
-    declareProperty( "CalibJetPtCut",   m_jetPtCut   = 20e3                 );
-    declareProperty( "DoJetJVFCut",     m_jetDoJvf   = true                 );
-    declareProperty( "CalibJetJvfCut",  m_jetJvfCut  = 0.25                 );
-    declareProperty( "SoftJetScale",    m_softJetScale = ""                 );
-    //
-    declareProperty( "DoTrackPVSel",    m_trk_doPVsel = true                );
-    declareProperty( "VertexColl",      m_vtxColl    = "PrimaryVertices"    );
-    declareProperty( "ClusterColl",     m_clusColl   = "CaloCalTopoCluster" );
     declareProperty( "TrkSelTool",      m_trkseltool                        );
-    //
-    declareProperty( "ComputeSTVF",     m_doSTVF     = false                );
-
   }
-
-  // Destructor
-  ///////////////
-  METRebuilder::~METRebuilder()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -133,54 +77,54 @@ namespace met {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
-    if( m_inputMap.size()==0 ) {
+    if( m_METMapKey.empty() ) {
       ATH_MSG_FATAL("Input MissingETComponentMap name must be provided.");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO ("Input MET Map: " << m_inputMap);
+    ATH_MSG_INFO ("Input MET Map: " << m_METMapKey.key());
 
-    if( m_outMETCont.size()==0 ) {
+    if( m_OutMETKey.empty() ) {
       ATH_MSG_FATAL("Output MissingETContainer name must be provided.");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO ("Output MET Container: " << m_outMETCont);
+    ATH_MSG_INFO ("Output MET Container: " << m_OutMETKey.key());
 
     ATH_MSG_INFO ("Configured to rebuild following MET Terms:");
-    if( m_eleTerm!="" ) {
+    if( !m_eleTerm.value().empty() ) {
       m_doEle = true;
-      if( m_eleColl!="" ) {
+      if( !m_ElectronContainerKey.empty() ) {
         m_rebuildEle = true;
-        ATH_MSG_INFO("  Electrons: " << m_eleColl
-                     << " > " << m_eleTerm );
+        ATH_MSG_INFO("  Electrons: " << m_ElectronContainerKey.key()
+                     << " > " << m_eleTerm.value() );
       }
     }
-    if( m_gammaTerm!="" ) {
+    if( !m_gammaTerm.value().empty() ) {
       m_doGamma = true;
-      if( m_gammaColl!="" ) {
+      if( !m_PhotonContainerKey.empty() ) {
         m_rebuildGamma = true;
-        ATH_MSG_INFO("  Photons:   " << m_gammaColl
-                     << " > " << m_gammaTerm );
+        ATH_MSG_INFO("  Photons:   " << m_PhotonContainerKey.key()
+                     << " > " << m_gammaTerm.value() );
       }
     }
-    if( m_tauTerm!="" ) {
+    if( !m_tauTerm.value().empty() ) {
       m_doTau = true;
-      if( m_tauColl!="" ) {
+      if( !m_TauJetContainerKey.empty() ) {
         m_rebuildTau = true;
-        ATH_MSG_INFO("  Taus:      " << m_tauColl
-                     << " > " << m_tauTerm );
+        ATH_MSG_INFO("  Taus:      " << m_TauJetContainerKey.key()
+                     << " > " << m_tauTerm.value() );
       }
     }
-    if( m_muonTerm!="" ) {
+    if( !m_muonTerm.value().empty() ) {
       m_doMuon = true;
-      if( m_muonColl!="" ) {
+      if( !m_MuonContainerKey.empty() ) {
         m_rebuildMuon = true;
-        ATH_MSG_INFO("  Muons:     " << m_muonColl
-                     << " > " << m_muonTerm );
+        ATH_MSG_INFO("  Muons:     " << m_MuonContainerKey.key()
+                     << " > " << m_muonTerm.value() );
       }
     }
-    if( m_jetColl!="" && m_jetTerm!="") {
-      ATH_MSG_INFO("  Jets:      " << m_jetColl
-                   << " > " << m_jetTerm );
+    if( !m_JetContainerKey.empty() && !m_jetTerm.value().empty()) {
+      ATH_MSG_INFO("  Jets:      " << m_JetContainerKey.key()
+                   << " > " << m_jetTerm.value() );
     } else {
       ATH_MSG_FATAL("Error in configuration -- jet input and term keys must both be specified.");
       return StatusCode::FAILURE;
@@ -204,7 +148,7 @@ namespace met {
     }
     ATH_MSG_INFO ("  Soft:      " << m_softTerm);
 
-    m_trkUsedDec = SG::AuxElement::Decorator<char>("usedBy"+m_outMETCont);
+    m_trkUsedDec = SG::AuxElement::Decorator<char>("usedBy" + m_OutMETKey.key());
     m_pureTrkSoft = (m_softJetScale == "JetTrackScale");
 
     if(m_doTracks) {
@@ -231,30 +175,15 @@ namespace met {
     }
 
     // ReadHandleKey(s)
-    ATH_CHECK( m_METMapKey.assign(m_inputMap) );
     ATH_CHECK( m_METMapKey.initialize() );
-    ATH_CHECK( m_ElectronContainerKey.assign(m_eleColl) );
     ATH_CHECK( m_ElectronContainerKey.initialize() );
-    ATH_CHECK( m_PhotonContainerKey.assign(m_gammaColl) );
     ATH_CHECK( m_PhotonContainerKey.initialize() );
-    ATH_CHECK( m_TauJetContainerKey.assign(m_tauColl) );
     ATH_CHECK( m_TauJetContainerKey.initialize() );
-    ATH_CHECK( m_MuonContainerKey.assign(m_muonColl) );
     ATH_CHECK( m_MuonContainerKey.initialize() );
-    ATH_CHECK( m_JetContainerKey.assign(m_jetColl) );
     ATH_CHECK( m_JetContainerKey.initialize() );
-    ATH_CHECK( m_PVKey.assign(m_vtxColl) );
     ATH_CHECK( m_PVKey.initialize() );
     // WriteHandleKey(s)
-    ATH_CHECK( m_OutMETKey.assign(m_outMETCont) );
     ATH_CHECK( m_OutMETKey.initialize() );
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METRebuilder::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
 
     return StatusCode::SUCCESS;
   }
@@ -266,13 +195,6 @@ namespace met {
     SG::ReadHandle<xAOD::MissingETComponentMap> METMap(m_METMapKey);
     if (!METMap.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve MissingETComponentMap: " << METMap.key());
-      return StatusCode::SUCCESS;
-    }
-
-    SG::ReadHandle<xAOD::MissingETContainer> MET(m_METContainerKey);
-    if (!MET.isPresent()) {
-      if(m_warnOfDupes){
-        ATH_MSG_WARNING("MET container " << MET.key() << " already in StoreGate"); }      
       return StatusCode::SUCCESS;
     }
 

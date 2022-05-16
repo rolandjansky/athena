@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -52,9 +52,13 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType == 'SoftTrk':
         tool = CompFactory.getComp("met::METSoftTermsTool")('MET_SoftTrkTool_'+suffix)
         tool.InputComposition = 'Tracks'
+        tool.TrackKey = defaultInputKey[config.objType]
+        config.inputKey = defaultInputKey[config.objType]
     if config.objType.endswith('SoftClus'):
         tool = CompFactory.getComp("met::METSoftTermsTool")('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
+        tool.CaloClusterKey = defaultInputKey[config.objType]
+        config.inputKey = defaultInputKey[config.objType]
     if config.objType == 'SoftPFlow':
         tool = CompFactory.getComp("met::METSoftTermsTool")('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
@@ -63,19 +67,20 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if suffix == 'Truth':
         tool = CompFactory.getComp("met::METTruthTool")('MET_TruthTool_'+config.objType)
         tool.InputComposition = config.objType
+        tool.InputCollection = defaultInputKey['Truth']
         config.inputKey = defaultInputKey['Truth']
         config.outputKey = config.objType
     if suffix == 'Calo':
-        from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
-        CaloNoiseCondAlg ('totalNoise')
         tool = CompFactory.getComp("met::METCaloRegionsTool")('MET_CaloRegionsTool')
         if doCells:
             tool.UseCells     = True
             tool.DoTriggerMET = doTriggerMET
-            config.inputKey   = defaultInputKey['Calo'] 
+            tool.CaloCellKey  = defaultInputKey['Calo']
+            config.inputKey   = defaultInputKey['Calo']
         else:
             tool.UseCells     = False                   
             tool.DoTriggerMET = False
+            tool.CaloClusterKey = defaultInputKey['SoftClus']
             config.inputKey   = defaultInputKey['SoftClus']
         config.outputKey = config.objType
 
@@ -83,7 +88,7 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-    else:
+    elif hasattr(tool, 'InputCollection'):
         tool.InputCollection = config.inputKey
     if not suffix=='Calo':
         if config.outputKey == '':
@@ -113,9 +118,10 @@ def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,calo
         tool.UseIsolationTools = False #True
         tool.TrackIsolationTool = trkisotool
         tool.CaloIsolationTool = caloisotool
-        from METReconstruction.METRecoFlags import metFlags
-        tool.DoPVSel = metFlags.UseTracks()
-        tool.DoVxSep = metFlags.UseTracks()
+        # TODO: flags?
+        # from METReconstruction.METRecoFlags import metFlags
+        tool.DoPVSel = True  # metFlags.UseTracks()
+        tool.DoVxSep = True  # metFlags.UseTracks()
     tool.MissingETKey = config.outputKey
     return tool
 

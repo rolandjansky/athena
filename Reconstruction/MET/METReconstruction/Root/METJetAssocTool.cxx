@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METJetAssocTool.cxx
@@ -40,17 +40,9 @@ namespace met {
   ////////////////
   METJetAssocTool::METJetAssocTool(const std::string& name) :
     AsgTool(name),
-    METAssociator(name),
-    m_jetContKey("")
+    METAssociator(name)
   {
-    declareProperty( "MatchRadius",       m_matchRadius = 0.4               );
-    declareProperty( "JetContKey", m_jetContKey );
   }
-
-  // Destructor
-  ///////////////
-  METJetAssocTool::~METJetAssocTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -59,16 +51,9 @@ namespace met {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     //Initialise ReadHandles
-    ATH_CHECK( m_jetContKey.assign(m_input_data_key));
     ATH_CHECK( m_jetContKey.initialize());
 
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METJetAssocTool::finalize()
-  {
-    ATH_MSG_VERBOSE ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 
@@ -79,7 +64,7 @@ namespace met {
     // Retrieve the jet container
     SG::ReadHandle<xAOD::JetContainer> jetCont(m_jetContKey);
     if (!jetCont.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve input jet container " << m_input_data_key);
+      ATH_MSG_WARNING("Unable to retrieve input jet container " << m_jetContKey.key());
       return StatusCode::FAILURE;
     }
 

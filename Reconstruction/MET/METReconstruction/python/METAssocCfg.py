@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -84,10 +84,10 @@ def getAssociator(config,suffix,doPFlow=False,
         tool.UseModifiedClus = doModClus
     tool.UseFELinks = useFELinks
     # set input/output key names
-    if config.inputKey == '':
+    if config.inputKey == '' and defaultInputKey[config.objType] != '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-    else:
+    elif hasattr(tool, 'InputCollection'):
         tool.InputCollection = config.inputKey
     if doModClus:
         tool.ClusColl = modLCClus

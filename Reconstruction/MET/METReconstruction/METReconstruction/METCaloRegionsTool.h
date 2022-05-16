@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METCaloRegionsTool.h 
@@ -64,12 +64,11 @@ namespace met{
     // Constructor with name (does this have to be a non-const
     // std::string and not a const reference?)
     METCaloRegionsTool(const std::string& name);
-    ~METCaloRegionsTool();
+    ~METCaloRegionsTool() = default;
 
     // AsgTool Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
-    StatusCode  execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -87,8 +86,8 @@ namespace met{
     // Internal variables
     std::string      m_input_data_key;
     std::string      m_output_met_key;
-    bool             m_calo_useCells;
-    bool             m_calo_doTriggerMet;
+    Gaudi::Property<bool> m_calo_useCells{this, "UseCells", true, ""};
+    Gaudi::Property<bool> m_calo_doTriggerMet{this, "DoTriggerMET", true, ""};
     // Accept functions
     bool             accept            (const xAOD::IParticle* object) const;
     // Overlap resolver function
