@@ -153,10 +153,10 @@ namespace JetTagDQA {
       int dsid = event->mcChannelNumber();
 
       // check if it is a ttbar or Zprime sample
-      if(dsid == 410000){
+      if(dsid == 410000 || dsid == 601229){
         m_jetPtCut = m_jetPtCutTtbar;
       }
-      else if(dsid == 427080 || dsid == 427081) {
+      else if(dsid == 427080 || dsid == 427081 ||dsid == 801271) {
         m_jetPtCut = m_jetPtCutZprime;
         m_onZprime = true;
       }
