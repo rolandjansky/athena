@@ -49,7 +49,9 @@ StatusCode TRTOccupancyInclude::execute()
 {
   msg(MSG::DEBUG) << "execute()" << endmsg;
 
-  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfoKey, ctx);
   if (not evtInfo.isValid()) {
     ATH_MSG_WARNING(" Cannot access to event info.");
     return StatusCode::SUCCESS;
@@ -57,7 +59,7 @@ StatusCode TRTOccupancyInclude::execute()
   
   const xAOD::EventInfo* eventInfo = evtInfo.cptr();
 
-  std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy( );
+  std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy(ctx);
   if (TRTOccu.size() > 6) {
 
   static const SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 

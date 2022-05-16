@@ -16,7 +16,6 @@
 
 #include "TrkTrack/Track.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "AthenaKernel/CLASS_DEF.h"
@@ -25,6 +24,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "TRT_ConditionsData/AliveStraws.h"
+#include "TRT_ConditionsData/StrawStatusData.h"
 #include <vector>
 
 class AtlasDetectorID;
@@ -37,14 +37,14 @@ namespace Trk{
 namespace InDet
 {
 
-  /** @class TRT_LocalOccupancy 
+  /** @class TRT_LocalOccupancy
 
       TRT_LocalOccupancy is a tool to compute the TRT occupancy for the elements crossed by a track.
 
       This tool has to be called with: StartEvent() before checking occupancy for a given track, so the different
       volumes are computed.
 
-      Then, for each track call LocalOccupancy( Track ) and a  will be returned. 
+      Then, for each track call LocalOccupancy( Track ) and a  will be returned.
 
       @author  Alejandro Alonso: <Alejandro.Alonso@cern.ch>
   */
@@ -53,17 +53,10 @@ namespace InDet
   public:
    TRT_LocalOccupancy(const std::string&,const std::string&,const IInterface*);
 
-   /** default destructor */
-   virtual ~TRT_LocalOccupancy ();
-      
    /** standard Athena-Algorithm method */
    virtual StatusCode initialize() override;
 
-   /** standard Athena-Algorithm method */
-   virtual StatusCode finalize  () override;
-
    /** Return the local occupancy for the sectors crossed by a given track */
-   using ITRT_LocalOccupancy::LocalOccupancy;
    virtual float LocalOccupancy(const EventContext& ctx,
                                 const Trk::Track& track) const override;
    virtual float LocalOccupancy(const EventContext& ctx,
@@ -71,14 +64,12 @@ namespace InDet
                                 const double phi) const override;
 
    /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
-   virtual std::map<int, double> getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const override;
+   virtual std::map<int, double> getDetectorOccupancy(const EventContext& ctx,
+                                                      const TRT_RDO_Container* p_trtRDOContainer) const override;
 
-   /** Return the global occupancy of the event*/ 
+   /** Return the global occupancy of the event*/
    /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */
-
-   using ITRT_LocalOccupancy::GlobalOccupancy;
-   virtual std::vector<float> GlobalOccupancy(
-     const EventContext& ctx) const override;
+   virtual std::vector<float> GlobalOccupancy(const EventContext& ctx) const override;
 
    //Total TRT, (B, ECA, ECB)side C, (B, ECA, ECB)side A [7]
    static const int NTOTAL = 7;
@@ -102,16 +93,14 @@ namespace InDet
   private:
       const OccupancyData* getData(const EventContext& ctx) const;
       std::unique_ptr<OccupancyData> makeData(const EventContext& ctx) const;
-      std::unique_ptr<OccupancyData> makeDataTrigger() const;
+      std::unique_ptr<OccupancyData> makeDataTrigger(const EventContext &ctx) const;
 
       static bool isMiddleBXOn(unsigned int word) ;
       bool passValidityGate(unsigned int word, float t0) const;
 
-      void  countHitsNearTrack (OccupancyData& data,
-                                int track_local[NLOCAL][NLOCALPHI]) const;
-
-
-  
+      void countHitsNearTrack (const EventContext &ctx,
+                               OccupancyData& data,
+                               int track_local[NLOCAL][NLOCALPHI]) const;
 
    /** To convert from array index to det id and viceversa */
    int findArrayTotalIndex(const int det, const int lay) const;
@@ -119,25 +108,29 @@ namespace InDet
    int mapEtaToPartition(const double eta) const;
 
    /** External tools:  */
-   const TRT_ID *m_TRTHelper;
-   ToolHandle< ITRT_CalDbTool > m_CalDbTool; //!< CalDbTool
-   ToolHandle< ITRT_StrawStatusSummaryTool > m_StrawStatusSummaryTool; //!< StrawStatusSummaryTool   
+   const TRT_ID *m_TRTHelper{};
+   ToolHandle< ITRT_CalDbTool > m_CalDbTool{this, "TRTCalDbTool", "TRT_CalDbTool", ""};
    SG::ReadHandleKey<TRT_RDO_Container> m_trt_rdo_location{ this, "TRT_RDOContainerName", "TRT_RDOs", "m_trt_rdo_location" };
    SG::ReadHandleKey<TRT_DriftCircleContainer> m_trt_driftcircles{ this, "TRT_DriftCircleCollection", "TRT_DriftCircles", "m_trt_driftcircles" };
+
    SG::ReadCondHandleKey<TRTCond::AliveStraws> m_strawReadKey{this,"AliveStraws","AliveStraws","AliveStraws in-key"};
+   SG::ReadCondHandleKey<TRTCond::StrawStatusData> m_strawStatusKey{this,"StrawStatus","StrawStatusData","StrawStatus key"};
+   SG::ReadCondHandleKey<TRTCond::StrawStatusData> m_strawStatusPermKey{this,"StrawStatusPerm","StrawStatusPermanentData","StrawStatusPermanent key"};
 
    SG::ReadHandleKey<OccupancyData> m_occupancyCacheRead{"OccupancyData"};
    SG::WriteHandleKey<OccupancyData> m_occupancyCacheWrite{"OccupancyData"};
-   bool m_isTrigger;
-   bool m_T0Shift; // choice to use T0shift or not
-   float m_lowGate;
-   float m_highGate;
+
+   Gaudi::Property<bool> m_isTrigger{this, "isTrigger", false, ""};
+   Gaudi::Property<bool> m_T0Shift{this, "includeT0Shift", true, "choice to use T0shift or not"};
+   Gaudi::Property<float> m_lowGate{this, "LowGate", 14.0625*Gaudi::Units::ns, ""};
+   Gaudi::Property<float> m_highGate{this, "HighGate", 42.1875*Gaudi::Units::ns, ""};
    // use a wider validity gate if you're not using T0 shift:
-   float m_lowWideGate; 
-   float m_highWideGate;
-   }; 
+   Gaudi::Property<float> m_lowWideGate{this, "LowWideGate", 20.3125*Gaudi::Units::ns, ""};
+   Gaudi::Property<float> m_highWideGate{this, "HighWideGate", 54.6875*Gaudi::Units::ns, ""};
+
+  };
 }
 
 
 CLASS_DEF (InDet::TRT_LocalOccupancy::OccupancyData, 143585992, 0)
-#endif 
+#endif

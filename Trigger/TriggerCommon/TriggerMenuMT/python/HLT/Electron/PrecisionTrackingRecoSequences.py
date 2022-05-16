@@ -27,11 +27,7 @@ def precisionTracking(RoIs, ion=False, variant=''):
     ViewVerifyTrk.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
-                                 ]
-
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' )]
 
     # These objects must be loaded from SGIL if not from CondInputLoader
     from AthenaCommon.AlgSequence import AlgSequence

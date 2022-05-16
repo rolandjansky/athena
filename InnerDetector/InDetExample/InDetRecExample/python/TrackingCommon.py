@@ -1218,9 +1218,6 @@ def getInDetTRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy", **kwargs) :
     if 'TRTCalDbTool' not in kwargs :
         kwargs = setDefaults( kwargs, TRTCalDbTool = getInDetTRTCalDbTool() )
 
-    if 'TRTStrawStatusSummaryTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRTStrawStatusSummaryTool = getInDetTRTStrawStatusSummaryTool() )
-
     if 'isTrigger' not in kwargs :
         kwargs = setDefaults( kwargs, isTrigger = False )
 

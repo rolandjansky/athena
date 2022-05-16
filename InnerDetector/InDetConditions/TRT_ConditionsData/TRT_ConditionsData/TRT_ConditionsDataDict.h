@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCONDITIONSDATA_TRTCONDITIONSDICT_H
 #define TRTCONDITIONSDATA_TRTCONDITIONSDICT_H
 
-#include "TRT_ConditionsData/TRTStrawStatusData.h"
+#include "TRT_ConditionsData/StrawStatusData.h"
+#include "TRT_ConditionsData/StrawStatusSummary.h"
 #include "TRT_ConditionsData/FloatArrayStore.h" 
 #include "TRT_ConditionsData/FloatArrayStoreContainer.h" 
 #include "TRT_ConditionsData/NestedContainer.h"

@@ -32,14 +32,9 @@ def bmumuxRecoSequence(rois, muons):
 
     # Precision Tracking is requested in the same view as FTF, so viewDataVerifier must not be provided
     from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
-    import AthenaCommon.CfgMgr as CfgMgr
-    PTBphysViewVerifier = CfgMgr.AthViews__ViewDataVerifier("PTBphysViewVerifier")
-    PTBphysViewVerifier.DataObjects = [('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-                                       ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
-                                       ]
     ptTracks, ptTrackParticles, ptAlgs = makeInDetTrigPrecisionTracking(config, None, rois)
 
-    precisionTrackingSequence = parOR('precisionTrackingInBmumux', [PTBphysViewVerifier]+ptAlgs)
+    precisionTrackingSequence = parOR('precisionTrackingInBmumux', ptAlgs)
     recoSequence += precisionTrackingSequence
 
     return recoSequence

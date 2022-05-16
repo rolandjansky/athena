@@ -7,22 +7,17 @@
 
 TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm(name,pSvcLocator),
-    m_strawStatus("TRT_StrawStatusSummaryTool",this)
-{ declareProperty("TRTStrawStatusSummaryTool",m_strawStatus);
+  : ::AthReentrantAlgorithm(name, pSvcLocator)
+{
 }
-TRTStrawCondAlg::~TRTStrawCondAlg(){}
 
 StatusCode TRTStrawCondAlg::initialize()
 {
   // Straw status
-  ATH_CHECK ( m_strawStatus.retrieve() );
-
-  // Read key
-  ATH_CHECK( m_strawReadKey.initialize() );
+  ATH_CHECK(m_strawStatusSummaryKey.initialize());
 
   // Register write handle
-  ATH_CHECK( m_strawWriteKey.initialize() );
+  ATH_CHECK(m_strawWriteKey.initialize());
 
   // Initialize readCondHandle key
   ATH_CHECK(m_trtDetEleContKey.initialize());
@@ -33,13 +28,13 @@ StatusCode TRTStrawCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TRTStrawCondAlg::execute() 
+StatusCode TRTStrawCondAlg::execute(const EventContext &ctx) const
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // ____________ Construct Write Cond Handle and check its validity ____________
 
-  SG::WriteCondHandle<TRTCond::AliveStraws> writeHandle{m_strawWriteKey};
+  SG::WriteCondHandle<TRTCond::AliveStraws> writeHandle{m_strawWriteKey, ctx};
 
   // Do we have a valid Write Cond Handle for current time?
   if(writeHandle.isValid()) {
@@ -50,12 +45,31 @@ StatusCode TRTStrawCondAlg::execute()
     return StatusCode::SUCCESS; 
   }
 
+  // Read straw status summary
+  SG::ReadCondHandle<TRTCond::StrawStatusSummary> strawStatusHandle{m_strawStatusSummaryKey, ctx};
+  if (!strawStatusHandle.isValid()){
+    ATH_MSG_FATAL("No access to conditions " << strawStatusHandle.key());
+    return StatusCode::FAILURE;
+  }
 
+  EventIDRange range;
+  if (!strawStatusHandle.range(range)){
+    ATH_MSG_ERROR("Failed to get validity range of " << strawStatusHandle.key());
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_DEBUG("Retrieved " << strawStatusHandle.key() << " with validity " << range);
+
+  const TRTCond::StrawStatusSummary *statusSummary = {*strawStatusHandle};
+  if (statusSummary == nullptr) {
+    ATH_MSG_ERROR("Null pointer to the straw status summary container");
+    return StatusCode::FAILURE;
+  }
 
   // ____________ Construct new Write Cond Object  ____________
   std::unique_ptr<TRTCond::AliveStraws> writeCdo{std::make_unique<TRTCond::AliveStraws>()};
   
-  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle{m_trtDetEleContKey, ctx};
   const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
   if (not trtDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
@@ -85,11 +99,11 @@ StatusCode TRTStrawCondAlg::execute()
       int det = m_trtId->barrel_ec(         id)     ;
       int lay = m_trtId->layer_or_wheel(    id)     ;
       int phi = m_trtId->phi_module(        id)     ;
-      bool status               = m_strawStatus->get_status( id );
+      bool status = statusSummary->findStatus( m_trtId->straw_hash(id) );
 
       if ( status ) {
-	ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
-	continue;
+        ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
+	      continue;
       }
 
       int i_total = findArrayTotalIndex(det, lay);
@@ -100,38 +114,14 @@ StatusCode TRTStrawCondAlg::execute()
      }
   }
 
-  //__________ Assign range of writeCdo to that of the ReadHandle___________ 
-  EventIDRange rangeW;
-
-    SG::ReadCondHandle<StrawStatusContainer> strawReadHandle{m_strawReadKey};
-    const StrawStatusContainer* strawContainer{*strawReadHandle};
-    if(strawContainer==nullptr) {
-        ATH_MSG_ERROR("Null pointer to the straw status container");
-        return StatusCode::FAILURE;
-    }
-
-    // Get range
-    if(!strawReadHandle.range(rangeW)) {
-        ATH_MSG_ERROR("Failed to retrieve validity range for " << strawReadHandle.key());
-        return StatusCode::FAILURE;
-    }
-
-
   // Record  CDO
- if(writeHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(range, std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record AliveStraws " << writeHandle.key() 
-		  << " with EventRange " << rangeW
-		  << " into Conditions Store");
+                  << " with EventRange " << range
+                  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
 
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TRTStrawCondAlg::finalize()
-{
-  ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 

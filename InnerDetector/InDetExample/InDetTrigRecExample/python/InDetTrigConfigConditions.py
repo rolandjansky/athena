@@ -642,8 +642,7 @@ class TRTConditionsServicesSetup:
 
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
-    TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
+    TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg")
     # Active Fraction algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
     TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",

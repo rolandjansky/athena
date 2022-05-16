@@ -610,8 +610,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                           isTrigger = True,
                                                           TRT_RDOContainerName = TRT_RDO_Key,
                                                           TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
-                                                          TRTCalDbTool = InDetTRTCalDbTool,
-                                                          TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
+                                                          TRTCalDbTool = InDetTRTCalDbTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
   InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
