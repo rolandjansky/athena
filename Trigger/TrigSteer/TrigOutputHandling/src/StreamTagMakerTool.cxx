@@ -30,6 +30,7 @@ StatusCode StreamTagMakerTool::initialize() {
   renounceArray( m_pebDecisionKeys );
   ATH_CHECK( m_pebDecisionKeys.initialize() );
   ATH_CHECK( m_finalChainDecisions.initialize() );
+  ATH_CHECK( m_prescaler.retrieve() );
 
   ATH_CHECK( m_hltMenuKey.initialize() );
 
@@ -124,6 +125,14 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 
+  // find chains that pass the express stream
+  HLT::IDVec passedIDs;
+  HLT::IDVec expressIDs;
+  for ( DecisionID chain: passRawIDs ) {
+    passedIDs.push_back( HLT::Identifier( chain ).numeric() );
+  }
+  ATH_CHECK( m_prescaler->prescaleChains( ctx, passedIDs, expressIDs, true ) );
+
   // for each accepted chain look up the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
 
@@ -141,6 +150,14 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
       const auto& [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
       ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
                     << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
+
+      // express stream prescaling
+      if (st_type == "express") {
+        const auto activeExpress = std::find(expressIDs.begin(), expressIDs.end(), HLT::Identifier( chain ).numeric());
+        // chain didn't pass express stream prescale so don't add stream tag
+        if (activeExpress == expressIDs.end()) continue;
+      }
+
       std::set<uint32_t> robs;
       std::set<eformat::SubDetector> subdets;
       if (!forceFullEvent) {

@@ -55,6 +55,12 @@ namespace TrigConf {
       /** HLT prescales by chain hashes */
       const HLTPrescale & prescale(uint32_t chainHash) const;
 
+      /** HLT prescales by chain names */
+      const HLTPrescale & prescale_express(const std::string & chainName) const;
+
+      /** HLT prescales by chain hashes */
+      const HLTPrescale & prescale_express(uint32_t chainHash) const;
+
       void printPrescaleSet(bool full) const;
 
       /** Clearing the configuration data */
@@ -69,11 +75,21 @@ namespace TrigConf {
       /** the prescale key */
       unsigned int m_psk {0};
 
-      // maps HLT chain names to prescales 
+      // maps HLT chain names to prescales
       std::unordered_map<std::string, HLTPrescale> m_prescales {1024};
 
-      // maps HLT chain hashes to prescales 
+      // maps HLT chain hashes to prescales
       std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash {1024};
+
+      // maps HLT chain names to express prescales
+      std::unordered_map<std::string, HLTPrescale> m_prescales_express {1024};
+
+      // maps HLT chain hashes to express prescales
+      std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash_express {1024};
+
+      // default for not in express
+      HLTPrescale m_notInExpress{false, 1};
+
    };
 }
 

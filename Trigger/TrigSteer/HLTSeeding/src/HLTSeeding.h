@@ -6,7 +6,6 @@
 #define HLTSeeding_HLTSeeding_h
 
 #include "IRoIsUnpackingTool.h"
-#include "IPrescalingTool.h"
 #include "L1DataConsistencyChecker.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -16,6 +15,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "HLTSeeding/ICTPUnpackingTool.h"
+#include "HLTSeeding/IPrescalingTool.h"
 #include "TrigCostMonitor/ITrigCostSvc.h"
 #include "TrigConfxAOD/IKeyWriterTool.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"

@@ -22,7 +22,6 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName):
         # Now have all information to write the chain to the prescale dictionary
         chainName = chain["chainName"]
         prescaleDict["prescales"][chainName] = odict([
-            ("name", chainName),
             ("hash", chain["chainNameHash"]),
             ("prescale", chain["prescale"]),
             ("enabled", chainEnabled)
