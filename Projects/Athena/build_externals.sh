@@ -14,8 +14,7 @@ ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DATLAS_GAUDI_TAG="v36r5.001"
                         -DATLAS_ACTS_TAG="v17.1.0"
                         -DATLAS_ONNXRUNTIME_USE_CUDA=FALSE
-                        -DATLAS_GEOMODEL_TAG="4.2.8" 
-                        -DATLAS_BUILD_CORAL=TRUE)
+                        -DATLAS_GEOMODEL_TAG="4.2.8")
 ATLAS_EXTRA_MAKE_ARGS=()
 
 # Let "the common script" do all the heavy lifting.
