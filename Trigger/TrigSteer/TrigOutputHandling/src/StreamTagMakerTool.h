@@ -9,6 +9,7 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h" // Defines PEBInfo and keys to retrieve it
+#include "HLTSeeding/IPrescalingTool.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -45,6 +46,9 @@ private:
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_pebDecisionKeys {this, "PEBDecisionKeys", {},
     "Decisions including PEBInfo" };
+
+  ToolHandle<IPrescalingTool> m_prescaler{
+    this, "prescaler", "PrescalingTool/PrescalingTool", "Prescaling tool"};
 
   /// Chain to streams map filled from the HLT Menu JSON
   std::unordered_map<TrigCompositeUtils::DecisionID, std::vector<StreamTagInfo> > m_mapping;

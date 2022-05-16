@@ -5,7 +5,7 @@
 #define HLTSEEDING_PRESCALINGTOOL_H
 
 // HLTSeeding includes
-#include "IPrescalingTool.h"
+#include "HLTSeeding/IPrescalingTool.h"
 
 // framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -51,8 +51,10 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
     * @param[in] initiallyActive vector of HLTIdentifiers of initially active chains (because they were seeded by L1)
     * @param[out] remainActive vector that is being filled with HLTIdentifiers of chains surviving the prescaling
     */
-   virtual StatusCode prescaleChains( const EventContext& ctx,  const HLT::IDVec& initiallyActive,
-                                      HLT::IDVec& remainActive ) const override;
+   virtual StatusCode prescaleChains( const EventContext& ctx,
+                                      const HLT::IDVec& initiallyActive,
+                                      HLT::IDVec& remainActive,
+                                      bool forExpressStream = false ) const override;
 
  private:
 

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef HLTSeeding_IPrescalingTool_h
-#define HLTSeeding_IPrescalingTool_h
+#ifndef HLTSEEDING_IPRESCALINGTOOL_H
+#define HLTSEEDING_IPRESCALINGTOOL_H
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -24,7 +24,8 @@ public:
    **/
   virtual StatusCode prescaleChains( const EventContext& ctx,
                                      const HLT::IDVec& initiallyActive,
-                                     HLT::IDVec& remainActive ) const = 0;
+                                     HLT::IDVec& remainActive,
+                                     bool forExpressStream = false ) const = 0;
 };
 
 #endif
