@@ -27,7 +27,6 @@ LArDigitsToNtuple::LArDigitsToNtuple(const std::string& name, ISvcLocator* pSvcL
     m_sca(0),
     m_ped(0)
 { 
-  declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_nsamples=5);
   // By default to get only pedestal events, we need to set m_reject=1
   // But to reject non flaged events (physics events occuring out of
