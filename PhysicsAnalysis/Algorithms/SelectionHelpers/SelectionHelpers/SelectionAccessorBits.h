@@ -26,22 +26,37 @@ namespace CP
 
   public:
     virtual SelectionType
-    getBits (const SG::AuxElement& element) const override;
+    getBits (const SG::AuxElement& element,
+             const CP::SystematicSet *sys) const override;
 
   public:
     virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection) const override;
+                          SelectionType selection,
+                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual bool
-    getBool (const SG::AuxElement& element) const override;
+    getBool (const SG::AuxElement& element,
+             const CP::SystematicSet *sys) const override;
 
   public:
     virtual void setBool (const SG::AuxElement& element,
-                          bool selection) const override;
+                          bool selection,
+                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual std::string label () const override;
+
+  public:
+    virtual CP::SystematicSet
+    getInputAffecting (const ISystematicsSvc& svc,
+                       const std::string& objectName) const override;
+
+  public:
+    virtual StatusCode
+    fillSystematics (const ISystematicsSvc& svc,
+                     const std::vector<CP::SystematicSet>& sysList,
+                     const std::string& objectName) override;
 
 
     //

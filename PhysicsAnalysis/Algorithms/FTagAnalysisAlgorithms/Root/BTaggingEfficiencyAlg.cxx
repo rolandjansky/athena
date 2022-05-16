@@ -47,11 +47,11 @@ namespace CP
 
     ANA_CHECK (m_efficiencyTool.retrieve());
     ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
+    ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_jetHandle));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
-    ANA_CHECK (m_selectionHandle.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
 
     return StatusCode::SUCCESS;
@@ -69,7 +69,7 @@ namespace CP
       ANA_CHECK (m_jetHandle.retrieve (jets, sys));
       for (const xAOD::Jet *jet : *jets)
       {
-        if (m_preselection.getBool (*jet))
+        if (m_preselection.getBool (*jet, sys))
         {
           float sf = 0;
 
@@ -83,7 +83,7 @@ namespace CP
           // this selection accessor/decoration has nothing to do with
           // it.  You do the pre-selection via a view container like
           // for all the other CP algorithms.
-          if (!m_onlyInefficiency && m_selectionHandle.getBool (*jet))
+          if (!m_onlyInefficiency && m_selectionHandle.getBool (*jet, sys))
           {
             ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getScaleFactor (*jet, sf));
           } else

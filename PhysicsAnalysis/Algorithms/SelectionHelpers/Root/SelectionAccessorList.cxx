@@ -11,6 +11,8 @@
 
 #include <SelectionHelpers/SelectionAccessorList.h>
 
+#include <PATInterfaces/SystematicSet.h>
+
 //
 // method implementations
 //
@@ -35,7 +37,8 @@ namespace CP
 
 
   SelectionType SelectionAccessorList ::
-  getBits (const SG::AuxElement& element) const
+  getBits (const SG::AuxElement& element,
+           const CP::SystematicSet *sys) const
   {
     // total number of bits in SelectionType
     constexpr size_t SelectionTotalBits = 8 * sizeof (SelectionType);
@@ -43,7 +46,7 @@ namespace CP
     // if we have more cuts than bits, just return true/false
     if (m_list.size() > SelectionTotalBits)
     {
-      if (getBool (element))
+      if (getBool (element, sys))
         return selectionAccept();
       else
         return 0;
@@ -52,7 +55,7 @@ namespace CP
     SelectionType result = selectionAccept();
     for (std::size_t iter = 0; iter != m_list.size(); ++ iter)
     {
-      if (m_list[iter]->getBool (element) == false)
+      if (m_list[iter]->getBool (element, sys) == false)
       {
         result = result & ~(SelectionType (1) << iter);
       }
@@ -64,7 +67,8 @@ namespace CP
 
   void SelectionAccessorList ::
   setBits (const SG::AuxElement& /*element*/,
-           SelectionType /*selection*/) const
+           SelectionType /*selection*/,
+           const CP::SystematicSet * /*sys*/) const
   {
     // technically we could support setting by setting all the
     // components, but I can't think of a situation in which that
@@ -75,11 +79,12 @@ namespace CP
 
 
   bool SelectionAccessorList ::
-  getBool (const SG::AuxElement& element) const
+  getBool (const SG::AuxElement& element,
+           const CP::SystematicSet *sys) const
   {
     for (auto& accessor : m_list)
     {
-      if (!accessor->getBool (element))
+      if (!accessor->getBool (element, sys))
         return false;
     }
     return true;
@@ -89,7 +94,8 @@ namespace CP
 
   void SelectionAccessorList ::
   setBool (const SG::AuxElement& /*element*/,
-           bool /*selection*/) const
+           bool /*selection*/,
+           const CP::SystematicSet * /*sys*/) const
   {
     // technically we could support setting by setting all the
     // components, but I can't think of a situation in which that
@@ -102,5 +108,32 @@ namespace CP
   label () const
   {
     return m_label;
+  }
+
+
+
+  CP::SystematicSet SelectionAccessorList ::
+  getInputAffecting (const ISystematicsSvc& svc,
+                     const std::string& objectName) const
+  {
+    CP::SystematicSet result;
+
+    for (auto& base : m_list)
+      result.insert (base->getInputAffecting (svc, objectName));
+    return result;
+  }
+
+
+
+  StatusCode SelectionAccessorList ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const std::vector<CP::SystematicSet>& sysList,
+                   const std::string& objectName)
+  {
+    using namespace msgSelectionHelpers;
+
+    for (auto& base : m_list)
+      ANA_CHECK (base->fillSystematics (svc, sysList, objectName));
+    return StatusCode::SUCCESS;
   }
 }

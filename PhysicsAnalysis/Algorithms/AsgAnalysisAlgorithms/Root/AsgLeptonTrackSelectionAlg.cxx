@@ -74,8 +74,8 @@ namespace CP
       m_accept.addCut ("numSCTHits", "Minimum and/or maxiumum SCT hits");
 
     ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particlesHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -122,7 +122,7 @@ namespace CP
       {
         asg::AcceptData acceptData (&m_accept);
 
-        if (m_preselection.getBool (*particle))
+        if (m_preselection.getBool (*particle, sys))
         {
           std::size_t cutIndex {0};
 

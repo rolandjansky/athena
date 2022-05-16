@@ -47,10 +47,10 @@ namespace CP
 
     ANA_CHECK (m_efficiencyTool.retrieve());
     ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
 
     if (m_dofJVT && !m_fJVTStatus.empty())
@@ -81,7 +81,7 @@ namespace CP
 
       for (const xAOD::Jet *jet : *jets)
       {
-        if (m_preselection.getBool (*jet))
+        if (m_preselection.getBool (*jet, sys))
         {
           bool goodJet = true;
           if (m_selectionAccessor || m_skipBadEfficiency)
