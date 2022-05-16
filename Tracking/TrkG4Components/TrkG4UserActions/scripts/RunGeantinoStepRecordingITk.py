@@ -33,7 +33,7 @@ parser.add_argument("--maxEvents",default=10, type=int,
                     help="The number of events to run. 0 skips execution")
 parser.add_argument("--skipEvents",default=0, type=int,
                     help="The number of events to skip")
-parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-24-00-00", type=str,
+parser.add_argument("--geometrytag",default="ATLAS-P2-RUN4-01-00-00", type=str,
                     help="The geometry tag to use")
 parser.add_argument("--inputevntfile",
                     default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/EVNT/mc15_14TeV.singlegeantino_E10GeV_etaFlatnp0_6.5M.evgen.EVNT.pool.root",

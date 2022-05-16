@@ -41,7 +41,7 @@ def defaultTestFlags(configFlags, args):
     setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
 
-    ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
+    ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-RUN4-01-00-00"
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
     ConfigFlags.GeoModel.Align.Dynamic = False
     #ConfigFlags.Acts.TrackingGeometry.MaterialSource = "Input"
