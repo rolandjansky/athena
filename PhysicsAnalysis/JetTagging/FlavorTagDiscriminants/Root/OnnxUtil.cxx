@@ -23,7 +23,7 @@ namespace FlavorTagDiscriminants {
   void OnnxUtil::initialize(){
 
     //load the onnx model to memory using the path m_path_to_onnx
-    m_env = std::make_unique< Ort::Env >(ORT_LOGGING_LEVEL_WARNING, "");
+    m_env = std::make_unique< Ort::Env >(ORT_LOGGING_LEVEL_ERROR, "");
 
     // initialize session options if needed
     Ort::SessionOptions session_options;
