@@ -31,7 +31,6 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
                         key     = "Shifter"
                         toolkey = "Shifter"
 
-
         if mcTruth: 
                 tidaegamma = TrigR3Mon_builder( flags, name = "IDEgammaTruth"+toolkey+"Tool", mcTruth=True, pdgID=11 )
                 tidaegamma.SliceTag       = "HLT/TRIDT/EgammaTruth/"+key
@@ -42,10 +41,9 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         tidaegamma.AnalysisConfig = "Tier0"
 
-        chains = getchains( [ "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
-                              "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
-                              "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-                              "HLT_e.*gsf.*:key=HLT_IDTrack_Electron_GSF",
+        chains = getchains( [ "HLT_e.*idperf.*tight.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
+                              "HLT_e.*idperf.*tight.*:key=HLT_IDTrack_Electron_IDTrig",
+                              "HLT_e.*idperf.*tight(?!.*nogsf.*).*:key=HLT_IDTrack_Electron_GSF",
                               "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_tag:te=0",
                               "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_probe:te=1",
                               "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
@@ -131,7 +129,10 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
                               "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
                               "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
                               "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
-                              "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT" ], monlevel )
+                              "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT",
+                              "HLT_mu.*tau.*idperf.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+                              "HLT_mu.*tau.*idperf.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
+                              "HLT_mu.*tau.*idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT" ],  monlevel )
 
         if len(chains)>0 : 
 
@@ -156,6 +157,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         
         chains = getchains( [ "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                               "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+                              "HLT_j.*boffperf.*_ftf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                               "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                               "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig" ], monlevel )
 
