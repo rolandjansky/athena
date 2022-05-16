@@ -86,7 +86,11 @@ def L1TopoSimulationCfg(flags):
                                                     EnableInputDump = flags.Trigger.enableL1TopoDump
                                                     #UseBitwise = True
                                                     )
+
     acc.addEventAlgo(topoSimAlg)
+    from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
+    acc.addEventAlgo(TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags))
+    
     return acc
 
 def L1TopoSimulationOldStyleCfg(flags, isLegacy):

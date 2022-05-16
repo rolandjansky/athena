@@ -271,8 +271,8 @@ L1TopoSimulation::execute() {
        std::bitset<64> outputOpt_1(outputOpt.to_string());
        std::bitset<64> outputOpt_2((outputOpt<<64).to_string());
        topoOutput2CTP->setOptCableWord( connOpt, outputOpt );
-       WriteEDM(m_l1topoContainer,connOpt,0,outputOpt_1.to_ulong());
-       WriteEDM(m_l1topoContainer,connOpt,1,outputOpt_2.to_ulong());
+       WriteEDM(m_l1topoContainer,connOpt,1,outputOpt_1.to_ulong());
+       WriteEDM(m_l1topoContainer,connOpt,0,outputOpt_2.to_ulong());
      }
      
      SG::WriteHandle<xAOD::L1TopoSimResultsContainer> outputHandle(m_l1topoKey/*, ctx*/);
