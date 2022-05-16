@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/HIEventShapeSummaryUtils.h"
@@ -51,8 +51,8 @@ namespace HI
 
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
-		   std::function<bool (const xAOD::HIEventShape*)> incFunction,
-		   std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)> addFunction)
+		   const std::function<bool (const xAOD::HIEventShape*)>& incFunction,
+		   const std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)>& addFunction)
   {
     for(const auto sItr : *in )
     {
@@ -61,15 +61,15 @@ namespace HI
   }
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
-		   const std::set<unsigned int> indices,
-		   std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)> addFunction)
+		   const std::set<unsigned int>& indices,
+		   const std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)>& addFunction)
   {
     for(const auto i : indices ) addFunction(out,in->at(i));
   } 
 
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
-		   std::function<bool (const xAOD::HIEventShape*)> incFunction)
+		   const std::function<bool (const xAOD::HIEventShape*)>& incFunction)
   {
     for(const auto sItr : *in )
     {
@@ -77,7 +77,7 @@ namespace HI
     }
   }
 
-  float getModulation(const xAOD::HIEventShape* es, const std::vector<unsigned int> harmonics, float phi)
+  float getModulation(const xAOD::HIEventShape* es, const std::vector<unsigned int>& harmonics, float phi)
   {
     float mod=1;
     for(const auto itr : harmonics)

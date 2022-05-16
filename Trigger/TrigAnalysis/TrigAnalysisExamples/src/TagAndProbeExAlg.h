@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TagAndProbeExAlg.h 778537 2016-10-14 15:34:31Z ssnyder $
@@ -105,9 +105,9 @@ private:
    std::map<std::string,TProfile*> m_h_eff_eta;
    
    // private functions
-   bool passL1(const xAOD::IParticle &recoObj, const std::string chain); // did the object match L1
-   bool passHLT(const xAOD::IParticle &recoObj, const std::string chain); // did the object match HLT
-   bool passHLT(const xAOD::IParticle &recoObj, std::vector<std::string> chainList); // did the object match HLT
+   bool passL1(const xAOD::IParticle &recoObj, const std::string& chain); // did the object match L1
+   bool passHLT(const xAOD::IParticle &recoObj, const std::string& chain); // did the object match HLT
+   bool passHLT(const xAOD::IParticle &recoObj, const std::vector<std::string>& chainList); // did the object match HLT
    bool passObjectSelection(const xAOD::IParticle &trigObj);
    bool passMuon(const xAOD::Muon &muon); // does the muon pass selection
    bool passElectron( const xAOD::Electron &electron); // tag electron selection

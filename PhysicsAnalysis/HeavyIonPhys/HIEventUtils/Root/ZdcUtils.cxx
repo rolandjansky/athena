@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIEventUtils/ZdcUtils.h"
 
 namespace ZDC
 {
-  float getAmplitudeSumG0(const xAOD::ZdcModuleContainer* in, std::function<bool (const xAOD::ZdcModule*)> incFunction, std::string& suffix)
+  float getAmplitudeSumG0(const xAOD::ZdcModuleContainer* in, const std::function<bool (const xAOD::ZdcModule*)>& incFunction, std::string& suffix)
   {
     float amplitude = 0;
     float mod_amp;
@@ -24,7 +24,7 @@ namespace ZDC
     return amplitude;
   }
 
-  float getAmplitudeSumG1(const xAOD::ZdcModuleContainer* in, std::function<bool (const xAOD::ZdcModule*)> incFunction, std::string/* suffix*/)
+  float getAmplitudeSumG1(const xAOD::ZdcModuleContainer* in, const std::function<bool (const xAOD::ZdcModule*)>& incFunction, const std::string&/* suffix*/)
   {
     float amplitude = 0;
     for (const auto zm : *in)
@@ -34,7 +34,7 @@ namespace ZDC
     return amplitude;
   }
 
-  float getAmplitudeSum(const xAOD::ZdcModuleContainer* in, std::function<bool (const xAOD::ZdcModule*)> incFunction)
+  float getAmplitudeSum(const xAOD::ZdcModuleContainer* in, const std::function<bool (const xAOD::ZdcModule*)>& incFunction)
   {
     float amplitude = 0;
     for (const auto zm : *in)

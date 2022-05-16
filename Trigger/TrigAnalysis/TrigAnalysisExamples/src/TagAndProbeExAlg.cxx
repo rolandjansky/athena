@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Updated to xAOD for Trigger Tutorial
@@ -340,7 +340,7 @@ StatusCode TagAndProbeExAlg::EmulationAnalysis(){
 //     TrigObjectMatching package
 
 // Does the reco'd muon pass L1 of the chain we're interested in?
-bool TagAndProbeExAlg::passL1( const xAOD::IParticle &recoObj, const std::string chain ) {
+bool TagAndProbeExAlg::passL1( const xAOD::IParticle &recoObj, const std::string& chain ) {
     ATH_MSG_INFO("L1Matching: Type " << recoObj.type() << " Chain " << chain);
     //L1 matching, requires custom matching
     double deltaR=999.;
@@ -410,12 +410,12 @@ bool TagAndProbeExAlg::passL1( const xAOD::IParticle &recoObj, const std::string
 
 // Does the reco'd object pass HLT of the chain we're interested in?
 // And the reco'd object is matched to a triggered object
-bool TagAndProbeExAlg::passHLT( const xAOD::IParticle &recoObj, const std::string chain) {
+bool TagAndProbeExAlg::passHLT( const xAOD::IParticle &recoObj, const std::string& chain) {
     return m_matchTool->match(recoObj,chain,m_dRMax);
 }
 
 //Just find a match to any trigger in a list or group
-bool TagAndProbeExAlg::passHLT( const xAOD::IParticle &recoObj, std::vector<std::string> chainList) {
+bool TagAndProbeExAlg::passHLT( const xAOD::IParticle &recoObj, const std::vector<std::string>& chainList) {
     bool match=false;
     for(const std::string& chain:chainList){
         if(m_matchTool->match(recoObj,chain,m_dRMax))

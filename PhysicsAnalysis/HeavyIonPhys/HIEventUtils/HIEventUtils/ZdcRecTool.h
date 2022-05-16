@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HIEVENTUTILS_ZDCRECTOOL_H
@@ -44,8 +44,8 @@ namespace ZDC
   private:
 
     // internal functions - moved to private accoding to T.Bold request while merging into master
-    TF1* m_tf1SincInterp;
-    TF1* m_tf1FermiExpFit;
+    TF1* m_tf1SincInterp = nullptr;
+    TF1* m_tf1FermiExpFit = nullptr;
 
     // Name of the ZDC rec tool
     std::string m_name;
@@ -54,9 +54,9 @@ namespace ZDC
     // Path to the configuring file
     std::string m_zdcRecConfigPath;
 
-    mutable bool m_eventReady;
+    mutable bool m_eventReady = false;
     std::string m_zdcModuleContainerName;
-    const xAOD::ZdcModuleContainer* m_zdcModules;
+    const xAOD::ZdcModuleContainer* m_zdcModules = nullptr;
 
   };
 
