@@ -34,6 +34,7 @@ StatusCode MuonCreatorAlg::initialize() {
     ATH_CHECK(m_muonCandidateKeys.initialize(!m_buildSlowMuon));
     // Can't use a flag in intialize for an array of keys
     if (!m_doSA) ATH_CHECK(m_tagMaps.initialize());
+    else m_tagMaps.clear();
     ATH_CHECK(m_segContainerName.initialize(!m_segContainerName.empty()));
     ATH_CHECK(m_segAssocMapKey.initialize(!m_segAssocMapKey.empty()));
     m_combinedTrkCollectionName = m_combinedCollectionName.key() + "Tracks";

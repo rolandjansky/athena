@@ -267,10 +267,13 @@ def MuonCreatorAlgCfg(flags, name="MuonCreatorAlg", **kwargs):
 
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
     # but don't set this default in case the StauCreatorAlg is created (see below)
-    if not flags.MuonCombined.doMuGirl and not name == "StauCreatorAlg":
-        tag_maps = ["muidcoTagMap", "stacoTagMap",
-                    "caloTagMap", "segmentTagMap"]
-        kwargs.setdefault("TagMaps", tag_maps)
+    tag_maps = []
+    if flags.MuonCombined.doCaloTrkMuId: tag_maps += ["caloTagMap"]
+    if flags.MuonCombined.doMuGirl: tag_maps+=["muGirlTagMap"]
+    if flags.MuonCombined.doStatisticalCombination: tag_maps+=["stacoTagMap"]
+    if flags.MuonCombined.doCombinedFit: tag_maps+=["muidcoTagMap"]
+    if flags.MuonCombined.doMuonSegmentTagger: tag_maps+=["segmentTagMap"]
+    kwargs.setdefault("TagMaps", tag_maps)
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
@@ -291,8 +294,12 @@ def LRT_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_LRT", **kwargs):
         MuonCreatorToolCfg(flags, "MuonCreatorTool_LRT"))
     kwargs.setdefault("MuonCreatorTool", creatorTool)
     # In cases we want to switch them off we should add the flags here
-    tag_maps = ["muidcoTagMap_LRT", "segmentTagMap_LRT",
-                "caloTagMap_LRT", "stacoTagMap_LRT", "MuGirlMap_LRT"]
+    tag_maps = []
+    if flags.MuonCombined.doCaloTrkMuId: tag_maps += ["caloTagMap_LRT"]
+    if flags.MuonCombined.doMuGirl: tag_maps+=["MuGirlMap_LRT"]
+    if flags.MuonCombined.doStatisticalCombination: tag_maps+=["stacoTagMap_LRT"]
+    if flags.MuonCombined.doCombinedFit: tag_maps+=["muidcoTagMap_LRT"]
+    if flags.MuonCombined.doMuonSegmentTagger: tag_maps+=["segmentTagMap_LRT"]  
     kwargs.setdefault("TagMaps", tag_maps)
     kwargs.setdefault("MuonContainerLocation", "MuonsLRT")
     kwargs.setdefault("ExtrapolatedLocation", "ExtraPolatedMuonsLRT")
@@ -307,7 +314,9 @@ def LRT_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_LRT", **kwargs):
 
 def EMEO_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_EMEO", **kwargs):
     muon_maps = ["MuonCandidates_EMEO"]
-    combined_maps = ["muidcoTagMap_EMEO", "stacoTagMap_EMEO"]
+    combined_maps = []
+    if flags.MuonCombined.doStatisticalCombination: combined_maps+=["stacoTagMap_EMEO"]
+    if flags.MuonCombined.doCombinedFit: combined_maps+=["muidcoTagMap_EMEO"]
     kwargs.setdefault("TagMaps", combined_maps)
     kwargs.setdefault("MuonCandidateLocation", muon_maps)
     kwargs.setdefault("MuonContainerLocation", "EMEO_Muons")
@@ -342,17 +351,23 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs):
 def MuonSegContainerMergerAlgCfg(flags, name = "MuonSegContainerMergerAlg", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("saveUnusedSegments", flags.MuonCombined.writeUnAssocSegments)    
-    combined_maps = ["muidcoTagMap", "stacoTagMap", "segmentTagMap"]
-    muon_maps = ["MuonCandidates"]
-    if flags.MuonCombined.doMuGirl: combined_maps+=["muGirlTagMap"]
+    tag_maps = []
+    if flags.MuonCombined.doMuGirl: tag_maps+=["muGirlTagMap"]
+    if flags.MuonCombined.doStatisticalCombination: tag_maps+=["stacoTagMap"]
+    if flags.MuonCombined.doCombinedFit: tag_maps+=["muidcoTagMap"]
+    if flags.MuonCombined.doMuonSegmentTagger: tag_maps+=["segmentTagMap"]
+    muon_maps = ["MuonCandidates"]   
     if flags.Muon.runCommissioningChain:
-        combined_maps += ["muidcoTagMap_EMEO", "stacoTagMap_EMEO"]
+        if flags.MuonCombined.doStatisticalCombination: tag_maps+=["stacoTagMap_EMEO"]
+        if flags.MuonCombined.doCombinedFit: tag_maps+=["muidcoTagMap_EMEO"]
         muon_maps += ["MuonCandidates_EMEO"]
     if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
-         combined_maps +=  ["muidcoTagMap_LRT", "stacoTagMap_LRT", "segmentTagMap_LRT"]
-         if flags.MuonCombined.doMuGirl: combined_maps +=["MuGirlMap_LRT"]
+         if flags.MuonCombined.doMuGirl: tag_maps+=["MuGirlMap_LRT"]
+         if flags.MuonCombined.doStatisticalCombination: tag_maps+=["stacoTagMap_LRT"]
+         if flags.MuonCombined.doCombinedFit: tag_maps+=["muidcoTagMap_LRT"]
+         if flags.MuonCombined.doMuonSegmentTagger: tag_maps+=["segmentTagMap_LRT"]        
     kwargs.setdefault("MuonCandidateMaps", muon_maps)
-    kwargs.setdefault("TagMaps", combined_maps)
+    kwargs.setdefault("TagMaps", tag_maps)
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     kwargs.setdefault("AmbiguityProcessor", result.popToolsAndMerge(MuonAmbiProcessorCfg(flags)))
   
