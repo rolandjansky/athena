@@ -13,7 +13,7 @@ references_map = {
     # Simulation
     "s3759": "v8",
     "s3760": "v6",
-    "s3779": "v3",
+    "s3779": "v4",
     # Overlay
     "d1590": "v8",
     "d1726": "v4",

@@ -32,7 +32,7 @@ def TileSamplingFractionCondAlgCfg(flags, **kwargs):
         samplingFractionProxy = TileCondProxyCoolFlt('TileCondProxyCool_SamplingFraction', Source = samplingFractionFolder)
 
         samplingFractionTag = None # Tag connected to global conditions tag is used by default
-        if flags.GeoModel.Run >= LHCPeriod.Run4 or flags.Overlay.DataOverlay:
+        if flags.GeoModel.Run >= LHCPeriod.Run4 or flags.Overlay.DataOverlay or flags.Sim.ISF.Simulator.usesFastCaloSim():
             samplingFractionTag = 'TileOfl02CalibSfr-SIM-07'
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders

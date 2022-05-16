@@ -45,6 +45,9 @@ class SimulationFlavour(FlagEnum):
     ATLFAST3MT_QS = 'ATLFAST3MT_QS'
     ATLFAST3F_G4MS = 'ATLFAST3F_G4MS'
 
+    def usesFastCaloSim(self):
+        return 'ATLFAST' in self.value
+
     def isQuasiStable(self):
         return 'QS' in self.value
 

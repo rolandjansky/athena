@@ -798,9 +798,18 @@ def bookTileSamplingFractionCondAlg(source = 'FILE'):
             else:
                 raise(Exception("Invalid source: %s" %source ))
 
+        G4Version = ""
         try:
             from Digitization.DigitizationFlags import jobproperties
             G4Version = jobproperties.Digitization.SimG4VersionUsed()
+            if not G4Version or G4Version == 'not_specified':
+                from PyUtils.MetaReaderPeeker import metadata
+                G4Version = ""
+                if "G4Version" in metadata.keys():
+                    G4Version = metadata["G4Version"]
+            if not G4Version:
+                from os import environ
+                G4Version = str(environ.get("G4VERS", ""))
             G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]
             G4V = int(G4VersionMajor) * 100 + int(G4VersionMinor)
         except Exception:
