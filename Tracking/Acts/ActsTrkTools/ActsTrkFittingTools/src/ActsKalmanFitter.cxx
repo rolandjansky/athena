@@ -147,7 +147,7 @@ ActsKalmanFitter::fit(const EventContext& ctx,
                 m_kfExtensions,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
-  std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(inputTrack);
+  std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(tgContext,inputTrack);
   // protection against error in the conversion from Atlas masurement to Acts source link
   if (trackSourceLinks.empty()) {
     ATH_MSG_INFO("input contain measurement but no source link created, probable issue with the converter, reject fit ");
@@ -215,7 +215,7 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   std::vector<ATLASSourceLink> trackSourceLinks;
   trackSourceLinks.reserve(inputMeasSet.size());
   for (auto it = inputMeasSet.begin(); it != inputMeasSet.end(); ++it){
-    trackSourceLinks.push_back(m_ATLASConverterTool->ATLASMeasurementToSourceLink(*it));
+    trackSourceLinks.push_back(m_ATLASConverterTool->ATLASMeasurementToSourceLink(tgContext, *it));
   }
   // protection against error in the conversion from Atlas masurement to Acts source link
   if (trackSourceLinks.empty()) {
@@ -299,11 +299,11 @@ ActsKalmanFitter::fit(const EventContext& ctx,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
-  std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(inputTrack);
+  std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(tgContext, inputTrack);
   const auto& initialParams = m_ATLASConverterTool->ATLASTrackParameterToActs(inputTrack.perigeeParameters());
   for (auto it = addMeasColl.begin(); it != addMeasColl.end(); ++it)
   {
-    trackSourceLinks.push_back(m_ATLASConverterTool->ATLASMeasurementToSourceLink(*it));
+    trackSourceLinks.push_back(m_ATLASConverterTool->ATLASMeasurementToSourceLink(tgContext, *it));
   }
   // protection against error in the conversion from Atlas masurement to Acts source link
   if (trackSourceLinks.empty()) {
@@ -385,8 +385,8 @@ ActsKalmanFitter::fit(const EventContext& ctx,
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
-  std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(intrk1);
-  std::vector<ATLASSourceLink> trackSourceLinks2 = m_ATLASConverterTool->ATLASTrackToSourceLink(intrk2);
+  std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(tgContext, intrk1);
+  std::vector<ATLASSourceLink> trackSourceLinks2 = m_ATLASConverterTool->ATLASTrackToSourceLink(tgContext, intrk2);
   trackSourceLinks.insert(trackSourceLinks.end(), trackSourceLinks2.begin(), trackSourceLinks2.end());
   // protection against error in the conversion from Atlas masurement to Acts source link
   if (trackSourceLinks.empty()) {
@@ -436,9 +436,14 @@ ActsKalmanFitter::makeTrack(const EventContext& ctx, Acts::GeometryContext& tgCo
       auto flag = state.typeFlags();
       if (state.referenceSurface().associatedDetectorElement() != nullptr) {
         const auto* actsElement = dynamic_cast<const ActsDetectorElement*>(state.referenceSurface().associatedDetectorElement());
+        ATH_MSG_VERBOSE("Try casting to TRT for if");
         if (actsElement != nullptr 
             && dynamic_cast<const InDetDD::TRT_BaseElement*>(actsElement->upstreamDetectorElement()) == nullptr) {
+          const auto* trkDetElem = dynamic_cast<const Trk::TrkDetElementBase*>(actsElement->upstreamDetectorElement());
+          ATH_MSG_VERBOSE("trkDetElem type: " << static_cast<std::underlying_type_t<Trk::DetectorElemType>>(trkDetElem->detectorType()));
+          ATH_MSG_VERBOSE("Try casting to SiDetectorElement");
           const auto* detElem = dynamic_cast<const InDetDD::SiDetectorElement*>(actsElement->upstreamDetectorElement());
+          ATH_MSG_VERBOSE("detElem = " << detElem);
           // We need to determine the type of state 
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
           std::unique_ptr<const Trk::TrackParameters> parm;

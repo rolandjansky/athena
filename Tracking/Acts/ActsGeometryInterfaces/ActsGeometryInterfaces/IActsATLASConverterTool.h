@@ -40,11 +40,11 @@ class IActsATLASConverterTool : virtual public IAlgTool {
 
   virtual 
   const ATLASSourceLink
-  ATLASMeasurementToSourceLink(const Trk::MeasurementBase *measurement) const = 0;
+  ATLASMeasurementToSourceLink(const Acts::GeometryContext& gctx, const Trk::MeasurementBase *measurement) const = 0;
 
   virtual
   const std::vector<ATLASSourceLink>
-  ATLASTrackToSourceLink(const Trk::Track &track) const = 0;
+  ATLASTrackToSourceLink(const Acts::GeometryContext& gctx, const Trk::Track &track) const = 0;
 
   virtual
   const Acts::BoundTrackParameters

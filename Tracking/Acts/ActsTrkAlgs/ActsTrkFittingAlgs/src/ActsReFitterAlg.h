@@ -11,6 +11,7 @@
 #include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -25,9 +26,6 @@
 #include <mutex>
 
 class EventContext;
-namespace Trk {
-  class ITrackFitter;
-}
 
 class ActsReFitterAlg : public AthReentrantAlgorithm {
 public:

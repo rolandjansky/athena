@@ -5,6 +5,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from ActsTrkSeedingTool.ActsTrkSeedingToolConfig import ActsTrkSeedingToolCfg
 from ActsTrkTrackParamsEstimationTool.ActsTrkTrackParamsEstimationToolConfig import TrackParamsEstimationToolCfg
 from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometryToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsATLASConverterToolCfg
+
         
 # ACTS algorithm using Athena objects upstream
 def ActsTrkITkPixelSeedingFromAthenaCfg(flags,
@@ -14,11 +16,10 @@ def ActsTrkITkPixelSeedingFromAthenaCfg(flags,
 
     # Need To add additional tool(s)
     # Tracking Geometry Tool
-    acc_geo, geoTool = ActsTrackingGeometryToolCfg(flags)
-    acc.merge(acc_geo)
+    geoTool = acc.getPrimaryAndMerge(ActsTrackingGeometryToolCfg(flags))
 
     # ATLAS Converter Tool
-    converterTool = CompFactory.ActsATLASConverterTool(TrackingGeometryTool=geoTool)
+    converterTool = acc.popToolsAndMerge(ActsATLASConverterToolCfg(flags))
     
     # Track Param Estimation Tool
     trackEstimationTool = acc.popToolsAndMerge(TrackParamsEstimationToolCfg(flags))
@@ -49,11 +50,10 @@ def ActsTrkITkStripSeedingFromAthenaCfg(flags,
 
     # Need To add additional tool(s)
     # Tracking Geometry Tool
-    acc_geo, geoTool = ActsTrackingGeometryToolCfg(flags)
-    acc.merge(acc_geo)
+    geoTool = acc.getPrimaryAndMerge(ActsTrackingGeometryToolCfg(flags))
 
     # ATLAS Converter Tool
-    converterTool = CompFactory.ActsATLASConverterTool(TrackingGeometryTool=geoTool)
+    converterTool = acc.popToolsAndMerge(ActsATLASConverterToolCfg(flags))
     
     # Track Param Estimation Tool
     trackEstimationTool = acc.popToolsAndMerge(TrackParamsEstimationToolCfg(flags))
