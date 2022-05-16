@@ -51,6 +51,9 @@ def setupMenu():
         # ATR-24977 - LRT muon chains
         ChainProp(name='HLT_mu20_LRT_d0loose_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['Main'], groups=PrimaryL1MuGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu6_LRT_idperf_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
+
+        # ATR-25224 - LRT muon chain
+        ChainProp(name='HLT_mu6_LRT_d0loose_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['Main'], groups=SupportGroup+SingleMuonGroup),
     ]
 
     chains['Egamma'] = [
