@@ -129,29 +129,22 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             while(!applyCrossTalkCut(idx_goodStrips,MMprdsOfLayer,flag,nStripsCutByCrosstalk).isFailure()){}
             ATH_MSG_DEBUG("After cutting CT idx_goddStrips " << idx_goodStrips<< " flag " << flag );
                 
-            double localClusterPosition=-9999;
-            double sigmaLocalClusterPosition=0;
-            double finalFitAngle,finalFitChiSqProb;
-            sc=finalFit(MMprdsOfLayer,idx_goodStrips,localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
-            ATH_MSG_DEBUG("final fit done"); 
-            
-            if(sc.isFailure()) break;
-            ATH_MSG_DEBUG("Did final fit successfull");
             std::vector<Identifier> stripsOfCluster;
             std::vector<uint16_t> stripsOfClusterChannels;
             std::vector<short int> stripsOfClusterTimes;
             std::vector<int> stripsOfClusterCharges;
             std::vector<float> stripsOfClusterDriftDists;
             std::vector<Amg::MatrixX> stripsOfClusterDriftDistErrors;
-
+            std::vector<float> stripsOfClusterLocalPos; // needed for the final fit function
             stripsOfCluster.reserve(idx_goodStrips.size());
             if (m_writeStripProperties) {
                 stripsOfClusterChannels.reserve(idx_goodStrips.size());
-                stripsOfClusterTimes.reserve(idx_goodStrips.size());
-                stripsOfClusterCharges.reserve(idx_goodStrips.size());
             }
+            stripsOfClusterTimes.reserve(idx_goodStrips.size());
+            stripsOfClusterCharges.reserve(idx_goodStrips.size());
             stripsOfClusterDriftDists.reserve(idx_goodStrips.size());
             stripsOfClusterDriftDistErrors.reserve(idx_goodStrips.size());
+            stripsOfClusterLocalPos.reserve(idx_goodStrips.size());
 
             ATH_MSG_DEBUG("Found good Strips: "<< idx_goodStrips.size());
 
@@ -168,7 +161,22 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
                 }
                 stripsOfClusterDriftDists.push_back(MMprdsOfLayer.at(idx).driftDist());
                 stripsOfClusterDriftDistErrors.push_back(MMprdsOfLayer.at(idx).localCovariance());
+                stripsOfClusterLocalPos.push_back(MMprdsOfLayer.at(idx).localPosition().x());
             }
+            
+            double localClusterPosition=-9999;
+            double sigmaLocalClusterPosition=0;
+            double finalFitAngle,finalFitChiSqProb;
+
+            sc=finalFit(stripsOfCluster, stripsOfClusterLocalPos, stripsOfClusterDriftDists, stripsOfClusterDriftDistErrors, localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
+            
+            ATH_MSG_DEBUG("final fit done");
+            
+            if(sc.isFailure()) break;
+            ATH_MSG_DEBUG("Did final fit successfull");
+        
+
+
             auto covN = Amg::MatrixX(1,1);
             covN.coeffRef(0,0)=sigmaLocalClusterPosition;
             ATH_MSG_DEBUG("Did set covN Matrix");
@@ -382,27 +390,27 @@ StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &i
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
+StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX> driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
     std::unique_ptr<TGraphErrors> fitGraph=std::make_unique<TGraphErrors>();
     std::unique_ptr<TF1> ffit=std::make_unique<TF1>("ffit","pol1");
     
     double xmin = 5000;
     double xmax = -5000;
-    double xmean = std::accumulate(mmPrd.begin(),mmPrd.end(),0.0,[&](double a,const Muon::MMPrepData &b){return a+b.localPosition().x();})/mmPrd.size(); //get mean x value
+    double xmean = std::accumulate(stripsPos.begin(),stripsPos.end(),0.0)/stripsPos.size(); //get mean x value
     
     std::unique_ptr<TLinearFitter> lf=std::make_unique<TLinearFitter>(1,"1++x");
     
-    for(int idx:idxSelected){
-        double xpos=mmPrd.at(idx).localPosition().x()-xmean; // substract mean value from x to center fit around 0
+    for(size_t idx = 0; idx < stripsPos.size(); idx++){
+        double xpos=stripsPos.at(idx)-xmean; // substract mean value from x to center fit around 0
         if(xmin>xpos) xmin = xpos;
         else if(xmax<xpos) xmax = xpos;
-        lf->AddPoint(&xpos, mmPrd.at(idx).driftDist());
-        fitGraph->SetPoint(fitGraph->GetN(),xpos,mmPrd.at(idx).driftDist());
-        fitGraph->SetPointError(fitGraph->GetN()-1, std::sqrt(mmPrd.at(idx).localCovariance()(0,0)),std::sqrt(mmPrd.at(idx).localCovariance()(1,1)));
+        lf->AddPoint(&xpos, driftDists.at(idx));
+        fitGraph->SetPoint(fitGraph->GetN(),xpos, driftDists.at(idx));
+        fitGraph->SetPointError(fitGraph->GetN()-1, std::sqrt(driftDistErrors.at(idx)(0,0)),std::sqrt(driftDistErrors.at(idx)(1,1)));
     }
     lf->Eval(); 
 
-    if(m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles){
+    if(m_idHelperSvc->mmIdHelper().gasGap(ids.at(0))%2==1 || !m_digiHasNegativeAngles){
         ffit->SetParLimits(1,-11.5,-0.15); //5 to 81 degree
     }else{
         ffit->SetParLimits(1,0.15,11.5); //5 to 81 degree
@@ -438,17 +446,52 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPr
         ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
 
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
-
-        ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
-
-        ATH_MSG_DEBUG("gas gap:"<<m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify()));
-
+        ATH_MSG_DEBUG("nStrips:"<<stripsPos.size());
+        ATH_MSG_DEBUG("gas gap:"<<m_idHelperSvc->mmIdHelper().gasGap(ids.at(0)));
     }
     if(s!=0 && s!=4000){ //4000 means fit succesfull but error optimization by minos failed; fit is still usable.
         ATH_MSG_DEBUG("Final fit failed with error code "<<s);
         return StatusCode::FAILURE;
     }
-    if((m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles) && (ffit->GetParameter(1)<=-11.49 || ffit->GetParameter(1)>=-0.151)) return StatusCode::FAILURE; // fit should have negativ slope for odd gas gaps
-    if(m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==0  && m_digiHasNegativeAngles && (ffit->GetParameter(1)>=11.49 || ffit->GetParameter(1)<=0.151)) return StatusCode::FAILURE; // fit should have positiv slope for even gas gaps
+    if((m_idHelperSvc->mmIdHelper().gasGap(ids.at(0))%2==1 || !m_digiHasNegativeAngles) && (ffit->GetParameter(1)<=-11.49 || ffit->GetParameter(1)>=-0.151)) return StatusCode::FAILURE; // fit should have negativ slope for odd gas gaps
+    if(m_idHelperSvc->mmIdHelper().gasGap(ids.at(0))%2==0  && m_digiHasNegativeAngles && (ffit->GetParameter(1)>=11.49 || ffit->GetParameter(1)<=0.151)) return StatusCode::FAILURE; // fit should have positiv slope for even gas gaps
     return StatusCode::SUCCESS;
 }
+
+StatusCode Muon::UTPCMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>& strips, 
+					   const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const {
+    (void) cluster;
+    (void) theta; // avoid unused parameter warning
+    std::vector<Identifier> ids;
+    std::vector<float> stripsPos;
+    std::vector<float> driftDists;
+    std::vector<Amg::MatrixX> driftDistErrors;
+
+    for (const NSWCalib::CalibratedStrip &strip : strips)  {
+            ids.push_back(strip.identifier);
+            stripsPos.push_back(strip.locPos.x());
+            driftDists.push_back(strip.distDrift);
+
+            Amg::MatrixX cov(2,2);
+            cov.setIdentity();
+            cov(0,0) = strip.resTransDistDrift;  
+            cov(1,1) = strip.resLongDistDrift; 
+            driftDistErrors.push_back(cov);    
+    }
+
+    double localClusterPosition=-9999;
+    double sigmaLocalClusterPosition=0;
+    double finalFitAngle,finalFitChiSqProb;
+
+    StatusCode sc = finalFit(ids, stripsPos, driftDists, driftDistErrors, localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
+    if(sc==StatusCode::FAILURE) return sc;
+
+    clusterLocalPosition[Trk::locX] =  localClusterPosition;
+    
+    Amg::MatrixX covN (1,1);
+    covN.coeffRef(0,0)=sigmaLocalClusterPosition;
+    covMatrix=covN;
+
+    return StatusCode::SUCCESS;
+}
+

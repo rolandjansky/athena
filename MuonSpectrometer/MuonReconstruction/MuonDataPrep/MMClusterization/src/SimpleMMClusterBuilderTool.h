@@ -34,7 +34,7 @@ namespace Muon
     StatusCode getClusterPosition(std::vector<Muon::MMPrepData>& stripsVect, 
 				  Amg::Vector2D& clusterLocalPosition, Amg::MatrixX* covMatrix) const;
     
-    StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, 
+    StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, const float theta,
 					    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
 
   private: 
