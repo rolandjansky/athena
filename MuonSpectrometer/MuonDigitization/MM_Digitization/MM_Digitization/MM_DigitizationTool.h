@@ -138,8 +138,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 		Gaudi::Property<std::string> m_vmmARTMode{this,"vmmARTMode","threshold","For ART (trigger) path. Can be peak or threshold"};
 
 		Gaudi::Property<double> m_energyThreshold{this,"EnergyThreshold",50,"Minimal energy to produce a PRD"};
-		Gaudi::Property<double> m_timeWindowLowerOffset{this,"WindowLowerOffset",0,"lower boundary of the time window in which digits are accepted"};
-		Gaudi::Property<double> m_timeWindowUpperOffset{this,"WindowUpperOffset",200,"upper boundary of the time window in which digits are accepted"};
+		Gaudi::Property<double> m_timeWindowLowerOffset{this,"WindowLowerOffset",-12.5,"lower boundary of the time window in which digits are accepted"};
+		Gaudi::Property<double> m_timeWindowUpperOffset{this,"WindowUpperOffset",187.5,"upper boundary of the time window in which digits are accepted"};
 		Gaudi::Property<double> m_DiffMagSecondMuonHit{this,"DiffMagSecondMuonHit",0.1};
 
 		Gaudi::Property<int> m_maskMultiplet{this,"MaskMultiplet",0,"0: all, 1: first, 2: second, 3: both"};
@@ -150,7 +150,6 @@ class MM_DigitizationTool : public PileUpToolBase {
 		Gaudi::Property<bool> m_useTimeWindow{this,"UseTimeWindow",true};
 		Gaudi::Property<bool> m_vmmNeighborLogic{this,"VMMNeighborLogic",false};
 		Gaudi::Property<bool> m_doSmearing{this,"doSmearing",false,"set the usage or not of the smearing tool for realistic detector performance"};
-
 		// Constants vars for the MM_StripsResponseSimulation class
 		// qThreshold=2e, we accept a good strip if the charge is >=2e
 
