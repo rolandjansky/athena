@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
@@ -20,11 +20,6 @@
 std::set< int > TFCSParametrizationBase::s_no_pdgid;
 std::vector< TFCSParametrizationBase* > TFCSParametrizationBase::s_cleanup_list;
 
-#ifndef __FastCaloSimStandAlone__
-//Initialize only in constructor to make sure the needed services are ready
-Athena::MsgStreamMember* TFCSParametrizationBase::s_msg(nullptr); 
-#endif
-
 #if defined(__FastCaloSimStandAlone__)
 TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title)
   : TNamed(name, title),
@@ -33,9 +28,10 @@ TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* t
 {
 }
 #else
-TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title):TNamed(name,title)
+TFCSParametrizationBase::TFCSParametrizationBase(const char* name, const char* title)
+  : TNamed(name,title),
+    AthMessaging("FastCaloSimParametrization")
 {
-  if(s_msg==nullptr) s_msg=new Athena::MsgStreamMember("FastCaloSimParametrization");
 }
 #endif
 
