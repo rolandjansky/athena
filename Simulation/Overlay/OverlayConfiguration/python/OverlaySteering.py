@@ -11,6 +11,8 @@ from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 
 from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
+from InDetOverlay.ITkPixelOverlayConfig import ITkPixelOverlayCfg
+from InDetOverlay.ITkStripOverlayConfig import ITkStripOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
@@ -72,6 +74,12 @@ def OverlayMainContentCfg(configFlags):
         acc.merge(SCTOverlayCfg(configFlags))
     if configFlags.Detector.EnableTRT:
         acc.merge(TRTOverlayCfg(configFlags))
+
+    # ITk
+    if configFlags.Detector.EnableITkPixel:
+        acc.merge(ITkPixelOverlayCfg(configFlags))
+    if configFlags.Detector.EnableITkStrip:
+        acc.merge(ITkStripOverlayCfg(configFlags))
 
     # Calorimeters
     if configFlags.Detector.EnableLAr:

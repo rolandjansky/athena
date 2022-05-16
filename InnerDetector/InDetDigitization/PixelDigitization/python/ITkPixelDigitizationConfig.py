@@ -247,6 +247,10 @@ def ITkPixelDigitizationBasicCfg(flags, **kwargs):
 def ITkPixelOverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with ITk Pixel Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["SiHitCollection#ITkPixelHits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(ITkPixelOverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
@@ -256,8 +260,7 @@ def ITkPixelOverlayDigitizationBasicCfg(flags, **kwargs):
 
     # Set common overlay extra inputs
     kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
-    PixelDigitization = CompFactory.PixelDigitization
-    acc.addEventAlgo(PixelDigitization(name="ITkPixelOverlayDigitization", **kwargs))
+    acc.addEventAlgo(CompFactory.PixelDigitization(name="ITkPixelOverlayDigitization", **kwargs))
     return acc
 
 
