@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 # Package: MuonGeoModel
@@ -14,7 +14,7 @@ find_package( GeoModel COMPONENTS GeoModelKernel )
 atlas_add_library( MuonGeoModelLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonGeoModel
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel MuonCondInterface MuonReadoutGeometry MuonGMdbObjects StoreGateLib MuonIdHelpersLib MuonAGDDDescription AGDDControl AGDDKernel AmdcDbLib CxxUtils
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities GaudiKernel MuonCondInterface MuonReadoutGeometry MuonGMdbObjects StoreGateLib MuonIdHelpersLib MuonAGDDDescription AGDDControl AGDDKernel AmdcDbLib CxxUtils
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities IdDictDetDescr MuonDetDescrUtils )
 
 atlas_add_component( MuonGeoModel

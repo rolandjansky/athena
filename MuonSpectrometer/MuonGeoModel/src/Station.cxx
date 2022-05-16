@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Station.h"
 
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "MuonGeoModel/MDT_Technology.h"
 #include "MuonGeoModel/MYSQL.h"
@@ -22,6 +21,7 @@
 namespace MuonGM {
 
     Station::Station(MYSQL& mysql, std::string s) :
+      AthMessaging("MuonGeoModel.Station"),
       m_amdbOrigine_along_length (0),
       m_amdbOrigine_along_thickness (0),
       m_name(std::move(s)),
@@ -31,6 +31,7 @@ namespace MuonGM {
     }
 
     Station::Station() :
+      AthMessaging("MuonGeoModel.Station"),
       m_amdbOrigine_along_length (0),
       m_amdbOrigine_along_thickness (0),
       m_name("unknown"),
@@ -49,10 +50,10 @@ namespace MuonGM {
 
     void Station::SetAlignPos(const AlignPos &p) {
         if (FindAlignPos(p.zindex, p.phiindex) != m_alignpositions.end() && p.jobindex == 0) {
-            MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
-            log << MSG::WARNING << " this alignposition already exists !!!" << endmsg;
-            log << MSG::WARNING << " for station named " << m_name << " setting alignposition at z,phi, key " << p.zindex << " " << p.phiindex << " " << p.zindex * 100 + p.phiindex
-                << " and jobIndex = 0" << endmsg;
+            ATH_MSG_WARNING(" this alignposition already exists !!!");
+            ATH_MSG_WARNING(" for station named " << m_name << " setting alignposition at z,phi, key " <<
+                            p.zindex << " " << p.phiindex << " " << p.zindex * 100 + p.phiindex <<
+                            " and jobIndex = 0");
             assert(0);
         }
 
@@ -94,10 +95,9 @@ namespace MuonGM {
 
     void Station::SetPosition(Position p) {
         if (FindPosition(p.zindex, p.phiindex) != end()) {
-            MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
-            log << MSG::WARNING << " this position already exists !!!" << endmsg;
-            log << MSG::WARNING << " for station named " << m_name << " setting position at z,phi, key " << p.zindex << " " << p.phiindex << " " << p.zindex * 100 + p.phiindex
-                << endmsg;
+            ATH_MSG_WARNING(" this position already exists !!!");
+            ATH_MSG_WARNING(" for station named " << m_name << " setting position at z,phi, key " <<
+                            p.zindex << " " << p.phiindex << " " << p.zindex * 100 + p.phiindex);
             assert(0);
         } else {
             p.isAssigned = true;
@@ -126,7 +126,6 @@ namespace MuonGM {
                 thick = thick > t->GetThickness(mysql) + t->posz ? thick : t->GetThickness(mysql) + t->posz;
             }
         } else {
-            MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
             double zstart = std::numeric_limits<double>::max();
 
             for (unsigned int i = 0; i < m_components.size(); i++) {
@@ -135,18 +134,15 @@ namespace MuonGM {
                 if (i == 0 || s->posz < zstart)
                     zstart = s->posz;
 
-                if (log.level() <= MSG::VERBOSE) {
-                    log << MSG::VERBOSE << "Station " << m_name << " calculating  Thinkness = " << thick << " and zstart = " << zstart << endmsg;
-                }
+                ATH_MSG_VERBOSE("Station " << m_name << " calculating  Thinkness = " << thick << " and zstart = " << zstart);
             }
 
             if (fabs(zstart) > 0.001) {
                 thick = thick - zstart;
                 m_amdbOrigine_along_thickness = -zstart;
-                if (log.level() <= MSG::VERBOSE) {
-                    log << MSG::VERBOSE << "Station " << m_name << " redefining Thinkness = " << thick << " because zstart = " << zstart
-                        << "; then amdbOrigine_along_thickness = " << m_amdbOrigine_along_thickness << endmsg;
-                }
+                ATH_MSG_VERBOSE("Station " << m_name << " redefining Thinkness = " << thick <<
+                                " because zstart = " << zstart <<
+                                "; then amdbOrigine_along_thickness = " << m_amdbOrigine_along_thickness);
             }
         }
 
@@ -257,29 +253,23 @@ namespace MuonGM {
         } else {
             double ystart = 999999.;
 
-            MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
             for (unsigned int i = 0; i < m_components.size(); i++) {
                 StandardComponent *sc = (StandardComponent *)m_components[i];
-                if (log.level() <= MSG::VERBOSE) {
-                    log << MSG::VERBOSE << "Station " << m_name << " *** comp " << i << " named " << sc->name << " posy " << sc->posy << " dy " << sc->dy << " len " << len
-                        << " ystart " << ystart << endmsg;
-                }
+                ATH_MSG_VERBOSE("Station " << m_name << " *** comp " << i << " named " <<
+                                sc->name << " posy " << sc->posy << " dy " << sc->dy << " len " << len <<
+                                " ystart " << ystart);
                 if ((sc->dy + sc->posy) > len)
                     len = sc->dy + sc->posy;
                 if (i == 0 || sc->posy < ystart)
                     ystart = sc->posy;
-                if (log.level() <= MSG::VERBOSE) {
-                    log << MSG::VERBOSE << " now len = " << len << " ystart = " << ystart << endmsg;
-                }
+                ATH_MSG_VERBOSE(" now len = " << len << " ystart = " << ystart);
             }
 
             if (fabs(ystart) > 0.001) {
                 len = len - ystart;
                 m_amdbOrigine_along_length = -ystart;
 
-                if (log.level() <= MSG::VERBOSE) {
-                    log << MSG::VERBOSE << "Station " << m_name << " redefining len = " << len << " because ystart = " << ystart << endmsg;
-                }
+                ATH_MSG_VERBOSE("Station " << m_name << " redefining len = " << len << " because ystart = " << ystart);
             }
         }
 
@@ -411,7 +401,6 @@ namespace MuonGM {
         double mdthalfpitch = 0.5 * (mdtobj->pitch);
 
         if (hasMdts()) {
-            MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
 
             for (int icomp = 0; icomp < GetNrOfComponents(); ++icomp) {
                 const Component *c = GetComponent(icomp);
@@ -419,15 +408,11 @@ namespace MuonGM {
                     continue;
                 const MDT *mdtobj = dynamic_cast<const MDT*>(mysql.GetATechnology(c->name));
                 if (!mdtobj) {
-                    if (log.level() <= MSG::ERROR) {
-                        log << MSG::ERROR << "Cannot find MDT definition for component " << c->name << endmsg;
-                    }
+                    ATH_MSG_ERROR("Cannot find MDT definition for component " << c->name);
                     continue;
                 }
                 mdthalfpitch = 0.5 * (mdtobj->pitch);
-                if (log.level() <= MSG::DEBUG) {
-                    log << MSG::DEBUG << "Setting halfpitch " << mdthalfpitch << " for station " << m_name << endmsg;
-                }
+                ATH_MSG_DEBUG("Setting halfpitch " << mdthalfpitch << " for station " << m_name);
                 break;
             }
         }
@@ -436,12 +421,11 @@ namespace MuonGM {
 
     // this is really needed
     GeoTrf::Transform3D Station::native_to_tsz_frame(const MYSQL& mysql, const Position &p) const {
-        MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
         int amdbVersion = mysql.getNovaReadVersion();
 
         if (amdbVersion > 0 && amdbVersion < 7 && m_name[0] != 'B') {
-            log << MSG::DEBUG << "For AMDB version " << amdbVersion << " a left-handed chamber coordinate system was used "
-                << " for endcap side A so be very careful." << endmsg;
+            ATH_MSG_DEBUG("For AMDB version " << amdbVersion << " a left-handed chamber coordinate system was used "
+                          << " for endcap side A so be very careful.");
         }
 
         // first apply here the mirror symmetry: (we, in fact, apply a rotation)
@@ -458,8 +442,9 @@ namespace MuonGM {
             double halfpitch = mdtHalfPitch(mysql);
             AMDBorgTranslation = GeoTrf::Translate3D(GetThickness(mysql) / 2. - getAmdbOrigine_along_thickness(mysql), 0., GetLength() / 2. - (getAmdbOrigine_along_length() + halfpitch));
 
-            log << MSG::VERBOSE << " GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length " << GetThickness(mysql) << " " << getAmdbOrigine_along_thickness(mysql) << " "
-                << GetLength() << " " << getAmdbOrigine_along_length() + halfpitch << endmsg;
+            ATH_MSG_VERBOSE(" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length " <<
+                            GetThickness(mysql) << " " << getAmdbOrigine_along_thickness(mysql) << " " <<
+                            GetLength() << " " << getAmdbOrigine_along_length() + halfpitch);
         } else {
             if (m_name[0] == 'T') {
                 AMDBorgTranslation = GeoTrf::Translate3D(GetThickness(mysql) / 2. - getAmdbOrigine_along_thickness(mysql), 0.,
@@ -468,8 +453,9 @@ namespace MuonGM {
                 AMDBorgTranslation = GeoTrf::Translate3D(GetThickness(mysql) / 2. - getAmdbOrigine_along_thickness(mysql), 0., GetLength() / 2. - getAmdbOrigine_along_length());
             }
 
-            log << MSG::VERBOSE << " GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length " << GetThickness(mysql) << " " << getAmdbOrigine_along_thickness(mysql) << " "
-                << GetLength() << " " << getAmdbOrigine_along_length() << endmsg;
+            ATH_MSG_VERBOSE(" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length " <<
+                            GetThickness(mysql) << " " << getAmdbOrigine_along_thickness(mysql) << " " <<
+                            GetLength() << " " << getAmdbOrigine_along_length());
         }
 
         // // define the rotations by alpha, beta, gamma
@@ -527,16 +513,15 @@ namespace MuonGM {
             }
         }
 
-        MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
-        log << MSG::VERBOSE << " translation according to " << vec.x() << " " << vec.y() << " " << vec.z() << endmsg;
+        ATH_MSG_VERBOSE(" translation according to " << vec.x() << " " << vec.y() << " " << vec.z());
 
         // // define the rotations by alpha, beta, gamma
         GeoTrf::RotateX3D ralpha(p.alpha * Gaudi::Units::deg);
         GeoTrf::RotateZ3D rbeta(p.beta * Gaudi::Units::deg);
         GeoTrf::RotateY3D rgamma(p.gamma * Gaudi::Units::deg);
 
-        log << MSG::VERBOSE << " gamma is not changing sign - original " << p.gamma << " new one " << p.gamma << endmsg;
-        log << MSG::VERBOSE << " alpha / beta " << p.alpha << " " << p.beta << endmsg;
+        ATH_MSG_VERBOSE(" gamma is not changing sign - original " << p.gamma << " new one " << p.gamma <<
+                        " alpha / beta " << p.alpha << " " << p.beta);
 
         // // apply all transform in sequence
         // //    GeoTrf::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;
@@ -565,7 +550,7 @@ namespace MuonGM {
                 nominalTransf = GeoTrf::Transform3D(GeoTrf::RotateY3D(-90 * Gaudi::Units::deg) * GeoTrf::RotateX3D(p.phi * Gaudi::Units::deg - 180 * Gaudi::Units::deg) *
                                                     GeoTrf::RotateZ3D(180 * Gaudi::Units::deg));
             } else {
-                log << MSG::WARNING << "Problem here p.z, mirrored " << p.z << " " << p.isMirrored << endmsg;
+                ATH_MSG_WARNING("Problem here p.z, mirrored " << p.z << " " << p.isMirrored);
             }
         }
 
@@ -585,12 +570,11 @@ namespace MuonGM {
 
     GeoTrf::Transform3D Station::getDeltaTransform_tszFrame(const MYSQL& mysql,
                                                             const AlignPos &ap) const {
-        MsgStream log(Athena::getMessageSvc(), "MuonGeoModel.Station");
         if (ap.tras != 0 || ap.trat != 0 || ap.traz != 0 || ap.rots != 0 || ap.rott != 0 || ap.rotz != 0) {
-            log << MSG::VERBOSE << "Setting corrections." << endmsg;
-            log << MSG::VERBOSE << "For station " << m_name << " corrections sent are " << ap.tras << " " << ap.traz << " " << ap.trat << " " << ap.rots << " " << ap.rotz << " "
-                << ap.rott << " isBarrel=" << ap.isBarrel << endmsg;
-            log << MSG::VERBOSE << "length=" << GetLength() << " m_thickness=" << GetThickness(mysql) << endmsg;
+            ATH_MSG_VERBOSE("Setting corrections. For station " << m_name << " corrections sent are "
+                            << ap.tras << " " << ap.traz << " " << ap.trat << " " << ap.rots << " "
+                            << ap.rotz << " " << ap.rott << " isBarrel=" << ap.isBarrel
+                            << " length=" << GetLength() << " m_thickness=" << GetThickness(mysql));
         }
 
         GeoTrf::RotateX3D rott(ap.rott);
@@ -600,9 +584,12 @@ namespace MuonGM {
 
         GeoTrf::Transform3D delta = trans * rots * rotz * rott;
 
-        log << MSG::VERBOSE << " delta transform in the tsz frame --------------" << endmsg << delta(0, 0) << " " << delta(0, 1) << " " << delta(0, 2) << " " << delta(0, 3) << " "
-            << endmsg << delta(1, 0) << " " << delta(1, 1) << " " << delta(1, 2) << " " << delta(1, 3) << " " << endmsg << delta(2, 0) << " " << delta(2, 1) << " " << delta(2, 2)
-            << " " << delta(2, 3) << " " << endmsg;
+        if (msgLvl(MSG::VERBOSE)) {
+            msg() << MSG::VERBOSE << " delta transform in the tsz frame --------------" << endmsg
+                << delta(0, 0) << " " << delta(0, 1) << " " << delta(0, 2) << " " << delta(0, 3) << " " << endmsg
+                << delta(1, 0) << " " << delta(1, 1) << " " << delta(1, 2) << " " << delta(1, 3) << " " << endmsg
+                << delta(2, 0) << " " << delta(2, 1) << " " << delta(2, 2) << " " << delta(2, 3) << " " << endmsg;
+        }
 
         // our delta transform must be applied in the tsz frame:
         return delta;
