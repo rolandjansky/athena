@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,28 +31,15 @@ void
 combineWithWeight(Trk::ComponentParameters& mergeTo,
                   const Trk::ComponentParameters& addThis);
 
-/** @brief Combined/merge a component to the parts of another */
+/** @brief Update parameters */
 void
-combineWithWeight(Trk::ComponentParameters& mergeTo,
-                  const AmgVector(5) & secondParameters,
-                  const AmgSymMatrix(5) * secondMeasuredCov,
-                  const double secondWeight);
-
-/** @brief Calculate combined state and weight of many components */
-std::unique_ptr<Trk::ComponentParameters>
-combineWithWeight(const MultiComponentState&,
-                  const bool useMode = false,
-                  const double fractionPDFused = 1.0);
-
-/** @brief Update first parameters */
-inline void
 combineParametersWithWeight(AmgVector(5) & firstParameters,
                             double& firstWeight,
                             const AmgVector(5) & secondParameters,
                             const double secondWeight);
 
 /** @brief Update cov matrix */
-inline void
+void
 combineCovWithWeight(const AmgVector(5) & firstParameters,
                      AmgSymMatrix(5) & firstMeasuredCov,
                      const double firstWeight,
@@ -62,5 +49,4 @@ combineCovWithWeight(const AmgVector(5) & firstParameters,
 
 }
 } // end Trk namespace
-#include "MultiComponentStateCombiner.icc"
 #endif
