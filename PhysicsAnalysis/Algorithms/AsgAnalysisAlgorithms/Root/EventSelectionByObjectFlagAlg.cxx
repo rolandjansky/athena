@@ -25,9 +25,9 @@ EventSelectionByObjectFlagAlg ::EventSelectionByObjectFlagAlg(
 StatusCode EventSelectionByObjectFlagAlg ::initialize() {
 
     ANA_CHECK(m_particleHandle.initialize (m_systematicsList));
+    ANA_CHECK(m_preselection.initialize (m_systematicsList, m_particleHandle, SG::AllowEmpty));
+    ANA_CHECK(m_veto.initialize (m_systematicsList, m_particleHandle));
     ANA_CHECK(m_systematicsList.initialize());
-    ANA_CHECK(m_preselection.initialize());
-    ANA_CHECK(m_veto.initialize());
     ANA_CHECK(m_filterParams.initialize());
 
     return StatusCode::SUCCESS;
@@ -48,8 +48,8 @@ StatusCode EventSelectionByObjectFlagAlg ::execute() {
 
         // reject events with any particle passing the input selection
         for (const xAOD::IParticle *particle : *particles) {
-            if (m_preselection.getBool(*particle)) {
-                if (m_veto.getBool(*particle)) {
+           if (m_preselection.getBool(*particle, sys)) {
+                if (m_veto.getBool (*particle, sys)) {
                     ATH_MSG_VERBOSE("Event failed.");
                     filter.setPassed (false);
                     break;

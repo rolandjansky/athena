@@ -14,7 +14,7 @@
 #include <EgammaAnalysisAlgorithms/CopyHelpers.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
-#include <SelectionHelpers/SelectionReadHandle.h>
+#include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 
@@ -48,7 +48,7 @@ namespace CP
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection {
+    SysReadSelectionHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
     /// \brief the particle continer we run on

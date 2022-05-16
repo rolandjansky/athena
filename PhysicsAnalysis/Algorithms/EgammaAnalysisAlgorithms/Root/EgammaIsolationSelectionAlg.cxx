@@ -42,8 +42,8 @@ namespace CP
     ANA_CHECK (m_selectionTool.retrieve());
       
     ANA_CHECK (m_egammasHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_egammasHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
 
     Root::TAccept blankAccept = m_selectionTool->getObjTAccept();
     // Just in case this isn't initially set up as a failure clear it this one
@@ -65,7 +65,7 @@ namespace CP
       ANA_CHECK (m_egammasHandle.retrieve (egammas, sys));
       for (const xAOD::Egamma *egamma : *egammas)
       {
-        if (m_preselection.getBool (*egamma))
+        if (m_preselection.getBool (*egamma, sys))
         {
           m_selectionAccessor->setBits
             (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)));

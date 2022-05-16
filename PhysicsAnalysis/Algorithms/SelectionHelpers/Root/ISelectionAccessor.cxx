@@ -17,6 +17,7 @@
 #include <SelectionHelpers/SelectionAccessorInvert.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
 #include <SelectionHelpers/SelectionAccessorNull.h>
+#include <SelectionHelpers/SelectionAccessorReadSys.h>
 #include <SelectionHelpers/SelectionExprParser.h>
 #include <exception>
 #include <unordered_map>
@@ -45,37 +46,45 @@ namespace CP
 
   }
   
-    StatusCode 
-    makeSelectionAccessor(const std::string& expr, 
-                                      std::unique_ptr<ISelectionAccessor>& accessor,
-                                      bool defaultToChar)
+
+
+  StatusCode 
+  makeSelectionAccessor(const std::string& expr, 
+                        std::unique_ptr<ISelectionAccessor>& accessor,
+                        bool defaultToChar)
+  {
+    using namespace msgSelectionHelpers;
+
+    if (expr.empty())
     {
-      using namespace msgSelectionHelpers;
-
-      if (expr.empty())
-      {
-        accessor = std::make_unique<SelectionAccessorNull> (true);
-        return StatusCode::SUCCESS;
-      }
-
-      try {
-        SelectionExprParser parser(expr, defaultToChar);
-        ANA_CHECK(parser.build(accessor));
-      } catch (const std::exception& e) {
-        ANA_MSG_FATAL("Failure to parse expression: '" << expr << "': " << e.what());
-        return StatusCode::FAILURE;
-      }
-
+      accessor = std::make_unique<SelectionAccessorNull> (true);
       return StatusCode::SUCCESS;
     }
+
+    try {
+      SelectionExprParser parser(expr, defaultToChar);
+      ANA_CHECK(parser.build(accessor));
+    } catch (const std::exception& e) {
+      ANA_MSG_FATAL("Failure to parse expression: '" << expr << "': " << e.what());
+      return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
+  }
 
 
   StatusCode
   makeSelectionAccessorVar (const std::string& name,
-                         std::unique_ptr<ISelectionAccessor>& accessor,
-                         bool defaultToChar)
+                            std::unique_ptr<ISelectionAccessor>& accessor,
+                            bool defaultToChar)
   {
     using namespace msgSelectionHelpers;
+
+    if (name.find ("%SYS%") != std::string::npos)
+    {
+      accessor = std::make_unique<SelectionAccessorReadSys>(name);
+      return StatusCode::SUCCESS;
+    }
 
     std::string var;
     bool asChar = false;

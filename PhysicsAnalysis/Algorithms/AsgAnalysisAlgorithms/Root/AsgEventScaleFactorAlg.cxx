@@ -36,11 +36,11 @@ namespace CP
 
     ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
     ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particleHandle, SG::AllowEmpty));
     ANA_CHECK (m_inputSelectionDecoration.initialize (m_systematicsList, m_particleHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorInputDecoration.initialize (m_systematicsList, m_particleHandle));
     ANA_CHECK (m_scaleFactorOutputDecoration.initialize (m_systematicsList, m_eventInfoHandle));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -61,7 +61,7 @@ namespace CP
       float scaleFactor = 1;
       for (const xAOD::IParticle *particle : *particles)
       {
-        if (m_preselection.getBool (*particle))
+        if (m_preselection.getBool (*particle, sys))
         {
           if (m_inputSelectionDecoration && m_inputSelectionDecoration.get (*particle, sys) == 0)
             continue;

@@ -11,6 +11,8 @@
 
 #include <SelectionHelpers/SelectionAccessorBits.h>
 
+#include <PATInterfaces/SystematicSet.h>
+
 //
 // method implementations
 //
@@ -25,7 +27,8 @@ namespace CP
 
 
   SelectionType SelectionAccessorBits ::
-  getBits (const SG::AuxElement& element) const
+  getBits (const SG::AuxElement& element,
+           const CP::SystematicSet * /*sys*/) const
   {
     return m_constAccessor (element);
   }
@@ -34,7 +37,8 @@ namespace CP
 
   void SelectionAccessorBits ::
   setBits (const SG::AuxElement& element,
-           SelectionType selection) const
+           SelectionType selection,
+           const CP::SystematicSet * /*sys*/) const
   {
     m_accessor (element) = selection;
   }
@@ -42,7 +46,8 @@ namespace CP
 
 
   bool SelectionAccessorBits ::
-  getBool (const SG::AuxElement& element) const
+  getBool (const SG::AuxElement& element,
+           const CP::SystematicSet * /*sys*/) const
   {
     return m_constAccessor (element) == selectionAccept();
   }
@@ -51,7 +56,8 @@ namespace CP
 
   void SelectionAccessorBits ::
   setBool (const SG::AuxElement& element,
-           bool selection) const
+           bool selection,
+           const CP::SystematicSet * /*sys*/) const
   {
     if (selection)
       m_accessor (element) = selectionAccept();
@@ -65,5 +71,24 @@ namespace CP
   label () const
   {
     return m_label;
+  }
+
+
+
+  CP::SystematicSet SelectionAccessorBits ::
+  getInputAffecting (const ISystematicsSvc& /*svc*/,
+                     const std::string& /*objectName*/) const
+  {
+    return CP::SystematicSet ();
+  }
+
+
+
+  StatusCode SelectionAccessorBits ::
+  fillSystematics (const ISystematicsSvc& /*svc*/,
+                   const std::vector<CP::SystematicSet>& /*sysList*/,
+                   const std::string& /*objectName*/)
+  {
+    return StatusCode::SUCCESS;
   }
 }

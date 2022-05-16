@@ -16,6 +16,10 @@ class StatusCode;
 
 namespace CP
 {
+  class ISystematicsSvc;
+  class SystematicSet;
+
+
   /// \brief a specialized accessor to read/write a selection
   /// decoration from/to an xAOD object
   ///
@@ -43,25 +47,42 @@ namespace CP
     /// \brief get the selection decoration
   public:
     virtual SelectionType
-    getBits (const SG::AuxElement& element) const = 0;
+    getBits (const SG::AuxElement& element,
+             const CP::SystematicSet *sys = nullptr) const = 0;
 
     /// \brief set the selection decoration
   public:
     virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection) const = 0;
+                          SelectionType selection,
+                          const CP::SystematicSet *sys = nullptr) const = 0;
 
     /// \brief get the selection decoration
   public:
-    virtual bool getBool (const SG::AuxElement& element) const = 0;
+    virtual bool getBool (const SG::AuxElement& element,
+                          const CP::SystematicSet *sys = nullptr) const = 0;
 
     /// \brief set the selection decoration
   public:
     virtual void setBool (const SG::AuxElement& element,
-                          bool selection) const = 0;
+                          bool selection,
+                          const CP::SystematicSet *sys = nullptr) const = 0;
 
-  /// \brief get the label of the accessor
+    /// \brief get the label of the accessor
   public:
     virtual std::string label () const = 0;
+
+    /// \brief get the systematics when reading from the decoration
+  public:
+    virtual CP::SystematicSet
+    getInputAffecting (const ISystematicsSvc& svc,
+                       const std::string& objectName) const = 0;
+
+    /// \brief fill the systematic variations
+  public:
+    virtual StatusCode
+    fillSystematics (const ISystematicsSvc& svc,
+                     const std::vector<CP::SystematicSet>& sysList,
+                     const std::string& objectName) = 0;
   };
 
 
@@ -93,8 +114,8 @@ namespace CP
   /// @param [in] defaultToChar Whether to treat decorations as char by default
   StatusCode
   makeSelectionAccessorVar (const std::string& name,
-                         std::unique_ptr<ISelectionAccessor>& accessor,
-                         bool defaultToChar = false);
+                            std::unique_ptr<ISelectionAccessor>& accessor,
+                            bool defaultToChar = false);
 }
 
 #endif

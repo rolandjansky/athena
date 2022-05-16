@@ -13,7 +13,7 @@
 #include <EgammaAnalysisAlgorithms/CopyHelpers.h>
 #include <IsolationCorrections/IIsolationCorrectionTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
-#include <SelectionHelpers/SelectionReadHandle.h>
+#include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 
@@ -53,7 +53,7 @@ namespace CP
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection {
+    SysReadSelectionHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
     /// \brief the helper for OutOfValidity results

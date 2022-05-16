@@ -39,8 +39,8 @@ namespace CP
   public:
     template<typename T2>
     SysReadDecorHandle (T2 *owner, const std::string& propertyName,
-                             const std::string& propertyValue,
-                             const std::string& propertyDescription);
+                        const std::string& propertyValue,
+                        const std::string& propertyDescription);
 
 
     /// \brief whether we have a name configured
