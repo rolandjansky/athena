@@ -13,7 +13,7 @@
 //-----------------------------------------------
 
 // Athena
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
@@ -40,7 +40,7 @@
 #include <utility>
 #include <vector>
 
-class InducedChargeModel {
+class InducedChargeModel : public AthMessaging {
 
  public:
   enum EFieldModel {FlatDiodeModel=0, FEMsolutions=1, UniformE=2};
@@ -140,18 +140,10 @@ class InducedChargeModel {
 
   size_t getFEMIndex(SCT_InducedChargeModelData& data) const;
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg(MSG::Level lvl) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl(MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
-
   //-------- parameters for e, h transport --------------------------------
   static const double s_kB; // [m^2*kg/s^2/K]
   static const double s_e; // [Coulomb]
 
-  // Private message stream member
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-  
   //------parameters given externally by jobOptions ------------------
   EFieldModel m_EFieldModel; // 0 (flat diode model), 1 (FEM solusions), 2 (uniform E)
   double m_transportTimeStep = 0.50; // one step side in time [nsec]
