@@ -174,6 +174,44 @@ def CopyMcEventCollectionAlgCfg(flags, name="CopyMcEventCollection", **kwargs):
 
     return acc
 
+def CopyPixelClusterContainerAlgCfg(flags, **kwargs):
+    """Return a ComponentAccumulator for the CopyPixelClusterContainer algorithm"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("InputKey","PixelClusters")
+    kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix+"PixelClusters")
+
+    CopyPixelClusterContainer=CompFactory.CopyPixelClusterContainer
+    alg=CopyPixelClusterContainer("CopyPixelClusterContainer", **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+def CopySCT_ClusterContainerAlgCfg(flags, **kwargs):
+    """Return a ComponentAccumulator for the CopySCT_ClusterContainer algorithm"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("InputKey","SCT_Clusters")
+    kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix+"SCT_Clusters")
+
+    CopySCT_ClusterContainer=CompFactory.CopySCT_ClusterContainer
+    alg=CopySCT_ClusterContainer("CopySCT_ClusterContainer", **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+def CopyTRT_DriftCircleContainerAlgCfg(flags, **kwargs):
+    """Return a ComponentAccumulator for the CopyTRT_DriftCircleContainer algorithm"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("InputKey","TRT_DriftCircles")
+    kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix+"TRT_DriftCircles")
+
+    CopyTRT_DriftCircleContainer=CompFactory.CopyTRT_DriftCircleContainer
+    alg=CopyTRT_DriftCircleContainer("CopyTRT_DriftCircleContainer", **kwargs)
+    acc.addEventAlgo(alg)
+
+    return acc
 
 def CopyTimingsAlgCfg(flags, name="CopyTimings", **kwargs):
     """Return a ComponentAccumulator for the CopyTimings algorithm"""
@@ -221,6 +259,46 @@ def CopyTrackRecordCollectionAlgCfg(flags, collectionName, name="CopyTrackRecord
         "TrackRecordCollection#"
         + collectionName + "->" + flags.Overlay.SigPrefix + collectionName
     ]))
+
+    return acc
+
+def CopyTrackCollectionAlgCfg(flags, collectionName, **kwargs):
+    """Return a ComponentAccumulator for the TrackCollection copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix + collectionName)
+    kwargs.setdefault("InputKey", collectionName)
+
+    CopyTrackCollection = CompFactory.CopyTrackCollection
+    alg = CopyTrackCollection("CopyTrackCollection"+collectionName)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+
+def CopyDetailedTrackTruthCollectionAlgCfg(flags, collectionName, **kwargs):
+    """Return a ComponentAccumulator for the DetailedTrackTruthCollection copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix + collectionName)
+    kwargs.setdefault("InputKey", collectionName)
+
+    CopyDetailedTrackTruthCollection = CompFactory.CopyDetailedTrackTruthCollection
+    alg = CopyDetailedTrackTruthCollection("CopyDetailedTrackTruthCollection"+collectionName)
+    acc.addEventAlgo(alg)
+
+    return acc
+
+def CopyPRD_MultiTruthCollectionAlgCfg(flags, collectionName, **kwargs):
+    """Return a ComponentAccumulator for the PRD_MultiTruthCollection copying"""
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix + collectionName)
+    kwargs.setdefault("InputKey", collectionName)
+
+    CopyPRD_MultiTruthCollection = CompFactory.CopyPRD_MultiTruthCollection
+    alg = CopyPRD_MultiTruthCollection("CopyPRD_MultiTruthCollection"+collectionName)
+    acc.addEventAlgo(alg)
 
     return acc
 
@@ -323,6 +401,69 @@ def CopyTrackRecordCollectionOutputCfg(flags, collectionName, **kwargs):
 
     return acc
 
+def CopyTrackCollectionOutputCfg(flags, collectionName, **kwargs):
+    """ Return CopyTrackCollection output configuration"""
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "TrackCollection#" + flags.Overlay.BkgPrefix+collectionName]))
+
+    return acc
+
+def CopyPixelClusterContainerOutputCfg(flags, **kwargs):
+    """ Return CopyPixelClusterContainer output configuration"""
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDet::PixelClusterContainer#Bkg_PixelClusters"
+        ]))
+
+    return acc
+
+def CopySCT_ClusterContainerOutputCfg(flags, **kwargs):
+    """ Return CopySCT_ClusterContainer output configuration"""
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDet::SCT_ClusterContainer#Bkg_SCT_Clusters"
+        ]))
+
+    return acc
+
+def CopyTRT_DriftCircleContainerOutputCfg(flags, **kwargs):
+    """ Return CopyTRT_DriftCircleContainer output configuration"""
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles"]))
+
+    return acc
+
+def CopyDetailedTrackTruthCollectionOutputCfg(flags, collectionName, **kwargs):
+    """ Return CopyDetailedTrackTruthCollection output configuration"""
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "DetailedTrackTruthCollection#" + flags.Overlay.BkgPrefix+collectionName
+        ]))
+
+    return acc
+
+def CopyPRD_MultiTruthCollectionOutputCfg(flags, collectionName, **kwargs):
+    """ Return CopyPRD_MultiTruthCollection output configuration"""
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "PRD_MultiTruthCollection#" + flags.Overlay.BkgPrefix+collectionName
+        ]))
+
+    return acc
 
 def CopyCaloCalibrationHitContainersCfg(flags, **kwargs):
     """Return overlay configuration for the CopyCalibrationHitContainer algorithms"""
@@ -381,6 +522,30 @@ def CopyTimingsCfg(flags, **kwargs):
 
     return acc
 
+def CopyPixelClusterContainerCfg(flags, **kwargs):
+    """Return overlay configuration for the CopyPixelClusterContainer algorithm"""
+
+    acc = CopyPixelClusterContainerAlgCfg(flags, **kwargs)
+    acc.merge(CopyPixelClusterContainerOutputCfg(flags, **kwargs))
+
+    return acc
+
+def CopySCT_ClusterContainerCfg(flags, **kwargs):
+    """Return overlay configuration for the CopySCT_ClusterContainer algorithm"""
+
+    acc = CopySCT_ClusterContainerAlgCfg(flags, **kwargs)
+    acc.merge(CopySCT_ClusterContainerOutputCfg(flags, **kwargs))
+
+    return acc
+
+def CopyTRT_DriftCircleContainerCfg(flags, **kwargs):
+    """Return overlay configuration for the CopyTRT_DriftCircleContainer algorithm"""
+
+    acc = CopyTRT_DriftCircleContainerAlgCfg(flags, **kwargs)
+    acc.merge(CopyTRT_DriftCircleContainerOutputCfg(flags, **kwargs))
+
+    return acc
+
 
 def CopyTrackRecordCollectionsCfg(flags, **kwargs):
     """Return overlay configuration for the TrackRecordCollection algorithms"""
@@ -403,6 +568,86 @@ def CopyTrackRecordCollectionsCfg(flags, **kwargs):
     for container in availableContainers:
         acc.merge(CopyTrackRecordCollectionAlgCfg(flags, container, **kwargs))
         acc.merge(CopyTrackRecordCollectionOutputCfg(
+            flags, container, **kwargs))
+
+    return acc
+
+def CopyTrackCollectionsCfg(flags, **kwargs):
+    """ Return overlay configuration for copying tracks"""
+
+    acc = ComponentAccumulator()
+
+    allowedContainers = [
+        "CombinedInDetTracks",
+        "DisappearingTracks",
+        "ResolvedForwardTracks",
+        "ResolvedLargeD0Tracks"
+    ]
+
+    availableContainers = []
+
+    # Detect the list of track collections
+    for container in allowedContainers:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
+            availableContainers.append(container)
+
+    for container in availableContainers:
+        acc.merge(CopyTrackCollectionAlgCfg(flags, container, **kwargs))
+        acc.merge(CopyTrackCollectionOutputCfg(
+            flags, container, **kwargs))
+
+    return acc
+
+def CopyDetailedTrackTruthCollectionsCfg(flags, **kwargs):
+    """ Return overlay configuration for copying detailed track truth"""
+
+    acc = ComponentAccumulator()
+
+    allowedContainers = [
+        "DisappearingTracksDetailedTruth",
+        "ResolvedForwardTracksDetailedTruth",
+        "CombinedInDetTracksDetailedTruth",
+        "ResolvedLargeD0TracksDetailedTruth"
+    ]
+
+    availableContainers = []
+
+    # Detect the list of detailed track truth collections
+    for container in allowedContainers:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
+            availableContainers.append(container)
+
+    for container in availableContainers:
+        acc.merge(CopyDetailedTrackTruthCollectionAlgCfg(flags, container, **kwargs))
+        acc.merge(CopyDetailedTrackTruthCollectionOutputCfg(
+            flags, container, **kwargs))
+
+    return acc
+
+def CopyPRD_MultiTruthCollectionsCfg(flags, **kwargs):
+    """ Return overlay configuration for copying detailed track truth"""
+
+    acc = ComponentAccumulator()
+
+    allowedContainers = [
+        "PRD_MultiTruthTRT",
+        "PRD_MultiTruthPixel",
+        "PRD_MultiTruthSCT"
+    ]
+
+    availableContainers = []
+
+    # Detect the list of detailed track truth collections                                                                                                                
+    for container in allowedContainers:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
+            availableContainers.append(container)
+
+    for container in availableContainers:
+        acc.merge(CopyPRD_MultiTruthCollectionAlgCfg(flags, container, **kwargs))
+        acc.merge(CopyPRD_MultiTruthCollectionOutputCfg(
             flags, container, **kwargs))
 
     return acc

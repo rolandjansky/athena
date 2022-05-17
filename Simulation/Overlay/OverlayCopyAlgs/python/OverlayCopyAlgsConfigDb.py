@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addAlgorithm
 
@@ -11,3 +11,9 @@ addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyPileupParticleT
 addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyMcEventCollection", "CopyMcEventCollection")
 addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyTimings", "CopyTimings")
 addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyTrackRecordCollection", "CopyTrackRecordCollection")
+addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyTrackCollection", "CopyTrackCollection")
+addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyDetailedTrackTruthCollection", "CopyDetailedTrackTruthCollection")
+addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyPRD_MultiTruthCollection", "CopyPRD_MultiTruthCollection")
+addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyPixelClusterContainer", "CopyPixelClusterContainer")
+addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopySCT_ClusterContainer", "CopySCT_ClusterContainer")
+addAlgorithm("OverlayCopyAlgs.OverlayCopyAlgsConfigLegacy.getCopyTRT_DriftCircleContainer", "CopyTRT_DriftCircleContainer")

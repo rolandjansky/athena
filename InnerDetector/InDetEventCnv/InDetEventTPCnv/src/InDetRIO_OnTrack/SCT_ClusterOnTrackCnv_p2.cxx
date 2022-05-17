@@ -65,16 +65,10 @@ void SCT_ClusterOnTrackCnv_p2::transToPers(const InDet::SCT_ClusterOnTrack* tran
   persObj->m_isbroad = transObj->isBroadCluster();
   persObj->m_positionAlongStrip = static_cast<float>(transObj->positionAlongStrip());
 
-  //3 scenarios here
-  //1: standard running, the EL has only the cached object and the EventCnvSuperTool track overlay flag is false
-  //2: running reco on the overlay RDO file to build the tracks for track overlay, where the EL has only the cached object but the EventCnvSuperTool track overlay flag is true
-  //3: the overlay step, in which the EventCnvSuperTool track overlay flag is false but the EL should have the correct dataID stored 
-  std::string clusContName="SCT_Clusters";
-  if(transObj->prepRawDataLink().dataID()!="") clusContName=transObj->prepRawDataLink().dataID();
-  else if(m_eventCnvTool->doTrackOverlay()) clusContName="Bkg_SCT_Clusters";
-  static const SG::InitializedReadHandleKey<InDet::SCT_ClusterContainer> sctClusContName (clusContName.c_str());
+  static const SG::InitializedReadHandleKey<InDet::SCT_ClusterContainer> sctClusContName ("SCT_Clusters");
   ElementLink<InDet::SCT_ClusterContainer>::index_type hashAndIndex{0};
   bool isFound{m_eventCnvTool->getHashAndIndex<InDet::SCT_ClusterContainer, InDet::SCT_ClusterOnTrack>(transObj, sctClusContName, hashAndIndex)};
-  persObj->m_prdLink.m_contName = (isFound ? sctClusContName.key() : "");
+  if(m_eventCnvTool->doTrackOverlay()) persObj->m_prdLink.m_contName = (isFound ? "Bkg_SCT_Clusters" : "");
+  else persObj->m_prdLink.m_contName = (isFound ? sctClusContName.key() : "");
   persObj->m_prdLink.m_elementIndex = hashAndIndex;
 }

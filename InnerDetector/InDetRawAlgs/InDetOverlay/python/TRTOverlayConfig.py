@@ -118,9 +118,15 @@ def TRTOverlayCfg(flags):
     # Add TRT overlay digitization algorithm
     from TRT_Digitization.TRT_DigitizationConfigNew import TRT_OverlayDigitizationBasicCfg
     acc.merge(TRT_OverlayDigitizationBasicCfg(flags))
-    # Add TRT overlay algorithm
-    acc.merge(TRTOverlayAlgCfg(flags))
-    # Add TRT truth overlay
-    acc.merge(TRTTruthOverlayCfg(flags))
+    #if track overlay, only run digitization on the HS input
+    if not flags.Overlay.doTrackOverlay:
+        # Add TRT overlay algorithm
+        acc.merge(TRTOverlayAlgCfg(flags))
+        # Add TRT truth overlay
+        acc.merge(TRTTruthOverlayCfg(flags))
+    else:
+        acc.getEventAlgo("TRT_OverlayDigitization").DigitizationTool.OutputObjectName="TRT_RDOs"
+        acc.getEventAlgo("TRT_OverlayDigitization").DigitizationTool.OutputSDOName="TRT_SDO_Map"
+        acc.getEventAlgo("TRT_OverlayDigitization").DigitizationTool.Override_isOverlay=0
 
     return acc

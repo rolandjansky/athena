@@ -63,16 +63,10 @@ void TRT_DriftCircleOnTrackCnv_p2::transToPers( const InDet::TRT_DriftCircleOnTr
   // added in 12.5
   persObj->m_timeOverThreshold = static_cast<float>(transObj->timeOverThreshold());
 
-  //3 scenarios here
-  //1: standard running, the EL has only the cached object and the EventCnvSuperTool track overlay flag is false
-  //2: running reco on the overlay RDO file to build the tracks for track overlay, where the EL has only the cached object but the EventCnvSuperTool track overlay flag is true
-  //3: the overlay step, in which the EventCnvSuperTool track overlay flag is false but the EL should have the correct dataID stored 
-  std::string clusContName="TRT_DriftCircles";
-  if(transObj->prepRawDataLink().dataID()!="") clusContName=transObj->prepRawDataLink().dataID();
-  else if(m_eventCnvTool->doTrackOverlay()) clusContName="Bkg_TRT_DriftCircles";
-  static const SG::InitializedReadHandleKey<InDet::TRT_DriftCircleContainer> trtCircleContName (clusContName.c_str());
+  static const SG::InitializedReadHandleKey<InDet::TRT_DriftCircleContainer> trtCircleContName ("TRT_DriftCircles");
   ElementLink<InDet::TRT_DriftCircleContainer>::index_type hashAndIndex{0};
   bool isFound{m_eventCnvTool->getHashAndIndex<InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(transObj, trtCircleContName, hashAndIndex)};
-  persObj->m_prdLink.m_contName = (isFound ? trtCircleContName.key() : "");
+  if(m_eventCnvTool->doTrackOverlay()) persObj->m_prdLink.m_contName = (isFound ? "Bkg_TRT_DriftCircles" : "");
+  else persObj->m_prdLink.m_contName = (isFound ? trtCircleContName.key() : "");
   persObj->m_prdLink.m_elementIndex = hashAndIndex;
 }

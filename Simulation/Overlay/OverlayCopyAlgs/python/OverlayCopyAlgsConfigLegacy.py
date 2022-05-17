@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.ConfiguredFactory import ConfigurationError
@@ -142,3 +142,84 @@ def getCopyTrackRecordCollection(name, collectionName="", **kwargs):
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
 
     return CfgMgr.CopyTrackRecordCollection(name, **kwargs)
+
+def getCopyTrackCollection(name, collectionName="", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if not collectionName:
+        raise ConfigurationError("'collectionName' should be set! Use `CfgGetter.getAlgorithmClone`")
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputKey", collectionName)
+        kwargs.setdefault("OutputKey", overlayFlags.bkgPrefix() + collectionName)
+    else:
+        kwargs.setdefault("InputKey", overlayFlags.evtStore() + "+" + collectionName)
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
+
+    return CfgMgr.CopyTrackCollection(name, **kwargs)
+
+def getCopyDetailedTrackTruthCollection(name, collectionName="", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if not collectionName:
+        raise ConfigurationError("'collectionName' should be set! Use `CfgGetter.getAlgorithmClone`")
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputKey", collectionName)
+        kwargs.setdefault("OutputKey", overlayFlags.bkgPrefix() + collectionName)
+    else:
+        kwargs.setdefault("InputKey", overlayFlags.evtStore() + "+" + collectionName)
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
+
+    return CfgMgr.CopyDetailedTrackTruthCollection(name, **kwargs)
+
+def getCopyPRD_MultiTruthCollection(name, collectionName="", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if not collectionName:
+        raise ConfigurationError("'collectionName' should be set! Use `CfgGetter.getAlgorithmClone`")
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputKey", collectionName)
+        kwargs.setdefault("OutputKey", overlayFlags.bkgPrefix() + collectionName)
+    else:
+        kwargs.setdefault("InputKey", overlayFlags.evtStore() + "+" + collectionName)
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + collectionName)
+
+    return CfgMgr.CopyPRD_MultiTruthCollection(name, **kwargs)
+
+def getCopyPixelClusterContainer(name="CopyPixelClusterContainer", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputKey", "PixelClusters")
+        kwargs.setdefault("OutputKey", overlayFlags.bkgPrefix() + "PixelClusters")
+    else:
+        kwargs.setdefault("InputKey", overlayFlags.evtStore() + "+" + "PixelClusters")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + "PixelClusters")
+
+    return CfgMgr.CopyPixelClusterContainer(name, **kwargs)
+
+def getCopySCT_ClusterContainer(name="CopySCT_ClusterContainer", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputKey", "SCT_Clusters")
+        kwargs.setdefault("OutputKey", overlayFlags.bkgPrefix() + "SCT_Clusters")
+    else:
+        kwargs.setdefault("InputKey", overlayFlags.evtStore() + "+" + "SCT_Clusters")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + "SCT_Clusters")
+
+    return CfgMgr.CopySCT_ClusterContainer(name, **kwargs)
+
+def getCopyTRT_DriftCircleContainer(name="CopyTRT_DriftCircleContainer", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("InputKey", "TRT_DriftCircles")
+        kwargs.setdefault("OutputKey", overlayFlags.bkgPrefix() + "TRT_DriftCircles")
+    else:
+        kwargs.setdefault("InputKey", overlayFlags.evtStore() + "+" + "TRT_DriftCircles")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+" + "TRT_DriftCircles")
+
+    return CfgMgr.CopyTRT_DriftCircleContainer(name, **kwargs)

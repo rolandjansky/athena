@@ -123,4 +123,20 @@ def OverlayMainCfg(configFlags):
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
         acc.merge(PerfMonMTSvcCfg(configFlags))
 
+    #track overlay
+    if configFlags.Overlay.doTrackOverlay:
+        #need this to ensure that the ElementLinks to the PRDs are handled correctly (since the name is hardcoded in the converters)
+        Trk__EventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool
+        cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
+        cnvTool.DoTrackOverlay = True
+        result.addPublicTool(cnvTool)
+        from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyTrackCollectionsCfg,CopyDetailedTrackTruthCollectionsCfg,CopyPRD_MultiTruthCollectionsCfg, \
+            CopyPixelClusterContainerCfg, CopySCT_ClusterContainerCfg, CopyTRT_DriftCircleContainerCfg
+        acc.merge(CopyTrackCollectionsCfg(configFlags))
+        acc.merge(CopyDetailedTrackTruthCollectionsCfg(configFlags))
+        acc.merge(CopyPRD_MultiTruthCollectionsCfg(configFlags))
+        acc.merge(CopyPixelClusterContainerCfg(configFlags))
+        acc.merge(CopySCT_ClusterContainerCfg(configFlags))
+        acc.merge(CopyTRT_DriftCircleContainerCfg(configFlags))
+
     return acc
