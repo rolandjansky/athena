@@ -89,7 +89,7 @@ StatusCode JetTrackMomentsTool::decorate(const xAOD::JetContainer& jets) const {
     // Retrieve the associated tracks.
     std::vector<const xAOD::TrackParticle*> tracks;
     bool havetracks = jet->getAssociatedObjects(m_assocTracksName, tracks);
-    if(!havetracks) ATH_MSG_WARNING("Associated tracks not found");
+    if(!havetracks) ATH_MSG_WARNING("Associated tracks not found: " <<  m_assocTracksName);
     ATH_MSG_VERBOSE("Successfully retrieved track particles for jet " << jet->index());
 
     std::vector<const xAOD::TrackParticle*> pflowTracks;

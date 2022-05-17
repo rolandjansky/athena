@@ -25,10 +25,7 @@
 
 #include "xAODPFlow/FlowElementContainer.h"
 
-
-namespace CP { 
-  class IPhotonVertexSelectionTool;
-}
+#include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 
 namespace DerivationFramework {
 
@@ -56,7 +53,7 @@ namespace DerivationFramework {
 
       ///////////////
       ///// TOOLS 
-      ToolHandle<CP::IPhotonVertexSelectionTool> m_photonVertexSelectionTool;
+      ToolHandle<CP::IPhotonVertexSelectionTool> m_photonVertexSelectionTool{this,  "PhotonVertexSelectionTool", "", ""};
       
       SG::ReadHandleKey<xAOD::VertexContainer> m_primaryVertexKey{this, "PrimaryVertexName", "PrimaryVertices", "" };
       SG::ReadHandleKey<xAOD::PhotonContainer> m_photonKey { this, "PhotonKey", "Photons", "" };

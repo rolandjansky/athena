@@ -165,6 +165,7 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     prereqs.append("mod:ConstitFourMom")
     if "JetArea" in calibseq: # Will not insert a prefix here
         if calibcontext.startswith("Trig"): prereqs.append("input:HLT_EventDensity")
+        elif pvname != "PrimaryVertices": prereqs.append("input:EventDensityCustomVtx")
         else: prereqs.append("input:EventDensity")
     if "GSC" in calibseq:
         prereqs += ["mod:CaloEnergies"]

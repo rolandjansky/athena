@@ -17,9 +17,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
 
 
-namespace Trk { class ITrackToVertexIPEstimator; }
 
 namespace Rec { class TrackParticle; }
 
@@ -42,8 +42,8 @@ public:
  	const xAOD::Vertex* refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps,
             bool ReturnCopy = true, int* exitcode = nullptr) const;
 private:
-        unsigned int m_ntrk_min;
-        ToolHandle <Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator;
+        Gaudi::Property<unsigned int> m_ntrk_min {this,"MinimumNumberOfTracksInVertex",2};
+        ToolHandle <Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator{ this, "TrackToVertexIPEstimator", "Trk::TrackToVertexIPEstimator" };
 
 };
 } // end of namespace
