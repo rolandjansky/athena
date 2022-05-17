@@ -18,12 +18,11 @@ class LArSC2Ntuple : public LArDigits2Ntuple
   virtual StatusCode execute() override;
  private:
 
-  long m_event;
+  long m_sc2event = 0;
 
   Gaudi::Property< std::vector<std::string> > m_contKeys{ this, "SCContainerKeys", {},"which containers to dump"};
   Gaudi::Property< bool > m_overwriteEventNumber{this, "OverwriteEventNumber", false, "overwrite the event number from EventInfo ?"};
 
-  NTuple::Item<short> m_ELVL1Id;
   NTuple::Item<short> m_latomeChannel;
 
   NTuple::Item<float>  m_raw_energy;
