@@ -26,13 +26,9 @@ private:
   StatusCode createNeutralFlowElement(
     const eflowCaloObject& energyFlowCaloObject,
     xAOD::FlowElementContainer* neutralFEContainer) const;
-
-  /** Function to add cluster moments onto FE */
-  void addMoment(const xAOD::CaloCluster::MomentType& momentType,
-                 const SG::AuxElement::Accessor< float >& feAttribute,
-                 const xAOD::CaloCluster& theCluster,
-                 xAOD::FlowElement& theFE) const;
-
+  
+  
+                 
   /** Toggle usage of calibration hit truth - false by default */
   Gaudi::Property<bool> m_useCalibHitTruth{
     this,
@@ -57,6 +53,6 @@ private:
       "FlowElementOutputName",
       "JetETMissNeutralParticleFlowObjects",
       "WriteHandleKey for neutral FlowElements"
-    };
+    };  
 };
 #endif

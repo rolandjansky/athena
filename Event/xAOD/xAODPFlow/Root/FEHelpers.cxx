@@ -5,6 +5,7 @@
 // Author: Bill Balunas <bill.balunas@cern.ch>
 
 #include "xAODPFlow/FEHelpers.h"
+#include "xAODPFlow/PFODefs.h"
 
 namespace FEHelpers {
 
@@ -181,4 +182,100 @@ namespace FEHelpers {
     if(st & xAOD::FlowElement::UFO)         return xAOD::Type::TrackCaloCluster; // UFO doesn't have its own xAOD type
     return xAOD::Type::Other;
   }
+  
+  FillNeutralFlowElements::FillNeutralFlowElements() {}
+
+  bool FillNeutralFlowElements::addMoment(const xAOD::CaloCluster::MomentType& momentType,
+  const std::string& attributeName,
+  const xAOD::CaloCluster& theCluster,
+  xAOD::FlowElement& theFE) {
+
+    const SG::AuxElement::Accessor< float > feAttribute(attributeName);
+    double moment = 0.0;      
+    if (theCluster.retrieveMoment(momentType, moment)) {
+      float float_moment = moment;
+      feAttribute(theFE) = float_moment;
+    } 
+    return false;
+  }
+
+  void FillNeutralFlowElements::addSamplingEnergy(const xAOD::CaloCluster::CaloSample& sampling,
+    const std::string& attributeName,
+    const xAOD::CaloCluster& theCluster,
+    xAOD::FlowElement& theFE) {
+      const SG::AuxElement::Accessor< float > feAttribute(attributeName);
+      feAttribute(theFE) = theCluster.eSample(sampling);
+    }
+
+  void FillNeutralFlowElements::addStandardMoments(xAOD::FlowElement& theFE,const xAOD::CaloCluster& theCluster){
+    
+    const std::array< std::pair<xAOD::CaloCluster::MomentType, const std::string>, 12> momentAttributePairs{{
+      {xAOD::CaloCluster::CENTER_MAG, "CENTER_MAG"},
+      {xAOD::CaloCluster::SECOND_R, "SECOND_R"},
+      {xAOD::CaloCluster::CENTER_LAMBDA, "CENTER_LAMBDA"},
+      {xAOD::CaloCluster::ENG_BAD_CELLS, "ENG_BAD_CELLS"},
+      {xAOD::CaloCluster::N_BAD_CELLS, "N_BAD_CELLS"},
+      {xAOD::CaloCluster::BADLARQ_FRAC, "BADLARQ_FRAC"},
+      {xAOD::CaloCluster::ENG_POS, "ENG_POS"},
+      {xAOD::CaloCluster::AVG_LAR_Q, "AVG_LAR_Q"},
+      {xAOD::CaloCluster::AVG_TILE_Q, "AVG_TILE_Q"},
+      {xAOD::CaloCluster::ISOLATION, "ISOLATION"},
+      {xAOD::CaloCluster::SECOND_LAMBDA, "SECOND_LAMBDA"},
+      {xAOD::CaloCluster::EM_PROBABILITY, "EM_PROBABILITY"}
+    }};
+
+    for (const auto & [moment,attribute]:momentAttributePairs) this->addMoment(moment,attribute,theCluster,theFE); 
+  }
+
+  void FillNeutralFlowElements::addStandardCalHitMoments(xAOD::FlowElement& theFE,const xAOD::CaloCluster& theCluster){
+    
+    const std::array< std::pair<xAOD::CaloCluster::MomentType, const std::string>, 4> momentAttributePairs{{
+      {xAOD::CaloCluster::ENG_CALIB_TOT, "ENG_CALIB_TOT"},
+      {xAOD::CaloCluster::ENG_CALIB_FRAC_EM, "ENG_CALIB_FRAC_EM"},
+      {xAOD::CaloCluster::ENG_CALIB_FRAC_HAD, "ENG_CALIB_FRAC_HAD"},
+      {xAOD::CaloCluster::ENG_CALIB_FRAC_REST, "ENG_CALIB_FRAC_REST"}
+    }};
+
+    for (const auto & [moment,attribute]:momentAttributePairs) this->addMoment(moment,attribute,theCluster,theFE);
+    
+  }
+
+  void FillNeutralFlowElements::addStandardSamplingEnergies(xAOD::FlowElement& theFE,const xAOD::CaloCluster& theCluster){
+
+    const std::array< std::pair<xAOD::CaloCluster::CaloSample,const std::string>, 28> samplingAttributePairs{{
+      {xAOD::CaloCluster::CaloSample::PreSamplerB,"LAYERENERGY_PreSamplerB"},
+      {xAOD::CaloCluster::CaloSample::EMB1,"LAYERENERGY_EMB1"},
+      {xAOD::CaloCluster::CaloSample::EMB2,"LAYERENERGY_EMB2"},
+      {xAOD::CaloCluster::CaloSample::EMB3,"LAYERENERGY_EMB3"},
+      {xAOD::CaloCluster::CaloSample::PreSamplerE,"LAYERENERGY_PreSamplerE"},
+      {xAOD::CaloCluster::CaloSample::EME1,"LAYERENERGY_EME1"},
+      {xAOD::CaloCluster::CaloSample::EME2,"LAYERENERGY_EME2"},
+      {xAOD::CaloCluster::CaloSample::EME3,"LAYERENERGY_EME3"},
+      {xAOD::CaloCluster::CaloSample::HEC0,"LAYERENERGY_HEC0"},
+      {xAOD::CaloCluster::CaloSample::HEC1,"LAYERENERGY_HEC1"},
+      {xAOD::CaloCluster::CaloSample::HEC2,"LAYERENERGY_HEC2"},
+      {xAOD::CaloCluster::CaloSample::HEC3,"LAYERENERGY_HEC3"},
+      {xAOD::CaloCluster::CaloSample::TileBar0,"LAYERENERGY_TileBar0"},
+      {xAOD::CaloCluster::CaloSample::TileBar1,"LAYERENERGY_TileBar1"},
+      {xAOD::CaloCluster::CaloSample::TileBar2,"LAYERENERGY_TileBar2"},
+      {xAOD::CaloCluster::CaloSample::TileGap1,"LAYERENERGY_TileGap1"},
+      {xAOD::CaloCluster::CaloSample::TileGap2,"LAYERENERGY_TileGap2"},
+      {xAOD::CaloCluster::CaloSample::TileGap3,"LAYERENERGY_TileGap3"},
+      {xAOD::CaloCluster::CaloSample::TileExt0,"LAYERENERGY_TileExt0"},
+      {xAOD::CaloCluster::CaloSample::TileExt1,"LAYERENERGY_TileExt1"},
+      {xAOD::CaloCluster::CaloSample::TileExt2,"LAYERENERGY_TileExt2"},
+      {xAOD::CaloCluster::CaloSample::FCAL0,"LAYERENERGY_FCAL0"},
+      {xAOD::CaloCluster::CaloSample::FCAL1,"LAYERENERGY_FCAL1"},
+      {xAOD::CaloCluster::CaloSample::FCAL2,"LAYERENERGY_FCAL2"},
+      {xAOD::CaloCluster::CaloSample::MINIFCAL0,"LAYERENERGY_MINIFCAL0"},
+      {xAOD::CaloCluster::CaloSample::MINIFCAL1,"LAYERENERGY_MINIFCAL1"},
+      {xAOD::CaloCluster::CaloSample::MINIFCAL2,"LAYERENERGY_MINIFCAL2"},
+      {xAOD::CaloCluster::CaloSample::MINIFCAL3,"LAYERENERGY_MINIFCAL3"},
+    }};
+
+    for (const auto & [sampling,attribute]:samplingAttributePairs) {
+      this->addSamplingEnergy(sampling,attribute,theCluster,theFE);
+    }
+  }  
+
 }
