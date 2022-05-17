@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,19 +58,22 @@ namespace Trk {
   {}
 
   template<int DIM, class T>
-  const AmgVector(DIM) & ParametersBase<DIM, T>::parameters() const
+  inline const AmgVector(DIM)& 
+  ParametersBase<DIM, T>::parameters() const
   {
     return m_parameters;
   }
 
   template<int DIM, class T>
-  AmgVector(DIM) & ParametersBase<DIM, T>::parameters()
+  inline AmgVector(DIM)& 
+  ParametersBase<DIM, T>::parameters()
   {
     return m_parameters;
   }
 
   template<int DIM, class T>
-    const AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance() const
+  inline const AmgSymMatrix(DIM)* 
+  ParametersBase<DIM, T>::covariance() const
   {
     if (m_covariance) {
       return &(*m_covariance);
@@ -80,7 +83,8 @@ namespace Trk {
   }
 
   template<int DIM, class T>
-    AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance()
+  inline AmgSymMatrix(DIM)* 
+  ParametersBase<DIM, T>::covariance()
   {
     if (m_covariance) {
       return &(*m_covariance);
@@ -104,7 +108,7 @@ namespace Trk {
   }
 
   template<int DIM, class T>
-  constexpr bool
+  inline constexpr bool
   ParametersBase<DIM, T>::isCharged() const
   {
     if constexpr (std::is_same<T, Trk::Neutral>::value) {
@@ -115,28 +119,28 @@ namespace Trk {
   }
 
   template<int DIM, class T>
-  Amg::Vector2D
+  inline Amg::Vector2D
   ParametersBase<DIM, T>::localPosition() const
   {
-    return Amg::Vector2D(parameters()[Trk::loc1], parameters()[Trk::loc2]);
+    return Amg::Vector2D(m_parameters[Trk::loc1], m_parameters[Trk::loc2]);
   }
 
   template<int DIM, class T>
-  void
+  inline void
   ParametersBase<DIM, T>::setParameters(const AmgVector(DIM) & param)
   {
     m_parameters = param;
   }
 
   template<int DIM, class T>
-  void
+  inline void
   ParametersBase<DIM, T>::setCovariance(const AmgSymMatrix(DIM) & cov)
   {
     m_covariance = cov;
   }
 
   template<int DIM, class T>
-  void
+  inline void
   ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
                                              updatedParameters)
   {
@@ -144,7 +148,7 @@ namespace Trk {
   }
 
   template<int DIM, class T>
-  void
+  inline void
   ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
                                              updatedParameters,
                                            const AmgSymMatrix(DIM) &
