@@ -246,7 +246,6 @@ if InDetFlags.doSpacePointFormation():
 
    if InDetFlags.doCosmics() or InDetFlags.doBeamHalo():
       InDetSiSpacePointMakerTool.StripLengthTolerance       = 0.05
-      InDetSiSpacePointMakerTool.UsePerpendicularProjection = True
 
    ToolSvc += InDetSiSpacePointMakerTool
    if (InDetFlags.doPrintConfigurables()):

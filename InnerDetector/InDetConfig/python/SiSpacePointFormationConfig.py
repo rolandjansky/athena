@@ -28,7 +28,6 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     acc = ComponentAccumulator()
     if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault("StripLengthTolerance", 0.05)
-        kwargs.setdefault("UsePerpendicularProjection", True)
     acc.setPrivateTools(CompFactory.InDet.SiSpacePointMakerTool(name, **kwargs))
     return acc
 
@@ -111,7 +110,6 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
 
     ITkSiSpacePointMakerTool = acc.popToolsAndMerge(ITkSiSpacePointMakerToolCfg(flags))
 
-    kwargs.setdefault("IsITk", True)
     kwargs.setdefault("SiSpacePointMakerTool", ITkSiSpacePointMakerTool)
     kwargs.setdefault("PixelsClustersName", 'ITkPixelClusters')
     kwargs.setdefault("SCT_ClustersName", 'ITkStripClusters')

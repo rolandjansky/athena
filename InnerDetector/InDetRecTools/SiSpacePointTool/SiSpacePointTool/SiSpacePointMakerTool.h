@@ -57,17 +57,7 @@ namespace InDet {
     virtual StatusCode finalize() override;
 
     /// Convert clusters to space points: SCT_Clusters -> SCT_SpacePoints
-    Trk::SpacePoint* makeSCT_SpacePoint(const InDet::SiCluster& cluster1, const InDet::SiCluster& cluster2, 
-                                        const Amg::Vector3D& vertexVec,
-                                        const InDetDD::SiDetectorElement* element1, const InDetDD::SiDetectorElement* element2, double stripLengthGapTolerance) const;
-    
     static Trk::SpacePoint* makeSCT_SpacePoint(InDet::SCTinformation&,InDet::SCTinformation&,IdentifierHash,IdentifierHash,double,double) ;
-
-    /// Convert clusters to space points: SCT_Clusters -> SCT_SpacePoints
-    void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1,
-                                      const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters,
-                                      const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
-                                      SpacePointCollection* spacepointCollection) const;
 
     void fillSCT_SpacePointCollection(std::array<const InDetDD::SiDetectorElement*, nNeighbours>&,
                                       std::array<const SCT_ClusterCollection*, nNeighbours>&,
@@ -78,19 +68,6 @@ namespace InDet {
     static void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters,
                                        SpacePointCollection* spacepointCollection) ;
 
-    /// Convert clusters to space points using eta direction overlaps: SCT_Clusters -> OverlapSpacePoints
-    void fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1,
-                                                const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters,
-                                                const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
-                                                SpacePointOverlapCollection* spacepointOverlapCollection) const;
-
-    /// Convert clusters to space points using phi direction overlaps: SCT_Clusters -> OverlapSpacePoints
-    void fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1,
-                                                const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2,
-                                                double max2, bool allClusters, const Amg::Vector3D& vertexVec ,
-                                                const InDetDD::SiDetectorElementCollection* elements,
-                                                SpacePointOverlapCollection* spacepointOverlapCollection) const;
-
     
 
   private:
@@ -98,11 +75,6 @@ namespace InDet {
     //@{
     DoubleProperty m_stripLengthTolerance{this, "StripLengthTolerance", 0.01};
     DoubleProperty m_SCTgapParameter{this, "SCTGapParameter", 0., "Recommend 0.001 - 0.0015 for ITK geometry"};
-    //@}
-
-    /// @name option to use closest approach of SCT strips as position for SpacePoint 
-    //@{
-    BooleanProperty m_usePerpProj{this, "UsePerpendicularProjection", false};
     //@}
 
     /// @name ID helper
