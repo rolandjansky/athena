@@ -11,7 +11,9 @@ EvtMax = 10
 #--------------------------------------------------------------------------------
 # Input
 #--------------------------------------------------------------------------------
-athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
+#ESD with unslimmed tracks from E.Moyse - see ATLASRECTS-6860
+#https://its.cern.ch/jira/browse/ATLASRECTS-6860
+athenaCommonFlags.FilesInput= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonCombinedConfig/myESD_q445_unslimmedTracks.pool.root"]
 
 # in Standalone mode, don't allow any configuration errors
 athenaCommonFlags.AllowIgnoreConfigError = False
