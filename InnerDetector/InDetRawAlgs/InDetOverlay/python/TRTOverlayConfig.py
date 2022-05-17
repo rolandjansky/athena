@@ -122,10 +122,5 @@ def TRTOverlayCfg(flags):
         acc.merge(TRTOverlayAlgCfg(flags))
         # Add TRT truth overlay
         acc.merge(TRTTruthOverlayCfg(flags))
-    else:
-        trtDigitAlg=acc.getEventAlgo("TRT_OverlayDigitization")
-        trtDigitAlg.DigitizationTool.OutputObjectName="TRT_RDOs"
-        trtDigitAlg.DigitizationTool.OutputSDOName="TRT_SDO_Map"
-        trtDigitAlg.DigitizationTool.Override_isOverlay=0
 
     return acc

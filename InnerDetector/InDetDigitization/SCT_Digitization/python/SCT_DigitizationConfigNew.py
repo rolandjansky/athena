@@ -108,8 +108,13 @@ def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**k
     """Return ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    #in the case of track overlay, only run digitization on the HS
+    if not flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("MergeSvc", '')
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))

@@ -96,15 +96,11 @@ def PixelOverlayCfg(flags):
     # Add Pixel overlay digitization algorithm
     from PixelDigitization.PixelDigitizationConfigNew import PixelOverlayDigitizationBasicCfg
     acc.merge(PixelOverlayDigitizationBasicCfg(flags))
-    #if track overlay, run the digitization on the HS
+    #if track overlay, don't run the standard overlay
     if not flags.Overlay.doTrackOverlay:
         # Add Pixel overlay algorithm
         acc.merge(PixelOverlayAlgCfg(flags))
         # Add Pixel truth overlay
         acc.merge(PixelTruthOverlayCfg(flags))
-    else:
-        pixelDigitAlg=acc.getEventAlgo("PixelOverlayDigitization")
-        pixelDigitAlg.DigitizationTool.RDOCollName="PixelRDOs"
-        pixelDigitAlg.DigitizationTool.SDOCollName="PixelSDO_Map"
 
     return acc

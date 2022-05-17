@@ -163,13 +163,19 @@ def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **
     """Return ComponentAccumulator with configured Overlay TRT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TRT_RDOs")
-    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TRT_SDO_Map")
+    #in the case of track overlay, only run digitization on the HS
+    if not flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TRT_SDO_Map")
+        kwargs.setdefault("Override_isOverlay", 1)
+    else:
+        kwargs.setdefault("OutputObjectName", "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+        kwargs.setdefault("Override_isOverlay", 0)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("Override_getT0FromData", 0)
     kwargs.setdefault("Override_noiseInSimhits", 0)
     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-    kwargs.setdefault("Override_isOverlay", 1)
     kwargs.setdefault("MergeSvc", '')
     tool = acc.popToolsAndMerge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
