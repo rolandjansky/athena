@@ -111,47 +111,6 @@ def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutF
     result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(name, **kwargs))
     return result
 
-def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
-    if flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
-        return ITkTrackSummaryToolCfg(flags, name, **kwargs)
-
-    acc = ComponentAccumulator()
-    do_holes = kwargs.get("doHolesInDet",True)
-
-    if 'InDetSummaryHelperTool' not in kwargs:
-        if do_holes:
-            from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
-            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags))
-        else:
-            from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperNoHoleSearchCfg
-            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags))
-        kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
-
-    #
-    # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
-    #
-    kwargs.setdefault("doSharedHits", False)
-    kwargs.setdefault("doHolesInDet", do_holes)
-
-    acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name, **kwargs), primary=True)
-    return acc
-
-def InDetTrackSummaryToolAmbiCfg(flags, name='InDetTrackSummaryToolAmbi', **kwargs):
-    acc = ComponentAccumulator()
-
-    if 'InDetSummaryHelperTool' not in kwargs:
-        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
-        InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
-                                                                                     name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
-                                                                                     ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension))
-        kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
-
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name, **kwargs))
-    acc.addPublicTool(InDetTrackSummaryTool, primary=True)
-    return acc
-
 def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
     acc = ComponentAccumulator()
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
@@ -189,19 +148,6 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
 
     InDetTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name, **kwargs)
     acc.setPrivateTools(InDetTestBLayerTool)
-    return acc
-
-def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
-    acc = ComponentAccumulator()
-    if 'InDetSummaryHelperTool' not in kwargs:
-        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperSharedHitsCfg
-        InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags))
-        kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
-
-    kwargs.setdefault( "doSharedHits", flags.InDet.Tracking.doSharedHits)
-
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name, **kwargs))
-    acc.addPublicTool(InDetTrackSummaryTool, primary=True)
     return acc
 
 def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", **kwargs):
@@ -337,11 +283,12 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import (
-        AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
+        AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     InDetNavigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
     ELossUpdator = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import InDetPropagatorCfg
     InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
     from TrkConfig.TrkMeasurementUpdatorConfig import InDetUpdatorCfg
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
@@ -486,10 +433,6 @@ def InDetTrackFitterBTCfg(flags, name='InDetTrackFitterBT', **kwargs) :
         acc.setPrivateTools(InDetGlobalChi2Fitter)
     return acc
 
-def InDetTrackSummaryToolTRTTracksCfg(flags, name='InDetTrackSummaryToolTRTTracks',**kwargs):
-    kwargs.setdefault("doSharedHits", True)
-    return InDetTrackSummaryToolSharedHitsCfg(flags, name = name, **kwargs)
-
 #############################################################################################
 #TRTSegmentFinder
 #############################################################################################
@@ -502,8 +445,9 @@ def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics'
     acc = ComponentAccumulator()
 
     if 'Propagator' not in kwargs:
-        from TrkConfig.AtlasExtrapolatorToolsConfig import InDetPropagatorCfg
-        InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import InDetPropagatorCfg
+        InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
+        acc.addPublicTool(InDetPropagator)
         kwargs.setdefault("Propagator", InDetPropagator)
 
     if 'Extrapolator' not in kwargs:
@@ -641,20 +585,14 @@ def InDetTRT_ExtensionToolCfg(flags, **kwargs):
 # BackTracking
 #############################################################################################
 
-def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHoleSearch',**kwargs) :
-    acc = ComponentAccumulator()
-    kwargs.setdefault('doHolesInDet', False)
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name=name, **kwargs))
-    acc.setPrivateTools(InDetTrackSummaryTool)
-    return acc
-
 def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
 
     if 'DriftCircleCutTool' not in kwargs:
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
@@ -679,7 +617,9 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
 def InDetCosmicsScoringToolBaseCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    acc.addPublicTool(InDetTrackSummaryTool)
 
     kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.ActivePass.nWeightedClustersMin )
     kwargs.setdefault("minTRTHits", 0 )
@@ -699,22 +639,21 @@ def InDetTRT_ExtensionToolPhaseCfg(flags, name='InDetTRT_ExtensionToolPhase', **
     acc.setPrivateTools(acc.popToolsAndMerge(InDetTRT_ExtensionToolCosmicsCfg(flags, name = name, **kwargs)))
     return acc
 
-def InDetCosmicExtenScoringToolCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs) :
-    acc = ComponentAccumulator()
+def InDetCosmicExtenScoringToolCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs):
     kwargs.setdefault("nWeightedClustersMin", 0)
     kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minTRTonTrk )
-    acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicsScoringToolBaseCfg(flags, name = 'InDetCosmicExtenScoringTool', **kwargs)))
-    return acc
+    return InDetCosmicsScoringToolBaseCfg(flags, name, **kwargs)
 
-def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs) :
+def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicScoringTool_TRT',**kwargs):
     acc = ComponentAccumulator()
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolNoHoleSearchCfg
     InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
+    acc.addPublicTool(InDetTrackSummaryToolNoHoleSearch)
 
     kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
     kwargs.setdefault("SummaryTool", InDetTrackSummaryToolNoHoleSearch)
 
-    acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicExtenScoringToolCfg(flags,
-                                                                            name = 'InDetCosmicScoringTool_TRT', **kwargs)))
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicExtenScoringToolCfg(flags, name, **kwargs)))
     return acc
 
 def InDetTRT_SeededScoringToolCfg(flags, name='InDetTRT_SeededScoringTool', **kwargs) :
@@ -789,7 +728,8 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
 
     if 'DriftCircleCutTool' not in kwargs:
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))

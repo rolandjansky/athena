@@ -25,8 +25,9 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
         AtlasSTEP_PropagatorCfg(flags))
     ITkPropagator = None
     if flags.Detector.GeometryITk:
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import ITkPropagatorCfg
         ITkPropagator = result.popToolsAndMerge(
-            TC.ITkPropagatorCfg(flags))
+            ITkPropagatorCfg(flags))
 
     AtlasPropagators = []
     AtlasPropagators += [AtlasRungeKuttaPropagator]
@@ -109,8 +110,9 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
         AtlasNoMatSTEP_PropagatorCfg(flags))
     ITkPropagator = None
     if flags.Detector.GeometryITk:
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import ITkPropagatorCfg
         ITkPropagator = result.popToolsAndMerge(
-            TC.ITkPropagatorCfg(flags))
+            ITkPropagatorCfg(flags))
 
     egammaPropagators = []
     egammaPropagators += [RungeKuttaPropagator]
@@ -207,8 +209,9 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
 
     # FIXME copied from the old config, also needs fixing on the c++ side.
     if 'Propagators' not in kwargs:
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import InDetPropagatorCfg
         InDetPropagator = result.popToolsAndMerge(
-            TC.InDetPropagatorCfg(flags))
+            InDetPropagatorCfg(flags))
         Propagators = [InDetPropagator]
         kwargs.setdefault("Propagators", Propagators)
 

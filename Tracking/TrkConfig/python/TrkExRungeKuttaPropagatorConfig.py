@@ -9,6 +9,11 @@ def RungeKuttaPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
     result.setPrivateTools(tool)
     return result
 
+def InDetPropagatorCfg(flags, name='InDetPropagator', **kwargs):
+    kwargs.setdefault("AccuracyParameter", 0.0001)
+    kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
+    return RungeKuttaPropagatorCfg(flags, name, **kwargs)
+
 def egRungeKuttaPropagatorCfg(flags, name='egTrkPropagator', **kwargs):
     kwargs.setdefault("AccuracyParameter", 0.0001)
     return RungeKuttaPropagatorCfg(flags, name, **kwargs)
@@ -21,7 +26,7 @@ def MuonCombinedPropagatorCfg(flags, name='MuonCombinedPropagator', **kwargs ):
         kwargs.setdefault("MaxStraightLineStep", .001 )
     return RungeKuttaPropagatorCfg(flags, name, **kwargs)
 
-def ITkRKPropagatorCfg(flags, name='ITkPropagator', **kwargs):
+def ITkPropagatorCfg(flags, name='ITkPropagator', **kwargs):
     kwargs.setdefault("AccuracyParameter", 0.0001)
     kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
     return RungeKuttaPropagatorCfg(flags, name, **kwargs)

@@ -86,7 +86,8 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     # --- get configured track extension processor
     #
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
 
     kwargs.setdefault("TrackName", SiTrackCollection)
     kwargs.setdefault("ExtensionMap", ExtendedTracksMap)

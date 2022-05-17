@@ -49,7 +49,7 @@ def PixelMonitoringConfig(flags):
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
 
         from AthenaConfiguration.ComponentFactory import CompFactory
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
         from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
 
         if doHitMonAlg:
@@ -75,7 +75,7 @@ def PixelMonitoringConfig(flags):
             if flags.Beam.Type is not BeamType.Cosmics:
                 pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
                 pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
-            pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+            pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
 
             PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
@@ -106,7 +106,7 @@ def PixelMonitoringConfig(flags):
                 pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
                 pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
 
-            pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+            pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthMVAMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
             pixelAthMVAMonAlg.Extrapolator                        = acc.getPublicTool("InDetExtrapolator")
             PixelAthMVAMonAlgCfg(helper, pixelAthMVAMonAlg, **kwargsMVAMonAlg)

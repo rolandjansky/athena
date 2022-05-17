@@ -4,53 +4,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 import AthenaCommon.SystemOfUnits as Units
 
-def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
-    acc = ComponentAccumulator()
-    do_holes=kwargs.get("doHolesInDet",True)
-
-    if 'InDetSummaryHelperTool' not in kwargs:
-        if do_holes:
-            from  InDetConfig.InDetTrackSummaryHelperToolConfig import ITkTrackSummaryHelperToolCfg
-            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags))
-        else:
-            from  InDetConfig.InDetTrackSummaryHelperToolConfig import ITkSummaryHelperNoHoleSearchCfg
-            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags))
-        kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
-
-    #
-    # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
-    #
-    kwargs.setdefault("doSharedHits", False)
-    kwargs.setdefault("doHolesInDet", do_holes)
-    acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name, **kwargs), primary=True)
-    return acc
-
-def ITkTrackSummaryToolAmbiCfg(flags, name='ITkTrackSummaryToolAmbi', **kwargs):
-    acc = ComponentAccumulator()
-
-    if 'InDetSummaryHelperTool' not in kwargs:
-        from InDetConfig.InDetTrackSummaryHelperToolConfig import ITkTrackSummaryHelperToolCfg
-        ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags,
-                                                                                 ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension))
-        kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
-
-    ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags, name, **kwargs))
-    acc.addPublicTool(ITkTrackSummaryTool, primary=True)
-    return acc
-
-def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits',**kwargs):
-    acc = ComponentAccumulator()
-    if 'InDetSummaryHelperTool' not in kwargs:
-        from InDetConfig.InDetTrackSummaryHelperToolConfig import ITkSummaryHelperSharedHitsCfg
-        ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags))
-        kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
-
-    kwargs.setdefault( "doSharedHits", flags.ITk.Tracking.doSharedHits)
-
-    ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags, name, **kwargs))
-    acc.addPublicTool(ITkTrackSummaryTool, primary=True)
-    return acc
-
 def ITkMultipleScatteringUpdatorCfg(flags, name = "ITkMultipleScatteringUpdator", **kwargs):
     acc = ComponentAccumulator()
 
@@ -159,13 +112,14 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
         kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
-    from TrkConfig.TrkMeasurementUpdatorConfig import ITkUpdatorCfg
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, ITkMaterialEffectsUpdatorCfg
 
     Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     Navigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags))
     ELossUpdator = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import ITkPropagatorCfg
     ITkPropagator = acc.popToolsAndMerge(ITkPropagatorCfg(flags))
+    from TrkConfig.TrkMeasurementUpdatorConfig import ITkUpdatorCfg
     ITkUpdator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
     ITkMultipleScatteringUpdator = acc.popToolsAndMerge(ITkMultipleScatteringUpdatorCfg(flags))
     ITkMaterialEffectsUpdator = acc.popToolsAndMerge(ITkMaterialEffectsUpdatorCfg(flags))
@@ -195,17 +149,14 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
 # BackTracking
 #############################################################################################
 
-def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSearch',**kwargs) :
-    kwargs.setdefault('doHolesInDet', False)
-    return ITkTrackSummaryToolCfg(flags, name=name, **kwargs)
-
 def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     kwargs.setdefault("Extrapolator", acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
-    ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import ITkTrackSummaryToolCfg
+    ITkTrackSummaryTool = acc.popToolsAndMerge(ITkTrackSummaryToolCfg(flags))
 
     have_calo_rois = flags.ITk.Tracking.doBremRecovery and flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
@@ -236,7 +187,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 def ITkCosmicsScoringToolBaseCfg(flags, name='ITkCosmicsScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import ITkTrackSummaryToolCfg
+    ITkTrackSummaryTool = acc.popToolsAndMerge(ITkTrackSummaryToolCfg(flags))
+    acc.addPublicTool(ITkTrackSummaryTool)
 
     kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.ActivePass.nWeightedClustersMin )
     kwargs.setdefault("minTRTHits", 0 )

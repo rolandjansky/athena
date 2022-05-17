@@ -2,8 +2,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-import InDetConfig.TrackingCommonConfig as TC
-
 
 def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
@@ -197,11 +195,17 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
 def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollections = None, SiSPSeededTrackCollectionKey = None, **kwargs) :
     acc = ComponentAccumulator()
 
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import InDetPropagatorCfg
+    InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
+    acc.addPublicTool(InDetPropagator)
+
     #
     # --- Setup Track finder using space points seeds
     #
     kwargs.setdefault("TrackTool", acc.popToolsAndMerge(SiTrackMaker_xkCfg(flags, InputCollections = InputCollections)))
-    kwargs.setdefault("TrackSummaryTool", acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags)))
+    kwargs.setdefault("PropagatorTool", InDetPropagator)
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolNoHoleSearchCfg
+    kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags)))
     kwargs.setdefault("TracksLocation", SiSPSeededTrackCollectionKey)
     kwargs.setdefault("SeedsTool", acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags, InputCollections = InputCollections)))
     kwargs.setdefault("useMBTSTimeDiff", flags.Reco.EnableHI) # Heavy-ion config

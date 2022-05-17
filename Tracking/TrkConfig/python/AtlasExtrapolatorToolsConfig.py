@@ -22,33 +22,6 @@ def AtlasNavigatorCfg(flags,
     result.setPrivateTools(CompFactory.Trk.Navigator(name,**kwargs))
     return result
 
-def InDetPropagatorCfg(flags,
-                       name='InDetPropagator',
-                       **kwargs):
-    result = ComponentAccumulator()
-
-    InDetPropagator = None
-    if flags.InDet.Tracking.propagatorType == "STEP":
-        from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
-        InDetPropagator = result.popToolsAndMerge(
-            AtlasSTEP_PropagatorCfg(flags, name, **kwargs))
-    elif flags.InDet.Tracking.propagatorType == "RungeKutta":
-        kwargs.setdefault("AccuracyParameter", 0.0001)
-        kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
-        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
-        InDetPropagator = result.popToolsAndMerge(
-            RungeKuttaPropagatorCfg(flags, name, **kwargs))
-
-    result.setPrivateTools(InDetPropagator)
-    return result
-
-
-def ITkPropagatorCfg(flags,
-                     name='ITkPropagator',
-                     **kwargs):
-    from TrkConfig.TrkExRungeKuttaPropagatorConfig import ITkRKPropagatorCfg
-    return ITkRKPropagatorCfg(flags, name, **kwargs)
-
 def AtlasEnergyLossUpdatorCfg(flags,
                               name='AtlasEnergyLossUpdator',
                               **kwargs):
