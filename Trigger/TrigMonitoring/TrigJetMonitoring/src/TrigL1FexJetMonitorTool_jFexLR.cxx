@@ -4,18 +4,17 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// #include "TrigL1FexJetMonitorTool.h"
+#include "TrigL1FexJetMonitorTool_jFexLR.h"
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 
-#include "./vetoL1Jet.h"
+#include "./L1MonitorAdaptors.h"
 #include <memory>
 
 
 /////////////////////////////////////////////////////////////////////////////
 
-template<typename JetContainer>
-TrigL1FexJetMonitorTool<JetContainer>::TrigL1FexJetMonitorTool(const std::string& type,
+TrigL1FexJetMonitorTool_jFexLR::TrigL1FexJetMonitorTool_jFexLR(const std::string& type,
 							       const std::string& name,
 							       const IInterface* parent) 
   : AthAlgTool( type, name, parent )
@@ -24,22 +23,9 @@ TrigL1FexJetMonitorTool<JetContainer>::TrigL1FexJetMonitorTool(const std::string
 
 }
 
-//___________________________________________________________________________
-template<typename JetContainer>
-StatusCode TrigL1FexJetMonitorTool<JetContainer>::queryInterface(const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == ITrigJetMonitorTool::interfaceID() )  {
-    *ppvIf = (ITrigJetMonitorTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  
-  return AthAlgTool::queryInterface( riid, ppvIf );
-}
 
-//___________________________________________________________________________
-template<typename JetContainer>
-StatusCode TrigL1FexJetMonitorTool<JetContainer>::initialize()
+
+StatusCode TrigL1FexJetMonitorTool_jFexLR::initialize()
 {
   ATH_CHECK(m_l1jetContainerkey.initialize());
 
@@ -142,35 +128,28 @@ StatusCode TrigL1FexJetMonitorTool<JetContainer>::initialize()
     ATH_CHECK(m_hltmassrespKey.initialize(false));
     ATH_CHECK(m_hltptrefKey.initialize(false));
     ATH_CHECK(m_hltetarefKey.initialize(false));
-
   }
     
   return StatusCode::SUCCESS;
 }
 
-//___________________________________________________________________________
-template<typename JetContainer>
-StatusCode TrigL1FexJetMonitorTool<JetContainer>::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 
-//___________________________________________________________________________
-template<typename JetContainer>
+
 StatusCode
-TrigL1FexJetMonitorTool<JetContainer>::getData(const EventContext& ctx,
+TrigL1FexJetMonitorTool_jFexLR::getData(const EventContext& ctx,
 					       std::vector<JetData>& jetData
 					       ) const{
+
   
   // Retrieve the L1 jet container
   SG::ReadHandle<JetContainer> jets(m_l1jetContainerkey, ctx);
   if( !jets.isValid() ){
     // the L1 containers should _always_ be present, although may be empty.
     ATH_MSG_WARNING("evtStore() does not contain the L1 jet collection with name "
-		 << m_l1jetContainerkey);
+		    << m_l1jetContainerkey);
     return StatusCode::SUCCESS;
   }
-
+  
   // find variables associated with jets in the input container.
   for(const auto& jet : *jets){
     /*
@@ -180,25 +159,25 @@ TrigL1FexJetMonitorTool<JetContainer>::getData(const EventContext& ctx,
       which is taken from the trigger menu.
       If the Et is below the threshold the TOB word is set to 0
     */
-
-    if (vetoJet(jet)) {continue;}
-
-    jetData.emplace_back(jet->et()*0.001,
+    
+    if (vetoJet(jet)) {continue;}  // see L1MonitoredAdaptors
+    
+    jetData.emplace_back(et(jet)*0.001,  // see L1MonitoredAdaptors
 			 jet->eta(),
-			 jet->phi());
-   
+			 jet->phi(),
+			 et_label(jet));
+    
   }
   return StatusCode::SUCCESS;
 }
 
-template<typename JetContainer>
+
+
 StatusCode
-TrigL1FexJetMonitorTool<JetContainer>::getMatchData(const EventContext& ctx,
-						    MatchToEnum matchTo,
-						    std::vector<JetMatchData>& jetMatchData
-						    ) const
-  
-{
+TrigL1FexJetMonitorTool_jFexLR::getMatchData(const EventContext& ctx,
+					     MatchToEnum matchTo,
+					     std::vector<JetMatchData>& jetMatchData
+					     ) const {
   if (!m_doMatching) {
     // otherwise will attempt to use uniniatialied Keys
     return StatusCode::SUCCESS;
@@ -239,7 +218,7 @@ TrigL1FexJetMonitorTool<JetContainer>::getMatchData(const EventContext& ctx,
     ATH_MSG_ERROR ("unsupported MatchTo value");
     return StatusCode::FAILURE;
   }
-
+  
   ATH_CHECK((*matchedHandle).initialize());
   ATH_CHECK((*ptdiffHandle).initialize());
   ATH_CHECK((*energydiffHandle).initialize());
@@ -280,4 +259,4 @@ TrigL1FexJetMonitorTool<JetContainer>::getMatchData(const EventContext& ctx,
   
   return StatusCode::SUCCESS;
 }
-
+  

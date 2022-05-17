@@ -3,8 +3,6 @@
 */
 
 #include "TrigL1FexJetMonitorAlgorithm.h"
-#include "TrigL1FexJetMonitorTool.h"
-
 #include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <vector>
@@ -32,7 +30,7 @@ StatusCode TrigL1FexJetMonitorAlgorithm::fillHistograms(const EventContext& ctx)
   auto groupTool = getGroup(m_groupName);
     
   for (const auto& jd : jetData) {
-    Monitored::Scalar<float> et{"et", jd.m_et};
+    Monitored::Scalar<float> et{jd.m_et_label, jd.m_et};
     Monitored::Scalar<float> eta{"eta", jd.m_eta};
     Monitored::Scalar<float> phi{"phi", jd.m_phi};
     

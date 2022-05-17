@@ -4,41 +4,30 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
-#define TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
+#ifndef TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_JFEXLR_H
+#define TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_JFEXLR_H
 
 #include "./ITrigJetMonitorTool.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
 
 #include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Header file for this templated AlgTool follows
-// Control/AthenaExamples/AthExJobOptions/src/TemplatedTool.h
-// extracts data from l1 jet containers. No monitoring code
-// specifics here.
-
-
-template<typename JetContainer>
-class TrigL1FexJetMonitorTool : virtual public AthAlgTool,
+class TrigL1FexJetMonitorTool_jFexLR : virtual public AthAlgTool,
 				virtual public ITrigJetMonitorTool {
   
 public:
-  TrigL1FexJetMonitorTool(const std::string&,
+  using JetContainer = xAOD::jFexLRJetRoIContainer;
+    
+  TrigL1FexJetMonitorTool_jFexLR(const std::string&,
 			  const std::string&,
 			  const IInterface*);
   
-  // to allow access to the ITrigJetMonitorTool interface
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
-  // to resolve possible conflicts with IProperty::interfaceID()
-  static const InterfaceID& interfaceID() {
-    return ITrigJetMonitorTool::interfaceID();}
-  
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   
   virtual StatusCode
   getData(const EventContext& ctx,
@@ -138,8 +127,7 @@ private:
     this, "hltetaref", "hltetaref",
     "SG key for input matched etaref decoration"};
 
-
 };
 
-#include "./TrigL1FexJetMonitorTool.icc"
-#endif // !TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
+#endif
+
