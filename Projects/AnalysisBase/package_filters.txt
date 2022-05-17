@@ -78,6 +78,7 @@
 + PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/JetTagging/FlavourTaggingTests
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
