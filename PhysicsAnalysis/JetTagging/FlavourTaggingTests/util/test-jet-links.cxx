@@ -9,11 +9,13 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TError.h"
 
-int main (int argc, char *argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]) {
 
   ANA_CHECK_SET_TYPE (int);
   using namespace asg::msgUserCode;
+  gErrorIgnoreLevel = kError;
 
   if (argc != 4) {
     std::cerr << "usage: " << argv[0] << ": <DAOD> <parent jet collection> <associated collection>"
@@ -25,7 +27,7 @@ int main (int argc, char *argv[]) {
   std::string linked_jets_name = argv[3];
 
   // The name of the application:
-  const char *const APP_NAME = "JetLinksTestDumper";
+  const std::string APP_NAME = "JetLinksTestDumper";
 
   // Set up the environment:
   ANA_CHECK( xAOD::Init() );
@@ -36,10 +38,9 @@ int main (int argc, char *argv[]) {
   // Open the file:
   std::unique_ptr<TFile> ifile(TFile::Open(file.c_str(), "READ"));
   if ( ! ifile.get() || ifile->IsZombie()) {
-    Error( APP_NAME, "Couldn't open file: %s", file.c_str() );
+    std::cerr << "Couldn't open file: " << file << std::endl;
     return 1;
   }
-  Info( APP_NAME, "Opened file: %s", file.c_str() );
 
   // Connect the event object to it:
   ANA_CHECK( event.readFrom(ifile.get()) );
@@ -50,8 +51,8 @@ int main (int argc, char *argv[]) {
   for (unsigned long long entry = 0; entry < entries; ++entry) {
     // Load the event:
     if (event.getEntry(entry) < 0) {
-      Error( APP_NAME, "Couldn't load entry %lld from file: %s",
-             entry, file.c_str() );
+      std::cerr << "Couldn't load entry " << entry << " from file"
+                << file << std::endl;
       return 1;
     }
     const xAOD::JetContainer *jets = nullptr;
