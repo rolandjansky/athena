@@ -32,7 +32,6 @@ monitoring_electron = [
             ]
 
 monitoringTP_electron = [
-    'HLT_e60_lhmedium_gsf_L1EM22VHI',
     'HLT_e60_lhmedium_L1EM22VHI',
     'HLT_e60_lhmedium_L1eEM26M',
     'HLT_e26_lhtight_ivarloose_L1EM22VHI',
@@ -45,8 +44,6 @@ monitoringTP_electron = [
     'HLT_e26_lhtight_L1eEM26L',
     'HLT_e26_lhtight_L1eEM26T',    
     'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
-    'HLT_e26_lhtight_gsf_L1EM22VHI',
-    'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',
     'HLT_e26_lhtight_ivarloose_L1eEM26',
     'HLT_e26_lhtight_ivarloose_L1eEM26M',
     'HLT_e26_lhtight_ivarloose_L1eEM26T',
@@ -75,13 +72,11 @@ validation_photon = [
 validation_electron = [
         'HLT_e5_etcut_L1EM3',
         'HLT_e5_lhtight_noringer_L1EM3',
-        'HLT_e5_lhtight_gsf_L1EM3'
         ]
 
 validationTP_electron = [
         'HLT_e12_lhvloose_L1EM10VH',
         'HLT_e17_lhvloose_L1EM15VHI',
-        'HLT_e17_lhvloose_gsf_L1EM15VHI',
         'HLT_e26_lhloose_L1EM15VH',
         'HLT_e26_lhmedium_L1EM15VH',
         'HLT_e26_lhtight_L1EM15VH',
