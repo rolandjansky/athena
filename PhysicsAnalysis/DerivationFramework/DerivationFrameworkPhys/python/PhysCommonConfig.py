@@ -44,7 +44,6 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                               "TruthCharm",
                               "TruthHFWithDecayParticles"],
             prefix = 'PHYS_'))
-        #acc.getEventAlgo("MCTruthNavigationDecoratorKernel").AugmentationTools = [PhysCommonTruthNavigationDecorator]
         # Re-point links on reco objects
         acc.merge(AddMiniTruthCollectionLinksCfg(ConfigFlags))
         acc.merge(AddPVCollectionCfg(ConfigFlags))
@@ -62,7 +61,7 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     # drop these kwargs and do everything via the ConfigFlags
     acc.merge(InDetCommonCfg(ConfigFlags,
                              DoVertexFinding = ConfigFlags.InDet.PriVertex.doVertexFinding,
-                             AddPseudoTracks = False,
+                             AddPseudoTracks = ConfigFlags.InDet.Tracking.doPseudoTracking,
                              DecoLRTTTVA = False,
                              DoR3LargeD0 = ConfigFlags.InDet.Tracking.doR3LargeD0,
                              StoreSeparateLargeD0Container = ConfigFlags.InDet.Tracking.storeSeparateLargeD0Container,

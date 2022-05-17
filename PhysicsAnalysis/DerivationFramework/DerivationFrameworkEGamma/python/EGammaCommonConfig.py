@@ -514,12 +514,8 @@ def EGammaCommonCfg(ConfigFlags):
 
     # ==================================================
     # Truth Related tools
-    # TODO: what to replace this flag with??
-    # For now using isMC
-    #from RecExConfig.RecFlags import rec
-    #if rec.doTruth():
-    simBarcodeOffset = ConfigFlags.Sim.SimBarcodeOffset 
     if ConfigFlags.Input.isMC:
+        simBarcodeOffset = ConfigFlags.Sim.SimBarcodeOffset
 
         # Decorate Electron with bkg electron type/origin
         from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
