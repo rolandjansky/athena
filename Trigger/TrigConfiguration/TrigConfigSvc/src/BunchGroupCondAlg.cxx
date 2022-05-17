@@ -58,7 +58,7 @@ TrigConf::BunchGroupCondAlg::createFromFile( const std::string & filename ) cons
    TrigConf::JsonFileLoader psLoader;
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    if( psLoader.loadFile( filename, *bgs) ) {
-      const uint32_t bgk = m_bgk == 0 ? TrigConf::truncatedHash(*bgs) : m_bgk.value();
+      const uint32_t bgk = (m_bgk == 0u ? TrigConf::truncatedHash(*bgs) : m_bgk.value());
       bgs->setBGSK(bgk);
       ATH_MSG_INFO( "L1 BunchGroup set successfully loaded from file " << filename );
    } else {
