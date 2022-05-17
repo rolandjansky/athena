@@ -34,10 +34,13 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
+#include "TRT_ConditionsData/StrawStatus.h"
+#include "TRT_ConditionsData/StrawStatusData.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -66,7 +69,7 @@ namespace OverlayTesting {
     virtual ~MockTRT_LocalOccupancy() = default;
 
     /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
-    MOCK_CONST_METHOD1(getDetectorOccupancy, std::map<int, double>(const TRT_RDO_Container*) );
+    MOCK_METHOD((std::map<int, double>), getDetectorOccupancy, (const EventContext&, const TRT_RDO_Container*), (const));
 
     // Dummy methods to confirm status
     virtual StatusCode initialize() final {
@@ -88,43 +91,6 @@ namespace OverlayTesting {
   };
 
   DECLARE_COMPONENT( MockTRT_LocalOccupancy )
-
-  // Athena Service to emulate TRT_StrawStatusSummaryTool
-  //
-  const std::string mockTRT_StrawStatusSummaryToolName = "OverlayTesting::MockTRT_StrawStatusSummaryTool/MyTestTRT_StrawStatusSummaryTool";
-  class MockTRT_StrawStatusSummaryTool : public extends<AthAlgTool, ITRT_StrawStatusSummaryTool> {
-  public:
-
-    /// constructor
-    MockTRT_StrawStatusSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
-      : base_class(type,name,parent)
-    { };
-
-    /// destructor
-    virtual ~MockTRT_StrawStatusSummaryTool() = default;
-
-    // Dummy methods to confirm status
-    virtual StatusCode initialize() final {
-      ATH_MSG_INFO ("initializing MockTRT_StrawStatusSummaryTool: " << name());
-      return StatusCode::SUCCESS;
-    };
-
-    virtual int getStatus(const Identifier ) const { return 1; }; // not used - dummy implementation
-    virtual int getStatusPermanent(const Identifier) const { return 1; }; // not used - dummy implementation
-    MOCK_CONST_METHOD1(getStatusHT, int(const Identifier)); // This is the only method that we actually need! <--------------
-    virtual bool get_status(const Identifier) const { return false; }; // not used - dummy implementation
-    virtual bool get_statusHT(const Identifier) const { return false; }; // not used - dummy implementation
-    virtual const StrawStatusContainer* getStrawStatusHTContainer() const {return nullptr;}; // not used - dummy implementation
-
-    virtual int getStatus(const Identifier, const EventContext&  ) const { return 1; }; // not used - dummy implementation
-    virtual int getStatusPermanent(const Identifier, const EventContext& ) const { return 1; }; // not used - dummy implementation
-    virtual int getStatusHT(const Identifier, const EventContext& ) const { return 1; }; // not used - dummy implementation
-    virtual bool get_status(const Identifier, const EventContext& ) const { return false; }; // not used - dummy implementation
-    virtual bool get_statusHT(const Identifier, const EventContext& ) const { return false; }; // not used - dummy implementation
-
-  };
-
-  DECLARE_COMPONENT( MockTRT_StrawStatusSummaryTool )
 
 
   // Gaudi Test fixture that provides a clean Gaudi environment for
@@ -200,6 +166,7 @@ namespace OverlayTesting {
         }
       }
       ASSERT_TRUE( m_svcLoc->service("StoreGateSvc", m_sg, true).isSuccess() );
+      ASSERT_TRUE( m_svcLoc->service("ConditionStore", m_cond, true).isSuccess() );
 
       // the tested Algorithm
       m_alg = new TRTOverlay{"TRTOverlay", m_svcLoc};
@@ -214,7 +181,6 @@ namespace OverlayTesting {
       ASSERT_TRUE( m_alg->setProperty( "OutputKey", outputPropertyValue).isSuccess() );
       ASSERT_TRUE( m_alg->setProperty( "SignalInputSDOKey",   inputSigSDOPropertyValue).isSuccess() );
       ASSERT_TRUE( m_alg->setProperty( "TRT_LocalOccupancyTool", mockTRT_LocalOccupancyName).isSuccess() );
-      ASSERT_TRUE( m_alg->setProperty( "TRTStrawSummaryTool", mockTRT_StrawStatusSummaryToolName).isSuccess() );
     }
 
     virtual void TearDown() override {
@@ -277,6 +243,34 @@ namespace OverlayTesting {
       return digit;
     }
 
+    static EventContext initEventContext(StoreGateSvc* sg)
+    {
+      EventIDBase now(0, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM, 0, 1);
+      EventContext ctx(0, 0);
+      ctx.setEventID( now );
+      ctx.setExtension( Atlas::ExtendedEventContext( sg, 0 ) );
+      return ctx;
+    }
+
+    static bool initTRTStrawStatusHT()
+    {
+      constexpr unsigned int max{350848};
+      SG::WriteCondHandleKey<TRTCond::StrawStatusData> key{"StrawStatusHTData"};
+      if (!key.initialize().isSuccess()) {
+        return false;
+      }
+
+      SG::WriteCondHandle<TRTCond::StrawStatusData> handle{key};
+      auto output = std::make_unique<TRTCond::StrawStatusData>(max);
+      for (unsigned int i{}; i < max; i++) {
+        IdentifierHash hash{i};
+        output->setStatus(hash, TRTCond::StrawStatus::Good);
+      }
+
+      EventIDRange range = IOVInfiniteRange::infiniteRunLB();
+      return handle.record(range, std::move(output)).isSuccess();
+    }
+
     static bool initMcEventCollection(std::vector<HepMC::GenParticlePtr>& genPartList)
     {
       // create dummy input McEventCollection with a name that
@@ -322,31 +316,28 @@ namespace OverlayTesting {
 
     void setPrivateToolPointers()
     {
-      m_mockTRT_StrawStatusSummaryTool = dynamic_cast<OverlayTesting::MockTRT_StrawStatusSummaryTool*>(&*(m_alg->m_TRTStrawSummaryTool));
       m_mockTRT_LocalOccupancy = dynamic_cast<OverlayTesting::MockTRT_LocalOccupancy*>(&*(m_alg->m_TRT_LocalOccupancyTool));
     }
     // the tested AthAlgorithm
     TRTOverlay* m_alg{};
 
     StoreGateSvc* m_sg{};
+    StoreGateSvc* m_cond{};
     // mocked Athena components
     OverlayTesting::MockTRT_LocalOccupancy* m_mockTRT_LocalOccupancy = nullptr;
-    OverlayTesting::MockTRT_StrawStatusSummaryTool* m_mockTRT_StrawStatusSummaryTool = nullptr;
     const std::map<int, double> m_empty_occupancy = {{-2,0.0},{-1,0.0},{1,0.0},{2,0.0}};
     const std::map<int, double> m_full_occupancy = {{-2,1.0},{-1,1.0},{1,1.0},{2,1.0}};
   };   // TRTOverlay_test fixture
 
 
   TEST_F(TRTOverlay_test, missing_inputs_alg_execute) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     ASSERT_TRUE( m_alg->execute(ctx).isFailure() ); //inputs don't exist
   }
 
   TEST_F(TRTOverlay_test, empty_containers_alg_execute) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     inputSigDataHandle = std::make_unique<TRT_RDO_Container>(containerSize);
@@ -354,10 +345,11 @@ namespace OverlayTesting {
     inputBkgDataHandle = std::make_unique<TRT_RDO_Container>(containerSize);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
+    initTRTStrawStatusHT();
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -368,8 +360,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_empty_collections) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     IdentifierHash sigElementHash(10026);
@@ -385,10 +376,11 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
+    initTRTStrawStatusHT();
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -402,8 +394,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_different_empty_collections) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     IdentifierHash sigElementHash(10026);
@@ -419,10 +410,11 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
+    initTRTStrawStatusHT();
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -439,8 +431,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_one_with_an_RDO) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     const IdentifierHash sigElementHash(10026);
@@ -477,10 +468,11 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
+    initTRTStrawStatusHT();
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -499,8 +491,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_different_collections_one_RDO_each) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     const IdentifierHash sigElementHash(10026);
@@ -554,10 +545,11 @@ namespace OverlayTesting {
     bkgCollection.release(); // Now owned by inputBkgDataHandle
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
+    initTRTStrawStatusHT();
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -583,8 +575,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_with_matching_RDOs) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     const IdentifierHash sigElementHash(10027);
@@ -631,9 +622,11 @@ namespace OverlayTesting {
     depositVector.push_back(deposit);
     inputSigSDODataHandle->insert(std::make_pair(sigStrawID, InDetSimData(depositVector)));
 
+    initTRTStrawStatusHT();
+
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -651,8 +644,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_with_differing_RDOs_same_strawID) {
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     const IdentifierHash sigElementHash(10027);
@@ -717,9 +709,11 @@ namespace OverlayTesting {
     depositVector.push_back(deposit);
     inputSigSDODataHandle->insert(std::make_pair(sigStrawID, InDetSimData(depositVector)));
 
+    initTRTStrawStatusHT();
+
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -737,9 +731,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_with_differing_LT_RDOs_same_strawID) {
-
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     const IdentifierHash sigElementHash(10027);
@@ -792,6 +784,7 @@ namespace OverlayTesting {
     bkgCollection->push_back(bkgDigit.release());
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),sigElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
+    initTRTStrawStatusHT();
 
     std::vector<unsigned int> outBits(32,0);
     for(unsigned int i=0; i<32; ++i) {
@@ -814,10 +807,7 @@ namespace OverlayTesting {
     inputSigSDODataHandle->insert(std::make_pair(sigStrawID, InDetSimData(depositVector)));
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_StrawStatusSummaryTool, getStatusHT(::testing::_) )
-      .Times(1)
-      .WillOnce(::testing::Return(TRTCond::StrawStatus::Good));
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
@@ -835,9 +825,7 @@ namespace OverlayTesting {
   }
 
   TEST_F(TRTOverlay_test, containers_with_matching_collections_with_differing_LT_RDOs_same_strawID_ForceHTbit) {
-
-    EventContext ctx(0,0);
-    ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+    EventContext ctx = initEventContext(m_sg);
     SG::WriteHandle<TRT_RDO_Container> inputSigDataHandle{"StoreGateSvc+TRT_RDOs_SIG"};
     const unsigned int containerSize(19008);
     const IdentifierHash sigElementHash(10027);
@@ -892,6 +880,7 @@ namespace OverlayTesting {
     bkgCollection->push_back(bkgDigit.release());
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),sigElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
+    initTRTStrawStatusHT();
 
     std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
@@ -910,10 +899,7 @@ namespace OverlayTesting {
     ASSERT_TRUE( m_alg->setProperty( "TRT_HT_OccupancyCorrectionEndcap", 1.0).isSuccess() );
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     setPrivateToolPointers();
-    EXPECT_CALL( *m_mockTRT_StrawStatusSummaryTool, getStatusHT(::testing::_) )
-      .Times(1)
-      .WillOnce(::testing::Return(TRTCond::StrawStatus::Good));
-    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_) )
+    EXPECT_CALL( *m_mockTRT_LocalOccupancy, getDetectorOccupancy(::testing::_, ::testing::_) )
       .Times(1)
       .WillOnce(::testing::Return(m_full_occupancy));
     ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );

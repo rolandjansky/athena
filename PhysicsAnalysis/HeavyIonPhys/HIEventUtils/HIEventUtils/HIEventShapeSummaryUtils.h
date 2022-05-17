@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HIEVENTUTILS_HIEVENTSHAPESUMMARYUTILS_H
@@ -15,16 +15,16 @@ namespace HI
 {
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
-		   std::function<bool (const xAOD::HIEventShape*)> incFunction,
-		   std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)> addFunction);
+		   const std::function<bool (const xAOD::HIEventShape*)>& incFunction,
+		   const std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)>& addFunction);
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
-		   std::function<bool (const xAOD::HIEventShape*)> incFunction);
+		   const std::function<bool (const xAOD::HIEventShape*)>& incFunction);
 
 
   void fillSummary(const xAOD::HIEventShapeContainer* in, xAOD::HIEventShape* out,
-		   const std::set<unsigned int> indices,
-		   std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)> addFunction);
+		   const std::set<unsigned int>& indices,
+		   const std::function<void (xAOD::HIEventShape*,const xAOD::HIEventShape*)>& addFunction);
 
   struct AddEventShape
   {
@@ -98,7 +98,7 @@ namespace HI
     bool operator()(const xAOD::HIEventShape* in_slice) {return (layers_sel(in_slice) && range_sel(in_slice));};
   };
 
-  float getModulation(const xAOD::HIEventShape* es, const std::vector<unsigned int> harmonics, float phi);
+  float getModulation(const xAOD::HIEventShape* es, const std::vector<unsigned int>& harmonics, float phi);
   int setHarmonics(std::vector<unsigned int>& in);
 }
 

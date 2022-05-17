@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METSoftTermsTool.cxx 
@@ -54,15 +54,7 @@ namespace met {
     AsgTool(name),
     METBuilderTool(name)
   {
-    declareProperty( "InputComposition", m_inputType = "Clusters" ); // Options : Clusters (default) OR Tracks
-    declareProperty( "VetoNegEClus",     m_cl_vetoNegE = true     );
-    declareProperty( "OnlyNegEClus",     m_cl_onlyNegE = false    );
   }
-
-  // Destructor
-  ///////////////
-  METSoftTermsTool::~METSoftTermsTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -72,27 +64,15 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
     // use string property and convert to int?
-    if(m_inputType == "Clusters")    m_st_objtype = xAOD::Type::CaloCluster;
-    else if(m_inputType == "Tracks") m_st_objtype = xAOD::Type::TrackParticle;
+    if(m_inputType.value() == "Clusters")    m_st_objtype = xAOD::Type::CaloCluster;
+    else if(m_inputType.value() == "Tracks") m_st_objtype = xAOD::Type::TrackParticle;
     else {
-      ATH_MSG_FATAL("Invalid input collection type " << m_inputType << " supplied!");
+      ATH_MSG_FATAL("Invalid input collection type " << m_inputType.value() << " supplied!");
     }
 
     // ReadHandleKey(s)
-    if(m_st_objtype==xAOD::Type::CaloCluster){
-      ATH_CHECK( m_caloClusterKey.assign(m_input_data_key));
-      ATH_CHECK( m_caloClusterKey.initialize());
-    }
-    else if(m_st_objtype==xAOD::Type::TrackParticle){
-      ATH_CHECK( m_trackParticleKey.assign(m_input_data_key));
-      ATH_CHECK( m_trackParticleKey.initialize());
-    }
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METSoftTermsTool::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
+    ATH_CHECK( m_caloClusterKey.initialize(m_st_objtype==xAOD::Type::CaloCluster));
+    ATH_CHECK( m_trackParticleKey.initialize(m_st_objtype==xAOD::Type::TrackParticle));
 
     return StatusCode::SUCCESS;
   }

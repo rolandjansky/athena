@@ -34,7 +34,7 @@ namespace Muon {
     virtual ~NSWCalibTool() = default;
     
     virtual StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const override;
-    virtual StatusCode calibrateStrip(const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const override;
+    virtual StatusCode calibrateStrip(const Identifier& id, const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const override;
     virtual StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const override;
     virtual StatusCode calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const override;
     virtual StatusCode distToTime(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, const std::vector<double>& driftDistances, std::vector<double>& driftTimes) const override;
@@ -66,6 +66,8 @@ namespace Muon {
     float m_interactionDensityMean = 0.0F;
     float m_ionUncertainty;
     double m_peakTime;
+
+    bool localStripPosition(const Identifier& id, Amg::Vector2D &locPos) const;
 
     std::string m_gasMixture;
   };

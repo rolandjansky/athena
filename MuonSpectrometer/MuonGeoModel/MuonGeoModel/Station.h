@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Station_H
 #define Station_H
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonGeoModel/AlignPos.h"
@@ -35,7 +36,7 @@ namespace MuonGM {
     typedef std::map<int, Position, std::less<int>>::const_iterator PositionIterator;
     typedef std::multimap<int, AlignPos, std::less<int>>::const_iterator AlignPosIterator;
 
-    class Station {
+    class Station : public AthMessaging {
       public:
         Station();
         ~Station();

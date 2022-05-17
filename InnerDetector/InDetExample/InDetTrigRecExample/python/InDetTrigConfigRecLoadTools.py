@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 from __future__ import print_function
@@ -548,7 +548,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                                        HoleSearch    = InDetTrigHoleSearchTool,
                                                                        AssoTool      = InDetTrigPrdAssociationTool,
                                                                        TestBLayerTool = None,
-                                                                       PixelToTPIDTool= InDetTrigPixelToTPIDTool,
                                                                        DoSharedHits  = False,
                                                                        TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
@@ -563,7 +562,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                                          HoleSearch    = InDetTrigHoleSearchTool,
                                                                          AssoTool      = InDetTrigPrdAssociationTool,
                                                                          TestBLayerTool = None,
-                                                                         PixelToTPIDTool= InDetTrigPixelToTPIDTool,
                                                                          DoSharedHits  = False,
                                                                          TRTStrawSummarySvc=None,
                                                                          usePixel      = DetFlags.haveRIO.pixel_on(),
@@ -595,43 +593,9 @@ if InDetTrigFlags.loadSummaryTool():
     # FIXME: need to force an override for the online DB until this folder has been added to the latest tag
     conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v2")
 
-  from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
-  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
   # Calibration DB Tool
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
-
-  TRT_RDO_Key = "TRT_RDOs"
-  if globalflags.DataSource == 'data':
-      TRT_RDO_Key = TrigTRTKeys.RDOs
-      
-
-  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
-                                                          isTrigger = True,
-                                                          TRT_RDOContainerName = TRT_RDO_Key,
-                                                          TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
-                                                          TRTCalDbTool = InDetTRTCalDbTool,
-                                                          TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
-  ToolSvc += InDetTrigTRT_LocalOccupancy
-
-  InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
-                                       AssociationTool = InDetTrigPrdAssociationTool,
-                                       TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
-                                       TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
-  ToolSvc += InDetTrigTRT_ToT_dEdx
-  
-  
-  InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
-                                                                TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
-                                                                TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
-                                                                TRT_ToT_dEdx_Tool = InDetTrigTRT_ToT_dEdx,
-                                                                MinimumTrackPtForNNPid = 2000., # default 2 GeV
-                                                                CalculateNNPid = InDetTrigFlags.doTRTPIDNN() )
-
-  ToolSvc += InDetTrigTRT_ElectronPidTool
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print (     InDetTrigTRT_ElectronPidTool)
-
 
  
   #
@@ -643,26 +607,10 @@ if InDetTrigFlags.loadSummaryTool():
                                                     doSharedHits           = False,
                                                     doHolesInDet           = True,
                                                     #this may be temporary #61512 (and used within egamma later)
-                                                    #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
-                                                    TRT_ElectronPidTool    = None, 
                                                     )
   ToolSvc += InDetTrigTrackSummaryTool
   if (InDetTrigFlags.doPrintConfigurables()):
      print (     InDetTrigTrackSummaryTool)
-
-  InDetTrigTrackSummaryToolSi = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSi",
-                                                      InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSi,
-                                                      doSharedHits           = False,
-                                                      doHolesInDet           = True,
-                                                      #this may be temporary #61512 (and used within egamma later)
-                                                      #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
-                                                      TRT_ElectronPidTool    = None, 
-                                                    )
-  ToolSvc += InDetTrigTrackSummaryToolSi
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print (     InDetTrigTrackSummaryToolSi)
-
-
 
   if InDetTrigFlags.doSharedHits():
     #
@@ -674,7 +622,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                                                    DoSharedHits = InDetTrigFlags.doSharedHits(),
                                                                                    HoleSearch   = InDetTrigHoleSearchTool,
                                                                                    TestBLayerTool=InDetTrigTestBLayerTool,
-                                                                                   PixelToTPIDTool=InDetTrigPixelToTPIDTool,
                                                                                    TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool)
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits
@@ -687,8 +634,7 @@ if InDetTrigFlags.loadSummaryTool():
     InDetTrigTrackSummaryToolSharedHits = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHits",
                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                                                                 doSharedHits           = InDetTrigFlags.doSharedHits(),
-                                                                doHolesInDet           = True,
-                                                                TRT_ElectronPidTool    = None)
+                                                                doHolesInDet           = True)
 
     ToolSvc += InDetTrigTrackSummaryToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -980,8 +926,7 @@ from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
                                                       InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSi,
                                                       doHolesInDet           = False,
-                                                      doSharedHits           = False,
-                                                      TRT_ElectronPidTool    = None
+                                                      doSharedHits           = False
                                                       )
 ToolSvc += InDetTrigFastTrackSummaryTool
 if (InDetTrigFlags.doPrintConfigurables()):
@@ -992,24 +937,12 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchT
 InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolWithHoleSearch",
                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSi,
                                                                 doHolesInDet           = True,
-                                                                doSharedHits           = False,
-                                                                TRT_ElectronPidTool    = None
+                                                                doSharedHits           = False
                                                       )
 ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
 if (InDetTrigFlags.doPrintConfigurables()):
     print      (InDetTrigTrackSummaryToolWithHoleSearch)
 
-
-InDetTrigTrackSummaryToolSharedHitsWithTRTPid = \
-    Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHitsWithTRT",
-                          InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
-                          doSharedHits           = InDetTrigFlags.doSharedHits(),
-                          doHolesInDet           = True,
-                          TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
-
-ToolSvc += InDetTrigTrackSummaryToolSharedHitsWithTRTPid
-if (InDetTrigFlags.doPrintConfigurables()):
-    print      (InDetTrigTrackSummaryToolSharedHitsWithTRTPid)
 
 # HACK to emulate run2 behaviour
 from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRDtoTrackMapExchangeTool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/RNGWrapper.h"
@@ -13,6 +13,7 @@
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
+#include "TRT_ConditionsData/StrawStatus.h"
 
 #include "IDC_OverlayBase/IDC_OverlayCommon.h"
 #include "IDC_OverlayBase/IDC_OverlayHelpers.h"
@@ -76,6 +77,8 @@ StatusCode TRTOverlay::initialize()
   ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputKey);
   ATH_CHECK( m_signalInputSDOKey.initialize() );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey for SDO: " << m_signalInputSDOKey);
+  ATH_CHECK( m_strawStatusHTKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadCondHandleKey: " << m_strawStatusHTKey);
 
   // Retrieve TRT ID helper
   if (!detStore()->retrieve(m_trtId, "TRT_ID").isSuccess() || !m_trtId) {
@@ -88,16 +91,6 @@ StatusCode TRTOverlay::initialize()
 
   // Retrieve TRT local occupancy tool
   CHECK(m_TRT_LocalOccupancyTool.retrieve());
-
-  if (!m_TRTStrawSummaryTool.empty()) {
-    if (m_TRTStrawSummaryTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
-      ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG( "Retrieved tool " << m_TRTStrawSummaryTool );
-    }
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -145,7 +138,7 @@ StatusCode TRTOverlay::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Recorded output TRT RDO container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr(), signalSDOContainer.cptr()));
+  ATH_CHECK(overlayContainer(ctx, bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr(), signalSDOContainer.cptr()));
   ATH_MSG_DEBUG("TRT Result   = " << Overlay::debugPrint(outputContainer.ptr()));
 
   ATH_MSG_DEBUG("execute() end");
@@ -153,7 +146,8 @@ StatusCode TRTOverlay::execute(const EventContext& ctx) const
 }
 
 
-StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
+StatusCode TRTOverlay::overlayContainer(const EventContext &ctx,
+                                        const TRT_RDO_Container *bkgContainer,
                                         const TRT_RDO_Container *signalContainer,
                                         TRT_RDO_Container *outputContainer,
                                         const InDetSimDataCollection *signalSDOCollection) const
@@ -179,12 +173,15 @@ StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
 
   // Setup the random engine
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine(*rngWrapper);
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
+
+  // Load TRT conditions
+  SG::ReadCondHandle<TRTCond::StrawStatusData> strawStatusHTHandle{ m_strawStatusHTKey, ctx };
+  const TRTCond::StrawStatusData *strawStatusHT{*strawStatusHTHandle};
 
   // Retrieve the occupancy map
-  std::map<int, double> occupancyMap = m_TRT_LocalOccupancyTool->getDetectorOccupancy(bkgContainer);
-
+  std::map<int, double> occupancyMap = m_TRT_LocalOccupancyTool->getDetectorOccupancy(ctx, bkgContainer);
 
   // The MC signal container should typically be smaller than bkgContainer,
   // because the latter contains all the noise, minimum bias and pile up.
@@ -240,7 +237,7 @@ StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
 
       // Merge collections
       int det = m_trtId->barrel_ec(signalCollection->identify());
-      mergeCollections(bkgCollection.get(), signalCollection.get(), outputCollection.get(), occupancyMap[det], signalSDOCollection, rndmEngine);
+      mergeCollections(bkgCollection.get(), signalCollection.get(), outputCollection.get(), occupancyMap[det], signalSDOCollection, strawStatusHT, rndmEngine);
 
       if (outputContainer->addCollection(outputCollection.get(), hashId).isFailure()) {
         ATH_MSG_ERROR("Adding overlaid Collection with hashId " << hashId << " failed");
@@ -267,6 +264,7 @@ void TRTOverlay::mergeCollections(TRT_RDO_Collection *bkgCollection,
                                   TRT_RDO_Collection *outputCollection,
                                   double occupancy,
                                   const InDetSimDataCollection *signalSDOCollection,
+                                  const TRTCond::StrawStatusData *strawStatusHT,
                                   CLHEP::HepRandomEngine *rndmEngine) const
 {
   if (bkgCollection->identify() != signalCollection->identify()) {
@@ -326,8 +324,8 @@ void TRTOverlay::mergeCollections(TRT_RDO_Collection *bkgCollection,
 
             // Determine what type of straw was hit
             bool isXenonStraw = false;
-            if (!m_TRTStrawSummaryTool.empty()) {
-              if (m_TRTStrawSummaryTool->getStatusHT(rdoId) == TRTCond::StrawStatus::Good) {
+            if (strawStatusHT != nullptr) {
+              if (strawStatusHT->findStatus(m_trtId->straw_hash(rdoId)) == TRTCond::StrawStatus::Good) {
                 isXenonStraw = true;
               }
             }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -18,9 +18,7 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 InDetTrigCutValues = EFIDTrackingCuts
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-    InDetTrigTrackSummaryToolSharedHits
-
-from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+    InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits
 
 
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
@@ -47,11 +45,49 @@ ToolSvc += InDetTrigParticleCreatorToolWithSummary
 if (InDetTrigFlags.doPrintConfigurables()):
     print (InDetTrigParticleCreatorToolWithSummary)
 
+InDetTrigTRT_ElectronPidTool = None
+from AthenaCommon.DetFlags import DetFlags
+if DetFlags.haveRIO.TRT_on() :
+    from AthenaCommon.GlobalFlags import globalflags
+    from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTRTCalDbTool
+
+    TRT_RDO_Key = "TRT_RDOs"
+    if globalflags.DataSource == 'data':
+        TRT_RDO_Key = TrigTRTKeys.RDOs
+
+    from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
+    InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
+                                                            isTrigger = True,
+                                                            TRT_RDOContainerName = TRT_RDO_Key,
+                                                            TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
+                                                            TRTCalDbTool = InDetTRTCalDbTool)
+    ToolSvc += InDetTrigTRT_LocalOccupancy
+
+    InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
+                                         AssociationTool = ToolSvc.InDetTrigPrdAssociationTool,
+                                         TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
+                                         TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
+    ToolSvc += InDetTrigTRT_ToT_dEdx
+
+    InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
+                                                                  TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
+                                                                  TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
+                                                                  TRT_ToT_dEdx_Tool = InDetTrigTRT_ToT_dEdx,
+                                                                  MinimumTrackPtForNNPid = 2000., # default 2 GeV
+                                                                  CalculateNNPid = InDetTrigFlags.doTRTPIDNN() )
+
+    ToolSvc += InDetTrigTRT_ElectronPidTool
+    if (InDetTrigFlags.doPrintConfigurables()):
+        print (     InDetTrigTRT_ElectronPidTool)
+
 InDetTrigParticleCreatorToolWithSummaryTRTPid = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
-                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
+                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True,
+                                   TRT_ElectronPidTool   = InDetTrigTRT_ElectronPidTool
                                    #ForceTrackSummaryUpdate = True,
                                    )
 

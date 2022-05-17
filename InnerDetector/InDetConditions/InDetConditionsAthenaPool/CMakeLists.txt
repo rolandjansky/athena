@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetConditionsAthenaPool )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
-   FILES TRT_ConditionsData/TRTStrawStatusData.h
+   FILES TRT_ConditionsData/StrawStatusData.h
+   TRT_ConditionsData/StrawStatusSummary.h
    TRT_ConditionsData/FloatArrayStore.h
    TRT_ConditionsData/StrawT0Container.h
    TRT_ConditionsData/RtRelationContainer.h
@@ -19,7 +20,7 @@ atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
    TRTCond::RtRelationContainer TRTCond::StrawDxContainer
    TRTCond::StrawT0MultChanContainer TRTCond::RtRelationMultChanContainer
    TRTCond::StrawDxMultChanContainer TRTCond::StrawStatusMultChanContainer
-   TRTCond::StrawStatusContainer
+   TRTCond::StrawStatusContainer TRTCond::StrawStatusData TRTCond::StrawStatusSummary
    MULT_CHAN_TYPES TRTCond::StrawT0MultChanContainer
    TRTCond::RtRelationMultChanContainer
    TRTCond::StrawDxMultChanContainer

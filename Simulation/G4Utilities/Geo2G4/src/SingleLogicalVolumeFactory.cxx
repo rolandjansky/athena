@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SingleLogicalVolumeFactory.h"
@@ -11,7 +11,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4Material.hh"
 
-SingleLogicalVolumeFactory::SingleLogicalVolumeFactory(): m_msg("SingleLogicalVolumeFactory")
+SingleLogicalVolumeFactory::SingleLogicalVolumeFactory(): AthMessaging("SingleLogicalVolumeFactory")
 {
 }
 

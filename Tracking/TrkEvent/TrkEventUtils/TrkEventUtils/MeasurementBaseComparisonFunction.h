@@ -152,8 +152,7 @@ private:
 
   double pathIntersectWithLine(const Trk::StraightLineSurface& lsf) const
   {
-    Amg::Vector3D dirWire(lsf.transform().rotation().col(2));
-    dirWire.normalize();
+    const Amg::Vector3D& dirWire = lsf.lineDirection().normalized();
     Amg::Vector3D trackToWire(lsf.center() - m_point);
     double parallelity = m_direction.dot(dirWire);
     double denom = 1 - parallelity * parallelity;

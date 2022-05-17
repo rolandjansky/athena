@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METAssociator.cxx
@@ -54,7 +54,6 @@ namespace met {
     m_caloIsolationTool(this,"")
   {
     ATH_MSG_INFO("METAssoc constructor");
-    declareProperty( "InputCollection",    m_input_data_key                      );
     declareProperty( "UseModifiedClus",    m_useModifiedClus = false             );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
@@ -286,12 +285,6 @@ namespace met {
       }//pflow
     }//retrieve track/pfo containers
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METAssociator::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 AthSequencer=CompFactory.AthSequencer
@@ -18,6 +19,74 @@ def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'
     cfg.setAppProperty('JobOptionsPostAction', '')
     cfg.setAppProperty('JobOptionsPreAction', '')
     cfg.setAppProperty('PrintAlgsSequence', True)
+    return cfg
+
+
+def AthenaEventLoopMgrCfg(cfgFlags):
+
+    cfg = ComponentAccumulator()
+    elmgr = CompFactory.AthenaEventLoopMgr()
+    if cfgFlags.Input.OverrideRunNumber:
+        from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
+        elmgr.EvtIdModifierSvc =  cfg.getPrimaryAndMerge( EvtIdModifierSvcCfg(cfgFlags) ).name
+
+    if cfgFlags.Common.ProductionStep == ProductionStep.Overlay:
+        if not cfgFlags.Overlay.DataOverlay:
+            elmgr.RequireInputAttributeList = True
+            elmgr.UseSecondaryEventNumber = True
+
+    cfg.addService( elmgr )
+
+    return cfg
+
+
+def AthenaHiveEventLoopMgrCfg(cfgFlags):
+
+    cfg = ComponentAccumulator()
+    hivesvc = CompFactory.SG.HiveMgrSvc("EventDataSvc")
+    hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
+    cfg.addService( hivesvc )
+
+    from AthenaCommon.Constants import INFO
+    arp = CompFactory.AlgResourcePool( OutputLevel = INFO )
+    arp.TopAlg = ["AthMasterSeq"] #this should enable control flow
+    cfg.addService( arp )
+
+    scheduler = CompFactory.AvalancheSchedulerSvc()
+    scheduler.CheckDependencies    = cfgFlags.Scheduler.CheckDependencies
+    scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
+    scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
+    scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
+    scheduler.VerboseSubSlots      = cfgFlags.Scheduler.EnableVerboseViews
+    scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
+    cfg.addService(scheduler)
+
+    from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+    # FailIfNoProxy=False makes it a warning, not an error, if unmet data
+    # dependencies are not found in the store.  It should probably be changed
+    # to True eventually.
+    inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=False)
+    cfg.merge(inputloader_ca, sequenceName="AthAlgSeq")
+    # Specifying DataLoaderAlg makes the Scheduler automatically assign
+    # all unmet data dependencies to that algorithm
+    scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
+
+    elmgr = CompFactory.AthenaHiveEventLoopMgr()
+    elmgr.WhiteboardSvc = "EventDataSvc"
+    elmgr.SchedulerSvc = scheduler.getName()
+    elmgr.OutStreamType = 'AthenaOutputStream'
+
+    if cfgFlags.Input.OverrideRunNumber:
+        from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
+        elmgr.EvtIdModifierSvc =  cfg.getPrimaryAndMerge(EvtIdModifierSvcCfg(cfgFlags)).name
+
+    if cfgFlags.Common.ProductionStep == ProductionStep.Overlay:
+        if not cfgFlags.Overlay.DataOverlay:
+            elmgr.RequireInputAttributeList = True
+            elmgr.UseSecondaryEventNumber = True
+
+    cfg.addService( elmgr )
+
     return cfg
 
 
@@ -113,50 +182,15 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         msgsvc.defaultLimit = 0
         msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
-        SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
-        hivesvc = SG__HiveMgrSvc("EventDataSvc")
-        hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
-        cfg.addService( hivesvc )
-
-        AlgResourcePool=CompFactory.AlgResourcePool
-        from AthenaCommon.Constants import INFO
-        arp=AlgResourcePool( OutputLevel = INFO )
-        arp.TopAlg=["AthMasterSeq"] #this should enable control flow
-        cfg.addService( arp )
-
-        AvalancheSchedulerSvc=CompFactory.AvalancheSchedulerSvc
-        scheduler = AvalancheSchedulerSvc()
-        scheduler.CheckDependencies    = cfgFlags.Scheduler.CheckDependencies
-        scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
-        scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
-        scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
-        scheduler.VerboseSubSlots      = cfgFlags.Scheduler.EnableVerboseViews
-        scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
-        cfg.addService(scheduler)
-
-        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
-        # FailIfNoProxy=False makes it a warning, not an error, if unmet data
-        # dependencies are not found in the store.  It should probably be changed
-        # to True eventually.
-        inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=False)
-        cfg.merge(inputloader_ca, sequenceName="AthAlgSeq")
-        # Specifying DataLoaderAlg makes the Scheduler automatically assign
-        # all unmet data dependencies to that algorithm
-        scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
-
-        AthenaHiveEventLoopMgr=CompFactory.AthenaHiveEventLoopMgr
-
-        elmgr = AthenaHiveEventLoopMgr()
-        elmgr.WhiteboardSvc = "EventDataSvc"
-        elmgr.SchedulerSvc = scheduler.getName()
-        elmgr.OutStreamType = 'AthenaOutputStream'
-        cfg.addService( elmgr )
+        cfg.merge(AthenaHiveEventLoopMgrCfg(cfgFlags))
 
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
         #
         cfg.addAuditor( CompFactory.SGCommitAuditor() )
         cfg.setAppProperty("AuditAlgorithms", True)
+    elif LoopMgr == 'AthenaEventLoopMgr':
+        cfg.merge(AthenaEventLoopMgrCfg(cfgFlags))
 
     return cfg
 

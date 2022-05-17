@@ -33,7 +33,11 @@ StatusCode PrescalingEmulationTool::initialize() {
 
 StatusCode PrescalingEmulationTool::prescaleChains( const EventContext& ctx,
                                                     const HLT::IDVec& initiallyActive,
-                                                    HLT::IDVec& remainActive ) const {
+                                                    HLT::IDVec& remainActive,
+                                                    bool forExpressStream ) const {
+
+  ATH_MSG_DEBUG("Express stream prescaling ignored in Emulation tool" << forExpressStream);
+
   if ( initiallyActive.empty() ) {
     return StatusCode::SUCCESS;
   }

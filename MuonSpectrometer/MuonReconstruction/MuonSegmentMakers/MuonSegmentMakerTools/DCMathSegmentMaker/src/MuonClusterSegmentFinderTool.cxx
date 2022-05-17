@@ -999,26 +999,29 @@ namespace Muon {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const {
         std::vector<const Muon::MuonClusterOnTrack*> calibratedClusters;
 
+        ATH_MSG_VERBOSE("seed global position " << seed.first << " seed direction " << seed.second.unit());
+        ATH_MSG_VERBOSE("seed global position theta " << seed.first.theta() << " seed direction theta " << seed.second.theta());
+        ATH_MSG_VERBOSE("seed global position phi " << seed.first.phi() << " seed direction phi " << seed.second.phi());
+
         // loop on the segment clusters and use the phi of the seed to correct them
         for (const Muon::MuonClusterOnTrack* clus : clusters) {
-
-            const Muon::MuonClusterOnTrack* newClus{nullptr};
-
+            const Muon::MuonClusterOnTrack* newClus = nullptr;
+            
             // get the intercept of the seed direction with the cluster surface
             Identifier hitID = clus->identify();
             const Trk::Surface& surf = clus->associatedSurface();
             Trk::Intersection intersect = surf.straightLineIntersection(seed.first, seed.second, false, false);
 
             if (m_idHelperSvc->isMM(hitID)) {
-                // build a new MMClusterOnTrack with correct position
-                newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), intersect.position);
+                 // build a  new MM cluster on track with correct position
+                 newClus = m_mmClusterCreator->calibratedCluster(*(clus->prepRawData()), intersect.position,seed.second);
 
-                if (msgLvl(MSG::VERBOSE)) {
-                    const Amg::Vector3D& gpos_hit = clus->globalPosition();
-                    const Amg::Vector3D& gpos_new = newClus->globalPosition();
-                    ATH_MSG_VERBOSE("Position before correction: " << gpos_hit.x() << " " << gpos_hit.y() << " " << gpos_hit.z());
-                    ATH_MSG_VERBOSE("Position after correction: "  << gpos_new.x() << " " << gpos_new.y() << " " << gpos_new.z());
-                }
+                 if (msgLvl(MSG::VERBOSE)) {
+                     const Amg::Vector3D& gpos_hit = clus->globalPosition();
+                     const Amg::Vector3D& gpos_new = newClus->globalPosition();
+                     ATH_MSG_VERBOSE("Position before correction: " << gpos_hit.x() << " " << gpos_hit.y() << " " << gpos_hit.z());
+                     ATH_MSG_VERBOSE("Position after correction: "  << gpos_new.x() << " " << gpos_new.y() << " " << gpos_new.z());
+                 }
 
             } else if (m_idHelperSvc->issTgc(hitID)) {
                 // calibration to be added for sTGCs

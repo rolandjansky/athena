@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Run Trigger on data with athena and write ByteStream output, then run offline reco
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file

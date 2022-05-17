@@ -9,7 +9,6 @@ from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsP
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
-import AthenaCommon.CfgMgr as CfgMgr
 
 def tag(ion):
     return 'precision' + ('HI' if ion is True else '') + 'Tracking_GSFRefitted'
@@ -31,18 +30,12 @@ def precisionTracks_GSFRefittedSequence(ConfigFlags, ion=False, variant=''):
     precisionTracks_GSFRefittedViewsMaker.Views = tag(ion) + "Views" + variant
     precisionTracks_GSFRefittedViewsMaker.ViewFallThrough = True
     precisionTracks_GSFRefittedViewsMaker.RequireParentView = True
-
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("GSFRefittedSeqVerifier")
-    ViewVerify.DataObjects = [
-        ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-        ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
-    ]
-
+    
     # calling precision tracking
     from TriggerMenuMT.HLT.Electron.PrecisionTracks_GSFRefittedSequence import precisionTracks_GSFRefitted
     precisionTracks_GSFRefittedInViewSequence, trackParticles = precisionTracks_GSFRefitted(InViewRoIs, ion, variant)
 
-    precisionTracks_GSFRefittedInViewAlgs = parOR(tag(ion) + "InViewAlgs" + variant, [precisionTracks_GSFRefittedInViewSequence,ViewVerify])
+    precisionTracks_GSFRefittedInViewAlgs = parOR(tag(ion) + "InViewAlgs" + variant, [precisionTracks_GSFRefittedInViewSequence])
     precisionTracks_GSFRefittedViewsMaker.ViewNodeName = tag(ion) + "InViewAlgs" + variant
 
     # connect EVC and reco

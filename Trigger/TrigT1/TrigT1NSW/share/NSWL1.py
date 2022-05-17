@@ -29,8 +29,6 @@ else:
 ###################################################
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.Muon_setOn()
-DetFlags.sTGC_setOn()
-DetFlags.MM_setOn()
 DetFlags.digitize.MM_setOn()
 DetFlags.digitize.sTGC_setOn()
 DetFlags.Truth_setOn()

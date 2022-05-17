@@ -18,10 +18,6 @@
 #include "LArFanSection.h"
 #include "G4ShiftedCone.h"
 
-#ifndef PORTABLE_LAR_SHAPE
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#endif
-
 #ifdef DEBUG_LARWHEELSOLID
 G4int LArWheelSolid::Verbose = 0;
 #endif
@@ -38,10 +34,11 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
                              LArWheelCalculator *calc,
 			     const EMECData *emecData
                              )
-  : G4VSolid(name), m_Type(type), m_Calculator(calc), m_PhiPosition(CLHEP::halfpi), m_fs(0)
+  : G4VSolid(name)
 #ifndef PORTABLE_LAR_SHAPE
-  , m_msg("LArWheelSolid")
+  , AthMessaging("LArWheelSolid")
 #endif
+  , m_Type(type), m_Calculator(calc), m_PhiPosition(CLHEP::halfpi), m_fs(0)
 {
 #ifndef PORTABLE_LAR_SHAPE
 #ifdef LARWHEELSOLID_USE_FANBOUND

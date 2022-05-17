@@ -10,12 +10,7 @@ def TRT_LocalOccupancyCfg(flags, name="TRT_LocalOccupancy", **kwargs):
     acc.addPublicTool(CalDbTool)  # public as it is has many clients to save some memory
     kwargs.setdefault("TRTCalDbTool", CalDbTool)
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-    StrawStatusTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
-    kwargs.setdefault("TRTStrawStatusSummaryTool", StrawStatusTool )
-
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawStatusCondAlgCfg,TRTStrawCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawStatusCondAlgCfg, TRTStrawCondAlgCfg
     acc.merge(TRTStrawStatusCondAlgCfg(flags))
     acc.merge(TRTStrawCondAlgCfg(flags))
 

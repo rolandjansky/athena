@@ -24,15 +24,9 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
   :
   base_class(t,n,p)
 {
-  //  template for property declaration
-  declareProperty("OutputCollection",    m_mmPrepDataContainerKey = std::string("MM_Measurements"),
-		  "Muon::MMPrepDataContainer to record");
-  declareProperty("InputCollection",    m_rdoContainerKey = std::string("MMRDO"),
-		  "Muon::MMPrepDataContainer to record");
-  
-  declareProperty("MergePrds", m_merge = true);
-  declareProperty("singleStripChargeCut", m_singleStripChargeCut = 6241 * 0.4);   // 0.4 fC from BB5 cosmics
+
 }
+
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 {  
@@ -201,8 +195,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
                                   calibStrip.time,
                                   calibStrip.charge,
                                   calibStrip.distDrift);
-      if (mpd.charge() < m_singleStripChargeCut)
-        continue;
+      if (mpd.charge() < m_singleStripChargeCut) continue;
       // set the hash of the MMPrepData such that it contains the correct value
       // in case it gets used in SimpleMMClusterBuilderTool::getClusters
       mpd.setHashAndIndex(hash, 0);

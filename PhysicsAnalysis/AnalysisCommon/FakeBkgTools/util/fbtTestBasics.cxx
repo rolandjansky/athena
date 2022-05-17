@@ -140,16 +140,16 @@ bool allTests()
   if(verbose) std::cout <<"\nWill test parallel jobs and merging\n";
   eventOffset = 0;
   nEvents = 16;
-  FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job1.root") );
+  FBT_CHECK( parallelJob("CP::LhoodMM_tools", "fbt_job1.root") );
   eventOffset = 16;
-  FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job2.root") );
+  FBT_CHECK( parallelJob("CP::LhoodMM_tools", "fbt_job2.root") );
   eventOffset = 32;
-  FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job3.root") );
+  FBT_CHECK( parallelJob("CP::LhoodMM_tools", "fbt_job3.root") );
   eventOffset = 0;
-  FBT_CHECK( gSystem->Exec("hadd -f /tmp/fbt_merged.root /tmp/fbt_job*.root") == 0 );
+  FBT_CHECK( gSystem->Exec("hadd -f fbt_merged.root fbt_job*.root") == 0 );
   {
     asg::AnaToolHandle<CP::IFakeBkgTool> tool;
-    progressFile = "/tmp/fbt_merged.root";
+    progressFile = "fbt_merged.root";
     FBT_CHECK( setup(tool, "CP::LhoodMM_tools") );
     progressFile.clear();
     FBT_CHECK( fillResult(tool, result5) );
@@ -315,7 +315,7 @@ void Result::Print() const
 bool readFromROOT()
 {
   config.clear();
-  config.emplace_back("/tmp/fbt_efficiencies.root");
+  config.emplace_back("fbt_efficiencies.root");
   TH1D hElFake("FakeEfficiency_el_pt","FakeEfficiency", 1, 10., 100.);
   hElFake.SetBinContent(1, 0.05);
   hElFake.SetBinError(1, 0.01);
@@ -342,7 +342,7 @@ bool readFromROOT()
 bool readFromXML()
 {
   config.clear();
-  config.emplace_back("/tmp/fbt_efficiencies.xml");
+  config.emplace_back("fbt_efficiencies.xml");
   std::ofstream out(config.back().c_str(), std::ios_base::out);
   FBT_CHECK( out.is_open() );
   /// note: the declarations must be placed in the "good" order,

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METJetAssocTool.h 
@@ -35,11 +35,10 @@ namespace met{
 
     // Constructor with name
     METJetAssocTool(const std::string& name);
-    ~METJetAssocTool();
+    ~METJetAssocTool() = default;
 
     // AsgTool Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -79,7 +78,7 @@ namespace met{
  
     /// Default constructor: 
     METJetAssocTool();
-    SG::ReadHandleKey<xAOD::JetContainer> m_jetContKey;
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetContKey{this, "InputCollection", "AntiKt4EMPFlowJets", "jets input key"};
     void getPFOs(const xAOD::Jet *jet,
                  std::vector<const xAOD::IParticle*> &consts,
                  const met::METAssociator::ConstitHolder& constits,
@@ -89,7 +88,7 @@ namespace met{
                   std::vector<const xAOD::IParticle*> &consts,
                   std::set<const xAOD::IParticle*> *newConst) const;
 
-    double m_matchRadius;
+    Gaudi::Property<double> m_matchRadius{this, "MatchRadius", 0.4, ""};
   }; 
 
 }

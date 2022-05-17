@@ -54,7 +54,7 @@ class HTTHoughRootOutputTool : public AthAlgTool
         ServiceHandle<ITHistSvc> m_tHistSvc {this, "THistSvc", "THistSvc"};
 
 
-        TTree *m_tree; // output tree
+        TTree *m_tree = nullptr; // output tree
         std::vector<float> m_x; // x position of hit in road
         std::vector<float> m_y; // y pos
         std::vector<float> m_z; // z pos
@@ -70,27 +70,27 @@ class HTTHoughRootOutputTool : public AthAlgTool
         std::vector<unsigned int> m_phimodule;
         std::vector<unsigned int> m_ID; // ID hash for hit
 
-        float m_phi; // phi pre-estimate from the 2d hough
-        float m_invpt; // invpt pre-estimate from the 2d hough
+        float m_phi = 0.0F; // phi pre-estimate from the 2d hough
+        float m_invpt = 0.0F; // invpt pre-estimate from the 2d hough
 
         // quantities for the track matched to truth, not per hit
-        float m_candidate_barcodefrac;
-        float m_candidate_barcode;
-        float m_candidate_eventindex;
+        float m_candidate_barcodefrac = 0.0F;
+        float m_candidate_barcode = 0.0F;
+        float m_candidate_eventindex = 0.0F;
 
         // track number in the event, since the request is to store this per road
         // naively vectors of vectors and one entry per event makes more sense but this was the
         // request from the ML people
-        int m_tracknumber;
+        int m_tracknumber = 0;
 
         // this is the tree index used to connect to the truth information
-        int m_treeindex;
+        int m_treeindex = 0;
 
         // road number separates information from each road;
-        int m_roadnumber;
+        int m_roadnumber = 0;
 
         // Separate tree with truth track information
-        TTree *m_truthtree; // output tree
+        TTree *m_truthtree = nullptr; // output tree
 
         std::vector<float> m_truth_d0;
         std::vector<float> m_truth_z0;
@@ -103,7 +103,7 @@ class HTTHoughRootOutputTool : public AthAlgTool
         std::vector<int> m_truth_eventindex;
 
         // And now the offline information
-        TTree *m_offlinetree;
+        TTree *m_offlinetree = nullptr;
         std::vector<int> m_offline_n_holes;
         std::vector<int> m_offline_n_measurement;
         std::vector<int> m_offline_n_inertmaterial;

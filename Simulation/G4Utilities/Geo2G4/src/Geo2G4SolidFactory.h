@@ -9,9 +9,8 @@
 #include <string>
 
 #include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/StatusCode.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArWheelSolid_type.h"
 
@@ -19,7 +18,7 @@ class G4VSolid;
 class GeoShape;
 class GeoUnidentifiedShape;
 struct EMECData;
-class Geo2G4SolidFactory
+class Geo2G4SolidFactory : public AthMessaging
 {
 public:
   	typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
@@ -28,10 +27,6 @@ public:
 
   Geo2G4SolidFactory();
   G4VSolid* Build(const GeoShape*, std::string name=std::string("")) const;
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
   /** @brief The standard @c StoreGateSvc/DetectorStore
     * Returns (kind of) a pointer to the @c StoreGateSvc
@@ -41,10 +36,7 @@ private:
    G4VSolid* createLArWheelSolid(const std::string& name, const LArWheelSolidDef_t & lwsdef, const EMECData &emecData) const;
    G4VSolid* createLArWheelSliceSolid(const GeoUnidentifiedShape* ,const EMECData &emecData) const;
 
-  static const LArWheelSolid_typemap s_lwsTypes;
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
+   static const LArWheelSolid_typemap s_lwsTypes;
    /// Pointer to StoreGate (detector store by default)
    mutable StoreGateSvc_t m_detStore;
 };

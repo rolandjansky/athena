@@ -76,9 +76,9 @@ namespace met{
     METAssociationTool(const std::string& name);
 
     // AsgTool Hooks
-    StatusCode initialize();
-    StatusCode execute() const;
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() const override;
+    virtual StatusCode finalize() override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -100,23 +100,19 @@ namespace met{
     StatusCode buildMET(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
 
     // Data members
-    std::string m_metsuffix;
-    std::string m_mapname;
-    std::string m_corename;
-    SG::WriteHandleKey<xAOD::MissingETContainer> m_corenameKey;
-    SG::WriteHandleKey<xAOD::MissingETAssociationMap> m_mapnameKey;
+    Gaudi::Property<std::string> m_metSuffix{this, "METSuffix", "AntiKt4LCTopo", "MET suffix"};
+    SG::WriteHandleKey<xAOD::MissingETContainer> m_coreKey{this, "CoreOutputKey", "", ""};
+    SG::WriteHandleKey<xAOD::MissingETAssociationMap> m_mapKey{this, "AssociationOutputKey", "", ""};
 
-
-    bool m_overwrite;
-
-    ToolHandleArray<IMETAssocToolBase> m_metassociators;
+    Gaudi::Property<bool> m_overwrite{this, "AllowOverwrite", false, ""};
+    ToolHandleArray<IMETAssocToolBase> m_metAssociators{this, "METAssociators", {}, ""};
 
     // Monitor timing
-    int m_timedetail;
+    Gaudi::Property<int> m_timeDetail{this, "TimingDetail", 0, ""};
 
     mutable std::atomic<unsigned int> m_nevt;
     mutable TStopwatch m_clock;
-    mutable std::vector<TStopwatch> m_toolclocks;
+    mutable std::vector<TStopwatch> m_toolClocks;
   }; 
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_PHYSICSVALIDATIONUSERACTION_H
@@ -26,11 +26,11 @@ class TTree;
 #include "G4UserRunAction.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4UserTrackingAction.hh"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA{
   namespace iGeant4 {
-    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction
+    class PhysicsValidationUserAction: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction, public G4UserTrackingAction, public AthMessaging
     {
 
     public:
@@ -117,10 +117,6 @@ namespace G4UA{
       mutable int m_currentTrack;
       std::map<int, int> m_trackGenMap;
       
-      /// Log a message using the Athena controlled logging system
-      MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-      mutable Athena::MsgStreamMember m_msg;
     }; // class PhysicsValidationUserAction
 
   } // namespace iGeant4

@@ -5,38 +5,35 @@
 #ifndef TRTSTRAWCONDALG_H
 #define TRTSTRAWCONDALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_ConditionsData/AliveStraws.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
-#include "Gaudi/Property.h"
+#include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
+#include "TRT_ConditionsData/StrawStatusSummary.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 class TRT_ID;
 
-class TRTStrawCondAlg : public AthAlgorithm
+class TRTStrawCondAlg : public AthReentrantAlgorithm
 {
  public:
-  typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer ;
+  typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer;
+
   TRTStrawCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~TRTStrawCondAlg() override;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
-  virtual int findArrayTotalIndex(const int det, const int lay) const;
-  virtual int findArrayLocalWheelIndex(const int det, const int lay) const;
+  virtual StatusCode execute(const EventContext &ctx) const override;
 
+  int findArrayTotalIndex(const int det, const int lay) const;
+  int findArrayLocalWheelIndex(const int det, const int lay) const;
 
  private:
-  SG::ReadCondHandleKey<StrawStatusContainer> m_strawReadKey{this,"StrawReadKey","/TRT/Cond/Status","Straw Status in-key"};
   SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
+  SG::ReadCondHandleKey<TRTCond::StrawStatusSummary> m_strawStatusSummaryKey{this, "StrawStatusSummarKey", "StrawStatusSummary", "Key of StrawStatusSummary"};
   SG::WriteCondHandleKey<TRTCond::AliveStraws> m_strawWriteKey{this,"StrawWriteKey","AliveStraws","AliveStraws out-key"};
 
-  ToolHandle<ITRT_StrawStatusSummaryTool> m_strawStatus;
   const TRT_ID *m_trtId{};
-
 };
 #endif

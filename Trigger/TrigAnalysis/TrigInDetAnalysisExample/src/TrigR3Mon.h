@@ -19,9 +19,6 @@
 
 #include <string>
 
-
-// #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
 #include "TrigInDetAnalysis/TrackFilter.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
@@ -34,8 +31,6 @@
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaR.h"
 #include "TrigInDetAnalysisUtils/TrackMatchDeltaRCosmic.h"
 
-// #include "TrigInDetAnalysisExample/SigAnalysis.h"
-// #include "TrigInDetAnalysisExample/TrackEfficiency.h"
 #include "TrigInDetAnalysisExample/AnalysisConfig_Tier0.h"
 
 
@@ -49,7 +44,6 @@ public:
   virtual ~TrigR3Mon();
 
   virtual StatusCode initialize() override;
-//  virtual StatusCode execute();
   virtual StatusCode fillHistograms(const EventContext &context) const override;
   virtual StatusCode finalize() override;
 
@@ -94,24 +88,16 @@ protected:
   int   m_trtHitsOffline; // high threshold hits
   int m_strawHitsOffline; // total number of straws
 
-  // roi size
-  //  double m_phiWidth;
-  //  double m_etaWidth;
-  //  double m_zedWidth;
-
   // matching parameters
   double m_matchR;   // for DeltaR matcher
   double m_matchPhi; // for DeltaPhi matcher
 
   ToolHandle<Trig::TrigDecisionTool> m_tdt;
 
-
-  TIDARoiDescriptor m_roiInfo;
-
   std::vector<TrackFilter*>  m_filters;
   std::vector<TrackAssociator*>                 m_associators;
 
-  /// dpo we need this ??? why not the base class ???
+  /// do we need this ??? why not the base class ???
   std::vector<T_AnalysisConfig<AthReentrantAlgorithm>*>   m_sequences;
 
   std::vector<std::string> m_chainNames;
@@ -127,7 +113,7 @@ protected:
   bool        m_genericFlag;
 
   bool        m_initialisePerRun;
-  bool        m_firstRun;
+  mutable bool        m_firstRun;
 
   //pdgId
   int m_selectTruthPdgId;
@@ -167,7 +153,14 @@ protected:
 
   bool         m_legacy;
 
-  //  ToolHandleArray<GenericMonitoringTool> m_monTool { this, "MonTools", "", "chain monitor tool handles" };
+  /// ntuple building variables
+
+  double       m_fiducial_radius;
+
+  bool         m_requireDecision;
+
+  bool         m_filter_on_roi;
+
   ToolHandleArray<GenericMonitoringTool> m_monTools { this, "MonTools", {} }; // insane configuration paradigm ?
 
 };

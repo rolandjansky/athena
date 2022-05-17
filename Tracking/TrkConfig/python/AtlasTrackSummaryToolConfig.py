@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -44,11 +44,8 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
                                                           doSharedHits=False,
                                                           doHolesInDet=True,
                                                           doHolesMuon=False,
-                                                          AddDetailedInDetSummary=True,
                                                           AddDetailedMuonSummary=True,
                                                           InDetSummaryHelperTool=indet_track_summary_helper_tool,
-                                                          TRT_ElectronPidTool=None,
-                                                          PixelToTPIDTool=None,
                                                           MuonSummaryHelperTool=muon_track_summary_helper_tool,
                                                           PixelExists=True)
     result.setPrivateTools(track_summary_tool)

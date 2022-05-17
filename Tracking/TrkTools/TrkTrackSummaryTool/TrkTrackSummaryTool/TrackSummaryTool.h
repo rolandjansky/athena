@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKSUMMARYTOOL_H
@@ -201,10 +201,6 @@ private:
                      const Trk::PRDtoTrackMap* pPrdToTrackMap,
                      bool suppress_hole_search) const;
 
-  void updateAdditionalInfo(const Track& track,
-                            TrackSummary& summary,
-                            bool initialise_to_zero) const;
-
   /** use this method to update a track. this means a tracksummary is created
   for this track but not returned. the summary can then be obtained from the
   track. Because it is taken from the track the ownership stays with the track
@@ -227,13 +223,6 @@ private:
   /**tool to decipher ID RoTs*/
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_idTool{ this, "InDetSummaryHelperTool", "", "" };
-  /**tool to calculate electron probabilities*/
-  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,
-                                                       "TRT_ElectronPidTool",
-                                                       "",
-                                                       "" };
-  /**tool to calculate dE/dx using pixel clusters*/
-  ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
   /**tool to decipher muon RoTs*/
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_muonTool{ this, "MuonSummaryHelperTool", "", "" };
@@ -252,11 +241,6 @@ private:
                                            "AddExpectedHits",
                                            false,
                                            "" };
-  /** controls whether the detailed summary is added for the indet */
-  Gaudi::Property<bool> m_addInDetDetailedSummary{ this,
-                                                   "AddDetailedInDetSummary",
-                                                   true,
-                                                   "" };
   /** controls whether the detailed summary is added for the muons */
   Gaudi::Property<bool> m_addMuonDetailedSummary{ this,
                                                   "AddDetailedMuonSummary",

@@ -533,11 +533,14 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonAuxContainer#HLT_MuonsIsoAux.ptcone02.ptcone03',                 'BS ESD AODFULL AODSLIM', 'Muon'),
 
     # Muon track particle containers (combined (x2: FS+RoI), extrapolated (x2: FS+RoI), MSonly (x1: FS))
-    ('xAOD::TrackParticleContainer#HLT_CBCombinedMuon_RoITrackParticles',                     'BS ESD AODFULL', 'Muon', 'inViews:MUEFCBViewRoIs'),
-    ('xAOD::TrackParticleAuxContainer#HLT_CBCombinedMuon_RoITrackParticlesAux.',              'BS ESD AODFULL', 'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_CBCombinedMuon_RoITrackParticles',                     'BS ESD AODFULL AODSLIM', 'Muon', 'inViews:MUEFCBViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_CBCombinedMuon_RoITrackParticlesAux.',              'BS ESD AODFULL AODSLIM', 'Muon'),
 
-    ('xAOD::TrackParticleContainer#HLT_CBCombinedMuon_FSTrackParticles',                      'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_CBCombinedMuon_FSTrackParticlesAux.',               'BS ESD AODFULL', 'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_CBCombinedMuon_LRTTrackParticles',                     'BS ESD AODFULL AODSLIM', 'Muon', 'inViews:MUEFCBLRTViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_CBCombinedMuon_LRTTrackParticlesAux.',              'BS ESD AODFULL AODSLIM', 'Muon'),
+
+    ('xAOD::TrackParticleContainer#HLT_CBCombinedMuon_FSTrackParticles',                      'BS ESD AODFULL AODSLIM', 'Muon', 'inViews:MUCBFSViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_CBCombinedMuon_FSTrackParticlesAux.',               'BS ESD AODFULL AODSLIM', 'Muon'),
 
     ('xAOD::TrackParticleContainer#HLT_MSExtrapolatedMuons_RoITrackParticles',                'BS ESD AODFULL', 'Muon', 'inViews:MUEFSAViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_MSExtrapolatedMuons_RoITrackParticlesAux.',         'BS ESD AODFULL', 'Muon'),

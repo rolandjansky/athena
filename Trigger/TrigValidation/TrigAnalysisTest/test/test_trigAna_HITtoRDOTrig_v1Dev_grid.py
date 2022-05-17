@@ -4,6 +4,7 @@
 # art-description: Test of transform HITS->RDO followed by RDO->RDO_TRIG
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 4
 # art-memory: 6000
 # art-output: *.txt

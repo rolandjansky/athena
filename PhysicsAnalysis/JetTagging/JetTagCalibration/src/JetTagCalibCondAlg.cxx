@@ -543,8 +543,8 @@ namespace Analysis {
                 TTree *tree = dynamic_cast<TTree*>(hPointer.get());
                 if (tree) {
                   ATH_MSG_DEBUG("#BTAG# The TTree to build the BDT for " << tagger<< " is valid");
-                  MVAUtils::BDT* bdt = new MVAUtils::BDT(tree); //Bdt deletion in JetTagCalibCondData destructor
-                  writeCdo->addBdt(tagger,channel,bdt);
+                  auto bdt = std::make_unique<MVAUtils::BDT>(tree);
+                  writeCdo->addBdt(tagger,channel,std::move(bdt));
                 }
                 TObjArray * toa = dynamic_cast<TObjArray*>(hPointer.get());
                 if (toa) {
@@ -592,7 +592,7 @@ namespace Analysis {
                   ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
                   smoothAndNormalizeHistogram(h, hname);
                 }
-                writeCdo->addHisto(i,fname,h); //Histo deletion in JetTagCalibCondData destructor
+                writeCdo->addHisto(i,fname, std::move(std::unique_ptr<TH1>(h)));
               }
           } else {
             ATH_MSG_WARNING("#BTAG# TObject can not be loaded. Error: histogram "<<hFullName

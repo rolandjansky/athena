@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "TrigEgammaMonitorTopoAlgorithm.h"
 #include "TrigDecisionTool/FeatureRequestDescriptor.h"
@@ -157,7 +159,7 @@ bool TrigEgammaMonitorTopoAlgorithm::match( const xAOD::IParticleContainer &cont
 
 //!=========================================================================
 
-void TrigEgammaMonitorTopoAlgorithm::make_legs( std::string trigger, 
+void TrigEgammaMonitorTopoAlgorithm::make_legs( const std::string& trigger, 
                                                  std::string key_leg0,
                                                  std::string key_leg1,
                                                  std::vector<Legs> &legs_vec ) const
@@ -168,14 +170,14 @@ void TrigEgammaMonitorTopoAlgorithm::make_legs( std::string trigger,
   frd_leg0.reset();
   frd_leg0.setChainGroup(trigger);
   frd_leg0.setCondition(TrigDefs::Physics); // Only fired trigger
-  frd_leg0.setRequireSGKey( TrigEgammaMonitorBaseAlgorithm::match()->key(key_leg0));
+  frd_leg0.setRequireSGKey( TrigEgammaMonitorBaseAlgorithm::match()->key(std::move(key_leg0)));
   frd_leg0.setRestrictRequestToLeg(0);
   
   Trig::FeatureRequestDescriptor frd_leg1;
   frd_leg1.reset();
   frd_leg1.setChainGroup(trigger);
   frd_leg1.setCondition(TrigDefs::Physics); // Only fired trigger
-  frd_leg1.setRequireSGKey( TrigEgammaMonitorBaseAlgorithm::match()->key(key_leg1));
+  frd_leg1.setRequireSGKey( TrigEgammaMonitorBaseAlgorithm::match()->key(std::move(key_leg1)));
   frd_leg1.setRestrictRequestToLeg(1);
 
   // Get all combinations given by the L1

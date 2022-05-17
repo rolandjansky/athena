@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD followed by HLT monitoring step with Run-3 DQ framework
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 4
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.

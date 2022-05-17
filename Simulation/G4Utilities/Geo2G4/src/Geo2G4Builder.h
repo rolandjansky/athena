@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_Geo2G4Builder_H
@@ -17,7 +17,7 @@
 // Typedef
 #include "GeoModelUtilities/GeoBorderSurfaceContainer.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -28,7 +28,7 @@
 class GeoMaterial;
 class StoreGateSvc;
 
-class Geo2G4Builder {
+class Geo2G4Builder : public AthMessaging {
 
 public:
   // Constructor:
@@ -47,10 +47,6 @@ public:
   VolumeBuilder*        GetVolumeBuilder(std::string);
 
   HepGeom::Transform3D GetDetectorTransform() {return Amg::EigenTransformToCLHEP(m_motherTransform);}
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
 private:
 
@@ -63,9 +59,6 @@ private:
   // std::Air in the case when top boolean envelope has to be built
   const GeoMaterial* m_matAir;
   StoreGateSvc* m_pDetStore;
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 };
 
 #endif

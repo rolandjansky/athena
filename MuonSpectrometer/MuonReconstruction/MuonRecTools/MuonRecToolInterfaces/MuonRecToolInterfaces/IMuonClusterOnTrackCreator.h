@@ -56,14 +56,15 @@ namespace Muon {
             @return Fully calibrated Muon::MuonClusterOnTrack.
                     The memory management of the new Muon::MuonClusterOnTrack is passed to the person calling the function.
         */
-        virtual const MuonClusterOnTrack* calibratedCluster(const Trk::PrepRawData& DC, const Amg::Vector3D& GP) const;
+        virtual const MuonClusterOnTrack* calibratedCluster(const Trk::PrepRawData& DC, const Amg::Vector3D& GP, const Amg::Vector3D& GD) const;
     };
 
     inline const InterfaceID& IMuonClusterOnTrackCreator::interfaceID() { return IID_IMuonClusterOnTrackCreator; }
 
     inline const MuonClusterOnTrack* IMuonClusterOnTrackCreator::calibratedCluster(const Trk::PrepRawData& DC,
-                                                                                   const Amg::Vector3D& GP) const {
-        return createRIO_OnTrack(DC, GP);
+                                                                                   const Amg::Vector3D& GP,
+                                                                                   const Amg::Vector3D& GD) const {
+        return createRIO_OnTrack(DC, GP, GD);
     }
 
 }  // namespace Muon

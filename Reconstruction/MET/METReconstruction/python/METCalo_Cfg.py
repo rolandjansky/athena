@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METRecoCfg import BuildConfig, METConfig,getMETRecoAlg
@@ -31,6 +31,8 @@ def METCalo_Cfg(configFlags):
     ############################################################################
     # Calo regions
     #SWITCH OFF CELLS WHEN RUNNING ON AOD
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    components.merge(CaloNoiseCondAlgCfg(configFlags, 'totalNoise'))
     cfg_calo = METConfig('Calo',configFlags,
                      [BuildConfig('CaloReg')],
                      doCells=False

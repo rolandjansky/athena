@@ -11,16 +11,16 @@
 #ifndef METUTILITIES_METSYSTEMATICSTOOL_H
 #define METUTILITIES_METSYSTEMATICSTOOL_H
 
-class TH3D;
-class TH2D;
-class TH1D;
-
 #include "METInterface/IMETSystematicsTool.h"
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "AsgTools/AsgTool.h"
 
 #include "PATInterfaces/SystematicsTool.h"
 
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
 #include "TRandom3.h"
 
 #include "xAODTracking/VertexContainer.h"
@@ -107,7 +107,6 @@ namespace met {
 
     //required  asg tool interface functions
     StatusCode  initialize();
-    StatusCode  finalize();
 
     //required correction tool functions
     //we don't inherit from CorrectionTool directly, since we don't want to implement applyContainerCorrection
@@ -134,7 +133,7 @@ namespace met {
     METSystematicsTool();
 
     //this saves the the currently applied systematic as an enum for faster lookup
-    SystApplied m_appliedSystEnum;
+    SystApplied m_appliedSystEnum{NONE};
 
     //these are the internal computation functions
     CP::CorrectionCode internalSoftTermApplyCorrection(xAOD::MissingET& softMet,
@@ -147,38 +146,32 @@ namespace met {
     TRandom3* getTLSRandomGen() const;
 
     //declared properties
-    std::string m_configPrefix;
-    std::string m_configSoftTrkFile;
-    std::string m_configJetTrkFile;
-    std::string m_configSoftCaloFile;
-    std::string m_truthCont;
-    std::string m_truthObj;
-    std::string m_vertexCont;
-    std::string m_eventInfo;
-    int         m_randSeed ;
-    bool        m_useDevArea;
+    Gaudi::Property<std::string> m_configPrefix{this, "ConfigPrefix", "METUtilities/data16_13TeV/rec_Dec16v1", ""};
+    Gaudi::Property<std::string> m_configSoftTrkFile{this, "ConfigSoftTrkFile", "TrackSoftTerms.config", ""}; // TrackSoftTerms_afii.config for AFII
+    Gaudi::Property<std::string> m_configJetTrkFile{this, "ConfigJetTrkFile", "", ""};
+    Gaudi::Property<std::string> m_configSoftCaloFile{this, "ConfigSoftCaloFile", "", ""}; // METRefFinal_Obsolete2012_V2.config
+    Gaudi::Property<bool> m_useDevArea{this, "UseDevArea", false, ""};
 
-    TH3D* m_shiftpara_pthard_njet_mu;
-    TH3D* m_resopara_pthard_njet_mu;
-    TH3D* m_resoperp_pthard_njet_mu;
-    TH2D* m_jet_systRpt_pt_eta;
-    TH1D* m_h_calosyst_scale;
-    TH1D* m_h_calosyst_reso;
+    std::unique_ptr<TH3D> m_shiftpara_pthard_njet_mu{};
+    std::unique_ptr<TH3D> m_resopara_pthard_njet_mu{};
+    std::unique_ptr<TH3D> m_resoperp_pthard_njet_mu{};
+    std::unique_ptr<TH2D> m_jet_systRpt_pt_eta{};
+    std::unique_ptr<TH1D> m_h_calosyst_scale{};
+    std::unique_ptr<TH1D> m_h_calosyst_reso{};
 
     mutable boost::thread_specific_ptr<TRandom3> m_rand_tls; // thread-specific random number generator
 
     //internal property
-    int m_units;//by default = -1, not set.  Set to 1 (MeV) if not value found in config file
+    int m_units{-1};//by default = -1, not set.  Set to 1 (MeV) if not value found in config file
 
     int getNPV() const;
     xAOD::EventInfo const * getDefaultEventInfo() const;
 
 
     //Read/write handles
-    SG::ReadHandleKey<xAOD::VertexContainer>  m_VertexContKey;
-    SG::ReadHandleKey<xAOD::MissingETContainer>  m_TruthContKey;
-    SG::ReadHandleKey<xAOD::EventInfo>  m_EventInfoKey;
-
+    SG::ReadHandleKey<xAOD::VertexContainer> m_VertexContKey{this, "VertexContainer", "PrimaryVertices", ""};
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_TruthContKey{this, "TruthContainer", "MET_Truth", ""};
+    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfo", "EventInfo", ""};
 
     StatusCode addMETAffectingSystematics();
     StatusCode extractHistoPath(std::string & histfile, std::string & systpath, std::string & configdir, std::string & suffix, SystType const & type);

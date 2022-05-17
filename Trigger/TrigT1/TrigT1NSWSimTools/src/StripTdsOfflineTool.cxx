@@ -138,7 +138,7 @@ namespace NSWL1 {
       m_strip_wedge->clear();
     }
 
-  void StripTdsOfflineTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripData>> &strip_cache) {
+  void StripTdsOfflineTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripData>> &strip_cache) const {
     for (const auto &hit : strip_cache) {
       m_nStripHits++;
       ATH_MSG_DEBUG("Hits :" << m_nStripHits << " Cache strip  " << hit.get() << "  " << strip_cache.size() );
@@ -155,7 +155,7 @@ namespace NSWL1 {
   }
 
 
-  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) {
+  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) const {
       ATH_MSG_DEBUG( "gather_strip_data: start gathering all strip htis");
 
       std::vector<std::unique_ptr<StripData>> strip_cache;
@@ -172,7 +172,7 @@ namespace NSWL1 {
   }
 
 
-    StatusCode StripTdsOfflineTool::fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers, std::vector<std::unique_ptr<StripData>> &strip_cache) {
+    StatusCode StripTdsOfflineTool::fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers, std::vector<std::unique_ptr<StripData>> &strip_cache) const {
       ATH_MSG_DEBUG( "fill_strip_cache: start filling the cache for STRIP hits" );
 
       if(m_isMC){

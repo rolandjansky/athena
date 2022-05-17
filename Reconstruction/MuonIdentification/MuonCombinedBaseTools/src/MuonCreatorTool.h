@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
@@ -193,6 +193,16 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_requireIDTracks{this, "RequireIDTrack", false};
 
         Gaudi::Property<float> m_sigmaCaloNoiseCut{this, "SigmaCaloNoiseCut", 3.4};
+
+        Gaudi::Property< std::vector<std::string> >  m_copyFloatSummaryKeys
+           {this,"CopyFloatSummaryKeys",{"TRTTrackOccupancy","eProbabilityComb","eProbabilityHT","pixeldEdx","TRTdEdx","eProbabilityNN"},
+            "List of float aux element names to copy over from ID track particle summaries."};
+        Gaudi::Property< std::vector<std::string> >  m_copyCharSummaryKeys
+           {this,"CopyUInt8SummaryKeys",{"numberOfUsedHitsdEdx","numberOfIBLOverflowsdEdx","TRTdEdxUsedHits"},
+            "List of uint8_t aux element names to copy over from ID track particle summaries."};
+
+        std::vector< std::unique_ptr<SG::AuxElement::Accessor<float> > >    m_copyFloatSummaryAccessors;
+        std::vector< std::unique_ptr<SG::AuxElement::Accessor<uint8_t> > >  m_copyCharSummaryAccessors;
 
         SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this, "CaloDetDescrManager", "CaloDetDescrManager"};
     };

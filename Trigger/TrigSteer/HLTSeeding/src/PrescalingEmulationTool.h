@@ -5,7 +5,7 @@
 #define HLTSEEDING_PRESCALINGEMULATIONTOOL_H
 
 // HLTSeeding includes
-#include "IPrescalingTool.h"
+#include "HLTSeeding/IPrescalingTool.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -37,7 +37,8 @@ public:
 
   virtual StatusCode prescaleChains( const EventContext& ctx,
                                      const HLT::IDVec& initiallyActive,
-                                     HLT::IDVec& remainActive ) const override;
+                                     HLT::IDVec& remainActive,
+                                     bool forExpressStream = false ) const override;
 
  private:
   PrescalingEmulationTool();

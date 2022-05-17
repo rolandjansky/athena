@@ -95,9 +95,9 @@ def ActsTrackingGeometryToolCfg(configFlags, name = "ActsTrackingGeometryTool" )
   
   Acts_ActsTrackingGeometryTool = CompFactory.ActsTrackingGeometryTool
   actsTrackingGeometryTool = Acts_ActsTrackingGeometryTool(name)
-  result.addPublicTool(actsTrackingGeometryTool)
+  result.addPublicTool(actsTrackingGeometryTool, primary=True)
   
-  return result, actsTrackingGeometryTool
+  return result
 
 def NominalAlignmentCondAlgCfg(configFlags, name = "NominalAlignmentCondAlg", **kwargs) :
   result = ComponentAccumulator()
@@ -147,7 +147,7 @@ def ActsExtrapolationToolCfg(configFlags, name="ActsExtrapolationTool", **kwargs
   acc  = MagneticFieldSvcCfg(configFlags)
   result.merge(acc)
   
-  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  acc = ActsTrackingGeometryToolCfg(configFlags) 
   result.merge(acc)
   
   Acts_ActsExtrapolationTool = CompFactory.ActsExtrapolationTool
@@ -190,7 +190,7 @@ def ActsMaterialStepConverterToolCfg(name = "ActsMaterialStepConverterTool" ) :
 def ActsSurfaceMappingToolCfg(configFlags, name = "ActsSurfaceMappingTool" ) :
   result=ComponentAccumulator()
     
-  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  acc = ActsTrackingGeometryToolCfg(configFlags) 
   result.merge(acc)
 
   Acts_ActsSurfaceMappingTool = CompFactory.ActsSurfaceMappingTool
@@ -205,7 +205,7 @@ def ActsSurfaceMappingToolCfg(configFlags, name = "ActsSurfaceMappingTool" ) :
 def ActsVolumeMappingToolCfg(configFlags, name = "ActsVolumeMappingTool" ) :
   result=ComponentAccumulator()
     
-  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  acc = ActsTrackingGeometryToolCfg(configFlags) 
   result.merge(acc)
 
   Acts_ActsVolumeMappingTool = CompFactory.ActsVolumeMappingTool
@@ -258,3 +258,16 @@ def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs
   result.addEventAlgo(alg)
 
   return result
+
+def ActsATLASConverterToolCfg(flags, name="ActsATLASConverterTool", **kwargs):
+    result = ComponentAccumulator()
+
+    trkGeoTool = result.getPrimaryAndMerge(ActsTrackingGeometryToolCfg(flags))
+
+    result.setPrivateTools(
+        CompFactory.ActsATLASConverterTool(
+            name, TrackingGeometryTool=trkGeoTool, **kwargs
+        )
+    )
+
+    return result

@@ -235,6 +235,7 @@ def Run1xAODConversionCfg(flags):
     from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,TrackParticleCreatorToolCfg,RecTrackParticleContainerCnvToolCfg
     partCreatorTool = acc.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, 
                                                                           #name="InDetxAODParticleCreatorTool"
+                                                                          PixelToTPIDTool=None
                                                                           )
                                              )
     trackCollCnvTool = acc.popToolsAndMerge(TrackCollectionCnvToolCfg(flags,

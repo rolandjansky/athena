@@ -169,7 +169,7 @@ namespace InDet
      if(m_isConv) {
        if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){
          // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-         ratioTrk = tSum->getPID(Trk::eProbabilityHT);
+          ATH_MSG_FATAL( "eProbabilityHT not available for Trk::Tracks only xAOD::TrackParticle objects" );
        }
 
        // Start of track cuts
@@ -207,8 +207,9 @@ namespace InDet
 	       if(std::fabs(d0)>=m_sD0_Si*sd0 && std::fabs(z0)<=m_maxSiZ0 && pt>=m_minPt) pass = true;
        }
        ratioTrk = 1.0;
-       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	     ratioTrk = tSum->getPID(Trk::eProbabilityHT);
+       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) { // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
+          ATH_MSG_FATAL( "eProbabilityHT not available for Trk::Tracks only xAOD::TrackParticle objects" );
+       }
        if(ratioTrk>m_trRatioV0) pass = false;
      }
 
@@ -290,7 +291,7 @@ namespace InDet
      if(m_isConv){
        if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ){
          // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-         ratioTrk = tSum->getPID(Trk::eProbabilityHT);
+         ATH_MSG_FATAL( "eProbabilityHT not available for Trk::TrackParticleBase only xAOD::TrackParticle objects" );
        }
 
        // Start of track cuts
@@ -329,8 +330,9 @@ namespace InDet
        }
 
        ratioTrk = 1.0;
-       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	       ratioTrk = tSum->getPID(Trk::eProbabilityHT);
+       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) {// only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
+          ATH_MSG_FATAL( "eProbabilityHT not available for Trk::TrackParticleBase only xAOD::TrackParticle objects" );
+       }
        if(ratioTrk>m_trRatioV0) pass = false;
      }
    } else pass = false;

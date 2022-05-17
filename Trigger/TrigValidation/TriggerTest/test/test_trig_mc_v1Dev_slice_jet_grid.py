@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Trigger RDO->RDO_TRIG athena test of the jet slice in Dev_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log

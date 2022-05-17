@@ -201,7 +201,7 @@ def ClusterMonitoringConfig(inputFlags):
                             xbins=98,xmin=-4.9,xmax=4.9,ybins=64,ymin=-3.15,ymax=3.15, cutmask='Threshold2' )
     clustersCalBARGroup.defineHistogram('clusterEta,clusterPhi;Thresh3BAROcc', type='TH2F',title='Cluster Occupancy - Threshold='+str(clusterMonAlg.medhiEthresh)+' GeV;eta;phi',
                             xbins=98,xmin=-4.9,xmax=4.9,ybins=64,ymin=-3.15,ymax=3.15, cutmask='Threshold3' )			   			    
-    clustersCalBARGroup.defineHistogram('clusterEta,clusterPhi;Thresh4BAROCc', type='TH2F',title='Cluster Occupancy - Threshold='+str(clusterMonAlg.hiEthresh)+' GeV;eta;phi',
+    clustersCalBARGroup.defineHistogram('clusterEta,clusterPhi;Thresh4BAROcc', type='TH2F',title='Cluster Occupancy - Threshold='+str(clusterMonAlg.hiEthresh)+' GeV;eta;phi',
                             xbins=98,xmin=-4.9,xmax=4.9,ybins=64,ymin=-3.15,ymax=3.15, cutmask='Threshold4' )			   			    
 
     clustersCalBARGroup.defineHistogram('clusterEta,clusterPhi,clusterE;Thresh0BARAveE', type='TProfile2D',title='Average Cluster Energy - No Threshold;eta;phi',
@@ -301,7 +301,7 @@ def ClusterMonitoringConfig(inputFlags):
                             xbins=98,xmin=-4.9,xmax=4.9,ybins=64,ymin=-3.15,ymax=3.15, cutmask='EMThreshold2' )
     clustersEMBARGroup.defineHistogram('emclusterEta,emclusterPhi;EMThresh3BAROcc', type='TH2F',title='EM Cluster Occupancy - Threshold='+str(clusterMonAlg.EMmedhiEthresh)+' GeV;eta;phi',
                             xbins=98,xmin=-4.9,xmax=4.9,ybins=64,ymin=-3.15,ymax=3.15, cutmask='EMThreshold3' )
-    clustersEMBARGroup.defineHistogram('emclusterEta,emclusterPhi;EMThresh4BAROCc', type='TH2F',title='EM Cluster Occupancy - Threshold='+str(clusterMonAlg.EMhiEthresh)+' GeV;eta;phi',
+    clustersEMBARGroup.defineHistogram('emclusterEta,emclusterPhi;EMThresh4BAROcc', type='TH2F',title='EM Cluster Occupancy - Threshold='+str(clusterMonAlg.EMhiEthresh)+' GeV;eta;phi',
                             xbins=98,xmin=-4.9,xmax=4.9,ybins=64,ymin=-3.15,ymax=3.15, cutmask='EMThreshold4' )
 
     clustersEMBARGroup.defineHistogram('emclusterEta,emclusterPhi,emclusterE;EMThresh0BARAveE', type='TProfile2D',title='Average EM Cluster Energy - No Threshold;eta;phi',

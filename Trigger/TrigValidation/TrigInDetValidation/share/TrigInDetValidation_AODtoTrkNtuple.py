@@ -93,12 +93,12 @@ if doNewTier0Mon :
 ############ TrigInDetAnalysis part ################################
 
 if ( True ) :
-  from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestMonToolAC
-  TestMonTool = TrigTestMonToolAC( name="TestMonToolAC")
+  from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigR3Mon
+  TestMonTool = TrigR3Mon( name="TrigR3Mon")
   TestMonTool.buildNtuple = True
   TestMonTool.AnalysisConfig = "nTuple" #Change to Tier0 for T0 Analysis
   TestMonTool.EnableLumi = False
-  TestMonTool.RequireDecision = False
+# TestMonTool.RequireDecision = False
   TestMonTool.mcTruth = True
   TestMonTool.ntupleChainNames = ['']
 
@@ -161,9 +161,6 @@ if ( True ) :
 
     "Taus:Medium:1Prong",
     "Taus:Tight:1Prong",
-
-    "Electron:Tight",
-    "Electron:Medium",
 
     #    ":HLT_IDTrack_FS_FTF",
     #    ":HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
@@ -272,7 +269,7 @@ if ( True ) :
   d = release_metadata()
   TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
   TestMonTool.outputFileName="TrkNtuple.root"
-  HLTMonManager.AthenaMonTools += [ TestMonTool ]
+  algseq += [ TestMonTool ]
   print (TestMonTool)
 
 

@@ -8,10 +8,7 @@ namespace NSWL1 {
 
   StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_tree(nullptr),
-    m_zbounds({-1,1}),
-    m_etabounds({-1,1}),
-    m_rbounds({-1,-1})
+    m_tree(nullptr)
   {
     declareInterface<NSWL1::IStripSegmentTool>(this);
   }
@@ -46,7 +43,7 @@ namespace NSWL1 {
     }
   }
 
-  StatusCode StripSegmentTool::FetchDetectorEnvelope(){
+  StatusCode StripSegmentTool::FetchDetectorEnvelope(std::pair<float, float> &rbounds, std::pair<float, float> &etabounds, std::pair<float, float> &zbounds) const {
     const MuonGM::MuonDetectorManager* p_det;
     ATH_CHECK(detStore()->retrieve(p_det));
     SG::ReadCondHandle<IRegSelLUTCondData> rh_stgcLUT(m_regSelTableKey);
@@ -76,26 +73,23 @@ namespace NSWL1 {
     std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->zMax()) > std::abs(M2->zMax());} );
     zmax=moduleList.at(0)->zMax();
 
-    if(rmin<=0 || rmax<=0){
-      ATH_MSG_FATAL("Unable to fetch NSW r/z boundaries");
-      return StatusCode::FAILURE;
-    }
-    m_rbounds= std::make_pair(rmin,rmax);
-    m_etabounds=std::make_pair(etamin,etamax);
-    m_zbounds=std::make_pair(zmin,zmax);
-    ATH_MSG_DEBUG("rmin=" << m_rbounds.first << " rmax=" << m_rbounds.second << " zmin=" << zmin << " zmax=" << zmax << " etamin=" << etamin << " etamax=" << etamax);
+    if(rmin<=0 || rmax<=0) ATH_MSG_WARNING("Unable to fetch NSW r/z boundaries");
+    rbounds= std::make_pair(rmin,rmax);
+    etabounds=std::make_pair(etamin,etamax);
+    zbounds=std::make_pair(zmin,zmax);
+    ATH_MSG_DEBUG("rmin=" << rmin << " rmax=" << rmax << " zmin=" << zmin << " zmax=" << zmax << " etamin=" << etamin << " etamax=" << etamax);
     return StatusCode::SUCCESS;
   }
 
-  uint8_t StripSegmentTool::findRIdx(const float& val) const {
+  uint8_t StripSegmentTool::findRIdx(const float& val, const std::pair<float, float> &rbounds, const std::pair<float, float> &etabounds) const {
     unsigned int nSlices=(1<<m_rIndexBits); //256
     std::pair<float,float> range;
     switch(m_ridxScheme){
       case 0:
-        range=m_rbounds;
+        range=rbounds;
         break;
       case 1:
-        range=m_etabounds;
+        range=etabounds;
         break;
       default:
         break;
@@ -120,10 +114,9 @@ namespace NSWL1 {
   }
 
   StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters,
-                                             const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer){
-    const auto& ctx = Gaudi::Hive::currentContext();
-    int event = ctx.eventID().event_number();
-    if (event == 0) ATH_CHECK(FetchDetectorEnvelope());
+                                             const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer) const {
+    std::pair<float, float> rbounds, etabounds, zbounds;
+    ATH_CHECK(FetchDetectorEnvelope(rbounds, etabounds, zbounds));
 
     if (clusters.empty()) {
       ATH_MSG_WARNING("Received event with no clusters. Skipping...");
@@ -201,7 +194,6 @@ namespace NSWL1 {
         gly1+=cl->globY()*cl->charge();
         charge1+=cl->charge();
         sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
-	sectorID--; // ID should start from zero
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
       }
@@ -215,7 +207,6 @@ namespace NSWL1 {
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
         sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
-	sectorID--; // ID should start from zero
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
         if (( sectorID != trgRawData->sectorId() ) ||
@@ -258,9 +249,9 @@ namespace NSWL1 {
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
 
-      float rfar=m_zbounds.second*std::abs(std::tan(theta_inf));
+      float rfar=zbounds.second*std::abs(std::tan(theta_inf));
 
-      if( rfar >= m_rbounds.second || rfar < m_rbounds.first || std::abs(eta_inf) >= m_etabounds.second || std::abs(eta_inf) < m_etabounds.first){
+      if( rfar >= rbounds.second || rfar < rbounds.first || std::abs(eta_inf) >= etabounds.second || std::abs(eta_inf) < etabounds.first){
         ATH_MSG_WARNING("measured r/eta is out of detector envelope!");
         return StatusCode::SUCCESS;
       }
@@ -268,10 +259,10 @@ namespace NSWL1 {
       uint8_t rIndex=0;
       switch(m_ridxScheme) {
         case 0:
-          rIndex=findRIdx(rfar);
+          rIndex=findRIdx(rfar, rbounds, etabounds);
           break;
         case 1:
-          rIndex=findRIdx(std::abs(eta_inf));
+          rIndex=findRIdx(std::abs(eta_inf), rbounds, etabounds);
           break;
         default:
           break;

@@ -4,6 +4,7 @@
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1, MC_pp_run3_v1 and AODSLIM
 # art-type: build
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 

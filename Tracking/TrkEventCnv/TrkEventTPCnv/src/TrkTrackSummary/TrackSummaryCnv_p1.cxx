@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummary/TrackSummary.h"
@@ -23,22 +23,13 @@ void TrackSummaryCnv_p1::persToTrans( const Trk::TrackSummary_p1 *persObj,
     }
 
    transObj->m_idHitPattern      = persObj->m_idHitPattern;
-   transObj->m_eProbability      = persObj->m_eProbability;
-   transObj->m_indetTrackSummary.reset(createTransFromPStore( &m_indetSummaryCnv, persObj->m_indetTrackSummary, log ));
    transObj->m_muonTrackSummary.reset(createTransFromPStore( &m_muonSummaryCnv, persObj->m_muonTrackSummary, log ));
-   transObj->m_dedx              = persObj->m_pixeldEdx;
-   transObj->m_nhitsdedx         = persObj->m_nhitsfordEdx;
 }
-
 
 void TrackSummaryCnv_p1::transToPers( const Trk::TrackSummary    *transObj,
                                             Trk::TrackSummary_p1 *persObj, MsgStream & log )
 {
    persObj->m_information       = transObj->m_information;
    persObj->m_idHitPattern      = transObj->m_idHitPattern;
-   persObj->m_eProbability      = transObj->m_eProbability;
-   persObj->m_indetTrackSummary = toPersistent( &m_indetSummaryCnv, transObj->m_indetTrackSummary.get(), log );
    persObj->m_muonTrackSummary  = toPersistent( &m_muonSummaryCnv, transObj->m_muonTrackSummary.get(), log );
-   persObj->m_pixeldEdx         = transObj->m_dedx;
-   persObj->m_nhitsfordEdx      = transObj->m_nhitsdedx;
 }

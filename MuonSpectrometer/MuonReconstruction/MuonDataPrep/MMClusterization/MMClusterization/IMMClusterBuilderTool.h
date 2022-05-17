@@ -37,7 +37,7 @@ namespace Muon {
 					  Amg::Vector2D& clusterLocalPosition, Amg::MatrixX* covMatrix) const;
     
     virtual StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&,
-						    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
+						   const float thetaEstimate, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
 
     
   };
@@ -52,9 +52,10 @@ namespace Muon {
   }
 
   inline StatusCode IMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>& strips,
-									Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const
+								const float thetaEstimate	, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const
   {
     (void)cluster;
+    (void) thetaEstimate;
     strips.clear();
     covMatrix = Amg::MatrixX(1,1);
     clusterLocalPosition = Amg::Vector2D(0.0,0.0);

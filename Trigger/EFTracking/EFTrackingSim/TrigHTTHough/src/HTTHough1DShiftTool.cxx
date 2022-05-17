@@ -25,14 +25,11 @@
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
 
-static inline std::string to_string(const std::vector<int> &v);
-static inline std::string to_string(const std::vector<size_t> &v);
 static inline std::string instance_name(std::string const & s);
 static inline float deltaPhi(float r, float qPt);
 static inline boost::dynamic_bitset<> lshift(boost::dynamic_bitset<> const & b, int n);
 static inline boost::dynamic_bitset<> rshift(boost::dynamic_bitset<> const & b, int n);
 static inline void updateBinHits(std::vector<boost::dynamic_bitset<>> & binHits, unsigned layer, boost::dynamic_bitset<> const & b);
-static inline int layersHit(HTTRoad& r);
 
 static const float A = 0.0003;
 
@@ -452,34 +449,6 @@ std::pair<float, bool> HTTHough1DShiftTool::phitrk(int bin, std::vector<int> con
   return {phi_track,true};
 }
 
-
-
-static inline std::string to_string(const std::vector<int> &v)
-{
-  std::ostringstream oss;
-  oss << "[";
-  if (!v.empty())
-    {
-      std::copy(v.begin(), v.end()-1, std::ostream_iterator<int>(oss, ", "));
-      oss << v.back();
-    }
-  oss << "]";
-  return oss.str();
-}
-
-static inline std::string to_string(const std::vector<size_t> &v)
-{
-  std::ostringstream oss;
-  oss << "[";
-  if (!v.empty())
-    {
-      std::copy(v.begin(), v.end()-1, std::ostream_iterator<size_t>(oss, ", "));
-      oss << v.back();
-    }
-  oss << "]";
-  return oss.str();
-}
-
 static inline std::string instance_name(std::string const & s)
 {
   size_t pos = s.find_last_of(".");
@@ -640,13 +609,4 @@ void HTTHough1DShiftTool::calculateDropable()
       
     }
   
-}
-
-
-static inline int layersHit(HTTRoad& r) {
-  int cnt =0;
-  for (unsigned i = 0; i < r.getNLayers(); i++) {
-    if (r.getHitLayers()  &  (1<<i)) cnt++;
-  }
-  return cnt;
 }

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.h 
@@ -33,11 +33,10 @@ namespace met{
 
     // Constructor with name
     METMuonAssociator(const std::string& name);
-    ~METMuonAssociator();
+    ~METMuonAssociator() = default;
 
     // AsgTool Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -80,12 +79,18 @@ namespace met{
 
     private:
 
-    bool m_doMuonClusterMatch;
-    bool m_useFEMuonLinks; 
+    Gaudi::Property<bool> m_doMuonClusterMatch{this, "DoClusterMatch", true, ""};
+    Gaudi::Property<bool> m_useFEMuonLinks{this, "UseFEMuonLinks", false, ""};
 
     /// Default constructor: 
-    METMuonAssociator();  
-    SG::ReadHandleKey<xAOD::MuonContainer> m_muContKey;
+    METMuonAssociator();
+
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muContKey{
+      this, 
+      "InputCollection",
+      "Muons",
+      "muons input key"
+    };
     SG::ReadDecorHandleKey<xAOD::MuonContainer> m_neutralFEReadDecorKey{
       this,
       "NeutralFEReadDecorKey",

@@ -134,8 +134,6 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     #
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", do_holes)
-    kwargs.setdefault("TRT_ElectronPidTool", None) # we don't want to use those tools during pattern
-    kwargs.setdefault("PixelToTPIDTool", None) # we don't want to use those tools during pattern
 
     acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name, **kwargs), primary=True)
     return acc
@@ -199,17 +197,6 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperSharedHitsCfg
         InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
-
-    if 'TRT_ElectronPidTool' not in kwargs:
-        if not flags.Detector.EnableTRT or flags.InDet.Tracking.doHighPileup:
-            kwargs.setdefault("TRT_ElectronPidTool", None)
-        else:
-            from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
-            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
-
-    if 'PixelToTPIDTool' not in kwargs:
-        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
-        kwargs.setdefault( "PixelToTPIDTool", InDetPixelToTPIDTool)
 
     kwargs.setdefault( "doSharedHits", flags.InDet.Tracking.doSharedHits)
 

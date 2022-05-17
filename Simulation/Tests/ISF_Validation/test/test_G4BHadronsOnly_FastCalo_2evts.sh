@@ -17,6 +17,7 @@ Sim_tf.py \
 --simulator 'G4BHadronsOnly_FastCalo' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
+--postExec 'EVNTtoHITS:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-07")' \
 --DataRunNumber '222525' \
 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_8TeV.208301.Pythia8B_AU2_CTEQ6L1_bb_m4mu4.evgen.EVNT.e1623_tid01053634_00.__018241.pool.root.1" \

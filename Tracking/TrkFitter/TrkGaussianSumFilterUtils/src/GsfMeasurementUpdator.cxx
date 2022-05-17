@@ -5,7 +5,7 @@
  * @file   GsfMeasurementUpdator.cxx
  * @date   Friday 25th February 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief  Implementation code for GsfMeasurementUpdator class
+ * @brief  Implementation code for Gsf Measurement Update
  */
 
 #include "TrkGaussianSumFilterUtils/GsfMeasurementUpdator.h"
@@ -28,7 +28,7 @@ const AmgVector(5) s_cov0Vec = [] {
   return tmp;
 }();
 const AmgMatrix(5, 5) s_unitMatrix(AmgMatrix(5, 5)::Identity());
-const AmgVector(2) thetaMin(0.0, -M_PI);
+const AmgVector(2) s_thetaMin(0.0, -M_PI);
 enum RangeCheckDef
 {
   absoluteCheck = 0,
@@ -46,52 +46,23 @@ struct componentsCache
   size_t numElements = 0;
 };
 
-/**
- * Avoid multiplications with sparse H matrices by cutting 2D rows&columns
- * out of the full cov matrix.
- */
-template<int DIM>
-AmgSymMatrix(DIM) projection_T(const AmgSymMatrix(5) & M, int key)
-{
-  if (key == 3 || key == 7 || key == 15) { // shortcuts for the most common use
-                                           // cases
-    return M.block<DIM, DIM>(0, 0);
-  } else {
-    Eigen::Matrix<int, DIM, 1, 0, DIM, 1> iv;
-    iv.setZero();
-    for (int i = 0, k = 0; i < 5; ++i) {
-      if (key & (1 << i))
-        iv[k++] = i;
-    }
-    AmgSymMatrix(DIM) covSubMatrix;
-    covSubMatrix.setZero();
-    for (int i = 0; i < DIM; ++i) {
-      for (int j = 0; j < DIM; ++j) {
-        covSubMatrix(i, j) = M(iv(i), iv(j));
-      }
-    }
-    return covSubMatrix;
-  }
-}
-
 /** Absolute phi values should be in [-pi, pi]
     absolute theta values should be in [0, +pi]
     phi differences should also be in [-pi, pi] - else go other way round,
     theta differences should be smaller than pi but can be negative
     => other constraint than absolute theta.
 */
-bool
+inline bool
 thetaPhiWithinRange_5D(const AmgVector(5) & V, const RangeCheckDef rcd)
 {
-  static const AmgVector(2) thetaMin(0.0, -M_PI);
-  return ((std::abs(V(Trk::phi)) <= M_PI) && (V(Trk::theta) >= thetaMin(rcd)) &&
-          (V(Trk::theta) <= M_PI));
+  return ((std::abs(V(Trk::phi)) <= M_PI) &&
+          (V(Trk::theta) >= s_thetaMin(rcd)) && (V(Trk::theta) <= M_PI));
 }
 
 /**
  * Test if theta angle is inside boundaries. No differential-check option.
  */
-bool
+inline bool
 thetaWithinRange_5D(const AmgVector(5) & V)
 {
   return (V(Trk::theta) >= 0.0 && (V(Trk::theta) <= M_PI));
@@ -104,7 +75,7 @@ correctThetaPhiRange_5D(AmgVector(5) & V,
 {
 
   // correct theta coordinate
-  if (V(Trk::theta) < thetaMin((int)rcd) || V(Trk::theta) > M_PI) {
+  if (V(Trk::theta) < s_thetaMin((int)rcd) || V(Trk::theta) > M_PI) {
     // absolute theta: repair if between -pi and +2pi.
     // differential theta: repair if between -pi and +pi
     if ((V(Trk::theta) < -M_PI) ||
@@ -136,7 +107,40 @@ correctThetaPhiRange_5D(AmgVector(5) & V,
 }
 
 /**
- * calculations for Kalman updator and inverse Kalman filter
+ * Avoid multiplications with sparse H matrices by cutting 2D rows&columns
+ * out of the full cov matrix.
+ */
+template<int DIM>
+AmgSymMatrix(DIM) projection_T(const AmgSymMatrix(5) & M, int key)
+{
+  if (key == 3 || key == 7 || key == 15) { // shortcuts for the most common use
+                                           // cases
+    return M.block<DIM, DIM>(0, 0);
+  } else {
+    Eigen::Matrix<int, DIM, 1, 0, DIM, 1> iv;
+    iv.setZero();
+    for (int i = 0, k = 0; i < 5; ++i) {
+      if (key & (1 << i))
+        iv[k++] = i;
+    }
+    AmgSymMatrix(DIM) covSubMatrix;
+    covSubMatrix.setZero();
+    for (int i = 0; i < DIM; ++i) {
+      for (int j = 0; j < DIM; ++j) {
+        covSubMatrix(i, j) = M(iv(i), iv(j));
+      }
+    }
+    return covSubMatrix;
+  }
+}
+
+/**
+ * calculations for  Kalman filter step
+ * formalism.
+ * We have specific method for 1D and 5D.
+ * The more usual/special cases.
+ * And also a templated method on DIM
+ * (for the 2D,3D,4D cases)
  */
 bool
 calculateFilterStep_1D(Trk::TrackParameters& TP,
@@ -296,64 +300,14 @@ calculateFilterStep_T(Trk::TrackParameters& TP,
 }
 
 /*
- * chi2 methods
+ * Method implementing the actual kalman filter step
+ * using the methods above.
+ * Also does heavy use of Eigen
+ * so we use flatten
  */
-bool
-makeChi2_1D(Trk::FitQualityOnSurface& updatedFitQoS,
-            const AmgVector(5) & trkPar,
-            const AmgSymMatrix(5) & trkCov,
-            double valRio,
-            double rioCov,
-            int paramKey,
-            int sign)
-{
-  int mk = 0;
-  if (paramKey != 1) {
-    for (int i = 0; i < 5; ++i) {
-      if (paramKey & (1 << i)) {
-        mk = i;
-        break;
-      }
-    }
-  }
-  // sign: -1 = updated, +1 = predicted parameters.
-  double r = valRio - trkPar(mk);
-  //  if (mk==3) catchPiPi;
-  double chiSquared = rioCov + sign * trkCov(mk, mk);
-  if (chiSquared == 0.0) {
-    return false;
-  }
-  chiSquared = r * r / chiSquared;
-  updatedFitQoS = Trk::FitQualityOnSurface(chiSquared, 1);
-  return true;
-}
-
-template<int DIM>
-bool
-makeChi2_T(Trk::FitQualityOnSurface& updatedFitQoS,
-           const AmgVector(5) & trkPar,
-           const AmgSymMatrix(5) & trkCov,
-           const AmgVector(DIM) & measPar,
-           const AmgSymMatrix(DIM) & covPar,
-           int paramKey,
-           int sign)
-
-{ // sign: -1 = updated, +1 = predicted parameters.
-  const AmgMatrix(DIM, 5) H =
-    s_reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
-  const AmgVector(DIM) r = measPar - H * trkPar;
-  // get the projected matrix
-  AmgSymMatrix(DIM) R = sign * projection_T<DIM>(trkCov, paramKey);
-  R += covPar;
-  // calcualte the chi2 value
-  double chiSquared = 0.0;
-  if (R.determinant() != 0.0) {
-    chiSquared = r.transpose() * R.inverse() * r;
-  }
-  updatedFitQoS = Trk::FitQualityOnSurface(chiSquared, DIM);
-  return true;
-}
-
+#if defined(__GNUC__)
+[[gnu::flatten]]
+#endif
 bool
 filterStep(Trk::TrackParameters& trackParameters,
            Trk::FitQualityOnSurface& fitQos,
@@ -423,6 +377,66 @@ filterStep(Trk::TrackParameters& trackParameters,
   }
 }
 
+/*
+ * Methods needed to calculate the
+ * fit quality
+ */
+bool
+makeChi2_1D(Trk::FitQualityOnSurface& updatedFitQoS,
+            const AmgVector(5) & trkPar,
+            const AmgSymMatrix(5) & trkCov,
+            double valRio,
+            double rioCov,
+            int paramKey,
+            int sign)
+{
+  int mk = 0;
+  if (paramKey != 1) {
+    for (int i = 0; i < 5; ++i) {
+      if (paramKey & (1 << i)) {
+        mk = i;
+        break;
+      }
+    }
+  }
+  // sign: -1 = updated, +1 = predicted parameters.
+  double r = valRio - trkPar(mk);
+  //  if (mk==3) catchPiPi;
+  double chiSquared = rioCov + sign * trkCov(mk, mk);
+  if (chiSquared == 0.0) {
+    return false;
+  }
+  chiSquared = r * r / chiSquared;
+  updatedFitQoS = Trk::FitQualityOnSurface(chiSquared, 1);
+  return true;
+}
+
+template<int DIM>
+bool
+makeChi2_T(Trk::FitQualityOnSurface& updatedFitQoS,
+           const AmgVector(5) & trkPar,
+           const AmgSymMatrix(5) & trkCov,
+           const AmgVector(DIM) & measPar,
+           const AmgSymMatrix(DIM) & covPar,
+           int paramKey,
+           int sign)
+
+{ // sign: -1 = updated, +1 = predicted parameters.
+  const AmgMatrix(DIM, 5) H =
+    s_reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
+  const AmgVector(DIM) r = measPar - H * trkPar;
+  // get the projected matrix
+  AmgSymMatrix(DIM) R = sign * projection_T<DIM>(trkCov, paramKey);
+  R += covPar;
+  // calcualte the chi2 value
+  double chiSquared = 0.0;
+  if (R.determinant() != 0.0) {
+    chiSquared = r.transpose() * R.inverse() * r;
+  }
+  updatedFitQoS = Trk::FitQualityOnSurface(chiSquared, DIM);
+  return true;
+}
+
 bool
 stateFitQuality(Trk::FitQualityOnSurface& updatedFitQoS,
                 const Trk::TrackParameters& trkPar,
@@ -461,48 +475,11 @@ stateFitQuality(Trk::FitQualityOnSurface& updatedFitQoS,
   }
 }
 
-bool
-invalidComponent(const Trk::TrackParameters* trackParameters)
-{
-  const auto* measuredCov = trackParameters->covariance();
-  bool rebuildCov = false;
-  if (!measuredCov) {
-    rebuildCov = true;
-  } else {
-    for (int i(0); i < 5; ++i) {
-      if ((*measuredCov)(i, i) <= 0.) {
-        rebuildCov = true;
-      }
-    }
-  }
-  return rebuildCov;
-}
-
-Trk::MultiComponentState
-rebuildState(Trk::MultiComponentState&& stateBeforeUpdate)
-{
-  Trk::MultiComponentState stateWithInsertedErrors =
-    std::move(stateBeforeUpdate);
-  // We need to loop checking for invalid componets i.e negative covariance
-  // diagonal elements and update them with a large covariance matrix
-  for (auto& component : stateWithInsertedErrors) {
-    const Trk::TrackParameters* trackParameters = component.first.get();
-    const bool rebuildCov = invalidComponent(trackParameters);
-    if (rebuildCov) {
-      AmgSymMatrix(5) bigNewCovarianceMatrix = AmgSymMatrix(5)::Zero();
-      const double covarianceScaler = 1.;
-      bigNewCovarianceMatrix(0, 0) = 250. * covarianceScaler;
-      bigNewCovarianceMatrix(1, 1) = 250. * covarianceScaler;
-      bigNewCovarianceMatrix(2, 2) = 0.25;
-      bigNewCovarianceMatrix(3, 3) = 0.25;
-      bigNewCovarianceMatrix(4, 4) = 0.001 * 0.001;
-      component.first->updateParameters(trackParameters->parameters(),
-                                        bigNewCovarianceMatrix);
-    }
-  }
-  return stateWithInsertedErrors;
-}
-
+/*
+ * Methods to adjust the weights of the
+ * multicomponent state (Gaussian sum)
+ * given a measurement.
+ */
 template<int DIM>
 std::pair<double, double>
 calculateWeight_T(const Trk::TrackParameters* componentTrackParameters,
@@ -735,6 +712,61 @@ weights(Trk::MultiComponentState&& predictedState,
   }
   return returnMultiComponentState;
 }
+
+/*
+ * Methods to handle cases with invalid
+ * components
+ */
+bool
+invalidComponent(const Trk::TrackParameters* trackParameters)
+{
+  const auto* measuredCov = trackParameters->covariance();
+  bool rebuildCov = false;
+  if (!measuredCov) {
+    rebuildCov = true;
+  } else {
+    for (int i(0); i < 5; ++i) {
+      if ((*measuredCov)(i, i) <= 0.) {
+        rebuildCov = true;
+      }
+    }
+  }
+  return rebuildCov;
+}
+
+Trk::MultiComponentState
+rebuildState(Trk::MultiComponentState&& stateBeforeUpdate)
+{
+  Trk::MultiComponentState stateWithInsertedErrors =
+    std::move(stateBeforeUpdate);
+  // We need to loop checking for invalid componets i.e negative covariance
+  // diagonal elements and update them with a large covariance matrix
+  for (auto& component : stateWithInsertedErrors) {
+    const Trk::TrackParameters* trackParameters = component.first.get();
+    const bool rebuildCov = invalidComponent(trackParameters);
+    if (rebuildCov) {
+      AmgSymMatrix(5) bigNewCovarianceMatrix = AmgSymMatrix(5)::Zero();
+      const double covarianceScaler = 1.;
+      bigNewCovarianceMatrix(0, 0) = 250. * covarianceScaler;
+      bigNewCovarianceMatrix(1, 1) = 250. * covarianceScaler;
+      bigNewCovarianceMatrix(2, 2) = 0.25;
+      bigNewCovarianceMatrix(3, 3) = 0.25;
+      bigNewCovarianceMatrix(4, 4) = 0.001 * 0.001;
+      component.first->updateParameters(trackParameters->parameters(),
+                                        bigNewCovarianceMatrix);
+    }
+  }
+  return stateWithInsertedErrors;
+}
+
+/*
+ * Methods that bring all
+ * weights adjustement, filter step,
+ * and FitQuality together,
+ * so as to update the current
+ * multi-component state gives a measurement
+ */
+
 Trk::MultiComponentState
 calculateFilterStep(Trk::MultiComponentState&& stateBeforeUpdate,
                     const Trk::MeasurementBase& measurement,

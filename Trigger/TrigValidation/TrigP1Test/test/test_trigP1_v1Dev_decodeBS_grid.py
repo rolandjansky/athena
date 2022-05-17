@@ -4,6 +4,7 @@
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log

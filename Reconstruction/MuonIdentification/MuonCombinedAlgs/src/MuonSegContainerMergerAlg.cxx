@@ -42,6 +42,10 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
     }
     /// Next proceed with the segment candidates the Combined tags
     for (SG::ReadHandle<MuonCombined::InDetCandidateToTagMap>& tag_map : m_tagMaps.makeHandles(ctx)) {
+        if (!tag_map.isValid()) {
+            ATH_MSG_FATAL("Failed to retrieve combined tag map "<<tag_map.fullKey());
+            return StatusCode::FAILURE;
+        }
         for (const auto& tag_pair : *tag_map) {
             std::vector<const Muon::MuonSegment*> assoc_segs = tag_pair.second->associatedSegments();
             if (assoc_segs.empty() && tag_pair.second->type() != xAOD::Muon::CaloTagged) {

@@ -321,7 +321,7 @@ PLR_ID::initLevelsFromDict(void) {
 
   field = m_dict->find_field("barrel_endcap");
   if (field) {
-    m_BARREL_EC_INDEX = field->m_index;
+   
     m_BARREL_EC_INDEX = 3;
   } else {
     if (m_msgSvc) log << MSG::FATAL << "PLR_ID::initLevelsFromDict - unable to find 'barrel_endcap' field " << endmsg;
@@ -331,7 +331,7 @@ PLR_ID::initLevelsFromDict(void) {
 
   field = m_dict->find_field("layer");
   if (field) {
-    m_LAYER_DISK_INDEX = field->m_index;
+    
     m_LAYER_DISK_INDEX = 4;
   } else {
     if (m_msgSvc) log << MSG::FATAL << "PLR_ID::initLevelsFromDict - unable to find 'layer' field " << endmsg;
@@ -341,7 +341,7 @@ PLR_ID::initLevelsFromDict(void) {
 
   field = m_dict->find_field("phi_module");
   if (field) {
-    m_PHI_MODULE_INDEX = field->m_index;
+    
     m_PHI_MODULE_INDEX = 5;
   } else {
     if (m_msgSvc) log << MSG::FATAL << "PLR_ID::initLevelsFromDict - unable to find 'phi_module' field " << endmsg;
@@ -350,7 +350,7 @@ PLR_ID::initLevelsFromDict(void) {
   }
   field = m_dict->find_field("eta_module");
   if (field) {
-    m_ETA_MODULE_INDEX = field->m_index;
+    
     m_ETA_MODULE_INDEX = 6;
   } else {
     if (m_msgSvc) log << MSG::FATAL << "PLR_ID::initLevelsFromDict - unable to find 'eta_module' field " << endmsg;
@@ -359,7 +359,7 @@ PLR_ID::initLevelsFromDict(void) {
   }
   field = m_dict->find_field("phi_index");
   if (field) {
-    m_PHI_INDEX_INDEX = field->m_index;
+   
     m_PHI_INDEX_INDEX = 7;
   } else {
     if (m_msgSvc) log << MSG::FATAL << "PLR_ID::initLevelsFromDict - unable to find 'phi_index' field " << endmsg;
@@ -368,7 +368,7 @@ PLR_ID::initLevelsFromDict(void) {
   }
   field = m_dict->find_field("eta_index");
   if (field) {
-    m_ETA_INDEX_INDEX = field->m_index;
+    
     m_ETA_INDEX_INDEX = 8;
   } else {
     if (m_msgSvc) log << MSG::FATAL << "PLR_ID::initLevelsFromDict - unable to find 'eta_index' field " << endmsg;

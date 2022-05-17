@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaMonitorTopoAlgorithm_H
@@ -47,7 +47,7 @@ class TrigEgammaMonitorTopoAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     SG::ReadHandleKey<xAOD::PhotonContainer> m_offPhotonKey{ this, "PhotonKey", "Photons", ""};
 
     /*! Get all combinations */
-    void make_legs( std::string trigger, std::string key_leg0, std::string key_leg1, std::vector<Legs> &) const;
+    void make_legs( const std::string& trigger, std::string key_leg0, std::string key_leg1, std::vector<Legs> &) const;
     bool match( const xAOD::IParticleContainer &container,const xAOD::IParticle *part_on , const xAOD::IParticle *&part_off) const;
 
 };

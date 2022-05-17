@@ -174,5 +174,4 @@ else:
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource() != 'data':
     # Set up Tile samping fraction for MC jobs
-    from TileConditions.TileCondToolConf import bookTileSamplingFractionCondAlg
-    bookTileSamplingFractionCondAlg(source='FILE')
+    tileInfoConfigurator.setupCOOLSFR()

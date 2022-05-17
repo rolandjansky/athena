@@ -74,7 +74,6 @@ from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__I
 ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   name            = "CombinedMuonIDSummaryHelper",
   AssoTool        = None,
-  PixelToTPIDTool = None,
   TestBLayerTool  = None,
   DoSharedHits    = False,
   HoleSearch      = ToolSvc.CombinedMuonIDHoleSearch,
@@ -95,11 +94,8 @@ ToolSvc += Trk__TrackSummaryTool( 'CombinedMuonTrackSummary',
                                   doSharedHits             = False,
                                   doHolesInDet             = True,
                                   doHolesMuon              = False,
-                                  AddDetailedInDetSummary  = True,
                                   AddDetailedMuonSummary   = True,
                                   InDetSummaryHelperTool   = ToolSvc.CombinedMuonIDSummaryHelper,
-                                  TRT_ElectronPidTool      = None,
-                                  PixelToTPIDTool          = None,
                                   MuonSummaryHelperTool    = muonTrackSummaryHelper,
                                   PixelExists              = True )
 
@@ -119,15 +115,9 @@ if DetFlags.haveRIO.pixel_on():
     PixelSummaryTool           = InDetPixelConditionsSummaryTool,
     Extrapolator               = atlasExtrapolator)
 
-  # load PixelToTPID tool
-  from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
-  ToolSvc += InDet__PixelToTPIDTool( \
-    name                       = "CombinedMuonPixelToTPID")
 
   # set properties into public tools
-  ToolSvc.CombinedMuonIDSummaryHelper.PixelToTPIDTool = ToolSvc.CombinedMuonPixelToTPID
   ToolSvc.CombinedMuonIDSummaryHelper.TestBLayerTool  = ToolSvc.CombinedMuonTestBLayer
-  ToolSvc.CombinedMuonTrackSummary.PixelToTPIDTool    = ToolSvc.CombinedMuonPixelToTPID
 
   
 if DetFlags.haveRIO.SCT_on():

@@ -23,7 +23,6 @@
 #include <iostream>
 
 static inline std::string instance_name(std::string const & s);
-static inline std::string to_string(std::vector<int> v);
 
 
 static const float A = 0.0003;
@@ -114,21 +113,6 @@ HTTRoad_Hough  HTTPhiRoadFilterTool::buildRoad(HTTRoad* origr) const
 
   r.setHitLayers(hitLayers);
   return r;
-}
-
-
-
-static inline std::string to_string(std::vector<int> v)
-{
-    std::ostringstream oss;
-    oss << "[";
-    if (!v.empty())
-    {
-        std::copy(v.begin(), v.end()-1, std::ostream_iterator<int>(oss, ", "));
-        oss << v.back();
-    }
-    oss << "]";
-    return oss.str();
 }
 
 static inline std::string instance_name(std::string const & s)

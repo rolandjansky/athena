@@ -248,8 +248,7 @@ def ActsGaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
         kwargs["TrackSelector"] = acc.popToolsAndMerge(
             VtxInDetTrackSelectionCfg(flags)
         )
-    actsGeoAcc, geometry = ActsTrackingGeometryToolCfg(flags)
-    acc.merge(actsGeoAcc)
+    geometry = acc.getPrimaryAndMerge(ActsTrackingGeometryToolCfg(flags))
     trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
     if flags.Detector.GeometryITk:
         vtxFlags = flags.ITk.PriVertex

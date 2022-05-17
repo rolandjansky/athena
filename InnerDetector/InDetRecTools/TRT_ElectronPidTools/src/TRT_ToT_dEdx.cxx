@@ -1181,7 +1181,7 @@ TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
   double trackEta = -log(tan(Trt_HitTheta/2.0));
 
-  double localOccupancy = m_localOccTool->LocalOccupancy(trackEta, phimodule);
+  double localOccupancy = m_localOccTool->LocalOccupancy(ctx, trackEta, phimodule);
   double ToTmip = 1;
   double valToT = 1.;
 

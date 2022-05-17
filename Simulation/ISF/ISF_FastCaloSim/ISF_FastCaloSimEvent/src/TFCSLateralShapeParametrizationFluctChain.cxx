@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
@@ -35,7 +35,7 @@ float TFCSLateralShapeParametrizationFluctChain::get_E_hit(TFCSSimulationState& 
 
 FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  MSG::Level old_level=level();
+  MSG::Level old_level=msg().level();
   const bool debug = msgLvl(MSG::DEBUG);
 
   //Execute the first get_nr_of_init() simulate calls only once. Used for example to initialize the center position

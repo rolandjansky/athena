@@ -13,7 +13,7 @@ if DetFlags.detdescr.any_on():
     from AtlasGeoModel import SetupRecoGeometry
 
     import os
-    if "AthSimulation_DIR" not in os.environ:
+    if "AthSimulation_DIR" not in os.environ and ("ATLFAST" in ISF_Flags.Simulator() or ISF_Flags.Simulator() in ["G4FastCalo", 'FatrasGammaCones_FastCalo', 'G4BHadronsOnly_FastCalo',  'G4GammaCones', 'G4GammaCones_FastCalo']):
         if DetFlags.detdescr.LAr_on():
             protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
 

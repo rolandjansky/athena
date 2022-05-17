@@ -99,12 +99,10 @@ public:
   // - xxxChainName: the name of the chain to be used as test/reference/selection; must be "StoreGate" in case of direct access to SG containers
   // - xxxType: the type of tracks to be retrieved from the test/reference/selection chain or container
   // - xxxKey:  the key for tracks to be retrieved from the test/reference/selection chain or container
-  // - roiInfo: in case the test chain is a real chain, this is used to specify RoI widths; in case the test chain is a fake chain, this is used for RoI position too
   // - all standard operations are performed in loops over 0=test 1=reference 2=selection
   T_AnalysisConfigMT_Tier0(const std::string& analysisInstanceName,
 			 const std::string& testChainName,      const std::string& testType,      const std::string& testKey,
 			 const std::string& referenceChainName, const std::string& referenceType, const std::string& referenceKey,
-			 TIDARoiDescriptor* roiInfo,
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
@@ -112,7 +110,6 @@ public:
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
-			 roiInfo,
 			 testFilter, referenceFilter,
 			 associator,
 			 analysis),

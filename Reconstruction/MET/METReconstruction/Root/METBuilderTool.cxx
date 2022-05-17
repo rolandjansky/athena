@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METBuilderTool.cxx 
@@ -38,16 +38,7 @@ namespace met {
   METBuilderTool::METBuilderTool(const std::string& name) : 
     AsgTool(name)
   {
-    declareProperty( "InputCollection", m_input_data_key      );
-    declareProperty( "MissingETKey",    m_output_met_key      );
-    declareProperty( "UseRapidity",     m_useRapidity = false );
-    declareProperty( "ModifiedClusKey", m_mod_clus_key = ""   );
   }
-
-  // Destructor
-  ///////////////
-  METBuilderTool::~METBuilderTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -76,13 +67,6 @@ namespace met {
 
     metTerm->setName(m_output_met_key);
     return this->executeTool(metTerm,metMap);
-  }
-
-  StatusCode METBuilderTool::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
-
-    return StatusCode::SUCCESS;
   }
 
   /////////////////////////////////////////////////////////////////// 

@@ -29,14 +29,7 @@ TRTParametersOfModulesB::TRTParametersOfModulesB(): m_msg("TRTParametersOfModule
 TRTParametersOfModulesB::~TRTParametersOfModulesB()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB" << endmsg;
-
-  delete [] m_xLocalOfHolesB;
-  delete [] m_zLocalOfHolesB;
-  delete [] m_xOfCoolingTubesB;
-  delete [] m_zOfCoolingTubesB;
-  delete [] m_xOfHolesForCoolingTubesB;
-  delete [] m_zOfHolesForCoolingTubesB;
-
+ 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB done" << endmsg;
 }
 
@@ -49,12 +42,12 @@ void TRTParametersOfModulesB::DefineParameters()
 
     // Distances between corners of shell B:
   int numberOfShellCorners = m_pParameters->GetInteger("NumberOfShellCorners");
-  double* xOfShellCornersB = new double[numberOfShellCorners];
-  double* yOfShellCornersB = new double[numberOfShellCorners];
+  std::vector<double> xOfShellCornersB(numberOfShellCorners,0.);
+  std::vector<double> yOfShellCornersB(numberOfShellCorners,0.);
   m_pParameters->GetDoubleArray("XOfShellCornersB", numberOfShellCorners,
-    xOfShellCornersB);
+    xOfShellCornersB.data());
   m_pParameters->GetDoubleArray("YOfShellCornersB", numberOfShellCorners,
-    yOfShellCornersB);
+    yOfShellCornersB.data());
 
   double deltaX12 = xOfShellCornersB[0] - xOfShellCornersB[1];
   double deltaX13 = xOfShellCornersB[0] - xOfShellCornersB[2];
@@ -142,10 +135,10 @@ void TRTParametersOfModulesB::DefineParameters()
 
     // Parameters of holes B:
   m_numberOfHolesB = m_pParameters->GetInteger("NumberOfStrawsB");
-  double* xOfHolesB = new double[m_numberOfHolesB];
-  double* yOfHolesB = new double[m_numberOfHolesB];
-  m_pParameters->GetDoubleArray("XOfHolesB", m_numberOfHolesB, xOfHolesB);
-  m_pParameters->GetDoubleArray("YOfHolesB", m_numberOfHolesB, yOfHolesB);
+  std::vector<double> xOfHolesB(m_numberOfHolesB, 0.);
+  std::vector<double> yOfHolesB(m_numberOfHolesB, 0.);
+  m_pParameters->GetDoubleArray("XOfHolesB", m_numberOfHolesB, xOfHolesB.data());
+  m_pParameters->GetDoubleArray("YOfHolesB", m_numberOfHolesB, yOfHolesB.data());
   int i;
   if (xOfHolesB[0] != 0.)
     for (i = 0; i < m_numberOfHolesB; ++i)
@@ -169,8 +162,8 @@ void TRTParametersOfModulesB::DefineParameters()
     globalPhi += M_PI * 2.;
   double deltaPhi = startingPhi - globalPhi;
 
-  double* xGlobalOfHolesB = new double[m_numberOfHolesB];
-  double* yGlobalOfHolesB = new double[m_numberOfHolesB];
+  std::vector<double> xGlobalOfHolesB(m_numberOfHolesB, 0.0);
+  std::vector<double> yGlobalOfHolesB(m_numberOfHolesB, 0.0);
 
   double sinDeltaPhi = std::sin(deltaPhi);
   double cosDeltaPhi = std::cos(deltaPhi);
@@ -183,8 +176,8 @@ void TRTParametersOfModulesB::DefineParameters()
       xOfHolesB[i] * sinDeltaPhi + yGlobalOfHole1B;
   }
 
-  m_xLocalOfHolesB = new double[m_numberOfHolesB];
-  m_zLocalOfHolesB = new double[m_numberOfHolesB];
+  m_xLocalOfHolesB = std::vector<double>(m_numberOfHolesB, 0.0);
+  m_zLocalOfHolesB = std::vector<double>(m_numberOfHolesB, 0.0);
 
   double sinPhi0 = std::sin(phi0);
   double cosPhi0 = std::cos(phi0);
@@ -205,8 +198,8 @@ void TRTParametersOfModulesB::DefineParameters()
   double distanceToCoolingTube =
     m_pParameters->GetDouble("DistanceToCoolingTube");
 
-  m_xOfCoolingTubesB = new double[m_numberOfCoolingTubesB];
-  m_zOfCoolingTubesB = new double[m_numberOfCoolingTubesB];
+  m_xOfCoolingTubesB = std::vector<double>(m_numberOfCoolingTubesB, 0.);
+  m_zOfCoolingTubesB = std::vector<double>(m_numberOfCoolingTubesB, 0.);
 
   m_xOfCoolingTubesB[0] = -m_baseOfShellTrd1B / 2. + distanceToCoolingTube *
     (1. / std::sin(alpha1) + 1. / std::tan(alpha1));
@@ -229,17 +222,14 @@ void TRTParametersOfModulesB::DefineParameters()
       m_xOfCoolingTubesB[i] -= m_xOfRadiatorB;
       m_zOfCoolingTubesB[i] -= m_zOfRadiatorB;
     }
-
-    m_xOfHolesForCoolingTubesB = nullptr;
-    m_zOfHolesForCoolingTubesB = nullptr;
   }
   else
   {
     m_radiusOfHoleForCoolingTubeB =
       m_pParameters->GetDouble("OuterRadiusOfCoolingTube");
 
-    m_xOfHolesForCoolingTubesB = new double[m_numberOfCoolingTubesB];
-    m_zOfHolesForCoolingTubesB = new double[m_numberOfCoolingTubesB];
+    m_xOfHolesForCoolingTubesB = std::vector<double>(m_numberOfCoolingTubesB,0.);
+    m_zOfHolesForCoolingTubesB = std::vector<double>(m_numberOfCoolingTubesB,0.);
 
     m_xOfHolesForCoolingTubesB[0] = m_xOfCoolingTubesB[0] - m_xOfRadiatorB;
     m_zOfHolesForCoolingTubesB[0] = m_zOfCoolingTubesB[0] - m_zOfRadiatorB;
@@ -250,26 +240,18 @@ void TRTParametersOfModulesB::DefineParameters()
     m_zOfHolesForCoolingTubesB[1] = -m_heightOfRadiatorTrd2B / 2. +
       distanceToCoolingTube - thicknessOfModuleWalls;
   }
-
-  delete [] xOfShellCornersB;
-  delete [] yOfShellCornersB;
-  delete [] xOfHolesB;
-  delete [] yOfHolesB;
-
+ 
   if (m_pParameters->GetInteger("PrintParametersOfModulesB"))
     PrintParameters(m_msg.get(), xGlobalOfHolesB, yGlobalOfHolesB);
-
-  delete [] xGlobalOfHolesB;
-  delete [] yGlobalOfHolesB;
-
+ 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters done" << endmsg;
 }
 
 
   // Called by DefineParameters
 
-void TRTParametersOfModulesB::PrintParameters(MsgStream& msg, double* xGlobalOfHolesB,
-  double* yGlobalOfHolesB) const
+void TRTParametersOfModulesB::PrintParameters(MsgStream& msg, const  std::vector<double> & xGlobalOfHolesB,
+  const  std::vector<double> & yGlobalOfHolesB) const
 {
   if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesB::PrintParameters" << endmsg;
 

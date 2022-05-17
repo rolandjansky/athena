@@ -13,128 +13,86 @@
 
 
 
-ChainString::ChainString(const std::string& s) : 
-  std::string(s), m_passed(true), m_raw(s), m_post(""), m_postcount(0) {
-  if ( m_raw.find(":post")!=std::string::npos ) m_post = m_raw.substr( m_raw.find(":post")+6, m_raw.size() );
-  parse(); 
+ChainString::ChainString( const std::string& s ) : 
+  std::string(s),  
+  m_head(""), m_tail(""), m_roi(""), m_vtx(""), m_element(""), m_extra(""), 
+  m_passed(true), m_raw(""), m_post(""), m_postcount(0) {
+  if ( s.find(":post")!=std::string::npos ) m_post = s.substr( s.find(":post")+6, s.size() );
+  parse(s);
 }
 
 
 ChainString::ChainString( const ChainString& s ) :
   std::string(s), 
-  m_head(s.m_head), m_tail(s.m_tail), m_extra(s.m_extra),
-  m_element(s.m_element), m_roi(s.m_roi),
-  m_vtx(s.m_vtx),
+  m_head(s.m_head), m_tail(s.m_tail), m_roi(s.m_roi), m_vtx(s.m_vtx),
+  m_element(s.m_element), m_extra(s.m_extra),
   m_passed(s.m_passed),
+  m_raw(s.m_raw), m_post(s.post()), m_postcount(s.postcount()),
   m_keys(s.m_keys),
-  m_values(s.m_values),
-  m_raw(s.m_raw), m_post(s.post()), m_postcount(s.postcount()) {
-
+  m_values(s.m_values) {
 }
 
 
-void ChainString::parse() { parse( *this ); }
 
 /// parse the full specification string
 void ChainString::parse( std::string s ) { 
 
     std::vector<std::string> fields;
 
-    while ( s.find_first_of(":;")!=std::string::npos ) fields.push_back( chop( s, ":" ) );
+    while ( !s.empty() ) fields.push_back( chop( s, ":" ) );
     
-    fields.push_back(s);
-
     bool postkeys = false;
 
-    for ( unsigned i=0 ; i<fields.size() ; i++ ) { 
+    size_t keycount = 0;
+
+    if ( fields.size() ) m_head = fields[0];
+
+    for ( size_t i=1 ; i<fields.size() ; i++ ) { 
       std::string dte = chomp( fields[i], ";" );
       if ( !postkeys && dte=="DTE" ) m_passed = false;
       if      ( fields[i]=="DTE" )   m_passed = false;
       else if ( fields[i]=="post" )  postkeys = true; 
-      else if ( fields[i].find("=")!=std::string::npos ) { 
-	std::string _field = fields[i];
-	std::string key = chop( _field, "=" );
+      else { // if ( fields[i].find("=")!=std::string::npos ) { 
+	std::string f = fields[i];
+	std::string key = chop( f, "=" );
+	if ( f=="" ) { 
+	  f=key;
+	  key="";
+	}
 	if ( postkeys ) { key += "-post"; m_postcount++; }
-	m_keys.push_back( key );
-	m_values.push_back( _field );
+	else keycount++;
+	m_keys.push_back( tolower(key) );
+	m_values.push_back( f );
       }
     }
 
-    bool usetags   = false;
+    std::string tags[5] = {  "key",  "roi",  "vtx",  "extra",  "te" };
+    std::string  alt[5] = {  "key",  "",     "",     "ind=",    ""    };
+    bool      tagged[5] = {  false,  false,  false,  false,     false };    
     
-    if ( fields.size() ) m_head = fields[0];
-
-    std::string tags[5] = { "key=", "roi=", "vtx=", "te=", "extra=" };
-    std::string  alt[5] = { "key=",     "",     "",    "",   "ind=" };
-    bool      tagged[5] = {  false,  false,  false, false,    false };    
- 
-    std::string* values[5] = { &m_tail, &m_roi, &m_vtx, &m_element, &m_extra };
-
+    std::string* values[5] = { &m_tail, &m_roi, &m_vtx, &m_extra, &m_element };
     
-    /// get collection, index and roi if not tagged with a label
-
-    unsigned first_tag = 1;
-    for ( unsigned i=1 ; i<fields.size() && i<4 ; i++ ) {
-      if ( fields[i].find("=")==std::string::npos ) {
-	*values[i-1] = fields[i];
-	first_tag = i+1;
-	tagged[i-1] = true;
+    for ( size_t i=0 ; i<keycount && i<5 ; i++ ) { 
+      if ( m_keys[i] == "" ) {  
+	if ( tagged[i] ) std::cerr << "tag already allocated : " << tags[i] << " with value " << *values[i] << std::endl; 
+	else *values[i] = m_values[i];
       }
       else { 
-	usetags = true;
-	break;
-      } 
-    }
-
-    /// now test whether any tags have been used at all
-
-    for ( unsigned i=1 ; i<fields.size() ; i++ ) {
-      if ( fields[i].find("=")!=std::string::npos ) usetags = true;
-    }
-    
-    for ( unsigned i=first_tag ; i<fields.size() ; i++ ) {
-      for ( unsigned itag=0 ; itag<5 ; itag++ ) { 
-
-	std::string lowfield = tolower(fields[i]);
-
-	if ( tagged[itag] ) { 
-	  if ( lowfield.find(tags[itag])==0 || ( alt[itag]!="" && lowfield.find(alt[itag])==0 ) ) { 
-	    std::cerr << "tag already allocated : " << fields[i] << " with value " << *values[itag] << std::endl;
+	bool unset = true;
+	for ( int j=0 ; j<5 ; j++ ) {
+	  if ( tags[j]==m_keys[i] ) {
+	    if ( tagged[j] ) std::cerr << "tag already allocated : " << tags[j] << " with value " << *values[j] << std::endl; 
+	    else { 
+	      *values[j] = m_values[i];
+	      unset = false;
+	      tagged[j] = true;
+	    }
 	  }
-	  continue;
 	}
-	//	std::cout << itag << " " << i << " " << fields[i] << " " << toupper(fields[i]).find(toupper(tags[itag])) << std::endl; 
-
-	if ( lowfield.find(tags[itag])==0 ) { 
-	  tagged[itag] = true;
-	  fields[i].erase( 0, tags[itag].size() );
-	  *values[itag] = fields[i];
-	  //	  if ( itag<2 ) usetags   = true;
-	  //  else           useroitag = true; 
-	  break;
-	}
-	else if ( alt[itag]!="" && lowfield.find(alt[itag])==0 ) {  
-	  tagged[itag] = true;
-	  fields[i].erase( 0, alt[itag].size() );
-	  *values[itag] = fields[i];
-	  //  if ( itag<2 ) usetags   = true;
-	  //  else           useroitag = true; 
-	  break;
-	}
-
+	if ( unset ) std::cerr << "no such tag: " << m_keys[i] << std::endl; 
       }
     }
-    
-    /// always enforce tags for the roi, vtx and te, optional for the 
-    /// chain, collection and extra (index)
-    /// grrrr, 
-    if ( !usetags ) { 
-      //      std::cout << "fields.size() " << fields.size() << std::endl;
-      for ( unsigned i=first_tag ; i<5 ; i++ ) {
-	if ( (i+1)<fields.size() ) *values[i] = fields[i+1];
-      }
-    }      
-
+   
 #if 0
     std::cout << "head:  " << m_head    << std::endl;
     std::cout << "key:   " << m_tail    << std::endl;
@@ -144,10 +102,9 @@ void ChainString::parse( std::string s ) {
     std::cout << "te:    " << m_element << std::endl;
     std::cout << "pass:  " << m_passed  << std::endl;
 #endif   
-    
-    /// replace the string by a parsed basic string that can be converted
-    /// to a root directory name etc
-    
+
+    /// replace the string by a parsed basic string 
+
     std::string raw = m_head;
     for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + *values[i];
     if ( !m_passed ) raw += ";DTE";
@@ -156,13 +113,16 @@ void ChainString::parse( std::string s ) {
     *(std::string*)(this) = raw;
 
     raw = m_head;
-    for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + tags[i] + *values[i];
+    for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + tags[i] + "=" + *values[i];
     if ( !m_passed ) raw += ";DTE";
 
     if ( postcount() ) raw += ":post:" + m_post; 
 
     m_raw = raw;
+
 }
+
+
 
 
 std::string ChainString::subs( std::string s ) const { 

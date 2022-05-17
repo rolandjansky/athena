@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu with with reversed order of views to check their independence
 # art-type: build                                                                  
-# art-include: master/Athena                                                       
+# art-include: master/Athena
+# art-include: 22.0/Athena                                                       
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 

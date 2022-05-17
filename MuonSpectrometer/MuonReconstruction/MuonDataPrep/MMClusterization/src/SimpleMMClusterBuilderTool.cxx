@@ -83,10 +83,9 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     MMflag[i] = 1;
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
-    if (m_writeStripProperties) {
-      mergeStripsTime.push_back(MMprds[i].time());
-      mergeStripsCharge.push_back(MMprds[i].charge());
-    }
+    mergeStripsTime.push_back(MMprds[i].time());
+    mergeStripsCharge.push_back(MMprds[i].charge());
+    
     mergeStripsDriftDists.push_back(MMprds[i].driftDist());
     mergeStripsDriftDistErrors.push_back(MMprds[i].localCovariance());
 
@@ -110,10 +109,9 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-	    if(m_writeStripProperties) {
-	      mergeStripsTime.push_back(MMprds[j].time());
-	      mergeStripsCharge.push_back(MMprds[j].charge());
-	    }
+	    mergeStripsTime.push_back(MMprds[j].time());
+	    mergeStripsCharge.push_back(MMprds[j].charge());
+	  
 	    mergeStripsDriftDists.push_back(MMprds[j].driftDist());
 	    mergeStripsDriftDistErrors.push_back(MMprds[j].localCovariance());
 	    nmergeStrips++;
@@ -222,10 +220,10 @@ StatusCode SimpleMMClusterBuilderTool::getClusterPosition(std::vector<Muon::MMPr
 
 
 StatusCode SimpleMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>& strips, 
-								    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const
+								 const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const
   
 {
-
+  (void) theta; // avoid unused parameter warning 
   /// correct the precision coordinate of the local position based on the centroid calibration
   double xPosCalib = 0.0;
   double totalCharge = 0.0;

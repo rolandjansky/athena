@@ -132,7 +132,7 @@ StatusCode LArSC2Ntuple::execute()
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
   ATH_MSG_DEBUG( "LArSC2Ntuple in execute" ); 
-  m_event++;
+  m_sc2event++;
   unsigned long long thisevent = 0;
   unsigned long	thisbcid       = 0;
 
@@ -248,7 +248,7 @@ StatusCode LArSC2Ntuple::execute()
   for( int c    = 0;c<cellsno;++c ){
     if(m_fillBCID) m_bcid	   = thisbcid; 
     m_IEvent	   = thisevent;
-    if(m_overwriteEventNumber) m_IEvent   = m_event;
+    if(m_overwriteEventNumber) m_IEvent   = m_sc2event;
     if( hasDigitContainer ){
 
       const LArDigit* digi   = DigitContainer.at(c);     

@@ -45,40 +45,26 @@ namespace met {
   ////////////////
   METTauAssociator::METTauAssociator(const std::string& name) :
     AsgTool(name),
-    METAssociator(name),
-    m_tauContKey("")
+    METAssociator(name)
   {
-    declareProperty("tauContainer",m_tauContKey);
-    declareProperty("UseFETauLinks", m_useFETauLinks = false ); 
   }
-
-  // Destructor
-  ///////////////
-  METTauAssociator::~METTauAssociator()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
   StatusCode METTauAssociator::initialize()
   {
     ATH_CHECK( METAssociator::initialize() );
+
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
-    ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
 
     if (m_useFETauLinks || m_useFELinks) {
-      if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
-      if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+      if (m_neutralFEReadDecorKey.key().empty()) {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_tauContKey.key() + "." + m_neutralFELinksKey));}
+      if (m_chargedFEReadDecorKey.key().empty()) {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_tauContKey.key() + "." + m_chargedFELinksKey));}
       ATH_CHECK( m_neutralFEReadDecorKey.initialize());
       ATH_CHECK( m_chargedFEReadDecorKey.initialize());
     }
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METTauAssociator::finalize()
-  {
-    ATH_MSG_VERBOSE ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 
@@ -102,13 +88,13 @@ namespace met {
     
     SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_tauContKey);
     if (!tauCont.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve input tau container " << m_input_data_key);
+      ATH_MSG_WARNING("Unable to retrieve input tau container " << m_tauContKey.key());
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved tau collection");
     if (fillAssocMap(metMap,tauCont.cptr()).isFailure()) {
-      ATH_MSG_WARNING("Unable to fill map with tau container " << m_input_data_key);
+      ATH_MSG_WARNING("Unable to fill map with tau container " << m_tauContKey.key());
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

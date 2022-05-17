@@ -64,8 +64,6 @@ def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTo
                                           doSharedHits           = True,
                                           doHolesInDet           = True,
                                           #this may be temporary #61512 (and used within egamma later)
-                                          #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool,
-                                          TRT_ElectronPidTool    = None
                                           )
   if makePublic:
     acc.addPublicTool( tool, primary=True )
@@ -376,8 +374,6 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
                                                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                                                     ('SpacePointCache', 'PixelSpacePointCache'),
                                                                     ('SpacePointCache', 'SctSpacePointCache'),
-                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
                                                                     ('xAOD::EventInfo', 'EventInfo'),
                                                                     ('TrigRoiDescriptorCollection', str(roisKey)),
                                                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
@@ -636,11 +632,7 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
                                                                     ('TrigRoiDescriptorCollection', flags.InDet.Tracking.ActivePass.roi),
                                                                     ( 'TagInfo', 'DetectorStore+ProcessingTags' ), 
                                                                     ( 'InDet::PixelGangedClusterAmbiguities' , TrigPixelKeys.PixelClusterAmbiguitiesMap),
-                                                                    ( 'TrackCollection', flags.InDet.Tracking.ActivePass.trkTracks_FTF ),
-                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
-                                                                    ] 
-                                                     )
+                                                                    ( 'TrackCollection', flags.InDet.Tracking.ActivePass.trkTracks_FTF )] )
 
     if flags.Input.Format is Format.BS:
         verifier.DataObjects += [ ('IDCInDetBSErrContainer' , 'PixelByteStreamErrs'),

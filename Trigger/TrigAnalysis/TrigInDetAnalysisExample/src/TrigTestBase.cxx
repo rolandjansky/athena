@@ -27,7 +27,6 @@
 TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, const IInterface* parent)
   :  IHLTMonTool(type, name, parent),
      m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
-     m_roiInfo(false),
      m_buildNtuple(false),
      m_initialisePerRun(true),
      m_firstRun(true),
@@ -433,7 +432,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  AnalysisConfig_Tier0* analysis = new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
 								     m_chainNames[i], "", "",
 								     m_chainNames[i], "", "",
-								     &m_roiInfo,
 								     filterTest, filterRef,
 								     dR_matcher,
 								     new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
@@ -450,7 +448,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  AnalysisConfigMT_Tier0* analysis = new AnalysisConfigMT_Tier0( m_sliceTag, // m_chainNames[i],
 									 m_chainNames[i], "", "",
 									 m_chainNames[i], "", "",
-									 &m_roiInfo,
 									 filterTest, filterRef,
 									 dR_matcher,
 									 new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ),

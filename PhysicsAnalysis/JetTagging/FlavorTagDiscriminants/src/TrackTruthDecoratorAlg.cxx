@@ -74,7 +74,7 @@ namespace FlavorTagDiscriminants {
 
     // sort the tracks by pt to ensure the vertex clustering is deterministic
     std::vector<const xAOD::TrackParticle*> sorted_tracks;
-    for (const auto& track : *tracks) { sorted_tracks.push_back(track); }
+    for (const auto track : *tracks) { sorted_tracks.push_back(track); }
     std::sort(sorted_tracks.begin(), sorted_tracks.end(), sort_tracks);
 
     // first loop - decorate origin label, just store truth vertex for now

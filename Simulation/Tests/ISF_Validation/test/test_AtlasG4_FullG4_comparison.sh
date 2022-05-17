@@ -15,13 +15,9 @@
 export TRF_ECHO=1
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
---DataRunNumber '284500' \
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "HITS.FullG4.pool.root" \
@@ -33,13 +29,9 @@ echo  "art-result: $rc1 simulation FullG4"
 
 AtlasG4_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'sim:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---preExec 'sim:simFlags.TightMuonStepping=True' \
+--preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
 --postExec 'sim:topSeq.BeamEffectsAlg.ISFRun=True' \
---DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "HITS.AtlasG4.pool.root" \

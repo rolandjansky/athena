@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _InDetAccessor_H_
 #define _InDetAccessor_H_
 
 #include <tuple>
 #include <array>
+#include <stdexcept> 
 #include "AsgMessaging/AsgMessaging.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
@@ -206,19 +207,9 @@ namespace InDetAccessor {
 
 #ifndef XAOD_ANALYSIS
    template <>
-   inline float getEProbabilityHT(const TrkTrackHelper & helper, asg::AsgMessaging &msgHelper) {
-      float eProbHT;
-      if (!helper.hasSummaryOrError(msgHelper)) {
-         eProbHT = 0.f;
-      }
-      else {
-         eProbHT = helper.summary().getPID( Trk::eProbabilityType::eProbabilityHT );
-         if (eProbHT < 0.f) {
-            IDTRKSEL_MSG_DEBUG( "Received " << eProbHT << " for eProbabilityHT. A value of zero will be used instead." );
-            eProbHT= 0.f;
-         }
-      }
-      return eProbHT;
+   inline float getEProbabilityHT(const TrkTrackHelper &, asg::AsgMessaging &) {
+      throw std::runtime_error("eProbabilityHT only available in xAOD::TrackParticle not for Trk::Track.");
+      return 0.f;
    }
 #endif
 
@@ -273,20 +264,9 @@ namespace InDetAccessor {
 
 #ifndef XAOD_ANALYSIS
    template <>
-   inline Int_t getNumberOfUsedHitsdEdx(TrkTrackHelper & helper, asg::AsgMessaging &msgHelper) {
-      int n_used_hits;
-      if (!helper.hasSummaryOrError(msgHelper)) {
-         n_used_hits=0;
-      }
-      else {
-         n_used_hits = helper.summary().numberOfUsedHitsdEdx();
-         if (n_used_hits < 0) {
-            // Trk::TrackSummary::numberOfUsedHitsdEdx() will return -1 if the data cannot be retrieved
-            IDTRKSEL_MSG_DEBUG( "Received " << n_used_hits << " for numberOfUsedHitsdEdx from Trk::TrackSummary. A value of zero will be used instead." );
-            n_used_hits = 0;
-         }
-      }
-      return n_used_hits;
+   inline Int_t getNumberOfUsedHitsdEdx(TrkTrackHelper &, asg::AsgMessaging &) {
+      throw std::runtime_error("umberOfUsedHitsdEdx only available in xAOD::TrackParticle not for Trk::Track.");
+      return 0;
    }
 #endif
 
@@ -300,20 +280,9 @@ namespace InDetAccessor {
 
 #ifndef XAOD_ANALYSIS
    template <>
-   inline Int_t getNumberOfIBLOverflowsdEdx(TrkTrackHelper & helper, asg::AsgMessaging &msgHelper) {
-      int n_overflow_hits;
-      if (!helper.hasSummaryOrError(msgHelper)) {
-         n_overflow_hits=0;
-      }
-      else {
-         n_overflow_hits = helper.summary().numberOfOverflowHitsdEdx();
-         if (n_overflow_hits < 0) {
-            // Trk::TrackSummary::numberOfUsedHitsdEdx() will return -1 if the data cannot be retrieved
-            IDTRKSEL_MSG_DEBUG( "Received " << n_overflow_hits << " for numberOfOverflowHitsdEdx from Trk::TrackSummary. A value of zero will be used instead." );
-            n_overflow_hits = 0;
-         }
-      }
-      return n_overflow_hits;
+   inline Int_t getNumberOfIBLOverflowsdEdx(TrkTrackHelper & , asg::AsgMessaging &) {
+      throw std::runtime_error("NumberOfIBLOverflowsdEdx only available in xAOD::TrackParticle not for Trk::Track.");
+      return 0;
    }
 #endif
 

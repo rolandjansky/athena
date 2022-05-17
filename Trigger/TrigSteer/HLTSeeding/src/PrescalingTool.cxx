@@ -87,7 +87,8 @@ StatusCode PrescalingTool::start() {
 
 StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
                                            const HLT::IDVec& initiallyActive,
-                                           HLT::IDVec& remainActive ) const {
+                                           HLT::IDVec& remainActive,
+                                           bool forExpressStream) const {
    if ( initiallyActive.empty() ) {
       return StatusCode::SUCCESS;
    }
@@ -134,7 +135,11 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
 
    auto getPrescale = [&](const HLT::Identifier& ch) -> const TrigConf::HLTPrescalesSet::HLTPrescale& {
       try {
-         return hltPrescaleSet->prescale( ch.numeric() );
+         if (forExpressStream) {
+            return hltPrescaleSet->prescale_express( ch.numeric() );
+         } else {
+            return hltPrescaleSet->prescale( ch.numeric() );
+         }
       } catch(const std::out_of_range & ex) {
          // if chain with that name is not found in the prescale set
          if (m_keepUnknownChains.value()) {

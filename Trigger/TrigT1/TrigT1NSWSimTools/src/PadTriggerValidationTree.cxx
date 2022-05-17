@@ -1,15 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
-
-#include "TrigT1NSWSimTools/PadTrigger.h"
-
-#include "GaudiKernel/ITHistSvc.h"
-
-#include "TTree.h"
-
 
 namespace NSWL1{
     //------------------------------------------------------------------------------
@@ -52,12 +45,6 @@ namespace NSWL1{
     {
     }
     //------------------------------------------------------------------------------
-    std::string PadTriggerValidationTree::treename_from_algoname(const std::string &algoname)
-    {
-        std::string treename = algoname+"Tree";
-        return treename;    
-    }
-    //------------------------------------------------------------------------------
     bool PadTriggerValidationTree::init_tree(TTree *tree)
     {
         bool success=false;
@@ -65,13 +52,13 @@ namespace NSWL1{
             m_tree = tree;
             m_nPadTriggers       = 0;
             m_padTriggerBCID     = new std::vector<unsigned int>();
-            //S.I
+
             m_padTriggerModuleIDinner = new  std::vector<int>();
             m_padTriggerModuleIDouter = new std::vector<int>();
             m_padTriggerSelectedLayersInner = new std::vector<std::vector<int>>();
             m_padTriggerSelectedLayersOuter = new std::vector<std::vector<int>>();
             m_padTriggerSelectedBandsInner = new std::vector<std::vector<int>>();
-            m_padTriggerSelectedBandsOuter = new std::vector<std::vector<int>>();    
+            m_padTriggerSelectedBandsOuter = new std::vector<std::vector<int>>();
             m_padTriggerPadEtaIndicesInner = new std::vector<std::vector<int>>();
             m_padTriggerPadPhiIndicesInner = new std::vector<std::vector<int>>();
             m_padTriggerPadEtaIndicesOuter = new std::vector<std::vector<int>>();
@@ -79,8 +66,8 @@ namespace NSWL1{
             m_padTriggerRCenterMinInner = new std::vector<std::vector<float>>();
             m_padTriggerRCenterMaxInner =new std::vector<std::vector<float>>();
             m_padTriggerRCenterMinOuter= new std::vector<std::vector<float>>();
-            m_padTriggerRCenterMaxOuter=new std::vector<std::vector<float>>();             
-            //S.I
+            m_padTriggerRCenterMaxOuter=new std::vector<std::vector<float>>();
+
             m_padTriggerSectorID = new std::vector<int>();
             m_padTriggerSectorType = new std::vector<int>();
             m_padTriggerSideID   = new std::vector<int>();
@@ -98,7 +85,7 @@ namespace NSWL1{
             m_padTriggerlocalminYInner   =new std::vector<std::vector<float>>();
             m_padTriggerlocalmaxYInner   =new std::vector<std::vector<float>>();
             m_padTriggerlocalminYOuter   =new std::vector<std::vector<float>>();
-            m_padTriggerlocalmaxYOuter   =new std::vector<std::vector<float>>();            
+            m_padTriggerlocalmaxYOuter   =new std::vector<std::vector<float>>();
 
 
             m_tree->Branch("nPadTriggers",                 &m_nPadTriggers,"nPadTriggers/i");
@@ -109,7 +96,7 @@ namespace NSWL1{
             m_tree->Branch("padTriggerSelectedLayersInner",&m_padTriggerSelectedLayersInner);
             m_tree->Branch("padTriggerSelectedLayersOuter",&m_padTriggerSelectedLayersOuter);
             m_tree->Branch("padTriggerSelectedBandsInner",&m_padTriggerSelectedBandsInner);
-            m_tree->Branch("padTriggerSelectedBandsOuter",&m_padTriggerSelectedBandsOuter ) ; 
+            m_tree->Branch("padTriggerSelectedBandsOuter",&m_padTriggerSelectedBandsOuter);
             m_tree->Branch("padTriggerPadEtaIndicesInner",&m_padTriggerPadEtaIndicesInner);
             m_tree->Branch("padTriggerPadPhiIndicesInner",&m_padTriggerPadPhiIndicesInner);
             m_tree->Branch("padTriggerPadEtaIndicesOuter",&m_padTriggerPadEtaIndicesOuter);
@@ -117,7 +104,7 @@ namespace NSWL1{
             m_tree->Branch("padTriggerRCenterMinInner",&m_padTriggerRCenterMinInner);
             m_tree->Branch("padTriggerRCenterMaxInner",&m_padTriggerRCenterMaxInner);
             m_tree->Branch("padTriggerRCenterMinOuter",&m_padTriggerRCenterMinOuter);
-            m_tree->Branch("padTriggerRCenterMaxOuter",&m_padTriggerRCenterMaxOuter );     
+            m_tree->Branch("padTriggerRCenterMaxOuter",&m_padTriggerRCenterMaxOuter);
             m_tree->Branch("padTriggerSectorType",         &m_padTriggerSectorType);
             m_tree->Branch("padTriggerSideID",             &m_padTriggerSideID);
             m_tree->Branch("padTriggerIndex",              &m_padTriggerIndex);
@@ -132,11 +119,11 @@ namespace NSWL1{
             m_tree->Branch("padTriggerEtamax",           &m_padTriggerEtamax);
             m_tree->Branch("padTriggerPhimin",           &m_padTriggerPhimin);
             m_tree->Branch("padTriggerPhimax",           &m_padTriggerPhimax);
-            
+
             m_tree->Branch("padTriggerlocalminYInner",           &m_padTriggerlocalminYInner);
             m_tree->Branch("padTriggerlocalmaxYInner",           &m_padTriggerlocalmaxYInner);
             m_tree->Branch("padTriggerlocalminYOuter",           &m_padTriggerlocalminYOuter);
-            m_tree->Branch("padTriggerlocalmaxYOuter",           &m_padTriggerlocalmaxYOuter);            
+            m_tree->Branch("padTriggerlocalmaxYOuter",           &m_padTriggerlocalmaxYOuter);
             // m_tree->Branch("nPadHits",                  &m_nPadHits,"nPadHits/i");
             // m_tree->Branch("padGlobalX",                &m_padGlobalX);
             // m_tree->Branch("padGlobalY",                &m_padGlobalY);
@@ -161,31 +148,31 @@ namespace NSWL1{
     {
         if(m_tree){
             m_nPadTriggers       = 0;
-            m_padTriggerBCID     ->clear();
-            m_padTriggerModuleIDinner->clear();;
-            m_padTriggerModuleIDouter->clear();;
-            m_padTriggerSelectedLayersInner->clear();;
-            m_padTriggerSelectedLayersOuter->clear();;
-            m_padTriggerSelectedBandsInner->clear();;
-            m_padTriggerSelectedBandsOuter->clear();;    
-            m_padTriggerPadEtaIndicesInner->clear();;
-            m_padTriggerPadPhiIndicesInner->clear();;
-            m_padTriggerPadEtaIndicesOuter->clear();;
-            m_padTriggerPadPhiIndicesOuter->clear();;
-            m_padTriggerRCenterMinInner->clear();;
-            m_padTriggerRCenterMaxInner->clear();;
-            m_padTriggerRCenterMinOuter->clear();;
-            m_padTriggerRCenterMaxOuter->clear();;                          
+            m_padTriggerBCID->clear();
+            m_padTriggerModuleIDinner->clear();
+            m_padTriggerModuleIDouter->clear();
+            m_padTriggerSelectedLayersInner->clear();
+            m_padTriggerSelectedLayersOuter->clear();
+            m_padTriggerSelectedBandsInner->clear();
+            m_padTriggerSelectedBandsOuter->clear();
+            m_padTriggerPadEtaIndicesInner->clear();
+            m_padTriggerPadPhiIndicesInner->clear();
+            m_padTriggerPadEtaIndicesOuter->clear();
+            m_padTriggerPadPhiIndicesOuter->clear();
+            m_padTriggerRCenterMinInner->clear();
+            m_padTriggerRCenterMaxInner->clear();
+            m_padTriggerRCenterMinOuter->clear();
+            m_padTriggerRCenterMaxOuter->clear();
             m_padTriggerSectorID ->clear();
-            m_padTriggerSectorType ->clear();
-            m_padTriggerSideID   ->clear();
+            m_padTriggerSectorType->clear();
+            m_padTriggerSideID->clear();
             m_padTriggerIndex->clear();
-            m_padTriggerBandID   ->clear();
-            m_padTriggerEta      ->clear();
-            m_padTriggerPhi      ->clear();
-            m_padTriggerEtaID    ->clear();
-            m_padTriggerPhiID    ->clear();
-            m_padTriggerMultipletID ->clear();
+            m_padTriggerBandID->clear();
+            m_padTriggerEta->clear();
+            m_padTriggerPhi->clear();
+            m_padTriggerEtaID->clear();
+            m_padTriggerPhiID->clear();
+            m_padTriggerMultipletID->clear();
             m_padTriggerEtamin->clear();
             m_padTriggerEtamax->clear();
             m_padTriggerPhimin->clear();
@@ -193,7 +180,7 @@ namespace NSWL1{
             m_padTriggerlocalminYInner->clear();
             m_padTriggerlocalmaxYInner->clear();
             m_padTriggerlocalminYOuter->clear();
-            m_padTriggerlocalmaxYOuter->clear();            
+            m_padTriggerlocalmaxYOuter->clear();
             // m_nPadHits = 0;
             // m_padGlobalX->clear();
             // m_padGlobalY->clear();
@@ -236,27 +223,27 @@ namespace NSWL1{
         m_padTriggerlocalmaxYOuter=nullptr;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::fill_num_pad_triggers(size_t num){
+    void PadTriggerValidationTree::fill_num_pad_triggers(size_t num) const {
         m_nPadTriggers = num;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers) {
+    void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers) const {
         for(auto& trigger : triggers) {
-            m_padTriggerBCID         ->push_back(trigger->bctag());
-            m_padTriggerSectorID     ->push_back(trigger->sectorId());
-            m_padTriggerSectorType   ->push_back((trigger->isSmall()+1)%2);//1 for L 0 for S
-            m_padTriggerSideID       ->push_back(trigger->sideId());
-            m_padTriggerIndex       ->push_back(trigger->index());
-            m_padTriggerBandID     ->push_back(trigger->bandId()); 
-            m_padTriggerEta        ->push_back(trigger->eta()); 
-            m_padTriggerPhi        ->push_back(trigger->phi()); 
-            m_padTriggerEtaID      ->push_back(trigger->etaId()); 
-            m_padTriggerPhiID      ->push_back(trigger->phiId()); 
-            m_padTriggerMultipletID->push_back(trigger->multipletId()); 
+            m_padTriggerBCID->push_back(trigger->bctag());
+            m_padTriggerSectorID->push_back(trigger->sectorId());
+            m_padTriggerSectorType->push_back((trigger->isSmall()+1)%2);//1 for L 0 for S
+            m_padTriggerSideID->push_back(trigger->sideId());
+            m_padTriggerIndex->push_back(trigger->index());
+            m_padTriggerBandID->push_back(trigger->bandId());
+            m_padTriggerEta->push_back(trigger->eta());
+            m_padTriggerPhi->push_back(trigger->phi());
+            m_padTriggerEtaID->push_back(trigger->etaId());
+            m_padTriggerPhiID->push_back(trigger->phiId());
+            m_padTriggerMultipletID->push_back(trigger->multipletId());
             m_padTriggerEtamin->push_back(trigger->etaMin());
             m_padTriggerEtamax->push_back(trigger->etaMax());
             m_padTriggerPhimin->push_back(trigger->phiMin());
-            m_padTriggerPhimax->push_back(trigger->phiMax());       
+            m_padTriggerPhimax->push_back(trigger->phiMax());
             m_padTriggerlocalminYInner->push_back(trigger->trglocalminYInner());
             m_padTriggerlocalmaxYInner->push_back(trigger->trglocalmaxYInner());
             m_padTriggerlocalminYOuter->push_back(trigger->trglocalminYOuter());
