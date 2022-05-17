@@ -106,8 +106,16 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
                                                                          << resolved_copies.size());
         to_copy = std::move(resolved_copies);
     }
+    /// Before everything is pushed back, the segments have to be sorted in a fixed way
+    /// avoiding false positives of irreproducible output
+    std::vector<const Trk::Segment*> to_copy_vec{};
+    to_copy_vec.insert(to_copy_vec.end(), to_copy.begin(), to_copy.end());
+    std::sort(to_copy_vec.begin(),to_copy_vec.end(), [] (const Trk::Segment* a, const Trk::Segment* b){
+        return a->globalPosition().mag2() < b->globalPosition().mag2();
+
+    });
     out_container = std::make_unique<Trk::SegmentCollection>();
-    for (const Trk::Segment* seg : to_copy) {
+    for (const Trk::Segment* seg : to_copy_vec) {
         /// Dynamic cast to the MuonSegment pointer
         const Muon::MuonSegment* muon_seg = dynamic_cast<const Muon::MuonSegment*>(seg);
         if (!muon_seg) continue;
