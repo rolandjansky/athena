@@ -17,8 +17,8 @@ atlas_add_library( JpsiUpsilonToolsLib
                    INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaBaseComps xAODMuon xAODTracking GaudiKernel InDetConversionFinderToolsLib TrkVKalVrtFitterLib TrkV0FitterLib xAODEgamma
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} FourMomUtils VxVertex TrkToolInterfaces TrkVertexFitterInterfaces xAODBPhysLib AthLinks TrkVertexFitterUtilsLib )
+                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaBaseComps xAODMuon xAODTracking GaudiKernel InDetConversionFinderToolsLib TrkVKalVrtFitterLib TrkV0FitterLib xAODEgamma TrkVertexFitterUtilsLib
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} FourMomUtils VxVertex TrkToolInterfaces TrkVertexFitterInterfaces xAODBPhysLib AthLinks  )
 
 atlas_add_component( JpsiUpsilonTools
                      src/components/*.cxx

@@ -48,7 +48,7 @@ def getTrackSelAlg(trkOpt="default", trackSelOpt=False):
         outContainerKey = "JetTracksQualityCuts"
 
     # build the selection alg 
-    trkSelAlg = CompFactory.JetTrackSelectionAlg( f"trackselalg_qual{trackSelOpt}",
+    trkSelAlg = CompFactory.JetTrackSelectionAlg( f"trackselalg_qual{trackSelOpt}_{trkProperties[outContainerKey]}",
                                                   TrackSelector = idtracksel,
                                                   InputContainer = trkProperties["Tracks"],
                                                   OutputContainer = trkProperties[outContainerKey],

@@ -240,8 +240,8 @@ def getPseudoJetAlgs(jetdef):
     (this function is factorized out of PseudoJetCfg so it can be used standalone in the trigger config)
     """
     
-    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None, flags=jetdef._cflags)
-    #print("aaaa" , constitpjalg, constitpjalg.OutputContainer)
+    constitpjalg = getConstitPJGAlg( jetdef.inputdef , suffix=None , flags=jetdef._cflags)
+
     finalPJContainer = str(constitpjalg.OutputContainer)
     pjalglist = [constitpjalg]
     

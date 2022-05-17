@@ -31,8 +31,13 @@ from DerivationFrameworkPhys.PHYS import PHYSCfg
 # PHYSVAL - large bulk of the variables from AOD plus PHYS augmentations
 from DerivationFrameworkPhysicsValidation.PHYSVAL import PHYSVALCfg
 
+# Higgs derivations
+# HIGG1D1 Higgs->gammagamma derivation
+from DerivationFrameworkHiggs.HIGG1D1 import HIGG1D1Cfg
+
 # Avoids compilation warnings from Flake8
 __all__ = ['TEST1Cfg','TEST2Cfg','TEST3Cfg','TEST4Cfg','TEST5Cfg','TEST6Cfg',
            'TRUTH0Cfg','TRUTH1Cfg','TRUTH3Cfg',
            'PHYSCfg',
-           'PHYSVALCfg']
+           'PHYSVALCfg',
+           'HIGG1D1Cfg']          

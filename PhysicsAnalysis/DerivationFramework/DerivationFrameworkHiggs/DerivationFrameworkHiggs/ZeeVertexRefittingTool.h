@@ -52,7 +52,7 @@ namespace DerivationFramework {
       
       std::vector<unsigned int> m_MCSamples;
 
-      ToolHandle < Analysis::PrimaryVertexRefitter > m_pvrefitter;
+      ToolHandle < Analysis::PrimaryVertexRefitter > m_pvrefitter{this, "PrimaryVertexRefitterTool", "Analysis::PrimaryVertexRefitter"};
 
       StatusCode makeZeePairs( const xAOD::ElectronContainer *particles, std::vector<std::vector<unsigned int> > &ZeePairs) const;
   }; 
