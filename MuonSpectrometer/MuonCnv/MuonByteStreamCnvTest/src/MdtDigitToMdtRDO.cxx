@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
@@ -210,10 +210,8 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
              
 
           }
-          if (!cabling) {
-                ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "<<cabling_data );
-                return StatusCode::FAILURE;
-          }
+          ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "<<cabling_data );
+          return StatusCode::FAILURE;
        } 
 
         bool masked = mdtDigit->is_masked();

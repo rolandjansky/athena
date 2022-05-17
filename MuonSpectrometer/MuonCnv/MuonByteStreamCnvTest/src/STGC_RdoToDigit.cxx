@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "STGC_RdoToDigit.h"
@@ -57,11 +57,11 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
     // retrieve/create digit collection, and insert digit into collection
     for (const Muon::STGC_RawData * data : *rdoColl) {
       sTgcDigit * newDigit = m_stgcRdoDecoderTool->getDigit(data);
-      newDigit->set_time(newDigit->time() - Muon::STGC_RawData::s_timeTdoShift); //place holder calibration for tdo->time conversion
       if (!newDigit) {
         ATH_MSG_ERROR( "Error in sTGC RDO decoder"  );
         continue;
       }
+      newDigit->set_time(newDigit->time() - Muon::STGC_RawData::s_timeTdoShift); //place holder calibration for tdo->time conversion
 
       // find here the Proper Digit Collection identifier, using the rdo-hit id
       // (since RDO collections are not in a 1-to-1 relation with digit collections)
