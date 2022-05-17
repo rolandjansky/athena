@@ -146,6 +146,13 @@
    <typedef name="xAOD::jFexTauRoI" />
    <typedef name="xAOD::jFexTauRoIContainer" />
 
+   <class name="xAOD::jFexFwdElRoI_v1" />
+   <class name="xAOD::jFexFwdElRoIContainer_v1"
+          id="D0916E35-852F-42A2-BD67-C4CE4B16748A" />
+   <typedef name="xAOD::jFexFwdElRoI" />
+   <typedef name="xAOD::jFexFwdElRoIContainer" />
+
+
    <class name="xAOD::jFexSumETRoI_v1" />
    <class name="xAOD::jFexSumETRoIContainer_v1"
           id="950203D1-652B-40E6-AE53-9F6E27870A42" />
@@ -190,6 +197,10 @@
    <class name="xAOD::jFexTauRoIAuxContainer_v1"
           id="F5FD3587-4A02-456B-9A0D-02CC303E25A0" />
    <typedef name="xAOD::jFexTauRoIAuxContainer" />
+
+   <class name="xAOD::jFexFwdElRoIAuxContainer_v1"
+          id="242C9141-10E7-4180-A001-1DF6AC798A4D" />
+   <typedef name="xAOD::jFexFwdElRoIAuxContainer" />
 
    <class name="xAOD::jFexSumETRoIAuxContainer_v1"
           id= "BF6CFD18-1A2B-419F-81A7-5E3F44086733" />
