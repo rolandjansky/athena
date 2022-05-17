@@ -209,9 +209,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
     have_calo_rois = flags.ITk.Tracking.doBremRecovery and flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
-        acc.merge(ITKCaloClusterROIPhiRZContainerMakerCfg(flags))
-        kwargs.setdefault("EMROIPhiRZContainer","InDetCaloClusterROIPhiRZ0GeV")
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITkCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITkCaloClusterROIPhiRZContainerMakerCfg(flags))
+        kwargs.setdefault("EMROIPhiRZContainer","ITkCaloClusterROIPhiRZ0GeV")
     kwargs.setdefault("SummaryTool", ITkTrackSummaryTool )
     kwargs.setdefault("DriftCircleCutTool", None )
     kwargs.setdefault("useAmbigFcn", True )
