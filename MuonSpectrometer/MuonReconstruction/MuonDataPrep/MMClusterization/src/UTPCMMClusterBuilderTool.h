@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef UTPCMMClusterBuilderTool_h
 #define UTPCMMClusterBuilderTool_h
@@ -46,8 +46,9 @@ namespace Muon
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
 	 		   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)const override ;
 
+    virtual
     StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, const float theta ,
-					    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
+					    Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const override;
 
 
   private: 
