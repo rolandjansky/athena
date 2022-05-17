@@ -1,0 +1,88 @@
+#
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile raw channel monitoring for CIS calibration runs
+## Separate blocks with ---
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_5', 'Tile/RawChannel/Summary/{module}_{gain}_tails_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per LBA module with amplitude over charge ratio of all channels in the module for 5 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_5', 'Tile/RawChannel/Summary/{module}_{gain}_tails_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per LBC module with amplitude over charge ratio of all channels in the module for 5 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_5', 'Tile/RawChannel/Summary/{module}_{gain}_tails_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per EBA module with amplitude over charge ratio of all channels in the module for 5 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_5', 'Tile/RawChannel/Summary/{module}_{gain}_tails_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per EBC module with amplitude over charge ratio of all channels in the module for 5 pF
+
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_5', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per LBA module with time slope and offset of all channels in the module for 5 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_5', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per LBC module with time slope and offset of all channels in the module for 5 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_5', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per EBA module with time slope and offset of all channels in the module for 5 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_5$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_5', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_5' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per EBC module with time slope and offset of all channels in the module for 5 pF
+
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_100', 'Tile/RawChannel/Summary/{module}_{gain}_tails_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per LBA module with amplitude over charge ratio of all channels in the module for 100 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_100', 'Tile/RawChannel/Summary/{module}_{gain}_tails_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per LBC module with amplitude over charge ratio of all channels in the module for 100 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_100', 'Tile/RawChannel/Summary/{module}_{gain}_tails_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per EBA module with amplitude over charge ratio of all channels in the module for 100 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp_ratio_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_qratio_100', 'Tile/RawChannel/Summary/{module}_{gain}_tails_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeOverChargeRatio
+Description: Produce Tile 1D summary histograms and graphs per EBC module with amplitude over charge ratio of all channels in the module for 100 pF
+
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_100', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per LBA module with time slope and offset of all channels in the module for 100 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_100', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per LBC module with time slope and offset of all channels in the module for 100 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_100', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per EBA module with time slope and offset of all channels in the module for 100 pF
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_vs_time_100$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_tslope_100', 'Tile/RawChannel/Summary/{module}_{gain}_toffset_100' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeSlopeAndOffset
+Description: Produce Tile 1D summary histograms per EBC module with time slope and offset of all channels in the module for 100 pF
