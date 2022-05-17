@@ -234,10 +234,7 @@ void CaloClusterKineHelper::calculateKine(xAOD::CaloCluster* clu, const bool use
   int nEndcap = 0;
   double timeNorm = 0.;
 
-  std::array<double,CaloSampling::Unknown> posSamNorm;
-  std::fill (posSamNorm.begin(), posSamNorm.end(), 0);
-
-
+  std::array<double,CaloSampling::Unknown> posSamNorm{};
 
   CellAccum accum (posNorm, posSamNorm, nBarrel, nEndcap, timeNorm);
   //accum.theNewPhi = clu->phi(); //????

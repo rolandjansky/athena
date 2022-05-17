@@ -326,7 +326,7 @@ void
     }
 
 void FileMetaDataCreatorTool::addUniqueValue(
-  std::string type, uint32_t value) {
+  const std::string& type, uint32_t value) {
   try {
     std::vector<uint32_t> list;
     if (m_info->value(type, list)) {
