@@ -283,6 +283,9 @@ def setupMenu():
         # Prototyping RoI jet tracking
         ChainProp(name="HLT_j80_pf_ftf_preselj20_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
         ChainProp(name="HLT_j80_pf_ftf_preselj20b95_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
+        ### !! hacky chain to fix ATR-25449 temporarily for SampleA
+        ChainProp(name="HLT_j2000_pf_ftf_preselj2b77_L1RD0_FILLED", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
+        ### !! 
         ChainProp(name="HLT_j80_pf_ftf_preselj20b77_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
 
         ChainProp(name="HLT_j80_roiftf_preselj20_L1J20", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+DevGroup),
