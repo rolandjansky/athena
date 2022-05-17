@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Main steering for MC+MC and MC+data overlay
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -36,10 +36,16 @@ def OverlayMainCfg(configFlags):
     acc = MainServicesCfg(configFlags)
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
+    acc.merge(OverlayMainContentCfg(configFlags))
+    return acc
+
+
+def OverlayMainContentCfg(configFlags):
+    """Main overlay content"""
 
     # Handle metadata correctly
     overlayMetadataCheck(configFlags)
-    acc.merge(overlayMetadataWrite(configFlags))
+    acc = overlayMetadataWrite(configFlags)
 
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))
