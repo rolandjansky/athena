@@ -6,7 +6,7 @@
 atlas_subdir( MuonTesterTree )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread TBB )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 atlas_add_library( MuonTesterTreeLib
                    MuonTesterTree/*.h Root/*.cxx
