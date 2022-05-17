@@ -52,7 +52,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "TMath.h"

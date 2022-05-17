@@ -54,13 +54,6 @@ TrackSummaryTool::updateSharedHitCount(Track& track) const
 }
 
 inline void
-TrackSummaryTool::updateAdditionalInfo(const Track& track,
-                                       TrackSummary& summary) const
-{
-  updateAdditionalInfo(track, summary, false);
-}
-
-inline void
 TrackSummaryTool::updateAdditionalInfo(Track& track) const
 {
   if (!track.trackSummary()) {
@@ -69,8 +62,7 @@ TrackSummaryTool::updateAdditionalInfo(Track& track) const
   } else {
     updateAdditionalInfo(
       track,
-      *track.trackSummary(),
-      true); // @TODO set to false; true for backward compatibility
+      *track.trackSummary());
   }
 }
 inline void

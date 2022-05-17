@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           Summary.cxx  -  description
@@ -16,12 +16,7 @@ const int Trk::TrackSummary::SummaryTypeNotSet = -1;
 
 Trk::TrackSummary::TrackSummary()
   : m_information(numberOfTrackSummaryTypes, SummaryTypeNotSet)
-  , m_eProbability(Trk::eProbabilityDefault)
-  , m_dedx(-1)
-  , m_nhitsdedx(-1)
-  , m_nhitsoverflowdedx(-1)
   , m_idHitPattern(0)
-  , m_indetTrackSummary(nullptr)
   , m_muonTrackSummary(nullptr)
 {
 #ifndef NDEBUG
@@ -30,18 +25,9 @@ Trk::TrackSummary::TrackSummary()
 }
 
 Trk::TrackSummary::TrackSummary(const std::vector<int>& information,
-                                const std::vector<float>& eProbability,
-                                std::bitset<numberOfDetectorTypes>& hitPattern,
-                                float dedx,
-                                int nhitsdedx,
-                                int noverflowdedx)
+                                std::bitset<numberOfDetectorTypes>& hitPattern)
   : m_information(information)
-  , m_eProbability(eProbability)
-  , m_dedx(dedx)
-  , m_nhitsdedx(nhitsdedx)
-  , m_nhitsoverflowdedx(noverflowdedx)
   , m_idHitPattern(hitPattern.to_ulong())
-  , m_indetTrackSummary(nullptr)
   , m_muonTrackSummary(nullptr)
 {
 #ifndef NDEBUG
@@ -51,21 +37,11 @@ Trk::TrackSummary::TrackSummary(const std::vector<int>& information,
 
 Trk::TrackSummary::TrackSummary(const TrackSummary& rhs)
   : m_information(rhs.m_information)
-  , m_eProbability(rhs.m_eProbability)
-  , m_dedx(rhs.m_dedx)
-  , m_nhitsdedx(rhs.m_nhitsdedx)
-  , m_nhitsoverflowdedx(rhs.m_nhitsoverflowdedx)
   , m_idHitPattern(rhs.m_idHitPattern)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
 #endif
-  if (rhs.m_indetTrackSummary) {
-    m_indetTrackSummary =
-      std::make_unique<InDetTrackSummary>(*rhs.m_indetTrackSummary);
-  } else {
-    m_indetTrackSummary = nullptr;
-  }
   if (rhs.m_muonTrackSummary) {
     m_muonTrackSummary =
       std::make_unique<MuonTrackSummary>(*rhs.m_muonTrackSummary);
@@ -79,14 +55,7 @@ Trk::TrackSummary::operator=(const TrackSummary& rhs)
 {
   if (&rhs != this) {
     m_information = rhs.m_information;
-    m_eProbability = rhs.m_eProbability;
-    m_dedx = rhs.m_dedx;
-    m_nhitsdedx = rhs.m_nhitsdedx;
-    m_nhitsoverflowdedx = rhs.m_nhitsoverflowdedx;
     m_idHitPattern = rhs.m_idHitPattern;
-    m_indetTrackSummary.reset(
-      rhs.m_indetTrackSummary ? new InDetTrackSummary(*rhs.m_indetTrackSummary)
-                              : nullptr);
     m_muonTrackSummary.reset(rhs.m_muonTrackSummary
                                ? new MuonTrackSummary(*rhs.m_muonTrackSummary)
                                : nullptr);
@@ -117,23 +86,10 @@ Trk::TrackSummary::operator+=(const TrackSummary& ts)
       }
       m_information[i] += ts.m_information[i];
     }
-    if (ts.m_eProbability != Trk::eProbabilityDefault) {
-      m_eProbability = ts.m_eProbability;
-    }
-    if (m_dedx < 0 && ts.m_dedx >= 0) {
-      m_dedx = ts.m_dedx;
-      m_nhitsdedx = ts.m_nhitsdedx;
-      m_nhitsoverflowdedx = ts.m_nhitsoverflowdedx;
-    }
     if (!m_muonTrackSummary) {
       m_muonTrackSummary.reset(ts.m_muonTrackSummary
                                  ? new MuonTrackSummary(*ts.m_muonTrackSummary)
                                  : nullptr);
-    }
-    if (!m_indetTrackSummary) {
-      m_indetTrackSummary.reset(
-        ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary)
-                               : nullptr);
     }
   }
   return *this;
@@ -261,34 +217,6 @@ dumpTrackSummary(T_out& out, const TrackSummary& trackSum)
       << "\n";
   out << " * scatter of chi2 on Surface    : "
       << float(trackSum.get(standardDeviationOfChi2OS)) / 100. << "\n";
-
-  out << " --------------------------------- "
-      << "\n";
-  out << " * Electron probability combined:  "
-      << trackSum.getPID(eProbabilityComb) << "\n";
-  out << " * Electron probability from HT:   "
-      << trackSum.getPID(eProbabilityHT) << "\n";
-  out << " * Electron probability from ToT:  "
-      << trackSum.getPID(eProbabilityToT) << "\n";
-  out << " * Electron probability from Brem: "
-      << trackSum.getPID(eProbabilityBrem) << "\n";
-  out << " * Electron probability from NN: " << trackSum.getPID(eProbabilityNN)
-      << "\n";
-  out << " * TRT track occupancy: " << trackSum.getPID(TRTTrackOccupancy)
-      << "\n";
-  out << " * dE/dx from TRT: " << trackSum.getPID(TRTdEdx) << "\n";
-  out << " * number of TRT hits used for dE/dx: "
-      << trackSum.getPID(eProbabilityNumberOfTRTHitsUsedFordEdx) << "\n";
-  out << " --------------------------------- "
-      << "\n";
-
-  out << " dE/dx from pixels               : " << trackSum.getPixeldEdx()
-      << " MeV g^-1 cm^2"
-      << "\n";
-  out << " number of hits used for dE/dx   : "
-      << trackSum.numberOfUsedHitsdEdx() << "\n";
-  out << " number of overflow hits used for dE/dx   : "
-      << trackSum.numberOfOverflowHitsdEdx() << "\n";
   // this is a bit nasty, but I don't have access to internal data members
   out << " Hit pattern (see DetectorType enum for meaning) : ";
   for (int i = 0; i < Trk::numberOfDetectorTypes; ++i) {
@@ -299,9 +227,6 @@ dumpTrackSummary(T_out& out, const TrackSummary& trackSum)
     }
   }
   out << "\n";
-  if (nullptr != trackSum.indetTrackSummary()) {
-    out << *(trackSum.indetTrackSummary());
-  }
   if (nullptr != trackSum.muonTrackSummary()) {
     out << *(trackSum.muonTrackSummary());
   }

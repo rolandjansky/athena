@@ -86,6 +86,13 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     kwargs.setdefault("MuonSummaryTool", CfgMgr.Muon__MuonHitSummaryTool("MuonHitSummaryTool"))
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("PerigeeExpression","Origin")
+
+    from AthenaCommon.DetFlags              import DetFlags
+    if DetFlags.haveRIO.pixel_on() and not ConfigFlags.Muon.MuonTrigger:
+        from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
+        kwargs.setdefault("PixelToTPIDTool", InDet__PixelToTPIDTool( \
+                                                                     name                       = "CombinedMuonPixelToTPID") )
+
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
 
 def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):

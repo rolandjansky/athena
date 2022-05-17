@@ -3,7 +3,6 @@
 #include "../PerigeeParametersNtupleTool.h"
 #include "../MeasurementVectorNtupleTool.h"
 #include "../DirectTrackNtupleWriterTool.h"
-#include "../TrackSummaryNtupleTool.h"
 #include "TrkValTools/ResidualValidationNtupleHelper.h"
 #include "TrkValTools/HitPositionNtupleHelper.h"
 #include "TrkValTools/TrackPositionNtupleHelper.h"
@@ -26,7 +25,6 @@ DECLARE_COMPONENT( Trk::BasicValTrkParticleNtupleTool )
 DECLARE_COMPONENT( Trk::TrackInformationNtupleTool )
 DECLARE_COMPONENT( Trk::PerigeeParametersNtupleTool )
 DECLARE_COMPONENT( Trk::MeasurementVectorNtupleTool )
-DECLARE_COMPONENT( Trk::TrackSummaryNtupleTool )
 DECLARE_COMPONENT( Trk::DirectTrackNtupleWriterTool )
 DECLARE_COMPONENT( Trk::ResidualValidationNtupleHelper )
 DECLARE_COMPONENT( Trk::HitPositionNtupleHelper )

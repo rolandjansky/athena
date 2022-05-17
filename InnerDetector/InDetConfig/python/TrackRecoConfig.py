@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import BeamType, Format
+from AthenaConfiguration.Enums import BeamType, Format, LHCPeriod
 
 def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result = ComponentAccumulator()
@@ -15,6 +15,7 @@ def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     return result
 
 def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kwargs):
+
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
         from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCreatorToolCfg
@@ -27,6 +28,32 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
         TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
         kwargs["TrackSummaryTool"] = TrackSummaryTool
+
+    if "TRT_ElectronPidTool" not in kwargs :
+        if flags.InDet.Tracking.ActivePass.RunTRTPID and  flags.GeoModel.Run < LHCPeriod.Run4 :
+            from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
+            kwargs.setdefault("TRT_ElectronPidTool", result.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
+        else :
+            kwargs.setdefault("TRT_ElectronPidTool", None)
+
+    if 'PixelToTPIDTool' not in kwargs :
+        if flags.InDet.Tracking.ActivePass.RunPixelPID and  flags.GeoModel.Run < LHCPeriod.Run4 :
+            from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
+            kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags)))
+        else :
+            kwargs.setdefault("PixelToTPIDTool", None)
+
+    # have to create special public instance depending on PID tool configuration
+    if name=="InDetxAODParticleCreatorTool" :
+        pixel_pid =kwargs.get("PixelToTPIDTool", None) is not None
+        trt_pid =kwargs.get("TRT_ElectronPidTool", None) is not None
+        if not trt_pid and not pixel_pid :
+            name  += "NoPID"
+        elif not trt_pid :
+            name += "NoTRTPID"
+        elif not pixel_pid :
+            name  += "NoPixPID"
+
     kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", False)

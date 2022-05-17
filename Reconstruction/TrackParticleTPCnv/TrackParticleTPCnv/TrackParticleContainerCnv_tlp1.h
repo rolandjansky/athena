@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKPARTICLECONTAINER_CNV_TLP1_REC_H
@@ -72,7 +72,6 @@
 // TrkTrackSummary
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummaryCnv_p1.h"
-#include "TrkEventTPCnv/TrkTrackSummary/InDetTrackSummaryCnv_p1.h"
 #include "TrkEventTPCnv/TrkTrackSummary/MuonTrackSummaryCnv_p1.h"
 
 //-----------------------------------------------------------------------------
@@ -177,7 +176,6 @@ protected:
 
 // TrkTrackSummary
     TrackSummaryCnv_p1                  m_trackSummaryCnv;
-    InDetTrackSummaryCnv_p1             m_indetTrackSummaryCnv;
     MuonTrackSummaryCnv_p1              m_muonTrackSummaryCnv;
 
 // TrkEventPrimitives

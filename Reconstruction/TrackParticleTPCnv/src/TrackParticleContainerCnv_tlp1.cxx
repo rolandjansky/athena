@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackParticleTPCnv/TrackParticleContainerCnv_tlp1.h"
@@ -75,7 +75,6 @@ TrackParticleContainerCnv_tlp1::TrackParticleContainerCnv_tlp1()
    addTPConverter( &m_muonTrackSummaryCnv );
 
    //Added with TrackParticleTPCnv-00-02-06          
-   addTPConverter( &m_indetTrackSummaryCnv );
 
    addTPConverter( &m_rotatedDiamondBoundsCnv);
 
@@ -144,7 +143,6 @@ void TrackParticleContainerCnv_tlp1::setPStorage( Rec::TrackParticleContainer_tl
     m_rotatedTrapesoidBoundsCnv.   setPStorage( &storage->m_rotatedTrapesoidBounds); 
 
     m_trackSummaryCnv.         setPStorage(&storage->m_trackSummaries);
-    m_indetTrackSummaryCnv.     setPStorage(&storage->m_indetTrackSummaries);
     m_muonTrackSummaryCnv.     setPStorage(&storage->m_muonTrackSummaries);
     
     m_fitQualityCnv.           setPStorage(&storage->m_fitQualities);

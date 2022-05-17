@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
 Summary.h  -  description
@@ -11,7 +11,6 @@ email                : edward.moyse@cern.ch
 #ifndef TRKTRACKSUMMARY_H
 #define TRKTRACKSUMMARY_H
 
-#include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include <atomic>
 #include <bitset>
@@ -187,35 +186,25 @@ enum SummaryType
 
   // reserved: added to keep synchronisation with xAOD::TrackSummary in
   // anticipation of the two being merged
-
-  //!< Electron probability from combining the below
-  //!< probabilities [float].
-  eProbabilityComb_res = 47,
-  //!< Electron probability from  High Threshold (HT) information [float].
-  eProbabilityHT_res = 48,
-  //!< Electron probability from Time-Over-Threshold
-  //!< (ToT) information [float].
-  eProbabilityToT_res = 49,
-  //!< Electron probability from Brem fitting (DNA) [float].
-  eProbabilityBrem_res = 50,
-  //!< the dE/dx estimate, calculated using the pixel clusters [?]
-  pixeldEdx_res = 51,
-  //!< Electron probability from NN [float]
-  eProbabilityNN_res = 73,
-  //!< TRT track occupancy.
-  TRTTrackOccupancy_res = 74,
-  //!< dEdx from TRT ToT measurement.
-  TRTdEdx_res = 75,
+  // in the past used to store  pixel and TRT PID information:
+  unused_eProbabilityComb_res = 47,
+  unused_eProbabilityHT_res = 48,
+  unused_eProbabilityToT_res = 49,
+  unused_eProbabilityBrem_res = 50,
+  unused_pixeldEdx_res = 51,
+  unused_eProbabilityNN_res = 73,
+  unused_TRTTrackOccupancy_res = 74,
+  unused_TRTdEdx_res = 75,
 
   // -- numbers...
   numberOfTrackSummaryTypes = 76
 };
 
 // summary types that are stored as float values
-static const std::vector<unsigned int> floatSummaryTypes = {
-  eProbabilityComb_res,  eProbabilityHT_res, eProbabilityToT_res,
-  eProbabilityBrem_res,  pixeldEdx_res,      eProbabilityNN_res,
-  TRTTrackOccupancy_res, TRTdEdx_res
+static const std::vector<unsigned int> unusedSummaryTypes = {
+  unused_eProbabilityComb_res,  unused_eProbabilityHT_res, unused_eProbabilityToT_res,
+  unused_eProbabilityBrem_res,  unused_pixeldEdx_res,      unused_eProbabilityNN_res,
+  unused_TRTTrackOccupancy_res, unused_TRTdEdx_res
 };
 
 // Troels.Petersen@cern.ch:
@@ -321,11 +310,7 @@ public:
   @param hitPattern this bitset should be filled using the DetectorType enum.
   True indicates that a sub-detector was hit*/
   TrackSummary(const std::vector<int>& information,
-               const std::vector<float>& eProbability,
-               std::bitset<numberOfDetectorTypes>& hitPattern,
-               float dedx = -1,
-               int nhitsuseddedx = -1,
-               int nhitsoverflowdedx = -1);
+               std::bitset<numberOfDetectorTypes>& hitPattern);
 
   /** copy ctor*/
   TrackSummary(const TrackSummary& rhs);
@@ -352,22 +337,6 @@ public:
   filling it yet)*/
   int get(const SummaryType& type) const;
 
-  /** returns the probability information for the passed ProbabilityType.
-  @param type Use the provided enums to access it, i.e. by
-  summary.getPID(eProbabilityComb)
-  @return returns -1 if the enum is undefined (i.e. the information was not
-  available in the Track, or (more likely) Trk::TrkTrackSummaryTool is not
-  filling it yet)*/
-  // Troels.Petersen@cern.ch:
-  float getPID(const eProbabilityType& PIDtype) const;
-
-  /** returns the dE/dx estimate, calculated using the pixel clusters */
-  float getPixeldEdx() const;
-
-  int numberOfUsedHitsdEdx() const;
-
-  int numberOfOverflowHitsdEdx() const;
-
   unsigned long getHitPattern() const;
 
   /** returns true if the detector type 'type' is hit.
@@ -375,13 +344,6 @@ public:
   internal positions may change!)
   @return true if sub-detector 'type' is hit*/
   bool isHit(const DetectorType& type) const;
-
-  /** returns a const pointer to the InDetTrackSummary if available */
-  const InDetTrackSummary* indetTrackSummary() const;
-
-  /** returns a pointer to a modifiable (non-const)  InDetTrackSummary if
-   * available */
-  InDetTrackSummary* indetTrackSummary();
 
   /** returns a pointer to the MuonTrackSummary if available */
   const MuonTrackSummary* muonTrackSummary() const;
@@ -407,25 +369,11 @@ private: // data members
   /** vector containing the persistent summary information. */
   std::vector<int> m_information;
 
-  /** vector containing the persistent summary information. */
-  // Troels.Petersen@cern.ch:
-  std::vector<float> m_eProbability;
-
-  /** contains the dE/dx information, calculated using the pixel clusters */
-  float m_dedx;
-
-  int m_nhitsdedx;
-
-  int m_nhitsoverflowdedx;
-
   /**contains the 'hit pattern'*/
   unsigned long m_idHitPattern;
 
   /** number of objects of this type in memory */
   static std::atomic<unsigned int> s_numberOfInstantiations;
-
-  /** pointer to the InDetTrackSummary */
-  std::unique_ptr<InDetTrackSummary> m_indetTrackSummary;
 
   /** pointer to the MuonTrackSummary */
   std::unique_ptr<MuonTrackSummary> m_muonTrackSummary;

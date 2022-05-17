@@ -50,10 +50,13 @@ if InDetFlags.doSplitReco()  and is_mc:
     xAODTruthCnvPU.MetaObjectName = "TruthMetaData_PU" #output
     topSequence += xAODTruthCnvPU
 
-def getTrackCollectionCnvTool(prd_to_track_map=None, suffix="") :
+def getTrackCollectionCnvTool(prd_to_track_map=None, suffix="",trt_pid_tool=True, pixel_dedx=True) :
     from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
     return xAODMaker__TrackCollectionCnvTool("TrackCollectionCnvTool"+suffix,
-                                             TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix))
+                                             TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map,
+                                                                                                    suffix,
+                                                                                                    trt_pid_tool=trt_pid_tool,
+                                                                                                    pixel_dedx=pixel_dedx))
 
 def getRecTrackParticleContainerCnvTool(prd_to_track_map=None, suffix="") :
     from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__RecTrackParticleContainerCnvTool
@@ -63,7 +66,7 @@ def getRecTrackParticleContainerCnvTool(prd_to_track_map=None, suffix="") :
 def isValid(name) :
     return name is not None and name != ""
 
-def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence, prd_to_track_map=None, suffix="") :
+def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence, prd_to_track_map=None, suffix="",trt_pid_tool=True, pixel_dedx=True) :
     '''
     create algorithm to convert the input tracks into track xAOD track particles.
     @param track_in the name of the input TrackCollection
@@ -74,15 +77,24 @@ def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, t
            algorithms e.g. a TrackCollectionMerger.
     @param suffix which makes the names of the particle creator tool and sub-tools unique in case a prd_to_track_map
            is provided.
+    @param trt_pid_tool if true run TRT_ElectronPidTool for each track and decorate track particle with the results
+    @param pixel_dedx   if true run PixelToTPIDTool for each track and decorate track particle with the results
     '''
+    if not trt_pid_tool and not pixel_dedx :
+        suffix += "NoPID"
+    elif not trt_pid_tool :
+        suffix += "NoTRTPID"
+    elif not pixel_dedx :
+        suffix += "NoPixPID"
+
     if isValid(track_in) and isValid(track_particle_out) :
         from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
         xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(track_particle_out)
         xAODTrackParticleCnvAlg.xAODContainerName = ""
         xAODTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = track_particle_out
         xAODTrackParticleCnvAlg.TrackContainerName = track_in
-        xAODTrackParticleCnvAlg.TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix)
-        xAODTrackParticleCnvAlg.TrackCollectionCnvTool = getTrackCollectionCnvTool(prd_to_track_map, suffix)
+        xAODTrackParticleCnvAlg.TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix,trt_pid_tool=trt_pid_tool, pixel_dedx=pixel_dedx)
+        xAODTrackParticleCnvAlg.TrackCollectionCnvTool = getTrackCollectionCnvTool(prd_to_track_map, suffix, trt_pid_tool=trt_pid_tool, pixel_dedx=pixel_dedx)
         xAODTrackParticleCnvAlg.AODContainerName = ""
         xAODTrackParticleCnvAlg.AODTruthContainerName = ""
         xAODTrackParticleCnvAlg.ConvertTrackParticles = False
@@ -125,12 +137,14 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
         InputTrackCollectionTruth = InDetKeys.TracksTruth()
     if not InDetFlags.doDBMstandalone():
         if doCreation :
-            createTrackParticles(InputTrackCollection, InputTrackCollectionTruth, InDetKeys.xAODTrackParticleContainer(),topSequence)
+            createTrackParticles(InputTrackCollection, InputTrackCollectionTruth, InDetKeys.xAODTrackParticleContainer(),topSequence,
+                                 trt_pid_tool=True, pixel_dedx=True)
             from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
             from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
             for col in InDetPhysValFlags.validateExtraTrackCollections() :
                 prefix=extractCollectionPrefix(col)
-                createTrackParticles(col,"", prefix+"TrackParticles", topSequence)
+                createTrackParticles(col,"", prefix+"TrackParticles", topSequence,
+                                     trt_pid_tool=False, pixel_dedx=False)
         if doConversion :
             convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.TrackParticles()),
                                   InDetKeys.TrackParticlesTruth() ,
@@ -140,7 +154,8 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
 
     if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM() ) and doCreation :
         # or instead of InDetKeys.DBMTracksTruth()  rather InDetKeys.DBMDetailedTracksTruth() ?
-        createTrackParticles( InDetKeys.xAODDBMTrackParticleContainer(), InDetKeys.DBMTracksTruth(), InDetKeys.xAODDBMTrackParticleContainer(),topSequence)
+        createTrackParticles( InDetKeys.xAODDBMTrackParticleContainer(), InDetKeys.DBMTracksTruth(), InDetKeys.xAODDBMTrackParticleContainer(),topSequence,
+                              trt_pid_tool=False, pixel_dedx=False)
 
 if not InDetFlags.doVertexFinding():
     if (not InDetFlags.doDBMstandalone() and
@@ -166,7 +181,8 @@ if not InDetFlags.doVertexFinding():
 #For forward tracks, no separate collection for ITK, since they are already merged
 if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation()) or doConversion:
     if doCreation :
-        createTrackParticles(InDetKeys.ResolvedForwardTracks(), InDetKeys.ResolvedForwardTracksTruth(), InDetKeys.xAODForwardTrackParticleContainer(),topSequence)
+        createTrackParticles(InDetKeys.ResolvedForwardTracks(), InDetKeys.ResolvedForwardTracksTruth(), InDetKeys.xAODForwardTrackParticleContainer(),topSequence,
+                             trt_pid_tool=False, pixel_dedx=False)
     if doConversion :
         convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.ResolvedForwardTrackParticles()),
                               InDetKeys.ResolvedForwardTrackParticlesTruth(),
@@ -175,7 +191,8 @@ if (InDetFlags.doForwardTracks() and InDetFlags.doParticleCreation()) or doConve
 
 if InDetFlags.doPseudoTracking():
     if doCreation :
-        createTrackParticles(InDetKeys.PseudoTracks(), InDetKeys.PseudoTracksTruth(), InDetKeys.xAODPseudoTrackParticleContainer(),topSequence)
+        createTrackParticles(InDetKeys.PseudoTracks(), InDetKeys.PseudoTracksTruth(), InDetKeys.xAODPseudoTrackParticleContainer(),topSequence,
+                             trt_pid_tool=False, pixel_dedx=False) # @TODO PID for pseudo particles ? 
     if doConversion :
         convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.PseudoTracks()),
                               InDetKeys.TrackParticlesTruth(),
@@ -185,12 +202,14 @@ if InDetFlags.doPseudoTracking():
 
 if InDetFlags.runLRTReco() and InDetFlags.storeSeparateLargeD0Container():
     if doCreation :
-        createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
+        createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence,
+                             trt_pid_tool=False, pixel_dedx=False) # @TODO TRT PID for LRT ?
 
 
 if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
     if doCreation :
-        createTrackParticles(InDetKeys.PixelTracks(), InDetKeys.PixelTracksTruth(), InDetKeys.xAODPixelTrackParticleContainer(),topSequence)
+        createTrackParticles(InDetKeys.PixelTracks(), InDetKeys.PixelTracksTruth(), InDetKeys.xAODPixelTrackParticleContainer(),topSequence,
+                             trt_pid_tool=False, pixel_dedx=False)
     if doConversion :
         convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.xAODPixelTrackParticleContainer()),
                               "",
@@ -203,7 +222,8 @@ if InDetFlags.doTrackSegmentsDisappearing() and InDetFlags.doParticleCreation():
         createTrackParticles(InDetKeys.DisappearingTracks(),
                              InDetKeys.DisappearingTracksTruth(),
                              InDetKeys.xAODDisappearingTrackParticleContainer(),
-                             topSequence)
+                             topSequence,
+                             trt_pid_tool=True, pixel_dedx=True) # @TODO TRT PID necessary?
 
 
 if InDetFlags.doTrackSegmentsSCT() and InDetFlags.doParticleCreation():
@@ -211,7 +231,8 @@ if InDetFlags.doTrackSegmentsSCT() and InDetFlags.doParticleCreation():
         createTrackParticles(InDetKeys.SCTTracks(),
                              "",
                              InDetKeys.xAODSCTTrackParticleContainer(),
-                             topSequence)
+                             topSequence,
+                             trt_pid_tool=False, pixel_dedx=False)
 
 
 if InDetFlags.doTrackSegmentsTRT() and InDetFlags.doParticleCreation():
@@ -228,11 +249,13 @@ if InDetFlags.doTrackSegmentsTRT() and InDetFlags.doParticleCreation():
             createTrackParticles(InDetKeys.TRTTracks(),
                                  "",
                                  InDetKeys.xAODTRTTrackParticleContainer(),
-                                 topSequence)
+                                 topSequence,
+                                 trt_pid_tool=False, pixel_dedx=False)
 
 if InDetFlags.doStoreTrackSeeds() and InDetFlags.doParticleCreation():
     if doCreation :
         createTrackParticles(InDetKeys.SiSPSeedSegments(),
                              "",
                              InDetKeys.SiSPSeedSegments()+"TrackParticle",
-                             topSequence)
+                             topSequence,
+                             trt_pid_tool=False, pixel_dedx=False)

@@ -1282,9 +1282,7 @@ def getInDetSummaryHelper(name='InDetSummaryHelper',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     from AthenaCommon.DetFlags              import DetFlags
     kwargs = setDefaults( kwargs,
-                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
                           TestBLayerTool  = None,         # we don't want to use those tools during pattern
-                          # PixelToTPIDTool = InDetPixelToTPIDTool,
                           # TestBLayerTool  = InDetRecTestBLayerTool,
                           RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                           DoSharedHits    = False,
@@ -1302,9 +1300,6 @@ def getInDetSummaryHelperNoHoleSearch(name='InDetSummaryHelperNoHoleSearch',**kw
 
 
 def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs) :
-
-    if 'PixelToTPIDTool' not in kwargs :
-        kwargs = setDefaults( kwargs,          PixelToTPIDTool = getInDetPixelToTPIDTool())
 
     if 'TestBLayerTool' not in kwargs :
         kwargs = setDefaults( kwargs,          TestBLayerTool  = getInDetRecTestBLayerTool())
@@ -1339,9 +1334,7 @@ def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     #
     kwargs = setDefaults(kwargs,
                          doSharedHits           = False,
-                         doHolesInDet           = do_holes,
-                         TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
-                         PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
+                         doHolesInDet           = do_holes)         # we don't want to use those tools during pattern
     from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
     return Trk__TrackSummaryTool(name = the_name, **kwargs)
 
@@ -1358,12 +1351,6 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
         id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
         kwargs.pop('ClusterSplitProbabilityName',None)
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
-
-    if 'TRT_ElectronPidTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool(MinimumTrackPtForNNPid = 2000.)) # default is 2GeV
-
-    if 'PixelToTPIDTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,
@@ -1880,7 +1867,7 @@ def getV0Tools(name='V0Tools', **kwargs) :
     from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
     return Trk__V0Tools(the_name, **kwargs)
 
-def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
+def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="", trt_pid_tool=True, pixel_dedx=True) :
     from AthenaCommon.AppMgr import ToolSvc
     from InDetRecExample.InDetJobProperties import InDetFlags
     if hasattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix) :
@@ -1905,6 +1892,9 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
         track_summary_tool = getInDetTrackSummaryToolSharedHits(**setDefaults(prop_args,
                                                                                              InDetSummaryHelperTool=helper_tool))
 
+    TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool(MinimumTrackPtForNNPid = 2000.) if trt_pid_tool else None
+    PixelToTPIDTool        = getInDetPixelToTPIDTool()                                   if pixel_dedx   else None
+
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
                                                                  TrackToVertex           = getInDetTrackToVertexTool(),
@@ -1912,7 +1902,9 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
                                                                  KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
-                                                                 PerigeeExpression       = perigee_expression)
+                                                                 PerigeeExpression       = perigee_expression,
+                                                                 TRT_ElectronPidTool     = TRT_ElectronPidTool,
+                                                                 PixelToTPIDTool         = PixelToTPIDTool)
 
     ToolSvc += InDetxAODParticleCreatorTool
     return InDetxAODParticleCreatorTool

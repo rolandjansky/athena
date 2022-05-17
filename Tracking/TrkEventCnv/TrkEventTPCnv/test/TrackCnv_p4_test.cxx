@@ -172,10 +172,6 @@ void compare (const Trk::TrackSummary& p1,
     assert (p1.get(ii) == p2.get(ii));
   }
 
-  for (int i=0; i < Trk::eProbabilityType::numberOfeProbabilityTypes; i++) {
-    Trk::eProbabilityType ii = static_cast<Trk::eProbabilityType>(i);
-    assert (p1.getPID(ii) == p2.getPID(ii));
-  }
 }
 
 

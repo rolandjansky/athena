@@ -99,7 +99,6 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             name="GSFBuildTrackSummaryHelperTool",
             AssoTool=None,
             HoleSearch=None,
-            PixelToTPIDTool=GSFBuildPixelToTPIDTool,
             TestBLayerTool=GSFBuildTestBLayerTool,
             isHLT = True,
             DoSharedHits=False,
@@ -114,9 +113,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 InDetSummaryHelperTool=GSFBuildTrackSummaryHelperTool,
                 doSharedHits=False,
                 doHolesInDet=False,
-                AddExpectedHits=True,
-                TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
-                PixelToTPIDTool=GSFBuildPixelToTPIDTool)
+                AddExpectedHits=True)
         )
         #
         #  Track Particle Creator tool (private not in ToolSvc)
@@ -126,6 +123,8 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
+            TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
+            PixelToTPIDTool=GSFBuildPixelToTPIDTool,
             KeepParameters=True,
             TrackSummaryTool=GSFBuildInDetTrigTrackSummaryTool)
         #
