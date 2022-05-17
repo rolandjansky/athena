@@ -121,6 +121,10 @@ def MuonAlignmentCondAlgCfg(flags):
         acc.merge(addFolders( flags, ['/MUONALIGN/TGC/SIDEC'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
 
     MuonAlign = MuonAlignmentCondAlg()
+    if flags.IOVDb.DatabaseInstance != 'COMP200' and \
+       'HLT' not in flags.IOVDb.GlobalTag and not flags.Common.isOnline:
+        MuonAlign.IsData = False
+
     MuonAlign.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                 "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                 "/MUONALIGN/MDT/ENDCAP/SIDEC",
@@ -180,6 +184,9 @@ def MuonDetectorCondAlgCfg(flags):
     MuonDetectorManagerCond = MuonDetectorCondAlg()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
+    if flags.IOVDb.DatabaseInstance != 'COMP200' and \
+       'HLT' not in flags.IOVDb.GlobalTag and not flags.Common.isOnline:
+        MuonDetectorManagerCond.IsData = False
     acc.addCondAlgo(MuonDetectorManagerCond)
     return acc
 
