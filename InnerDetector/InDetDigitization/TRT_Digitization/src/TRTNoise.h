@@ -7,8 +7,7 @@
 
 #include "TRTDigit.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
@@ -37,7 +36,7 @@ class TRTDigSettings;
  * For method, please see Thomas Kittelmanns thesis
  *
  */
-class TRTNoise {
+class TRTNoise : public AthMessaging {
 public:
   /**
    * Constructor
@@ -80,9 +79,6 @@ public:
   void sortDigits(std::vector<TRTDigit>& digitVect);
 
   ~TRTNoise();
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
 private:
 
@@ -207,7 +203,6 @@ private:
                                              float & new_min_lt2na,
                                              float & new_max_lt2na,
                                              const unsigned int& number_new_bins );
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   Identifier getStrawIdentifier (int hitID);
 

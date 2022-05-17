@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigiHelper.h"
 #include <iostream>
 #include "GaudiKernel/MsgStream.h"
-//#include "AthenaKernel/getMessageSvc.h"
 
 namespace TRTDigiHelper {
   // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar

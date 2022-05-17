@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTELECTRONICSNOISE_H
 #define TRT_DIGITIZATION_TRTELECTRONICSNOISE_H
-
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -38,10 +35,6 @@ public:
    *                           of the 75 ns long sampling
    * @param nsamplings:        number of samplings
    */
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
   void getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxLTOverNoiseAmp,
                                      unsigned long nsamplings,
                                      CLHEP::HepRandomEngine *rndmEngine);
@@ -114,8 +107,6 @@ private:
 
   double m_fractionOfSlowNoise;
   unsigned int m_nbins_periodic;
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   /**
    * Initialize signal shaping.

@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
 #define TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 //Hit classes
 #include "HitManagement/TimedHitCollection.h"
@@ -54,7 +52,7 @@ class TRTDigSettings;
  * The main controlling function
  * in @c ProcessStraw(). See detailed description of this.
  */
-class TRTProcessingOfStraw {
+class TRTProcessingOfStraw : public AthMessaging {
 public:
   /** Constructor: Calls Initialize method */
   TRTProcessingOfStraw( const TRTDigSettings*,
@@ -107,9 +105,6 @@ public:
                      CLHEP::HepRandomEngine* elecProcRndmEngine,
                      CLHEP::HepRandomEngine* elecNoiseRndmEngine,
                      CLHEP::HepRandomEngine* paiRndmEngine );
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
 private:
 
@@ -234,8 +229,6 @@ private:
   bool m_alreadywarnedagainstpdg0;
 
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   std::unique_ptr<CLHEP::RandBinomialFixedP> m_randBinomialXe{};
   std::unique_ptr<CLHEP::RandBinomialFixedP> m_randBinomialKr{};

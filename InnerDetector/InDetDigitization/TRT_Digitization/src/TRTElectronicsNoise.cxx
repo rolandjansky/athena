@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTElectronicsNoise.h"
@@ -19,12 +19,8 @@
 //_____________________________________________________________________________
 TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
                                          CLHEP::HepRandomEngine *elecNoiseRndmEngine )
-  : m_settings(digset),
-    m_msg("TRTElectronicsNoise")
+  : m_settings(digset)
 {
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor begin"  << endmsg;
-
   //Need to initialize the signal shaping first as it is used in tabulateNoiseSignalShape()!
   this->InitializeNoiseShaping();
   m_fractionOfSlowNoise = m_settings->slowPeriodicNoisePulseFraction();
@@ -35,9 +31,6 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
   //Must be rounded to nearest multiple of binwidth... (fixme - from options)
   const double binwidth(m_settings->timeInterval()/m_settings->numberOfBins());
   m_nbins_periodic = static_cast<int>(slowPeriod/binwidth + 0.5);
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor done"   << endmsg;
-
 }
 
 //_____________________________________________________________________________
