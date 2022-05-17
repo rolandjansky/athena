@@ -123,7 +123,7 @@ def make_hit_rate(inputs):
 
   Dic_LBLumi = GetLBInfoFromCOOL.GetLumiInfoDic(runs[0], runs[0]+1)
   print ("len(Dic_LBLumi) = ", len(Dic_LBLumi))
-  GetLBInfoFromCOOL.printLumiInfo(Dic_LBLumi)
+  # GetLBInfoFromCOOL.printLumiInfo(Dic_LBLumi)
 
   DicPanels  = readElementFromXML()
 

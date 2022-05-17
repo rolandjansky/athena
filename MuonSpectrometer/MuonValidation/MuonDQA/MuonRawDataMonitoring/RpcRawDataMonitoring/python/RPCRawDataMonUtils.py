@@ -5,22 +5,12 @@
 import ROOT
 
 #############################################################################
-def creatGraph(xs, ys, x_errs, y_errs, g_name, g_title, g_Xtitle, g_Ytitle, debug = False):
+def creatGraph(xs, ys, x_errs, y_errs, g_name, g_title, g_Xtitle, g_Ytitle):
   import array
   x_arr = array.array("f",xs)
   y_arr = array.array("f",ys)
   x_err_arr = array.array("f",x_errs)
   y_err_arr = array.array("f",y_errs)
-
-  if debug:
-    print ("Creating graph: %s" %g_name)
-    print ("List of X values:", xs )
-    print ("List of Y values:", ys )
-    print ("List of Y errors:", y_errs )
-
-    print ("Array of X values:", x_arr )
-    print ("Array of Y values:", y_arr )
-    print ("Array of Y errors:", y_err_arr )
 
   g1 =  ROOT.TGraphErrors(len(x_arr),x_arr,y_arr, x_err_arr, y_err_arr)
 

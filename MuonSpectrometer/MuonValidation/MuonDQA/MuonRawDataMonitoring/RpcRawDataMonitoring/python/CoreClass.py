@@ -751,7 +751,7 @@ class Draw_Occupancy(Draw_Base):
       null_graph = ROOT.TGraph()
       return null_graph
 
-    return RPCRawDataMonUtils.creatGraph(x, y, x_err, y_err, g_name, g_title, g_Xtitle, g_Ytitle, True)
+    return RPCRawDataMonUtils.creatGraph(x, y, x_err, y_err, g_name, g_title, g_Xtitle, g_Ytitle)
 
   # -----------------------------------------------------------------------
   def doNEvtScale(self, h_NEvt_LB):
