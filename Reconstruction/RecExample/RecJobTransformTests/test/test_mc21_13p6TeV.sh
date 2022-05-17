@@ -6,6 +6,7 @@
 # art-athena-mt: 8
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 
 #This is used by the Reco_tf --multithread option. It is set
 #on grid nodes, but not on local machines

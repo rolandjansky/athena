@@ -4,7 +4,7 @@
 # art-athena-mt: 4
 # art-type: grid
 # art-include: master/Athena
-
+# art-include: 22.0/Athena
 
 export TRF_ECHO=True; Reco_tf.py \
 --athenaopts="--threads=8" \

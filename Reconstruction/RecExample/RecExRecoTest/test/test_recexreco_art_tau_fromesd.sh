@@ -3,6 +3,7 @@
 # art-description: Athena runs tau reconstruction from an ESD file
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
 # art-output: *.log   
 
