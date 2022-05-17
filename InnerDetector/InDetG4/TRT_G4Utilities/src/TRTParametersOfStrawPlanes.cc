@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-20120 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002, 2022- CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,18 +13,14 @@
 
   // Called by TRTConstructionOfStrawPlanes::TRTConstructionOfStrawPlanes
 
-TRTParametersOfStrawPlanes::TRTParametersOfStrawPlanes() : m_msg("TRTParametersOfStrawPlanes")
+TRTParametersOfStrawPlanes::TRTParametersOfStrawPlanes()
 {
   m_pParameters = TRTParameters::GetPointer();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes" << endmsg;
 
   DefineParameters();
 
   if (m_pParameters->GetInteger("PrintParametersOfStrawPlanes"))
-    PrintParameters(m_msg.get());
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes done" << endmsg;
+    PrintParameters();
 }
 
 
@@ -32,9 +28,6 @@ TRTParametersOfStrawPlanes::TRTParametersOfStrawPlanes() : m_msg("TRTParametersO
 
 TRTParametersOfStrawPlanes::~TRTParametersOfStrawPlanes()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfStrawPlanes" << endmsg;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfStrawPlanes done" << endmsg;
 }
 
 
@@ -42,9 +35,7 @@ TRTParametersOfStrawPlanes::~TRTParametersOfStrawPlanes()
 
 void TRTParametersOfStrawPlanes::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::DefineParameters" << endmsg;
-
-    // Parameters of straw plane:
+  // Parameters of straw plane:
   m_innerRadiusOfStrawPlanesAB = m_pParameters->GetDouble("InnerRadiusOfWheelsAB") +
     m_pParameters->GetDouble("ThicknessOfInnerSupportsAB");
   m_outerRadiusOfStrawPlanesAB = m_pParameters->GetDouble("OuterRadiusOfWheelsAB") -
@@ -123,17 +114,13 @@ void TRTParametersOfStrawPlanes::DefineParameters()
       // Parameters of gas:
     m_lengthOfGasC = m_lengthOfStrawC - m_lengthOfDeadRegion * 2.;
   }
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::DefineParameters" << " done" << endmsg;
 }
 
 
   // Called by TRTParametersOfStrawPlanes
 
-void TRTParametersOfStrawPlanes::PrintParameters(MsgStream& msg) const
+void TRTParametersOfStrawPlanes::PrintParameters() const
 {
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfStrawPlanes::PrintParameters" << endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -217,6 +204,4 @@ void TRTParametersOfStrawPlanes::PrintParameters(MsgStream& msg) const
   }
 
   output << std::endl;
-
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfStrawPlanes::PrintParameters done" << endmsg;
 }
