@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "CxxUtils/checker_macros.h"
 
@@ -31,9 +31,13 @@ HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
   // So try to load the classes we'll need early.
   TClass::GetClass("TH1F");
   TClass::GetClass("TH1D");
+  TClass::GetClass("TH1C");
+  TClass::GetClass("TH1S");
   TClass::GetClass("TH1I");
   TClass::GetClass("TH2F");
   TClass::GetClass("TH2D");
+  TClass::GetClass("TH2C");
+  TClass::GetClass("TH2S");
   TClass::GetClass("TH2I");
   TClass::GetClass("TProfile");
   TClass::GetClass("TProfile2D");
@@ -50,12 +54,20 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
     rootObj = create1D<TH1F>(def);
   } else if (def.type == "TH1D") {
     rootObj = create1D<TH1D>(def);
+  } else if (def.type == "TH1C") {
+    rootObj = create1D<TH1C>(def);
+  } else if (def.type == "TH1S") {
+    rootObj = create1D<TH1S>(def);
   } else if (def.type == "TH1I") {
     rootObj = create1D<TH1I>(def);
   } else if (def.type == "TH2F") {
     rootObj = create2D<TH2F>(def);
   } else if (def.type == "TH2D") {
     rootObj = create2D<TH2D>(def);
+  } else if (def.type == "TH2C") {
+    rootObj = create2D<TH2C>(def);
+  } else if (def.type == "TH2S") {
+    rootObj = create2D<TH2S>(def);
   } else if (def.type == "TH2I") {
     rootObj = create2D<TH2I>(def);
   } else if (def.type == "TProfile") {
@@ -70,7 +82,7 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
   
   if (rootObj == 0) {
     throw HistogramException("Can not create yet histogram of type: >" + def.type + "<\n" +
-                             "Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D, " +
+                             "Try one of: TH1[F,D,C,S,I], TH2[F,D,C,S,I], TProfile, TProfile2D, " +
                              "TEfficiency, TTree.");
   }
 
