@@ -228,7 +228,7 @@ namespace xAOD {
       // Get the pointer to the first beam particle:
       const TruthParticle* p1 = nullptr;
       if( beamParticle1LinkAcc.isAvailable( *this ) ) {
-         const TruthParticleLink_t link = beamParticle1LinkAcc( *this );
+         const TruthParticleLink_t& link = beamParticle1LinkAcc( *this );
          if( link.isValid() ) {
             p1 = *link;
          }
@@ -237,7 +237,7 @@ namespace xAOD {
       // Get the pointer to the second beam particle:
       const TruthParticle* p2 = nullptr;
       if( beamParticle2LinkAcc.isAvailable( *this ) ) {
-         const TruthParticleLink_t link = beamParticle2LinkAcc( *this );
+         const TruthParticleLink_t& link = beamParticle2LinkAcc( *this );
          if( link.isValid() ) {
             p2 = *link;
          }

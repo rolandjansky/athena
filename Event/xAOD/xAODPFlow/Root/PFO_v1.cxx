@@ -713,7 +713,7 @@ namespace xAOD {
     const static ConstAccessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
     if (!acc.isAvailable(*this)) return nullptr;
     else{
-      ElementLink<xAOD::VertexContainer> tempVertexLink = acc(*this);
+      const ElementLink<xAOD::VertexContainer>& tempVertexLink = acc(*this);
       if (tempVertexLink.isValid()) return *acc(*this);
       else return nullptr;
     }
