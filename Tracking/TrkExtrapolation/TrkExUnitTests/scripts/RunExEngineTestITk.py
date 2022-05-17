@@ -22,7 +22,7 @@ if ConfigFlags.ITk.Geometry.AllLocal:
   ConfigFlags.TrackingGeometry.MaterialSource = "Input"
 
 
-ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
+ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-RUN4-01-00-00"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
 ConfigFlags.GeoModel.Align.Dynamic = False
 

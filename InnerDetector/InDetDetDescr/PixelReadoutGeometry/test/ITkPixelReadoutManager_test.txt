@@ -2,10 +2,11 @@ ApplicationMgr.ExtSvc += { "StoreGateSvc/DetectorStore", "DetDescrCnvSvc/DetDesc
 
 DetDescrCnvSvc.IdDictName = "IdDictParser/ATLAS_IDS.xml";
 DetDescrCnvSvc.IdDictFromRDB = True;
+DetDescrCnvSvc.useGeomDB_InDet = True;
 
 EventPersistencySvc.CnvServices += { "DetDescrCnvSvc" };
 
-GeoModelSvc.AtlasVersion = "ATLAS-P2-ITK-24-00-00";
+GeoModelSvc.AtlasVersion = "ATLAS-P2-RUN4-01-00-00";
 GeoModelSvc.SupportedGeometry = 22;
 GeoModelSvc.DetectorTools = ["ITk::PixelDetectorTool/ITkPixelDetectorTool"];
 GeoModelSvc.ITkPixelDetectorTool.Alignable = False;

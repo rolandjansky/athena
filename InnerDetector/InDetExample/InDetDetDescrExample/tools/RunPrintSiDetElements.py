@@ -19,7 +19,7 @@ parser.add_argument("detectors", metavar="detectors", type=str, nargs="*",
                     help="Specify the list of detectors")
 parser.add_argument("--localgeo", default=False, action="store_true",
                     help="Use local geometry XML files")
-parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-24-00-00", type=str,
+parser.add_argument("--geometrytag",default="ATLAS-P2-RUN4-01-00-00", type=str,
                     help="The geometry tag to use")
 args = parser.parse_args()
 
