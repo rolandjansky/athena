@@ -11,7 +11,7 @@ def TMDBConfig(flags):
     # Read MuRcvRawChCnt from the input file (for POOL directly, for BS via converter)
     if flags.Input.Format is Format.POOL:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
-        acc.merge(SGInputLoaderCfg(flags, Load=[('TileRawChannelContainer','MuRcvRawChCnt')]))
+        acc.merge(SGInputLoaderCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
     else:
         from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))

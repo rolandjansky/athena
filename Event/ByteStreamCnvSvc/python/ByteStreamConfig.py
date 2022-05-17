@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """Set up to read and/or write bytestream files.
 
 This module configures the Athena components required to read from
@@ -101,8 +101,7 @@ def ByteStreamReadCfg(flags, type_names=None):
     proxy.ProviderNames += [address_provider.name]
     result.addService(proxy)
 
-    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
-    result.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
+    result.merge(SGInputLoaderCfg(flags, address_provider.TypeNames))
 
     return result
 
@@ -233,8 +232,7 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
     proxy.ProviderNames += [address_provider.name]
     result.addService(proxy)
 
-    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
-    result.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
+    result.merge(SGInputLoaderCfg(flags, Load=address_provider.TypeNames))
 
     return result
 

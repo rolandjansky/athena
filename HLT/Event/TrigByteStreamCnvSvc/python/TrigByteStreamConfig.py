@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -118,7 +118,6 @@ def TrigByteStreamCfg(flags, type_names=[]):
     proxy.ProviderNames += [address_provider.name]
     acc.addService(proxy)
 
-    loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
-    acc.merge(SGInputLoaderCfg(flags, Load=loader_type_names, FailIfNoProxy=True))
+    acc.merge(SGInputLoaderCfg(flags, Load=address_provider.TypeNames, FailIfNoProxy=True))
 
     return acc
