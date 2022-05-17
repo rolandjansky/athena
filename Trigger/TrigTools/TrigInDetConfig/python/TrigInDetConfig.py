@@ -53,26 +53,6 @@ def TestBlayerToolCfg(flags):
 
   return acc
 
-def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
-  acc = ComponentAccumulator()
-  if not summaryHelperTool:
-    from InDetConfig.InDetTrackSummaryHelperToolConfig import TrigTrackSummaryHelperToolCfg
-    summaryHelperTool = acc.popToolsAndMerge( TrigTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
-
-  tool = CompFactory.Trk.TrackSummaryTool(name = name,
-                                          InDetSummaryHelperTool = summaryHelperTool,
-                                          doSharedHits           = True,
-                                          doHolesInDet           = True,
-                                          #this may be temporary #61512 (and used within egamma later)
-                                          )
-  if makePublic:
-    acc.addPublicTool( tool, primary=True )
-  else:
-    acc.setPrivateTools(tool)
-  return acc
-
-
-
 class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
@@ -248,7 +228,9 @@ def trtDataPrep(flags, roisKey, signature):
 def ftfCfg(flags, roisKey, signature, signatureName):
   acc = ComponentAccumulator()
 
-  acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+  TrackSummaryTool = acc.popToolsAndMerge( InDetTrigTrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  acc.addPublicTool(TrackSummaryTool)
 
   acc.merge( SiTrackMaker_xkCfg( flags, name = "InDetTrigSiTrackMaker_FTF"+signature ) )
 
@@ -280,7 +262,7 @@ def ftfCfg(flags, roisKey, signature, signatureName):
   ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder_" + signature,
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
                                          SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature ),
-                                         TrackSummaryTool         = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
+                                         TrackSummaryTool         = TrackSummaryTool,
 #                                         TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
                                          initialTrackMaker        = acc.getPublicTool( "InDetTrigSiTrackMaker_FTF" + signature ),
                                          trigInDetTrackFitter     = acc.getPublicTool( "TrigInDetTrackFitter" ),
@@ -323,7 +305,10 @@ def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
 def _trackConverterCfg(flags, signature, inputTracksKey, outputTrackParticleKey):
   acc = ComponentAccumulator()
 
-  summaryTool = acc.getPrimaryAndMerge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+  summaryTool = acc.popToolsAndMerge( InDetTrigTrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  acc.addPublicTool(summaryTool)
+
   track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
                                                           TrackSummaryTool      = summaryTool,
@@ -485,13 +470,16 @@ def TRTExtensionAlgCfg(flags):
 
 def TRTExtensionProcessorCfg(flags):
   acc = ComponentAccumulator()
+
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+
   extensionProcessor = CompFactory.InDet.InDetExtensionProcessor (name         = f"{prefix}ExtensionProcessor_{flags.InDet.Tracking.ActivePass.name}",
                                                             TrackName          = _tracksPostAmbi(flags),
                                                             #Cosmics           = InDetFlags.doCosmics(),
                                                             ExtensionMap       = 'ExtendedTrackMap',
                                                             NewTrackName       = flags.InDet.Tracking.ActivePass.trkTracks_IDTrig,
                                                             TrackFitter        = acc.getPrimaryAndMerge(FitterToolCfg(flags)),
-                                                            TrackSummaryTool   = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                            TrackSummaryTool   = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
                                                             ScoringTool        = acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)),
                                                             suppressHoleSearch = False,
                                                             RefitPrds = not (flags.InDet.Tracking.ActivePass.refitROT or flags.InDet.Tracking.ActivePass.trtExtensionType == 'DAF') )
@@ -527,8 +515,10 @@ def TRTExtrensionBuilderCfg(flags):
 def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+
   tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.ActivePass.name}",
-                                                SummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                SummaryTool = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
                                                 Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
                                                 DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
                                                 useAmbigFcn = True,

@@ -24,11 +24,13 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
         from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg
         acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterBTCfg, InDetTrackSummaryToolNoHoleSearchCfg, InDetTRT_ExtensionToolCfg
+    from InDetConfig.TrackingCommonConfig import InDetTrackFitterBTCfg, InDetTRT_ExtensionToolCfg
     InDetTrackFitterBT = acc.popToolsAndMerge(InDetTrackFitterBTCfg(flags))
-    InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
     InDetTRTExtensionTool = acc.popToolsAndMerge(InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
+
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolNoHoleSearchCfg
+    InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
@@ -67,6 +69,6 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
         kwargs.setdefault("CaloSeededRoI", True)
         kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ%.0fGeVUnordered" % (flags.InDet.Tracking.ActivePass.minRoIClusterEt/Units.GeV))
 
-    InDetTRT_SeededTrackFinder = CompFactory.InDet.TRT_SeededTrackFinder(name = name, **kwargs)
+    InDetTRT_SeededTrackFinder = CompFactory.InDet.TRT_SeededTrackFinder(name, **kwargs)
     acc.addEventAlgo(InDetTRT_SeededTrackFinder)
     return acc

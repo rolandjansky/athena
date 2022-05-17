@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 ####################################################
@@ -48,8 +48,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
         
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-        TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+        TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalTrackMonAlg.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
@@ -80,9 +80,9 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
         inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
         inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 1000
-        
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-        InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+        InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalLRTMonAlg.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
