@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/CondCont.h
@@ -36,8 +36,8 @@
  @endcode
  *
  * @c CondCont<MyType> is now declared as a mixed container.
- * Inheritance of conditions containers is not currently implemented
- * for mixed containers.
+ * Mixed containers may also participate in inheritance, but the base class
+ * declared for a mixed container must also have been declared as mixed.
  *
  * Implementation notes:
  * All conditions containers derive from @c CondContBase.  This defines
@@ -86,6 +86,7 @@
 #include <vector>
 #include <typeinfo>
 #include <mutex>
+#include <type_traits>
 
 
 namespace SG {
@@ -786,7 +787,7 @@ template <class T> class CondCont;
 /**
  * @brief Traits class to find the base for @c CondCont.
  *
- * @c CondCont<T> normally derives from @c CondContBase.
+ * @c CondCont<T> normally derives from @c CondContSingleBase.
  * However, if @c D derives from @c B, then using @c CONDCONT_BASE(D,B)
  * will cause @c ContCont<D> to derive from @c CondCont<B>.
  */
@@ -857,7 +858,7 @@ SG_BASES(D, B)
  * In that case, the mappings will be stored only in the most-derived class.
  */
 template <typename T>
-class CondCont: public CondContBaseInfo<T>::Base
+class CondCont : public CondContBaseInfo<T>::Base
 {
 public:
   /// Base class.
@@ -1152,17 +1153,6 @@ protected:
   delete_function* payloadDelfcn() const;
 
 
-  /**
-   * @brief Do pointer conversion for the payload type.
-   * @param clid CLID for the desired pointer type.
-   * @param ptr Pointer of type @c T*.
-   *
-   * This just aborts, since we don't currently implement inheritance
-   * for mixed types.
-   */
-  virtual const void* doCast(CLID /*clid*/, const void* /*ptr*/) const override;
-
-
 private:
   /// Deletion function to pass to @c ConcurrentRangeMap.
   static void delfcn (const void* p) {
@@ -1184,6 +1174,54 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 
+template <class T> class CondContMixed;
+
+
+/**
+ * @brief Traits class to find the base for @c CondContMixed.
+ *
+ * @c CondContMixed<T> normally derives from @c CondContMixedBase.
+ * However, if @c D derives from @c B, then using @c CONDCONTMIXED_BASE(D,B)
+ * will cause @c ContContMixed<D> to derive from @c CondContMixed<B>.
+ */
+template <typename T>
+class CondContMixedBaseInfo
+{
+public:
+  typedef CondContMixedBase Base;
+};
+
+
+namespace SG {
+template <typename T>
+struct Bases<CondContMixed<T> >
+{
+  using bases = BaseList<CondContBase>;
+};
+} // namespace SG
+
+
+/**
+ * @brief Declare that conditions object @c D derives from @c B.
+ *
+ * This allows using @c ReadCondHandle to retrieve a conditions object
+ * of type @c D as @c B.
+ */
+#define CONDCONT_MIXED_BASE(D, B)                                          \
+template <>                                                                \
+class CondContMixedBaseInfo<D>                                             \
+{                                                                          \
+public:                                                                    \
+  static_assert (std::is_base_of_v<CondContMixed<B>, CondCont<B> >,        \
+                 "CondCont<" #B "> is not a mixed conditions container."); \
+  typedef CondCont<B> Base;                                                \
+};                                                                         \
+SG_BASES(CondContMixed<D>, CondCont<B>);                                   \
+SG_BASES(D, B)
+  
+
+
+
 /**
  * @brief Conditions container for which keys are ranges  in both Run+LBN
  *        and timestamp.
@@ -1192,11 +1230,11 @@ private:
  * @c CONDCONT_MIXED_DEF and then use @c CondCont<T>.
  */
 template <typename T>
-class CondContMixed: public CondContMixedBase
+class CondContMixed : public CondContMixedBaseInfo<T>::Base
 {
 public:
   /// Base class.
-  typedef CondContMixedBase Base;
+  typedef typename CondContMixedBaseInfo<T>::Base Base;
 
   typedef typename Base::CondContSet CondContSet;
 
@@ -1267,6 +1305,23 @@ protected:
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
+   * @param delfcn Deletion function for the actual payload type.
+   * @param capacity Initial capacity of the container.
+   */
+  CondContMixed (Athena::IRCUSvc& rcusvc,
+                 CLID clid,
+                 const DataObjID& id,
+                 SG::DataProxy* proxy,
+                 typename CondContSet::delete_function* delfcn,
+                 size_t capacity);
+
+
+  /** 
+   * @brief Internal Constructor.
+   * @param rcusvc RCU service instance.
+   * @param CLID of the most-derived @c CondCont.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
    * @param capacity Initial capacity of the container.
    */
   CondContMixed (Athena::IRCUSvc& rcusvc,
@@ -1276,6 +1331,33 @@ protected:
                  size_t capacity);
 
 
+  /**
+   * @brief Do pointer conversion for the payload type.
+   * @param clid CLID for the desired pointer type.
+   * @param ptr Pointer of type @c T*.
+   *
+   * Converts @c ptr from @c T* to a pointer to the type
+   * given by @c clid.  Returns nullptr if the conversion
+   * is not possible.
+   */
+  const void* cast (CLID clid, const void* ptr) const;
+
+
+  /**
+   * @brief Do pointer conversion for the payload type.
+   * @param clid CLID for the desired pointer type.
+   * @param ptr Pointer of type @c T*.
+   *
+   * Converts @c ptr from @c T* to a pointer to the type
+   * given by @c clid.  Returns nullptr if the conversion
+   * is not possible.
+   *
+   * This is a virtual function that calls @c cast from the most-derived class
+   * of the hierarchy.
+   */
+  virtual const void* doCast (CLID clid, const void* ptr) const override;
+
+
 public:
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
@@ -1283,7 +1365,7 @@ public:
 
 
 private:
-  /// Deletion function to for payload objects.
+  /// Deletion function for payload objects.
   static void payloadDelfcn (const void* p) {
     delete reinterpret_cast<const T*>(p);
   }
@@ -1308,26 +1390,46 @@ private:
 // For a conditions container with a payload deriving from BASE, do
 //    CONDCONT_DEF(TYPE, CLID, BASE);
 //
-#define CONDCONT_DEF_2(T, CLID)    \
-  CLASS_DEF( CondCont<T>, CLID, 1) \
-  static CondContainer::CondContMaker<T> maker_ ## CLID {}
-#define CONDCONT_DEF_3(T, CLID, BASE)            \
+#define CONDCONT_DEF_2(T, CLID_)    \
+  CLASS_DEF( CondCont<T>, CLID_, 1) \
+  static CondContainer::CondContMaker<T> maker_ ## CLID_ {}
+#define CONDCONT_DEF_3(T, CLID_, BASE)           \
   CONDCONT_BASE(T, BASE);                        \
-  CONDCONT_DEF_2(T, CLID)
+  CONDCONT_DEF_2(T, CLID_)
 #define CONDCONT_DEF(...)  \
   BOOST_PP_OVERLOAD(CONDCONT_DEF_, __VA_ARGS__)(__VA_ARGS__)
 
 
-/// Declare a mixed conditions container along with its CLID.
-#define CONDCONT_MIXED_DEF(T, CLID) \
-  template<> class CondCont<T> : public CondContMixed<T> {          \
-  public:                                                           \
-    CondCont (Athena::IRCUSvc& rcusvc, const DataObjID& id,         \
-              SG::DataProxy* proxy =nullptr, size_t capacity = 16)  \
-      : CondContMixed<T> (rcusvc, CLID, id, proxy, capacity) {}     \
-  };                                                                \
-  CLASS_DEF( CondCont<T>, CLID, 1)                                  \
-  static CondContainer::CondContMaker<T> maker_ ## CLID {}
+/// Declare a conditions container along with its CLID.
+// For a conditions container not deriving from another, do
+//    CONDCONT_MIXED_DEF(TYPE, CLID);
+//
+// For a conditions container with a payload deriving from BASE, do
+//    CONDCONT_MIXED_DEF(TYPE, CLID, BASE);
+//
+// The BASE class must have earlier been named in another CONDCONT_MIXED_DEF.
+//
+#define CONDCONT_MIXED_DEF_2(T, CLID_)                                   \
+  template<> class CondCont<T> : public CondContMixed<T> {               \
+  public:                                                                \
+    CondCont (Athena::IRCUSvc& rcusvc, const DataObjID& id,              \
+              SG::DataProxy* proxy =nullptr, size_t capacity = 16)       \
+      : CondContMixed<T> (rcusvc, CLID_, id, proxy, capacity) {}         \
+  protected:                                                             \
+    CondCont (Athena::IRCUSvc& rcusvc, CLID clid, const DataObjID& id,   \
+              SG::DataProxy* proxy,                                      \
+              typename CondContSet::delete_function* delfcn,             \
+              size_t capacity = 16)                                      \
+      : CondContMixed<T> (rcusvc, clid, id, proxy, delfcn, capacity) {}  \
+  };                                                                     \
+  CLASS_DEF( CondCont<T>, CLID_, 1)                                      \
+  SG_BASES(CondCont<T>, CondContMixed<T>);                               \
+  static CondContainer::CondContMaker<T> maker_ ## CLID_ {}
+#define CONDCONT_MIXED_DEF_3(T, CLID_, BASE)                             \
+  CONDCONT_MIXED_BASE(T, BASE);                                          \
+  CONDCONT_MIXED_DEF_2(T, CLID_)
+#define CONDCONT_MIXED_DEF(...)                                          \
+  BOOST_PP_OVERLOAD(CONDCONT_MIXED_DEF_, __VA_ARGS__)(__VA_ARGS__)
 
   
 #endif // not ATHENAKERNEL_CONDCONT_H

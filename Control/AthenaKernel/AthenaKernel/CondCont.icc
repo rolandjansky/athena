@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/CondCont.icc
@@ -439,8 +439,10 @@ StatusCode CondContMixed<T>::insert (const EventIDRange& r,
                                      std::unique_ptr<T> t,
                                      const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
-  // Not checking CLID here, since we don't support inheritance for mixed
-  // containers.
+  if (this->clid() != ClassID_traits<CondCont<T> >::ID()) {
+    this->insertError (ClassID_traits<CondCont<T> >::ID());
+    return StatusCode::FAILURE;
+  }
 
   return Base::insertMixed (r, std::move(t), ctx);
 }
@@ -462,7 +464,13 @@ bool CondContMixed<T>::find (const EventIDBase& t,
                              T const *& obj,
                              EventIDRange const** r) const
 {
-  obj = reinterpret_cast<const T*> (Base::findMixed (t, r));
+  const void* ptr = Base::findMixed (t, r);
+
+  if (ClassID_traits<CondCont<T> >::ID() != this->clid()) {
+    ptr = doCast (ClassID_traits<CondCont<T> >::ID(), ptr);
+  }
+
+  obj = reinterpret_cast<const T*> (ptr);
   return obj != nullptr;
 }
 
@@ -492,7 +500,33 @@ const T* CondContMixed<T>::find (const EventIDBase& t) const
 
 
 /** 
- * @brief Constructor.
+ * @brief Internal constructor.
+ * @param rcusvc RCU service instance.
+ * @param CLID of the most-derived @c CondCont.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ * @param delfcn Deletion function for the actual payload type.
+ * @param capacity Initial capacity of the container.
+ */
+template <class T>
+inline
+CondContMixed<T>::CondContMixed (Athena::IRCUSvc& rcusvc,
+                                 CLID clid,
+                                 const DataObjID& id,
+                                 SG::DataProxy* proxy,
+                                 typename CondContSet::delete_function* delfcn,
+                                 size_t capacity)
+  : Base (rcusvc, clid, id, proxy, delfcn, capacity)
+{
+  CondContMixed<T>::registerBaseInit();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Internal constructor.
  * @param rcusvc RCU service instance.
  * @param CLID of the most-derived @c CondCont.
  * @param id CLID+key for this object.
@@ -505,10 +539,55 @@ CondContMixed<T>::CondContMixed (Athena::IRCUSvc& rcusvc,
                                  CLID clid,
                                  const DataObjID& id,
                                  SG::DataProxy* proxy,
-                                 size_t capacity)
-  : Base (rcusvc, clid, id, proxy, payloadDelfcn, capacity)
+                                size_t capacity)
+  : CondContMixed<T> (rcusvc, clid, id, proxy, payloadDelfcn, capacity)
 {
-  CondContMixed<T>::registerBaseInit();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Do pointer conversion for the payload type.
+ * @param clid CLID for the desired pointer type.
+ * @param ptr Pointer of type @c T*.
+ *
+ * Converts @c ptr from @c T* to a pointer to the type
+ * given by @c clid.  Returns nullptr if the conversion
+ * is not possible.
+ */
+template <typename T>
+inline
+const void* CondContMixed<T>::cast (CLID clid, const void* ptr) const
+{
+  if (clid == ClassID_traits<CondCont<T> >::ID())
+    return ptr;
+  return Base::cast (clid, static_cast<const typename Base::Payload*>
+                             (reinterpret_cast<const T*> (ptr)));
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Do pointer conversion for the payload type.
+ * @param clid CLID for the desired pointer type.
+ * @param ptr Pointer of type @c T*.
+ *
+ * Converts @c ptr from @c T* to a pointer to the type
+ * given by @c clid.  Returns nullptr if the conversion
+ * is not possible.
+ *
+ * This is a virtual function that calls @c cast from the most-derived class
+ * of the hierarchy.
+ */
+template <typename T>
+inline
+const void* CondContMixed<T>::doCast (CLID clid, const void* ptr) const
+{
+  return cast (clid, ptr);
 }
 
 
