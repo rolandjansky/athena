@@ -186,7 +186,8 @@ def MinBiasTrkSequence():
         vdv.DataObjects += [("xAOD::TrigCompositeContainer", "HLT_vtx_z")]
         trackCountHypo = TrackCountHypoAlg()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
-        trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")
+        trackCountHypo.tracksKey = recordable(idTrigConfig.tracks_IDTrig())
+
 
         #TODO move a complete configuration of the algs to TrigMinBias package
         from TrigMinBias.TrigMinBiasMonitoring import TrackCountMonitoring
