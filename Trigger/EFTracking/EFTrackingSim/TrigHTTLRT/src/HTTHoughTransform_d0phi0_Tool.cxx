@@ -83,30 +83,26 @@ StatusCode HTTHoughTransform_d0phi0_Tool::initialize()
     }
   }
   if (!ok) return StatusCode::FAILURE;
-
+  
   // Warnings / corrections
-  if (m_localMaxWindowSize && !m_traceHits)
-    {
-      ATH_MSG_WARNING("initialize() localMaxWindowSize requires tracing hits, turning on automatically");
+  if (m_localMaxWindowSize && !m_traceHits) {
+    ATH_MSG_WARNING("initialize() localMaxWindowSize requires tracing hits, turning on automatically");
+    m_traceHits = true;
+  }
+
+  if (m_idealGeoRoads) {
+    if (m_useSectors) {
+      ATH_MSG_WARNING("initialize() idealGeoRoads conflicts with useSectors, switching off HTT sector matching");
+      m_useSectors = false;
+      
+    }
+    if (!m_traceHits) {
+      ATH_MSG_WARNING("initialize() idealGeoRoads requires tracing hits, turning on automatically");
       m_traceHits = true;
     }
-
-  if (m_idealGeoRoads)
-    {
-      if (m_useSectors)
-        {
-	  ATH_MSG_WARNING("initialize() idealGeoRoads conflicts with useSectors, switching off HTT sector matching");
-	  m_useSectors = false;
-
-        }
-      if (!m_traceHits)
-        {
-	  ATH_MSG_WARNING("initialize() idealGeoRoads requires tracing hits, turning on automatically");
-	  m_traceHits = true;
-        }
-    }
-
-
+  }
+  
+  
   // Fill convenience variables
   m_step_x = (m_parMax[m_par_x] - m_parMin[m_par_x]) / m_imageSize_x;
   m_step_y = (m_parMax[m_par_y] - m_parMin[m_par_y]) / m_imageSize_y;
@@ -251,7 +247,7 @@ HTTHoughTransform_d0phi0_Tool::Image HTTHoughTransform_d0phi0_Tool::createImage(
 HTTHoughTransform_d0phi0_Tool::Image HTTHoughTransform_d0phi0_Tool::convolute(Image const & image) const
 {
   Image out(m_imageSize_y, m_imageSize_x);
-
+  
   for (unsigned y0 = 0; y0 < m_imageSize_y; y0++) { // Loop over out
     for (unsigned x0 = 0; x0 < m_imageSize_x; x0++) { //
       for (unsigned r = 0; r < m_convSize_y; r++) { // Loop over conv
@@ -281,25 +277,22 @@ bool HTTHoughTransform_d0phi0_Tool::passThreshold(Image const & image, unsigned 
   if (x < width || (image.size(1) - x) < width) return false;
   for (unsigned i = 0; i < m_threshold.size(); i++)
     if (image(y, x - width + i).first < m_threshold[i]) return false;
-
+  
   // Pass local-maximum check
   if (m_localMaxWindowSize)
     for (int j = -m_localMaxWindowSize; j <= m_localMaxWindowSize; j++)
-      for (int i = -m_localMaxWindowSize; i <= m_localMaxWindowSize; i++)
-	{
-	  if (i == 0 && j == 0) continue;
-	  if (y + j < image.size(0) && x + i < image.size(1))
-	    {
-	      if (image(y+j, x+i).first > image(y, x).first) return false;
-	      if (image(y+j, x+i).first == image(y, x).first)
-		{
-		  if (image(y+j, x+i).second.size() > image(y, x).second.size()) return false;
-		  if (image(y+j, x+i).second.size() == image(y, x).second.size()
-		      && j <= 0 && i <= 0) return false;
-		}
-	    }
+      for (int i = -m_localMaxWindowSize; i <= m_localMaxWindowSize; i++) {
+	if (i == 0 && j == 0) continue;
+	if (y + j < image.size(0) && x + i < image.size(1)) {
+	  if (image(y+j, x+i).first > image(y, x).first) return false;
+	  if (image(y+j, x+i).first == image(y, x).first) {
+	    if (image(y+j, x+i).second.size() > image(y, x).second.size()) return false;
+	    if (image(y+j, x+i).second.size() == image(y, x).second.size()
+		&& j <= 0 && i <= 0) return false;
+	  }
 	}
-
+      }
+  
   return true;
 }
 
@@ -324,11 +317,10 @@ static inline std::string to_string(std::vector<T> v)
 {
   std::ostringstream oss;
   oss << "[";
-  if (!v.empty())
-    {
-      std::copy(v.begin(), v.end()-1, std::ostream_iterator<T>(oss, ", "));
-      oss << v.back();
-    }
+  if (!v.empty()) {
+    std::copy(v.begin(), v.end()-1, std::ostream_iterator<T>(oss, ", "));
+    oss << v.back();
+  }
   oss << "]";
   return oss.str();
 }
@@ -345,17 +337,15 @@ double HTTHoughTransform_d0phi0_Tool::yToX(double y, HTTHit const * hit) const
 {
   double x = 0;
 
-  if (m_par_x == HTTTrackPars::IPHI && m_par_y == HTTTrackPars::ID0)
-    {
-      double r = hit->getR(); // TODO check this, and units
-      double phi_hit = hit->getGPhi(); // TODO check this, and units
-      x = -y/r + phi_hit;
-    }
-  else
-    {
-      ATH_MSG_ERROR("yToX() not defined for the current m_par selection");
-    }
-
+  if (m_par_x == HTTTrackPars::IPHI && m_par_y == HTTTrackPars::ID0) {
+    double r = hit->getR(); // TODO check this, and units
+    double phi_hit = hit->getGPhi(); // TODO check this, and units
+    x = -y/r + phi_hit;
+  }
+  else {
+    ATH_MSG_ERROR("yToX() not defined for the current m_par selection");
+  }
+  
   return x;
 }
 
@@ -422,11 +412,10 @@ HTTRoad_Hough HTTHoughTransform_d0phi0_Tool::createRoad(std::unordered_set<const
   // Get the road hits
   std::vector<const HTTHit*> road_hits;
   layer_bitmask_t hitLayers = 0;
-  for (const HTTHit * hit : hits)
-    {
-      road_hits.push_back(hit);
-      hitLayers |= 1 << hit->getLayer();
-    }
+  for (const HTTHit * hit : hits) {
+    road_hits.push_back(hit);
+    hitLayers |= 1 << hit->getLayer();
+  }
 
   auto sorted_hits = ::sortByLayer(road_hits);
   sorted_hits.resize(m_nLayers); // If no hits in last layer, return from sortByLayer will be too short
@@ -486,7 +475,7 @@ void HTTHoughTransform_d0phi0_Tool::addRoad(std::vector<const HTTHit*> const & h
     // get bin scaling for the hit
     unsigned bin_scale = 0;
     for (unsigned i = 0; i < m_nCombineLayers; i++) {
-      for (unsigned ilayer = 0; ilayer < m_combineLayer2D[i].size(); ilayer++) {
+      for (unsigned const layer : m_combineLayer2D[i]) {
 	unsigned layer = m_combineLayer2D[i][ilayer];
 	if (hit->getLayer() == layer) {
 	  bin_scale = m_binScale[layer];
