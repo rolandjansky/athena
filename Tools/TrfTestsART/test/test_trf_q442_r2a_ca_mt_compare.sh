@@ -3,6 +3,7 @@
 # art-description: Reco_tf.py q442 RAWtoALL in MT and ComponentAccumulator mode
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
 
 mkdir ca
