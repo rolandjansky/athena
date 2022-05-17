@@ -52,7 +52,7 @@ typedef struct _triginfo
     // extra HLT information
     bool idperf; // Performance chain
     bool etcut; // Et cut only chain
-    bool gsf; // GSF chain
+    bool nogsf; // GSF chain
     bool lrt; // LRT chain
 
     std::string isolation;

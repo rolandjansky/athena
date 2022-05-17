@@ -226,9 +226,9 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
                             if( info.etcut || info.idperf){// etcut or idperf
                                 passedEF = true; // since we dont run the preciseElectron step
                             }else{
-                                std::string key = match()->key("Electrons");
+                                std::string key = match()->key("Electrons_GSF");
                                 if(info.lrt)  key = match()->key("Electrons_LRT");
-                                if(info.gsf)  key = match()->key("Electrons_GSF");
+                                if(info.nogsf)  key = match()->key("Electrons");
                                 passedEF = match()->ancestorPassed<xAOD::ElectronContainer>(dec, trigger, key, condition);
                             }
    
@@ -598,7 +598,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
         // extra HLT information
         bool idperf; // Performance chain
         bool etcut; // Et cut only chain
-        bool gsf; // GSF chain
+        bool nogsf; // chain without gsf reconstruction
         bool lrt; // LRT chain
         std::string isolation;
         bool isolated;
@@ -622,7 +622,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
 
     std::vector<std::string> isoNames = {"ivarloose","ivarmedium","ivartight","icaloloose","icalomedium","icalotight"};
 
-    bool gsf = false;
+    bool nogsf = false;
     bool lrt = false;
     bool etcut = false;
     bool idperf = false;
@@ -662,7 +662,7 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
 
 
     // extra information
-    gsf = boost::contains(trigger,"gsf");
+    nogsf = boost::contains(trigger,"nogsf");
     lrt = boost::contains(trigger,"lrt");
 
     for(auto& iso : isoNames){
@@ -688,14 +688,14 @@ void TrigEgammaMonitorBaseAlgorithm::setTrigInfo(const std::string& trigger){
     ATH_MSG_INFO( "signature   : " << signature);
     ATH_MSG_INFO( "etcut       : " << (etcut?"Yes":"No"));
     ATH_MSG_INFO( "idperf      : " << (idperf?"Yes":"No"));
-    ATH_MSG_INFO( "gsf         : " << (gsf?"Yes":"No"));
+    ATH_MSG_INFO( "nogsf       : " << (nogsf?"Yes":"No"));
     ATH_MSG_INFO( "lrt         : " << (lrt?"Yes":"No"));
     ATH_MSG_INFO( "Isolation   : " << isolation);
     ATH_MSG_INFO( "Isolated    : " << (isolated?"Yes":"No"));
     ATH_MSG_INFO( "L1Seed      : " << l1seed << " (Is Legacy? " << (l1legacy?"Yes":"No") << ")");
     ATH_MSG_INFO("========================================================");
 
-    TrigInfo info{l1legacy,l1seed,trigger,signature,threshold,pidname,idperf,etcut,gsf,lrt,isolation, isolated};
+    TrigInfo info{l1legacy,l1seed,trigger,signature,threshold,pidname,idperf,etcut,nogsf,lrt,isolation, isolated};
     m_trigInfo[trigger] = info;
 
 }
