@@ -23,6 +23,26 @@ namespace FEHelpers {
   std::string getClusterMomentName(xAOD::CaloCluster::MomentType momentType);
 
   xAOD::Type::ObjectType signalToXAODType(const xAOD::FlowElement& fe);
+  
+  class FillNeutralFlowElements {
+
+    public:
+      FillNeutralFlowElements();
+      /** Function to add cluster moments onto FE */
+      bool addMoment(const xAOD::CaloCluster::MomentType& momentType,                     
+                     const std::string& attributeName,
+                     const xAOD::CaloCluster& theCluster,
+                     xAOD::FlowElement& theFE);
+
+      void addSamplingEnergy(const xAOD::CaloCluster::CaloSample& sampling,
+                    const std::string& attributeName,
+                    const xAOD::CaloCluster& theCluster,
+                    xAOD::FlowElement& theFE);
+
+      void addStandardMoments(xAOD::FlowElement& theFE,const xAOD::CaloCluster& theCluster);
+      void addStandardCalHitMoments(xAOD::FlowElement& theFE,const xAOD::CaloCluster& theCluster);
+      void addStandardSamplingEnergies(xAOD::FlowElement& theFE,const xAOD::CaloCluster& theCluster);      
+  };
 
 }
 

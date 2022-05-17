@@ -11,7 +11,7 @@
 #include "xAODMuon/Muon.h"
 #include "xAODPFlow/FlowElement.h"
 #include "xAODPFlow/FlowElementAuxContainer.h"
-
+#include "xAODPFlow/FEHelpers.h"
 
 StatusCode JetPFlowSelectionAlg::initialize() {
   ATH_MSG_DEBUG("Initializing  " );
@@ -164,17 +164,19 @@ StatusCode JetPFlowSelectionAlg::execute(const EventContext& ctx) const {
         theClusters.push_back(theIParticleLink);
         newFE->setOtherObjectLinks(theClusters);
 
-        //Add CENTER_MAG moment which is needed for the vertex correction used in jet finding
-        static const SG::AuxElement::Accessor< float > acc_CENTER_MAG( "CENTER_MAG" );
-	double moment_center_mag = 0.0;
-	const xAOD::CaloCluster* castCluster_charged = dynamic_cast<const xAOD::CaloCluster*>(theCluster_charged);
-	bool isRetrieved = castCluster_charged->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, moment_center_mag);
-	if (isRetrieved) {
-	  float float_moment_center_mag = moment_center_mag;
-	  acc_CENTER_MAG(*newFE) = float_moment_center_mag;
-	} 
-	else ATH_MSG_WARNING(" Could not retrieve CENTER_MAG moment from the CaloCluster");
+        //Add Standard data to these new FlowElements
+        FEHelpers::FillNeutralFlowElements FEFiller;
+        const xAOD::CaloCluster* castCluster_charged = dynamic_cast<const xAOD::CaloCluster*>(theCluster_charged);
+        FEFiller.addStandardMoments(*newFE,*castCluster_charged);        
+        FEFiller.addStandardSamplingEnergies(*newFE,*castCluster_charged);    
 
+        float layerEnergy_TileBar0 = castCluster_charged->eSample(xAOD::CaloCluster::CaloSample::TileBar0);
+        float layerEnergy_TileExt0 = castCluster_charged->eSample(xAOD::CaloCluster::CaloSample::TileExt0);
+        const static SG::AuxElement::Accessor<float> accFloatTIle0E("LAYERENERGY_TILE0");
+        accFloatTIle0E(*newFE) = layerEnergy_TileBar0 + layerEnergy_TileExt0;
+
+        const static SG::AuxElement::Accessor<float> accFloatTiming("TIMING");
+        accFloatTiming(*newFE) = castCluster_charged->time();
       }
         
     } // End loop over topoclusters of removed charged FE objects
