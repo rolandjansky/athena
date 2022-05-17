@@ -4,8 +4,7 @@
 atlas_subdir( RpcRawDataMonitoring )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
-find_package( Boost )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Boost)
 
 # Component(s) in the package:
 atlas_add_component( RpcRawDataMonitoring

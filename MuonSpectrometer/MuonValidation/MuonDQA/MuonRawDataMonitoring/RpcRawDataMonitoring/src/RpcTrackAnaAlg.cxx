@@ -419,15 +419,6 @@ StatusCode RpcTrackAnaAlg::fillHistPRD(const EventContext& ctx) const
   auto i_prd_LB           = Scalar<int>("LB",              i_lb );
   auto i_panelIndex       = Scalar<int>("panelInd",        0 );
 
-  // auto i_prd_stationName  = Scalar<int>("StationName",  0 );
-  // auto i_prd_stationEta   = Scalar<int>("StationEta",   0 );
-  // auto i_prd_stationPhi   = Scalar<int>("StationPhi",   0 );
-  // auto i_prd_doubletR     = Scalar<int>("DoubletR",     0 );
-  // auto i_prd_doubletZ     = Scalar<int>("DoubletZ",     0 );
-  // auto i_prd_doubletPhi   = Scalar<int>("DoubletPhi",   0 );
-  // auto i_prd_gasGap       = Scalar<int>("GasGap",       0 );
-  // auto i_prd_measPhi      = Scalar<int>("MeasPhi",      -1);
-  
   auto tool = getGroup(m_packageName);
 
   int panel_index;
@@ -487,16 +478,6 @@ StatusCode RpcTrackAnaAlg::fillHistPRD(const EventContext& ctx) const
 
       i_panelIndex       = panel_index;
       fill(tool, i_prd_LB, i_panelIndex);
-      
-      // i_prd_stationName  = i_panel->second->stationName;
-      // i_prd_stationEta   = i_panel->second->stationEta ;
-      // i_prd_stationPhi   = i_panel->second->stationPhi ;
-      // i_prd_doubletR     = i_panel->second->doubletR   ;
-      // i_prd_doubletZ     = i_panel->second->doubletZ   ;
-      // i_prd_doubletPhi   = i_panel->second->doubletPhi ;
-      // i_prd_gasGap       = i_panel->second->gasGap     ;
-      // i_prd_measPhi      = i_panel->second->measPhi    ;
-      // fill(tool, i_panelIndex, i_prd_LB, i_prd_stationName, i_prd_stationEta, i_prd_stationPhi, i_prd_doubletR, i_prd_doubletZ, i_prd_doubletPhi, i_prd_gasGap, i_prd_measPhi);
 
       v_prdTime.push_back(rpcData->time());
     }  // loop on RpcPrepData

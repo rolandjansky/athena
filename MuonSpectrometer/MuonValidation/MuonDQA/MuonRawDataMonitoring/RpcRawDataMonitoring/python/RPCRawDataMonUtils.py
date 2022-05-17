@@ -5,12 +5,22 @@
 import ROOT
 
 #############################################################################
-def creatGraph(xs, ys, x_errs, y_errs, g_name, g_title, g_Xtitle, g_Ytitle):
+def creatGraph(xs, ys, x_errs, y_errs, g_name, g_title, g_Xtitle, g_Ytitle, debug = False):
   import array
   x_arr = array.array("f",xs)
   y_arr = array.array("f",ys)
   x_err_arr = array.array("f",x_errs)
   y_err_arr = array.array("f",y_errs)
+
+  if debug:
+    print ("Creating graph: %s" %g_name)
+    print ("List of X values:", xs )
+    print ("List of Y values:", ys )
+    print ("List of Y errors:", y_errs )
+
+    print ("Array of X values:", x_arr )
+    print ("Array of Y values:", y_arr )
+    print ("Array of Y errors:", y_err_arr )
 
   g1 =  ROOT.TGraphErrors(len(x_arr),x_arr,y_arr, x_err_arr, y_err_arr)
 
@@ -32,12 +42,17 @@ def creatGraph(xs, ys, x_errs, y_errs, g_name, g_title, g_Xtitle, g_Ytitle):
 def linearFit(h_temp, opt="QNS+"):
   default_dic = {"p0": 0., "p0_err":0., "p1": -1., "p1_err":-1., "chi2":-1., "mean":0., "mean_err":0.}
   # Qtag, un-fit-able
+  # -1 -- null graph
   # 0 -- normal
   # 1 -- N points = 1
   # 2 -- N points = 2
   # 3 -- N points = 0
 
   Qtag = 0
+  if not h_temp:
+    Qtag = -1
+    return (Qtag, default_dic)
+
   if h_temp.GetN()< 2:
     Qtag = 1
     return (Qtag, default_dic)
@@ -59,7 +74,6 @@ def linearFit(h_temp, opt="QNS+"):
   mean    = round(h_temp.GetMean(2), 2)
   mean_rms= round(h_temp.GetRMS(2), 2)
 
-  # print("par_a = ", par_a, "; par_b = ", par_b, "; chi2=", chi2)
   dic = {"p0": par_a, "p0_err":par_a_E, "p1": par_b, "p1_err":par_b_E, "chi2":chi2, "mean":mean, "mean_err":mean_rms}
   return (Qtag, dic)
 

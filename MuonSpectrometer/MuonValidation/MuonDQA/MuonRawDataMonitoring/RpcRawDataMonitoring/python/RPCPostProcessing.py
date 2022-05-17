@@ -123,6 +123,8 @@ def make_hit_rate(inputs):
 
   Dic_LBLumi = GetLBInfoFromCOOL.GetLumiInfoDic(runs[0], runs[0]+1)
   print ("len(Dic_LBLumi) = ", len(Dic_LBLumi))
+  GetLBInfoFromCOOL.printLumiInfo(Dic_LBLumi)
+
   DicPanels  = readElementFromXML()
 
   ######### Draw_Occupancy ######################
@@ -172,8 +174,6 @@ def make_hit_rate(inputs):
       list_hist_subDetector += list_summary_eachSectorsAndLayers
 
   list_hist = list_hist_all + list_hist_layer + list_hist_subDetector
-  # list_graph_panels    = draw_occu.GetGraphs_rate_perPanel()
-  # list_graph_badPanels = draw_occu.GetGraphs_rate_BadPanels()
 
   return list_hist
 
@@ -260,14 +260,6 @@ def make_detection_eff(inputs):
 
   list_histos = list_hist1D_secLayer + list_hist1D_panels + list_summary_allSectorsAndLayers + list_hist2d_EtaPhi_allLayer + list_summary_eachSectorsAndLayers
 
-  print ("Len(list_hist1D_secLayer) = ", len(list_hist1D_secLayer))
-  print ("Len(list_hist1D_panels) = ", len(list_hist1D_panels))
-  print ("Len(list_summary_allSectorsAndLayers) = ", len(list_summary_allSectorsAndLayers))
-  print ("Len(list_hist2d_EtaPhi_allLayer) = ", len(list_hist2d_EtaPhi_allLayer))
-  print ("Len(list_summary_eachSectorsAndLayers) = ", len(list_summary_eachSectorsAndLayers))
-  print ("Len(histos) = ", len(list_histos))
-
-  # return list_summary_allSectorsAndLayers+list_hist2d_EtaPhi_allLayer+list_hist1D_secLayer+list_hist1D_panels+list_summary_eachSectorsAndLayers
   return list_histos
 
 #############################################################################
@@ -321,32 +313,15 @@ def make_hitFrac(inputs):
 
 #############################################################################
 def printHistNames():
-  inputfileName = "/afs/cern.ch/user/s/ssu/testarea/postprocess/data18_13TeV.00358615.1000Evt.root" # 1000 event
-  # inputfileName = "/home/ssu/testarea/DQFramework/run/data18_13TeV.00358615.100Evt.root" # 20 event
+  # inputfileName = "/afs/cern.ch/user/s/ssu/testarea/postprocess/data18_13TeV.00358615.1000Evt.root" # 1000 event
+  inputfileName = "/afs/cern.ch/user/s/ssu/DQ_area/DQFramework/run/ExampleMonitorOutput.root" # 10 event
 
-  # make_hit_rate
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationName_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationEta_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletR_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletZ_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_gasgap_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_measPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_Panels_All', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run']
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_Panels_All', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run']
-  
-  # make_hitMulti
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationName_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationEta_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletR_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletZ_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_gasgap_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_measPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/HitMultiplicity_Panels', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/ClusterSize_Panels']
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/HitMultiplicity_Panels', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/ClusterSize_Panels']
-
-  # make_detection_eff
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationName_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationEta_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletR_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletZ_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_gasgap_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_measPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/Panel_Efficiency']
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/Panel_Efficiency']
-  
-  # make_hitFrac
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationName_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationEta_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletR_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletZ_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_gasgap_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_measPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit_onTrack']
-  # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit_onTrack']
-  
   inputHist_dic = {
     "make_hit_rate": ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_Panels_All', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run'],
     "make_hitMulti": ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/HitMultiplicity_Panels', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/ClusterSize_Panels'],
     "make_detection_eff": ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/Panel_Efficiency'],
     "make_hitFrac": ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit_onTrack'],
   }
-
 
   import ROOT
   inFile  = ROOT.TFile.Open(inputfileName, 'READ')
