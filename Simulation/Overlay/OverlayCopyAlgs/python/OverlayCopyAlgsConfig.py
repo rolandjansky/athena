@@ -181,8 +181,7 @@ def CopyPixelClusterContainerAlgCfg(flags, **kwargs):
     kwargs.setdefault("InputKey","PixelClusters")
     kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix+"PixelClusters")
 
-    CopyPixelClusterContainer=CompFactory.CopyPixelClusterContainer
-    alg=CopyPixelClusterContainer("CopyPixelClusterContainer", **kwargs)
+    alg=CompFactory.CopyPixelClusterContainer("CopyPixelClusterContainer", **kwargs)
     acc.addEventAlgo(alg)
 
     return acc
@@ -194,8 +193,7 @@ def CopySCT_ClusterContainerAlgCfg(flags, **kwargs):
     kwargs.setdefault("InputKey","SCT_Clusters")
     kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix+"SCT_Clusters")
 
-    CopySCT_ClusterContainer=CompFactory.CopySCT_ClusterContainer
-    alg=CopySCT_ClusterContainer("CopySCT_ClusterContainer", **kwargs)
+    alg=CompFactory.CopySCT_ClusterContainer("CopySCT_ClusterContainer", **kwargs)
     acc.addEventAlgo(alg)
 
     return acc
@@ -207,8 +205,7 @@ def CopyTRT_DriftCircleContainerAlgCfg(flags, **kwargs):
     kwargs.setdefault("InputKey","TRT_DriftCircles")
     kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix+"TRT_DriftCircles")
 
-    CopyTRT_DriftCircleContainer=CompFactory.CopyTRT_DriftCircleContainer
-    alg=CopyTRT_DriftCircleContainer("CopyTRT_DriftCircleContainer", **kwargs)
+    alg=CompFactory.CopyTRT_DriftCircleContainer("CopyTRT_DriftCircleContainer", **kwargs)
     acc.addEventAlgo(alg)
 
     return acc
@@ -269,8 +266,7 @@ def CopyTrackCollectionAlgCfg(flags, collectionName, **kwargs):
     kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix + collectionName)
     kwargs.setdefault("InputKey", collectionName)
 
-    CopyTrackCollection = CompFactory.CopyTrackCollection
-    alg = CopyTrackCollection("CopyTrackCollection"+collectionName)
+    alg = CompFactory.CopyTrackCollection("CopyTrackCollection"+collectionName)
     acc.addEventAlgo(alg)
 
     return acc
@@ -283,8 +279,7 @@ def CopyDetailedTrackTruthCollectionAlgCfg(flags, collectionName, **kwargs):
     kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix + collectionName)
     kwargs.setdefault("InputKey", collectionName)
 
-    CopyDetailedTrackTruthCollection = CompFactory.CopyDetailedTrackTruthCollection
-    alg = CopyDetailedTrackTruthCollection("CopyDetailedTrackTruthCollection"+collectionName)
+    alg = CompFactory.CopyDetailedTrackTruthCollection("CopyDetailedTrackTruthCollection"+collectionName)
     acc.addEventAlgo(alg)
 
     return acc
@@ -296,8 +291,7 @@ def CopyPRD_MultiTruthCollectionAlgCfg(flags, collectionName, **kwargs):
     kwargs.setdefault("OutputKey",flags.Overlay.BkgPrefix + collectionName)
     kwargs.setdefault("InputKey", collectionName)
 
-    CopyPRD_MultiTruthCollection = CompFactory.CopyPRD_MultiTruthCollection
-    alg = CopyPRD_MultiTruthCollection("CopyPRD_MultiTruthCollection"+collectionName)
+    alg = CompFactory.CopyPRD_MultiTruthCollection("CopyPRD_MultiTruthCollection"+collectionName)
     acc.addEventAlgo(alg)
 
     return acc
@@ -411,38 +405,6 @@ def CopyTrackCollectionOutputCfg(flags, collectionName, **kwargs):
 
     return acc
 
-def CopyPixelClusterContainerOutputCfg(flags, **kwargs):
-    """ Return CopyPixelClusterContainer output configuration"""
-    acc = ComponentAccumulator()
-    if flags.Output.doWriteRDO:
-        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-            "InDet::PixelClusterContainer#Bkg_PixelClusters"
-        ]))
-
-    return acc
-
-def CopySCT_ClusterContainerOutputCfg(flags, **kwargs):
-    """ Return CopySCT_ClusterContainer output configuration"""
-    acc = ComponentAccumulator()
-    if flags.Output.doWriteRDO:
-        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-            "InDet::SCT_ClusterContainer#Bkg_SCT_Clusters"
-        ]))
-
-    return acc
-
-def CopyTRT_DriftCircleContainerOutputCfg(flags, **kwargs):
-    """ Return CopyTRT_DriftCircleContainer output configuration"""
-    acc = ComponentAccumulator()
-    if flags.Output.doWriteRDO:
-        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-            "InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles"]))
-
-    return acc
-
 def CopyDetailedTrackTruthCollectionOutputCfg(flags, collectionName, **kwargs):
     """ Return CopyDetailedTrackTruthCollection output configuration"""
     acc = ComponentAccumulator()
@@ -526,7 +488,11 @@ def CopyPixelClusterContainerCfg(flags, **kwargs):
     """Return overlay configuration for the CopyPixelClusterContainer algorithm"""
 
     acc = CopyPixelClusterContainerAlgCfg(flags, **kwargs)
-    acc.merge(CopyPixelClusterContainerOutputCfg(flags, **kwargs))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDet::PixelClusterContainer#Bkg_PixelClusters"
+        ]))
 
     return acc
 
@@ -534,7 +500,11 @@ def CopySCT_ClusterContainerCfg(flags, **kwargs):
     """Return overlay configuration for the CopySCT_ClusterContainer algorithm"""
 
     acc = CopySCT_ClusterContainerAlgCfg(flags, **kwargs)
-    acc.merge(CopySCT_ClusterContainerOutputCfg(flags, **kwargs))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDet::SCT_ClusterContainer#Bkg_SCT_Clusters"
+        ]))
 
     return acc
 
@@ -542,7 +512,10 @@ def CopyTRT_DriftCircleContainerCfg(flags, **kwargs):
     """Return overlay configuration for the CopyTRT_DriftCircleContainer algorithm"""
 
     acc = CopyTRT_DriftCircleContainerAlgCfg(flags, **kwargs)
-    acc.merge(CopyTRT_DriftCircleContainerOutputCfg(flags, **kwargs))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles"]))
 
     return acc
 

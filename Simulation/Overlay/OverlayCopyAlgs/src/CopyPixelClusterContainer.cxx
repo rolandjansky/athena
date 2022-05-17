@@ -47,14 +47,10 @@ StatusCode CopyPixelClusterContainer::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Recorded output PixelClusterContainer container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  InDet::PixelClusterContainer::const_iterator colNext=inputContainer->begin();
-  InDet::PixelClusterContainer::const_iterator colEnd=inputContainer->end();
-  for (; colNext != colEnd; ++colNext){
-    InDet::PixelClusterCollection* newCol=new InDet::PixelClusterCollection((*colNext)->identifyHash());
-    InDet::PixelClusterCollection::const_iterator clusIt = (*colNext)->begin();
-    InDet::PixelClusterCollection::const_iterator clusEnd = (*colNext)->end();
-    for(; clusIt!=clusEnd; ++clusIt){
-      newCol->push_back(std::make_unique<InDet::PixelCluster>(**clusIt));
+  for(const InDet::PixelClusterCollection* col : *inputContainer){
+    InDet::PixelClusterCollection* newCol=new InDet::PixelClusterCollection(col->identifyHash());
+    for(const InDet::PixelCluster* clus : *col){
+      newCol->push_back(std::make_unique<InDet::PixelCluster>(*clus));
     }
     ATH_CHECK(outputContainer->addCollection(newCol,newCol->identifyHash()));
   }

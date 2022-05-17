@@ -47,14 +47,10 @@ StatusCode CopySCT_ClusterContainer::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Recorded output SCT_ClusterContainer container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  InDet::SCT_ClusterContainer::const_iterator colNext=inputContainer->begin();
-  InDet::SCT_ClusterContainer::const_iterator colEnd=inputContainer->end();
-  for (; colNext != colEnd; ++colNext){
-    InDet::SCT_ClusterCollection* newCol=new InDet::SCT_ClusterCollection((*colNext)->identifyHash());
-    InDet::SCT_ClusterCollection::const_iterator clusIt = (*colNext)->begin();
-    InDet::SCT_ClusterCollection::const_iterator clusEnd = (*colNext)->end();
-    for(; clusIt!=clusEnd; ++clusIt){
-      newCol->push_back(std::make_unique<InDet::SCT_Cluster>(**clusIt));
+  for(const InDet::SCT_ClusterCollection* col : *inputContainer){
+    InDet::SCT_ClusterCollection* newCol=new InDet::SCT_ClusterCollection(col->identifyHash());
+    for(const InDet::SCT_Cluster* clus : *col){
+      newCol->push_back(std::make_unique<InDet::SCT_Cluster>(*clus));
     }
     ATH_CHECK(outputContainer->addCollection(newCol,newCol->identifyHash()));
   }

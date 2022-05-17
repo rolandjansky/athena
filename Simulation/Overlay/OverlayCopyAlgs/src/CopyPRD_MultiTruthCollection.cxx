@@ -43,7 +43,7 @@ StatusCode CopyPRD_MultiTruthCollection::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Recorded output PRD_MultiTruthCollection container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  for(const auto &element : *inputContainer){
+  for(const std::pair<const Identifier, HepMcParticleLink>& element : *inputContainer){
     outputContainer->insert(std::make_pair(element.first,element.second));
   }
   return StatusCode::SUCCESS;

@@ -126,10 +126,10 @@ def OverlayMainCfg(configFlags):
     #track overlay
     if configFlags.Overlay.doTrackOverlay:
         #need this to ensure that the ElementLinks to the PRDs are handled correctly (since the name is hardcoded in the converters)
-        Trk__EventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool
-        cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
-        cnvTool.DoTrackOverlay = True
-        result.addPublicTool(cnvTool)
+        from TrkEventCnvTools.TrkEventCnvToolsConfigCA import TrkEventCnvSuperToolCfg
+        acc.merge(TrkEventCnvSuperToolCfg(configFlags))
+        eventCnvTool=acc.getPublicTool("EventCnvSuperTool")
+        eventCnvTool.DoTrackOverlay = True
         from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyTrackCollectionsCfg,CopyDetailedTrackTruthCollectionsCfg,CopyPRD_MultiTruthCollectionsCfg, \
             CopyPixelClusterContainerCfg, CopySCT_ClusterContainerCfg, CopyTRT_DriftCircleContainerCfg
         acc.merge(CopyTrackCollectionsCfg(configFlags))

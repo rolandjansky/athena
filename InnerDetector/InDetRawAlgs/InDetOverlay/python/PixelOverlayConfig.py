@@ -103,7 +103,8 @@ def PixelOverlayCfg(flags):
         # Add Pixel truth overlay
         acc.merge(PixelTruthOverlayCfg(flags))
     else:
-        acc.getEventAlgo("PixelOverlayDigitization").DigitizationTool.RDOCollName="PixelRDOs"
-        acc.getEventAlgo("PixelOverlayDigitization").DigitizationTool.SDOCollName="PixelSDO_Map"
+        pixelDigitAlg=acc.getEventAlgo("PixelOverlayDigitization")
+        pixelDigitAlg.DigitizationTool.RDOCollName="PixelRDOs"
+        pixelDigitAlg.DigitizationTool.SDOCollName="PixelSDO_Map"
 
     return acc

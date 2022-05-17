@@ -106,7 +106,8 @@ def SCTOverlayCfg(flags):
         # Add SCT truth overlay
         acc.merge(SCTTruthOverlayCfg(flags))
     else:
-        acc.getEventAlgo("SCT_OverlayDigitization").DigitizationTool.OutputObjectName="SCT_RDOs"
-        acc.getEventAlgo("SCT_OverlayDigitization").DigitizationTool.OutputSDOName="SCT_SDO_Map"
+        sctDigitAlg=acc.getEventAlgo("SCT_OverlayDigitization")
+        sctDigitAlg.DigitizationTool.OutputObjectName="SCT_RDOs"
+        sctDigitAlg.DigitizationTool.OutputSDOName="SCT_SDO_Map"
 
     return acc

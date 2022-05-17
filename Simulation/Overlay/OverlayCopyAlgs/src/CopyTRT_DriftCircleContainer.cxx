@@ -47,14 +47,10 @@ StatusCode CopyTRT_DriftCircleContainer::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Recorded output TRT_DriftCircleContainer container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  InDet::TRT_DriftCircleContainer::const_iterator colNext=inputContainer->begin();
-  InDet::TRT_DriftCircleContainer::const_iterator colEnd=inputContainer->end();
-  for (; colNext != colEnd; ++colNext){
-    InDet::TRT_DriftCircleCollection* newCol=new InDet::TRT_DriftCircleCollection((*colNext)->identifyHash());
-    InDet::TRT_DriftCircleCollection::const_iterator clusIt = (*colNext)->begin();
-    InDet::TRT_DriftCircleCollection::const_iterator clusEnd = (*colNext)->end();
-    for(; clusIt!=clusEnd; ++clusIt){
-      newCol->push_back(std::make_unique<InDet::TRT_DriftCircle>(**clusIt));
+  for(const InDet::TRT_DriftCircleCollection* col : *inputContainer){
+    InDet::TRT_DriftCircleCollection* newCol=new InDet::TRT_DriftCircleCollection(col->identifyHash());
+    for(const InDet::TRT_DriftCircle* clus : *col){
+      newCol->push_back(std::make_unique<InDet::TRT_DriftCircle>(*clus));
     }
     ATH_CHECK(outputContainer->addCollection(newCol,newCol->identifyHash()));
   }
