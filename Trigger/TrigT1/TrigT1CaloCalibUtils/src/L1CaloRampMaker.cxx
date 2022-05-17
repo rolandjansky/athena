@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloRampMaker.h"
@@ -10,7 +10,6 @@
 #include "AthenaKernel/errorcheck.h"
 
 #include "xAODEventInfo/EventInfo.h"
-
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -25,15 +24,14 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
 #include "TrigT1CaloCalibConditions/L1CaloRampData.h"
 #include "TrigT1CaloCalibConditions/L1CaloRampDataContainer.h"
-#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
 
-#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 // temporary includes to work around limitations in L1CaloxAODOfflineTriggerTowerTools
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
-
 #include "xAODTrigL1Calo/TriggerTower.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+
 
 // define Accessors
 namespace {
@@ -61,13 +59,11 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_xAODTTTools("LVL1::L1CaloxAODOfflineTriggerTowerTools/L1CaloxAODOfflineTriggerTowerTools", this),
     m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools", this),
-    m_condSvc("L1CaloCondSvc", name),
     m_nEvent(1),
     m_firstEvent(true),
     m_lvl1Helper(nullptr),
-    m_rampDataContainer(nullptr),
-    m_pprLutContainer(nullptr)
-    //m_pprDisabledChannelContainer(nullptr)
+    m_rampDataContainer(nullptr)
+
 {
     declareProperty("TriggerTowerCollectionName", m_triggerTowerContainerName);
     declareProperty("OutputFolderName", m_outputFolderName);
@@ -94,7 +90,8 @@ L1CaloRampMaker::~L1CaloRampMaker()
 
 StatusCode L1CaloRampMaker::initialize()
 {
-    CHECK(m_condSvc.retrieve());
+  
+    CHECK(m_caloCellsKey.initialize());
 
     const CaloIdManager *caloMgr = nullptr;
     CHECK(detStore()->retrieve(caloMgr));
@@ -103,21 +100,16 @@ StatusCode L1CaloRampMaker::initialize()
         ATH_MSG_FATAL( "Cannot access CaloLVL1_ID helper." );
         return StatusCode::FAILURE;
     }
-
-    CHECK(m_ttTool.retrieve());
-    CHECK(m_xAODTTTools.retrieve());
-    CHECK(m_jmTools.retrieve());
-
-    // setup access to Calib1 folder of L1CALO database
-    m_pprLutContainerFolderMap.insert(std::make_pair(L1CaloPprConditionsContainerRun2::ePprChanCalib, "/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanCalib"));
-    m_pprLutContainerFolderMap.insert(std::make_pair(L1CaloPprConditionsContainerRun2::ePprChanDefaults, "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"));
-    // m_pprDisabledChannelContainerFolderMap.insert(std::make_pair(L1CaloPprDisabledChannelContainer::ePpmDeadChannels,
-    //                                                              "/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"));
-    // m_pprDisabledChannelContainerFolderMap.insert(std::make_pair(L1CaloPprDisabledChannelContainer::ePprChanCalib,
-    //                                                              "/TRIGGER/L1Calo/V1/Calibration/Calib1/PprChanCalib"));
-    // m_pprDisabledChannelContainerFolderMap.insert(std::make_pair(L1CaloPprDisabledChannelContainer::eDisabledTowers,
-    //                                                              "/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"));
-
+        
+    ATH_CHECK( m_cablingKey.initialize() );
+    ATH_CHECK(m_ttTool.retrieve());
+    ATH_CHECK(m_xAODTTTools.retrieve());
+    ATH_CHECK(m_jmTools.retrieve());
+    
+    ATH_CHECK( m_strategy.initialize() );
+    ATH_CHECK( m_pprDisabledChannelContainer.initialize() );
+    ATH_CHECK( m_pprChanCalibContainer.initialize() );
+    
     return StatusCode::SUCCESS;
 }
 
@@ -150,22 +142,25 @@ StatusCode L1CaloRampMaker::execute()
         return StatusCode::RECOVERABLE;
     }
 
+  
+    const EventContext& ctx = getContext();
+    
+    SG::ReadHandle<CaloCellContainer> cells{ m_caloCellsKey,ctx};
+  
+    const unsigned evt=ctx.eventID().event_number();
+    ATH_MSG_DEBUG("Event " << evt << " contains " << cells->size() << " CaloCells" );
+    const CaloCellContainer* cellCont = cells.get();
+
+
+
+    m_jmTools->caloCells(cellCont);
+
     // init trigger tower to cell mapping
     CHECK(m_xAODTTTools->initCaloCells());
+    ATH_MSG_DEBUG("GAIN STRATEGY " << m_strategy);
 
-    SG::ReadHandle<CaloCellContainer> caloCells (m_caloCellsKey);
-    m_jmTools->caloCells(caloCells.cptr());
+
     
-
-    // CHECK(m_condSvc->retrieve(m_pprLutContainer, m_pprLutContainerFolderMap));
-    // CHECK(m_condSvc->retrieve(m_pprDisabledChannelContainer, m_pprDisabledChannelContainerFolderMap));
-    
-    // access L1CaloPPrLutContinaer
-    // since no key is given, we will override the default lookup
-    // to the folder specified in initialize (i.e. the .../Calib1/PprChanCalib version)
-    CHECK(m_condSvc->retrieve(m_pprLutContainer, m_pprLutContainerFolderMap));
-    CHECK(m_ttTool->retrieveConditions());
-
     if(m_firstEvent) {
       unsigned int runNumber = eventInfo->runNumber();
       std::string gainStrategy("");
@@ -230,6 +225,15 @@ StatusCode L1CaloRampMaker::execute()
       m_firstEvent = false;
     }
 
+ 
+
+ 
+    // Reading L1Calo conditions 
+    SG::ReadCondHandle<L1CaloPprDisabledChannelContainerRun2>  pprDisabledChannel(m_pprDisabledChannelContainer);
+    SG::ReadCondHandle<L1CaloPprChanCalibContainer> pprChanCalib( m_pprChanCalibContainer);
+
+
+    
     auto specialChannelRangeEnd = m_specialChannelRange.end();
     bool nextStep = (m_nEvent % m_nEventsPerStep == 0);
     for(auto *tt : *tts) {
@@ -240,15 +244,17 @@ StatusCode L1CaloRampMaker::execute()
         auto max = std::max_element(tt->adc().begin(), tt->adc().end());
         if(*max >= m_fadcSaturationCut) continue;
 
-        // skip disabled channels
-        if(m_ttTool->disabledChannel(tt->coolId())) continue;
 
+	// skip disabled channels         
+	if( pprDisabledChannel->pprDisabledChannel(tt->coolId())) continue;
+
+	
         bool isTile = m_xAODTTTools->isTile(*tt);
 
         if((m_doLAr && !isTile) || (m_doTile && isTile)) {
             if(m_checkProvenance) checkProvenance(tt);
-            double level1Energy = getTriggerTowerEnergy(tt);
-            double caloEnergy = getCaloEnergy(tt);
+            double level1Energy = getTriggerTowerEnergy(tt,pprChanCalib);
+	    double caloEnergy = getCaloEnergy(tt);
 
             // cut on 150 GeV ADC for Tile, lots of saturating calibration signals
             if(isTile && level1Energy > m_tileSaturationCut) continue;
@@ -270,6 +276,10 @@ StatusCode L1CaloRampMaker::execute()
 
     return StatusCode::SUCCESS;
 }
+
+
+
+
 
 void L1CaloRampMaker::setupRampDataContainer(const xAOD::TriggerTowerContainer* tts)
 {
@@ -323,19 +333,21 @@ double L1CaloRampMaker::getCaloEnergy(const xAOD::TriggerTower* tt)
 
 // calculate trigger tower E_T from adc values
 // if run is with gain 1 loaded, need special treatment of E_T for HEC and TILE
-double L1CaloRampMaker::getTriggerTowerEnergy(const xAOD::TriggerTower* tt) {
+double L1CaloRampMaker::getTriggerTowerEnergy(const xAOD::TriggerTower* tt, SG::ReadCondHandle<L1CaloPprChanCalibContainer> pprChanCalib) {
     // calibration is against ADC energy "(adc peak value - pedestal) / 4"
     auto max = std::max_element(tt->adc().begin(), tt->adc().end());
-
-    const L1CaloPprConditionsRun2 *pprConditions = m_pprLutContainer->pprConditions(tt->coolId());
-    if(!pprConditions) {
-        ATH_MSG_WARNING("Empty PPrConditions for 0x "
-                        << std::hex << tt->coolId() << std::dec << "!");
-        return 0.;
+    
+    if(!pprChanCalib->pprChanCalib(tt->coolId())) {
+      ATH_MSG_WARNING("Empty PPrChanCalib for 0x "
+    		      << std::hex << tt->coolId() << std::dec << "!");
+      return 0.;
     }
+    
+    double energy = (*max - int( pprChanCalib->pprChanCalib(tt->coolId())->pedValue())) * 0.25;
+    ATH_MSG_DEBUG("PedValue " << tt->coolId() << ":" <<  int( pprChanCalib->pprChanCalib(tt->coolId())->pedValue())  );
+    
 
-    double energy = (*max - int(pprConditions->pedValue())) * 0.25;
-    if (energy < 0.) energy = 0.;
+     if (energy < 0.) energy = 0.;
 
     // no corrections if gain is set correctly
     if(!m_isGain1) return energy;
