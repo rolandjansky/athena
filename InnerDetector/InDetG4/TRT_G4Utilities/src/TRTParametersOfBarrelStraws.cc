@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_G4Utilities/TRTParametersOfBarrelStraws.hh"
@@ -12,18 +12,14 @@
 
   // Called by TRTConstructionOfBarrelStraws::TRTConstructionOfBarrelStraws
 
-TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws(): m_msg("TRTParametersOfBarrelStraws")
+TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws()
 {
   m_pParameters = TRTParameters::GetPointer();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws" << endmsg;
 
   DefineParameters();
 
   if (m_pParameters->GetInteger("PrintParametersOfBarrelStraws"))
-    PrintParameters(m_msg.get());
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws done" << endmsg;
+    PrintParameters();
 }
 
 
@@ -31,9 +27,6 @@ TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws(): m_msg("TRTParameters
 
 TRTParametersOfBarrelStraws::~TRTParametersOfBarrelStraws()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfBarrelStraws" << endmsg;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfBarrelStraws done" << endmsg;
 }
 
 
@@ -41,8 +34,6 @@ TRTParametersOfBarrelStraws::~TRTParametersOfBarrelStraws()
 
 void TRTParametersOfBarrelStraws::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters" << endmsg;
-
   // Parameters of straw hole:
   m_outerRadiusOfStrawHole = m_pParameters->GetDouble("OuterRadiusOfStrawHole");
   m_lengthOfStrawHole = m_pParameters->GetDouble("LengthOfBarrelVolume");
@@ -83,19 +74,13 @@ void TRTParametersOfBarrelStraws::DefineParameters()
   m_positionOfGasL = (m_lengthOfGasL + m_lengthOfTwister) / 2. + m_lengthOfDeadRegion;
   m_positionOfGasS = (m_lengthOfGasS + m_lengthOfTwister) / 2. +
     m_lengthOfLongDeadRegion;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::DefineParameters"
-						<< " done" << endmsg;
 }
 
 
 // Called by TRTParametersOfBarrelStraws
 
-void TRTParametersOfBarrelStraws::PrintParameters(MsgStream& msg) const
+void TRTParametersOfBarrelStraws::PrintParameters() const
 {
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
-						<< endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -158,7 +143,4 @@ void TRTParametersOfBarrelStraws::PrintParameters(MsgStream& msg) const
     m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionLB);
 
   output << std::endl;
-
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
-						<< " done" << endmsg;
 }

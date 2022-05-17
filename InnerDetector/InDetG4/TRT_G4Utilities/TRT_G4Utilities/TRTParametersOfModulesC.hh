@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,8 +7,6 @@
 #define TRTParametersOfModulesC_hh
 
 #include "globals.hh"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 #include <vector>
 
 class TRTParameters;
@@ -20,17 +18,14 @@ class TRTParametersOfModulesC
 
 public:
   TRTParametersOfModulesC();
-  ~TRTParametersOfModulesC();
-  
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
+  ~TRTParametersOfModulesC() = default;
   
 private:
   TRTParametersOfModulesC (const TRTParametersOfModulesC&); 
   TRTParametersOfModulesC& operator= (const TRTParametersOfModulesC&); 
   void DefineParameters();
-  void PrintParameters(MsgStream& msg, const std::vector<double> &, const std::vector<double> &) const;
-  
+  void PrintParameters(const std::vector<double> &, const std::vector<double> &) const;
+
   double m_baseOfShellTrd1C = 0.0;
   double m_heightOfShellTrd1C = 0.0;
   
@@ -77,8 +72,6 @@ private:
   std::vector<double> m_zOfHolesForCoolingTubesC ;
   
   const TRTParameters* m_pParameters;
-
-  Athena::MsgStreamMember m_msg;
 
 };
 
