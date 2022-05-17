@@ -39,7 +39,10 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
     kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
-    kwargs.setdefault('OnlyUseContainerName', flags.Common.ProductionStep != ProductionStep.Overlay)
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        kwargs.setdefault('OnlyUseContainerName', False)
+    else:
+        kwargs.setdefault('OnlyUseContainerName', flags.Digitization.PileUp)
 
     acc = ComponentAccumulator()
 
