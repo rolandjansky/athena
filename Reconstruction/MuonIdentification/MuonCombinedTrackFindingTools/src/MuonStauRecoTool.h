@@ -73,7 +73,7 @@ namespace MuonCombined {
 
         struct MaximumData {
             MaximumData(const Muon::MuonSystemExtension::Intersection& intersection_, const MuonHough::MuonLayerHough::Maximum* maximum_,
-                        std::vector<std::shared_ptr<const Muon::MuonClusterOnTrack>> phiClusterOnTracks_) :
+                        const std::vector<std::shared_ptr<const Muon::MuonClusterOnTrack>> & phiClusterOnTracks_) :
                 intersection(intersection_), maximum(maximum_), phiClusterOnTracks(phiClusterOnTracks_) {}
             Muon::MuonSystemExtension::Intersection intersection;
             const MuonHough::MuonLayerHough::Maximum* maximum;
