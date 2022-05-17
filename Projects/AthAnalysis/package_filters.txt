@@ -124,6 +124,7 @@
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TriggerCommon/TriggerJobOpts
 #+ Trigger/TrigCost/EnhancedBiasWeighter
 #+ Trigger/TrigCost/RatesAnalysis
 + Trigger/TrigEvent/TrigDecisionInterface
