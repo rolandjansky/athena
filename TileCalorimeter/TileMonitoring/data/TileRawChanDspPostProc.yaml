@@ -1,0 +1,85 @@
+#
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile DSP raw channel monitoring
+## Separate blocks with ---
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_chi2_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_summary_chi2_amp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleChi2VsAmplitude
+Description: Produce Tile 2D summary histograms per LBA module with Chi2 vs amplitude of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_chi2_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_summary_chi2_amp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleChi2VsAmplitude
+Description: Produce Tile 2D summary histograms per LBC module with Chi2 vs amplitude of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_chi2_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_summary_chi2_amp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleChi2VsAmplitude
+Description: Produce Tile 2D summary histograms per EBA module with Chi2 vs amplitude of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_chi2_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_summary_chi2_amp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleChi2VsAmplitude
+Description: Produce Tile 2D summary histograms per EBC module with Chi2 vs amplitude of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspamp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDSP
+Description: Produce Tile 1D summary histograms per LBA module with DSP amplitudes of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspamp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDSP
+Description: Produce Tile 1D summary histograms per LBC module with DSP amplitudes of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspamp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDSP
+Description: Produce Tile 1D summary histograms per EBA module with DSP amplitudes of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspamp' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDSP
+Description: Produce Tile 1D summary histograms per EBC module with DSP amplitudes of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_amp_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_ampdiff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_amphbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per LBA module with amplitude difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_amp_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_ampdiff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_amphbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per LBC module with amplitude difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_amp_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_ampdiff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_amphbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per EBA module with amplitude difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_amp_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_ampdiff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_amphbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per EBC module with amplitude difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_time_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timediff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timehbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per LBA module with time difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_time_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timediff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timehbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per LBC module with time difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_time_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timediff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timehbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per EBA module with time difference between offline and DSP of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_dsp-fit_time_diff$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timediff', 'Tile/RawChannel/Summary/{module}_{gain}_dspfit_timehbar' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeDiffBetweenOfflineAndDSP
+Description: Produce Tile 1D summary histograms per EBC module with time difference between offline and DSP of all channels in the module

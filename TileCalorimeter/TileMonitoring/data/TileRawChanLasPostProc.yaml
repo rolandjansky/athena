@@ -1,0 +1,29 @@
+#
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile raw channel monitoring
+## Separate blocks with ---
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_even',
+        'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_odd', 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_empty' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeVarianceOverMean
+Description: Produce Tile 1D summary histograms per LBA module with amplitude variance over mean of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_even',
+        'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_odd', 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_empty' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeVarianceOverMean
+Description: Produce Tile 1D summary histograms per LBC module with amplitude variance over mean of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_even',
+        'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_odd', 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_empty' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeVarianceOverMean
+Description: Produce Tile 1D summary histograms per EBA module with amplitude variance over mean of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_even',
+        'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_odd', 'Tile/RawChannel/Summary/{module}_{gain}_pmtGain_empty' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeVarianceOverMean
+Description: Produce Tile 1D summary histograms per EBC module with amplitude variance over mean of all channels in the module
