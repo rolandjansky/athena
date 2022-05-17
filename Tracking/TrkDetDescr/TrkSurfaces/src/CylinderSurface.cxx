@@ -181,6 +181,10 @@ Trk::CylinderSurface::rotSymmetryAxis() const
   return (*m_rotSymmetryAxis);
 }
 
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
 void
 Trk::CylinderSurface::localToGlobal(const Amg::Vector2D& locpos,
                                     const Amg::Vector3D&,
