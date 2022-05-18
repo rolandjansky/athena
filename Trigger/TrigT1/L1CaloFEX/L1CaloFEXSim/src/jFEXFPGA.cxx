@@ -92,8 +92,6 @@ void jFEXFPGA::reset() {
 
 StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     
-
-
     SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey/*,ctx*/);
     if(!jTowerContainer.isValid()) {
         ATH_MSG_FATAL("Could not retrieve container " << m_jTowerContainerKey.key() );
