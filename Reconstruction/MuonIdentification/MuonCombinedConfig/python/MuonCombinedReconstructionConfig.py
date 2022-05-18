@@ -365,7 +365,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs):
     kwargs.setdefault("CombinedLocation", "CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation", "ExtrapolatedStau")
     kwargs.setdefault("MSOnlyExtrapolatedLocation", "MSOnlyExtrapolatedStau")
-    kwargs.setdefault("MuonCandidateLocation", "")
+    kwargs.setdefault("MuonCandidateLocation", [])
     kwargs.setdefault("SegmentContainerName", "StauSegments")
     kwargs.setdefault("TrackSegmentContainerName", "TrkStauSegments")
     kwargs.setdefault("BuildSlowMuon", 1)
