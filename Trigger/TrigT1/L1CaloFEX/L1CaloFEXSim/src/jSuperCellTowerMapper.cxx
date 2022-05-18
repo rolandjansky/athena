@@ -1200,7 +1200,7 @@ StatusCode jSuperCellTowerMapper::AssignPileupAndNoiseValues(std::unique_ptr<jTo
         float eta = EtaCoords->GetBinContent(i);
         float phi = PhiCoords->GetBinContent(i);
         int noise = TTowerArea*100; // the noise cut depends on the TT Area weight, allows to increase the threshold for bigger TT
-        //int noise = 3000; // This noise cut value was used in Run2, keep to remember for now, will be changed when COOL database is built
+        //int noise = 2000; // This noise cut value was used in Run2, keep to remember for now, will be changed when COOL database is built
         
         if(TTid == 0) continue; //avoid repeated TTID in jTowerArea_hist, which are set to 0 in Firmware2BitwiseID
 

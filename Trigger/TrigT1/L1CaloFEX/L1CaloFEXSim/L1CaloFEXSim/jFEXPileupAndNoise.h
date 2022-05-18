@@ -69,8 +69,6 @@ protected:
         int m_FPGA_ET_forward_EM[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]={{0}};
         int m_FPGA_ET_forward_HAD[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]={{0}};
         
-        
-
         //rho variables for the pileup
         float m_rho_EM   = 0; //for eta < 3.2
         float m_rho_HAD1 = 0; //for eta < 1.5

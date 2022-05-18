@@ -86,7 +86,6 @@ void LVL1::jFEXPileupAndNoise::setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_h
     ATH_MSG_DEBUG("---------------- jFEXPileupAndNoise::setup ----------------");
     m_is_FWD = 0; //central region
     std::copy(&FPGA[0][0], &FPGA[0][0] + FEXAlgoSpaceDefs::jFEX_algoSpace_height*FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width, &m_FPGA_central[0][0]);
-
 }
 
 
@@ -96,7 +95,6 @@ void LVL1::jFEXPileupAndNoise::setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_h
     ATH_MSG_DEBUG("---------------- jFEXPileupAndNoise::setup ----------------");
     m_is_FWD = 1; //forward region
     std::copy(&FPGA[0][0], &FPGA[0][0] + FEXAlgoSpaceDefs::jFEX_algoSpace_height*FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width, &m_FPGA_forward[0][0]);
-   
 }
 
 
@@ -119,7 +117,6 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                 m_FPGA_ET_forward_HAD[iphi][ieta] = tmp_energy_HAD;
                 
                 //calculating rho's
-                
                 int tmp_eta = getTTowerEta(TTID);
                 if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     if(tmp_energy_EM > m_et_low and tmp_energy_EM < m_et_high) {//lower and upper threshold must be get from the L1Calo DB
@@ -153,8 +150,6 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                         m_count_rho_HAD3++;
                     }
                 }
-
-                         
             }
         }//end of iphi loop
         
@@ -171,10 +166,9 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                 float tmp_HD_Area    = getTTArea_HAD(TTID);
                 m_FPGA_ET_central_EM[iphi][ieta]  = tmp_energy_EM ; 
                 m_FPGA_ET_central_HAD[iphi][ieta] = tmp_energy_HAD;
+                
                 //calculating rho's
-                
                 int tmp_eta = getTTowerEta(TTID);
-                
                 if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     if(tmp_energy_EM > m_et_low and tmp_energy_EM < m_et_high){ //lower and upper threshold must be get from the L1Calo DB
                         m_rho_EM += tmp_energy_EM / tmp_EM_Area; 
@@ -208,7 +202,6 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
                     }
                 }
                 
-
                          
             }
         }//end of iphi loop
@@ -219,6 +212,7 @@ std::vector<float> LVL1::jFEXPileupAndNoise::CalculatePileup(){
     if(m_count_rho_HAD2 != 0) m_rho_HAD2/=m_count_rho_HAD2;
     if(m_count_rho_HAD3 != 0) m_rho_HAD3/=m_count_rho_HAD3;
     if(m_count_rho_FCAL != 0) m_rho_FCAL/=m_count_rho_FCAL;
+    
     
     std::vector<float> rho_values {m_rho_EM,m_rho_HAD1,m_rho_HAD2,m_rho_HAD3,m_rho_FCAL};
     
@@ -235,9 +229,9 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
                 int TTID = m_FPGA_forward[iphi][ieta];
                 if(TTID == 0) continue; //skipping TTID iqual to 0
                 int tmp_eta = getTTowerEta(TTID);
-                int tmp_EM_Area = getTTArea_EM(TTID);
-                int tmp_HD_Area = getTTArea_HAD(TTID);
-                    
+                float tmp_EM_Area = getTTArea_EM(TTID);
+                float tmp_HD_Area = getTTArea_HAD(TTID);
+
                 if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     m_FPGA_ET_forward_EM[iphi][ieta]=m_FPGA_ET_forward_EM[iphi][ieta]-m_rho_EM * tmp_EM_Area; 
                 }
@@ -266,8 +260,8 @@ void LVL1::jFEXPileupAndNoise::SubtractPileup(){
             for(int ieta=0;ieta<FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;ieta++){ 
                 int TTID = m_FPGA_central[iphi][ieta];
                 int tmp_eta = getTTowerEta(TTID);
-                int tmp_EM_Area = getTTArea_EM(TTID);
-                int tmp_HD_Area = getTTArea_HAD(TTID);
+                float tmp_EM_Area = getTTArea_EM(TTID);
+                float tmp_HD_Area = getTTArea_HAD(TTID);
                     
                 if(tmp_eta < 32 && TTID < FEXAlgoSpaceDefs::jFEX_FCAL_start){
                     m_FPGA_ET_central_EM[iphi][ieta]=m_FPGA_ET_central_EM[iphi][ieta]-m_rho_EM * tmp_EM_Area; 
@@ -487,8 +481,8 @@ void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::unordered_map<int,std::vector
     for(auto [key,vec] : map_Etvalues){
         tmpTower = m_jTowerContainer->findTower(key);
         
-        int Jet_NoiseCut = tmpTower->getNoiseForJet(layer);
-        int Met_NoiseCut = tmpTower->getNoiseForMet(layer);
+        float Jet_NoiseCut = tmpTower->getNoiseForJet(layer);
+        float Met_NoiseCut = tmpTower->getNoiseForMet(layer);
         
         if(m_apply_noise2jets && map_Etvalues[key][0]<Jet_NoiseCut){ // Et for jets
             map_Etvalues[key][0]=0.;
@@ -527,7 +521,6 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values
         Et_energy[1]=m_map_Etvalues_EM[key][1]+m_map_Etvalues_HAD[key][1];
         map_Etvalues[key] = Et_energy;
     }
-       
     return map_Etvalues;
 }
 
@@ -535,39 +528,40 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::GetEt_values
 //Gets Eta of the TT
 int LVL1::jFEXPileupAndNoise::getTTowerEta(unsigned int TTID) {
 
+    if(TTID == 0) return -99;
     const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     if(m_is_FWD) return std::abs(tmpTower->centreEta()*10); //For FWD we use the centre, due to the non-equal graularity
     return tmpTower->eta();
 }
 //Gets ET of the TT
 int LVL1::jFEXPileupAndNoise::getTTowerET(unsigned int TTID) {
-    
+    if(TTID == 0) return 0;
     const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getTotalET();
 }
 //Gets EM ET of the TT
 int LVL1::jFEXPileupAndNoise::getET_EM(unsigned int TTID) {
-    
+    if(TTID == 0) return 0;
     const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getET_EM();
 }
 //Gets HAD ET of the TT
 int LVL1::jFEXPileupAndNoise::getET_HAD(unsigned int TTID) {
-
+    if(TTID == 0) return 0;
     const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getET_HAD();
 }
 
 //Get Area of a EM TT
 float LVL1::jFEXPileupAndNoise::getTTArea_EM(unsigned int TTID) {
-
+if(TTID == 0) return 0;
     const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getTTowerArea(0);
 }
 
 //Get Area of a HAD TT
 float LVL1::jFEXPileupAndNoise::getTTArea_HAD(unsigned int TTID) {
-
+if(TTID == 0) return 0;
     const LVL1::jTower *tmpTower = m_jTowerContainer->findTower(TTID);
     return tmpTower->getTTowerArea(1);
 }
