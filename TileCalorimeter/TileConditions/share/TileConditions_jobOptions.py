@@ -180,3 +180,6 @@ if globalflags.DataSource() != 'data':
    else:
        from TileConditions.TileCondToolConf import bookTileSamplingFractionCondAlg
        bookTileSamplingFractionCondAlg(source='FILE')
+       from AthenaCommon.AlgSequence import AthSequencer
+       condSeq = AthSequencer("AthCondSeq")
+       condSeq.TileSamplingFractionCondAlg.G4Version = -1
