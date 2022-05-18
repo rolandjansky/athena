@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "tau"      : ["^Tau", "^DiTauJets"],
         "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects", "^CHS(.*)ChargedParticleFlowObjects", "^CHSNeutralParticleFlowObjects", "^JetETMissLCNeutralParticleFlowObjects", "^Global(.*)ParticleFlowObjects"],
         "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
-        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", ".*Stau", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", "^sTGC", "^MM", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks", "^NCB_MuonSegments"],
+        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", ".*Stau", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", "^sTGC", "^MM", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks", "^NCB_MuonSegments", "^UnAssocMuonSegments", "^EMEO_Muons", "^EMEO_MuonSpectrometerTrackParticles", "^xAODNSWSegments"],
         "BTag"     : ["^BTag"],
         "HGTD"     : ["^HGTD"],
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap", "^SoftBVrt"],
