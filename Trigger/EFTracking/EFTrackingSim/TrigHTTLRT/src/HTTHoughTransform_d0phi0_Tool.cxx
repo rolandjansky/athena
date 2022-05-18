@@ -476,7 +476,6 @@ void HTTHoughTransform_d0phi0_Tool::addRoad(std::vector<const HTTHit*> const & h
     unsigned bin_scale = 0;
     for (unsigned i = 0; i < m_nCombineLayers; i++) {
       for (unsigned const layer : m_combineLayer2D[i]) {
-	unsigned layer = m_combineLayer2D[i][ilayer];
 	if (hit->getLayer() == layer) {
 	  bin_scale = m_binScale[layer];
 	}
