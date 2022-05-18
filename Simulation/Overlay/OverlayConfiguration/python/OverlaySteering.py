@@ -16,6 +16,7 @@ from InDetOverlay.ITkStripOverlayConfig import ITkStripOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
+from HGTD_Overlay.HGTD_OverlayConfig import HGTD_OverlayCfg
 from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg, LArSuperCellOverlayCfg
 from MuonConfig.CSC_OverlayConfig import CSC_OverlayCfg
 from MuonConfig.MDT_OverlayConfig import MDT_OverlayCfg
@@ -80,6 +81,10 @@ def OverlayMainContentCfg(configFlags):
         acc.merge(ITkPixelOverlayCfg(configFlags))
     if configFlags.Detector.EnableITkStrip:
         acc.merge(ITkStripOverlayCfg(configFlags))
+
+    # HGTD
+    if configFlags.Detector.EnableHGTD:
+        acc.merge(HGTD_OverlayCfg(configFlags))
 
     # Calorimeters
     if configFlags.Detector.EnableLAr:
