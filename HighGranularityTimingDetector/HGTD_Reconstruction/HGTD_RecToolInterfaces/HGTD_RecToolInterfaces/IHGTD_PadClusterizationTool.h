@@ -3,7 +3,6 @@
  *
  * @file HGTD_RecToolInterfaces/IHGTD_PadClusterizationTool.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date August, 2021
  *
  * @brief To use hits found in HGTD in reconstruction, the raw data objects
  * (RDOs) need to be transformed into "HGTD_PrepRawData" objects. In general,
@@ -19,7 +18,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "HGTD_Identifier/HGTD_ID.h"
 #include "HGTD_PrepRawData/HGTD_ClusterCollection.h"
-#include "HGTD_RawData/HGTD_RDOCollection.h"
+#include "HGTD_RawData/HGTD_RDO_Collection.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 #include <memory>
 
@@ -37,7 +36,7 @@ public:
    * @return The collection of clusters built from the RDOs.
    */
   virtual std::unique_ptr<HGTD_ClusterCollection>
-  clusterize(const HGTD_RDOCollection& rdo_collection) const = 0;
+  clusterize(const HGTD_RDO_Collection& rdo_collection) const = 0;
 };
 
 #endif // IHGTD_CLUSTERMAKERTOOL_H

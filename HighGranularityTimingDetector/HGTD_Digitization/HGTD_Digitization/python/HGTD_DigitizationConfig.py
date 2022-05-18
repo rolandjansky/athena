@@ -93,7 +93,7 @@ def HGTD_OutputCfg(flags):
     """Return ComponentAccumulator with Output for HGTD. Not standalone."""
     acc = ComponentAccumulator()
     if flags.Output.doWriteRDO:
-        ItemList = ["HGTD_RDOContainer#*"]
+        ItemList = ["HGTD_RDO_Container#*"]
         if flags.Digitization.TruthOutput:
             ItemList += ["InDetSimDataCollection#*"]
             acc.merge(TruthDigitizationOutputCfg(flags))

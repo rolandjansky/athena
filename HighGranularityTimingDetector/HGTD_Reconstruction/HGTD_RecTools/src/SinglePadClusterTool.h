@@ -3,7 +3,6 @@
  *
  * @file SinglePadClusterTool.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date August, 2021
  *
  * @brief Translates HGTD_RDO objects of a given detector element into
  * HGTD_PrepRawData clusters. Since currently no or only very small crosstalk
@@ -35,7 +34,7 @@ public:
   virtual StatusCode initialize() override final;
 
   virtual std::unique_ptr<HGTD_ClusterCollection>
-  clusterize(const HGTD_RDOCollection& rdo_coll) const override final;
+  clusterize(const HGTD_RDO_Collection& rdo_coll) const override final;
 
 private:
   ToolHandle<HGTD_ClusterMakerTool> m_cluster_maker{this, "ClusterMakerTool", "HGTD_ClusterMakerTool", "Tool for creating HGTD_Cluster objects"};

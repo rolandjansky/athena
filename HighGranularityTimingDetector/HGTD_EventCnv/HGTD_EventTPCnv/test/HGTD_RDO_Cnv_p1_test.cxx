@@ -1,15 +1,14 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_EventTPCnv/test/HGTD_RDOCnv_p1_test.cxx
+ * @file HGTD_EventTPCnv/test/HGTD_RDO_Cnv_p1_test.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date August, 2021
  * @brief Tests the conversion between transient and persistent version of the
  *        HGTD_RDO class.
  */
 
 #include "GaudiKernel/MsgStream.h"
-#include "HGTD_EventTPCnv/HGTD_RDOCnv_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDO_Cnv_p1.h"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
@@ -40,7 +39,7 @@ void convertAndBack(const HGTD_RDO& trans1) {
   std::cout << "convertAndBack\n";
 
   MsgStream log(0, "test");
-  HGTD_RDOCnv_p1 cnv;
+  HGTD_RDO_Cnv_p1 cnv;
   HGTD_RDO_p1 pers;
 
   cnv.transToPers(&trans1, &pers, log);
@@ -52,7 +51,7 @@ void convertAndBack(const HGTD_RDO& trans1) {
   std::cout << "convertAndBack done\n";
 }
 
-BOOST_AUTO_TEST_CASE(HGTD_RDOCnv_p1_test) {
+BOOST_AUTO_TEST_CASE(HGTD_RDO_Cnv_p1_test) {
 
   std::cout << "start test\n";
 

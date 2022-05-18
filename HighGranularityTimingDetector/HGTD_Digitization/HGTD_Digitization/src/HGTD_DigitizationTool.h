@@ -6,8 +6,6 @@
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>
  *
- * @date August, 2021
- *
  * @brief
  *
  *  TODO:
@@ -28,8 +26,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "IHGTD_SurfaceChargesGenerator.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorElementCollection.h"
-#include "HGTD_RawData/HGTD_RDOCollection.h"
-#include "HGTD_RawData/HGTD_RDOContainer.h"
+#include "HGTD_RawData/HGTD_RDO_Collection.h"
+#include "HGTD_RawData/HGTD_RDO_Container.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
@@ -94,9 +92,9 @@ private:
    */
   void applyProcessorTools(SiChargedDiodeCollection*, CLHEP::HepRandomEngine* rndmEngine) const;
 
-  std::unique_ptr<HGTD_RDOCollection> createRDOCollection(SiChargedDiodeCollection*) const;
+  std::unique_ptr<HGTD_RDO_Collection> createRDOCollection(SiChargedDiodeCollection*) const;
 
-  StatusCode storeRDOCollection(std::unique_ptr<HGTD_RDOCollection>);
+  StatusCode storeRDOCollection(std::unique_ptr<HGTD_RDO_Collection>);
 
   // inserts the created SDO elements into the m_sdo_collection_map object.
   void createAndStoreSDO(SiChargedDiodeCollection* collection);
@@ -109,8 +107,8 @@ private:
   SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputObjectName", "HGTD_Hits", "Input HITS collection name"};
   std::string m_inputObjectName{""};
 
-  SG::WriteHandle<HGTD_RDOContainer> m_hgtd_rdo_container; //!< RDO container handle
-  SG::WriteHandleKey<HGTD_RDOContainer> m_output_rdo_cont_key{this, "OutputObjectName", "HGTD_RDOs", "Output Object name"};
+  SG::WriteHandle<HGTD_RDO_Container> m_hgtd_rdo_container; //!< RDO container handle
+  SG::WriteHandleKey<HGTD_RDO_Container> m_output_rdo_cont_key{this, "OutputObjectName", "HGTD_RDOs", "Output Object name"};
   SG::WriteHandle<InDetSimDataCollection> m_sdo_collection_map; //!< SDO Map handle
   SG::WriteHandleKey<InDetSimDataCollection> m_output_sdo_coll_key{this, "OutputSDOName", "HGTD_SDO_Map", "Output SDO container name"};
   SG::ReadCondHandleKey<InDetDD::HGTD_DetectorElementCollection> m_HGTDDetEleCollKey{this, "HGTDDetEleCollKey", "HGTD_DetectorElementCollection", "Key of HGTD_DetectorElementCollection for HGTD"};
