@@ -43,14 +43,11 @@ def EGammaCommonCfg(ConfigFlags):
     # Below are some examples:
     #af.fileinfos
 
-    isMC = ConfigFlags.Input.isMC 
+    isMC = ConfigFlags.Input.isMC
     isFullSim = False
-    # TODO: something that replicates this needs to be added to the ConfigFlags
-    #if isMC:
-    #    simulationFlavour = af.fileinfos['metadata']['/Simulation/Parameters']['SimulationFlavour']
-    #    isFullSim = simulationFlavour in ('default', 'MC12G4', 'FullG4')
-    
-    isFullSim = True
+    if isMC:
+        isFullSim = ConfigFlags.Sim.ISF.Simulator.isFullSim()
+
     print("EGammaCommon: isMC = ", isMC)
     if isMC:
         print("EGammaCommon: isFullSim = ", isFullSim)
