@@ -83,7 +83,7 @@ namespace MuonGM {
 
     RpcReadoutElement::~RpcReadoutElement() { clearCache(); }
 
-    double RpcReadoutElement::localStripSCoord(int doubletZ, int doubletPhi, int measphi, int strip) const {
+    double RpcReadoutElement::localStripSCoord(int doubletZ, int doubletPhi, bool measphi  , int strip) const {
         if ((doubletZ != m_dbZ && m_netastrippanels == 1) || (m_netastrippanels != 1 && (doubletZ < 1 || doubletZ > m_netastrippanels))) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nRpcReadoutElement::localStripSCoord() - doubletZ %d outside range 1-%d created with m_dbZ=%d for "
@@ -100,23 +100,23 @@ namespace MuonGM {
                      __FILE__, __LINE__, doubletPhi, m_nphistrippanels, m_dbPhi, getStationName().c_str(), getTechnologyName().c_str()));
         }
         int maxstrip = 0;
-        if (measphi == 1)
+        if (measphi)
             maxstrip = NphiStrips();
         else
             maxstrip = NetaStrips();
         if (strip < 1 || strip > maxstrip) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nRpcReadoutElement::localStripSCoord() - strip %d outside range 1-%d for measphi=%d for "
+                Form("File: %s, Line: %d\nRpcReadoutElement::localStripSCoord() - strip %d outside range 1-%d for measphi  =%d for "
                      "stName/Eta/Phi/dbR/dbZ/dbPhi=%s/%d/%d/%d/%d/%d",
-                     __FILE__, __LINE__, strip, maxstrip, measphi, getStationName().c_str(), getStationEta(), getStationPhi(),
+                     __FILE__, __LINE__, strip, maxstrip, measphi  , getStationName().c_str(), getStationEta(), getStationPhi(),
                      getDoubletR(), getDoubletZ(), getDoubletPhi()));
         }
 
         double local_s = 0.;
         int dbphi = doubletPhi - 1;
         if (m_nphistrippanels == 1) dbphi = 0;
-        if (measphi == 1)
-            local_s = m_first_phistrip_s[dbphi] + (strip - 1) * StripPitch(measphi);
+        if (measphi)
+            local_s = m_first_phistrip_s[dbphi] + (strip - 1) * StripPitch(measphi  );
         else
             local_s = m_etastrip_s[dbphi];
 
@@ -126,12 +126,12 @@ namespace MuonGM {
             log << MSG::VERBOSE << "Ssize, ndvs, nstr/pan, spitch, 1st-strp " << m_Ssize << " " << m_nphistrippanels << " "
                 << m_nphistripsperpanel << " " << m_phistrippitch << " " << m_first_phistrip_s[doubletPhi - 1] << endmsg;
             log << MSG::VERBOSE << "localStripSCoord: local_s is " << local_s << " for dbZ/dbP/mphi/strip " << doubletZ << " " << doubletPhi
-                << " " << measphi << "/" << strip << endmsg;
+                << " " << measphi   << "/" << strip << endmsg;
         }
 #endif
         return local_s;
     }
-    double RpcReadoutElement::localStripZCoord(int doubletZ, int doubletPhi, int measphi, int strip) const {
+    double RpcReadoutElement::localStripZCoord(int doubletZ, int doubletPhi, bool measphi  , int strip) const {
         if ((doubletZ != m_dbZ && m_netastrippanels == 1) || (m_netastrippanels != 1 && (doubletZ < 1 || doubletZ > m_netastrippanels))) {
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nRpcReadoutElement::localStripZCoord() - doubletZ %d outside range 1-%d created with m_dbZ=%d for "
@@ -148,23 +148,23 @@ namespace MuonGM {
                      __FILE__, __LINE__, doubletPhi, m_nphistrippanels, m_dbPhi, getStationName().c_str(), getTechnologyName().c_str()));
         }
         int maxstrip = 0;
-        if (measphi == 1)
+        if (measphi)
             maxstrip = NphiStrips();
         else
             maxstrip = NetaStrips();
-        if (strip < 1 || (measphi == 1 && strip > maxstrip)) {
+        if (strip < 1 || (measphi && strip > maxstrip)) {
             throw std::runtime_error(
-                Form("File: %s, Line: %d\nRpcReadoutElement::localStripZCoord() - strip %d outside range 1-%d for measphi=%d for "
+                Form("File: %s, Line: %d\nRpcReadoutElement::localStripZCoord() - strip %d outside range 1-%d for measphi  =%d for "
                      "stName/Eta/Phi/dbR/dbZ/dbPhi=%s/%d/%d/%d/%d/%d",
-                     __FILE__, __LINE__, strip, maxstrip, measphi, getStationName().c_str(), getStationEta(), getStationPhi(),
+                     __FILE__, __LINE__, strip, maxstrip, measphi  , getStationName().c_str(), getStationEta(), getStationPhi(),
                      getDoubletR(), getDoubletZ(), getDoubletPhi()));
         }
 
         double local_z = 0.;
-        if (measphi == 0) {
+        if (measphi   == 0) {
             double xx = m_first_etastrip_z[0];
             if (m_netastrippanels > 1 && doubletZ > 1) xx = m_first_etastrip_z[doubletZ - 1];
-            local_z = xx + (strip - 1) * StripPitch(measphi);
+            local_z = xx + (strip - 1) * StripPitch(measphi  );
         } else {
             double xx = m_phistrip_z[0];
             if (m_netastrippanels > 1 && doubletZ > 1) xx = m_phistrip_z[doubletZ - 1];
@@ -177,23 +177,23 @@ namespace MuonGM {
             log << MSG::VERBOSE << "Zsize, ndvz, nstr/pan, zpitch, 1st-strp " << m_Zsize << " " << m_netastrippanels << " "
                 << m_netastripsperpanel << " " << m_etastrippitch << " " << m_first_etastrip_z[doubletZ - 1] << endmsg;
             log << MSG::VERBOSE << "localStripZCoord: local_z is " << local_z << " for dbZ/dbP/mphi/strip " << doubletZ << " " << doubletPhi
-                << " " << measphi << "/" << strip << endmsg;
+                << " " << measphi   << "/" << strip << endmsg;
         }
 #endif
         return local_z;
     }
 
-    Amg::Vector3D RpcReadoutElement::stripPos(int doubletR, int doubletZ, int doubletPhi, int gasGap, int measPhi, int strip) const {
+    Amg::Vector3D RpcReadoutElement::stripPos(int doubletR, int doubletZ, int doubletPhi, int gasGap, bool measphi  , int strip) const {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
         if (log.level() <= MSG::VERBOSE)
             log << MSG::VERBOSE << "stripPos for dbr/dbz/dbp/gg/mp/strip " << doubletR << " " << doubletZ << " " << doubletPhi << " "
-                << gasGap << " " << measPhi << " " << strip << endmsg;
+                << gasGap << " " << measphi   << " " << strip << endmsg;
 #endif
 
         // global position of a generic strip !!!!!
 
-        const Amg::Vector3D localP = localStripPos(doubletR, doubletZ, doubletPhi, gasGap, measPhi, strip);
+        const Amg::Vector3D localP = localStripPos(doubletR, doubletZ, doubletPhi, gasGap, measphi  , strip);
 
         const Amg::Transform3D rpcTrans = absTransform();
 #ifndef NDEBUG
@@ -208,13 +208,13 @@ namespace MuonGM {
         return rpcTrans * localP;
     }
 
-    Amg::Vector3D RpcReadoutElement::localStripPos(int /*doubletR*/, int doubletZ, int doubletPhi, int gasGap, int measPhi,
+    Amg::Vector3D RpcReadoutElement::localStripPos(int /*doubletR*/, int doubletZ, int doubletPhi, int gasGap, bool measphi  ,
                                                    int strip) const {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
         if (log.level() <= MSG::VERBOSE)
             log << MSG::VERBOSE << "localstripPos for dbr/dbz/dbp/gg/mp/strip " << doubletZ << " " << doubletPhi << " " << gasGap << " "
-                << measPhi << " " << strip << endmsg;
+                << measphi   << " " << strip << endmsg;
 #endif
 
         // global position of a generic strip !!!!!
@@ -231,7 +231,7 @@ namespace MuonGM {
         int lstrip = strip;
         int lgg = gasGap;
         if (!m_hasDEDontop) {
-            if (measPhi == 0) lstrip = NetaStrips() - strip + 1;
+            if (measphi   == 0) lstrip = NetaStrips() - strip + 1;
             lgg++;
             if (lgg > m_nlayers) lgg = 1;
 #ifndef NDEBUG
@@ -249,7 +249,7 @@ namespace MuonGM {
         // numbering of doubletPhi must be reversed if m_nphistrippanels>1
         // numbering of doubletZ   is unchanged;
         if (isMirrored()) {
-            if (measPhi == 1) lstrip = NphiStrips() - lstrip + 1;
+            if (measphi) lstrip = NphiStrips() - lstrip + 1;
             if (m_nphistrippanels != 1) {
                 ldoubletPhi = doubletPhi + 1;
                 if (ldoubletPhi > 2) ldoubletPhi = 1;
@@ -271,7 +271,7 @@ namespace MuonGM {
                 ldoubletZ++;
                 if (ldoubletZ > 2) ldoubletZ = 1;
             }
-            if (measPhi == 0) lstrip = NetaStrips() - lstrip + 1;
+            if (measphi   == 0) lstrip = NetaStrips() - lstrip + 1;
 #ifndef NDEBUG
             if (log.level() <= MSG::VERBOSE)
                 log << MSG::VERBOSE << "localstrippos special not mirrored at eta<0 ="
@@ -290,8 +290,8 @@ namespace MuonGM {
             ldoubletPhi = 1;
         }
 
-        Amg::Vector3D localP(localGasGapDepth(lgg), localStripSCoord(ldoubletZ, ldoubletPhi, measPhi, lstrip),
-                             localStripZCoord(ldoubletZ, ldoubletPhi, measPhi, lstrip));
+        Amg::Vector3D localP(localGasGapDepth(lgg), localStripSCoord(ldoubletZ, ldoubletPhi, measphi  , lstrip),
+                             localStripZCoord(ldoubletZ, ldoubletPhi, measphi  , lstrip));
 
 #ifndef NDEBUG
         if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "localstrippos = " << localP << endmsg;
@@ -323,10 +323,10 @@ namespace MuonGM {
         int doubletZ = idh->doubletZ(id);
         int doubletPhi = idh->doubletPhi(id);
         int gasgap = idh->gasGap(id);
-        int measPhi = idh->measuresPhi(id);
+        bool measphi   = idh->measuresPhi(id);
         int strip = idh->strip(id);
 
-        return localStripPos(doubletR, doubletZ, doubletPhi, gasgap, measPhi, strip);
+        return localStripPos(doubletR, doubletZ, doubletPhi, gasgap, measphi  , strip);
     }
 
     Amg::Vector3D RpcReadoutElement::stripPos(const Identifier& id) const {
@@ -335,9 +335,9 @@ namespace MuonGM {
         int doubletZ = idh->doubletZ(id);
         int doubletPhi = idh->doubletPhi(id);
         int gasgap = idh->gasGap(id);
-        int measPhi = idh->measuresPhi(id);
+        bool measphi   = idh->measuresPhi(id);
         int strip = idh->strip(id);
-        return stripPos(doubletR, doubletZ, doubletPhi, gasgap, measPhi, strip);
+        return stripPos(doubletR, doubletZ, doubletPhi, gasgap, measphi  , strip);
     }
 
     bool RpcReadoutElement::rotatedRpcModule() const { return (!m_hasDEDontop); }
@@ -902,17 +902,17 @@ namespace MuonGM {
                 surfaceTRotation.col(1) = muonTRotation.col(2);
                 surfaceTRotation.col(2) = muonTRotation.col(0);
 
-                for (int measPhi = 1; measPhi >= 0; --measPhi) {
-                    Identifier id = idh->channelID(parentID, getDoubletZ(), dbPhi, gasGap, measPhi, 1);
+                for (bool measphi  : { true, false}) {
+                    Identifier id = idh->channelID(parentID, getDoubletZ(), dbPhi, gasGap, measphi  , 1);
 
                     Amg::Transform3D trans(surfaceTRotation);
-                    if (measPhi == 0) trans *= Amg::AngleAxis3D(M_PI / 2., Amg::Vector3D(0., 0., 1.));
+                    if (measphi   == 0) trans *= Amg::AngleAxis3D(M_PI / 2., Amg::Vector3D(0., 0., 1.));
                     trans.pretranslate(trans3D.translation());
 
                     m_surfaceData->m_layerTransforms.push_back(trans);
                     m_surfaceData->m_layerSurfaces.emplace_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
-                    if (measPhi == 1) {
+                    if (measphi) {
                         m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back() * Amg::Vector3D(0., 0., 0.));
                         m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() *
                                                                 Amg::Vector3D(0., 0., 1.));
@@ -945,14 +945,12 @@ namespace MuonGM {
         int gasgap = idh->gasGap(id);
         if (gasgap < 1 || gasgap > m_nlayers) return false;
 
-        int measPhi = idh->measuresPhi(id);
+        bool measphi   = idh->measuresPhi(id);
         int strip = idh->strip(id);
-        if (measPhi == 0) {
+        if (!measphi) {
             if (strip < 1 || strip > NetaStrips()) return false;
-        } else if (measPhi == 1) {
-            if (strip < 1 || strip > NphiStrips()) return false;
-        } else
-            return false;
+        /// Measures phi is true so we can directly check the strip range
+        } else if (strip < 1 || strip > NphiStrips()) return false;       
 
         return true;
     }
@@ -961,7 +959,7 @@ namespace MuonGM {
         return ((getStationName().substr(0, 3) == "BMS") && (getTechnologyName() == "RPC07" || getTechnologyName() == "RPC08"));
     }
 
-    int RpcReadoutElement::surfaceHash(int dbPhi, int gasGap, int measPhi) const {
+    int RpcReadoutElement::surfaceHash(int dbPhi, int gasGap, bool measphi  ) const {
         // if there is only one doublet phi we should always use one in the hash calculation
         if (m_nphistrippanels == 1) dbPhi = 1;
         if (dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true)) {
@@ -970,7 +968,7 @@ namespace MuonGM {
                 << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
             return -1;
         }
-        return (dbPhi - 1) * (2 * NphiStripPanels()) + 2 * (gasGap - 1) + (measPhi ? 0 : 1);
+        return (dbPhi - 1) * (2 * NphiStripPanels()) + 2 * (gasGap - 1) + (measphi   ? 0 : 1);
     }
 
     int RpcReadoutElement::layerHash(int dbPhi, int gasGap) const {
