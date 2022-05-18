@@ -3,6 +3,7 @@
 # art-description: Test for bulk processing at Tier0
 # art-type: local
 # art-include: master/Athena
+# art-include: 22.0/Athena
 
 # There was a database connection problem reported in ATR-24782. Rodney Walker's solution is to use the following export to fix the problem:
 export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-admin
