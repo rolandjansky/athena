@@ -28,8 +28,9 @@ class ClusterTimeProjectionMMClusterBuilderTool :
   StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds,
       std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
 
+  virtual
   StatusCode getCalibratedClusterPosition(const Muon::MMPrepData* cluster, std::vector<NSWCalib::CalibratedStrip>&, 
-	   const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const;
+	   const float theta, Amg::Vector2D& clusterLocalPosition, Amg::MatrixX& covMatrix) const override;
 
  private:
     /// Muon Detector Descriptor
