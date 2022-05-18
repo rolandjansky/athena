@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -138,35 +138,35 @@ CurvilinearParametersT<DIM, T, S>::operator=(
 }
 /** the curvilinear parameters identifier */
 template<int DIM, class T, class S>
-unsigned int
+inline unsigned int
 CurvilinearParametersT<DIM, T, S>::cIdentifier() const
 {
   return m_cIdentifier;
 }
 
 template<int DIM, class T, class S>
-void
+inline void
 CurvilinearParametersT<DIM, T, S>::setcIdentifier(unsigned int cIdentifier)
 {
   m_cIdentifier = cIdentifier;
 }
 
 template<int DIM, class T, class S>
-double
+inline double
 CurvilinearParametersT<DIM, T, S>::charge() const
 {
   return m_chargeDef.charge();
 }
 
 template<int DIM, class T, class S>
-Amg::Vector3D
+inline Amg::Vector3D
 CurvilinearParametersT<DIM, T, S>::position() const
 {
   return m_position;
 }
 
 template<int DIM, class T, class S>
-Amg::Vector3D
+inline Amg::Vector3D
 CurvilinearParametersT<DIM, T, S>::momentum() const
 {
   return m_momentum;
@@ -174,7 +174,7 @@ CurvilinearParametersT<DIM, T, S>::momentum() const
 
 /** Test to see if there's a surface there. */
 template<int DIM, class T, class S>
-bool
+inline bool
 CurvilinearParametersT<DIM, T, S>::hasSurface() const
 {
   return true;
@@ -182,7 +182,7 @@ CurvilinearParametersT<DIM, T, S>::hasSurface() const
 
 /** Access to the Surface method */
 template<int DIM, class T, class S>
-const S&
+inline const S&
 CurvilinearParametersT<DIM, T, S>::associatedSurface() const
 {
   return m_surface;
@@ -254,7 +254,7 @@ CurvilinearParametersT<DIM, T, S>::uniqueClone() const
 
 /** Return the ParametersType enum */
 template<int DIM, class T, class S>
-ParametersType
+inline ParametersType
 CurvilinearParametersT<DIM, T, S>::type() const
 {
   return Trk::Curvilinear;
@@ -262,7 +262,7 @@ CurvilinearParametersT<DIM, T, S>::type() const
 
 /** Return the Surface Type (check SurfaceType enums)*/
 template<int DIM, class T, class S>
-SurfaceType
+inline SurfaceType
 CurvilinearParametersT<DIM, T, S>::surfaceType() const
 {
   return S::staticType;
