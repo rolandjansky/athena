@@ -68,6 +68,71 @@ This scheduling is basically handled by menu construction. As a rule of thumb, w
 
 </details>
 
+<details>
+<summary> Flowchart for VR track jet reconstruction</summary>
+
+Variable Radius (VR) track jets are useful in b-tagging of large-R jets. A large-R jet can be b-tagged by performing b-tagging on the VR track jets associated with it. The association method that is commonly used is ghost association.
+
+The flowchart that follows details the steps in VR track jet reconstruction. The logic behind the steps is as follows: In order to reconstruct a jet, we need a `JetDefinition`. The JetDefinition requires an input constituent, which in this case would be the primary vertex tracks. So we need to perform track selection to get the required tracks. Using these tracks we create a VR track jet JetDefinition, which is then used to create VR track jet reconstruction sequence.
+
+```mermaid
+flowchart TD;
+
+	subgraph JetRecToolsConfig.py
+		PV0TrkInputCont[/Pre reqs: JetSelectedTracks_ftf, HLT_IDVertex_FS/]
+		TVA["Use TrackVertexAssociationTool (TVA) <br> on these tracks and vertices"]
+		PV0TrkInputCont--getPV0TrackVertexAssoAlg-->TVA
+		PV0TrkSelAlg[Use PV0TrackSelectionAlg <br> on same tracks and vertices with the TVA]
+		TVA-- getPV0TrackSelAlg-->PV0TrkSelAlg
+	end
+
+	subgraph JetTrackingConfig.py
+		TrkRecoSeq[Set up reco sequence <br> for standard tracks]
+		TrkOutCont[/JetSelectedTracks_ftf/]
+		TrkOutCont-->PV0TrkInputCont
+		TrkRecoSeq-->TrkOutCont
+		TrkTool_And_Alg[Get TVA Tool & <br> PV0TrackSelectionAlg]
+		TVA-->TrkTool_And_Alg
+		TrkOutCont-.-TrkTool_And_Alg
+		PV0TrkSelAlg-->TrkTool_And_Alg
+		TrkTool_And_Alg --Add the tool and alg to reco seq-->PV0TrkOutCont
+		PV0TrkOutCont[/Output Container: PV0JetSelectedTracks_ftf/]
+	end
+
+	subgraph defineVRTrackJets
+		InputConstit[/"JetInputConstit: PV0Track <br> (xAOD type TrackParticle)"/]
+		PV0TrkOutCont--Source Container -->InputConstit
+		Parameters[/Rmax, Rmin, VR mass scale, min pt, etc./]
+		JetDef[Create JetDefinition for VR track jets]
+		Parameters --> JetDef
+		InputConstit-->JetDef
+	end
+
+	subgraph VRJetRecoSequence
+		VRJetRecoSeqEmpty[Empty reco sequence]
+		VRJetDef[JetDefinition for VR track jets]
+		VRJetRecoSeqEmpty-->VRJetDef
+		JetDef-->VRJetDef
+		SolveDependencies[Resolve dependencies of JetDefinition <br> using `solveDependencies`]
+		VRJetDef-->SolveDependencies
+		ConstitPJAlg[Get constituent PseudoJet alg <br> & add it to reco sequence]
+		SolveDependencies-->ConstitPJAlg
+		UpdateAttrib[Update name of pseudo jet container <br> in JetDefinition <br> that will be used in jet finding]
+		ConstitPJAlg-->UpdateAttrib
+		VRTrkJetRecoSeq[Get VR track jet reco alg <br> & add it to the reco sequence]
+		ReturnObj[Return reco seq, jet def]
+		VRTrkJetRecoSeq-->ReturnObj
+	end
+
+	subgraph JetRecConfig.py
+		JetRecAlg["Call getJetRecAlg <br> which sets up jet building with fastjet <br> (internally calls JetClusterer)"]
+		UpdateAttrib-.Updated JetDef.->JetRecAlg
+		JetRecAlg-->VRTrkJetRecoSeq
+	end
+
+```
+</details>
+
 [GenerateJetChainDefs](../GenerateJetChainDefs.py)
 -----
 
