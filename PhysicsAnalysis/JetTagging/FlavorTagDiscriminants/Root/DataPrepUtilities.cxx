@@ -216,6 +216,7 @@ namespace FlavorTagDiscriminants {
     flip = FlipTagConfig::STANDARD;
     track_link_name = "BTagTrackToJetAssociator";
     track_link_type = TrackLinkType::TRACK_PARTICLE;
+    default_output_value = NAN;
   }
 
   // ________________________________________________________________________

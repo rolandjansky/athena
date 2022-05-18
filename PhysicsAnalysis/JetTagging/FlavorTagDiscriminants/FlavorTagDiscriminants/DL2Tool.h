@@ -19,6 +19,7 @@ namespace FlavorTagDiscriminants {
     std::string flipTagConfig;
     std::map<std::string,std::string> variableRemapping;
     std::string trackLinkType;
+    float default_output_value = NAN;
   };
 
   class DL2Tool : public asg::AsgTool,
