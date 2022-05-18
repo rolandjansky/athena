@@ -8846,6 +8846,14 @@ HLT_j180_unconvtrk0_dispj_2jetperf_L1J100:
   stepFeatures:
     0: 4
     1: 1
+HLT_j2000_pf_ftf_preselj2b77_L1RD0_FILLED:
+  eventCount: 0
+  stepCounts:
+    0: 20
+    1: 17
+  stepFeatures:
+    0: 20
+    1: 17
 HLT_j200_0eta290_020jvt_boffperf_pf_ftf_preselj140_L1J100:
   eventCount: 1
   stepCounts:
