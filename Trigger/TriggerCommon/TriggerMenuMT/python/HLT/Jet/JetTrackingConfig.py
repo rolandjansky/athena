@@ -211,13 +211,9 @@ def jetTTVA( signature, jetseq, trkopt, config, verticesname=None, adaptiveVerte
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     if ConfigFlags.Trigger.Jet.doVRJets:
-        jettrackselalg = jrtcfg.getTrackSelAlg( trkopt, trackSelOpt=True )
-        jetseq += conf2toConfigurable( jettrackselalg )
-        pv0_jettvassoc, pv0_ttvatool = jrtcfg.getPV0TrackVertexAssocTool(trkopt, jetseq)
-        pv0jettrkprepalg    = CompFactory.JetAlgorithm("pv0jetalg_TrackPrep"+trkopt,
-                                                        Tools = [ pv0_jettvassoc ])
+        pv0_jettvassoc, pv0_ttvatool = jrtcfg.getPV0TrackVertexAssoAlg(trkopt, jetseq)
         pv0trackselalg = jrtcfg.getPV0TrackSelAlg(pv0_ttvatool, trkopt)
-        jetseq += conf2toConfigurable( pv0jettrkprepalg )
+        jetseq += conf2toConfigurable( pv0_jettvassoc )
         jetseq += conf2toConfigurable( pv0trackselalg )
 
     # make sure we output only the key,value related to tracks (otherwise, alg duplication issues)

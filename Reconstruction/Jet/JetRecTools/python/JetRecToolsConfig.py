@@ -98,7 +98,7 @@ def getJetTrackVtxAlg( trkOpt,   algname="jetTVA", **ttva_overide):
 
 
 
-def getPV0TrackVertexAssocTool(trkOpt="", theSequence=None):
+def getPV0TrackVertexAssoAlg(trkOpt="", theSequence=None):
     if trkOpt: "_{}".format(trkOpt)
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
     from JetRecConfig.StandardJetContext import jetContextDic
@@ -106,15 +106,16 @@ def getPV0TrackVertexAssocTool(trkOpt="", theSequence=None):
     trkProperties = jetContextDic[trkOpt]
     tvatool = getTTVAToolForReco("trackjettvassoc",
                                 WorkingPoint = "Nonprompt_All_MaxWeight",
-                                TrackContName = trkProperties["JetTracksQualityCuts"],
+                                TrackContName = trkProperties["JetTracks"],
                                 VertexContName = trkProperties["Vertices"],
                                 returnCompFactory = True,
                                 add2Seq = theSequence,
-                                addDecoAlg = isAthenaRelease(),
+                                addDecoAlg = False, #setting this to True causes error in reconstruction because of there not being aux store associated with one of the decorations
+                                                    #It has also been set to false in buildPV0TrackSel function in JetRecConfig/python/JetInputConfig.py 
                                 )
 
-    jettvassoc = CompFactory.TrackVertexAssociationTool("trackjetTTVAtool",
-            TrackParticleContainer = trkProperties["JetTracksQualityCuts"],
+    jettvassoc = CompFactory.JetTrackVtxAssoAlg("trackjetTVAAlg",
+            TrackParticleContainer = trkProperties["JetTracks"],
             TrackVertexAssociation = "PV0"+trkProperties["TVA"],
             VertexContainer        = trkProperties["Vertices"],
             TrackVertexAssoTool    = tvatool
@@ -125,7 +126,7 @@ def getPV0TrackSelAlg(tvaTool, trkOpt="default"):
     from JetRecConfig.StandardJetContext import jetContextDic
     trkProperties = jetContextDic[trkOpt]
     pv0trackselalg = CompFactory.PV0TrackSelectionAlg("pv0tracksel_trackjet",
-            InputTrackContainer = trkProperties["JetTracksQualityCuts"],
+            InputTrackContainer = trkProperties["JetTracks"],
             VertexContainer = trkProperties["Vertices"],
             OutputTrackContainer = "PV0"+trkProperties["JetTracks"],
             TVATool = tvaTool,
