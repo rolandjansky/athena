@@ -3,6 +3,7 @@
 # art-description: RecoTrf
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
 
 # There was a database connection problem reported in ATR-24782. Rodney Walker's solution is to use the following export to fix the problem:
