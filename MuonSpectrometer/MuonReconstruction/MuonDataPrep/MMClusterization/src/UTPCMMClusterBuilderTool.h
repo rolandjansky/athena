@@ -77,7 +77,7 @@ namespace Muon
 
     StatusCode transformParameters(double alpha, double d, double dRMS, double& slope, double& intercept, double& interceptRMS)const;
     StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut)const;
-    StatusCode finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX> driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
+    StatusCode finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX>& driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
   };
 
 
