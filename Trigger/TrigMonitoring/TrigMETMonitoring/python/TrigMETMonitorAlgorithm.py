@@ -370,15 +370,23 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('L1_{}_HT_Ex'.format(alg),
-                             title='L1_{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
+                             title='L1_{} HT Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('L1_{}_ST_Ex'.format(alg),
-                             title='L1_{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
+                             title='L1_{} ST Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('L1_{}_Ex_log'.format(alg),
                              title='L1_{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_HT_Ex_log'.format(alg),
+                             title='L1_{} HT Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('L1_{}_ST_Ex_log'.format(alg),
+                             title='L1_{} ST Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('L1_{}_Ey'.format(alg),
@@ -386,15 +394,23 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('L1_{}_HT_Ey'.format(alg),
-                             title='L1_{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
+                             title='L1_{} HT Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('L1_{}_ST_Ey'.format(alg),
-                             title='L1_{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
+                             title='L1_{} ST Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('L1_{}_Ey_log'.format(alg),
                              title='L1_{} Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('L1_{}_HT_Ey_log'.format(alg),
+                             title='L1_{} HT Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
+                             path='Shifter/L1_{}'.format(alg),
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+      metGroup.defineHistogram('L1_{}_ST_Ey_log'.format(alg),
+                             title='L1_{} ST Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
                              xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('L1_{}_Et'.format(alg),
