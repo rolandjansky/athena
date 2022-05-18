@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Import the needed configurables:
 from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__BunchConfCnvAlg
-from TrigBunchCrossingTool.BunchCrossingConfProvider import BunchCrossingConfProvider
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 
 ## Helper function for creating xAOD bunch configuration metadata
 def xAODBunchConfCreator( sequence = None, stream = None, source = "" ):
@@ -40,7 +40,7 @@ def xAODBunchConfCreator( sequence = None, stream = None, source = "" ):
 
     # Schedule the converter algorithm:
     alg = xAODMaker__BunchConfCnvAlg()
-    alg.BCConfProvider = BunchCrossingConfProvider( source )
+    alg.BCConfProvider = BunchCrossingTool( source )
     sequence += alg
 
     # Add the created objects to the output:
