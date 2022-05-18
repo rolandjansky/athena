@@ -28,4 +28,12 @@ if __name__=="__main__":
     for mapping in list_remaps:
         cfg.merge(mapping)    
 
+    #Given we rebuild topoclusters from the ESD, we should also redo the matching between topoclusters and muon clusters.
+    #The resulting links are used to create the global GPF muon-FE links.
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()    
+    result.addEventAlgo(CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks", ClustersToDecorate="MuonClusterCollection"))
+    cfg.merge(result)
+
     cfg.run()
