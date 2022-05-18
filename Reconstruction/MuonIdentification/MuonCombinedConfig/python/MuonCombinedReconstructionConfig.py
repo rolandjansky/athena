@@ -404,7 +404,7 @@ def GetCombinedTrkContainers(flags):
                     "MSOnlyExtrapolatedMuonsLRTTrackParticles"]
         track_coll += ["CombinedMuonsLRTTracks",
                        "ExtraPolatedMuonsLRTTracks",
-                       "MSOnlyExtrapolatedMuonsLRTTracks"]
+                       "MSOnlyExtraPolatedMuonsLRTTracks"]
     return tp_coll, track_coll
 
 
