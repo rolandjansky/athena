@@ -70,7 +70,7 @@ StatusCode TrigMuonTruthMon :: fillVariablesPerChain(const EventContext &ctx, co
   }
   pT_cut = pT_cut + 1.0;
 
-  for (const auto& truthMu : *truthMuons) {
+  for (const auto truthMu : *truthMuons) {
 
     // Fill truth histograms
     double eta = 0.0; // Check eta to split pT into endcap barrel

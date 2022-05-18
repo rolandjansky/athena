@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1MuonMon.h"
@@ -32,7 +32,7 @@ StatusCode L1MuonMon :: fillVariables(const EventContext &ctx) const {
   auto l1Eta = Monitored::Scalar<double>("l1Eta",-1.0);
   auto l1Phi = Monitored::Scalar<double>("l1Phi",-1.0);
 
-  for (const auto& l1mu : *rois) {
+  for (const auto l1mu : *rois) {
     l1Thres = (float)l1mu->getThrNumber();
     l1Eta = l1mu->eta();
     l1Phi = l1mu->phi();
