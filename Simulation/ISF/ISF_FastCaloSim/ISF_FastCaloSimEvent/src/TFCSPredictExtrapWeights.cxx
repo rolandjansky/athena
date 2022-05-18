@@ -136,6 +136,7 @@ bool TFCSPredictExtrapWeights::getNormInputs(std::string etaBin, std::string Fas
     inputTXT.close();
   } else {
     ATH_MSG_ERROR(" Unable to open file ");
+    return false;
   }
 
   return true;
@@ -183,12 +184,9 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
 
   // Get predicted extrapolation weights
   auto outputs            = m_nn->compute(inputVariables);
-  std::vector<int> layers = {0,1,2,3,12};
-  if(is_match_pdgid(211) || is_match_pdgid(-211)){ // charged pion
-    layers.push_back(13);
-    layers.push_back(14);
-  }
-  for(int ilayer : layers){ // loop over layers and decorate simulstate with corresponding predicted extrapolation weight
+  for (unsigned int i = 0; i < m_relevantLayers->size(); i++) {
+    int ilayer = m_relevantLayers->at(i);
+    ATH_MSG_DEBUG("TFCSPredictExtrapWeights::simulate: layer: " << ilayer << " weight: " << outputs["extrapWeight_"+std::to_string(ilayer)]);
     simulstate.setAuxInfo<float>(ilayer,outputs["extrapWeight_"+std::to_string(ilayer)]);
   }
   return FCSSuccess;
@@ -206,8 +204,8 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate_hit(Hit& hit, TFCSSimulationSta
    if(simulstate.hasAuxInfo(cs)){
      extrapWeight = simulstate.getAuxInfo<float>(cs);
    } else{ // missing AuxInfo
-     simulate(simulstate, truth, extrapol); // decorate simulstate with extrapolation weights
-     extrapWeight = simulstate.getAuxInfo<float>(cs); // retrieve corresponding extrapolation weight
+     ATH_MSG_FATAL("Simulstate is not decorated with extrapolation weights");
+     return FCSFatal;
    }
 
    double r = (1.-extrapWeight)*extrapol->r(cs, SUBPOS_ENT) + extrapWeight*extrapol->r(cs, SUBPOS_EXT);
@@ -255,7 +253,7 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
     sin << input.rdbuf();
     input.close();
     auto config = lwt::parse_json(sin);
-    m_nn        = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
+    m_nn = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
     if(m_nn==nullptr){
       ATH_MSG_ERROR("Could not create LightWeightNeuralNetwork from " << inputFileName );
       return false;
