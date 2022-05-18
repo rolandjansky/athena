@@ -48,10 +48,10 @@ public:
   // After that, if the total number of files in the 'inputDirectory' is > fileLimit then the oldest
   // vp1 event file is deleted.
   void produceNewFile(const std::string& sourceFile,
-		      int runNumber,
-		      int eventNumber,
-		      int timeStamp,
-                      const std::string& textLabel = "");
+		      unsigned int runNumber,
+		      unsigned long long eventNumber,
+		      unsigned int timeStamp,
+              const std::string& textLabel = "");
 
   // **** Check if file exists ****
   static bool fileExistsAndReadable(const std::string&);
