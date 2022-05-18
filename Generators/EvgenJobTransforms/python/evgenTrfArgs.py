@@ -128,4 +128,8 @@ def addStdEvgenArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         default=trfArgClasses.argBool('False'))  
 
+    parser.add_argument('--ignoreTestLHE', '--ignoreTestlhe', group='Evgen',
+                        help = 'ignore TestLHE - allows to run without LHE files control',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        default=trfArgClasses.argBool('False'))
 

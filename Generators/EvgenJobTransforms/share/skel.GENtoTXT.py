@@ -566,7 +566,8 @@ if hasattr(runArgs, "postExec"):
 ##================================================================
 ## check if LHE inputs or LHE generators are used, activate TestLHE
 ##================================================================
-if ( gens_lhef(evgenConfig.generators) or hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") ) :
+if (not hasattr( runArgs, "ignoreTestLHE") or not runArgs.ignoreTestLHE):
+  if ( gens_lhef(evgenConfig.generators) or hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") ) :
     from EvgenProdTools.EvgenProdToolsConf import TestLHE
     if not hasattr(genSeq, "TestLHE"):
         genSeq += TestLHE()

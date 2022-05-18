@@ -310,7 +310,7 @@ StatusCode TestLHE::execute()
             }
 
             // ======= checking <event> block =========
-            if ( currentFind("<event>", currentLine) )
+            if ( currentFind("<event", currentLine) )
             {
                 readingEvent = true;
                 eventline = nline;
