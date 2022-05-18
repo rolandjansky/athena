@@ -59,6 +59,8 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
   auto energyMean_C = Scalar<float>("MBTS_C_meanEnergy", 0.);
   auto timeMean_A = Scalar<float>("MBTS_A_meanTime", 0.);
   auto timeMean_C = Scalar<float>("MBTS_C_meanTime", 0.);
+  auto energyWeightedTime_A = Scalar<float>("MBTS_A_EWTime", 0.);
+  auto energyWeightedTime_C = Scalar<float>("MBTS_C_EWTime", 0.);
   auto channelID = Scalar<int>("MBTS_channelID", 0);
   auto mbtsEnergy = Scalar<float>("MBTS_energy", 0.);
   auto mbtsTime = Scalar<float>("MBTS_time", 0.);
@@ -80,7 +82,7 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
       auto sideA_hits = 0;
       auto sideC_hits = 0;
 
-      for (const auto mbts_itr : *mbtsbits)
+      for (const auto mbts_itr : *mbtsbits) // this loop has one iteration
       {
 
         auto mbtsHitEnergies = mbts_itr->triggerEnergies(); // energy (in pC) of signal in a counter (relative to IP), vector for all counters
@@ -95,22 +97,24 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
 
         for (unsigned i = 0; i < xAOD::TrigT2MbtsBits::NUM_MBTS; i++)
         {
-          if (mbtsHitEnergies.at(i) > energyCut)
-            triggerWord.set(i);
-          if (std::abs(mbtsHitTimes.at(i)) < timeCut)
-            timeWord.set(i);
-          if ( not (triggerWord[i] and timeWord[i]) ) continue;
-
-
           channelID = i;
           mbtsTime = mbtsHitTimes.at(i);
           mbtsEnergy = mbtsHitEnergies.at(i);
+
+          if (mbtsEnergy > energyCut)
+            triggerWord.set(i);
+          if (std::abs(mbtsTime) < timeCut)
+            timeWord.set(i);
+          if ( not (triggerWord[i] and timeWord[i]) ) continue;
+
           ATH_MSG_DEBUG( "MBTS module " << i << " time " <<  mbtsHitTimes.at(i) << " energies: " << mbtsHitEnergies.at(i));
           fill(trig + "_shifter", channelID, mbtsTime, mbtsEnergy);
           if (i < 16)
           { // A side
             energyMean_A += mbtsHitEnergies.at(i);
             timeMean_A += mbtsHitTimes.at(i);
+            energyWeightedTime_A += mbtsHitEnergies.at(i) * mbtsHitTimes.at(i);
+
             ebaCounters++;
             if (i == 15)
             {
@@ -118,7 +122,11 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
               {
                 energyMean_A /= ebaCounters;
                 timeMean_A /= ebaCounters;
+                energyWeightedTime_A /= timeMean_A;
                 fill(trig + "_expert", energyMean_A, timeMean_A);
+              } else {
+                energyWeightedTime_A = -999; // out of range
+
               }
             }
           }
@@ -126,6 +134,8 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
           {
             energyMean_C += mbtsHitEnergies.at(i);
             timeMean_C += mbtsHitTimes.at(i);
+            energyWeightedTime_C = mbtsHitEnergies.at(i) * mbtsHitTimes.at(i);
+
             ebcCounters++;
             if (i == 31)
             {
@@ -133,8 +143,12 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
               {
                 energyMean_C /= ebaCounters;
                 timeMean_C /= ebaCounters;
+                energyWeightedTime_C /= timeMean_C;
                 fill(trig + "_expert", energyMean_C, timeMean_C);
+              } else {
+                energyWeightedTime_C = -999; // out of range
               }
+
             }
           }
         }
@@ -150,7 +164,8 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
 
         auto MBTS_A_hits = Scalar<int>("MBTS_A_hits", sideA_hits);
         auto MBTS_C_hits = Scalar<int>("MBTS_C_hits", sideC_hits);
-        fill(trig + "_shifter", MBTS_A_hits, MBTS_C_hits);
+
+        fill(trig + "_shifter", MBTS_A_hits, MBTS_C_hits, energyWeightedTime_A, energyWeightedTime_C);
       }
     }
   }

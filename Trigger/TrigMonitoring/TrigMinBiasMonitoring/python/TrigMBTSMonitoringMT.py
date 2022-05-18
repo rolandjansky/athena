@@ -36,6 +36,8 @@ def TrigMBTS(configFlags):
                                      xbins=MBTS_countsSideA+1, xmin=-0.5, xmax=MBTS_countsSideA+0.5)
         mbShiftGroup.defineHistogram('MBTS_C_hits', type='TH1I', title='MBTS hits side C; Entry rate; MBTS side C',
                                      xbins=MBTS_countsSideC+1, xmin=-0.5, xmax=MBTS_countsSideC+0.5)
+        mbShiftGroup.defineHistogram('MBTS_A_EWTime,MBTS_C_EWTime', type='TH2I', title='MBTS timing correlation',
+                                     xbins=40, xmin=-20, xmax=20, ybins=40, ymin=-20, ymax=20)
         mbShiftGroup.defineHistogram('MBTS_A_hits,MBTS_C_hits', type='TH2I', title='MBTS hits correlation; MBTS side A; MBTS side C',
                                      xbins=MBTS_countsSideA+1, xmin=-0.5, xmax=MBTS_countsSideA+0.5, ybins=MBTS_countsSideC+1, ymin=-0.5, ymax=MBTS_countsSideC+0.5)
 
