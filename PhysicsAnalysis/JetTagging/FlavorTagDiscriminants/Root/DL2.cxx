@@ -26,7 +26,8 @@ namespace FlavorTagDiscriminants {
     m_jetLink(jetLinkName),
     m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config,graph_config.outputs.begin()->first)),
-    m_variable_cleaner(nullptr)
+    m_variable_cleaner(nullptr),
+    m_defaultValue(options.default_output_value)
   {
     // set up inputs
     if (graph_config.inputs.size() > 1) {
@@ -71,7 +72,7 @@ namespace FlavorTagDiscriminants {
     for (const auto& dec: m_decorators) {
       for (const auto& node: dec.second) {
         // save something that is clearly wrong
-        node.second(jet) = NAN;
+        node.second(jet) = m_defaultValue;
       }
     }
   }
