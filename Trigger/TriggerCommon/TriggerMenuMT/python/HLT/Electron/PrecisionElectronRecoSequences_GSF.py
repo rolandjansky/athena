@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-
 from AthenaCommon.CFElements import parOR
 #logging
 from AthenaCommon.Logging import logging
@@ -18,7 +17,7 @@ def precisionElectronRecoSequence_GSF(RoIs, ion=False, variant = ''):
     tag+=variant
  
     import AthenaCommon.CfgMgr as CfgMgr
-       
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import  TrigEMClusterTool       
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
     if variant == '_GSF':
@@ -81,6 +80,7 @@ def precisionElectronRecoSequence_GSF(RoIs, ion=False, variant = ''):
     ## TrigTopoEgammaElectronCfg_GSF ##
     TrigTopoEgammaAlgo_GSF = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg"+tag) 
     thesequence_GSF += TrigTopoEgammaAlgo_GSF
+    TrigTopoEgammaAlgo_GSF.EMClusterTool = TrigEMClusterTool("electron",variant)
     TrigTopoEgammaAlgo_GSF.ElectronOutputName = TrigEgammaKeys.precisionElectronContainer
     collectionOut_GSF = TrigTopoEgammaAlgo_GSF.ElectronOutputName
     TrigTopoEgammaAlgo_GSF.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
