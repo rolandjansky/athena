@@ -1040,16 +1040,13 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
 
   // Only test start timestamp.  stop timestamp may be missing
   // for open-ended ranges.
-  if (!r.start().isTimeStamp() )
-  {
-    MsgStream msg (Athena::getMessageSvc(), title());
-    msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
-        << "Range does not have start timestamp defined."
-        << endmsg;
-    return StatusCode::FAILURE;
+  key_type start_key=0; //If there is no TimeStamp in start, assume infinite range
+  if (r.start().isTimeStamp() ) {
+    start_key = keyFromTimestamp (r.start());
   }
-
-  key_type start_key = keyFromTimestamp (r.start());
+  else {
+    std::cout << "WLDEBUG: no TimeStamp in r.start(), assume inifinte range" << std::endl;
+  }
   key_type stop_key  = keyFromTimestamp (r.stop());
 
   StatusCode sc = StatusCode::SUCCESS;
