@@ -14,7 +14,6 @@ from TriggerMenuMT.HLT.Muon.MuonRecoSequences import muonDecodeCfg
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg, MuonInDetToMuonSystemExtensionAlgCfg
@@ -305,9 +304,6 @@ def _muEFSAStepSeq(flags, name='RoI'):
                                                          
     recoMS = InViewRecoCA(name=viewName, RoITool = roiTool, RequireParentView = requireParentView)
     
-    recoMS.merge(TrackingGeometrySvcCfg(flags))
-    ###################
-
     recoMS.mergeReco(EFMuonViewDataVerifierCfg(flags, name))
 
     # decoding
