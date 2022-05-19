@@ -122,56 +122,55 @@ StatusCode LArHitsTestTool::processEvent() {
   std::string lArkey = "LArHit"+m_detname;
 
   double etot=0;
-  const DataHandle<LArHitContainer> iter;
-  CHECK(evtStore()->retrieve(iter,lArkey));
-  for (hi=(*iter).begin(); hi != (*iter).end(); ++hi) {
-    const LArHit* larHit = *hi;
-    const CaloDetDescrElement* ddElement = caloMgr->get_element(larHit->cellID());
+  const LArHitContainer* hitContainer = evtStore()->tryConstRetrieve<LArHitContainer>(lArkey);
+  if(hitContainer) {
+    for(const LArHit* larHit : *hitContainer) {
+      const CaloDetDescrElement* ddElement = caloMgr->get_element(larHit->cellID());
 
-    double eta = ddElement->eta();
-    double phi = ddElement->phi();
-    double radius = ddElement->r();
-    double z  = ddElement->z();
-
-    double energy = larHit->energy();
-
-    m_lar_eta->Fill(eta);
-    m_lar_phi->Fill(phi);
-    m_lar_zr->Fill(z,radius);
-    m_lar_etaphi->Fill(eta,phi);
-    m_lar_edep_zr->Fill(z,radius,energy);
-
-
-    m_eta->Fill(eta);
-    m_phi->Fill(phi);
-    m_time->Fill( (*hi)->time(),energy);
-    m_edep->Fill( energy);
-    m_log_edep->Fill( energy > 0 ? log(energy) : -1 );
-		 
-    m_zr->Fill(z,radius);
-    m_etaphi->Fill(eta,phi);
-    m_edep_zr->Fill(z,radius,energy);
-
-    m_edep_eta->Fill(eta,energy);
-    m_edep_phi->Fill(phi,energy);
-
-    m_edep_z->Fill(z,energy);
-    m_edep_r->Fill(radius,energy);
-
-    etot+=energy;
-
-    if ((*hi)->energy()>m_edep_cut) {
-      m_eta_cut1->Fill(eta);
-      m_phi_cut1->Fill(phi);
-      m_time_cut1->Fill( (*hi)->time(), (*hi)->energy());
-      m_edep_cut1->Fill( (*hi)->energy());
+      double eta = ddElement->eta();
+      double phi = ddElement->phi();
+      double radius = ddElement->r();
+      double z  = ddElement->z();
       
-      m_zr_cut1->Fill(z,radius);
-      m_etaphi_cut1->Fill(eta,phi);
-      m_edep_zr_cut1->Fill(z,radius,(*hi)->energy());
+      double energy = larHit->energy();
+
+      m_lar_eta->Fill(eta);
+      m_lar_phi->Fill(phi);
+      m_lar_zr->Fill(z,radius);
+      m_lar_etaphi->Fill(eta,phi);
+      m_lar_edep_zr->Fill(z,radius,energy);
+      
+
+      m_eta->Fill(eta);
+      m_phi->Fill(phi);
+      m_time->Fill( (*hi)->time(),energy);
+      m_edep->Fill( energy);
+      m_log_edep->Fill( energy > 0 ? log(energy) : -1 );
+      
+      m_zr->Fill(z,radius);
+      m_etaphi->Fill(eta,phi);
+      m_edep_zr->Fill(z,radius,energy);
+      
+      m_edep_eta->Fill(eta,energy);
+      m_edep_phi->Fill(phi,energy);
+
+      m_edep_z->Fill(z,energy);
+      m_edep_r->Fill(radius,energy);
+
+      etot+=energy;
+
+      if ((*hi)->energy()>m_edep_cut) {
+	m_eta_cut1->Fill(eta);
+	m_phi_cut1->Fill(phi);
+	m_time_cut1->Fill( (*hi)->time(), (*hi)->energy());
+	m_edep_cut1->Fill( (*hi)->energy());
+	
+	m_zr_cut1->Fill(z,radius);
+	m_etaphi_cut1->Fill(eta,phi);
+	m_edep_zr_cut1->Fill(z,radius,(*hi)->energy());
+      }
     }
   }
-  
  
   //For FastCaloSim Container with _Fast postfix, just try to retrieve, if exist, collect information from this container, it not just skip it.
   
