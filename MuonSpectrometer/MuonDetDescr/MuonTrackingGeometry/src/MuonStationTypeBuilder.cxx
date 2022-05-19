@@ -215,7 +215,8 @@ Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationCompone
         double uppX = compVol[i]->center()[0] + compBounds->halflengthX();
 
         if (lowX < currX)
-            ATH_MSG_WARNING(" clash between components in volume:" << compName[i] << "current:" << currX
+            if (compName[i].compare("RPC28") != 0 && compName[i].compare("RPC29") != 0)  // exclude BIS RPCs from the check sice they overlap in x with other volumes
+	       ATH_MSG_WARNING(" clash between components in volume:" << compName[i] << "current:" << currX
                                                                    << ": low edge of next volume:" << lowX);
         if (uppX > maxX) ATH_MSG_WARNING(" clash between component and envelope:" << compName[i] << "upper:" << uppX << ">" << maxX);
 
@@ -1091,7 +1092,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
                             layer->setLayerType(0);
                             layers.push_back(layer);
                         } else if ((gclv->getName()) == "Rpclayer") {
-                            if (std::abs(gx - 6.85) > 0.001)
+                            if (std::abs(gx - 6.85) > 0.001 && std::abs(gx - 5.9) > 0.001)  // two thicknesses allowed for 2/3 gaps RPCs
                                 ATH_MSG_WARNING("processRpc() - unusual thickness of RPC (" << glv->getName() << ") layer :" << 2 * gx);
                             if (!cache.m_rpcLayer) {
                                 double volc = 8 * gx * gy * gz;
