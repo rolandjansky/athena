@@ -99,64 +99,7 @@ def TileRawChannelMonitoringConfig(flags, overlapHistograms=None, **kwargs):
                                      xbins = 200, xmin = 0, xmax = 200000)
 
 
-    from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
-
-
-    def addTileChannelHistogramsArray(helper, algorithm, name, title, path,
-                                        xvalue, xbins, xmin, xmax, type='TH1D',
-                                        yvalue=None, ybins=None, ymin=None, ymax=None,
-                                        run='', value='', aliasSuffix=''):
-        '''
-        This function configures 1D histograms with Tile monitored value per module, channel, gain.
-
-        Arguments:
-             helper    -- Helper
-             algorithm -- Monitoring algorithm
-             name      -- Name of histogram, actual name is constructed dynamicaly like:
-                          name + mudule + channel + gain
-             title     -- Title of histogram, actual title is constructed dynamicaly like:
-                             run + module + channel + gain + title
-             path      -- Path in file for histogram (relative to the path of given group)
-             xvalue    -- Name of monitored value for x axis
-             yvalue    -- Name of monitored value for y axis
-             type      -- Type of histogram (TH1D, TProfile, TH2D)
-             value     -- Name of monitored value (needed for TProfile)
-             run       -- Run number (given it will be put into the title)
-             xlabels    -- List of bin labels
-        '''
-
-        import builtins
-        dimensions = [int(Tile.MAX_ROS) - 1, int(Tile.MAX_DRAWER)]
-        array = helper.addArray(dimensions, algorithm, name, topPath = path)
-
-        for postfix, tool in array.Tools.items():
-            ros, module = [int(x) for x in postfix.split('_')[1:]]
-            moduleName = Tile.getDrawerString(ros + 1, module)
-            fullPath = moduleName
-
-            for channel in range(0, int(Tile.MAX_CHAN)):
-                channelName = f'0{channel}' if channel < 10 else str(channel)
-                for gain in range(0, Tile.MAX_GAIN):
-                    gainName = {0 : 'low', 1 : 'high'}.get(gain)
-                    nameSuffix = aliasSuffix if aliasSuffix else xvalue
-                    fullName = f'{xvalue}_{channel}_{gain}'
-                    fullName += f',{yvalue}_{channel}_{gain}' if yvalue else ""
-                    fullName += f',{value}_{channel}_{gain};' if 'Profile' in type else ';'
-                    fullName += f'{moduleName}_ch_{channelName}_{gainName[:2]}_{nameSuffix}'
-                    fullTitle = f'Run {run} {moduleName} Channel {channelName} {gainName} gain: {title}'
-
-                    xbinsInGain = xbins[gain] if builtins.type(xbins) is list else xbins
-                    xminInGain = xmin[gain] if builtins.type(xmin) is list else xmin
-                    xmaxInGain = xmax[gain] if builtins.type(xmax) is list else xmax
-
-                    ybinsInGain = ybins[gain] if builtins.type(ybins) is list else ybins
-                    yminInGain = ymin[gain] if builtins.type(ymin) is list else ymin
-                    ymaxInGain = ymax[gain] if builtins.type(ymax) is list else ymax
-                    
-                    tool.defineHistogram(fullName, title = fullTitle, path = fullPath, type = type,
-                                         xbins = xbinsInGain, xmin = xminInGain, xmax = xmaxInGain,
-                                         ybins = ybinsInGain, ymin = yminInGain, ymax = ymaxInGain)
-
+    from TileMonitoring.TileMonitoringCfgHelper import addTileChannelHistogramsArray
 
     if kwargs['fillHistogramsForDSP']:
         # Configure histograms with Tile DSP raw channel amplitude per module, channel and gain

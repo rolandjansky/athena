@@ -3,7 +3,6 @@
 */
 
 #include "TileRawChannelMonitorAlgorithm.h"
-#include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileInfo.h"
 
@@ -15,22 +14,13 @@ StatusCode TileRawChannelMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("in initialize()");
 
   // initialize superclass
-  ATH_CHECK( AthMonitorAlgorithm::initialize() );
-
-  ATH_CHECK( m_cablingSvc.retrieve() );
-  m_cabling = m_cablingSvc->cablingService();
-
-  std::sort(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end());
-
-  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( TileCalibMonitorAlgorithm::initialize() );
 
   ATH_CHECK( m_digitsContainerKey.initialize() );
   ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_dspRawChannelContainerKey.initialize(m_fillHistogramsForDSP) );
   ATH_CHECK( m_emScaleKey.initialize() );
-  ATH_CHECK( m_dqStatusKey.initialize() );
 
-  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_tileInfoName) );
   m_dac2Charge[0] = 100.* 2.0 * 4.096 / m_tileInfo->ADCmax(); // 100 pF * 2 for legacy or 200 pF for demonstrator
   m_dac2Charge[1] = 5.2 * 2.0 * 4.096 / m_tileInfo->ADCmax(); // use the same number 5.2 pF as in TileCisDefaultCalibTool
 
