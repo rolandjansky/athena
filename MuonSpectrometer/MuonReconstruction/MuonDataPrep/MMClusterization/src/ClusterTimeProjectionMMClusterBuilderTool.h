@@ -49,7 +49,7 @@ class ClusterTimeProjectionMMClusterBuilderTool :
 
     StatusCode getClusterPositionPRD(const std::vector<Identifier>& ids, 
                                 const std::vector<float>& stripsPos, const std::vector<float>& driftDists, 
-                                const std::vector<Amg::MatrixX> driftDistErrors, const std::vector<int> &charges, const float thetaEstimate, 
+                                const std::vector<Amg::MatrixX>& driftDistErrors, const std::vector<int> &charges, const float thetaEstimate, 
 								double &clusterPosition,
 								double &clusterPositionErrorSq) const;
 
