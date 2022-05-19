@@ -30,7 +30,7 @@ namespace Trk {
 
   // Helper protected ctor*/
   template<int DIM, class T>
-  ParametersBase<DIM, T>::ParametersBase(
+  inline ParametersBase<DIM, T>::ParametersBase(
     const AmgVector(DIM) parameters,
     std::optional<AmgSymMatrix(DIM)>&& covariance,
     const T chargeDef)
@@ -41,7 +41,7 @@ namespace Trk {
 
   // Helper protected ctor
   template<int DIM, class T>
-  ParametersBase<DIM, T>::ParametersBase(
+  inline ParametersBase<DIM, T>::ParametersBase(
     std::optional<AmgSymMatrix(DIM)>&& covariance)
     : m_parameters()
     , m_covariance(std::move(covariance))
@@ -49,7 +49,7 @@ namespace Trk {
   {}
   // Protected Constructor with local arguments - persistency only
   template<int DIM, class T>
-  ParametersBase<DIM, T>::ParametersBase(
+  inline ParametersBase<DIM, T>::ParametersBase(
     const AmgVector(DIM) & parameters,
     std::optional<AmgSymMatrix(DIM)>&& covariance)
     : m_parameters(parameters)
@@ -94,14 +94,14 @@ namespace Trk {
   }
 
   template<int DIM, class T>
-  double
+  inline double
   ParametersBase<DIM, T>::pT() const
   {
     return momentum().perp();
   }
 
   template<int DIM, class T>
-  double
+  inline double
   ParametersBase<DIM, T>::eta() const
   {
     return momentum().eta();
@@ -157,6 +157,7 @@ namespace Trk {
     m_covariance = updatedCovariance;
     this->updateParametersHelper(updatedParameters);
   }
+
   /** equality operator */
   template<int DIM, class T>
   bool
