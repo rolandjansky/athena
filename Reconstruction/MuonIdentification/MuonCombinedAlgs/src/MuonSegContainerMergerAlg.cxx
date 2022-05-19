@@ -15,6 +15,18 @@ StatusCode MuonSegContainerMergerAlg::initialize() {
     /// Initialize the data dependencies
     ATH_CHECK(m_muonCandidateKeys.initialize());
     ATH_CHECK(m_tagMaps.initialize());
+    if ( !(m_tagMaps.size() + m_muonCandidateKeys.size() ) ){
+        ATH_MSG_FATAL("No candidates were given to read the segments from");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Use the following Muon tags to dump the segments");
+    for (const SG::ReadHandleKey<MuonCandidateCollection>& key : m_muonCandidateKeys){
+        ATH_MSG_INFO(" *** "<<key.fullKey());
+    }
+    ATH_MSG_INFO("Use the following combined tags to dump the segments");
+    for (SG::ReadHandleKey<MuonCombined::InDetCandidateToTagMap>& key : m_tagMaps){
+        ATH_MSG_INFO(" --- "<<key.fullKey());
+    }
     ATH_CHECK(m_segTrkContainerName.initialize());
     ATH_CHECK(m_assocMapKey.initialize());
     ATH_CHECK(m_inputSegContainerName.initialize(m_saveUnassocSegs));
@@ -51,7 +63,9 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
             if (assoc_segs.empty() && tag_pair.second->type() != xAOD::Muon::CaloTagged) {
                 ATH_MSG_WARNING("Combined candidate " << tag_pair.second->toString() << " does not have associated segments");
             }
-            for (const Muon::MuonSegment* seg : assoc_segs) { persistency_link->persistify(seg, out_container.get()); }
+            for (const Muon::MuonSegment* seg : assoc_segs) { 
+                persistency_link->persistify(seg, out_container.get()); 
+            }
         }
     }
     /// Retrieve the list of associated segments

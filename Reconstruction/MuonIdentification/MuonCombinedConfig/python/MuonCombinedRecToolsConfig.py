@@ -364,10 +364,8 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool", **kwargs):
         # trigger definitely only uses the ExtrapolateToIPtool in cosmics mode
         kwargs.setdefault("TrackExtrapolationTool", "")
     else:
-        extrapolator = result.getPrimaryAndMerge(
-            ExtrapolateMuonToIPToolCfg(flags))
-        kwargs.setdefault("TrackExtrapolationTool", extrapolator)
-
+        kwargs.setdefault("TrackExtrapolationTool", result.popToolsAndMerge(ExtrapolateMuonToIPToolCfg(flags)))
+        kwargs.setdefault("SegmentContainer", "TrackMuonSegments")
     kwargs.setdefault("AmbiguityProcessor", result.popToolsAndMerge(
         MuonAmbiProcessorCfg(flags)))
 
