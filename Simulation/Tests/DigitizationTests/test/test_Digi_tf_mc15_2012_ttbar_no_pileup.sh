@@ -5,6 +5,7 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
+# art-architecture:  '#x86_64-intel'
 # art-type: grid
 # art-output: mc15_2012_ttbar_no_pileup.RDO.pool.root
 

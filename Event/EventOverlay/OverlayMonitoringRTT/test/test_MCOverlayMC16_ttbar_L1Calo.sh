@@ -2,6 +2,7 @@
 
 # art-description: MC+MC Overlay for MC16, ttbar, with L1Calo, no reco
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena

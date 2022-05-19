@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # art-description: OverlayChain+Reco test for data16.
+# art-architecture:  '#x86_64-intel'
 # art-type: grid
 # art-include: 21.0/Athena                                                    
 # art-include: 21.3/Athena                                                    

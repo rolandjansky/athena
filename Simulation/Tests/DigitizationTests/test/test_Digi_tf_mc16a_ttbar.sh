@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Run digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up
+# art-architecture:  '#x86_64-intel'
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
