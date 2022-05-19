@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_BDTHELPER_H
@@ -23,6 +23,8 @@ namespace tauRecTools {
       float getGradBoostMVA(const std::map<TString, float>& availableVariables) const; 
 
       float getResponse(const std::map<TString, float*>& availableVariables) const; 
+
+      float getClassification(const std::map<TString, float*>& availableVariables) const;
 
       float getGradBoostMVA(const xAOD::TauJet& tau) const; 
 
