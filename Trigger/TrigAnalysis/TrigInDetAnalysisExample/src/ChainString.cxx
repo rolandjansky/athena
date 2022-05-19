@@ -66,11 +66,10 @@ void ChainString::parse( std::string s ) {
       }
     }
 
-    std::string tags[5] = {  "key",  "roi",  "vtx",  "extra",  "te" };
-    std::string  alt[5] = {  "key",  "",     "",     "ind=",    ""    };
-    bool      tagged[5] = {  false,  false,  false,  false,     false };    
+    std::string tags[5] = {  "key",  "roi",  "vtx",  "te",    "extra" };
+    bool      tagged[5] = {  false,  false,  false,  false,   false   };
     
-    std::string* values[5] = { &m_tail, &m_roi, &m_vtx, &m_extra, &m_element };
+    std::string* values[5] = { &m_tail, &m_roi, &m_vtx, &m_element, &m_extra };
     
     for ( size_t i=0 ; i<keycount && i<5 ; i++ ) { 
       if ( m_keys[i] == "" ) {  
@@ -98,8 +97,8 @@ void ChainString::parse( std::string s ) {
     std::cout << "key:   " << m_tail    << std::endl;
     std::cout << "roi:   " << m_roi     << std::endl;
     std::cout << "vtx:   " << m_vtx     << std::endl;
-    std::cout << "ind:   " << m_extra   << std::endl;
     std::cout << "te:    " << m_element << std::endl;
+    std::cout << "ind:   " << m_extra   << std::endl;
     std::cout << "pass:  " << m_passed  << std::endl;
 #endif   
 
