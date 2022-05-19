@@ -61,6 +61,13 @@ Function: LArMonitoring.LArMonTransforms.setMaxMin
 Parameters: { minVal : -1, useMax : False}
 Description: LAr_FEBmon_YieldOfRejectedEventsVsLB_SetMinMax
 
+---
+Input: [ 'LAr/FEBMon/Summary/RAW_YieldOfOneErrorEventsVsLB(?P<end>\S*)' ]
+Output: [ 'LAr/FEBMon/Summary/YieldOfOneErrorEventsVsLB{end}' ]
+Function: LArMonitoring.LArMonTransforms.setMaxMin
+Parameters: { minVal : -1, useMax : False}
+Description: LAr_FEBmon_YieldOfRejectedEventsVsLB_SetMinMax
+
 
 ---
 Input: [ 'LAr/FEBMon/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_(?P<histname>Parity|BCID|RADD|EVTID|SCACStatus|scaOutOfRange|gainMismatch|typeMismatch|badNbOfSamp|zeroSamp|checkSum|missingHeader|badGain|LArFEBMonErrorsAbsolute|missingTriggerType|nbOfEvts|NbOfSweet1PerFEB|NbOfSweet2PerFEB|knownFaultyFEB)_(?P=fold)(?P<side>A|C)' ]
@@ -69,7 +76,12 @@ Function: LArMonitoring.LArMonTransforms.setMaxMin
 Parameters: { minVal : 0, useMax : False}
 Description: LAr_FEBmon_SetMin0
 
-
+---
+Input: [ 'LAr/FEBMon/(?P<fold>EMB|EMEC|HEC|FCal)/RAW_LArFEBMonErrorsAbsolute_(?P=fold)(?P<side>A|C)' , 'LAr/FEBMon/Summary/Eventtype']
+Output: [ 'LAr/FEBMon/{fold}/LArFEBMonErrors_{fold}{side}' ]
+Function: LArMonitoring.LArMonTransforms.normToEntriesAndSetMin
+Parameters: { minVal : 0, clone : False, titleToReplace : 'Nb of events with at least one error', replaceWith : '% of events with at least one error'}
+Description: LAr_FEBmon_NormaliseToEntriesAndSetMin
 
 #Digits
 ---
@@ -109,14 +121,14 @@ Description: LAr_DSPMon_SetMin0
 Input: [  'LAr/NoisyRO/(?P<part>EMB|EMEC|HEC|FCal)/(?P<type>Noisy|MNBTight|MNBTight_PsVeto|MNBLoose|CandidateMNBTight|CandidateMNBTight_PsVeto|CandidateMNBLoose)FEBPerEvt_(?P=part)(?P<side>A|C)', 'LAr/NoisyRO/Summary/NoisyFEB' ]
 Output: [ 'LAr/NoisyRO/{part}/{type}FEBFracPerEvt_{part}{side}' ]
 Function: LArMonitoring.LArMonTransforms.normToEntries
-Parameters: { titleToReplace : 'Yields of events with', replaceWith: 'Fraction of events with' }
+Parameters: { titleToReplace : 'Yield of events with', replaceWith: 'Fraction of events with' }
 Description: LAr_NoisyRO_normToEntries
 
 ---
 Input: [  'LAr/NoisyRO/(?P<part>EMB|EMEC|HEC|FCal)/(?P<type>NoisyEvent|SaturatedNoisyEvent|MNBTightEvent|MNBTight_PsVetoEvent|MNBLooseEvent|NoisyEvent_TimeVeto|SaturatedNoisyEvent_TimeVeto|MNBTightEvent_TimeVeto|MNBTight_PsVetoEvent_TimeVeto|MNBLooseEvent_TimeVeto)_(?P=part)(?P<side>A|C)', 'LAr/NoisyRO/Summary/LBN' ]
 Output: [ 'LAr/NoisyRO/{part}/{type}Frac_{part}{side}' ]
 Function: LArMonitoring.LArMonTransforms.divideHist
-Parameters: { titleToReplace : 'Yields of events', replaceWith: 'Fraction of events' }
+Parameters: { titleToReplace : 'Yield of events', replaceWith: 'Fraction of events' }
 Description: LAr_NoisyRO_normToEntriesLB
 
 
