@@ -33,7 +33,6 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 
@@ -2265,7 +2264,7 @@ OraclePixGeoManager::getIdHelper()
 using namespace std;
 
 PixelGeometryManager::PixelGeometryManager() :
-  AthMessaging(Athena::getMessageSvc(), "PixelGeometryManager")
+  AthMessaging("PixelGeometryManager")
 {
 }
 PixelGeometryManager::~PixelGeometryManager()

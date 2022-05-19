@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 
 #include "TRT_PAI_gasMixture.h"
 #include "TRT_PAI_gasComponent.h"
@@ -12,7 +11,7 @@
 
 //____________________________________________________________________________
 TRT_PAI_gasMixture::TRT_PAI_gasMixture(const std::string& nm) :
-  AthMessaging(Athena::getMessageSvc(), nm),
+  AthMessaging(nm),
   m_name(nm),
   m_gasFrozen(0)
 {};

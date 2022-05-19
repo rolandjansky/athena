@@ -10,7 +10,6 @@
  */
 
 #include "SqliteRecordset.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include <sqlite3.h>
 #include <stdexcept>
@@ -18,7 +17,7 @@
 #include <set>
 
 SqliteRecordset::SqliteRecordset()
-  : AthMessaging(Athena::getMessageSvc(), "SqliteRecordset")
+  : AthMessaging("SqliteRecordset")
   , m_nodeName("")
   , m_def(std::make_shared<SqliteInpDef>())
 {

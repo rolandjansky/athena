@@ -4,7 +4,6 @@
 
 #include "G4AtlasAlg/G4AtlasRunManager.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 
 #include "G4GeometryManager.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -22,7 +21,7 @@
 
 G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager()
-  , AthMessaging(Athena::getMessageSvc(), "G4AtlasRunManager")
+  , AthMessaging("G4AtlasRunManager")
   , m_recordFlux(false)
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")

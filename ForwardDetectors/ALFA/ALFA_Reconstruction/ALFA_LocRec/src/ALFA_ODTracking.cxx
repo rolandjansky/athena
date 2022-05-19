@@ -2,13 +2,12 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_ODTracking.h"
 
 using namespace std;
 
 ALFA_ODTracking::ALFA_ODTracking() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_ODTracking")
+    AthMessaging("ALFA_ODTracking")
 {
 	m_listResults.clear();
 

@@ -4,7 +4,6 @@
 
 #include "BCMPrimeGmxInterface.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "BCMPrimeReadoutGeometry/BCMPrimeDetectorManager.h"
 #include "InDetSimEvent/SiHitIdHelper.h"
 
@@ -12,7 +11,7 @@ namespace InDetDD
 {
 
 BCMPrimeGmxInterface::BCMPrimeGmxInterface(BCMPrimeDetectorManager *detectorManager)
-  : AthMessaging(Athena::getMessageSvc(), "BCMPrimeGmxInterface"),
+  : AthMessaging("BCMPrimeGmxInterface"),
     m_detectorManager(detectorManager)
 {}
 

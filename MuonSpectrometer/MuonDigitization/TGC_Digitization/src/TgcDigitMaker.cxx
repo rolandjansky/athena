@@ -31,7 +31,7 @@
 TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
 			     const MuonGM::MuonDetectorManager* mdManager,
 			     unsigned int                       runperiod)
-  : AthMessaging (Athena::getMessageSvc(), "TgcDigitMaker")
+  : AthMessaging ("TgcDigitMaker")
 {
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;

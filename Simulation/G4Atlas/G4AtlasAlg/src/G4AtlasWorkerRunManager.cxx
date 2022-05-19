@@ -23,7 +23,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/GaudiException.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 
 #include <mutex>
 
@@ -31,7 +30,7 @@ static std::mutex workerInitMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   : G4WorkerRunManager()
-  , AthMessaging(Athena::getMessageSvc(), "G4AtlasWorkerRunManager")
+  , AthMessaging("G4AtlasWorkerRunManager")
     // TODO: what if we need to make these configurable?
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager")
   , m_fastSimTool("FastSimulationMasterTool")

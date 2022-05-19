@@ -2,7 +2,6 @@
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "InDetGeoModelUtils/VolumeBuilder.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -17,7 +16,7 @@
 
 namespace InDetDD {
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services)
-    : AthMessaging(Athena::getMessageSvc(), "InDetDDVolumeBuilder"),
+    : AthMessaging("InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(nullptr),
@@ -28,7 +27,7 @@ namespace InDetDD {
   }
 
   VolumeBuilder::VolumeBuilder(const std::vector<const ServiceVolume* >& services)
-    : AthMessaging(Athena::getMessageSvc(), "InDetDDVolumeBuilder"),
+    : AthMessaging("InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(&services),
@@ -40,7 +39,7 @@ namespace InDetDD {
   VolumeBuilder::VolumeBuilder(const Zone& zone, const std::vector<const ServiceVolume* >& services,
                                const std::vector<const ServiceVolume* >& servEnvelope,
                                const std::vector<const ServiceVolume* >& servChild)
-    : AthMessaging(Athena::getMessageSvc(), "InDetDDVolumeBuilder"),
+    : AthMessaging("InDetDDVolumeBuilder"),
     m_region("None"), // Empty refers to a valid region. Set some default so we can check it is actually set.
     m_zcenter(0),
     m_services(nullptr),

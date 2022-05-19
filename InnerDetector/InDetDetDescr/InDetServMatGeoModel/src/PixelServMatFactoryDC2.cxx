@@ -21,7 +21,6 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -33,7 +32,7 @@
 
 PixelServMatFactoryDC2::PixelServMatFactoryDC2(StoreGateSvc *detStore,
 					       ServiceHandle<IRDBAccessSvc> pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "PixelServmatFactoryDC2"),
+  AthMessaging("PixelServmatFactoryDC2"),
   m_detStore(detStore),
   m_rdbAccess(std::move(pRDBAccess))
 {

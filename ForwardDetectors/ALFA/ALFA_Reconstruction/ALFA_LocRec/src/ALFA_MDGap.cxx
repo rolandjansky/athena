@@ -2,11 +2,10 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDGap.h"
 
 ALFA_MDGap::ALFA_MDGap() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_MDGap")
+    AthMessaging("ALFA_MDGap")
 {
 	memset(&m_faMD, 0, sizeof(m_faMD));
 	memset(&m_fbMD, 0, sizeof(m_fbMD));

@@ -10,7 +10,6 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
@@ -55,7 +54,7 @@
 PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
                                        ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(name, svcLoc)
-  , AthMessaging (Athena::getMessageSvc(), name)
+  , AthMessaging (name)
   , m_incidentSvc("IncidentSvc", name) //FIXME should this be configurable?
   , m_mergeSvc("PileUpMergeSvc", name)
   , m_evtStore("StoreGateSvc/StoreGateSvc",  name)

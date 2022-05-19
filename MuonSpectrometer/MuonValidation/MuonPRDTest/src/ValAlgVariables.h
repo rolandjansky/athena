@@ -6,7 +6,6 @@
 #define VALALGVARIABLES_H
 
 #include "AthenaBaseComps/AthMessaging.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -25,7 +24,7 @@ class ValAlgVariables : public AthMessaging
                  TTree* tree,
                  const std::string& containername,
                  MSG::Level msglvl) :
-    AthMessaging(Athena::getMessageSvc(), containername),
+    AthMessaging(containername),
     m_evtStore(evtStore),
     m_detManager(detManager),
     m_tree(tree),

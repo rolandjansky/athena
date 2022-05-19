@@ -13,7 +13,6 @@
 #include "GaudiKernel/ISvcManager.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/IAddressProvider.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "SGTools/DataProxy.h"
@@ -27,7 +26,7 @@ class IOpaqueAddress;
 
 /// Structors
 PileUpStream::PileUpStream():
-  AthMessaging (Athena::getMessageSvc(), "PileUpStream"),
+  AthMessaging ("PileUpStream"),
   m_name("INVALID"), p_svcLoc(0), p_sel(0), p_SG(0), p_iter(0), 
   p_mergeSvc(nullptr), m_ownEvtIterator(false),
   m_neverLoaded(true), m_ownStore(false),
@@ -36,7 +35,7 @@ PileUpStream::PileUpStream():
 }
 
 PileUpStream::PileUpStream(PileUpStream&& rhs):
-  AthMessaging (Athena::getMessageSvc(), rhs.m_name),
+  AthMessaging (rhs.m_name),
   m_name(rhs.m_name), p_svcLoc(rhs.p_svcLoc), p_sel(rhs.p_sel), 
   p_SG(rhs.p_SG), p_iter(rhs.p_iter), p_mergeSvc(rhs.p_mergeSvc), m_ownEvtIterator(rhs.m_ownEvtIterator),
   m_neverLoaded(rhs.m_neverLoaded), m_ownStore(rhs.m_ownStore),
@@ -71,7 +70,7 @@ PileUpStream::operator=(PileUpStream&& rhs) {
 PileUpStream::PileUpStream(const std::string& name, 
 			   ISvcLocator* svcLoc,
 			   IEvtSelector* sel):
-  AthMessaging (Athena::getMessageSvc(), name),
+  AthMessaging (name),
   m_name(name), p_svcLoc(svcLoc), p_sel(sel), p_SG(0), p_iter(0), 
   m_ownEvtIterator(false), 
   m_neverLoaded(true), m_ownStore(false),
@@ -91,7 +90,7 @@ PileUpStream::PileUpStream(const std::string& name,
 PileUpStream::PileUpStream(const std::string& name, 
 			   ISvcLocator* svcLoc,
 			   const std::string& selecName):
-  AthMessaging (Athena::getMessageSvc(), name),
+  AthMessaging (name),
   m_name(name), p_svcLoc(svcLoc), p_sel(0), p_SG(0), p_iter(0),
   m_ownEvtIterator(false), 
   m_neverLoaded(true), m_ownStore(false),

@@ -3,12 +3,11 @@
 */
 
 #include "ReadoutGeometryBase/SiCommonItems.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace InDetDD {
 
 SiCommonItems::SiCommonItems(const AtlasDetectorID* const idHelper)
-  :  AthMessaging(Athena::getMessageSvc(), "SiDetectorElement"),
+  :  AthMessaging("SiDetectorElement"),
      m_idHelper(idHelper), 
      m_lorentzAngleTool(nullptr)
 {}

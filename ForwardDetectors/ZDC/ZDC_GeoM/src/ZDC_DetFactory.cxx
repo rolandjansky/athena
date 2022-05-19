@@ -23,7 +23,6 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 // Author Soumya Mohapatra
 // soumya@cern.ch
@@ -41,7 +40,7 @@ using namespace GeoGenfun;
 using namespace GeoXF;
 
 ZDC_DetFactory::ZDC_DetFactory(StoreGateSvc* detStore)
-  : AthMessaging (Athena::getMessageSvc(), "ZDC_DetFactory"),
+  : AthMessaging ("ZDC_DetFactory"),
     m_detectorManager(nullptr) , m_detectorStore(detStore)
 {}
 
