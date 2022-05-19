@@ -10,9 +10,7 @@
 
 namespace TrigConf {
 
-  uint32_t truncatedHash(DataStructure& dataStructure) {
-    std::stringstream ss;
-    dataStructure.printRaw(ss);
+  uint32_t doTruncatedHash(const std::stringstream& ss) {
     MD5 md5(ss.str());
     const std::string truncated_hash_hex = md5.hex_digest().substr(0, 8); // Of 32
     std::stringstream hex_to_int;
@@ -21,5 +19,23 @@ namespace TrigConf {
     hex_to_int >> truncated_hash_int;
     return truncated_hash_int;
   }
+
+  uint32_t truncatedHash(const DataStructure& dataStructure) {
+    std::stringstream ss;
+    dataStructure.printRaw(ss);
+    return doTruncatedHash(ss);
+  }
+
+
+  uint32_t truncatedHash(const TrigConf::L1Menu& L1DataStructure, const TrigConf::HLTMenu& HLTDataStructure) {
+    std::stringstream ss1;
+    L1DataStructure.printRaw(ss1);
+    std::stringstream ss2;
+    HLTDataStructure.printRaw(ss2);
+    std::stringstream ss_concatonate;
+    ss_concatonate << ss2.str() << ss1.str();
+    return doTruncatedHash(ss_concatonate);
+  }
+
 
 }

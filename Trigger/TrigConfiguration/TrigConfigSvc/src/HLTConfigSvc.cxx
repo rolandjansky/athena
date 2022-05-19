@@ -38,10 +38,15 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
     fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
     ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
-    {
-      const uint32_t smk = m_smk == 0u ? TrigConf::truncatedHash(*hltmenu) : m_smk.value();
-      hltmenu->setSMK(smk);  // allow assigning a specified or hashed SMK when running from FILE
+
+    uint32_t smk = m_smk.value();
+    if (!m_l1FileName.empty() && smk == 0u) {
+      auto l1menu = std::make_unique<TrigConf::L1Menu>();
+      ATH_CHECK( fileLoader.loadFile(m_l1FileName, *l1menu) );
+      smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
+      ATH_MSG_DEBUG("Computed MC-SMK as " << smk);
     }
+    hltmenu->setSMK(smk);  // allow assigning a specified or hashed SMK when running from FILE
 
     if (!m_monitoringFileName.empty()) {
       monitoring.reset( new TrigConf::HLTMonitoring() );
@@ -57,7 +62,6 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
           return StatusCode::FAILURE;
         }
       } else { // success
-        const uint32_t smk = m_smk == 0u ? TrigConf::truncatedHash(*monitoring) : m_smk.value();
         monitoring->setSMK(smk);
       }
     }

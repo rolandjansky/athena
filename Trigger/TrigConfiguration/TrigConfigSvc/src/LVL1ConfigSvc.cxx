@@ -36,8 +36,16 @@ StatusCode TrigConf::LVL1ConfigSvc::loadRun3StyleMenu()
     fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
     ATH_CHECK( fileLoader.loadFile(m_l1FileName, *l1menu) );
-    const uint32_t smk = m_smk == 0u ? TrigConf::truncatedHash(*l1menu) : m_smk.value();
+
+    uint32_t smk =  m_smk.value();
+    if (!m_hltFileName.empty() && smk == 0u) {
+      auto hltmenu = std::make_unique<TrigConf::HLTMenu>();
+      ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
+      smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
+      ATH_MSG_DEBUG("Computed MC-SMK as " << smk);
+    }
     l1menu->setSMK(smk); // allow assigning a specified or hashed SMK when running from FILE
+
 
   }
   else {
