@@ -21,7 +21,7 @@ for using standalone Rivet. This tutorial will focus on the Athena wrapper aroun
 In general, the latest 21.6 release should have the latest Rivet release supported by ATLAS.
 
 ```
-asetup 21.6.67,AthGeneration # or later (please avoid 21.6.19-21.6.32)
+asetup 21.6.94,AthGeneration # or later (please avoid 21.6.19-21.6.32)
 source setupRivet.sh
 ```
 
@@ -61,6 +61,8 @@ If for some reason, you do need to revert back to an older Rivet version, feel f
 
 | Rivet version | Athena release | Comments |
 | :----:  | :-------:| :----- |
+| v3.1.6 | `21.6.94,AthGeneration` | |
+| v3.1.5 | `21.6.86,AthGeneration` | |
 | v3.1.4 | `21.6.67,AthGeneration` | |
 | v3.1.2 | `21.6.33,AthGeneration` | |
 | v3.1.1 | `21.6.30,AthGeneration` | affected by HepMC bug |
