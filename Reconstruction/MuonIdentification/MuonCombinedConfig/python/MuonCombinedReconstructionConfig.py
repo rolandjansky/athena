@@ -645,9 +645,6 @@ def MuonCombinedReconstructionCfg(flags):
 
     # FIXME
     # I see errors related to unconfigured public tools. This is a quick fix, but should really move to where it is called.
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedTrackSummaryToolCfg
-    result.addPublicTool(result.popToolsAndMerge(
-        MuonCombinedTrackSummaryToolCfg(flags)))
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
     result.addPublicTool(result.popToolsAndMerge(
         MuonTrackScoringToolCfg(flags)))

@@ -114,20 +114,11 @@ def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kw
     result.setPrivateTools(Muon__MuonTrackSummaryHelperTool(name=name,**kwargs))
     return result
 
-def MuonTrackSummaryToolCfg(flags, name="MuonTrackSummaryTool", **kwargs):
-    Trk__TrackSummaryTool=CompFactory.Trk.TrackSummaryTool    
-    result = ComponentAccumulator()
-    track_summary_helper = result.popToolsAndMerge(MuonTrackSummaryHelperToolCfg(flags))
-    kwargs.setdefault("MuonSummaryHelperTool", track_summary_helper )
-    kwargs.setdefault("doSharedHits", False )
-    kwargs.setdefault("AddDetailedMuonSummary", True )
-    result.setPrivateTools(Trk__TrackSummaryTool(name=name,**kwargs))
-    return result
-
 def MuonTrackScoringToolCfg(flags, name="MuonTrackScoringTool", **kwargs):
     Muon__MuonTrackScoringTool=CompFactory.Muon.MuonTrackScoringTool
     # m_trkSummaryTool("Trk::TrackSummaryTool"),    
     result = ComponentAccumulator()
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
     track_summary = result.getPrimaryAndMerge(MuonTrackSummaryToolCfg(flags)) 
     kwargs.setdefault('SumHelpTool', track_summary)
     kwargs.setdefault("EDMPrinter", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )

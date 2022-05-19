@@ -127,3 +127,66 @@ def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits'
 def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSearch',**kwargs) :
     kwargs.setdefault('doHolesInDet', False)
     return ITkTrackSummaryToolCfg(flags, name, **kwargs)
+
+
+def GSFTrackSummaryToolCfg(flags, name="GSFTrackSummaryTool", **kwargs):
+    """ The Track Summary for the GSF refitted Tracks/TrackParticles"""
+
+    acc = ComponentAccumulator()
+
+    if "InDetSummaryHelperTool" not in kwargs:
+        testBLTool = None
+        if flags.Detector.EnablePixel:
+            from InDetConfig.TrackingCommonConfig import InDetRecTestBLayerToolCfg
+            testBLTool = acc.popToolsAndMerge(InDetRecTestBLayerToolCfg(flags, name="GSFBuildTestBLayerTool"))
+
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
+        kwargs["InDetSummaryHelperTool"] = acc.popToolsAndMerge(
+            InDetTrackSummaryHelperToolCfg(
+                flags,
+                name="GSFBuildTrackSummaryHelperTool",
+                HoleSearch=None,
+                AssoTool=None,
+                TestBLayerTool=testBLTool
+            ))
+
+    kwargs.setdefault("doSharedHits", False)
+    kwargs.setdefault("doHolesInDet", False)
+    kwargs.setdefault("AddExpectedHits", True)
+
+    # Particle creator needs a public one
+    acc.setPrivateTools(CompFactory.Trk.TrackSummaryTool(name, **kwargs))
+    return acc
+
+def MuonTrackSummaryToolCfg(flags, name="MuonTrackSummaryTool", **kwargs):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+    track_summary_helper = result.popToolsAndMerge(MuonTrackSummaryHelperToolCfg(flags))
+    kwargs.setdefault("MuonSummaryHelperTool", track_summary_helper )
+    kwargs.setdefault("doSharedHits", False )
+    kwargs.setdefault("AddDetailedMuonSummary", True )
+    result.setPrivateTools(CompFactory.Trk.TrackSummaryTool(name,**kwargs))
+    return result
+
+def MuonCombinedTrackSummaryToolCfg(flags, name="CombinedMuonTrackSummary", **kwargs):
+    # Based on AtlasTrackSummaryTool.py
+
+    result = ComponentAccumulator()
+
+    if "InDetSummaryHelperTool" not in kwargs:
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import AtlasTrackSummaryHelperToolCfg
+        kwargs.setdefault("InDetSummaryHelperTool", result.popToolsAndMerge(AtlasTrackSummaryHelperToolCfg(flags, name="CombinedMuonIDSummaryHelper")))
+
+    if "MuonSummaryHelperTool" not in kwargs:
+        from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+        kwargs.setdefault("MuonSummaryHelperTool", result.popToolsAndMerge(MuonTrackSummaryHelperToolCfg(flags)))
+
+    kwargs.setdefault("doSharedHits", False)
+    kwargs.setdefault("doHolesInDet", True)
+    kwargs.setdefault("doHolesMuon", False)
+    kwargs.setdefault("AddDetailedMuonSummary", True)
+    kwargs.setdefault("PixelExists", True)
+
+    result.setPrivateTools(CompFactory.Trk.TrackSummaryTool(name, **kwargs))
+    return result
+
