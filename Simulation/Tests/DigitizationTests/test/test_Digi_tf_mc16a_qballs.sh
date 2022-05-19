@@ -5,6 +5,7 @@
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 # art-output: mc16a_qball.RDO.pool.root
 

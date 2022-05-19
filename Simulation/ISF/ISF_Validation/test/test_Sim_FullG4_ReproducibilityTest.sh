@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Reading single particle gen events, checking that the SkipEvents argument works, using 2015 geometry and conditions
+# art-architecture:  '#x86_64-intel'
 # art-include: 21.0/Athena
 # art-include: 21.0/AthSimulation
 # art-include: 21.3/Athena

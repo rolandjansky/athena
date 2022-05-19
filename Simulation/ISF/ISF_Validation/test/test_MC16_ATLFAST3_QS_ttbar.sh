@@ -3,6 +3,7 @@
 # art-description: MC16-style simulation using ATLFAST3 with Quasi-stable particles
 # art-include: 21.0/Athena
 # art-athena-mt: 8
+# art-architecture:  '#x86_64-intel'
 # art-type: grid
 # art-output: test.HITS.pool.root
 # art-output: truth.root

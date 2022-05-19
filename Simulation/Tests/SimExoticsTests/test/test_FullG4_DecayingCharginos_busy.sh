@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: MC16-style simulation of decaying Charginos (busy events) using FullG4 (tests Charginos and Gauginos packages)
+# art-architecture:  '#x86_64-intel'
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0/AthSimulation

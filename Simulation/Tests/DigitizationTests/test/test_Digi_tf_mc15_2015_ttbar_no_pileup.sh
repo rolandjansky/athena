@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Run digitization of an MC15 ttbar sample with 2015 geometry and conditions, without pile-up
+# art-architecture:  '#x86_64-intel'
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena

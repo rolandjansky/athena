@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Run simulation using ISF with the FullG4 simulator, reading minbias events, writing HITS, using 2015 geometry and conditions
+# art-architecture:  '#x86_64-intel'
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
