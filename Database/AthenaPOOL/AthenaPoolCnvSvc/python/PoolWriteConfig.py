@@ -87,6 +87,34 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", auto_flush ) ]
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", auto_flush ) ]
 
+    # Derivation framework output settings    
+    for flag in [key for key in flags._flagdict.keys() if ("Output.DAOD_" and "FileName" in key)]:
+        # Since there may be several outputs, this has to be done in a loop 
+        FileName = flags._flagdict[flag]._value 
+        # Use ZSTD w/ Level 5 for DAODs
+        PoolAttributes += [ pah.setFileCompAlg( FileName, "5" ) ]
+        PoolAttributes += [ pah.setFileCompLvl( FileName, "5" ) ]
+        # By default use a maximum basket buffer size of 128k and minimum buffer entries of 10
+        PoolAttributes += [ pah.setMaxBufferSize( FileName, "131072" ) ]
+        PoolAttributes += [ pah.setMinBufferEntries( FileName, "10" ) ]
+        # By default use 20 MB AutoFlush (or 500 events for SharedWriter w/ parallel compession)
+        # for event data except for a number of select formats (see below)
+        TREE_AUTO_FLUSH = -20000000
+        if flags.MP.UseSharedWriter and flags.MP.UseParallelCompression:
+            TREE_AUTO_FLUSH = 500
+        # By default use split-level 0 except for DAOD_PHYSLITE which is maximally split
+        CONTAINER_SPLITLEVEL = 0
+        if "DAOD_PHYSVAL" in FileName:
+            TREE_AUTO_FLUSH = 100
+        if "DAOD_PHYS" in FileName:
+            TREE_AUTO_FLUSH = 500
+        if "DAOD_PHYSLITE" in FileName:
+            TREE_AUTO_FLUSH = 1000
+            CONTAINER_SPLITLEVEL = 99
+        PoolAttributes += [ pah.setTreeAutoFlush( FileName, "CollectionTree", str(TREE_AUTO_FLUSH) ) ]
+        PoolAttributes += [ pah.setContainerSplitLevel( FileName, "CollectionTree", str(CONTAINER_SPLITLEVEL) ) ]
+        PoolAttributes += [ pah.setContainerSplitLevel( FileName, "Aux.", str(CONTAINER_SPLITLEVEL) ) ]
+
     acc.addService(AthenaPoolCnvSvc(PoolAttributes = PoolAttributes))
     acc.addService(CompFactory.EvtPersistencySvc("EventPersistencySvc",CnvServices=["AthenaPoolCnvSvc"]))
     return acc
