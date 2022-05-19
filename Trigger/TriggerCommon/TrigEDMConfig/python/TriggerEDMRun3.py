@@ -56,7 +56,7 @@ def recordable( arg ):
 # Trigger EDM list for Run 3 with all containers that should
 # be stored in the specified format as well as the category
 # ------------------------------------------------------------
-AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
+AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODCOMM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
 AllowedOutputFormats.extend(DataScoutingInfo.getAllDataScoutingIdentifiers())
 
 
@@ -834,8 +834,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigMissingETContainer#HLT_MET_tcpufit_sig30',                 'BS ESD AODFULL', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcpufit_sig30Aux.',          'BS ESD AODFULL', 'MET'),
 
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL', 'Calo'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODFULL', 'Calo'),
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODCOMM', 'Calo'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODCOMM', 'Calo'),
 
     # tau
     # will enable when needed

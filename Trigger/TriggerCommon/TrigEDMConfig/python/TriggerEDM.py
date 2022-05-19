@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-
 # ********************* All Tools/Functions for the TriggerEDM **********************
 # Keeping all functions from the original TriggerEDM.py (Run 2 EDM) in this file
 # with this name to not break backwards compatibility
@@ -48,7 +47,22 @@ def getTriggerEDMList(key, runVersion):
         if key in AllowedOutputFormats: # AllowedOutputFormats is the entire list of output formats including ESD
             #if 'SLIM' in key or 'SMALL' in key or 'LARGE' in key : #keeping for refernece/potential revert
             # this keeps only the dynamic variables that have been specificied in TriggerEDMRun3
-            return getRun3TrigEDMSlimList(key)
+            Run3TrigEDM = {}
+            Run3TrigEDMCOMM = {}
+            if "AODFULL" in key: #introduction of AODCOMM for Run3 to keep track of containers only needed for commissioning
+                Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
+
+                Run3TrigEDMCOMM.update(getRun3TrigEDMSlimList("AODCOMM"))
+                for kcomm,vcomm in Run3TrigEDMCOMM.items():
+                    if kcomm in Run3TrigEDM:
+                        Run3TrigEDM[kcomm].extend(vcomm)
+                    else:
+                        Run3TrigEDM[kcomm] = vcomm
+
+            else:
+                Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
+
+            return Run3TrigEDM
 
         else:
             log.warning('Output format: %s is not in list of allowed formats, please check!', key)
