@@ -34,6 +34,10 @@ def CSC_OverlayAlgCfg(flags, name="CscOverlay", **kwargs):
 
     kwargs.setdefault("isDataOverlay", flags.Overlay.DataOverlay)
 
+    if not flags.Overlay.DataOverlay:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'CscRawDataContainer#{kwargs["BkgInputKey"]}']))
+
     # Do CSC overlay
     acc.addEventAlgo(CompFactory.CscOverlay(name, **kwargs))
 
@@ -62,6 +66,10 @@ def CSC_TruthOverlayCfg(flags, name="CscTruthOverlay", **kwargs):
         kwargs.setdefault("BkgInputKey", "")
     else:
         kwargs.setdefault("BkgInputKey", f"{flags.Overlay.BkgPrefix}CSC_SDO")
+
+    if kwargs["BkgInputKey"]:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'CscSimDataCollection#{kwargs["BkgInputKey"]}']))
 
     kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}CSC_SDO")
     kwargs.setdefault("OutputKey", "CSC_SDO")
