@@ -99,6 +99,8 @@ def CombinedTrackingPassFlagSets(flags):
     # Primary Pass
     if flags.ITk.Tracking.doFastTracking:
         flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.FastPass")
+    else:
+        flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.MainPass")
     flags_set += [flags]
 
     # LRT
