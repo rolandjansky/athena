@@ -6,44 +6,6 @@ from AthenaConfiguration.Enums import LHCPeriod
 from AthenaCommon.Logging import logging
 
 
-def GSFTrackSummaryToolCfg(flags,
-                           name="GSFTrackSummaryTool",
-                           **kwargs):
-    """ The Track Summary for the GSF refitted Tracks/TrackParticles"""
-
-    acc = ComponentAccumulator()
-
-    if "InDetSummaryHelperTool" not in kwargs:
-        testBLTool = None
-        if flags.Detector.EnablePixel:
-            from InDetConfig.TrackingCommonConfig import (
-                InDetRecTestBLayerToolCfg)
-            testBLTool = acc.popToolsAndMerge(
-                InDetRecTestBLayerToolCfg(
-                    flags,
-                    name="GSFBuildTestBLayerTool"))
-
-        from InDetConfig.InDetTrackSummaryHelperToolConfig import (
-            InDetTrackSummaryHelperToolCfg)
-        kwargs["InDetSummaryHelperTool"] = acc.popToolsAndMerge(
-            InDetTrackSummaryHelperToolCfg(
-                flags,
-                name="GSFBuildTrackSummaryHelperTool",
-                HoleSearch=None,
-                AssoTool=None,
-                TestBLayerTool=testBLTool
-            ))
-
-    kwargs.setdefault("doSharedHits", False)
-    kwargs.setdefault("doHolesInDet", False)
-    kwargs.setdefault("AddExpectedHits", True)
-
-    summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
-    # Particle creator needs a public one
-    acc.addPublicTool(summaryTool, primary=True)
-    return acc
-
-
 def EMBremCollectionBuilderCfg(flags,
                                name="EMBremCollectionBuilder",
                                **kwargs):
@@ -65,13 +27,15 @@ def EMBremCollectionBuilderCfg(flags,
 
         from InDetConfig.TRT_ElectronPidToolsConfig import (
             TRT_ElectronPidToolCfg)
+        from TrkConfig.TrkTrackSummaryToolConfig import GSFTrackSummaryToolCfg
+        TrackSummaryTool = acc.popToolsAndMerge(GSFTrackSummaryToolCfg(flags))
+        acc.addPublicTool(TrackSummaryTool)
 
         gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            TrackSummaryTool=acc.getPrimaryAndMerge(
-                GSFTrackSummaryToolCfg(flags)),
+            TrackSummaryTool=TrackSummaryTool,
             PixelToTPIDTool=(CompFactory.InDet.PixelToTPIDTool(
                 name="GSFBuildPixelToTPIDTool")
                 if flags.GeoModel.Run < LHCPeriod.Run4 else None),

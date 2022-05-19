@@ -126,3 +126,25 @@ def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kw
   kwargs.setdefault("TestBLayerTool", None)
   kwargs.setdefault("DoSharedHits", flags.ITk.Tracking.doSharedHits)
   return ITkTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
+
+def AtlasTrackSummaryHelperToolCfg(flags, name='AtlasTrackSummaryHelperTool', **kwargs):
+  result = ComponentAccumulator()
+
+  if "AssoTool" not in kwargs:
+    from InDetConfig.InDetAssociationToolsConfig import InDetPrdAssociationTool_noTRTCfg
+    atlasPrdAssociationTool = result.popToolsAndMerge(InDetPrdAssociationTool_noTRTCfg(flags, name='AtlasPrdAssociationTool'))
+    result.addPublicTool(atlasPrdAssociationTool)
+    kwargs.setdefault("AssoTool", atlasPrdAssociationTool)
+
+  if "HoleSearch" not in kwargs:
+    from InDetConfig.InDetTrackHoleSearchConfig import AtlasTrackHoleSearchToolCfg
+    atlasHoleSearchTool = result.popToolsAndMerge(AtlasTrackHoleSearchToolCfg(flags))
+    result.addPublicTool(atlasHoleSearchTool)
+    kwargs.setdefault("HoleSearch", atlasHoleSearchTool)
+
+  kwargs.setdefault("DoSharedHits", False)
+
+  result.setPrivateTools(result.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, name, **kwargs)))
+  return result
+
+  
