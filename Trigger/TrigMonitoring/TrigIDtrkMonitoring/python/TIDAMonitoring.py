@@ -41,9 +41,9 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         tidaegamma.AnalysisConfig = "Tier0"
 
-        chains = getchains( [ "HLT_e.*idperf.*tight.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
-                              "HLT_e.*idperf.*tight.*:key=HLT_IDTrack_Electron_IDTrig",
-                              "HLT_e.*idperf.*tight(?!.*nogsf.*).*:key=HLT_IDTrack_Electron_GSF",
+        chains = getchains( [ "HLT_e.*idperf(?!.*lrtloose.*).*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
+                              "HLT_e.*idperf(?!.*lrtloose.*).*:key=HLT_IDTrack_Electron_IDTrig",
+                              "HLT_e.*idperf(?!.*lrtloose.*)(?!.*nogsf.*).*:key=HLT_IDTrack_Electron_GSF",
                               "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_tag:te=0",
                               "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_probe:te=1",
                               "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
@@ -98,11 +98,12 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         tidamuon.AnalysisConfig = "Tier0"
 
-        chains = getchains( [ "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
-                              "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
+        chains = getchains( [ "HLT_mu(?!.*LRT.*)(?!.*tau.*).*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
+                              "HLT_mu(?!.*LRT.*)(?!.*tau.*).*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
                               "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
                               "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso" ], monlevel )
                               
+
         if len(chains)>0 : 
 
                 tidamuon.ntupleChainNames += chains
