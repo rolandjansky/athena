@@ -3123,6 +3123,20 @@ HLT_e17_lhmedium_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1EM15VHI_2TAU12IM
     2: 3
     3: 3
     4: 3
+HLT_e20_idperf_loose_lrtloose_L1EM15VH:
+  eventCount: 5
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+  stepFeatures:
+    0: 8
+    1: 7
+    2: 6
+    3: 6
+    4: 6
 HLT_e20_lhtight_ivarloose_L1ZAFB-25DPHI-eEM18M:
   eventCount: 0
 HLT_e20_lhvloose_L1EM15VH:
@@ -5765,20 +5779,6 @@ HLT_e5_etcut_L1eEM5:
     0: 257
     1: 787
     2: 387
-HLT_e5_idperf_loose_lrtloose_L1EM3:
-  eventCount: 13
-  stepCounts:
-    0: 19
-    1: 19
-    2: 13
-    3: 13
-    4: 13
-  stepFeatures:
-    0: 44
-    1: 42
-    2: 25
-    3: 25
-    4: 25
 HLT_e5_idperf_loose_lrtloose_L1eEM5:
   eventCount: 14
   stepCounts:
