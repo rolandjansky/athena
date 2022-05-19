@@ -2,8 +2,8 @@ SUSYTools
 ====================================
 **Current Main Developers**:   
 sara.alderweireldt@cern.ch,  
-john.kenneth.anders@cern.ch,  
 claudia.merlassino@cern.ch,  
+marco.rimoldi@cern.ch,
 OR atlas-phys-susy-bgforum-conveners@cern.ch    
   
 Note that the newest recommendations are always on the [background forum TWiki page](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BackgroundStudies).  Bugs can be reported on [JIRA](https://its.cern.ch/jira/projects/ATLSUSYBGF).  In case you are starting out, here are some useful tutorials for [GIT](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/GitTutorial) and [CMake](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CMakeTestProjectInstructions) as they are used in ATLAS.
@@ -55,15 +55,15 @@ cd ..
 mkdir build
 cd build
 cmake ../athena/Projects/WorkDir
-gmake
-source x86_64-slc6-gcc62-opt/setup.sh
+make
+source x86_64-centos7-gcc11-opt/setup.sh
 ```
 
 Additional packages needed on top of the recommended release are documented in `doc/packages.txt`; for now you can add those to your work area via git atlas addpkg.  Afterwards, be sure to recompile everything:  
 ```bash   
 cmake ../athena/Projects/WorkDir
 make -j
-source x86_64-slc6-gcc62-opt/setup.sh
+source x86_64-centos7-gcc11-opt/setup.sh
 ```
 
 and you are ready to go!
@@ -84,7 +84,7 @@ ctest -N
 
 To run specific tests (or tests for specific packages), use the `-R` option to restrict running to tests with a string in the name (e.g. `-R SUSYTools`) or `-E` to exclude certain tests (e.g. `-E SUSYToolsTester`).  To get logs / verbose output, use `-V`.
 
-To test locally in an AnalysisBase release, get your favourite benchmark sample (e.g. `mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.DAOD_SUSY1.e3698_s2608_s2183_r7725_r7676_p2596/`), and run::
+To test locally in an AnalysisBase release, get your favourite benchmark sample (e.g. `mc20_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_PHYS.e6337_s3681_r13145_p5057/` or `data18_13TeV.00358031.physics_Main.deriv.DAOD_PHYS.r13286_p4910_p5057`), and run:
 
 ```bash
 SUSYToolsTester <myAOD.pool.root> maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0 2>&1 | tee log
