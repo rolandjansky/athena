@@ -61,6 +61,10 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
         kwargs.setdefault('TileHitVectors', ['TileHitVec'])
     kwargs.setdefault('TileHitContainer', 'TileHitCnt')
 
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'TileHitVector#{vec}' for vec in kwargs['TileHitVectors']]))
+
     kwargs.setdefault('DoHSTruthReconstruction', flags.Digitization.DoDigiTruth)
     if kwargs['DoHSTruthReconstruction']:
         kwargs.setdefault('TileHitContainer_DigiHSTruth', 'TileHitCnt_DigiHSTruth')

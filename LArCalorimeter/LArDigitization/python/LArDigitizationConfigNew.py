@@ -124,14 +124,35 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         acc.merge(InputOverwriteCfg("LArHitContainer","LArHitHEC","LArHitFloatContainer","LArHitHEC"))
         acc.merge(InputOverwriteCfg("LArHitContainer","LArHitFCAL","LArHitFloatContainer","LArHitFCAL"))
         kwargs.setdefault("LArHitContainers", [])
+
+        if flags.Common.ProductionStep == ProductionStep.Overlay:
+            from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+            acc.merge(SGInputLoaderCfg(flags, [
+                "LArHitFloatContainer#LArHitEMB",
+                "LArHitFloatContainer#LArHitEMEC",
+                "LArHitFloatContainer#LArHitFCAL",
+                "LArHitFloatContainer#LArHitHEC",
+            ]))
     else:
         kwargs.setdefault("LArHitFloatContainers", [])
+
+        if flags.Common.ProductionStep == ProductionStep.Overlay:
+            from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+            acc.merge(SGInputLoaderCfg(flags, [
+                "LArHitContainer#LArHitEMB",
+                "LArHitContainer#LArHitEMEC",
+                "LArHitContainer#LArHitFCAL",
+                "LArHitContainer#LArHitHEC",
+            ]))
     if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("OnlyUseContainerName", False)
         if flags.Overlay.DataOverlay:
-            kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "FREE")
+            kwargs.setdefault("InputDigitContainer", f"{flags.Overlay.BkgPrefix}FREE")
         else:
-            kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
+            kwargs.setdefault("InputDigitContainer", f"{flags.Overlay.BkgPrefix}LArDigitContainer_MC")
+
+            from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+            acc.merge(SGInputLoaderCfg(flags, [f'LArDigitContainer#{kwargs["InputDigitContainer"]}']))
     else:
         kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     LArPileUpTool = CompFactory.LArPileUpTool
@@ -319,9 +340,12 @@ def LArSCL1MakerCfg(flags, **kwargs):
     kwargs.setdefault("RndmSvc",
                       acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
-        kwargs.setdefault("SCL1ContainerName",flags.Overlay.BkgPrefix + "LArDigitSCL2") # Output - why L2??
+        kwargs.setdefault("SCL1ContainerName", f"{flags.Overlay.BkgPrefix}LArDigitSCL2") # Output - why L2??
     if flags.Common.ProductionStep == ProductionStep.Overlay:
-        kwargs.setdefault("BkgDigitKey", flags.Overlay.BkgPrefix + "LArDigitSCL2")
+        kwargs.setdefault("BkgDigitKey", f"{flags.Overlay.BkgPrefix}LArDigitSCL2")
+
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'LArDigitContainer#{kwargs["BkgDigitKey"]}']))
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc
