@@ -26,12 +26,12 @@ void TRTParametersOfModulesC::DefineParameters()
 {
   // Distances between corners of shell C:
   int numberOfShellCorners = m_pParameters->GetInteger("NumberOfShellCorners");
-  double* xOfShellCornersC = new double[numberOfShellCorners];
-  double* yOfShellCornersC = new double[numberOfShellCorners];
+  std::vector<double> xOfShellCornersC(numberOfShellCorners,0.0);
+  std::vector<double> yOfShellCornersC(numberOfShellCorners,0.0);
   m_pParameters->GetDoubleArray("XOfShellCornersC", numberOfShellCorners,
-    xOfShellCornersC);
+    xOfShellCornersC.data());
   m_pParameters->GetDoubleArray("YOfShellCornersC", numberOfShellCorners,
-    yOfShellCornersC);
+    yOfShellCornersC.data());
 
   double deltaX12 = xOfShellCornersC[0] - xOfShellCornersC[1];
   double deltaX14 = xOfShellCornersC[0] - xOfShellCornersC[3];
