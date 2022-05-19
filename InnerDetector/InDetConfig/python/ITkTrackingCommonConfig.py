@@ -4,6 +4,25 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 import AthenaCommon.SystemOfUnits as Units
 
+def ITkRecTestBLayerToolCfg(flags, name='ITkRecTestBLayerTool', **kwargs):
+    acc = ComponentAccumulator()
+
+    if not flags.Detector.EnableITkPixel:
+        return None
+
+    if 'Extrapolator' not in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(AtlasExtrapolatorCfg(flags)))
+
+    if 'PixelSummaryTool' not in kwargs:
+        from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
+        ITkPixelConditionsSummaryTool = acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags))
+        kwargs.setdefault( "PixelSummaryTool", ITkPixelConditionsSummaryTool)
+
+    ITkTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name, **kwargs)
+    acc.setPrivateTools(ITkTestBLayerTool)
+    return acc
+
 def ITkMultipleScatteringUpdatorCfg(flags, name = "ITkMultipleScatteringUpdator", **kwargs):
     acc = ComponentAccumulator()
 

@@ -129,6 +129,10 @@ def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
 def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
     acc = ComponentAccumulator()
 
+    if flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackingCommonConfig import ITkRecTestBLayerToolCfg
+        return ITkRecTestBLayerToolCfg(flags, name, **kwargs)
+
     if not flags.Detector.EnablePixel:
         return None
 

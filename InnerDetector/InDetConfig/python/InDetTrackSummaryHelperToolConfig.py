@@ -123,6 +123,12 @@ def ITkSummaryHelperNoHoleSearchCfg(flags, name='ITkSummaryHelperNoHoleSearch', 
   return ITkTrackSummaryHelperToolCfg(flags, name, **kwargs)
 
 def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kwargs):
-  kwargs.setdefault("TestBLayerTool", None)
+  acc = ComponentAccumulator()
+
+  if 'TestBLayerTool' not in kwargs and flags.Detector.EnableITkPixel:
+    from InDetConfig.ITkTrackingCommonConfig import ITkRecTestBLayerToolCfg
+    ITkRecTestBLayerTool = acc.popToolsAndMerge(ITkRecTestBLayerToolCfg(flags))
+    kwargs.setdefault("TestBLayerTool", ITkRecTestBLayerTool)
+
   kwargs.setdefault("DoSharedHits", flags.ITk.Tracking.doSharedHits)
   return ITkTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
