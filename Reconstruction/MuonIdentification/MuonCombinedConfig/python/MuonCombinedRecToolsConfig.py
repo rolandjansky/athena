@@ -1260,6 +1260,8 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
     kwargs.setdefault("MdtCalibrationDbTool", result.popToolsAndMerge(
         MdtCalibrationDbToolCfg(flags)))
 
+    kwargs.setdefault("MuonLayerSegmentMatchingTool", result.popToolsAndMerge(MuonLayerSegmentMatchingToolCfg(flags)))
+
     tool = CompFactory.MuonCombined.MuonStauRecoTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
