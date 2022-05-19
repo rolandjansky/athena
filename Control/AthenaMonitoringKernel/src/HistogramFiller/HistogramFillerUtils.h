@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFillerUtils_h
@@ -121,6 +121,9 @@ namespace Monitored {
 
     /**
      * Check if Fill would result in rebinning for alphanumeric axis.
+     *
+     * Note that even adding a new label to an unlabeled bin is not
+     * thread-safe and needs to be treated as "rebinning" (ADHI-4881).
      */
     template<>
     bool fillWillRebinHistogram(const TAxis* axis, const char* value) {
@@ -131,10 +134,6 @@ namespace Monitored {
       const THashList* labels = axis->GetLabels();
       if ( not labels ) return false;
 
-      // check if unlabeled bins exist
-      if ( axis->GetNbins() > labels->GetEntries() ) {
-        return false;
-      }
       return true;
     }
 
