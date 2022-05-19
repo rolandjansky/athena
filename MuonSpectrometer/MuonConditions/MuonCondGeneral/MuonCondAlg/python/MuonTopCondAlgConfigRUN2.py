@@ -164,5 +164,5 @@ class NswPassivationDbAlg(CfgMgr.NswPassivationDbAlg):
         if athenaCommonFlags.isOnline: return
         if CommonGeometryFlags.Run in ["RUN1","RUN2"]: return
         super(NswPassivationDbAlg,self).__init__(name,**kwargs)
-        addFolderWithTag(self, "MDT_OFL", "/MDT/MM/PASSIVATION", "MmPassiv2022Feb26") ## force explicit tag for now, to be removed later once folder tag is resolved via global tag
+        addFolderWithTag(self, "MDT_OFL", "/MDT/MM/PASSIVATION", "MmPassiv2022May19") ## force explicit tag for now, to be removed later once folder tag is resolved via global tag
 
