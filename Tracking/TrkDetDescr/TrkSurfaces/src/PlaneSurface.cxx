@@ -183,9 +183,14 @@ Trk::PlaneSurface::operator==(const Trk::Surface& sf) const
   bool boundsEqual = bounds() == psf->bounds();
   return transfEqual && centerEqual && boundsEqual;
 }
-
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line Eigen calls
+#endif
 void
-Trk::PlaneSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
+Trk::PlaneSurface::localToGlobal(const Amg::Vector2D& locpos,
+                                 const Amg::Vector3D&,
+                                 Amg::Vector3D& glopos) const
 {
   Amg::Vector3D loc3Dframe(locpos[Trk::locX], locpos[Trk::locY], 0.);
   glopos = transform() * loc3Dframe;

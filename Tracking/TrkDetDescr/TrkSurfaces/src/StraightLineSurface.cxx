@@ -95,6 +95,10 @@ Trk::StraightLineSurface::operator==(const Trk::Surface& sf) const
 }
 
 // true local to global method - fully defined
+#if defined(__GNUC__)
+[[gnu::flatten]]
+//Avoid out-of-line eigen calls
+#endif
 void
 Trk::StraightLineSurface::localToGlobal(const Amg::Vector2D& locpos,
                                         const Amg::Vector3D& glomom,
