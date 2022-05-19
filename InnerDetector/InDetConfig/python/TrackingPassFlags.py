@@ -424,10 +424,6 @@ def createITkTrackingPassFlags():
     icf.addFlag("phiWidthBrem"            , [0.3])
     icf.addFlag("etaWidthBrem"            , [0.2])
 
-    # --- Pixel and TRT particle ID during particle creation
-    icf.addFlag("RunPixelPID", False)
-    icf.addFlag("RunTRTPID",   False)
-
     return icf
 
 
@@ -514,8 +510,6 @@ def createITkLargeD0FastTrackingPassFlags():
     icf.maxZImpactSeed     = 200. * Units.mm
     icf.radMax             = 400. * Units.mm
 
-    icf.RunPixelPID        = False
-    icf.RunTRTPID          = False
     return icf
 
 ### HighPileUP mode ####################
@@ -1086,6 +1080,8 @@ if __name__ == "__main__":
   from AthenaCommon.Constants import WARNING
   l.setLevel(WARNING)
   ConfigFlags.loadAllDynamicFlags()
+
+  ConfigFlags = ConfigFlags.cloneAndReplace("InDet.Tracking.ActivePass","InDet.Tracking.MainPass")
 
   assert ConfigFlags.InDet.Tracking.cutLevel == 19 , "default cut level is wrong"
   assert ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt)
