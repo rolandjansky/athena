@@ -10,7 +10,7 @@ StatusCode HTTLLPRoadFilterTool::filterUsedHits( std::vector<HTTTrack> &tracks,
                                               const std::vector<const HTTHit*>& allHits, 
                                               std::vector<const HTTHit*>& unusedHits ) {
     std::vector<HTTHit> hitsInTracksVec;
-    for (auto track : tracks) {
+    for (const auto& track : tracks) {
         for (const HTTHit& hit : track.getHTTHits()) {
             if (hit.isReal()) {
                 hitsInTracksVec.push_back(hit);

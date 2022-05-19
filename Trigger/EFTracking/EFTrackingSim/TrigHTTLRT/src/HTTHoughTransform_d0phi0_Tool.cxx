@@ -327,7 +327,7 @@ static inline std::string to_string(std::vector<T> v)
 
 static inline std::string instance_name(std::string const & s)
 {
-  size_t pos = s.find_last_of(".");
+  size_t pos = s.find_last_of('.');
   if (pos != std::string::npos)
     return s.substr(pos + 1);
   return s;
