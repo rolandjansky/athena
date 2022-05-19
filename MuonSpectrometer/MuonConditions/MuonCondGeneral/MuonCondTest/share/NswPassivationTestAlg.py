@@ -79,8 +79,6 @@ from IOVDbSvc.CondDB import conddb
 if run=="datatest":
 	svcMgr.IOVDbSvc.DBInstance=""#CONDBR2"
 
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/PASSIVATION", "MmPassiv2022Feb26", className='CondAttrListCollection')
-
 	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/PASSIVATION", "MmPassiv2022Feb26", forceData=True, className='CondAttrListCollection');
 
 

@@ -90,12 +90,13 @@ if useAlign:
                                                     #InitialTimeStamp = 1476741326)
     from IOVDbSvc.CondDB import conddb
     conddb.dbname = "CONDBR2"
-    conddb.addFolderWithTag('','<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MUONALIGN;dbname=CONDBR2;user=ATLAS_COOLOFL_MUONALIGN_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MUONALIGN/MDT/BARRELJSONS',"MuonAlignMDTBarrelJsonsAlign-RUN2-BA_0800-01",className='CondAttrListCollection')
-    conddb.addFolderWithTag('','<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MUONALIGN;dbname=CONDBR2;user=ATLAS_COOLOFL_MUONALIGN_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MUONALIGN/MDT/ENDCAP/SIDEAJSONS',"MuonAlignMDTEndCapAJsonsAlign-RUN2-ECA_ROLLING_2015_03_01-00",className='CondAttrListCollection')
-    conddb.addFolderWithTag('','<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MUONALIGN;dbname=CONDBR2;user=ATLAS_COOLOFL_MUONALIGN_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MUONALIGN/MDT/ENDCAP/SIDECJSONS',"MuonAlignMDTEndCapCJsonsAlign-RUN2-ECC_ROLLING_2015_03_01-00",className='CondAttrListCollection')
-    conddb.addFolderWithTag('','<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MUONALIGN;dbname=CONDBR2;user=ATLAS_COOLOFL_MUONALIGN_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MUONALIGN/CSC/ILINESJSONS',"MuonAlignCscIlinesJsons-2020-00",className='CondAttrListCollection')
-    conddb.addFolderWithTag('','<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MUONALIGN;dbname=CONDBR2;user=ATLAS_COOLOFL_MUONALIGN_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MUONALIGN/TGC/SIDEAJSONS',"MuonAlignTGCEndCapAAlignJsons-RUN2-TGCA_ROLLING_2011_01-03",className='CondAttrListCollection')
-    conddb.addFolderWithTag('','<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MUONALIGN;dbname=CONDBR2;user=ATLAS_COOLOFL_MUONALIGN_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MUONALIGN/TGC/SIDECJSONS',"MuonAlignTGCEndCapCAlignJsons-RUN2-TGCC_ROLLING_2011_01-03",className='CondAttrListCollection')
+    ## to be run on INT8R:
+    conddb.addFolderWithTag('MUONALIGN','/MUONALIGN/MDT/BARRELJSONS',"MuonAlignMDTBarrelJsonsAlign-RUN2-BA_0800-01",className='CondAttrListCollection')
+    conddb.addFolderWithTag('MUONALIGN','/MUONALIGN/MDT/ENDCAP/SIDEAJSONS',"MuonAlignMDTEndCapAJsonsAlign-RUN2-ECA_ROLLING_2015_03_01-00",className='CondAttrListCollection')
+    conddb.addFolderWithTag('MUONALIGN','/MUONALIGN/MDT/ENDCAP/SIDECJSONS',"MuonAlignMDTEndCapCJsonsAlign-RUN2-ECC_ROLLING_2015_03_01-00",className='CondAttrListCollection')
+    conddb.addFolderWithTag('MUONALIGN','/MUONALIGN/CSC/ILINESJSONS',"MuonAlignCscIlinesJsons-2020-00",className='CondAttrListCollection')
+    conddb.addFolderWithTag('MUONALIGN','/MUONALIGN/TGC/SIDEAJSONS',"MuonAlignTGCEndCapAAlignJsons-RUN2-TGCA_ROLLING_2011_01-03",className='CondAttrListCollection')
+    conddb.addFolderWithTag('MUONALIGN','/MUONALIGN/TGC/SIDECJSONS',"MuonAlignTGCEndCapCAlignJsons-RUN2-TGCC_ROLLING_2011_01-03",className='CondAttrListCollection')
     #conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
     #conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
     #conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC',className='CondAttrListCollection')
