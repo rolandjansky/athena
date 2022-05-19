@@ -14,11 +14,10 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 LArCondFlatBase::LArCondFlatBase (const std::string& name) :
-  AthMessaging(Athena::getMessageSvc(), name),
+  AthMessaging(name),
   m_isInitialized(false),
   m_onlineHelper(NULL)
 {

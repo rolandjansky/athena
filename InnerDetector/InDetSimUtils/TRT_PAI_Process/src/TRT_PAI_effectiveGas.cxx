@@ -16,7 +16,6 @@
 #include <cmath>
 #include <algorithm> //for std::max, std::clamp
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 //____________________________________________________________________________
@@ -26,7 +25,7 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 					   double Emax,
 					   double tempK,
 					   double eps)
-  : AthMessaging(Athena::getMessageSvc(), "TRT_PAI_effectiveGas"),
+  : AthMessaging("TRT_PAI_effectiveGas"),
     m_lnEmin(std::log(Emin)),
     m_lnEmax(std::log(Emax)),
     m_eps(eps)

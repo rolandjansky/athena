@@ -2,11 +2,10 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_HalfReco.h"
 
 ALFA_HalfReco::ALFA_HalfReco() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_HalfReco")
+    AthMessaging("ALFA_HalfReco")
 {
 	ATH_MSG_DEBUG("begin ALFA_HalfReco::ALFA_HalfReco");
 

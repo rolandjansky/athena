@@ -3,7 +3,6 @@
 */
 
 /// PROJECTS
-#include "AthenaKernel/getMessageSvc.h"
 #include "MM_Digitization/MM_StripsResponseSimulation.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
 #include "MM_Digitization/MM_StripResponse.h"
@@ -37,7 +36,7 @@ namespace {
 
 /*******************************************************************************/
 MM_StripsResponseSimulation::MM_StripsResponseSimulation():
-    AthMessaging(Athena::getMessageSvc(), "MMStripResponseSimulation"),
+    AthMessaging("MMStripResponseSimulation"),
 
 	// Variables that should be set externally (MM_DigitizationTool)
 	m_qThreshold(0),                 // 0.001

@@ -14,13 +14,12 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "PathResolver/PathResolver.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include <sstream>
 #include <fstream>
 
 
 LArHVIdMappingReader::LArHVIdMappingReader()
-  : AthMessaging (Athena::getMessageSvc(), "LArHVIdMappingReader")
+  : AthMessaging ("LArHVIdMappingReader")
 {
 }
 

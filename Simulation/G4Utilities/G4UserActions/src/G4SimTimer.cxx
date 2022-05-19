@@ -6,7 +6,6 @@
 #include "G4SimTimer.h"
 
 // Infrastructure includes
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace G4UA
 {
@@ -34,7 +33,7 @@ namespace G4UA
   // G4SimTimer constructor
   //---------------------------------------------------------------------------
   G4SimTimer::G4SimTimer()
-    : AthMessaging(Athena::getMessageSvc(), "G4SimTimer"),
+    : AthMessaging("G4SimTimer"),
       m_firstEvent(true)
   {}
 

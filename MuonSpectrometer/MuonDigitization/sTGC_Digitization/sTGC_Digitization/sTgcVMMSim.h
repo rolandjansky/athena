@@ -19,7 +19,6 @@
 
 #include <iosfwd>
 #include <inttypes.h>
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "MuonDigitContainer/MuonDigit.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
@@ -46,7 +45,7 @@ public:
         float readWindow,
         bool readDeadDigits,
         int typeOfChannel)
-        : AthMessaging(Athena::getMessageSvc(), "sTgcVMMSim")
+        : AthMessaging("sTgcVMMSim")
         , m_deadtimeStart(-9999)
         , m_readtimeStart(-9999)
         , m_digitsIn(std::move(inputDigits))

@@ -35,7 +35,7 @@
 sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, 
                                const MuonGM::MuonDetectorManager* mdManager, 
                                bool doEfficiencyCorrection)
-  : AthMessaging (Athena::getMessageSvc(), "sTgcDigitMaker")
+  : AthMessaging ("sTgcDigitMaker")
 {
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;

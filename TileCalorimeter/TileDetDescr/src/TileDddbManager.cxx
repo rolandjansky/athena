@@ -16,7 +16,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -25,7 +24,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
                  const std::string&    version_tag,
                  const std::string&    version_node,
                  bool sqliteInput)
-  : AthMessaging (Athena::getMessageSvc(), "TileDddbManager")
+  : AthMessaging ("TileDddbManager")
   , m_n_cuts(0)
   , m_n_saddle(0)
   , m_currentTileGlob(0)

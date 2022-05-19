@@ -3,11 +3,10 @@
  */
 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace InDetDD {
   AthenaComps::AthenaComps(const std::string& msgStreamName)
-    : AthMessaging(Athena::getMessageSvc(), msgStreamName),
+    : AthMessaging(msgStreamName),
     m_detStore(nullptr),
     m_geoDbTagSvc(nullptr),
     m_rdbAccessSvc(nullptr),
