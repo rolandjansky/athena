@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
@@ -40,10 +40,4 @@ class TriggerRecoGetter(Configured):
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hlt = HLTTriggerResultGetter()   # noqa: F841
 
-        #Call the tools to unpack the bytestream
-        #bsu=ByteStreamUnpackGetter()
-        
-        #Call the tool to make the TrigDecision object for ESD or AOD
-        #tdg=TrigDecisionGetter()
-        
         return True
