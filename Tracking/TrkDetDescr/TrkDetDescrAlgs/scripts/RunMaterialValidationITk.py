@@ -26,7 +26,7 @@ parser.add_argument("-S", "--verboseStoreGate", default=False,
                     help="Dump the StoreGate(s) each event iteration")
 parser.add_argument("--maxEvents",default=10, type=int,
                     help="The number of events to run. 0 skips execution")
-parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-24-00-00", type=str,
+parser.add_argument("--geometrytag",default="ATLAS-P2-RUN4-01-00-00", type=str,
                     help="The geometry tag to use")
 args = parser.parse_args()
 

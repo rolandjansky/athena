@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -22,6 +22,9 @@ namespace Overlay
 
     for (const SCT_RDORawData *existingDatum : *collection) {
       auto *oldDatum = dynamic_cast<const SCT3_RawData *>(existingDatum);
+      if (not oldDatum) {
+        throw std::runtime_error("Dynamic cast to SCT3_RawData failed in SCTOverlay.cxx, Overlay::copyCollection");
+      }
       // Owned by the collection
       auto *datumCopy = new SCT3_RawData(oldDatum->identify(),
                                          oldDatum->getWord(),

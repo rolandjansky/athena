@@ -44,6 +44,7 @@ def getArgumentParser():
     import argparse
     parser= argparse.ArgumentParser(parents=parserParents, add_help=False, fromfile_prefix_chars='@', epilog=epiLog, formatter_class=argparse.RawTextHelpFormatter)
 
+    parser.add_argument('-i', '--interactive', action='store_true', help='Interactive mode')
     parser.add_argument('--preExec', help='Code to execute before locking configs')
     parser.add_argument('--postExec', help='Code to execute after setup')
     parser.add_argument('--printDetailedConfig', action='store_true', help='Print detailed Athena configuration')
@@ -247,6 +248,9 @@ if __name__=='__main__':
         log.info('Executing preExec: %s', args.preExec)
         exec(args.preExec)
 
+    if args.interactive:
+        os.environ['PYTHONINSPECT'] = '1'
+
     ConfigFlags.lock()
 
     log.info('=====>>> FINAL CONFIG FLAGS SETTINGS FOLLOW:')
@@ -336,7 +340,7 @@ if __name__=='__main__':
             setOnlineEnvironment(cfg.getEventAlgo('TileDigitsMonAlg'))
 
         if args.channel_mon:
-            from TileRawChannelMonitorAlgorithm import TileRawChannelMonitoringConfig
+            from TileMonitoring.TileRawChannelMonitorAlgorithm import TileRawChannelMonitoringConfig
             cfg.merge(TileRawChannelMonitoringConfig(ConfigFlags))
             setOnlineEnvironment(cfg.getEventAlgo('TileRawChannelMonAlg'))
 
@@ -366,9 +370,17 @@ if __name__=='__main__':
             dataPath = find_datafile('TileMonitoring')
             if any([args.tmdb_digits_mon, args.tmdb_mon]):
                 configurations += [os.path.join(dataPath, 'TileTMDBPostProc.yaml')]
-
             if args.digits_mon:
                 configurations += [os.path.join(dataPath, 'TileDigitsPostProc.yaml')]
+            if args.channel_mon:
+                if 'CIS' in ConfigFlags.Tile.RunType:
+                    configurations += [os.path.join(dataPath, 'TileRawChanCisPostProc.yaml')]
+                else:
+                    configurations += [os.path.join(dataPath, 'TileRawChanPostProc.yaml')]
+                    if ConfigFlags.Tile.RunType == 'LAS':
+                        configurations += [os.path.join(dataPath, 'TileRawChanLasPostProc.yaml')]
+                    if not biGainRun:
+                        configurations += [os.path.join(dataPath, 'TileRawChanDspPostProc.yaml')]
 
             from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
             class TileMonPostProcessingAlg(DQPostProcessingAlg):
@@ -436,5 +448,6 @@ if __name__=='__main__':
 
     cfg.printConfig(withDetails=args.printDetailedConfig)
 
-    sc = cfg.run()
-    sys.exit(0 if sc.isSuccess() else 1)
+    if not args.interactive:
+        sc = cfg.run()
+        sys.exit(0 if sc.isSuccess() else 1)

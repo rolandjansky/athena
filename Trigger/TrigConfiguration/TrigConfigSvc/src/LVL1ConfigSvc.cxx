@@ -36,7 +36,7 @@ StatusCode TrigConf::LVL1ConfigSvc::loadRun3StyleMenu()
     fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
     ATH_CHECK( fileLoader.loadFile(m_l1FileName, *l1menu) );
-    const uint32_t smk = m_smk == 0 ? TrigConf::truncatedHash(*l1menu) : m_smk.value();
+    const uint32_t smk = m_smk == 0u ? TrigConf::truncatedHash(*l1menu) : m_smk.value();
     l1menu->setSMK(smk); // allow assigning a specified or hashed SMK when running from FILE
 
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,18 +13,14 @@
 
   // Called by TRTConstructionOfWheelsC::TRTConstructionOfWheelsC
 
-TRTParametersOfWheelsC::TRTParametersOfWheelsC() : m_msg("TRTParametersOfWheelsC")
+TRTParametersOfWheelsC::TRTParametersOfWheelsC()
 {
   m_pParameters = TRTParameters::GetPointer();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsC" << endmsg;
 
   DefineParameters();
 
   if (m_pParameters->GetInteger("PrintParametersOfWheelsC"))
-    PrintParameters(m_msg.get());
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfWheelsC done" << endmsg;
+    PrintParameters();
 }
 
 
@@ -32,15 +28,11 @@ TRTParametersOfWheelsC::TRTParametersOfWheelsC() : m_msg("TRTParametersOfWheelsC
 
 TRTParametersOfWheelsC::~TRTParametersOfWheelsC()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTParametersOfWheelsC" << endmsg;
-
   delete [] m_positionsOfWheelsC;
   delete [] m_positionsOfStrawPlanesC;
   delete [] m_rotationAnglesOfStrawPlanesC;
   delete [] m_positionsOfMainRadiatorsC;
   delete [] m_positionsOfThinRadiatorsC;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTParametersOfWheelsC done" << endmsg;
 }
 
 
@@ -48,10 +40,7 @@ TRTParametersOfWheelsC::~TRTParametersOfWheelsC()
 
 void TRTParametersOfWheelsC::DefineParameters()
 {
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::DefineParameters" << endmsg;
-
-    // Parameters of wheels C:
+  // Parameters of wheels C:
   m_numberOfWheelsC = m_pParameters->GetInteger("NumberOfWheelsC");
   m_distanceBetweenWheelsC =  m_pParameters->GetDouble("DistanceBetweenWheelsAC");
   m_positionsOfWheelsC = new double[m_numberOfWheelsC];
@@ -127,17 +116,13 @@ void TRTParametersOfWheelsC::DefineParameters()
     m_positionsOfMainRadiatorsC[k++] = m_positionsOfStrawPlanesC[i - 1] +
       outerRadiusOfStraw + m_lengthOfMainRadiatorC / 2.;
   }
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfWheelsC::DefineParameters done" << endmsg;
 }
 
 
   // Called by TRTParametersOfWheelsC
 
-void TRTParametersOfWheelsC::PrintParameters(MsgStream& msg) const
+void TRTParametersOfWheelsC::PrintParameters() const
 {
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfWheelsC::PrintParameters" << endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -206,6 +191,4 @@ void TRTParametersOfWheelsC::PrintParameters(MsgStream& msg) const
            << m_rotationAnglesOfStrawPlanesC[i] << " deg" << std::endl;
 
   output << std::endl;
-
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfWheelsC::PrintParameters done" << endmsg;
 }

@@ -29,7 +29,7 @@ derivationTrainingMap={
         'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
         'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
     ],
-    'AntiKt4PFlowCustomVtx': [
+    'AntiKt4EMPFlowCustomVtx': [
         'BTagging/201903/rnnip/antikt4empflow/network.json',
         'BTagging/201903/dl1r/antikt4empflow/network.json',
     ],

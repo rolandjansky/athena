@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -18,8 +18,7 @@
 #ifndef TRT_DIGITIZATION_TRTDIGSETTINGS_H
 #define TRT_DIGITIZATION_TRTDIGSETTINGS_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <map>
 #include <string>
@@ -33,7 +32,7 @@ namespace InDetDD { class TRT_DetectorManager; }
  * Class containing parameters and settings used by TRT digitization.
  * @author Thomas Kittelmann
  */
-class TRTDigSettings {
+class TRTDigSettings : public AthMessaging {
 
 public:
 
@@ -220,17 +219,6 @@ public:
   unsigned int storeSDO() const;
 
   bool getT0FromData() const;
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
-  MsgStream& msg() const { return m_msg.get(); }
-  void display (const std::string& msg, int lvl = (int)MSG::INFO) const;
-  void info    (const std::string& msg) const { display (msg, (int)MSG::INFO); }
-  void debug   (const std::string& msg) const { display (msg, (int)MSG::DEBUG); }
-  void warning (const std::string& msg) const { display (msg, (int)MSG::WARNING); }
-  void setLvl  (int lvl = (int)MSG::INFO);
-  void setLvl  (const std::string& lvl);
 
   //Delta-ray suppression switch
   double TrtRangeCutProperty() const;
@@ -429,9 +417,6 @@ private:
 
   double m_propertyNotSetMagicNumber{};
   int m_propertyNotSetMagicNumber_int{};
-
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
 };
 
 #include "TRTDigSettings.icc"

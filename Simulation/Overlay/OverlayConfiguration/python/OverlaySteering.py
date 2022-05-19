@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Main steering for MC+MC and MC+data overlay
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -11,6 +11,8 @@ from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 
 from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
+from InDetOverlay.ITkPixelOverlayConfig import ITkPixelOverlayCfg
+from InDetOverlay.ITkStripOverlayConfig import ITkStripOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
@@ -36,10 +38,16 @@ def OverlayMainCfg(configFlags):
     acc = MainServicesCfg(configFlags)
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
+    acc.merge(OverlayMainContentCfg(configFlags))
+    return acc
+
+
+def OverlayMainContentCfg(configFlags):
+    """Main overlay content"""
 
     # Handle metadata correctly
     overlayMetadataCheck(configFlags)
-    acc.merge(overlayMetadataWrite(configFlags))
+    acc = overlayMetadataWrite(configFlags)
 
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))
@@ -66,6 +74,12 @@ def OverlayMainCfg(configFlags):
         acc.merge(SCTOverlayCfg(configFlags))
     if configFlags.Detector.EnableTRT:
         acc.merge(TRTOverlayCfg(configFlags))
+
+    # ITk
+    if configFlags.Detector.EnableITkPixel:
+        acc.merge(ITkPixelOverlayCfg(configFlags))
+    if configFlags.Detector.EnableITkStrip:
+        acc.merge(ITkStripOverlayCfg(configFlags))
 
     # Calorimeters
     if configFlags.Detector.EnableLAr:

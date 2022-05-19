@@ -279,6 +279,9 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         PixelLayerBuilderInner.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.pixelBarrelMatPhiBins
         PixelLayerBuilderInner.EndcapLayerBinsR = flags.ITk.trackingGeometry.pixelEndcapMatRbins
         PixelLayerBuilderInner.EndcapLayerBinsPhi = flags.ITk.trackingGeometry.pixelEndcapMatPhiBins
+        #adding one passive layer to map PLR material
+        PixelLayerBuilderInner.EndcapAdditionalLayerPositionsZ = [-2250., 2250.]
+        PixelLayerBuilderInner.EndcapAdditionalLayerType = [1, 1]
 
         # set the layer association
         PixelLayerBuilderInner.SetLayerAssociation = setLayerAssociation

@@ -22,7 +22,7 @@ from AthenaConfiguration.Enums import BeamType, Format
 
 #Local
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterToolCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonTrackCleanerCfg, MuonEDMPrinterToolCfg
 from MuonConfig.MuonCondAlgConfig import MuonStationIntersectCondAlgCfg
 from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
 from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtCalibWindowNumber
@@ -511,6 +511,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     kwargs.setdefault("TrackToSegmentTool", result.popToolsAndMerge( MuonTrackToSegmentToolCfg(flags) ) )
     kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
     kwargs.setdefault('TrackCleaner', result.popToolsAndMerge( MuonTrackCleanerCfg(flags) ) ) 
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
     kwargs.setdefault('TrackSummaryTool', result.popToolsAndMerge( MuonTrackSummaryToolCfg(flags) ) ) 
 
     result.setPrivateTools(CompFactory.Muon.MuonClusterSegmentFinderTool(**kwargs))

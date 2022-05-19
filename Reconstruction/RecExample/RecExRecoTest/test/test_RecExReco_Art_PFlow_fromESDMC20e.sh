@@ -4,6 +4,7 @@
 # art-type: grid
 # art-athena-mt: 8
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: *.log   
 
 python $Athena_DIR/python/eflowRec/PFRun3Config.py | tee temp.log

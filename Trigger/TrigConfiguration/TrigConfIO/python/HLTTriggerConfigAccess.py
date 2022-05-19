@@ -125,7 +125,10 @@ class HLTMonitoringAccess(TriggerConfigAccess):
         super(HLTMonitoringAccess,self).__init__( ConfigType.HLTMON, mainkey = "signatures",
                                                   jsonString = jsonString, filename = filename, dbalias = dbalias, dbkey = monikey )
 
-        #self.loader.setQuery() # TODO when database will be ready
+        self.loader.setQuery({
+            1: "SELECT HMG_DATA FROM( SELECT * FROM (SELECT SMT.SMT_HLT_MENU_ID FROM {schema}.SUPER_MASTER_TABLE SMT WHERE SMT.SMT_ID={dbkey}) lhs JOIN (SELECT HMG.HMG_HLT_MENU_ID,HMG.HMG_DATA FROM {schema}.HLT_MONITORING_GROUPS HMG WHERE HMG.HMG_IN_USE = 1) rhs ON lhs.SMT_HLT_MENU_ID = rhs.HMG_HLT_MENU_ID);" #for schema v7 (first implementation of monitoring groups)
+        }) 
+
         self.load()
 
 

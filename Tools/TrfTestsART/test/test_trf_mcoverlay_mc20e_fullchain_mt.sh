@@ -5,6 +5,7 @@
 # art-include: master/Athena/x86_64-centos7-gcc11-opt
 # art-include: master/Athena/x86_64-centos7-clang13-opt
 # art-include: 22.0-mc20/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
 
 events=1000

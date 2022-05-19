@@ -29,7 +29,7 @@ const std::vector<std::string> InducedChargeModel::s_VFD0str =
   {"M180", "M150", "M120", "M90", "M60", "M30", "0", "30", "70"};
 
 InducedChargeModel::InducedChargeModel(size_t maxHash, EFieldModel model) :
-  m_msg("InducedChargeModel"),
+  AthMessaging("InducedChargeModel"),
   m_EFieldModel(model)
 {
   loadICMParameters();

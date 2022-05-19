@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTElectronicsProcessing.h"
@@ -20,33 +20,25 @@
 //___________________________________________________________________________
 TRTElectronicsProcessing::TRTElectronicsProcessing( const TRTDigSettings* digset,
                                                     TRTElectronicsNoise * electronicsnoise )
-  : m_settings(digset),
-    m_pElectronicsNoise(electronicsnoise),
-    m_msg("TRTElectronicsProcessing")
+  : AthMessaging("TRTElectronicsProcessing"),
+    m_settings(digset),
+    m_pElectronicsNoise(electronicsnoise)
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor begin" << endmsg;
   Initialize();
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor done" << endmsg;
 }
 
 //___________________________________________________________________________
 TRTElectronicsProcessing::~TRTElectronicsProcessing() {
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Destructor begin" << endmsg;
 
   delete [] m_energyDistribution;
   delete [] m_lowThresholdDiscriminator;
   delete [] m_highThresholdDiscriminator;
 
   delete m_pElectronicsNoise;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Destructor done" << endmsg;
 }
 
 //___________________________________________________________________________
 void TRTElectronicsProcessing::Initialize() {
-
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::Initialize() begin" << endmsg;
 
   const int numberOfBins(static_cast<int>(m_settings->numberOfBins())); //returns unsigned int
   m_numberOfPostZeroBins = numberOfBins; //assigning to int
@@ -91,14 +83,10 @@ void TRTElectronicsProcessing::Initialize() {
   // m_maskB  = 0x0001FE00;
   // m_maskC  = 0x000000FF;
   // m_maskHT = 0x04020100;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Initialize() done" << endmsg;
 }
 
 //___________________________________________________________________________
 void TRTElectronicsProcessing::TabulateSignalShape() {
-
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() begin" << endmsg;
 
   // We have 160 bins each 0.78125 ns
   // These arrays are cut and paste from the output of TRT_Digitization/share/signalShapes.cpp
@@ -208,8 +196,6 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   m_lowThresholdSignalShape[0] = std::move(vpXeLT); m_highThresholdSignalShape[0] = std::move(vpXeHT);
   m_lowThresholdSignalShape[1] = std::move(vpKrLT); m_highThresholdSignalShape[1] = std::move(vpKrHT);
   m_lowThresholdSignalShape[2] = std::move(vpArLT); m_highThresholdSignalShape[2] = std::move(vpArHT);
-
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endmsg;
 }
 
 //___________________________________________________________________________
@@ -307,7 +293,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
     digit += (1u<<31);//flag digit a "MC" one
     if (m_first){
       m_first=false;
-      msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;
+      ATH_MSG_DEBUG("ACH666: Flagging digits as MC (for overlay)");
     }
   }
 
@@ -510,7 +496,7 @@ double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType 
   case 3: highthreshold = m_settings->highThresholdECAwheels(strawGasType); break;
   case 4: highthreshold = m_settings->highThresholdECBwheels(strawGasType); break;
   default:
-    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+    ATH_MSG_WARNING("TRTDigitization::TRTElectronicsProcessing - getRegion is zero!");
     break;
   }
   return highthreshold;
@@ -530,7 +516,7 @@ void TRTElectronicsProcessing::HTt0Shift(int hitID) {
   case 3: t0Shift = m_settings->htT0shiftECAwheels(); break;
   case 4: t0Shift = m_settings->htT0shiftECBwheels(); break;
   default:
-    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+    ATH_MSG_WARNING("TRTDigitization::TRTElectronicsProcessing - getRegion is zero!");
     break;
   }
 
@@ -576,7 +562,7 @@ void TRTElectronicsProcessing::LTt0Shift( int hitID, int strawGasType ) {
   case 3: t0Shift = m_settings->ltT0shiftECAwheels(strawGasType); break;
   case 4: t0Shift = m_settings->ltT0shiftECBwheels(strawGasType); break;
   default:
-    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTElectronicsProcessing - getRegion is zero!" <<  endmsg; }
+    ATH_MSG_WARNING("TRTDigitization::TRTElectronicsProcessing - getRegion is zero!");
     break;
   }
 

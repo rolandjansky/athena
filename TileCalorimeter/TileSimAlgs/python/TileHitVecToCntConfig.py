@@ -39,7 +39,10 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
     kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
-    kwargs.setdefault('OnlyUseContainerName', flags.Common.ProductionStep != ProductionStep.Overlay)
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        kwargs.setdefault('OnlyUseContainerName', False)
+    else:
+        kwargs.setdefault('OnlyUseContainerName', flags.Digitization.PileUp)
 
     acc = ComponentAccumulator()
 
@@ -57,6 +60,10 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     else:
         kwargs.setdefault('TileHitVectors', ['TileHitVec'])
     kwargs.setdefault('TileHitContainer', 'TileHitCnt')
+
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'TileHitVector#{vec}' for vec in kwargs['TileHitVectors']]))
 
     kwargs.setdefault('DoHSTruthReconstruction', flags.Digitization.DoDigiTruth)
     if kwargs['DoHSTruthReconstruction']:

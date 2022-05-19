@@ -10,10 +10,8 @@ then
 	echo "=== RECO TF SUCCESS === "
 else
 	echo "=== RECO TF FAILURE ==="
-	echo " RAW TO ESD step log ===> "
-	cat log.RAWtoESD
-	echo " ESD TO AOD step log ===> "
-	cat log.ESDtoAOD
+	echo " RAW TO ALL step log ===> "
+	cat log.RAWtoALL
 	exit $stat
 fi
 # rm files not needed anymore

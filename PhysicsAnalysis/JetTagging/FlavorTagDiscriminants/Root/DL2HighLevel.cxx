@@ -24,7 +24,8 @@ namespace FlavorTagDiscriminants {
   DL2HighLevel::DL2HighLevel(const std::string& nn_file_name,
                              FlipTagConfig flip_config,
                              std::map<std::string,std::string> remap_scalar,
-                             TrackLinkType track_link_type):
+                             TrackLinkType track_link_type,
+                             float default_output_value):
     m_dl2(nullptr)
   {
     // get the graph
@@ -41,6 +42,7 @@ namespace FlavorTagDiscriminants {
 
     auto [input_config, trk_config, options] = dataprep::createGetterConfig(
       config, flip_config, remap_scalar, track_link_type);
+    options.default_output_value = default_output_value;
 
     m_dl2.reset(
       new DL2(

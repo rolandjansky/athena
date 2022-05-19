@@ -561,7 +561,7 @@ pair<double,double> GetMaxRatioTGraph(TGraphErrors* Gratio, double mineff, doubl
 } ////
 
 
-void plotGraphs(vector<TString> InputFileNames, TString MC, TString sample, vector<TString> leg_entry,bool drawRatio = false, bool drawErrRatio=false) {
+void plotGraphs(vector<TString> InputFileNames, TString MC, TString sample, vector<TString> leg_entry,bool drawRatio = false, bool drawErrRatio=false, bool drawCtag=false) {
 
   gROOT->SetStyle("ATLAS");
   gROOT->ForceStyle();
@@ -589,6 +589,7 @@ void plotGraphs(vector<TString> InputFileNames, TString MC, TString sample, vect
     //cout <<"-folder1 ="<<folder1<<" -folder2 ="<<folder2<<endl;
     TString hname_b= "BTag/AntiKt4EMTopoJets/"+folder1+"/BTag_AntiKt4EMTopoJets_"+folder2+"_b_matched_weight";
     TString hname_u= "BTag/AntiKt4EMTopoJets/"+folder1+"/BTag_AntiKt4EMTopoJets_"+folder2+"_u_matched_weight";
+    if(drawCtag) hname_u= "BTag/AntiKt4EMTopoJets/"+folder1+"/BTag_AntiKt4EMTopoJets_"+folder2+"_c_matched_weight";
 
     //cout << "  hname_b = " << hname_b << " hname_u = " << hname_u << endl;
     TH1F *MVX_b = (TH1F*)f->Get(hname_b);
@@ -735,7 +736,12 @@ void plotGraphs(vector<TString> InputFileNames, TString MC, TString sample, vect
     //tmp_gr->Draw("LX"); // "X" Do not draw error bars
 
     vGraph_bu[ifirst][i]->GetXaxis()->SetTitle("b-jet efficiency");
-    vGraph_bu[ifirst][i]->GetYaxis()->SetTitle("light-jet rejection");
+    if(!drawCtag){
+      vGraph_bu[ifirst][i]->GetYaxis()->SetTitle("light-jet rejection");
+    }
+    else{
+      vGraph_bu[ifirst][i]->GetYaxis()->SetTitle("c-jet rejection");
+    }
     vGraph_bu[ifirst][i]->GetYaxis()->SetTitleOffset(1.3);
  
    if(!drawRatio){
@@ -857,8 +863,10 @@ void plotGraphs(vector<TString> InputFileNames, TString MC, TString sample, vect
 
     //TString Histo = HistoDir+MC+taggers[i]+".png";
     TString Histo = HistoDir+taggers[i]+".png";
+    if(drawCtag) {Histo = HistoDir+taggers[i]+"-cVSb.png";}
     c1->SaveAs(Histo.Data(),"RECREATE");
-    Histo = HistoDir+taggers[i]+".pdf";
+    if(drawCtag) {Histo = HistoDir+taggers[i]+"-cVSb.pdf";}
+    else {Histo = HistoDir+taggers[i]+".pdf";}
     //cout << "Saving Histo = " << Histo.Data() << endl;
     c1->SaveAs(Histo.Data(),"RECREATE");
    
@@ -1299,7 +1307,9 @@ void Draw_PhysVal_btagROC(){
   }
   bool drawRatio=true;
   bool drawErrRatio=false;
+  bool drawCtag=true;
   plotGraphs(InputFilesNames,MC,sample,leg_entry,drawRatio,drawErrRatio);
+  plotGraphs(InputFilesNames,MC,sample,leg_entry,drawRatio,drawErrRatio,drawCtag);
   plotGraphsEffVsVar("Lxy", InputFilesNames,MC,sample,leg_entry,drawRatio,drawErrRatio);
 
   drawRatio=true;

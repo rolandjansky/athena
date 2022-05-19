@@ -65,11 +65,12 @@ def AthenaHiveEventLoopMgrCfg(cfgFlags):
     # FailIfNoProxy=False makes it a warning, not an error, if unmet data
     # dependencies are not found in the store.  It should probably be changed
     # to True eventually.
-    inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=False)
+    inputloader_ca = SGInputLoaderCfg(cfgFlags, FailIfNoProxy=cfgFlags.Input.FailOnUnknownCollections)
     cfg.merge(inputloader_ca, sequenceName="AthAlgSeq")
     # Specifying DataLoaderAlg makes the Scheduler automatically assign
     # all unmet data dependencies to that algorithm
-    scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
+    if cfgFlags.Scheduler.AutoLoadUnmetDependencies:
+        scheduler.DataLoaderAlg = inputloader_ca.getPrimary().getName()
 
     elmgr = CompFactory.AthenaHiveEventLoopMgr()
     elmgr.WhiteboardSvc = "EventDataSvc"

@@ -10,8 +10,9 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
         from InDetConfig.TrackRecoConfig import TrackToVertexCfg
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
-        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-        TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+        from TrkConfig.TrkTrackSummaryToolConfig import ITkTrackSummaryToolSharedHitsCfg
+        TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+        result.addPublicTool(TrackSummaryTool)
         kwargs["TrackSummaryTool"] = TrackSummaryTool
     kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
@@ -36,20 +37,26 @@ def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTra
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
-def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", InputCombinedTracks=None, CombinedITkClusterSplitProbContainer=None, **kwargs):
+def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger",
+                                   InputCombinedTracks=None,
+                                   OutputCombinedTracks="CombinedITkTracks",
+                                   AssociationMapName="ITkPRDToTrackMapCombinedITkTracks",
+                                   CombinedITkClusterSplitProbContainer="",
+                                   **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
-    kwargs.setdefault("OutputTracksLocation", 'CombinedITkTracks')
+    kwargs.setdefault("OutputTracksLocation", OutputCombinedTracks)
     from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMapCombinedITkTracks')
+    kwargs.setdefault("AssociationMapName", AssociationMapName)
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
-    from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags, name="CombinedITkSplitProbTrackSummaryToolSharedHits"))
+    from TrkConfig.TrkTrackSummaryToolConfig import ITkTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags, name="CombinedITkSplitProbTrackSummaryToolSharedHits"))
     TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedITkClusterSplitProbContainer
+    result.addPublicTool(TrackSummaryTool)
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
@@ -92,6 +99,8 @@ def CombinedTrackingPassFlagSets(flags):
     # Primary Pass
     if flags.ITk.Tracking.doFastTracking:
         flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.FastPass")
+    else:
+        flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.MainPass")
     flags_set += [flags]
 
     # LRT

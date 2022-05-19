@@ -9,7 +9,6 @@ atlas_subdir( InDetConfig )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 #atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 #atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_runtime( test/ITkTest.py )
 
 if (NOT SIMULATIONBASE)
     atlas_add_test( TrackingPassFlags_test

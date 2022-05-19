@@ -25,7 +25,7 @@ L1CaloCondAlg :: L1CaloCondAlg ( const std::string &name,ISvcLocator *pSvcLocato
 StatusCode  L1CaloCondAlg:: initialize ()
 {
   
-  ATH_MSG_INFO( "initialize " << name() );                
+  ATH_MSG_DEBUG( "initialize " << name() );                
   
  
 
@@ -87,8 +87,8 @@ StatusCode  L1CaloCondAlg:: initialize ()
 StatusCode  L1CaloCondAlg:: execute ()
 {
   
-  ATH_MSG_INFO( "start execute " << name() ); 
-  ATH_MSG_INFO("readConditions() ");
+  ATH_MSG_DEBUG( "start execute " << name() ); 
+  ATH_MSG_DEBUG("readConditions() ");
 
   
 
@@ -149,7 +149,7 @@ StatusCode  L1CaloCondAlg:: execute ()
      timingRegime = m_timingRegime;
    }
    
-   ATH_MSG_INFO("timing regime --> "<< timingRegime );
+   ATH_MSG_DEBUG("timing regime --> "<< timingRegime );
 
    
    // Strategy 
@@ -189,7 +189,7 @@ StatusCode  L1CaloCondAlg:: execute ()
     strategy = m_strategy;
   } 
   
-  ATH_MSG_INFO("strategy selected --> " << strategy);
+  ATH_MSG_DEBUG("strategy selected --> " << strategy);
   
 
 
@@ -685,18 +685,18 @@ StatusCode  L1CaloCondAlg:: execute ()
 
 
   
-   ATH_MSG_INFO("recorded new " <<  writeHandleDisTowers.key()  << " with range " << writeHandleDisTowers.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandleDerRunPars.key()  << " with range " << writeHandleDerRunPars.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePprChanCalib.key()  << " with range " << writeHandlePprChanCalib.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePprChanDefaults.key()  << " with range " << writeHandlePprChanDefaults.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePpmFineTimeRefs.key()  << " with range " << writeHandlePpmFineTimeRefs.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandleRunParameters.key()  << " with range " << writeHandleRunParameters.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePprChanStrategy.key()  << " with range " << writeHandlePprChanStrategy.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePpmDeadChannels.key()  << " with range " << writeHandlePpmDeadChannels.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePprConditions.key()  << " with range " << writeHandlePprConditions.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandleReadoutConfig.key()  << " with range " << writeHandleReadoutConfig.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandleReadoutConfigJSON.key()  << " with range " << writeHandleReadoutConfigJSON.getRange() << " into Conditions Store");
-   ATH_MSG_INFO("recorded new " <<  writeHandlePprDisabledChannel.key()  << " with range " << writeHandlePprDisabledChannel.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandleDisTowers.key()  << " with range " << writeHandleDisTowers.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandleDerRunPars.key()  << " with range " << writeHandleDerRunPars.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePprChanCalib.key()  << " with range " << writeHandlePprChanCalib.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePprChanDefaults.key()  << " with range " << writeHandlePprChanDefaults.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePpmFineTimeRefs.key()  << " with range " << writeHandlePpmFineTimeRefs.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandleRunParameters.key()  << " with range " << writeHandleRunParameters.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePprChanStrategy.key()  << " with range " << writeHandlePprChanStrategy.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePpmDeadChannels.key()  << " with range " << writeHandlePpmDeadChannels.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePprConditions.key()  << " with range " << writeHandlePprConditions.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandleReadoutConfig.key()  << " with range " << writeHandleReadoutConfig.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandleReadoutConfigJSON.key()  << " with range " << writeHandleReadoutConfigJSON.getRange() << " into Conditions Store");
+   ATH_MSG_DEBUG("recorded new " <<  writeHandlePprDisabledChannel.key()  << " with range " << writeHandlePprDisabledChannel.getRange() << " into Conditions Store");
 
 
 

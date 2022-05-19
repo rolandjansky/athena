@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,13 +10,9 @@
 #include "G4Colour.hh"
 
 
-TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
+TRTVisualization::TRTVisualization()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization" << endmsg;
-
   Initialize();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization done" << endmsg;
 }
 
 
@@ -24,9 +20,6 @@ TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
 
 TRTVisualization::~TRTVisualization()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization" << endmsg;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization done" << endmsg;
 }
 
 
@@ -34,8 +27,6 @@ TRTVisualization::~TRTVisualization()
 
 void TRTVisualization::Initialize()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize" << endmsg;
-
   m_pVisAttributeRed = new G4VisAttributes(G4Colour(1., 0., 0.));
   m_pVisAttributeRed->SetVisibility(true);
 
@@ -56,8 +47,6 @@ void TRTVisualization::Initialize()
 
   m_pVisAttributeBlack = new G4VisAttributes(G4Colour(0., 0., 0.));
   m_pVisAttributeBlack->SetVisibility(true);
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize done" << endmsg;
 }
 
 

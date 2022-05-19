@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,26 +12,11 @@
 
   // Called by TRTConstructionOfModulesC::TRTConstructionOfModulesC
 
-TRTParametersOfModulesC::TRTParametersOfModulesC() : m_msg("TRTParametersOfModulesC")
+TRTParametersOfModulesC::TRTParametersOfModulesC()
 {
   m_pParameters = TRTParameters::GetPointer();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesC" << endmsg;
-
   DefineParameters();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesC done" << endmsg;
-}
-
-
-  // Called by TRTConstructionOfModulesC::~TRTConstructionOfModulesC
-
-TRTParametersOfModulesC::~TRTParametersOfModulesC()
-{
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesC" << endmsg;
-
- 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesC done" << endmsg;
 }
 
 
@@ -39,16 +24,14 @@ TRTParametersOfModulesC::~TRTParametersOfModulesC()
 
 void TRTParametersOfModulesC::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesC::DefineParameters" << endmsg;
-
-    // Distances between corners of shell C:
+  // Distances between corners of shell C:
   int numberOfShellCorners = m_pParameters->GetInteger("NumberOfShellCorners");
-  double* xOfShellCornersC = new double[numberOfShellCorners];
-  double* yOfShellCornersC = new double[numberOfShellCorners];
+  std::vector<double> xOfShellCornersC(numberOfShellCorners,0.0);
+  std::vector<double> yOfShellCornersC(numberOfShellCorners,0.0);
   m_pParameters->GetDoubleArray("XOfShellCornersC", numberOfShellCorners,
-    xOfShellCornersC);
+    xOfShellCornersC.data());
   m_pParameters->GetDoubleArray("YOfShellCornersC", numberOfShellCorners,
-    yOfShellCornersC);
+    yOfShellCornersC.data());
 
   double deltaX12 = xOfShellCornersC[0] - xOfShellCornersC[1];
   double deltaX14 = xOfShellCornersC[0] - xOfShellCornersC[3];
@@ -245,20 +228,15 @@ void TRTParametersOfModulesC::DefineParameters()
 
 
   if (m_pParameters->GetInteger("PrintParametersOfModulesC"))
-    PrintParameters(m_msg.get(), xGlobalOfHolesC, yGlobalOfHolesC);
-
- 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesC::DefineParameters done" << endmsg;
+    PrintParameters(xGlobalOfHolesC, yGlobalOfHolesC);
 }
 
 
   // Called by DefineParameters
 
-void TRTParametersOfModulesC::PrintParameters(MsgStream& msg, const std::vector<double> & xGlobalOfHolesC,
-  const std::vector<double> & yGlobalOfHolesC) const
+void TRTParametersOfModulesC::PrintParameters(const std::vector<double> & xGlobalOfHolesC,
+                                              const std::vector<double> & yGlobalOfHolesC) const
 {
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesC::PrintParameters" << endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -369,6 +347,4 @@ void TRTParametersOfModulesC::PrintParameters(MsgStream& msg, const std::vector<
   }
 
   output << std::endl;
-
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesC::PrintParameters done" << endmsg;
 }

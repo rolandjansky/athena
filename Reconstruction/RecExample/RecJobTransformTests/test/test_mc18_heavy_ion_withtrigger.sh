@@ -4,7 +4,7 @@
 # art-athena-mt: 4
 # art-type: grid
 # art-include: master/Athena
-
+# art-include: 22.0/Athena
 
 export TRF_ECHO=True; Reco_tf.py \
 --athenaopts="--threads=8" \
@@ -16,7 +16,7 @@ export TRF_ECHO=True; Reco_tf.py \
 --conditionsTag 'all:OFLCOND-MC16-SDR-RUN2-08' \
 --postInclude 'all:RecJobTransforms/UseFrontier.py,SimulationJobOptions/postInclude.HijingPars.py' \
 --postExec  'r2a:y=(StreamAOD.ItemList if "StreamAOD" in dir() else []);y+=["xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.SECOND_R.SECOND_LAMBDA.CENTER_MAG.CENTER_LAMBDA.FIRST_ENG_DENS.ENG_FRAC_MAX.ISOLATION.ENG_BAD_CELLS.N_BAD_CELLS.BADLARQ_FRAC.ENG_POS.AVG_LAR_Q.AVG_TILE_Q.EM_PROBABILITY.BadChannelList.CELL_SIGNIFICANCE.CELL_SIG_SAMPLING"];' \
---preExec  'r2a:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.cutLevel.set_Value_and_Lock(4);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(100);rec.doDPD.set_Value_and_Lock(True);' 'all:from AthenaMonitoring.DQMonFlags import jobproperties; jobproperties.DQMonFlagsCont.doHIMon.set_Value_and_Lock(False);rec.doZdc.set_Value_and_Lock(False);rec.doHeavyIon.set_Value_and_Lock(True);' 'r2t:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.triggerMenuSetup="PhysicsP1_HI_run3_v1"; ConfigFlags.Trigger.AODEDMSet = "AODFULL"; ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains=True;' \
+--preExec  'r2a:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.cutLevel.set_Value_and_Lock(4);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(100);rec.doDPD.set_Value_and_Lock(True);' 'all:from AthenaMonitoring.DQMonFlags import jobproperties; jobproperties.DQMonFlagsCont.doHIMon.set_Value_and_Lock(False);rec.doZdc.set_Value_and_Lock(False);rec.doHeavyIon.set_Value_and_Lock(True);' 'r2t:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.triggerMenuSetup="Dev_HI_run3_v1"; ConfigFlags.Trigger.AODEDMSet = "AODFULL"; ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains=True;' \
 --autoConfiguration 'everything' \
 --DataRunNumber '313000' 
 

@@ -42,6 +42,7 @@ def _createCfgFlags():
     acf.addFlag("Input.RunAndLumiOverrideList", [])
     # Job number
     acf.addFlag("Input.JobNumber", 1)
+    acf.addFlag('Input.FailOnUnknownCollections', False)
 
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name", "data17_13TeV")) # former global.ProjectName
     acf.addFlag('Input.TriggerStream', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("stream", "") if prevFlags.Input.Format == Format.BS 
@@ -74,6 +75,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowDataFlow', True)
     acf.addFlag('Scheduler.ShowControlFlow', True)
     acf.addFlag('Scheduler.EnableVerboseViews', True)
+    acf.addFlag('Scheduler.AutoLoadUnmetDependencies', True)
 
     acf.addFlag('MP.WorkerTopDir', 'athenaMP_workers')
     acf.addFlag('MP.OutputReportFile', 'AthenaMPOutputs')

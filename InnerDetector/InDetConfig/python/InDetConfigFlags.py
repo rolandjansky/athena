@@ -54,8 +54,6 @@ def createInDetConfigFlags():
     # ("None"/"fast"/"smatrix"/"weight"/"amg")
     # "None" loads the default KalmanUpdator
     icf.addFlag("InDet.Tracking.kalmanUpdator", "smatrix")
-    # control which propagator to use ('RungeKutta'/'STEP')
-    icf.addFlag("InDet.Tracking.propagatorType", "RungeKutta")
     # control if the shared hits are recorded in TrackPatricles
     icf.addFlag("InDet.Tracking.doSharedHits", True)
     # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
@@ -207,7 +205,7 @@ def createInDetConfigFlags():
         createDBMTrackingPassFlags, createRobustRecoTrackingPassFlags)
 
     # Set up for first tracking pass, updated for second passes
-    icf.addFlagsCategory("InDet.Tracking.ActivePass",
+    icf.addFlagsCategory("InDet.Tracking.MainPass",
                          createTrackingPassFlags, prefix=True)
     icf.addFlagsCategory("InDet.Tracking.HighPileupPass",
                          createHighPileupTrackingPassFlags, prefix=True)

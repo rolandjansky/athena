@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDigitsMonitorAlgorithm.h"
-#include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileInfo.h"
 
@@ -15,18 +14,12 @@ StatusCode TileDigitsMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("in initialize()");
 
   // initialize superclass
-  ATH_CHECK( AthMonitorAlgorithm::initialize() );
-
-  std::sort(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end());
-
-  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( TileCalibMonitorAlgorithm::initialize() );
 
   ATH_CHECK( m_digitsContainerKey.initialize() );
   ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
-  ATH_CHECK( m_dqStatusKey.initialize() );
   ATH_CHECK( m_tileCondToolNoiseSample.retrieve(EnableTool(m_fillPedestalDifference)) );
 
-  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_tileInfoName) );
   m_ADCmaxMinusEpsilon = m_tileInfo->ADCmax() - 0.01;
   if (m_tileInfo->ADCmax() == 4095) {
     m_is12bit = true;
@@ -492,11 +485,11 @@ bool TileDigitsMonitorAlgorithm::checkCorruptedData(const std::vector<std::refer
     errors.clear();
     for (uint32_t header : headerWords.get() ) {
       error = OK;
-      if (checkHeaderFormatError(header)) {
+      if (isHeaderFormatError(header)) {
         corruptedData[gain][dmu] = true;
         dmus.push_back(dmu);
         errors.push_back(HEADER_FORM);
-      } else if (checkHeaderParityError(header)) {
+      } else if (isHeaderParityError(header)) {
         corruptedData[gain][dmu] = true;
         dmus.push_back(dmu);
         errors.push_back(HEADER_PAR);

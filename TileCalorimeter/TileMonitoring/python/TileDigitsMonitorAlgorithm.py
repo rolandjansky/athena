@@ -20,6 +20,9 @@ def TileDigitsMonitoringConfig(flags, **kwargs):
     from TileGeoModel.TileGMConfig import TileGMCfg
     result.merge(TileGMCfg(flags))
 
+    from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+    result.merge(TileCablingSvcCfg(flags))
+
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     result.merge(TileInfoLoaderCfg(flags))
 
@@ -66,49 +69,7 @@ def TileDigitsMonitoringConfig(flags, **kwargs):
 
 
     from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
-
-
-    def addTileChannel1DHistogramsArray(helper, algorithm, name, title, path,
-                                         xvalue, xbins, xmin, xmax, type = 'TH1D',
-                                         run = '', value = '', aliasSuffix = ''):
-        '''
-        This function configures 1D histograms with Tile monitored value per module, channel, gain.
-
-        Arguments:
-             helper    -- Helper
-             algorithm -- Monitoring algorithm
-             name      -- Name of histogram, actual name is constructed dynamicaly like:
-                          name + mudule + channel + gain
-             title     -- Title of histogram, actual title is constructed dynamicaly like:
-                             run + module + channel + gain + title
-             path      -- Path in file for histogram (relative to the path of given group)
-             xvalue    -- Name of monitored value for x axis
-             type      -- Type of histogram (TH1D, TProfile)
-             value     -- Name of monitored value (needed for TProfile)
-             run       -- Run number (given it will be put into the title)
-             xlabels    -- List of bin labels
-        '''
-
-        dimensions = [int(Tile.MAX_ROS) - 1, int(Tile.MAX_DRAWER)]
-        array = helper.addArray(dimensions, algorithm, name, topPath = path)
-
-        for postfix, tool in array.Tools.items():
-            ros, module = [int(x) for x in postfix.split('_')[1:]]
-            moduleName = Tile.getDrawerString(ros + 1, module)
-            fullPath = moduleName
-
-            for channel in range(0, int(Tile.MAX_CHAN)):
-                channelName = f'0{channel}' if channel < 10 else str(channel)
-                for gain in range(0, Tile.MAX_GAIN):
-                    gainName = {0 : 'low', 1 : 'high'}.get(gain)
-                    nameSuffix = aliasSuffix if aliasSuffix else xvalue
-                    fullName = f'{xvalue}_{channel}_{gain}'
-                    fullName += f',{value}_{channel}_{gain};' if 'Profile' in type else ';'
-                    fullName += f'{moduleName}_ch_{channelName}_{gainName[:2]}_{nameSuffix}'
-                    fullTitle = f'Run {run} {moduleName} Channel {channelName} {gainName} gain: {title}'
-
-                    tool.defineHistogram(fullName, title = fullTitle, path = fullPath, type = type,
-                                         xbins = xbins, xmin = xmin, xmax = xmax)
+    from TileMonitoring.TileMonitoringCfgHelper import addTileChannelHistogramsArray
 
     if kwargs['fillErrorsHistograms']:
 
@@ -250,32 +211,32 @@ def TileDigitsMonitoringConfig(flags, **kwargs):
 
     if kwargs['fillPedestalHistograms']:
         # Configure histograms with Tile channel pedestals per module, channel and gain
-        addTileChannel1DHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsSample0',
+        addTileChannelHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsSample0',
                                         title = 'Pedestal, sample[0]', path = 'Tile/Digits', type = 'TH1I',
                                         xvalue = 'sample0', xbins = 151, xmin = -0.5, xmax = 150.5, run = run)
 
     if kwargs['fillHighFrequencyNoiseHistograms']:
         # Configure histograms with Tile channel HFN per module, channel and gain
-        addTileChannel1DHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsMeanRMS',
+        addTileChannelHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsMeanRMS',
                                         title = 'Mean RMS in event', path = 'Tile/Digits', type = 'TH1F',
                                         xvalue = 'meanRMS', xbins = 101, xmin = -0.05, xmax = 10.5, run = run)
 
     if kwargs['fillSamplesHistograms']:
         # Configure histograms with all Tile channel samples per module, channel and gain
-        addTileChannel1DHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsSamples',
+        addTileChannelHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsSamples',
                                         title = 'All samples', path = 'Tile/Digits', type = 'TH1I',
                                         xvalue = 'samples', xbins = 1025, xmin = -0.5, xmax = 1024.5, run = run)
 
     if kwargs['fillProfileHistograms']:
         # Configure histograms with Tile channel average profile per module, channel and gain
-        addTileChannel1DHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsProfile',
+        addTileChannelHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsProfile',
                                         title = 'Average profile', path = 'Tile/Digits', type = 'TProfile',
                                         xvalue = 'sampleNumbers', xbins = 7, xmin = -0.5, xmax = 6.5,
                                         run = run, value = 'samples', aliasSuffix = 'prof')
 
     if kwargs['fillEventModule32Histograms']:
         # Configure histograms with all Tile channel samples per module, channel and gain
-        addTileChannel1DHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsEvtMod32',
+        addTileChannelHistogramsArray(helper, tileDigitsMonAlg, name = 'TileDigitsEvtMod32',
                                         title = 'Event number % 32', path = 'Tile/Digits', type = 'TH1I',
                                         xvalue = 'evtn_mod32', xbins = 32, xmin = -0.5, xmax = 31.5, run = run)
 

@@ -10,7 +10,6 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 
 // to retrieve HistogramDefinitionSvc
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
@@ -37,7 +36,7 @@ namespace {
 
 TCCPlotsBase::TCCPlotsBase(PlotBase* pParent, const std::string& folder):
   PlotBase(pParent, folder),
-  AthMessaging(Athena::getMessageSvc(), "TCCPlots"),
+  AthMessaging("TCCPlots"),
   m_folder(folder),
   m_histoDefSvc(nullptr) {}  
   

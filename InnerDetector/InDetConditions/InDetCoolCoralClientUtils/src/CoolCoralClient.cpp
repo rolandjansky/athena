@@ -1364,7 +1364,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
 
 
   struct timeval start_time{}, end_time{};
-  int total_usecs;
+  int total_usecs=0;
   gettimeofday(&start_time, nullptr);
   TTCobj_t *ttc_param;
   std::vector<TTCobj_t *> ttc_params;
@@ -1414,7 +1414,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
 
 
   coral::IQuery* query00 = m_session->nominalSchema().tableHandle(BCONNECT_TABLE).newQuery();
-
+  if (not query00) return -1;
   query00->addToOutputList("phi1" ); 
   query00->addToOutputList("phi2" ); 
 
@@ -1489,7 +1489,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   // query on TTCGROUP
 
   coral::IQuery* query1 = m_session->nominalSchema().tableHandle(TTCGR_TABLE).newQuery();
-
+  if (not query1) return -1;
   query1->addToOutputList("Group" );
   query1->addToOutputList("DutyCycle" );
   query1->addToOutputList("EdgeSelect");
@@ -1508,7 +1508,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   // query on dtmroc
 
   coral::IQuery* query2 = m_session->nominalSchema().tableHandle(DTMROC_TABLE).newQuery();
-
+  if (not query2) return -1;
   query2->addToOutputList( "ChipID" ); 
   query2->addToOutputList( "ChipValid" ); 
   query2->addToOutputList( "RODGroup" ); 
@@ -1556,6 +1556,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
     if(m_verbose) std::cout << "TTCGROUP = " << ttcgr_condData[0].data<int>() << std::endl;
     if(m_verbose) std::cout << "TTCGROUP = " << ttcgr_condData[1].data<int>() << std::endl;
     int nRows1 = 0;
+    if (not query1) continue;
     coral::ICursor& cursor1 = query1->execute();
 
     while ( cursor1.next() ) {
@@ -1700,7 +1701,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
 
 
   coral::IQuery* query00 = m_session->nominalSchema().tableHandle(BCONNECT_TABLE).newQuery();
-
+  if (not query00) return nullptr;
   query00->addToOutputList("phi" ); 
 
 
@@ -1745,7 +1746,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   // QUERY on TTC
 
   coral::IQuery* query0 = m_session->nominalSchema().tableHandle(TTC_TABLE).newQuery();
-    
+  if (not query0) return nullptr;
   query0->addToOutputList("DetID" ); 
   query0->addToOutputList("VMESlot" ); 
   query0->addToOutputList("Delay" ); 
@@ -1767,7 +1768,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   // query on TTCGROUP
 
   coral::IQuery* query1 = m_session->nominalSchema().tableHandle(TTCGR_TABLE).newQuery();
-
+  if (not query1) return nullptr;
   query1->addToOutputList("Group" );
   query1->addToOutputList("DutyCycle" );
   query1->addToOutputList("EdgeSelect");
@@ -1847,7 +1848,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
    
 
     ttcgr_condData[1].data<int>() = ttc_id*10 + nrgroups;
-
+    if (not query1) continue;
     coral::ICursor& cursor1 = query1->execute();
     while ( cursor1.next() ) {
       const coral::AttributeList &row1 = cursor1.currentRow();
@@ -2008,7 +2009,7 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
   m_session->transaction().start(true);
 
   coral::IQuery* query0 = m_session->nominalSchema().tableHandle(ROD_TABLE).newQuery();
-    
+  if (not query0) return nullptr;
   query0->addToOutputList("RODVMESlot" ); 
   query0->addToOutputList("RODHalf" ); 
   query0->addToOutputList("EdgeSelect0" ); 
@@ -2037,7 +2038,7 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
   // query on dtmroc
 
   coral::IQuery* query2 = m_session->nominalSchema().tableHandle(DTMROC_TABLE).newQuery();
-
+  if (not query2) return nullptr;
   query2->addToOutputList( "ChipID" ); 
   query2->addToOutputList( "ChipValid" ); 
   query2->addToOutputList( "RODGroup" ); 
@@ -2088,7 +2089,7 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
     dtmroc_condData[0].data<int>() = part_nr*100000+phi_id*1000+(firstroc-1);
     dtmroc_condData[1].data<int>() = part_nr*100000+phi_id*1000+
       (nrdtmrocs-1);
-
+    if (not query2) continue;
     coral::ICursor& cursor2 = query2->execute();
     while ( cursor2.next() ) {
       const coral::AttributeList &row2 = cursor2.currentRow();

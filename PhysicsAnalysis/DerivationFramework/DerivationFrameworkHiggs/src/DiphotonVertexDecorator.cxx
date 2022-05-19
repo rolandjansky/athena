@@ -18,7 +18,6 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/VertexContainer.h"
-#include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 #include "AthContainers/ConstDataVector.h"
 // For DeltaR
 #include "FourMomUtils/xAODP4Helpers.h"
@@ -34,7 +33,6 @@ DerivationFramework::DiphotonVertexDecorator::DiphotonVertexDecorator(const std:
 
   declareInterface<DerivationFramework::IAugmentationTool>(this);
  
-  declareProperty("PhotonVertexSelectionTool",  m_photonVertexSelectionTool);
   declareProperty("RemoveCrack",           m_removeCrack    = true);
   declareProperty("MaxEta",                m_maxEta         = 2.37);
   declareProperty("MinimumPhotonPt",       m_minPhotonPt    = 20*CLHEP::GeV);
@@ -67,6 +65,8 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::finalize()
 StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
 {
 
+  ATH_MSG_DEBUG( "DiphotonVertexDecorator::AddingBranches" );
+  
   SG::ReadHandle<xAOD::VertexContainer> PV (m_primaryVertexKey);
 
   if (!PV->empty() && PV->at(0)) {
@@ -165,6 +165,11 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
       }
     }
   }
+
+
+  if( !evtStore()->transientContains< xAOD::VertexContainer >( m_diphotonVertexKey.key() ) ){
+    ATH_MSG_WARNING("Unable to find transient xAOD::VertexContainer, \"" << m_diphotonVertexKey.key() << "\"");
+  } 
 
   return StatusCode::SUCCESS;
 }

@@ -173,5 +173,13 @@ else:
 
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource() != 'data':
-    # Set up Tile samping fraction for MC jobs
-    tileInfoConfigurator.setupCOOLSFR()
+   from AthenaCommon.DetFlags import DetFlags
+   if DetFlags.simulate.Tile_on():
+       # Set up Tile samping fraction for MC jobs
+       tileInfoConfigurator.setupCOOLSFR()
+   else:
+       from TileConditions.TileCondToolConf import bookTileSamplingFractionCondAlg
+       bookTileSamplingFractionCondAlg(source='FILE')
+       from AthenaCommon.AlgSequence import AthSequencer
+       condSeq = AthSequencer("AthCondSeq")
+       condSeq.TileSamplingFractionCondAlg.G4Version = -1

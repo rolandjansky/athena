@@ -6,6 +6,7 @@ from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from DerivationFrameworkConfiguration import DerivationConfigList
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
 #def defaultDerivationFlags(configFlags):
 #   """Fill default derivation flags"""
@@ -63,8 +64,9 @@ def fromRunArgs(runArgs):
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     cfg = MainServicesCfg(ConfigFlags)
 
-    # Pool file reading
+    # Pool file reading and writing
     cfg.merge(PoolReadCfg(ConfigFlags))
+    cfg.merge(PoolWriteCfg(ConfigFlags))
 
     if hasattr(runArgs, 'requiredDerivedFormats'):
         for formatName in runArgs.requiredDerivedFormats:

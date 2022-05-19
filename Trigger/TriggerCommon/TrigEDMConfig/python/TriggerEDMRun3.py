@@ -56,7 +56,7 @@ def recordable( arg ):
 # Trigger EDM list for Run 3 with all containers that should
 # be stored in the specified format as well as the category
 # ------------------------------------------------------------
-AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
+AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODCOMM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
 AllowedOutputFormats.extend(DataScoutingInfo.getAllDataScoutingIdentifiers())
 
 
@@ -436,8 +436,16 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',            'BS ESD AODFULL', 'Egamma'),
 
     # CaloCluster object written by EMClusterTool
-    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews,precisionElectronViews_LRT,precisionElectronViews_GSF,precisionElectronViews_LRTGSF,precisionPhotonViews'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClustersAux.',     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters_Electrons',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClusters_ElectronsAux.',     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters_Electrons_LRT',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_LRT'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClusters_Electrons_LRTAux.',     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters_Electrons_GSF',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_GSF'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClusters_Electrons_GSFAux.',     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters_Electrons_LRTGSF',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_LRTGSF'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClusters_Electrons_LRTGSFAux.',     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterContainer#HLT_TrigEMClusters_Photons',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEMClusters_PhotonsAux.',     'BS ESD AODFULL', 'Egamma'),
 
     # Muon
 
@@ -837,8 +845,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigMissingETContainer#HLT_MET_tcpufit_sig30',                 'BS ESD AODFULL', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcpufit_sig30Aux.',          'BS ESD AODFULL', 'MET'),
 
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL', 'Calo'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODFULL', 'Calo'),
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODCOMM', 'Calo'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODCOMM', 'Calo'),
 
     # tau
     # will enable when needed

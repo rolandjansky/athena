@@ -12,13 +12,12 @@
 
 #include "TrigT1TGC/TGCDatabaseManager.h"
 #include "PathResolver/PathResolver.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 namespace LVL1TGCTrigger {
 
 TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
                                              const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey)
-  :AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCEIFICoincidenceMap"),
+  :AthMessaging("LVL1TGC::TGCEIFICoincidenceMap"),
    m_verName("NA"),
    m_side(0),
    m_fullCW(false),
@@ -50,7 +49,7 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
 					     const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
                                              const std::string& version,
 					     int   sideID)
- : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCEIFICoincidenceMap"),
+ : AthMessaging("LVL1TGC::TGCEIFICoincidenceMap"),
    m_verName(version),
    m_side(sideID),
    m_fullCW(false),
@@ -103,7 +102,7 @@ TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(TGCArguments* tgcargs,
 
 
 TGCEIFICoincidenceMap::TGCEIFICoincidenceMap(const TGCEIFICoincidenceMap& right)
- : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCEIFICoincidenceMap"),
+ : AthMessaging("LVL1TGC::TGCEIFICoincidenceMap"),
    m_readCondKey(right.m_readCondKey)
 {
   ATH_MSG_DEBUG("copy constructor");

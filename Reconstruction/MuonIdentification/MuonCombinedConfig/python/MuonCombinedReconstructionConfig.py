@@ -338,7 +338,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs):
     kwargs.setdefault("CombinedLocation", "CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation", "ExtrapolatedStau")
     kwargs.setdefault("MSOnlyExtrapolatedLocation", "MSOnlyExtrapolatedStau")
-    kwargs.setdefault("MuonCandidateLocation", "")
+    kwargs.setdefault("MuonCandidateLocation", [])
     kwargs.setdefault("SegmentContainerName", "StauSegments")
     kwargs.setdefault("TagToSegmentKey", "")
     kwargs.setdefault("BuildSlowMuon", 1)
@@ -404,7 +404,7 @@ def GetCombinedTrkContainers(flags):
                     "MSOnlyExtrapolatedMuonsLRTTrackParticles"]
         track_coll += ["CombinedMuonsLRTTracks",
                        "ExtraPolatedMuonsLRTTracks",
-                       "MSOnlyExtrapolatedMuonsLRTTracks"]
+                       "MSOnlyExtraPolatedMuonsLRTTracks"]
     return tp_coll, track_coll
 
 
@@ -645,9 +645,6 @@ def MuonCombinedReconstructionCfg(flags):
 
     # FIXME
     # I see errors related to unconfigured public tools. This is a quick fix, but should really move to where it is called.
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedTrackSummaryToolCfg
-    result.addPublicTool(result.popToolsAndMerge(
-        MuonCombinedTrackSummaryToolCfg(flags)))
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
     result.addPublicTool(result.popToolsAndMerge(
         MuonTrackScoringToolCfg(flags)))

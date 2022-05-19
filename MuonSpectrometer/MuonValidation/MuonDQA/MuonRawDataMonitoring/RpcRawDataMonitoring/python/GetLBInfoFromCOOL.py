@@ -259,18 +259,20 @@ def GetLumiInfoDic(beg_run, end_run):
     return RunsLumiDic
 
 #==================================================================================================================
-def printLumiInfo(beg_run, end_run):
-    
-    RunsLumiDic =  GetLumiInfoDic(beg_run, end_run)
+def printLumiInfo(RunsLumiDic):
+    # for run, lumiDic in RunsLumiDic.items():
+    for lb, lumiInfo in RunsLumiDic.items():
+        # s  = 'Run %d  lb=%4d - AtlasPhysics=%d, InstLumi=%f, LiveFraction=%f, Duration=%f' %( 
+            # run,
+        s  = 'lb=%4d - AtlasPhysics=%d, InstLumi=%f, LiveFraction=%f, Duration=%f' %( 
+            lb,
+            lumiInfo['AtlasPhysics'],
+            lumiInfo['InstLumi'],
+            lumiInfo['LiveFraction'],
+            lumiInfo['Duration']
+        )
 
-    for run, lumiDic in RunsLumiDic.items():
-        for lb, lumiInfo in lumiDic.items():
-            s  = '%d'               ,lumiInfo.payload()['Run']
-            s += ' lb=%4d -'        ,lumiInfo.payload()['LumiBlock']
-            s +=' AtlasPhysics=%d'  ,lumiInfo.payload()['AtlasPhysics']
-            s +=' InstLumi=%f,'     ,lumiInfo.payload()['InstLumi']        
-            s +=' LiveFraction=%f'  ,lumiInfo.payload()['LiveFraction']
-            print (s)
+        print (s)
 
 #==================================================================================================================
 if __name__ == '__main__':

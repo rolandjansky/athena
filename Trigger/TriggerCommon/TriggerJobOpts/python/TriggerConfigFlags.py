@@ -6,7 +6,6 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.Enums import Format
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
-from TrigEDMConfig.Utils import getEDMVersionFromBS
 
 log=logging.getLogger('TriggerConfigFlags')
 
@@ -85,6 +84,12 @@ def createTriggerFlags():
             if not any(flags.Input.Files) and flags.Common.isOnline:
                 _log.info("Online reconstruction, no input file. Return default EDMVersion=%d", default_version)
                 return default_version
+            try:
+                from TrigEDMConfig.Utils import getEDMVersionFromBS
+            except ImportError:
+                log.error("Failed to import TrigEDMConfig, analysing ByteStream files is not possible in this release!")
+                raise
+
 
             version = getEDMVersionFromBS(flags.Input.Files[0])
 
@@ -223,8 +228,10 @@ def createTriggerFlags():
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
-    from TriggerMenuMT.HLT.Egamma.TrigEgammaConfigFlags import createTrigEgammaConfigFlags
-    flags.addFlagsCategory('Trigger.egamma', createTrigEgammaConfigFlags)
+    def __egamma():
+        from TriggerMenuMT.HLT.Egamma.TrigEgammaConfigFlags import createTrigEgammaConfigFlags
+        return createTrigEgammaConfigFlags()
+    flags.addFlagsCategory('Trigger.egamma', __egamma )
 
     # muon offline reco flags varaint for trigger
     def __muonSA():
@@ -256,12 +263,16 @@ def createTriggerFlags():
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
     flags.addFlagsCategory('Trigger.Offline.Combined', __muonCombined, prefix=True)
 
-    from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
-    flags.addFlagsCategory('Trigger.Offline.Tau', createTrigTauConfigFlags)
+    def __tau():
+        from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
+        return createTrigTauConfigFlags()
+    flags.addFlagsCategory('Trigger.Offline.Tau', __tau )
     #TODO come back and use systematically the same 
 
-    from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
-    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingPassFlags )
+    def __idTrk():
+        from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
+        return createTrigTrackingPassFlags()
+    flags.addFlagsCategory( 'Trigger.InDetTracking', __idTrk )
 
     # NB: Longer term it may be worth moving these into a PF set of config flags, but right now the only ones that exist do not seem to be used in the HLT.
     # When we use component accumulators for this in the HLT maybe we should revisit this

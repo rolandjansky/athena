@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-include: 22.0-mc20/Athena
 # art-description: DAOD building PHYSVAL mc20 MP
 # art-type: grid

@@ -153,7 +153,10 @@ Trk::ConeSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D
   // return it
   return mFrame;
 }
-
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
 void
 Trk::ConeSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
 {

@@ -8,8 +8,6 @@
 
 #include "globals.hh"
 #include <map>
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 
 class TRTParameters
 {
@@ -24,9 +22,6 @@ public:
   void GetPartOfDoubleArray(const std::string&, int, double*) const;
   int GetElementOfIntegerArray(const std::string&, int) const;
 
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-
 private:
   TRTParameters();
   ~TRTParameters();
@@ -40,8 +35,6 @@ private:
   typedef
   std::multimap<std::string, double, std::less<std::string> >::const_iterator
   multimapIterator;
-  
-  Athena::MsgStreamMember m_msg;
 };
 
 #endif

@@ -227,7 +227,7 @@ StatusCode SimpleMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::
   /// correct the precision coordinate of the local position based on the centroid calibration
   double xPosCalib = 0.0;
   double totalCharge = 0.0;
-  for ( auto it : strips ) {
+  for ( const auto& it : strips ) {
     xPosCalib += it.charge*it.dx;
     totalCharge += it.charge;
   }

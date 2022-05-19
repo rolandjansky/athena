@@ -92,7 +92,7 @@ namespace xAOD {
   bool JetConstituentVector::isValid() const {
     using ELVector = std::vector<ElementLink<IParticleContainer> >;
     for ( ELVector::const_iterator icon=m_elVector->begin(); icon!=m_elVector->end(); ++icon ) {
-      ElementLink<IParticleContainer> el = *icon;
+      const ElementLink<IParticleContainer>& el = *icon;
       if ( ! el.isValid() ) return false;
     }
     return true;

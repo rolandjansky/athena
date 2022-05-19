@@ -6,7 +6,6 @@
 #include "TrigT1CaloCalibConditions/ChanCalibErrorCode.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 
 #include <sstream>
 #include <unistd.h>
@@ -28,7 +27,7 @@
 
 
 L1CaloPprPhos4ShapeCollection::L1CaloPprPhos4ShapeCollection():
-   AthMessaging(Athena::getMessageSvc(), "L1CaloPprPhos4ShapeCollection"),
+   AthMessaging("L1CaloPprPhos4ShapeCollection"),
    m_minSignalHeight(30),
    m_timingRegime("Calib1"),
    m_histTool(0)

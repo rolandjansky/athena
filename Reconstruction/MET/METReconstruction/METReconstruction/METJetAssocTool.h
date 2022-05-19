@@ -53,25 +53,30 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     protected: 
 
-    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
+    virtual
+    StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const override;
 
+    virtual
     StatusCode extractPFO(const xAOD::IParticle*,
                           std::vector<const xAOD::IParticle*>&,
                           const met::METAssociator::ConstitHolder&,
-                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const
+                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const override
     {return StatusCode::FAILURE;} // should not be called
+    virtual
     StatusCode extractFE(const xAOD::IParticle*,
                          std::vector<const xAOD::IParticle*>&,
                          const met::METAssociator::ConstitHolder&,
-                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const override
     {return StatusCode::FAILURE;} // should not be called
+    virtual
     StatusCode extractTracks(const xAOD::IParticle*,
                              std::vector<const xAOD::IParticle*>&,
-                             const met::METAssociator::ConstitHolder&) const
+                             const met::METAssociator::ConstitHolder&) const override
     {return StatusCode::FAILURE;} // should not be called
+    virtual
     StatusCode extractTopoClusters(const xAOD::IParticle*,
                                    std::vector<const xAOD::IParticle*>&,
-                                   const met::METAssociator::ConstitHolder&) const
+                                   const met::METAssociator::ConstitHolder&) const override
     {return StatusCode::FAILURE;} // should not be called
 
     private:

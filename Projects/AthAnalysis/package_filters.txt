@@ -80,6 +80,7 @@
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
 + PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JetTagging/JetTagConfig
++ PhysicsAnalysis/JetTagging/FlavourTaggingTests
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
@@ -124,6 +125,7 @@
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TriggerCommon/TriggerJobOpts
 #+ Trigger/TrigCost/EnhancedBiasWeighter
 #+ Trigger/TrigCost/RatesAnalysis
 + Trigger/TrigEvent/TrigDecisionInterface

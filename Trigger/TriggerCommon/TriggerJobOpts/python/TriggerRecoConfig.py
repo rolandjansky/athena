@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
@@ -45,9 +46,15 @@ def TriggerRecoCfg(flags):
     # Run 1+2
     elif flags.Trigger.EDMVersion in [1, 2]:
         acc.merge( Run1Run2BSExtractionCfg(flags) )
+
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
         xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags)
         acc.merge( xRoIBResultAcc )
+
+        if flags.Input.Format is Format.BS:
+            from L1TopoByteStream.L1TopoByteStreamConfig import L1TopoRawDataContainerBSCnvCfg
+            acc.merge( L1TopoRawDataContainerBSCnvCfg(flags) )
+
         from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
         acc.merge (Run1Run2DecisionMakerCfg(flags) )
         menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()

@@ -47,201 +47,6 @@ namespace InDet {
   StatusCode SiSpacePointMakerTool::finalize() {
     return StatusCode::SUCCESS;
   }
-  //--------------------------------------------------------------------------
-  Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluster& cluster1, 
-                                                             const InDet::SiCluster& cluster2,
-                                                             const Amg::Vector3D& vertexVec, 
-                                                             const InDetDD::SiDetectorElement* element1,
-                                                             const InDetDD::SiDetectorElement* element2,
-                                                             double stripLengthGapTolerance) const {
-
-    // Find intersection of a line through a cluster on one sct detector and
-    // a line through a cluster on its stereo pair. Return zero if lines 
-    // don't intersect.
-  
-    // A general point on the line joining point a to point b is
-    // x, where 2*x=(1+m)*a + (1-m)*b. Similarly for 2*y=(1+n)*c + (1-n)*d.
-    // Suppose that v is the vertex, which we take as (0,0,0); this could
-    // an input parameter later, if required. Requiring that the two 'general
-    // points' lie on a straight through v means that the vector x-v is a 
-    // multiple of y-v. This condition fixes the parameters m and n.
-    // We then return the 'space-point' x, supposed to be the phi-layer. 
-    // We require that -1<m<1, otherwise x lies 
-    // outside the segment a to b; and similarly for n.
-
-    Amg::Vector2D locpos = cluster1.localPosition();  
-    Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-    std::pair<Amg::Vector3D, Amg::Vector3D> 
-      ends1(element1->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.))); 
-  
-    locpos = cluster2.localPosition();  
-    localPos = Amg::Vector2D(locpos[0], locpos[1]);
-    std::pair<Amg::Vector3D, Amg::Vector3D>
-      ends2(element2->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.))); 
-  
-    const Amg::Vector3D & endStrip1(ends1.first);   // Top end, first cluster
-    const Amg::Vector3D & startStrip1(ends1.second);  // Bottom end, first cluster
-    const Amg::Vector3D & endStrip2(ends2.first);   // Top end, second cluster
-    const Amg::Vector3D & startStrip2(ends2.second);  // Bottom end, second cluster
-    const Amg::Vector3D & strip1Direction(endStrip1-startStrip1);           // vector joining ends of line
-    const Amg::Vector3D & strip2Direction(endStrip2-startStrip2);           // vector joining ends of line
-
-    Amg::Vector3D point;
-
-    bool ok(true);
-    const double limit = 1. + m_stripLengthTolerance;
-
-    if (m_usePerpProj) {
-      /** This is simple hack for the case the origin of the particle is completely unknown:
-          The closest approach of element1 to element2 is used (perpendicular projection)
-          to determine the position of the SpacePoint on element 1. 
-          This option is especially aimed at the use with cosmics data.
-          Ref. https://its.cern.ch/jira/browse/ATLASRECTS-5394.
-        */
-      
-      const double denom = Amg::Vector3D(strip1Direction.cross(strip2Direction)).z();
-      if (std::abs(denom)>10e-7){
-        Amg::Vector3D s(endStrip1+startStrip1);
-        Amg::Vector3D t(endStrip2+startStrip2);
-        const double lambda0 = strip2Direction.cross(Amg::Vector3D(strip1Direction-t)).z()/denom;
-        if (std::abs(lambda0)>limit){
-          ATH_MSG_WARNING("Intersection is outside strip bounds");
-          ok = false;
-        }
-        point = (s + lambda0 * strip1Direction) * 0.5;    
-        ATH_MSG_VERBOSE( "Endpoints 1 : ( " <<  endStrip1.x() << " , " << endStrip1.y() << " , " << endStrip1.z() << " )   to   (" << startStrip1.x() << " , " << startStrip1.y() << " , " << startStrip1.z() << " ) " );
-        ATH_MSG_VERBOSE( "Endpoints 2 : ( " <<  endStrip2.x() << " , " << endStrip2.y() << " , " << endStrip2.z() << " )   to   (" << startStrip2.x() << " , " << startStrip2.y() << " , " << startStrip2.z() << " )  " );
-        ATH_MSG_VERBOSE( "Intersection: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );
-      } else {
-        ATH_MSG_WARNING("Intersection failed");
-        ok = false;
-      }
-    } else {   
-      Amg::Vector3D midpoint1x2(endStrip1+startStrip1-2.*vertexVec);  // twice the vector from vertex to midpoint
-      Amg::Vector3D midpoint2x2(endStrip2+startStrip2-2.*vertexVec);  // twice the vector from vertex to midpoint
-      Amg::Vector3D qs(strip1Direction.cross(midpoint1x2));  
-      Amg::Vector3D rt(strip2Direction.cross(midpoint2x2));  
-      double m(-midpoint1x2.dot(rt)/strip1Direction.dot(rt));    // ratio for first  line
-      double n(0.);                      // ratio for second line
-
-      // We increase the length of the strip by 1%. This a fudge which allows
-      // us to recover space-points from tracks pointing back to an interaction
-      // point up to around z = +- 20 cm
-
-      
-      if      (std::abs(            m             ) > limit) ok = false;
-      else if (std::abs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
- 
-      if ((not ok) and (stripLengthGapTolerance != 0.)) {
-
-        const double qm     = strip1Direction.mag()                             ;
-        const double limitn = limit+(stripLengthGapTolerance/qm);
-
-        if (std::abs(m) <= limitn)  {
-   
-          if (n==0.) n = -(midpoint2x2.dot(qs)/strip2Direction.dot(qs));
-
-          if (std::abs(n) <= limitn) {
-            double mn  = strip1Direction.dot(strip2Direction)/(qm*qm);
-            if ((m >  1.) or (n >  1.)) {
-              double dm = (m-1.)   ;
-              double dn = (n-1.)*mn;
-              double sm = dm;
-              if (dm < dn) sm = dn;
-              m -= sm;
-              n -= (sm*mn);
-            } else if ((m < -1.) or (n < -1.)) {
-              double dm = -(m+1.)   ;
-              double dn = -(n+1.)*mn;
-              double sm = dm;
-              if (dm < dn) sm = dn;
-              m += sm;
-              n += (sm*mn);
-            }
-            if (std::abs(m) < limit and std::abs(n) < limit) ok = true;
-          }
-        }
-      }
-      if (ok) point = 0.5*(endStrip1 + startStrip1 + m * strip1Direction);
-    }
-    if (ok) {
-      ATH_MSG_VERBOSE( "SpacePoint generated at: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );       
-      const std::pair<IdentifierHash,IdentifierHash> elementIdList( element1->identifyHash() , element2->identifyHash() ); 
-      return new InDet::SCT_SpacePoint(elementIdList, point, {&cluster1, &cluster2});
-    }
-
-    return nullptr;
-  }
-
-  //--------------------------------------------------------------------------
-  void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
-                                                           const InDet::SCT_ClusterCollection* clusters2,
-                                                           double min, double max, bool allClusters, 
-                                                           const Amg::Vector3D& vertexVec,
-                                                           const InDetDD::SiDetectorElementCollection* elements,
-                                                           SpacePointCollection* spacepointCollection) const {
-    double stripLengthGapTolerance = 0.;
-
-    // Try all combinations of clusters for space points
-    InDet::SCT_ClusterCollection::const_iterator clusters1Next = clusters1->begin();
-    InDet::SCT_ClusterCollection::const_iterator clusters1Finish = clusters1->end();
-
-    // -ME fixme- get first element
-    const InDetDD::SiDetectorElement* element1 = nullptr;
- 
-    if ((*clusters1Next) and (clusters1Next != clusters1Finish)) {
-      element1 = elements->getDetectorElement(clusters1->identifyHash());
-    }
-
-    if (element1==nullptr) {
-      ATH_MSG_ERROR("Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()));
-      return;
-    }
- 
-    //tmpSpacePoints changed to local variable to enable rentrancy
-    std::vector<Trk::SpacePoint*> tmpSpacePoints;
-
-    for (; clusters1Next!=clusters1Finish; ++clusters1Next){   
-      Amg::Vector2D locpos = (*clusters1Next)->localPosition();
-      Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-      double xPhi1 = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi();    
-      InDet::SCT_ClusterCollection::const_iterator clusters2Next=(*clusters2).begin();
-      InDet::SCT_ClusterCollection::const_iterator clusters2Finish=(*clusters2).end();
-    
-      // -ME fixme- get first element
-      const InDetDD::SiDetectorElement* element2 = nullptr;
-      if (*clusters2Next and (clusters2Next != clusters2Finish)) {
-        element2= elements->getDetectorElement(clusters2->identifyHash());
-      }
-
-      if (element2==nullptr) {
-        ATH_MSG_ERROR("Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()));
-        break;
-      } 
-
-      if (m_SCTgapParameter != 0.) {
-        updateRange(element1, element2, stripLengthGapTolerance, min, max);
-      }
-   
-      for (; clusters2Next!=clusters2Finish; ++clusters2Next){
-        Amg::Vector2D locpos = (*clusters2Next)->localPosition();
-        Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-        double diff = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi() - xPhi1;
-        if (((min <= diff) and (diff <= max)) or allClusters) {
-          Trk::SpacePoint* sp =
-            makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
-          if (sp) {
-            tmpSpacePoints.push_back(sp);
-          }
-        }
-      }
-    }
-
-    spacepointCollection->reserve(spacepointCollection->size() + tmpSpacePoints.size());
-    for (Trk::SpacePoint* sp: tmpSpacePoints) {
-      spacepointCollection->push_back(sp);
-    }
-  }
 
   //--------------------------------------------------------------------------
   void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, 
@@ -281,138 +86,6 @@ namespace InDet {
              
         spacepointCollection->push_back( new InDet::PixelSpacePoint(idHash,c,pos,cov) );
       }
-    }
-  }
-
-  //--------------------------------------------------------------------------
-  void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
-                                                                     const InDet::SCT_ClusterCollection* clusters2,
-                                                                     double min, double max, bool allClusters, 
-                                                                     const Amg::Vector3D& vertexVec,
-                                                                     const InDetDD::SiDetectorElementCollection* elements,
-                                                                     SpacePointOverlapCollection* spacepointoverlapCollection) const {
-
-    double stripLengthGapTolerance = 0.; 
-
-    // Require that (xPhi2 - xPhi1) lie in the range specified.
-    // Used eta modules
-    // Try all combinations of clusters for space points
-    InDet::SCT_ClusterCollection::const_iterator clusters1Next = clusters1->begin();
-    InDet::SCT_ClusterCollection::const_iterator clusters1Finish = clusters1->end();
-
-    const InDetDD::SiDetectorElement* element1 = nullptr;
-   
-    if ((*clusters1Next) and (clusters1Next != clusters1Finish)) {
-      element1 = elements->getDetectorElement(clusters1->identifyHash());
-    }
-    if (element1==nullptr) {
-      ATH_MSG_ERROR("Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()));
-      return;
-    } 
-    for (; clusters1Next!=clusters1Finish; ++clusters1Next) {
-   
-      Amg::Vector2D locpos = (*clusters1Next)->localPosition();
-      Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-      double xPhi1 = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi();
- 
-      InDet::SCT_ClusterCollection::const_iterator clusters2Next = (*clusters2).begin();
-      InDet::SCT_ClusterCollection::const_iterator clusters2Finish = (*clusters2).end();
-    
-      const InDetDD::SiDetectorElement* element2 = nullptr;
-      if (*clusters2Next and (clusters2Next != clusters2Finish)) {
-        element2 = elements->getDetectorElement(clusters2->identifyHash());
-      }
-      if (element2==nullptr) {
-        ATH_MSG_ERROR("Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()));
-        break;
-      } 
-      if (m_SCTgapParameter != 0.) {
-        updateRange(element1, element2, stripLengthGapTolerance, min, max);
-      }
-   
-      for (; clusters2Next!=clusters2Finish; ++clusters2Next){
-        Amg::Vector2D locpos = (*clusters2Next)->localPosition();
-        Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-        const double diff = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi() - xPhi1;
-        if (((min <= diff) and (diff <= max)) or allClusters){
-          Trk::SpacePoint* sp =
-            makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
-          if (sp) {
-            spacepointoverlapCollection->push_back(sp);
-          }
-        }
-      }
-    }
-  
-  }
-
-
-  //--------------------------------------------------------------------------
-  void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
-                                                                     const InDet::SCT_ClusterCollection* clusters2,
-                                                                     double min1, double max1, double min2, double max2, 
-                                                                     bool allClusters,
-                                                                     const Amg::Vector3D& vertexVec,
-                                                                     const InDetDD::SiDetectorElementCollection* elements,
-                                                                     SpacePointOverlapCollection* spacepointoverlapCollection) const {
-
-    double stripLengthGapTolerance = 0.;
-    if (m_SCTgapParameter != 0.) {
-      min1 -= 20.;
-      max1 += 20.;
-    }
-
-    // Clus1 must lie
-    // within min1 and max1 and clus between min2 and max2. Used for phi
-    // overlaps.
-
-    // Try all combinations of clusters for space points
-    InDet::SCT_ClusterCollection::const_iterator clusters1Next = clusters1->begin();
-    InDet::SCT_ClusterCollection::const_iterator clusters1Finish = clusters1->end();
-
-    const InDetDD::SiDetectorElement* element1 = nullptr;
-    if ((*clusters1Next) and (clusters1Next != clusters1Finish)) {
-      element1 = elements->getDetectorElement(clusters1->identifyHash());
-    }
-    if (element1==nullptr) {
-      ATH_MSG_ERROR("Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()));
-      return;
-    } 
-  
-    for (; clusters1Next!=clusters1Finish; ++clusters1Next){
-      Amg::Vector2D locpos = (*clusters1Next)->localPosition();
-      Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-      double xPhi1 = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi();
-      if (((min1 <= xPhi1) and (xPhi1 <= max1)) or allClusters) {
-        InDet::SCT_ClusterCollection::const_iterator clusters2Next = (*clusters2).begin();
-        InDet::SCT_ClusterCollection::const_iterator clusters2Finish = (*clusters2).end();
-      
-        const InDetDD::SiDetectorElement* element2 = nullptr;
-        if (*clusters2Next and (clusters2Next != clusters2Finish)) {
-          element2 = elements->getDetectorElement(clusters2->identifyHash());
-        }
-        if (element2==nullptr) {
-          ATH_MSG_ERROR("Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()));
-          break;
-        }
- 
-        if (m_SCTgapParameter != 0.) {
-          updateRange(element1, element2, stripLengthGapTolerance, min2, max2);
-        }
-
-        for (; clusters2Next!=clusters2Finish; ++clusters2Next) {
-          Amg::Vector2D locpos = (*clusters2Next)->localPosition(); 
-          Amg::Vector2D localPos = Amg::Vector2D(locpos[0], locpos[1]);
-          double xPhi2 = InDetDD::SiLocalPosition(localPos.y(), localPos.x(), 0.).xPhi();
-          if (((min2<= xPhi2) and (xPhi2 <= max2)) or allClusters) {
-            Trk::SpacePoint* sp =
-              makeSCT_SpacePoint(**clusters1Next, **clusters2Next, vertexVec, element1, element2, stripLengthGapTolerance);
-            if (sp) {
-              spacepointoverlapCollection->push_back(sp);
-            }
-          }
-        }
-      }   
     }
   }
 
@@ -526,8 +199,6 @@ namespace InDet {
     std::vector<Trk::SpacePoint*> tmpSpacePoints;
     tmpSpacePoints.reserve(sctInfos.size());
 
-    bool isEndcap = element->isEndcap();
-
     if(!allClusters) {
 
       // Start processing the opposite side and the eta overlapping elements
@@ -550,8 +221,6 @@ namespace InDet {
           updateRange(element, currentElement, slimit, min, max);
         }
         
-        float sign = isEndcap ? ( std::signbit(currentElement->normal().z()*element->normal().z()) ? -1. : 1.) : 1.;
-
         InDet::SCTinformation sctInfo;
         for (const auto *const cluster : *clusters[currentIndex]) {
           
@@ -561,7 +230,7 @@ namespace InDet {
           
           for(auto& sct : sctInfos) {
             
-            double diff = lx1-sign*sct.locX();
+            double diff = lx1-sct.locX();
             
             if(diff < min || diff > max) continue;
             
@@ -593,11 +262,8 @@ namespace InDet {
         int currentIndex = elementIndex[n];
         const InDetDD::SiDetectorElement* currentElement = elements[currentIndex];
 
-        bool isOpposite = isEndcap and std::signbit(currentElement->normal().z()*element->normal().z());
-        float sign = isOpposite ? element->normal().z() : 1.;
-
-        double min = sign*overlapExtents[4*currentIndex-10];
-        double max = sign*overlapExtents[4*currentIndex- 9];
+        double min = overlapExtents[4*currentIndex-10];
+        double max = overlapExtents[4*currentIndex- 9];
         
         if (m_SCTgapParameter != 0.) {
           updateRange(element, currentElement, slimit, min, max);
@@ -617,9 +283,8 @@ namespace InDet {
         
         IdentifierHash currentId = clusters[currentIndex]->identifyHash();
                 
-        sign = isOpposite ? currentElement->normal().z() : 1.;
-        min = sign*overlapExtents[4*currentIndex-8];
-        max = sign*overlapExtents[4*currentIndex-7];
+        min = overlapExtents[4*currentIndex-8];
+        max = overlapExtents[4*currentIndex-7];
         
         if (m_SCTgapParameter != 0.) {
           updateRange(element, currentElement, slimit, min, max);

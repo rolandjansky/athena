@@ -902,7 +902,7 @@ namespace xAOD {
       return nullptr;
     }
 
-    ElementLink<CaloClusterCellLinkContainer> el=accCellLinks(*this);
+    const ElementLink<CaloClusterCellLinkContainer>& el=accCellLinks(*this);
     if (el.isValid()){
       return *el;
     }
@@ -949,7 +949,7 @@ namespace xAOD {
     if (!accSisterCluster.isAvailable(*this)){
       return nullptr;
     }
-    ElementLink<CaloClusterContainer_v1> el = accSisterCluster(*this);
+    const ElementLink<CaloClusterContainer_v1>& el = accSisterCluster(*this);
     if (el.isValid()) {
       return *el;
     }

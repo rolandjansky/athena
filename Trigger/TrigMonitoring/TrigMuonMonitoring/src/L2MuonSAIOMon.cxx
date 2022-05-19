@@ -622,7 +622,7 @@ StatusCode L2MuonSAIOMon :: matchL2IO_wContainer(const EventContext &ctx, const 
 
   // match l2io objects to l2sa objects using roiWord
   std::vector< const xAOD::L2CombinedMuon* > matchSA_L2IOobjects;
-  for(const auto& L2IOobject : *L2IOobjects){
+  for(const auto L2IOobject : *L2IOobjects){
     ATH_MSG_DEBUG(" L2IOobject->muSATrack()->roiWord()/L2IOobject->pt(): " << L2IOobject->muSATrack()->roiWord() << "/" << L2IOobject->pt() );
     for(const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer>& L2SALinkInfo : featureCont){
       ATH_CHECK( L2SALinkInfo.isValid() );

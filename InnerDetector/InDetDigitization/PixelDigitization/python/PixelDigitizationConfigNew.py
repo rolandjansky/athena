@@ -326,6 +326,10 @@ def PixelDigitizationBasicCfg(flags, **kwargs):
 def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with Pixel Overlay digitization"""
     acc = ComponentAccumulator()
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["SiHitCollection#PixelHits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(PixelOverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

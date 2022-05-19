@@ -1120,7 +1120,7 @@ int main(int argc, char** argv)
   
   for ( unsigned  i=0 ; i<test_chains.size() ; i++ ) {
 
-    std::string chainname = test_chains[i];
+    std::string chainname = ChainString(test_chains[i]);
 
     std::vector<std::string> chainnames;
 

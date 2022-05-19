@@ -128,7 +128,9 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
      ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
      return StatusCode::FAILURE;
   }
+  ATH_MSG_DEBUG("Range of cabling" << larCablingHdl.getRange() << ", intersection: " << writeHandle.getRange());
   writeHandle.addDependency(larCablingHdl);
+  
   if(doHVData || (doAffected && m_doAffectedHV) ) {
     SG::ReadCondHandle<LArHVIdMapping> mappingHdl{m_hvMappingKey, ctx};
     hvCabling = *mappingHdl;
@@ -138,7 +140,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     }
     writeHandle.addDependency(mappingHdl);
     writeAffectedHandle.addDependency(mappingHdl);
-    ATH_MSG_DEBUG("Range of HV-Cabling " << mappingHdl.getRange());
+    ATH_MSG_DEBUG("Range of HV-cabling " << mappingHdl.getRange() << ", intersection: " << writeHandle.getRange());
 
     // Online HVScaleCorr (if needed to subtract)
 
@@ -149,6 +151,8 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
 	ATH_MSG_ERROR("Do not have online HV corr. conditions object, but asked to undo !!!!");
 	return StatusCode::FAILURE;
       }
+      writeHandle.addDependency(onlHVCorrHdl);
+      ATH_MSG_DEBUG("Range of online HV correction  " << onlHVCorrHdl.getRange() << ", intersection: " << writeHandle.getRange());
     }
     // get handles to DCS Database folders
     for (const auto& fldkey: m_DCSFolderKeys ) {

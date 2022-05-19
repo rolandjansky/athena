@@ -205,7 +205,12 @@ StatusCode TRT_RodDecoder::initialize()
 StatusCode TRT_RodDecoder::finalize() {
 
   ATH_MSG_VERBOSE( "in TRT_RodDecoder::finalize" );
-  ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
+  if (m_skip>0) {
+     ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos << " hashes: accept " << m_accept << " skipped " << m_skip );
+  }
+  else {
+     ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -359,7 +364,6 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 	OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
 	robFrag->rod_status( vint );
       
-	//     uint32_t v_size = robFrag->rod_nstatus();
 	int v_index=0;
       
 	/*
@@ -369,7 +373,21 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 	v_index++;
       
 	uint32_t n_status = vint[v_index++];
-      
+
+        if (n_status > robFrag->rod_nstatus() ) {
+           if (n_status > robFrag->rod_fragment_size_word()) {
+              ATH_MSG_WARNING("Rejecting fragment because the number of status words exceeds the fragement size: "
+                              << n_status << " > " << robFrag->rod_fragment_size_word()
+                              << " (nstatus from fragment header = " << robFrag->rod_nstatus()  << ")");
+              return StatusCode::RECOVERABLE;
+           }
+           else {
+              ATH_MSG_WARNING("The number of status words exceeds the number of status words marked in the header: "
+                              << n_status << " !< " << robFrag->rod_nstatus()
+                              << " (fragment size = " << robFrag->rod_fragment_size_word() << ")");
+           }
+        }
+
       //     cout << "TRT v_size: " << v_size << " & n_status: " << n_status << endl;
       
       //     for (uint32_t ii=0; ii<v_size; ii++)
@@ -601,7 +619,18 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 		}
 	    }
 	}
+      else {
+	  if (idHash == skipHash)
+	    {
+               ++m_skip;
+#ifdef TRT_BSC_DEBUG
+	       ATH_MSG_DEBUG( "Collection for Hash not to be decoded, skip" );
+#endif
+	      continue;
+	    }
+          ++m_accept;
 
+      }
       // Skip if this collection has already been done.
       if (rdoIdc->indexFindPtr (idHash)) {
         continue;
@@ -1106,7 +1135,18 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 		}
 	    }
 	}
-      
+      else {
+         if (idHash == skipHash)
+	    {
+               ++m_skip;
+#ifdef TRT_BSC_DEBUG
+	       ATH_MSG_DEBUG( "Collection for Hash not to be decoded, skip" );
+#endif
+               continue;
+	    }
+         ++m_accept;
+      }
+
       // Skip if this collection has already been done.
       if (rdoIdc->indexFindPtr (idHash)) {
         continue;

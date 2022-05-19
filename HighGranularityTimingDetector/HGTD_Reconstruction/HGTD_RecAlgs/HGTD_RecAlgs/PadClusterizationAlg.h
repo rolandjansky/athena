@@ -3,7 +3,6 @@
  *
  * @file HGTD_RecAlgs/PadClusterizationAlg.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date September, 2021
  *
  * @brief RDO objects get transformed into PrepRawData objects and recorded in
  * the event store.
@@ -16,7 +15,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "HGTD_PrepRawData/HGTD_ClusterContainer.h"
-#include "HGTD_RawData/HGTD_RDOContainer.h"
+#include "HGTD_RawData/HGTD_RDO_Container.h"
 #include "HGTD_RecToolInterfaces/IHGTD_PadClusterizationTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -38,8 +37,7 @@ public:
 private:
   ToolHandle<IHGTD_PadClusterizationTool> m_clusterization_tool{this, "ClusterizationTool", "HGTD::SinglePadClusterTool", "Tool for translating HGTD_RDO objects into HGTD_PrepRawData clusters"};
 
-  SG::ReadHandleKey<HGTD_RDOContainer> m_rdo_rh_key{this, "RDOContainerName", "HGTD_RDOs", "Name of the HGTD_RDO container"};
-
+  SG::ReadHandleKey<HGTD_RDO_Container> m_rdo_rh_key{this, "RDOContainerName", "HGTD_RDOs", "Name of the HGTD_RDO container"};
   SG::WriteHandleKey<HGTD_ClusterContainer> m_prd_wh_key{this, "PRDContainerName", "HGTD_Clusters", "Name of the HGTD_Cluster container"};
 
   const HGTD_ID* m_hgtd_idhelper{nullptr};

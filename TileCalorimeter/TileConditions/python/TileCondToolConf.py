@@ -807,7 +807,8 @@ def bookTileSamplingFractionCondAlg(source = 'FILE'):
                 G4Version = ""
                 if "G4Version" in metadata.keys():
                     G4Version = metadata["G4Version"]
-            if not G4Version:
+            from AthenaCommon.DetFlags import DetFlags
+            if not G4Version and DetFlags.simulate.Tile_on():
                 from os import environ
                 G4Version = str(environ.get("G4VERS", ""))
             G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]

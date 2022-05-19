@@ -38,14 +38,15 @@ class L1JetMonAlg():
     
     def container2tool_class_name():
 
-      c2t = {
-        'L1_jFexSRJetRoI': '<DataVector<xAOD::jFexSRJetRoI_v1, DataModel_detail::NoBase> >',
-        'L1_jFexLRJetRoI': '<DataVector<xAOD::jFexLRJetRoI_v1, DataModel_detail::NoBase> >',
-        'L1_gFexSRJetRoI': '<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >',
-        'L1_gFexLRJetRoI': '<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >',
-      }
-      
-      return 'TrigL1FexJetMonitorTool' + c2t[self.L1JetContainer]
+      # Note: there are two gFex names, both correspond to the same container type.
+
+      return  {
+        'L1_jFexSRJetRoI': 'TrigL1FexJetMonitorTool_jFexSR',
+        'L1_jFexLRJetRoI': 'TrigL1FexJetMonitorTool_jFexLR',
+        'L1_gFexSRJetRoI': 'TrigL1FexJetMonitorTool_gFex',
+        'L1_gFexLRJetRoI': 'TrigL1FexJetMonitorTool_gFex',
+        'LVL1JetRoIs': 'TrigL1FexJetMonitorTool_jetRoI',
+      }[self.L1JetContainer]
 
     
     def container2tool_inst_name():
@@ -53,7 +54,9 @@ class L1JetMonAlg():
       return  {'L1_jFexSRJetRoI': 'jFexSRDataRetriever',
                'L1_jFexLRJetRoI': 'jFexLRDataRetriever',
                'L1_gFexSRJetRoI': 'gFexSRDataRetriever',
-               'L1_gFexLRJetRoI': 'gFexLRDataRetriever',}[self.L1JetContainer]
+               'L1_gFexLRJetRoI': 'gFexLRDataRetriever',
+               'LVL1JetRoIs': 'JetRoIDataRetriever',
+               }[self.L1JetContainer]
       
 
     def container2_monitorgroup():
@@ -61,48 +64,29 @@ class L1JetMonAlg():
       return  {'L1_jFexSRJetRoI': 'TrigL1JFexSRJetMonitor',
                'L1_jFexLRJetRoI': 'TrigL1JFexLRJetMonitor',
                'L1_gFexSRJetRoI': 'TrigL1GFexSRJetMonitor',
-               'L1_gFexLRJetRoI': 'TrigL1GFexLRJetMonitor',}[self.L1JetContainer]
+               'L1_gFexLRJetRoI': 'TrigL1GFexLRJetMonitor',
+               'LVL1JetRoIs': 'TrigL1JetMonitor'}[self.L1JetContainer]
     
-    if L1Fex:
-      alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,
+          
+    alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,
                                    self.name)
-      toolClass = getattr(CompFactory, container2tool_class_name())
-      tool = toolClass(container2tool_inst_name())
-      tool.do_matching = self.matched
-      tool.offlineJetsToMatch = self.matchedOJ
-      tool.HLTJetsToMatch = self.matchedHLTJ
-      tool.l1container = self.L1JetContainer
-      alg.group_name = container2_monitorgroup()
-      alg.filler = tool
-      alg.TriggerChain = self.triggerChain
- 
-    else:
-      alg = monhelper.addAlgorithm(CompFactory.TrigL1JetMonitorAlgorithm, self.name)
-      alg.IsMatched = self.matched
-      alg.L1JetContainer = self.L1JetContainer
-      alg.TriggerChain = self.triggerChain
-      if self.matched:
-        alg.MatchedOfflineJets = self.matchedOJ
-        alg.MatchedHLTJets     = self.matchedHLTJ
-
+    toolClass = getattr(CompFactory, container2tool_class_name())
+    tool = toolClass(container2tool_inst_name())
+    tool.do_matching = self.matched
+    tool.offlineJetsToMatch = self.matchedOJ
+    tool.HLTJetsToMatch = self.matchedHLTJ
+    tool.l1container = self.L1JetContainer
+    alg.group_name = container2_monitorgroup()
+    alg.filler = tool
+    alg.TriggerChain = self.triggerChain
     
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool
 
     Path  = self.L1JetContainer+'/'
     Path += 'NoTriggerSelection/' if self.triggerChain == '' else self.triggerChain+'/'
-    if jFexSR:
-      myGroup = monhelper.addGroup(alg,'TrigL1JFexSRJetMonitor','HLT/JetMon/L1/')
-    elif jFexLR:
-      myGroup = monhelper.addGroup(alg,'TrigL1JFexLRJetMonitor','HLT/JetMon/L1/')
-    elif gFexSR:
-      myGroup = monhelper.addGroup(alg,'TrigL1GFexSRJetMonitor','HLT/JetMon/L1/')
-    elif gFexLR:
-      myGroup = monhelper.addGroup(alg,'TrigL1GFexLRJetMonitor','HLT/JetMon/L1/')
-    else:
-      myGroup = monhelper.addGroup(alg,'TrigL1JetMonitor','HLT/JetMon/L1/')
-                                  
-
+    myGroup = monhelper.addGroup(alg, container2_monitorgroup(),'HLT/JetMon/L1/')
+ 
     if L1Fex:
       myGroup.defineHistogram('et',title='et',path=Path,xbins=400,xmin=0.0,xmax=400.0)
     else:

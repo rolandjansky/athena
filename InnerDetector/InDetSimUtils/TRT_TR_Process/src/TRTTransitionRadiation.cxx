@@ -12,7 +12,6 @@
 #include "TRRegionXMLHandler.h"
 
 // Athena includes
-#include "AthenaKernel/getMessageSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h" //Material Manager
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h" //Converting GeoMaterial -> G4Material
@@ -42,7 +41,7 @@
 
 TRTTransitionRadiation::TRTTransitionRadiation( const G4String& processName, const std::string & xmlfilename) :
   G4VDiscreteProcess(processName,fElectromagnetic),
-  AthMessaging(Athena::getMessageSvc(), "TRTTransitionRadiation"),
+  AthMessaging("TRTTransitionRadiation"),
   m_XMLhandler(nullptr),m_xmlfilename(xmlfilename),
   m_MinEnergyTR(0.0),m_MaxEnergyTR(0.0),m_NumBins(0),m_WplasmaGas(0.0),
   m_WplasmaFoil(0.0),m_GammaMin(0.0),m_EkinMin(0.0),m_Ey(nullptr),m_Sr(nullptr),

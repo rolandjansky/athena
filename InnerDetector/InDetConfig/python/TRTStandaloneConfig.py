@@ -49,7 +49,8 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     InDetTrackFitterTRT = acc.popToolsAndMerge(TC.InDetTrackFitterTRTCfg(flags))
     acc.addPublicTool(InDetTrackFitterTRT)
 
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
@@ -103,29 +104,20 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     acc = ComponentAccumulator()
 
     if extension == "_TRT":
-        TRTStandaloneTracks = 'StandaloneTRTTracks' # InDetKeys.TRTTracks
+        TRTStandaloneTracks = 'StandaloneTRTTracks'
     else:
-        TRTStandaloneTracks = 'TRTStandaloneTracks' # flags.InDetKeys.TRTTracks_NewT
-
-    #
-    # set up TRT_SegmentToTrackTool
-    #
-    InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension,
-                                                                                        extension=extension))
-    acc.addPublicTool(InDetTRT_SegmentToTrackTool)
+        TRTStandaloneTracks = 'TRTStandaloneTracks'
 
     #
     # --- cosmics segment to track conversion for Barrel
     #
     InDetTrackFitter = acc.popToolsAndMerge(TC.InDetKalmanFitterCfg(flags))
-    acc.addPublicTool(InDetTrackFitter)
 
-    InDetTrackSummaryToolTRTTracks = acc.popToolsAndMerge(TC.InDetTrackSummaryToolTRTTracksCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryToolTRTTracks)
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolSharedHitsCfg
+    InDetTrackSummaryToolTRTTracks = acc.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
 
     from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("InputSegmentsCollection", BarrelSegments)
     kwargs.setdefault("OutputTrackCollection", TRTStandaloneTracks)

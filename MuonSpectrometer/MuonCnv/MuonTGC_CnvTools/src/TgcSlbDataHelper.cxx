@@ -17,10 +17,9 @@
 #include "TgcSlbDataHelper.h"
 #include "MuonRDO/TgcRawData.h"
 #include "TgcSlbData.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 Muon::TgcSlbDataHelper::TgcSlbDataHelper(void)
-  : AthMessaging (Athena::getMessageSvc(), "Muon::TgcSlbDataHelper")
+  : AthMessaging ("Muon::TgcSlbDataHelper")
 {
 }
 

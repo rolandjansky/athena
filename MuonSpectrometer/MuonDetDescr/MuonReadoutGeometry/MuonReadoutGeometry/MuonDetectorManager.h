@@ -434,8 +434,6 @@ namespace MuonGM {
 #ifndef SIMULATIONBASE
         std::unique_ptr<NswAsBuilt::StripCalculator> m_MMAsBuiltCalculator;
 #endif
-        // temporary way to pass MM correction for passivation
-        double m_MM_passivationCorr{0.};
 
         template <typename read_out, size_t N> void clearCache(std::array<std::unique_ptr<read_out>, N>& array);
         template <typename read_out, size_t N> void fillCache(std::array<std::unique_ptr<read_out>, N>& array);

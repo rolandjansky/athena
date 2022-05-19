@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTDIGCONDBASE_H
 #define TRT_DIGITIZATION_TRTDIGCONDBASE_H
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "CxxUtils/checker_macros.h"
 #include "Identifier/Identifier.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" // added by Sasha for Argon
@@ -29,7 +29,7 @@ class TRTDigSettings;
 /**
  * Communication with CondDB
  */
-class TRTDigCondBase {
+class TRTDigCondBase : public AthMessaging {
 
 public:
 
@@ -112,19 +112,6 @@ public:
                                   const double& lowthreshold,
                                   const double& noiseamplitude );
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
-  MsgStream& msg() const { return m_msg.get(); }
-  void display (const std::string& msg, int lvl = (int)MSG::INFO) const;
-  void info (const std::string& msg) const
-  { display (msg, (int)MSG::INFO); }
-  void debug (const std::string& msg) const
-  { display (msg, (int)MSG::DEBUG); }
-  void warning (const std::string& msg) const
-  { display (msg, (int)MSG::WARNING); }
-  void setLvl (int lvl = (int)MSG::INFO);
-  void setLvl (const std::string& lvl);
 protected:
 
   /**
@@ -191,8 +178,6 @@ private:
   std::map<int,StrawState>::iterator m_all_it_hitid_to_StrawState_previous;
 
 protected:
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
   int m_UseGasMix;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool; // added by Sasha for Argon
 

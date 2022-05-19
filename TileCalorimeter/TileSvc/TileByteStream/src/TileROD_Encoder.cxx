@@ -22,7 +22,7 @@
 
 
 TileROD_Encoder::TileROD_Encoder(): 
-  AthMessaging (Athena::getMessageSvc(), "TileROD_Encoder"),
+  AthMessaging ("TileROD_Encoder"),
   m_tileHWID(0), 
   m_verbose(false), 
   m_type(0), 

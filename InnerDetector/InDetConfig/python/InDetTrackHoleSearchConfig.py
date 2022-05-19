@@ -65,3 +65,15 @@ def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
 
   result.setPrivateTools(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs))
   return result
+
+def AtlasTrackHoleSearchToolCfg(flags, name = 'AtlasHoleSearchTool', **kwargs):
+  result = ComponentAccumulator()
+
+  if 'Extrapolator' not in kwargs:
+      from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+      extrapolatorTool = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+      result.addPublicTool(extrapolatorTool)
+      kwargs.setdefault("Extrapolator", extrapolatorTool)
+
+  result.setPrivateTools(result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags, name, **kwargs)))
+  return result

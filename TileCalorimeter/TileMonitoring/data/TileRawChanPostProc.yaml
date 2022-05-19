@@ -1,0 +1,69 @@
+#
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Post-processing of histograms from Tile raw channel monitoring
+## Separate blocks with ---
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_amp',
+        'Tile/RawChannel/Summary/{module}_{gain}_sigma', 'Tile/RawChannel/Summary/{module}_{gain}_rms' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeAndSigmaWithRMS
+Description: Produce Tile 1D summary histograms per LBA module with amplitude, sigma, and RMS of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_amp',
+        'Tile/RawChannel/Summary/{module}_{gain}_sigma', 'Tile/RawChannel/Summary/{module}_{gain}_rms' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeAndSigmaWithRMS
+Description: Produce Tile 1D summary histograms per LBC module with amplitude, sigma, and RMS of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_amp',
+        'Tile/RawChannel/Summary/{module}_{gain}_sigma', 'Tile/RawChannel/Summary/{module}_{gain}_rms' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeAndSigmaWithRMS
+Description: Produce Tile 1D summary histograms per EBA module with amplitude, sigma, and RMS of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_amp$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_amp',
+        'Tile/RawChannel/Summary/{module}_{gain}_sigma', 'Tile/RawChannel/Summary/{module}_{gain}_rms' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleAmplitudeAndSigmaWithRMS
+Description: Produce Tile 1D summary histograms per EBC module with amplitude, sigma, and RMS of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTime
+Description: Produce Tile 1D summary histograms per LBA module with time of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTime
+Description: Produce Tile 1D summary histograms per LBC module with time of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTime
+Description: Produce Tile 1D summary histograms per EBA module with time of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTime
+Description: Produce Tile 1D summary histograms per EBC module with time of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_corr$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeCorrected
+Description: Produce Tile 1D summary histograms per LBA module with time corrected of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>LBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_corr$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeCorrected
+Description: Produce Tile 1D summary histograms per LBC module with time corrected of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBA[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_corr$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeCorrected
+Description: Produce Tile 1D summary histograms per EBA module with time corrected of all channels in the module
+---
+Input: [ 'Tile/RawChannel/(?P<module>EBC[0-6]\d{1})/(?P=module)_ch_(?P<channel>\d{2})_(?P<gain>[h|l][i|o])_time_corr$' ]
+Output: [ 'Tile/RawChannel/Summary/{module}_{gain}_time_corr' ]
+Function: TileMonitoring.TilePostProcessing.getTileModuleTimeCorrected
+Description: Produce Tile 1D summary histograms per EBC module with time corrected of all channels in the module

@@ -90,6 +90,7 @@ BOOST_AUTO_TEST_SUITE(SCT_OnlineIdTest)
     SCT_OnlineId lastFibre(0x210000,94);
     ++lastFibre; //now its the last fibre, still ok
     BOOST_CHECK(lastFibre.fibre() == 95);
+    // cppcheck-suppress postfixOperator; deliberate here, for testing
     lastFibre++; //beyond the number of valid fibres for a ROD, not ok
     BOOST_CHECK(not lastFibre.is_valid());
     //and if I ask for the fibre?

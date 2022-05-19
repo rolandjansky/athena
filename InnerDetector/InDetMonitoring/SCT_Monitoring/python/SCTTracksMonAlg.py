@@ -52,8 +52,8 @@ def SCTTracksMonAlgConfig(inputFlags):
     myMonAlg.TriggerChain = ''
     # myMonAlg.RandomHist = True
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-    myMonAlg.TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    myMonAlg.TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolCfg(inputFlags))
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the

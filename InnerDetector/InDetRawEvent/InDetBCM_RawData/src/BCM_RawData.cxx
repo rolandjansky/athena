@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,16 +15,11 @@
 // Version 1.4 02/03/2009 Daniel Dobos
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
+
 #include "InDetBCM_RawData/BCM_RawData.h"
 
-////////////////////////
-// default constructor
-////////////////////////
-BCM_RawData::BCM_RawData():
-  m_word1(0),
-  m_word2(0)
-{}
+
+
 
 ////////////////////////
 // constructor with parameters: word1, word2
@@ -101,8 +96,3 @@ BCM_RawData::BCM_RawData(const unsigned int Channel,
         )
 {}
 
-////////////////////////
-// destructor
-////////////////////////
-BCM_RawData::~BCM_RawData()
-{}

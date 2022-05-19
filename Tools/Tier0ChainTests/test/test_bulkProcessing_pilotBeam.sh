@@ -3,6 +3,7 @@
 # art-description: RecoTrf
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
 
 # There was a database connection problem reported in ATR-24782. Rodney Walker's solution is to use the following export to fix the problem:
@@ -11,7 +12,7 @@ export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-
 Reco_tf.py  \
 --AMI f1207  \
 --inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data21_comm.00404400.express_express.merge.RAW._lb2497._SFO-ALL._0001.1" \
---outputAODFile="AOD.root" \
+--outputAODFile="AOD.pool.root" \
 --outputESDFile="ESD.pool.root" \
 --outputDAOD_L1CALO2File="L1CALO2.pool.root" \
 --outputHISTFile="HIST.root" \
@@ -25,7 +26,8 @@ if [ ${rc1} -eq 0 ]
 then
   ArtPackage=$1
   ArtJobName=$2
-  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
+  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool \
+  --ignore-leave '(.*)TrigCompositeAuxContainer_v2_HLTNav_Summary_ESDSlimmedAux(.*)'
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"

@@ -8,7 +8,6 @@
 #include <HGTD_ReadoutGeometry/HGTD_DetectorElement.h>
 #include <HGTD_ReadoutGeometry/HGTD_ModuleDesign.h>
 
-#include <AthenaKernel/getMessageSvc.h>
 #include <InDetSimEvent/SiHitIdHelper.h>
 #include <ReadoutGeometryBase/SiCommonItems.h>
 
@@ -19,7 +18,7 @@ constexpr int HGTD_HitIndex{2};
 
 HGTD_GmxInterface::HGTD_GmxInterface(HGTD_DetectorManager *detectorManager,
                                      InDetDD::SiCommonItems *commonItems)
-    : AthMessaging(Athena::getMessageSvc(), "HGTD_GmxInterface"),
+    : AthMessaging("HGTD_GmxInterface"),
       m_detectorManager(detectorManager),
       m_commonItems(commonItems)
 {

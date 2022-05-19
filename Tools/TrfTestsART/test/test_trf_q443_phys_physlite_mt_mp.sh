@@ -3,6 +3,7 @@
 # art-description: Reco_tf.py q443, HITtoRDO/RDOtoRDOTrigger/RAWtoALL in MT and AODtoDAOD in MP
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
 
 export ATHENA_CORE_NUMBER=8

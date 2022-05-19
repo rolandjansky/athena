@@ -66,8 +66,7 @@ def standardReco(input):
         def f(jetdef,spec):
             from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
             flags = jetdef._cflags
-            return MuonReconstructionCfg(flags) if flags.Jet.doUpstreamDependencies else None
-        
+            return MuonReconstructionCfg(flags) if flags.Jet.doUpstreamDependencies else None     
     elif input=="PFlow":
         def f(jetdef,spec):
             from eflowRec.PFRun3Config import PFCfg

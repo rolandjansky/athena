@@ -929,6 +929,8 @@ def make_peeker(meta_dict):
                 'TruthStrategy',
                 'SimBarcodeOffset',
                 'TRTRangeCut',
+                'SimulationFlavour',
+                'Simulator',
             ]
             for item in list(meta_dict[filename]['/Simulation/Parameters']):
                 if item not in keys_to_keep:

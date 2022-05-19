@@ -48,14 +48,14 @@ def iterativeVertexFinderCfg(flags, signature):
     """ Configure the iterative vertex finder """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
 
     acc = ComponentAccumulator()
     vtx_cuts = ConfiguredTrigVtxCuts()
     # TODO - should this have isHLT = True? This isn't set in the non-CA version
-    summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+    summary_tool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
     extrapolator_acc = InDetExtrapolatorCfg(flags)
     extrapolator = extrapolator_acc.getPrimary()
     acc.addPublicTool(extrapolator)
@@ -102,13 +102,14 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
     """ Configure the adaptive multi-vertex finder """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg, TrackToVertexIPEstimatorCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    from InDetConfig.TrackingCommonConfig import TrackToVertexIPEstimatorCfg
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     acc = ComponentAccumulator()
     # TODO - should this have isHLT = True? This isn't set in the non-CA version
-    summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+    summary_tool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
     extrapolator_acc = InDetExtrapolatorCfg(flags)
     extrapolator = extrapolator_acc.getPrimary()
     acc.merge(extrapolator_acc)

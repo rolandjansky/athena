@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
 #include "PathResolver/PathResolver.h"
@@ -17,18 +18,14 @@ const TRTParameters* TRTParameters::GetPointer()
 
 // Called by GetPointer
 
-TRTParameters::TRTParameters() : m_msg("TRTParameters")
+TRTParameters::TRTParameters()
 {
   ReadInputFile("TRT_G4Utilities_management.txt");
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters" << endmsg;
-
   ReadInputFile("TRT_G4Utilities_geometry.txt");
 
   if (GetInteger("PrintListOfParameters"))
     PrintListOfParameters();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParameters done" << endmsg;
 }
 
 
@@ -36,9 +33,6 @@ TRTParameters::TRTParameters() : m_msg("TRTParameters")
 
 TRTParameters::~TRTParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters" << endmsg;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters done" << endmsg;
 }
 
 
@@ -46,8 +40,6 @@ TRTParameters::~TRTParameters()
 
 void TRTParameters::ReadInputFile(const std::string& fileName)
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile" << endmsg;
-
   std::string file = PathResolver::find_file (fileName, "DATAPATH");
   std::ifstream inputFile(file.c_str(), std::ios::in);
 
@@ -144,8 +136,6 @@ void TRTParameters::ReadInputFile(const std::string& fileName)
   }
 
   inputFile.close();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile done" << endmsg;
 }
 
 

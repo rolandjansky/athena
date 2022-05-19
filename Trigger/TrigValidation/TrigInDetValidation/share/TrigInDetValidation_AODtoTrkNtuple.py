@@ -202,9 +202,9 @@ if ( True ) :
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
     "HLT_e.*:HLT_IDTrack_Electron_GSF",
 
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e20_idperf_loose_lrtloose_L1EM15VH:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
     "HLT_e30_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
+    "HLT_e20_idperf_loose_lrtloose_L1EM15VH:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
     "HLT_e30_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
     # electron lrt e tag

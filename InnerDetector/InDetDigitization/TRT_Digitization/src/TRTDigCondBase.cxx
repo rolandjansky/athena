@@ -21,9 +21,6 @@
 // For the random numbers.
 #include "CLHEP/Random/RandFlat.h"
 
-// Logging
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 //________________________________________________________________________________
 TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
                                 const InDetDD::TRT_DetectorManager* detmgr,
@@ -31,19 +28,18 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
                                 int UseGasMix,
                                 ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
                                 )
-  : m_settings(digset),
+  : AthMessaging("TRTDigCondBase"),
+    m_settings(digset),
     m_detmgr(detmgr),
     m_id_helper(trt_id),
     m_averageNoiseLevel(-1.0),
     m_crosstalk_noiselevel(-1.0),
     m_crosstalk_noiselevel_other_end(-1.0),
-    m_msg ("TRTDigCondBase"),
     m_UseGasMix(UseGasMix),
     m_sumTool(std::move(sumTool))
 {
   m_crosstalk_noiselevel = m_settings->crossTalkNoiseLevel();
   m_crosstalk_noiselevel_other_end = m_settings->crossTalkNoiseLevelOtherEnd();
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::Constructor" << endmsg;
 }
 
 
@@ -82,7 +78,6 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
   unsigned int nECA[14][3] = {{0}}; // [ringwheel=0--13][strawGasType=0,1,2]
   unsigned int nECC[14][3] = {{0}}; // [ringwheel=0--13][strawGasType=0,1,2]
 
-  MsgStream* amsg = &(m_msg.get());
   for (;it!=itE;++it) { // loop over straws
 
     const double strawLength((*it)->strawLength());
@@ -111,7 +106,7 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
       const int hitid(hitid_helper->buildHitId( endcap, isneg, ringwheel, phisector, layer, iStraw));
       Identifier strawId = m_id_helper->straw_id(side, phisector, ringwheel, layer, iStraw);
       const int statusHT = m_sumTool->getStatusHT(strawId);
-      const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
+      const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, &msg());
 
       //Get info about the straw conditions, then create and fill the strawstate
       double noiselevel, relative_noiseamplitude;
@@ -141,10 +136,8 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
   //just put it to something:
   m_it_hitid_to_StrawState_Last = m_it_hitid_to_StrawState;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::initialize end" << endmsg;
-
   if (m_hitid_to_StrawState.empty()) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"TRTDigCondBase::initialize it seems that ALL straws are dead/masked! This wont work." << endmsg;
+    ATH_MSG_ERROR("TRTDigCondBase::initialize it seems that ALL straws are dead/masked! This wont work.");
   }
 
   //just to avoid having an uninitialized iterator hanging around:
@@ -209,24 +202,4 @@ bool TRTDigCondBase::crossTalkNoiseOtherEnd( CLHEP::HepRandomEngine* randengine 
   const float noise(- m_crosstalk_noiselevel_other_end * log(CLHEP::RandFlat::shoot(randengine, 0.0, 1.0)));
   if ( CLHEP::RandFlat::shoot(randengine, 0.0, 1.0) < noise ) return true;
   return false;
-}
-
-//________________________________________________________________________________
-
-void TRTDigCondBase::display (const std::string& msg, int lvl) const { this->msg() << static_cast<MSG::Level>(lvl) << msg << endmsg; }
-
-void TRTDigCondBase::setLvl (int lvl) { msg().setLevel ((MSG::Level)lvl); }
-
-void TRTDigCondBase::setLvl (const std::string& lvl)
-{
-  MSG::Level new_lvl = MSG::INFO;
-  if (lvl=="debug")          { new_lvl = MSG::DEBUG;
-  } else if (lvl=="info")    { new_lvl = MSG::INFO;
-  } else if (lvl=="warning") { new_lvl = MSG::WARNING;
-  } else if (lvl=="error")   { new_lvl = MSG::ERROR;
-  } else {
-    msg() << MSG::WARNING << "lvl [" << lvl << "] UNKNOWN !" << endmsg;
-    return;
-  }
-  msg().setLevel (new_lvl);
 }

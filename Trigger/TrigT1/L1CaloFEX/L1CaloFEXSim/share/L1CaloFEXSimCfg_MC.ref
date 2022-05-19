@@ -19,7 +19,6 @@ ApplicationMgr                                               0 SUCCESS          
 ApplicationMgr                                               0 SUCCESS                     CaloAlignCondAlg/CaloAlignCondAlg
 ApplicationMgr                                               0 SUCCESS                     CaloSuperCellAlignCondAlg/CaloSuperCellAlignCondAlg
 ApplicationMgr                                               0 SUCCESS                     AthReadAlg/AthReadAlg_SCell
-ApplicationMgr                                               0 SUCCESS                     AthReadAlg/AthReadAlg_SCellnoBCID
 ApplicationMgr                                               0 SUCCESS                     LumiBlockMuWriter/LumiBlockMuWriter
 ApplicationMgr                                               0 SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr                                               0 SUCCESS                AthIncFirerAlg/EndIncFiringAlg

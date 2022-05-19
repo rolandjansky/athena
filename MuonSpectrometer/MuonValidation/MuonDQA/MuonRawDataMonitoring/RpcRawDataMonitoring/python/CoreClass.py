@@ -208,10 +208,8 @@ class Draw_Base(object):
     self.doneParserPanel     = self._in_hname
     self._prepareHisto()
 
-    for p_ind, panel_properties in self._PanelsProperties.items():
-      i_panel          = RPCRawDataMonUtils.Panel(panel_properties, p_ind)
-      panel_name       = i_panel.getPanelName()
-      
+    for p_ind, i_panel in self._PanelsProperties.items():
+      panel_name    = i_panel.getPanelName()
       panelLocalPar = i_panel.getLocalPos()
       sec_layer     = i_panel.getSector()
       i_etaSta      = panelLocalPar[0]
@@ -251,9 +249,7 @@ class Draw_Base(object):
     self._prepareHisto()
     
     temp_dic_sectors_layers = {}
-    for p_ind, panel_properties in self._PanelsProperties.items():
-      i_panel          = RPCRawDataMonUtils.Panel(panel_properties, p_ind)
-      
+    for p_ind, i_panel in self._PanelsProperties.items():
       panel_name = i_panel.getPanelName()
       sec_layer  = i_panel.getSector()
       i_measPhi  = i_panel.measPhi
@@ -287,7 +283,7 @@ class Draw_Base(object):
       y_title = out_htitle+'['+y_unit+']'
 
     dic_hist = {}
-    for i_layer in range(1, 8+1):
+    for i_layer in range(1, 9): # 1, 2, ..., 8
       h_name  = "Summary_layer"+str(i_layer)+"_"+out_hname
       h_title = "Summary of "+out_htitle.lower()+'('+layerNames[i_layer]+')'
 
@@ -325,33 +321,47 @@ class Draw_Base(object):
       y_title = self._out_htitle+'['+y_unit+']'
 
     list_hists = []
-    for i_sector, dic_perSecLayer in self._dic_panels_detect.items():
-      dic_hist            = {}
-      sector_layer_name   = ("Summary_Sector%d_Layer%d" %(i_sector[0], i_sector[1]))
-      sector_layer_title  = "Summary of "+out_htitle.lower()+" of panels in sector"+str(i_sector[0])+'-'+layerNames[i_sector[1]]
-      
-      for i_dbPhi_meas, dic_dbPhi_meas in dic_perSecLayer.items():
-        h_name  = sector_layer_name+("_dbPhi%d_measPhi%d" %(i_dbPhi_meas[0], i_dbPhi_meas[1]))+"_"+out_hname
-        h_title = sector_layer_title+"-dbPhi"+str(i_dbPhi_meas[0])+'-'+isMeasPhiNames[i_dbPhi_meas[1]]
-        hist = ROOT.TH1F(h_name, h_title+";(#eta station, dbZ);"+y_title, 19, 0, 19)
+    sectors    = list(range(-16, 0)) + list(range(1, 17)) # -16, -15, ..., 2, 1, 1, 2, ..., 15, 16
+    for i_sector in sectors:
+      for i_layer in range(1, 9): # 1, 2, ..., 8
+        if not (i_sector, i_layer) in self._dic_panels_detect:
+          continue
+        
+        dic_perSecLayer     = self._dic_panels_detect[(i_sector, i_layer)]
 
-        for i_eta_dbZ, object_perPanel in dic_dbPhi_meas.items():
-          if i_eta_dbZ[0] > 4:
-            x_bin = (i_eta_dbZ[0]-1)*2+i_eta_dbZ[1]+3
-          elif i_eta_dbZ[0] > 2:
-            x_bin = (i_eta_dbZ[0]-1)*2+i_eta_dbZ[1]+2
-          else:
-            x_bin = (i_eta_dbZ[0]-1)*2+i_eta_dbZ[1]+1
-          
-          cont_error = self.getContent(object_perPanel)
+        dic_hist            = {}
+        sector_layer_name   = ("Summary_Sector%d_Layer%d" %(i_sector, i_layer))
+        sector_layer_title  = "Summary of "+out_htitle.lower()+" of panels in sector"+str(i_sector)+'-'+layerNames[i_layer]
+        
+        for i_dbPhi in [1,2]:
+          for i_measPhi in [0,1]:
 
-          hist.SetBinContent(x_bin, cont_error[0])
-          hist.SetBinError(x_bin, cont_error[1])
+            if not (i_dbPhi, i_measPhi) in dic_perSecLayer:
+              continue
 
-        self.modifyXlabel(hist)
-        dic_hist[i_dbPhi_meas] = hist
+            dic_dbPhi_meas = dic_perSecLayer[(i_dbPhi, i_measPhi)]
 
-      list_hists += self.decorateSummary_perSector(dic_hist)
+            h_name  = sector_layer_name+("_dbPhi%d_measPhi%d" %(i_dbPhi, i_measPhi))+"_"+out_hname
+            h_title = sector_layer_title+"-dbPhi"+str(i_dbPhi)+'-'+isMeasPhiNames[i_measPhi]
+            hist = ROOT.TH1F(h_name, h_title+";(#eta station, dbZ);"+y_title, 19, 0, 19)
+
+            for i_eta_dbZ, object_perPanel in dic_dbPhi_meas.items():
+              if i_eta_dbZ[0] > 4:
+                x_bin = (i_eta_dbZ[0]-1)*2+i_eta_dbZ[1]+3
+              elif i_eta_dbZ[0] > 2:
+                x_bin = (i_eta_dbZ[0]-1)*2+i_eta_dbZ[1]+2
+              else:
+                x_bin = (i_eta_dbZ[0]-1)*2+i_eta_dbZ[1]+1
+
+              cont_error = self.getContent(object_perPanel)
+
+              hist.SetBinContent(x_bin, cont_error[0])
+              hist.SetBinError(x_bin, cont_error[1])
+
+            self.modifyXlabel(hist)
+            dic_hist[(i_dbPhi, i_measPhi)] = hist
+
+        list_hists += self.decorateSummary_perSector(dic_hist)
 
     return list_hists
 
@@ -475,7 +485,7 @@ class Draw_Base(object):
       z_max       = self._rangeOfVariables_perPanel[self._variable][1]
 
     dic_hists = {}
-    for i_layer in range(1, 6+1):
+    for i_layer in range(1, 7): # 1,2,...,6
       for i_measPhi in [0, 1]:
         h2_name  = out_hname+"_layer"+str(i_layer)+"_measPhi"+str(i_measPhi)
         h2_title = out_htitle+"("+layerNames[i_layer]+"-"+isMeasPhiNames[i_measPhi]+")"
@@ -502,19 +512,22 @@ class Draw_Base(object):
           h2_temp.SetBinContent(x_bin, y_bin, content)
 
     list_hists = []
-    for i_layer_measphi, h2 in dic_hists.items():
-      if self._doSetZRange:
-        h2.SetMinimum(z_min)
-        h2.SetMaximum(z_max)
-        h2.GetZaxis().SetRangeUser(z_min, z_max)
+    for i_layer in range(1, 7): # 1,2,...,6
+      for i_measPhi in [0, 1]:
+        h2 = dic_hists[(i_layer, i_measPhi)]
 
-      # decorate histgram
-      HistDecorate.setTitleOffset(h2, "TH2")
-      HistDecorate.set_verticalGrid(h2)
-      HistDecorate.set_horizonGrid(h2)
-      HistDecorate.setAxisLabel_EtaPhi(h2)
+        if self._doSetZRange:
+          h2.SetMinimum(z_min)
+          h2.SetMaximum(z_max)
+          h2.GetZaxis().SetRangeUser(z_min, z_max)
 
-      list_hists.append(h2)
+        # decorate histgram
+        HistDecorate.setTitleOffset(h2, "TH2")
+        HistDecorate.set_verticalGrid(h2)
+        HistDecorate.set_horizonGrid(h2)
+        HistDecorate.setAxisLabel_EtaPhi(h2)
+
+        list_hists.append(h2)
       
     return list_hists
 
@@ -522,7 +535,7 @@ class Draw_Base(object):
   def decorateAllSectorSummary(self, dic_hist):
     minY = 1e6
     maxY = 0.
-    for i_layer in range(1, 8+1):
+    for i_layer in range(1, 9): # 1, 2, ..., 8
       ind = i_layer-1
       i_histo = dic_hist[i_layer]
       i_histo.SetMarkerSize(1.0)
@@ -536,7 +549,7 @@ class Draw_Base(object):
 
     diffMaxMin = maxY-minY
     list_hist = []
-    for i_layer in range(1, 8+1):
+    for i_layer in range(1, 9): # 1, 2, ..., 8
       i_histo = dic_hist[i_layer]
       i_histo.GetXaxis().SetTitleOffset(1.0)
       i_histo.GetYaxis().SetTitleOffset(1.0)
@@ -571,13 +584,19 @@ class Draw_Base(object):
 
     ind = 0
     list_hist = []
-    for i_dbPhi_meas, i_histo in dic_hist.items():
-      i_histo.GetYaxis().SetRangeUser(minY-0.2*diffMaxMin, maxY+1.3*diffMaxMin)
+    for i_dbPhi in [1,2]:
+      for i_measPhi in [0,1]:
+        try: 
+          i_histo = dic_hist[(i_dbPhi, i_measPhi)]
+        except KeyError:
+          continue
 
-      if self._variable in self._cut_variables:
-        self.setCutLine(i_histo, 1)
+        i_histo.GetYaxis().SetRangeUser(minY-0.2*diffMaxMin, maxY+1.3*diffMaxMin)
 
-      list_hist.append(i_histo)
+        if self._variable in self._cut_variables:
+          self.setCutLine(i_histo, 1)
+
+        list_hist.append(i_histo)
 
     return list_hist
 
@@ -594,7 +613,7 @@ class Draw_Base(object):
       '(7,1)', '(7,2)',
       '(8,1)', '(8,2)']
 
-    for i_bin in range(1, 19+1):
+    for i_bin in range(1, 20): # 1, 2, ..., 18, 19
       hist.GetXaxis().SetBinLabel(i_bin, etaStation_dbZ[i_bin-1])
 
   # -----------------------------------------------------------------------
@@ -728,6 +747,10 @@ class Draw_Occupancy(Draw_Base):
       y_err.append( hit_y_err )
     x_err = [0]*len(x)
 
+    if x == []:
+      null_graph = ROOT.TGraph()
+      return null_graph
+
     return RPCRawDataMonUtils.creatGraph(x, y, x_err, y_err, g_name, g_title, g_Xtitle, g_Ytitle)
 
   # -----------------------------------------------------------------------
@@ -842,7 +865,7 @@ class Draw_Occupancy(Draw_Base):
     else:
       cont  = singleObj[self._variable]
       if self._variable == 'chi2':
-        error = 0.01
+        error = 0.01 # non-sense value
       else:
         error = singleObj[self._variable+"_err"]
 

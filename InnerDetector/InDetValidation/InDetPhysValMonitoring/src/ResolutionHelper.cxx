@@ -8,7 +8,6 @@
  * @author Max Baugh, Liza Mijovic, Nora Pettersson
  **/
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "InDetPhysValMonitoring/ResolutionHelper.h"
 #include "TH1.h"
 #include "TH1D.h"
@@ -23,7 +22,7 @@
 namespace IDPVM {
   
   ResolutionHelper::ResolutionHelper() :
-    AthMessaging(Athena::getMessageSvc(), "ResolutionHelper")
+    AthMessaging("ResolutionHelper")
   {
   }
   

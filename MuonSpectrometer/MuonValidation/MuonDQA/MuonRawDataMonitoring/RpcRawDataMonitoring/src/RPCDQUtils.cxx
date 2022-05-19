@@ -58,8 +58,7 @@ RpcPanel::RpcPanel( const Muon::IMuonIdHelperSvc    &idHelperSvc,
                     const int                        _doubletZ, 
                     const int                        _doubletPhi,
                     const int                        _gasgap,
-                    const int                        _measPhi,
-                    int                        &_panelIn):
+                    const int                        _measPhi):
   readoutEl  (_readoutEl),
   doubletR   (_readoutEl->getDoubletR()),
   doubletZ   (_doubletZ),
@@ -75,7 +74,6 @@ RpcPanel::RpcPanel( const Muon::IMuonIdHelperSvc    &idHelperSvc,
 
   stationEta  = rpcIdHelper.stationEta (readEl_id);
   stationPhi  = rpcIdHelper.stationPhi (readEl_id);
-  // panel_index = stationName*6144 + stationPhi*768 + (stationEta+9)*48 + doubletR*24 + doubletPhi*12 + doubletZ*4 + gasGap*2 + measPhi;
 
   //
   // Get Identifier for this panel
@@ -87,21 +85,32 @@ RpcPanel::RpcPanel( const Muon::IMuonIdHelperSvc    &idHelperSvc,
 			                          doubletZ,
 			                          doubletPhi,
 			                          gasGap,
-                                      measPhi,
+                                measPhi,
 			                          panel_valid);
   if(panel_valid) {
     panel_str = idHelperSvc.toString(panelId);
-    // Only _doubletPhi maybe different with rpcIdHelper.doubletPhi(readEl_id)
-    // cout<<"Test-rpcIdHelper.gasGap(readEl_id)      = "<<rpcIdHelper.gasGap(readEl_id)<< std::endl;
-    panel_index = _panelIn;
-    _panelIn++;
     panel_name = getOnlineConvention();
   }
   else {
     panel_str = idHelperSvc.toString(panelId) + " - INVALID ID";
   }
-
 }
+
+//========================================================================================================
+void RpcPanel::SetPanelIndex(int index)
+{
+  panel_index = index;
+}
+
+//========================================================================================================
+std::string RpcPanel::getElementStr() const
+{
+  std::ostringstream ele_key;
+
+  ele_key << stationName << "_" << stationEta << "_" << stationPhi << "_" <<doubletR << "_" << doubletZ;
+  return ele_key.str();
+}
+
 
 //========================================================================================================
 bool RpcPanel::operator ==(const RpcPanel &rhs) const
@@ -364,4 +373,3 @@ void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const Trk::Track
   result.minTrackGasGapDR = std::sqrt(result.minTrackGasGapDEta*result.minTrackGasGapDEta + 
 				                              result.minTrackGasGapDPhi*result.minTrackGasGapDPhi);
 }
-

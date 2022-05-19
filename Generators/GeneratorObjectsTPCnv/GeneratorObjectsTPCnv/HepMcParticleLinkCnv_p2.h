@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOROBJECTSTPCNV_HEPMCPARTICLELINKCNV_P2_H
@@ -22,19 +22,18 @@
 // Forward declaration
 class MsgStream;
 
-class HepMcParticleLinkCnv_p2 : public T_AthenaPoolTPCnvBase<
+class HepMcParticleLinkCnv_p2 : public T_AthenaPoolTPCnvConstBase<
                                          HepMcParticleLink,
                                          HepMcParticleLink_p2
                                        >
 {
-  ///////////////////////////////////////////////////////////////////
-  // Public methods:
-  ///////////////////////////////////////////////////////////////////
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
 
   /** Default constructor:
    */
-  HepMcParticleLinkCnv_p2();
+  HepMcParticleLinkCnv_p2() = default;
 
 
   /** Method creating the transient representation of @c HepMcParticleLink
@@ -42,21 +41,15 @@ public:
    */
   virtual void persToTrans( const HepMcParticleLink_p2* persObj,
                             HepMcParticleLink* transObj,
-                            MsgStream &msg );
+                            MsgStream &msg ) const override;
 
   /** Method creating the persistent representation @c HepMcParticleLink_p2
    *  from its transient representation @c HepMcParticleLink
    */
   virtual void transToPers( const HepMcParticleLink* transObj,
                             HepMcParticleLink_p2* persObj,
-                            MsgStream &msg );
+                            MsgStream &msg ) const override;
 };
 
-///////////////////////////////////////////////////////////////////
-/// Inline methods:
-///////////////////////////////////////////////////////////////////
-
-inline HepMcParticleLinkCnv_p2::HepMcParticleLinkCnv_p2()
-{}
 
 #endif //> GENERATOROBJECTSTPCNV_HEPMCPARTICLELINKCNV_P2_H

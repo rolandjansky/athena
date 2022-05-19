@@ -13,7 +13,7 @@ atlas_add_library( CscCalibEvent
                    src/*.cxx
                    PUBLIC_HEADERS CscCalibEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers Identifier MuonIdHelpersLib EventContainers
+                   LINK_LIBRARIES AthContainers Identifier MuonIdHelpersLib EventContainers CxxUtils
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( CscCalibEventDict

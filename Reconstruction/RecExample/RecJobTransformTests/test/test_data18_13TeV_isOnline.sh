@@ -4,6 +4,7 @@
 # art-athena-mt: 8
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 
 #The input file has to be specified twice because Reco_tf requires such an argument, whilst The RecExOnline job options ignore that and instead uses its own fileName to configure
 #the input file - without that specified the code crashes out complaining that fileName was not specified.

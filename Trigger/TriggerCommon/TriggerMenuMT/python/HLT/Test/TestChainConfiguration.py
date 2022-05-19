@@ -108,13 +108,13 @@ class TestChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
             #muons
-            'muv1step': ['Step_mu11'],
-            'muv1':     ['Step_mu11', 'Step_mu21', 'Step_mu31', 'Step_mu41'], 
-            'muv2':     ['Step_mu11', 'Step_mu22', 'Step_mu31'],
-            'muEmpty1': ['Step_empty1', 'Step_mu21'],
-            #'muEmpty1': ['Step_empty1', 'Step_mu11'], # try to break 'Step_mu21'],
-            'muEmpty2': ['Step_mu11'  ,'Step_empty2' ,'Step_mu32', 'Step_mu41'],
-            'muv1dr' :  ['Step_mu11Dr', 'Step_mu21', 'Step_mu31', 'Step_mu41'],
+            'mv1step': ['Step_mu11'],
+            'mv1':     ['Step_mu11', 'Step_mu21', 'Step_mu31', 'Step_mu41'], 
+            'mv2':     ['Step_mu11', 'Step_mu22', 'Step_mu31'],
+            'mEmpty1': ['Step_empty1', 'Step_mu21'],
+            #'mEmpty1': ['Step_empty1', 'Step_mu11'], # try to break 'Step_mu21'],
+            'mEmpty2': ['Step_mu11'  ,'Step_empty2' ,'Step_mu32', 'Step_mu41'],
+            'mv1dr' :  ['Step_mu11Dr', 'Step_mu21', 'Step_mu31', 'Step_mu41'],
             #egamma
             'ev1':     ['Step_em11', 'Step_em21', 'Step_em31'],
             'ev2':     ['Step_em11', 'Step_em22'], 
