@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef HTTHOUGHTRANSFORM_D0PHI0_TOOL_H
-#define HTTHOUGHTRANSFORMTOOL_D0PHI0_H
+#define HTTHOUGHTRANSFORM_D0PHI0_TOOL_H
 
 /**
  * @file HTTHoughTransform_d0phi0_Tool.h
@@ -89,13 +89,13 @@ class HTTHoughTransform_d0phi0_Tool : public extends <AthAlgTool, IHTTRoadFinder
         HTTTrackPars m_parMin; // These are the bounds of the image, i.e. the region of interest
         HTTTrackPars m_parMax; // Only the two parameters chosen above are used
 
-        unsigned m_nCombineLayers; // number of layers after combined
+        unsigned m_nCombineLayers = 0U; // number of layers after combined
         std::vector< std::vector<unsigned> > m_combineLayer2D; // 2d array of combined layers i.e. [[1,2,3],[0,4,5],[6,7]] will combine (L1, L2, L3), (L0, L4, L5), (L6, L7)
 
         ///////////////////////////////////////////////////////////////////////
         // Convenience
 
-        unsigned m_nLayers; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
+        unsigned m_nLayers = 0U; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
 
         double m_step_x = 0; // step size of the bin boundaries in x
         double m_step_y = 0; // step size of the bin boundaries in y

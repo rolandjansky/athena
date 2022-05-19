@@ -19,7 +19,6 @@
 class HTTLLPRoadFilterTool : public AthAlgTool {
 public:
   HTTLLPRoadFilterTool (const std::string& algname, const std::string& name, const IInterface* ifc);
-  HTTLLPRoadFilterTool() = default;
 
   StatusCode filterUsedHits(std::vector<HTTTrack> &tracks, 
 			    const std::vector<const HTTHit*>& allHits, 
