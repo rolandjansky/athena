@@ -1,19 +1,18 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_EventTPCnv/src/HGTD_RDOContainerCnv_p1.cxx
+ * @file HGTD_EventTPCnv/src/HGTD_RDO_ContainerCnv_p1.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date August, 2021
- * @brief Implementation file of HGTD_RDOContainerCnv_p1.h
+ * @brief Implementation file of HGTD_RDO_ContainerCnv_p1.h
  */
 
-#include "HGTD_EventTPCnv/HGTD_RDOContainerCnv_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDO_ContainerCnv_p1.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "HGTD_EventTPCnv/HGTD_RDOCnv_p1.h"
-#include "HGTD_EventTPCnv/HGTD_RDOCollection_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDO_Cnv_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDO_Collection_p1.h"
 #include "HGTD_EventTPCnv/HGTD_RDO_p1.h"
 #include "HGTD_Identifier/HGTD_ID.h"
 #include "Identifier/Identifier.h"
@@ -21,7 +20,7 @@
 
 #include <memory>
 
-StatusCode HGTD_RDOContainerCnv_p1::initialize(MsgStream& log) {
+StatusCode HGTD_RDO_ContainerCnv_p1::initialize(MsgStream& log) {
   // Do not initialize again:
   m_is_initialized = true;
 
@@ -50,18 +49,18 @@ StatusCode HGTD_RDOContainerCnv_p1::initialize(MsgStream& log) {
   return StatusCode::SUCCESS;
 }
 
-void HGTD_RDOContainerCnv_p1::transToPers(
+void HGTD_RDO_ContainerCnv_p1::transToPers(
     const Trans_t* transient_container, Pers_t* persistent_container,
     MsgStream& log) {
 
   if (!m_is_initialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize HGTD_RDOContainerCnv_p1 "
+      log << MSG::FATAL << "Could not initialize HGTD_RDO_ContainerCnv_p1 "
           << endmsg;
     }
   }
 
-  HGTD_RDOCnv_p1 rdo_converter;
+  HGTD_RDO_Cnv_p1 rdo_converter;
   size_t n_collections = transient_container->numberOfCollections();
   Trans_t::const_iterator container_itr = transient_container->begin();
 
@@ -71,7 +70,7 @@ void HGTD_RDOContainerCnv_p1::transToPers(
   size_t total_n_clusters = 0;
 
   for (size_t coll_i = 0; coll_i < n_collections; coll_i++, ++container_itr) {
-    const HGTD_RDOCollection& collection = (**container_itr);
+    const HGTD_RDO_Collection& collection = (**container_itr);
 
     size_t collection_size = collection.size();
 
@@ -115,31 +114,31 @@ void HGTD_RDOContainerCnv_p1::transToPers(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void HGTD_RDOContainerCnv_p1::persToTrans(
+void HGTD_RDO_ContainerCnv_p1::persToTrans(
     const Pers_t* persistent_container, Trans_t* transient_container,
     MsgStream& log) {
 
   if (!m_is_initialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize HGTD_RDOContainerCnv_p1 "
+      log << MSG::FATAL << "Could not initialize HGTD_RDO_ContainerCnv_p1 "
           << endmsg;
     }
   }
 
-  std::unique_ptr<HGTD_RDOCollection> collection = nullptr;
+  std::unique_ptr<HGTD_RDO_Collection> collection = nullptr;
 
-  HGTD_RDOCnv_p1 rdo_converter;
+  HGTD_RDO_Cnv_p1 rdo_converter;
   size_t collection_separator_index_begin = 0;
 
   for (size_t coll_i = 0;
        coll_i < persistent_container->m_collection_separator.size(); ++coll_i) {
-    const HGTD_RDOCollection_p1& rdo_coll =
+    const HGTD_RDO_Collection_p1& rdo_coll =
         persistent_container->m_collection_separator.at(coll_i);
     // get the identifier for the collection
     IdentifierHash coll_idhash = IdentifierHash(rdo_coll.m_hash_id);
     Identifier coll_id = m_hgtd_idhelper->wafer_id(coll_idhash);
     
-    collection = std::make_unique<HGTD_RDOCollection>(coll_idhash);
+    collection = std::make_unique<HGTD_RDO_Collection>(coll_idhash);
     collection->setIdentifier(coll_id);
 
     unsigned short n_clusters = rdo_coll.m_size;
@@ -164,13 +163,13 @@ void HGTD_RDOContainerCnv_p1::persToTrans(
   }
 }
 
-HGTD_RDOContainerCnv_p1::Trans_t*
-HGTD_RDOContainerCnv_p1::createTransient(
+HGTD_RDO_ContainerCnv_p1::Trans_t*
+HGTD_RDO_ContainerCnv_p1::createTransient(
     const Pers_t* persistent_container, MsgStream& log) {
 
   if (!m_is_initialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize HGTD_RDOContainerCnv_p1 "
+      log << MSG::FATAL << "Could not initialize HGTD_RDO_ContainerCnv_p1 "
           << endmsg;
     }
   }

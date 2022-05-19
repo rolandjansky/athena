@@ -5,9 +5,6 @@
  *
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- *
- * @date August, 2021
- *
  * @brief
  */
 
@@ -158,7 +155,7 @@ StatusCode HGTD_DigitizationTool::prepareEvent(const EventContext& ctx, unsigned
   // Create the IdentifiableContainer to contain the digit collections Create
   // a new RDO container
   m_hgtd_rdo_container = SG::makeHandle(m_output_rdo_cont_key, ctx);
-  ATH_CHECK(m_hgtd_rdo_container.record(std::make_unique<HGTD_RDOContainer>(m_id_helper->wafer_hash_max())));
+  ATH_CHECK(m_hgtd_rdo_container.record(std::make_unique<HGTD_RDO_Container>(m_id_helper->wafer_hash_max())));
 
   // Create a map for the SDO and register it into StoreGate
   m_sdo_collection_map = SG::makeHandle(m_output_sdo_coll_key, ctx);
@@ -289,7 +286,7 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement(const EventCont
     // now that the charges have been built, apply all digitization tools
     applyProcessorTools(charged_diode_coll.get(), rndmEngine);
     // at this point, the RDOs and SDOs need to be created!!!
-    std::unique_ptr<HGTD_RDOCollection> rdo_collection =
+    std::unique_ptr<HGTD_RDO_Collection> rdo_collection =
         createRDOCollection(charged_diode_coll.get());
 
     ATH_CHECK(storeRDOCollection(std::move(rdo_collection)));
@@ -326,7 +323,7 @@ void HGTD_DigitizationTool::applyProcessorTools(
 }
 
 StatusCode HGTD_DigitizationTool::storeRDOCollection(
-    std::unique_ptr<HGTD_RDOCollection> coll) {
+    std::unique_ptr<HGTD_RDO_Collection> coll) {
   // Create the RDO collection
   if (m_hgtd_rdo_container
           ->addCollection(coll.release(), coll->identifierHash())
@@ -337,13 +334,13 @@ StatusCode HGTD_DigitizationTool::storeRDOCollection(
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<HGTD_RDOCollection> HGTD_DigitizationTool::createRDOCollection(
+std::unique_ptr<HGTD_RDO_Collection> HGTD_DigitizationTool::createRDOCollection(
     SiChargedDiodeCollection* charged_diodes) const {
 
   IdentifierHash idHash_de = charged_diodes->identifyHash();
 
-  std::unique_ptr<HGTD_RDOCollection> rdo_collection =
-      std::make_unique<HGTD_RDOCollection>(idHash_de);
+  std::unique_ptr<HGTD_RDO_Collection> rdo_collection =
+      std::make_unique<HGTD_RDO_Collection>(idHash_de);
 
   // need the DE identifier
   const Identifier id_de = charged_diodes->identify();
@@ -386,10 +383,10 @@ std::unique_ptr<HGTD_RDOCollection> HGTD_DigitizationTool::createRDOCollection(
     // change in the future!!
     float toa = charge.time();
 
-    int dummy_tot = 256;
-    int dummy_bcid = 0;
-    int dummy_l1a = 0;
-    int dummy_l1id = 0;
+    unsigned int dummy_tot = 256;
+    unsigned short dummy_bcid = 0;
+    unsigned short dummy_l1a = 0;
+    unsigned short dummy_l1id = 0;
 
     std::unique_ptr<HGTD_RDO> p_rdo = std::make_unique<HGTD_RDO>(
         id_readout, toa, dummy_tot, dummy_bcid, dummy_l1a, dummy_l1id);

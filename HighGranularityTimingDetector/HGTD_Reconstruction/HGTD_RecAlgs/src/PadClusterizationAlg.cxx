@@ -3,7 +3,6 @@
  *
  * @file HGTD_RecAlgs/src/PadClusterizationAlg.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
- * @date September, 2021
  * @brief
  */
 
@@ -32,9 +31,9 @@ StatusCode PadClusterizationAlg::initialize() {
 
 StatusCode PadClusterizationAlg::execute(const EventContext& ctx) const {
   // retrieve the RDOs
-  SG::ReadHandle<HGTD_RDOContainer> rdo_container_handle(m_rdo_rh_key, ctx);
+  SG::ReadHandle<HGTD_RDO_Container> rdo_container_handle(m_rdo_rh_key, ctx);
 
-  const HGTD_RDOContainer* rdo_container = rdo_container_handle.cptr();
+  const HGTD_RDO_Container* rdo_container = rdo_container_handle.cptr();
 
   if (not rdo_container) {
     //assume this is fast digi input and ignore
