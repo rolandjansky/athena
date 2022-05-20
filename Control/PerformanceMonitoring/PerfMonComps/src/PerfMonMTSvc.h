@@ -158,9 +158,10 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   /// In the future this might be converted to a inclusion set
   /// which would allow user to monitor only a set of algorithms...
   const std::set<std::string> m_exclusionSet = {"AthMasterSeq", "AthAlgEvtSeq", "AthAllAlgSeq", "AthAlgSeq", "AthOutSeq",
-    "AthCondSeq", "AthBeginSeq", "AthEndSeq", "AthenaEventLoopMgr", "AthenaHiveEventLoopMgr", "PerfMonMTSvc"};
+    "AthCondSeq", "AthBeginSeq", "AthEndSeq", "AthenaEventLoopMgr", "AthenaHiveEventLoopMgr", "AthMpEvtLoopMgr", "PerfMonMTSvc"};
 
   /// Snapshots data
+  int m_motherPID;
   std::vector<PMonMT::SnapshotData> m_snapshotData;
   std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "FirstEvent", "Execute", "Finalize"};
   enum Snapshots {CONFIGURE, INITIALIZE, FIRSTEVENT, EXECUTE, FINALIZE, NSNAPSHOTS};
