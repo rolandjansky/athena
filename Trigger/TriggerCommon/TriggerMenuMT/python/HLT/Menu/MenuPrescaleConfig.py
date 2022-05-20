@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-import itertools
+import itertools, importlib, re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -14,108 +14,51 @@ def MenuPrescaleConfig(hltMenuConfig, flags):
 
     menu_name = flags.Trigger.triggerMenuSetup
 
-    ## Do some aliasing here
-    if menu_name == 'Physics_default': 
-        menu_name = 'Dev_pp_run3_v1'
-    elif menu_name == 'MC_loose_default': 
-        menu_name = 'Dev_pp_run3_v1'
-    elif menu_name == 'MC_tight_default': 
-        menu_name = 'Dev_pp_run3_v1'
-
     log.info('Menu name: %s', menu_name)
 
-    if menu_name.startswith('Dev_pp_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1 import setupMenu
-        chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        elif 'Primary_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_primary_prescale,
-                         ['Primary:L1Muon','Primary:Legacy','Primary:PhaseI','Primary:CostAndRate'],
-                         invert = True)  # enable these groups
-            L1Prescales = Prescales.L1Prescales_trigvalid_prescale
-            HLTPrescales = Prescales.HLTPrescales_primary_prescale
-        elif 'TriggerValidation_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_trigvalid_prescale, ["PS:Online"])
-            L1Prescales = Prescales.L1Prescales_trigvalid_prescale
-            HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
-        elif 'BulkMCProd_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:Online"])
-            L1Prescales = Prescales.L1Prescales_bulkmcprod_prescale
-            HLTPrescales = Prescales.HLTPrescales_bulkmcprod_prescale
-        elif 'CPSampleProd_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_cpsampleprod_prescale, ["PS:Online"])
-            L1Prescales = Prescales.L1Prescales_cpsampleprod_prescale
-            HLTPrescales = Prescales.HLTPrescales_cpsampleprod_prescale
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
+    # Generate the list of chains from the basic menu (terminates in a version number)
+    base_menu_name = re.match(r'\w*_v\d*',menu_name).group(0)
+    try:
+        menu_module = importlib.import_module(f'TriggerMenuMT.HLT.Menu.{base_menu_name}')
+    except Exception as e:
+        log.fatal(f'Failed to import menu module "{base_menu_name}" inferred from menu "{menu_name}"!')
+        raise e
+    chains = menu_module.setupMenu()
 
-    elif menu_name.startswith('Physics_pp_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import setupMenu
-        chains = setupMenu()
-        L1Prescales = Prescales.L1Prescales
-        HLTPrescales = Prescales.HLTPrescales        
-
-    elif menu_name.startswith('PhysicsP1_pp_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.PhysicsP1_pp_run3_v1 import setupMenu
-        chains = setupMenu()
-        L1Prescales = Prescales.L1Prescales
-        HLTPrescales = Prescales.HLTPrescales        
-
-    elif menu_name.startswith('PhysicsP1_pp_lowMu_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.PhysicsP1_pp_lowMu_run3_v1 import setupMenu
-        chains = setupMenu()
-        L1Prescales = Prescales.L1Prescales
-        HLTPrescales = Prescales.HLTPrescales
-
-    elif menu_name.startswith('MC_pp_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.MC_pp_run3_v1 import setupMenu
-        chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
-
-    elif menu_name.startswith('PhysicsP1_HI_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.PhysicsP1_HI_run3_v1 import setupMenu
-        chains = setupMenu()
-        L1Prescales = Prescales.L1Prescales
-        HLTPrescales = Prescales.HLTPrescales        
-
-    elif menu_name.startswith('Dev_HI_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.Dev_HI_run3_v1 import setupMenu
-        chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
-
-    elif menu_name.startswith('Dev_pp_run3_emu_v1'):
-        from TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1 import setupMenu
-
-        chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
-
-    elif menu_name.startswith('Cosmic_run3_v1'):
-        from TriggerMenuMT.HLT.Menu.Cosmic_run3_v1 import setupMenu
-        chains = setupMenu()
-        L1Prescales = Prescales.L1Prescales
-        HLTPrescales = Prescales.HLTPrescales
-            
+    # Determine prescale sets from the remainder of the menu name
+    # These filters become progressively less inclusive:
+    #  - Primary: primary (always unprescaled) triggers only
+    #  - BulkMCProd: triggers for generic CP and physics analysis work (veto label PS:NoBulkMCProd)
+    #  - TriggerValidation: adds more specialised triggers for trigger performance
+    #    and/or CP studies, possibly run heavily prescaled in data (veto label PS:NoTrigVal)
+    #  - HLTReprocessing: excludes a handful of triggers not to be
+    #    used in reprocessing jobs, mostly due to CPU cost (veto label PS:NoHLTRepro)
+    # 
+    # Besides the filter, explicit prescale values may also be set for specific triggers
+    # -- see the end of the file for these mappings, which should not overlap with the
+    #    disabled triggers (else they will be overwritten)
+    if 'Primary_prescale' in menu_name:
+        filterChains(chains, Prescales.HLTPrescales_primary_prescale,
+                        ['Primary:L1Muon','Primary:Legacy','Primary:PhaseI','Primary:CostAndRate'],
+                        invert = True)  # enable these groups
+        L1Prescales = Prescales.L1Prescales_primary_prescale
+        HLTPrescales = Prescales.HLTPrescales_primary_prescale
+    elif 'BulkMCProd_prescale' in menu_name:
+        assert(menu_name.startswith('Dev') or menu_name.startswith('MC'))
+        filterChains(chains, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:NoHLTRepro","PS:NoTrigVal","PS:NoBulkMCProd","PS:Online"])
+        L1Prescales = Prescales.L1Prescales_bulkmcprod_prescale
+        HLTPrescales = Prescales.HLTPrescales_bulkmcprod_prescale
+    elif 'TriggerValidation_prescale' in menu_name:
+        filterChains(chains, Prescales.HLTPrescales_trigvalid_prescale, ["PS:NoHLTRepro","PS:NoTrigVal","PS:Online"])
+        L1Prescales = Prescales.L1Prescales_trigvalid_prescale
+        HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
+    elif 'HLTReprocessing_prescale' in menu_name:
+        filterChains(chains, Prescales.HLTPrescales_HLTRepro_prescale, ["PS:NoHLTRepro"])
+        L1Prescales = Prescales.L1Prescales_HLTRepro_prescale
+        HLTPrescales = Prescales.HLTPrescales_HLTRepro_prescale
     else:
-        log.fatal('Menu with name %s is not known in this version of TriggerMenu! ', menu_name)
-        return
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales
 
     return (L1Prescales, HLTPrescales, chains)
 
@@ -167,7 +110,31 @@ class PrescaleClass(object):
     L1Prescales_bulkmcprod_prescale  = {}
     HLTPrescales_bulkmcprod_prescale = {}
 
-    L1Prescales_cpsampleprod_prescale  = {}
-    HLTPrescales_cpsampleprod_prescale = {}
+    # PS for reprocessing and related ART tests
+    # Avoid high CPU usage for low-mu triggers
+    # mainly to be used for 900 GeV, or other triggers
+    # that should normally run with prescales in standard pp
+    L1Prescales_HLTRepro_prescale  = {}
+    HLTPrescales_HLTRepro_prescale = {
+        'HLT_cosmic_id_L1MU3V_EMPTY':          10,
+        'HLT_cosmic_id_L1MU8VF_EMPTY':         10,
+        'HLT_mb_sp_L1RD0_FILLED':              10,
+        'HLT_mb_sptrk_L1RD0_FILLED':           10,
+        'HLT_mb_sptrk_L1MBTS_1':               10,
+        'HLT_mb_sptrk_L1MBTS_2':               10,
+        'HLT_mb_sptrk_L1MBTS_2_UNPAIRED_ISO':  10,
+        'HLT_mb_sptrk_L1MBTS_2_EMPTY':         10,
+        'HLT_mb_sptrk_pt2_L1RD0_FILLED':       10,
+        'HLT_mb_sptrk_pt2_L1MBTS_2':           10,
+        'HLT_mb_sptrk_pt2_L1AFP_A_OR_C':       10,
+        'HLT_mb_sptrk_pt4_L1MBTS_1':           10,
+        'HLT_mb_sptrk_pt6_L1MBTS_1':           10,
+        'HLT_mb_sptrk_pt8_L1MBTS_1':           10,
+        'HLT_mb_sp900_trk60_hmt_L1MBTS_1_1':   10,
+        'HLT_mb_sp500_trk40_hmt_L1RD0_FILLED': 10,
+        'HLT_mb_sp500_trk40_hmt_L1MBTS_2':     10,
+        'HLT_mb_sp800_trk60_hmt_L1RD0_FILLED': 10,
+        'HLT_mb_sp800_trk60_hmt_L1MBTS_2':     10,
+    }
 
     chain_list=[]

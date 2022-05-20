@@ -16480,23 +16480,11 @@ HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1eTAU80_2eTAU6
     2: 10
     3: 10
 HLT_unconvtrk0_fslrt_L14J15:
-  eventCount: 11
-  stepCounts:
-    0: 11
-  stepFeatures:
-    0: 11
+  eventCount: 0
 HLT_unconvtrk0_fslrt_L1J100:
-  eventCount: 3
-  stepCounts:
-    0: 3
-  stepFeatures:
-    0: 3
+  eventCount: 0
 HLT_unconvtrk0_fslrt_L1XE50:
-  eventCount: 6
-  stepCounts:
-    0: 6
-  stepFeatures:
-    0: 6
+  eventCount: 0
 HLT_unconvtrk0_fsvsi_L1XE50:
   eventCount: 0
 HLT_unconvtrk200_hitdv_medium_L1XE50:

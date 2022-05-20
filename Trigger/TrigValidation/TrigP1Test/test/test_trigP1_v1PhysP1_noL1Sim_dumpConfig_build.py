@@ -12,7 +12,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = ''  # No input file needed to generate config
-ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1_HLT_Reprocessing_prescale\';"'
 ex.args += ' -M --dump-config-exit'
 ex.perfmon = False  # Cannot use PerfMon with -M
 ex.fpe_auditor = False  # Don't want FPEAuditor in SMK for P1
