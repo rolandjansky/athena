@@ -427,7 +427,7 @@ if ConfigFlags.Trigger.doID:
 # Switch off CPS mechanism if we only run selected
 # signatures or chains, to avoid single-chain sets
 #-------------------------------------------------------------
-if opt.enabledSignatures or opt.selectChains:
+if len(opt.enabledSignatures)==1 or opt.selectChains:
     ConfigFlags.Trigger.disableCPS=True
 
 #-------------------------------------------------------------
