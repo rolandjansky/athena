@@ -2783,6 +2783,14 @@ HLT_g35_tight_3j25_0eta290_boffperf_pf_ftf_L1EM22VHI:
   stepFeatures:
     0: 1
     1: 1
+HLT_g35_tight_3j25_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_g35_tight_3j25_PhysicsTLA_L1EM22VHI:
   eventCount: 0
   stepCounts:
