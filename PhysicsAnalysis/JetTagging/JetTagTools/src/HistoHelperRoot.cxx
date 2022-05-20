@@ -27,12 +27,6 @@ namespace Analysis
 
 HistoHelperRoot::HistoHelperRoot(ITHistSvc* histoSvc) :
   m_histoSvc(histoSvc),
-  m_histoMap1D(std::map<std::string, TH1*>()),
-  m_histoMap2D(std::map<std::string, TH2*>()),
-  m_histoMap3D(std::map<std::string, TH3*>()),
-  m_histoLimitsMap1D(std::map<std::string, HistoLimits>()),
-  m_histoLimitsMap2D(std::map<std::string, HistoLimits>()),
-  m_histoLimitsMap3D(std::map<std::string, HistoLimits>()),
   m_checkOverflows(true)
   {}
 
@@ -60,9 +54,9 @@ std::string HistoHelperRoot::baseName(const std::string& fullHistoName) {
 
 void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string& histoTitle, unsigned int bins, double minx, double maxx)
 {
-    m_histoMap1D[histoName] = new TH1F(this->baseName(histoName).c_str(),histoTitle.c_str(),bins,minx,maxx);
+    auto h = std::make_unique<TH1F>(this->baseName(histoName).c_str(),histoTitle.c_str(),bins,minx,maxx);
     //std::cout<<"HistoHelperRoot: booking 1D "<<histoName<<std::endl;
-    if (!m_histoSvc->regHist(histoName,m_histoMap1D[histoName]).isSuccess()) {
+    if (!m_histoSvc->regShared(histoName, std::move(h), m_histoMap1D[histoName]).isSuccess()) {
       std::cout <<"Cannot book histo " << histoName << " with Title " << histoTitle <<std::endl;
     }
     m_histoLimitsMap1D[histoName] = HistoLimits(bins, minx, maxx);
@@ -70,8 +64,8 @@ void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string&
 
 void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string& histoTitle, unsigned int bins, double* edge)
 {
-    m_histoMap1D[histoName] = new TH1F(this->baseName(histoName).c_str(),histoTitle.c_str(),bins,edge);
-    if (!m_histoSvc->regHist(histoName,m_histoMap1D[histoName]).isSuccess()) {
+    auto h = std::make_unique<TH1F>(this->baseName(histoName).c_str(),histoTitle.c_str(),bins,edge);
+    if (!m_histoSvc->regShared(histoName, std::move(h), m_histoMap1D[histoName]).isSuccess()) {
       std::cout <<"Cannot book histo " << histoName << " with Title " << histoTitle <<std::endl;
     }
     m_histoLimitsMap1D[histoName] = HistoLimits(bins, edge[0], edge[bins]);
@@ -79,8 +73,8 @@ void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string&
 
 void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string& histoTitle, unsigned int binsx, double minx, double maxx, unsigned int binsy, double miny, double maxy)
 {
-    m_histoMap2D[histoName] = new TH2F(this->baseName(histoName).c_str(),histoTitle.c_str(),binsx,minx,maxx,binsy,miny,maxy);
-    if (!m_histoSvc->regHist(histoName,m_histoMap2D[histoName]).isSuccess()) {
+    auto h = std::make_unique<TH2F>(this->baseName(histoName).c_str(),histoTitle.c_str(),binsx,minx,maxx,binsy,miny,maxy);
+    if (!m_histoSvc->regShared(histoName, std::move(h), m_histoMap2D[histoName]).isSuccess()) {
       std::cout <<"Cannot book histo " << histoName << " with Title " << histoTitle <<std::endl;
     }
     m_histoLimitsMap2D[histoName] = HistoLimits(binsx, minx, maxx, binsy, miny, maxy);
@@ -88,8 +82,8 @@ void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string&
 
 void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string& histoTitle, unsigned int binsx,  double* edgex, unsigned int binsy, double* edgey)
 {
-    m_histoMap2D[histoName] = new TH2F(this->baseName(histoName).c_str(),histoTitle.c_str(),binsx,edgex,binsy,edgey);
-    if (!m_histoSvc->regHist(histoName,m_histoMap2D[histoName]).isSuccess()) {
+    auto h = std::make_unique<TH2F>(this->baseName(histoName).c_str(),histoTitle.c_str(),binsx,edgex,binsy,edgey);
+    if (!m_histoSvc->regShared(histoName, std::move(h), m_histoMap2D[histoName]).isSuccess()) {
       std::cout <<"Cannot book histo " << histoName << " with Title " << histoTitle <<std::endl;
     }
     m_histoLimitsMap2D[histoName] = HistoLimits(binsx, edgex[0], edgex[binsx], binsy, edgey[0], edgey[binsy]);
@@ -97,8 +91,8 @@ void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string&
 
 void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string& histoTitle, unsigned int binsx, double minx, double maxx, unsigned int binsy, double miny, double maxy, unsigned int binsz, double minz, double maxz)
 {
-    m_histoMap3D[histoName] = new TH3F(this->baseName(histoName).c_str(),histoTitle.c_str(),binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz);
-    if (!m_histoSvc->regHist(histoName,m_histoMap3D[histoName]).isSuccess()) {
+    auto h = std::make_unique<TH3F>(this->baseName(histoName).c_str(),histoTitle.c_str(),binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz);
+    if (!m_histoSvc->regShared(histoName, std::move(h), m_histoMap3D[histoName]).isSuccess()) {
       std::cout <<"Cannot book histo " << histoName << " with Title " << histoTitle <<std::endl;
     }
     m_histoLimitsMap3D[histoName] = HistoLimits(binsx, minx, maxx, binsy, miny, maxy, binsz, minz, maxz);
@@ -106,7 +100,7 @@ void HistoHelperRoot::bookHisto(const std::string& histoName, const std::string&
 
 
 
-void HistoHelperRoot::fillHisto(const std::string& histoName, double value)
+void HistoHelperRoot::fillHisto(const std::string& histoName, double value) const
 {
   /** make sure that underflow/overflow is filled in 1st/last bin and not
   in 1st-1 and last+1 bin */
@@ -115,10 +109,12 @@ void HistoHelperRoot::fillHisto(const std::string& histoName, double value)
     if ( value < l.xmin ) value = l.xmin+0.0001;
     else if ( value > l.xmax ) value = l.xmax-0.0001;
   }
-  m_histoMap1D[histoName]->Fill(value);
+  // Thread-safe because handle uses internal lock
+  auto locked_handle ATLAS_THREAD_SAFE = const_cast<LockedHandle<TH1>&>(m_histoMap1D.at(histoName));
+  locked_handle->Fill(value);
 }
 
-void HistoHelperRoot::fillHistoWithWeight(const std::string& histoName, double value, double weight)
+void HistoHelperRoot::fillHistoWithWeight(const std::string& histoName, double value, double weight) const
 {
   /** make sure that underflow/overflow is filled in 1st/last bin and not
   in 1st-1 and last+1 bin */
@@ -127,10 +123,12 @@ void HistoHelperRoot::fillHistoWithWeight(const std::string& histoName, double v
     if ( value < l.xmin ) value = l.xmin+0.0001;
     else if ( value > l.xmax ) value = l.xmax-0.0001;
   }
-  m_histoMap1D[histoName]->Fill(value,weight);
+  // Thread-safe because handle uses internal lock
+  auto locked_handle ATLAS_THREAD_SAFE = const_cast<LockedHandle<TH1>&>(m_histoMap1D.at(histoName));
+  locked_handle->Fill(value, weight);
 }
 
-void HistoHelperRoot::fillHisto(const std::string& histoName, double valuex, double valuey)
+void HistoHelperRoot::fillHisto(const std::string& histoName, double valuex, double valuey) const
 {
   /** make sure that underflow/overflow is filled in 1st/last bin and not
   in 1st-1 and last+1 bin */
@@ -141,9 +139,12 @@ void HistoHelperRoot::fillHisto(const std::string& histoName, double valuex, dou
     if ( valuey < l.ymin ) valuey = l.ymin+0.0001;
     else if ( valuey > l.ymax ) valuey = l.ymax-0.0001;
   }
-  m_histoMap2D[histoName]->Fill(valuex,valuey);
+  // Thread-safe because handle uses internal lock
+  auto locked_handle ATLAS_THREAD_SAFE = const_cast<LockedHandle<TH2>&>(m_histoMap2D.at(histoName));
+  locked_handle->Fill(valuex,valuey);
 }
-void HistoHelperRoot::fillHisto(const std::string& histoName, double valuex, double valuey, double valuez)
+
+void HistoHelperRoot::fillHisto(const std::string& histoName, double valuex, double valuey, double valuez) const
 {
   /** make sure that underflow/overflow is filled in 1st/last bin and not
   in 1st-1 and last+1 bin */
@@ -156,36 +157,32 @@ void HistoHelperRoot::fillHisto(const std::string& histoName, double valuex, dou
     if ( valuez < l.zmin ) valuez = l.zmin+0.0001;
     else if ( valuez > l.zmax ) valuez = l.zmax-0.0001;
   }
-  m_histoMap3D[histoName]->Fill(valuex,valuey,valuez);
+  // Thread-safe because handle uses internal lock
+  auto locked_handle ATLAS_THREAD_SAFE = const_cast<LockedHandle<TH3>&>(m_histoMap3D.at(histoName));
+  locked_handle->Fill(valuex,valuey,valuez);
 }
 
 TH1* HistoHelperRoot::getHisto1D(const std::string& histoName)
 {
-  return m_histoMap1D[histoName];
+  return m_histoMap1D.at(histoName).get();
 }
 TH2* HistoHelperRoot::getHisto2D(const std::string& histoName)
 {
-  return m_histoMap2D[histoName];
+  return m_histoMap2D[histoName].get();
 }
 TH3* HistoHelperRoot::getHisto3D(const std::string& histoName)
 {
-  return m_histoMap3D[histoName];
+  return m_histoMap3D[histoName].get();
 }
 
 void HistoHelperRoot::print() {
-  for (std::map<std::string, TH1*>::iterator mapItr  = m_histoMap1D.begin();
-       mapItr != m_histoMap1D.end(); ++mapItr ) {
-    const std::string& name = (*mapItr).first;
+  for (const auto& [name, h] : m_histoMap1D) {
     std::cout <<"The name of the 1D Histo " << name << std::endl;
   }
-  for (std::map<std::string, TH2*>::iterator mapItr  = m_histoMap2D.begin();
-       mapItr != m_histoMap2D.end(); ++mapItr ) {
-    const std::string& name = (*mapItr).first;
+  for (const auto& [name, h] : m_histoMap2D) {
     std::cout <<"The name of the 2D Histo " << name << std::endl;
   }
-  for (std::map<std::string, TH3*>::iterator mapItr  = m_histoMap3D.begin();
-       mapItr != m_histoMap3D.end(); ++mapItr ) {
-    const std::string& name = (*mapItr).first;
+  for (const auto& [name, h] : m_histoMap3D) {
     std::cout <<"The name of the 3D Histo " << name << std::endl;
   }
 }

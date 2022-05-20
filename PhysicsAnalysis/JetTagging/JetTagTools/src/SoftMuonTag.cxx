@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -574,22 +574,21 @@ namespace Analysis
   void SoftMuonTag::finalizeHistos() 
   {
     if (m_runModus=="reference") {
+      static std::mutex mutex;
+      std::scoped_lock lock(mutex);
+
       for(uint ijc=0;ijc<m_jetCollectionList.size();ijc++) {
-	for(uint ih=0;ih<m_hypothese.size();ih++) {
-	  std::string hDir = "/BTAG/CALIB/"+m_hypothese[ih]+"/";
-	  m_likelihoodTool
-	    ->smoothAndNormalizeHistogram( m_histoHelper->getHisto1D(hDir+"pT") , "" );
-	  m_likelihoodTool
-	    ->smoothAndNormalizeHistogram( m_histoHelper->getHisto1D(hDir+"pTrel") , "" );
-	  m_likelihoodTool
-	    ->smoothAndNormalizeHistogram( m_histoHelper->getHisto1D(hDir+"pTLowPt") , "" );
-	  m_likelihoodTool
-	    ->smoothAndNormalizeHistogram( m_histoHelper->getHisto1D(hDir+"pTrelLowPt") , "" );
-	  m_likelihoodTool
-	    ->smoothAndNormalizeHistogram( m_histoHelper->getHisto1D(hDir+"pTpTrel") , "" );
-	  m_likelihoodTool
-	    ->smoothAndNormalizeHistogram( m_histoHelper->getHisto1D(hDir+"pTpTrelLowPt") , "" );
-	}
+        for(uint ih=0;ih<m_hypothese.size();ih++) {
+          const std::string hDir = "/BTAG/CALIB/"+m_hypothese[ih]+"/";
+          const std::vector<std::string> hists{"pT", "pTrel", "pTLowPt",
+                                               "pTrelLowPt", "pTpTrel", "pTpTrelLowPt"};
+
+          for (const std::string& name : hists) {
+            // Thread-safe because locked above
+            auto h ATLAS_THREAD_SAFE = m_histoHelper->getHisto1D(hDir+name);
+            m_likelihoodTool->smoothAndNormalizeHistogram( h , "" );
+          }
+        }
       }
     }
     return;
