@@ -43,7 +43,7 @@ namespace NSWL1 {
     }
   }
 
-  StatusCode StripSegmentTool::FetchDetectorEnvelope(std::pair<float, float> &rbounds, std::pair<float, float> &etabounds, std::pair<float, float> &zbounds) const {
+  StatusCode StripSegmentTool::FetchDetectorEnvelope(Envelope_t &env) const {
     const MuonGM::MuonDetectorManager* p_det;
     ATH_CHECK(detStore()->retrieve(p_det));
     SG::ReadCondHandle<IRegSelLUTCondData> rh_stgcLUT(m_regSelTableKey);
@@ -74,22 +74,25 @@ namespace NSWL1 {
     zmax=moduleList.at(0)->zMax();
 
     if(rmin<=0 || rmax<=0) ATH_MSG_WARNING("Unable to fetch NSW r/z boundaries");
-    rbounds= std::make_pair(rmin,rmax);
-    etabounds=std::make_pair(etamin,etamax);
-    zbounds=std::make_pair(zmin,zmax);
+    env.lower_r = rmin;
+    env.upper_r = rmax;
+    env.lower_eta = etamin;
+    env.upper_eta = etamax;
+    env.lower_z = zmin;
+    env.upper_z = zmax;
     ATH_MSG_DEBUG("rmin=" << rmin << " rmax=" << rmax << " zmin=" << zmin << " zmax=" << zmax << " etamin=" << etamin << " etamax=" << etamax);
     return StatusCode::SUCCESS;
   }
 
-  uint8_t StripSegmentTool::findRIdx(const float& val, const std::pair<float, float> &rbounds, const std::pair<float, float> &etabounds) const {
+  uint8_t StripSegmentTool::findRIdx(const float& val, const Envelope_t &env) const {
     unsigned int nSlices=(1<<m_rIndexBits); //256
     std::pair<float,float> range;
     switch(m_ridxScheme){
       case 0:
-        range=rbounds;
+        range=std::make_pair(env.lower_r, env.upper_r);
         break;
       case 1:
-        range=etabounds;
+        range=std::make_pair(env.lower_eta, env.upper_eta);
         break;
       default:
         break;
@@ -115,8 +118,8 @@ namespace NSWL1 {
 
   StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters,
                                              const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer) const {
-    std::pair<float, float> rbounds, etabounds, zbounds;
-    ATH_CHECK(FetchDetectorEnvelope(rbounds, etabounds, zbounds));
+    Envelope_t envelope;
+    ATH_CHECK(FetchDetectorEnvelope(envelope));
 
     if (clusters.empty()) {
       ATH_MSG_WARNING("Received event with no clusters. Skipping...");
@@ -193,7 +196,7 @@ namespace NSWL1 {
         glx1+=cl->globX()*cl->charge();
         gly1+=cl->globY()*cl->charge();
         charge1+=cl->charge();
-        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId()-1 : 2*(cl->sectorId()-1);
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
       }
@@ -206,7 +209,7 @@ namespace NSWL1 {
         glx2+=cl->globX()*cl->charge();
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
-        sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+        sectorID = (cl->isSmall()) ? 2*cl->sectorId()-1 : 2*(cl->sectorId()-1);
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
         if (( sectorID != trgRawData->sectorId() ) ||
@@ -249,9 +252,9 @@ namespace NSWL1 {
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
 
-      float rfar=zbounds.second*std::abs(std::tan(theta_inf));
+      float rfar=envelope.upper_z*std::abs(std::tan(theta_inf));
 
-      if( rfar >= rbounds.second || rfar < rbounds.first || std::abs(eta_inf) >= etabounds.second || std::abs(eta_inf) < etabounds.first){
+      if( rfar >= envelope.upper_r || rfar < envelope.lower_r || std::abs(eta_inf) >= envelope.upper_eta || std::abs(eta_inf) < envelope.lower_eta){
         ATH_MSG_WARNING("measured r/eta is out of detector envelope!");
         return StatusCode::SUCCESS;
       }
@@ -259,10 +262,10 @@ namespace NSWL1 {
       uint8_t rIndex=0;
       switch(m_ridxScheme) {
         case 0:
-          rIndex=findRIdx(rfar, rbounds, etabounds);
+          rIndex=findRIdx(rfar, envelope);
           break;
         case 1:
-          rIndex=findRIdx(std::abs(eta_inf), rbounds, etabounds);
+          rIndex=findRIdx(std::abs(eta_inf), envelope);
           break;
         default:
           break;
