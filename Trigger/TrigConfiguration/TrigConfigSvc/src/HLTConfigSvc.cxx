@@ -42,10 +42,14 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
     uint32_t smk = m_smk.value();
     if (!m_l1FileName.empty() && smk == 0u) {
       auto l1menu = std::make_unique<TrigConf::L1Menu>();
-      ATH_CHECK( fileLoader.loadFile(m_l1FileName, *l1menu) );
-      smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
-      ATH_MSG_DEBUG("Computed MC-SMK as " << smk);
+      const bool status = fileLoader.loadFile(m_l1FileName, *l1menu);
+      if (status && l1menu != nullptr) {
+        smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
+      } else {
+        ATH_MSG_DEBUG("No L1 menu created, cannot compute a MC-SMK in this job");  
+      }
     }
+    ATH_MSG_INFO("Setting file-loaded HLT Menu SMK to:" << smk);
     hltmenu->setSMK(smk);  // allow assigning a specified or hashed SMK when running from FILE
 
     if (!m_monitoringFileName.empty()) {

@@ -40,10 +40,14 @@ StatusCode TrigConf::LVL1ConfigSvc::loadRun3StyleMenu()
     uint32_t smk =  m_smk.value();
     if (!m_hltFileName.empty() && smk == 0u) {
       auto hltmenu = std::make_unique<TrigConf::HLTMenu>();
-      ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
-      smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
-      ATH_MSG_DEBUG("Computed MC-SMK as " << smk);
+      const bool status = fileLoader.loadFile(m_hltFileName, *hltmenu);
+      if (status && hltmenu != nullptr) {
+        smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
+      } else {
+        ATH_MSG_DEBUG("No HLT menu created, cannot compute a MC-SMK in this job");
+      }
     }
+    ATH_MSG_INFO("Setting file-loaded L1 Menu SMK to:" << smk);
     l1menu->setSMK(smk); // allow assigning a specified or hashed SMK when running from FILE
 
 
