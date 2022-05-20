@@ -153,7 +153,7 @@ ISF::ISFParticle* ISF::ActsFatrasSimTool::process(
       (Acts::VectorHelpers::perp(start.momentum()) < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
   options.maxSteps = m_maxStep;
-  options.direction = Acts::forward;
+  options.direction = Acts::NavigationDirection::Forward;
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
   mInteractor.multipleScattering = m_interactionMultiScatering;

@@ -313,7 +313,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
      ATH_MSG_VERBOSE("Starting extrapolation " << n_extraps << " from : "       << pars << " to : " << destinationSurface);
       
       auto start_fwd = xclock::now();
-      auto destParameters = m_extrapolationTool->propagate(ctx, *startParameters, *destinationSurface, Acts::forward);
+      auto destParameters = m_extrapolationTool->propagate(ctx, *startParameters, *destinationSurface, Acts::NavigationDirection::Forward);
       auto end_fwd = xclock::now();
       float ms_fwd = std::chrono::duration_cast<std::chrono::milliseconds>(end_fwd-start_fwd).count();
       
@@ -325,7 +325,7 @@ StatusCode Trk::ExtrapolatorComparisonTest::execute(const EventContext& ctx) con
         
         // now try backward extrapolation
         auto start_bkw = xclock::now();
-        auto finalperigee = m_extrapolationTool->propagate(ctx, *destParameters, startParameters->referenceSurface(), Acts::backward);
+        auto finalperigee = m_extrapolationTool->propagate(ctx, *destParameters, startParameters->referenceSurface(), Acts::NavigationDirection::Backward);
         auto end_bkw = xclock::now();
         float ms_bkw = std::chrono::duration_cast<std::chrono::milliseconds>(end_bkw-start_bkw).count();
         
