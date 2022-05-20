@@ -79,59 +79,6 @@ egammaTrkRefitterTool::finalize()
 }
 
 StatusCode
-egammaTrkRefitterTool::refitElectronTrack(const EventContext& ctx,
-                                          const xAOD::Electron* eg,
-                                          Cache& cache) const
-{
-  ATH_MSG_DEBUG("Refitting a track associated  with an electron");
-  // protection against bad pointers
-  if (eg == nullptr)
-    return StatusCode::SUCCESS;
-  // Set the pointer to the egamma object.
-  cache.electron = eg;
-  const xAOD::TrackParticle* trackParticle = eg->trackParticle();
-  return refitTrackParticle(ctx, trackParticle, cache);
-}
-
-StatusCode
-egammaTrkRefitterTool::refitTrackParticle(
-  const EventContext& ctx,
-  const xAOD::TrackParticle* trackParticle,
-  Cache& cache) const
-{
-  ATH_MSG_DEBUG("Refitting a track associated  with a TrackParticle");
-  // protection against bad pointers
-  if (!trackParticle) {
-    ATH_MSG_DEBUG("No TrackParticle");
-    return StatusCode::FAILURE;
-  }
-  int nSiliconHits_trk(0);
-  uint8_t dummy(0);
-  if (trackParticle->summaryValue(dummy, xAOD::numberOfSCTHits)) {
-    nSiliconHits_trk += dummy;
-  }
-  if (trackParticle->summaryValue(dummy, xAOD::numberOfPixelHits)) {
-    nSiliconHits_trk += dummy;
-  }
-
-  if (nSiliconHits_trk <= m_MinNoSiHits) {
-    ATH_MSG_DEBUG(
-      "Not enough Si hits on track particle.  The current min is set at "
-      << m_MinNoSiHits);
-    return StatusCode::FAILURE;
-  }
-
-  if (trackParticle->trackLink().isValid()) {
-    // retrieve and refit original track
-    return refitTrack(ctx, trackParticle->track(), cache);
-  }
-  ATH_MSG_WARNING("Could not get TrackElementLink of the TrackParticle");
-  return StatusCode::FAILURE;
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
 egammaTrkRefitterTool::refitTrack(const EventContext& ctx,
                                   const Trk::Track* track,
                                   Cache& cache) const
