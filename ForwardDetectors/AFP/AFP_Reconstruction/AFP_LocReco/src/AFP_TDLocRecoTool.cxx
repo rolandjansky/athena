@@ -112,6 +112,8 @@ StatusCode AFP_TDLocRecoTool::execute(const EventContext& ctx) const
     auto afpTrkAux=std::make_unique<xAOD::AFPToFTrackAuxContainer>();
     afpTrk->setStore(afpTrkAux.get());
 
+    ATH_MSG_DEBUG("Number of AFP ToF tracks = " <<afpTrk->size());
+
     for(const auto &recoTool : m_recoToolsList)
     {
       if(recoTool->outputContainerName() != whk.key()) continue;
