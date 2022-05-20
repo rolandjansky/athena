@@ -587,6 +587,7 @@ TScopeAdapter TScopeAdapter::ByNameNoQuiet (
 //____________________________________________________________________________
 TScopeAdapter TScopeAdapter::TypeAt( size_t nth )
 {
+   R__READ_LOCKGUARD (ROOT::gCoreMutex);
    const char *class_name = gClassTable->At( nth );
    // prevent autoloading, as it could change gClassTable 
    return class_name? TScopeAdapter( string(class_name), false ) : TScopeAdapter(); 
@@ -597,8 +598,7 @@ size_t TScopeAdapter::TypeSize()
 {
 // return total number of types in the system (this is stupid, as the number
 // of types is dynamic ...)
-  // ??? The THREAD_SAFE here is in principle wrong.
-  // However, in practice it should be ok, and heads off a big mess downstream.
+  R__READ_LOCKGUARD (ROOT::gCoreMutex);
   TClassTable* tab ATLAS_THREAD_SAFE = gClassTable;
   return tab ? tab->Classes() : 0;
 }
