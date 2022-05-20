@@ -35,7 +35,7 @@ def GEN_AOD2xAODCfg(flags, name="GEN_AOD2xAOD", **kwargs):
     acc.addEventAlgo(algo, primary = True)
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    toAOD = ["xAOD::TruthEventContainer#TruthEvents", "xAOD::TruthEventAuxContainer#TruthEventsContainerAux.",
+    toAOD = ["xAOD::TruthEventContainer#TruthEvents", "xAOD::TruthEventAuxContainer#TruthEventsAux.",
              "xAOD::TruthVertexContainer#TruthVertices", "xAOD::TruthVertexAuxContainer#TruthVerticesAux.",
              "xAOD::TruthParticleContainer#TruthParticles", "xAOD::TruthParticleAuxContainer#TruthParticlesAux.",
     ]
