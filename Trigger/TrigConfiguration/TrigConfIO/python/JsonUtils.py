@@ -54,9 +54,11 @@ def modifyConfigForP1(json_file, db_file):
       mod( properties, "HLTPrescaleCondAlg", "Source", lambda x : "COOL" ) # prescales will be read from COOL online
       mod( properties, "HLTPrescaleCondAlg", "TriggerDB", lambda x : "JOSVC" ) # configuration will be taken from the JOSvc at P1
       # remove filenames to avoid duplicates
-      mod( properties, "LVL1ConfigSvc", "JsonFileName", lambda x : "None" )
+      mod( properties, "LVL1ConfigSvc", "HLTJsonFileName", lambda x : "None" )
+      mod( properties, "LVL1ConfigSvc", "L1JsonFileName", lambda x : "None" )
       mod( properties, "TrigConf__BunchGroupCondAlg", "Filename", lambda x : "None" )
-      mod( properties, "HLTConfigSvc", "JsonFileName", lambda x : "None" )
+      mod( properties, "HLTConfigSvc", "HLTJsonFileName", lambda x : "None" )
+      mod( properties, "HLTConfigSvc", "L1JsonFileName", lambda x : "None" )
       mod( properties, "HLTConfigSvc", "MonitoringJsonFileName", lambda x : "None" )
       mod( properties, "HLTPrescaleCondAlg", "Filename", lambda x : "None" )
 
