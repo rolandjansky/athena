@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonValidationPlots.h"
@@ -52,7 +52,7 @@ void PhotonValidationPlots::initializePlots(){
   res_eta_cut = BookTProfile("res_eta_cut"," IsoPhoton;#eta;(E_{T} - E_{T}^{truth})/E_{T}^{truth}",60, -3., 3.);
 }
 
-void PhotonValidationPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
+void PhotonValidationPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) {
   
   float weight = 1.;
   weight = eventInfo.beamSpotWeight();

@@ -12,10 +12,10 @@ EgammaValidationPlots::EgammaValidationPlots(PlotBase* pParent, const std::strin
 										  m_oPhotonTruthPlots(this, "Photon/Truth/", "Truth Photon")
 {}	
 
-void EgammaValidationPlots::fill(const xAOD::Electron& electron) const {
+void EgammaValidationPlots::fill(const xAOD::Electron& electron) {
   m_oElectronAllPlots.fill(electron);
 }
 
-void EgammaValidationPlots::fill(const xAOD::Photon& photon) const{
+void EgammaValidationPlots::fill(const xAOD::Photon& photon) {
   m_oPhotonAllPlots.fill(photon);
 }

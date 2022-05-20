@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonPlots.h"
@@ -37,7 +37,7 @@ void PhotonPlots::initializePlots(){
   m_nParticles_weighted = Book1D("n_weighted", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
 }
 
-  void PhotonPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
+  void PhotonPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) {
   m_oKinAllPlots.fill(photon,eventInfo);
   m_oShowerShapesAllPlots.fill(photon,eventInfo);
   

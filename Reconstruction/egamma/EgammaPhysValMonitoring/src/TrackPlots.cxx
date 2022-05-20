@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -60,7 +60,7 @@ void TrackPlots::initializePlots(){
 }
 
 
-  void TrackPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo) const{
+  void TrackPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo) {
 
   float deta1(0);
   float dphi2 (0);
