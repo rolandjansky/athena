@@ -118,7 +118,6 @@ StatusCode LArHitsTestTool::processEvent() {
   ATH_CHECK(caloMgrHandle.isValid());
   const CaloDetDescrManager* caloMgr = *caloMgrHandle;
 
-  LArHitContainer::const_iterator hi;
   std::string lArkey = "LArHit"+m_detname;
 
   double etot=0;
@@ -143,7 +142,7 @@ StatusCode LArHitsTestTool::processEvent() {
 
       m_eta->Fill(eta);
       m_phi->Fill(phi);
-      m_time->Fill( (*hi)->time(),energy);
+      m_time->Fill( larHit->time(),energy);
       m_edep->Fill( energy);
       m_log_edep->Fill( energy > 0 ? log(energy) : -1 );
       
@@ -159,15 +158,15 @@ StatusCode LArHitsTestTool::processEvent() {
 
       etot+=energy;
 
-      if ((*hi)->energy()>m_edep_cut) {
+      if (larHit->energy()>m_edep_cut) {
 	m_eta_cut1->Fill(eta);
 	m_phi_cut1->Fill(phi);
-	m_time_cut1->Fill( (*hi)->time(), (*hi)->energy());
-	m_edep_cut1->Fill( (*hi)->energy());
+	m_time_cut1->Fill( larHit->time(), larHit->energy());
+	m_edep_cut1->Fill( larHit->energy());
 	
 	m_zr_cut1->Fill(z,radius);
 	m_etaphi_cut1->Fill(eta,phi);
-	m_edep_zr_cut1->Fill(z,radius,(*hi)->energy());
+	m_edep_zr_cut1->Fill(z,radius,larHit->energy());
       }
     }
   }
