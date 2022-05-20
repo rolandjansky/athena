@@ -34,6 +34,8 @@
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 // STDLIB
 #include <string>
 #include <vector>
@@ -43,6 +45,10 @@ namespace InDetDD {
     class TRT_DetectorManager;
 }
  
+namespace InDet {
+    class IInDetTrackSelectionTool;
+}
+
 class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
@@ -126,6 +132,7 @@ private:
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
     ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};

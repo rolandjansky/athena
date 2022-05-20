@@ -51,8 +51,10 @@ TRTMonitoringRun3RAW_Alg::TRTMonitoringRun3RAW_Alg( const std::string& name, ISv
 ,m_sumTool("TRT_StrawStatusSummaryTool", this)
 ,m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name)
 ,m_BSSvc("TRT_ByteStream_ConditionsSvc", name)
+,m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this)
 {
     declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
+    declareProperty("TrackSelectionTool",             m_trackSelTool);
     declareProperty("doStraws",                       m_doStraws         = true);
     declareProperty("doExpert",                       m_doExpert         = false);
     declareProperty("doChips",                        m_doChips          = true);
@@ -138,6 +140,9 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
     ATH_CHECK( m_combTrackCollectionKey.initialize() );
     ATH_CHECK( m_trackCollectionKey.initialize() );
     ATH_CHECK( m_bsErrContKey.initialize(SG::AllowEmpty) );
+
+    // InDetTrackSelectionTools initialization:
+    ATH_CHECK( m_trackSelTool.retrieve() );
 
     // initialize chip lookup maps
     ATH_CHECK( m_TRTStrawNeighbourSvc.retrieve() );
@@ -1797,21 +1802,13 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
             p = (perigee->parameters()[Trk::qOverP] != 0.) ? std::abs(1. / (perigee->parameters()[Trk::qOverP])) : 1.0e+08;
         }
 
-        float min_pt_new = m_min_pT;
 
-        if (m_isCosmics == false) {
-            min_pt_new = 2.0 * CLHEP::GeV;
-        }
         // Preselect tracks
-        const bool passed_track_preselection =
-            (std::abs(perigee->parameters()[Trk::d0]) < m_max_abs_d0) &&
-            (std::abs(perigee->parameters()[Trk::z0]) < m_max_abs_z0) &&
-            (perigee->pT() > min_pt_new) &&
-            (p > m_minP) &&
-            (std::abs(perigee->eta()) < m_max_abs_eta) &&
-            (n_pixel_hits >= m_min_pixel_hits) &&
-            (n_sct_hits >= m_min_sct_hits) &&
-            (n_trt_hits >= m_min_trt_hits);
+        const bool passed_track_preselection = (static_cast<bool>(m_trackSelTool->accept(**track)) || m_isCosmics) &&
+                                         n_trt_hits >= m_min_trt_hits && 
+                                         p > m_minP &&
+                                         perigee->pT() > (m_isCosmics?m_min_pT : 2.0 * CLHEP::GeV);
+
         ATH_MSG_DEBUG("track has ntrt = " << n_trt_hits
                       << " and nsct = " << n_sct_hits
                       << " and npix = " << n_pixel_hits);
@@ -2160,24 +2157,10 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBeginTemp = trackStates->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
-        int n_trt_hits = summary->get(Trk::numberOfTRTHits);
-        int n_sct_hits = summary->get(Trk::numberOfSCTHits);
-        int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
-        const int n_si_hits = n_pixel_hits + n_sct_hits;
 
-        float min_pt_new = m_min_pT;
-
-        if (m_isCosmics == false) {
-            min_pt_new = 2.0 * CLHEP::GeV;
-        }
-
-        const bool passed_track_preselection =
-            (mPer->pT() > min_pt_new) &&
-            (p > m_minP) &&
-            (n_si_hits >= m_min_si_hits) &&
-            (n_pixel_hits >= m_min_pixel_hits) &&
-            (n_sct_hits >= m_min_sct_hits) &&
-            (n_trt_hits >= m_min_trt_hits);
+        const bool passed_track_preselection = (static_cast<bool>(m_trackSelTool->accept(**p_trk)) || m_isCosmics) &&
+                                               summary->get(Trk::numberOfTRTHits) >= m_min_trt_hits &&
+                                               mPer->pT() > (m_isCosmics?m_min_pT : 2.0 * CLHEP::GeV);
 
         if (!passed_track_preselection) continue;
 

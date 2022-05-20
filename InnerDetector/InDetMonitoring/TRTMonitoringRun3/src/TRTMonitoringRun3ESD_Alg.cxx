@@ -50,10 +50,12 @@ TRTMonitoringRun3ESD_Alg::TRTMonitoringRun3ESD_Alg( const std::string& name, ISv
 ,m_minTRThits(10)
 ,m_minP(0)
 ,m_EventBurstCut(-1)
+,m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this)
 {
     declareProperty("InDetTRTStrawStatusSummaryTool",                 m_sumTool);
     declareProperty("ITRT_CalDbTool",                                 m_TRTCalDbTool);
     declareProperty("DriftFunctionTool",                              m_drifttool);
+    declareProperty("TrackSelectionTool",                             m_trackSelTool);
     declareProperty("doExpert",                 m_doExpert            = false);
     declareProperty("DoTracksMon",              m_doTracksMon         = true);
     declareProperty("doStraws",                 m_doStraws            = true);
@@ -84,6 +86,9 @@ StatusCode TRTMonitoringRun3ESD_Alg::initialize() {
     // Get ID helper for TRT to access various detector components like straw, straw_layer, layer_or_wheel, phi_module, etc.
     ATH_CHECK( detStore()->retrieve(m_pTRTHelper, "TRT_ID") );
     ATH_CHECK( detStore()->retrieve(m_idHelper, "AtlasID") );
+
+    // InDetTrackSelectionTools initialization:
+    ATH_CHECK( m_trackSelTool.retrieve() );
 
     if (m_doExpert) {
         // Retrieve the TRT_Straw Status Service
@@ -566,12 +571,7 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 
         (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfTRTHits);
         int n_trt_hits = unsigned(tempHitsVariable);
-        (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfSCTHits);
-        int n_sct_hits = unsigned(tempHitsVariable);
-        (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfPixelHits);
-        int n_pixel_hits = unsigned(tempHitsVariable);
 
-        const int n_si_hits = n_pixel_hits + n_sct_hits;
         bool is_pT_over_20GeV = false;
 
         if (mPer->pT() > 20 * CLHEP::GeV) {
@@ -581,21 +581,10 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
         }
 
         const bool cnst_is_pT_over_20GeV = is_pT_over_20GeV;
-        /// Hardcoded cut for pT 2.0 GeV for collision setup
-        float min_pt_new = m_min_pT;
 
-        if (m_isCosmics == false) {
-            min_pt_new = 2.0 * CLHEP::GeV;
-        }
-
-        const bool passed_track_preselection =
-            (mPer->pT() > min_pt_new) &&
-            (p > m_minP) &&
-            (n_si_hits >= m_min_si_hits) &&
-            (n_pixel_hits >= m_min_pixel_hits) &&
-            (n_sct_hits >= m_min_sct_hits) &&
-            (n_trt_hits >= m_min_trt_hits);
-
+        const bool passed_track_preselection = (static_cast<bool>(m_trackSelTool->accept(**p_trk)) || m_isCosmics) &&
+                                               n_trt_hits >= m_min_trt_hits &&
+                                               mPer->pT() > (m_isCosmics?m_min_pT : 2.0 * CLHEP::GeV); // Hardcoded cut for pT 2.0 GeV for collision setup
         if (!passed_track_preselection) continue;
 
         nTotalTracks++;
@@ -1326,19 +1315,16 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
-        uint8_t tempHitsVariable(0);
+
+	uint8_t tempHitsVariable = 0;
         (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfTRTHits);
         int trt_hits = unsigned(tempHitsVariable);
-        (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfSCTHits);
-        int sct_hits = unsigned(tempHitsVariable);
-        (*p_trk)->summaryValue(tempHitsVariable, xAOD::SummaryType::numberOfPixelHits);
-        int pixel_hits = unsigned(tempHitsVariable);
 
-        if (std::abs(track_eta) > 2.5) continue;
-        if (std::abs(track_p) < 5000.) continue;
-        if (pixel_hits < 1.) continue;
-        if (sct_hits < 6.) continue;
-        if (trt_hits < 6.) continue;
+	const bool passed_track_preselection = (static_cast<bool>(m_trackSelTool->accept(**p_trk)) || m_isCosmics) &&
+                                               trt_hits >= 6. &&
+                                               std::abs(track_p) >= 5000.;
+
+	if (!passed_track_preselection) continue;
 
         // Now we have hit informations
         const DataVector<const Trk::TrackStateOnSurface> *track_states = ((*p_trk)->track())->trackStateOnSurfaces();

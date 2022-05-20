@@ -23,6 +23,9 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
                                                   'AlgTRTMonitoringRun3',
                                                   ComTimeObjectName = 'TRT_Phase' if have_trt_phase else '')
 
+    algTRTMonitoringRun3ESD.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('algTRTMonitoringRun3ESD_TrackSelectionTool')
+    algTRTMonitoringRun3ESD.TrackSelectionTool.CutLevel = "TightPrimary"
+
     # trigger flag
     if not inputFlags.DQ.triggerDataAvailable:
         algTRTMonitoringRun3ESD.TrigDecisionObjectName = ''
@@ -230,9 +233,8 @@ if __name__ == '__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = '/afs/cern.ch/work/n/nbelyaev/public/Datafiles/'
-    file = 'data18_13TeV.00349944.physics_Main.daq.ESD._lb0244._f1138._0001.root'
-    ConfigFlags.Input.Files = [nightly+file]
+    file = '/afs/cern.ch/work/y/ysmirnov/public/NikitasEsdToFeedToTrtMonitoring/data18_13TeV.00349944.physics_Main.daq.ESD._lb0244._f1138._0001.root'
+    ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'TRTMonitoringRun3_ToolOutput.root'
     ConfigFlags.GeoModel.Align.Dynamic = False

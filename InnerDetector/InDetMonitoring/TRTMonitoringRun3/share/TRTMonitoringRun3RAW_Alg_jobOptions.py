@@ -8,6 +8,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 algTRTMonitoringRun3RAW = helper.addAlgorithm(CompFactory.TRTMonitoringRun3RAW_Alg,
                                            'AlgTRTMonitoringRun3RAW')
 
+algTRTMonitoringRun3RAW.TrackSelectionTool.CutLevel = "TightPrimary"
+#algTRTMonitoringRun3RAW.TrackSelectionTool.maxAbsEta = 2.0 # uncomment if needed. For the list of all cuts, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/InDetTrackSelectionTool#List_of_possible_cuts
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 algTRTMonitoringRun3RAW.TrackSummaryTool = InDetTrackSummaryTool
