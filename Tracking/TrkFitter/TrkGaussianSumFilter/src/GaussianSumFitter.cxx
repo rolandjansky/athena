@@ -70,8 +70,6 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   , m_inputPreparator(nullptr)
   , m_sortingReferencePoint{ 0, 0, 0 }
   , m_cutChiSquaredPerNumberDOF(50.)
-  , m_overideMaterialEffects(4)
-  , m_overideParticleHypothesis(nonInteracting)
   , m_FitPRD{ 0 }
   , m_FitMeasurementBase{ 0 }
   , m_ForwardFailure{ 0 }
@@ -83,7 +81,6 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   declareInterface<ITrackFitter>(this);
   declareProperty("SortingReferencePoint", m_sortingReferencePoint);
   declareProperty("StateChi2PerNDOFCut", m_cutChiSquaredPerNumberDOF);
-  declareProperty("MaterialEffectsInForwardFitter", m_overideMaterialEffects);
 }
 
 StatusCode
@@ -113,8 +110,6 @@ Trk::GaussianSumFitter::initialize()
 
   m_trkParametersComparisonFunction =
     Trk::TrkParametersComparisonFunction(referencePosition);
-  m_overideParticleHypothesis =
-    Trk::ParticleSwitcher::particle[m_overideMaterialEffects];
   m_inputPreparator = std::make_unique<TrackFitInputPreparator>();
 
   return StatusCode::SUCCESS;
