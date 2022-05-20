@@ -20,7 +20,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/SurfaceTypes.h"
 #include "TrkExInterfaces/IPropagator.h"

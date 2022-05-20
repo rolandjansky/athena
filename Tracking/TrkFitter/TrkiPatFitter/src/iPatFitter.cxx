@@ -689,7 +689,7 @@ namespace Trk
         }
         if (keepScatterer) {
           measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(),
-            ParticleMasses().mass[particleHypothesis], position, qOverP, calo);
+            Trk::ParticleMasses::mass[particleHypothesis], position, qOverP, calo);
           if (!calo
               && !haveMaterial
               && (haveMeasurement || s.measurementOnTrack())) { haveMaterial = true; }
@@ -826,7 +826,7 @@ namespace Trk
           bool calo = (!m_indetVolume->inside(position)
                        && m_calorimeterVolume->inside(position));
           measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(),
-            ParticleMasses().mass[particleHypothesis], intersection->position(), qOverP, calo);
+            Trk::ParticleMasses::mass[particleHypothesis], intersection->position(), qOverP, calo);
           if (!calo
               && !haveMaterial
               && haveMeasurement) { haveMaterial = true; }

@@ -19,7 +19,6 @@
 #include "GaudiKernel/ToolHandle.h"
 // Trk
 #include "TrkDetDescrUtils/GeometrySignature.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -429,9 +428,7 @@ private:
   bool m_fastField;
   Trk::MagneticFieldProperties m_fieldProperties;
 
-  // ------------------------------- static members
-  // --------------------------------------------------------------------
-  static const ParticleMasses s_particleMasses;
+  
 };
 
 inline const TrackingGeometry*

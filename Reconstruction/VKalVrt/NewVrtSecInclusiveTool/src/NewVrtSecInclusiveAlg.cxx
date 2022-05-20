@@ -94,7 +94,7 @@ namespace Rec {
               CxxUtils::sincos   phi(mPer->parameters()[Trk::phi]);
               CxxUtils::sincos theta(mPer->parameters()[Trk::theta]);
               double absP  =  1./std::abs(mPer->parameters()[Trk::qOverP]);
-              tmp.SetXYZM( phi.cs*theta.sn*absP, phi.sn*theta.sn*absP, theta.cs*absP, Trk::ParticleMasses().mass[Trk::pion]);
+              tmp.SetXYZM( phi.cs*theta.sn*absP, phi.sn*theta.sn*absP, theta.cs*absP, Trk::ParticleMasses::mass[Trk::pion]);
               VSUM+=tmp;
            }
            bvrtM(*iv)  =VSUM.M();

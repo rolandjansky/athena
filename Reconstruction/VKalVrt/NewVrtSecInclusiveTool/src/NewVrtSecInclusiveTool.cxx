@@ -119,10 +119,10 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
     declareProperty("VertexFitterTool",    m_fitSvc, "Name of the Vertex Fitter tool");
 //
-    m_massPi  =  Trk::ParticleMasses().mass[Trk::pion];
-    m_massP   =  Trk::ParticleMasses().mass[Trk::proton];
-    m_massE   =  Trk::ParticleMasses().mass[Trk::electron];
-    m_massK0  =  Trk::ParticleMasses().mass[Trk::k0];
+    m_massPi  =  Trk::ParticleMasses::mass[Trk::pion];
+    m_massP   =  Trk::ParticleMasses::mass[Trk::proton];
+    m_massE   =  Trk::ParticleMasses::mass[Trk::electron];
+    m_massK0  =  Trk::ParticleMasses::mass[Trk::k0];
     m_massLam =  1115.683  ;
     m_compatibilityGraph = nullptr;
     m_instanceName=name;

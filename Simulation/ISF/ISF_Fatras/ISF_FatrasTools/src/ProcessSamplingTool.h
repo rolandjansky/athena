@@ -21,7 +21,6 @@
 // Tracking
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace ISF {
   class ITruthSvc;
@@ -102,7 +101,6 @@ namespace iFatras
       /** IPhotonConversionTool */
      ToolHandle<iFatras::IPhotonConversionTool>   m_conversionTool;
 
-     Trk::ParticleMasses                          m_particleMasses;    //!< Struct of Particle masses
 
      /** validation */
      bool                                         m_validationMode;

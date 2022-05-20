@@ -17,7 +17,6 @@
 // Trk
 #include "ISF_FatrasInterfaces/IEnergyLossSampler.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace Trk{
   class MaterialProperties;
@@ -82,8 +81,6 @@ namespace iFatras{
   /** the one free parameter to scale */
   double                               m_scaleFactor;   
     
-  /** struct of Particle masses  */
-  static Trk::ParticleMasses           s_particleMasses;         
         
 };
 

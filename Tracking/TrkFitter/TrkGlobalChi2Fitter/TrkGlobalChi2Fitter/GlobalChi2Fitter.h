@@ -971,7 +971,6 @@ namespace Trk {
 
     SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer{this, "ClusterSplitProbabilityName", "",""};
 
-    ParticleMasses m_particleMasses;
 
     /*
      * This little volume defines the inner detector. Its exact size is set at

@@ -22,8 +22,6 @@
 // Tracking
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
-
 // ROOT forward declarations
 class TTree;
 
@@ -118,7 +116,6 @@ namespace iFatras
 
     //const AtlasDetectorID*              m_idHelper;     //*> hit type identification   
     Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
-    Trk::ParticleMasses                 m_particleMasses;    //!< Struct of Particle masses
 
     bool                                m_errorPropagation;    // error propagation for eloss validation
     bool                                m_hitsOff;             // steering of sim hit production

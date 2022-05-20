@@ -737,13 +737,13 @@ iFatras::McMaterialEffectsUpdator::ionize(const Trk::TrackParameters& parm,
 {
 
   double p = parm.momentum().mag();
-  double m    = m_particleMasses.mass[particle];
+  double m    = Trk::ParticleMasses::mass[particle];
   double E    = sqrt(p*p+m*m);
 
   // the following formulas are imported from STEP
   // preparation of kinetic constants
 
-  double me    = m_particleMasses.mass[Trk::electron];
+  double me    = Trk::ParticleMasses::mass[Trk::electron];
   double mfrac = me/m;
   double beta  = p/E;
   double gamma = E/m;
@@ -892,7 +892,7 @@ iFatras::McMaterialEffectsUpdator::update(
 
   // get the kinematics
   double p    = parm.momentum().mag();
-  double m    = m_particleMasses.mass[particle];
+  double m    = Trk::ParticleMasses::mass[particle];
   double E    = sqrt(p*p+m*m);
 
   // Hadronic Interaction section ----------------------------------------------------------------------------------------------
@@ -1028,7 +1028,7 @@ iFatras::McMaterialEffectsUpdator::update(
 
    // get the kinematics
    double p    = parm->momentum().mag();
-   double m    = m_particleMasses.mass[particle];
+   double m    = Trk::ParticleMasses::mass[particle];
    double E    = sqrt(p*p+m*m);
    // the updatedParameters - first a d
 
@@ -1121,7 +1121,7 @@ iFatras::McMaterialEffectsUpdator::update(
 
 double iFatras::McMaterialEffectsUpdator::msSigma(double dInX0,double p,Trk::ParticleHypothesis particle) const {
 
-  double m    = m_particleMasses.mass[particle];
+  double m    = Trk::ParticleMasses::mass[particle];
   double E    = sqrt(p*p+m*m);
   double beta = p/E;
 
@@ -1223,7 +1223,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhoton(double time,
 
     // the start of the equation
     double theta = 0.;
-    double m = m_particleMasses.mass[particle];
+    double m = Trk::ParticleMasses::mass[particle];
     double E = sqrt(pElectron*pElectron + m*m);
 
     if (m_uniformHertzDipoleAngle) {
@@ -1365,7 +1365,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
 
     // the start of the equation
     double theta = 0.;
-    double m = m_particleMasses.mass[particle];
+    double m = Trk::ParticleMasses::mass[particle];
     double E = sqrt(pElectron*pElectron + m*m);
 
     if (m_uniformHertzDipoleAngle) {
@@ -1532,7 +1532,7 @@ iFatras::McMaterialEffectsUpdator::interact(double time,
   // something is seriously wrong if there is no parent particle
   assert(parent);
 
-  double mass = m_particleMasses.mass[particle];
+  double mass = Trk::ParticleMasses::mass[particle];
   double p = momentum.mag();
   /*double E = sqrt( p*p + mass*mass);*/
 
@@ -1680,7 +1680,7 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 
   if ( process==0 ) return childVector;
 
-  double mass = m_particleMasses.mass[particle];
+  double mass = Trk::ParticleMasses::mass[particle];
   double p = parm.momentum().mag();
   /*double E = sqrt( p*p + mass*mass);*/
   const Amg::Vector3D& position=parm.position();

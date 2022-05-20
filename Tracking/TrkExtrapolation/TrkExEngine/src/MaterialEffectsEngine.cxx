@@ -151,7 +151,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         double thickness              = materialProperties->thickness();
         // calculate energy loss and multiple scattering
         double p      = parameters.momentum().mag();
-        double m      = m_particleMasses.mass[eCell.pHypothesis];
+        double m      = Trk::ParticleMasses::mass[eCell.pHypothesis];
         double E      = sqrt(p*p+m*m);
         double beta   = p/E;
         // (A) - energy loss correction
