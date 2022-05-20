@@ -23,7 +23,6 @@ def MinBiasSPSequenceCfg(flags):
 def MinBiasTrkSequenceCfg(flags):
     return MinBiasTrkSequence()
 
-
 def MinBiasMbtsSequenceCfg(flags):
     return MinBiasMbtsSequence()
 
