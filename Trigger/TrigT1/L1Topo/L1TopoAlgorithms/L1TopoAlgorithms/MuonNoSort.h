@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  MuonNoSort.h
 //  TopoCore
@@ -25,9 +25,9 @@ namespace TCS {
       // destructor
       virtual ~MuonNoSort();
 
-      virtual TCS::StatusCode initialize();
+      virtual TCS::StatusCode initialize() override;
 
-      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
+      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) override final;
       
    private:
 

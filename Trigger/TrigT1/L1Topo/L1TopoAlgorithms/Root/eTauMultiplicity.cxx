@@ -20,7 +20,6 @@
 
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/eTauTOBArray.h"
-#include "L1TopoEvent/GenericTOB.h"
 
 REGISTER_ALG_TCS(eTauMultiplicity)
 
@@ -81,17 +80,20 @@ TCS::eTauMultiplicity::process( const TCS::InputTOBArray & input,
       etau != etaus.end();
       ++etau ) {
     
-    const GenericTOB gtob(**etau);
+    // Menu threshold uses 0.1 eta granularity but eFex objects have 0.025 eta granularity
+    // eFex eta is calculated as 4*eta_tower (0.1 gran.) + seed (0.025 gran.), eta from -25 to 24
+    int eta_thr;
+    if ( (*etau)->eta()%4 >= 0 ) { eta_thr = (*etau)->eta() - (*etau)->eta()%4; }
+    else                         { eta_thr = (*etau)->eta() - (*etau)->eta()%4 - 4; }
 
-    // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() > eTAUThr.thrValue100MeV(gtob.eta()/4);
+    bool passed = (*etau)->Et() > eTAUThr.thrValue100MeV(eta_thr/4); // Convert eta_thr to units of 0.1 to pass as an argument
 
-    if ( !isocut(TrigConf::Selection::wpToString(eTAUThr.rCore()), gtob.rCore()) ) {continue;}
-    if ( !isocut(TrigConf::Selection::wpToString(eTAUThr.rHad()), gtob.rHad()) ) {continue;}
+    if ( !isocut(TrigConf::Selection::wpToString(eTAUThr.rCore()), (*etau)->rCore()) ) {continue;}
+    if ( !isocut(TrigConf::Selection::wpToString(eTAUThr.rHad()), (*etau)->rHad()) ) {continue;}
 
     if (passed) {
       counting++; 
-      fillHist2D( m_histAccept[0], gtob.eta(), gtob.EtDouble() );
+      fillHist2D( m_histAccept[0], (*etau)->eta(), (*etau)->EtDouble() );
     }
 
   }

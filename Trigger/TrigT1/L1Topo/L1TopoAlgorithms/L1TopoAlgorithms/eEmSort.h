@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  eEmSort.h
 //  TopoCore
@@ -23,8 +23,8 @@ namespace TCS {
 
       // destructor
       virtual ~eEmSort();
-      virtual TCS::StatusCode initialize();
-      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
+      virtual TCS::StatusCode initialize() override;
+      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) override final;
    
    private:
      

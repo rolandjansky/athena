@@ -1,11 +1,11 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-// eEmNoSort.h
+// jTauNoSort.h
 // TopoCore
 
-#ifndef L1TOPOALGORITHMS_EEMNOSORT_H
-#define L1TOPOALGORITHMS_EEMNOSORT_H
+#ifndef L1TOPOALGORITHMS_JTAUNOSORT_H
+#define L1TOPOALGORITHMS_JTAUNOSORT_H
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
@@ -15,24 +15,21 @@
 
 namespace TCS {
    
-   class eEmNoSort : public SortingAlg {
+   class jTauNoSort : public SortingAlg {
    public:
       
       // constructor
-      eEmNoSort(const std::string & name);
+      jTauNoSort(const std::string & name);
 
       // destructor
-      virtual ~eEmNoSort();
+      virtual ~jTauNoSort();
       virtual TCS::StatusCode initialize() override;
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) override final;
 
    private:
 
-      parType_t      m_numberOfeEms = { 0 };
-      parType_t      m_minREta = { 0 };
-      parType_t      m_minRHad = { 0 };
-      parType_t      m_minWsTot = { 0 }; 
-
+      parType_t      m_numberOfjTaus = { 0 };
+      //parType_t      m_iso = { 0 };
    };
 
 } // end of namespace TCS

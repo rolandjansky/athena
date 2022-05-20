@@ -122,15 +122,6 @@ namespace TCS {
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
 
-      // eEm isolation
-      unsigned int Reta() const { return m_reta; }
-      unsigned int Rhad() const { return m_rhad; }
-      unsigned int Wstot() const { return m_wstot; }
-      
-      // eTau isolation
-      unsigned int rCore() const { return m_rCore; }
-      unsigned int rHad() const { return m_rHad; }
-
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
       int innerCoin() const { return m_innerCoin; }
@@ -178,13 +169,6 @@ namespace TCS {
       double m_ExDouble { 0 };
       double m_EyDouble { 0 };
       double m_sumEtDouble { 0 };
-
-      unsigned int m_reta {0};
-      unsigned int m_rhad {0};
-      unsigned int m_wstot {0};
-     
-      unsigned int m_rCore {0};
-      unsigned int m_rHad {0};
 
       inputTOBType_t   m_tobType { NONE };
 
