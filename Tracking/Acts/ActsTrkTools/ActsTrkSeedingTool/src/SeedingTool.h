@@ -122,8 +122,6 @@ namespace ActsTrk {
   "maximum z for central seed confirmation "};
     Gaudi::Property<float> m_seedConfCentralRMax {this, "seedConfCentralRMax", 0,
   "maximum r for central seed confirmation "};
-    Gaudi::Property<size_t> m_seedConfCentralNTop {this, "seedConfCentralNTop", 0,
-  "nTop for central seed confirmation"};
     Gaudi::Property<size_t> m_seedConfCentralNTopLR {this, "seedConfCentralNTopLR", 0,
   "nTop for large R central seed confirmation"};
     Gaudi::Property<size_t> m_seedConfCentralNTopSR {this, "seedConfCentralNTopSR", 0,
@@ -135,15 +133,13 @@ namespace ActsTrk {
   "maximum z for forward seed confirmation "};
     Gaudi::Property<float> m_seedConfForwardRMax {this, "seedConfForwardRMax", 0,
   "maximum r for forward seed confirmation "};
-    Gaudi::Property<size_t> m_seedConfForwardNTop {this, "seedConfForwardNTop", 0,
-  "nTop for forward seed confirmation"};
     Gaudi::Property<size_t> m_seedConfForwardNTopLR {this, "seedConfForwardNTopLR", 0,
   "nTop for large R forward seed confirmation"};
     Gaudi::Property<size_t> m_seedConfForwardNTopSR {this, "seedConfForwardNTopSR", 0,
   "nTop for small R forward seed confirmation"};
 
-    Gaudi::Property<bool> m_enableCutsForSortedSP {this, "enableCutsForSortedSP", false,
-  "enables cuts based on SPs sorted by cotTheta"};
+    Gaudi::Property<bool> m_skipPreviousTopSP {this, "skipPreviousTopSP", false,
+  "additional cut to skip top SPs when producing triplets"};
 
 
     Gaudi::Property< float > m_impactMax {this,"impactMax",3. * Acts::UnitConstants::mm,
@@ -194,6 +190,8 @@ namespace ActsTrk {
     // Used by SpacePointGridConfig
     Gaudi::Property< int > m_numPhiNeighbors {this, "numPhiNeighbors", 1, 
 	"sets of consecutive phi bins in the seed making step"};
+    Gaudi::Property< int > m_phiBinDeflectionCoverage {this, "phiBinDeflectionCoverage", 1, 
+	"number of bins to capture deflection"};
     Gaudi::Property< std::vector<float> > m_zBinEdges {this, "zBinEdges", {} , 
 	"enable non equidistant binning in z"}; // Also used by SpacePointGridConfig 
 

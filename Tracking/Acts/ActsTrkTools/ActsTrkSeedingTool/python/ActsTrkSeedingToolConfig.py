@@ -82,7 +82,7 @@ def ActsTrkSeedingToolBaseCfg(ConfigFlags,
     options.setdefault('useVariableMiddleSPRange', False)
     options.setdefault('deltaRMiddleSPRange', 10) # TOOD: Add ACTS units (currently not supported for this prop)
     options.setdefault('seedConfirmation', False) # no default for detailed conf, since confirmation is disabled by default
-    options.setdefault('enableCutsForSortedSP', False)
+    options.setdefault('skipPreviousTopSP', False)
 
     # Used by SeedFilterConfig
     options.setdefault('deltaInvHelixDiameter', 0.00003 * 1. / UnitConstants.mm)
@@ -92,6 +92,9 @@ def ActsTrkSeedingToolBaseCfg(ConfigFlags,
 
     # Used by SpacePointGridConfig
     options.setdefault('numPhiNeighbors', 1)
+    options.setdefault('phiBinDeflectionCoverage', 1)
+
+
     options.setdefault('zBinEdges', [])
 
     # Used by others

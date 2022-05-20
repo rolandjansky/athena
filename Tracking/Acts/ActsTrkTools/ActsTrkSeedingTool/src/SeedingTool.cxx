@@ -26,6 +26,7 @@ namespace ActsTrk {
     ATH_MSG_DEBUG("Properties Summary:");
     ATH_MSG_DEBUG("   " << m_zBinNeighborsTop);
     ATH_MSG_DEBUG("   " << m_zBinNeighborsBottom);
+    ATH_MSG_DEBUG( "   " << m_phiBinDeflectionCoverage );
 
     ATH_MSG_DEBUG(" * Used by SeedfinderConfig:");
     ATH_MSG_DEBUG("   " << m_minPt);
@@ -39,7 +40,7 @@ namespace ActsTrk {
     ATH_MSG_DEBUG("   " << m_useVariableMiddleSPRange);
     ATH_MSG_DEBUG("   " << m_deltaRMiddleSPRange);
     ATH_MSG_DEBUG("   " << m_seedConfirmation);
-    ATH_MSG_DEBUG("   " << m_enableCutsForSortedSP);
+    ATH_MSG_DEBUG("   " << m_skipPreviousTopSP );
     ATH_MSG_DEBUG("   " << m_impactMax);
     ATH_MSG_DEBUG("   " << m_sigmaScattering);
     ATH_MSG_DEBUG("   " << m_maxPtScattering);
@@ -209,7 +210,7 @@ namespace ActsTrk {
     gridCfg.deltaRMax = m_deltaRMax;
     gridCfg.cotThetaMax = m_cotThetaMax;
     gridCfg.impactMax = m_impactMax;
-    gridCfg.numPhiNeighbors = m_numPhiNeighbors;
+    gridCfg.phiBinDeflectionCoverage = m_phiBinDeflectionCoverage;
     gridCfg.zBinEdges = m_zBinEdges;
 
     // Configuration for Acts::Seedfinder
@@ -270,20 +271,17 @@ namespace ActsTrk {
     finderCfg.centralSeedConfirmationRange.zMinSeedConf = m_seedConfCentralZMin;
     finderCfg.centralSeedConfirmationRange.zMaxSeedConf = m_seedConfCentralZMax;
     finderCfg.centralSeedConfirmationRange.rMaxSeedConf = m_seedConfCentralRMax;
-    finderCfg.centralSeedConfirmationRange.nTopSeedConf = m_seedConfCentralNTop;
     finderCfg.centralSeedConfirmationRange.nTopForLargeR = m_seedConfCentralNTopLR;
     finderCfg.centralSeedConfirmationRange.nTopForSmallR = m_seedConfCentralNTopSR;
 
     finderCfg.forwardSeedConfirmationRange.zMinSeedConf = m_seedConfForwardZMin;
     finderCfg.forwardSeedConfirmationRange.zMaxSeedConf = m_seedConfForwardZMax;
     finderCfg.forwardSeedConfirmationRange.rMaxSeedConf = m_seedConfForwardRMax;
-    finderCfg.forwardSeedConfirmationRange.nTopSeedConf = m_seedConfForwardNTop;
     finderCfg.forwardSeedConfirmationRange.nTopForLargeR = m_seedConfForwardNTopLR;
     finderCfg.forwardSeedConfirmationRange.nTopForSmallR = m_seedConfForwardNTopSR;
 
     finderCfg.zBinEdges = m_zBinEdges;
-
-    finderCfg.enableCutsForSortedSP = m_enableCutsForSortedSP;
+    finderCfg.skipPreviousTopSP = m_skipPreviousTopSP;
 
     return std::make_pair(gridCfg, finderCfg);
   }
