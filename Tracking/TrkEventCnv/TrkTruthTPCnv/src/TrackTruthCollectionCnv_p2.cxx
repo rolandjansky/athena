@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for TrackTruthCollection.
@@ -19,8 +19,8 @@
 #include "TrackTruthCollectionAccessor.h"
 
 namespace {
-  HepMcParticleLinkCnv_p2 particleLinkConverter;
-  DataLinkCnv_p1<DataLink<TrackCollection> > dataLinkConverter;
+  const HepMcParticleLinkCnv_p2 particleLinkConverter;
+  const DataLinkCnv_p1<DataLink<TrackCollection> > dataLinkConverter;
 }
 
 void TrackTruthCollectionCnv_p2::persToTrans( const Trk::TrackTruthCollection_p2* pers,
