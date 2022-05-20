@@ -36,6 +36,7 @@ namespace TCS {
    private:
      
       TrigConf::L1Threshold const * m_threshold{nullptr};
+      unsigned int convertIsoToBit( const TCS::jTauTOB * jtau ) const; 
    };
 
 }
