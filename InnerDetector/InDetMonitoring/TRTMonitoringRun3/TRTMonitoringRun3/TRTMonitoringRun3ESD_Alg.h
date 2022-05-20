@@ -29,6 +29,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -44,6 +45,10 @@ namespace Trk {
 
 namespace InDetDD {
     class TRT_DetectorManager;
+}
+
+namespace InDet {
+    class IInDetTrackSelectionTool;
 }
 
 class AtlasDetectorID;
@@ -160,5 +165,6 @@ private:
     }
 
     int  m_EventBurstCut;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
 };
 #endif
