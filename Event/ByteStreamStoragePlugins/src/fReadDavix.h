@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FREADDAVIX_H
 #define FREADDAVIX_H
 
+#include "CxxUtils/checker_macros.h"
 #include "EventStorage/fRead.h"
 #include "davix.hpp"
 
@@ -31,7 +32,7 @@ class fReadDavix : public fRead
   Davix::Context m_c;
   Davix::RequestParams *m_davixParam;
   Davix::DavixError* m_err;
-  Davix::DavPosix *m_pos;
+  Davix::DavPosix *m_pos ATLAS_THREAD_SAFE;  // Davix documentation says this is thread-safe
   Davix::X509Credential *m_cert;
   DAVIX_FD* m_fd; // davix pointer to current file
 
