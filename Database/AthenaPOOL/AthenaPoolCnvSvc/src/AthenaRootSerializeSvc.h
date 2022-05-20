@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAROOTSERIALIZESVC_H
@@ -16,7 +16,7 @@
 /** @class AthenaRootSerializeSvc
  *  @brief This class provides the AthenaSerializeSvc using ROOT
  **/
-class AthenaRootSerializeSvc : public ::AthService, virtual public IAthenaSerializeSvc {
+class AthenaRootSerializeSvc : public extends<AthService, IAthenaSerializeSvc> {
    // Allow the factory class access to the constructor
    friend class SvcFactory<AthenaRootSerializeSvc>;
 
@@ -27,17 +27,15 @@ public:
    virtual ~AthenaRootSerializeSvc();
 
    /// Gaudi Service Interface method implementations:
-   StatusCode initialize() override;
-   StatusCode finalize() override;
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+   virtual StatusCode initialize() override;
 
-   void* serialize(const void* object, const std::string& name, size_t& nbytes) const override;
-   void* serialize(const void* object, const Guid& id, size_t& nbytes) const override;
-   void* serialize(const void* object, const RootType& cltype, size_t& nbytes) const override;
+   virtual void* serialize(const void* object, const std::string& name, size_t& nbytes) const override;
+   virtual void* serialize(const void* object, const Guid& id, size_t& nbytes) const override;
+   virtual void* serialize(const void* object, const RootType& cltype, size_t& nbytes) const override;
 
-   void* deserialize(void* buffer, size_t& nbytes, const std::string& name) const override;
-   void* deserialize(void* buffer, size_t& nbytes, const Guid& id) const override;
-   void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype) const override;
+   virtual void* deserialize(void* buffer, size_t& nbytes, const std::string& name) const override;
+   virtual void* deserialize(void* buffer, size_t& nbytes, const Guid& id) const override;
+   virtual void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype) const override;
 };
 
 #endif
