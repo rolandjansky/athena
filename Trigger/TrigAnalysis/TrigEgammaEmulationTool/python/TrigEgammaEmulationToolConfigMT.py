@@ -70,7 +70,10 @@ class TrigEgammaEmulationToolConfig:
         self.__emulator.ElectronCBSelectorTools  = TrigEgammaPrecisionElectronCBSelectorCfg(ConfigFilePath = self.ElectronCBConfigFilePath).getPublicTools()
         self.__emulator.ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg(ConfigFilePath = self.ElectronDNNConfigFilePath).getPublicTools()
         self.__emulator.PhotonCBSelectorTools    = createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath = self.PhotonCBConfigFilePath)
-    
+        for tool in self.__emulator.ElectronDNNSelectorTools:
+            tool.skipAmbiguityCut =True  
+        for tool in self.__emulator.ElectronLHSelectorTools:
+            tool.skipDeltaPoverP = True
     
     #
     # Setup chain by name (only single chains)
@@ -95,24 +98,37 @@ class TrigEgammaEmulationToolConfig:
 
         # Configure L1Calo 
         L1CaloTool = self.setupL1Calo(trigger + "_Step0" , d)
-
+        sequence = list()
         # Configure HLT
         FastCaloTool = TrigEgammaFastCaloHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastCaloHypoTool(trigger+'_Step1') )
-
         PrecisionCaloTool       = TrigEgammaPrecisionCaloHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionCaloHypoTool(trigger+'_Step3'))
-        PrecisionTrackingTool   = TrigEgammaPrecisionTrackingHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionTrackingHypoTool(trigger+'_Step4'))
-
         if signature == 'Electron':
-            FastTool                = TrigEgammaFastElectronHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastElectronHypoTool(trigger+'_Step2'))
-            PrecisionTool           = TrigEgammaPrecisionElectronHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionElectronHypoTool(trigger+'_Step5'))
+            isEtCut = bool(d['chainParts'][0]['addInfo'])
+            isIdperf = bool(d['chainParts'][0]['idperfInfo'])
+            FastTool                = TrigEgammaFastElectronHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastElectronHypoTool(trigger+'_Step2'))            
+            if isEtCut:     
+                sequence = [FastCaloTool, FastTool, PrecisionCaloTool]
+            elif isIdperf:  
+                PrecisionTrackingTool   = TrigEgammaPrecisionTrackingHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionTrackingHypoTool(trigger+'_Step4'))
+                sequence = [FastCaloTool, FastTool, PrecisionCaloTool, PrecisionTrackingTool]
+            else:           
+                PrecisionTrackingTool   = TrigEgammaPrecisionTrackingHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionTrackingHypoTool(trigger+'_Step4'))
+                PrecisionTool           = TrigEgammaPrecisionElectronHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionElectronHypoTool(trigger+'_Step5'))
+                sequence = [FastCaloTool, FastTool, PrecisionCaloTool, PrecisionTrackingTool, PrecisionTool]
         elif signature == 'Photon':
+            isEtCut = bool(d['chainParts'][0]['addInfo'])
             FastTool                = TrigEgammaFastPhotonHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationFastPhotonHypoTool(trigger+'_Step2'))
-            PrecisionTool           = TrigEgammaPrecisionPhotonHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionPhotonHypoTool(trigger+'_Step5'))
+            if isEtCut:
+                sequence = [FastCaloTool, FastTool, PrecisionCaloTool]
+            else:
+                PrecisionTool           = TrigEgammaPrecisionPhotonHypoToolFromDict(d, tool = CompFactory.Trig.TrigEgammaEmulationPrecisionPhotonHypoTool(trigger+'_Step5'))
+                sequence = [FastCaloTool, FastTool, PrecisionCaloTool, PrecisionTool]
 
         chain = CompFactory.Trig.TrigEgammaEmulationChain(
                                     name                    = trigger,
                                     L1Seed                  = L1CaloTool,
-                                    Steps                   = [FastCaloTool, FastTool, PrecisionCaloTool, PrecisionTrackingTool, PrecisionTool],
+                                    # Steps                   = [FastCaloTool, FastTool, PrecisionCaloTool, PrecisionTrackingTool, PrecisionTool],
+                                    Steps                   = sequence,
                                     Chain                   = trigger,
                                     Signature               = signature.lower(),
                                     OutputLevel             = self.OutputLevel

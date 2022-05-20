@@ -25,9 +25,9 @@ namespace TCS {
       // destructor
       virtual ~MuonSort();
 
-      virtual TCS::StatusCode initialize();
+      virtual TCS::StatusCode initialize() override;
 
-      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
+      virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) override final;
       
    private:
 

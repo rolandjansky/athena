@@ -2783,6 +2783,14 @@ HLT_g35_tight_3j25_0eta290_boffperf_pf_ftf_L1EM22VHI:
   stepFeatures:
     0: 1
     1: 1
+HLT_g35_tight_3j25_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_g35_tight_3j25_PhysicsTLA_L1EM22VHI:
   eventCount: 0
   stepCounts:
@@ -6574,19 +6582,19 @@ HLT_tau35_idperf_tracktwoMVABDT_L1jTAU30:
     3: 13
     4: 13
 HLT_tau35_idperf_tracktwoMVABDT_L1jTAU30M:
-  eventCount: 11
+  eventCount: 6
   stepCounts:
-    0: 11
-    1: 11
-    2: 11
-    3: 11
-    4: 11
+    0: 6
+    1: 6
+    2: 6
+    3: 6
+    4: 6
   stepFeatures:
-    0: 13
-    1: 13
-    2: 13
-    3: 13
-    4: 13
+    0: 7
+    1: 7
+    2: 7
+    3: 7
+    4: 7
 HLT_tau35_idperf_tracktwoMVA_L1TAU20IM:
   eventCount: 7
   stepCounts:
@@ -6702,16 +6710,16 @@ HLT_tau35_mediumRNN_tracktwoMVABDT_L1jTAU30:
 HLT_tau35_mediumRNN_tracktwoMVABDT_L1jTAU30M:
   eventCount: 1
   stepCounts:
-    0: 11
-    1: 11
-    2: 11
-    3: 11
+    0: 6
+    1: 6
+    2: 6
+    3: 6
     4: 1
   stepFeatures:
-    0: 13
-    1: 13
-    2: 13
-    3: 13
+    0: 7
+    1: 7
+    2: 7
+    3: 7
     4: 1
 HLT_tau35_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 0
@@ -6898,19 +6906,19 @@ HLT_tau35_perf_tracktwoMVABDT_L1jTAU30:
     3: 13
     4: 10
 HLT_tau35_perf_tracktwoMVABDT_L1jTAU30M:
-  eventCount: 9
+  eventCount: 4
   stepCounts:
-    0: 11
-    1: 11
-    2: 11
-    3: 11
-    4: 9
+    0: 6
+    1: 6
+    2: 6
+    3: 6
+    4: 4
   stepFeatures:
-    0: 13
-    1: 13
-    2: 13
-    3: 13
-    4: 10
+    0: 7
+    1: 7
+    2: 7
+    3: 7
+    4: 4
 HLT_tau35_perf_tracktwoMVA_L1TAU20IM:
   eventCount: 6
   stepCounts:
@@ -7300,11 +7308,7 @@ HLT_unconvtrk0_fslrt_L14J15:
 HLT_unconvtrk0_fslrt_L1J100:
   eventCount: 0
 HLT_unconvtrk0_fslrt_L1XE50:
-  eventCount: 1
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
+  eventCount: 0
 HLT_unconvtrk0_fsvsi_L1XE50:
   eventCount: 0
 HLT_unconvtrk200_hitdv_medium_L1XE50:

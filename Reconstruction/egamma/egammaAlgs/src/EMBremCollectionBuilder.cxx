@@ -42,8 +42,12 @@ EMBremCollectionBuilder::initialize()
   ATH_CHECK(m_trkRefitTool.retrieve());
   /* Get the particle creation tool */
   ATH_CHECK(m_particleCreatorTool.retrieve());
-  /* Get the track slimming tool */
-  ATH_CHECK(m_slimTool.retrieve());
+  /* Get the track slimming tool if needed */
+  if (m_doSlimTrkTracks) {
+    ATH_CHECK(m_slimTool.retrieve());
+  } else {
+    m_slimTool.disable();
+  }
 
   return StatusCode::SUCCESS;
 }

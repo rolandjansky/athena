@@ -35,6 +35,7 @@ ATLAS_CHECK_FILE_THREAD_SAFETY;
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
     : AthService(name, pSvcLocator), m_isFirstEvent{false}, m_eventCounter{0}, m_eventLoopMsgCounter{0}, m_checkPointTime{0} {
   // Five main snapshots : Configure, Initialize, FirstEvent, Execute, and Finalize
+  m_motherPID = getpid();
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
   // Initial capture upon construction
@@ -150,6 +151,19 @@ void PerfMonMTSvc::handle(const Incident& inc) {
   // By convention the first event is executed serially
   // Therefore, we treat it a little bit differently
   else if (m_eventCounter == 1 && inc.type() == "EndAlgorithms") {
+    // In AthenaMP w/ fork-after-initialize, the loop starts
+    // in the mother process but the first event is actually
+    // executed in the worker. Here, we try to work around this
+    // by resetting the first event measurement if we think
+    // we're in AthenaMP. This is not an ideal approach but
+    // gets the job done for the fork-after-initialize case.
+    if (m_motherPID != getpid()) {
+      m_snapshotData[FIRSTEVENT].m_tmp_cpu = 0;
+      m_snapshotData[FIRSTEVENT].m_memMonTmpMap["vmem"] = 0;
+      m_snapshotData[FIRSTEVENT].m_memMonTmpMap["pss"]  = 0;
+      m_snapshotData[FIRSTEVENT].m_memMonTmpMap["rss"]  = 0;
+      m_snapshotData[FIRSTEVENT].m_memMonTmpMap["swap"] = 0;
+    }
     m_measurementSnapshots.capture();
     m_snapshotData[FIRSTEVENT].addPointStop(m_measurementSnapshots);
     m_snapshotData[EXECUTE].addPointStart(m_measurementSnapshots);
@@ -236,7 +250,7 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
   }
 
   // First thing to be called after the event loop ends
-  if (compName == "AthMasterSeq" && stepName == "Stop") {
+  if (compName == "AthMasterSeq" && stepName == "Stop" && m_eventCounter > 0) {
     m_measurementSnapshots.capture();
     m_snapshotData[EXECUTE].addPointStop(m_measurementSnapshots);
   }

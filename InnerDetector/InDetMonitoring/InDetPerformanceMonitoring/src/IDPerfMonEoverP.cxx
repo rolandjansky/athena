@@ -572,8 +572,9 @@ StatusCode IDPerfMonEoverP::execute()
       ATH_MSG_DEBUG(  "Refitting the track" );
 
       IegammaTrkRefitterTool::Cache cache1{};
-      StatusCode sc = m_TrackRefitter->refitElectronTrack(Gaudi::Hive::currentContext(),
-                                                           pThisElectron,cache1);
+      StatusCode sc = m_TrackRefitter->refitTrack(Gaudi::Hive::currentContext(),
+                                                  pThisElectron->trackParticle()->track(),
+                                                  cache1);
       if (sc == StatusCode::SUCCESS){
         Trk::Track* trkTrack= cache1.refittedTrack.release();
         m_refittedTracks_no1->push_back(trkTrack);
@@ -588,8 +589,9 @@ StatusCode IDPerfMonEoverP::execute()
       ATH_MSG_DEBUG(  "Refitting the track again" );
 
       IegammaTrkRefitterTool::Cache cache2{};
-      sc = m_TrackRefitter_no2->refitElectronTrack(Gaudi::Hive::currentContext(),
-                                                    pThisElectron,cache2 );
+      sc = m_TrackRefitter_no2->refitTrack(Gaudi::Hive::currentContext(),
+                                           pThisElectron->trackParticle()->track(),
+                                           cache2 );
       if (sc == StatusCode::SUCCESS){
         Trk::Track* trkTrack= cache2.refittedTrack.release();
         //Add the refitted track to the TrackCollection
@@ -615,8 +617,9 @@ StatusCode IDPerfMonEoverP::execute()
 
   for( const auto & thisGoodElectron: goodElectrons){
     IegammaTrkRefitterTool::Cache cache{}; 
-    StatusCode sc = m_TrackRefitter->refitElectronTrack(Gaudi::Hive::currentContext(),
-                                                        (*ElectronInput_container)[thisGoodElectron],cache );
+    StatusCode sc = m_TrackRefitter->refitTrack(Gaudi::Hive::currentContext(),
+                                                (*ElectronInput_container)[thisGoodElectron]->trackParticle()->track(),
+                                                cache );
     if (sc == StatusCode::SUCCESS){
       Trk::Track* trkTrack= cache.refittedTrack.release(); 
       selectedElectrons->push_back(trkTrack);

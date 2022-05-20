@@ -71,6 +71,8 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
   declareProperty("doSmoothBinInterpolation", m_doSmoothBinInterpolation, "use smooth interpolation between discriminant bins");
   // especially for  trigger electron
   declareProperty("skipDeltaPoverP",m_skipDeltaPoverP = false,"If true, it will skip the check of deltaPoverP");
+
+  declareProperty("skipAmbiguityCut",m_skipAmbiguityCut = false,"If true, it will skip the ambiguity cut");
 }
 
 
@@ -343,14 +345,16 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   std::string notFoundList = "";
 
   // get the ambiguity type from the decoration
-  if (eg->isAvailable<uint8_t>("ambiguityType")){
-    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
-    ambiguityBit = acc(*eg);
-  }
-  else {
-    allFound = false;
-    notFoundList += "ambiguityType ";
-  }
+  if (!m_skipAmbiguityCut){
+    if (eg->isAvailable<uint8_t>("ambiguityType")){
+      static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+      ambiguityBit = acc(*eg);
+    }
+    else {
+      allFound = false;
+      notFoundList += "ambiguityType ";
+    }
+  } 
 
   nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(*track);
   nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*track);

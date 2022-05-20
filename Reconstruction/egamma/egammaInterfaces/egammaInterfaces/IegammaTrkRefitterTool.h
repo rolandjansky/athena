@@ -55,16 +55,6 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
       }
     };
 
-    /** Refit the track associated with an xAODEgamma object*/
-    virtual StatusCode  refitElectronTrack(const EventContext& ctx,
-                                           const xAOD::Electron* eg ,
-                                           Cache& result) const = 0;
-    
-    /** Refit the track associated with a track particle  object*/
-    virtual StatusCode  refitTrackParticle(const EventContext& ctx,
-                                           const xAOD::TrackParticle*, 
-                                           Cache& result) const = 0;
-    
     /** Refit the track*/
 		virtual StatusCode  refitTrack(const EventContext& ctx,
                                    const Trk::Track*, 
