@@ -2,6 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/ConcurrencyFlags.h"
+
 #include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
 
 namespace NSWL1 {
@@ -49,32 +51,29 @@ namespace NSWL1 {
         const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
         const std::string& algo_name = pnamed->name();
 
-        if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-          ITHistSvc* tHistSvc=nullptr;
-          ATH_CHECK(service("THistSvc", tHistSvc));
+        if ( m_doNtuple ) {
+            if (Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
+                ATH_MSG_ERROR("DoNtuple is not possible in multi-threaded mode");
+                return StatusCode::FAILURE;
+            }
+            m_validation_tree = std::make_unique<PadTdsValidationTree>();
 
-          TTree *tree = nullptr;
-          std::string treename = algo_name+"Tree";
-          ATH_CHECK(tHistSvc->getTree(treename, tree));
-          m_validation_tree.init_tree(tree);
-        } else m_validation_tree.clear_ntuple_variables();
+            ATH_CHECK( m_incidentSvc.retrieve() );
+            m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-        // retrieve the Incident Service
-        if( m_incidentSvc.retrieve().isFailure() ) {
-          ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-          return StatusCode::FAILURE;
-        } else {
-          ATH_MSG_DEBUG("Incident Service successfully rertieved");
+            if ( algo_name=="NSWL1Simulation" ) {
+                ITHistSvc* tHistSvc=nullptr;
+                ATH_CHECK(service("THistSvc", tHistSvc));
+
+                TTree *tree = nullptr;
+                std::string treename = algo_name+"Tree";
+                ATH_CHECK(tHistSvc->getTree(treename, tree));
+                m_validation_tree->init_tree(tree);
+            }
         }
-        m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
         //  retrieve the MuonDetectormanager
-        if( detStore()->retrieve( m_detManager ).isFailure() ) {
-          ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-          return StatusCode::FAILURE;
-        } else {
-          ATH_MSG_DEBUG("MuonDetectorManager successfully retrieved");
-        }
+        ATH_CHECK( detStore()->retrieve( m_detManager ) );
 
         // retrieve the Random Service
         ATH_CHECK( m_rndmSvc.retrieve() );
@@ -87,7 +86,10 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     void PadTdsOfflineTool::handle(const Incident& inc) {
         if( inc.type()==IncidentType::BeginEvent ) {
-            if(m_doNtuple) m_validation_tree.reset_ntuple_variables();
+            if( m_doNtuple ) {
+                // Ntuple can only be enabled in single-threaded mode (see initialize)
+                [[maybe_unused]] bool success ATLAS_THREAD_SAFE = m_validation_tree->reset_ntuple_variables();
+            }
         }
     }
     //------------------------------------------------------------------------------
@@ -105,10 +107,10 @@ namespace NSWL1 {
         return globalPos;
     }
     //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const {
+    StatusCode PadTdsOfflineTool::fill_pad_validation_id ATLAS_NOT_THREAD_SAFE (std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const {
         float bin_offset = +0.; // used to center the bin on the value of the Pad Id
         for (const std::vector<std::shared_ptr<PadData>>& pad : pad_cache) {
-            m_validation_tree.fill_num_pad_hits(pad.size());
+            m_validation_tree->fill_num_pad_hits(pad.size());
             for (const std::shared_ptr<PadData> &pd : pad) {
                 Identifier Id( pd->id() );
                 const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
@@ -124,7 +126,7 @@ namespace NSWL1 {
                 std::vector<MuonSimData::Deposit> deposits;
                 if(get_truth_hits_this_pad(Id, deposits)){
                     for(const auto& d : deposits) {
-                        m_validation_tree.fill_truth_hit_global_pos(local_position_to_global_position(d, surface));
+                        m_validation_tree->fill_truth_hit_global_pos(local_position_to_global_position(d, surface));
                     }
                 }
 
@@ -137,14 +139,15 @@ namespace NSWL1 {
                 surface.localToGlobal(local_corner, global_corner, global_corner);
                 global_pad_corners.push_back(global_corner);
                 }
-                m_validation_tree.fill_hit_global_corner_pos(global_pad_corners);
+                m_validation_tree->fill_hit_global_corner_pos(global_pad_corners);
 
                 // gathers the Offline PAD EDM from the interface
                 PadOfflineData* pad_offline = dynamic_cast<PadOfflineData*>( pd.get() );
-                m_validation_tree.fill_hit_global_pos(pad_gpos);
-                m_validation_tree.fill_offlineid_info(*pad_offline, bin_offset);
+                m_validation_tree->fill_hit_global_pos(pad_gpos);
+                m_validation_tree->fill_offlineid_info(*pad_offline, bin_offset);
             }
         }
+        return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side, int sector) const {
@@ -162,7 +165,11 @@ namespace NSWL1 {
 
         std::vector< std::vector<std::shared_ptr<PadData>> > pad_cache(PadTdsOfflineTool::numberOfSectors());
         ATH_CHECK(fill_pad_cache(pad_cache));
-        if(m_doNtuple) this->fill_pad_validation_id(pad_cache);
+        if(m_doNtuple) {
+            // Ntuple can only be enabled in single-threaded mode (see initialize)
+            StatusCode sc ATLAS_THREAD_SAFE = this->fill_pad_validation_id(pad_cache);
+            ATH_CHECK( sc );
+        }
 
         // delivering the required collection
         const bool anySide = (side==-1);

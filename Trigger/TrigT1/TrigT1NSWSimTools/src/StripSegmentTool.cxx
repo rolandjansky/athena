@@ -2,6 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/ConcurrencyFlags.h"
+
 #include "TrigT1NSWSimTools/StripSegmentTool.h"
 
 namespace NSWL1 {
@@ -19,19 +21,25 @@ namespace NSWL1 {
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
     const std::string& algo_name = pnamed->name();
-    if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-      ITHistSvc* tHistSvc;
-      ATH_CHECK(service("THistSvc", tHistSvc));
-      std::string ntuple_name = algo_name+"Tree";
-      m_tree = nullptr;
-      ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
-      ATH_CHECK(this->book_branches());
-    } else this->clear_ntuple_variables();
-    if( m_incidentSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-      return StatusCode::FAILURE;
-    } else ATH_MSG_DEBUG("Incident Service successfully retrieved");
-    m_incidentSvc->addListener(this,IncidentType::BeginEvent);
+    if ( m_doNtuple ) {
+      if (Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
+        ATH_MSG_ERROR("DoNtuple is not possible in multi-threaded mode");
+        return StatusCode::FAILURE;
+      }
+
+      ATH_CHECK( m_incidentSvc.retrieve() );
+      m_incidentSvc->addListener(this,IncidentType::BeginEvent);
+
+      if ( algo_name=="NSWL1Simulation" ) {
+        ITHistSvc* tHistSvc;
+        ATH_CHECK(service("THistSvc", tHistSvc));
+        std::string ntuple_name = algo_name+"Tree";
+        m_tree = nullptr;
+        ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
+        ATH_CHECK(this->book_branches());
+      }
+    }
+
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_regSelTableKey.initialize());
     return StatusCode::SUCCESS;

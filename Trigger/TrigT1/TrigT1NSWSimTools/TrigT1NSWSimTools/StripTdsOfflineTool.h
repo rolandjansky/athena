@@ -108,28 +108,29 @@ namespace NSWL1 {
     // activate MC-only processes
     Gaudi::Property<bool>         m_isMC            {this, "IsMC",                  true,       "This is MC"};
 
-    // analysis ntuple
-    TTree* m_tree;                                          //!< ntuple for analysis
 
-    // analysis variable to be put into the ntuple
+    /* None of the TTree filling is thread-safe and should really be refactored.
+     * But we check in initialize() that this is only used in single-threaded mode.
+     */
+    TTree* m_tree ATLAS_THREAD_SAFE{nullptr};                                          //!< ntuple for analysis
     mutable int m_nStripHits ATLAS_THREAD_SAFE;             //!< number of STRIP hit delivered
-    std::vector<float > *m_stripCharge=0;                   //!< charge of hit STRIPs
-    std::vector<float > *m_stripCharge_6bit=0;              //!< charge of hit STRIPs 6 bit format
-    std::vector<float > *m_stripCharge_10bit=0;             //!< charge of hit STRIPs 10 bit format
-    std::vector<float > *m_strip_global_X=0;                //!< global X position
-    std::vector<float > *m_strip_global_Y=0;                //!< global Y position
-    std::vector<float > *m_strip_global_Z=0;                //!< global Z position
-    std::vector<float > *m_strip_local_X=0;                 //!< local X position
-    std::vector<float > *m_strip_local_Y=0;                 //!< local Y position
-    std::vector<float > *m_strip_layer=0;                   //!< layer
-    std::vector<bool > *m_strip_isSmall=0;                  //!< sector type
-    std::vector<float > *m_strip_eta=0;                     //!< sector eta
-    std::vector<float > *m_strip_phi=0;                     //!< sector phi
-    std::vector<bool > *m_strip_readStrip=0;                //!< read strip status
-    std::vector<int > *m_strip_channel=0;                   //!< channel
-    std::vector<int > *m_strip_BCID=0;                      //!< BCID
-    std::vector<int > *m_strip_wedge=0;                     //!< multipletId
-    std::vector<float > *m_strip_time=0;                    //!< time
+    std::vector<float > *m_stripCharge ATLAS_THREAD_SAFE{nullptr};                   //!< charge of hit STRIPs
+    std::vector<float > *m_stripCharge_6bit ATLAS_THREAD_SAFE{nullptr};              //!< charge of hit STRIPs 6 bit format
+    std::vector<float > *m_stripCharge_10bit ATLAS_THREAD_SAFE{nullptr};             //!< charge of hit STRIPs 10 bit format
+    std::vector<float > *m_strip_global_X ATLAS_THREAD_SAFE{nullptr};                //!< global X position
+    std::vector<float > *m_strip_global_Y ATLAS_THREAD_SAFE{nullptr};                //!< global Y position
+    std::vector<float > *m_strip_global_Z ATLAS_THREAD_SAFE{nullptr};                //!< global Z position
+    std::vector<float > *m_strip_local_X ATLAS_THREAD_SAFE{nullptr};                 //!< local X position
+    std::vector<float > *m_strip_local_Y ATLAS_THREAD_SAFE{nullptr};                 //!< local Y position
+    std::vector<float > *m_strip_layer ATLAS_THREAD_SAFE{nullptr};                   //!< layer
+    std::vector<bool > *m_strip_isSmall ATLAS_THREAD_SAFE{nullptr};                  //!< sector type
+    std::vector<float > *m_strip_eta ATLAS_THREAD_SAFE{nullptr};                     //!< sector eta
+    std::vector<float > *m_strip_phi ATLAS_THREAD_SAFE{nullptr};                     //!< sector phi
+    std::vector<bool > *m_strip_readStrip ATLAS_THREAD_SAFE{nullptr};                //!< read strip status
+    std::vector<int > *m_strip_channel ATLAS_THREAD_SAFE{nullptr};                   //!< channel
+    std::vector<int > *m_strip_BCID ATLAS_THREAD_SAFE{nullptr};                      //!< BCID
+    std::vector<int > *m_strip_wedge ATLAS_THREAD_SAFE{nullptr};                     //!< multipletId
+    std::vector<float > *m_strip_time ATLAS_THREAD_SAFE{nullptr};                    //!< time
 
     SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
     SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};

@@ -2,6 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/ConcurrencyFlags.h"
+
 #include "TrigT1NSWSimTools/MMTriggerTool.h"
 
 namespace NSWL1 {
@@ -31,42 +33,32 @@ namespace NSWL1 {
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
     const std::string& algo_name = pnamed->name();
-    if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-      ITHistSvc* tHistSvc;
-      ATH_CHECK( service("THistSvc", tHistSvc) );
+    if ( m_doNtuple ) {
+      if (Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
+        ATH_MSG_ERROR("DoNtuple is not possible in multi-threaded mode");
+        return StatusCode::FAILURE;
+      }
 
-      m_tree = 0;
-      std::string ntuple_name = algo_name+"Tree";
-      ATH_CHECK( tHistSvc->getTree(ntuple_name,m_tree) );
-      ATH_MSG_DEBUG("Analysis ntuple succesfully retrieved");
-      ATH_CHECK( this->book_branches() );
+      ATH_CHECK( m_incidentSvc.retrieve() );
+      m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
-    } else this->clear_ntuple_variables();
+      if ( algo_name=="NSWL1Simulation" ) {
+        ITHistSvc* tHistSvc;
+        ATH_CHECK( service("THistSvc", tHistSvc) );
 
-    // retrieve the Incident Service
-    if( m_incidentSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("Incident Service successfully rertieved");
+        m_tree = 0;
+        std::string ntuple_name = algo_name+"Tree";
+        ATH_CHECK( tHistSvc->getTree(ntuple_name,m_tree) );
+        ATH_MSG_DEBUG("Analysis ntuple succesfully retrieved");
+        ATH_CHECK( this->book_branches() );
+      }
     }
-    m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
     //  retrieve the MuonDetectormanager
-    if( detStore()->retrieve( m_detManager ).isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("MuonDetectorManager successfully retrieved");
-    }
+    ATH_CHECK( detStore()->retrieve( m_detManager ) );
 
     //  retrieve the Mm offline Id helper
-    if( detStore()->retrieve( m_MmIdHelper ).isFailure() ){
-      ATH_MSG_FATAL("Failed to retrieve MmIdHelper");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("MmIdHelper successfully retrieved");
-    }
+    ATH_CHECK( detStore()->retrieve( m_MmIdHelper ) );
 
     //Calculate and retrieve wedge geometry, defined in MMT_struct
     const par_par standard = par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
