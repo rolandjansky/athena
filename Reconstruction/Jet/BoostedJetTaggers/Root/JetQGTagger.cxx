@@ -423,13 +423,13 @@ namespace CP {
       }
 
       if ( pdgid==21 && m_appliedSystEnum!=QG_NCHARGEDTOPO ) {
-        ptbin = m_hgluon->GetXaxis()->FindBin(tjetpt);
-        ntrkbin = m_hgluon->GetYaxis()->FindBin(tntrk);
+        ptbin = std::as_const(*m_hgluon).GetXaxis()->FindFixBin(tjetpt);
+        ntrkbin = std::as_const(*m_hgluon).GetYaxis()->FindFixBin(tntrk);
         weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
       }// gluon
       else if ( pdgid < 5 && m_appliedSystEnum != QG_NCHARGEDTOPO && m_appliedSystEnum != QG_TRACKEFFICIENCY && m_appliedSystEnum != QG_TRACKFAKES ) {
-        ptbin = m_hquark->GetXaxis()->FindBin(tjetpt);
-        ntrkbin = m_hquark->GetYaxis()->FindBin(tntrk);
+        ptbin = std::as_const(*m_hquark).GetXaxis()->FindFixBin(tjetpt);
+        ntrkbin = std::as_const(*m_hquark).GetYaxis()->FindFixBin(tntrk);
         weight = m_hquark->GetBinContent(ptbin,ntrkbin);
       }//quarks
       else {
@@ -457,13 +457,13 @@ namespace CP {
       }
 
       if ( pdgid < 5 ) {
-        ptbin = m_hquark->GetXaxis()->FindBin(rjetpt);
-        ntrkbin = m_hquark->GetYaxis()->FindBin(ntrk);
+        ptbin = std::as_const(*m_hquark).GetXaxis()->FindFixBin(rjetpt);
+        ntrkbin = std::as_const(*m_hquark).GetYaxis()->FindFixBin(ntrk);
         weight = m_hquark->GetBinContent(ptbin,ntrkbin);
       }
       if ( pdgid == 21 ) {
-        ptbin = m_hgluon->GetXaxis()->FindBin(rjetpt);
-        ntrkbin = m_hgluon->GetYaxis()->FindBin(ntrk);
+        ptbin = std::as_const(*m_hgluon).GetXaxis()->FindFixBin(rjetpt);
+        ntrkbin = std::as_const(*m_hgluon).GetYaxis()->FindFixBin(ntrk);
         weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
       }
     }
@@ -620,13 +620,13 @@ namespace CP {
 
     // use the lookup tables loaded in initialize() to find the systematically shifted weights
     if ( pdgid==21 && m_appliedSystEnum!=QG_NCHARGEDTOPO){
-      int ptbin = m_hgluon->GetXaxis()->FindBin(tjetpt);
-      int ntrkbin = m_hgluon->GetYaxis()->FindBin(tntrk);
+      int ptbin = std::as_const(*m_hgluon).GetXaxis()->FindFixBin(tjetpt);
+      int ntrkbin = std::as_const(*m_hgluon).GetYaxis()->FindFixBin(tntrk);
       weight = m_hgluon->GetBinContent(ptbin,ntrkbin);
     }// gluon
     else if ( pdgid<5 ){
-      int ptbin = m_hquark->GetXaxis()->FindBin(tjetpt);
-      int ntrkbin = m_hquark->GetYaxis()->FindBin(tntrk);
+      int ptbin = std::as_const(*m_hquark).GetXaxis()->FindFixBin(tjetpt);
+      int ntrkbin = std::as_const(*m_hquark).GetYaxis()->FindFixBin(tntrk);
       weight = m_hquark->GetBinContent(ptbin,ntrkbin);
     }//quarks
     else{
