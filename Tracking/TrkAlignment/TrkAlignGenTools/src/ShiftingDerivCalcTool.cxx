@@ -123,8 +123,7 @@ namespace Trk {
     ATH_CHECK(m_residualCalculator.retrieve());
     ATH_CHECK(m_alignModuleTool.retrieve());
 
-    ParticleSwitcher particleSwitch;
-    m_particleHypothesis = particleSwitch.particle[m_particleNumber];
+    m_particleHypothesis = Trk::ParticleSwitcher::particle[m_particleNumber];
     msg(MSG::INFO) << "ParticleNumber: "     << m_particleNumber     << endmsg;
     msg(MSG::INFO) << "ParticleHypothesis: " << m_particleHypothesis << endmsg;
 

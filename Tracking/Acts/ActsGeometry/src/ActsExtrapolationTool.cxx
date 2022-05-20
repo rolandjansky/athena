@@ -168,7 +168,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto &mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -246,7 +246,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -301,7 +301,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -372,7 +372,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();

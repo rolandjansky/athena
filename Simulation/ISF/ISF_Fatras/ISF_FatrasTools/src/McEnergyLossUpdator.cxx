@@ -15,9 +15,9 @@
 
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
-// static partilce masses
-Trk::ParticleMasses iFatras::McEnergyLossUpdator::s_particleMasses;
+
 
 iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, const std::string& name, const IInterface* parent )
   :
@@ -134,7 +134,7 @@ iFatras::McEnergyLossUpdator::energyLoss(
   }
 
   // protection due to straggling - maximum energy loss is E-m
-  double m     = s_particleMasses.mass[particleHypothesis];
+  double m     = Trk::ParticleMasses::mass[particleHypothesis];
   double E     = sqrt(momentum*momentum+m*m);
 
   if (sampledEloss->deltaE()+E<m ) {    // particle stopping - rest energy

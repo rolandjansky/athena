@@ -39,7 +39,6 @@
 // For the track length in straw calculations
 #include "TRT_ToT_dEdx.h"
 
-// Particle masses
 
 // Math functions:
 #include <cmath>

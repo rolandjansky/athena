@@ -22,7 +22,6 @@
 #include <sstream>
 
 namespace {
-const Trk::ParticleMasses s_particleMasses{};
 constexpr double s_singleGaussianRange = 0.0001;
 constexpr double s_lowerRange = 0.002;
 constexpr double s_xOverRange = 0.10;
@@ -133,7 +132,7 @@ scattering(GsfMaterial::Scattering& cache,
   const double t = pathcorrection * materialProperties.thicknessInX0();
   // We were/are using muon here,
   // not sure is what we want 100%.
-  const double m = s_particleMasses.mass[Trk::muon];
+  const double m = Trk::ParticleMasses::mass[Trk::muon];
   const double E = sqrt(p * p + m * m);
   const double beta = p / E;
   const double sigma = Trk::MaterialInteraction::sigmaMS(t, p, beta);

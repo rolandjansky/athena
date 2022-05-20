@@ -134,8 +134,6 @@ private:
   Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", false, "Whether to consider multiple scattering in the interactor"};
   Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", false, "Whether to consider energy loss in the interactor"};
   Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", false, "Whether to record all material interactions"};
-  // Particle masses
-  Trk::ParticleMasses m_particlemasses;
   // Hypothesis to pdg converter
   Trk::PdgToParticleHypothesis m_pdgToParticleHypothesis;
 };

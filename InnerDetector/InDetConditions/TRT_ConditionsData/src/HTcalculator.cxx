@@ -4,6 +4,7 @@
 #include "TRT_ConditionsData/HTcalculator.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
+
 #include <cmath>
 
 #include <iostream>
@@ -58,7 +59,7 @@ float HTcalculator::getProbHT(
   // Calculate the High Threshold probability, pHT:
   // ----------------------------------------------
   float correctionSL, correctionZR, correctionTW;
-  float mass = m_particlemasses.mass[hypothesis];
+  float mass = Trk::ParticleMasses::mass[hypothesis];
   float correctionPGOG=-999.;
   if (GasType==1 &&  TrtPart==2) {
     //estimate EB argon straws as follows:

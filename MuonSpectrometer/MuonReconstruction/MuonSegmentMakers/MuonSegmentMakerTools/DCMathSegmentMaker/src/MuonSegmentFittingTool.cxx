@@ -83,11 +83,10 @@ namespace Muon {
         std::copy(rioVec.begin(), rioVec.end(), std::back_inserter(vec2));
 
         // fit
-        Trk::ParticleSwitcher particleSwitch;
         std::unique_ptr<Trk::Track> newtrack;
         // use the full fitter if the segment is curved
         if (isCurvedSegment) {
-            newtrack = m_curvedTrackFitter->fit(ctx, vec2, startpar, false, particleSwitch.particle[0]);
+            newtrack = m_curvedTrackFitter->fit(ctx, vec2, startpar, false, Trk::ParticleSwitcher::particle[0]);
         }
         // else use the straight line fitter
         else {

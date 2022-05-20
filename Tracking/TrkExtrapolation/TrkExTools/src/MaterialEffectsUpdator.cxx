@@ -26,14 +26,14 @@
 #include "TrkSurfaces/Surface.h"
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 #include "GeoPrimitives/GeoPrimitives.h"
 // std
 #include <algorithm>
 #include <functional>
 #include <cmath>
-namespace {
-const Trk::ParticleMasses s_particleMasses{};
-}
+
 
 // constructor
 Trk::MaterialEffectsUpdator::MaterialEffectsUpdator(const std::string& t, const std::string& n, const IInterface* p)
@@ -186,7 +186,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // get the kinematics
   double p = parm->momentum().mag();
   double updateMomentum = (m_forceMomentum) ? m_forcedMomentum : p;
-  double m = s_particleMasses.mass[particle];
+  double m = Trk::ParticleMasses::mass[particle];
   double E = std::sqrt(p * p + m * m);
   double beta = p / E;
 
@@ -478,7 +478,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // get the kinematics
   double p = parm->momentum().mag();
   double updateMomentum = (m_forceMomentum) ? m_forcedMomentum : p;
-  double m = s_particleMasses.mass[particle];
+  double m = Trk::ParticleMasses::mass[particle];
   double E = std::sqrt(p * p + m * m);
   double beta = p / E;
 
@@ -654,7 +654,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // get the kinematics
   double p = parm.momentum().mag();
   double updateMomentum = (m_forceMomentum) ? m_forcedMomentum : p;
-  double m = s_particleMasses.mass[particle];
+  double m = Trk::ParticleMasses::mass[particle];
   double E = std::sqrt(p * p + m * m);
   double beta = p / E;
 

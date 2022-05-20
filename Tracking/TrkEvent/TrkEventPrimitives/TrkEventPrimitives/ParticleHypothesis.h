@@ -48,9 +48,9 @@ namespace Trk {
    @author Andreas.Salzburger@cern.ch
    */
     
-   struct ParticleMasses {
+   namespace ParticleMasses {
       /** the array of masses */
-     const double mass[PARTICLEHYPOTHESES] =
+     constexpr double mass[PARTICLEHYPOTHESES] =
      { (0.*Gaudi::Units::MeV),// non interacting mass
        (0.51099891*Gaudi::Units::MeV), // electron mass
        (105.658367*Gaudi::Units::MeV), // muon mass
@@ -71,9 +71,9 @@ namespace Trk {
    @author Andreas.Salzburger@cern.ch
    */
     
-   struct ParticleSwitcher {
+   namespace ParticleSwitcher {
       /** the array  of masses */
-   const ParticleHypothesis particle[PARTICLEHYPOTHESES] =
+   constexpr ParticleHypothesis particle[PARTICLEHYPOTHESES] =
    { (Trk::nonInteracting), 
      (Trk::electron),
      (Trk::muon),          

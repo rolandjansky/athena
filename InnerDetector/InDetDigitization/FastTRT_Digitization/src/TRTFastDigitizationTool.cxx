@@ -812,8 +812,7 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
 
   } // end of switch
 
-  static const Trk::ParticleMasses particleMasses;
-  float pTrk = sqrt( kineticEnergy * kineticEnergy + 2. * kineticEnergy * particleMasses.mass[ hypothesis ] );
+  float pTrk = sqrt( kineticEnergy * kineticEnergy + 2. * kineticEnergy * Trk::ParticleMasses::mass[ hypothesis ] );
   if ( pTrk < 250. || pTrk > 7000000. ) return 0.;
 
   int layerOrWheel = m_trt_id->layer_or_wheel( straw_id );

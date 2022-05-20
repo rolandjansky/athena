@@ -38,6 +38,9 @@
 #include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
+
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Matrix/Vector.h"
@@ -370,7 +373,7 @@ ISF::ISFParticle* iFatras::McMaterialEffectsEngine::bremPhoton(const ISF::ISFPar
 
   // the start of the equation
   double theta = 0.;
-  double m = m_particleMasses.mass[particle];
+  double m = Trk::ParticleMasses::mass[particle];
   double E = sqrt(pElectron*pElectron + m*m);
 
   if (m_uniformHertzDipoleAngle) {
@@ -497,7 +500,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 
   // get the kinematics
   double p    = parm->momentum().mag();
-  double m    = m_particleMasses.mass[eCell.pHypothesis];
+  double m    = Trk::ParticleMasses::mass[eCell.pHypothesis];
   double E    = sqrt(p*p+m*m);
 
   // radiation and ionization preceed the presampled interaction (if any)
@@ -820,7 +823,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 
   // get the kinematics
   //double p    = parm->momentum().mag();
-  //double m    = m_particleMasses.mass[eCell.pHypothesis];
+  //double m    = Trk::ParticleMasses::mass[eCell.pHypothesis];
   //double E    = sqrt(p*p+m*m);
 
   if ( iStatus==1 || iStatus==2 ) {   // interaction with particle stopping

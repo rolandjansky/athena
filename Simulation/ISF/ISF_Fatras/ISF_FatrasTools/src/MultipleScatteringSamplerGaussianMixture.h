@@ -14,7 +14,6 @@
 // Trk
 #include "ISF_FatrasInterfaces/IMultipleScatteringSampler.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -70,9 +69,7 @@ namespace iFatras {
       /** Random engine  */
       CLHEP::HepRandomEngine*                      m_randomEngine;
       std::string                                  m_randomEngineName;                   //!< Name of the random number stream
-       
-      static Trk::ParticleMasses s_particleMasses;        //!< struct of Particle masses
-      
+             
       static double         s_main_RutherfordScott;  //!< main factor of Rutherford-Scott formula
       static double         s_log_RutherfordScott;   //!< log factor of Rutherford-Scott formula
        
