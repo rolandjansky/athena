@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -130,14 +130,14 @@ const std::string formatVecHex8(const std::vector<uint32_t>& vec)
 }
 
   // this is out of date and should not be used
-  unsigned int triggerBitIndex(uint32_t moduleId, L1Topo::L1TopoTOB c){
+  unsigned int triggerBitIndex(uint32_t moduleId, const L1Topo::L1TopoTOB& c){
     uint32_t module = (moduleId >>4) & 0x1;
     uint32_t index = 64*module + 32*c.fpga() + 16*c.clock() + 8*c.index();
     return index;
   }
 
   // this reflects the actual CTP mapping and the CTP simulation with which L1Topo output is compared
-  unsigned int triggerBitIndexNew(uint32_t moduleId, L1Topo::L1TopoTOB c, unsigned int bitIdx){
+  unsigned int triggerBitIndexNew(uint32_t moduleId, const L1Topo::L1TopoTOB& c, unsigned int bitIdx){
     uint32_t module = (moduleId >>4) & 0x1;
     uint32_t index = 64*module + 32*c.fpga() + c.clock() + 2*(8*c.index() + bitIdx);
     //std::cout << "L1Topo::triggerBitIndexNew DEBUG index=" << index << " for module=" << module << " fpga=" << c.fpga() << " clock=" << c.clock() << " index=" << c.index() << " bitIdx=" << bitIdx << std::endl;
