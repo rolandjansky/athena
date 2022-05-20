@@ -192,7 +192,7 @@ def NswCalibDbAlgCfg(flags, **kwargs):
 
 def NswPassivationDbAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/MDT/MM/PASSIVATION", "MDT_OFL", className="CondAttrListCollection", tag="MmPassiv2022Feb26")) ## force explicit tag for now, to be removed later once folder tag is resolved via global tag
+    acc.merge(addFolders(flags, "/MDT/MM/PASSIVATION", "MDT_OFL", className="CondAttrListCollection", tag="MmPassiv2022May19")) ## force explicit tag for now, to be removed later once folder tag is resolved via global tag
     alg = CompFactory.NswPassivationDbAlg("NswPassivationDbAlg", **kwargs)
     acc.addCondAlgo(alg)
     return acc
