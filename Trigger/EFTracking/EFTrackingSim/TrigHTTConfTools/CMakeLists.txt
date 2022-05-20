@@ -22,9 +22,6 @@ atlas_add_component( TrigHTTConfTools
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( test/HTTInputTestSetup.sh )
 
-atlas_install_generic( config/map_file/*
-   DESTINATION share/htt_configuration/map_files )
-
 # Tests in the package:
 atlas_add_test( HTTRegionSlices_test
    SOURCES        test/HTTRegionSlices_test.cxx

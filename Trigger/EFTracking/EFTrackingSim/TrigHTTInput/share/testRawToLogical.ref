@@ -1,8 +1,7 @@
-HTTReadLogicalH...   INFO HTTReadLogicalHitsAlg::initialize()
-HTTReadLogicalH...   INFO HTTOutputHeaderTool::initialize()
+Py:HTTReadLogicalHitsAlg    INFO Input file ['httsim_loghits_wrap.OUT.root']
+HTTReadLogicalH...  DEBUG Opening file httsim_loghits_wrap.OUT.root in READ mode.
+HTTReadLogicalH...   INFO Input file: httsim_loghits_wrap.OUT.root has 5 event entries.
 HTTReadLogicalH...  DEBUG Initialized in READ MODE
-HTTReadLogicalH...   INFO End of Tool initialize
-HTTReadLogicalH...   INFO End of initialize
 HTTReadLogicalH...  DEBUG Adding private ToolHandle tool HTTReadLogicalHitsAlg.HTTReadInput (HTTOutputHeaderTool)
 HTTReadLogicalH...  DEBUG Asked Event 0 in this file; current total is 0
 HTTReadLogicalH...  DEBUG Asked in first stage header event: Event 1 	Run 242000
