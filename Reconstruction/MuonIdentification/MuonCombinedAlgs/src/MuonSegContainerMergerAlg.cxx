@@ -8,6 +8,15 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
+namespace{
+    inline double chi2(const Trk::Segment* seg){
+        if(!seg || !seg->fitQuality()) return FLT_MAX;
+        const Trk::FitQuality* ql = seg->fitQuality();
+        return ql->chiSquared()  / ql->numberDoF();
+    }
+
+}
+
 MuonSegContainerMergerAlg::MuonSegContainerMergerAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthReentrantAlgorithm(name, pSvcLocator) {}
 
@@ -125,6 +134,8 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
     std::vector<const Trk::Segment*> to_copy_vec{};
     to_copy_vec.insert(to_copy_vec.end(), to_copy.begin(), to_copy.end());
     std::sort(to_copy_vec.begin(),to_copy_vec.end(), [] (const Trk::Segment* a, const Trk::Segment* b){
+        const double chi2_a{chi2(a)}, chi2_b{chi2(b)};
+        if (chi2_a != chi2_b) return chi2_a < chi2_b;
         return a->globalPosition().mag2() < b->globalPosition().mag2();
 
     });
