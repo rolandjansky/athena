@@ -28,7 +28,7 @@ namespace ITk
 PixelGmxInterface::PixelGmxInterface(PixelDetectorManager *detectorManager,
                                      SiCommonItems *commonItems,
                                      WaferTree *moduleTree)
-  : AthMessaging(Athena::getMessageSvc(), "PixelGmxInterface"),
+  : AthMessaging("PixelGmxInterface"),
     m_detectorManager(detectorManager),
     m_commonItems(commonItems),
     m_moduleTree(moduleTree)

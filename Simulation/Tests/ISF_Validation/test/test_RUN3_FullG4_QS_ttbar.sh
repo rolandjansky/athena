@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: MC21-style simulation using FullG4MT_QS (13 TeV ttbar input - needs updating)
+# art-include: 22.0/Athena
 # art-include: master/Athena
 # art-type: grid
 # art-architecture:  '#x86_64-intel'

@@ -1,6 +1,8 @@
 #!/bin/sh
 #
 # art-description: MC21-style simulation using FullG4_QS (13 TeV Zprime input - needs updating)
+# art-include: 22.0/Athena
+# art-include: 22.0/AthSimulation
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid

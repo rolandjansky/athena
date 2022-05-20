@@ -506,8 +506,11 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 			for(const Trk::TrackStateOnSurface* trkState : *meTrack->trackStateOnSurfaces()) {
 					
 				if(!(trkState)) continue;
+				if (!trkState->type(Trk::TrackStateOnSurface::Measurement)) continue;
+
 				Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
 				if(!m_idHelperSvc->isMM(surfaceId)) continue;
+				
 				int trk_stEta = m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
 				int trk_stPhi = m_idHelperSvc->mmIdHelper().stationPhi(surfaceId);
 				int trk_multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
@@ -552,6 +555,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 
 		for(const Trk::TrackStateOnSurface* trkState : *meTrack->trackStateOnSurfaces()) {
 			if(!(trkState)) continue;
+			if (!trkState->type(Trk::TrackStateOnSurface::Measurement)) continue;
 			Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
 			if(!m_idHelperSvc->isMM(surfaceId)) continue;
 			const Amg::Vector3D& pos = (trkState)->trackParameters()->position();

@@ -73,7 +73,7 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 }
 
 TGCDatabaseManager::TGCDatabaseManager()
- : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
+ : AthMessaging("LVL1TGC::TGCDatabaseManager"),
    m_tgcArgs(nullptr)
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
@@ -95,7 +95,7 @@ TGCDatabaseManager::TGCDatabaseManager()
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 				       const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
 				       const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey)
- : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
+ : AthMessaging("LVL1TGC::TGCDatabaseManager"),
    m_tgcArgs(tgcargs)
 {
   setLevel(tgcArgs()->MSGLEVEL());
@@ -191,7 +191,7 @@ TGCDatabaseManager::~TGCDatabaseManager()
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
- : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager")
+ : AthMessaging("LVL1TGC::TGCDatabaseManager")
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
     for(int i=0; i<TGCSector::NumberOfPatchPanelType; i+=1){

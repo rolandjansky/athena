@@ -56,6 +56,10 @@ def RPC_TruthOverlayCfg(flags, name="RpcTruthOverlay", **kwargs):
     else:
         kwargs.setdefault("BkgInputKey", f"{flags.Overlay.BkgPrefix}RPC_SDO")
 
+    if kwargs["BkgInputKey"]:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'MuonSimDataCollection#{kwargs["BkgInputKey"]}']))
+
     kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}RPC_SDO")
     kwargs.setdefault("OutputKey", "RPC_SDO")
 

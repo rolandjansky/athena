@@ -82,7 +82,7 @@ public:
   bool expectHitInNextToInnermostPixelLayer(const Trk::Track* track,
                                             bool recompute = false) const
   {
-    return expectHitInInnermostPixelLayer(
+    return expectHitInNextToInnermostPixelLayer(
       Gaudi::Hive::currentContext(), track, recompute);
   }
 

@@ -10,7 +10,6 @@
 #ifndef TRT_ELECTRONPID_TOTCALCULATION_CXX
 #define TRT_ELECTRONPID_TOTCALCULATION_CXX
 
-#include "AthenaKernel/getMessageSvc.h"
 #include <time.h>
 
 /*****************************************************************************\
@@ -33,7 +32,7 @@
 
 InDet::TRT_ElectronPidTool::ToTcalculator::ToTcalculator(AthAlgTool & parent):
   BaseTRTPIDCalculator(parent,(SIZE_OF_HEADER + SIZE_GAUS_PARS * 2 + SIZE_TOT_CONSTANTS + SIZE_PAR_VAL),"ToT"),
-  AthMessaging(Athena::getMessageSvc(), "ToTcalculator"),
+  AthMessaging("ToTcalculator"),
   ToTCorrectionConstants( (float*)( Blob + OFF_TOT_CONSTANTS )),
   gausParametersElectron( (float*)( Blob + OFF_GAUS_PARS_ELE )),
   gausParametersPion( (float*)( Blob + OFF_GAUS_PARS_PIO )),

@@ -342,9 +342,6 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
       auto rbits = Monitored::Scalar<unsigned long>("rejBits", rejectionBits.to_ulong());
       fill(m_monGroupName, rbits);
     }
-    else{ // Event in error but not corrupted
-       evt_yield = 50.; evtyieldout=100.;
-    }
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) evtrej=5;
   } else{ // The event is NOT in error. Fill per LB TProfile
@@ -363,10 +360,11 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
   if(anyfebIE) { 
-     //Fill LArCorrupted tree
+     //Fill LArCorrupted tree and >=1FEB in errors
      auto mon_febInErrorTree = Monitored::Collection("febHwId", febInErrorTree);
      auto mon_febErrorTypeTree = Monitored::Collection("febErrorType", febErrorTypeTree);
-     fill(m_monGroupName,mon_febInErrorTree,mon_febErrorTypeTree,eventTime,eventTime_ns);
+     auto evtonerej = Monitored::Scalar<int>("EvtOneErrorYield",100);
+     fill(m_monGroupName,mon_febInErrorTree,mon_febErrorTypeTree,eventTime,eventTime_ns,evtonerej);
   }
   
   // Now we could fill the event size

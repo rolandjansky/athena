@@ -2,7 +2,6 @@
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -23,7 +22,7 @@
 // Constructor
 InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
                                            StoreGateSvc* detStore)
-  : AthMessaging(Athena::getMessageSvc(), managerName),
+  : AthMessaging(managerName),
   m_managerName(managerName),
   m_extraFunctionality(false),
   m_athenaComps(nullptr) {
@@ -36,7 +35,7 @@ InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
                                            const IRDBRecordset_ptr& weightTable,
                                            const std::string& space,
                                            bool extraFunctionality)
-  : AthMessaging(Athena::getMessageSvc(), managerName),
+  : AthMessaging(managerName),
   m_managerName(managerName),
   m_extraFunctionality(extraFunctionality),
   m_athenaComps(nullptr) {
@@ -55,7 +54,7 @@ InDetMaterialManager::InDetMaterialManager(const std::string& managerName, Store
                                            const IRDBRecordset_ptr& weightTable,
                                            const IRDBRecordset_ptr& compositionTable,
                                            const std::string& space)
-  : AthMessaging(Athena::getMessageSvc(), managerName),
+  : AthMessaging(managerName),
   m_managerName(managerName),
   m_extraFunctionality(true),
   m_athenaComps(nullptr) {
@@ -67,7 +66,7 @@ InDetMaterialManager::InDetMaterialManager(const std::string& managerName, Store
 
 InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
                                            InDetDD::AthenaComps* athenaComps)
-  : AthMessaging(Athena::getMessageSvc(), managerName),
+  : AthMessaging(managerName),
   m_managerName(managerName),
   m_extraFunctionality(true),
   m_athenaComps(athenaComps) {

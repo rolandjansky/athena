@@ -73,14 +73,8 @@ from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
 ConfigFlags = getNewConfigFlags()
 ConfigFlags.Trigger.doID = False
 
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-cfg = TriggerConfigGetter()
-
-from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
-lvl1 = Lvl1ResultBuilderGetter()
-
-from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
-bsu=ByteStreamUnpackGetter()
+from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+trig = TriggerRecoGetter()
 
 # TDT
 from AthenaCommon.AppMgr import ToolSvc

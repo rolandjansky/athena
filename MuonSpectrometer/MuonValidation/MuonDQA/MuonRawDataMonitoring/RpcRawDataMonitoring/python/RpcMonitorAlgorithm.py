@@ -34,6 +34,7 @@ def RpcMonitoringConfig(inputFlags):
 
     rpcTrackAnaAlg.plotMuonEff = True
     rpcTrackAnaAlg.plotPRD     = True
+    rpcTrackAnaAlg.ElementsFileName = "Element.xml"
 
     # rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     rpcTrackAnaAlg.TagAndProbe         = False
@@ -89,47 +90,6 @@ def RpcMonitoringConfig(inputFlags):
                         path='RpcOccupancy',
                         xbins=33, xmin=-16.5, xmax=16.5, 
                         ybins=8, ymin=0.5, ymax=8.5)
-
-    myGroup_track.defineHistogram('StationName,panelInd;NPRDHit_stationName_vs_panelIndex', 
-                title='StationName_vs_panelIndex;StationName;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=53, xmin=0.5, xmax=53.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('StationEta,panelInd;NPRDHit_stationEta_vs_panelIndex', 
-                title='StationEta_vs_panelIndex;StationEta;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=17, xmin=-8.5, xmax=8.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('StationPhi,panelInd;NPRDHit_stationPhi_vs_panelIndex', 
-                title='StationPhi_vs_panelIndex;StationPhi;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=8, xmin=0.5, xmax=8.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('DoubletR,panelInd;NPRDHit_doubletR_vs_panelIndex', 
-                title='DoubletR_vs_panelIndex;DoubletR;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('DoubletZ,panelInd;NPRDHit_doubletZ_vs_panelIndex', 
-                title='DoubletZ_vs_panelIndex;DoubletZ;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=3, xmin=0.5, xmax=3.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('DoubletPhi,panelInd;NPRDHit_doubletPhi_vs_panelIndex', 
-                title='DoubletPhi_vs_panelIndex;DoubletPhi;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('GasGap,panelInd;NPRDHit_gasgap_vs_panelIndex', 
-                title='GasGap_vs_panelIndex;GasGap;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=0.5, xmax=2.5, ybins=8592, ymin=-0.5, ymax=8591.5)
-    myGroup_track.defineHistogram('MeasPhi,panelInd;NPRDHit_measPhi_vs_panelIndex', 
-                title='MeasPhi_vs_panelIndex;MeasPhi;Panel Index;NHit',
-                type='TH2I', 
-                path='RpcOccupancy',
-                xbins=2, xmin=-0.5, xmax=1.5, ybins=8592, ymin=-0.5, ymax=8591.5)
 
     myGroup_track.defineHistogram('LB,panelInd;NPRDHit_Panels_All', 
                 title='Number of RPC Prepare Data;Luminosity Block;Panel Index;NHit',
@@ -241,19 +201,6 @@ def RpcMonitoringConfig(inputFlags):
                             type='TEfficiency',
                             path=trackPath,
                             xbins=8592, xmin=-0.5, xmax=8591.5)
-
-    # myGroup_track.defineHistogram('prdHit_time;PrdHit_time', 
-    #                         title='PRD Hit Time;Hit Time;NHit',
-    #                         type='TH1F',
-    #                         path=trackPath,
-    #                         xbins=64, xmin=-100., xmax=100.)
-
-    # myGroup_track.defineHistogram('prdHit_time,panelInd_prd;PrdHit_time_perPanel', 
-    #                         type='TH2F',
-    #                         title='PRD Hit Time;PRD Hit Time;panelID;NHit',
-    #                         path=trackPath,
-    #                         xbins=64, xmin=-100., xmax=100., ybins=8592, ymin=-0.5, ymax=8591.5)
-
 
     ######################################################################################################
     ## Rpc lv1 Analysis

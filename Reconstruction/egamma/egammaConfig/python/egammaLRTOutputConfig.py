@@ -41,6 +41,12 @@ def egammaLRTOutputCfg(flags, name="LRTEGOutputList"):
         f"xAOD::TrackParticleContainer#LRT{outFlags.GSFTrackParticles}",
         f"xAOD::TrackParticleAuxContainer#LRT{outFlags.GSFTrackParticles}"
         f"Aux.{outFlags.GSFTrackParticlesSuppESD}"]
+    if flags.Egamma.doTruthAssociation:
+        toESD += [
+            f"xAOD::TruthParticleContainer#LRT{outFlags.TruthParticles}",
+            f"xAOD::TruthParticleAuxContainer#LRT{outFlags.TruthParticles}"
+            f"Aux.{outFlags.TruthParticlesSuppESD}"]
+
 
     toAOD += [
         f"xAOD::ElectronContainer#LRT{outFlags.Electrons}",
@@ -57,6 +63,13 @@ def egammaLRTOutputCfg(flags, name="LRTEGOutputList"):
         f"xAOD::TrackParticleContainer#LRT{outFlags.GSFTrackParticles}",
         f"xAOD::TrackParticleAuxContainer#LRT{outFlags.GSFTrackParticles}"
         f"Aux.{outFlags.GSFTrackParticlesSuppAOD}"]
+    if flags.Egamma.doTruthAssociation:
+        toAOD += [
+            f"xAOD::TruthParticleContainer#LRT{outFlags.TruthParticles}",
+            f"xAOD::TruthParticleAuxContainer#LRT{outFlags.TruthParticles}"
+            f"Aux.{outFlags.TruthParticlesSuppAOD}"]
+
+        
 
     if flags.Output.doWriteESD:
         from OutputStreamAthenaPool.OutputStreamConfig import addToESD

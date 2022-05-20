@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #-- set flags ------------------------------------------------------------------------------
 log = logging.getLogger( "TrigHLTMonCommon_jobOptions.py" )
@@ -97,9 +97,6 @@ if data_type == 'bytestream':
     from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
     gettrigger = TriggerRecoGetter()
     
-    from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
-    bsu=ByteStreamUnpackGetter()
-
     theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
     theByteStreamAddressProviderSvc.TypeNames += ['HLT::HLTResult/HLTResult_HLT',
         "MuCTPI_RDO/MUCTPI_RDO",

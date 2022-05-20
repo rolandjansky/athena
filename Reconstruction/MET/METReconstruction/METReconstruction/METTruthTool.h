@@ -61,19 +61,22 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
-  protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+  protected:
+    virtual
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const override;
     // Accept functions
-    bool accept            (const xAOD::IParticle* object) const;
+    virtual
+    bool accept            (const xAOD::IParticle* object) const override;
     bool accept_nonint     (const xAOD::TruthParticle* truth) const;
     bool accept_int        (const xAOD::TruthParticle* truth) const;
     bool accept_intout     (const xAOD::TruthParticle* truth) const;
     bool accept_intmuons   (const xAOD::TruthParticle* truth) const;
     // Overlap resolver function
+    virtual
     bool resolveOverlap    (const xAOD::IParticle*,
                             xAOD::MissingETComponentMap*,
                             std::vector<const xAOD::IParticle*>&,
-                            MissingETBase::Types::weight_t&) const { return true;};
+                            MissingETBase::Types::weight_t&) const override { return true;};
 
   private:
     // Default constructor: 

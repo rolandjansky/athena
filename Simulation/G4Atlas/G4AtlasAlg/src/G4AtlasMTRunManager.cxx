@@ -21,11 +21,10 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 G4AtlasMTRunManager::G4AtlasMTRunManager()
   : G4MTRunManager()
-  , AthMessaging(Athena::getMessageSvc(), "G4AtlasMTRunManager")
+  , AthMessaging("G4AtlasMTRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager")
   , m_physListSvc("PhysicsListSvc", "G4AtlasMTRunManager")
   , m_fastSimTool("FastSimulationMasterTool")

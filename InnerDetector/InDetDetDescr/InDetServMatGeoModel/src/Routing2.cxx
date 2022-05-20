@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "InDetServMatGeoModel/Routing2.h"
 
 #include "InDetServMatGeoModel/ServicesLayer.h"
@@ -14,7 +13,7 @@
 using namespace std;
 
 Routing2::Routing2():
-  AthMessaging(Athena::getMessageSvc(), "Routing2")
+  AthMessaging("Routing2")
 {
   m_routePixelBarrelOnPST = false;
   m_pixelAlongBarrelStrip = false;

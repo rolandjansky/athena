@@ -4,7 +4,6 @@
 #include "TrigHTTBanks/HTTFitConstantBank.h"
 #include "TrigHTTObjects/HTTTrack.h"
 #include "TrigHTTObjects/HTTConstants.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "limits.h"
 #include <TMath.h>
 #include <Eigen/Dense>
@@ -21,7 +20,7 @@
 #include <sstream>
 
 HTTFitConstantBank::HTTFitConstantBank(HTTPlaneMap const * pmap, int ncoords, std::string const & fname, bool isFirstStage, int missingPlane) :
-    AthMessaging (Athena::getMessageSvc(), "HTTFitConstantBank"),
+    AthMessaging ("HTTFitConstantBank"),
     m_pmap(pmap),
     m_bankID(0),
     m_nsectors(0),

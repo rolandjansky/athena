@@ -135,11 +135,8 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("CandidateMatchingTool", 
                       result.popToolsAndMerge(MooCandidateMatchingToolCfg(flags)))
 
-    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
-    acc = MuonTrackSummaryToolCfg(flags)
-    track_summary = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("TrackSummaryTool",  track_summary)
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
+    kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags)))
    
     builder = Muon__MooTrackBuilder(name, **kwargs)
     result.setPrivateTools(builder)
@@ -215,7 +212,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
     Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
     from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
-    from MuonConfig.MuonRecToolsConfig import  MuonTrackSummaryToolCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
     from MuonConfig.MuonCondAlgConfig import MuonStationIntersectCondAlgCfg
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L426
     
@@ -277,10 +274,8 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
         kwargs.setdefault("MMRegionSelector", "")
 
 
-    acc = MuonTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
-    result.merge(acc)
-        
+    kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags)))
+
     segment_region_recovery_tool = Muon__MuonSegmentRegionRecoveryTool(name, **kwargs)
     result.setPrivateTools(segment_region_recovery_tool)
     return result
@@ -421,10 +416,8 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     kwargs.setdefault("HoleRecoveryTool",       
                       result.popToolsAndMerge(MuonChamberHoleRecoveryToolCfg(flags))) 
     
-    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
-    acc = MuonTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool",  acc.getPrimary())
-    result.merge(acc)
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
+    kwargs.setdefault("TrackSummaryTool",  result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags)))
 
     track_maker_steering = Muon__MuonTrackSteering(name,**kwargs)
     result.setPrivateTools(track_maker_steering)
@@ -450,10 +443,11 @@ def MuonTrackSelectorCfg(flags, name = "MuonTrackSelectorTool", **kwargs):
 
 def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParticleCnvAlg", **kwargs):
     from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, TrackParticleCreatorToolCfg, RecTrackParticleContainerCnvToolCfg
-    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg, MuonHitSummaryToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonHitSummaryToolCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
 
     result = ComponentAccumulator()
-    track_summary_tool = result.getPrimaryAndMerge(MuonTrackSummaryToolCfg(flags))
+    track_summary_tool = result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags))
     muon_hit_summary_tool = result.popToolsAndMerge(MuonHitSummaryToolCfg(flags))
     muon_particle_creator_tool = result.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, name="MuonParticleCreatorTool", 
                                                                     TrackSummaryTool=track_summary_tool, 

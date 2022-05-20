@@ -126,9 +126,11 @@ def StandaloneMuonOutputCfg(flags):
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
-    from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg, MuonTrackSummaryToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
     from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
     from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
+
 
     # Many components need these services, so setup once here.
     result=MuonIdHelperSvcCfg(flags)

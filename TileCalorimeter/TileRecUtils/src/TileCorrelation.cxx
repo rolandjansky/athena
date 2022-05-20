@@ -35,7 +35,7 @@
 
 ////////////////////////////////////////
 TileCorrelation::TileCorrelation()
-  : AthMessaging (Athena::getMessageSvc(), "TileCorrelation")
+  : AthMessaging ("TileCorrelation")
   , m_SS()
   , m_S()
   , m_R()

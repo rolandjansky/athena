@@ -13,7 +13,6 @@
 // Athena includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
@@ -60,7 +59,7 @@
 AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam, 
 				       ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(nam, svcLoc), 
-    AthMessaging (Athena::getMessageSvc(), nam),
+    AthMessaging (nam),
     m_incidentSvc ( "IncidentSvc",  nam ), 
     m_eventStore( "StoreGateSvc", nam ), 
     m_evtSelector(0), m_evtContext(0),

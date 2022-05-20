@@ -625,7 +625,7 @@ namespace Muon {
         int dbZ = detEl->getDoubletZ();
         int dbPhi = detEl->getDoubletPhi();
 
-        ATH_MSG_DEBUG("Looking up RPC structure: dbZ " << dbZ << " dbPhi " << dbPhi << " nphi gp " << detEl->Nphigasgaps());
+        ATH_MSG_DEBUG("Looking up RPC structure: dbZ " << dbZ << " dbPhi " << dbPhi << " nphi gp " << detEl->NgasGaps(true));
 
         // create identifiers from LayerHoleVec
         std::set<Identifier> chHoles;

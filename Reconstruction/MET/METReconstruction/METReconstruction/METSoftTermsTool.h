@@ -52,17 +52,20 @@ namespace met{
     // AsgTool Hooks
     virtual StatusCode initialize() override;
 
-  protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
+  protected:
+    virtual
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const override;
     // Accept functions
-    bool accept            (const xAOD::IParticle* object) const;
+    virtual
+    bool accept            (const xAOD::IParticle* object) const override;
     bool accept            (const xAOD::CaloCluster* clus) const;
     bool accept            (const xAOD::TrackParticle* trk) const;
     // Overlap resolver function
+    virtual
     bool resolveOverlap    (const xAOD::IParticle* object,
                             xAOD::MissingETComponentMap* metMap,
                             std::vector<const xAOD::IParticle*>& acceptedSignals,
-                            MissingETBase::Types::weight_t& objWeight) const;
+                            MissingETBase::Types::weight_t& objWeight) const override;
     bool resolveOverlap    (xAOD::MissingETComponentMap* metMap,
                             std::vector<const xAOD::IParticle*>& acceptedSignals) const;
 

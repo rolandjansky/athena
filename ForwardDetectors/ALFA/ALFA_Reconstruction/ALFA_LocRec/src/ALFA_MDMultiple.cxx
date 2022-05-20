@@ -2,12 +2,11 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDMultiple.h"
 #include <algorithm>    // std::copy
 
 ALFA_MDMultiple::ALFA_MDMultiple() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_MDMultiple")
+    AthMessaging("ALFA_MDMultiple")
 {
 	memset(&m_iNumHitsLayer, 0.0, sizeof(m_iNumHitsLayer));
 
@@ -44,7 +43,7 @@ ALFA_MDMultiple::ALFA_MDMultiple() :
 }
 
 ALFA_MDMultiple::ALFA_MDMultiple(const ALFA_MDMultiple &obj) :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_MDMultiple")
+    AthMessaging("ALFA_MDMultiple")
 {
 //	std::copy(obj.m_iNumHitsLayer, obj.m_iNumHitsLayer + sizeof(obj.m_iNumHitsLayer)/sizeof(Int_t), m_iNumHitsLayer);
 	std::copy(obj.m_iNumHitsLayer, obj.m_iNumHitsLayer + ALFALAYERSCNT*ALFAPLATESCNT, m_iNumHitsLayer);

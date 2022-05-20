@@ -9,12 +9,19 @@
 #include <sstream>
 #include <typeinfo>
 #include <fstream>
+
 // root
 #include "TObjArray.h"
 
 // Athena
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcDetectorElement.h"
+#include "PathResolver/PathResolver.h"
+
+// Boost package to read XML
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/foreach.hpp> //BOOST_FOREACH
 
 // Local
 #include "RpcTrackAnaAlg.h"
@@ -45,7 +52,10 @@ StatusCode RpcTrackAnaAlg::initialize ()
   ATH_CHECK( m_MuonContainerKey.initialize() );
   ATH_CHECK( m_rpcPrdKey.initialize() );
 
+  
+  ATH_CHECK( readElIndexFromXML() );
   ATH_CHECK( initRpcPanel() );
+  
   ATH_CHECK( initTrigTag() );
 
   ATH_MSG_INFO(" initialize extrapolator ");
@@ -74,7 +84,6 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
   m_StationNames[BO1] = {4, 5, 9, 10}; // doubletR = 1
   m_StationNames[BO2] = {4, 5, 9, 10}; // doubletR = 2
 
-  int panelIn = 0;
   std::vector<int> BMBO_StationNames = {2, 3, 4, 5, 8, 9, 10, 53};
   for(unsigned idetEl = 0; idetEl < MuonGM::MuonDetectorManager::RpcDetElMaxHash; ++idetEl) {
     const MuonGM::RpcDetectorElement *detEl = m_muonMgr->getRpcDetectorElement(idetEl);
@@ -127,15 +136,22 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
             it_gaps->second.push_back(gap);
           }
 
-          std::shared_ptr<RpcPanel> rpcPanel_eta = std::make_shared<RpcPanel>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap, 0, panelIn);
-          std::shared_ptr<RpcPanel> rpcPanel_phi = std::make_shared<RpcPanel>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap, 1, panelIn);
+          std::shared_ptr<RpcPanel> rpcPanel_eta = std::make_shared<RpcPanel>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap, 0);
+          ATH_CHECK(setPanelIndex(rpcPanel_eta));
+
+          std::shared_ptr<RpcPanel> rpcPanel_phi = std::make_shared<RpcPanel>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap, 1);
+          ATH_CHECK(setPanelIndex(rpcPanel_phi));
 
           if(rpcPanel_eta->panel_valid) {
+            ATH_MSG_DEBUG( " Panel  stationName:"<<rpcPanel_eta->stationName << " stationEta:"<< rpcPanel_eta->stationEta << " stationPhi:"<<rpcPanel_eta->stationPhi<<" doubletR:"<<rpcPanel_eta->doubletR<<"doubletZ:"<< rpcPanel_eta->doubletZ<< " doubletPhi:"<< rpcPanel_eta->doubletPhi << " gasGap:" << rpcPanel_eta->gasGap<< " measPhi:" << rpcPanel_eta->measPhi );
+
             m_rpcPanelMap.insert(std::map<Identifier, std::shared_ptr<RpcPanel>>::value_type(rpcPanel_eta->panelId, rpcPanel_eta));
             nValidPanel ++;
           }
 
           if(rpcPanel_phi->panel_valid) {
+            ATH_MSG_DEBUG( " Panel  stationName:"<<rpcPanel_phi->stationName << " stationEta:"<< rpcPanel_phi->stationEta << " stationPhi:"<<rpcPanel_phi->stationPhi<<" doubletR:"<<rpcPanel_phi->doubletR<<"doubletZ:"<< rpcPanel_phi->doubletZ<< " doubletPhi:"<< rpcPanel_phi->doubletPhi << " gasGap:" << rpcPanel_phi->gasGap<< " measPhi:" << rpcPanel_phi->measPhi );
+            
             m_rpcPanelMap.insert(std::map<Identifier, std::shared_ptr<RpcPanel>>::value_type(rpcPanel_phi->panelId, rpcPanel_phi));
             nValidPanel ++;
           }
@@ -146,7 +162,86 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
     }
   }
 
-  ATH_MSG_INFO( "nValidPanel = "<<nValidPanel );
+  ATH_MSG_INFO( "Number of valid panels = " << nValidPanel );
+
+  return StatusCode::SUCCESS;
+}
+
+//========================================================================================================
+StatusCode RpcTrackAnaAlg::setPanelIndex(std::shared_ptr<RpcPanel> panel)
+{
+  /*
+    Specify every panel with a unique index according the information in xml
+  */
+  std::string ele_str = panel->getElementStr();
+
+  std::map<std::string, int>::iterator it_eleInd = m_elementIndex.find(ele_str);
+
+  if (it_eleInd == m_elementIndex.end()) {
+    ATH_MSG_ERROR("Can not find element: stationName = "<< panel->stationName << ", stationEta = "<< panel->stationEta << ", stationPhi = "<< panel->stationPhi << ", doubletR = "<<panel->doubletR << ", doubletZ = "<< panel->doubletZ);
+    return StatusCode::FAILURE;
+  }
+
+  int ele_index   = it_eleInd->second;
+  int panel_index = (ele_index-1)*8 + (panel->doubletPhi - 1)*4 + (panel->gasGap - 1)*2 + panel->measPhi;
+
+  panel->SetPanelIndex(panel_index);
+
+  return StatusCode::SUCCESS;
+}
+
+//========================================================================================================
+StatusCode RpcTrackAnaAlg::readElIndexFromXML()
+{
+  /*
+    Read xml file in share/Element.xml to give each element(in the afterwards, for panel) a index
+  */
+  ATH_MSG_INFO( name() << " - read element index " );
+
+  // 
+  // Read xml file
+  //
+  const std::string xml_file=PathResolver::find_file(m_elementsFileName,"DATAPATH");
+  if (xml_file.empty()) {
+    ATH_MSG_ERROR(m_elementsFileName<<" not found!");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_INFO( name() << " - read xml file: "<< xml_file );
+
+
+  boost::property_tree::ptree pt;
+  read_xml(xml_file, pt);
+  
+
+  BOOST_FOREACH(boost::property_tree::ptree::value_type &child, pt.get_child("Elements")){
+    if (child.first == "Element"){
+        int index = child.second.get<int>("<xmlattr>.index");
+        int stName= child.second.get<int>("<xmlattr>.stationName");
+        int stEta = child.second.get<int>("<xmlattr>.stationEta");
+        int stPhi = child.second.get<int>("<xmlattr>.stationPhi");
+        int dbR   = child.second.get<int>("<xmlattr>.doubletR");
+        int dbZ   = child.second.get<int>("<xmlattr>.doubletZ");
+
+        ATH_MSG_DEBUG(" index = " << index << ", stationName = "<< stName << ", stationEta = "<< stEta << ", stationPhi = "<< stPhi << ", doubletR = "<<dbR << ", doubletZ = "<< dbZ);
+        std::ostringstream ele_key;
+
+        ele_key << stName << "_" << stEta << "_" << stPhi << "_" <<dbR << "_" << dbZ;
+
+        std::map<std::string, int>::iterator it_eleInd = m_elementIndex.find(ele_key.str());
+        if (it_eleInd == m_elementIndex.end()) {
+          m_elementIndex.insert(std::map<std::string, int>::value_type(ele_key.str(), index));
+        }
+        else {
+          ATH_MSG_ERROR("These is duplicated elements");
+        }
+    }
+    else {
+        ATH_MSG_ERROR(" node key != Element");
+    }  
+  }
+
+  ATH_MSG_INFO("Total number of elements: "<< m_elementIndex.size()<< ", should be consistent with the number of elements in xml file!");
 
   return StatusCode::SUCCESS;
 }
@@ -324,15 +419,6 @@ StatusCode RpcTrackAnaAlg::fillHistPRD(const EventContext& ctx) const
   auto i_prd_LB           = Scalar<int>("LB",              i_lb );
   auto i_panelIndex       = Scalar<int>("panelInd",        0 );
 
-  auto i_prd_stationName  = Scalar<int>("StationName",  0 );
-  auto i_prd_stationEta   = Scalar<int>("StationEta",   0 );
-  auto i_prd_stationPhi   = Scalar<int>("StationPhi",   0 );
-  auto i_prd_doubletR     = Scalar<int>("DoubletR",     0 );
-  auto i_prd_doubletZ     = Scalar<int>("DoubletZ",     0 );
-  auto i_prd_doubletPhi   = Scalar<int>("DoubletPhi",   0 );
-  auto i_prd_gasGap       = Scalar<int>("GasGap",       0 );
-  auto i_prd_measPhi      = Scalar<int>("MeasPhi",      -1);
-  
   auto tool = getGroup(m_packageName);
 
   int panel_index;
@@ -392,16 +478,6 @@ StatusCode RpcTrackAnaAlg::fillHistPRD(const EventContext& ctx) const
 
       i_panelIndex       = panel_index;
       fill(tool, i_prd_LB, i_panelIndex);
-      
-      i_prd_stationName  = i_panel->second->stationName;
-      i_prd_stationEta   = i_panel->second->stationEta ;
-      i_prd_stationPhi   = i_panel->second->stationPhi ;
-      i_prd_doubletR     = i_panel->second->doubletR   ;
-      i_prd_doubletZ     = i_panel->second->doubletZ   ;
-      i_prd_doubletPhi   = i_panel->second->doubletPhi ;
-      i_prd_gasGap       = i_panel->second->gasGap     ;
-      i_prd_measPhi      = i_panel->second->measPhi    ;
-      fill(tool, i_panelIndex, i_prd_LB, i_prd_stationName, i_prd_stationEta, i_prd_stationPhi, i_prd_doubletR, i_prd_doubletZ, i_prd_doubletPhi, i_prd_gasGap, i_prd_measPhi);
 
       v_prdTime.push_back(rpcData->time());
     }  // loop on RpcPrepData

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -35,12 +35,14 @@ def GEN_AOD2xAODCfg(flags, name="GEN_AOD2xAOD", **kwargs):
     acc.addEventAlgo(algo, primary = True)
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    toAOD = ["xAOD::TruthEventContainer#*", "xAOD::TruthEventAuxContainer#*",
-             "xAOD::TruthVertexContainer#*", "xAOD::TruthVertexAuxContainer#*",
-             "xAOD::TruthParticleContainer#*", "xAOD::TruthParticleAuxContainer#*"]
+    toAOD = ["xAOD::TruthEventContainer#TruthEvents", "xAOD::TruthEventAuxContainer#TruthEventsAux.",
+             "xAOD::TruthVertexContainer#TruthVertices", "xAOD::TruthVertexAuxContainer#TruthVerticesAux.",
+             "xAOD::TruthParticleContainer#TruthParticles", "xAOD::TruthParticleAuxContainer#TruthParticlesAux.",
+    ]
+
     if writeInTimePileUpTruth:
-        toAOD.append("xAOD::TruthPileupEventContainer#*")
-        toAOD.append("xAOD::TruthPileupEventAuxContainer#*")
+        toAOD.append("xAOD::TruthPileupEventContainer#TruthPileupEvents")
+        toAOD.append("xAOD::TruthPileupEventAuxContainer#TruthPileupEventsAux.")
     toESD = []
 
     if flags.Output.doWriteESD:

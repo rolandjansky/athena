@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: MC21-style simulation using FullG4 (7 TeV minbias input - needs updating)
+# art-include: 22.0/Athena
 # art-include: master/Athena
 # art-type: grid
 # art-architecture:  '#x86_64-intel'

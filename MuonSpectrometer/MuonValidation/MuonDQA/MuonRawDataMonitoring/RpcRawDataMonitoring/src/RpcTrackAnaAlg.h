@@ -54,7 +54,10 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
   private:
     enum BarrelDL { BI = 1, BM1, BM2, BO1, BO2, OUT}; // Barrel doublet: BM_dbR
 
+    StatusCode readElIndexFromXML();
     StatusCode initRpcPanel();
+    StatusCode setPanelIndex(std::shared_ptr<RpcPanel> panel);
+
     StatusCode initTrigTag();
     StatusCode initArrayHistosMap();
     
@@ -82,6 +85,8 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     DoubleProperty   m_avrLumiThr{this, "avrLumiThr", 10., "Thrshold of average luminosity per Luminosity block"};
     DoubleProperty   m_lbDuraThr{this,  "lbDuraThr",  10.,   "Thrshold of luminosity block deruation"};
     StringProperty   m_packageName{this,"PackageName", "RpcTrackAnaAlg","group name for histograming"};
+
+    StringProperty   m_elementsFileName{this,"ElementsFileName", "Element.xml", "Elements xml file"};
 
     StringProperty   m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
     DoubleProperty   m_trigMatchWindow{this,"TrigMatchingWindow",0.005,"Window size in R for trigger matching"};
@@ -126,6 +131,7 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
 
     // 2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
     std::map<BarrelDL, std::vector<int>>          m_StationNames;
+    std::map<std::string, int>                    m_elementIndex;
 };
 
 #endif

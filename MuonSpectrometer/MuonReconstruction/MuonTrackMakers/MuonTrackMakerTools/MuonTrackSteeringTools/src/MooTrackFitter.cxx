@@ -1140,8 +1140,8 @@ namespace Muon {
         } else if (m_idHelperSvc->isMM(id)) {
             const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(ele);
             if (mmDetEl) {
-                return std::make_pair(mmDetEl->stripActiveLengthLeft(id),
-                                     mmDetEl->stripActiveLengthRight(id));
+                return std::make_pair(mmDetEl->stripActiveLengthLeft(id) * cos(mmDetEl->stripAngle(id)),
+                                      mmDetEl->stripActiveLengthRight(id)* cos(mmDetEl->stripAngle(id))); // components along the local Y axis
             }
         }
         return std::make_pair(0.,0.);

@@ -205,7 +205,7 @@ def createInDetConfigFlags():
         createDBMTrackingPassFlags, createRobustRecoTrackingPassFlags)
 
     # Set up for first tracking pass, updated for second passes
-    icf.addFlagsCategory("InDet.Tracking.ActivePass",
+    icf.addFlagsCategory("InDet.Tracking.MainPass",
                          createTrackingPassFlags, prefix=True)
     icf.addFlagsCategory("InDet.Tracking.HighPileupPass",
                          createHighPileupTrackingPassFlags, prefix=True)

@@ -21,7 +21,7 @@ def InDetConversionTrackSelectorToolCfg(flags, name="TrackSelector"):
     kwargs["maxSiZ0"] = flags.InDet.SecVertex.TrkSel.maxSiZ0
     kwargs["maxTrtD0"] = flags.InDet.SecVertex.TrkSel.maxTrtD0
     kwargs["maxTrtZ0"] = flags.InDet.SecVertex.TrkSel.maxTrtZ0
-    kwargs["minPt"] = 0.
+    kwargs["minPt"] = flags.InDet.SecVertex.TrkSel.minPt
     kwargs["significanceD0_Si"] = flags.InDet.SecVertex.TrkSel.significanceD0_Si
     kwargs["IsConversion"] = flags.InDet.SecVertex.TrkSel.IsConversion
 

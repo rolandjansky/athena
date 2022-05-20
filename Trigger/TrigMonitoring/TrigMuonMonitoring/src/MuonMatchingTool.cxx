@@ -277,7 +277,7 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1( const xAOD::Muon *mu, const Ev
     return closest;
   }
 
-  for(const auto &roi : *rois){
+  for(const auto roi : *rois){
   double roiEta = roi->eta();
   double roiPhi = roi->phi();
   int roiThr = roi->getThrNumber();

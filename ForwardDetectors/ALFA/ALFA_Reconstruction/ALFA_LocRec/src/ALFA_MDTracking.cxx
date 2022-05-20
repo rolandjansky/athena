@@ -2,11 +2,10 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDTracking.h"
 
 ALFA_MDTracking::ALFA_MDTracking() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_MDTracking")
+    AthMessaging("ALFA_MDTracking")
 {
 	ATH_MSG_DEBUG("begin ALFA_MDTracking::ALFA_MDTracking");
 

@@ -45,6 +45,9 @@ namespace MuonGM {
         virtual bool stripPosition(const Identifier& id, Amg::Vector2D& pos) const override final;
         bool stripGlobalPosition(const Identifier& id, Amg::Vector3D& gpos) const;
 
+        /** Wrapper to MuonChannelDesign::stereoAngle() */
+        double stripAngle(const Identifier& id) const;
+
         /** strip length
         Wrappers to MuonChannelDesign::channelLength() taking into account the passivated width */
         double stripLength(const Identifier& id) const;
@@ -228,6 +231,12 @@ namespace MuonGM {
         return design->channelPosition(manager()->mmIdHelper()->channel(id), pos);
     }
 
+    inline double MMReadoutElement::stripAngle(const Identifier& id) const {
+        const MuonChannelDesign* design = getDesign(id);
+        if (!design) return 0;
+        return design->sAngle;
+    }
+
     inline double MMReadoutElement::stripLength(const Identifier& id) const {
         const MuonChannelDesign* design = getDesign(id);
         if (!design) return -1;
@@ -235,33 +244,36 @@ namespace MuonGM {
     }
 
     inline double MMReadoutElement::stripActiveLength(const Identifier& id) const {
-        float passivLeft=0; float passivRight=0;
-        if(m_passivData!=nullptr){
-            if(!m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return false;
-        }
+        float passivLeft{0}, passivRight{0};
+        if (m_passivData && !m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return -1;
+
         double l = stripLength(id);
         if (l < 0) return -1;
         return std::max(0., l - passivLeft - passivRight);
     }
 
     inline double MMReadoutElement::stripActiveLengthLeft(const Identifier& id) const {
-        float passivLeft=0; float passivRight=0;
-        if(m_passivData!=nullptr){
-            if(!m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return false;
-        }
-        double l = stripLength(id);
+        const MuonChannelDesign* design = getDesign(id);
+        if (!design) return -1;
+
+        float passivLeft{0}, passivRight{0};
+        if (m_passivData && !m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return -1;
+        
+        double l = design->channelHalfLength(manager()->mmIdHelper()->channel(id), true);
         if (l < 0) return -1;
-        return 0.5 * std::max(0., l - passivLeft);
+        return std::max(0., l - passivLeft);
     }
 
     inline double MMReadoutElement::stripActiveLengthRight(const Identifier& id) const {
-        float passivLeft=0; float passivRight=0;
-        if(m_passivData!=nullptr){
-            if(!m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return false;
-        }
-        double l = stripLength(id);
+        const MuonChannelDesign* design = getDesign(id);
+        if (!design) return -1;
+
+        float passivLeft{0}, passivRight{0};
+        if (m_passivData && !m_passivData->getPassivatedWidth(id, passivLeft, passivRight)) return -1;
+
+        double l = design->channelHalfLength(manager()->mmIdHelper()->channel(id), false);
         if (l < 0) return -1;
-        return 0.5 * std::max(0., l - passivRight);
+        return std::max(0., l - passivRight);
     }
 
     inline bool MMReadoutElement::insideActiveBounds(const Identifier& id, const Amg::Vector2D& locpos, double tol1, double tol2) const {
