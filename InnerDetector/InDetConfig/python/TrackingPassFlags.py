@@ -651,7 +651,7 @@ def createLowPtTrackingPassFlags():
     icf.extension        = "LowPt"
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
-    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.Tracking.doMinBias else pcf.InDet.Tracking.ActivePass.minPT + 0.3) * Units.GeV
+    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.Tracking.doMinBias else pcf.InDet.Tracking.MainPass.minPT + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 5
     icf.minSiNotShared   = 4
@@ -710,7 +710,7 @@ def createVeryLowPtTrackingPassFlags():
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
     icf.useTRTExtension  = False
-    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.Tracking.doMinBias  else  pcf.InDet.Tracking.ActivePass.minPT + 0.3) * Units.GeV # some overlap
+    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.Tracking.doMinBias  else  pcf.InDet.Tracking.MainPass.minPT + 0.3) * Units.GeV # some overlap
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 3
     icf.minSiNotShared   = 3
