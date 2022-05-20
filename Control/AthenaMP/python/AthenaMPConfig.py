@@ -113,6 +113,7 @@ def AthenaMPCfg(configFlags):
         if use_shared_writer:
             if any((configFlags.Output.doWriteESD,
                     configFlags.Output.doWriteAOD,
+                    configFlags.Output.doWriteDAOD,
                     configFlags.Output.doWriteRDO)) or configFlags.Output.HITSFileName!='':
                 AthenaSharedMemoryTool = CompFactory.AthenaSharedMemoryTool
 
