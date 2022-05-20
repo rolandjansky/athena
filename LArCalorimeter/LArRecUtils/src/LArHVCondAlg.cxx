@@ -31,6 +31,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include "CoralBase/Blob.h"
 
@@ -120,6 +121,12 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
   const LArHVIdMapping* hvCabling{nullptr};
   const float* rValues{nullptr};
   const ILArHVScaleCorr *onlHVCorr{nullptr};
+
+
+  //Start with infinte range and narrow it down
+  const EventIDRange fullRange=IOVInfiniteRange::infiniteMixed();
+  writeHandle.addDependency (fullRange);
+  writeAffectedHandle.addDependency (fullRange);
 
 
   SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey, ctx);

@@ -31,6 +31,6 @@ class ILArHVScaleCorr {
 CLASS_DEF( ILArHVScaleCorr,93397263,1) 
 
 #include "AthenaKernel/CondCont.h"
-CLASS_DEF( CondCont<ILArHVScaleCorr> , 182821539 , 1 )
+CONDCONT_MIXED_DEF( ILArHVScaleCorr , 182821539 );
 
 #endif 
