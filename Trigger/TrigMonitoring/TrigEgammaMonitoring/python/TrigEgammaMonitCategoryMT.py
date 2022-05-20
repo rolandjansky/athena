@@ -34,7 +34,6 @@ monitoring_electron = [
 monitoringTP_electron = [
     'HLT_e60_lhmedium_L1EM22VHI',
     'HLT_e60_lhmedium_L1eEM26M',
-    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
     'HLT_e26_lhtight_ivarloose_L1EM22VH',
     'HLT_e26_dnnloose_L1EM22VHI',
     'HLT_e26_dnnmedium_L1EM22VHI',
@@ -44,6 +43,7 @@ monitoringTP_electron = [
     'HLT_e26_lhtight_L1eEM26L',
     'HLT_e26_lhtight_L1eEM26T',    
     'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
+    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
     'HLT_e26_lhtight_ivarloose_L1eEM26',
     'HLT_e26_lhtight_ivarloose_L1eEM26M',
     'HLT_e26_lhtight_ivarloose_L1eEM26T',

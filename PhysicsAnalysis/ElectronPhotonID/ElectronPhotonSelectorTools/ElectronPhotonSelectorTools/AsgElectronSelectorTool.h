@@ -144,6 +144,8 @@ private:
   /// Flag for skip the use of deltaPoverP in dnn calculation (like at HLT)
   bool m_skipDeltaPoverP;
 
+  bool m_skipAmbiguityCut;
+
   /// Multiclass model or not
   bool m_multiClass{};
   /// Use the CF output node in the numerator or the denominator
