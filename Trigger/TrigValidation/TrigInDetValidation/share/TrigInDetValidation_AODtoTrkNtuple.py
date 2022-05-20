@@ -100,7 +100,8 @@ if ( True ) :
   TestMonTool.EnableLumi = False
 # TestMonTool.RequireDecision = False
   TestMonTool.mcTruth = True
-  TestMonTool.ntupleChainNames = ['']
+  TestMonTool.pTCutOffline = 1000
+  TestMonTool.ntupleChainNames = []
 
   if ( 'LRT' in dir() ) :
     if LRT == True :
