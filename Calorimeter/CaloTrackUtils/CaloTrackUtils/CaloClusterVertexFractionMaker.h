@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERVERTEXFRACTIONMAKER_H
@@ -23,7 +23,6 @@ class CaloClusterVertexFractionMaker: public AthAlgTool, virtual public CaloClus
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& ctx,
                              xAOD::CaloClusterContainer* theClusColl) const override;
-  virtual StatusCode finalize() override;
 
  private:
   double calculateDPhi(double phi1, double phi2) const;
@@ -41,14 +40,9 @@ class CaloClusterVertexFractionMaker: public AthAlgTool, virtual public CaloClus
     // name of VxContainer
     std::string m_vxContainerName;
 
-    Trk::Surface* m_cylinderSurface_atCaloEntrance; // to extrapolate to clusters in barrel
-    Trk::Surface* m_discSurface_atCaloEntrance_positiveZ; // to extrapolate to clusters in endcap, this surface has to be created new for each cluster ...
-    Trk::Surface* m_discSurface_atCaloEntrance_negativeZ; // to extrapolate to clusters in endcap, this surface has to be created new for each cluster ...
-
-    std::vector<unsigned int>* m_numTracksPerVertex;
-    std::vector<float>* m_trkParticlePt_atOrigin;
-    std::vector<float>* m_trkParticleEta_atCaloEntrance;
-    std::vector<float>* m_trkParticlePhi_atCaloEntrance;
+    std::unique_ptr<Trk::Surface> m_cylinderSurface_atCaloEntrance; // to extrapolate to clusters in barrel
+    std::unique_ptr<Trk::Surface> m_discSurface_atCaloEntrance_positiveZ; // to extrapolate to clusters in endcap, this surface has to be created new for each cluster ...
+    std::unique_ptr<Trk::Surface> m_discSurface_atCaloEntrance_negativeZ; // to extrapolate to clusters in endcap, this surface has to be created new for each cluster ...
 };
 
 #endif // CALOCLUSTERVERTEXFRACTIONMAKER_H
