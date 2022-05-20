@@ -50,6 +50,8 @@ def fromRunArgs(runArgs):
             outputFileName = getattr(runArgs,runArg)
             flagString = 'Output.'+runArg.strip('output')+'Name'                   
             ConfigFlags.addFlag(flagString,outputFileName) 
+            if not ConfigFlags.Output.doWriteDAOD:
+                ConfigFlags.Output.doWriteDAOD = True
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
