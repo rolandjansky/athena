@@ -231,6 +231,10 @@ class L1MenuConfig(object):
     def _menuToLoad(self, silent=False):
         """ resolve the menu name to the menu files to load"""
         menuToLoadReq = self.menuFullName
+        # Extract the menu name, independent of menu prescale sets
+        if menuToLoadReq.endswith('prescale'):
+            menuToLoadReq = re.match(r'\w*_v\d*',self.menuFullName).group(0)
+            log.info(f'Base menu name {menuToLoadReq} extracted from {self.menuFullName}')
         from .Menu.MenuMapping import menuMap
         if menuToLoadReq in menuMap:
             menuToLoad = menuMap[menuToLoadReq]
