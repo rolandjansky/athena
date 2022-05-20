@@ -68,7 +68,6 @@ namespace Trk {
                                                    Trk::MaterialUpdateStage matupstage) const; 
         
       MaterialInteraction                          m_interactionFormulae;     //!< the formulas concentrated
-      ParticleMasses                               m_particleMasses;          //!< struct of Particle masses   
       bool                                         m_eLossCorrection;         //!< apply the energy loss correction
       bool                                         m_eLossMpv;                //!< apply the energy loss correction as most probable value
       bool                                         m_mscCorrection;           //!< apply the multiple (coulomb) scattering correction

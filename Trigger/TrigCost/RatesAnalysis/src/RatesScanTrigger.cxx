@@ -101,7 +101,7 @@ const std::string RatesScanTrigger::printRate(const double ratesDenominator) con
 
   if (m_behaviour == kTriggerBelowThreshold) {
 
-    ss << "    Threshold <= " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmin();
+    ss << "    Threshold <= " << std::setw(11) << std::left << std::as_const(*m_rateScanHistCachedPtr).GetXaxis()->GetXmin();
     ss << " Rate :" << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(0)/ratesDenominator;
     ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(0)/ratesDenominator << " Hz" << std::endl;
 
@@ -113,13 +113,13 @@ const std::string RatesScanTrigger::printRate(const double ratesDenominator) con
       ss << std::endl;
     }
 
-    ss << "    Threshold >  " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmax();
+    ss << "    Threshold >  " << std::setw(11) << std::left << std::as_const(*m_rateScanHistCachedPtr).GetXaxis()->GetXmax();
     ss << " Rate :" << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(nBins+1)/ratesDenominator;
     ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(nBins+1)/ratesDenominator << " Hz";
   
   } else if (m_behaviour == kTriggerAboveThreshold) {
 
-    ss << "    Threshold <  " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmin();
+    ss << "    Threshold <  " << std::setw(11) << std::left << std::as_const(*m_rateScanHistCachedPtr).GetXaxis()->GetXmin();
     ss << " Rate: " << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(0)/ratesDenominator;
     ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(0)/ratesDenominator << " Hz" << std::endl;
   
@@ -131,7 +131,7 @@ const std::string RatesScanTrigger::printRate(const double ratesDenominator) con
       ss << std::endl;
     }
 
-    ss << "    Threshold >= " << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetXaxis()->GetXmax();
+    ss << "    Threshold >= " << std::setw(11) << std::left << std::as_const(*m_rateScanHistCachedPtr).GetXaxis()->GetXmax();
     ss << " Rate: " << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(nBins+1)/ratesDenominator;
     ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(nBins+1)/ratesDenominator << " Hz";
   

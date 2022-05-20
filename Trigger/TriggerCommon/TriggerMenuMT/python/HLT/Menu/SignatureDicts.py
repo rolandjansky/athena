@@ -1125,7 +1125,8 @@ AllowedTopos_comb = [
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon
     'invmAB10', '10invmAB70',
-    '7invmAB9', '11invmAB60', '11invmAB24', '24invmAB60', '7invmAA9', '11invmAA60', '11invmAA24', '24invmAA60', # Low mass Drell-Yan
+    '7invmAB9', '11invmAB60', '11invmAB24', '24invmAB60', '7invmAA9', '11invmAA60', '11invmAA24', '24invmAA60',
+    '20detaAA' # Low mass Drell-Yan
     ]
 
 # ---- Combined Dictionary of all allowed Values ----

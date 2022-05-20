@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonAmbPlots.h"
@@ -21,7 +21,7 @@ void PhotonAmbPlots::initializePlots(){
   m_nParticles_weighted = Book1D("n_weighted", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
 }
 
-  void PhotonAmbPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool /*isPrompt*/) const{
+  void PhotonAmbPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool /*isPrompt*/) {
   //if(!isPrompt) ;//return;
   
   m_oKinAllPlots.fill(photon,eventInfo);

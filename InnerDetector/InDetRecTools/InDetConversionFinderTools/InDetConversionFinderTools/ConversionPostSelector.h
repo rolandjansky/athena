@@ -6,7 +6,6 @@
 #define INDETCONVERSIONFINDERTOOLS_CONVERSIONPOSTSELECTOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h" //ParticleMasses struct
 #include "TrkParameters/TrackParameters.h" //typedef
 #include "xAODTracking/VertexFwd.h"
 #include "GeoPrimitives/GeoPrimitives.h" //Amg::Vector3D typedef
@@ -74,8 +73,6 @@ namespace InDet {
     double m_sigmaLambda ;
     int    m_nsig        ;
 
-    /** struct of Particle Masses */
-    static const Trk::ParticleMasses s_particleMasses;
 
     /** Compute the four-momentum of a particle according to a mass hypothesis.  */
     CLHEP::HepLorentzVector fourP(const Trk::TrackParameters&, const Trk::TrackParameters&, double, bool) const;

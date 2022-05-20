@@ -4,19 +4,17 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence,algorithmCAToGlobalWrapper
 from AthenaCommon.CFElements import parOR, seqAND
-from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
 
 
 def AFPTrkRecoBaseSequence(ConfigFlags):
-
     # Create inputs using input maker
     AFPInputMaker = InputMakerForRoI("IM_AFPTrackingFS")
     AFPInputMaker.RoITool = ViewCreatorInitialROITool()
     AFPInputMaker.RoIs = "AFPRoIs"
-    
+
     from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.Configurable import Configurable
 
@@ -52,9 +50,9 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     Configurable.configurableRun3Behavior=wasRun3
     
     if globalflags.InputFormat.is_bytestream():
-        AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])    
+        AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])
     else:
-        AFPRecoSeq = parOR("AFPRecoSeq", [AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx]) 
+        AFPRecoSeq = parOR("AFPRecoSeq", [AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])
     
     return (AFPRecoSeq, AFPInputMaker)
 
@@ -65,17 +63,23 @@ def AFPTrkRecoSequence():
     (AFPPassThroughRecoSeq, AFPPassThroughInputMaker) = RecoFragmentsPool.retrieve(AFPTrkRecoBaseSequence,ConfigFlags)
     AFPPassThroughSequence = seqAND("AFPPassThroughSequence", [AFPPassThroughInputMaker, AFPPassThroughRecoSeq])
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    # Pass-through hypo
+    # Edit pass-through hypo to use new ToF hypo
     def trigStreamerAFPHypoTool(chain_dict):
-        return conf2toConfigurable(CompFactory.TrigStreamerHypoTool(chain_dict["chainName"]))
-    
-    hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlg("AFPPassThroughHypo"))
+        from TrigAFPHypo.TrigAFPHypoConf import TrigAFPToFHypoTool
+        hypoTool = TrigAFPToFHypoTool(chain_dict["chainName"])
+        return hypoTool
+
+    # HypoAlg
+    from TrigAFPHypo.TrigAFPHypoConf import TrigAFPToFHypoAlg
+    hypoAlg = TrigAFPToFHypoAlg("TrigAFPToFHypoAlg",
+                                      AFPVertexContainer = 'HLT_AFPVertexContainer',
+                                      VertexContainer = 'HLT_IDVertex_FS')
+        
     trigHypoToolGen = trigStreamerAFPHypoTool
 
     return MenuSequence(Sequence = AFPPassThroughSequence,
                         Maker    = AFPPassThroughInputMaker,
-                        Hypo     = hypo,
+                        Hypo     = hypoAlg,
                         HypoToolGen = trigHypoToolGen)
 
 def TestTrigAFPDijetHypoToolGen(chainDict):

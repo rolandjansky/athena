@@ -37,7 +37,7 @@ AFPTDBasicTool::AFPTDBasicTool( const std::string& type,
 StatusCode AFPTDBasicTool::initialize()
 {
   // print information about initialised stations
-
+  ATH_MSG_DEBUG("AFPTDBasicTool::initialize()");
   ATH_MSG_INFO("Station with ID="<<m_stationID <<" will have minimum number of "<<m_minHitsNumber <<" bars.");
   ATH_MSG_INFO("Maximal length of signal  at which bar can be joined to the track  m_maxAllowedLength = "<<m_maxAllowedLength);
 
@@ -49,12 +49,15 @@ StatusCode AFPTDBasicTool::initialize()
 
 StatusCode AFPTDBasicTool::finalize()
 {
+  ATH_MSG_DEBUG("AFPTDBasicTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
 
 void AFPTDBasicTool::fillTrainWithBars(std::vector<const xAOD::AFPToFHit*> my_trainBars[4], SG::ReadHandle<xAOD::AFPToFHitContainer>& hitContainer) const
 {
+  ATH_MSG_DEBUG("AFPTDBasicTool::fillTrainWithBars");
+  ATH_MSG_DEBUG("Total number of AFP ToF hits read in = " << hitContainer->size());
   // retrieve ToF bars
   try {
     // fill station with ToF hits
@@ -67,7 +70,6 @@ void AFPTDBasicTool::fillTrainWithBars(std::vector<const xAOD::AFPToFHit*> my_tr
     clearTrains(my_trainBars);
   }
 }
-
 
 StatusCode AFPTDBasicTool::reconstructTracks(std::unique_ptr<xAOD::AFPToFTrackContainer>& outputContainer, const EventContext& ctx) const
 {
@@ -92,6 +94,7 @@ StatusCode AFPTDBasicTool::reconstructTracks(std::unique_ptr<xAOD::AFPToFTrackCo
   clearTrains(my_trainBars);
   fillTrainWithBars(my_trainBars, hitContainer);
 
+  ATH_MSG_DEBUG( "Number of AFP ToF hits in each train = " << my_trainBars[0].size()<<", "<<my_trainBars[1].size()<<", "<<my_trainBars[2].size()<<", "<<my_trainBars[3].size());
 
   // ===== do tracks reconstruction =====
 
@@ -119,6 +122,7 @@ StatusCode AFPTDBasicTool::reconstructTracks(std::unique_ptr<xAOD::AFPToFTrackCo
 		// time average
 		if( TrSize!=TrSat) TrTime /= weight;					
     
+    ATH_MSG_DEBUG("Track reconstruction complete: stationID = " + std::to_string(m_stationID) + ", train time = " + std::to_string(TrTime) + ", train size = " + std::to_string(TrSize));
     reconstructedTracks.emplace_back(m_stationID,k,TrTime, TrSize, TrSat);
     AFPTDBasicToolTrack& theTrack = reconstructedTracks.back();					
     for(unsigned int l=0; l<TrSize; l++) theTrack.addBar(my_trainBars[k].at(l));
@@ -135,6 +139,7 @@ StatusCode AFPTDBasicTool::reconstructTracks(std::unique_ptr<xAOD::AFPToFTrackCo
 
 void AFPTDBasicTool::saveToXAOD (const AFPTDBasicToolTrack& recoTrack, std::unique_ptr<xAOD::AFPToFTrackContainer>& containerToFill, SG::ReadHandle<xAOD::AFPToFHitContainer>& hitContainer) const
 {
+    ATH_MSG_DEBUG("AFPTDBasicTool::saveToXAOD");
     auto track = containerToFill->push_back(std::make_unique<xAOD::AFPToFTrack>());
   
     track->setStationID(recoTrack.m_stationID);

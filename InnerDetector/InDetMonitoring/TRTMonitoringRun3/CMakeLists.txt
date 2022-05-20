@@ -11,7 +11,7 @@ atlas_add_component( TRTMonitoringRun3
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES AthenaMonitoringLib TrkToolInterfaces CommissionEvent TRT_DriftFunctionToolLib TRT_ConditionsServicesLib MagFieldInterfaces InDetByteStreamErrors InDetRIO_OnTrack
+                     LINK_LIBRARIES AthenaMonitoringLib TrkToolInterfaces CommissionEvent TRT_DriftFunctionToolLib TRT_ConditionsServicesLib MagFieldInterfaces InDetByteStreamErrors InDetRIO_OnTrack InDetTrackSelectionToolLib
                      )
                    
 # Install files from the package:

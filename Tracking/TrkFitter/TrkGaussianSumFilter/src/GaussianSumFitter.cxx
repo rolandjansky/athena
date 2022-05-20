@@ -113,9 +113,8 @@ Trk::GaussianSumFitter::initialize()
 
   m_trkParametersComparisonFunction =
     Trk::TrkParametersComparisonFunction(referencePosition);
-  Trk::ParticleSwitcher particleSwitcher;
   m_overideParticleHypothesis =
-    particleSwitcher.particle[m_overideMaterialEffects];
+    Trk::ParticleSwitcher::particle[m_overideMaterialEffects];
   m_inputPreparator = std::make_unique<TrackFitInputPreparator>();
 
   return StatusCode::SUCCESS;

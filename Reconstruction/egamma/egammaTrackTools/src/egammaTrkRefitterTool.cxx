@@ -65,8 +65,7 @@ egammaTrkRefitterTool::initialize()
   }
 
   // Set the particle hypothesis to match the material effects
-  Trk::ParticleSwitcher particleSwitch;
-  m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
+  m_ParticleHypothesis = Trk::ParticleSwitcher::particle[m_matEffects];
 
   ATH_MSG_INFO("Initialization completed successfully");
   return StatusCode::SUCCESS;

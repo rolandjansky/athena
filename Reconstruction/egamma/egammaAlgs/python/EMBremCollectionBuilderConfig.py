@@ -67,6 +67,7 @@ def EMBremCollectionBuilderCfg(flags,
         flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
     kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
+    kwargs.setdefault("slimTrkTracks", flags.Egamma.slimGSFTrkTracks)
 
     # P->T conversion extra dependencies
     if flags.Detector.GeometryITk:

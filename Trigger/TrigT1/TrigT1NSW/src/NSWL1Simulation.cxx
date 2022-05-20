@@ -2,6 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
+
 #include "NSWL1Simulation.h"
 
 namespace NSWL1 {
@@ -81,8 +83,11 @@ namespace NSWL1 {
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger(MMTriggerContainer.get(), m_doMMDiamonds) );
     }
-    if(m_doNtuple){
-      if (m_tree) m_tree->Fill();
+    if(m_doNtuple && m_tree){
+      static std::mutex mutex;
+      std::scoped_lock lock(mutex);
+      TTree* locked_tree ATLAS_THREAD_SAFE = m_tree;
+      locked_tree->Fill();
     }
 
     SG::WriteHandle<Muon::NSW_TrigRawDataContainer> rdohandle( m_trigRdoContainer, ctx );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_TRACKPLOTS_H
@@ -16,7 +16,7 @@ namespace Egamma{
 class TrackPlots:public PlotBase {
     public:
       TrackPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo) const;
+      void fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo);
      
       std::string m_sParticleType;
         

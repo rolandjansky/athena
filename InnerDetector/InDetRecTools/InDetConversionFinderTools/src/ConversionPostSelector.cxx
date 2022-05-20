@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -14,6 +14,8 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h" //ParticleMasses struct
+
 #include <cmath>
 
 namespace{
@@ -22,7 +24,6 @@ namespace{
 
 namespace InDet {
   
-  Trk::ParticleMasses const ConversionPostSelector::s_particleMasses;
   
   static const InterfaceID IID_IConversionPostSelector("InDet::ConversionPostSelector", 1, 0);
 
@@ -140,7 +141,7 @@ namespace InDet {
       //invariant mass
       CLHEP::HepLorentzVector momentum;
       Amg::Vector3D sum_mom = perigee1.momentum() + perigee2.momentum();
-      double m2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::electron],2);
+      double m2 = std::pow(Trk::ParticleMasses::mass[Trk::electron],2);
       double ee = std::sqrt(m2 +  perigee1.momentum().mag2()) + std::sqrt(m2 +  perigee2.momentum().mag2());
       momentum.setPx(sum_mom.x()); momentum.setPy(sum_mom.y()); momentum.setPz(sum_mom.z()); momentum.setE(ee);
       double inv_mass = momentum.m();
@@ -281,24 +282,24 @@ namespace InDet {
     Amg::Vector3D sum_mom = per1.momentum() + per2.momentum();
     double mp1 = 0.; double mp2 = 0.;
     if(mass==m_massK0) {
-      mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
-      mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+      mp1 = std::pow(Trk::ParticleMasses::mass[Trk::pion],2);
+      mp2 = std::pow(Trk::ParticleMasses::mass[Trk::pion],2);
     }else{
       if(!isBar){
         if(per1.charge()>0) {
-          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
-          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp1 = std::pow(Trk::ParticleMasses::mass[Trk::proton],2);
+          mp2 = std::pow(Trk::ParticleMasses::mass[Trk::pion],2);
         } else {
-          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
-          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
+          mp2 = std::pow(Trk::ParticleMasses::mass[Trk::proton],2);
+          mp1 = std::pow(Trk::ParticleMasses::mass[Trk::pion],2);
         }
       }else{
         if(per1.charge()>0) {
-          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
-          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp1 = std::pow(Trk::ParticleMasses::mass[Trk::pion],2);
+          mp2 = std::pow(Trk::ParticleMasses::mass[Trk::proton],2);
         } else {
-          mp2 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::pion],2);
-          mp1 = std::pow(ConversionPostSelector::s_particleMasses.mass[Trk::proton],2);
+          mp2 = std::pow(Trk::ParticleMasses::mass[Trk::pion],2);
+          mp1 = std::pow(Trk::ParticleMasses::mass[Trk::proton],2);
         }
       }
     }

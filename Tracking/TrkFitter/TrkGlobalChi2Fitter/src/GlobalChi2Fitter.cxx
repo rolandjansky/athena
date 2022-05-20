@@ -578,7 +578,7 @@ namespace Trk {
   ) const {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::mainCombinationStrategy");
 
-    double mass = m_particleMasses.mass[muon];
+    double mass = Trk::ParticleMasses::mass[muon];
 
     bool firstismuon = isMuonTrack(intrk1);
     const Track *indettrack = firstismuon ? &intrk2 : &intrk1;
@@ -1345,7 +1345,7 @@ namespace Trk {
       }
       
       double sign = (tmppar->parameters()[Trk::qOverP] < 0) ? -1 : 1;
-      double mass = m_particleMasses.mass[muon];
+      double mass = Trk::ParticleMasses::mass[muon];
 
       double oldp = std::abs(1 / tmppar->parameters()[Trk::qOverP]);
       double de = std::abs(calomeots[1].energyLoss()->deltaE());
@@ -4669,7 +4669,7 @@ namespace Trk {
       return nullptr;
     }
 
-    double mass = m_particleMasses.mass[matEffects];
+    double mass = Trk::ParticleMasses::mass[matEffects];
     trajectory.setMass(mass);
 
     ATH_MSG_DEBUG("start param: " << param << " pos: " << param.position() << " pt: " << param.pT());

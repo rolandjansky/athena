@@ -19,7 +19,6 @@
 // Trk
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace Trk{
   class MaterialProperties;
@@ -91,7 +90,6 @@ namespace iFatras{
    std::string                                  m_randomEngineName;         //!< Name of the random number stream
    bool                                         m_usePDGformula;
 
-   static Trk::ParticleMasses    s_particleMasses;         //!< struct of Particle masses                                                        
 
 
 };

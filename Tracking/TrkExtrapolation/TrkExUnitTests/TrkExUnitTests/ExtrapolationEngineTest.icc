@@ -151,10 +151,9 @@ template < class T, class P > StatusCode Trk::ExtrapolationEngineTest::runTestT(
     // position / momentum writer
     if (!m_posmomWriter.empty() && m_writeTTree) {
       // masses and pdg
-      Trk::ParticleMasses pmasses;
       Trk::PdgToParticleHypothesis pdgFromHypothesis;
       // now convert
-      double mass = pmasses.mass[m_particleHypothesis];
+      double mass = Trk::ParticleMasses::mass[m_particleHypothesis];
       int pdg = pdgFromHypothesis.convert((Trk::ParticleHypothesis) m_particleHypothesis, m_charge);
       m_posmomWriter->initializeTrack(startParameters.position(),
                                       startParameters.momentum(),

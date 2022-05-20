@@ -66,8 +66,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize(){
     ATH_MSG_INFO( "Ensure that the tracks are fitted after the ambiguity processing!");
   }
   // Configuration of the material effects
-  Trk::ParticleSwitcher particleSwitch;
-  m_particleHypothesis = particleSwitch.particle[m_matEffects];
+  m_particleHypothesis = Trk::ParticleSwitcher::particle[m_matEffects];
   // brem fitting enabled ?
   if (m_tryBremFit) {
      ATH_MSG_INFO( "Try brem fit and recovery for electron like tracks.");

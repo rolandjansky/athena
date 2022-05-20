@@ -42,6 +42,15 @@
 #include <utility>
 #include <cmath>
 
+struct Envelope_t{
+  float lower_r{FLT_MIN};
+  float upper_r{FLT_MAX};
+  float lower_eta{FLT_MIN};
+  float upper_eta{FLT_MAX};
+  float lower_z{FLT_MIN};
+  float upper_z{FLT_MAX};
+};
+
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
@@ -69,7 +78,7 @@ namespace NSWL1 {
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
     virtual StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) const override;
-    StatusCode FetchDetectorEnvelope(std::pair<float, float> &rbounds, std::pair<float, float> &etabounds, std::pair<float, float> &zbounds) const;
+    StatusCode FetchDetectorEnvelope(Envelope_t &env) const;
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -107,7 +116,7 @@ namespace NSWL1 {
     std::vector<float> *m_seg_global_y;
     std::vector<float> *m_seg_global_z;
 
-    uint8_t findRIdx(const float& val, const std::pair<float, float> &rbounds, const std::pair<float, float> &etabounds) const;
+    uint8_t findRIdx(const float& val, const Envelope_t &env) const;
     uint8_t findDtheta(const float&) const;
   };  // end of StripSegmentTool class
 } // namespace NSWL1

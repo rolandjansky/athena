@@ -48,8 +48,10 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
+
 // statics doubles 
-Trk::ParticleMasses iFatras::PhotonConversionTool::s_particleMasses;
 double  iFatras::PhotonConversionTool::s_alpha         = 1./137.;
 double  iFatras::PhotonConversionTool::s_oneOverThree  = 1./3.;
 Trk::PdgToParticleHypothesis  iFatras::PhotonConversionTool::s_pdgToHypo;
@@ -203,7 +205,7 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
     assert(parent);
 
     // calculate the child momentum
-    double p1 = sqrt(childEnergy*childEnergy-s_particleMasses.mass[childType]*s_particleMasses.mass[childType]);    
+    double p1 = sqrt(childEnergy*childEnergy-Trk::ParticleMasses::mass[childType]*Trk::ParticleMasses::mass[childType]);    
 
     // now properly : energy-momentum conservation
     CLHEP::HepLorentzVector vtmp;
@@ -228,7 +230,7 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
     }
 
     // add the new secondary states to the ISF particle stack
-    double mass = s_particleMasses.mass[childType];
+    double mass = Trk::ParticleMasses::mass[childType];
     int    pdg1  = s_pdgToHypo.convert(childType, charge1, false);
     int    pdg2  = s_pdgToHypo.convert(childType, charge2, false);
 
@@ -315,7 +317,7 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
     static ISF::ISFParticleVector children(2);
  
     // calculate the child momentum
-    double p1 = sqrt(childEnergy*childEnergy-s_particleMasses.mass[childType]*s_particleMasses.mass[childType]);    
+    double p1 = sqrt(childEnergy*childEnergy-Trk::ParticleMasses::mass[childType]*Trk::ParticleMasses::mass[childType]);    
 
     // now properly : energy-momentum conservation
     CLHEP::HepLorentzVector vtmp;
@@ -339,7 +341,7 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
       charge2 = -1.;
     }
 
-    double mass = s_particleMasses.mass[childType];
+    double mass = Trk::ParticleMasses::mass[childType];
     int    pdg1  = s_pdgToHypo.convert(childType, charge1, false);
     int    pdg2  = s_pdgToHypo.convert(childType, charge2, false);
 
@@ -434,7 +436,7 @@ double iFatras::PhotonConversionTool::childEnergyFraction(const Trk::MaterialPro
                                                         double gammaMom) const {
 
   // the fraction
-  double epsilon0      = s_particleMasses.mass[Trk::electron]/gammaMom;
+  double epsilon0      = Trk::ParticleMasses::mass[Trk::electron]/gammaMom;
   // some needed manipolations
   double Z             = mprop.averageZ();
   double oneOverZpow   = 1./pow(Z,s_oneOverThree);
@@ -488,7 +490,7 @@ double iFatras::PhotonConversionTool::childEnergyFraction(const Trk::MaterialPro
 double iFatras::PhotonConversionTool::childEnergyFraction(double gammaMom) const {
 
   // the fraction
-  double epsilon0      = s_particleMasses.mass[Trk::electron]/gammaMom;
+  double epsilon0      = Trk::ParticleMasses::mass[Trk::electron]/gammaMom;
   // some needed manipolations
   //double Z             = mprop.averageZ();
   double Z             = 13.;
@@ -548,7 +550,7 @@ Amg::Vector3D iFatras::PhotonConversionTool::childDirection(const Amg::Vector3D&
     double psi    =  2.*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
     
     // the start of the equation
-    double theta = s_particleMasses.mass[Trk::electron]/childE;
+    double theta = Trk::ParticleMasses::mass[Trk::electron]/childE;
     // follow 
     double a = 0.625; // 5/8
     //double d = 27.;

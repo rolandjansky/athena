@@ -231,7 +231,6 @@ private:
     std::unique_ptr<Hists> m_h;
     Hists& getHists() const;
 
-    const Trk::ParticleMasses m_particlemasses;
 };
 
 #endif

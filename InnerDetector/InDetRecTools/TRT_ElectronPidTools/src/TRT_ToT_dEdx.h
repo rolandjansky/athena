@@ -71,7 +71,6 @@ private:
       , "EventInfo.averageInteractionsPerCrossing"
       , "Decoration for Average Interaction Per Crossing"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
-  Trk::ParticleMasses        m_particlemasses;
 
   ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
   ToolHandle< InDet::ITRT_LocalOccupancy > m_localOccTool;     //!< the track selector tool

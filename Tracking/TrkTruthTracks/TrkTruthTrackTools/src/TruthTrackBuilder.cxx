@@ -212,8 +212,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    //
    //
    //
-   Trk::ParticleSwitcher particleSwitch;
-   Trk::ParticleHypothesis materialInteractions = particleSwitch.particle[m_matEffects];
+   Trk::ParticleHypothesis materialInteractions = Trk::ParticleSwitcher::particle[m_matEffects];
 
    Trk::Track *refittedtrack=(m_trackFitter->fit(Gaudi::Hive::currentContext(),track,false,materialInteractions)).release();
   

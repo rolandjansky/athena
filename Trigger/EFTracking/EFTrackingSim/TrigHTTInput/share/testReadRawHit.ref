@@ -1,12 +1,8 @@
 HTTRawHitsWrapp...   INFO HTTRawHitsWrapperAlg::initialize()
-HTTRawHitsWrapp...   INFO HTTInputHeaderTool::initialize()
 HTTRawHitsWrapp...   INFO Getting branch and set EventHeader
 HTTRawHitsWrapp...  DEBUG Initialized in READ MODE
-HTTRawHitsWrapp...   INFO End of Tool initialize
-HTTRawHitsWrapp...   INFO HTTInputHeaderTool::initialize()
+HTTRawHitsWrapp...  DEBUG Opening file  httsim_rawhits_wrap.OUT.root in RECREATE mode
 HTTRawHitsWrapp...   INFO Creating empty brnaches in output file
-HTTRawHitsWrapp...   INFO End of Tool initialize
-HTTRawHitsWrapp...  DEBUG Finished initialize
 HTTRawHitsWrapp...  DEBUG Adding private ToolHandle tool HTTRawHitsWrapperAlg.HTTReadInput (HTTInputHeaderTool)
 HTTRawHitsWrapp...  DEBUG Adding private ToolHandle tool HTTRawHitsWrapperAlg.HTTWriteInput (HTTInputHeaderTool)
 HTTRawHitsWrapp...  DEBUG Running on event 

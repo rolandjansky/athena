@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPlots.h"
@@ -47,7 +47,7 @@ void ElectronPlots::initializePlots(){
   nParticles_weighted = Book1D("n_weighted", "Number of "+ m_sParticleType + "s;#" + m_sParticleType + " electrons;Events", 15, 0, 15.);
  }
 
-  void ElectronPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) const {
+  void ElectronPlots::fill(const xAOD::Electron& electron, const xAOD::EventInfo& eventInfo, bool isPrompt) {
 
   m_oKinAllRecoPlots.fill(electron,eventInfo);
   m_oShowerShapesAllRecoPlots.fill(electron,eventInfo);

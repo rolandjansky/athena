@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_ISOLATIONPLOTS_H
@@ -16,7 +16,7 @@ namespace Egamma{
 class IsolationPlots:public PlotBase {
     public:
       IsolationPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
-  void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const;
+      void fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo);
      
       std::string m_sParticleType;
 

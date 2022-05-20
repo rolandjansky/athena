@@ -35,9 +35,9 @@
 
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/MaterialProperties.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
-// statics doubles
-Trk::ParticleMasses iFatras::HadIntProcessorParametric::s_particleMasses;
+
 
 // constructor
 iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string& t, const std::string& n, const IInterface* p) :
@@ -269,7 +269,7 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
   ISF::ISFParticleVector chDef(0);
 
   // sampling of hadronic interaction
-  double m = s_particleMasses.mass[particle];
+  double m = Trk::ParticleMasses::mass[particle];
   double E = sqrt(p*p + m*m);
 
   // get the maximum multiplicity
@@ -387,21 +387,21 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     if (chargedist<pif) {
       charge[i]=0.;
       childType[i]=Trk::pi0;
-      newm[i]=s_particleMasses.mass[Trk::pi0]; // MeV
+      newm[i]=Trk::ParticleMasses::mass[Trk::pi0]; // MeV
       pdgid[i]=111;
       continue;
     }
     if ( chargedist<2*pif) {
       charge[i]=1.;
       childType[i]=Trk::pion;
-      newm[i]=s_particleMasses.mass[Trk::pion]; // MeV
+      newm[i]=Trk::ParticleMasses::mass[Trk::pion]; // MeV
       pdgid[i]=211;
       continue;
     }
     if (chargedist<3*pif) {
       charge[i]=-1.;
       childType[i]=Trk::pion;
-      newm[i]=s_particleMasses.mass[Trk::pion]; // MeV
+      newm[i]=Trk::ParticleMasses::mass[Trk::pion]; // MeV
       pdgid[i]=-211;
       continue;
     }
@@ -415,7 +415,7 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     if (chargedist<3*pif+nef+prf) {
       charge[i]=1.;
       childType[i]=Trk::proton;
-      newm[i]=s_particleMasses.mass[Trk::proton]; // MeV
+      newm[i]=Trk::ParticleMasses::mass[Trk::proton]; // MeV
       pdgid[i]=2212;
       continue;
     }
@@ -434,8 +434,8 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
         double cho = charge[i];
         charge[i]=charge[0];
         charge[0]=parent ? parent->charge() : cho;
-	newm[i]=s_particleMasses.mass[childType[i]]; // MeV
-	newm[0]=s_particleMasses.mass[childType[0]]; // MeV
+	newm[i]=Trk::ParticleMasses::mass[childType[i]]; // MeV
+	newm[0]=Trk::ParticleMasses::mass[childType[0]]; // MeV
         break;
       }
     }
@@ -609,7 +609,7 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
 
       if (childP.mag()> m_minimumHadOutEnergy) {
 	// get the new particle
-	double mass = s_particleMasses.mass[ childType[i] ];
+	double mass = Trk::ParticleMasses::mass[ childType[i] ];
 
 	// create the particle
 	ISF::ISFParticle *child = new ISF::ISFParticle ( vertex,

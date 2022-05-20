@@ -41,6 +41,8 @@
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 // for the comparison with a pointer
 #include <cstdint>
 
@@ -51,7 +53,6 @@
 // Trk
 #include "TrkSurfaces/PlaneSurface.h"
 
-const Trk::ParticleMasses Trk::TimedExtrapolator::s_particleMasses;
 
 // constructor
 Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::string &n, const IInterface *p) :
@@ -1404,7 +1405,7 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
     return nullptr;
   }
 
-  cache.m_particleMass = s_particleMasses.mass[particle];
+  cache.m_particleMass = Trk::ParticleMasses::mass[particle];
 
   // extrapolate to destination volume boundary with path limit
   std::unique_ptr<const Trk::TrackParameters> returnParms =

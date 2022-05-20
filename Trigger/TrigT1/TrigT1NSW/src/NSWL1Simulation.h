@@ -7,7 +7,6 @@
 
 // Basic includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
