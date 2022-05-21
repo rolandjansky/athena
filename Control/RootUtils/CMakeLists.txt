@@ -24,7 +24,7 @@ atlas_add_library( RootUtils
    src/*.cxx ${dict_cpp}
    PUBLIC_HEADERS RootUtils
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CxxUtils )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CxxUtils AthDSoCallBacks )
 add_dependencies( RootUtils RootUtilsDictGen )
 
 atlas_add_library( RootUtilsPyROOT
