@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ElectronPhotonVariableCorrectionBase_H
@@ -22,7 +22,7 @@
 #include "xAODEgamma/Photon.h"
 
 //Root includes
-#include "TF1.h"
+#include "TFormula.h"
 
 // forward declarations
 class TObject;
@@ -145,10 +145,10 @@ private:
     mutable boost::thread_specific_ptr<TRandom3> m_TRandom_tls;
     //! @brief Values of discontinuities in the variable which should not be corrected
     std::vector<float> m_uncorrectedDiscontinuities;
-    //! @brief Function to use for the variable correction, TF1 style
+    //! @brief Function to use for the variable correction, TFormula style
     std::string m_correctionFunctionString;
-    //! @brief The actual TF1 correction function
-    std::unique_ptr<TF1> m_correctionFunctionTF1;
+    //! @brief The actual TFormula correction function
+    std::unique_ptr<TFormula> m_correctionFunctionTFormula;
     //! @brief Number of parameters of the variable correction function
     int m_numberOfFunctionParameters{};
     //! @brief Map of the correction function parameter number to the parameter type
@@ -232,14 +232,16 @@ private:
      */
     const StatusCode getObjectFromRootFile(TEnv& env, const int parameter_number, const TString& filePathKey, const TString& nameKey, std::unique_ptr<TObject>& return_object);
 
-    /** @brief Set the actual parameters of the TF1 function used for the current e/y object to be corrected
+    /** @brief Get the actual parameters of the TF1 function used for the current e/y object to be corrected
      * @param pt The pT of the current e/y object to be corrected
      * @param eta The eta of the current e/y object to be corrected
      * @param phi The phi of the current e/y object to be corrected
+     * @param properties Vector of parameters to use.
      * @details As every electron/photon has different values of pT/eta, the correction function must be adapted accordingly for every e/y. The according values of
      * each of the correction function parameters are updated with this function.
      */
-    const StatusCode setCorrectionParameters(const float pt, const float eta, const float phi) const;
+    const StatusCode getCorrectionParameters(const float pt, const float eta, const float ph,
+                                             std::vector<float>& properties) const;
 
     /** @brief Get the correction function parameter value if its type is eta- or pT-binned
      * @param return_parameter_value The respective correction function parameter value is saved in this parameter
@@ -310,7 +312,7 @@ private:
     const StatusCode getDensity(float& value, const std::string& eventShapeContainer) const;
 
     /** @brief Get the e/y kinematic properties
-     * @param egamma_object The e/y object to get the kinemativ properties of
+     * @param egamma_object The e/y object to get the kinematic properties of
      * @param pt The pT value is saved in this parameter
      * @param eta The eta value is saved in this parameter
      * @details As every electron/photon has different values of pT/eta, the correction function must be adapted accordingly for every e/y. The according values of
@@ -321,9 +323,11 @@ private:
     /** @brief Actual application of the correction to the variable
      * @param return_corrected_variable The corrected variable value is saved in this parameter
      * @param original_variable The original value of the corrected variable
+     * @param properties Function parameters for the evaluation.
      * @param rndSeed A random seed determined from pT, eta and phi, in case a Gaussian smearing is used.
      */
-    void correct(float& return_corrected_variable, const float original_variable, unsigned int rndSeed = 0) const;
+    void correct(float& return_corrected_variable, const float original_variable,
+                 const std::vector<float>& properties, unsigned int rndSeed = 0) const;
 
     //! @brief Getting thread safe random number generator (and resetting its seed)
     TRandom3* getTLSRandomGen(unsigned int seed) const;
