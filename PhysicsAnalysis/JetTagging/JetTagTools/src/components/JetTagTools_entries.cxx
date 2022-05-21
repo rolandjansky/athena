@@ -2,8 +2,6 @@
 #include "JetTagTools/SVTag.h"
 #include "JetTagTools/MultiSVTag.h"
 
-#include "JetTagTools/SoftMuonTag.h"
-
 #include "JetTagTools/NewLikelihoodTool.h"
 #include "JetTagTools/TrackSelector.h"
 #include "JetTagTools/JetFitterTag.h"
@@ -28,7 +26,6 @@
 DECLARE_COMPONENT( Analysis::IPTag )
 DECLARE_COMPONENT( Analysis::SVTag )
 DECLARE_COMPONENT( Analysis::MultiSVTag )
-DECLARE_COMPONENT( Analysis::SoftMuonTag )
 DECLARE_COMPONENT( Analysis::NewLikelihoodTool )
 DECLARE_COMPONENT( Analysis::TrackSelector )
 DECLARE_COMPONENT( Analysis::JetFitterTag )
