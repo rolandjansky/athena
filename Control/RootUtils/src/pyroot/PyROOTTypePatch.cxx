@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file RootUtils/src/pyroot/PyROOTTypePatch.cxx
@@ -106,6 +106,9 @@ bool name_is_pair (const char* clsname)
  */
 void scan_for_pair()
 {
+  // Should hold the ROOT mutex before using TClassTable.
+  R__WRITE_LOCKGUARD (ROOT::gCoreMutex);
+
   TClassTable::Init();
   while (const char* clsname = TClassTable::Next()) {
     if (name_is_pair (clsname)) {
