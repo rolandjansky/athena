@@ -13,7 +13,7 @@
 
 #include "TrigInDetAnalysisUtils/Filters.h"
 #include "TrigInDetAnalysisUtils/Filter_Track.h"
-#include "TrigInDetAnalysisUtils/TagNProbe2.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 // #include "AthenaMonitoring/AthenaMonManager.h"
 // #include "AthenaMonitoring/ManagedMonitorToolTest.h"
@@ -385,7 +385,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 
       ChainString probe = m_chainNames[i] ;
 
-      TagNProbe2* tnp = 0;
+      TagNProbe* tnp = 0;
 
       if ( probe.extra().find("probe")!=std::string::npos ) {
 
@@ -407,8 +407,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 	  double massMin = 40;
 	  double massMax = 150;
 
-	  if ( m_mcTruth ) tnp = new TagNProbe2( "Truth",   massMin, massMax );
-	  else             tnp = new TagNProbe2( "Offline", massMin, massMax );
+	  if ( m_mcTruth ) tnp = new TagNProbe( "Truth",   massMin, massMax );
+	  else             tnp = new TagNProbe( "Offline", massMin, massMax );
 
 	  tnp->tag(tag) ;
 	  tnp->probe(probe) ;

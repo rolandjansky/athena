@@ -65,6 +65,8 @@ void ConfAnalysis::initialise() {
 
 void ConfAnalysis::initialiseInternal() { 
 
+  if ( m_initialised ) return;
+    
   m_initialised = true;
 
   //  std::cout << "ConfAnalysis::initialise() " << name() << std::endl;
@@ -313,6 +315,14 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram(  new TH1F( "roi_deta", "roi_deta",  50, -1, 1  ) );
   addHistogram(  new TH1F( "roi_dphi", "roi_dphi",  50, -1, 1  ) );
   addHistogram(  new TH1F( "roi_dR",   "roi_dR",    50,  0, 1  ) );
+
+  // tag and probe invariant mass histograms
+  if ( m_TnP_tool ) {
+    m_invmass = new TH1F( "invmass", "invariant mass;mass [GeV]", 320, 0, 200 );
+    m_invmassObj = new TH1F( "invmassObj", "invariant mass;mass [GeV]", 320, 0, 200 );
+    addHistogram( m_invmass );
+    addHistogram( m_invmassObj );
+  }
 
   // efficiencies and purities
   eff_pt  = new Efficiency( find("pT"),  "pT_eff"  );
@@ -891,7 +901,6 @@ void ConfAnalysis::finalise() {
 
   if ( !m_initialised ) return;
 
-
   std::cout << "ConfAnalysis::finalise() " << name();
 
   if ( name().size()<19 ) std::cout << "\t";
@@ -899,6 +908,7 @@ void ConfAnalysis::finalise() {
   if ( name().size()<41 ) std::cout << "\t";
   if ( name().size()<52 ) std::cout << "\t";
 
+   
   std::cout << "\tNreco "    << Nreco  
 	    << "\tNref "     << Nref
 	    << "\tNmatched " << Nmatched;
@@ -918,7 +928,6 @@ void ConfAnalysis::finalise() {
   std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
   std::map<std::string, TH1F*>::iterator hend=m_histos.end();
   for ( ; hitr!=hend ; hitr++ ) hitr->second->Write();     
-
   //  std::cout << "DBG >" << eff_pt->Hist()->GetName() << "< DBG" << std::endl;
 
   //  std::vector<Efficiency*> heff = { eff_pt,
@@ -935,14 +944,13 @@ void ConfAnalysis::finalise() {
 			      eff_roi_deta,
 			      eff_roi_dphi,
 			      eff_roi_dR };
-  
+
   for ( unsigned i=0 ; i<Neff ; i++ ) {
     heff[i]->finalise();  
     heff[i]->Bayes()->Write( ( heff[i]->name()+"_tg" ).c_str() );
   } // heff[i]->Hist()->Write(); } 
 
   //  std::cout << "DBG >" << purity_pt->Hist()->GetName() << "< DBG" << std::endl;
-
 
   eff_vs_mult->finalise();
 
@@ -988,8 +996,6 @@ void ConfAnalysis::finalise() {
 
   mdeltaR_v_eta->Finalise();   mdeltaR_v_eta->Write(); 
   mdeltaR_v_pt->Finalise();    mdeltaR_v_pt->Write(); 
-
-
 
   for ( unsigned i=rDd0res.size() ; i-- ; ) { 
     rDd0res[i]->Finalise(Resplot::FitNull95);
@@ -1174,10 +1180,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 			   TrigObjectMatcher* objects ) { 
 
   //  leave this commented code in for debug purposes ...
-  //  if ( objects ) std::cout << "TrigObjectMatcher: " << objects << std::endl; 
+  //  if ( objects ) std::cout << "TrigObjectMatcher: " << objects << std::endl;
 
-  if ( !m_initialised ) initialiseInternal();
-    
+    if ( !m_initialised ) initialiseInternal();
+      
   if ( m_print ) { 
     std::cout << "ConfAnalysis::execute() \t " << name() 
 	      << "\tref "  <<  reftracks.size() 
