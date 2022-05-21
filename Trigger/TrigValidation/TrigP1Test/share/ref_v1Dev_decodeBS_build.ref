@@ -178,6 +178,14 @@ HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_J75:
   eventCount: 0
 HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_jJ125:
   eventCount: 0
+HLT_2j20_2j20_0eta290_boffperf_pf_ftf_presel2c20XX2c20b85_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
+HLT_2j20_2j20_0eta290_boffperf_pf_ftf_presel2j25b85XX2j25_PhysicsTLA_L14J15p0ETA25:
+  eventCount: 0
+HLT_2j20_2j20_pf_ftf_presel2c20XX2c20b85_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
+  eventCount: 0
+HLT_2j20_2j20_pf_ftf_presel2j25b85XX2j25_PhysicsTLA_L14J15p0ETA25:
+  eventCount: 0
 HLT_2j20_mb_afprec_afpdijet_L1RD0_FILLED:
   eventCount: 0
 HLT_2j20c_2j20c_80bdips_roiftf_presel4c20_L1J45p0ETA21_3J15p0ETA25:
@@ -819,13 +827,9 @@ HLT_4j20_020jvt_boffperf_pf_ftf_L1HT190-J15s5pETA21:
   eventCount: 0
 HLT_4j20_020jvt_boffperf_pf_ftf_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
-HLT_4j20_020jvt_boffperf_pf_ftf_presel4j20_PhysicsTLA_L14J15p0ETA25:
-  eventCount: 0
-HLT_4j20_020jvt_boffperf_pf_ftf_presel4j25_PhysicsTLA_L14J15p0ETA25:
-  eventCount: 0
-HLT_4j20_0eta290_020jvt_boffperf_pf_ftf_preselj180_PhysicsTLA_L1HT190-J15s5pETA21:
-  eventCount: 0
 HLT_4j20_0eta290_boffperf_pf_ftf_L1HT190-J15s5pETA21:
+  eventCount: 0
+HLT_4j25_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
   eventCount: 0
 HLT_4j35_0eta290_020jvt_bdl1d77_pf_ftf_presel4j25_L14J15p0ETA25:
   eventCount: 0
@@ -2993,8 +2997,6 @@ HLT_j100_0eta290_bdl1r60_pf_ftf_xe50_cell_xe85_tcpufit_L1XE55:
     0: 2
 HLT_j100_0eta290_bdl1r60_pf_ftf_xe50_cell_xe85_tcpufit_L1jXE110:
   eventCount: 0
-HLT_j100_j20_0eta290_boffperf_pf_ftf_L1HT190-J15s5pETA21:
-  eventCount: 0
 HLT_j110_L1J30:
   eventCount: 2
   stepCounts:
@@ -3227,19 +3229,11 @@ HLT_j20_0eta290_020jvt_boffperf_pf_ftf_L1jJ40:
     2: 82
 HLT_j20_0eta290_boffperf_pf_ftf_L1HT190-J15s5pETA21:
   eventCount: 0
-HLT_j20_0eta290_boffperf_pf_ftf_presel4j20_PhysicsTLA_L14J15p0ETA25:
-  eventCount: 0
-HLT_j20_0eta290_boffperf_pf_ftf_presel4j20_PhysicsTLA_L1HT190-J15s5pETA21:
-  eventCount: 0
-HLT_j20_0eta290_boffperf_pf_ftf_presel4j25_PhysicsTLA_L14J15p0ETA25:
-  eventCount: 0
-HLT_j20_0eta290_boffperf_pf_ftf_presel4j25_PhysicsTLA_L1HT190-J15s5pETA21:
+HLT_j20_0eta290_boffperf_pf_ftf_preselcHT450_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 0
 HLT_j20_0eta290_boffperf_pf_ftf_preselj140_PhysicsTLA_L1J50:
   eventCount: 0
 HLT_j20_0eta290_boffperf_pf_ftf_preselj140_PhysicsTLA_L1J50_DETA20-J50J:
-  eventCount: 0
-HLT_j20_0eta290_boffperf_pf_ftf_preselj180_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 0
 HLT_j20_0eta290_boffperf_pf_ftf_preselj180_PhysicsTLA_L1J100:
   eventCount: 0
@@ -3285,8 +3279,6 @@ HLT_j20_PhysicsTLA_L1HT190-jJ40s5pETA21:
     2: 23
 HLT_j20_PhysicsTLA_L1J100:
   eventCount: 0
-HLT_j20_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
 HLT_j20_PhysicsTLA_L1J50_DETA20-J50J:
   eventCount: 1
   stepCounts:
@@ -3309,7 +3301,13 @@ HLT_j20_PhysicsTLA_L1jJ90_DETA20-jJ90J:
     0: 17
     1: 17
     2: 4
-HLT_j20_pf_ftf_PhysicsTLA_L1J100:
+HLT_j20_pf_ftf_presel4j85_PhysicsTLA_L13J50:
+  eventCount: 0
+HLT_j20_pf_ftf_presel5j50_PhysicsTLA_L14J15:
+  eventCount: 0
+HLT_j20_pf_ftf_presel6j40_PhysicsTLA_L14J15:
+  eventCount: 0
+HLT_j20_pf_ftf_preselcHT450_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 0
 HLT_j20_pf_ftf_preselj140_PhysicsTLA_L1J50:
   eventCount: 0
@@ -3921,14 +3919,6 @@ HLT_j60_0eta290_020jvt_boffperf_pf_ftf_L1jJ90:
     0: 6
     1: 7
     2: 7
-HLT_j60_0eta290_020jvt_j45_0eta290_020jvt_2j20_0eta290_020jvt_pf_ftf_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
-? HLT_j60_0eta290_j45_0eta290_j25_0eta290_j20_0eta290_boffperf_pf_ftf_preselc60XXc45XXc25XXc20_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25
-: eventCount: 0
-HLT_j60_3j20_020jvt_boffperf_pf_ftf_preselj60XXj40_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
-HLT_j60_3j20_boffperf_pf_ftf_preselj60XXj40_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
 HLT_j60_L1J20:
   eventCount: 10
   stepCounts:
@@ -3947,10 +3937,6 @@ HLT_j60_j0_FBDJSHARED_L1J20:
     0: 1
   stepFeatures:
     0: 11
-HLT_j60_j20_0eta290_boffperf_pf_ftf_preselj60XXj40_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
-HLT_j60_j45_2j20_pf_ftf_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25:
-  eventCount: 0
 HLT_j60_pf_ftf_preselj50_L1J20:
   eventCount: 8
   stepCounts:
