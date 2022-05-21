@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -47,6 +47,7 @@ class TH2D;
 class TH1F;
 class TProfile;
 class TTree;
+class ITHistSvc;
 
 namespace Trk{
   class TrkVKalVrtFitter;
@@ -96,38 +97,44 @@ namespace Rec {
     private:
 
       double m_w_1{};
-      TTree* m_tuple{};
-      TH1D* m_hb_massPiPi{};
-      TH1D* m_hb_massPiPi1{};
-      TH1D* m_hb_massPPi{};
-      TH1D* m_hb_massEE{};
-      TH1D* m_hb_nvrt2{};
-      TH1D* m_hb_ratio{};
-      TH1D* m_hb_totmass{};
-      TH1D* m_hb_impact{};
-      TH1D* m_hb_impactR{};
-      TH2D* m_hb_impactRZ{};
-      TH1D* m_hb_trkD0{};
-      TH1D* m_hb_trkZ{};
-      TH1F* m_hb_ntrksel{};
-      TH1F* m_hb_ntrkInput{};
-      TH1F* m_hb_trkSelect{};
-      TH1D* m_hb_impactZ{};
-      TH1D* m_hb_r2d{};
-      TH1D* m_hb_signif3D{};
-      TH1D* m_hb_impV0{};
-      TH1D* m_hb_sig3DTot{};
-      TH1F* m_hb_goodvrtN{};
-      TH1F* m_hb_goodvrt1N{};
-      TH1D* m_hb_distVV{};
-      TH1D* m_hb_diffPS{};
-      TH1D* m_hb_sig3D1tr{};
-      TH1D* m_hb_sig3D2tr{};
-      TH1D* m_hb_sig3DNtr{};
-      TH1F* m_hb_rawVrtN{};
-      TH1F* m_hb_cosSVMom{};
-      TH1F* m_hb_etaSV{};
-      TH1F* m_hb_fakeSVBDT{};
+      struct DevTuple;
+      struct Hists {
+        StatusCode book (ITHistSvc& histSvc, const std::string& histDir);
+        TTree* m_tuple{};
+        DevTuple*  m_curTup;
+        TH1D* m_hb_massPiPi{};
+        TH1D* m_hb_massPiPi1{};
+        TH1D* m_hb_massPPi{};
+        TH1D* m_hb_massEE{};
+        TH1D* m_hb_nvrt2{};
+        TH1D* m_hb_ratio{};
+        TH1D* m_hb_totmass{};
+        TH1D* m_hb_impact{};
+        TH1D* m_hb_impactR{};
+        TH2D* m_hb_impactRZ{};
+        TH1D* m_hb_trkD0{};
+        TH1D* m_hb_trkZ{};
+        TH1F* m_hb_ntrksel{};
+        TH1F* m_hb_ntrkInput{};
+        TH1F* m_hb_trkSelect{};
+        TH1D* m_hb_impactZ{};
+        TH1D* m_hb_r2d{};
+        TH1D* m_hb_signif3D{};
+        TH1D* m_hb_impV0{};
+        TH1D* m_hb_sig3DTot{};
+        TH1F* m_hb_goodvrtN{};
+        TH1F* m_hb_goodvrt1N{};
+        TH1D* m_hb_distVV{};
+        TH1D* m_hb_diffPS{};
+        TH1D* m_hb_sig3D1tr{};
+        TH1D* m_hb_sig3D2tr{};
+        TH1D* m_hb_sig3DNtr{};
+        TH1F* m_hb_rawVrtN{};
+        TH1F* m_hb_cosSVMom{};
+        TH1F* m_hb_etaSV{};
+        TH1F* m_hb_fakeSVBDT{};
+      };
+      std::unique_ptr<Hists> m_h;
 //--
 
       long int m_cutSctHits{};
@@ -249,7 +256,6 @@ namespace Rec {
        float NVrtHR1[maxNVrt];
        float NVrtHR2[maxNVrt];
      };
-     DevTuple*  m_curTup;
 //
 // End of development stuff
 //============================================================
@@ -269,7 +275,7 @@ namespace Rec {
 
 // For multivertex version only
 
-      std::unique_ptr<boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> > m_compatibilityGraph{};
+      using compatibilityGraph_t = boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>;
       float m_chiScale[11]{};
       struct WrkVrt 
       {  bool Good=true;
@@ -289,7 +295,8 @@ namespace Rec {
 //   Private technical functions
 //
 //
-      std::vector<xAOD::Vertex*> getVrtSecMulti(  workVectorArrxAOD * inpParticlesxAOD, const xAOD::Vertex  & primVrt) const;
+      std::vector<xAOD::Vertex*> getVrtSecMulti(  workVectorArrxAOD * inpParticlesxAOD, const xAOD::Vertex  & primVrt,
+                                                  compatibilityGraph_t& compatibilityGraph ) const;
 
 
       void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string &name ) const;
@@ -342,13 +349,15 @@ namespace Rec {
 
 
       void select2TrVrt(std::vector<const xAOD::TrackParticle*> & SelectedTracks, const xAOD::Vertex  & primVrt,
-                        std::map<long int,std::vector<double>> & vrt) const;
+                        std::map<long int,std::vector<double>> & vrt,
+                        compatibilityGraph_t& compatibilityGraph) const;
 
 
      void  getPixelDiscs   (const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
      int   getIBLHit(const xAOD::TrackParticle* Part) const;
      int   getBLHit(const xAOD::TrackParticle* Part) const;
 
+     Hists& getHists() const;
    };
 
 
