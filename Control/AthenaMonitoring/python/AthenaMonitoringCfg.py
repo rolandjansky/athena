@@ -121,6 +121,11 @@ def AthenaMonitoringCfg(flags):
             from TrigT1Monitoring.LVL1InterfacesMonitoringCfg import LVL1InterfacesMonitoringCfg
             result.merge(LVL1InterfacesMonitoringCfg(flags))
 
+    if flags.DQ.Steering.doCTPMon:
+        info('Set up CTP monitoring')
+        from TrigT1CTMonitoring.CTPMonitoringConfig import CTPMonitoringConfig
+        result.merge(CTPMonitoringConfig(flags))
+
     # Check for potentially duplicated histogram definitions
     definedhists = {}
     for algo in result.getEventAlgos():

@@ -26,7 +26,7 @@ def MUCTPI_AthToolCfg(flags, name):
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
   tool.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
   tool.TrigThresholdDecisionTool = getTrigThresholdDecisionTool("TrigThresholdDecisionTool")
-
+  #tool.MUCTPI_xAODLocation = ["LVL1MuonRoIsBCm2", "LVL1MuonRoIsBCm1", "LVL1MuonRoIs", "LVL1MuonRoIsBCp1", "LVL1MuonRoIsBCp2"]
   # Create a logger:
   logger = logging.getLogger( "MUCTPI_AthTool" )
 
@@ -41,8 +41,9 @@ def MUCTPI_AthToolCfg(flags, name):
       # Check the RoI EDM containers are registered in HLT outputs
       from TrigEDMConfig.TriggerEDMRun3 import recordable
       for key in tool.MUCTPI_xAODLocation:
-          assert key==recordable(key), f'recordable() check failed for {key}'
-
+        logger.info( "Configuring MuCTPI simulation with configuration outputs: %s", key )
+        assert key==recordable(key), f'recordable() check failed for {key}'
+  logger.info( "Configuring MuCTPI: post flags.Trigger.doHLT" )
   return tool
 
 
@@ -107,11 +108,15 @@ class L1MuctpiPhase1_on_Data( DefaultL1MuctpiPhase1 ):
     Module configuring the MuCTPI simulation to be re-run on data BS file
     (that already has a result from a previous MuCTPI simulation running)
   """
+  logger = logging.getLogger( "MUCTPI_AthTool" )
+  logger.info( "Configuring MuCTPI: L1MuctpiPhase1_on_Data" )
+
 
   def __init__( self, name = "L1MuctpiPhase1_on_Data" ):
 
     DefaultL1MuctpiPhase1.__init__( self, name )
-
+    logger = logging.getLogger( "MUCTPI_AthTool" )
+    logger.info( "Configuring MuCTPI: L1MuctpiPhase1_on_Data" )
     self.InputSource = "RDO"
     self.RDOLocID = "MUCTPI_RDO"
     self.RDOOutputLocID = "MUCTPI_RDO+"
@@ -121,6 +126,7 @@ class L1MuctpiPhase1_on_Data( DefaultL1MuctpiPhase1 ):
     self.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
     self.IsData=1
     self.FlaggingMode = False
+  logger.info( "Configuring MuCTPI: L1MuctpiPhase1_on_Data done?" )
 
 class L1MuctpiPhase1_on_AOD( DefaultL1MuctpiPhase1 ):
 
