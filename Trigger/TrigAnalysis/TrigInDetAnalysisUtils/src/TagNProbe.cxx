@@ -1,5 +1,5 @@
 /**
- **     @file    TagNProbe2.cxx
+ **     @file    TagNProbe.cxx
  **
  **     @author  mark sutton
  **     @date    Sat Apr  9 12:55:17 CEST 2022
@@ -8,10 +8,10 @@
  **/
 
 
-#include "TrigInDetAnalysisUtils/TagNProbe2.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 
-TagNProbe2::TagNProbe2( const std::string& refName, double massMin, double massMax, bool unique_flag ) :
+TagNProbe::TagNProbe( const std::string& refName, double massMin, double massMax, bool unique_flag ) :
   m_particleType(refName),
   m_mass(0),
   m_massMin(massMin),
@@ -29,7 +29,7 @@ TagNProbe2::TagNProbe2( const std::string& refName, double massMin, double massM
 
 
 
-double TagNProbe2::mass_obj( const TIDA::Track* t1, const TIDA::Track* t2, TrigObjectMatcher* tom ) const {
+double TagNProbe::mass_obj( const TIDA::Track* t1, const TIDA::Track* t2, TrigObjectMatcher* tom ) const {
 
   if ( tom!=0 && tom->status() ) { 
     return mass( tom->object(t1->id()), tom->object(t2->id()) );
@@ -41,7 +41,7 @@ double TagNProbe2::mass_obj( const TIDA::Track* t1, const TIDA::Track* t2, TrigO
 }
 
 
-TIDA::Chain* TagNProbe2::findChain( const std::string& chainname, std::vector<TIDA::Chain>& chains ) const {
+TIDA::Chain* TagNProbe::findChain( const std::string& chainname, std::vector<TIDA::Chain>& chains ) const {
   for ( size_t i=chains.size() ; i-- ; ) {
     if ( chains[i].name() == chainname ) return &chains[i];
   }

@@ -1,6 +1,6 @@
 /// emacs: this is -*- c++ -*-
 /**
- **     @file    TagNProbe2.h
+ **     @file    TagNProbe.h
  **
  **     @author  mark sutton
  **     @date    Sat Apr  9 12:55:17 CEST 2022
@@ -9,8 +9,8 @@
  **/
 
 
-#ifndef TIDAUTILS_TAGNPROBE2_H
-#define TIDAUTILS_TAGNPROBE2_H
+#ifndef TIDAUTILS_TAGNPROBE_H
+#define TIDAUTILS_TAGNPROBE_H
 
 #include <vector> 
 
@@ -25,13 +25,13 @@
 #include "TLorentzVector.h"
 
 
-class TagNProbe2 {
+class TagNProbe {
 
 public:
 
-  TagNProbe2( const std::string& refName, double massMin, double massMax, bool unique_flag=true );
+  TagNProbe( const std::string& refName, double massMin, double massMax, bool unique_flag=true );
   
-  virtual ~TagNProbe2() { }
+  virtual ~TagNProbe() { }
 
   /// getters and setters
 
@@ -178,6 +178,6 @@ private:
 };
 
 
-#endif ///  TIDAUTILS_TAGNPROBE2_H
+#endif ///  TIDAUTILS_TAGNPROBE_H
 
 
