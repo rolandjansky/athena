@@ -45,7 +45,14 @@ def test_TriggerFlags(sample):
 
     acf = ConfigFlags.clone()
     acf.Input.Files = [inputfiles[sample]]
-    acf.addFlagsCategory("Trigger", createTriggerFlags)
+
+    def __isAnalysis():
+        import os
+        return "AthAnalysis_DIR" in os.environ
+
+    def __trigger():
+        return createTriggerFlags(not __isAnalysis())
+    acf.addFlagsCategory("Trigger", __trigger)
     
     # Test EDMVersion
     EDMDecode_ref = {

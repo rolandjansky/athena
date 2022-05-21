@@ -9,8 +9,8 @@ from AthenaCommon.Logging import logging
 
 log=logging.getLogger('TriggerConfigFlags')
 
-def createTriggerFlags():
-    flags = AthConfigFlags()    
+def createTriggerFlags(doTriggerRecoFlags):
+    flags = AthConfigFlags()
 
     # enables L1 simulation
     flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
@@ -214,7 +214,7 @@ def createTriggerFlags():
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
     flags.addFlag('Trigger.triggerMenuModifier', ['all'])
 
-    # name of the trigger menu
+    # debug output from control flow generation
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
     # disable Consistent Prescale Sets, for testing only, useful when using selectChains (ATR-24744)
@@ -224,6 +224,15 @@ def createTriggerFlags():
     flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
 
     # trigger reconstruction
+    # Protection against import of packages not in the analysis release
+    # Signature and other trigger reco flags should be handled here
+    if doTriggerRecoFlags:
+        flags.join( createTriggerRecoFlags() )
+
+    return flags
+
+def createTriggerRecoFlags():
+    flags = AthConfigFlags()    
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
@@ -257,7 +266,6 @@ def createTriggerFlags():
         muonflags.MuonCombined.doStatisticalCombination = False
         muonflags.MuonCombined.doMuGirl = False
         return muonflags
-
 
     flags.addFlagsCategory('Trigger.Offline.SA', __muonSA, prefix=True)
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
@@ -304,9 +312,7 @@ def createTriggerFlags():
         return createHTTConfigFlags()
     flags.addFlagsCategory("Trigger.HTT", __httFlags, prefix=True )
 
-
     return flags
-
     
 if __name__ == "__main__":
     import unittest
