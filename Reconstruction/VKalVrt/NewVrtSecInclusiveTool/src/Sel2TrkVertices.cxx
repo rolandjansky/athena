@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///
 ///     @author  Vadim Kostyukhin <vadim.kostyukhin@cern.ch>
@@ -30,7 +30,8 @@ namespace Rec{
 
     void NewVrtSecInclusiveTool::select2TrVrt(std::vector<const xAOD::TrackParticle*>  & selectedTracks,
                                   const xAOD::Vertex                 & primVrt,
-                                  std::map<long int,std::vector<double>> & goodVrt)
+                                  std::map<long int,std::vector<double>> & goodVrt,
+                                  compatibilityGraph_t& compatibilityGraph )
     const
     {
       std::vector<const xAOD::NeutralParticle*> neutralPartDummy(0);
@@ -62,27 +63,30 @@ namespace Rec{
          if( !(selectedTracks[i]->summaryValue(nPixelHits,xAOD::numberOfPixelHits)) ) nPixelHits=0;
          nPixHits[i]=nPixelHits;
          if(m_fillHist){
-            m_hb_impactR->Fill( signifR, m_w_1);
-            m_hb_impactZ->Fill( signifZ, m_w_1);
-            m_hb_impactRZ->Fill(signifR, signifZ, m_w_1); 
-            m_hb_impact->Fill( trackSignif[i], m_w_1);
-            if( i<DevTuple::maxNTrk && m_curTup){
-               m_curTup->pttrk[i]=selectedTracks[i]->pt();
-               m_curTup->d0trk[i]=selectedTracks[i]->d0();
-               m_curTup->Sig3D[i]=trackSignif[i];
-               m_curTup->idHF[i] =getIdHF(selectedTracks[i]);
-               m_curTup->dRdZrat[i] =dRdZratio[i];
+            Hists& h = getHists();
+            h.m_hb_impactR->Fill( signifR, m_w_1);
+            h.m_hb_impactZ->Fill( signifZ, m_w_1);
+            h.m_hb_impactRZ->Fill(signifR, signifZ, m_w_1); 
+            h.m_hb_impact->Fill( trackSignif[i], m_w_1);
+            if( i<DevTuple::maxNTrk){
+               Hists& h = getHists();
+               h.m_curTup->pttrk[i]=selectedTracks[i]->pt();
+               h.m_curTup->d0trk[i]=selectedTracks[i]->d0();
+               h.m_curTup->Sig3D[i]=trackSignif[i];
+               h.m_curTup->idHF[i] =getIdHF(selectedTracks[i]);
+               h.m_curTup->dRdZrat[i] =dRdZratio[i];
                uint8_t TRTHits;
                if( !(selectedTracks[i]->summaryValue(  TRTHits,xAOD::numberOfTRTHits))) TRTHits=0;
-               m_curTup->trkTRT[i] =TRTHits;
-               m_curTup->etatrk[i] =selectedTracks[i]->eta();
+               h.m_curTup->trkTRT[i] =TRTHits;
+               h.m_curTup->etatrk[i] =selectedTracks[i]->eta();
            }
          }
       }
 
-      if( m_fillHist && m_curTup ){
-          m_curTup->nTrk=NTracks < DevTuple::maxNTrk ? NTracks : DevTuple::maxNTrk ;
-          m_curTup->n2Vrt=0;
+      if( m_fillHist ){
+          Hists& h = getHists();
+          h.m_curTup->nTrk=NTracks < DevTuple::maxNTrk ? NTracks : DevTuple::maxNTrk ;
+          h.m_curTup->n2Vrt=0;
       }
 
       std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
@@ -126,9 +130,10 @@ namespace Rec{
                                  tmpVrt.fitVertex.y()-primVrt.y(),
                                  tmpVrt.fitVertex.z()-primVrt.z(), 10.);
              if(m_fillHist){
-               if(Charge==0){m_hb_massPiPi->Fill(tmpVrt.momentum.M(),1.);}
-               m_hb_cosSVMom->Fill(cosSVPV,1.);
-               m_hb_etaSV->Fill(SVPV.Eta(),1.);
+               Hists& h = getHists();
+               if(Charge==0){h.m_hb_massPiPi->Fill(tmpVrt.momentum.M(),1.);}
+               h.m_hb_cosSVMom->Fill(cosSVPV,1.);
+               h.m_hb_etaSV->Fill(SVPV.Eta(),1.);
              }
              if(cosSVPV<m_cosSVPVCut)continue;
              if(tmpVrt.momentum.Pt()<1000.)continue;
@@ -166,7 +171,8 @@ namespace Rec{
 //
 // Debugging and BDT
              double minPtT = std::min(tracksForFit[0]->pt(),tracksForFit[1]->pt());
-             if( m_fillHist && m_curTup ){
+             if( m_fillHist ){
+                Hists& h = getHists();
                 double Sig3D=0.,Sig2D=0., Dist2D=0.; 
                 int idisk1=0,idisk2=0,idisk3=0,jdisk1=0,jdisk2=0,jdisk3=0;
                 int sumIBLHits =  std::max(ihitIBL,0)+std::max(jhitIBL,0);
@@ -175,31 +181,31 @@ namespace Rec{
                 getPixelDiscs(selectedTracks[j],jdisk1,jdisk2,jdisk3);
                 vrtVrtDist(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Sig3D);
                 Dist2D=vrtVrtDist2D(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Sig2D);
-                m_hb_signif3D->Fill(Sig3D,1.);
-                m_curTup->VrtTrkHF [m_curTup->n2Vrt] = getIdHF(tracksForFit[0])+ getIdHF(tracksForFit[1]);
-                m_curTup->VrtTrkI  [m_curTup->n2Vrt] = getG4Inter(tracksForFit[0])+ getG4Inter(tracksForFit[1]);
-                m_curTup->VrtCh    [m_curTup->n2Vrt] = Charge;
-                m_curTup->VrtProb  [m_curTup->n2Vrt] = Prob2v;
-                m_curTup->VrtSig3D [m_curTup->n2Vrt] = Sig3D;
-                m_curTup->VrtSig2D [m_curTup->n2Vrt] = Sig2D;
-                m_curTup->VrtDist2D[m_curTup->n2Vrt] = vrtR<20. ? Dist2D : vrtR;
-                m_curTup->VrtM     [m_curTup->n2Vrt] = tmpVrt.momentum.M();
-                m_curTup->VrtZ     [m_curTup->n2Vrt] = tmpVrt.fitVertex.z();
-                m_curTup->VrtPt    [m_curTup->n2Vrt] = tmpVrt.momentum.Pt();
-                m_curTup->VrtEta   [m_curTup->n2Vrt] = SVPV.Eta();
-                m_curTup->VrtIBL   [m_curTup->n2Vrt] = sumIBLHits;
-                m_curTup->VrtBL    [m_curTup->n2Vrt] = sumBLHits;
-                m_curTup->VrtCosSPM[m_curTup->n2Vrt] = cosSVPV;
-                m_curTup->VMinPtT  [m_curTup->n2Vrt] = minPtT;
-                m_curTup->VMinS3DT [m_curTup->n2Vrt] = std::min(trackSignif[i],trackSignif[j]);
-                m_curTup->VMaxS3DT [m_curTup->n2Vrt] = std::max(trackSignif[i],trackSignif[j]);
-                m_curTup->VrtBDT   [m_curTup->n2Vrt] = 1.1;
-                m_curTup->VrtHR1   [m_curTup->n2Vrt] = ihitR;
-                m_curTup->VrtHR2   [m_curTup->n2Vrt] = jhitR;
-                m_curTup->VrtDZ    [m_curTup->n2Vrt] = minDZ;
-                m_curTup->VrtDisk  [m_curTup->n2Vrt] = idisk1+10*idisk2+20*idisk3+30*jdisk1+40*jdisk2+50*jdisk3;
-                m_curTup->VSigMat  [m_curTup->n2Vrt] = dstMatSignif;
-                if(m_curTup->n2Vrt<DevTuple::maxNVrt-1)m_curTup->n2Vrt++;
+                h.m_hb_signif3D->Fill(Sig3D,1.);
+                h.m_curTup->VrtTrkHF [h.m_curTup->n2Vrt] = getIdHF(tracksForFit[0])+ getIdHF(tracksForFit[1]);
+                h.m_curTup->VrtTrkI  [h.m_curTup->n2Vrt] = getG4Inter(tracksForFit[0])+ getG4Inter(tracksForFit[1]);
+                h.m_curTup->VrtCh    [h.m_curTup->n2Vrt] = Charge;
+                h.m_curTup->VrtProb  [h.m_curTup->n2Vrt] = Prob2v;
+                h.m_curTup->VrtSig3D [h.m_curTup->n2Vrt] = Sig3D;
+                h.m_curTup->VrtSig2D [h.m_curTup->n2Vrt] = Sig2D;
+                h.m_curTup->VrtDist2D[h.m_curTup->n2Vrt] = vrtR<20. ? Dist2D : vrtR;
+                h.m_curTup->VrtM     [h.m_curTup->n2Vrt] = tmpVrt.momentum.M();
+                h.m_curTup->VrtZ     [h.m_curTup->n2Vrt] = tmpVrt.fitVertex.z();
+                h.m_curTup->VrtPt    [h.m_curTup->n2Vrt] = tmpVrt.momentum.Pt();
+                h.m_curTup->VrtEta   [h.m_curTup->n2Vrt] = SVPV.Eta();
+                h.m_curTup->VrtIBL   [h.m_curTup->n2Vrt] = sumIBLHits;
+                h.m_curTup->VrtBL    [h.m_curTup->n2Vrt] = sumBLHits;
+                h.m_curTup->VrtCosSPM[h.m_curTup->n2Vrt] = cosSVPV;
+                h.m_curTup->VMinPtT  [h.m_curTup->n2Vrt] = minPtT;
+                h.m_curTup->VMinS3DT [h.m_curTup->n2Vrt] = std::min(trackSignif[i],trackSignif[j]);
+                h.m_curTup->VMaxS3DT [h.m_curTup->n2Vrt] = std::max(trackSignif[i],trackSignif[j]);
+                h.m_curTup->VrtBDT   [h.m_curTup->n2Vrt] = 1.1;
+                h.m_curTup->VrtHR1   [h.m_curTup->n2Vrt] = ihitR;
+                h.m_curTup->VrtHR2   [h.m_curTup->n2Vrt] = jhitR;
+                h.m_curTup->VrtDZ    [h.m_curTup->n2Vrt] = minDZ;
+                h.m_curTup->VrtDisk  [h.m_curTup->n2Vrt] = idisk1+10*idisk2+20*idisk3+30*jdisk1+40*jdisk2+50*jdisk3;
+                h.m_curTup->VSigMat  [h.m_curTup->n2Vrt] = dstMatSignif;
+                if(h.m_curTup->n2Vrt<DevTuple::maxNVrt-1)h.m_curTup->n2Vrt++;
              }
 //-------------------BDT based rejection
              if(tmpVrt.momentum.Pt() > m_vrt2TrPtLimit) continue;
@@ -215,12 +221,15 @@ namespace Rec{
              VARS[8]=SVPV.Eta();
              VARS[9]=std::max(ihitR,jhitR);
              float wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);
-             if( m_fillHist && m_curTup ) m_curTup->VrtBDT[m_curTup->n2Vrt-1] = wgtSelect;
+             if( m_fillHist ) {
+               Hists& h = getHists();
+               h.m_curTup->VrtBDT[h.m_curTup->n2Vrt-1] = wgtSelect;
+             }
              if(wgtSelect<m_v2tIniBDTCut) continue;
 //
 //---  Save good candidate for multi-vertex fit
 //
-             add_edge(i,j,*m_compatibilityGraph);
+             add_edge(i,j,compatibilityGraph);
              goodVrt[NTracks*i+j]=std::vector<double>{tmpVrt.fitVertex.x(),tmpVrt.fitVertex.y(),tmpVrt.fitVertex.z()};
          }
       } 
