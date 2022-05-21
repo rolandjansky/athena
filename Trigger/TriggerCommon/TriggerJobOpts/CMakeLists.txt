@@ -8,11 +8,11 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --exten
 atlas_install_scripts( test/*.py python/runHLT_standalone_newJO.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-if (NOT XAOD_ANALYSIS)
+atlas_add_test( TriggerConfigFlagsTest
+   SCRIPT python -m unittest TriggerJobOpts.TriggerConfigFlags
+   POST_EXEC_SCRIPT nopost.sh )
 
-   atlas_add_test( TriggerConfigFlagsTest
-      SCRIPT python -m unittest TriggerJobOpts.TriggerConfigFlags
-      POST_EXEC_SCRIPT nopost.sh )
+if (NOT XAOD_ANALYSIS)
 
    atlas_add_test( TriggerConfigTest
       SCRIPT python -m TriggerJobOpts.TriggerConfig

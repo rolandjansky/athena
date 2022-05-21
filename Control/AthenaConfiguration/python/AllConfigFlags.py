@@ -228,7 +228,7 @@ def _createCfgFlags():
 
     def __trigger():
         from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
-        return createTriggerFlags()
+        return createTriggerFlags(acf.Common.Project!='AthAnalysis')
     _addFlagsCategory(acf, "Trigger", __trigger, 'TriggerJobOpts' )
 
     def __indet():
