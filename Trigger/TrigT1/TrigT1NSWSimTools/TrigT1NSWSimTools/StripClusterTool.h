@@ -78,46 +78,47 @@ namespace NSWL1 {
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    // analysis ntuple
-    TTree* m_tree;                                          //!< ntuple for analysis
     Gaudi::Property<bool>         m_isMC            {this, "IsMC",                  true,       "This is MC"};
     Gaudi::Property<bool>         m_doNtuple        {this, "DoNtuple",              false,      "Input the sTGC strip cluster branches into the analysis ntuple"};
     SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainerKey{this,"sTGC_SdoContainerName", "sTGC_SDO", "the name of the sTGC SDO container"};
 
-    // analysis variable to be put into the ntuple
+    /* None of the TTree filling is thread-safe and should really be refactored.
+     * But we check in initialize() that this is only used in single-threaded mode.
+     */
+    TTree* m_tree{nullptr};                                 //!< ntuple for analysis
     mutable int m_cl_n ATLAS_THREAD_SAFE;                   //!< number of STRIP hit delivered
-    std::vector<int> *m_cl_charge;                          //!< charge of hit STRIPs
-    std::vector<int> *m_cl_size;                            //!< charge of hit STRIPs
-    std::vector<float> *m_cl_x;                             //!<global x position of cluster
-    std::vector<float> *m_cl_y;                             //!<global y position of cluster
-    std::vector<float> *m_cl_z;                             //!<global z position of cluster
-    std::vector<float> *m_cl_lx;                            //!<global x position of cluster
-    std::vector<float> *m_cl_ly;                            //!<global y position of cluster
-    std::vector<float> *m_cl_lz;                            //!<global z position of cluster
-    std::vector<float> *m_cl_ltgx;                          //!<global x position of cluster
-    std::vector<float> *m_cl_ltgy;                          //!<global y position of cluster
-    std::vector<float> *m_cl_ltgz;                          //!<global z position of cluster
+    std::vector<int> *m_cl_charge ATLAS_THREAD_SAFE{nullptr};                          //!< charge of hit STRIPs
+    std::vector<int> *m_cl_size ATLAS_THREAD_SAFE{nullptr};                            //!< charge of hit STRIPs
+    std::vector<float> *m_cl_x ATLAS_THREAD_SAFE{nullptr};                             //!<global x position of cluster
+    std::vector<float> *m_cl_y ATLAS_THREAD_SAFE{nullptr};                             //!<global y position of cluster
+    std::vector<float> *m_cl_z ATLAS_THREAD_SAFE{nullptr};                             //!<global z position of cluster
+    std::vector<float> *m_cl_lx ATLAS_THREAD_SAFE{nullptr};                            //!<global x position of cluster
+    std::vector<float> *m_cl_ly ATLAS_THREAD_SAFE{nullptr};                            //!<global y position of cluster
+    std::vector<float> *m_cl_lz ATLAS_THREAD_SAFE{nullptr};                            //!<global z position of cluster
+    std::vector<float> *m_cl_ltgx ATLAS_THREAD_SAFE{nullptr};                          //!<global x position of cluster
+    std::vector<float> *m_cl_ltgy ATLAS_THREAD_SAFE{nullptr};                          //!<global y position of cluster
+    std::vector<float> *m_cl_ltgz ATLAS_THREAD_SAFE{nullptr};                          //!<global z position of cluster
 
-    std::vector<float> *m_cl_truth_x;                       //!<global x of first truth hit for strip in cluster
-    std::vector<float> *m_cl_truth_y;                       //!<global y of first truth hit for strip in cluster
-    std::vector<float> *m_cl_truth_z;                       //!<global z of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_x ATLAS_THREAD_SAFE{nullptr};                       //!<global x of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_y ATLAS_THREAD_SAFE{nullptr};                       //!<global y of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_z ATLAS_THREAD_SAFE{nullptr};                       //!<global z of first truth hit for strip in cluster
 
-    std::vector<float> *m_cl_truth_lx;                      //!<local x of first truth hit for strip in cluster
-    std::vector<float> *m_cl_truth_ly;                      //!<local y of first truth hit for strip in cluster
-    std::vector<float> *m_cl_truth_lz;                      //!<local z of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_lx ATLAS_THREAD_SAFE{nullptr};                      //!<local x of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_ly ATLAS_THREAD_SAFE{nullptr};                      //!<local y of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_lz ATLAS_THREAD_SAFE{nullptr};                      //!<local z of first truth hit for strip in cluster
 
-    std::vector<float> *m_cl_truth_E;                       //!<global energy of truth strip deposits
-    std::vector<int> *m_cl_truth_n;                         //!<Cluster index for truth strip hits
+    std::vector<float> *m_cl_truth_E ATLAS_THREAD_SAFE{nullptr};                       //!<global energy of truth strip deposits
+    std::vector<int> *m_cl_truth_n ATLAS_THREAD_SAFE{nullptr};                         //!<Cluster index for truth strip hits
 
-    std::vector<int> *m_cl_side;
-    std::vector<int> *m_cl_isSmall;
-    std::vector<int> *m_cl_wedge;
-    std::vector<int> *m_cl_sector;
-    std::vector<int> *m_cl_module;
-    std::vector<int> *m_cl_layer;
-    std::vector<int> *m_cl_bandId;
+    std::vector<int> *m_cl_side ATLAS_THREAD_SAFE{nullptr};
+    std::vector<int> *m_cl_isSmall ATLAS_THREAD_SAFE{nullptr};
+    std::vector<int> *m_cl_wedge ATLAS_THREAD_SAFE{nullptr};
+    std::vector<int> *m_cl_sector ATLAS_THREAD_SAFE{nullptr};
+    std::vector<int> *m_cl_module ATLAS_THREAD_SAFE{nullptr};
+    std::vector<int> *m_cl_layer ATLAS_THREAD_SAFE{nullptr};
+    std::vector<int> *m_cl_bandId ATLAS_THREAD_SAFE{nullptr};
 
-    std::vector<int> *m_cl_phiId;
+    std::vector<int> *m_cl_phiId ATLAS_THREAD_SAFE{nullptr};
   };  // end of StripClusterTool class
 } // namespace NSWL1
 #endif
