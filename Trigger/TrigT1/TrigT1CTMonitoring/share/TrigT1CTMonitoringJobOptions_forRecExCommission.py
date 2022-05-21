@@ -45,7 +45,7 @@ topSequence = AlgSequence()
 #---------------------------------------------------------------
 # Central-Trigger Monitoring
 #---------------------------------------------------------------
-from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoring as BSMon
+from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoringAlgorithm as BSMon
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 
 #-----------ONLINE CODE---------------------
@@ -74,9 +74,9 @@ else:
         from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_Data
         CTPMonSeq += L1MuctpiPhase1_on_Data()
 
-        from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
-        CTPMonSeq += DeriveSimulationInputs(do_MuCTPI_input=True,
-                                            do_L1Calo_sim=False)
+        #from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
+        #CTPMonSeq += DeriveSimulationInputs(do_MuCTPI_input=True,
+        #                                    do_L1Calo_sim=False)
 
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
         CTPMonSeq += CTPSimulationOnData("CTPSimulation")
@@ -144,7 +144,7 @@ else:
         if LHCFillStateAvailable:
             conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
         conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode', className='AthenaAttributeList')
-        conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/RFPhase")
+        #conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/RFPhase")
         conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
     monMan.AthenaMonTools += [ CTBSMonTool ]
