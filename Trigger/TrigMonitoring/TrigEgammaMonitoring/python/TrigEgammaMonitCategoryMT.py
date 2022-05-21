@@ -23,6 +23,7 @@ monitoring_photon = [
     'HLT_g50_loose_L1EM20VH',
     'HLT_g140_loose_L1EM22VHI',
     'HLT_g300_etcut_L1EM22VHI',
+    'HLT_g140_loose_L1eEM26M'
         ]
 
 monitoring_electron = [
@@ -32,6 +33,7 @@ monitoring_electron = [
             ]
 
 monitoringTP_electron = [
+    'HLT_e140_lhloose_L1EM22VHI',
     'HLT_e60_lhmedium_L1EM22VHI',
     'HLT_e60_lhmedium_L1eEM26M',
     'HLT_e26_lhtight_ivarloose_L1EM22VH',
