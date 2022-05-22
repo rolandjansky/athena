@@ -115,7 +115,8 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
             ngasgap = 2;
         }
         else {
-            ngasgap = 3;
+            continue; // Will be changed to include BIS
+            // ngasgap = 3;
         }
 
         for(unsigned gasgap = 1; gasgap <= ngasgap; ++gasgap) {
