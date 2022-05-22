@@ -20,7 +20,7 @@ atlas_add_library( JetTagToolsLib
     src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
     src/MV2Tag.cxx
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
-    src/MultiSVTag.cxx src/SoftMuonTag.cxx
+    src/MultiSVTag.cxx
     src/MultivariateTagManager.cxx
     src/TagNtupleDumper.cxx
 
@@ -29,12 +29,12 @@ atlas_add_library( JetTagToolsLib
     PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
     PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel
-    GeoPrimitives ITrackToVertex InDetRecToolInterfaces InDetSVWithMuonToolLib JetTagCalibrationLib JetTagInfo
-    MVAUtils StoreGateLib xAODBTagging xAODJet xAODTracking
-    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} InDetTrackSelectionToolLib MuonAnalysisInterfacesLib
+    GeoPrimitives ITrackToVertex InDetRecToolInterfaces JetTagCalibrationLib JetTagInfo
+    MVAUtils xAODBTagging xAODJet xAODTracking
+    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} InDetTrackSelectionToolLib
     Navigation Particle ParticleJetToolsLib TrkEventPrimitives TrkLinks TrkNeuralNetworkUtilsLib
     TrkParameters TrkTrack TrkTrackLink TrkTrackSummary TrkVertexFitterInterfaces VxJetVertex
-    VxSecVertex VxVertex xAODMuon )
+    VxSecVertex VxVertex )
 
 atlas_add_component( JetTagTools
     src/components/*.cxx

@@ -64,11 +64,6 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN', scheme, runNN=ConfigFlags.BTagging.RunJetFitterNN))
           tagToolList.append(jetfitterNNtool)
 
-      if 'SoftMu' in TaggerList:
-          from JetTagTools.SoftMuonTagConfig import SoftMuonTagCfg
-          softmutool = acc.popToolsAndMerge(SoftMuonTagCfg(ConfigFlags, 'SoftMuonTag', scheme))
-          tagToolList.append(softmutool)
-
       if 'MultiSVbb1' in TaggerList:
           from JetTagTools.MultiSVTagConfig import MultiSVTagCfg
           multisvbb1tool = acc.popToolsAndMerge(MultiSVTagCfg(ConfigFlags,'MultiSVbb1Tag','MultiSVbb1', scheme))
