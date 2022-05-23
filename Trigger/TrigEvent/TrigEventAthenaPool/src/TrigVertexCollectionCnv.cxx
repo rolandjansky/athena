@@ -42,10 +42,10 @@ TrigVertexCollection * TrigVertexCollectionCnv::createTransient()
   
   mlog << MSG::DEBUG << "TrigVertexCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp2_guid( "438C9232-0F3E-4A8B-A16E-6F6275388DE4" );
-  static pool::Guid tlp1_guid( "10E18C4E-9BCA-4F25-993C-EBDF0642C119" );
-  static pool::Guid p0_guid( "0974DF97-5B51-4416-8FBE-42BAE0C54010" );
-  static pool::Guid p0_guid2( "E2C600D6-CD4B-4B7B-9C09-93CE9FF435A1" );
+  static const pool::Guid tlp2_guid( "438C9232-0F3E-4A8B-A16E-6F6275388DE4" );
+  static const pool::Guid tlp1_guid( "10E18C4E-9BCA-4F25-993C-EBDF0642C119" );
+  static const pool::Guid p0_guid( "0974DF97-5B51-4416-8FBE-42BAE0C54010" );
+  static const pool::Guid p0_guid2( "E2C600D6-CD4B-4B7B-9C09-93CE9FF435A1" );
  
   TrigVertexCollection *p_collection = 0;
   if( compareClassGuid( tlp2_guid ) )     

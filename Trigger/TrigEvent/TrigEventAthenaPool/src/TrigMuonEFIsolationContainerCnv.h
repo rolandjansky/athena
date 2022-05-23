@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGMUONEFISOLATIONCONTAINERCNV_H__
@@ -16,6 +16,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigMuonEvent/TrigMuonEFIsolationContainer.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainer_p2.h"
+#include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainerCnv_p1.h"
+#include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainerCnv_p2.h"
 
 // typedef to the latest persistent version
 typedef TrigMuonEFIsolationContainer_p2 TrigMuonEFIsolationContainer_PERS;
@@ -37,6 +39,11 @@ protected:
   TrigMuonEFIsolationContainer_PERS* createPersistent(TrigMuonEFIsolationContainer* transCont);
 
   TrigMuonEFIsolationContainer*      createTransient();
+
+private:
+  TrigMuonEFIsolationContainerCnv_p1 m_converter_p1;
+  TrigMuonEFIsolationContainerCnv_p2 m_converter_p2;
+
 
 
 

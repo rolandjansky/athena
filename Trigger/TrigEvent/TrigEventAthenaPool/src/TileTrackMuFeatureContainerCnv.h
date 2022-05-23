@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -22,6 +22,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigMuonEvent/TileTrackMuFeatureContainer.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeatureContainer_p3.h"
+#include "TrigMuonEventTPCnv/TileTrackMuFeatureContainerCnv_tlp1.h"
+#include "TrigMuonEventTPCnv/TileTrackMuFeatureContainerCnv_p3.h"
 
 //-----------------------------------------------------------------------------
 // Base class definition
@@ -45,7 +47,11 @@ protected:
   
   virtual TileTrackMuFeatureContainer_PERS *createPersistent( TileTrackMuFeatureContainer *transObj);
   virtual TileTrackMuFeatureContainer      *createTransient();
-  
+
+private:
+  TileTrackMuFeatureContainerCnv_tlp1   m_converter1;
+  TileTrackMuFeatureContainerCnv_p3     m_converter;
+
 };//end of class definitions
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGELECTRONCONTAINERCNV_H
@@ -10,6 +10,9 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigParticle/TrigElectronContainer.h"
 #include "TrigParticleTPCnv/TrigElectronContainer_p3.h"
+#include "TrigParticleTPCnv/TrigElectronContainerCnv_tlp1.h"
+#include "TrigParticleTPCnv/TrigElectronContainerCnv_tlp2.h"
+#include "TrigParticleTPCnv/TrigElectronContainerCnv_p3.h"
 
 typedef TrigElectronContainer_p3  TrigElectronContainer_PERS;
 typedef T_AthenaPoolCustomCnv<TrigElectronContainer, TrigElectronContainer_PERS> TrigElectronContainerCnvBase;
@@ -26,6 +29,12 @@ protected:
 
    virtual TrigElectronContainer_PERS*  createPersistent(TrigElectronContainer* transCont);
    virtual TrigElectronContainer*       createTransient ();
+
+private:
+  TrigElectronContainerCnv_tlp1  m_converter_tlp1;
+  TrigElectronContainerCnv_tlp2  m_converter_tlp2;
+  TrigElectronContainerCnv_p3    m_converter;
+
 
 };
 

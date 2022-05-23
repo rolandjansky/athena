@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGRNNOUTPUTCONTAINERCNV_H
@@ -10,6 +10,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigCaloEvent/TrigRNNOutputContainer.h"
 #include "TrigCaloEventTPCnv/TrigRNNOutputContainer_p2.h"
+#include "TrigCaloEventTPCnv/TrigRNNOutputContainerCnv_tlp1.h"
+#include "TrigCaloEventTPCnv/TrigRNNOutputContainerCnv_p2.h"
 
 typedef TrigRNNOutputContainer_p2   TrigRNNOutputContainer_PERS;
  
@@ -27,6 +29,10 @@ protected:
    
    virtual TrigRNNOutputContainer_PERS *createPersistent( TrigRNNOutputContainer *transObj);
    virtual TrigRNNOutputContainer      *createTransient();
+
+private:
+   TrigRNNOutputContainerCnv_tlp1   m_converter_tlp1;
+   TrigRNNOutputContainerCnv_p2     m_converter;
  
  };//end of class definitions
   

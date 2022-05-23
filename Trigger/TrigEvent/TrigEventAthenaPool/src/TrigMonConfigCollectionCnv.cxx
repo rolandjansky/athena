@@ -45,8 +45,8 @@ TrigMonConfigCollection* TrigMonConfigCollectionCnv::createTransient()
 {
   (*m_log) << MSG::DEBUG << "TrigMonConfigCollectionCnv::createTransient " << endmsg;
   
-  static pool::Guid tlp1_guid("887A60C5-BD4D-467C-9629-9F0EE818398A");
-  static pool::Guid p1_guid("77FAC318-137E-4563-A681-68356299E397");
+  static const pool::Guid tlp1_guid("887A60C5-BD4D-467C-9629-9F0EE818398A");
+  static const pool::Guid p1_guid("77FAC318-137E-4563-A681-68356299E397");
   
   TrigMonConfigCollection *trans_obj(0);
   

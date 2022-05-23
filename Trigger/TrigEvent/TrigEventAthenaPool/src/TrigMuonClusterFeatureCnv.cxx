@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonClusterFeatureCnv.h"
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeature_tlp1.h" 
-#include "TrigMuonEventTPCnv/TrigMuonClusterFeatureCnv_tlp1.h"
-
-static TrigMuonClusterFeatureCnv_tlp1 TPConverter;
 
 //-----------------------------------------------------------------------------
 // Create persistent 
@@ -19,7 +16,7 @@ TrigMuonClusterFeatureCnv::createPersistent( TrigMuonClusterFeature *transObj)
   
   mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createPersistent" << endmsg;
 
-  TrigMuonClusterFeature_PERS *persObj = TPConverter.createPersistent( transObj, mlog );
+  TrigMuonClusterFeature_PERS *persObj = m_converter.createPersistent( transObj, mlog );
   
   return persObj;
 }
@@ -33,12 +30,12 @@ TrigMuonClusterFeature *TrigMuonClusterFeatureCnv::createTransient()
   
   mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createTransient " << endmsg;
   
-  static pool::Guid p1_guid("AE4D5D57-689D-40CB-83B3-CB047884952F");
-  static pool::Guid p0_guid("A7B1865B-55D0-49D2-9778-5E0797FB06FE");
+  static const pool::Guid p1_guid("AE4D5D57-689D-40CB-83B3-CB047884952F");
+  static const pool::Guid p0_guid("A7B1865B-55D0-49D2-9778-5E0797FB06FE");
 
   if( compareClassGuid( p1_guid ) ) {
     std::unique_ptr< TrigMuonClusterFeature_tlp1 > col_vect( poolReadObject< TrigMuonClusterFeature_tlp1 >() );
-    return TPConverter.createTransient( col_vect.get(), mlog );
+    return m_converter.createTransient( col_vect.get(), mlog );
   }
   else if( compareClassGuid(p0_guid) ) {
     // old version from before TP separation, just return it

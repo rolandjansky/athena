@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGMUONEFCONTAINER_CNV_H
@@ -10,6 +10,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigMuonEvent/TrigMuonEFContainer.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFContainer_p2.h"
+#include "TrigMuonEventTPCnv/TrigMuonEFContainerCnv_tlp1.h"
+#include "TrigMuonEventTPCnv/TrigMuonEFContainerCnv_p2.h"
 
 typedef TrigMuonEFContainer_p2   TrigMuonEFContainer_PERS;
  
@@ -27,6 +29,10 @@ protected:
   
   virtual TrigMuonEFContainer_PERS *createPersistent( TrigMuonEFContainer *transObj);
   virtual TrigMuonEFContainer      *createTransient();
+
+private:
+  TrigMuonEFContainerCnv_tlp1 m_converter_tlp1;
+  TrigMuonEFContainerCnv_p2   m_converter;
   
 };//end of class definitions
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGMUONCLUSTERFEATURECNV_H
@@ -8,7 +8,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
  
 #include "TrigMuonEvent/TrigMuonClusterFeature.h"
-#include "TrigMuonEventTPCnv/TrigMuonClusterFeatureCnv_tlp1.h" 
+#include "TrigMuonEventTPCnv/TrigMuonClusterFeatureCnv_tlp1.h"
  
 //-----------------------------------------------------------------------------
 // Base class definition
@@ -29,7 +29,9 @@ protected:
     
    virtual TrigMuonClusterFeature_PERS* createPersistent( TrigMuonClusterFeature *transObj);
    virtual TrigMuonClusterFeature* createTransient();
- 
+private:
+   TrigMuonClusterFeatureCnv_tlp1 m_converter;
+
  };
  
 #endif // TRIGMUONCLUSTERFEATURE_CNV_H

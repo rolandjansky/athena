@@ -22,7 +22,7 @@ TrigHisto1D* TrigHisto1DCnv::createTransient() {
   MsgStream mlog(msgSvc(), "TrigHisto1DConverter" );
   mlog << MSG::DEBUG << "TrigHisto1DCnv::createTransient " << endmsg;
  
-  static pool::Guid p1_guid("C304621E-2266-4863-9B47-7C3450B00399");
+  static const pool::Guid p1_guid("C304621E-2266-4863-9B47-7C3450B00399");
 
   TrigHisto1D *transObj = 0;
   

@@ -30,9 +30,9 @@ TrigTrackCounts* TrigTrackCountsCnv::createTransient() {
 
   mlog << MSG::DEBUG << "TrigTrackCountsCnv::createTransient " << endmsg;
 
-  static pool::Guid p2_guid("BD8BB599-AE38-45CC-93DB-27F67C23DB62");
-  static pool::Guid p1_guid("2DCA396C-5CC1-4B6A-8B76-E3EBA4F81A61");
-  static pool::Guid p0_guid("6277C97C-0EAA-4922-892E-E88C1FA01BA0");
+  static const pool::Guid p2_guid("BD8BB599-AE38-45CC-93DB-27F67C23DB62");
+  static const pool::Guid p1_guid("2DCA396C-5CC1-4B6A-8B76-E3EBA4F81A61");
+  static const pool::Guid p0_guid("6277C97C-0EAA-4922-892E-E88C1FA01BA0");
   
   if(compareClassGuid(p2_guid)) {
     std::unique_ptr< TrigTrackCounts_p2 > pers_ptr( poolReadObject< TrigTrackCounts_p2 >() );

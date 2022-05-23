@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_ELECTRONMUONTOPOINFO_CNV_H
@@ -11,7 +11,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigTopoEvent/ElectronMuonTopoInfoContainer.h"
 #include "TrigTopoEventTPCnv/ElectronMuonTopoInfoContainerCnv_p1.h"
- 
+
 typedef ElectronMuonTopoInfoContainer_p1   ElectronMuonTopoInfoContainer_PERS;
  
 typedef T_AthenaPoolCustomCnv<ElectronMuonTopoInfoContainer, ElectronMuonTopoInfoContainer_PERS> ElectronMuonTopoInfoContainerCnvBase;
@@ -30,7 +30,10 @@ protected:
    
    virtual ElectronMuonTopoInfoContainer_PERS *createPersistent( ElectronMuonTopoInfoContainer *transObj);
    virtual ElectronMuonTopoInfoContainer      *createTransient();
- 
+
+private:
+   ElectronMuonTopoInfoContainerCnv_p1 m_converter;
+
   };//end of class definitions
   
  

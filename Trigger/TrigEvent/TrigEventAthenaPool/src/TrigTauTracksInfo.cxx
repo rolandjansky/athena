@@ -32,8 +32,8 @@ TrigTauTracksInfo* TrigTauTracksInfoCnv::createTransient()
   MsgStream mlog(msgSvc(), "TrigTauTracksInfoConverter" );
   mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::createTransient " << endmsg;
   
-  static pool::Guid tlp1_guid("ABF3C91C-A007-440E-8AEE-753FAA453352");
-  static pool::Guid p0_guid("630E4944-7EDE-4938-B189-020DBC0436AE");
+  static const pool::Guid tlp1_guid("ABF3C91C-A007-440E-8AEE-753FAA453352");
+  static const pool::Guid p0_guid("630E4944-7EDE-4938-B189-020DBC0436AE");
   
   TrigTauTracksInfo       *trans_cont(0);
   

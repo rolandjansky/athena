@@ -23,7 +23,7 @@ TrigVertexCounts* TrigVertexCountsCnv::createTransient() {
   MsgStream mlog(msgSvc(), "TrigVertexCountsConverter" );
   mlog << MSG::DEBUG << "TrigVertexCountsCnv::createTransient " << endmsg;
   
-  static pool::Guid p1_guid("33E83FBA-83F1-4DC5-87BE-81A09D0FD8F8");
+  static const pool::Guid p1_guid("33E83FBA-83F1-4DC5-87BE-81A09D0FD8F8");
   
   
   TrigVertexCounts *transObj = 0;

@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloClusterContainerCnv.h"
-#include "TrigCaloEventTPCnv/TrigCaloClusterContainerCnv_p3.h"
-
-static TrigCaloClusterContainerCnv_p3   TPConverter;
 
 //createPersistent 
 TrigCaloClusterContainer_PERS * TrigCaloClusterContainerCnv::createPersistent( TrigCaloClusterContainer *transObj)
@@ -14,7 +11,7 @@ TrigCaloClusterContainer_PERS * TrigCaloClusterContainerCnv::createPersistent( T
 
   mlog << MSG::DEBUG << "TrigCaloClusterContainerCnv::createPersistent called" << endmsg;
 
-  TrigCaloClusterContainer_PERS * p_CaloClusterCont = TPConverter.createPersistent( transObj, mlog );
+  TrigCaloClusterContainer_PERS * p_CaloClusterCont = m_converter.createPersistent( transObj, mlog );
  
   return p_CaloClusterCont;
  
@@ -27,12 +24,12 @@ TrigCaloClusterContainer * TrigCaloClusterContainerCnv::createTransient()
   
   mlog << MSG::DEBUG << "TrigCaloClusterContainerCnv::createTransient called" << endmsg;
 
-  static pool::Guid p3_guid( "98A28943-662A-4141-82C3-537447264DA3" );
+  static const pool::Guid p3_guid( "98A28943-662A-4141-82C3-537447264DA3" );
 
  if( compareClassGuid( p3_guid ) ){
          std::unique_ptr< TrigCaloClusterContainer_p3 > col_vect( poolReadObject< TrigCaloClusterContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
-         return TPConverter.createTransient( col_vect.get(), mlog ) ;
+         return m_converter.createTransient( col_vect.get(), mlog ) ;
   } else { throw std::runtime_error( "Unsupported persistent version of TrigCaloClusterContainer" ); }
    
 }//end of create transient method

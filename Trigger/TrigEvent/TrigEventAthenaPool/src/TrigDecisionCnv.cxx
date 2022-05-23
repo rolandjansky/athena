@@ -37,11 +37,11 @@ TrigDec::TrigDecision* TrigDecisionCnv::createTransient()
 {
   MsgStream log(msgSvc(), "TrigDecisionConverter" );
 
-  static pool::Guid p1_guid("83D7E08D-CF8C-47A0-963F-5618A9509334");
-  static pool::Guid p2_guid("6BE81E51-B42B-4783-957D-84E7F383E9D5");
-  static pool::Guid p3_guid("1C0527B6-1B94-4F47-ADE4-D24E7BF91D3E");
-  static pool::Guid p4_guid("78F57689-0902-4E47-BB04-9BD10C7EF8B5");
-  static pool::Guid p5_guid("DA3DEF39-2401-4A8E-ACD2-851B0DF10AFA");
+  static const pool::Guid p1_guid("83D7E08D-CF8C-47A0-963F-5618A9509334");
+  static const pool::Guid p2_guid("6BE81E51-B42B-4783-957D-84E7F383E9D5");
+  static const pool::Guid p3_guid("1C0527B6-1B94-4F47-ADE4-D24E7BF91D3E");
+  static const pool::Guid p4_guid("78F57689-0902-4E47-BB04-9BD10C7EF8B5");
+  static const pool::Guid p5_guid("DA3DEF39-2401-4A8E-ACD2-851B0DF10AFA");
 
   if ( compareClassGuid(p1_guid) ) {
     // using unique_ptr ensures deletion of the persistent object

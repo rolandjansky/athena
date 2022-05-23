@@ -30,7 +30,7 @@ RingerRings* RingerRingsCnv::createTransient() {
   MsgStream mlog(msgSvc(), "RingerRingsConverter" );
   mlog << MSG::DEBUG << "RingerRingsCnv::createTransient " << endmsg;
   
-  static pool::Guid tlp1_guid("7A3BC015-8ECE-44A9-A2BD-9D52B3D2B354");
+  static const pool::Guid tlp1_guid("7A3BC015-8ECE-44A9-A2BD-9D52B3D2B354");
   
   RingerRings *trans_cont(0);
   

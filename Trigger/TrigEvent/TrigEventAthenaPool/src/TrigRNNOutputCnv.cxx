@@ -36,7 +36,7 @@ TrigRNNOutput* TrigRNNOutputCnv::createTransient()
   MsgStream mlog(msgSvc(), "TrigRNNOutputConverter" );
   mlog << MSG::DEBUG << "TrigRNNOutputCnv::createTransient " << endmsg;
   
-  static pool::Guid tlp1_guid("BA106EC3-F776-DE11-BCB3-000423DD5A1A");
+  static const pool::Guid tlp1_guid("BA106EC3-F776-DE11-BCB3-000423DD5A1A");
   
   TrigRNNOutput       *trans_cont(0);
   
