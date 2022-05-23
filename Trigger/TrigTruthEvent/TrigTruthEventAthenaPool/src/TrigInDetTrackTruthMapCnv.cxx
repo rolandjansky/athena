@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetTrackTruthMapCnv.h"
@@ -73,14 +73,23 @@ TrigInDetTrackTruthMap* TrigInDetTrackTruthMapCnv::createTransient() {
 }
 
 
-StatusCode TrigInDetTrackTruthMapCnv::initialize()
-{
-  static bool did_rootcnv = false;
-  if (!did_rootcnv) {
-    did_rootcnv = true;
+namespace {
+  // Helper to be able to call thread-unsafe code during initialize as we
+  // currently cannot mark Converter::initialize() as thread-unsafe.
+  StatusCode loadConverter ATLAS_NOT_THREAD_SAFE() {
     gROOT->GetClass("TrigInDetTrackTruthMap_old");
     static TrigInDetTrackTruthMap_old_cnv cnv;
     TConverterRegistry::Instance()->AddConverter (&cnv);
+    return StatusCode::SUCCESS;
   }
+}
+
+StatusCode TrigInDetTrackTruthMapCnv::initialize()
+{
+  [[maybe_unused]] static const bool did_rootcnv = []{
+    StatusCode sc ATLAS_THREAD_SAFE = loadConverter();
+    return sc.isSuccess();
+  }();
   return TrigInDetTrackTruthMapCnvBase::initialize();
 }
+
