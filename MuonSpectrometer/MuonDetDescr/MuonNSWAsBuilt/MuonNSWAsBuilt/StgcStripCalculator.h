@@ -5,9 +5,9 @@
 #ifndef MUONNSWASBUILT_STGCSTRIPCALCULATOR_H
 #define MUONNSWASBUILT_STGCSTRIPCALCULATOR_H
 
-#include "NswAsBuilt/Identifier.h"
-#include "NswAsBuilt/Element.h"
-#include "NswAsBuilt/CathodeBoardElement.h"
+#include "MuonNswAsBuilt/Identifier.h"
+#include "MuonNswAsBuilt/Element.h"
+#include "MuonNswAsBuilt/CathodeBoardElement.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <vector>
 #include <unordered_map>
