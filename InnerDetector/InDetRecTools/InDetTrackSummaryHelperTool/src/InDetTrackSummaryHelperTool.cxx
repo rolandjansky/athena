@@ -339,7 +339,7 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
   // this is a hack, we need to run the TestBLayer Tool somewhere
 
   if (m_usePixel and not m_testBLayerTool.empty()) {
-
+    const EventContext& ctx = Gaudi::Hive::currentContext(); 
     if (information[Trk::numberOfContribPixelLayers] == 0) {
       ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
       information[Trk::expectInnermostPixelLayerHit] = 0;
@@ -349,7 +349,7 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
       if (information[Trk::numberOfInnermostPixelLayerHits] > 0) {
         information[Trk::expectInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInInnermostPixelLayer(&track)) {
+        if (m_testBLayerTool->expectHitInInnermostPixelLayer(ctx, &track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
           information[Trk::expectInnermostPixelLayerHit] = 1;
         } else {
@@ -362,7 +362,7 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
       if (information[Trk::numberOfNextToInnermostPixelLayerHits] > 0) {
         information[Trk::expectNextToInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track)) {
+        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(ctx, &track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
           information[Trk::expectNextToInnermostPixelLayerHit] = 1;
         } else {
