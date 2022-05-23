@@ -5,7 +5,7 @@
 #include <list>
 #include <iostream>
 #include <memory>
-#include <nhlohmann/json.hpp>
+#include <nlohmann/json.hpp>
 
 #include "MuonNSWAsBuilt/StgcStripCalculator.h"
 #include "MuonNSWAsBuilt/Element.h"
