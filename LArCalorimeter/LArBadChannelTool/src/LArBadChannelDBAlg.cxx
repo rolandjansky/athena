@@ -32,12 +32,9 @@ StatusCode LArBadChannelDBAlg::initialize() {
 
   ATH_MSG_INFO ( "initialize()" );
 
-  if(m_mode==0) {
-     ATH_CHECK (m_BCKey.initialize() );
-  }
-  if(m_mode==1) {
-     ATH_CHECK (m_BFKey.initialize() );
-  }
+  ATH_CHECK (m_BCKey.initialize(m_mode==0) );
+  ATH_CHECK (m_BFKey.initialize(m_mode==1) );
+
   return StatusCode::SUCCESS;
 }
 

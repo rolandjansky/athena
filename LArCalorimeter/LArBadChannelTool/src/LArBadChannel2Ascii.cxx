@@ -33,9 +33,9 @@ StatusCode LArBadChannel2Ascii::initialize() {
 
   ATH_CHECK(m_BCKey.initialize());
 
-  if (m_executiveSummaryFile.size()) ATH_CHECK(m_BFKey.initialize());
+  ATH_CHECK(m_BFKey.initialize(m_executiveSummaryFile.size()));
 
-  if (m_skipDisconnected) ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK(m_cablingKey.initialize(m_skipDisconnected));
 
   return StatusCode::SUCCESS;
 }

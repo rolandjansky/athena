@@ -100,6 +100,12 @@ if 'LArOFCBinFolder' in dir():
 
     conddb.addFolder("",LArOFCBinFolder+"<tag>"+InputTagSpecDet+"</tag><dbConnection>"+DBConnection+"</dbConnection><key>LArOFCBinComplete</key>"+ChannelSelection,className="LArOFCBinComplete")
 
+if 'LArHECPAFolder' in dir():
+    if not 'InputTagSpecHECPA' in dir():
+       InputTagSpecHECPA = LArCalibFolderTag(LArHECPAFolder,LArInputTag)
+
+    conddb.addFolder("",LArHECPAFolder+"<tag>"+InputTagSpecHECPA+"</tag><dbConnection>"+DBConnection+"</dbConnection><key>LArRinjComplete</key>"+ChannelSelection,className="LArRinjComplete")
+
    
 ##########################################################################
 #                                                                        #
@@ -147,7 +153,7 @@ theApp.EvtMax = 1
 ###########################################################################
 
 
-svcMgr.MessageSvc.OutputLevel  = INFO
+svcMgr.MessageSvc.OutputLevel  = DEBUG
 svcMgr.MessageSvc.defaultLimit = 10000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 

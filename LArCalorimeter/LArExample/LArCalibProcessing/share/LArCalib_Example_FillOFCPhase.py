@@ -1,93 +1,64 @@
-###############################################################
-#
-# Python script for accessing LAr Conditions data in DetectorStore
-#
-#    0. Select run number, and load Conditions jobOpt
-#    1. Access Conditions Data using Identifier 
-#         Retrieve container from DetectorStore
-#         make identifier using onlineID or larCablingSvc
-#         use Container's get method to access data object.
-#         use LArCondDataDumper.printLarCondObject(obj) to print object
-#    2. Print all channel
-#         Define Type,Key to retrieve (ListofType, ListofKey)
-#         print_all_lar_cond_data (ListofType,ListofKey) 
-#         (set MessageSvc.OutputLevel = DEBUG for printing all channels)
-#==============================================================
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
-#include ("LArConditionsCommon/LArMinimalSetup.py")
+if 'inpFile' not in dir():
+   inpFile="OFC_phase.dat"
+if 'KeyOutput' not in dir():
+   KeyOutput = "LArOFCPhase"
+if 'isSC' not in dir():
+   isSC=False
+if 'hasID' not in dir():
+   hasID=False
+if 'GroupType' not in dir():   
+   GroupType = "ExtendedSubDetector"
+if 'Folder' not in dir():
+   Folder = "/LAR/ElecCalibOfl/OFCBin/Dummy"
+if 'Tag' not in dir():
+   Tag="LArOFCPhase-01" 
+if 'outSqlite' not in dir():
+   outSqlite="OFCPhase.db"
+if 'outPool' not in dir():
+   outPool="ofc_phase.pool.root"
 
-#theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
-#svcMgr.EventSelector.Input=["/data/pavol/athena_calib/daq.Ramp.0031077.No.Streaming.LB0000.EB-ECC._0001.data"]
-#--------------------------------------------------------------
-# pick a proper run number for conditions
-#--------------------------------------------------------------
-#from AthenaCommon.AppMgr import ServiceMgr
-EventSelector = ServiceMgr.EventSelector
-EventSelector.RunNumber=31077
-EventSelector.EventsPerRun=100000;
-#EventSelector.FirstEvent=1
-MessageSvc = Service( "MessageSvc" )
-MessageSvc.OutputLevel      = WARNING
+include ("LArConditionsCommon/LArMinimalSetup.py")
+
+svcMgr.EventSelector.Input = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+svcMgr.EventSelector.RunNumber=500000
+svcMgr.EventSelector.EventsPerRun=1;
+svcMgr.MessageSvc.OutputLevel      = WARNING
 theApp.EvtMax = 1
 
-#--------------------------------------------------------------
-# pick a DetDescrVersion
-#--------------------------------------------------------------
-# DetDescrVersion = "DC2" 
-# DetDescrVersion = "Rome-Initial" 
-#DetDescrVersion = "ATLAS-DC3-05"
-DetDescrTag = "ATLAS-CommNF-03-00-00"
-IOVDbSvcGlobalTagData = 'COMCOND-002-00'
-
-from AthenaCommon.GlobalFlags import GlobalFlags
-GlobalFlags.DataSource.set_data()
-GlobalFlags.InputFormat.set_bytestream()
-GlobalFlags.DetGeo.set_commis()
-
-#from AthenaCommon.JobProperties import jobproperties
-#jobproperties.Global.DetDescrVersion = "ATLAS-CommNF-00-03-00"
-
-#--------------------------------------------------------------
-# load shared libs, converter, etc
-#--------------------------------------------------------------
-include ("LArConditionsCommon/DumpLArCondData_Config.py")
 
 #--------------------------------------------------------------
 # 0. load conditions data 
 #--------------------------------------------------------------
-IOVDbSvc = Service("IOVDbSvc")
-IOVDbSvc.OutputLevel = DEBUG
-IOVDbSvc.GlobalTag = 'COMCOND-002-00'
 include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
+svcMgr.IOVDbSvc.OutputLevel = INFO
+svcMgr.IOVDbSvc.GlobalTag = 'CONDBR2-BLKPA-RUN2-09'
 
-#PoolFileList = ["LArMphysOverMcal_RTM_31046_31047_31048_GAIN_0.pool.root"]
-#PoolFileList = ["/afs/cern.ch/atlas/conditions/poolcond/vol3/comcond.000002.lar_conditions.recon.pool.v0000/comcond.000002.lar_conditions.recon.pool.v0000._0094.pool.root"]
-#include("LArCalibProcessing/ReadLocalConditionsPool.py")
-IOVSvc = Service( "IOVSvc" )
-IOVSvc.updateInterval = "JOB"
-IOVSvc.preLoadData=True
-IOVSvc.OutputLevel = DEBUG
+#IOVSvc = Service( "IOVSvc" )
+#IOVSvc.updateInterval = "JOB"
+#IOVSvc.preLoadData=True
+#IOVSvc.OutputLevel = DEBUG
 #
-KeyOutput = "LArOFCPhase"
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from LArCalibUtils.LArCalibUtilsConf import LArOFPhaseFill
 LArOFPhaseFill = LArOFPhaseFill("LArOFPhaseFill")
-#LArOFPhaseFill.InputFile = ""
-LArOFPhaseFill.keyOFCbin = KeyOutput
-LArOFPhaseFill.GroupingType = "ExtendedSubDetector"
-LArOFPhaseFill.OutputLevel = ERROR
+LArOFPhaseFill.InputFile = inpFile
+LArOFPhaseFill.keyOFCBin = KeyOutput
+LArOFPhaseFill.isSC = isSC
+LArOFPhaseFill.isID = hasID
+LArOFPhaseFill.GroupingType = GroupType
+LArOFPhaseFill.OutputLevel = DEBUG
 topSequence += LArOFPhaseFill
 #
 # Make an output
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
-Folder = "/LAR/OFC/OFCPhase"
 ObjectSpec = [ "LArOFCBinComplete#"+KeyOutput+"#"+Folder ]
-TagSpec = [ "LArOFCPhase-01" ]
-OutputDB = "sqlite://X;schema=OFCPhase.db;dbname=CONDBR2"
-OutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","./ofc_phase.pool.root", 
+TagSpec = [ Tag ]
+OutputDB = "sqlite://X;schema="+outSqlite+";dbname=CONDBR2"
+OutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","./"+outPool, 
                     ObjectSpec,TagSpec,True)
 #OutputConditionsAlg.Run1 = 0
 #OutputConditionsAlg.Run2 = 0
@@ -99,7 +70,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
-svcMgr.IOVRegistrationSvc.RecreateFolders = True
+svcMgr.IOVRegistrationSvc.RecreateFolders = False
 svcMgr.IOVDbSvc.dbConnection  = OutputDB
 
 #--------------------------------------------------------------
@@ -107,10 +78,11 @@ svcMgr.IOVDbSvc.dbConnection  = OutputDB
 #--------------------------------------------------------------
 #theApp.initialize() 
 #theApp.nextEvent()
-svcMgr.MessageSvc.OutputLevel  = DEBUG
-svcMgr.MessageSvc.defaultLimit = 10000
+svcMgr.MessageSvc.OutputLevel  = INFO
+svcMgr.MessageSvc.defaultLimit = 1000000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
    
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = ERROR)
-
+svcMgr.DetectorStore.OutputLevel  = DEBUG
+svcMgr.DetectorStore.Dump=True
 
