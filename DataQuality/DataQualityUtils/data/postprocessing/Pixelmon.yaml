@@ -33,3 +33,283 @@ Output: [ 'Pixel/MVA/FixMe_{layer}']
 Function: PixelMonitoring.PixelPostProcessing.createFixMeHistograms
 Parameters: { minBinStat : 5, mvaThr : 0.5, excludeOutOfAcc : True }
 Description: EvaluateMVAHistograms
+---
+Input: [ 'Pixel/Errors/SyncErrorsMod_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/SyncErrorsMod_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSyncErrorsMod
+---
+Input: [ 'Pixel/Errors/SyncErrorsROD_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/SyncErrorsROD_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSyncErrorsROD
+---
+Input: [ 'Pixel/Errors/TruncErrorsMod_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/TruncErrorsMod_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeTruncErrorsMod
+---
+Input: [ 'Pixel/Errors/TruncErrorsROD_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/TruncErrorsROD_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeTruncErrorsROD
+---
+Input: [ 'Pixel/Errors/OpticalErrorsRODMod_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/OpticalErrorsRODMod_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeOpticalErrorsRODMod
+---
+Input: [ 'Pixel/Errors/SEUErrorsRODMod_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/SEUErrorsRODMod_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSEUErrorsRODMod
+---
+Input: [ 'Pixel/Errors/TimeoutErrorsRODMod_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/TimeoutErrorsRODMod_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeTimeoutErrorsRODMod
+---
+Input: [ 'Pixel/Errors/SyncErrors_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/SyncErrors_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSyncErrors
+---
+Input: [ 'Pixel/Errors/TruncErrors_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/TruncErrors_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeTruncErrors
+---
+Input: [ 'Pixel/Errors/OpticalErrors_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/OpticalErrors_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeOpticalErrors
+---
+Input: [ 'Pixel/Errors/SEUErrors_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/SEUErrors_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSEUErrors
+---
+Input: [ 'Pixel/Errors/TimeoutErrors_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/Errors/TimeoutErrors_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeTimeoutErrors
+---
+Input: [ 'Pixel/ErrorsExpert/RODTimeoutMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODTimeoutMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODTimeoutMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODSyncBCIDErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODSyncBCIDErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODSyncBCIDErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODSyncLVL1IDErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODSyncLVL1IDErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODSyncLVL1IDErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/OpticalErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/OpticalErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeOpticalErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/ModSyncLVL1IDErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/ModSyncLVL1IDErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeModSyncLVL1IDErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/ModSyncBCID2ErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/ModSyncBCID2ErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeModSyncBCID2ErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/ModSyncBCID1ErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/ModSyncBCID1ErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeModSyncBCID1ErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/ModTruncEoEOverflowErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2,ECA,ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/ModTruncEoEOverflowErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeModTruncEoEOverflowErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/ModTruncHitOverflowErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/ModTruncHitOverflowErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeModTruncHitOverflowErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/FEWarningMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/FEWarningMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeFEWarningMap
+---
+Input: [ 'Pixel/ErrorsExpert/SEUHitParityMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SEUHitParityMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSEUHitParityMap
+---
+Input: [ 'Pixel/ErrorsExpert/SEURegisterParityMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SEURegisterParityMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSEURegisterParityMap
+---
+Input: [ 'Pixel/ErrorsExpert/SEUHammingMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SEUHammingMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSEUHammingMap
+---
+Input: [ 'Pixel/ErrorsExpert/ModTruncEOCErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/ModTruncEOCErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeModTruncEOCErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODTrailerBitErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODTrailerBitErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODTrailerBitErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODTruncHTLimitErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODTruncHTLimitErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODTruncHTLimitErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODTruncRODOFErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODTruncRODOFErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODTruncRODOFErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODTimeoutErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODTimeoutErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODTimeoutErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODBCIDErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODBCIDErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODBCIDErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODLVL1IDErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODLVL1IDErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODLVL1IDErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODPreambleErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODPreambleErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODPreambleErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODTrailerErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODTrailerErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODTrailerErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODRowColumnErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODRowColumnErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODRowColumnErrorsMap
+---
+Input: [ 'Pixel/ErrorsExpert/RODMaskedLinkMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODMaskedLinkMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODMaskedLinkMap
+--- 
+Input: [ 'Pixel/ErrorsExpert/RODLimitErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/RODLimitErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeRODLimitErrorsMap
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR0BCIDCounterErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR0BCIDCounterErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR0BCIDCounterErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR1HammingCode0ErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR1HammingCode0ErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR1HammingCode0Errors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR2HammingCode1ErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR2HammingCode1ErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR2HammingCode1Errors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR3HammingCode2ErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR3HammingCode2ErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR3HammingCode2Errors
+---
+Input: [ 'Pixel/ErrorsExpert/SR4L1InCounterErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR4L1InCounterErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR4L1InCounterErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR5L1RequestCounterErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR5L1RequestCounterErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR5L1RequestCounterErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR6L1RegisterErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR6L1RegisterErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR6L1RegisterErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR7L1TriggerIDErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR7L1TriggerIDErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR7L1TriggerIDErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR8FEReadoutProcessErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR8FEReadoutProcessErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR8FEReadoutProcessErrors
+---
+Input: [ 'Pixel/ErrorsExpert/SR15SkipppedTrigCountErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR15SkipppedTrigCountErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR15SkipppedTrigCountErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR16TruncatedEventFlagErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR16TruncatedEventFlagErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR16TruncatedEventFlagErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR24TripleRedundantErrorsCNFGMEMMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR24TripleRedundantErrorsCNFGMEMMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR24TripleRedundantErrorsCNFGMEM
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR25WriteRegDataErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR25WriteRegDataErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR25WriteRegDataErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR26AddressErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR26AddressErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR26AddressErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR27OtherCMDDecoderErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR27OtherCMDDecoderErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR27OtherCMDDecoderErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR28CMDDecoderBitflipErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR28CMDDecoderBitflipErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR28CMDDecoderBitflipErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR29TripleRedundantErrorsCMDMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR29TripleRedundantErrorsCMDMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR29TripleRedundantErrorsCMD
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR30DataBusAddressErrorsMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR30DataBusAddressErrorsMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR30DataBusAddressErrors
+--- 
+Input: [ 'Pixel/ErrorsExpert/SR31TripleRedundantErrorsEFUSEMap_(?P<sec>[IBL,BLayer,Layer1,Layer2, ECA, ECC]*)$', 'Pixel/Hits/EventsPerLumi' ]
+Output: [ 'Pixel/ErrorsExpert/SR31TripleRedundantErrorsEFUSEMap_Norm_{sec}' ]
+Function: PixelMonitoring.PixelPostProcessing.normalize_perEvent
+Description: normalizeSR31TripleRedundantErrorsEFUSE
