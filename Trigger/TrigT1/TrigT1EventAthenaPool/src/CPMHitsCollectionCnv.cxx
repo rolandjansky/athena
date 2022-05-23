@@ -32,7 +32,7 @@ CPMHitsCollection * CPMHitsCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "4A309D12-C11D-4666-8253-72522BF7948E" );
+  static const pool::Guid tlp1_guid( "4A309D12-C11D-4666-8253-72522BF7948E" );
  
   CPMHitsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

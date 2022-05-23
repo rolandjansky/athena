@@ -32,7 +32,7 @@ JEMTobRoICollection * JEMTobRoICollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "JEMTobRoICollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "49790040-16E0-4CAB-96A2-31DC010FFB06" );
+  static const pool::Guid tlp1_guid( "49790040-16E0-4CAB-96A2-31DC010FFB06" );
  
   JEMTobRoICollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

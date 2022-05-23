@@ -32,8 +32,8 @@ TriggerTowerCollection * TriggerTowerCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "CDF34B04-7594-4A52-8EE0-FE85CF2C2A18" );
-  static pool::Guid p0_guid( "1B6DA81A-2F27-4B50-ACF6-D3FC19B40ADB" );
+  static const pool::Guid tlp1_guid( "CDF34B04-7594-4A52-8EE0-FE85CF2C2A18" );
+  static const pool::Guid p0_guid( "1B6DA81A-2F27-4B50-ACF6-D3FC19B40ADB" );
  
   TriggerTowerCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

@@ -1,20 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/MsgStream.h"
 
-// TrigT1 include(s):
-#include "TrigT1EventTPCnv/RoIBResultCnv_p1.h"
-
 // Local include(s):
 #include "RoIBResultCnv.h"
-
-/// The converter for translating the information between
-/// transient and persistent objects
-static RoIBResultCnv_p1 TPConverter;
 
 /**
  * Function creating a persistent RoIBResult_PERS object from a transient
@@ -23,7 +16,7 @@ static RoIBResultCnv_p1 TPConverter;
 RoIBResult_PERS* RoIBResultCnv::createPersistent( ROIB::RoIBResult* transObj ) {
 
    MsgStream log( this->msgSvc(), "RoIBResultCnv" );
-   return TPConverter.createPersistent( transObj, log );
+   return m_converter.createPersistent( transObj, log );
 
 }
 
@@ -33,14 +26,14 @@ RoIBResult_PERS* RoIBResultCnv::createPersistent( ROIB::RoIBResult* transObj ) {
  */
 ROIB::RoIBResult* RoIBResultCnv::createTransient() {
 
-   static pool::Guid p1_guid( "A9FF18A0-E5A2-4F24-82C7-605CAA9EA1F8" );
-   static pool::Guid p0_guid( "E9F89B95-329A-4FF1-9110-4CE48D1D7176" );
+   static const pool::Guid p1_guid( "A9FF18A0-E5A2-4F24-82C7-605CAA9EA1F8" );
+   static const pool::Guid p0_guid( "E9F89B95-329A-4FF1-9110-4CE48D1D7176" );
 
    if( this->compareClassGuid( p1_guid ) ) {
 
       std::unique_ptr< RoIBResult_p1 > pers_ref( this->poolReadObject< RoIBResult_p1 >() );
       MsgStream log( this->msgSvc(), "RoIBResultCnv" );
-      return TPConverter.createTransient( pers_ref.get(), log );
+      return m_converter.createTransient( pers_ref.get(), log );
 
    } else if( this->compareClassGuid( p0_guid ) ) {
 

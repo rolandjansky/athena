@@ -32,7 +32,7 @@ CPMTowerCollection * CPMTowerCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "AF950A9C-D929-4E3D-8B95-53D0B36B78D8" );
+  static const pool::Guid tlp1_guid( "AF950A9C-D929-4E3D-8B95-53D0B36B78D8" );
  
   CPMTowerCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

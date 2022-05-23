@@ -32,8 +32,8 @@ JetElementCollection * JetElementCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "JetElementCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "132ABB53-1F89-4E0E-83A3-382338B278F3" );
-  static pool::Guid p0_guid( "48B92167-4892-4694-9E9E-E201F1E1FFFE" );
+  static const pool::Guid tlp1_guid( "132ABB53-1F89-4E0E-83A3-382338B278F3" );
+  static const pool::Guid p0_guid( "48B92167-4892-4694-9E9E-E201F1E1FFFE" );
  
   JetElementCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

@@ -36,7 +36,7 @@ CMXRoI * CMXRoICnv::createTransient()
   
   //mlog << MSG::DEBUG << "CMXRoICnv::createTransient called" << endmsg;
 
-  static pool::Guid p1_guid( "6EE27E92-E8DE-4F07-810F-025A1450E3BE" );
+  static const pool::Guid p1_guid( "6EE27E92-E8DE-4F07-810F-025A1450E3BE" );
  
   
   if ( compareClassGuid(p1_guid) ) {

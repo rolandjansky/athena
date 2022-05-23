@@ -32,7 +32,7 @@ CPMRoICollection * CPMRoICollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "CPMRoICollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "A5867077-621F-4B04-8777-56846085E550" );
+  static const pool::Guid tlp1_guid( "A5867077-621F-4B04-8777-56846085E550" );
  
   CPMRoICollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     
