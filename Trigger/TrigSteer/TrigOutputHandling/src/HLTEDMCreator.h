@@ -93,6 +93,8 @@
 #include "xAODTrigger/eFexTauRoIAuxContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIAuxContainer.h"
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
+#include "xAODTrigger/jFexFwdElRoIAuxContainer.h"
 #include "xAODTrigger/jFexSRJetRoIContainer.h"
 #include "xAODTrigger/jFexSRJetRoIAuxContainer.h"
 #include "xAODTrigger/jFexLRJetRoIContainer.h"
@@ -197,6 +199,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( eFexEMRoIContainer );
   DEF_XAOD_KEY( eFexTauRoIContainer );
   DEF_XAOD_KEY( jFexTauRoIContainer );
+  DEF_XAOD_KEY( jFexFwdElRoIContainer );
   DEF_XAOD_KEY( jFexSRJetRoIContainer );
   DEF_XAOD_KEY( jFexLRJetRoIContainer );
   DEF_XAOD_KEY( jFexMETRoIContainer );
