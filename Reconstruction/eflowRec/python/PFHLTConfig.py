@@ -310,14 +310,9 @@ def PFCfg(inputFlags, tracktype="", clustersin=None, calclustersin=None, tracksi
             f"HLT_{tracktype}NeutralParticleFlowObjects",
             f"eflowCaloObjects_{tracktype}"
     ]
-    if inputFlags.Trigger.usexAODFlowElements:
-        from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
-        result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(*chargedPFOArgs))
-        result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(*neutralPFOArgs))
-    else:
-        from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
-        result.addEventAlgo(getChargedPFOCreatorAlgorithm(*chargedPFOArgs))
-        result.addEventAlgo(getNeutralPFOCreatorAlgorithm(*neutralPFOArgs))
+    from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
+    result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(*chargedPFOArgs))
+    result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(*neutralPFOArgs))
 
     
     return result

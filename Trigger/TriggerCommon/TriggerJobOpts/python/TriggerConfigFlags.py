@@ -297,9 +297,6 @@ def createTriggerRecoFlags():
     # Switch on MC20 EOverP maps for the jet slice
     flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
 
-    # ATR-24619 - to be removed after validation
-    flags.addFlag("Trigger.usexAODFlowElements", False)
-
     # enable fast b-tagging for all fully calibrated HLT PFlow jets
     flags.addFlag("Trigger.Jet.fastbtagPFlow", True)
 

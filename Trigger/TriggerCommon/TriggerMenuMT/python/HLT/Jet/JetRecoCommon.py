@@ -326,20 +326,11 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         if modstring == '':
             modstring='CHS'
 
-        # ** ATR-24619 : Adding flag for validation of xAOD FlowElement use **
-        # TO BE REMOVED following validation.
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.usexAODFlowElements:
-            inputxADOType = xAODType.FlowElement
-            log.debug("defining jet constituents with xAODType FlowElement.")
-        else:
-            inputxADOType = xAODType.ParticleFlow
-            log.debug("defining jet constituents with xAODType ParticleFlow.")
-        
+        inputxAODType = xAODType.FlowElement
         if not constitMods:
-            jetConstit = JetInputConstitSeq( "HLT_EMPFlow", inputxADOType, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow", jetinputtype="EMPFlow")
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow", inputxAODType, constitMods, inputname=inputPFO, outputname=pfoPrefix+"CHSParticleFlowObjects", label="EMPFlow", jetinputtype="EMPFlow")
         else:
-            jetConstit = JetInputConstitSeq( "HLT_EMPFlow"+modstring, inputxADOType, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else ''), jetinputtype="EMPFlow" )
+            jetConstit = JetInputConstitSeq( "HLT_EMPFlow"+modstring, inputxAODType, constitMods, inputname=inputPFO, outputname=pfoPrefix+modstring+"ParticleFlowObjects",label='EMPFlow'+(modstring if modstring!='CHS' else ''), jetinputtype="EMPFlow" )
 
             
     if jetRecoDict["constitType"] == "tc":
