@@ -27,6 +27,7 @@ from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
 from HGTD_Digitization.HGTD_DigitizationConfig import HGTD_DigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
+from AFP_Digitization.AFP_DigitizationConfigNew import AFP_DigitizationCfg
 from RunDependentSimComps.PileUpUtils import pileupInputCollections
 
 from AthenaCommon.Logging import logging
@@ -152,6 +153,10 @@ def DigitizationMainContentCfg(flags):
     if flags.Detector.EnablesTGC:
         acc.merge(sTGC_DigitizationDigitToRDOCfg(flags))
 
+    # AFP
+    if flags.Detector.EnableAFP:
+        acc.merge(AFP_DigitizationCfg(flags))
+    
     # Add MT-safe PerfMon
     if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
