@@ -381,6 +381,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn)
    ATH_CHECK(retireMetadataSource(inc));
 
    // Make sure metadata is ready for writing
+   // MN TODO: this call is redundant due to AthenaOutputStream.cxx:447 - remove later
    ATH_CHECK(this->prepareOutput());
 
    Incident metaDataStopIncident(name(), "MetaDataStop");
