@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -21,7 +21,7 @@
 int main(int argc, char* argv[]) {
   if(argc < 4) {
     std::cout<<"trigGpuTest usage: ./trigGpuTest <geo_file.bin> <data_dir> nevents"<<std::endl;
-    exit(0);
+    return 0;
   }
 
   
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   
   if(!handle) {
     fprintf(stderr, "cannot load the factory library : %s\n", dlerror());
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   dlerror();
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 
   if(!cfgResult) {
     std::cout<<"Factory config failed"<<std::endl;
-    exit(-2);
+    return -2;
   }
 
   
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
     
     if(!pJob) {
       std::cout<<"ERROR: cannot create work item"<<std::endl;
-      exit(-3);
+      return -3;
     }
 
     pJob->run();
