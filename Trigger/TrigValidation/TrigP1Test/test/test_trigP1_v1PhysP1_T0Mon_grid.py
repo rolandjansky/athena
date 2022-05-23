@@ -22,6 +22,9 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
+# Specify trigger menu once here:
+triggermenu = 'PhysicsP1_pp_run3_v1_HLTReprocessing_prescale'
+
 # HLT step (BS->BS)
 hlt = ExecStep.ExecStep()
 hlt.type = 'athenaHLT'
@@ -30,7 +33,7 @@ hlt.forks = 1
 hlt.threads = 4
 hlt.concurrent_events = 4
 hlt.input = 'data'
-hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1_HLT_Reprocessing_prescale\';doL1Sim=True;rewriteLVL1=True;"'
+hlt.args = f'-c "setMenu=\'{triggermenu}\';doL1Sim=True;rewriteLVL1=True;"'
 hlt.args += ' -o output'
 hlt.args += ' --dump-config-reload'
 
@@ -44,7 +47,7 @@ filter_bs.args = '-s Main ' + find_file('*_HLTMPPy_output.*.data')
 # Tier-0 reco step (BS->ESD->AOD)
 tzrecoPreExec = ' '.join([
   "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
-  "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
+  f"ConfigFlags.Trigger.triggerMenuSetup=\'{triggermenu}\';",
   "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
   "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
 ])
@@ -68,7 +71,7 @@ tzmon.executable = 'Run3DQTestingDriver.py'
 tzmon.input = ''
 tzmon.args = '--threads=4'
 tzmon.args += ' --dqOffByDefault'
-tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\''
+tzmon.args += f' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'{triggermenu}\''
 
 # The full test
 test = Test.Test()

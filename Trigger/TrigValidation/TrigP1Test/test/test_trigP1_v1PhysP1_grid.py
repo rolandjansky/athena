@@ -29,7 +29,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1_HLT_Reprocessing_prescale\';doL1Sim=True;"'
+ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1_HLTReprocessing_prescale\';doL1Sim=True;"'
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

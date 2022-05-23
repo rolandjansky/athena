@@ -56,6 +56,9 @@ def MenuPrescaleConfig(hltMenuConfig, flags):
         filterChains(chains, Prescales.HLTPrescales_HLTRepro_prescale, ["PS:NoHLTRepro"])
         L1Prescales = Prescales.L1Prescales_HLTRepro_prescale
         HLTPrescales = Prescales.HLTPrescales_HLTRepro_prescale
+    elif 'prescale' in menu_name:
+        log.error(f'Unknown menu prescale set for menu {menu_name}!')
+        raise RuntimeError('Unknown menu prescale set')
     else:
         L1Prescales = Prescales.L1Prescales
         HLTPrescales = Prescales.HLTPrescales
@@ -72,11 +75,11 @@ def filterChains(chains, type_prescales, type_groups, invert=False):
     chain_disable_list = [ch.name for ch in itertools.chain.from_iterable(chains.values())
                           if match(set(type_groups), ch.groups) ^ invert ]
 
-    type_prescales.update(itertools.zip_longest(chain_disable_list, [], fillvalue=[-1]))
+    type_prescales.update(itertools.zip_longest(chain_disable_list, [], fillvalue=-1))
 
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale, ignoreUnknownChains=False):
-    for item, prescales in HLTPrescale.items():
+    for item, prescale in HLTPrescale.items():
         if item not in triggerPythonConfig.dicts().keys():
             if ignoreUnknownChains:
                 log.warning('Attempt to set prescales for nonexisting chain: %s', item)
@@ -84,10 +87,8 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale, ignoreUnknownChains=False
             else:
                 log.error('Attempt to set prescales for nonexisting chain: %s', item)
                 continue
-        n = len(prescales)
         hltchain = triggerPythonConfig.dicts()[item]
-        if n > 0:
-            hltchain['prescale'] = str(prescales[0])
+        hltchain['prescale'] = str(prescale)
         log.info('Applied HLTPS to the item %s: PS %s', item, hltchain['prescale'])
        
 class PrescaleClass(object):
@@ -96,7 +97,7 @@ class PrescaleClass(object):
     L1Prescales = {}
     L1Prescales = dict([(ctpid,1) for ctpid in L1Prescales])  # setting all L1 prescales to 1 # NOT DOING ANYTHING ATM
 
-    #   Signature name   | [ HLTprescale ]
+    #   Item name   | HLTprescale
     #   - Chains only need adding if have a Prescale value different from 1 (default)
     #----------------------------------------------------------
     HLTPrescales = {}

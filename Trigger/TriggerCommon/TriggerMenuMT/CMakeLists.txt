@@ -98,7 +98,7 @@ atlas_test_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
 atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )
 
 # Test only most comprehensive HLT menus:
-atlas_test_hlt_trigger_menu( Dev_pp_run3_v1 )
+atlas_test_hlt_trigger_menu( Dev_pp_run3_v1_HLTReprocessing_prescale )
 atlas_test_hlt_trigger_menu( Cosmic_run3_v1 )
 atlas_test_hlt_trigger_menu( Dev_HI_run3_v1 )
 
