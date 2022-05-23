@@ -44,10 +44,11 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
   m_parameters << loc1, loc2, phi, theta, qop;
 
   // now calculate the momentum
-  m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
-                             p * std::sin(phi) * std::sin(theta),
-                             p * std::cos(theta));
-
+  double sinPhi, cosPhi, cosTheta, sinTheta;
+  sincos(phi, &sinPhi, &cosPhi);
+  sincos(theta, &sinTheta, &cosTheta);
+  m_momentum =
+    Amg::Vector3D(p * cosPhi * sinTheta, p * sinPhi * sinTheta, p * cosTheta);
   m_associatedSurface->localToGlobal(
     this->localPosition(), m_momentum, m_position);
 }
@@ -146,9 +147,11 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
     p = InvalidParam::INVALID_P;
     qop = InvalidParam::INVALID_QOP;
   }
-  m_momentum = Amg::Vector3D(p * std::cos(phi) * std::sin(theta),
-                             p * std::sin(phi) * std::sin(theta),
-                             p * std::cos(theta));
+  double sinPhi, cosPhi, cosTheta, sinTheta;
+  sincos(phi, &sinPhi, &cosPhi);
+  sincos(theta, &sinTheta, &cosTheta);
+  m_momentum =
+    Amg::Vector3D(p * cosPhi * sinTheta, p * sinPhi * sinTheta, p * cosTheta);
 
   // get the local parameters via the surface
   Amg::Vector2D lPosition;
@@ -281,6 +284,10 @@ ParametersT<DIM, T, S>::measurementFrame() const
 
 // private updateParametersHelper
 template<int DIM, class T, class S>
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
 void
 ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
                                                updatedParameters)
@@ -312,10 +319,11 @@ ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) &
       m_chargeDef = sgn(m_parameters[Trk::qOverP]);
       p = std::abs(1. / m_parameters[Trk::qOverP]);
     }
-    double sinTheta = std::sin(theta);
-    m_momentum = Amg::Vector3D(p * std::cos(phi) * sinTheta,
-                               p * std::sin(phi) * sinTheta,
-                               p * std::cos(theta));
+    double sinPhi, cosPhi, cosTheta, sinTheta;
+    sincos(phi, &sinPhi, &cosPhi);
+    sincos(theta, &sinTheta, &cosTheta);
+    m_momentum =
+      Amg::Vector3D(p * cosPhi * sinTheta, p * sinPhi * sinTheta, p * cosTheta);
   }
 
   // position or momentum update needed
