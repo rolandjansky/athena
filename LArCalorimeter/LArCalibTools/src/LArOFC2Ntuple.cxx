@@ -74,8 +74,11 @@ StatusCode LArOFC2Ntuple::stop() {
   }
 
   unsigned cellCounter=0;  
-  for ( unsigned igain=CaloGain::LARHIGHGAIN; 
-	igain<CaloGain::LARNGAIN ; ++igain )
+  auto maxgain = CaloGain::LARNGAIN;
+  if(m_isSC) maxgain=CaloGain::LARMEDIUMGAIN;
+
+  for ( int igain=CaloGain::LARHIGHGAIN; 
+	igain<maxgain ; ++igain )
   {
     for (HWIdentifier chid : m_onlineId->channel_range()) {
       if ( !cabling->isOnlineConnected(chid)) continue;
@@ -84,7 +87,7 @@ StatusCode LArOFC2Ntuple::stop() {
       for (unsigned iphase=0;iphase<larOFC->nTimeBins(chid,igain);iphase++) {
         ILArOFC::OFCRef_t ofc_a=larOFC->OFC_a(chid,igain,iphase);
         //Check if we have OFC for this channel and gain
-        //if (!ofc_a.size()) break;//No more phases
+        if (!ofc_a.size()) break;//No more phases
         ILArOFC::OFCRef_t ofc_b=larOFC->OFC_b(chid,igain,iphase);
         fillFromIdentifier(chid);
         gain  = (long)igain ;

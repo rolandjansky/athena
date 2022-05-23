@@ -18,7 +18,7 @@ if "date" not in dir():
 if "TimeStamp" not in dir():
    try:
       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
-      TimeStamp=int(timegm(ts))*1000000000L
+      TimeStamp=int(timegm(ts))*1000000000
    except ValueError:
       printfunc ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
       
@@ -36,7 +36,7 @@ else:
 
 
 printfunc ("---> Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp)
-timediff=int(time()-(TimeStamp/1000000000L))
+timediff=int(time()-(TimeStamp/1000000000))
 if timediff<0:
     printfunc ("ERROR: Timestamp in the future???")
 else:
@@ -130,14 +130,24 @@ include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 
 from LArConditionsCommon import LArHVDB #Sets HV Cabling and DCS Database folders
-#block to read the existing HVCorr
-conddb.blockFolder(LArHVScaleCorrFolder);
 
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
 
-from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker
-theLArHVCorrMaker = LArHVCorrMaker("LArHVCorrMaker")
-topSequence += theLArHVCorrMaker
+#from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker
+#theLArHVCorrMaker = LArHVCorrMaker("LArHVCorrMaker")
+#topSequence += theLArHVCorrMaker
+#in rel. 22:
+from AthenaCommon.AlgSequence import AthSequencer
+condseq = AthSequencer("AthCondSeq")
+from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
+hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",keyOutputCorr="LArHVScaleCorr")
+hvcond.UndoOnlineHVCorr=False
+condseq += hvcond
+from AthenaCommon.AlgSequence import dumpSequence
+dumpSequence(condseq)
+for alg in condseq:
+  if "LArHVScaleCorrFlat" in alg.getFullName():
+     alg.WriteKey="HVScaleCorrFromDB"
 
 from LArCalibTools.LArCalibToolsConf import LArHVScaleCorr2Ntuple
 theLArHVScaleCorr2Ntuple = LArHVScaleCorr2Ntuple("LArHVScaleCorr2Ntuple")
@@ -196,4 +206,4 @@ svcMgr.MessageSvc.infoLimit        = 100000
 svcMgr.MessageSvc.Format           = "% F%30W%S%7W%R%T %0W%M"
 svcMgr.IOVDbSvc.OutputLevel        = INFO
 
-theLArHVCorrMaker.OutputLevel = INFO
+#theLArHVCorrMaker.OutputLevel = INFO

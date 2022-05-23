@@ -1,5 +1,5 @@
 #!/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -50,4 +50,4 @@ if len(sys.argv)>6:
 createSqlite(sqliteName,folderName,foldertag,iovMin,iovMax,filename,defaultvalue)
 
 print ("To upload:")
-print ("/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py",sqliteName,"COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>")
+print ("/afs/cern.ch/user/a/atlcond/utils22/AtlCoolMerge.py ",sqliteName," CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>")
