@@ -71,7 +71,7 @@ public: // Non-static members
    bool         inUse() const;
   
    /// Are there concurrent events? (threads>1)
-   bool         inConcurrentEventsMode() const;
+   static bool  inConcurrentEventsMode();
 
 private: // data
    ServiceHandle<MetaDataSvc> m_metaDataSvc;

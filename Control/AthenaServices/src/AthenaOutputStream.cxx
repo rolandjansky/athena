@@ -377,14 +377,17 @@ void AthenaOutputStream::handle(const Incident& inc)
    // mutex shared with write() which is called from writeMetaData
    std::unique_lock<mutex_t>  lock(m_mutex);
 
-   // Handle Event Ranges for Event Service
-   if( m_outSeqSvc->inUse() )
-   {
-      if( inc.type() == "MetaDataStop" )  {
+   if( inc.type() == "MetaDataStop" )  {
+      if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() ) {
          // all substreams should be closed by this point
          ATH_MSG_DEBUG("Ignoring MetaDataStop incident in ES mode");
          return;
       }
+      // not in Event Service
+      writeMetaData();
+   }
+   else if( m_outSeqSvc->inUse() ) {
+      // Handle Event Ranges for Event Service
       if( slot == EventContext::INVALID_CONTEXT_ID ) {
          throw GaudiException("Received Incident with invalid slot in ES mode", name(), StatusCode::FAILURE);
       }
@@ -419,12 +422,7 @@ void AthenaOutputStream::handle(const Incident& inc)
                                  name(), StatusCode::FAILURE);
          }
       }
-   } else {
-      // not in Event Service
-      if( inc.type() == "MetaDataStop" )  {
-         writeMetaData();
-      }
-   }
+   } 
    
    ATH_MSG_DEBUG("Leaving incident handler for " << inc.type());
 }

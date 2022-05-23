@@ -76,7 +76,7 @@ StatusCode OutputStreamSequencerSvc::queryInterface(const InterfaceID& riid, voi
 }
 
 //__________________________________________________________________________
-bool    OutputStreamSequencerSvc::inConcurrentEventsMode() const {
+bool    OutputStreamSequencerSvc::inConcurrentEventsMode() {
    return Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1;
 }
 
