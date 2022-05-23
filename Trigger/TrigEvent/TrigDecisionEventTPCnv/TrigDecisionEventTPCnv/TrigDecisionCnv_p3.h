@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -16,7 +16,6 @@
  * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - UST-AGH Krakow
  *
  * File and Version Information:
- * $Id: TrigDecisionCnv_p3.h,v 1.2 2009-04-01 22:04:16 salvator Exp $
  **********************************************************************************/
 
 #ifndef TrigDecisionEventTPCnv_TrigDecisionCnv_p3_H
@@ -24,7 +23,6 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
-#include "TrigSteeringEventTPCnv/HLTResultCnv_p1.h"
 #include "TrigSteeringEventTPCnv/Lvl1ResultCnv_p2.h"
 
 class MsgStream;
@@ -36,17 +34,17 @@ namespace TrigDec {
 
 namespace TrigDec {
 
-  class TrigDecisionCnv_p3  : public T_AthenaPoolTPCnvBase<TrigDecision, TrigDecision_p3>  {
+  class TrigDecisionCnv_p3  : public T_AthenaPoolTPCnvConstBase<TrigDecision, TrigDecision_p3>  {
 
   public:
+    using base_class::persToTrans;
+    using base_class::transToPers;
+
     TrigDecisionCnv_p3() {}
-    void persToTrans(const TrigDecision_p3* persObj,  TrigDecision* transObj,   MsgStream& log);
-    void transToPers(const TrigDecision*    transObj, TrigDecision_p3* persObj, MsgStream& log);
+    virtual void persToTrans(const TrigDecision_p3* persObj,  TrigDecision* transObj,   MsgStream& log) const override;
+    virtual void transToPers(const TrigDecision*    transObj, TrigDecision_p3* persObj, MsgStream& log) const override;
 
   private:
-
-    //converters
-    HLT::HLTResultCnv_p1 m_hltResultCnv;
     LVL1CTP::Lvl1ResultCnv_p2 m_lvl1ResultCnv;
 
   };

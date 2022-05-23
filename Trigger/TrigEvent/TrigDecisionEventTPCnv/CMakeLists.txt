@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDecisionEventTPCnv )
@@ -7,7 +7,7 @@ atlas_subdir( TrigDecisionEventTPCnv )
 atlas_add_tpcnv_library( TrigDecisionEventTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS TrigDecisionEventTPCnv
-                         LINK_LIBRARIES AthenaPoolCnvSvcLib DataModelAthenaPoolLib TrigDecisionEvent TrigSteeringEventTPCnv
+                         LINK_LIBRARIES AthenaPoolCnvSvcLib CxxUtils DataModelAthenaPoolLib TrigDecisionEvent TrigSteeringEventTPCnv
                          PRIVATE_LINK_LIBRARIES AthenaKernel )
 
 atlas_add_dictionary( TrigDecisionEventTPCnvDict
