@@ -1703,7 +1703,6 @@ class TopoAlgoDef:
 
  
         # CEP_CjJ
-        # TODO: what conversion for Xi?
         CEPmap = [
             {"algoname": 'CEP_CjJ', "minETlist": [90, 100]}
         ]
@@ -1721,7 +1720,7 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob', HW.jJetOutputWidthSort)       # noqa: F821
             alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
             for bitid,minET in enumerate(d.minETlist):  # noqa: F821
-                alg.addvariable('MinET1', get_threshold_cut('jJ', minET), bitid)# noqa: F821
-                alg.addvariable('MinXi', 13000.0*0.02, bitid) # noqa: F821
-                alg.addvariable('MaxXi', 13000.0*0.05, bitid) # noqa: F821
+                alg.addvariable('MinET1', get_threshold_cut('jJ', minET)*_et_conversion, bitid)# noqa: F821
+                alg.addvariable('MinXi', 13600.0*_et_conversion*0.02, bitid) # noqa: F821
+                alg.addvariable('MaxXi', 13600.0*_et_conversion*0.05, bitid) # noqa: F821
             tm.registerTopoAlgo(alg)
