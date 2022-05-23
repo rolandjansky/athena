@@ -111,7 +111,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     #
     # --- cosmics segment to track conversion for Barrel
     #
-    InDetTrackFitter = acc.popToolsAndMerge(TC.InDetKalmanFitterCfg(flags))
+    InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags))
 
     from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolSharedHitsCfg
     InDetTrackSummaryToolTRTTracks = acc.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
