@@ -126,11 +126,8 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
 
   // find chains that pass the express stream
-  HLT::IDVec passedIDs;
+  HLT::IDVec passedIDs{passRawIDs.begin(),passRawIDs.end()}; // convert set to vector
   HLT::IDVec expressIDs;
-  for ( DecisionID chain: passRawIDs ) {
-    passedIDs.push_back( HLT::Identifier( chain ).numeric() );
-  }
   ATH_CHECK( m_prescaler->prescaleChains( ctx, passedIDs, expressIDs, true ) );
 
   // for each accepted chain look up the map of chainID -> ST
