@@ -29,6 +29,14 @@ def addJetsToOutput(flags,jetdefs, toAOD=True, toESD=True):
         #   auxprefix = "Trig"
         #   jetAODList += [ f"xAOD::Jet{auxprefix}AuxContainer#{jetdef.fullname()}Aux." ,
 
+    # Store event shapes when jets are being stored to output
+    jetList += ["xAOD::EventShape#Kt4EMPFlowEventShape",
+                "xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.",
+                "xAOD::EventShape#Kt4EMTopoOriginEventShape",
+                "xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux.",
+                "xAOD::EventShape#Kt4LCTopoOriginEventShape",
+                "xAOD::EventShapeAuxInfo#Kt4LCTopoOriginEventShapeAux."]
+
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
     if toESD:
         result.merge(addToESD(flags, jetList))
