@@ -16,7 +16,7 @@ HGTD_RDO_ContainerCnv::HGTD_RDO_ContainerCnv(ISvcLocator* svcloc)
 
 HGTD_RDO_Container* HGTD_RDO_ContainerCnv::createTransient() {
 
-  static pool::Guid p1_guid(
+  static const pool::Guid p1_guid(
     "C25315CC-F0A2-43D6-8F42-012BE34B0107"); // with HGTD_RDO_p1
   ATH_MSG_DEBUG("createTransient(): main converter");
 
