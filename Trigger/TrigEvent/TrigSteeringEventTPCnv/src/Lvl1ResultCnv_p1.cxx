@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/Lvl1Result.h"
@@ -9,7 +9,7 @@
 using namespace LVL1CTP;
 
 void Lvl1ResultCnv_p1::transToPers(const LVL1CTP::Lvl1Result* trans,
-                                     Lvl1Result_p1* pers, MsgStream &log )
+                                     Lvl1Result_p1* pers, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "Lvl1ResultCnv_p1::transToPers called " << endmsg;
@@ -21,7 +21,7 @@ void Lvl1ResultCnv_p1::transToPers(const LVL1CTP::Lvl1Result* trans,
 }
 
 void Lvl1ResultCnv_p1::persToTrans(const LVL1CTP::Lvl1Result_p1* pers,
-                                     Lvl1Result* trans, MsgStream &log )
+                                     Lvl1Result* trans, MsgStream &log ) const
 {
 
   log << MSG::DEBUG << "Lvl1ResultCnv_p1::persToTrans called " << endmsg;

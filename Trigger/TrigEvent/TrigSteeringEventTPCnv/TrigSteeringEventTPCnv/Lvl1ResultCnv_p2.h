@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -13,7 +13,6 @@
  * @author Francesca Bucci <f.bucci@cern.ch>         - U. of Geneva, Switzerland
  *
  * File and Version Information:
- * $Id: Lvl1ResultCnv_p2.h,v 1.2 2009-04-01 22:14:57 salvator Exp $
  **********************************************************************************/
 
 #ifndef TrigSteeringEventTPCnv_Lvl1ResultCnv_p2_H
@@ -30,12 +29,15 @@ namespace LVL1CTP {
 
 namespace LVL1CTP {
 
-  class Lvl1ResultCnv_p2  : public T_AthenaPoolTPCnvBase<Lvl1Result, Lvl1Result_p2>  {
+  class Lvl1ResultCnv_p2  : public T_AthenaPoolTPCnvConstBase<Lvl1Result, Lvl1Result_p2>  {
 
   public:
+    using base_class::persToTrans;
+    using base_class::transToPers;
+
     Lvl1ResultCnv_p2() {}
-    void persToTrans(const Lvl1Result_p2* persObj,  Lvl1Result* transObj,   MsgStream& log);
-    void transToPers(const Lvl1Result*    transObj, Lvl1Result_p2* persObj, MsgStream& log);
+    virtual void persToTrans(const Lvl1Result_p2* persObj,  Lvl1Result* transObj,   MsgStream& log) const override;
+    virtual void transToPers(const Lvl1Result*    transObj, Lvl1Result_p2* persObj, MsgStream& log) const override;
   };
 
 }
