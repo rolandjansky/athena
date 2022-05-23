@@ -243,7 +243,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
          Ismatch = HLTMatching(offline_for_hlt_tau_vec_all[i]->p4(),offElec_vec,0.2);
          if(Ismatch) offline_for_hlt_tau_vec_all.erase(offline_for_hlt_tau_vec_all.begin()+i);
       } 
-      auto vec =  m_trigDecTool->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics , "HLT_egamma_Electrons" );
+      auto vec =  m_trigDecTool->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics , "HLT_egamma_Electrons_GSF" );
       for( auto &featLinkInfo : vec ){
         const auto *feat = *(featLinkInfo.link);
         if(!feat) continue;
