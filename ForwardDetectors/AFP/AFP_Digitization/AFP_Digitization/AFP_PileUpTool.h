@@ -191,10 +191,10 @@ private:
 protected:
 
 /// Method that creates a new AFPToFHit and sets it valus according to #digi collection
-  void newXAODHitToF (SG::WriteHandle<xAOD::AFPToFHitContainer>& tofHitContainer, std::unique_ptr<AFP_TDDigiCollection>& collection) const;
+  void newXAODHitToF (std::unique_ptr<xAOD::AFPToFHitContainer>& tofHitContainer, std::unique_ptr<AFP_TDDigiCollection>& collection) const;
   
 /// Method that creates a new AFPSiHit and sets it valus according to #digi collection
-  void newXAODHitSi (SG::WriteHandle<xAOD::AFPSiHitContainer>& xAODSiHit, std::unique_ptr<AFP_SiDigiCollection>& collection) const;
+  void newXAODHitSi (std::unique_ptr<xAOD::AFPSiHitContainer>& xAODSiHit, std::unique_ptr<AFP_SiDigiCollection>& collection) const;
 
   std::unique_ptr<AFP_TDDigiCollection> m_digitCollection;
   std::unique_ptr<AFP_SiDigiCollection> m_SiDigiCollection;
