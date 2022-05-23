@@ -62,12 +62,9 @@ def retrieveAODList(enableOutputOverride = False):
 
         if rec.doTruth():
             l += [
-                'xAOD::JetContainer#AntiKt10TruthJets',                 'xAOD::JetAuxContainer#AntiKt10TruthJetsAux.',
-                'xAOD::JetContainer#AntiKt10TruthWZJets',               'xAOD::JetAuxContainer#AntiKt10TruthWZJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
-                'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
                 ]
-    elif jetFlags.detailLevel()==JetContentDetail.Trigger or jetFlags.detailLevel()==JetContentDetail.Validation:
+    elif jetFlags.detailLevel()==JetContentDetail.Trigger:
         l += ['xAOD::JetContainer#AntiKt10LCTopoJets',                       'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.']
         l += ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.']
 
