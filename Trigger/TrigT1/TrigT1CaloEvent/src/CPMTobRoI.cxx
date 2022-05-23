@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloEvent/CPMTobRoI.h"
@@ -8,7 +8,7 @@ namespace LVL1 {
 
 // Static constants
 
-const int CPMTobRoI::s_wordIdVal;
+const unsigned int CPMTobRoI::s_wordIdVal;
 
 const int CPMTobRoI::s_wordIdBit;
 const int CPMTobRoI::s_crateBit;

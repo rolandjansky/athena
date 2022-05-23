@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALO_CMMROI_H
 #define TRIGT1CALO_CMMROI_H
@@ -75,10 +75,10 @@ class CMMRoI {
  private:
 
    //  RoI word IDs
-   static const int s_jetEtWordIdVal       = 0x5;
-   static const int s_wordIdVal0           = 0x4;
-   static const int s_wordIdVal1           = 0x6;
-   static const int s_wordIdVal2           = 0x5;
+   static const unsigned int s_jetEtWordIdVal       = 0x5;
+   static const unsigned int s_wordIdVal0           = 0x4;
+   static const unsigned int s_wordIdVal1           = 0x6;
+   static const unsigned int s_wordIdVal2           = 0x5;
    //  Data locations
    static const int s_jetEtWordIdBit       = 29;
    static const int s_wordIdBit            = 28;

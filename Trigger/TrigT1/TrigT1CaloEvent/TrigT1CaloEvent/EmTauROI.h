@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           emtauroi.h  -  description
@@ -37,7 +37,7 @@ that happens in the ROD simulation, so this class has some extra methods used fo
   public:
    
     // constructor
-    EmTauROI(double phi, double eta, int energy, unsigned long int roiWord,std::vector<unsigned int> algorithmType,
+    EmTauROI(double phi, double eta, int energy, unsigned long int roiWord,const std::vector<unsigned int>& algorithmType,
       unsigned int hadCoreEnergy, unsigned int hadRingIsolationEnergy, unsigned int emRingIsolationEnergy,
       unsigned int emClusterEnergy, unsigned int tauClusterEnergy);
 
