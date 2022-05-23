@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonNswAsBuilt/CathodeBoardElement.h"
+#include "MuonNSWAsBuilt/CathodeBoardElement.h"
 using namespace NswAsBuilt;
 
 CathodeBoardElement::CathodeBoardElement(stgcStripConfiguration_t config, std::reference_wrapper<Element> element)

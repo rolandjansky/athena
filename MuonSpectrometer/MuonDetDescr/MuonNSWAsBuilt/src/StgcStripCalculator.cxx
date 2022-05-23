@@ -7,10 +7,10 @@
 #include <memory>
 #include <nhlohmann/json.hpp>
 
-#include "MuonNswAsBuilt/StgcStripCalculator.h"
-#include "MuonNswAsBuilt/Element.h"
-#include "MuonNswAsBuilt/ElementModelRigid.h"
-#include "MuonNswAsBuilt/ElementModelSTGC.h"
+#include "MuonNSWAsBuilt/StgcStripCalculator.h"
+#include "MuonNSWAsBuilt/Element.h"
+#include "MuonNSWAsBuilt/ElementModelRigid.h"
+#include "MuonNSWAsBuilt/ElementModelSTGC.h"
 
 using namespace NswAsBuilt;
 

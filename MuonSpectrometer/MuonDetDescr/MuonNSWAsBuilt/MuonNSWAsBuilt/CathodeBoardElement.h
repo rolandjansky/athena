@@ -5,7 +5,7 @@
 #ifndef MUONNSWASBUILT_CATHODEBOARDELEMENT_H
 #define MUONNSWASBUILT_CATHODEBOARDELEMENT_H
 
-#include "MuonNswAsBuilt/Element.h"
+#include "MuonNSWAsBuilt/Element.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <memory>
 

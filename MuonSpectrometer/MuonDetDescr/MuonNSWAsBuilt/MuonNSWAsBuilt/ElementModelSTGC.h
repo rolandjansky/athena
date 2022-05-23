@@ -5,7 +5,7 @@
 #ifndef MUONNSWASBUILT_ELEMENTMODELSTGC_H
 #define MUONNSWASBUILT_ELEMENTMODELSTGC_H
 
-#include "MuonNswAsBuilt/ElementModel.h"
+#include "MuonNSWAsBuilt/ElementModel.h"
 
 namespace NswAsBuilt {
   /**

@@ -5,14 +5,15 @@
 #ifndef MUONNSWASBUILT_STGCSTRIPCALCULATOR_H
 #define MUONNSWASBUILT_STGCSTRIPCALCULATOR_H
 
-#include "MuonNswAsBuilt/Identifier.h"
-#include "MuonNswAsBuilt/Element.h"
-#include "MuonNswAsBuilt/CathodeBoardElement.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include <vector>
 #include <unordered_map>
 #include <functional>
 #include <memory>
+
+#include "MuonNSWAsBuilt/Identifier.h"
+#include "MuonNSWAsBuilt/Element.h"
+#include "MuonNSWAsBuilt/CathodeBoardElement.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 namespace NswAsBuilt {
 
