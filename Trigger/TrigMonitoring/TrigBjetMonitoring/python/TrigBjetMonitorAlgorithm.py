@@ -126,6 +126,43 @@ def TrigBjetMonConfig(inputFlags):
         AllChains.append(chain[2:])
 
         if chain[2:8] == 'HLT_mu' : # mu-jets
+
+            HistName = 'nMuon_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of N_muon;N_muon;Events',
+                                             path='Expert/'+chain[2:],xbins=10,xmin=0.,xmax=10.)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of N_muon;N_muon;Events',
+                                             path='Shifter/'+chain[2:],xbins=10,xmin=0.,xmax=10.)
+
+            HistName = 'muonPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon;Pt_muon;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon;Pt_muon;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
+
+            HistName = 'muonEta_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Eta_muon;Eta_muon;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=-7.5,xmax=7.5)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Eta_muon;Eta_muon;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=-7.5,xmax=7.5)
+
+            HistName = 'nJet_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of jets;nJet;Events',
+                                             path='Expert/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of jets;nJet;Events',
+                                             path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
@@ -134,6 +171,45 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                              path='Shifter/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
+
+            HistName = 'jetEta_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Eta_jet;Eta_jet;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=-7.5,xmax=7.5)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Eta_jet;Eta_jet;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=-7.5,xmax=7.5)
+
+            HistName = 'RatioPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon/Pt_jet_jet;Pt_muon/Pt_jet_jet;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.,xmax=2.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon/Pt_jet_jet;Pt_muon/Pt_jet_jet;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.,xmax=2.0)
+
+            HistName = 'RelPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon wrt jet direction;RelPt_muon;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.,xmax=20.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon wrt jet direction;RelPt_muon;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.,xmax=20.0)
+
+
+            HistName = 'wDL1d_' + chain[2:] + ',RelPt_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName,type='TH2F',title='RelPt vs DL1d weight;DL1d weight;RelPt',
+                                             path='Expert/'+chain[2:],xbins=20,xmin=-50.0,xmax=+50.0,ybins=20,ymin=0.,ymax=20.)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName,type='TH2F',title='RelPt vs DL1d weight;DL1d weight;RelPt',
+                                             path='Shifter/'+chain[2:],xbins=20,xmin=-50.0,xmax=+50.0,ybins=20,ymin=0.,ymax=20.)
+
+
 
             continue
         else :                      # b-jets
@@ -326,6 +402,15 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                              path='Shifter/'+chain[2:],xbins=100,xmin=0.0,xmax=750.0)
+
+            HistName = 'jetEta_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Eta_jet;Eta_jet;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=-7.5,xmax=7.5)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Eta_jet;Eta_jet;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=-7.5,xmax=7.5)
 
             HistName = 'jetEta_' + chain[2:] + ',jetPhi_' + chain[2:]
             if chain[0:1] == "E" :
@@ -590,7 +675,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.isMC = False
 
     # AOD file to be run w/ MT access and Mon Groups implemented
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest160322.AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest170522.AOD.pool.root'
 
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
@@ -616,8 +701,8 @@ if __name__=='__main__':
     #trigBjetMonitorAcc.getEventAlgo('TrigBjetMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
-    Nevents = 25
-    #cfg.run(Nevents)
-    cfg.run() #use cfg.run(20) to only run on first 20 events
+    Nevents = 200
+    cfg.run(Nevents)
+    #cfg.run() #for all events. Use cfg.run(20) to only run on first 20 events
 
 

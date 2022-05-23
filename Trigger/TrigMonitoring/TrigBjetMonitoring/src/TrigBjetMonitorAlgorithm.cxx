@@ -49,7 +49,7 @@ StatusCode TrigBjetMonitorAlgorithm::initialize() {
 }
 
 bool LLR(double pu, double pc, double pb, double &w)  {
-  w = 0.;
+  w = -100.;
   bool ll = false;
   double denom;
   float cfrac(0.08);
@@ -62,6 +62,37 @@ bool LLR(double pu, double pc, double pb, double &w)  {
   }
   return ll; 
 }
+
+
+bool CalcRelPt (float muonPt, float muonEta, float muonPhi, float jetPt, float jetEta, float jetPhi, float &RelPt) {
+
+  bool r = false;
+  RelPt = -20.;
+
+  float muonT, muonX, muonY, muonZ, muon, jetT, jetX, jetY, jetZ, jet, scprod;
+
+  muonT = 2.*atan( exp(-muonEta) );
+  jetT = 2.*atan( exp(-jetEta) );
+  if ( (fabs(muonT) > 0.) && (fabs(jetT) > 0.) ) { 
+    muon = muonPt/fabs( sin(muonT) );
+    muonX = muonPt*cos(muonPhi); 
+    muonY = muonPt*sin(muonPhi);
+    muonZ = muon*cos(muonT);
+    jet = jetPt/fabs( sin(jetT) );
+    jetX = jetPt*cos(jetPhi); 
+    jetY = jetPt*sin(jetPhi);
+    jetZ = jet*cos(jetT);
+    scprod = (muonX*jetX + muonY*jetY + muonZ*jetZ)/(muon*jet);
+    scprod *= scprod;
+    if ( (1. - scprod) > 0. ) { 
+      RelPt = muon * sqrt(1. - scprod);
+      r = true;
+    }
+  }
+
+  return r;
+
+} 
 
 StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
@@ -115,8 +146,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   
   // Verifiy if the trigger chain was fired and if yes, fill the corresponding histogram
   
-  bool mujetChain = false;
-  bool bjetChain = true;
+  bool mujetChain(false);
+  bool bjetChain(true);
   
   
 
@@ -127,6 +158,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       ATH_MSG_DEBUG(" Trigger chain from AllChains list: " << trigName << " has fired !!! " );
 
       // bjet vs mujet
+      mujetChain = false;
+      bjetChain = true;
       std::size_t found = trigName.find("HLT_mu");
       if (found!=std::string::npos) {
 	mujetChain = true;
@@ -142,6 +175,140 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       for ( const xAOD::TrackParticle* track : *theTracks ) {
 	ATH_MSG_DEBUG( " Pt of track in TrackParticleContainer: " << track->pt() );
       }
+
+      if (mujetChain) {
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > onlinemuons = m_trigDecTool->features<xAOD::MuonContainer>(trigName, TrigDefs::Physics); // TM 2022-05-16
+	int imuon = 0;
+	std::string nMuonH = "nMuon_"+trigName;
+	auto nMuon = Monitored::Scalar<int>(nMuonH,0.0);
+	nMuon = onlinemuons.size();
+	fill("TrigBjetMonitor",nMuon);
+
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDecTool->features<xAOD::JetContainer>(trigName, TrigDefs::Physics); // TM 2021-10-30
+	int ijet = 0;
+	std::string nJetH = "nJet_"+trigName;
+	auto nJet = Monitored::Scalar<int>(nJetH,0.0);
+	nJet = onlinejets.size();
+	fill("TrigBjetMonitor",nJet);
+
+	float muonPt1(0.), muonEta1(0.), muonPhi1(0.), jetPt1(0.), jetEta1(0.), jetPhi1(0.);
+	double DL1d_mv(0.);
+	bool theLLR1(false);
+
+	for(const auto& muonLinkInfo : onlinemuons) {
+	  const xAOD::Muon* muon = *(muonLinkInfo.link);
+	  // muonPt
+	  std::string NameH = "muonPt_"+trigName;
+	  ATH_MSG_DEBUG( " NameH: " << NameH  );
+	  auto muonPt = Monitored::Scalar<float>(NameH,0.0);
+	  muonPt = (muon->pt())*1.e-3;
+	  ATH_MSG_DEBUG("        muonPt: " << muonPt);
+	  fill("TrigBjetMonitor",muonPt);
+	  // muonEta
+	  NameH = "muonEta_"+trigName;
+	  ATH_MSG_DEBUG( " NameH: " << NameH  );
+	  auto muonEta = Monitored::Scalar<float>(NameH,0.0);
+	  muonEta = muon->eta();
+	  ATH_MSG_DEBUG("        muonEta: " << muonEta);
+	  fill("TrigBjetMonitor",muonEta);
+	  // muonPhi
+	  NameH = "muonPhi_"+trigName;
+	  ATH_MSG_DEBUG( " NameH: " << NameH  );
+	  auto muonPhi = Monitored::Scalar<float>(NameH,0.0);
+	  muonPhi = muon->phi();
+	  ATH_MSG_DEBUG("        muonPhi : " << muonPhi);
+
+	  if (imuon == 0) {
+	    //store the parameter for the 1st muon
+	    muonPt1 = muonPt;
+	    muonEta1 = muonEta;
+	    muonPhi1 = muonPhi;
+	  }// if imuon==0
+
+	  // The associated jet loop 
+	  for(const auto& jetLinkInfo : onlinejets) {
+	    const xAOD::Jet* jet = *(jetLinkInfo.link);
+	    // jetPt
+	    NameH = "jetPt_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jetPt = Monitored::Scalar<float>(NameH,0.0);
+	    jetPt = (jet->pt())*1.e-3;
+	    ATH_MSG_DEBUG("        jetPt: " << jetPt);
+	    fill("TrigBjetMonitor",jetPt);
+	    // jetEta
+	    NameH = "jetEta_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jetEta = Monitored::Scalar<float>(NameH,0.0);
+	    jetEta = jet->eta();
+	    ATH_MSG_DEBUG("        jetEta : " << jetEta);
+	    fill("TrigBjetMonitor",jetEta);
+	    // jetPhi
+	    NameH = "jetPhi_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jetPhi = Monitored::Scalar<float>(NameH,0.0);
+	    jetPhi = jet->phi();
+	    ATH_MSG_DEBUG("        jetPhi : " << jetPhi);
+
+	    // Take the b-tagging info from the first jet
+	    if (ijet == 0) {
+	      //store the parameter for the 1st jet
+	      jetPt1 = jetPt;
+	      jetEta1 = jetEta;
+	      jetPhi1 = jetPhi;
+	      
+	      auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, m_btaggingLinkName); // TM 2021-10-30 
+	      ATH_CHECK( btaggingLinkInfo.isValid() ) ;
+	      const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
+	      
+	      double DL1d_pu(0.), DL1d_pc(0.), DL1d_pb(0.);
+	      btag->pu("DL1d20211216",DL1d_pu);
+	      ATH_MSG_DEBUG("        DL1d_pu: " << DL1d_pu);
+	      btag->pc("DL1d20211216",DL1d_pc);
+	      ATH_MSG_DEBUG("        DL1d_pc: " << DL1d_pc);
+	      btag->pb("DL1d20211216",DL1d_pb);
+	      ATH_MSG_DEBUG("        DL1d_pb: " << DL1d_pb);
+	      bool theLLR = LLR (DL1d_pu, DL1d_pc, DL1d_pb, DL1d_mv);
+	      theLLR1 = theLLR;
+	      if ( !theLLR ) DL1d_mv=-100.;
+	      ATH_MSG_DEBUG("        DL1d_mv: " << DL1d_mv << " LLR: " << theLLR); 
+	      
+	    }// if ijet==0
+
+	    ijet++;
+
+	  }// for onlinejets
+
+	  imuon++;
+
+	}// for onlinemuons
+	
+	// muon vs jet histograms
+	// muonPt/jetPt
+	std::string RatioPtH = "RatioPt_"+trigName;
+	ATH_MSG_DEBUG( " RatioPtH: " << RatioPtH  );
+	auto RatioPt = Monitored::Scalar<float>(RatioPtH,0.0);
+	RatioPt = -100.;
+	if (jetPt1 > 0.) RatioPt = muonPt1/jetPt1;
+	ATH_MSG_DEBUG("        RatioPt : " << RatioPt);
+	if (RatioPt > 0.) fill("TrigBjetMonitor",RatioPt);
+	// muonPt relative to jet direction
+	std::string RelPtH = "RelPt_"+trigName;
+	ATH_MSG_DEBUG( " RelPtH: " << RelPtH  );
+	auto RelPt = Monitored::Scalar<float>(RelPtH,0.0);
+	RelPt = 1.e10;
+	bool calc_relpt = CalcRelPt (muonPt1, muonEta1, muonPhi1, jetPt1, jetEta1, jetPhi1, RelPt);
+	ATH_MSG_DEBUG("        RelPt : " << RelPt);	
+	// wDL1d
+	std::string wDL1dH = "wDL1d_"+trigName;
+	ATH_MSG_DEBUG( " NameH: " << wDL1dH  );
+	auto wDL1d = Monitored::Scalar<float>(wDL1dH,0.0);
+	wDL1d = float(DL1d_mv);
+	ATH_MSG_DEBUG("        wDL1d: " << wDL1d << " RelPt : " << RelPt);
+	if (calc_relpt && theLLR1) fill("TrigBjetMonitor",wDL1d,RelPt);
+	
+
+	
+      }// if mujetChain
 
       // bjet chains
       if (bjetChain) {
@@ -202,10 +369,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  nPV_tr = nPV;
 	  fill("TrigBjetMonitor",nPV_tr);
 	} // if m_collisionRun
-      } // if bjetChain
-      
-	//bjet or mujet chains 
-      if (bjetChain || mujetChain) {
 	
 	// Jets and PV and tracks through jet link
 
@@ -218,24 +381,27 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	nJet = onlinejets.size();
 	fill("TrigBjetMonitor",nJet);
 	for(const auto& jetLinkInfo : onlinejets) {
-	  // jetPt
 	  const xAOD::Jet* jet = *(jetLinkInfo.link);
+	  // jetPt
 	  std::string NameH = "jetPt_"+trigName;
 	  ATH_MSG_DEBUG( " NameH: " << NameH  );
 	  auto jetPt = Monitored::Scalar<float>(NameH,0.0);
 	  jetPt = (jet->pt())*1.e-3;
 	  ATH_MSG_DEBUG("        jetPt: " << jetPt);
 	  fill("TrigBjetMonitor",jetPt);
+	  // jetEta
 	  NameH = "jetEta_"+trigName;
 	  ATH_MSG_DEBUG( " NameH: " << NameH  );
 	  auto jetEta = Monitored::Scalar<float>(NameH,0.0);
 	  jetEta = jet->eta();
+	  // jetPhi
 	  NameH = "jetPhi_"+trigName;
 	  ATH_MSG_DEBUG( " NameH: " << NameH  );
 	  auto jetPhi = Monitored::Scalar<float>(NameH,0.0);
 	  jetPhi = jet->phi();
 	  ATH_MSG_DEBUG("        jetEta: " << jetEta << " jetPhi : " << jetPhi);
 	  fill("TrigBjetMonitor",jetEta,jetPhi);
+
 	  // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	  if (ijet == 0) {
 	    
@@ -529,7 +695,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	nTrack = itrack;
 	fill("TrigBjetMonitor",nTrack);
 	
-      } //bjet or mujet
+      } //if bjetChain
        
     } else {
       ATH_MSG_DEBUG( " Trigger chain from AllChains list: " << trigName << " has not fired "  );
