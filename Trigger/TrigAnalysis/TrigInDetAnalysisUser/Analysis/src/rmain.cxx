@@ -638,11 +638,6 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("Rmatch") )       Rmatch = inputdata.GetValue("Rmatch");
 
-  /// set upper and lower Zmass window cuts from datafile for Tag&Probe analysis
-  //if ( inputdata.isTagDefined("ZmassMax") ) ZmassMax = inputdata.GetValue("ZmassMax");
-  //if ( inputdata.isTagDefined("ZmassMin") ) ZmassMin = inputdata.GetValue("ZmassMin");
-  // likely to be used again in the near future
-  
   std::string useMatcher = "DeltaR";
   if ( inputdata.isTagDefined("UseMatcher") ) useMatcher = inputdata.GetString("UseMatcher");  
 
@@ -1126,8 +1121,8 @@ int main(int argc, char** argv)
  
 	// if matching tag found then initialise tag and probe object and store tag and probe chains in there                                                        /// this will be passed into the ConfAnalysis, which will delete it when necessary                                                                
 	/// could perhaps be done with a unique_ptrt
-	double massMin = 40;
-	double massMax = 150;
+	const double massMin = 40;
+	const double massMax = 150;
 	TnP_tool = new TagNProbe(refChain, massMin, massMax);
 	TnP_tool->tag(tag);
 	TnP_tool->probe(probe);
@@ -1794,13 +1789,10 @@ int main(int argc, char** argv)
       //      std::cout << ic << " chain " << chain.name() << " size " << chain.size() << std::endl;
 
       /// find the analysis for this chain - is there a matching analysis?
-      std::map<std::string,TrackAnalysis*>::iterator analitr = analysis.begin();
-      while (analitr != analysis.end()) {
-	std::string analy_chain = analitr->first; // chain stored as a string in analysis map
-	if ( analy_chain == chain.name() ) break;
-	++analitr;
-      }
+      std::map<std::string,TrackAnalysis*>::iterator analitr = analysis.find(chain.name());
+
       /// if no matching analysis then continue 
+
       if ( analitr==analysis.end() ) continue;
 
       if ( debugPrintout ) {

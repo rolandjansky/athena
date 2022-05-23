@@ -423,7 +423,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 
       /// can only iuse R3 navigation now
 
-      if ( m_tdt->getNavigationFormat() != "TriggerElement" ) { 
+      { 
 
         ATH_MSG_INFO( "configure analysis: " << m_chainNames[i] );
 

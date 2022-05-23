@@ -18,9 +18,9 @@ TagNProbe::TagNProbe( const std::string& refName, double massMin, double massMax
   m_massMax(massMax),
   m_unique(unique_flag)
 {
-  double muonMass     = 0.10565;  // GeV
-  double electronMass = 0.000510; // GeV
-  double tauMass      = 1.77686;  // GeV
+  const double muonMass     = 0.10565;  // GeV
+  const double electronMass = 0.000510; // GeV
+  const double tauMass      = 1.77686;  // GeV
 
   if      ( m_particleType.find("Muon")!=std::string::npos )      m_mass = muonMass;
   else if ( m_particleType.find("Electron")!=std::string::npos )  m_mass = electronMass;
