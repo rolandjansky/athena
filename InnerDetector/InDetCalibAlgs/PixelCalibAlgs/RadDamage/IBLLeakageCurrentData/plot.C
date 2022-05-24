@@ -71,7 +71,7 @@ void from_ssv(string suffix){
 
     string value;
     std::istringstream iss(line);
-    double vals[4];
+    double vals[4]={};
     int j = 0;
     while(getline(iss,value,',')){
       vals[j] = stod(value);

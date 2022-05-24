@@ -1486,7 +1486,7 @@ void MakeScaling(TString inputDir)
   39274.9};
 */
 
-double pt[100];
+double pt[100] = {};
 
   TH2F* meanPtVsEta =  (TH2F*) file0->Get("meanPtVsEta");
   for(int i(1); i <= meanPtVsEta->GetNbinsX(); ++i){
