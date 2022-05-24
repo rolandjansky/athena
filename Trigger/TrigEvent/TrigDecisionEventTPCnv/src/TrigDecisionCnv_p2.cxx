@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigDecisionEvent/TrigDecision.h"
@@ -7,14 +7,14 @@
 #include "TrigDecisionEventTPCnv/TrigDecisionCnv_p2.h"
 #include "DataModelAthenaPool/DataLinkCnv_p1.h"
 namespace {
-DataLinkCnv_p1<DataLink<HLT::HLTResult> > dataLinkConverter;
+  const DataLinkCnv_p1<DataLink<HLT::HLTResult> > dataLinkConverter;
 }
 
 using namespace TrigDec;
 
 
 void TrigDecisionCnv_p2::transToPers(const TrigDec::TrigDecision* trans, 
-                                     TrigDecision_p2* pers, MsgStream &log)
+                                     TrigDecision_p2* pers, MsgStream &log) const
 {
 
   log << MSG::DEBUG << "TrigDecisionCnv_p2::transToPers called " << trans << " " << pers << endmsg;
@@ -34,7 +34,7 @@ void TrigDecisionCnv_p2::transToPers(const TrigDec::TrigDecision* trans,
 }
 
 void TrigDecisionCnv_p2::persToTrans(const TrigDec::TrigDecision_p2* pers, 
-                                     TrigDecision* trans, MsgStream &log)
+                                     TrigDecision* trans, MsgStream &log) const
 {
   log << MSG::DEBUG << "TrigDecisionCnv_p2::persToTrans called " << endmsg;
 
