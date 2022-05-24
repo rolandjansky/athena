@@ -14,20 +14,28 @@
 
 #include <features.h>
 
+/// Do we support the compatible set of GCC and clang extensions
+/// These are our main compilers.
+#if (defined(__GNUC__) || defined(__clang__)) &&      \
+     !(defined(__ICC) || defined(__COVERITY__) ||     \
+       defined(__CUDACC__) || defined(__CLING__))
+# define HAVE_GCC_CLANG_EXTENSIONS 1
+#else
+# define HAVE_GCC_CLANG_EXTENSIONS 0
+#endif
 
-/// Do we have function multiversioning?  GCC and clang > 7 support
-/// the target attribute
-#if ( defined(__i386__) || defined(__x86_64__) ) && defined(__ELF__) &&   \
-    defined(__GNUC__) && !(defined(__clang__) && __clang_major__ < 8) &&  \
-    !defined(__CLING__) && !defined(__ICC) && !defined(__COVERITY__) &&   \
-    !defined(__CUDACC__) && !defined(CL_SYCL_LANGUAGE_VERSION) &&         \
-    !defined(SYCL_LANGUAGE_VERSION) && !defined(__HIP__)
-# define HAVE_FUNCTION_MULTIVERSIONING 1
+/// Do we have function multiversioning?
+/// GCC and clang  support the target attribute
+#if HAVE_GCC_CLANG_EXTENSIONS &&                                     \
+  (defined(__i386__) || defined(__x86_64__)) && defined(__ELF__) &&  \
+  !defined(__HIP__) && !defined(CL_SYCL_LANGUAGE_VERSION) &&         \
+  !defined(SYCL_LANGUAGE_VERSION)
+#define HAVE_FUNCTION_MULTIVERSIONING 1
 #else
 # define HAVE_FUNCTION_MULTIVERSIONING 0
 #endif
 
-/// Do we also have the target_clones attribute?
+/// Do we additionally have the target_clones attribute?
 /// GCC and clang >=14 support it.
 /// ...But at least for GCC11 and clang 14  in
 /// order to work for both we have to apply
@@ -39,8 +47,7 @@
 #endif
 
 /// Do we have support for all GCC intrinsics?
-#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) &&             \
-  !defined(__COVERITY__) && !defined(__CUDACC__)
+#if HAVE_GCC_CLANG_EXTENSIONS && !defined(__clang__)
 # define HAVE_GCC_INTRINSICS 1
 #else
 # define HAVE_GCC_INTRINSICS 0
@@ -56,7 +63,7 @@
 // __builtin_popcount
 // __builtin_popcountl
 // __builtin_popcountll
-#if defined(__GNUC__) || defined(__clang__)
+#if HAVE_GCC_CLANG_EXTENSIONS
 # define HAVE_BITCOUNT_INTRINSICS 1
 #else
 # define HAVE_BITCOUNT_INTRINSICS 0
@@ -64,8 +71,7 @@
 
 // Do we have the vector_size attribute for writing explicitly
 // vectorized code?
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CLING__) &&        \
-  !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
+#if HAVE_GCC_CLANG_EXTENSIONS
 # define HAVE_VECTOR_SIZE_ATTRIBUTE 1
 #else
 # define HAVE_VECTOR_SIZE_ATTRIBUTE 0
