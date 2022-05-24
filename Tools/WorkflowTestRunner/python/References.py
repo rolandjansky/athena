@@ -11,8 +11,8 @@
 # Format is "test-branch" : "version"
 references_map = {
     # Simulation
-    "s3759": "v8",
-    "s3760": "v6",
+    "s3759": "v9",
+    "s3760": "v7",
     "s3779": "v4",
     # Overlay
     "d1590": "v9",
