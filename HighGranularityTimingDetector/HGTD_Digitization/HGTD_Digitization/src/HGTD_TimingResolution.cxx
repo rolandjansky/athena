@@ -256,9 +256,10 @@ void HGTD_TimingResolution::print() {
   }
 }
 
-void HGTD_TimingResolution::simulatePulse(
+HGTD_TimingResolution::PulseWaveform HGTD_TimingResolution::simulatePulse(
     CLHEP::HepRandomEngine *rndm_engine) const {
 
+  PulseWaveform pulseWaveform{};
   float pulseParameter[4] = {0};
   pulseParameter[0] = 0.036; // Width (scale) parameter of Landau density
   pulseParameter[1] =
@@ -288,23 +289,25 @@ void HGTD_TimingResolution::simulatePulse(
   float p_time;
 
   // Convolution integral of Landau and Gaussian by sum
-  for (int i = 412; i < 527; i++) {
+  for (size_t i = 412; i < 527; i++) {
 
     fland = TMath::Landau(3.5 + (i * 0.005), mpc, pulseParameter[0]) /
             pulseParameter[0];
     p_time = (1.5 + (i % 6 - i) * 0.005) / (sqrt(2) * pulseParameter[3]);
 
-    for (int point = i % 6; point < 400; point += 6) {
+    for (size_t point = i % 6; point < pulseWaveform.size(); point += 6) {
       p_time += step_par;
-      m_pulseWaveform[point] += fland * exp16(-p_time * p_time);
+      pulseWaveform[point] += fland * exp16(-p_time * p_time);
     }
   }
-  for (int point = 0; point < 400; point++) {
-    m_pulseWaveform[point] = f_weight * m_pulseWaveform[point];
+  for (size_t point = 0; point < pulseWaveform.size(); point++) {
+    pulseWaveform[point] = f_weight * pulseWaveform[point];
   }
+
+  return pulseWaveform;
 }
 
-void HGTD_TimingResolution::calculatePulse(
+void HGTD_TimingResolution::calculatePulse(const PulseWaveform& pulseWaveform,
     std::map<int, std::pair<float, float>> &pulsebin, const float t,
     const float E, float *max, CLHEP::HepRandomEngine *rndm_engine) const {
 
@@ -312,9 +315,9 @@ void HGTD_TimingResolution::calculatePulse(
   float energy = 0;
   float time = 0;
 
-  for (int point = 0; point < 400; point++) {
+  for (size_t point = 0; point < pulseWaveform.size(); point++) {
 
-    energy = m_pulseWaveform[point] * E +
+    energy = pulseWaveform[point] * E +
              CLHEP::RandGaussZiggurat::shoot(rndm_engine, 0, 0.015) * E;
     time = t + point * 0.005;
     timebin = (int)(t / 0.005) + point;
@@ -340,8 +343,8 @@ float HGTD_TimingResolution::calculateTime(
     CLHEP::HepRandomEngine *rndm_engine) const {
   std::map<int, std::pair<float, float>> pulseBins;
   float max_hit[4] = {0};
-  simulatePulse(rndm_engine);
-  calculatePulse(pulseBins, t, E, max_hit, rndm_engine);
+  const PulseWaveform pulse = simulatePulse(rndm_engine);
+  calculatePulse(pulse, pulseBins, t, E, max_hit, rndm_engine);
   for (auto &pulse : pulseBins) {
     pulse.second.first = pulse.second.first / pulse.second.second;
     // We look the the time when E=Emax/2 to get the time

@@ -19,7 +19,7 @@ HGTD_ClusterContainerCnv::HGTD_ClusterContainerCnv(ISvcLocator* svcloc)
 
 HGTD_ClusterContainer* HGTD_ClusterContainerCnv::createTransient() {
 
-  static pool::Guid p1_guid(
+  static const pool::Guid p1_guid(
       "7B3D57D6-F590-4266-974D-A0807122DA5F"); // with HGTD_Cluster_p1
   ATH_MSG_DEBUG("createTransient(): main converter");
 

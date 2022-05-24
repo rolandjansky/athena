@@ -13,6 +13,7 @@
 #ifndef HGTD_TIMINGRESOLUTION_H
 #define HGTD_TIMINGRESOLUTION_H
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -40,6 +41,8 @@ public:
 
 private:
 
+  typedef std::array<float, 400> PulseWaveform;  //<! Signal Pulse
+
   // checks
   bool radiusInRange(float) const;
   bool etaInRange(float) const;
@@ -61,10 +64,11 @@ private:
   StatusCode propagateDamage();
 
   /** Simulate a new pulse that can be acess using the PulseShape method */
-  void simulatePulse(CLHEP::HepRandomEngine* rndm_engine) const;
+  PulseWaveform simulatePulse(CLHEP::HepRandomEngine* rndm_engine) const;
 
   /** Calculate the pulse as a vector of float (400 points) */
-  void calculatePulse(std::map<int, std::pair<float, float>> &pulsebin,
+  void calculatePulse(const PulseWaveform& pulseWaveform,
+                      std::map<int, std::pair<float, float>> &pulsebin,
                       float t, float E, float *max, CLHEP::HepRandomEngine* rndm_engine) const;
 
   std::string m_version{""};
@@ -91,14 +95,11 @@ private:
   std::vector<std::pair<float, float>> m_doseResolution{};
   std::vector<std::pair<float, float>> m_doseGain{};
 
-  float m_sensorNoiseFactor =
+  const float m_sensorNoiseFactor =
       0.0229; // factor use to simulate the electronic noise (1mm*1mm)
 
-  float m_cfdThreshold = 0.5; // fraction of max amplitude at which the time is
-                               // extracted (default: 50%)
-
-  float mutable m_pulseWaveform[400] = {0}; // Signal Pulse
-
+  const float m_cfdThreshold = 0.5; // fraction of max amplitude at which the time is
+                                    // extracted (default: 50%)
 };
 
 #endif
