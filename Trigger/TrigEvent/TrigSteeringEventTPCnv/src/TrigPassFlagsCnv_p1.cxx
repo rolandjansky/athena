@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/TrigPassFlags.h"
@@ -33,7 +33,7 @@ void TrigPassFlagsCnv_p1::persToTrans(const TrigPassFlags_p1* persObj,
       // loop over bits in the word
       for(unsigned int bit = 0;bit < bitsPerWord;++bit){
          
-         if(persObj->m_serialized[word] & (1 << bit) )
+         if(persObj->m_serialized[word] & (1u << bit) )
             transObj->m_flagsPerObject[object][flag] = true;
          
          flag++;
