@@ -24,10 +24,10 @@ void PRD_MultiTruthCollectionCnv_p3::persToTrans( const Trk::PRD_MultiTruthColle
 {
   msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p3::persToTrans()"<<endmsg;
 
-  for(Trk::PRD_MultiTruthCollection_p3::CollectionType::const_iterator i=pers->m_entries.begin(); i!=pers->m_entries.end(); i++) {
+  for (const Trk::PRD_MultiTruthCollection_p3::Entry& ent : pers->m_entries) {
     HepMcParticleLink link;
-    particleLinkConverter.persToTrans(&i->particle, &link, msg);
-    trans->insert(trans->end(), std::make_pair(Identifier(i->id), link) );
+    particleLinkConverter.persToTrans(&ent.particle, &link, msg);
+    trans->insert(trans->end(), std::make_pair(Identifier(ent.id), link) );
   }
 
   msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p3::persToTrans() DONE"<<endmsg;
@@ -41,10 +41,10 @@ void PRD_MultiTruthCollectionCnv_p3::transToPers( const PRD_MultiTruthCollection
 
   pers->m_entries.reserve(trans->size());
 
-  for(PRD_MultiTruthCollection::const_iterator i=trans->begin(); i!=trans->end(); i++) {
+  for (const auto& p : *trans) {
     HepMcParticleLink_p2 link;
-    particleLinkConverter.transToPers(&i->second, &link, msg);
-    pers->m_entries.push_back(Trk::PRD_MultiTruthCollection_p3::Entry(i->first.get_compact(), link));
+    particleLinkConverter.transToPers(&p.second, &link, msg);
+    pers->m_entries.push_back(Trk::PRD_MultiTruthCollection_p3::Entry(p.first.get_compact(), link));
   }
 
   msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p3::transToPers() DONE"<<endmsg;
