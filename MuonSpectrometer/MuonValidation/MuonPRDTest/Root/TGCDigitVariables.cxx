@@ -15,13 +15,13 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         SG::ReadHandle<TgcDigitContainer> TgcDigitContainer{m_key, ctx};
         if (!TgcDigitContainer.isValid()) {
-            ATH_MSG_FATAL("Failed to retrive digit container " << m_key.fullKey());
+            ATH_MSG_FATAL("Failed to retrieve digit container " << m_key.fullKey());
             return false;
         }
 
         ATH_MSG_DEBUG("retrieved TGC Digit Container with size " << TgcDigitContainer->digit_size());
 
-        if (TgcDigitContainer->size() == 0) ATH_MSG_DEBUG(" TGC Digit Continer empty ");
+        if (TgcDigitContainer->size() == 0) ATH_MSG_DEBUG(" TGC Digit Container empty ");
         unsigned int n_digits{0};
         for (const TgcDigitCollection* coll : *TgcDigitContainer) {
             ATH_MSG_DEBUG("processing collection with size " << coll->size());
@@ -32,7 +32,10 @@ namespace MuonPRDTest {
                 ATH_MSG_DEBUG("TGC Digit Offline id:  " << idHelperSvc()->toString(Id));
 
                 const MuonGM::TgcReadoutElement* rdoEl = MuonDetMgr->getTgcReadoutElement(Id);
-                if (!rdoEl) return false;
+                if (!rdoEl) {
+                    ATH_MSG_ERROR("TGCDigitVariables::fillVariables() - Failed to retrieve TGCReadoutElement for "<<idHelperSvc()->tgcIdHelper().print_to_string(Id).c_str());
+                    return false;
+                }
 
                 Amg::Vector3D gpos{0., 0., 0.};
                 Amg::Vector2D lpos(0., 0.);
@@ -55,8 +58,8 @@ namespace MuonPRDTest {
 
                 ++n_digits;
             }
-            m_TGC_nDigits = n_digits;
         }
+        m_TGC_nDigits = n_digits;
         ATH_MSG_DEBUG(" finished fillTgcDigitVariables()");
         return true;
     }

@@ -16,12 +16,12 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         SG::ReadHandle<MdtDigitContainer> MdtDigitContainer{m_digitKey, ctx};
         if (!MdtDigitContainer.isValid()) {
-            ATH_MSG_FATAL("Failed to retrive digit container " << m_digitKey.fullKey());
+            ATH_MSG_FATAL("Failed to retrieve digit container " << m_digitKey.fullKey());
             return false;
         }
         ATH_MSG_DEBUG("retrieved MDT Digit Container with size " << MdtDigitContainer->digit_size());
 
-        if (MdtDigitContainer->size() == 0) ATH_MSG_DEBUG(" MDT Digit Continer empty ");
+        if (MdtDigitContainer->size() == 0) ATH_MSG_DEBUG(" MDT Digit Container empty ");
         unsigned int n_digits{0};
 
         for (const MdtDigitCollection* coll : *MdtDigitContainer) {
@@ -31,7 +31,10 @@ namespace MuonPRDTest {
 
                 Identifier Id = digit->identify();
                 const MuonGM::MdtReadoutElement* rdoEl = MuonDetMgr->getMdtReadoutElement(Id);
-                if (!rdoEl) return false;
+                if (!rdoEl) {
+                    ATH_MSG_ERROR("MDTDigitVariables::fillVariables() - Failed to retrieve MDTReadoutElement for "<<idHelperSvc()->mdtIdHelper().print_to_string(Id).c_str());
+                    return false;
+                }
 
                 const Identifier first_ml = idHelperSvc()->mdtIdHelper().channelID(
                     idHelperSvc()->stationName(Id), idHelperSvc()->stationEta(Id), idHelperSvc()->stationPhi(Id), 1, 1, 1);
