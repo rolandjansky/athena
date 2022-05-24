@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
@@ -9,7 +9,7 @@
 typedef ElementLinkCnv_p3<ElementLink<Rec::TrackParticleContainer> > TrackLinkCnv_t;
 
 /// pre-allocate the track converter
-static TrackLinkCnv_t         trackCnv;
+static const TrackLinkCnv_t         trackCnv;
 
 void TrigMuonEFCbTrackCnv_p7::persToTrans(const TrigMuonEFCbTrack_p7* persObj, TrigMuonEFCbTrack* transObj, MsgStream &log){
     // std::cout << "TrigMuonEFCbTrackCnv_p7::persToTrans called " <<std::endl;

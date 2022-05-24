@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEvent/TrigMuonEFIsolation.h"
@@ -10,7 +10,7 @@
 
 typedef ElementLinkCnv_p3< ElementLink<TrigMuonEFInfoContainer> > InfoEleLinkCnv_t;
 
-static InfoEleLinkCnv_t infoEleLinkCnv;
+static const InfoEleLinkCnv_t infoEleLinkCnv;
 
 /**
  * Convert persistent representation of object to the transient one
