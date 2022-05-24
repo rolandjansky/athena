@@ -25,7 +25,7 @@ namespace Trk {
   }
 
   void
-  RecoInfoPlots::fill(const xAOD::TrackParticle &trkprt, float weight) const {
+  RecoInfoPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
     float chi2 = trkprt.chiSquared();
     int ndf = trkprt.numberDoF();
 

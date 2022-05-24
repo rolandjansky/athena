@@ -18,7 +18,7 @@ namespace Trk {
   }
 
   void
-  TruthInfoPlots::fill(const xAOD::TruthParticle &truthprt, float weight ) const {
+  TruthInfoPlots::fill(const xAOD::TruthParticle &truthprt, float weight ) {
     if (truthprt.isAvailable<int>("truthType")) {
       truthType->Fill(truthprt.auxdata< int >("truthType"), weight);
     }

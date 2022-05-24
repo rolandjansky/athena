@@ -53,7 +53,7 @@ namespace Trk {
   }
 
   void
-  DefParamPullPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) const {
+  DefParamPullPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
     const double d0_trk = trkprt.d0();
     const double z0_trk = trkprt.z0();
     const double phi_trk = trkprt.phi0();

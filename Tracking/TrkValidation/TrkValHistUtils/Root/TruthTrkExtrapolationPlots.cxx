@@ -23,7 +23,7 @@ namespace Trk {
   }
 
   void
-  TruthTrkExtrapolationPlots::fill(const xAOD::TruthParticle &truthprt, float weight) const {
+  TruthTrkExtrapolationPlots::fill(const xAOD::TruthParticle &truthprt, float weight) {
     m_CaloEntry.fill(truthprt, "CaloEntryLayer", weight);
     m_MuonEntry.fill(truthprt, "MuonEntryLayer", weight);
     m_MuonExit.fill(truthprt, "MuonExitLayer", weight);
@@ -75,7 +75,7 @@ namespace Trk {
   }
 
   void
-  ExtrLayerPlots::fill(const xAOD::TruthParticle &truthprt, const std::string& sNom, float weight) const {
+  ExtrLayerPlots::fill(const xAOD::TruthParticle &truthprt, const std::string& sNom, float weight) {
     if (!truthprt.isAvailable<float>(sNom + "_px") ||
         !truthprt.isAvailable<float>(sNom + "_py") ||
         !truthprt.isAvailable<float>(sNom + "_pz")) {
@@ -221,7 +221,7 @@ namespace Trk {
   }
 
   void
-  ExtrRegionPlots::fill(const xAOD::TruthParticle &truthprt, const std::string& sDetBegin, const std::string& sDetEnd, float weight) const {
+  ExtrRegionPlots::fill(const xAOD::TruthParticle &truthprt, const std::string& sDetBegin, const std::string& sDetEnd, float weight) {
     if (!truthprt.isAvailable<float>(sDetBegin + "px") ||
         !truthprt.isAvailable<float>(sDetBegin + "py") ||
         !truthprt.isAvailable<float>(sDetBegin + "pz") ||

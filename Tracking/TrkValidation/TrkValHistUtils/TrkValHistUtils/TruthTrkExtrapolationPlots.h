@@ -15,7 +15,7 @@ namespace Trk{
   public:
     ExtrLayerPlots(PlotBase *pParent, const std::string& sDir, std::string sLayerName);
 
-    void fill (const xAOD::TruthParticle& truthprt, const std::string& sLayerName, float weight=1.0) const;
+    void fill (const xAOD::TruthParticle& truthprt, const std::string& sLayerName, float weight=1.0);
     std::string m_sLayerName;
 
     TH1* p;
@@ -43,7 +43,7 @@ namespace Trk{
   public:
     ExtrRegionPlots(PlotBase *pParent, const std::string& sDir, std::string sRegionBegin, std::string sRegionEnd);
 
-    void fill (const xAOD::TruthParticle& truthprt, const std::string& sRegionBegin, const std::string& sRegionEnd, float weight=1.0) const;
+    void fill (const xAOD::TruthParticle& truthprt, const std::string& sRegionBegin, const std::string& sRegionEnd, float weight=1.0);
     std::string m_sRegionBegin;
     std::string m_sRegionEnd;
 
@@ -87,7 +87,7 @@ namespace Trk{
 class TruthTrkExtrapolationPlots: public PlotBase {
   public:
     TruthTrkExtrapolationPlots(PlotBase *pParent, const std::string& sDir);
-    void fill(const xAOD::TruthParticle& truthprt, float weight=1.0) const;
+    void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
 
     ExtrLayerPlots m_CaloEntry;
     ExtrLayerPlots m_MuonEntry;

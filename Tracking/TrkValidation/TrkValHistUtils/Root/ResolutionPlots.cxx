@@ -20,7 +20,7 @@ namespace Trk {
   }
 
   void
-  ResolutionPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) const {
+  ResolutionPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
     Res_pT->Fill((trkprt.pt() - truthprt.pt()) / truthprt.pt(), weight);
     Res_eta->Fill(trkprt.eta() - truthprt.eta(),weight);
     Res_phi->Fill(trkprt.phi() - truthprt.phi(),weight);

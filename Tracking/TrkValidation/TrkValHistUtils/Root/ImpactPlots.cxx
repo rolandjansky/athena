@@ -24,7 +24,7 @@ namespace Trk {
   }
 
   void
-  ImpactPlots::fill(const xAOD::TrackParticle &trkprt, float weight) const {
+  ImpactPlots::fill(const xAOD::TrackParticle &trkprt, float weight) {
     d0->Fill(trkprt.d0(),weight);
     d0_small->Fill(trkprt.d0(),weight);
     z0->Fill(trkprt.z0(),weight);
