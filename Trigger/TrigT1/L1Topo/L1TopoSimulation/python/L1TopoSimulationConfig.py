@@ -31,7 +31,8 @@ def L1LegacyTopoSimulationCfg(flags):
                                                     EMTAUInputProvider = emtauProvider,
                                                     IsLegacyTopo = True,
                                                     InputDumpFile = "inputdump_legacy.txt",
-                                                    EnableInputDump = flags.Trigger.enableL1TopoDump, 
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump,
+                                                    UseBitwise = flags.Trigger.enableL1TopoBWSimulation,
                                                     MonHistBaseDir = "L1/L1LegacyTopoAlgorithms")
 
     # No muon inputs to legacy Topo
@@ -83,8 +84,8 @@ def L1TopoSimulationCfg(flags):
                                                     JetInputProvider = jetProvider,
                                                     EnergyInputProvider = energyProvider,
                                                     IsLegacyTopo = False,
-                                                    EnableInputDump = flags.Trigger.enableL1TopoDump
-                                                    #UseBitwise = True
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump,
+                                                    UseBitwise = flags.Trigger.enableL1TopoBWSimulation
                                                     )
 
     acc.addEventAlgo(topoSimAlg)
