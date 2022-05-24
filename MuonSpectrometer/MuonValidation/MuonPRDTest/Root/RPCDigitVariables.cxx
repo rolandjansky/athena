@@ -16,13 +16,13 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         SG::ReadHandle<RpcDigitContainer> RpcDigitContainer{m_key, ctx};
         if (!RpcDigitContainer.isValid()) {
-            ATH_MSG_FATAL("Failed to retrive digit container " << m_key.fullKey());
+            ATH_MSG_FATAL("Failed to retrieve digit container " << m_key.fullKey());
             return false;
         }
 
         ATH_MSG_DEBUG("retrieved RPC Digit Container with size " << RpcDigitContainer->digit_size());
 
-        if (RpcDigitContainer->size() == 0) ATH_MSG_DEBUG(" RPC Digit Continer empty ");
+        if (RpcDigitContainer->size() == 0) ATH_MSG_DEBUG(" RPC Digit Container empty ");
         unsigned int n_digits{0};
         for (const RpcDigitCollection* coll : *RpcDigitContainer) {
             ATH_MSG_DEBUG("processing collection with size " << coll->size());
@@ -33,7 +33,10 @@ namespace MuonPRDTest {
                 ATH_MSG_DEBUG("RPC Digit Offline id:  " << idHelperSvc()->toString(Id));
 
                 const MuonGM::RpcReadoutElement* rdoEl = MuonDetMgr->getRpcReadoutElement(Id);
-                if (!rdoEl) return false;
+                if (!rdoEl) {
+                    ATH_MSG_ERROR("RPCDigitVariables::fillVariables() - Failed to retrieve PRCReadoutElement for "<<idHelperSvc()->rpcIdHelper().print_to_string(Id).c_str());
+                    return false;
+                }
 
                 Amg::Vector3D gpos{0., 0., 0.};
                 Amg::Vector2D lpos(0., 0.);
