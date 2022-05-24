@@ -59,7 +59,8 @@ class TFCSExtrapolationState;
     if (this->msgLvl(MSG::lvl)) this->msg(MSG::lvl) << std::setw(45) << std::left << this->GetName() << " " << MSG::LevelNames[MSG::lvl] << " " 
 
 #else
-  #include "AthenaBaseComps/AthMessaging.h"
+  #include "GaudiKernel/MsgStream.h"
+  #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #endif
 
 /** Base class for all FastCaloSim parametrizations
@@ -82,11 +83,7 @@ enum FCSReturnCode {
 
 #define FCS_RETRY_COUNT 3
 
-class TFCSParametrizationBase : public TNamed
-#if !defined(__FastCaloSimStandAlone__)
-                              , public AthMessaging
-#endif
-{
+class TFCSParametrizationBase:public TNamed {
 public:
   TFCSParametrizationBase(const char* name=nullptr, const char* title=nullptr);
 
@@ -204,7 +201,31 @@ private:
   MSG::Level m_level;//! Do not persistify!
   
   MsgStream* m_msg;//! Do not persistify!
-#endif
+#else
+public:
+  /// Update outputlevel
+  void setLevel(int level) {s_msg->setLevel(level);}
+
+  /// Retrieve output level
+  MSG::Level level() const {return s_msg->level();}
+
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg() const { return *s_msg; }
+
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg( MSG::Level lvl ) const { return *s_msg << lvl; }
+
+  /// Check whether the logging system is active at the provided verbosity level
+  bool msgLvl( MSG::Level lvl ) const { return s_msg->level() <= lvl; }
+  
+private:
+  /** Static private message stream member.
+      We don't want this to take memory for every instance of this object created.
+      Note that we also cannot use AthMessaging as a base class as this creates problems
+      when storing these objects in ROOT files (ATLASSIM-5854).
+  */
+  inline static std::unique_ptr<MsgStream> s_msg;//! Do not persistify!
+#endif  
   
 private:
   static std::set< int > s_no_pdgid;
