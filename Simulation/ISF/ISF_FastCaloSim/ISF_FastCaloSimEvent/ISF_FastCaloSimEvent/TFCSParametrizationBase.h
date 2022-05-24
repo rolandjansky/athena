@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationBase_h
@@ -59,7 +59,7 @@ class TFCSExtrapolationState;
     if (this->msgLvl(MSG::lvl)) this->msg(MSG::lvl) << std::setw(45) << std::left << this->GetName() << " " << MSG::LevelNames[MSG::lvl] << " " 
 
 #else
-  #include "AthenaKernel/MsgStreamMember.h"
+  #include "GaudiKernel/MsgStream.h"
   #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #endif
 
@@ -204,23 +204,27 @@ private:
 #else
 public:
   /// Update outputlevel
-  void setLevel(int level) {s_msg->get().setLevel(level);}
+  void setLevel(int level) {s_msg->setLevel(level);}
 
   /// Retrieve output level
-  MSG::Level level() const {return s_msg->get().level();}
+  MSG::Level level() const {return s_msg->level();}
 
   /// Log a message using the Athena controlled logging system
-  MsgStream& msg() const { return s_msg->get(); }
+  MsgStream& msg() const { return *s_msg; }
 
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return *s_msg << lvl; }
 
   /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return s_msg->get().level() <= lvl; }
+  bool msgLvl( MSG::Level lvl ) const { return s_msg->level() <= lvl; }
   
 private:
-  /// Static private message stream member. We don't want this to take memory for every instance of this object created
-  static Athena::MsgStreamMember* s_msg;//! Do not persistify!
+  /** Static private message stream member.
+      We don't want this to take memory for every instance of this object created.
+      Note that we also cannot use AthMessaging as a base class as this creates problems
+      when storing these objects in ROOT files (ATLASSIM-5854).
+  */
+  inline static std::unique_ptr<MsgStream> s_msg;//! Do not persistify!
 #endif  
   
 private:
