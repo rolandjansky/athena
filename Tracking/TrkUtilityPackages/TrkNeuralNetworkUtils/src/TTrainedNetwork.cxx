@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
@@ -15,15 +15,15 @@
 #include "TargetBuffer_t.icc"
 
 TTrainedNetwork::TTrainedNetwork()
+  : m_nInput(0),
+    m_nHidden(0),
+    m_nOutput(0),
+    m_bufferSizeMax(0),
+    m_ActivationFunction(1),
+    m_LinearOutput(false),
+    m_NormalizeOutput(false),
+    m_maxExpValue(log(std::numeric_limits<double>::max()))
 {
-  mnInput=0;
-  mnHidden=0;
-  mnOutput=0;
-  mActivationFunction=1;
-  mLinearOutput=false;
-  mNormalizeOutput=false;
-  maxExpValue=log(std::numeric_limits<double>::max());
-  m_bufferSizeMax=0;
 }
 
 TTrainedNetwork::TTrainedNetwork(Int_t nInput, 
@@ -39,24 +39,24 @@ TTrainedNetwork::TTrainedNetwork(Int_t nInput,
   assert(nInput >= 0); 
   assert(nOutput >= 0); 
   assert(nHidden >= 0); 
-  mnInput = nInput; 
-  mnHidden = nHidden; 
-  mnOutput = nOutput;
-  mnHiddenLayerSize = nHiddenLayerSize; 
-  mThresholdVectors = thresholdVectors;
-  mWeightMatrices = weightMatrices;
-  mActivationFunction = activationFunction;
-  mLinearOutput = linearOutput;
-  mNormalizeOutput = normalizeOutput;
-  maxExpValue = log(std::numeric_limits<double>::max());
+  m_nInput = nInput; 
+  m_nHidden = nHidden; 
+  m_nOutput = nOutput;
+  m_nHiddenLayerSize = nHiddenLayerSize; 
+  m_ThresholdVectors = thresholdVectors;
+  m_WeightMatrices = weightMatrices;
+  m_ActivationFunction = activationFunction;
+  m_LinearOutput = linearOutput;
+  m_NormalizeOutput = normalizeOutput;
+  m_maxExpValue = log(std::numeric_limits<double>::max());
 
-  auto maxElement = *(std::max_element(mnHiddenLayerSize.begin(), mnHiddenLayerSize.end()));
-  int nlayer_max = std::max(static_cast<int>(mnOutput), maxElement);
+  auto maxElement = *(std::max_element(m_nHiddenLayerSize.begin(), m_nHiddenLayerSize.end()));
+  int nlayer_max = std::max(static_cast<int>(m_nOutput), maxElement);
   //
-  std::vector<TVectorD*>::const_iterator hidden_layer_threshold_vector_end = mThresholdVectors.end();
+  std::vector<TVectorD*>::const_iterator hidden_layer_threshold_vector_end = m_ThresholdVectors.end();
   --hidden_layer_threshold_vector_end;
   //
-  for (std::vector<TVectorD*>::const_iterator tr_itr= mThresholdVectors.begin(); tr_itr != hidden_layer_threshold_vector_end; ++tr_itr){
+  for (std::vector<TVectorD*>::const_iterator tr_itr= m_ThresholdVectors.begin(); tr_itr != hidden_layer_threshold_vector_end; ++tr_itr){
      nlayer_max = std::max(nlayer_max, (*tr_itr)->GetNrows());
   }
   m_bufferSizeMax=nlayer_max;
@@ -80,25 +80,25 @@ TTrainedNetwork::TTrainedNetwork(std::vector<TTrainedNetwork::Input> inputs,
 			       ActivationFunction activationFunction,
 			       unsigned options)
 {
-  mnInput = inputs.size(); 
-  mnHidden = thresholdVectors.size() - 1;
-  mnOutput = nOutput;
-  mThresholdVectors = thresholdVectors;
-  mWeightMatrices = weightMatrices;
-  mActivationFunction = activationFunction;
-  mLinearOutput = options & linearOutput;
-  mNormalizeOutput = options & normalizeOutput;
-  maxExpValue = log(std::numeric_limits<double>::max());
+  m_nInput = inputs.size(); 
+  m_nHidden = thresholdVectors.size() - 1;
+  m_nOutput = nOutput;
+  m_ThresholdVectors = thresholdVectors;
+  m_WeightMatrices = weightMatrices;
+  m_ActivationFunction = activationFunction;
+  m_LinearOutput = options & linearOutput;
+  m_NormalizeOutput = options & normalizeOutput;
+  m_maxExpValue = log(std::numeric_limits<double>::max());
 
   std::vector<TVectorD*>::const_iterator hidden_layer_threshold_vector_end = 
-    mThresholdVectors.end(); 
+    m_ThresholdVectors.end(); 
   --hidden_layer_threshold_vector_end; 
 
   for (std::vector<TVectorD*>::const_iterator tr_itr 
-	 = mThresholdVectors.begin(); 
+	 = m_ThresholdVectors.begin(); 
        tr_itr != hidden_layer_threshold_vector_end; 
        ++tr_itr){ 
-    mnHiddenLayerSize.push_back((*tr_itr)->GetNrows()); 
+    m_nHiddenLayerSize.push_back((*tr_itr)->GetNrows()); 
   }
 
   unsigned node_n = 0; 
@@ -123,9 +123,9 @@ TTrainedNetwork::TTrainedNetwork(std::vector<TTrainedNetwork::Input> inputs,
     throw std::runtime_error("Names for NN inputs must be unique (if given)");
   }
 
-  int nlayer_max(mnOutput);
-  for (unsigned i = 0; i < mnHiddenLayerSize.size(); ++i)
-    nlayer_max = std::max(nlayer_max, mnHiddenLayerSize[i]);
+  int nlayer_max(m_nOutput);
+  for (unsigned i = 0; i < m_nHiddenLayerSize.size(); ++i)
+    nlayer_max = std::max(nlayer_max, m_nHiddenLayerSize[i]);
   m_bufferSizeMax=nlayer_max;
 
   unsigned n_zero = std::count(m_input_node_scale.begin(), 
@@ -140,8 +140,8 @@ TTrainedNetwork::TTrainedNetwork(std::vector<TTrainedNetwork::Input> inputs,
 
 TTrainedNetwork::~TTrainedNetwork()
 {
-  std::vector<TVectorD*>::const_iterator vectBegin=mThresholdVectors.begin();
-  std::vector<TVectorD*>::const_iterator vectEnd=mThresholdVectors.end();
+  std::vector<TVectorD*>::const_iterator vectBegin=m_ThresholdVectors.begin();
+  std::vector<TVectorD*>::const_iterator vectEnd=m_ThresholdVectors.end();
 
   for (std::vector<TVectorD*>::const_iterator vectIter=vectBegin;
        vectIter!=vectEnd;
@@ -150,8 +150,8 @@ TTrainedNetwork::~TTrainedNetwork()
     delete *vectIter;
   }
 
-  std::vector<TMatrixD*>::const_iterator matrixBegin=mWeightMatrices.begin();
-  std::vector<TMatrixD*>::const_iterator matrixEnd=mWeightMatrices.end();
+  std::vector<TMatrixD*>::const_iterator matrixBegin=m_WeightMatrices.begin();
+  std::vector<TMatrixD*>::const_iterator matrixEnd=m_WeightMatrices.end();
 
   for (std::vector<TMatrixD*>::const_iterator matrixIter=matrixBegin;
        matrixIter!=matrixEnd;
@@ -165,7 +165,7 @@ TTrainedNetwork::~TTrainedNetwork()
 std::vector<TTrainedNetwork::Input> TTrainedNetwork::getInputs() const { 
 
   assert(m_inputStringToNode.size() == 0 || 
-	 m_inputStringToNode.size() == mnInput); 
+	 m_inputStringToNode.size() == m_nInput); 
   assert(m_input_node_scale.size() == m_input_node_offset.size()); 
 
   std::map<int,std::string> input_n_to_name; 
@@ -176,10 +176,10 @@ std::vector<TTrainedNetwork::Input> TTrainedNetwork::getInputs() const {
   }
 
   std::vector<Input> inputs_vector; 
-  if (m_input_node_offset.size() != mnInput) { 
+  if (m_input_node_offset.size() != m_nInput) { 
     return inputs_vector; 
   }
-  for (unsigned input_n = 0; input_n < mnInput; input_n++){ 
+  for (unsigned input_n = 0; input_n < m_nInput; input_n++){ 
     std::map<int,std::string>::const_iterator 
       name_itr = input_n_to_name.find(input_n); 
     Input the_input; 
@@ -197,8 +197,8 @@ void TTrainedNetwork::setNewWeights(std::vector<TVectorD*> & thresholdVectors,
 				    std::vector<TMatrixD*> & weightMatrices)
 {
 
-  std::vector<TVectorD*>::const_iterator vectBegin=mThresholdVectors.begin();
-  std::vector<TVectorD*>::const_iterator vectEnd=mThresholdVectors.end();
+  std::vector<TVectorD*>::const_iterator vectBegin=m_ThresholdVectors.begin();
+  std::vector<TVectorD*>::const_iterator vectEnd=m_ThresholdVectors.end();
 
   for (std::vector<TVectorD*>::const_iterator vectIter=vectBegin;
        vectIter!=vectEnd;
@@ -207,8 +207,8 @@ void TTrainedNetwork::setNewWeights(std::vector<TVectorD*> & thresholdVectors,
     delete *vectIter;
   }
 
-  std::vector<TMatrixD*>::const_iterator matrixBegin=mWeightMatrices.begin();
-  std::vector<TMatrixD*>::const_iterator matrixEnd=mWeightMatrices.end();
+  std::vector<TMatrixD*>::const_iterator matrixBegin=m_WeightMatrices.begin();
+  std::vector<TMatrixD*>::const_iterator matrixEnd=m_WeightMatrices.end();
 
   for (std::vector<TMatrixD*>::const_iterator matrixIter=matrixBegin;
        matrixIter!=matrixEnd;
@@ -217,11 +217,11 @@ void TTrainedNetwork::setNewWeights(std::vector<TVectorD*> & thresholdVectors,
     delete *matrixIter;
   }
 
-  mThresholdVectors.clear();
-  mWeightMatrices.clear();
+  m_ThresholdVectors.clear();
+  m_WeightMatrices.clear();
 
-  mThresholdVectors=thresholdVectors;
-  mWeightMatrices=weightMatrices;
+  m_ThresholdVectors=thresholdVectors;
+  m_WeightMatrices=weightMatrices;
 
 }
 
@@ -229,7 +229,7 @@ std::vector<Double_t>
 TTrainedNetwork::calculateNormalized(const TTrainedNetwork::DMap& in) 
   const { 
 
-  std::vector<Double_t> inputs(mnInput); 
+  std::vector<Double_t> inputs(m_nInput); 
   size_t n_filled = 0;
   for (std::map<std::string,double>::const_iterator itr = in.begin(); 
        itr != in.end(); 
@@ -256,7 +256,7 @@ TTrainedNetwork::calculateNormalized(const TTrainedNetwork::DMap& in)
   if (n_filled != m_inputStringToNode.size() ) { 
     assert(n_filled < m_inputStringToNode.size() ); 
     std::set<std::string> input_set;
-    for (DMapI itr = in.begin(); itr != in.end(); itr++) { 
+    for (DMapI itr = in.begin(); itr != in.end(); ++itr) { 
       input_set.insert(itr->first); 
     }
     std::string err = "nodes not filled in NN: "; 
@@ -278,11 +278,11 @@ TTrainedNetwork::calculateNormalized(const TTrainedNetwork::DVec& input)
 {
   // asserts can be turned off in optomized code anyway, 
   // use them to be safe without having to call vector.at()
-  assert(mnInput == input.size()); 
-  assert(mnInput == m_input_node_scale.size()); 
-  assert(mnInput == m_input_node_offset.size()); 
+  assert(m_nInput == input.size()); 
+  assert(m_nInput == m_input_node_scale.size()); 
+  assert(m_nInput == m_input_node_offset.size()); 
   std::vector<double> transformed_inputs(input); 
-  for (unsigned input_n = 0; input_n < mnInput; input_n++) { 
+  for (unsigned input_n = 0; input_n < m_nInput; input_n++) { 
     transformed_inputs[input_n] += m_input_node_offset[input_n]; 
     transformed_inputs[input_n] *= m_input_node_scale[input_n]; 
   }
@@ -298,19 +298,19 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
   // Pixel clusterization - Thomas Kittelmann, Oct 2011.
 
 
-  if (input.size() != mnInput)
+  if (input.size() != m_nInput)
   {
     std::cerr << "TTrainedNetwork WARNING Input size: " << input.size()
-	      << " does not match with network: " << mnInput << std::endl;
+	      << " does not match with network: " << m_nInput << std::endl;
     return {};
   }
 
   TTN::DoubleBuffer_t tmp_array;
   tmp_array.clear(m_bufferSizeMax);          // make sure it is big enough and initialise with zero
 
-  const unsigned nTargetLayers(mnHidden+1);
-  const unsigned lastTargetLayer(mnHidden);
-  unsigned nSource = mnInput, nTarget(0);
+  const unsigned nTargetLayers(m_nHidden+1);
+  const unsigned lastTargetLayer(m_nHidden);
+  unsigned nSource = m_nInput, nTarget(0);
   TTN::ConstBuffer_t source(input);
   const double * weights(nullptr);
   const double * thresholds(nullptr);
@@ -319,13 +319,13 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
   for (unsigned iLayer = 0; iLayer < nTargetLayers; ++iLayer) {
     //Find data area for target layer:
     nTarget = ( iLayer == lastTargetLayer ? 
-		mnOutput : 
-		mnHiddenLayerSize[iLayer] );
+		m_nOutput : 
+		m_nHiddenLayerSize[iLayer] );
     TTN::Buffer_t target( tmp_array[iLayer] );
 
     //Transfer the input nodes to the output nodes in this layer transition:
-    weights = mWeightMatrices[iLayer]->GetMatrixArray();
-    thresholds = mThresholdVectors[iLayer]->GetMatrixArray();
+    weights = m_WeightMatrices[iLayer]->GetMatrixArray();
+    thresholds = m_ThresholdVectors[iLayer]->GetMatrixArray();
     for (unsigned inodeTarget=0;inodeTarget<nTarget;++inodeTarget) {
       nodeVal = 0.0;//Better would be "nodeVal = *thresholds++" and
 		    //remove the line further down, but this way we
@@ -340,7 +340,7 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
 	  weights_tmp += nTarget;
 	}
       nodeVal += *thresholds++;//see remark above.
-      target[inodeTarget] = ( mLinearOutput && iLayer == lastTargetLayer )
+      target[inodeTarget] = ( m_LinearOutput && iLayer == lastTargetLayer )
 	                    ? nodeVal : sigmoid(nodeVal);
     }
     //Prepare for next layer transition:
@@ -349,7 +349,7 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
   }
 
   //std::vector<double> result(nTarget);
-  if (!mNormalizeOutput) {
+  if (!m_NormalizeOutput) {
     //    std::memcpy(&result[0], target, sizeof(*target)*nTarget);
     // the result is already in the buffer half with index (nTargetLayers-1)%2
     // copy this to the front of the full buffer and shrink the array
@@ -372,31 +372,31 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
 
 
 Double_t TTrainedNetwork::sigmoid(Double_t x) const { 
-  if (-2*x >= maxExpValue){
+  if (-2*x >= m_maxExpValue){
     return 0.;
   }
   return 1./(1.+exp(-2*x)); 
 }
 
 bool TTrainedNetwork::is_consistent() const { 
-  if (mThresholdVectors.size() != mWeightMatrices.size()) { 
+  if (m_ThresholdVectors.size() != m_WeightMatrices.size()) { 
     std::cerr << "ERROR: " 
-	      << "n threshold vectors: " << mThresholdVectors.size() 
-	      << " n weight matrices: " << mWeightMatrices.size() 
+	      << "n threshold vectors: " << m_ThresholdVectors.size() 
+	      << " n weight matrices: " << m_WeightMatrices.size() 
 	      << std::endl; 
     return false; 
   }
-  int nodes_last_layer = mnInput; 
-  for (unsigned layer_n = 0; layer_n < mThresholdVectors.size(); layer_n++){ 
-    int n_threshold_nodes = mThresholdVectors.at(layer_n)->GetNrows(); 
-    int n_weights_nodes = mWeightMatrices.at(layer_n)->GetNcols(); 
+  int nodes_last_layer = m_nInput; 
+  for (unsigned layer_n = 0; layer_n < m_ThresholdVectors.size(); layer_n++){ 
+    int n_threshold_nodes = m_ThresholdVectors.at(layer_n)->GetNrows(); 
+    int n_weights_nodes = m_WeightMatrices.at(layer_n)->GetNcols(); 
     if (n_threshold_nodes != n_weights_nodes) {
       std::cerr << "ERROR: in layer " << layer_n 
 		<< " --- n threshold: " << n_threshold_nodes
 		<< " n_weights: " << n_weights_nodes << std::endl;
       return false; 
     }
-    int n_incoming_connections = mWeightMatrices.at(layer_n)->GetNrows(); 
+    int n_incoming_connections = m_WeightMatrices.at(layer_n)->GetNrows(); 
     if (n_incoming_connections != nodes_last_layer) { 
       std::cerr << "ERROR: in layer " << layer_n 
 		<< " --- last layer nodes: " << nodes_last_layer
@@ -407,10 +407,10 @@ bool TTrainedNetwork::is_consistent() const {
     nodes_last_layer = n_weights_nodes; 
   }
   
-  if (mThresholdVectors.size() - 1 != mnHiddenLayerSize.size() ){ 
+  if (m_ThresholdVectors.size() - 1 != m_nHiddenLayerSize.size() ){ 
     std::cerr << "ERROR: "
-	      << "size mThresholdVectors: " << mThresholdVectors.size() 
-	      << " size mnHiddenLayerSize: " << mnHiddenLayerSize.size()
+	      << "size m_ThresholdVectors: " << m_ThresholdVectors.size() 
+	      << " size m_nHiddenLayerSize: " << m_nHiddenLayerSize.size()
 	      << std::endl; 
     return false; 
   }
@@ -419,8 +419,8 @@ bool TTrainedNetwork::is_consistent() const {
 }
 
 bool TTrainedNetwork::check_norm_size(unsigned size) const { 
-  if (size != mnInput) { 
-    std::cerr << "ERROR: TTrainedNetwork has " << mnInput << " inputs, "
+  if (size != m_nInput) { 
+    std::cerr << "ERROR: TTrainedNetwork has " << m_nInput << " inputs, "
 	      << size << " normalization values provided\n"; 
     return false; 
   }

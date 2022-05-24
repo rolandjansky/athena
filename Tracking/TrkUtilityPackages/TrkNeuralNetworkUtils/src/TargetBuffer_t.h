@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TargetBuffer_t_H
 #define TargetBuffer_t_H
@@ -24,14 +24,16 @@ namespace TTN {
     template <typename T1, typename T2,typename T3> friend class BufferBase_t;
 
   public:
-    BufferBase_t(T_VectorType &buffer) {
-      m_ptr=&(buffer[0]);
+    BufferBase_t(T_VectorType &buffer)
+      : m_ptr (&(buffer[0]))
 #ifndef NDEBUG
-      // debug code
-      m_maxIndex=buffer.size();
-      m_bufferStart=buffer.data();
-      m_bufferEnd=m_bufferStart + buffer.size();//assumed contiguous
+        // debug code
+        , m_maxIndex(buffer.size())
+        , m_bufferStart(buffer.data())
+        , m_bufferEnd(m_bufferStart + buffer.size())//assumed contiguous
 #endif
+    {
+      // cppcheck-suppress missingReturn; false positive
     }
 
   protected:
@@ -44,7 +46,9 @@ namespace TTN {
       , m_bufferStart(buffer.m_bufferStart)
       , m_bufferEnd(buffer.m_bufferEnd)
 #endif
-    {}
+    {
+      // cppcheck-suppress missingReturn; false positive
+    }
 
     template <typename T1, typename T2,typename T3>
     BufferBase_t &
@@ -61,18 +65,16 @@ namespace TTN {
 
     // last two arguments are only needed for the optional range check.
     BufferBase_t(T_BufferType *buffer,
-                 typename std::vector<T_BaseType>::size_type max_idx,
-                 const std::vector<double> &full_vector)
-    {
-      (void) max_idx;     //prevent unused argument warnings
-      (void) full_vector;
-      m_ptr=buffer;
+                 typename std::vector<T_BaseType>::size_type max_idx  [[maybe_unused]],
+                 const std::vector<double> & full_vector [[maybe_unused]])
+      : m_ptr(buffer)
 #ifndef NDEBUG
-      // debug code
-      m_maxIndex=max_idx;
-      m_bufferStart=full_vector.data();
-      m_bufferEnd=m_bufferStart+full_vector.size();//assumed contiguous
+        // debug code
+        , m_maxIndex(max_idx)
+        , m_bufferStart(full_vector.data())
+        , m_bufferEnd(m_bufferStart+full_vector.size())//assumed contiguous
 #endif
+    {
     }
 
   public:
