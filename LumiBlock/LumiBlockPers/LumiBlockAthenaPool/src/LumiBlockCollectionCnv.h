@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "LumiBlockData/LumiBlockCollection.h"
+#include "LumiBlockTPCnv/LumiBlockCollectionCnv_p1.h"
 #include "LumiBlockTPCnv/LumiBlockCollectionCnv_p2.h"
 
 // the latest persistent representation type of LumiBlockCollection
@@ -29,10 +30,10 @@ protected:
   virtual LumiBlockCollection_PERS*  createPersistent (LumiBlockCollection* transCont);
   virtual LumiBlockCollection*     createTransient ();
 
-  //  virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter; }
-
  private:
-  LumiBlockCollectionCnv_p2   m_TPConverter;
+  LumiBlockCollectionCnv_p1   m_converter_p1;
+  LumiBlockCollectionCnv_p2   m_converter;
+
 };
 
 #endif  // LUMIBLOCKCOLLECTIONCNV__H
