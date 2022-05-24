@@ -42,10 +42,10 @@ TrigTau* TrigTauCnv::createTransient()
   MsgStream mlog(msgSvc(), "TrigTauConverter" );
   mlog << MSG::DEBUG << "TrigTauCnv::createTransient " << endmsg;
   
-  static pool::Guid tlp1_guid("82AE3333-5398-4590-A51A-616832332D9B");
-  static pool::Guid p0_guid("F95B5B76-13D3-4EB4-94BB-1383B8571ADD");
-  static pool::Guid tlp2_guid("B2619D46-FB89-4961-8A57-6A980A2EFB33");
-  static pool::Guid p2_guid("9CA7EFF2-DB12-4E06-A425-01B1D8367BE3");
+  static const pool::Guid tlp1_guid("82AE3333-5398-4590-A51A-616832332D9B");
+  static const pool::Guid p0_guid("F95B5B76-13D3-4EB4-94BB-1383B8571ADD");
+  static const pool::Guid tlp2_guid("B2619D46-FB89-4961-8A57-6A980A2EFB33");
+  static const pool::Guid p2_guid("9CA7EFF2-DB12-4E06-A425-01B1D8367BE3");
   
   TrigTau       *trans_cont(0);
   

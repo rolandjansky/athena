@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_MUONFEATURECONTAINER_CNV_H
@@ -7,7 +7,9 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigMuonEvent/MuonFeatureContainer.h"
-#include "TrigMuonEventTPCnv/MuonFeatureContainer_p3.h"
+#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_tlp1.h"
+#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_tlp2.h"
+#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_p3.h"
 
 typedef MuonFeatureContainer_p3   MuonFeatureContainer_PERS;
 
@@ -25,6 +27,10 @@ protected:
 
   virtual MuonFeatureContainer_PERS *createPersistent( MuonFeatureContainer *transObj);
   virtual MuonFeatureContainer      *createTransient();
+private:
+  MuonFeatureContainerCnv_tlp1   m_converter1;
+  MuonFeatureContainerCnv_tlp2   m_converter2;
+  MuonFeatureContainerCnv_p3     m_converter;
 
 };
 

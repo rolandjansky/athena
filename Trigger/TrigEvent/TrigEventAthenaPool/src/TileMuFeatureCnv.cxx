@@ -32,10 +32,10 @@ TileMuFeature* TileMuFeatureCnv::createTransient() {
 
     mlog << MSG::DEBUG << "TileMuFeatureCnv::createTransient " << endmsg;
   
-    static pool::Guid p1_guid("F853E605-AFD5-44F9-98BC-4D777CBCBEE4");
+    static const pool::Guid p1_guid("F853E605-AFD5-44F9-98BC-4D777CBCBEE4");
         // from "TrigEvent/TrigMuonEventTPCnv/TrigMuonEventTPCnv/selection.xml"
 
-    static pool::Guid p0_guid("526B0709-442D-4D2C-8C1F-8C3922149656");
+    static const pool::Guid p0_guid("526B0709-442D-4D2C-8C1F-8C3922149656");
 	// from "TrigEvent/TrigMuonEvent/TrigMuonEvent/selection.xml"
 
     if( compareClassGuid(p1_guid) ) {

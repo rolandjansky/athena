@@ -27,9 +27,9 @@ MuonFeature* MuonFeatureCnv::createTransient() {
 
     mlog << MSG::DEBUG << "MuonFeatureCnv::createTransient " << endmsg;
 
-    static pool::Guid p2_guid("3785A9E4-7845-4B54-B49F-DCC2A24409C0");
-    static pool::Guid p1_guid("3DFFECBF-3251-4BE7-9D12-B3A9FCAC486E");
-    static pool::Guid p0_guid("295FBAFB-ED82-43EA-8B63-6E3D3F4D2A9F");
+    static const pool::Guid p2_guid("3785A9E4-7845-4B54-B49F-DCC2A24409C0");
+    static const pool::Guid p1_guid("3DFFECBF-3251-4BE7-9D12-B3A9FCAC486E");
+    static const pool::Guid p0_guid("295FBAFB-ED82-43EA-8B63-6E3D3F4D2A9F");
 
     if( compareClassGuid(p1_guid) ) {
 

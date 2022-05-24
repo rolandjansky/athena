@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGTAUCLUSTERDETAILSCONTAINER_CNV_H
@@ -12,6 +12,8 @@
 
 #include "TrigCaloEvent/TrigTauClusterDetailsContainer.h"
 #include "TrigCaloEventTPCnv/TrigTauClusterDetailsContainer_p2.h"
+#include "TrigCaloEventTPCnv/TrigTauClusterDetailsContainerCnv_tlp1.h"
+#include "TrigCaloEventTPCnv/TrigTauClusterDetailsContainerCnv_p2.h"
 
 typedef TrigTauClusterDetailsContainer_p2   TrigTauClusterDetailsContainer_PERS;
 
@@ -29,6 +31,10 @@ protected:
 
   virtual TrigTauClusterDetailsContainer_PERS *createPersistent( TrigTauClusterDetailsContainer *transObj);
   virtual TrigTauClusterDetailsContainer      *createTransient();
+
+private:
+  TrigTauClusterDetailsContainerCnv_tlp1   m_converter1;
+  TrigTauClusterDetailsContainerCnv_p2     m_converter;
 
 };
  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGCALOCLUSTERCONTAINER_CNV_H
@@ -30,7 +30,10 @@ protected:
    
    virtual TrigCaloClusterContainer_PERS *createPersistent( TrigCaloClusterContainer *transObj);
    virtual TrigCaloClusterContainer      *createTransient();
- 
+
+private:
+   TrigCaloClusterContainerCnv_p3 m_converter;
+
   };//end of class definitions
   
  

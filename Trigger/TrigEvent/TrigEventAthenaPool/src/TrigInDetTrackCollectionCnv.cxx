@@ -46,11 +46,11 @@ TrigInDetTrackCollection* TrigInDetTrackCollectionCnv::createTransient() {
   MsgStream mlog(msgSvc(), "TrigInDetTrackCollectionConverter" );
   mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::createTransient " << endmsg;
 
-  static pool::Guid tlp4_guid("E1B8EE19-4F7B-4EF2-8FDC-45AA871BD628");
-  static pool::Guid tlp3_guid("196F811B-382D-47A9-8551-D2038343BFFA");
-  static pool::Guid tlp2_guid("4DBBB46F-33C9-4571-AE5E-A2335D7A2976");
-  static pool::Guid tlp1_guid("0B5CA4CA-0A0F-43DC-8973-0E2212B2E8DA");
-  static pool::Guid p0_guid("5F6029E6-764B-4126-891D-73BFC3CC391C");
+  static const pool::Guid tlp4_guid("E1B8EE19-4F7B-4EF2-8FDC-45AA871BD628");
+  static const pool::Guid tlp3_guid("196F811B-382D-47A9-8551-D2038343BFFA");
+  static const pool::Guid tlp2_guid("4DBBB46F-33C9-4571-AE5E-A2335D7A2976");
+  static const pool::Guid tlp1_guid("0B5CA4CA-0A0F-43DC-8973-0E2212B2E8DA");
+  static const pool::Guid p0_guid("5F6029E6-764B-4126-891D-73BFC3CC391C");
   
   TrigInDetTrackCollection  *transObj = 0;
   if( compareClassGuid(tlp4_guid) ) {

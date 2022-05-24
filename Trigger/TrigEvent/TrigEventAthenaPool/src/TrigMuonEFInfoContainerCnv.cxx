@@ -38,8 +38,8 @@ TrigMuonEFInfoContainer * TrigMuonEFInfoContainerCnv::createTransient(){
   
   mlog << MSG::DEBUG << "TrigMuonEFInfoContainerCnv::createTransient called" << endmsg;
   
-  static pool::Guid p1_guid( "B768E99D-9CC3-4368-ADD5-36816D2A0298" );
-  static pool::Guid p2_guid( "AF8CBEC0-4BBF-438A-82DE-873F133F4821" );
+  static const pool::Guid p1_guid( "B768E99D-9CC3-4368-ADD5-36816D2A0298" );
+  static const pool::Guid p2_guid( "AF8CBEC0-4BBF-438A-82DE-873F133F4821" );
   
   TrigMuonEFInfoContainer *p_collection = 0;
   

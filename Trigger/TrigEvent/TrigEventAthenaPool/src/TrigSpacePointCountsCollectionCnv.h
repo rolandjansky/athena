@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGSPACEPOINTCOUNTSCOLLECTION_CNV_H
@@ -9,6 +9,8 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "TrigInDetEvent/TrigSpacePointCountsCollection.h"
 #include "TrigInDetEventTPCnv/TrigSpacePointCountsCollection_p4.h"
+#include "TrigInDetEventTPCnv/TrigSpacePointCountsCollectionCnv_tlp1.h"
+#include "TrigInDetEventTPCnv/TrigSpacePointCountsCollectionCnv_p4.h"
 
 typedef TrigSpacePointCountsCollection_p4   TrigSpacePointCountsCollection_PERS;
  
@@ -31,7 +33,11 @@ protected:
   
   virtual TrigSpacePointCountsCollection_PERS *createPersistent( TrigSpacePointCountsCollection *transObj);
   virtual TrigSpacePointCountsCollection      *createTransient();
-  
+
+private:
+  TrigSpacePointCountsCollectionCnv_tlp1 m_converter_tlp1;
+  TrigSpacePointCountsCollectionCnv_p4   m_converter;
+
 };//end of class definitions
 
 

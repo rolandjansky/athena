@@ -37,7 +37,7 @@ TrigComposite* TrigCompositeCnv::createTransient()
   MsgStream mlog(msgSvc(), "TrigCompositeConverter" );
   mlog << MSG::DEBUG << "TrigCompositeCnv::createTransient " << endmsg;
   
-  static pool::Guid p1_guid("53F70884-38EE-4D08-9F03-FA8BED725B63");
+  static const pool::Guid p1_guid("53F70884-38EE-4D08-9F03-FA8BED725B63");
   
   TrigComposite       *trans_cont(0);
   

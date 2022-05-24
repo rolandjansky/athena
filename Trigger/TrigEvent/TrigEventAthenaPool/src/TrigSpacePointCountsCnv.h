@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -12,14 +12,16 @@
  * @author Andrew Hamilton  <Andrew.Hamilton@cern.ch>  - U. Geneva
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
- * File and Version Information:
- * $Id: TrigSpacePointCountsCnv.h,v 1.4 2009-02-23 18:59:20 ssnyder Exp $
  **********************************************************************************/
 #ifndef TRIGEVENTATHENAPOOL_TRIGSPACEPOINTCOUNTSCNV_H
 #define TRIGEVENTATHENAPOOL_TRIGSPACEPOINTCOUNTSCNV_H
 
 #include "TrigInDetEvent/TrigSpacePointCounts.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
+#include "TrigInDetEventTPCnv/TrigSpacePointCountsCnv_p1.h"
+#include "TrigInDetEventTPCnv/TrigSpacePointCountsCnv_p2.h"
+#include "TrigInDetEventTPCnv/TrigSpacePointCountsCnv_p3.h"
+
 class TrigSpacePointCounts_p3;
 
 // typedef to the latest persistent version
@@ -41,6 +43,11 @@ public:
 protected:
   virtual TrigSpacePointCounts_PERS  *createPersistent(TrigSpacePointCounts *transObj);
   virtual TrigSpacePointCounts       *createTransient();
+
+private:
+  TrigSpacePointCountsCnv_p1 m_converter_p1;
+  TrigSpacePointCountsCnv_p2 m_converter_p2;
+  TrigSpacePointCountsCnv_p3 m_converter_p3;
 };
 
 

@@ -38,9 +38,9 @@ TrigEMCluster* TrigEMClusterCnv::createTransient()
   MsgStream mlog(msgSvc(), "TrigEMClusterConverter" );
   mlog << MSG::DEBUG << "TrigEMClusterCnv::createTransient " << endmsg;
   
-  static pool::Guid tlp2_guid("61D02BB3-0F97-4809-AC93-72B2DC2DF624");
-  static pool::Guid tlp1_guid("EF5124F2-7B9C-4CBE-8D7F-1AD368A8A125");
-  static pool::Guid p0_guid("E60986AE-938E-4256-A100-CD99158ADE9E");
+  static const pool::Guid tlp2_guid("61D02BB3-0F97-4809-AC93-72B2DC2DF624");
+  static const pool::Guid tlp1_guid("EF5124F2-7B9C-4CBE-8D7F-1AD368A8A125");
+  static const pool::Guid p0_guid("E60986AE-938E-4256-A100-CD99158ADE9E");
   
   TrigEMCluster       *trans_cont(0);
   

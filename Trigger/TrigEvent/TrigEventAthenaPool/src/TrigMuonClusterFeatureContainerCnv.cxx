@@ -39,8 +39,8 @@ TrigMuonClusterFeatureContainer * TrigMuonClusterFeatureContainerCnv::createTran
   
   mlog << MSG::DEBUG << "TrigMuonClusterFeatureContainerCnv::createTransient called" << endmsg;
   
-  static pool::Guid tlp1_guid( "036D8CC1-5FBD-4676-9D84-F233567F52D2" );
-  static pool::Guid p0_guid( "5B09201A-D1CD-43BA-A1B5-786189444579" );
+  static const pool::Guid tlp1_guid( "036D8CC1-5FBD-4676-9D84-F233567F52D2" );
+  static const pool::Guid p0_guid( "5B09201A-D1CD-43BA-A1B5-786189444579" );
   
   TrigMuonClusterFeatureContainer *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

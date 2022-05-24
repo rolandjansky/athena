@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,7 +37,7 @@ TrigMonEvent* TrigMonEventCnv::createTransient()
 {
   (*m_log) << MSG::DEBUG << "TrigMonEventCnv::createTransient " << endmsg;
   
-  static pool::Guid p1_guid("AECD5837-E8DA-4FF3-8601-44B4C17355ED");  
+  static const pool::Guid p1_guid("AECD5837-E8DA-4FF3-8601-44B4C17355ED");
   TrigMonEvent *trans_obj(0);
   
   if( compareClassGuid(p1_guid) ) {

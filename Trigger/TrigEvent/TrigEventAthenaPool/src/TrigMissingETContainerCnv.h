@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGMISSINGETCONTAINER_CNV_H
@@ -11,6 +11,8 @@
 
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingETContainer_p3.h"
+#include "TrigMissingEtEventTPCnv/TrigMissingETContainerCnv_tlp1.h"
+#include "TrigMissingEtEventTPCnv/TrigMissingETContainerCnv_p3.h"
  
 typedef TrigMissingETContainer_p3   TrigMissingETContainer_PERS;
  
@@ -28,6 +30,10 @@ protected:
    
    virtual TrigMissingETContainer_PERS *createPersistent( TrigMissingETContainer *transObj);
    virtual TrigMissingETContainer      *createTransient();
+private:
+   TrigMissingETContainerCnv_tlp1 m_converter_tlp1;
+   TrigMissingETContainerCnv_p3   m_converter;
+
   
 };//end of class definitions
   

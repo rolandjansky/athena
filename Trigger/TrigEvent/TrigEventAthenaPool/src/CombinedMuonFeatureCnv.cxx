@@ -45,8 +45,8 @@ CombinedMuonFeature *CombinedMuonFeatureCnv::createTransient()
   
   CombinedMuonFeature       *transObj(0);
   
-  static pool::Guid p1_guid( "7B8452AC-DDD8-42C5-85BD-D2CE183065A1" );
-  static pool::Guid p0_guid( "9DFC54CA-4799-4BCB-A95B-919E7E761112" );
+  static const pool::Guid p1_guid( "7B8452AC-DDD8-42C5-85BD-D2CE183065A1" );
+  static const pool::Guid p0_guid( "9DFC54CA-4799-4BCB-A95B-919E7E761112" );
   
    
   if( compareClassGuid( p1_guid ) ) {

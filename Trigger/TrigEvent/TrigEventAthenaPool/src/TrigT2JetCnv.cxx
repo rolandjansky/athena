@@ -40,8 +40,8 @@ TrigT2Jet * TrigT2JetCnv::createTransient()
   
   mlog << MSG::DEBUG << "TrigT2JetCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "EAF10B4D-AD26-4030-AF0C-1060A39D663D" );
-  static pool::Guid p0_guid( "242473A8-A320-49F1-A680-136EA26C1FAF" );
+  static const pool::Guid tlp1_guid( "EAF10B4D-AD26-4030-AF0C-1060A39D663D" );
+  static const pool::Guid p0_guid( "242473A8-A320-49F1-A680-136EA26C1FAF" );
  
   TrigT2Jet *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

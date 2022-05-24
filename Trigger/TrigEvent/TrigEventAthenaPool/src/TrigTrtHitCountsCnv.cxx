@@ -23,7 +23,7 @@ TrigTrtHitCounts* TrigTrtHitCountsCnv::createTransient() {
   MsgStream mlog(msgSvc(), "TrigTrtHitCountsConverter" );
   mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::createTransient " << endmsg;
   
-  static pool::Guid p1_guid("FB33CC3C-74B8-43DF-ABDA-E56BEA1D9D61");
+  static const pool::Guid p1_guid("FB33CC3C-74B8-43DF-ABDA-E56BEA1D9D61");
   
   TrigTrtHitCounts *transObj = 0;
 

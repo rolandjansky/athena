@@ -37,7 +37,7 @@ TrigMonConfig* TrigMonConfigCnv::createTransient()
 {
   (*m_log) << MSG::DEBUG << "TrigMonConfigCnv::createTransient " << endmsg;
   
-  static pool::Guid p1_guid("E841D3CA-AB5A-4955-850A-B368DE66A987");  
+  static const pool::Guid p1_guid("E841D3CA-AB5A-4955-850A-B368DE66A987");  
   TrigMonConfig *trans_obj(0);
   
   if(compareClassGuid(p1_guid)) {

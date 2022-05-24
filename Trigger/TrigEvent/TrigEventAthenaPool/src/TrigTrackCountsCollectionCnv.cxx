@@ -38,8 +38,8 @@ TrigTrackCountsCollection * TrigTrackCountsCollectionCnv::createTransient()
   
   mlog << MSG::DEBUG << "TrigTrackCountsCollectionCnv::createTransient called" << endmsg;
   
-  static pool::Guid tlp1_guid( "FCEB4390-F8FB-4C93-9538-105BCABE487C" );
-  static pool::Guid p0_guid( "7A4412AD-C11D-4EFD-AE15-D343D2CB28BC" );
+  static const pool::Guid tlp1_guid( "FCEB4390-F8FB-4C93-9538-105BCABE487C" );
+  static const pool::Guid p0_guid( "7A4412AD-C11D-4EFD-AE15-D343D2CB28BC" );
   
   TrigTrackCountsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

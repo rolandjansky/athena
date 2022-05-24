@@ -26,7 +26,7 @@ MuonFeatureDetails* MuonFeatureDetailsCnv::createTransient() {
 
     mlog << MSG::DEBUG << "MuonFeatureDetailsCnv::createTransient " << endmsg;
 
-    static pool::Guid p1_guid("E841B555-766B-48EF-96F8-F4BE39EE8BCB");
+    static const pool::Guid p1_guid("E841B555-766B-48EF-96F8-F4BE39EE8BCB");
 
     if( compareClassGuid(p1_guid) ) {
 

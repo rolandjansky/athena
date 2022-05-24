@@ -44,9 +44,9 @@ TrigTauCluster* TrigTauClusterCnv::createTransient()
   MsgStream mlog(msgSvc(), "TrigTauClusterConverter" );
   mlog << MSG::DEBUG << "TrigTauClusterCnv::createTransient " << endmsg;
 
-  static pool::Guid tlp2_guid("CEDD0095-1134-4CEC-91CC-61028B214F6C");
-  static pool::Guid tlp1_guid("60C9B591-CE4B-473C-9CB9-8C4F99271D76");
-  static pool::Guid p0_guid("9B3B6AE8-9CE6-44AB-8B31-8B39FED52607");
+  static const pool::Guid tlp2_guid("CEDD0095-1134-4CEC-91CC-61028B214F6C");
+  static const pool::Guid tlp1_guid("60C9B591-CE4B-473C-9CB9-8C4F99271D76");
+  static const pool::Guid p0_guid("9B3B6AE8-9CE6-44AB-8B31-8B39FED52607");
 
   TrigTauCluster       *trans_cont(0);
 
