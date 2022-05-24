@@ -6,7 +6,6 @@
 #define DATA_PREP_UTILITIES_H
 
 // local includes
-#include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/AssociationEnums.h"
 #include "FlavorTagDiscriminants/FTagDataDependencyNames.h"

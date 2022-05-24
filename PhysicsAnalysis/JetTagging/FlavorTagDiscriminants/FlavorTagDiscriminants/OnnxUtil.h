@@ -11,7 +11,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 namespace FlavorTagDiscriminants {
 
   typedef std::pair<std::vector<float>, std::vector<int64_t>> input_pair;
-  
+
   //
   // Utility class that loads the onnx model from the given path
   // and runs inference based on the user given inputs
@@ -30,7 +30,7 @@ namespace FlavorTagDiscriminants {
         std::map<std::string, float>& output
       ) const;
 
-      std::string getMetaData(const std::string& key);
+      std::string getMetaData(const std::string& key) const;
 
     private:
 

@@ -27,6 +27,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/DL2Tool.cxx
   Root/DataPrepUtilities.cxx
   Root/OnnxUtil.cxx
+  Root/GNN.cxx
   Root/GNNTool.cxx
   Root/customGetter.cxx
   Root/FlipTagEnums.cxx

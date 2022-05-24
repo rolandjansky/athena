@@ -4,6 +4,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "FlavorTagDiscriminants/DataPrepUtilities.h"
 #include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
+#include "FlavorTagDiscriminants/customGetter.h"
 
 #include "xAODBTagging/BTaggingUtilities.h"
 
