@@ -189,20 +189,23 @@ def getQGTaggingTool(jetdef, modspec):
 def getPFlowfJVTTool(jetdef, modspec):
 
     from JetCalibTools import JetCalibToolsConfig
-    jetCalibrationTool = JetCalibToolsConfig.getJetCalibToolFromString(jetdef, "AnalysisLatest:mc:JetArea_Residual_EtaJES")
+    calibString = "AnalysisLatest:mc:JetArea_Residual_EtaJES"
+    if( modspec and modspec == "CustomVtx" ) :
+      calibString = "AnalysisLatest:mc:JetArea_Residual_EtaJES:Kt4EMPFlowCustomVtxEventShape:HggPrimaryVertices"
+    jetCalibrationTool = JetCalibToolsConfig.getJetCalibToolFromString(jetdef, calibString)
 
     wPFOTool = CompFactory.getComp('CP::WeightPFOTool')("fJVT__wPFO")
 
     trackingKeys = jetContextDic[modspec or jetdef.context]
 
-    fJVTTool = CompFactory.JetForwardPFlowJvtTool('fJVT',
+    fJVTTool = CompFactory.JetForwardPFlowJvtTool("fJVT",
                                                   verticesName = trackingKeys["Vertices"],
                                                   TrackVertexAssociation = trackingKeys["TVA"],
                                                   WeightPFOTool = wPFOTool,
                                                   JetCalibrationTool = jetCalibrationTool,
                                                   FEName = jetdef.inputdef.containername,
                                                   ORName = "",
-                                                  FjvtRawName = 'DFCommonJets_fJvt',
+                                                  FjvtRawName = "DFCommonJets_fJvt",
                                                   includePV = True)
 
     return fJVTTool

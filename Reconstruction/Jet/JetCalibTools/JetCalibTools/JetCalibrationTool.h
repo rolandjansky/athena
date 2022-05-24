@@ -85,7 +85,6 @@ private:
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
-  std::string m_vertexContainerName;
   bool m_insituCombMassCalib;
   std::vector<TString> m_insituCombMassConfig;
 
