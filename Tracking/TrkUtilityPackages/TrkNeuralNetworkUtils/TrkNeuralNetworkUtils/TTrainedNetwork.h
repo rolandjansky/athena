@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-*-c++-*-
-#ifndef __TTrainedNetwork_
-#define __TTrainedNetwork_
+#ifndef TRKNEURALNETWORKUTILS_TTRAINEDNETWORK_H
+#define TRKNEURALNETWORKUTILS_TTRAINEDNETWORK_H
 
 #include "TObject.h"
 #include "TMatrixD.h"
@@ -84,24 +84,24 @@ public:
   void setNewWeights(std::vector<TVectorD*> & thresholdVectors,
 		     std::vector<TMatrixD*> & weightMatrices);
 
-  Int_t getnInput() const {return mnInput;};
+  Int_t getnInput() const {return m_nInput;};
 
-  Int_t getnHidden() const {return mnHidden;};
+  Int_t getnHidden() const {return m_nHidden;};
 
-  Int_t getnOutput() const {return mnOutput;};
+  Int_t getnOutput() const {return m_nOutput;};
 
   const std::vector<Int_t> &  getnHiddenLayerSize() const {
-    return mnHiddenLayerSize;
+    return m_nHiddenLayerSize;
   };
 
-  Int_t getActivationFunction() const {return mActivationFunction;};
+  Int_t getActivationFunction() const {return m_ActivationFunction;};
 
   const std::vector<TVectorD*> & getThresholdVectors() const {
-    return mThresholdVectors;
+    return m_ThresholdVectors;
   };
 
   const std::vector<TMatrixD*> & weightMatrices() const {
-    return mWeightMatrices;
+    return m_WeightMatrices;
   };
 
   // these methods should be optimized. 
@@ -114,16 +114,16 @@ public:
   // optimized code. 
   DVec calculateNormalized(const DMap & input) const;
 
-  bool getIfLinearOutput() const { return mLinearOutput; };
+  bool getIfLinearOutput() const { return m_LinearOutput; };
 
-  bool getIfNormalizeOutput() const { return mNormalizeOutput; };
+  bool getIfNormalizeOutput() const { return m_NormalizeOutput; };
 
 private:
 
 
-  unsigned mnInput;
-  unsigned mnHidden;
-  unsigned mnOutput;
+  unsigned m_nInput;
+  unsigned m_nHidden;
+  unsigned m_nOutput;
 
   // in an ideal world these would be one object in a vector, but 
   // storing classes within classes in root is ugly
@@ -132,20 +132,20 @@ private:
 
   std::map<std::string,int> m_inputStringToNode; 
 
-  std::vector<Int_t> mnHiddenLayerSize;
+  std::vector<Int_t> m_nHiddenLayerSize;
 
-  std::vector<TVectorD*> mThresholdVectors;
-  std::vector<TMatrixD*> mWeightMatrices;
+  std::vector<TVectorD*> m_ThresholdVectors;
+  std::vector<TMatrixD*> m_WeightMatrices;
 
   unsigned int   m_bufferSizeMax;              //! cache of the maximum needed size, not persisitified
 
-  Int_t mActivationFunction;
+  Int_t m_ActivationFunction;
 
-  bool mLinearOutput;
+  bool m_LinearOutput;
 
-  bool mNormalizeOutput;
+  bool m_NormalizeOutput;
 
-  double maxExpValue;
+  double m_maxExpValue;
 
   Double_t sigmoid(Double_t x) const; 
 
