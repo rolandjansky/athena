@@ -305,8 +305,6 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
 		      << " dR = 0.2,   conv " << m_graph_dd_cone20_conv_photon_shift->at(ieta)->GetName());
 		      
     }
-    file_ptleakagecorr->Close();
-
     m_corrInitialized[ii][jj] = true;
   }
   
@@ -600,8 +598,6 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin8_extrap") );
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin9_extrap") );
     }
-        
-    file_ptleakagecorr->Close();
   }
 
   void IsolationCorrection::set2015Corr() {
@@ -764,16 +760,13 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
 
       }       // root file : no good format
     }         // root file not found
-
-    file_ptleakagecorr->Close();
-
   }
 
   void IsolationCorrection::setDDCorr() {
     if( !m_corr_ddshift_file.empty() && !m_corr_ddsmearing_file.empty()){
       loadDDCorr();
     }else{
-    	ATH_MSG_WARNING("Data-driven correction files not specified, tool not initialized for data-driven corrections\n");
+      ATH_MSG_WARNING("Data-driven correction files not specified, tool not initialized for data-driven corrections\n");
     }
   }
 
@@ -787,92 +780,37 @@ StatusCode IsolationCorrection::setupDD(const std::string& year) {
       m_corr_ddsmearing_file = "";
     }else{
 
-          // **********************************
-          // Data driven corrections **********
-  	  // https://cds.cern.ch/record/2008664
-  	  // **********************************
+      // **********************************
+      // Data driven corrections **********
+      // https://cds.cern.ch/record/2008664
+      // **********************************
 
-	  // Photon shift corrections
-	  std::vector< std::shared_ptr<TGraphAsymmErrors> > graph_shift;
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_0"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_1"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_2"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_3"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_4"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_5"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_6"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_7"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_8"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_9"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_10"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_11"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_12"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_13"))) );
-
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(0)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(1)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(2)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(3)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(4)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(5)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(6)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(7)->GetFunction("f") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(8)->GetFunction("f_2") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(9)->GetFunction("f_2") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(10)->GetFunction("f_2") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(11)->GetFunction("f_2") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(12)->GetFunction("f_2") );
-          m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(13)->GetFunction("f_2") );
-
-	  // Photon smearing corrections (to be applied in end caps only)
+      // Photon shift corrections
+      std::vector< std::shared_ptr<TGraphAsymmErrors> > graph_shift;
+      // Photon smearing corrections (to be applied in end caps only)
       std::vector< std::shared_ptr<TGraphAsymmErrors> > graph_smearing;
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_0"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_1"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_2"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_3"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_4"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_5"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_6"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_7"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_8"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_9"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_10"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_11"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_12"))) );
-          graph_smearing.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get("graph_13"))) );
+      for (int ig = 0; ig <= 13; ig++) {
+	graph_shift.emplace_back( dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get(Form("graph_%i",ig))) );
+	graph_smearing.emplace_back( dynamic_cast<TGraphAsymmErrors*>(file_ddsmearingcorr->Get(Form("graph_%i",ig))) );
+      }
+      for (int ig = 0; ig <= 13; ig++) {
+	if (ig <= 7)
+	  m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(ig)->GetFunction("f") );
+	else
+	  m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(ig)->GetFunction("f_2") );
+	m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(ig)->GetFunction("f_3") );
+      }
 
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(0)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(1)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(2)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(3)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(4)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(5)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(6)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(7)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(8)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(9)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(10)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(11)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(12)->GetFunction("f_3") );
-          m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(13)->GetFunction("f_3") );
-	
-	  for (const auto& gr : graph_shift) {
+      for (const auto& gr : graph_shift) {
         if (gr == nullptr)
-		  ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
+	  ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
       }
       for (const auto& gr : graph_smearing) {
         if (gr == nullptr)
-		  ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
+	  ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
       }
-	
     }
-    
-    file_ddshift_corr->Close();
-    file_ddsmearingcorr->Close();
-
   }
-
-
 
   template <class T> void IsolationCorrection::FreeClear( T & cntr ) {
     ATH_MSG_DEBUG("FreeClearing the container " << cntr.size());
