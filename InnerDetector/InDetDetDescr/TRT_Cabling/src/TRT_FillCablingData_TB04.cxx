@@ -128,12 +128,12 @@ void TRT_FillCablingData_TB04::defineParameters()
   int numberOfStrawsInLayersC[] = {23, 24, 24, 24, 24, 25, 25, 25, 25, 25, 26,
     26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 29, 29, 29, 29, 28};
    
-  std::vector<int> ncol0 (numberOfStrawsInLayersA, 
-    numberOfStrawsInLayersA + sizeof(numberOfStrawsInLayersA) / sizeof(int));
-  std::vector<int> ncol1 (numberOfStrawsInLayersB, 
-    numberOfStrawsInLayersB + sizeof(numberOfStrawsInLayersB) / sizeof(int));
-  std::vector<int> ncol2 (numberOfStrawsInLayersC, 
-    numberOfStrawsInLayersC + sizeof(numberOfStrawsInLayersC) / sizeof(int));  
+  std::vector<int> ncol0 (std::begin(numberOfStrawsInLayersA), 
+    std::end(numberOfStrawsInLayersA));
+  std::vector<int> ncol1 (std::begin(numberOfStrawsInLayersB), 
+    std::end(numberOfStrawsInLayersB));
+  std::vector<int> ncol2 (std::begin(numberOfStrawsInLayersC), 
+    std::end(numberOfStrawsInLayersC));  
 
   m_ncol.push_back(ncol0);
   m_ncol.push_back(ncol1);

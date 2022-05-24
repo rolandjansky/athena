@@ -366,20 +366,21 @@ void InDet::TRT_Trajectory_xk::trackFindingWithoutDriftTimeBL(double DA)
 
 bool InDet::TRT_Trajectory_xk::searchStartStop()
 {
+  if (m_lastRoad<1) return false;
+  if (m_lastRoad>399){
+    throw std::runtime_error("Too many roads in InDet::TRT_Trajectory_xk::searchStartStop");
+  }
   const double rs = 2.00, rse = 1.85, sr = 40;
-
-  int w[400], W = 0;
+  
+  int w[400]={};
+  int W = 0;
 
   for(int e = m_firstRoad; e<=m_lastRoad; ++e) {
-
     double D = m_elements[e].findCloseLink(m_A,m_B);
     int    b = m_elements[e].bestlink();
-    w[e]     = 0;
     if( D < rs+std::abs(m_elements[e].link(b).sdistance()*sr)) {
-
       if     (m_elements[e].link(b).cluster())  w[e] = 1;
       else if(       D      <      rse       )  w[e] =-1;
-
     }
     W+=w[e];
   }
