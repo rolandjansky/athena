@@ -2,221 +2,182 @@
 /**
  **     @file    TagNProbe.h
  **
- **     @author  marco aparo
- **     @date    Fri 02 Jul 2021 13:30:00 CET 
+ **     @author  mark sutton
+ **     @date    Sat Apr  9 12:55:17 CEST 2022
  **
- **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
 #ifndef TIDAUTILS_TAGNPROBE_H
 #define TIDAUTILS_TAGNPROBE_H
 
-#include <stdlib.h>
+#include <vector> 
 
-#include "TLorentzVector.h"
+#include "TrigInDetAnalysis/TIDAChain.h"
+#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
+#include "TrigInDetAnalysis/Track.h" 
 
-#include "TrigInDetAnalysis/TIDAEvent.h" 
 #include "TrigInDetAnalysis/TrackSelector.h" 
 #include "TrigInDetAnalysisUtils/Filters.h" 
-#include "TrigInDetAnalysisUtils/Filter_Offline2017.h" 
-#include "TrigInDetAnalysis/TrackSelector.h" 
-#include "TrigInDetAnalysis/TrigObjectMatcher.h"
-#include "TH1D.h"
 
-#include <iostream> 
-#include <vector> 
-#include <map> 
-
-#include "TrigInDetAnalysis/TrackAnalysis.h" 
-#include "TrigInDetAnalysis/Track.h" 
-#include "TrigInDetAnalysis/TIDDirectory.h" 
-#include "TrigInDetAnalysis/Efficiency.h" 
-#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TLorentzVector.h"
 
 
 class TagNProbe {
 
 public:
 
-  TagNProbe() { }
-
+  TagNProbe( const std::string& refName, double massMin, double massMax, bool unique_flag=true );
+  
   virtual ~TagNProbe() { }
 
+  /// getters and setters
 
-  /// configuration methods
+  /// could be moved to the constructor now ...
+  void   tag( const std::string& chainName ) { m_tagChainName   = chainName; }
+  void probe( const std::string& chainName ) { m_probeChainName = chainName; }
 
-  void SetEventConfiguration( 
-          TrackSelector * refTracks,          // reference tracks
-          TrackFilter* refFilter,             // reference filter
-          std::string refName,                // reference objects name
-          TrigObjectMatcher* tom,             // trigger object matcher 
-          double ZmassMin,                    // ZmassMin
-          double ZmassMax,                    // ZmassMax
-          bool unique_flag=true ) {           // unique flag (default=true)
-    m_refTracks = refTracks;
-    m_refFilter = refFilter;
-    m_particleType = refName;
-    m_tom = tom;
-    m_ZmassMin = ZmassMin;
-    m_ZmassMax = ZmassMax;
-    m_unique = unique_flag;
-  }
+  const std::string&   tag() const { return m_tagChainName; }
+  const std::string& probe() const { return m_probeChainName; }
 
-  void ResetEventConfiguration() { 
-    m_refTracks = 0;
-    m_refFilter = 0;
-    m_particleType = "";
-    m_tom = 0;
-    m_ZmassMin = 0.;
-    m_ZmassMax = 999.;
-    m_unique = false;
-  }
+public:
+
+  template<typename T>
+  std::vector<TIDA::Roi*> GetRois( std::vector<TIDA::Chain>& chains, 
+				   const TrackSelector*  refTracks, 
+				   TrackFilter*          refFilter,
+				   T* hmass,  
+				   T* hmass_obj,
+				   TrigObjectMatcher* tom=0 ) const {  
+
+    std::vector<TIDA::Roi*> probes;
+
+    TIDA::Chain* chain_tag   = findChain( tag(), chains ); 
+    TIDA::Chain* chain_probe = findChain( probe(), chains ); 
+
+    if ( chain_tag==0 || chain_probe==0 ) return probes;
+
+    // loop for possible probes
+    for ( size_t ip=0 ; ip<chain_probe->size() ; ip++ ) {
+      
+      TIDA::Roi& proi = chain_probe->rois()[ip];
     
-  void SetUniqueFlag( bool flag ) { m_unique = flag; }
- 
-  void SetParticleType( std::string type ) { m_particleType = type; }
- 
-  void SetZmassWindow( double ZmassMin, double ZmassMax ) { m_ZmassMin = ZmassMin; m_ZmassMax = ZmassMax; }
-
-  void SetObjMatcher( TrigObjectMatcher* tom ) { m_tom = tom; }
-
-  void SetOfflineTracks( TrackSelector * refTracks, TrackFilter* refFilter ) {
-    m_refTracks = refTracks;
-    m_refFilter = refFilter;
-  } 
-
-  void SetChains( TIDA::Chain * chain, TIDA::Chain * chain_tnp ) {
-    m_chain = chain;
-    m_chain_tnp = chain_tnp;
+      TIDARoiDescriptor roi_probe( proi.roi() );
+      
+      bool found_tnp = false;
+            
+      // loop for possible tags
+      for ( size_t it=0 ; it<chain_tag->size() ; it++ ) {  
+	
+	TIDA::Roi& troi = chain_tag->rois()[it];
+	TIDARoiDescriptor roi_tag( troi.roi() );
+	
+	/// tag and probe are the same: skip this tag
+	if ( roi_probe == roi_tag ) continue;
+	
+	if ( selection( troi, proi, refTracks, refFilter, hmass, hmass_obj, tom ) ) { 
+	  found_tnp = true;
+	  if ( m_unique ) break;
+	}
+	
+      } // end loop on tags
+      
+      if ( found_tnp ) probes.push_back( &proi );
+      
+    } // end loop on probes
+    
+    return probes;
+    
   }
-
-  template<typename T> 
-  void Fill( T* h, T* h1, int i ) { 
-    /// don't need to check both these, we can just call this as many times as we like, 
-    /// could pass in the vector even so that  
-    // we leave the old code in, but commented, since we are still developing, so once 
-    // we know everything is working we can delete all the older code
-    //    if ( m_masses[i].size() == m_masses_obj[i].size() && m_masses[i].size() > 0 ) {
-
-    /// don't understand this - why is this method filling lots of masses 
-    /// from an vector of masses from 0 up to the input index ?
-    /// isn't this index just the index of the roi ? Why the loop ?
-    for ( size_t im=0 ; im<m_masses[i].size() ; im++ ) { 
-      h->Fill( m_masses[i].at(im) );
-    }
-    for ( size_t im=0 ; im<m_masses_obj[i].size() ; im++ ) { 
-      h1->Fill( m_masses_obj[i].at(im) );
-    }
-  } 
-
-
-  /// probe searching method
-
-  bool FindProbes();
-
-  void FindTIDAChains( std::vector<TIDA::Chain>& chains ) ;
-
-  /// getter methods
-
-  std::vector<TIDA::Roi*> GetProbes() { return m_probes; }
-
-  std::vector<TIDA::Roi*> GetTags( unsigned int probe_index=0 ) { return m_tags[ probe_index ]; }
-
-  std::vector<double> GetInvMasses( unsigned int probe_index=0 ) { return m_masses[ probe_index ]; }
-
-  std::vector<double> GetInvMasses_obj( unsigned int probe_index=0 ) { return m_masses_obj[ probe_index ]; }
-
-  std::vector<TIDA::Roi*> GetRois( TIDA::Chain * chain, std::vector<TIDA::Chain>& chains );
-
-  std::vector<TIDA::Roi*> GetRois( std::vector<TIDA::Chain>& chains );
-
-  void tag( const std::string& chainName ) { m_tagChainName = chainName ; }
-
-  const std::string& tag() { return m_tagChainName ; }
-
-  void probe( const std::string& chainName ) { m_probeChainName = chainName ; }
-
-  const std::string& probe() { return m_probeChainName ; }
-
-  TIDA::Chain* GetTIDAProbe() { return m_chain_tnp ; } 
-
-  TIDA::Chain* GetTIDATag() { return m_chain ; }
-
-  TH1D* GetMinvHisto() { return m_hMinv ; }
-
-  TH1D* GetMinvObjHisto() { return m_hMinv_obj ; }
-
-
-  /// utility methods
-  
-  void FillMap( std::vector<std::string>& tnpChains );
-  
-  std::vector<std::string> GetProbeChainNames() { return m_probe_chain_names; }
-
-  bool isTnP() { return m_tnp_map.size()>0; }
-
-  TIDA::Chain* GetTagChain( std::string probe_name, std::vector<TIDA::Chain>& chains );
-
-  void BookMinvHisto( std::string chain_name );
-
-  void BookMinvHisto();
-
-  void FillMinvHisto( std::string chain_name, unsigned int probe_index );
-
-  void FillMinvHisto( unsigned int probe_index );
-
-  void WriteMinvHisto( TDirectory* foutdir );
-
-
-  /// internal methods for computation (protected)
 
 protected:
+  
+  double pt( const TIDA::Track* t )     const { return t->pT(); }   
+  double pt( const TrackTrigObject* t ) const { return t->pt(); }   
+  
+  template<typename T>
+  double mass( const T* t1, const T* t2 ) const {
+    TLorentzVector v1;
+    v1.SetPtEtaPhiM( pt(t1)*0.001, t1->eta(), t1->phi(), m_mass );
+    TLorentzVector v2;
+    v2.SetPtEtaPhiM( pt(t2)*0.001, t2->eta(), t2->phi(), m_mass );
+    return (v1+v2).M();
+  }
 
-  std::pair<double,double> selection( TIDA::Roi & troi, TIDA::Roi & proi );
 
-  double computeZ( TIDA::Track* t1, TIDA::Track* t2 );
+  template<typename T>
+  bool selection( const TIDA::Roi& troi, const TIDA::Roi& proi, 
+		  const TrackSelector* refTracks, 
+		  TrackFilter*         refFilter,
+		  T* hmass, 
+		  T* hmass_obj,
+		  TrigObjectMatcher*  tom=0) const {
+    
+    /// get reference tracks from the tag roi                                                                                                                                                                           
+    TIDARoiDescriptor roi_tag( troi.roi() );
 
-  double computeZ_obj( TIDA::Track* t1, TIDA::Track* t2 );
+    dynamic_cast<Filter_Combined*>(refFilter)->setRoi( &roi_tag );
+
+    std::vector<TIDA::Track*> refp_tag = refTracks->tracks( refFilter );
+
+    /// get reference tracks from the probe roi                                                                                                                                                                      
+    TIDARoiDescriptor roi_probe( proi.roi() );
+
+    dynamic_cast<Filter_Combined* >( refFilter )->setRoi( &roi_probe );
+
+    std::vector<TIDA::Track*> refp_probe = refTracks->tracks( refFilter );
+
+    /// loop over tag ref tracks                                                                                                                                                                                           
+    bool found = false;
+
+    for ( size_t it=0; it<refp_tag.size() ; it++ ) {
+
+      /// loop over probe ref tracks
+      for ( size_t ip=0; ip<refp_probe.size() ; ip++ ) {
+
+	/// check compatibility of the track z and invariant mass ...
+	double invmass     = mass( refp_tag[it], refp_probe[ip] );
+	double invmass_obj = mass_obj( refp_tag[it], refp_probe[ip], tom );
+	double deltaz0     = std::fabs(refp_tag[it]->z0() - refp_probe[ip]->z0() );
+	
+	if ( invmass_obj>m_massMin && invmass_obj<m_massMax && deltaz0<5 ) {
+	  hmass->Fill( invmass );
+	  hmass_obj->Fill( invmass_obj );
+	  found = true;
+	}
+
+      }
+    }
+
+    return found;
+
+  }
 
 
-  /// internally used variables
+  double   mass_obj( const TIDA::Track* t1, const TIDA::Track* t2, TrigObjectMatcher* tom=0 ) const;
+
+  TIDA::Chain* findChain( const std::string& chainname, std::vector<TIDA::Chain>& chains ) const;
+
 
 private:
 
-  TrackSelector * m_refTracks;
-  TrackFilter * m_refFilter;
-
-  TIDA::Chain * m_chain;
-  TIDA::Chain * m_chain_tnp;
-
-  std::string m_probeChainName ;
-  std::string m_tagChainName ;
-
-  std::vector<TIDA::Roi*> m_probes;
-  std::vector< std::vector<double> > m_masses;
-  std::vector< std::vector<double> > m_masses_obj;
-  std::vector< std::vector<TIDA::Roi*> > m_tags;
-
-  bool m_unique;
-
   std::string m_particleType;
 
-  double m_ZmassMin, m_ZmassMax;
+  double m_mass;
 
-  TrigObjectMatcher* m_tom;
+  double m_massMin;
+  double m_massMax;
 
-  /// supporting variables for utility methods
+  bool   m_unique;
 
-  std::map<std::string,std::string> m_tnp_map;
-  std::vector<std::string> m_probe_chain_names;
-
-  std::map<std::string,TH1D*> m_hMinv_map;
-  std::map<std::string,TH1D*> m_hMinv_obj_map;
-
-  TH1D* m_hMinv ;
-  TH1D* m_hMinv_obj ;
+  std::string  m_probeChainName ;
+  std::string  m_tagChainName ;
 
 };
 
-#endif  // TIDAUTILS_TAGNPROBE_H 
+
+#endif ///  TIDAUTILS_TAGNPROBE_H
+
+

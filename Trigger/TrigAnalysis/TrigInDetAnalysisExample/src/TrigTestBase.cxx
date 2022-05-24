@@ -380,7 +380,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
       // tag and probe object creation
       for (unsigned i=0; i<m_chainNames.size(); ++i) {
 	
-	TagNProbe2* tnp = 0;
+	TagNProbe* tnp = 0;
 
 	ChainString probe = m_chainNames[i];
 
@@ -401,7 +401,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 	    if ( tag.head() != probe.head() ) continue;
 	    if ( tag.tail() != probe.tail() ) continue;
-	    if ( tag.roi()  != probe.roi()  ) continue; /// shouldn't have this one, maybe the rois *are* different
 	    if ( tag.element() == probe.element() ) continue;
 
 	    if ( tag.extra().find("_tag")==std::string::npos ) continue;
@@ -417,8 +416,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    /// could perhaps be done with a unique_ptrt 
 	    double massMin = 40;
 	    double massMax = 150;
-	    if ( m_mcTruth ) tnp = new TagNProbe2( "Truth",   massMin, massMax );
-	    else             tnp = new TagNProbe2( "Offline", massMin, massMax );
+	    if ( m_mcTruth ) tnp = new TagNProbe( "Truth",   massMin, massMax );
+	    else             tnp = new TagNProbe( "Offline", massMin, massMax );
 	    tnp->tag(tag);
 	    tnp->probe(probe);
 	    ATH_MSG_DEBUG( "Tag and probe pair found: " +  tag + " : " + probe ); 

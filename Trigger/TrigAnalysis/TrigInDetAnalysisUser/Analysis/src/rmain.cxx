@@ -427,8 +427,6 @@ int main(int argc, char** argv)
 
   bool useoldrms    = true;
   bool nofit        = false;
-  bool doTnP        = false;  // added for tagNprobe
-  bool doTnP_histos = false;  // added for tagNprobe
 
   std::string vertexSelection     = "";
   std::string vertexSelection_rec = "";
@@ -448,8 +446,6 @@ int main(int argc, char** argv)
       refChain = argv[i];
     }
     else if ( std::string(argv[i])=="--rms" )   useoldrms = false;
-    else if ( std::string(argv[i])=="--tnp" )   doTnP = true;
-    else if ( std::string(argv[i])=="--tnph" )  doTnP_histos = true;
     else if ( std::string(argv[i])=="-n" || std::string(argv[i])=="--nofit" ) nofit = true;
     else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--testChain" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
@@ -570,10 +566,6 @@ int main(int argc, char** argv)
 
   int ntracks = 0;
 
-  /// Zmass window cuts for Tag&Probe analysis
-  double ZmassMax = 110.; // GeV
-  double ZmassMin = 70.; // GeV
-
   //bool printflag = false;  // JK removed (unused)
 
   bool rotate_testtracks = false;
@@ -646,12 +638,6 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("Rmatch") )       Rmatch = inputdata.GetValue("Rmatch");
 
-  /// set upper and lower Zmass window cuts from datafile for Tag&Probe analysis
-  if ( inputdata.isTagDefined("ZmassMax") ) ZmassMax = inputdata.GetValue("ZmassMax");
-  if ( inputdata.isTagDefined("ZmassMin") ) ZmassMin = inputdata.GetValue("ZmassMin");
-  /// set doTnP_histos flag from datafile for Tag&Probe analysis
-  if ( inputdata.isTagDefined("doTnPHistos") )  doTnP_histos = ( inputdata.GetValue("doTnPHistos")==0 ? false : true );
-
   std::string useMatcher = "DeltaR";
   if ( inputdata.isTagDefined("UseMatcher") ) useMatcher = inputdata.GetString("UseMatcher");  
 
@@ -671,32 +657,6 @@ int main(int argc, char** argv)
     if      ( inputdata.isTagDefined("testChains") ) testChains = inputdata.GetStringVector("testChains");
     else if ( inputdata.isTagDefined("testChain") )  testChains.push_back( inputdata.GetString("testChain") );
   }
-
-  /// get the tag and probe chains for Tag&Probe analysis
-
-  TagNProbe* TnP_tool = 0; // declare T&P tool as null pointer
-
-  if ( inputdata.isTagDefined("TagnProbe") ) { 
-
-    /// The TagnProbe chain name vector is stuctured in pairs
-    /// Each pair has the strucure: tag chain - probe chain
-    
-    TnP_tool = new TagNProbe(); // initialise  T&P tool
-
-    testChains.clear();  // delete the old testChain vector
-
-    /// get the Tag&Probe chain name vector
-    std::vector<std::string> tnpChains =  inputdata.GetStringVector("TagnProbe");
-
-    TnP_tool->FillMap( tnpChains ); // fill tag/probe chains map for bookkeeping
-
-    doTnP = TnP_tool->isTnP(); // set the T&P flag
-    if ( !doTnP ) doTnP_histos = false; // set this flag to false if doTnP is false
-
-    testChains = TnP_tool->GetProbeChainNames(); // replace testChains
-
-  }
-
 
   /// new code - can extract vtx name, pt, any extra options that we want, 
   /// but also chop off everythiung after :post 
@@ -1128,10 +1088,52 @@ int main(int argc, char** argv)
 
     //    std::cout << "chain name " << chainname << "\t:" << chainnames.back() << " : " << chainnames.size() << std::endl;
 
+    // tag and probe object creation and configuration
+
+    TagNProbe* TnP_tool = 0;
+    ChainString probe = chainConfig[i];
+                
+    if ( probe.extra().find("_tag")!=std::string::npos ) continue;
+       
+    // probe can be the .head() so convert m_chainNames to a ChainString and search the .extra() specifically                                           
+    size_t p = probe.extra().find("_probe");
+ 
+    if ( p!=std::string::npos ) {
+ 
+      std::string probe_key = probe.extra().erase( p, 6) ;
+ 
+      for ( unsigned j=0 ; j<test_chains.size(); ++j) {
+ 
+	if ( i==j ) continue;
+ 
+	ChainString tag = test_chains[j];
+ 
+	if ( tag.head() != probe.head() ) continue;
+	if ( tag.tail() != probe.tail() ) continue;
+	if ( tag.element() == probe.element() ) continue;
+	if ( tag.extra().find("_tag")==std::string::npos ) continue;
+ 
+	// need to compare just the 'el1' part of of .extra() so create variables without '_probe/_tag' part                                                
+	std::string tag_key = tag.extra().erase( tag.extra().find("_tag"), 4) ;
+ 
+	// tag chain must be the same as probe chain but with te=0 and extra=*_tag                                                                          
+	if ( tag_key != probe_key ) continue;
+ 
+	// if matching tag found then initialise tag and probe object and store tag and probe chains in there                                                        /// this will be passed into the ConfAnalysis, which will delete it when necessary                                                                
+	/// could perhaps be done with a unique_ptrt
+	const double massMin = 40;
+	const double massMax = 150;
+	TnP_tool = new TagNProbe(refChain, massMin, massMax);
+	TnP_tool->tag(tag);
+	TnP_tool->probe(probe);
+	std::cout <<  "Tag and probe pair found! \nTag  : " <<  tag << "\nProbe: " << probe <<std::endl;
+	break ;
+      }
+    }
+    
     // Replace "/" with "_" in chain names, for Tag&Probe analysis
-    std::string new_chainname = chainnames.back();
-    if ( doTnP ) replace( new_chainname, "/", "_" );
-    ConfAnalysis* analy_conf = new ConfAnalysis( new_chainname, chainConfig[i] );
+    if ( TnP_tool ) replace( chainname, "/", "_" );
+    ConfAnalysis* analy_conf = new ConfAnalysis( chainname, chainConfig[i], TnP_tool );
 
     analy_conf->initialiseFirstEvent(initialiseFirstEvent);
     analy_conf->initialise();
@@ -1170,9 +1172,19 @@ int main(int argc, char** argv)
 
     //    for (unsigned int ic=0 ; ic<chainnames.size() ; ic++ )  analysis[chainnames[ic]] = analy_conf;
     
-    analysis[chainname] = analy_conf;
 
-    analyses.push_back(analy_conf);
+    if ( analysis.find( chainname )==analysis.end() ) {
+      analysis.insert( std::map<std::string,TrackAnalysis*>::value_type( chainname, analy_conf ) );
+      analyses.push_back(analy_conf);
+    }
+    else {
+      std::cerr << "WARNING: Duplicated chain"
+	<< "\n" 
+	<< "---------------------------------" 
+	<< "---------------------------------" 
+	<< "---------------------------------" << std::endl;
+						  continue;
+    }
 
     std::cout << "analysis: " << chainname << "\t" << analy_conf  
               << "\n" 
@@ -1189,9 +1201,6 @@ int main(int argc, char** argv)
       analysis[chainnames[0]+"-purity"] = analp;
       analyses.push_back(analp);
     }
-
-    /// filling map for Tag&Probe invariant mass histograms
-    if ( doTnP_histos ) TnP_tool->BookMinvHisto( chainname );
 
   }
 
@@ -1773,18 +1782,6 @@ int main(int argc, char** argv)
       std::cout << "reference chain:\n" << *refchain << std::endl;
     }
 
-    /// configure the T&P tool for this event, if doTnP = true
-    if ( doTnP ) {
-        TnP_tool->ResetEventConfiguration(); /// reset the TnP_tool for this event
-
-        /// do the event-by-event configuration
-        TnP_tool->SetEventConfiguration( 
-                    &refTracks, refFilter,          // offline tracks and filter
-                    refChain,                       // offline chain name
-                    &tom,                           // trigger object matcher
-                    ZmassMin, ZmassMax );           // set the Zmass range
-    }
-
     for ( unsigned ic=0 ; ic<track_ev->chains().size() ; ic++ ) { 
 
       TIDA::Chain& chain = track_ev->chains()[ic];
@@ -1798,27 +1795,29 @@ int main(int argc, char** argv)
 
       if ( analitr==analysis.end() ) continue;
 
-
-      if ( debugPrintout ) { 
-        std::cout << "test chain:\n" << chain << std::endl;
+      if ( debugPrintout ) {
+	 std::cout << "test chain:\n" << chain << std::endl;
       }
-     
+
+      ConfAnalysis* cf = dynamic_cast<ConfAnalysis*>(analitr->second);
+      
       std::vector<TIDA::Roi*> rois; /// these are the rois to process
-
-      if ( doTnP ) {
-        /// if doTnP = true, do the T&P selection and get the vector of RoIs
-        rois = TnP_tool->GetRois( &chain, track_ev->chains() );
-
-        /// now the TnP_tool object contains all the info on the good probes that have been found 
-        /// including, for each one of them, the invariant mass(es) calculated with the 
-        /// corresponding tag(s). One can access to these info at any time in the following lines
+ 
+      // tag and probe object retreival and filling of the roi vector
+      TagNProbe* TnP_tool = cf->getTnPtool();
+      if ( TnP_tool ) {
+	foutdir->cd();
+	cf->initialiseInternal();
+	// changes to output directory and books the invariant mass histograms
+	TH1F* m_invmass     = cf->getHist_invmass();
+	TH1F* m_invmass_obj = cf->getHist_invmassObj();
+	rois = TnP_tool->GetRois( track_ev->chains(), &refTracks, refFilter, m_invmass, m_invmass_obj );
       } 
       else {
-        /// if doTnP==false, do std analysis and fill the rois vector from chain
-        rois.reserve( chain.size() );
-        for ( size_t ir=0 ; ir<chain.size() ; ir++ )
-          rois.push_back( &(chain.rois()[ir]) );
-
+	// if not a tnp analysis then fill rois in the normal way
+	rois.reserve( chain.size() );
+	for ( size_t ir=0 ; ir<chain.size() ; ir++ )
+	  rois.push_back( &(chain.rois()[ir]) );
       }
  
       /// debug printout
@@ -1833,14 +1832,6 @@ int main(int argc, char** argv)
         //TIDA::Roi& troi = chain.rois()[ir]; 
         TIDA::Roi& troi = *rois[ir]; // changed for tagNprobe
         TIDARoiDescriptor roi( troi.roi() );
-
-        /// filling the invariant mass histos for Tag&Probe analysis 
-        /// for the current probe (ir) and if doTnP_histos = true
-        if ( doTnP_histos ) {
-          /// Minv vectors may have more than one element when the current probe 
-          /// is selected for more than one tag
-          TnP_tool->FillMinvHisto( chain.name(), ir );
-        }
 
         testTracks.clear();
 
@@ -2028,8 +2019,6 @@ int main(int argc, char** argv)
 
 
         /// remove any tracks below the pt threshold if one is specifed for the analysis
-
-        ConfAnalysis* cf = dynamic_cast<ConfAnalysis*>( analitr->second );
 
         if ( cf ) { 
           std::string ptconfig = cf->config().postvalue("pt");
@@ -2291,13 +2280,6 @@ int main(int argc, char** argv)
     if ( vtxanal ) vtxanal->finalise();
     
     delete analyses[i];
-  }
-
-  /// write out the histograms
-  if ( doTnP ) {
-    // saving Minv histos for Tag&Probe analysis if doTnP_histos = true
-    if ( doTnP_histos ) TnP_tool->WriteMinvHisto( foutdir );
-    delete TnP_tool;  // deleting T&P tool
   }
 
   foutput.Write();

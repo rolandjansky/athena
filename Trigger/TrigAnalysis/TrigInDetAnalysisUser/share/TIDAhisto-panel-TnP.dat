@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*- 
 
-panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel, trt_panel, tnp_panel };
+panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel, trt_panel };
 
 panel_columns = { eff_panel, 3 };
 
@@ -63,7 +63,10 @@ dist_panel = {
      "a0_rec",  "a0 rec",       "xaxis:lin:autosym:-3:3",         "Trigger a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
 
      "z0",      "z0",           "xaxis:lin:-200:200",     "Reference z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
-     "z0_rec",  "z0_rec",       "xaxis:lin:-200:200",     "Trigger z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries"
+     "z0_rec",  "z0_rec",       "xaxis:lin:-200:200",     "Trigger z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
+
+     "invmass",      "Tracks M_{INV}^{tag+probe}",      "xaxis:lin:autow",        "Offline tracks M_{INV} [GeV]",     "yaxis:lin:autow",  "Entries"  , 
+     "invmass_obj",  "Electrons M_{INV}^{tag+probe}",       "xaxis:lin:autow",        "Offline dielectron M_{INV} [GeV]",     "yaxis:lin:autow",  "Entries",
 };
 
 
@@ -94,10 +97,5 @@ trt_panel = {
    "ntrt_eta/1d",           " TRT hits",    "xaxis:lin:auto",   "Reference TRT multiplcicity",   "yaxis:log:auto", "Entries",
    "ntrt_eta_rec/1d",       " TRT hits",    "xaxis:lin:auto",   "Trigger TRT multiplcicity",     "yaxis:log:auto", "Entries"
 
-};
-
-tnp_panel = {
-  "Minv_TnP",      "Tracks M_{INV}^{tag+probe}",      "xaxis:lin:autow",        "Offline tracks M_{INV} [GeV]",     "yaxis:lin:autow",  ""  , 
-  "Minv_obj_TnP",  "Electrons M_{INV}^{tag+probe}",       "xaxis:lin:autow",        "Offline dielectron M_{INV} [GeV]",     "yaxis:lin:autow",  "" 
 };
 
