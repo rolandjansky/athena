@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1EVENTATHENAPOOL_MUCTPI_RDOCNV_H
@@ -13,6 +13,7 @@
 // TrigT1 include(s):
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1EventTPCnv/MuCTPI_RDO_p1.h"
+#include "TrigT1EventTPCnv/MuCTPI_RDOCnv_p1.h"
 
 // Define the latest persistent representation of MuCTPI_RDO:
 typedef MuCTPI_RDO_p1 MuCTPI_RDO_PERS;
@@ -24,8 +25,6 @@ typedef T_AthenaPoolCustomCnv< MuCTPI_RDO, MuCTPI_RDO_PERS > MuCTPI_RDOCnvBase;
  *          Custom POOL converter for the MuCTPI_RDO object that implements the
  *          T/P separation for the LVL1 object.
  *
- * @version $Revision: 1.1 $
- *    @date $Date: 2007-10-12 14:42:11 $
  *  @author Attila Krasznahorkay Jr.
  */
 class MuCTPI_RDOCnv : public MuCTPI_RDOCnvBase {
@@ -39,6 +38,8 @@ protected:
 
    virtual MuCTPI_RDO_PERS* createPersistent( MuCTPI_RDO* transObj );
    virtual MuCTPI_RDO*      createTransient();
+private:
+   MuCTPI_RDOCnv_p1 m_converter;
 
 }; // class MuCTPI_RDOCnv
 

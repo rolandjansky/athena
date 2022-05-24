@@ -32,7 +32,7 @@ JEMEtSumsCollection * JEMEtSumsCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "JEMEtSumsCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "FFEF6FF1-31E5-492A-9A44-4AD5B79DB22B" );
+  static const pool::Guid tlp1_guid( "FFEF6FF1-31E5-492A-9A44-4AD5B79DB22B" );
  
   JEMEtSumsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

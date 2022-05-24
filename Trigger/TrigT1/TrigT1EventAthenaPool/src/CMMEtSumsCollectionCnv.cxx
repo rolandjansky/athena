@@ -32,7 +32,7 @@ CMMEtSumsCollection * CMMEtSumsCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "CMMEtSumsCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "DAB02AE0-736D-4C24-AC21-E6F12B3A4FE3" );
+  static const pool::Guid tlp1_guid( "DAB02AE0-736D-4C24-AC21-E6F12B3A4FE3" );
  
   CMMEtSumsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

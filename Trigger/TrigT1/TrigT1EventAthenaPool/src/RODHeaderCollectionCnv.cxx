@@ -32,7 +32,7 @@ RODHeaderCollection * RODHeaderCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "RODHeaderCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "8226F1B6-374D-424D-B059-E0A1B18A1DA7" );
+  static const pool::Guid tlp1_guid( "8226F1B6-374D-424D-B059-E0A1B18A1DA7" );
  
   RODHeaderCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

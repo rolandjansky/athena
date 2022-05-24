@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1EVENTATHENAPOOL_CTP_RDOCNV_H
@@ -14,6 +14,9 @@
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1EventTPCnv/CTP_RDO_p1.h"
 #include "TrigT1EventTPCnv/CTP_RDO_p2.h"
+#include "TrigT1EventTPCnv/CTP_RDOCnv_p1.h"
+#include "TrigT1EventTPCnv/CTP_RDOCnv_p2.h"
+
 
 // Define the latest persistent representation of CTP_RDO:
 typedef CTP_RDO_p2 CTP_RDO_PERS;
@@ -25,8 +28,6 @@ typedef T_AthenaPoolCustomCnv< CTP_RDO, CTP_RDO_PERS > CTP_RDOCnvBase;
  *          Custom POOL converter for the CTP_RDO object that implements the
  *          T/P separation for the LVL1 object.
  *
- * @version $Revision: 1.2 $
- *    @date $Date: 2008-02-28 13:41:01 $
  *  @author Attila Krasznahorkay Jr., Wolfgang Ehrenfeld
  */
 class CTP_RDOCnv : public CTP_RDOCnvBase {
@@ -40,6 +41,10 @@ protected:
 
    virtual CTP_RDO_PERS* createPersistent( CTP_RDO* transObj );
    virtual CTP_RDO*      createTransient();
+private:
+   CTP_RDOCnv_p2 m_converter;
+   CTP_RDOCnv_p1 m_converter_p1;
+
 
 }; // class CTP_RDOCnv
 

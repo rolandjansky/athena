@@ -32,7 +32,7 @@ CMXJetTobCollection * CMXJetTobCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "CMXJetTobCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "3FD32EB7-6573-4BCD-A510-6A5549E495A4" );
+  static const pool::Guid tlp1_guid( "3FD32EB7-6573-4BCD-A510-6A5549E495A4" );
  
   CMXJetTobCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     

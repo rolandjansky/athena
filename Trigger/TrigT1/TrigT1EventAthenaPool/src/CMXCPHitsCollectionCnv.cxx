@@ -32,7 +32,7 @@ CMXCPHitsCollection * CMXCPHitsCollectionCnv::createTransient()
   
   //mlog << MSG::DEBUG << "CMXCPHitsCollectionCnv::createTransient called" << endmsg;
 
-  static pool::Guid tlp1_guid( "1A1F6DEF-0233-453C-8614-E7B82EFCEDC6" );
+  static const pool::Guid tlp1_guid( "1A1F6DEF-0233-453C-8614-E7B82EFCEDC6" );
  
   CMXCPHitsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     
