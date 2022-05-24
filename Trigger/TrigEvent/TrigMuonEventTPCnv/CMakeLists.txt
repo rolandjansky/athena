@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigMuonEventTPCnv )
@@ -25,7 +25,7 @@ function( _add_test test )
    atlas_add_test( ${test}
                    SOURCES
                    test/${test}.cxx
-                   LINK_LIBRARIES GaudiKernel TestTools TrigMuonEventTPCnv )
+                   LINK_LIBRARIES GaudiKernel TestTools TrigMuonEventTPCnv CxxUtils )
 endfunction()
 
 _add_test( CombinedMuonFeatureCnv_p2_test )
