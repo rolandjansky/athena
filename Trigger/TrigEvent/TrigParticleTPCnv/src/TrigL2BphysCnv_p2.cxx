@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigParticleTPCnv/TrigL2Bphys_p2.h"
 #include "TrigParticle/TrigL2Bphys.h"
 #include "TrigParticleTPCnv/TrigL2BphysCnv_p2.h"
 
-static ElementLinkVectorCnv_p1<ElementLinkVector<TrigInDetTrackCollection> > trackELVCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<TrigInDetTrackCollection> > trackELVCnv;
 
 //-----------------------------------------------------------------------------
 // Persistent to transient

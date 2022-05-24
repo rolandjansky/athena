@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigParticle/TrigPhoton.h"
 #include "TrigParticleTPCnv/TrigPhoton_p3.h"
 #include "TrigParticleTPCnv/TrigPhotonCnv_p3.h"
  
-static ElementLinkCnv_p3< ElementLink<TrigEMClusterContainer> > eLinkEMClusterCnv;
+static const ElementLinkCnv_p3< ElementLink<TrigEMClusterContainer> > eLinkEMClusterCnv;
 
 //-----------------------------------------------------------------------------
 // Persistent to transient
