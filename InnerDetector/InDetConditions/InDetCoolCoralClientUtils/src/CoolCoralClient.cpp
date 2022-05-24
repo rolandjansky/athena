@@ -1366,8 +1366,8 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   struct timeval start_time{}, end_time{};
   int total_usecs=0;
   gettimeofday(&start_time, nullptr);
-  TTCobj_t *ttc_param;
-  std::vector<TTCobj_t *> ttc_params;
+  std::unique_ptr<TTCobj_t> ttc_param;
+  std::vector<std::unique_ptr<TTCobj_t>> ttc_params;
   TTCGroupobj_t ttcgr_param;
   DTMROCobj_t  dtmroc_param;
 
@@ -1538,7 +1538,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   int nRows = 0;
   while ( cursor0.next() ) {
     const coral::AttributeList &row0 = cursor0.currentRow();
-    ttc_param = new TTCobj_t;
+    ttc_param = std::make_unique<TTCobj_t>();
 
     ttc_param->VMEslot = row0[1].data<int>();
     ttc_param->Delay = row0[2].data<int>();
@@ -1634,7 +1634,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
     }      
     delete query2; query2=nullptr;
     printf("Total  %d    DTMROC records\n", nRows2);
-    ttc_params.push_back(ttc_param);
+    ttc_params.push_back(std::move(ttc_param));
     ++nRows;
   }
   delete query0; query0=nullptr;
