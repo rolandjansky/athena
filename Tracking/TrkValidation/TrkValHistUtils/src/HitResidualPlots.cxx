@@ -21,7 +21,7 @@ void HitResidualPlots::initializePlots(){
     
 }
 
-void HitResidualPlots::fill( const Trk::ResidualPull& resPull ) const {
+void HitResidualPlots::fill( const Trk::ResidualPull& resPull ) {
 
   const float residual = resPull.residual().front();
   const float pull = resPull.pull().front();

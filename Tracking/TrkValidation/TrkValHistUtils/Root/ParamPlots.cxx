@@ -37,7 +37,7 @@ namespace Trk {
   }
 
   void
-  ParamPlots::fill(const xAOD::IParticle &prt, float weight) const {
+  ParamPlots::fill(const xAOD::IParticle &prt, float weight) {
     pt->Fill(prt.pt() * 0.001, weight); 
     eta->Fill(prt.eta(),weight);
     phi->Fill(prt.phi(),weight);
