@@ -103,7 +103,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
     const double thresholdMin,
     const double thresholdMax,
     const uint32_t thresholdBins = 100,
-    const RatesScanTrigger::TriggerBehaviour_t behaviour = RatesScanTrigger::TriggerBehaviour_t::kTriggerAboveThreshold,
+    const RatesScanTrigger::TriggerBehaviour_t behaviour = RatesScanTrigger::TriggerBehaviour_t::kTriggerBelowThreshold,
     const double prescale = 1.,
     const std::string& seedName = "",
     const double seedPrecale = 1.,
