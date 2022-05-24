@@ -30,6 +30,9 @@ def createTriggerFlags(doTriggerRecoFlags):
     # Enable L1Topo simulation to write inputs to txt
     flags.addFlag('Trigger.enableL1TopoDump', False)
 
+    # Enable L1Topo simulation to BW run
+    flags.addFlag('Trigger.enableL1TopoBWSimulation', False)
+
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     flags.addFlag('Trigger.enableL1CaloLegacy', True)
 
