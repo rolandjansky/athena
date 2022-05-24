@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigMuonEventTPCnv/test/TrigMuonEFIsolationCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolationCnv_p1.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -47,7 +46,7 @@ void testit (const TrigMuonEFIsolation& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   // Get proxy created outside of leak checking.
@@ -68,7 +67,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
   test1();

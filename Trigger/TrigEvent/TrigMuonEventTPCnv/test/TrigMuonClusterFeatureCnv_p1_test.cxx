@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigMuonEventTPCnv/test/TrigMuonClusterFeatureCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +12,7 @@
 #undef NDEBUG
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeatureCnv_p1.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -43,7 +42,7 @@ void testit (const TrigMuonClusterFeature& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -54,7 +53,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;
