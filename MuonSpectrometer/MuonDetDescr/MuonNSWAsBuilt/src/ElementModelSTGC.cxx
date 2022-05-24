@@ -121,7 +121,7 @@ void ElementModelSTGC::applyDeformation2(const ParameterVector& parvec, VectorSe
 
   // p2.{x,y,z} = 1 - r.{x,y,z}^2
   // p2.x = 1 at r.x = 0 and p2.x = 0 at r.x = +-0.5*lenX, similarly for Y
-  VectorSet p2 = -1.0*(r.array().square().colwise() - Eigen::Array3d::Ones());
+//  VectorSet p2 = -1.0*(r.array().square().colwise() - Eigen::Array3d::Ones());
 
   double scl = parvec[SCL];
   double npar = parvec[NPAR];
