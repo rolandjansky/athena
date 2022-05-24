@@ -51,11 +51,30 @@ def HIGG1D1CustomJetsCfg(ConfigFlags):
                 return tuple(newList)
         print( "Failed to update ", orgName, " to ", newName )
         return tuple(newList)
-        
+    
+    def updateCalibSequence(tup):
+        newList = list(tup)
+        for i, item in enumerate(newList):
+            if "Calib" in item:
+                calibspecs = item.split(":")
+                calib, calibcontext, data_type = calibspecs[:3]
+                calibseq=""
+                if len(calibspecs)>3: 
+                  calibseq = calibspecs[3]
+                rhoname = "Kt4EMPFlowCustomVtxEventShape"
+                pvname = HggVertexContainerName
+                finalCalibString = f"CalibCustomVtx:{calibcontext}:{data_type}:{calibseq}:{rhoname}:{pvname}"
+                if len(calibspecs)>6: finalCalibString = f"{finalCalibString}:{calibspecs[6]}"
+                newList[i] = finalCalibString
+                print(finalCalibString)
+                return tuple(newList)
+        print( "Failed to update calib sequence" )
+        return tuple(newList)
+
 
     # Create modifier list and JetDefinition 
     modsCustomVtx = AntiKt4EMPFlow.modifiers
-    modsCustomVtx = replaceItems(modsCustomVtx,"Calib","CalibCustomVtx")
+    modsCustomVtx = updateCalibSequence(modsCustomVtx)
     modsCustomVtx = replaceItems(modsCustomVtx,"TrackMoments","TrackMomentsCustomVtx")
     modsCustomVtx = replaceItems(modsCustomVtx,"TrackSumMoments","TrackSumMomentsCustomVtx")
     modsCustomVtx = replaceItems(modsCustomVtx,"JVF","JVFCustomVtx")
@@ -141,7 +160,6 @@ def HIGG1D1CustomJetsCfg(ConfigFlags):
 
     stdJetModifiers.update(
 
-      #TODO calibration is still picking up the wrong energy density as it set in a config file
       CalibCustomVtx = JetModifier("JetCalibrationTool","jetcalib_jetcoll_calibseqCustomVtx",
                                         createfn=JetCalibToolsConfig.getJetCalibToolFromString,
                                         prereqs=lambda mod,jetdef : JetCalibToolsConfig.getJetCalibToolPrereqs(mod,jetdef)+[f"input:{context['Vertices']}"]),

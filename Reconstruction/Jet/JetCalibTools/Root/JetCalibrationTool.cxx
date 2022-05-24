@@ -98,10 +98,7 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Rho key specified in the config file?
   std::string rhoKey_config = m_globalConfig->GetValue("RhoKey", "None");
-
-  // Get name of vertex container
-  m_vertexContainerName = m_globalConfig->GetValue("VertexContainerName","PrimaryVertices");
-  
+ 
   bool requireRhoInput = false;
 
   //Make sure the residual correction is turned on if requested
