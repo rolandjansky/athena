@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigParticle/TrigEFBphys.h"
@@ -7,7 +7,7 @@
 #include "TrigParticleTPCnv/TrigEFBphysCnv_p3.h"
  
 
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > trackELVCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > trackELVCnv;
 
 //-----------------------------------------------------------------------------
 // Persistent to transient

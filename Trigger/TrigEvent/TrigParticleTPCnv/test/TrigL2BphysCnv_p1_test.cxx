@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrigParticleTPCnv/test/TrigL2BphysCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,7 @@
 #include "TrigParticle/TrigL2BphysContainer.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -60,7 +59,7 @@ void testit (const TrigL2Bphys& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   // Get proxies created outside of leak check.
@@ -87,7 +86,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
   test1();
