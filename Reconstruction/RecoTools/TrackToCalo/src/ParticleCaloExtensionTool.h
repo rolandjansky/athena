@@ -1,11 +1,12 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /*
  * ParticleCaloExtensionTool.h  - implements the IParticleCaloExtenions
- * Interface begin : Summer 2014 updated : 2018-2019 for AthenaMT authors :
- * Niels van Eldik (CERN PH-ATC),Christos Anastopoulos
+ * Interface begin : Summer 2014
+ * updated : 2018-2019 for AthenaMT
+ * authors : Niels van Eldik (CERN PH-ATC),Christos Anastopoulos
  */
 
 #ifndef TRKPARTICLECREATOR_PARTICLECALOEXTENSIONTOOL_H
