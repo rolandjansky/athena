@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -16,20 +16,20 @@ namespace Trk {
 /* Author: V.Kostioukhine */
 /* ================================================================== */
 
-void vkvfast_(double *p1, double *p2, double *dbmag, double *out)
+void vkvfast_(double *p1, double *p2, const double *dbmag, double *out)
 {
-    double vkvFastV(double*, double*, double* vRef, double, double *out);
+    double vkvFastV(double*, double*, const double* vRef, double, double *out);
     vkvFastV(p1, p2, nullptr, (*dbmag), out);   }
 
 
-double vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
+double vkvFastV(double *p1, double *p2, const double* vRef, double dbmag, double *out)
 {
     extern void vkPerigeeToP( const double*, double*, double );
     double d__1;
 
     double diff, coef, cent1[2], cent2[2], angle, cross[6];/* was [3][2] */
     double r1, r2, z1, z2, a01[3], a02[3], dc, an[2];
-    extern double vkvang_(double *, double *, double *, double *, double *);
+    extern double vkvang_(double *, double *, const double *, const double *, const double *);
     double ar1, ar2, xd1, xd2, yd1, yd2, dz1, dz2, pt1, pt2, pz1, pz2, det;
     double loc_bmag;
 
@@ -182,7 +182,7 @@ double vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
 #undef cross_ref
 
 
-double vkvang_(double *crs, double *centr, double *r__, double *xd, double *yd)
+double vkvang_(double *crs, double *centr, const double *r__, const double *xd, const double *yd)
 {
     double ret_val, cosf, sinf, cosp, sinp;
 

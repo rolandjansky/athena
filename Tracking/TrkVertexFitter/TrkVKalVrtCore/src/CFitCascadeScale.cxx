@@ -31,7 +31,7 @@ extern  int FullMCNSTfill(VKVertex * , double * , double * );
 
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *,VKalVrtControl * =nullptr);
+extern void vpderiv(bool, long int , const double *, double *, double *, double *, double *, double *, double *,VKalVrtControl * =nullptr);
 extern std::vector<double> transformCovar(int , double **, const std::vector<double>& );
 extern double cfVrtDstSig( VKVertex * , bool );
 extern long int getVertexCharge( VKVertex *);

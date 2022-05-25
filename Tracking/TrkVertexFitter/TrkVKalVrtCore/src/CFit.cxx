@@ -95,7 +95,7 @@ extern double cfSmallEigenvalue( double*, long int );
 
 
 
-void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*par0)[3],
+void fillVertex(VKVertex *vk, int NTRK, const long int *ich, double xyz0[3], double (*par0)[3],
 	              double (*inp_Trk5)[5], double (*inp_CovTrk5)[15])
 {
 
@@ -146,8 +146,8 @@ bool checkPosition(VKVertex * vk, double vertex[3]){
 
 
 extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = nullptr);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, VKalVrtControl * =nullptr);
-extern void cfmasserr(VKVertex* , int*, double, double*, double*);
+extern void vpderiv(bool, long int , const double *, double *, double *, double *, double *, double *, double *, VKalVrtControl * =nullptr);
+extern void cfmasserr(VKVertex* , const int*, double, double*, double*);
 extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
 int fitVertex(VKVertex * vk) 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCore_Derivt_H
@@ -89,7 +89,7 @@ namespace Trk {
    class VKPointConstraint : public VKConstraintBase
    {
       public:
-        VKPointConstraint(int,double[3], VKVertex*, bool ); 
+        VKPointConstraint(int,const double[3], VKVertex*, bool ); 
         ~VKPointConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKPointConstraint& );
         bool onlyZ() const {return m_onlyZ; };

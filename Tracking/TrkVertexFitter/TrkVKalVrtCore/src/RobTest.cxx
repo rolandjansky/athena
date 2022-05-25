@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
@@ -12,7 +12,7 @@ namespace Trk {
 
 //extern void digx(double*, double*, double*, long int , long int );
  
-extern void vkGetEigVect(double ci[], double d[], double vect[], int n);
+extern void vkGetEigVect(const double ci[], double d[], double vect[], int n);
 
 void robtest(VKVertex * vk, long int ifl)
 {

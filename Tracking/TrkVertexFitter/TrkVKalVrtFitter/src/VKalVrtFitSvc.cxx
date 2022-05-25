@@ -17,7 +17,7 @@
  namespace Trk {
 
  extern void cfpest( int ntrk, double *vrt, long int *Charge, double (*part)[5], double (*par0)[3]);
- extern void xyztrp( long int* Charge, double* vrt, double* Mom, double* CovVrtMom, double BMAG, double* Perig, double* CovPerig );
+ extern void xyztrp( const long int* Charge, double* vrt, double* Mom, double* CovVrtMom, double BMAG, double* Perig, double* CovPerig );
 
  extern int CFit(VKalVrtControl *FitCONTROL, int ifCovV0, int NTRK, 
 	      long int *ich, double xyz0[3], double (*par0)[3],

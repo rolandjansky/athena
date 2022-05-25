@@ -12,7 +12,7 @@
 
 namespace Trk {
  extern   
-  void cfimp(long int TrkID, long int  ICH, int IFL, double* PAR, double* ERR,
+  void cfimp(long int TrkID, long int  ICH, int IFL, double* PAR, const double* ERR,
               double* VRT, double* VCOV,
 	      double* RIMP, double* RCOV, double*  SIGN, VKalVrtControlBase * FitCONTROL );
 

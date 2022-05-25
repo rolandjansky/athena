@@ -1,7 +1,7 @@
 /*
   Calculate mass and mass error for any subset of tracks
 
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -12,7 +12,7 @@
 namespace Trk {
 
 
-void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM)
+void cfmasserr(VKVertex * vk, const int *list, double BMAG, double *MASS, double *sigM)
 {
   int NTRK=vk->TrackList.size();
   //Deliberately not using make_unique
@@ -72,7 +72,7 @@ void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM
 }
 
 
-void cfmasserrold_(long int *ntrk, long int *list, double *parfs,
+void cfmasserrold_(const long int *ntrk, long int *list, double *parfs,
         double *ams, double *deriv, double BMAG, double *dm, double *sigm)
 {
     int  i__;

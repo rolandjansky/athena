@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -7,7 +7,7 @@
 namespace Trk {
 
 
-void cfClstPnt( double *par, double *Vrt, double *ClstPnt)
+void cfClstPnt( double *par, const double *Vrt, double *ClstPnt)
 {
   double e[3];   //Track direction at perigee
   e[0] = cos(par[3]);

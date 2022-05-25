@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/TrkVKalUtils.h"
@@ -9,7 +9,7 @@
 namespace Trk {
 
 
-void cferpr(long int *ich, double  *par, double  *ref, double  *s0, double  *errold, double  *errnew)
+void cferpr(const long int *ich, double  *par, double  *ref, const double  *s0, double  *errold, double  *errnew)
 {
 
 
@@ -17,7 +17,7 @@ void cferpr(long int *ich, double  *par, double  *ref, double  *s0, double  *err
     double  derivm[25];	/* was [5][5] */
     double  ctg, dsq, dyp, d__3;
 
-    extern void tdasatVK(double  *, double  *, double  *, long int , long int );
+    extern void tdasatVK(const double  *, const double  *, double  *, long int , long int );
 
 
 /*     ------------------------------------------ */

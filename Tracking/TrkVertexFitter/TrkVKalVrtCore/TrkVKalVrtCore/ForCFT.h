@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCore_ForCFT_H
@@ -47,7 +47,7 @@ namespace Trk {
     int IterationNumber;
     double IterationPrecision;
  
-    void prcfit( long int ntrk, double  *wm, double  *wmfit, double  bmag, double  *vrt, double  *vrte) noexcept;
+    void prcfit( long int ntrk, double  *wm, double  *wmfit, double  bmag, const double  *vrt, const double  *vrte) noexcept;
 
     void vksetIterationNum(long int Iter) noexcept;
     void vksetIterationPrec(double Prec) noexcept;

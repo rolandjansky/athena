@@ -152,9 +152,9 @@ int getCascadeNPar(CascadeEvent & cascadeEvent_, int Type=0)
 //
 //  Track parameters are translated at each iteration so iniV==(0,0,0)
 //
-void setFittedParameters(double * result, std::vector<int> & matrixPnt, CascadeEvent & cascadeEvent_)
+void setFittedParameters(const double * result, std::vector<int> & matrixPnt, CascadeEvent & cascadeEvent_)
 {
-   extern double cfchi2(double *, double *, VKTrack *);
+   extern double cfchi2(const double *, const double *, VKTrack *);
    int iv,it,Pnt;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
@@ -170,7 +170,7 @@ void setFittedParameters(double * result, std::vector<int> & matrixPnt, CascadeE
    }
 }
 
-void setFittedMatrices(double * COVFIT, long int MATRIXSIZE,
+void setFittedMatrices(const double * COVFIT, long int MATRIXSIZE,
                        std::vector<int> & matrixPnt, 
                        std::vector< std::vector<double> > & covarCascade, 
                        CascadeEvent & cascadeEvent_)
@@ -248,7 +248,7 @@ void addCrossVertexDeriv(CascadeEvent & cascadeEvent_, double * ader, long int M
 //  Copy matrix Input with dimension IDIM to predefined place(TStart) 
 //   into matrix Target with dimension TDIM
 //
-void copyFullMtx(double *Input, long int IPar, long int IDIM,
+void copyFullMtx(const double *Input, long int IPar, long int IDIM,
                  double *Target, long int TStart, long int TDIM)
 {
    int i,j,it,jt;
@@ -263,7 +263,7 @@ void copyFullMtx(double *Input, long int IPar, long int IDIM,
 //--------------------------------------------------------------------
 //  Make the convolution Cov=D*OldCov*Dt
 //
-void getNewCov(double *OldCov, double* Der, double* Cov, long int DIM) noexcept
+void getNewCov(const double *OldCov, const double* Der, double* Cov, long int DIM) noexcept
 {
    int i,j,it,jt;
    for( i=0; i<DIM; i++){
