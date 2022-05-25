@@ -11,7 +11,6 @@
 #include "MissingETD3PDMaker/MissingETTruthIntPhiFillerTool.h"
 #include "MissingETD3PDMaker/MissingETTruthIntFillerTool.h"
 #include "MissingETD3PDMaker/MissingETJetsInfoFillerTool.h"
-#include "MissingETD3PDMaker/MissingETGoodnessFillerTool.h"
 #include "MissingETD3PDMaker/MissingETRegionFillerTool.h"
 #include "MissingETD3PDMaker/MissingETCaloSamplingFillerTool.h"
 #include "MissingETD3PDMaker/MissingETCaloEMFracSETFillerTool.h"
@@ -33,7 +32,6 @@ DECLARE_COMPONENT( D3PD::SumETTruthIntFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETTruthIntPhiFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETTruthIntFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETJetsInfoFillerTool )
-DECLARE_COMPONENT( D3PD::MissingETGoodnessFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETRegionFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETCaloSamplingFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETCaloEMFracSETFillerTool )
