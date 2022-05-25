@@ -33,7 +33,7 @@ Muon::MM_RawData* Muon::MM_RawDataCnv_p3::createTransient(const Muon::MM_RawData
   // To save disk space, the persistent version does not have this bolean but uses the relBCID as flag. In detector data the relBCID has a range of 0-7,
   // therefore a relBCID of 9 indicates that charge and time are in physical units while smaller values of the relBCID indicate that they are in counts.
   // In case of the time being in nano seconds, the relBCID is anyhow not meaningfull while if the time is in counts it is decomposed into the tdo (time) and the relBCID.
-  bool timeAndChargeInCounts = ((persObj->m_relBcid) == 9);
+  bool timeAndChargeInCounts = ((persObj->m_relBcid) != 9);
   Muon::MM_RawData*  trans = new MM_RawData( Identifier (persObj->m_id),
 					     persObj->m_channel,
 					     persObj->m_time, 
