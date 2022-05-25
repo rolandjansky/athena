@@ -31,11 +31,11 @@ Analysis :: TauJetContainer *TauJetContainerCnv :: createTransient()
 
     Analysis :: TauJetContainer *transObj = 0;
 
-    static pool::Guid p1_guid( "AD52E539-5A69-493A-B33C-7BE558348EBA" );
-    static pool::Guid p2_guid( "3F9C4AF7-1B48-4DBC-BA24-F7CF658E7820" );
-    static pool::Guid p3_guid( "3B6CC0D5-D033-45A6-9440-0276EE55B4C5" );
-    static pool::Guid p4_guid( "87896E97-2688-4373-BD6F-6FC0ED406C2B" );
-    static pool::Guid p5_guid( "7D98A685-ED84-43AD-9B35-69295E19D402" );
+    static const pool::Guid p1_guid( "AD52E539-5A69-493A-B33C-7BE558348EBA" );
+    static const pool::Guid p2_guid( "3F9C4AF7-1B48-4DBC-BA24-F7CF658E7820" );
+    static const pool::Guid p3_guid( "3B6CC0D5-D033-45A6-9440-0276EE55B4C5" );
+    static const pool::Guid p4_guid( "87896E97-2688-4373-BD6F-6FC0ED406C2B" );
+    static const pool::Guid p5_guid( "7D98A685-ED84-43AD-9B35-69295E19D402" );
 
     if( compareClassGuid( p5_guid ) ){
         // using unique_ptr ensures deletion of the persistent object
