@@ -44,6 +44,7 @@ class opt:
     enableL1CaloPhase1   = False      # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
+    enableL1TopoBWSimulation = False  # Enable bitwise L1Topo simulation
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
     enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
     enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
@@ -239,6 +240,7 @@ if opt.enableL1MuonPhase1 is not None:
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
+ConfigFlags.Trigger.enableL1TopoBWSimulation = opt.enableL1TopoBWSimulation
 
 ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
 ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode

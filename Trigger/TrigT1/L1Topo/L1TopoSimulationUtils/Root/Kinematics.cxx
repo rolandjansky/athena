@@ -174,8 +174,8 @@ unsigned long TSU::Kinematics::quadraticSumBW(int i1, int i2){
 unsigned int TSU::Kinematics::calcXi1(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
   double scale = 1.4; // this will be converted MeV and unsigned when unit is right
   double shift = 20; // this will be converted MeV and unsigned when unit is right
-  TSU::L1TopoDataTypes<11,0> bit_Et1(static_cast<unsigned>(scale*tob1->Et()+shift));
-  TSU::L1TopoDataTypes<11,0> bit_Et2(static_cast<unsigned>(scale*tob2->Et()+shift));
+  TSU::L1TopoDataTypes<15,0> bit_Et1(static_cast<unsigned>(scale*tob1->Et()+shift));
+  TSU::L1TopoDataTypes<15,0> bit_Et2(static_cast<unsigned>(scale*tob2->Et()+shift));
   auto bit_eeta1 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(tob1->eta()));
   auto bit_eeta2 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(tob2->eta()));
 
@@ -187,8 +187,8 @@ unsigned int TSU::Kinematics::calcXi1(const TCS::GenericTOB* tob1, const TCS::Ge
 unsigned int TSU::Kinematics::calcXi2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
   double scale = 1.4; // this will be converted MeV and unsigned when unit is right
   double shift = 20; // this will be converted MeV and unsigned when unit is right
-  TSU::L1TopoDataTypes<11,0> bit_Et1(static_cast<unsigned>(scale*tob1->Et()+shift));
-  TSU::L1TopoDataTypes<11,0> bit_Et2(static_cast<unsigned>(scale*tob2->Et()+shift));
+  TSU::L1TopoDataTypes<15,0> bit_Et1(static_cast<unsigned>(scale*tob1->Et()+shift));
+  TSU::L1TopoDataTypes<15,0> bit_Et2(static_cast<unsigned>(scale*tob2->Et()+shift));
   auto bit_eeta1 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(-tob1->eta()));
   auto bit_eeta2 = TSU::L1TopoDataTypes<20,10>(TSU::Expo::E.at(-tob2->eta()));
 
