@@ -933,6 +933,10 @@ namespace top {
 
     const std::string electronIDSFFilePath() const
     {return m_electronIDSFFile_path;}
+
+    const std::string electronIDSFFileLoosePath() const
+    {return m_electronIDSFFileLoose_path;}
+
     bool printEIDFileWarning() const
     {return m_eid_path_warning;}
     void setPrintEIDFileWarning(bool flag)
@@ -2418,6 +2422,8 @@ namespace top {
 
     // experimental electronID map path
     std::string m_electronIDSFFile_path = "Default";
+    std::string m_electronIDSFFileLoose_path = "Default";
+
     bool m_eid_path_warning = false;
 
     //Fwd electron configuration
