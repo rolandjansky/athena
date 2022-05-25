@@ -208,55 +208,28 @@ ParticleCaloExtensionTool::caloExtension(
   const xAOD::TrackParticle& particle) const
 {
   /*
-   * In principle we will extrapolate either from the perigee or
-   * from the last measurement of the trackParticle.
+   * The following are tuned mainly for
+   * the strategy we want to follow for muons.
+   * But should also work well as a generic
+   * strategy.
    *
-   * For electrons the extrapolation will be done as a muon since this
-   * is the closest to non-interacting in the calorimeter
-   * while still providing intersections.
-   *
-   * Also for electrons track Particles (GSF)
-   * we retain the perigee,first,last.
-   * even in AOD.
+   * For electrons the extrapolation will be done as
+   * a muon (we want close to non-interacting)
    */
 
   // Start with what the user opted as strategy
   ParticleHypothesis particleType = m_particleStrategy;
+
   // special treatment when we want an electron strategy
   if (m_particleStrategy == electron) {
     particleType = muon;
-    if (m_startFromPerigee) {
-      return caloExtension(
-        ctx, particle.perigeeParameters(), alongMomentum, particleType);
-    } else {
-      unsigned int index(0);
-      if (particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)) {
-        const Trk::CurvilinearParameters& lastParams =
-          particle.curvilinearParameters(index);
-        const Amg::Vector3D& position = lastParams.position();
-        // Muon Entry is around z 6783 and r  4255
-        if (position.perp() > 4200. || std::abs(position.z()) > 6700.) {
-          ATH_MSG_WARNING("Can extrapolate to calo along momentum if already "
-                          "past it. Probematic parameters : "
-                          << lastParams);
-          return nullptr;
-        }
-        return caloExtension(ctx, lastParams, alongMomentum, particleType);
-      }
-    }
   }
-  /*
-   * The following are tuned mainly for
-   * the strategy we want to follow for muons.
-   * But should also work well as a generic
-   * strategy. So is the default/fallback.
-   */
-
-  // Check if the fitter has used electron hypo
-  // and force using the muon strategy
   if (particle.particleHypothesis() == xAOD::electron) {
     particleType = muon;
   }
+
+  // In principle we will extrapolate either from the perigee or
+  // from the last measurement.
   if (m_startFromPerigee || !particle.track()) {
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255
@@ -419,7 +392,7 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
   }
 
   if (!muonEntry && propDir == Trk::oppositeMomentum &&
-      fabs(startPars.position().perp() - 4255.) < 1.) {
+      std::abs(startPars.position().perp() - 4255.) < 1.) {
     // muonEntry is right at the startPars position
     muonEntry = startPars.clone();
   }
