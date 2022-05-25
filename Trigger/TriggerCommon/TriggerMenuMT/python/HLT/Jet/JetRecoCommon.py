@@ -113,12 +113,15 @@ def jetDefNeedsTracks(jetRecoDict):
 # Check if track reconstruction is enabled
 def doTracking(jetRecoDict):
     return jetRecoDict["trkopt"]!="notrk"
+# Check if full scan track reconstruction is enabled
+def doFSTracking(jetRecoDict):
+    return jetRecoDict["trkopt"]=="ftf"
 
 # Check if constituent type is pflow. Concurrently check that the tracking option is valid.
 def isPFlow(jetRecoDict):
     isPFlow = jetRecoDict["constitType"] == "pf"
-    if isPFlow and not doTracking(jetRecoDict):
-        raise ValueError("This is a PFlow chain but no tracking option is given!")
+    if isPFlow and not doFSTracking(jetRecoDict):
+        raise ValueError("This is a PFlow chain but an incompatible tracking option is given!")
     return isPFlow
 
 # return the min jet pT in MeV for the configured recoAlg
@@ -269,17 +272,22 @@ def getModSpec(modname,modspec=''):
 # Get list of jet attributes to be calculated for jet
 def getDecorList(jetRecoDict):
     # Basic jet info provided by the jet builder
-    decorlist = [ 'AlgorithmType', 'InputType',
+    decorlist = []
+
+    # return empty list for non-calibrated jets
+    if jetRecoDict['jetCalib'] == 'nojcalib': return decorlist
+
+    decorlist += [ 'AlgorithmType', 'InputType',
                   'ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m',
                   'ActiveArea4vec_phi', 'ActiveArea4vec_pt',
-                  'EMFrac','HECFrac','JvtRpt','EnergyPerSampling']
+                  'EMFrac','HECFrac','EnergyPerSampling']
 
-    if doTracking(jetRecoDict):
-        decorlist += ["GhostTrack",
+    if doFSTracking(jetRecoDict):
+        decorlist += ["GhostTrack_ftf",
                       "NumTrkPt500","NumTrkPt1000",
                       "SumPtTrkPt500","SumPtTrkPt1000",
                       "TrackWidthPt1000",
-                      "JVFCorr", "Jvt"]
+                      "JVFCorr", "JvtRpt", "Jvt"]
         if isPFlow(jetRecoDict):
             decorlist += ["SumPtChargedPFOPt500"]
     return decorlist
@@ -368,7 +376,7 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
     
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
-def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
+def defineJets(jetRecoDict,clustersKey=None,prefix='',suffix='',pfoPrefix=None):
     minpt = {
         4:  7000,
         10: 50000,
@@ -377,10 +385,9 @@ def defineJets(jetRecoDict,clustersKey=None,prefix='',pfoPrefix=None):
     actualradius = float(jetradius)/10
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
 
-    suffix="_"+jetRecoDict["jetCalib"]
+    suffix="_"+jetRecoDict["jetCalib"]+'_'*(suffix.strip()!='')+suffix
     if jetDefNeedsTracks(jetRecoDict):
         suffix += "_{}".format(jetRecoDict["trkopt"])
-    
 
     jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix, context=jetRecoDict["trkopt"])
     return jetDef

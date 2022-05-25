@@ -66,10 +66,8 @@ JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'Active
                  'JetPileupScaleMomentum_eta', 'JetPileupScaleMomentum_m', 'JetPileupScaleMomentum_phi', 'JetPileupScaleMomentum_pt',
                  'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                  'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
-                 'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtChargedPFOPt500', 'SumPtTrkPt500', 'SumPtTrkPt1000','Timing','TrackWidthPt1000',
-                 'TracksForMinimalJetTag'
+                 'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtChargedPFOPt500', 'SumPtTrkPt500', 'SumPtTrkPt1000','Timing','TrackWidthPt1000', 'GhostTrack_ftf'
 ]
-JetVarsToKeep += [f'fastDips_p{x}' for x in 'cub']
 JetVars = '.'.join(JetVarsToKeep)
 
 JetCopyVarsToKeep = ['pt', 'eta', 'phi', 'm',
@@ -77,15 +75,19 @@ JetCopyVarsToKeep = ['pt', 'eta', 'phi', 'm',
                      'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                      'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
                      'Jvt', 'JvtRpt','Timing',
-                     'GhostTrack_ftf','TracksForMinimalJetTag'
-]
-JetCopyVarsToKeep += [f'fastDips_p{x}' for x in 'cub']
+                     'GhostTrack_ftf']
+
 JetCopyVarsToKeep += [f'dips20211116_p{x}' for x in 'cub']
 JetCopyVarsToKeep += [f'fastDIPS20211215_p{x}' for x in 'cub']
 JetCopyVars = '.'.join(JetCopyVarsToKeep)
 
-# Create a (temporary) list of TLAJetVars as the union of JetVars and JetCopyVars
-TLAJetVarsToKeep = sorted(list(set(JetVarsToKeep+JetCopyVarsToKeep)))
+JetFastFTagVarsToKeep = JetCopyVarsToKeep
+JetFastFTagVarsToKeep += ['TracksForMinimalJetTag']
+JetFastFTagVarsToKeep += [f'fastDips_p{x}' for x in 'cub']
+JetFastFTagVars = '.'.join(JetFastFTagVarsToKeep)
+
+# Create a (temporary) list of TLAJetVars as the union of JetVars JetCopyVars and JetFastFTagVars
+TLAJetVarsToKeep = sorted(list(set(JetVarsToKeep+JetFastFTagVarsToKeep)))
 TLAJetVars='.'.join(TLAJetVarsToKeep)
 
 ElToKeep = ['ptcone20', 'ptvarcone20']
@@ -618,6 +620,9 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesISAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
 
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_fastftag',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
+    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_fastftagAux.'+JetFastFTagVars, 'BS ESD AODFULL', 'Jet'),
+
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_nojcalib_ftf',                  'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_nojcalib_ftfAux.'+JetVars,   'BS ESD AODFULL', 'Jet'),
 
@@ -694,7 +699,7 @@ TriggerHLTListRun3 = [
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subjesgsc_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
-    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
+    ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftfAux.'+JetFastFTagVars, 'BS ESD AODFULL', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgsc_ftf',                        'BS ESD AODFULL', 'Jet', 'alias:JetContainerShallowCopy'),
     ('xAOD::ShallowAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgsc_ftfAux.'+JetCopyVars, 'BS ESD AODFULL', 'Jet'),
