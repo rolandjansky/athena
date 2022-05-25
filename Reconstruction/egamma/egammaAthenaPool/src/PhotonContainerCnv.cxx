@@ -57,12 +57,12 @@ PhotonContainer* PhotonContainerCnv::createTransient()
 
   PhotonContainer *transObj = nullptr;
 
-  static pool::Guid tr_guid("B0DC1628-F17C-4951-BC85-55BBECF4D4D1");
-  static pool::Guid p1_guid("7D40A2D2-C03C-470C-8F0C-937592D34B5B");
-  static pool::Guid p2_guid("E807B07C-8B27-4FF1-A638-05FBCA034C0B");
-  static pool::Guid p3_guid("BC1DF3E5-98F5-444D-826A-DFBB85E1C870");
-  static pool::Guid p4_guid("554B12C0-AB10-451D-963C-F9714FB29695"); 
-  static pool::Guid p5_guid("64942DEF-C0FE-4CA7-A735-70187092DC27");
+  static const pool::Guid tr_guid("B0DC1628-F17C-4951-BC85-55BBECF4D4D1");
+  static const pool::Guid p1_guid("7D40A2D2-C03C-470C-8F0C-937592D34B5B");
+  static const pool::Guid p2_guid("E807B07C-8B27-4FF1-A638-05FBCA034C0B");
+  static const pool::Guid p3_guid("BC1DF3E5-98F5-444D-826A-DFBB85E1C870");
+  static const pool::Guid p4_guid("554B12C0-AB10-451D-963C-F9714FB29695"); 
+  static const pool::Guid p5_guid("64942DEF-C0FE-4CA7-A735-70187092DC27");
 
   if ( compareClassGuid(p5_guid) ) {
 
