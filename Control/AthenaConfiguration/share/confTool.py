@@ -10,7 +10,7 @@ import pickle
 import re
 import sys
 
-from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict, loadDifferencesFile
+from AthenaConfiguration.iconfTool.models.loaders import loadConfigFile, baseParser, componentRenamingDict, loadDifferencesFile, isReference
 class fullColor:
     reset="\033[0m"
     difference="\033[91m"
@@ -73,8 +73,11 @@ def parse_args():
         help="Ignore differences enlisted in file (to be used only with diffing)")
         
     parser.add_argument("--color",
-        help="Use colored output even for file output (usefull when piping to less -R to to HTML conversion", 
+        help="Use colored output even for file output (useful when piping to less -R to to HTML conversion", 
         action="store_true")
+    
+    parser.add_argument("-s", "--structured", 
+        help="Print only a single component, in a structured manner (reflecting components parent children)")
 
     args = parser.parse_args()
     main(args)
@@ -96,6 +99,12 @@ def main(args):
         for fileName in args.file:
             conf = loadConfigFile(fileName, args)
             _print(conf, color)
+
+    if args.structured:
+        for fileName in args.file:
+            conf = loadConfigFile(fileName, args)
+            _structuredPrint(conf, args.structured)
+
 
     if args.toJSON:
         if len(args.file) != 1:
@@ -148,6 +157,28 @@ def _printComps(conf):
     for k, item in conf.items():
         if isinstance(item, dict):
             print(k)
+
+def _structuredPrint(conf, start):
+    def _oneCompPrint(d, comp, indent = ""):
+        print(f"{indent}{comp}")
+        for prop,val in d.items():
+            print(f"{indent}   {prop} = {val}")
+            if prop == "Members" or prop == "TopAlg":
+                continue
+            refs = isReference(val, comp, conf)
+            for ref in refs:
+                if ref in conf:
+                    _oneCompPrint(conf[ref], ref, indent + "   - ")
+
+    if start not in conf:
+        print(f"{start} is absent in the config, unfortunately the name has to be exact")
+        return
+    settings = conf.get(start)
+    if isinstance(settings, dict):
+        _oneCompPrint(settings, start)
+    else:
+        print(settings)
+
 
 def _compareConfig(configRef, configChk, args, color):
     # Find superset of all components:
