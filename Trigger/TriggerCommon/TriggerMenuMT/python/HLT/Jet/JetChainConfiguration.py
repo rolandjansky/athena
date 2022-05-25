@@ -133,23 +133,22 @@ class JetChainConfiguration(ChainConfigurationBase):
             chainSteps.append( jetPreselStep )
             # Standard tracking step, configure the tracking instance differently
             # Later we should convert this to a preselection-style hypo
-            jetRoITrackingHypoStep = self.getJetRoITrackingHypoChainStep(preselJetDef.fullname())
-            chainSteps.append( jetRoITrackingHypoStep )
+            jetRoITrackJetTagHypoStep = self.getJetRoITrackJetTagHypoChainStep(preselJetDef.fullname())
+            chainSteps.append( jetRoITrackJetTagHypoStep )
         elif self.recoDict["trkopt"]=="ftf":
             if self.trkpresel=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
                 #Add empty step to align with preselection step
                 roitrkPreselStep = self.getEmptyStep(2, 'RoIFTFEmptyStep')
-                chainSteps.append( roitrkPreselStep )
             else:
                 clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
                 chainSteps.append( jetPreselStep )
                 if re.match(r'.*b\d+', self.trkpresel):
-                    roitrkPreselStep = self.getJetRoiPreselChainStep(preselJetDef.fullname())
+                    roitrkPreselStep = self.getJetRoITrackJetTagPreselChainStep(preselJetDef.fullname())
                 else:
                     roitrkPreselStep=self.getEmptyStep(2, 'RoIFTFEmptyStep')
-                chainSteps.append(roitrkPreselStep)
+            chainSteps.append(roitrkPreselStep)
             jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
             chainSteps.append( jetFSTrackingHypoStep )
         else:
@@ -192,12 +191,12 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
-    def getJetRoITrackingHypoChainStep(self, jetsInKey):
+    def getJetRoITrackJetTagHypoChainStep(self, jetsInKey):
         jetDefStr = JetRecoCommon.jetRecoDictToString(self.recoDict)
 
         stepName = "RoIFTFStep_jet_sel_"+jetDefStr
-        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
-        jetSeq = RecoFragmentsPool.retrieve( jetRoITrackingHypoMenuSequence,
+        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackJetTagHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve( jetRoITrackJetTagHypoMenuSequence,
                                              ConfigFlags, isPresel=False, jetsIn=jetsInKey, **self.recoDict )
         return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
@@ -241,7 +240,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return str(clustersKey), jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
-    def getJetRoiPreselChainStep(self, jetsInKey):
+    def getJetRoITrackJetTagPreselChainStep(self, jetsInKey):
 
         #Find if a a4 or a10 calo jet needs to be used in the pre-selection from the last chain dict
         assert 'recoAlg' in self.trkpresel_parsed_reco.keys(
@@ -255,13 +254,13 @@ class JetChainConfiguration(ChainConfigurationBase):
         #Getting the outcome of the regex reco option (it should correspond to a4 or a10 depending by which chain you are configuring)
         preselRecoDict = JetPresel.getPreselRecoDict(matched_reco.group(),roiftf=True)
 
-        assert preselRecoDict['trkopt'] == 'roiftf', 'getJetRoiPreselChainStep: you requested a RoI tracking preselection but the reco dictionary has \'trkopt\' set to {0}'.format(preselRecoDict['trkopt'])
+        assert preselRecoDict['trkopt'] == 'roiftf', 'getJetRoITrackJetTagPreselChainStep: you requested a RoI tracking preselection but the reco dictionary has \'trkopt\' set to {0}'.format(preselRecoDict['trkopt'])
 
         jetDefStr = JetRecoCommon.jetRecoDictToString(preselRecoDict)
 
         stepName = "RoIFTFStep_jet_"+jetDefStr
-        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
-        jetSeq = RecoFragmentsPool.retrieve(jetRoITrackingHypoMenuSequence,
+        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackJetTagHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve(jetRoITrackJetTagHypoMenuSequence,
                                             ConfigFlags, jetsIn=jetsInKey, isPresel=True, **preselRecoDict)
 
         return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])

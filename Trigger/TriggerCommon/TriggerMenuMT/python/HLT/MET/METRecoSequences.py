@@ -196,7 +196,7 @@ class TrackingInputConfig(AlgInputConfig):
         return []
 
     def create_sequence(self, inputs, RoIs, recoDict):
-        from ..Jet.JetTrackingConfig import JetFSTrackingSequence
+        from ..Jet.JetRecoSequences import JetFSTrackingSequence
 
         trkSeq, trkColls = RecoFragmentsPool.retrieve(
             JetFSTrackingSequence, flags=ConfigFlags, trkopt="ftf", RoIs=RoIs
