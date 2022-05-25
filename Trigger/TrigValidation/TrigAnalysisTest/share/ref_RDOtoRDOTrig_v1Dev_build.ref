@@ -3100,6 +3100,20 @@ HLT_e26_idperf_tight_nogsf_L1EM22VHI:
     2: 4
     3: 4
     4: 4
+HLT_e26_idperf_tight_nogsf_L1eEM26M:
+  eventCount: 4
+  stepCounts:
+    0: 4
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+  stepFeatures:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
 HLT_e26_lhloose_nopix_lrttight_L1EM22VHI:
   eventCount: 0
   stepCounts:
@@ -13934,20 +13948,20 @@ HLT_tau80_idperf_tracktwoMVABDT_L1TAU60:
     2: 4
     3: 4
     4: 4
-HLT_tau80_idperf_tracktwoMVABDT_L1eTAU60:
-  eventCount: 7
+HLT_tau80_idperf_tracktwoMVABDT_L1eTAU80:
+  eventCount: 5
   stepCounts:
-    0: 7
-    1: 7
-    2: 7
-    3: 7
-    4: 7
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
   stepFeatures:
-    0: 11
-    1: 11
-    2: 11
-    3: 11
-    4: 11
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 5
 HLT_tau80_idperf_tracktwoMVA_L1eTAU60:
   eventCount: 7
   stepCounts:
