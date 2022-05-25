@@ -127,7 +127,7 @@ namespace LVL1MUCTPIPHASE1 {
     ToolHandle<LVL1::TrigThresholdDecisionTool> m_trigThresholdDecisionTool{this, "TrigThresholdDecisionTool", "LVL1::TrigThresholdDecisionTool/LVL1__TrigThresholdDecisionTool", "Tool to get pass/fail of each trigger threshold"};
 
     /// Function pointer to the execute function we want to use:
-    StatusCode ( LVL1MUCTPIPHASE1::MUCTPI_AthTool::*m_executeFunction )( void ) const;
+    StatusCode ( LVL1MUCTPIPHASE1::MUCTPI_AthTool::*m_executeFunction )( void ) const{};
     
   };
 }

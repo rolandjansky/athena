@@ -43,7 +43,7 @@ namespace LVL1
     float m_minTowerEt;
 
     // Internals
-    const CaloCell_SuperCell_ID *m_scid;
+    const CaloCell_SuperCell_ID *m_scid = nullptr;
   }; //> end class JGTowerBuilder
 } // namespace LVL1
 

@@ -213,7 +213,7 @@ namespace LVL1
       float m_eta_dropL1Width;       ///< max eta for applying cut on L1Width (baseline selection)
 
       // loose selection properties
-      bool m_use_REtaL12;                ///< boolean for caluclating REta using Layer 1 in addition to Layer 2
+      bool m_use_REtaL12 = false;                ///< boolean for caluclating REta using Layer 1 in addition to Layer 2
       bool m_use_tileCells;              ///< boolean for using Tile cells instead of Tile TT
       float m_nominalDigitization;       ///< value of nominal digitisation
       float m_nominalNoise_thresh;       ///< noise threshold
