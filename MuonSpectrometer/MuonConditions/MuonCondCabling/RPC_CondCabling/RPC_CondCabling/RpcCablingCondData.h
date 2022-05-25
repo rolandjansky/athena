@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
    */
 
 #ifndef RPCCABLINGCONDDATA_H
@@ -163,7 +163,10 @@ private:
     int m_MaxType;
 
     // list of RPCPadParameters
-    RPCPadParameters m_RPCPadParameters_array[64][8];
+    // max PADId was 8 in Run2, increased to 10 for Run3 to allow BIS78
+    static constexpr unsigned MAX_PADID = 10;
+    static constexpr unsigned MAX_LOGICSECTOR = 64;
+    RPCPadParameters m_RPCPadParameters_array[MAX_LOGICSECTOR][MAX_PADID];
 
     Identifier m_offline_id[2][32][10];
 };

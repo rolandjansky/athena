@@ -11,7 +11,7 @@
 RDOindex::RDOindex(unsigned int PAD, unsigned int code,
                    const RpcIdHelper& helper)
   : m_PADid{static_cast<unsigned short int>(PAD)}, m_lvl1_code{code},
-    m_rpcIdHelper (helper)
+    m_rpcIdHelper (&helper)
 {
     set_indexes();
 }
@@ -26,7 +26,7 @@ RDOindex::RDOindex(unsigned int PAD, unsigned int code, const std::string& Name,
     m_doubletR{dR},
     m_doubletZ{dZ},
     m_doubletPhi{dP},
-    m_rpcIdHelper (helper)
+    m_rpcIdHelper (&helper)
 {
     set_indexes();
 }
@@ -84,7 +84,7 @@ void RDOindex::pad_identifier(Identifier& id) const {
             doublet_phi = m_doubletPhi;
         }
 
-        id = m_rpcIdHelper.padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
+        id = m_rpcIdHelper->padID(name, eta, phi, doublet_r, doublet_z, doublet_phi);
     }
 }
 

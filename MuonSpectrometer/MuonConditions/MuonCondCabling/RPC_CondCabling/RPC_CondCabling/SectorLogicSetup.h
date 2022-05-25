@@ -109,31 +109,39 @@ namespace RPC_CondCabling {
 
         const CMAparameters::CMAlist give_CMAs(const int, const ViewType, const int, const int) const;
 
-        bool give_RoI_borders(CMAidentity ETA, CMAidentity PHI, unsigned int& firstEtaCode, unsigned int& lastEtaCode,
+        bool give_RoI_borders(const CMAidentity& ETA,
+                              const CMAidentity& PHI,
+                              unsigned int& firstEtaCode, unsigned int& lastEtaCode,
                               unsigned int& firstPhiCode, unsigned int& lastPhiCode) const;
 
-        bool give_LowPt_borders(CMAidentity ETA, CMAidentity PHI, unsigned int& firstEtaCode, unsigned int& lastEtaCode,
+        bool give_LowPt_borders(const CMAidentity& ETA,
+                                const CMAidentity& PHI,
+                                unsigned int& firstEtaCode, unsigned int& lastEtaCode,
                                 unsigned int& firstPhiCode, unsigned int& lastPhiCode) const;
 
-        bool give_HighPt_borders(CMAidentity ETA, CMAidentity PHI, unsigned int& firstEtaCode, unsigned int& lastEtaCode,
+        bool give_HighPt_borders(const CMAidentity& ETA,
+                                 const CMAidentity& PHI,
+                                 unsigned int& firstEtaCode, unsigned int& lastEtaCode,
                                  unsigned int& firstPhiCode, unsigned int& lastPhiCode) const;
 
-        bool give_LowPt_layout(CMAidentity ID, unsigned short int& start_pivot_ch, unsigned int& start_pivot_code,
+        bool give_LowPt_layout(const CMAidentity& ID, unsigned short int& start_pivot_ch, unsigned int& start_pivot_code,
                                unsigned short int& stop_pivot_ch, unsigned int& stop_pivot_code, unsigned short int& start_confirm_ch,
                                unsigned int& start_confirm_code, unsigned short int& stop_confirm_ch,
                                unsigned int& stop_confirm_code) const;
 
-        bool give_HighPt_layout(CMAidentity ID, unsigned short int& start_pivot_ch, unsigned int& start_pivot_code,
+        bool give_HighPt_layout(const CMAidentity& ID, unsigned short int& start_pivot_ch, unsigned int& start_pivot_code,
                                 unsigned short int& stop_pivot_ch, unsigned int& stop_pivot_code, unsigned short int& start_confirm_ch,
                                 unsigned int& start_confirm_code, unsigned short int& stop_confirm_ch,
                                 unsigned int& stop_confirm_code) const;
 
-        const CMAparameters* give_CMA(CMAidentity CMA) const;
+        const CMAparameters* give_CMA(const CMAidentity& CMA) const;
 
-        bool correct(CMAidentity CMA, L1RPCcabCorrection type, CMAinput it, unsigned int layer, unsigned short int Channel1,
+        bool correct(const CMAidentity& CMA,
+                     L1RPCcabCorrection type, CMAinput it, unsigned int layer, unsigned short int Channel1,
                      unsigned short int Channel2, short int num) const;
 
-        std::list<unsigned int> give_strip_code(CMAidentity CMA, int logic_sector, unsigned short int lh, unsigned short int ijk,
+        std::list<unsigned int> give_strip_code(const CMAidentity& CMA,
+                                                int logic_sector, unsigned short int lh, unsigned short int ijk,
                                                 unsigned short int Channel) const;
 
         bool operator+=(RPCchamberdata&);

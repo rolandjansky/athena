@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMAIDENTITY_H
@@ -44,7 +44,7 @@ private:
     CMAcoverage which_sector(PhiCoverage);
 
 public:
-    CMAidentity(defineParams pars);
+    CMAidentity(const defineParams& pars);
 
     CMAidentity(ViewType, CMAcoverage, int, int, int, int, int);
     CMAidentity(ViewType, CMAcoverage, int);

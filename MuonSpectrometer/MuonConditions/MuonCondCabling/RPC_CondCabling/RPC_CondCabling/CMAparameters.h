@@ -117,7 +117,7 @@ protected:
     [[nodiscard]] std::string error(const std::string&);
 
 public:
-    CMAparameters(parseParams parse);
+    CMAparameters(const parseParams& parse);
     CMAparameters(const CMAparameters&);
     virtual ~CMAparameters();
 

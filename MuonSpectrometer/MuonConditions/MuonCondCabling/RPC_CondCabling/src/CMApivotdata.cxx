@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/CMApivotdata.h"
@@ -8,8 +8,10 @@
 
 using namespace RPC_CondCabling;
 
-CMApivotdata::CMApivotdata(DBline& data, int type, const std::string& layout) : BaseObject(Logic, "CMA Data") {
-    m_layout = layout;
+CMApivotdata::CMApivotdata(DBline& data, int type, const std::string& layout)
+  : BaseObject(Logic, "CMA Data"),
+    m_layout (layout)
+{
     (++data)("{");
     do {
         CMAparameters::parseParams parser;
@@ -26,7 +28,7 @@ CMApivotdata::CMApivotdata(DBline& data, int type, const std::string& layout) : 
                 }
             }
         }
-        data++;
+        ++data;
     } while (!data("}"));
 }
 void CMApivotdata::reset_data() {

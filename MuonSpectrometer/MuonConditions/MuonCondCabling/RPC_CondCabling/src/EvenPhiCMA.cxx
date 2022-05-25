@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -20,7 +20,7 @@ const EvenPhiCMA::WORlink& EvenPhiCMA::highPt_WORs() const { return m_highPt_WOR
 
 bool EvenPhiCMA::inversion() const { return m_inversion; }
 
-EvenPhiCMA::EvenPhiCMA(EvenPhiCMA::parseParams pars) : CMAparameters(pars) {
+EvenPhiCMA::EvenPhiCMA(const EvenPhiCMA::parseParams& pars) : CMAparameters(pars) {
     m_inversion = false;
     m_conf_type = CMAparameters::Atlas;
 
@@ -39,11 +39,13 @@ EvenPhiCMA::EvenPhiCMA(EvenPhiCMA::parseParams pars) : CMAparameters(pars) {
     }
 }
 
-EvenPhiCMA::EvenPhiCMA(const EvenPhiCMA& cma) : CMAparameters(cma) {
-    m_pivot_WORs = cma.pivot_WORs();
-    m_lowPt_WORs = cma.lowPt_WORs();
-    m_highPt_WORs = cma.highPt_WORs();
-    m_inversion = cma.inversion();
+EvenPhiCMA::EvenPhiCMA(const EvenPhiCMA& cma)
+  : CMAparameters(cma),
+    m_pivot_WORs (cma.pivot_WORs()),
+    m_lowPt_WORs (cma.lowPt_WORs()),
+    m_highPt_WORs (cma.highPt_WORs()),
+    m_inversion (cma.inversion())
+{
     m_conf_type = CMAparameters::Atlas;
 }
 
