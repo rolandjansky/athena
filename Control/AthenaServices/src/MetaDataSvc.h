@@ -232,8 +232,8 @@ class MetaDataSvc : public ::AthService,
   virtual void handle(const Incident& incident) override;
 
   /// Transition output metadata file - fire MeteDataStop incident to transition
-  /// OutputStream
-  StatusCode transitionMetaDataFile(const std::string& outputConn);
+  /// OutputStream and disconnect now if requested
+  StatusCode transitionMetaDataFile(const std::string& outputConn, bool disconnect);
 
   /** Implements IIoComponent interface
    * sets m_outputPreprared to false and prints some information.
