@@ -85,16 +85,16 @@
 	"chains" : "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF  HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig"
     },
     "L2electronTnP":{
-	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1"
+	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron_1_el_probe"
     },
     "EFelectronTnP":{
-	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:1"
+	"chains" : "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI_HLT_IDTrack_Electron_FTF_HLT_Roi_FastElectron_1_el_probe HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI_HLT_IDTrack_Electron_IDTrig_1_el_probe HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI_HLT_IDTrack_Electron_GSF_1_el_probe"
     },
     "L2electronTier0TnP":{
-       "chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el2_probe:HLT_Roi_FastElectron:1"
+       "chains" : "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el_probe:HLT_Roi_FastElectron:1"
     },
     "EFelectronTier0TnP":{
-       "chains" : "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:el1_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:el2_probe:HLT_Roi_FastElectron:1"
+       "chains" : "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_FTF:el_probe:HLT_Roi_FastElectron:1 HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:el_probe:1 HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:HLT_IDTrack_Electron_GSF:el_probe:1"
     },
     "EFcosmic":{
     "chains" : "HLT_mu4_cosmic_L1MU3V_EMPTY:HLT_IDTrack_Cosmic_IDTrig"

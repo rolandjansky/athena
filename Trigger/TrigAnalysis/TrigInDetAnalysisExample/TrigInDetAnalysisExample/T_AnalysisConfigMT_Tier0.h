@@ -27,7 +27,7 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TrackSelector.h"     
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
-#include "TrigInDetAnalysisUtils/TagNProbe2.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
 #include "TrigInDetAnalysisExample/AnalysisR3_Tier0.h"
@@ -106,7 +106,7 @@ public:
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
-			 TagNProbe2*      TnP_tool = 0) :
+			 TagNProbe*      TnP_tool = 0) :
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
@@ -1362,7 +1362,7 @@ protected:
   
   bool   m_containTracks;
 
-  TagNProbe2* m_TnP_tool; 
+  TagNProbe* m_TnP_tool; 
 
   TH1F*      m_invmass;
   TH1F*      m_invmass_obj;

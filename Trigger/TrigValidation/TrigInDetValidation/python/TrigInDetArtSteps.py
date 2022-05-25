@@ -106,7 +106,7 @@ class TrigInDetReco(ExecStep):
                 flags += 'doEgammaSlice=True;'
             if (i=='electron-tnp') :
                 chains += "'HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI',"
-                chains += "'HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
@@ -300,7 +300,6 @@ class TrigInDetRdictStep(Step):
             os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-fslrt.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-minbias.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAdata-run3-TnP.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline-rzMatcher.dat &> /dev/null' )
@@ -311,7 +310,6 @@ class TrigInDetRdictStep(Step):
             os.system( 'get_files -data TIDAdata-run3-offline-fslrt.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-minbias-offline.dat &> /dev/null' )
-            os.system( 'get_files -data TIDAdata-run3-offline-TnP.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-run3-offline-cosmic.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
             os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )

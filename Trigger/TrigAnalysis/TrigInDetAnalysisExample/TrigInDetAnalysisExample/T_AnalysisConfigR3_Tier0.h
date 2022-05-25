@@ -27,7 +27,7 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TrackSelector.h"     
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
-#include "TrigInDetAnalysisUtils/TagNProbe2.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 #include "TrigInDetAnalysisExample/AnalysisR3_Tier0.h"
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
@@ -110,7 +110,7 @@ public:
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
-			 TagNProbe2*      TnP_tool = 0) :
+			 TagNProbe*      TnP_tool = 0) :
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
@@ -229,7 +229,7 @@ protected:
   
   virtual void loop() {
 
-    const TagNProbe2* pTnP_tool = m_TnP_tool;
+    const TagNProbe* pTnP_tool = m_TnP_tool;
 
     if( m_provider->msg().level() <= MSG::VERBOSE) {
       m_provider->msg(MSG::VERBOSE) <<  "AnalysisConfigR3_Tier0::loop() for " << T_AnalysisConfig<T>::m_analysisInstanceName <<  endmsg;
@@ -1256,7 +1256,7 @@ protected:
   
   bool   m_containTracks;
 
-  TagNProbe2* m_TnP_tool ; 
+  TagNProbe* m_TnP_tool ; 
 
   bool       m_tnp_flag;
 

@@ -24,6 +24,7 @@
 #include "TrigInDetAnalysis/TrigObjectMatcher.h"
 
 #include "TrigInDetAnalysisExample/ChainString.h"
+#include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 
 #include "Resplot.h"
@@ -50,23 +51,26 @@ class ConfAnalysis : public TrackAnalysis {
 
 public:
   
-  ConfAnalysis( const std::string& name, const ChainString& config ) : 
+  ConfAnalysis( const std::string& name, const ChainString& config, TagNProbe* TnP_tool=0 ) : 
     TrackAnalysis( clean(name) ), 
     mconfig(config),
     Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
     m_initialised(false), m_initialiseFirstEvent(false) { // , m_lfirst(true)  {
     std::cout << "ConfAnalysis::ConfAnalysis() " << TrackAnalysis::name() << " ..." << std::endl;
-  }  
-
+    setTnPtool( TnP_tool );
+  }
+  
   ~ConfAnalysis() {
     // std::cout << "ConfAnalysis::~ConfAnalysis() " << name() << std::endl;
     std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
     std::map<std::string, TH1F*>::iterator hend=m_histos.end();
     for ( ; hitr!=hend ; hitr++ ) delete hitr->second;     
-    //2D histograms                                                                                                                                             
+    //2D histograms
     std::map<std::string, TH2F*>::iterator hitr2D=m_histos2D.begin();                                                                                           
-    std::map<std::string, TH2F*>::iterator hend2D=m_histos2D.end();                                                                                             
+    std::map<std::string, TH2F*>::iterator hend2D=m_histos2D.end();
     for ( ; hitr2D!=hend2D ; hitr2D++ ) delete hitr2D->second;     
+    // tag and probe object
+    if ( m_TnP_tool ) delete m_TnP_tool;
   }  
   
   virtual void initialise();
@@ -108,6 +112,16 @@ public:
 
   const ChainString& config() const { return mconfig; }
 
+  // methods for tag and probe invariant mass plots
+  
+  void setTnPtool(TagNProbe* TnP_tool) { m_TnP_tool = TnP_tool; }
+  
+  virtual TagNProbe* getTnPtool() { return m_TnP_tool; }
+
+  virtual TH1F* getHist_invmass() { return m_invmass; }
+
+  virtual TH1F* getHist_invmassObj() { return m_invmassObj; }
+
 private:
   
   void addHistogram( TH1F* h ) { 
@@ -139,6 +153,13 @@ private:
 
   std::map<std::string, TH1F*> m_histos;
   std::map<std::string, TH2F*> m_histos2D;
+
+  // tag and probe invariant mass histograms
+  TH1F* m_invmass = 0;
+  TH1F* m_invmassObj = 0;
+
+  // tag and probe object
+  TagNProbe* m_TnP_tool;
 
   Efficiency* eff_pt = 0;
   Efficiency* eff_ptp = 0;
