@@ -188,7 +188,7 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
       TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
       if (tokAddr != nullptr && tokAddr->getToken() != nullptr && (boost::starts_with(tokAddr->getToken()->contID(), m_persSvcPerInputType.value() + "(") || boost::starts_with(tokAddr->getToken()->contID(), m_persSvcPerInputType.value() + "_"))) {
          const unsigned int maxContext = m_poolSvc->getInputContextMap().size();
-         const unsigned int auxContext = m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString(), 1);
+         const unsigned int auxContext = m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString() + tokAddr->getToken()->dbID().toString(), 1);
          char text[32];
          ::sprintf(text, "[CTXT=%08X]", auxContext);
          if (m_poolSvc->getInputContextMap().size() > maxContext) {
