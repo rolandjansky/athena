@@ -232,6 +232,9 @@ def setupMenu():
         # ATR-24367 (express stream for ID)
         ChainProp(name='HLT_mu14_mu14_idperf_50invmAB130_L12MU8F', l1SeedThresholds=['MU8F','MU8F'], stream=[PhysicsStream,'express'], groups=MultiMuonGroup+SupportGroup, monGroups=['idMon:shifter']),
         ChainProp(name='HLT_mu4_mu4_idperf_1invmAB5_L12MU3VF', l1SeedThresholds=['MU3VF','MU3VF'], stream=[PhysicsStream,'express'], groups=MultiMuonGroup+SupportGroup, monGroups=['idMon:t0']),
+     
+        # ATR-25219, 1mu, for alignment run
+        ChainProp(name='HLT_mu15_mucombTag_L1MU20VFC',groups=['PS:Online']+SingleMuonGroup+SupportGroup)
      ]
 
     chains['Egamma'] = [

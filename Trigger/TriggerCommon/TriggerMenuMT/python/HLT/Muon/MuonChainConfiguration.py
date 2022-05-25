@@ -142,6 +142,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "lateMu":['getLateMuRoI','getLateMu'], #late muon triggers
             "muoncalib":['getmuFast'], #calibration
             "vtx":['getmuRoiClu'], #LLP Trigger
+            "mucombTag":['getmuFast', muCombStep], #Trigger for alignment 
         }
 
         return stepDictionary
