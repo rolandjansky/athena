@@ -40,7 +40,7 @@ Tight_Photon = CfgMgr.AsgPhotonIsEMSelector(
 
 PhIsoTight = CfgMgr.CP__IsolationSelectionTool(
     name="PhIsoTight",
-    PhotonWP="Tight")
+    PhotonWP="FixedCutTight")
 
 PhIsoTightCaloOnly = CfgMgr.CP__IsolationSelectionTool(
     name="PhIsoTightCaloOnly",
@@ -48,7 +48,7 @@ PhIsoTightCaloOnly = CfgMgr.CP__IsolationSelectionTool(
 
 PhIsoLoose = CfgMgr.CP__IsolationSelectionTool(
     name="PhIsoLoose",
-    PhotonWP="Loose")
+    PhotonWP="FixedCutLoose")
 
 # Ouput Message Level
 svcMgr.MessageSvc.OutputLevel = INFO
