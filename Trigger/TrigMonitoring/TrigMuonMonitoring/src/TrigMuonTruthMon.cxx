@@ -94,11 +94,18 @@ StatusCode TrigMuonTruthMon :: fillVariablesPerChain(const EventContext &ctx, co
       fill(m_group+"_"+chain, truthEta, truthPhi, truthIntPerBC);
     }
 
-    // Fill matched EFCB to truth histograms
-    const xAOD::Muon* efmuon = m_matchTool->matchEFCB(truthMu, chain, passed_EF);  // Find EFCB muons
+    // Find match truth muons - EFSA matching for msonly chains, otherwise EFCB matching
+    std::string msonly = "msonly";
+    const xAOD::Muon* efmuon;
+    if(chain.find(msonly) != std::string::npos){ // Find EFCB muons
+      efmuon = m_matchTool->matchEFSA(truthMu, chain, passed_EF);
+    }
+    else{ // Find EFCB muons
+      efmuon = m_matchTool->matchEFCB(truthMu, chain, passed_EF);  
+    }
     const xAOD::MuonRoI* l1muon = m_matchTool->matchL1(truthMu, chain, passed_L1);    // Find L1 muons
 
-    if(efmuon && passed_EF){  // Fill EFCB matched muon hists
+    if(efmuon && passed_EF){  // Fill matched muon histograms
       MatchedEFCBtruthPt = truthMu->pt()/1e3;
       fill(m_group+"_"+chain, MatchedEFCBtruthPt);
       if(std::abs(eta) < 1.05){ 
