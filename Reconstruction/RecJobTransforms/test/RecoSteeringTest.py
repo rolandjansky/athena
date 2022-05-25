@@ -35,7 +35,7 @@ def _run(input):
             flags.Common.ProductionStep=ProductionStep.Reconstruction
 
     # Enable PerfMon
-    flags.PerfMon.doFullMonMT = True
+    flags.PerfMon.doFastMonMT = True
     flags.PerfMon.OutputJSON = f"perfmonmt_{input}.json"
 
     flags.lock()
