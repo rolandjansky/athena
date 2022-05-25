@@ -277,8 +277,12 @@ class HLTSeeding(CompFactory.HLTSeeding) :
 
         self.ctpUnpacker = ctpUnpacker
         from TrigEDMConfig.TriggerEDMRun3 import recordable
+
+        # needs to be set up such that the Roiupdater is set to false by default
+
         self.RoIBRoIUnpackers += [
             CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool",
+                                            RoiUpdater=None, 
                                             Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
                                             OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker

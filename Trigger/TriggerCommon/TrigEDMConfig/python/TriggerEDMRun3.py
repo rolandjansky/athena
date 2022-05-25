@@ -876,11 +876,14 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_Roi_Bjet',                   'BS ESD AODFULL', 'Bjet'),
 
 
-    # jet superRoI Descriptor and associated track and vertex class used for EventView creation
 
+    # jet superRoI Descriptor and associated track and vertex class used for EventView creation
+    ('TrigRoiDescriptorCollection#HLT_Roi_FS',                         'BS ESD AODFULL', 'Jet'),
     ('TrigRoiDescriptorCollection#HLT_Roi_JetSuper',                   'BS ESD AODFULL', 'Jet'),
+
     ('xAOD::TrackParticleContainer#HLT_IDTrack_JetSuper_FTF',          'BS ESD AODFULL', 'Jet', 'inViews:JetSuperRoIViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTFAux.',   'BS ESD AODFULL', 'Jet'),
+
 
 
 

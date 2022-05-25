@@ -1,6 +1,6 @@
 
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -15,18 +15,29 @@ ViewCreatorFSROITool::ViewCreatorFSROITool(const std::string& type, const std::s
 
 StatusCode ViewCreatorFSROITool::initialize()  {
   ATH_CHECK( m_roisWriteHandleKey.initialize() );
+
+  if ( !m_roiupdater.empty() ) ATH_CHECK( m_roiupdater.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode ViewCreatorFSROITool::attachROILinks(TrigCompositeUtils::DecisionContainer& decisions, const EventContext& ctx) const {
-  SG::WriteHandle<TrigRoiDescriptorCollection> roisWriteHandle = createAndStoreNoAux(m_roisWriteHandleKey, ctx);
-  roisWriteHandle->push_back( new TrigRoiDescriptor(true) );
-  const ElementLink<TrigRoiDescriptorCollection> roiEL = ElementLink<TrigRoiDescriptorCollection>(*roisWriteHandle, /*index =*/ 0, ctx);
 
-  for ( Decision* outputDecision : decisions ) { 
-    outputDecision->setObjectLink(roiString(), roiEL);
+  SG::WriteHandle<TrigRoiDescriptorCollection> roisWriteHandle = createAndStoreNoAux(m_roisWriteHandleKey, ctx);
+
+  if ( m_roiupdater.empty() ) { 
+    roisWriteHandle->push_back( new TrigRoiDescriptor( RoiDescriptor::FULLSCAN ) );
+  }
+  else {
+    roisWriteHandle->push_back( m_roiupdater->execute( ctx ) );
   }
 
-	return StatusCode::SUCCESS;
+  const ElementLink<TrigRoiDescriptorCollection> roiEL = ElementLink<TrigRoiDescriptorCollection>( *roisWriteHandle, /*index =*/ 0, ctx );
+
+  for ( Decision* outputDecision : decisions ) { 
+    outputDecision->setObjectLink( roiString(), roiEL );
+  }
+
+  return StatusCode::SUCCESS;
 }
