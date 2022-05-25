@@ -277,7 +277,15 @@ def CombinedTrackingPassFlagSets(flags):
 
     return flags_set
 
+def ClusterSplitProbabilityContainerName(flags):
 
+    flags_set = CombinedTrackingPassFlagSets(flags)
+    extension = flags_set[-1].InDet.Tracking.ActivePass.extension
+    ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension
+    if len(flags_set)==1 and flags.InDet.Tracking.doBackTracking: # Only primary pass + back-tracking
+        ClusterSplitProbContainer = "InDetTRT_SeededAmbiguityProcessorSplitProb"
+
+    return ClusterSplitProbContainer
 
 def InDetTrackRecoCfg(flags):
     if flags.Detector.GeometryITk:
@@ -502,7 +510,7 @@ def InDetTrackRecoCfg(flags):
                                              InputCombinedTracks = InputCombinedInDetTracks,
                                              OutputCombinedTracks = "CombinedInDetTracks",
                                              AssociationMapName = "PRDtoTrackMapCombinedInDetTracks",
-                                             CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer))
+                                             CombinedInDetClusterSplitProbContainer = ClusterSplitProbabilityContainerName(flags)))
 
     if flags.InDet.doTruth:
         from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
@@ -522,7 +530,7 @@ def InDetTrackRecoCfg(flags):
 
     if flags.InDet.Tracking.writeExtendedPRDInfo:
         from InDetConfig.InDetPrepRawDataToxAODConfig import InDetPixelPrepDataToxAODCfg, InDetSCT_PrepDataToxAODCfg, InDetTRT_PrepDataToxAODCfg
-        result.merge(InDetPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(InDetPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbabilityContainerName(flags)))
         result.merge(InDetSCT_PrepDataToxAODCfg(flags))
         result.merge(InDetTRT_PrepDataToxAODCfg(flags))
 
@@ -595,98 +603,86 @@ def InDetTrackRecoOutputCfg(flags):
         toESD += ["ComTime#TRT_Phase"]
 
     # Save PRD
-    if special:  # flags.InDet.writePRDs: globalflags.DataSource == 'data' and flags.InDet.doHeavyIon()
-        toESD += [
-            "InDet::SCT_ClusterContainer#SCT_Clusters",
-            "InDet::PixelClusterContainer#PixelClusters",
-            "InDet::TRT_DriftCircleContainer#TRT_DriftCircles",
-            "InDet::PixelGangedClusterAmbiguities#PixelClusterAmbiguitiesMap",
-        ]
-        if flags.InDet.Tracking.doPixelClusterSplitting:
-            toESD += ["InDet::PixelGangedClusterAmbiguities#SplitClusterAmbiguityMap"]
-        toESD += ["IDCInDetBSErrContainer#SCT_FlaggedCondData"]
-        toESD += ["Trk::ClusterSplitProbabilityContainer#*"]  # TODO: proper name
+    toESD += [
+        "InDet::SCT_ClusterContainer#SCT_Clusters",
+        "InDet::PixelClusterContainer#PixelClusters",
+        "InDet::TRT_DriftCircleContainer#TRT_DriftCircles",
+        "InDet::PixelGangedClusterAmbiguities#PixelClusterAmbiguitiesMap",
+    ]
+    if flags.InDet.Tracking.doPixelClusterSplitting:
+        toESD += ["InDet::PixelGangedClusterAmbiguities#SplitClusterAmbiguityMap"]
+    toESD += ["IDCInDetBSErrContainer#SCT_FlaggedCondData"]
+    toESD += ["Trk::ClusterSplitProbabilityContainer#" + ClusterSplitProbabilityContainerName(flags)]
 
     # add tracks
-    if flags.InDet.Tracking.doStoreTrackSeeds and special:  # flags.InDet.doWriteTracksToESD:
+    if flags.InDet.Tracking.doStoreTrackSeeds:
         toESD += ["TrackCollection#SiSPSeedSegments"]
 
-    if special:  # flags.InDet.doWriteTracksToESD:
-        toESD += ["TrackCollection#SiSPSeededTracks"]
+    toESD += ["TrackCollection#SiSPSeededTracks"]
 
-        if flags.InDet.Tracking.doTrackSegmentsPixel:
-            toESD += ["TrackCollection#ResolvedPixelTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#ResolvedPixelTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#ResolvedPixelTracksDetailedTruth"]
-
-        if flags.InDet.Tracking.doTrackSegmentsSCT:
-            toESD += ["TrackCollection#ResolvedSCTTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#ResolvedSCTTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#ResolvedSCTTracksDetailedTruth"]
-
-        if flags.InDet.Tracking.doTrackSegmentsTRT:
-            toESD += ["TrackCollection#StandaloneTRTTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#StandaloneTRTTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#StandaloneTRTTracksDetailedTruth"]
-
-        if flags.InDet.Tracking.doPseudoTracking:
-            toESD += ["TrackCollection#InDetPseudoTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#InDetPseudoTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#InDetPseudoTracksDetailedTruth"]
-
-        if special:  # flags.InDet.doTIDE_AmbiTrackMonitoring:
-            toESD += ["TrackCollection#ObservedTracksCollection"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#InDetObservedTrackTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#InDetObservedTrackDetailedTruth"]
-
-        if flags.InDet.Tracking.doDBMstandalone:
-            toESD += ["TrackCollection#ResolvedDBMTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#ResolvedDBMTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#ResolvedDBMTracksDetailedTruth"]
-
-        # add the forward tracks for combined muon reconstruction
-        if flags.InDet.Tracking.doForwardTracks:
-            toESD += ["TrackCollection#ResolvedForwardTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#ResolvedForwardTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#ResolvedForwardTracksDetailedTruth"]
-
-        if flags.InDet.Tracking.doBeamGas:
-            # TODO
-            pass
-
-        if flags.InDet.Tracking.doBeamHalo:
-            # TODO
-            pass
-
-        if flags.InDet.Tracking.doTrackSegmentsDisappearing:
-            toESD += ["TrackCollection#DisappearingTracks"]
-            if flags.InDet.doTruth:
-                toESD += ["TrackTruthCollection#DisappearingTracksTruthCollection"]
-                toESD += ["DetailedTrackTruthCollection#DisappearingTracksDetailedTruth"]
-
-        # Add TRT Segments (only if standalone is off).
-        # TODO: no TP converter?
-        # if not flags.InDet.doTRTStandalone:
-        #    toESD += ["Trk::SegmentCollection#TRTSegments"]
-
-        # Save (Detailed) Track Truth
+    if flags.InDet.Tracking.doTrackSegmentsPixel:
+        toESD += ["TrackCollection#ResolvedPixelTracks"]
         if flags.InDet.doTruth:
-            toESD += ["TrackTruthCollection#TrackTruthCollection"]
-            toESD += ["DetailedTrackTruthCollection#DetailedTrackTruth"]
+            toESD += ["TrackTruthCollection#ResolvedPixelTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#ResolvedPixelTracksDetailedTruth"]
 
-            # save PRD MultiTruth
-            toESD += [
-                "PRD_MultiTruthCollection#PRD_MultiTruthPixel",
-                "PRD_MultiTruthCollection#PRD_MultiTruthSCT",
-                "PRD_MultiTruthCollection#PRD_MultiTruthTRT",
-            ]
+    if flags.InDet.Tracking.doTrackSegmentsSCT:
+        toESD += ["TrackCollection#ResolvedSCTTracks"]
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#ResolvedSCTTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#ResolvedSCTTracksDetailedTruth"]
+
+    if flags.InDet.Tracking.doTrackSegmentsTRT:
+        toESD += ["TrackCollection#StandaloneTRTTracks"]
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#StandaloneTRTTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#StandaloneTRTTracksDetailedTruth"]
+
+    if flags.InDet.Tracking.doPseudoTracking:
+        toESD += ["TrackCollection#InDetPseudoTracks"]
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#InDetPseudoTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#InDetPseudoTracksDetailedTruth"]
+
+    if flags.InDet.Tracking.doDBMstandalone:
+        toESD += ["TrackCollection#ResolvedDBMTracks"]
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#ResolvedDBMTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#ResolvedDBMTracksDetailedTruth"]
+
+    # add the forward tracks for combined muon reconstruction
+    if flags.InDet.Tracking.doForwardTracks:
+        toESD += ["TrackCollection#ResolvedForwardTracks"]
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#ResolvedForwardTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#ResolvedForwardTracksDetailedTruth"]
+
+    if flags.InDet.Tracking.doBeamGas:
+        # TODO
+        pass
+
+    if flags.InDet.Tracking.doTrackSegmentsDisappearing:
+        toESD += ["TrackCollection#DisappearingTracks"]
+        if flags.InDet.doTruth:
+            toESD += ["TrackTruthCollection#DisappearingTracksTruthCollection"]
+            toESD += ["DetailedTrackTruthCollection#DisappearingTracksDetailedTruth"]
+
+    # Add TRT Segments (only if standalone is off).
+    # TODO: no TP converter?
+    # if not flags.InDet.doTRTStandalone:
+    #    toESD += ["Trk::SegmentCollection#TRTSegments"]
+
+    # Save (Detailed) Track Truth
+    if flags.InDet.doTruth:
+        toESD += ["TrackTruthCollection#TrackTruthCollection"]
+        toESD += ["DetailedTrackTruthCollection#DetailedTrackTruth"]
+
+        # save PRD MultiTruth
+        toESD += [
+            "PRD_MultiTruthCollection#PRD_MultiTruthPixel",
+            "PRD_MultiTruthCollection#PRD_MultiTruthSCT",
+            "PRD_MultiTruthCollection#PRD_MultiTruthTRT",
+        ]
 
     if not flags.Input.isMC:
         toESD += [
@@ -695,6 +691,8 @@ def InDetTrackRecoOutputCfg(flags):
             "TRT_BSIdErrContainer#TRT_ByteStreamIdErrs",
             "IDCInDetBSErrContainer#SCT_ByteStreamErrs",
         ]
+
+    toESD += ["TrackCollection#CombinedInDetTracks"]
 
     ##### AOD #####
     toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
