@@ -17,7 +17,7 @@ from copy import deepcopy
 # make a list of all possible cut items for the simple scenario
 
 all_elemental_keys = ('etaRange', 'jvt', 'smc',
-                      'threshold', 'momCuts', 'bdips')
+                      'threshold', 'momCuts', 'bdips', 'timing')
 
 # Extract moment cuts
 def _cuts_from_momCuts(momCuts):
@@ -67,6 +67,13 @@ def get_condition_args_from_chainpart(cp):
             key    = 'jvt'
             values = v.split(key)
             assert values[1] == '','jvt condition takes only one argument, two were given' # protection when an upper (not supported) cut is requested
+            lo   = values[0]
+            vals = defaults(key, lo=lo)
+            condargs.append((key, deepcopy(vals)))
+
+        if k == 'timing':
+            key    = 'timing'
+            values = v.split(key)
             lo   = values[0]
             vals = defaults(key, lo=lo)
             condargs.append((key, deepcopy(vals)))
@@ -146,7 +153,7 @@ def scenario_simple(chain_parts):
         # elemental Conditions
 
         condargs = get_condition_args_from_chainpart(cp)
-        
+
         multiplicity = int(cp['multiplicity'])
         chainPartInd = cp['chainPartIndex']
  
