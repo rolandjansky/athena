@@ -29,7 +29,8 @@ def TrigSPTRK(configFlags, highGranularity=False):
     from TrigConfigSvc.TriggerConfigAccess import getHLTMenuAccess
 
     detailed = ["HLT_mb_sptrk_L1RD0_FILLED", "HLT_mb_sp_L1RD0_FILLED"]
-    alg.triggerListTrackingMon = [c for c in getHLTMenuAccess(configFlags) if 'HLT_mb_sp_L1' in c]
+    alg.triggerListTrackingMon = [c for c in getHLTMenuAccess(configFlags) if 'HLT_mb_sptrk_L1' in c]
+    alg.triggerListTrackingMon += [c for c in getHLTMenuAccess(configFlags) if 'HLT_mb_sptrk_pt2_L1' in c]
     alg.triggerListSpacePointsMon = detailed
 
     for chain in alg.triggerListTrackingMon:
