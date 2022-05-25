@@ -88,7 +88,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
         PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", auto_flush ) ]
 
     # Derivation framework output settings    
-    for flag in [key for key in flags._flagdict.keys() if ("Output.DAOD_" and "FileName" in key)]:
+    for flag in [key for key in flags._flagdict.keys() if ("Output.DAOD_" in key and "FileName" in key)]:
         # Since there may be several outputs, this has to be done in a loop 
         FileName = flags._flagdict[flag]._value 
         # Use ZSTD w/ Level 5 for DAODs
