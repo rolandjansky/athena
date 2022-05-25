@@ -62,14 +62,18 @@ unsigned int CMAparameters::last_highPt_code() const { return m_last_highPt_code
 
 CMAparameters::CMAconfiguration CMAparameters::conf_type() const { return m_conf_type; }
 
-CMAparameters::CMAparameters(CMAparameters::parseParams parse) :
-    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage)), m_params{parse} {
-    m_id = std::make_unique<CMAidentity>(parse);
+CMAparameters::CMAparameters(const CMAparameters::parseParams& parse) :
+    CablingObject(parse, CMAidentity::name(parse.view, parse.coverage)),
+    m_params{parse},
+    m_id (std::make_unique<CMAidentity>(parse))
+{
 }
 
-CMAparameters::CMAparameters(const CMAparameters& cma) : CablingObject(cma), m_params{cma.m_params} {
-    m_id = std::make_unique<CMAidentity>(cma.id());
-
+CMAparameters::CMAparameters(const CMAparameters& cma)
+  : CablingObject(cma),
+    m_params{cma.m_params},
+    m_id (std::make_unique<CMAidentity>(cma.id()))
+{
     const CMAprogram* proglow = cma.lowPt_program();
     const CMAprogram* proghigh = cma.highPt_program();
     if (proglow) { m_lowPt_program = std ::make_unique<CMAprogram>(*proglow); }

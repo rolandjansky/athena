@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/WiredORdata.h"
@@ -23,7 +23,7 @@ WiredORdata::WiredORdata(DBline& data, int type) : BaseObject{Logic, "Wired OR D
         parse_params.station = m_station;
         parse_params.number = -1;
         if (get_data(data, parse_params)) { m_wor.emplace_back(parse_params); }
-        data++;
+        ++data;
     } while (!data("}"));
 }
 WiredORdata::~WiredORdata() = default;

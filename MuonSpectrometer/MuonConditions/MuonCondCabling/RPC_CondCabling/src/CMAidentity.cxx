@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/CMAidentity.h"
@@ -26,7 +26,7 @@ const std::string CMAidentity::name(const ViewType view, const CMAcoverage cover
     std::string v_name = cover + side + "CMA";
     return v_name;
 }
-CMAidentity::CMAidentity(defineParams pars) : m_params{pars} {}
+CMAidentity::CMAidentity(const defineParams& pars) : m_params{pars} {}
 
 CMAidentity::CMAidentity(ViewType view, CMAcoverage side, int number, int eta_index, int phi_index, int PAD_index, int Ixx_index) {
     m_params.view = view;

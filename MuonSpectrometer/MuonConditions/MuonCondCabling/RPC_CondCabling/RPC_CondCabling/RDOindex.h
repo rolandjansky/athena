@@ -150,7 +150,7 @@ public:
     void pad_identifier(Identifier& id) const;
 
 private:
-    const RpcIdHelper& m_rpcIdHelper;
+    const RpcIdHelper* m_rpcIdHelper;
 
     friend std::ostream& operator<<(std::ostream&, const RDOindex&);
 };

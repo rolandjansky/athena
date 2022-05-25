@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -15,7 +15,9 @@
 
 using namespace RPC_CondCabling;
 
-EtaCMA::EtaCMA(CMAparameters::parseParams parse) : CMAparameters(parse) {
+EtaCMA::EtaCMA(const CMAparameters::parseParams& parse)
+  : CMAparameters(parse)
+{
     m_pivot_rpc_read = 1;
     m_lowPt_rpc_read = 1;
     m_highPt_rpc_read = 1;
@@ -26,11 +28,13 @@ EtaCMA::EtaCMA(CMAparameters::parseParams parse) : CMAparameters(parse) {
     create_highPt_map(m_highPt_rpc_read);
 }
 
-EtaCMA::EtaCMA(const EtaCMA& cma) : CMAparameters(cma) {
-    m_pivot_RPCs = cma.pivot_RPCs();
-    m_lowPt_RPCs = cma.lowPt_RPCs();
-    m_highPt_RPCs = cma.highPt_RPCs();
-    m_inversion = cma.inversion();
+EtaCMA::EtaCMA(const EtaCMA& cma)
+  : CMAparameters(cma),
+    m_pivot_RPCs (cma.pivot_RPCs()),
+    m_lowPt_RPCs (cma.lowPt_RPCs()),
+    m_highPt_RPCs (cma.highPt_RPCs()),
+    m_inversion (cma.inversion())
+{
     m_conf_type = CMAparameters::Atlas;
 }
 

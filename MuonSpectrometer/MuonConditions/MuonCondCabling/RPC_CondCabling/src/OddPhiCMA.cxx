@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -38,11 +38,13 @@ OddPhiCMA::OddPhiCMA(parseParams parse) : CMAparameters(parse) {
     }
 }
 
-OddPhiCMA::OddPhiCMA(const OddPhiCMA& cma) : CMAparameters(cma) {
-    m_pivot_WORs = cma.pivot_WORs();
-    m_lowPt_WORs = cma.lowPt_WORs();
-    m_highPt_WORs = cma.highPt_WORs();
-    m_inversion = cma.inversion();
+OddPhiCMA::OddPhiCMA(const OddPhiCMA& cma)
+  : CMAparameters(cma),
+    m_pivot_WORs (cma.pivot_WORs()),
+    m_lowPt_WORs (cma.lowPt_WORs()),
+    m_highPt_WORs (cma.highPt_WORs()),
+    m_inversion (cma.inversion())
+{
     m_conf_type = CMAparameters::Atlas;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ETACMA_H
@@ -35,7 +35,7 @@ namespace RPC_CondCabling {
         bool begin_at_RPC_Z_boundary(void) const;
 
     public:
-        EtaCMA(parseParams parse);
+        EtaCMA(const parseParams& parse);
         EtaCMA(const EtaCMA&);
         virtual ~EtaCMA();
 

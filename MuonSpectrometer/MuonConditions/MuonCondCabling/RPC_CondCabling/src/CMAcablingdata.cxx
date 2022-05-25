@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/CMAcablingdata.h"
@@ -16,7 +16,7 @@ CMAcablingdata::CMAcablingdata(DBline& data, int type) : BaseObject(Logic, "CMA 
         if (get_data(data, parser)) {
             if (m_view == ViewType::Eta) { m_etaCMA.emplace_back(parser); }
         }
-        data++;
+        ++data;
     } while (!data("}"));
 }
 

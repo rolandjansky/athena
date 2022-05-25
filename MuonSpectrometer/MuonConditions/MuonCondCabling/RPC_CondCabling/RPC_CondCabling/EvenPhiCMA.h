@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENPHICMA_H
@@ -34,7 +34,7 @@ namespace RPC_CondCabling {
         int get_max_strip_readout(int);
 
     public:
-        EvenPhiCMA(parseParams parse);
+        EvenPhiCMA(const parseParams& parse);
         EvenPhiCMA(const EvenPhiCMA&);
         virtual ~EvenPhiCMA();
 
