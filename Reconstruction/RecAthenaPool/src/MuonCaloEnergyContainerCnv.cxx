@@ -39,8 +39,8 @@ MuonCaloEnergyContainer* MuonCaloEnergyContainerCnv::createTransient()
   MsgStream msg( msgSvc(), "MuonCaloEnergyContainerConverter" );
   MuonCaloEnergyContainer *transObj = 0;
 
-  static pool::Guid p1_guid("DB3DC5CD-FF0F-01FE-4550-7BCE8DBB9968");
-  static pool::Guid tlp1_guid("E60630E0-FAA1-4658-9BDD-8BB977C4200B");
+  static const pool::Guid p1_guid("DB3DC5CD-FF0F-01FE-4550-7BCE8DBB9968");
+  static const pool::Guid tlp1_guid("E60630E0-FAA1-4658-9BDD-8BB977C4200B");
   
   if ( compareClassGuid(tlp1_guid) ) {
 

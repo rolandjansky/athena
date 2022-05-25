@@ -37,10 +37,10 @@ MissingET* MissingETCnv::createTransient()
 
   MissingET *transObj = 0;
 
-  static pool::Guid tr_guid("14E6F88E-BA7F-4241-BF3D-99DE583B4709");
-  static pool::Guid p1_guid("C0D9AEE8-A2B0-4EED-BD75-53D67DF9736F");
-  static pool::Guid p2_guid("2D9729C7-646D-4BF5-B404-380AE2D9D308");
-  static pool::Guid p3_guid("AD744C55-6CA6-4D44-8E2F-C47FF3CE980E");
+  static const pool::Guid tr_guid("14E6F88E-BA7F-4241-BF3D-99DE583B4709");
+  static const pool::Guid p1_guid("C0D9AEE8-A2B0-4EED-BD75-53D67DF9736F");
+  static const pool::Guid p2_guid("2D9729C7-646D-4BF5-B404-380AE2D9D308");
+  static const pool::Guid p3_guid("AD744C55-6CA6-4D44-8E2F-C47FF3CE980E");
 
   if ( compareClassGuid(tr_guid) ) { // regular object from before the T/P separation
         return poolReadObject<MissingET>();

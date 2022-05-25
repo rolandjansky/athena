@@ -36,10 +36,10 @@ MissingEtCalo* MissingEtCaloCnv::createTransient()
 
   MissingEtCalo *transObj = 0;
 
-  static pool::Guid tr_guid("BD14D6E7-C771-4079-BF31-F43FE1068C95");
-  static pool::Guid p1_guid("877E907D-D7E1-49DE-B01F-9CDA344E6004");
-  static pool::Guid p2_guid("F16ECA98-8809-436C-A00A-06DBBF9C3087");
-  static pool::Guid p3_guid("0B9C9E87-92C8-49D3-8DF1-45ACDDD3336F");
+  static const pool::Guid tr_guid("BD14D6E7-C771-4079-BF31-F43FE1068C95");
+  static const pool::Guid p1_guid("877E907D-D7E1-49DE-B01F-9CDA344E6004");
+  static const pool::Guid p2_guid("F16ECA98-8809-436C-A00A-06DBBF9C3087");
+  static const pool::Guid p3_guid("0B9C9E87-92C8-49D3-8DF1-45ACDDD3336F");
 
   if ( compareClassGuid(tr_guid) ) { // regular object from before the T/P separation
     return poolReadObject<MissingEtCalo>();

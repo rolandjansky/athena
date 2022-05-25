@@ -31,7 +31,7 @@ void
 MuonCaloEnergiesCnv::readObjectFromPool( const std::string& token )
 {
     
-   static pool::Guid p1_guid( "E60630E0-FAA1-4658-9BDD-8BB977C4200B" );
+   static const pool::Guid p1_guid( "E60630E0-FAA1-4658-9BDD-8BB977C4200B" );
 
    // set the POOL token which will be used for reading from POOL
    setToken( token );

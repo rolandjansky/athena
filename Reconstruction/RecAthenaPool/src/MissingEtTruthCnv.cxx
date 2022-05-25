@@ -38,10 +38,10 @@ MissingEtTruth* MissingEtTruthCnv::createTransient()
 
   MissingEtTruth *transObj = 0;
 
-  static pool::Guid tr_guid("2147ED1C-7337-4717-900B-1B52BD8DC316");
-  static pool::Guid p1_guid("E7D6D6B8-08A8-409E-9477-2A61467738B2");
-  static pool::Guid p2_guid("291A1BDB-A25E-412D-8E49-EF0E1EA1A835");
-  static pool::Guid p3_guid("3FA8CC45-8798-4C24-9D0E-22E5F11AD85F");
+  static const pool::Guid tr_guid("2147ED1C-7337-4717-900B-1B52BD8DC316");
+  static const pool::Guid p1_guid("E7D6D6B8-08A8-409E-9477-2A61467738B2");
+  static const pool::Guid p2_guid("291A1BDB-A25E-412D-8E49-EF0E1EA1A835");
+  static const pool::Guid p3_guid("3FA8CC45-8798-4C24-9D0E-22E5F11AD85F");
 
   if (  compareClassGuid(p3_guid)) {
 	
