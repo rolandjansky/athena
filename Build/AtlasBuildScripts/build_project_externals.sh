@@ -79,10 +79,6 @@ while getopts ":t:b:x:k:fch" opt; do
    esac
 done
 
-# Only stop on errors if we are executing a CI build. Otherwise just count them.
-if [ "${ATLAS_CI_BUILD}" = "1" ]; then
-   set -e
-fi
 set -o pipefail
 ERROR_COUNT=0
 
