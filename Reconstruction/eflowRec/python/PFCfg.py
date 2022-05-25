@@ -137,34 +137,6 @@ def getPFLCCalibTool(inputFlags):
 
     return PFLCCalibTool
 
-def getChargedPFOCreatorAlgorithm(inputFlags,chargedPFOOutputName,eflowObjectsInputName=None):
-    PFOChargedCreatorAlgorithmFactory = CompFactory.PFOChargedCreatorAlgorithm
-    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithmFactory("PFOChargedCreatorAlgorithm")
-    if chargedPFOOutputName:
-        PFOChargedCreatorAlgorithm.PFOOutputName = chargedPFOOutputName
-    if(inputFlags.PF.EOverPMode):
-        PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
-    if eflowObjectsInputName is not None:
-        PFOChargedCreatorAlgorithm.eflowCaloObjectContainerName = eflowObjectsInputName
-
-    return PFOChargedCreatorAlgorithm
-
-def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName,eflowObjectsInputName=None):
-    PFONeutralCreatorAlgorithmFactory = CompFactory.PFONeutralCreatorAlgorithm
-    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithmFactory("PFONeutralCreatorAlgorithm")
-    if neutralPFOOutputName:
-        PFONeutralCreatorAlgorithm.PFOOutputName = neutralPFOOutputName
-    if(inputFlags.PF.EOverPMode):
-        PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
-    if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
-        PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
-    if eflowObjectsInputName is not None:
-        PFONeutralCreatorAlgorithm.eflowCaloObjectContainerName = eflowObjectsInputName
-
-    PFONeutralCreatorAlgorithm.DoClusterMoments=inputFlags.PF.addClusterMoments
-
-    return PFONeutralCreatorAlgorithm
-
 def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName,eflowCaloObjectContainerName="eflowCaloObjects"):
     FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
     FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
