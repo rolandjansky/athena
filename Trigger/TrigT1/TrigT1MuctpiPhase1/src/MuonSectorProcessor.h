@@ -56,9 +56,9 @@ namespace LVL1MUCTPIPHASE1 {
   private:
     
     std::unique_ptr<OverlapHelper> m_overlapHelper;
-    const TrigConf::L1Menu* m_l1menu;
-    const L1TopoLUT* m_l1topoLUT;
-    bool m_side;
+    const TrigConf::L1Menu* m_l1menu = nullptr;
+    const L1TopoLUT* m_l1topoLUT = nullptr;
+    bool m_side = false;
 
     //encoding between threshold index and pt value in barrel, endcap, and forward regions
     std::vector<std::map<int, int> > m_ptEncoding;
