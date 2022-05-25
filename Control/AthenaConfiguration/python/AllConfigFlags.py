@@ -289,7 +289,7 @@ def _createCfgFlags():
     def __btagging():
         from JetTagConfig.BTaggingConfigFlags import createBTaggingConfigFlags
         return createBTaggingConfigFlags()
-    _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
+    _addFlagsCategory(acf,"BTagging",__btagging, 'JetTagConfig')
 
     def __hi():
         from HIRecConfig.HIRecConfigFlags import createHIRecConfigFlags
