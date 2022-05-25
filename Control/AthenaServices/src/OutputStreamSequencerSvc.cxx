@@ -41,6 +41,11 @@ StatusCode OutputStreamSequencerSvc::initialize() {
       incsvc->addListener(this, IncidentType::BeginProcessing, 100);
       ATH_MSG_DEBUG("Listening to " << incidentName() << " incidents" );
       ATH_MSG_DEBUG("Reporting is " << (m_reportingOn.value()? "ON" : "OFF") );
+      // Retrieve MetaDataSvc
+      if( !m_metaDataSvc.isValid() and !m_metaDataSvc.retrieve().isSuccess() ) {
+         ATH_MSG_ERROR("Cannot get MetaDataSvc");
+         return StatusCode::FAILURE;
+      }
    }
 
    if( inConcurrentEventsMode() ) {
@@ -92,6 +97,7 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
 
    auto slot = Gaudi::Hive::currentContext().slot();
    if( slot == EventContext::INVALID_CONTEXT_ID )  slot = 0;
+   m_lastIncident = inc.type();
 
    if( inc.type() == incidentName() ) {  // NextEventRange 
       std::string rangeID;
@@ -100,23 +106,18 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
          rangeID = fileInc->fileName();
          ATH_MSG_DEBUG("Requested (through incident) Next Event Range filename extension: " << rangeID);
       }
-      if( not inConcurrentEventsMode() ) {
-         // finish the previous Range here only in SEQUENTIAL (threads<2) event processing
-         if( rangeID=="dummy" or    // for EventService MP
-             ( rangeID=="" and  m_fileSequenceNumber>=0 ) ) {   // for Athena SP Event 1+
-            // Write metadata on the incident finishing a Range (filename=="dummy") in ES
-            // or on non-file incident (filename=="") in regular LoopMgr (skip first incident)
+
+      if( rangeID == "dummy" ) {
+         if( not inConcurrentEventsMode() ) {
+            // finish the previous Range here only in SEQUENTIAL (threads<2) event processing
+            // Write metadata on the incident finishing a Range (filename=="dummy") in ES MP
             ATH_MSG_DEBUG("MetaData transition");
-            // Retrieve MetaDataSvc
-            if( !m_metaDataSvc.isValid() and !m_metaDataSvc.retrieve().isSuccess() ) {
-               throw GaudiException("Cannot get MetaDataSvc", name(), StatusCode::FAILURE);
-            }
-            if( !m_metaDataSvc->transitionMetaDataFile(m_lastFileName).isSuccess() ) {
+            // immediate write and disconnect for ES, otherwise do it after Event write is done
+            bool disconnect { true };
+            if( !m_metaDataSvc->transitionMetaDataFile( m_lastFileName, disconnect ).isSuccess() ) {
                throw GaudiException("Cannot transition MetaData", name(), StatusCode::FAILURE);
             }
          }
-      }
-      if( rangeID=="dummy" ) {
          // exit now, wait for the next (real) incident that will start the next range
          return;
       }
@@ -136,6 +137,16 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
       m_rangeIDinSlot[ slot ] = rangeID;
       // remember range ID for next events in the same range
       m_currentRangeID = rangeID;
+
+      if( not inConcurrentEventsMode() ) {
+         // non-file incident case (filename=="") in regular SP LoopMgr
+         ATH_MSG_DEBUG("MetaData transition");
+         bool disconnect { false };
+         // MN: may not know the full filename yet, but that is only needed for disconnect==true
+         if( !m_metaDataSvc->transitionMetaDataFile( "" /*m_lastFileName*/, disconnect ).isSuccess() ) {
+            throw GaudiException("Cannot transition MetaData", name(), StatusCode::FAILURE);
+         }
+      }
    }
    else if( inc.type() == IncidentType::BeginProcessing ) {
       // new event start - assing current rangeId to its slot
