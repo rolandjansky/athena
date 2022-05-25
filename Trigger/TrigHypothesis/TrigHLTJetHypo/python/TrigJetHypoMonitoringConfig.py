@@ -4,10 +4,10 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 def TrigJetHypoToolMonitoring(histPath, histFlags):
     montool = GenericMonitoringTool("MonTool", HistPath = histPath)
-    # Always make these.
+    # Always make these. Timing plots are 100 ms bins (expect everything in 0 bin)
     montool.defineHistogram('Et', title='Jet E_{T};E_{T} (GeV)', xbins=100, xmin=0, xmax=500, path='EXPERT', type='TH1F' )
-    montool.defineHistogram('TIME_jetHypo,NJetsIn', title='JetHypo time vs input jets;time (ms) ;N(jets)', xbins=50, xmin=0, xmax=10, ybins=40, ymin=-0.5, ymax=39.5, path='EXPERT', type='TH2F' )
-    montool.defineHistogram('TIME_jetHypo,NJetsOut', title='JetHypo time vs jets;time (ms) ;N(jets)', xbins=50, xmin=0, xmax=10, ybins=30, ymin=-0.5, ymax=29.5, path='EXPERT', type='TH2F' )
+    montool.defineHistogram('TIME_jetHypo,NJetsIn', title='JetHypo time vs input jets;time (ms) ;N(jets)', xbins=50, xmin=0, xmax=5000, ybins=60, ymin=0, ymax=120, path='EXPERT', type='TH2F' )
+    montool.defineHistogram('TIME_jetHypo,NJetsOut', title='JetHypo time vs jets;time (ms) ;N(jets)', xbins=50, xmin=0, xmax=5000, ybins=30, ymin=-0.5, ymax=29.5, path='EXPERT', type='TH2F' )
     # Conditional histograms: monitor the mass for largeR jets (anything but a4), and etaphi for simple smallR
     if 'a4' not in histFlags:  montool.defineHistogram('Mass', title='Jet mass;m (GeV)', xbins=100, xmin=0, xmax=200, path='EXPERT', type='TH1F' )
     if ('simple' in histFlags) and ('a4' in histFlags) and all("HT" not in flag for flag in histFlags): 
