@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -28,6 +28,7 @@
 #include "Gaudi/Property.h"  /*no forward decl: typedef*/
 
 #include "AthenaKernel/IEvtSelectorSeek.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declarations
 class EventSource;
@@ -35,12 +36,12 @@ class ISvcLocator;
 class McContext;
 
 //--------------------------------------------------------------------
-// Event Selector 
+// Event Selector (for single-threaded/serial athena)
 //--------------------------------------------------------------------
 
-class McEventSelector : virtual public AthService, 
-                        virtual public IEvtSelector,
-                        virtual public IEvtSelectorSeek {
+class ATLAS_NOT_THREAD_SAFE McEventSelector : virtual public AthService,
+                                              virtual public IEvtSelector,
+                                              virtual public IEvtSelectorSeek {
 public:
 
   virtual StatusCode initialize() override;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -18,6 +18,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
 
+#include "AthenaBaseComps/AthCheckMacros.h"
 #include "McEventSelector/McCnvSvc.h"
 
 //External definitions
@@ -39,18 +40,9 @@ StatusCode McCnvSvc::initialize()     {
 
 /// Update state of the service
 StatusCode McCnvSvc::updateServiceState(IOpaqueAddress* pAddress)    {
-  MsgStream log(msgSvc(), name());
-  static bool first = true;
-  //  static int fid   = 0;
-  //  static int recid = 0;
-  if ( 0 != pAddress )    {
-    GenericAddress* pAddr = dynamic_cast<GenericAddress*>(pAddress);
-    if ( 0 != pAddr )    {
-      if ( first )    {
-        first = false;
-      }
-      return StatusCode::SUCCESS;
-    }
+  if ( pAddress != nullptr)    {
+    ATH_CHECK( dynamic_cast<GenericAddress*>(pAddress)!=nullptr );
+    return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;
 }
@@ -62,6 +54,5 @@ McCnvSvc::repSvcType() const {
 
 long
 McCnvSvc::storageType() {
-  static long type=0x10;
-  return type;
+  return 0x10;
 }
