@@ -474,15 +474,18 @@ std::unordered_map<int,std::vector<int> > LVL1::jFEXPileupAndNoise::Get_HAD_Et_v
     return m_map_Etvalues_HAD;
 }
 
-void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::unordered_map<int,std::vector<int> > & map_Etvalues,int layer ){
+void LVL1::jFEXPileupAndNoise::ApplyNoiseCuts(std::unordered_map<int,std::vector<int> > & map_Etvalues,int /*layer*/ ){
     
-    const LVL1::jTower *tmpTower;
+    //const LVL1::jTower *tmpTower;
     
     for(auto [key,vec] : map_Etvalues){
-        tmpTower = m_jTowerContainer->findTower(key);
         
-        float Jet_NoiseCut = tmpTower->getNoiseForJet(layer);
-        float Met_NoiseCut = tmpTower->getNoiseForMet(layer);
+        // - for now commented until agreement with performance group -
+        //tmpTower = m_jTowerContainer->findTower(key);
+        //float Jet_NoiseCut = tmpTower->getNoiseForJet(layer);
+        //float Met_NoiseCut = tmpTower->getNoiseForMet(layer);
+        int Jet_NoiseCut = 0;
+        int Met_NoiseCut = 0;
         
         if(m_apply_noise2jets && map_Etvalues[key][0]<Jet_NoiseCut){ // Et for jets
             map_Etvalues[key][0]=0.;
