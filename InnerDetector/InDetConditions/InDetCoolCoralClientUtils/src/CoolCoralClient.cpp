@@ -793,7 +793,6 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
   std::vector<char> buffer(999);
   if (itAfile.is_open()){
     while (itAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> tuid >> iovfkttc
 	   >> tbyteswap >> tphysaddr
@@ -886,7 +885,6 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
   ifstream itGRfile (filename);
   if (itGRfile.is_open()){
     while (itGRfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> tgruid >> tgrname >> group 
 	   >> duty
@@ -986,7 +984,6 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
 
   if (irAfile.is_open()){
     while (irAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> rodid 
 	   >> rodbyteswap >> rodphysaddr
@@ -1073,7 +1070,6 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
 
   if (idAfile.is_open()){
     while (idAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> byteswap >> physaddr
 	   >> fragtype >> dtname
@@ -1304,7 +1300,6 @@ void COOLCORALClient::createConnect(const std::string& part_trt){
   std::vector<char> buffer(999);
   if (itAfile.is_open()){
     while (itAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       if (part_trt=="barrel"){
 	std::istringstream sbuf(&buffer[0]);
 	sbuf >> part >> crate >> slot 
@@ -2583,7 +2578,6 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
   std::vector<char> buffer(999);
   if (itAfile.is_open()){
     while (itAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> tuid >> iovfkttc
 	   >> tbyteswap >> tphysaddr
@@ -2686,7 +2680,6 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
 
   if (itGRfile.is_open()){
     while (itGRfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> tgruid >> tgrname >> group 
 	   >> duty
@@ -2795,7 +2788,6 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
 
   if (irAfile.is_open()){
     while (irAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> rodid 
 	   >> rodbyteswap >> rodphysaddr
@@ -2890,7 +2882,6 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
 
   if (idAfile.is_open()){
     while (idAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
       std::istringstream sbuf(&buffer[0]);
       sbuf >> byteswap >> physaddr
 	   >> fragtype >> dtname
@@ -4121,8 +4112,6 @@ void COOLCORALClient::fillMap(){
   std::vector<char> buffer(999);
   if (itAfile.is_open()){
     while (itAfile.getline(&buffer[0],999,'\n')) {
-      std::string sline(buffer.begin(),buffer.begin()+strlen(&buffer[0]));
-
       std::istringstream sbuf(&buffer[0]);
       sbuf >> conn_struct.part >> conn_struct.crate 
 	   >> conn_struct.slot 
