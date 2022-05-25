@@ -78,6 +78,16 @@ atlas_add_citest( RecoRun2MC_PileUp
    SCRIPT RunWorkflowTests_Run2.py --CI -p -w MCPileUpReco -e '--maxEvents 5 --inputRDO_BKGFile=../../PileUpPresamplingRun2/run_d1730/myRDO.pool.root' --no-output-checks  # go two levels up as the test runs in a subfolder
    DEPENDS_SUCCESS PileUpPresamplingRun2 )
 
+atlas_add_citest( RecoRun3Data
+   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoRun3Data.sh
+   PROPERTIES PROCESSORS 8 )
+
+atlas_add_citest( RecoRun3Data_Cosmics
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q450 -e '--maxEvents 25' --no-output-checks )
+
+atlas_add_citest( RecoRun3Data_Calib
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q451 -e '--maxEvents 25' --no-output-checks )
+
 atlas_add_citest( RecoRun3MC
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoRun3MC.sh )
 
