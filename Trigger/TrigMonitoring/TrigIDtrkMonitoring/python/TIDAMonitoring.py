@@ -114,6 +114,28 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
 
 
+        #### muon LRT ####
+
+        if mcTruth:
+                tidamuonlrt = TrigR3Mon_builder(flags, name = "IDMuonLRTTruth"+toolkey+"Tool", mcTruth=True, pdgID=13 )
+                tidamuonlrt.SliceTag = "HLT/TRIDT/MuonLRTTruth/"+key
+        else:
+                tidamuonlrt = TrigR3Mon_builder( flags, name = "IDMuonLRT"+toolkey+"Tool", useHighestPT=True )
+                tidamuonlrt.SliceTag = "HLT/TRIDT/MuonLRT/"+key
+
+        tidamuonlrt.AnalysisConfig = "Tier0"
+
+        chains = getchains( [ "HLT_mu.*_LRT_idperf.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+                              "HLT_mu.*_LRT_idperf.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"], monlevel )
+
+        if len(chains)>0 :
+
+                tidamuonlrt.ntupleChainNames += chains
+                
+                tidamuonlrt.MonTools = createMonTools( flags, tidamuonlrt.SliceTag, chains )
+                
+                tools += [ tidamuonlrt ]
+ 
 
         #### tau ####
 
