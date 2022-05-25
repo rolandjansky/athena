@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Calculates COVF(21) - symmetric 6x6 covariance matrix
@@ -20,7 +20,7 @@ namespace Trk {
 //  Complete error matrix is recalculated here via getFullVrtCov,
 //            so CPU CONSUMING!!!
 //--------------------------------------------------------------
-extern int getFullVrtCov(VKVertex *, double *, double *, double[6][6]);
+extern int getFullVrtCov(VKVertex *, double *, const double *, double[6][6]);
 extern void cfsetdiag(long int , double *, double );
 extern const vkalMagFld      myMagFld;
 

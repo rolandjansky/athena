@@ -13,7 +13,7 @@
 
 
 namespace Trk {
- extern double vkvFastV( double* , double* , double* vRef, double dbmag, double*);
+ extern double vkvFastV( double* , double* , const double* vRef, double dbmag, double*);
 }
 //
 //__________________________________________________________________________

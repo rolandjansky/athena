@@ -11,11 +11,11 @@
 
 namespace Trk {
 
-void vkGetEigVal(double ci[], double d[], int n);
+void vkGetEigVal(const double ci[], double d[], int n);
 void dsinv(long int , double *, long int, long int *) noexcept;
-int vkcholInv(double ci[], double co[], long int DIM);
-int vkSInvSVD(double *ci,long int DIM, double *co, double Chk);
-double checkMatrixInversion(double mtx[], double invmtx[], int DIM);
+int vkcholInv(const double ci[], double co[], long int DIM);
+int vkSInvSVD(const double *ci,long int DIM, double *co, double Chk);
+double checkMatrixInversion(const double mtx[], const double invmtx[], int DIM);
 
 double cfSmallEigenvalue(double *cov,long int n )
 {
@@ -266,7 +266,7 @@ int vkLUdcmp(double *a, long int n, int *indx)
 	return 0;
 }
 
-void vkLUbksb(double *a, long int n, int *indx, double *b)
+void vkLUbksb(const double *a, long int n, const int *indx, double *b)
 {
         int i,ii=0,ip,j;
         double sum;
@@ -514,7 +514,7 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 
 //Invert square matrix using SVD + solve linear equation if needed
 //
-int vkInvSVD(double *ci,long int DIM, double *co, double Chk, double *bvect=nullptr)
+int vkInvSVD(const double *ci,long int DIM, double *co, double Chk, double *bvect=nullptr)
 {
 int i,j,k;
 noinit_vector<double*> a (DIM+1);
@@ -564,7 +564,7 @@ return 0;
 
 //Invert packed symmetric matrix using SVD
 //
-int vkSInvSVD(double *ci,long int DIM, double *co, double Chk)
+int vkSInvSVD(const double *ci,long int DIM, double *co, double Chk)
 {
 int i,j,k;
 noinit_vector<double*> a (DIM+1);
@@ -688,7 +688,7 @@ int vkjacobi(double **a, int n, double d[], double **v)
 //-------------------------------------------
 // ci - symmetric matrix in compact form
 //-------------------------------------------
-void vkGetEigVal(double ci[], double d[], int n)
+void vkGetEigVal(const double ci[], double d[], int n)
 {
   int i,j,k; d--;
   noinit_vector<double*> a (n+1);
@@ -707,7 +707,7 @@ void vkGetEigVal(double ci[], double d[], int n)
   }
 }
 
-void vkGetEigVect(double ci[], double d[], double vect[], int n)
+void vkGetEigVect(const double ci[], double d[], double vect[], int n)
 {
   int i,j,k; d--;
   noinit_vector<double*> a (n+1);
@@ -733,7 +733,7 @@ void vkGetEigVect(double ci[], double d[], double vect[], int n)
   k=0; for (i=1;i<=n;i++) for(j=1;j<=n;j++) vect[k++]=v[j][i];
 }
 
-int vkcholInv(double ci[], double co[], long int DIM)
+int vkcholInv(const double ci[], double co[], long int DIM)
 {
   int i,j,k;
   std::vector<double> p(DIM,0);
@@ -775,7 +775,7 @@ int vkcholInv(double ci[], double co[], long int DIM)
   return 0;
 }
 
-double checkMatrixInversion(double mtx[], double invmtx[], int DIM)
+double checkMatrixInversion(const double mtx[], const double invmtx[], int DIM)
 {
   //std::vector<std::vector<double>> r; r.resize(DIM,std::vector<double>(DIM,0.));
 

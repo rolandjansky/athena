@@ -12,7 +12,7 @@ namespace Trk {
 
 extern const vkalMagFld  myMagFld;
 
-void vkgrkuta_(double *charge, double *step, double *vect, double *vout, VKalVrtControlBase* CONTROL)
+void vkgrkuta_(const double *charge, const double *step, double *vect, double *vout, VKalVrtControlBase* CONTROL)
 {
     double equiv_2[3], equiv_5[3];
     long int iter, ncut, j;

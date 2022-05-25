@@ -14,11 +14,11 @@ extern const vkalMagFld  myMagFld;
 
 
 extern double d_sign(double, double);
-extern void cfnewp(long int *, double *, double *, double *, double *, double *);
-extern void vkgrkuta_(double *, double *, double *, double *, VKalVrtControlBase* =nullptr );
+extern void cfnewp(const long int *, double *, double *, double *, double *, double *);
+extern void vkgrkuta_(const double *, const double *, double *, double *, VKalVrtControlBase* =nullptr );
 
 
-void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint, VKalVrtControlBase * CONTROL)
+void cfnewpm(double *par, const double *xyzStart, double *xyzEnd, const double *ustep, double *parn, double *closePoint, VKalVrtControlBase * CONTROL)
 {
     double d__1, d__2,dist_left;
     double vect[7], stmg, vout[7]={0.}, dpar0[5];

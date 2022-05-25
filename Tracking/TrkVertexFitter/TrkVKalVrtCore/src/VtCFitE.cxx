@@ -22,7 +22,7 @@ namespace Trk {
 
 #define useWeightScheme 1
 
-int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
+int getFullVrtCov(VKVertex * vk, double *ader, const double *dcv, double verr[6][6])
 {
 
     int i,j,ic1,ic2;

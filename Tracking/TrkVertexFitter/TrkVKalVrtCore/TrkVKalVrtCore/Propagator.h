@@ -57,14 +57,14 @@ class IVKalState;
     ~vkalPropagator() = default;
 
 
-     void Propagate(long int TrkID, long int Charge, 
+     static void Propagate(long int TrkID, long int Charge, 
                     double *ParOld, double *CovOld, double *RefStart, 
                     double *RefEnd, double *ParNew, double *CovNew,
-                    VKalVrtControlBase* FitControl = 0) const;
-     bool checkTarget(double *RefEnd) const;
-     void Propagate(VKTrack *trk, double *RefStart, 
+                    VKalVrtControlBase* FitControl = 0) ;
+     static bool checkTarget(double *RefEnd) ;
+     static void Propagate(VKTrack *trk, double *RefStart, 
                     double *RefEnd, double *ParNew, double *CovNew,
-                    VKalVrtControlBase* FitControl = 0) const;
+                    VKalVrtControlBase* FitControl = 0) ;
    };
 
 }

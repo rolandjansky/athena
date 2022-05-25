@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
 
 namespace Trk {
 
-void cfnewp(long int *ich, double *parold, double *ref, double *s, double *parnew, double *per)
+void cfnewp(const long int *ich, double *parold, double *ref, double *s, double *parnew, double *per)
 {
  
     double dphi, coth, hper, zper, zeps, r__, cs, xc, yc, sn, sipart, eps;

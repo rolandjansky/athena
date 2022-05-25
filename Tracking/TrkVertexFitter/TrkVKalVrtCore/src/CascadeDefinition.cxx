@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/Derivt.h"
@@ -15,7 +15,7 @@ extern const vkalMagFld      myMagFld;
 extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
 extern int translateToFittedPos(CascadeEvent &,double Step=1.);
-extern double vkvFastV( double* , double* , double*, double , double*);
+extern double vkvFastV( double* , double* , const double*, double , double*);
 extern long int  vtcfit( VKVertex * vk);
 extern void cfdcopy(double *source, double *target, int);
 
@@ -69,7 +69,7 @@ VKVertex* addCascadeEntry( std::unique_ptr<VKVertex> vk, const std::vector<int> 
 //  vertexDefinition[iv][it]   - list of real track to vertex associacion
 //  cascadeDefinition[iv][ipv] - for given vertex IV the list of previous vertices pointing to it.
 // 
-int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
+int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, const long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
                    const std::vector< std::vector<int> > &vertexDefinition,
                    const std::vector< std::vector<int> > &cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
@@ -16,11 +16,11 @@ namespace Trk {
 //     PAR0(5) - fitted track 
 // ------------------------------------------------------------ 
 
-double cfchi2(double *xyzt, long int *ich, double *part, 
-	double *par0, double *wgt, double *rmnd)
+double cfchi2(double *xyzt, const long int *ich, double *part, 
+	const double *par0, double *wgt, double *rmnd)
 {
 
-    extern void cfnewp(long int*, double*, double*, double*, double*, double*);
+    extern void cfnewp(const long int*, double*, double*, double*, double*, double*);
     double phif, epsf, d1, d2, d3, d4, d5, sr, uu, vv, res, zpf;
 
     /* Parameter adjustments */
@@ -71,7 +71,7 @@ double cfchi2(double *xyzt, long int *ich, double *part,
 // So it transfers fitted parameters to (0,0,0) and compares with reference track parameters
 // ------------------------------------------------------------ 
 
-double cfchi2(double *vrtt, double * part, VKTrack * trk)
+double cfchi2(const double *vrtt, const double * part, VKTrack * trk)
 {
 
     double d1, d2, d3, d4, d5;
@@ -210,7 +210,7 @@ inline int sIndexVK(int i, int j){ return i>j ? i*(i+1)/2+j : j*(j+1)/2+i;}
 //
 //  Dimensions  input: CovI(N,N), output: CovF(M,M), input: Der(N,M)-first index runs first
 //
-void tdasatVK(double *Der, double *CovI, double *CovF, long int M, long int N)
+void tdasatVK(const double *Der, const double *CovI, double *CovF, long int M, long int N)
 {
    int i,j,k,f;
    for( k=0; k<M; k++) {        // sycle on output index

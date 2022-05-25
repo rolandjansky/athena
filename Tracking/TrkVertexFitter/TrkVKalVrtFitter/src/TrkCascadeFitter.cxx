@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -15,14 +15,14 @@
 #include<iostream>
 
 namespace Trk {
-    extern int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
+    extern int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, const long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
                    const std::vector< std::vector<int> > &vertexDefinition,
                    const std::vector< std::vector<int> > &cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4);
     extern int processCascade(CascadeEvent &);
     extern int processCascade(CascadeEvent &, double *);
-    extern int processCascade(CascadeEvent &, double *, double *);
-    extern int processCascadePV(CascadeEvent &, double *, double *);
+    extern int processCascade(CascadeEvent &, const double *, const double *);
+    extern int processCascadePV(CascadeEvent &, const double *, const double *);
     extern void getFittedCascade( CascadeEvent &,
                                   std::vector< Vect3DF > &, 
 		                  std::vector<std::vector<double> >& ,

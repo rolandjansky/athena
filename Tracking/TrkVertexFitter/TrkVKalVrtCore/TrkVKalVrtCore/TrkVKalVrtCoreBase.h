@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TrkVKalVrtCoreBase_VKalVrtCore_H
@@ -63,7 +63,7 @@ namespace Trk {
    class VKTrack
    {
     public:
-       VKTrack(long int, double[], double[], VKVertex *, double);
+       VKTrack(long int, const double[], const double[], VKVertex *, double);
       ~VKTrack() = default; //default destructor allows compiler to optimize out method.
 //       VKTrack(const VKTrack & src);  //copy
        friend std::ostream& operator<<( std::ostream& out, const VKTrack& track );
@@ -111,8 +111,8 @@ namespace Trk {
        double r_invR()  const  { return refPerig[4];}
 
      public:
-       void setCurrent  ( double[], double[]); // set iteration (current) track parameters 
-       void setReference( double[], double[]); // set reference track parameters 
+       void setCurrent  ( const double[], const double[]); // set iteration (current) track parameters 
+       void setReference( const double[], const double[]); // set reference track parameters 
        void restoreCurrentWgt();               // restore track WGT from saved copy 
 
      private:

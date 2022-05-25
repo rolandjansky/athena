@@ -29,22 +29,22 @@ extern void FullMTXfill(VKVertex * , double * );
 extern  int FullMCNSTfill(VKVertex * , double * , double * );
 extern  int vkMSolve(double *, double*, long int, double* =nullptr);
 
-extern void copyFullMtx(double *Input, long int IPar, long int IDIM,
-                 double *Target, long int TStart, long int TDIM);
+extern void copyFullMtx(const double *Input, long int IPar, long int IDIM,
+                        double *Target, long int TStart, long int TDIM);
 extern void addCrossVertexDeriv(CascadeEvent &, double * , long int , const std::vector<int> & );
-extern void setFittedParameters(double * , std::vector<int> &, CascadeEvent &);
+extern void setFittedParameters(const double * , std::vector<int> &, CascadeEvent &);
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, VKalVrtControl * =nullptr);
+extern void vpderiv(bool, long int , const double *, double *, double *, double *, double *, double *, double *, VKalVrtControl * =nullptr);
 extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
-extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > &, CascadeEvent& );
+extern void setFittedMatrices(const double * , long int , std::vector<int> &, std::vector< std::vector<double> > &, CascadeEvent& );
 extern std::vector<double> transformCovar(int , double **, const std::vector<double>& );
 extern double cfVrtDstSig( VKVertex * , bool );
 extern void robtest(VKVertex * , long int );
 
 extern int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEvent&);
-extern void getNewCov(double *OldCov, double* Der, double* Cov, long int DIM) noexcept;
+extern void getNewCov(const double *OldCov, const double* Der, double* Cov, long int DIM) noexcept;
 
 //--------------------------------------------------------------------
 //
@@ -511,7 +511,7 @@ int processCascade(CascadeEvent & cascadeEvent_ )
 //
 // Iteration over complete cascade  with first cascade vertex in Primary Vertex
 //
- int processCascadePV(CascadeEvent & cascadeEvent_, double *primVrt, double *primVrtCov )
+ int processCascadePV(CascadeEvent & cascadeEvent_, const double *primVrt, const double *primVrtCov )
 {
     double aermd[6],tmpd[6];  // temporary arrays
     VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1].get(); //Main vertex
@@ -539,7 +539,7 @@ int processCascade(CascadeEvent & cascadeEvent_ )
 //
 // Iteration over complete cascade  with "close to primary vertex" Chi2 term
 //
- int processCascade(CascadeEvent & cascadeEvent_, double *primVrt, double *primVrtCov )
+ int processCascade(CascadeEvent & cascadeEvent_, const double *primVrt, const double *primVrtCov )
 { 
     cascadeEvent_.nearPrmVertex=1;                                             //setting up additional Chi2 term
     VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1].get(); //Main vertex

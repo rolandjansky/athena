@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -11,11 +11,11 @@
 namespace Trk {
 
 extern const vkalPropagator  myPropagator;
-extern void tdasatVK(double *, double *, double *, long int, long int);
+extern void tdasatVK(const double *, const double *, double *, long int, long int);
 
 #define cnv_ref(a_1,a_2) cnv[(a_2)*6 + (a_1) - 7]
 
-void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double BMAG, double *paro, double *errt)
+void  xyztrp(const long int *ich, double *vrt0, double *pv0, double *covi, double BMAG, double *paro, double *errt)
 {
     double covd[15],par[5], cnv[36];	/* was [6][6] */ 
 /* ---------------------------------------------------------- */

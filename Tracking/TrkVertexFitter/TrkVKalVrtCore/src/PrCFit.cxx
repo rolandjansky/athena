@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -40,7 +40,7 @@ namespace Trk {
 /*   STPCNV :   track momentum from track (theta,phi,1/r) at vertex       	*/
 /*------------------------------------------------------------------------------*/
 
-void ForCFT::prcfit( long int ntrk, double  *wm, double  *wmfit, double  bmag, double  *vrt, double  *vrte) noexcept
+void ForCFT::prcfit( long int ntrk, double  *wm, double  *wmfit, double  bmag, const double  *vrt, const double  *vrte) noexcept
 {
     long int i__1;
     double   summ;

@@ -17,7 +17,7 @@ extern int cfdinv(double *, double *, long int);
 
 
  void   cfimp(long int TrkID, long int ich, int IFL, double *par, 
-	double *err, double *vrt, double *vcov, double *rimp, 
+	const double *err, double *vrt, double *vcov, double *rimp, 
 	double *rcov, double *sign , VKalVrtControlBase * FitCONTROL )
 {
     double dcov[3], errd[15], paro[5];
@@ -109,7 +109,7 @@ extern int cfdinv(double *, double *, long int);
 
 
  void   cfimpc(long int TrkID, long int ich, int IFL, double *par, 
-	double *err, double *vrt, double *vcov, double *rimp, 
+	const double *err, double *vrt, double *vcov, double *rimp, 
 	double *rcov, double *sign, VKalVrtControlBase * FitCONTROL )
 {
     double dcov[3], errd[15], paro[5];
@@ -118,7 +118,7 @@ extern int cfdinv(double *, double *, long int);
 
 
     double cs, sn;
-    extern void cfClstPnt(double *p, double *, double *);
+    extern void cfClstPnt(double *p, const double *, double *);
 /* --------------------------------------------------------- */
 /*    SIGNIFICANCE IS CALCULATED FOR THE CLOSEST POINT NOW!!!*/
 /* Author: V.Kostyukhin                                      */

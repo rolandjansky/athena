@@ -41,7 +41,7 @@ namespace Trk {
   { 
   }
 
-  VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):
+  VKTrack::VKTrack(long int iniId, const double Perigee[], const double Covariance[], VKVertex * vk, double m):
   Chi2(0), m_mass(m)
   {
      Id = iniId; Charge=1; if(Perigee[4]<0)Charge=-1;
@@ -51,10 +51,10 @@ namespace Trk {
      m_originVertex = vk;
   }
 
-  void VKTrack::setCurrent(double Perigee[], double Weight[])
+  void VKTrack::setCurrent(const double Perigee[], const double Weight[])
   {  for(int i=0; i<5;  i++) Perig[i]=Perigee[i];
      for(int i=0; i<15; i++) WgtM[i]=WgtM_save[i]=Weight[i];  }
-  void VKTrack::setReference(double Perigee[], double Covariance[])
+  void VKTrack::setReference(const double Perigee[], const double Covariance[])
   {  for(int i=0; i<5;  i++) refPerig[i]=Perigee[i];
      for(int i=0; i<15; i++) refCovar[i]=Covariance[i]; }
   void VKTrack::restoreCurrentWgt()

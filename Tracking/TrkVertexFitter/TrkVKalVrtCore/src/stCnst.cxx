@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //    Management of constraints 
@@ -139,7 +139,7 @@ void applyConstraints(VKVertex * vk)
 //
 //                   Pointing constraint
 //
-  VKPointConstraint::VKPointConstraint(int NTRK, double vrt[3], VKVertex *vk, bool onlyZ=false):
+  VKPointConstraint::VKPointConstraint(int NTRK, const double vrt[3], VKVertex *vk, bool onlyZ=false):
     VKConstraintBase(2,NTRK, VKContraintType::Point, vk)
   { m_originVertex = vk;m_targetVertex[0]=vrt[0]; m_targetVertex[1]=vrt[1]; m_targetVertex[2]=vrt[2];
     m_onlyZ=onlyZ;  // For Z only constraint

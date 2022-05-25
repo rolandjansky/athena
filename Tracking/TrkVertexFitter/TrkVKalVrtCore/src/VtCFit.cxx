@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -63,7 +63,7 @@ namespace Trk {
 
     extern void dsinv(long int , double *, long int , long int *) noexcept;
     //extern void digx(double *, double *, double *, long int , long int );
-    extern void vkGetEigVal(double ci[], double d[], int n);
+    extern void vkGetEigVal(const double ci[], double d[], int n);
     extern int cfdinv(double *, double *, long int);
            bool makePostFit(VKVertex *, double [], double&);
            void makeNoPostFit(VKVertex *, double [], double&);
@@ -648,7 +648,7 @@ namespace Trk {
 
 
   extern double finter(double , double , double , double , double , double );
-  extern double cfchi2(double *, double *, VKTrack *);
+  extern double cfchi2(const double *, const double *, VKTrack *);
   extern double getCnstValues2( VKVertex * vk ) noexcept;
   extern void applyConstraints( VKVertex * vk );
 
@@ -676,7 +676,7 @@ namespace Trk {
 
 //  Calculates Chi2 due "apriory vertex" and/or "pass near" constraints   
 //--------------------------------------------------------------------------
-  double calcChi2Addition(VKVertex * vk, double wgtvrtd[6], double xyzf[3])
+  double calcChi2Addition(VKVertex * vk, const double wgtvrtd[6], const double xyzf[3])
  {
 
     extern double cfVrtDstSig( VKVertex * vk, bool );
