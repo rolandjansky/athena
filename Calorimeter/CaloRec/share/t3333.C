@@ -28,7 +28,7 @@
 #include "TSystem.h"
 #include "TGaxis.h"
 #include "TUnixSystem.h"
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include <fstream>
 #include <time.h>
@@ -459,7 +459,7 @@ return;
 	    b_KMothNt->GetEntry(ientry); 
 
 	    
-	    int indEle[4];
+	    int indEle[4]={};
 	    int iele=0;
 	    for (int ipart=0; ipart<NPar; ipart++)
 	      if ( abs(Type[ipart])==11 && GenStat[ipart]==1 && KMothNt[ipart]==-1)
@@ -471,7 +471,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 		  
 		  if (iele>1)
 		    {
-		      std::cout<< "two many electrons " <<std::endl;
+		      std::cout<< "too many electrons " <<std::endl;
 		      exit(-1);
 		    }
 		}
@@ -547,7 +547,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 	      b_KMothNt->GetEntry(ientry); 
 
 	    
-	      int indEle[4];
+	      int indEle[4] ={};
 	      int iele=0;
 	      for (int ipart=0; ipart<NPar; ipart++)
 		if ( abs(Type[ipart])==11 && GenStat[ipart]==1 && Type[KMothNt[ipart]]==23)
@@ -559,7 +559,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 
 		    if (iele>4)
 		      {
-			std::cout<< "two many electrons " <<std::endl;
+			std::cout<< "too many electrons " <<std::endl;
 			exit(-1);
 		      }
 		  }
@@ -657,7 +657,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 		b_KMothNt->GetEntry(ientry); 
 
 	    
-		int indEle[4];
+		int indEle[4] ={};
 		int iele=0;
 		for (int ipart=0; ipart<NPar; ipart++)
 	
@@ -671,7 +671,7 @@ m_tmp2->Fill(EtaGen[indEle[iele]]);
 
 		      if (iele>4)
 			{
-			  std::cout<< "two many electrons " <<std::endl;
+			  std::cout<< "too many electrons " <<std::endl;
 			  exit(-1);
 			}
 		    }
@@ -768,7 +768,7 @@ else
 		b_Type->GetEntry(ientry);  
 		b_KMothNt->GetEntry(ientry); 
 
-		int indEle[4];
+		int indEle[4] ={};
 		int iele=0;
 		for (int ipart=0; ipart<NPar; ipart++)
 	
@@ -783,7 +783,7 @@ else
 
 		      if (iele>4)
 			{
-			  std::cout<< "two many electrons " <<std::endl;
+			  std::cout<< "too many electrons " <<std::endl;
 			  exit(-1);
 			}
 		    }
