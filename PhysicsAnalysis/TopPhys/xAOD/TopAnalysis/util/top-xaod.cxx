@@ -704,11 +704,13 @@ int main(int argc, char** argv) {
       ATH_MSG_WARNING(
           "\n*************************************************************************\n"
           << "       YOU ARE USING THIS CUSTOM PATH TO THE ELECTRON ID SF FILE:        \n\n"
-          << topConfig->electronIDSFFilePath() << "\n\n" 
+          << topConfig->electronIDSFFilePath() << "(Tight) \n\n" 
+          << topConfig->electronIDSFFileLoosePath() << "(Loose) \n\n" 
           << "               INSTEAD OF THE MOST RECENT RECOMMENDED MAP                \n"
           << "       YOU MANY NOT BE USING THE LATEST ELECTRON ID RECOMMENDATIONS      \n"
           << "*************************************************************************\n\n");
     }
+
 
     const unsigned int entries = xaodEvent.getEntries();
     totalEventsInFiles += entries;
