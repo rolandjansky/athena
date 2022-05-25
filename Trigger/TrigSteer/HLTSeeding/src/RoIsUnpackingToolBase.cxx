@@ -14,7 +14,12 @@ RoIsUnpackingToolBase::RoIsUnpackingToolBase(const std::string& type,
 
 
 StatusCode RoIsUnpackingToolBase::initialize() {
-  if ( !m_monTool.empty() ) {ATH_CHECK( m_monTool.retrieve() );}
+
+  if ( !m_monTool.empty() )     ATH_CHECK( m_monTool.retrieve() );
+  /// should this really be here if it is only accessed in 
+  /// derived classes ?
+  if ( !m_roiupdater.empty() )  ATH_CHECK( m_roiupdater.retrieve() );
+
   ATH_CHECK( m_decisionsKey.initialize() );
   ATH_CHECK( m_decisionsKeyProbe.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_trigRoIsKey.initialize(SG::AllowEmpty) );

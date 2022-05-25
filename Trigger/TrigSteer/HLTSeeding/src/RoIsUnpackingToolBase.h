@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef HLTSEEDING_ROISUNPACKINGTOOLBASE_H
 #define HLTSEEDING_ROISUNPACKINGTOOLBASE_H
@@ -15,6 +15,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
+#include "HLTSeeding/IRoiUpdaterTool.h"
+
 
 namespace ROIB {
   class RoIBResult;
@@ -61,8 +64,8 @@ protected:
     this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "Name of the HLTMenu object to read configuration from"};
   /// @}
 
-  ToolHandle<GenericMonitoringTool> m_monTool{
-    this, "MonTool", "", "Monitoring tool"};
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool",    "", "Monitoring tool" };
+  ToolHandle<IRoiUpdaterTool>    m_roiupdater{ this, "RoiUpdater", "", "Roi Updater" };
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
   std::map<HLT::Identifier, HLT::Identifier> m_legToChainMapping;
