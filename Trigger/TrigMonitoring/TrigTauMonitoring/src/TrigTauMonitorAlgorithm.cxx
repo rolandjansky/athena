@@ -355,12 +355,17 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
         ATH_MSG_DEBUG("True Tau visible pt: " << pt);
         float eta = xTruthTau->auxdata<double>("eta_vis");
         bool lep = xTruthTau->auxdata<char>("IsLeptonicTau");
-        if(pt < 20. || lep || fabs(eta) > 2.47 ) continue; 
+        if(pt < 20. || lep || std::abs(eta) > 2.47 ) {
+          delete xTruthTau;
+          continue;
+        } 
 
         if(xTruthTau->auxdata<int>("nTracks") == 1){
           true_taus_1p.push_back(xTruthTau);
         } else if(xTruthTau->auxdata<int>("nTracks") == 3){
           true_taus_3p.push_back(xTruthTau);
+        } else {
+          delete xTruthTau;
         }
       }
     }
@@ -375,7 +380,17 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
     fillTruthEfficiency(online_tau_vec_all, true_taus_3p, trigger, "3P");
     fillEFTauVsTruth(online_tau_vec_all, true_taus_3p, trigger, "3P");
   } 
+
+  // remove all truth particles from the vector
+  for(auto * true_tau_1p : true_taus_1p){
+    delete true_tau_1p;
+  }
+
+  for(auto * true_tau_3p : true_taus_3p){
+    delete true_tau_3p;
+  }
   
+
   offline_for_hlt_tau_vec_all.clear();
   offline_for_hlt_tau_vec_1p.clear();
   offline_for_hlt_tau_vec_3p.clear();
@@ -1211,17 +1226,19 @@ StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& x
       for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
         {
           const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
-          if( ( abs(child->pdgId()) == 12 || 
-                abs(child->pdgId()) == 14 || 
-                abs(child->pdgId()) == 16 ) ) continue;
-          if(child->status()==3) continue;
-          ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
-          if ( ( abs(child->pdgId()) == 11 || 
-                 abs(child->pdgId()) == 13 || 
-                 abs(child->pdgId()) == 15 ) ) xTruthTau.auxdecor<char>("IsLeptonicTau") = true;
-          VisSumTLV += child->p4();
-          xTruthTau.auxdecor<int>("childChargeSum") += child->charge();
-          xTruthTau.auxdecor<int>("nTracks") += abs(child->charge());
+          if(child){
+             if( ( child->absPdgId() == 12 || 
+                   child->absPdgId() == 14 || 
+                   child->absPdgId() == 16 ) ) continue;
+             if(child->status()==3) continue;
+             ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+             if( ( child->absPdgId() == 11 || 
+                   child->absPdgId() == 13 || 
+                   child->absPdgId() == 15 ) ) xTruthTau.auxdecor<char>("IsLeptonicTau") = true;
+             VisSumTLV += child->p4();
+             xTruthTau.auxdecor<int>("childChargeSum") += child->charge();
+             xTruthTau.auxdecor<int>("nTracks") += std::abs(child->charge());
+           }
         }
     }
 
@@ -1231,16 +1248,18 @@ StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& x
   xTruthTau.auxdecor<double>("mvis")   = VisSumTLV.M();
 
   if(xTruthTau.auxdecor<int>("childChargeSum")!=xTruthTau.charge() || xTruthTau.auxdecor<int>("nTracks")%2==0)
-    { 
+  { 
       ATH_MSG_WARNING("Strange tau: charge " << xTruthTau.auxdecor<int>("childChargeSum") << " and " 
                       << xTruthTau.auxdecor<int>("nTracks")  << " tracks");
       const std::size_t nChildren = decayvtx->nOutgoingParticles();
       for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
-        {
-          const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
-          ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
-        }
-    }
+      {
+         const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
+         if(child){
+            ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+         }
+      }
+  }
 
   return StatusCode::SUCCESS;
 }
