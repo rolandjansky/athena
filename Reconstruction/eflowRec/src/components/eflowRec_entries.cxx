@@ -20,8 +20,6 @@
 #include "eflowRec/PFMomentCalculatorTool.h"
 #include "eflowRec/PFClusterCollectionTool.h"
 #include "eflowRec/PFLCCalibTool.h"
-#include "eflowRec/PFOChargedCreatorAlgorithm.h"
-#include "eflowRec/PFONeutralCreatorAlgorithm.h"
 #include "eflowRec/PFMuonFlowElementAssoc.h"
 #include "eflowRec/PFEGamFlowElementAssoc.h"
 #include "eflowRec/PFTauFlowElementAssoc.h"
@@ -36,8 +34,6 @@ DECLARE_COMPONENT( PFAlgorithm )
 DECLARE_COMPONENT( PFChargedFlowElementCreatorAlgorithm)
 DECLARE_COMPONENT( PFNeutralFlowElementCreatorAlgorithm)
 DECLARE_COMPONENT( PFLCNeutralFlowElementCreatorAlgorithm)
-DECLARE_COMPONENT( PFOChargedCreatorAlgorithm )
-DECLARE_COMPONENT( PFONeutralCreatorAlgorithm )
 DECLARE_COMPONENT( PFSubtractionTool )
 DECLARE_COMPONENT( PFMomentCalculatorTool )
 DECLARE_COMPONENT( PFClusterCollectionTool )
