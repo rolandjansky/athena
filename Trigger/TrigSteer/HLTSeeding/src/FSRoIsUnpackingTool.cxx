@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FSRoIsUnpackingTool.h"
@@ -9,7 +9,8 @@
 FSRoIsUnpackingTool::FSRoIsUnpackingTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
-  : RoIsUnpackingToolBase(type, name, parent) {}
+  : RoIsUnpackingToolBase(type, name, parent) {
+}
 
 
 StatusCode FSRoIsUnpackingTool::initialize() {
@@ -29,6 +30,9 @@ StatusCode FSRoIsUnpackingTool::start() {
     m_allFSChains.insert( thresholdToChain.second.begin(), thresholdToChain.second.end() );
   }
 
+  /// shouldn;t this be protected by an output level check ?
+  /// hopefully the optimisation will remove the loop if the 
+  /// ATH_MSG_DEBUG gets compiled out 
   for ( auto id: m_allFSChains ) {
     ATH_MSG_DEBUG( "FS Chain " << id  );
   }
@@ -61,7 +65,13 @@ StatusCode FSRoIsUnpackingTool::unpack(const EventContext& ctx,
 
   auto roiHandle = SG::makeHandle( m_trigRoIsKey, ctx );
   ATH_CHECK(roiHandle.record( std::make_unique<TrigRoiDescriptorCollection>() ));
-  roiHandle->push_back( std::make_unique<TrigRoiDescriptor>(true) ); // true == FS
+  ///
+  if ( !m_roiupdater.empty() ) { 
+    roiHandle->push_back( m_roiupdater->execute(ctx) );
+  }
+  else {
+    roiHandle->push_back( std::make_unique<TrigRoiDescriptor>( RoiDescriptor::FULLSCAN ) ); 
+  }
 
   ATH_MSG_DEBUG("Linking to FS RoI descriptor");
   decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), 0 ) );

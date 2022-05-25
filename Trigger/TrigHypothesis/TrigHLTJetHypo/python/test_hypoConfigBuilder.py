@@ -6,6 +6,8 @@ from __future__ import print_function
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (
     SingleJetGroup,
     MultiJetGroup,
+    PrimaryLegGroup,
+    MultiBjetGroup,
 )
 
 DevGroup = ['Development']
@@ -30,8 +32,8 @@ logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)
 
 chains = [
-    ChainProp(name='HLT_j0_DIJET80j12ptXX700djmassXXdjdphi260_L1J20',
-              l1SeedThresholds=['FSNOSEED'],groups=MultiJetGroup),
+    ChainProp(name='HLT_j0_DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta_pf_ftf_L1MJJ-500-NFF',
+              l1SeedThresholds=['FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+MultiBjetGroup),
 
     ChainProp(name='HLT_j0_DIJET70j12ptXX1000djmassXXdjdphi200XX400djdeta_L1J20',
               l1SeedThresholds=['FSNOSEED'],groups=MultiJetGroup),
@@ -52,7 +54,7 @@ chains = [
 
     ChainProp(name='HLT_j0_perf_a10sd_cssk_pf_nojcalib_ftf_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
 
-    ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',
+    ChainProp(name='HLT_j260f_L1J75_31ETA49',
               groups=SingleJetGroup),
 
     ChainProp(name='HLT_j80_j60_L1J15',
@@ -97,7 +99,12 @@ chains = [
 
     ChainProp(name='HLT_j0_HT1000_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
 
-     ChainProp(name='HLT_2j35_0eta240_roiftf_2j35_0eta240_85bdips_roiftf_presel4c35_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiJetGroup+DevGroup),
+    ChainProp(name='HLT_2j35c_2j35c_85bdips_roiftf_presel4c35_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=MultiJetGroup+DevGroup),
+
+    
+    ChainProp(name='HLT_3j45_j45_2timing_roiftf_presel4c35_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup+DevGroup),
+
+    ChainProp(name='HLT_j220__2timing_roiftf_presel4c35_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup+DevGroup),
 ]
 
 def testChainDictMaker(idict):
@@ -150,7 +157,27 @@ if __name__ == '__main__':
 
     iprop = args.iprop
     dicts = testChainDictMaker(iprop)
+
+    def order_chainparts(d):
+        cdict = d[1]
+        # crass "fix" for out of order chainparts
+        # these errors probably arise from calling
+        # not-quite-correct menu code.
+        chain_part_inds = [cp['chainPartIndex'] for cp in cdict['chainParts']]
+        fix = chain_part_inds == sorted(chain_part_inds)
+        if not fix:
+            fix = chain_part_inds[-1] - chain_part_inds[0] == len(chain_part_inds)
+
+            
+        if fix:
+            cpi = 0
+            for cp in cdict['chainParts']:
+                cp['chainPartIndex'] = cpi
+                cpi += 1
+                           
+
     for d in dicts:
+        order_chainparts(d)
         pprint(d)
 
     do_dot = args.dot

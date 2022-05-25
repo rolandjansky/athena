@@ -1,12 +1,14 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef DESICIONHANDLING_VIEWCREATORINITIALROITOOL_H
-#define DESICIONHANDLING_VIEWCREATORINITIALROITOOL_H
+#ifndef DECISIONHANDLING_VIEWCREATORINITIALROITOOL_H
+#define DECISIONHANDLING_VIEWCREATORINITIALROITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/IViewCreatorROITool.h"
+
+#include "HLTSeeding/IRoiUpdaterTool.h"
 
 /**
  * @class ViewCreatorInitialROITool
@@ -30,6 +32,7 @@ public:
  **/
   virtual StatusCode attachROILinks(TrigCompositeUtils::DecisionContainer& decisions, const EventContext& ctx) const override;
 
+  ToolHandle<IRoiUpdaterTool> m_roiupdater { this, "RoiUpdater", "", "Roi Updater" };
 };
 
-#endif //> !DESICIONHANDLING_VIEWCREATORINITIALROITOOL_H
+#endif //> !DECISIONHANDLING_VIEWCREATORINITIALROITOOL_H

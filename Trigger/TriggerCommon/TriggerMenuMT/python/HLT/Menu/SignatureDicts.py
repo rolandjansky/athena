@@ -274,7 +274,10 @@ JetChainParts = {
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
-      ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
+       ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
+    'timing'        : # delayed jets
+    ['2timing'],
+    
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
     ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
@@ -328,6 +331,7 @@ JetChainParts_Default = {
     'etaRange'      : '0eta320',
     'jvt'           : '',
     'momCuts'       : '',
+    'timing'       : '',
     'prefilters'    : [],
     'bdips'         : '',
     'hypoScenario'  : 'simple',
@@ -369,7 +373,7 @@ MuonChainParts = {
     'etaRange'       : ['0eta105'],
     'threshold'      : '',
     'tnpInfo'        : ['probe'],
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx','mucombTag'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],

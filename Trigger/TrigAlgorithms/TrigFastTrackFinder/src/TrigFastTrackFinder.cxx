@@ -67,7 +67,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_doZFinder(false),
   m_doZFinderOnly(false),
   m_storeZFinderVertices(false),
-  m_useBeamSpotForRoiZwidth(false),
   m_nfreeCut(5),
   m_countTotalRoI(0),
   m_countRoIwithEnoughHits(0),
@@ -162,7 +161,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   // Accleration
   declareProperty("useGPU", m_useGPU = false,"Use GPU acceleration");
-  declareProperty("useBeamSpotForRoiZwidth", m_useBeamSpotForRoiZwidth = false);
 
   // Large Radius Tracking
   declareProperty("LRT_Mode", m_LRTmode,"Enable Large Radius Tracking mode" );
@@ -281,6 +279,7 @@ StatusCode TrigFastTrackFinder::initialize() {
   if( m_doDisappearingTrk ) {
      ATH_CHECK(m_extrapolator.retrieve());
      ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
+
      ATH_CHECK(m_disTrkFitter.retrieve());
      ATH_MSG_DEBUG("Retrieved tool " << m_disTrkFitter);
   } else {
@@ -382,56 +381,18 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
 
   ATH_CHECK(roiCollection.isValid());
 
-  TrigRoiDescriptor internalRoI;
-
-  if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi" );
-
-  if ( roiCollection->size()>0) {
-      if ( !m_useBeamSpotForRoiZwidth) {
-          internalRoI = **roiCollection->begin();
-      }else{
-          SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-
-          int beamSpotBitMap = beamSpotHandle->beamStatus();
-          bool isOnlineBeamspot = ((beamSpotBitMap & 0x4) == 0x4);
-
-          if ((isOnlineBeamspot && (beamSpotBitMap & 0x3) == 0x3) || !isOnlineBeamspot){ //converged or MC event, if the original RoI has a zed > 3 sig + 10 then set it to 3 sig + 10.
-              RoiDescriptor originRoI = **roiCollection->begin();
-              double beamSpot_zsig = beamSpotHandle->beamSigma(2);
-              Amg::Vector3D vertex = beamSpotHandle->beamPos();
-              double zVTX = vertex.z();
-              double origin_zedPlus  = originRoI.zedPlus() ;  //!< z at the most forward end of the RoI
-              double origin_zedMinus = originRoI.zedMinus();  //!< z at the most backward end of the RoI
-
-              double new_zedMargin = 10.;
-              double new_zedRange  = 3.;
-
-              double new_zedPlus  = zVTX + beamSpot_zsig * new_zedRange + new_zedMargin;
-              double new_zedMinus = zVTX - beamSpot_zsig * new_zedRange - new_zedMargin;
-
-              if (origin_zedPlus > new_zedPlus && origin_zedMinus < new_zedMinus){
-                  ATH_MSG_DEBUG("Updated RoI with zed = "<<new_zedRange<<" * sig + "<<new_zedMargin);
-                  double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
-                  double origin_etaPlus  = originRoI.etaPlus() ;    //!< gets eta at zedPlus
-                  double origin_etaMinus = originRoI.etaMinus();    //!< gets eta at zMinus
-
-                  double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
-                  double origin_phiPlus  = originRoI.phiPlus() ;     //!< gets phiPlus
-                  double origin_phiMinus = originRoI.phiMinus();    //!< gets phiMinus
-
-                  internalRoI = TrigRoiDescriptor( origin_eta, origin_etaMinus, origin_etaPlus, 
-						   origin_phi, origin_phiMinus, origin_phiPlus, 
-						   zVTX, new_zedMinus, new_zedPlus );
-              }
-              else internalRoI = **roiCollection->begin(); // we have a more narrow zed range in RoI, no need to update.
-          }else{ //Not converged, set to the fullScan RoI
-                internalRoI = **roiCollection->begin();
-          }
-      }
+  if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi: Using the first Roi ONLY" );
+  
+  if ( roiCollection->size()==0) {
+    ATH_MSG_ERROR("No Roi found for " << m_roiCollectionKey.key() );
+    return StatusCode::FAILURE;
   }
 
+  TrigRoiDescriptor internalRoI = **roiCollection->begin();
 
-  //  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
+  /// internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
+
+  /// updating this class member counter is not going to be thread safe ...
   m_countTotalRoI++;
 
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);
@@ -458,8 +419,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
                                            const TrackCollection* inputTracks,
                                            TrackCollection& outputTracks,
                                            const EventContext& ctx) const {
-
-  ATH_MSG_DEBUG("Input RoI " << roi);
+  ATH_MSG_DEBUG( "Input RoI " << roi );
 
   auto mnt_roi_nTracks = Monitored::Scalar<int>("roi_nTracks", 0);
   auto mnt_roi_nSPs    = Monitored::Scalar<int>("roi_nSPs",    0);

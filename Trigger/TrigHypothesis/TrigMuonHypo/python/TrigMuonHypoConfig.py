@@ -259,8 +259,10 @@ def getThresholdsFromDict( chainDict ):
 
 
 def TrigMufastHypoToolFromDict( chainDict ):
-
-    thresholds = getThresholdsFromDict( chainDict )
+    if 'mucombTag' in chainDict['chainParts'][0]['extra']:
+        thresholds = ['passthrough']
+    else:   
+        thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
 
