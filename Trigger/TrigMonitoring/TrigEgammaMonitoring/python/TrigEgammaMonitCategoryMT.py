@@ -45,15 +45,16 @@ monitoringTP_electron = [
     'HLT_e26_lhtight_L1eEM26L',
     'HLT_e26_lhtight_L1eEM26T',    
     'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
-    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
     'HLT_e26_lhtight_ivarloose_L1eEM26',
     'HLT_e26_lhtight_ivarloose_L1eEM26M',
     'HLT_e26_lhtight_ivarloose_L1eEM26T',
+    'HLT_e26_lhtight_ivarloose_L1EM22VHI'
         ]
 
 
 monitoring_tags = [
-    'HLT_e24_lhtight_ivarloose_L1EM22VHI'
+    'HLT_e24_lhtight_ivarloose_L1EM22VHI',
+    'HLT_e26_dnntight_ivarloose_L1EM22VHI'
 ]
 
 

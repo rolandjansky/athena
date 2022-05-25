@@ -247,16 +247,18 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 ATH_MSG_DEBUG("tag and probe pair in Z mass window");
                 // Probe available. Good Probe?
                 if(!isGoodProbeElectron(monGroup, elProbe, jets.cptr())) continue;
+                ATH_MSG_DEBUG("is good probe Electron");
                 //fill( monGroup, m_anatype+"_ProbeCutCounter", "GoodProbe");
                 
-                const auto selProbe = std::make_shared<const xAOD::Electron>(*elProbe);              
+                auto selProbe = std::make_shared<const xAOD::Electron>(*elProbe);
                 dressPid(selProbe.get());
                 
-                probeElectrons.push_back(selProbe);
+                probeElectrons.emplace_back(std::move(selProbe));
 
                 auto mon_count_probe= Monitored::Scalar<std::string>("ProbeCutCounter","GoodProbe");
                 auto mon_mee = Monitored::Scalar<float>("Mee" , tpPairMass/1.e3 );
                 fill( monGroup , mon_count_probe, mon_mee );
+                ATH_MSG_DEBUG("Fill TP Mee and count");
             }
         } // end of for in Probe
     } // end of for in Tags
