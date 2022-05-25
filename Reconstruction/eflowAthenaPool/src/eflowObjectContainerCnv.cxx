@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework includes
@@ -34,12 +34,12 @@ eflowObjectContainer* eflowObjectContainerCnv::createTransient()
 
   eflowObjectContainer *transObj = 0;
 
-  static pool::Guid tr_guid("0044A49A-14B8-45BE-9E62-B9780F226168");
-  static pool::Guid p1_guid("1DE97911-24C0-429D-9041-258A2F1CA7DF");
-  static pool::Guid p2_guid("E9674EC4-80D0-4616-AE98-26488ADE726B");
-  static pool::Guid p3_guid("2DF2EC16-AA4D-4BF9-82F8-7DFCE3BE00A0");
-  static pool::Guid p4_guid("75CC8E85-4CA8-4FE9-A001-26856E3D44C6");
-  static pool::Guid p5_guid("A38F4620-AB4A-11E2-90EB-00241D7D6914");
+  static const pool::Guid tr_guid("0044A49A-14B8-45BE-9E62-B9780F226168");
+  static const pool::Guid p1_guid("1DE97911-24C0-429D-9041-258A2F1CA7DF");
+  static const pool::Guid p2_guid("E9674EC4-80D0-4616-AE98-26488ADE726B");
+  static const pool::Guid p3_guid("2DF2EC16-AA4D-4BF9-82F8-7DFCE3BE00A0");
+  static const pool::Guid p4_guid("75CC8E85-4CA8-4FE9-A001-26856E3D44C6");
+  static const pool::Guid p5_guid("A38F4620-AB4A-11E2-90EB-00241D7D6914");
 
   if ( compareClassGuid(tr_guid) ) {
 
