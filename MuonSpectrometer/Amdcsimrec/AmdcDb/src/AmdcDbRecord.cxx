@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbRecord.h"
@@ -8,6 +8,10 @@
 #include <iomanip>
 #include <iostream>
 #include <utility>
+
+const std::string AmdcDbRecord::s_notFound = "NOT FOUND";
+const std::string AmdcDbRecord::s_notImplemented = "Not Implemented";
+
 
 AmdcDbRecord::AmdcDbRecord(long UniversalId,const std::string& NameOfTheRecord){
 
@@ -145,13 +149,12 @@ int AmdcDbRecord::getDoublePrecision(const std::string& NameToFind) const {
 
 }
 
-std::string AmdcDbRecord::getString(const std::string& NameToFind) const {
+const std::string& AmdcDbRecord::getString(const std::string& NameToFind) const {
 
-  std::string notfound = "NOT FOUND";
   if (m_MapOfstring.find(NameToFind) != m_MapOfstring.end()){
     return m_MapOfstring.find(NameToFind)->second;
   }
-  return notfound ;
+  return AmdcDbRecord::s_notFound;
 
 }
 
@@ -476,4 +479,4 @@ int         AmdcDbRecord::getInt     (const std::string& /*fieldName*/, unsigned
 long        AmdcDbRecord::getLong    (const std::string& /*fieldName*/, unsigned int /*index*/) const{std::cout << " AmdcDbRecord::getLong(const std::string& fieldName, unsigned int index) Not implemented " << std::endl ;return 1;}
 double      AmdcDbRecord::getDouble  (const std::string& /*fieldName*/, unsigned int /*index*/) const{std::cout << " AmdcDbRecord::getDouble(const std::string& fieldName, unsigned int index) Not implemented " << std::endl ;return 1.;}
 float       AmdcDbRecord::getFloat   (const std::string& /*fieldName*/, unsigned int /*index*/) const{std::cout << " AmdcDbRecord::getFloat(const std::string& fieldName, unsigned int index) Not implemented " << std::endl ;return 1.;}
-std::string AmdcDbRecord::getString  (const std::string& /*fieldName*/, unsigned int /*index*/) const{std::cout << " AmdcDbRecord::getString(const std::string& fieldName, unsigned int index) Not implemented " << std::endl ;std::string ToBeReturned = "Not Implemented";return ToBeReturned;}
+const std::string& AmdcDbRecord::getString  (const std::string& /*fieldName*/, unsigned int /*index*/) const{std::cout << " AmdcDbRecord::getString(const std::string& fieldName, unsigned int index) Not implemented " << std::endl ;return AmdcDbRecord::s_notImplemented;}

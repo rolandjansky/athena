@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -128,7 +128,7 @@ float RDBRecord::getFloat(const std::string& fieldName) const
   }
 }
 
-std::string RDBRecord::getString(const std::string& fieldName) const
+const std::string& RDBRecord::getString(const std::string& fieldName) const
 {
   FieldName2ListIndex::const_iterator it = m_name2Index.find(m_tableName+"."+fieldName);
   if(it==m_name2Index.end()) {
@@ -214,7 +214,7 @@ float RDBRecord::getFloat(const std::string& fieldName, unsigned int index) cons
   }
 }
 
-std::string RDBRecord::getString(const std::string& fieldName, unsigned int index) const
+const std::string& RDBRecord::getString(const std::string& fieldName, unsigned int index) const
 {
   FieldName2ListIndex::const_iterator it = m_name2Index.find(m_tableName+"."+fieldName + "_" + std::to_string(index));
   if(it==m_name2Index.end()) {

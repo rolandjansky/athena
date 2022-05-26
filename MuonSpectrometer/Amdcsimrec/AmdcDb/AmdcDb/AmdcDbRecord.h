@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AMDCDB_AMDCDBRECORD_H
@@ -35,7 +35,7 @@ public:
   virtual long        getLong    (const std::string& fieldName, unsigned int index) const;
   virtual double      getDouble  (const std::string& fieldName, unsigned int index) const;
   virtual float       getFloat   (const std::string& fieldName, unsigned int index) const;
-  virtual std::string getString  (const std::string& fieldName, unsigned int index) const;
+  virtual const std::string& getString  (const std::string& fieldName, unsigned int index) const;
 
 
 // Get
@@ -52,7 +52,7 @@ public:
    virtual double      getDouble         (const std::string& NameToFind) const;
    virtual float       getFloat          (const std::string& NameToFind) const;
 
-   virtual std::string getString         (const std::string& NameToFind) const;
+   virtual const std::string& getString         (const std::string& NameToFind) const;
    virtual long        getLong           (const std::string& NameToFind) const;
 
    virtual int         getDoublePrecision(const std::string& NameToFind) const;
@@ -100,6 +100,8 @@ protected:
 
    std::map< std::string, std::string> m_MapOfBlob ; //!< Map of Blob
 
+   static const std::string s_notFound;
+   static const std::string s_notImplemented;
 };
 
 #endif
