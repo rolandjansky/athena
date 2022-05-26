@@ -72,11 +72,11 @@ StatusCode AFP_PileUpTool::initialize()
 
   // check the input object names
   if (m_TDSimHitCollectionKey.key().empty()) {
-    ATH_MSG_ERROR("Property TDSimHitCollectionName not set !");
+    ATH_MSG_FATAL("Property TDSimHitCollectionName not set !");
     return StatusCode::FAILURE;
   }
   if (m_SIDSimHitCollectionKey.key().empty()) {
-    ATH_MSG_ERROR("Property SIDSimHitCollectionName not set !");
+    ATH_MSG_FATAL("Property SIDSimHitCollectionName not set !");
     return StatusCode::FAILURE;
   }
 
@@ -94,8 +94,6 @@ StatusCode AFP_PileUpTool::initialize()
   }
   else
   {
-    ATH_CHECK(m_TDSimHitCollectionKey.initialize());
-    ATH_CHECK(m_SIDSimHitCollectionKey.initialize());
     ATH_MSG_INFO("TD SimHits container key: " <<m_TDSimHitCollectionKey);
     ATH_MSG_INFO("SID SimHits container key: " <<m_SIDSimHitCollectionKey);
   }
@@ -234,7 +232,7 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx)
     TimedTDSimHitCollList TDSimHitCollList;
     unsigned int numberOfTDSimHits{0};
     if (not (m_mergeSvc->retrieveSubEvtsData(m_TDSimHitCollectionName, TDSimHitCollList, numberOfTDSimHits).isSuccess()) and TDSimHitCollList.size() == 0) {
-      ATH_MSG_ERROR ( "Could not fill TimedTDSimHitCollList" );
+      ATH_MSG_FATAL ( "Could not fill TimedTDSimHitCollList" );
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG ( " PileUp: Merge " << TDSimHitCollList.size() << " AFP_TDSimHitCollections with key " << m_TDSimHitCollectionName << " found." );
@@ -266,7 +264,7 @@ StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& ctx)
     TimedSIDSimHitCollList SIDSimHitCollList;
     unsigned int numberOfSIDSimHits{0};
     if (not (m_mergeSvc->retrieveSubEvtsData(m_SIDSimHitCollectionName, SIDSimHitCollList, numberOfSIDSimHits).isSuccess()) and SIDSimHitCollList.size() == 0) {
-      ATH_MSG_ERROR ( "Could not fill TimedSIDSimHitCollList" );
+      ATH_MSG_FATAL ( "Could not fill TimedSIDSimHitCollList" );
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG ( " PileUp: Merge " << SIDSimHitCollList.size() << " AFP_SIDSimHitCollections with key " << m_SIDSimHitCollectionName << " found." );
