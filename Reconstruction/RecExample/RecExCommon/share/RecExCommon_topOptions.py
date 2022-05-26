@@ -1280,8 +1280,10 @@ if rec.doWriteBS():
     ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
 
     # LVL1
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
-    L1ByteStreamEncodersRecExSetup()  # Configure BS encoder for RoIBResult
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamEncoderCfg
+    CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg, ConfigFlags)  # BS encoder for RoIBResult
+
     StreamBSFileOutput.ItemList += [ "ROIB::RoIBResult#*" ]
 
     StreamBSFileOutput.ItemList += [ "DataVector<LVL1::TriggerTower>#TriggerTowers" ]
