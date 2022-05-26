@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -35,7 +35,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 
-class McContext : public IEvtSelector::Context {
+class ATLAS_NOT_THREAD_SAFE McContext : public IEvtSelector::Context {
 private:
   const McEventSelector*        m_pSelector;
   std::string                   m_criteria;

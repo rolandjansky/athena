@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloParticleBuffer.h"
@@ -219,7 +219,7 @@ BeamHaloParticle* BeamHaloParticleBuffer::readRandomParticle(void) {
     return 0;
   }
 
-  std::vector<double> *intervalUpperBinEdges = (*superBinItr).intervalUpperBinEdges();
+  const std::vector<double> *intervalUpperBinEdges = (*superBinItr).intervalUpperBinEdges();
 
   double intervalWeightSum = intervalUpperBinEdges->back();
   
@@ -230,8 +230,8 @@ BeamHaloParticle* BeamHaloParticleBuffer::readRandomParticle(void) {
   //std::cout << "Interval weight sum = " << intervalWeightSum << ", generated weight sum = " <<  generatedWeightSum << std::endl;
 
   // Find the particle within this interval.
-  std::vector<double>::iterator intervalItr = intervalUpperBinEdges->begin();
-  std::vector<double>::iterator intervalItr_end = intervalUpperBinEdges->end();
+  std::vector<double>::const_iterator intervalItr = intervalUpperBinEdges->begin();
+  std::vector<double>::const_iterator intervalItr_end = intervalUpperBinEdges->end();
   found = false;
   while(intervalItr!=intervalItr_end && !found) {
     //std::cout << "Particle bin edge = " << (*intervalItr) << std::endl;

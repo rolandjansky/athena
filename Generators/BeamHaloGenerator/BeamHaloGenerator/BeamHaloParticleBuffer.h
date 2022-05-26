@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMHALOPARTICLEBUFFER_H
@@ -35,7 +35,7 @@ class BinnedInterval {
     }
 
   double upperBinEdge() const { return m_upperBinEdge; }
-  std::vector<double>* intervalUpperBinEdges() const { return m_intervalUpperBinEdges; }
+  const std::vector<double>* intervalUpperBinEdges() const { return m_intervalUpperBinEdges; }
 
  private:
   double m_upperBinEdge;
