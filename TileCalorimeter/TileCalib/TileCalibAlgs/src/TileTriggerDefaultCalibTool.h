@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILETRIGGERDEFAULTCALIBTOOL_H
@@ -11,7 +11,6 @@
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h" 
-//#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -48,9 +47,7 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
  private:
 
   // jobOptions
-  std::string m_rawChannelContainerName;
   std::string m_ntupleID;
-  std::string m_triggerTowerLocation;     //trigger tower container name
   int m_maxNTT;
   unsigned int m_nevpmt;
 
@@ -61,12 +58,16 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   const TileCablingService* m_tileCablingService;
   ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,  //!< main Tile Calibration tool
     "TileCondToolEmscale", "TileCondToolEmscale", "Tile em scale tool"};
-  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey;
+  SG::ReadHandleKey<TileDQstatus> m_dqStatusKey{this,
+        "TileDQstatus", "TileDQstatus", "TileDQstatus key"};
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelFit", "Tile raw channel container"};
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerContainerKey{this,
       "TriggerTowerContainer", "xAODTriggerTowers", "Trigger Tower container"};
  
+  ToolHandle<LVL1::IL1CaloTTIdTools > m_l1CaloTTIdTools{this,
+    "L1CaloTTIdTools", "LVL1::L1CaloTTIdTools/L1CaloTTIdTools", "L1Calo TTId tools"};
+
   using Tile = TileCalibUtils;
 
   // Results Tile
@@ -92,31 +93,16 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   float (*m_meanTileL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
   float (*m_rmsTileL1Calo)[Tile::MAX_DRAWER][Tile::MAX_CHAN];
 
-  float m_DACvalue;
-
   // CISpar parameters
   float 	m_charge;
   unsigned int	m_ipmt;
   unsigned int	m_ipmtCount;
   unsigned int	m_ipmtOld;
-  
+
+  float m_DACvalue;
+
   // Events
-  int   m_nEvtGlobal[1];
-
-  // for extended CISpar
-  protected:
-
-  std::string m_TileBeamContainerID;    //!< Name of the TileBeamElemContainer
-  std::string m_TileTriggerContainerID; //!< Name of the TileTriggerContainer
-  ToolHandle<LVL1::IL1CaloTTIdTools > m_l1CaloTTIdTools{this,
-    "L1CaloTTIdTools", "LVL1::L1CaloTTIdTools/L1CaloTTIdTools", "L1Calo TTId tools"};
-  //  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; 
-
-  uint32_t m_BCID;         //!< BCID in LASTROD
-  int      m_trigType;     //!< Trigger type
-  
-
-  const TileBeamElemContainer * m_beamElemCnt;
+  int   m_nEvtGlobal;
 
 };
 
