@@ -12,7 +12,7 @@ namespace FlavorTagDiscriminants {
     m_aug(nullptr)
   {
     declareProperty("MuonAssociationName", m_muonAssociationName="Muons");
-    declareProperty("MuonMinDR", m_muonMinDR=defaults::MUON_MIN_DR);
+    declareProperty("MuonMaxDR", m_muonMaxDR=defaults::MUON_MAX_DR);
     declareProperty("MuonMinpT", m_muonMinpT=defaults::MUON_MIN_PT);
     declareProperty("flipTagConfig", m_flipTagConfig = "STANDARD");
   }
@@ -21,7 +21,7 @@ namespace FlavorTagDiscriminants {
   StatusCode BTagMuonAugmenterTool::initialize() {
     m_aug.reset(new BTagMuonAugmenter(
                   m_muonAssociationName,
-                  m_muonMinDR,
+                  m_muonMaxDR,
                   m_muonMinpT,
                   flipTagConfigFromString(m_flipTagConfig)));
     return StatusCode::SUCCESS;
