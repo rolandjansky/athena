@@ -52,8 +52,8 @@ CaloRingsContainer* CaloRingsContainerCnv::createTransient()
 
   CaloRingsContainer *transObj = nullptr;
 
-  static pool::Guid tr_guid("DA20948A-A38A-11DE-BFE4-001CC0754D20");
-  static pool::Guid p1_guid("E6E0435E-BFEC-11DE-B657-001CC0754D20");
+  static const pool::Guid tr_guid("DA20948A-A38A-11DE-BFE4-001CC0754D20");
+  static const pool::Guid p1_guid("E6E0435E-BFEC-11DE-B657-001CC0754D20");
 
   if ( compareClassGuid(p1_guid) ) {
     // using unique_ptr ensures deletion of the persistent object

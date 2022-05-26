@@ -30,10 +30,10 @@ Analysis :: TauDetailsContainer *TauDetailsContainerCnv :: createTransient()
 
     Analysis :: TauDetailsContainer *transObj = 0;
 
-    static pool :: Guid p1_guid( "727655C6-9CF7-476F-8AB4-747834E1FB02" );
-    static pool :: Guid p2_guid( "AF3C1607-E62F-46C0-8BF5-C26874647C07" );
-    static pool :: Guid p3_guid( "5973152f-5913-4a0c-84de-5cd392945858" );
-    static pool :: Guid p4_guid( "FA5D3190-EC7A-4608-A7C6-A154D7FEFE18" );
+    static const pool :: Guid p1_guid( "727655C6-9CF7-476F-8AB4-747834E1FB02" );
+    static const pool :: Guid p2_guid( "AF3C1607-E62F-46C0-8BF5-C26874647C07" );
+    static const pool :: Guid p3_guid( "5973152f-5913-4a0c-84de-5cd392945858" );
+    static const pool :: Guid p4_guid( "FA5D3190-EC7A-4608-A7C6-A154D7FEFE18" );
 
     if( compareClassGuid( p4_guid ) ){
         // using unique_ptr ensures deletion of the persistent object

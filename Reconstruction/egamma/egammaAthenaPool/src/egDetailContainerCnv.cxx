@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // egDetailContainerCnv.cxx 
@@ -54,9 +54,9 @@ egDetailContainer* egDetailContainerCnv::createTransient()
 
   egDetailContainer *transObj = nullptr;
 
-  static pool::Guid tr_guid("F8C02E11-E6C5-4843-A57D-3DB2EFACCC5B");
-  static pool::Guid p1_guid("C3E26ADE-A984-41AC-83DF-F430F6DF1F1F");
-  static pool::Guid p2_guid("6AB9ADFD-836F-416D-B343-3DDF7D4F6E18");
+  static const pool::Guid tr_guid("F8C02E11-E6C5-4843-A57D-3DB2EFACCC5B");
+  static const pool::Guid p1_guid("C3E26ADE-A984-41AC-83DF-F430F6DF1F1F");
+  static const pool::Guid p2_guid("6AB9ADFD-836F-416D-B343-3DDF7D4F6E18");
 
   if ( compareClassGuid(tr_guid) ) {
 

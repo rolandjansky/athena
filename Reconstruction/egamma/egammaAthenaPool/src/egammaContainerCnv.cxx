@@ -58,12 +58,12 @@ egammaContainer* egammaContainerCnv::createTransient()
 
   egammaContainer *transObj = nullptr;
 
-  static pool::Guid tr_guid("7CAB4F67-1765-4CDC-9614-60EB93E5551B");
-  static pool::Guid p1_guid("DBA382E5-52F7-4B40-8623-E807E134412E");
-  static pool::Guid p2_guid("5576188C-ECA9-4BD1-B1F1-563C728FE51F");
-  static pool::Guid p3_guid("95BD7D50-F070-4245-91DE-ECAB4A8D722D");
-  static pool::Guid p4_guid("451AACD2-5B23-4557-8A3F-6CD1AB36BF9F"); 
-  static pool::Guid p5_guid("1AA8DE2E-D1CC-4076-B74A-82BBCC551798");
+  static const pool::Guid tr_guid("7CAB4F67-1765-4CDC-9614-60EB93E5551B");
+  static const pool::Guid p1_guid("DBA382E5-52F7-4B40-8623-E807E134412E");
+  static const pool::Guid p2_guid("5576188C-ECA9-4BD1-B1F1-563C728FE51F");
+  static const pool::Guid p3_guid("95BD7D50-F070-4245-91DE-ECAB4A8D722D");
+  static const pool::Guid p4_guid("451AACD2-5B23-4557-8A3F-6CD1AB36BF9F"); 
+  static const pool::Guid p5_guid("1AA8DE2E-D1CC-4076-B74A-82BBCC551798");
 
   if ( compareClassGuid(p5_guid) ) {
 

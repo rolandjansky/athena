@@ -53,14 +53,14 @@ JetCollection* JetCollectionCnv::createTransient()
 
   msg << MSG::DEBUG << "  JetCollectionCnv::createTransient() "<< endmsg;
 
-  static pool::Guid tr_guid("2FB4D25D-E217-4B8A-B865-180DE73B20E0");
-  static pool::Guid pj_guid("E97C0C61-0B3E-401C-B853-A3302168283E");
-  static pool::Guid p1_guid("9B8CE942-1457-4392-A98A-A1A464990B9A");
-  static pool::Guid p2_guid("0260D9A5-9C75-45FF-AC97-EA220FB11380");
-  static pool::Guid p3_guid("8CC411B4-8369-4C61-9B15-8A806DBFBBD1");
-  static pool::Guid tlp2_guid("668B769E-E190-4904-BE2C-1677279A9803");
-  static pool::Guid tlp5_guid("BEDCAE36-5EFD-4035-A402-2DC4F7A6BF75");
-  static pool::Guid tlp6_guid("77DFEE77-16A5-45DD-91FB-FDEEF2B65F7D");
+  static const pool::Guid tr_guid("2FB4D25D-E217-4B8A-B865-180DE73B20E0");
+  static const pool::Guid pj_guid("E97C0C61-0B3E-401C-B853-A3302168283E");
+  static const pool::Guid p1_guid("9B8CE942-1457-4392-A98A-A1A464990B9A");
+  static const pool::Guid p2_guid("0260D9A5-9C75-45FF-AC97-EA220FB11380");
+  static const pool::Guid p3_guid("8CC411B4-8369-4C61-9B15-8A806DBFBBD1");
+  static const pool::Guid tlp2_guid("668B769E-E190-4904-BE2C-1677279A9803");
+  static const pool::Guid tlp5_guid("BEDCAE36-5EFD-4035-A402-2DC4F7A6BF75");
+  static const pool::Guid tlp6_guid("77DFEE77-16A5-45DD-91FB-FDEEF2B65F7D");
 
   if ( compareClassGuid(tlp6_guid) ) {
     msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp6 converter" <<endmsg;

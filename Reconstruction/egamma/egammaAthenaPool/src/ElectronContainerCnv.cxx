@@ -57,12 +57,12 @@ ElectronContainer* ElectronContainerCnv::createTransient()
 
   ElectronContainer *transObj = nullptr;
 
-  static pool::Guid tr_guid("417E86E5-CA20-4F50-A7A2-C91BF44C9125");
-  static pool::Guid p1_guid("48355DA8-3BCE-43E0-B29B-51525BCEEDDD");
-  static pool::Guid p2_guid("A4377CE2-C0DC-4F80-8CFD-3BBE9A8EFD52");
-  static pool::Guid p3_guid("51C149D6-2FBA-4ADD-B6AA-8AE39E07D202");
-  static pool::Guid p4_guid("1A7C1F66-D9D2-49E9-80A8-592A0CEE3FDF");
-  static pool::Guid p5_guid("A7C69641-E985-4D31-92D4-D33206C197F1");
+  static const pool::Guid tr_guid("417E86E5-CA20-4F50-A7A2-C91BF44C9125");
+  static const pool::Guid p1_guid("48355DA8-3BCE-43E0-B29B-51525BCEEDDD");
+  static const pool::Guid p2_guid("A4377CE2-C0DC-4F80-8CFD-3BBE9A8EFD52");
+  static const pool::Guid p3_guid("51C149D6-2FBA-4ADD-B6AA-8AE39E07D202");
+  static const pool::Guid p4_guid("1A7C1F66-D9D2-49E9-80A8-592A0CEE3FDF");
+  static const pool::Guid p5_guid("A7C69641-E985-4D31-92D4-D33206C197F1");
 
   if ( compareClassGuid(p5_guid) ) {
 
