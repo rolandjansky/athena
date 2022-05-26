@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # athena.py is born as shell script to preload some optional libraries
 #
@@ -109,6 +109,13 @@ if ldpreload:
        tcmlib = os.getenv( 'TCMALLOCDIR' ) +  "/libtcmalloc_minimal.so"
        ldpreload = ldpreload.replace(tcmlib, '' )
        del tcmlib
+   pos = ldpreload.find ('/libexctrace_collector.so')
+   if pos >= 0:
+      pos0 = ldpreload.rfind (':', 0, pos)
+      pos1 = ldpreload.find (':', pos)
+      if pos1 < 0:
+         pos1 = len(ldpreload)
+      ldpreload = ldpreload[0:pos0+1] + ldpreload[pos1:]
    if os.getenv( 'ATHENA_ADD_PRELOAD' ):
       ldpreload = ldpreload.replace(os.getenv( 'ATHENA_ADD_PRELOAD' ), '' )
       os.unsetenv( 'ATHENA_ADD_PRELOAD' )
