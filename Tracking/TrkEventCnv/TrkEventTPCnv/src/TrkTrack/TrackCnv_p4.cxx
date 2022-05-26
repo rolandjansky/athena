@@ -44,10 +44,8 @@ void TrackCnv_p4::persToTrans( const Trk::Track_p4 *persObj,
    // Should always be a FQ so let's just go ahead and make it...
   transObj->m_fitQuality   = std::make_unique<FitQuality>(persObj->m_chiSquared, persObj->m_numberDoF);
 
-  //ensure we delete the ptr
   std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
     m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
-  //move copy
   transObj->m_trackStateVector = std::move(*sink);
 }
 
@@ -63,6 +61,7 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
   persObj->m_fitter              = static_cast<unsigned int>(transObj->info().m_fitter);
   persObj->m_particleHypo        = static_cast<unsigned int>(transObj->info().m_particleHypo);
   persObj->m_properties          = transObj->info().m_properties.to_ulong();
+
 
   if (transObj->info().m_patternRecognition.size()<32) {
     persObj->m_patternRecognition  = transObj->info().m_patternRecognition.to_ulong();
@@ -82,7 +81,25 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
     log<<MSG::WARNING<<"No FitQuality on track at ["<<transObj<<"]"<<" with info="<<transObj->info().dumpInfo()<<endmsg;
   }
 
+
   if (!transObj->m_trackStateVector.empty()) {
+
+    // In case  we have multi component state on Surface
+    TrkMultiComponentStateOnSurfaceDV multiDV(SG::VIEW_ELEMENTS);
+    {
+      bool isMulti = (transObj->m_trackStateVector[0]->variety() ==
+                      Trk::TrackStateOnSurface::MultiComponent);
+      if (isMulti) {
+        multiDV.reserve(transObj->m_trackStateVector.size());
+        for (const Trk::TrackStateOnSurface* tsos :
+             (transObj->m_trackStateVector)) {
+          multiDV.push_back(
+            static_cast<const Trk::MultiComponentStateOnSurface*>(tsos));
+        }
+      }
+    }
+
+    // Hints based slimming check
     unsigned int n_elms = 0;
     {
       for (const Trk::TrackStateOnSurface* tsos :
@@ -91,7 +108,6 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
           ++n_elms;
       }
     }
-
     if (n_elms != transObj->m_trackStateVector.size()) {
       DataVector<const Trk::TrackStateOnSurface> pers_tsos(SG::VIEW_ELEMENTS);
       pers_tsos.reserve(n_elms);
@@ -105,11 +121,16 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
       }
       m_trackStateVectorCnv.transToPers(
         &pers_tsos, &persObj->m_trackState, log);
-    } else {
-      m_trackStateVectorCnv.transToPers(
-        &transObj->m_trackStateVector, &persObj->m_trackState, log);
+    } else { // No Hints based slimming
+      if (!multiDV.empty()) {
+        m_multiStateVectorCnv.transToPers(
+          &multiDV, &persObj->m_trackState, log);
+      } else {
+        m_trackStateVectorCnv.transToPers(
+          &transObj->m_trackStateVector, &persObj->m_trackState, log);
+      }
     }
-  } else {
+  } else {//empty
     m_trackStateVectorCnv.transToPers( &transObj->m_trackStateVector, &persObj->m_trackState, log );
   }
 }
