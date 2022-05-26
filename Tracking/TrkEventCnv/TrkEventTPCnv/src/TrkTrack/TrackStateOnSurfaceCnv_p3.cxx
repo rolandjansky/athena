@@ -53,8 +53,9 @@ transToPers( const Trk::TrackStateOnSurface *transObj, Trk::TrackStateOnSurface_
   //--- Parameters
   ITPConverter* dummy = topConverter ()->converterForType( typeid(Trk::TrackParameters));    
   if (!m_parametersCnv)  m_parametersCnv = dynamic_cast<TrackParametersCnv_p2*>(dummy); // FIXME - only in init?
+  
   bool persistify_all = !(transObj->type(Trk::TrackStateOnSurface::PartialPersistification));
-
+ 
   persObj->m_trackParameters = toPersistent( &m_parametersCnv,
                                              ( (persistify_all || transObj->type(Trk::TrackStateOnSurface::PersistifyTrackParameters) ) 
                                                ? transObj->trackParameters()
@@ -100,3 +101,31 @@ transToPers( const Trk::TrackStateOnSurface *transObj, Trk::TrackStateOnSurface_
     persObj->m_typeFlags = typePattern.to_ulong();
   }
 }
+
+void
+MultiComponentStateOnSurfaceCnv_p1::persToTrans(
+  const Trk::TrackStateOnSurface_p3* persObj,
+  Trk::MultiComponentStateOnSurface* transObj,
+  MsgStream& log)
+{
+  ITPConverter* dummy =
+    topConverter()->converterForType(typeid(Trk::TrackStateOnSurface));
+  if (!m_trackStateOnSurfaceCnv){
+    m_trackStateOnSurfaceCnv = dynamic_cast<TrackStateOnSurfaceCnv_p3*>(dummy);
+  }
+  m_trackStateOnSurfaceCnv->persToTrans(persObj, transObj, log);
+}
+void
+MultiComponentStateOnSurfaceCnv_p1::transToPers(
+  const Trk::MultiComponentStateOnSurface* transObj,
+  Trk::TrackStateOnSurface_p3* persObj,
+  MsgStream& log)
+{
+  ITPConverter* dummy =
+    topConverter()->converterForType(typeid(Trk::TrackStateOnSurface));
+  if (!m_trackStateOnSurfaceCnv){
+    m_trackStateOnSurfaceCnv = dynamic_cast<TrackStateOnSurfaceCnv_p3*>(dummy);
+  }
+  m_trackStateOnSurfaceCnv->transToPers(transObj, persObj, log);
+}
+
