@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TrigTruthEventTPCnv/test/TrigInDetTrackTruthCnv_p1_test.cxx
@@ -12,8 +12,9 @@
 #undef NDEBUG
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthCnv_p1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp2.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <sstream>
 #include <iostream>
@@ -88,7 +89,7 @@ void testit (const TrigInDetTrackTruth& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
+void test1 ATLAS_NOT_THREAD_SAFE (std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
   auto particle = genPartVector.at(0);
@@ -108,7 +109,7 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc = nullptr;
   std::vector<HepMC::GenParticlePtr> genPartVector;

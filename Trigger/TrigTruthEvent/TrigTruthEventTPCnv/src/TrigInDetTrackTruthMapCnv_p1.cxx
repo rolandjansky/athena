@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
@@ -8,7 +8,7 @@
 
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 
-static ElementLinkVectorCnv_p1<ElementLinkVector<TrigInDetTrackCollection> > trackVectCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<TrigInDetTrackCollection> > trackVectCnv;
 //static TrigInDetTrackTruthCnv_p1  trigInDetTrackTruthCnv;
 
 
