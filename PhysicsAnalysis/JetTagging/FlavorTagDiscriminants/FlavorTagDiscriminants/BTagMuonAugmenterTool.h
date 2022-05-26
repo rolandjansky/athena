@@ -31,9 +31,10 @@ namespace FlavorTagDiscriminants {
   private:
     std::unique_ptr<BTagMuonAugmenter> m_aug;
     std::string m_muonAssociationName;
-    float m_muonMinDR;
+    float m_muonMaxDR;
     float m_muonMinpT;
     std::string m_flipTagConfig;
+
     // You'll probably have to add some accessors here
   };
 
