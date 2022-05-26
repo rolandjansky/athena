@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -167,28 +167,29 @@ namespace ROIB {
     if(setEM) {
       int link = 0;
 
-      for(std::vector< EMTauResult >::const_iterator item = m_RoIBResultEMTau.begin();
-	  item != m_RoIBResultEMTau.end(); item++, link++) {
-	const Trailer &trailer = item->trailer();
+      for (const EMTauResult& item : m_RoIBResultEMTau) {
+	const Trailer &trailer = item.trailer();
 	uint32_t statusInfo = trailer.statusInfo();
 
 	overflowMask |= ((statusInfo & LRS_bitMask) != 0)? emLink[link] : 0;
 	
 	if(link == 3) break; // just to be sure
+        ++link;
 	
       }
     }
 
     if(setJE) {
       int link = 0;
-      for(std::vector< JetEnergyResult >::const_iterator item = m_RoIBResultJetEnergy.begin();
-	  item != m_RoIBResultJetEnergy.end(); item++, link++) {
-	const Trailer &trailer = item->trailer();
+      for (const JetEnergyResult& item : m_RoIBResultJetEnergy) {
+	const Trailer &trailer = item.trailer();
 	uint32_t statusInfo = trailer.statusInfo();
 
 	overflowMask |= ((statusInfo & LRS_bitMask) != 0)? jLink[link] : 0;
 	
 	if(link == 1) break;
+
+        ++link;
       }
     }
 
