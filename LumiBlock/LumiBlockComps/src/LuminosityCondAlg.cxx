@@ -14,17 +14,12 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 #include "CoolKernel/IObject.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "CxxUtils/get_unaligned.h"
 #include <sstream>
 
 
 namespace {
-
-const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-const EventIDRange fullrange (EventIDBase (0, UNDEFEVT, 0, 0, 0),
-                              EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM-1, 0, 0));
-
 
 // from from BunchCrossingCondAlg, decodes bunch pattern from metadata string
 std::vector<float> tokenize( const std::string& pattern ) {
@@ -89,13 +84,14 @@ StatusCode
 LuminosityCondAlg::execute (const EventContext& ctx) const
 {
   auto lumi = std::make_unique<LuminosityCondData>();
-  EventIDRange range;
+  SG::WriteCondHandle<LuminosityCondData> luminosityCondData
+    (m_luminosityOutputKey, ctx);
 
   if (m_isMC) {
     // MC case.
     const auto* eventinfo = SG::get(m_eventInfoKey, ctx);
     // define a range for this one LB with one second validity
-    range = EventIDRange(EventIDBase(eventinfo->runNumber(),
+    EventIDRange range = EventIDRange(EventIDBase(eventinfo->runNumber(),
                                      EventIDBase::UNDEFEVT,
                                      eventinfo->timeStamp(),
                                      eventinfo->timeStampNSOffset(),
@@ -106,8 +102,10 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
                                      eventinfo->timeStampNSOffset(),
                                      eventinfo->lumiBlock()+1));
 
-    SG::ReadCondHandle<AthenaAttributeList> digitizationFolder(m_mcDigitizationInputKey, ctx);
 
+    SG::ReadCondHandle<AthenaAttributeList> digitizationFolder(m_mcDigitizationInputKey, ctx);
+    luminosityCondData.addDependency(range);
+    
     const float avgMu = eventinfo->averageInteractionsPerCrossing();
     const auto& attr = (**digitizationFolder)[std::string("BeamIntensityPattern")];
     const std::string& sbunches = attr.data<std::string>();
@@ -132,7 +130,7 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
   else {
     SG::ReadCondHandle<CondAttrListCollection> luminosityFolder
       (m_luminosityFolderInputKey, ctx);
-    ATH_CHECK( luminosityFolder.range (range) );
+    luminosityCondData.addDependency(luminosityFolder);
 
     unsigned int preferredChannel;
     unsigned int calibChannel;
@@ -147,13 +145,12 @@ LuminosityCondAlg::execute (const EventContext& ctx) const
                                    bunchInstLumiBlob,
                                    preferredChannel,
                                    calibChannel,
-                                   range,
+                                   luminosityCondData,
                                    *lumi) );
   }
 
-  SG::WriteCondHandle<LuminosityCondData> luminosityCondData
-    (m_luminosityOutputKey, ctx);
-  ATH_CHECK( luminosityCondData.record (range, std::move (lumi)) );
+  
+  ATH_CHECK( luminosityCondData.record (std::move (lumi)) );
   return StatusCode::SUCCESS;
 }
 
@@ -291,8 +288,8 @@ LuminosityCondAlg::updateAvgLumi (const CondAttrListCollection& lumiData,
  *                          Null for Run 1.
  * @param preferredChannel Preferred luminosity channel to use.
  * @param calibChannel Calibration luminosity channel to use.
- * @param range Validity range of the conditions data being filled.
- *              Updated if needed.
+ * @param wHdl WriteHandle of the conditions data being filled.
+ *              Range is updated if needed.
  * @param lumi Output luminosity data being filled.
  */
 StatusCode
@@ -300,20 +297,19 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
                                        const coral::Blob* bunchInstLumiBlob,
                                        unsigned int preferredChannel,
                                        unsigned int calibChannel,
-                                       EventIDRange& range,
+                                       SG::WriteCondHandle<LuminosityCondData>& wHdl,
                                        LuminosityCondData& lumi) const
 {
   if (lumi.lbAverageLuminosity() <= 0.) {
     if (!m_expectInvalid) {
       ATH_MSG_WARNING( "LBAvInstLumi is zero or negative in updatePerBunchLumi():"
                        << lumi.lbAverageLuminosity());
+     wHdl.addDependency(IOVInfiniteRange::infiniteRunLB());
     }
-    range = EventIDRange::intersect (range, fullrange);
     return StatusCode::SUCCESS;
   }
-
   bool isValid = true;
-  ATH_CHECK( updateMuToLumi (ctx, calibChannel, range, lumi, isValid) );
+  ATH_CHECK( updateMuToLumi (ctx, calibChannel, wHdl, lumi, isValid) );
 
   // Check here if we want to do this the Run1 way (hard) or the Run2 way (easy)
 
@@ -328,7 +324,7 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
   else { // Run1 way, hard!
     ATH_CHECK( updatePerBunchLumiRun1 (ctx,
                                        preferredChannel,
-                                       range,
+                                       wHdl,
                                        lumi) );
   }
 
@@ -342,23 +338,21 @@ LuminosityCondAlg::updatePerBunchLumi (const EventContext& ctx,
  * @brief Fill in mu-to-lumi calibration.
  * @param ctx Event context.
  * @param calibChannel Calibration luminosity channel to use.
- * @param range Validity range of the conditions data being filled.
- *              Updated if needed.
+ * @param wHdl WriteHandle of the conditions data being filled.
+ *              Range is updated if needed.
  * @param lumi Output luminosity data being filled.
  * @param isValid Set to false if data are not valid.
  */
 StatusCode
 LuminosityCondAlg::updateMuToLumi (const EventContext& ctx,
                                    unsigned int calibChannel,
-                                   EventIDRange& range,
+                                   SG::WriteCondHandle<LuminosityCondData>& wHdl,
                                    LuminosityCondData& lumi,
                                    bool& isValid) const
 {
   SG::ReadCondHandle<OnlineLumiCalibrationCondData> onlineLumiCalibration
     ( m_onlineLumiCalibrationInputKey, ctx );
-  EventIDRange range2;
-  ATH_CHECK( onlineLumiCalibration.range (range2) );
-  range = EventIDRange::intersect (range, range2);
+  wHdl.addDependency(onlineLumiCalibration);
 
   // This is the only correct way to do this!
   // The division below gives average mu (over all bunches) to total lumi
@@ -479,14 +473,13 @@ LuminosityCondAlg::updatePerBunchLumiRun2 (const coral::Blob& bunchInstLumiBlob,
 /**
  * @brief Fill in per-bunch luminosity data, run 1.
  * @param preferredChannel Preferred luminosity channel to use.
- * @param range Validity range of the conditions data being filled.
- *              Updated if needed.
+ * @param wHdl WriteHandle of the conditions data being filled.
  * @param lumi Output luminosity data being filled.
  */
 StatusCode
 LuminosityCondAlg::updatePerBunchLumiRun1 (const EventContext& ctx,
                                            unsigned int preferredChannel,
-                                           EventIDRange& range,
+                                           SG::WriteCondHandle<LuminosityCondData>& wHdl,
                                            LuminosityCondData& lumi) const
 {
   ATH_MSG_DEBUG( "starting updatePerBunchLumiRun1() for alg: " << preferredChannel );
@@ -515,19 +508,13 @@ LuminosityCondAlg::updatePerBunchLumiRun1 (const EventContext& ctx,
 
   SG::ReadCondHandle<OnlineLumiCalibrationCondData> onlineLumiCalibration
     (m_onlineLumiCalibrationInputKey, ctx);
+  wHdl.addDependency(onlineLumiCalibration);
   SG::ReadCondHandle<BunchLumisCondData> bunchLumis (m_bunchLumisInputKey, ctx);
+  wHdl.addDependency(bunchLumis);
   SG::ReadCondHandle<BunchGroupCondData> bunchGroup (m_bunchGroupInputKey, ctx);
+  wHdl.addDependency(bunchGroup);
   SG::ReadCondHandle<FillParamsCondData> fillParams (m_fillParamsInputKey, ctx);
-
-  EventIDRange range2;
-  ATH_CHECK( onlineLumiCalibration.range (range2) );
-  range = EventIDRange::intersect (range, range2);
-  ATH_CHECK( bunchLumis.range (range2) );
-  range = EventIDRange::intersect (range, range2);
-  ATH_CHECK( bunchGroup.range (range2) );
-  range = EventIDRange::intersect (range, range2);
-  ATH_CHECK( fillParams.range (range2) );
-  range = EventIDRange::intersect (range, range2);
+  wHdl.addDependency(fillParams);
 
   const std::vector<unsigned int>& luminousBunches = fillParams->luminousBunches();
   ATH_MSG_DEBUG( "N LuminousBunches:" << luminousBunches.size() );
