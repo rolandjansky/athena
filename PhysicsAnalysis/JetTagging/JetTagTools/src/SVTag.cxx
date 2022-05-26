@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -303,6 +303,7 @@ namespace Analysis
 	BTag.setVariable<float>(m_xAODBaseName, "normdist", distnrm);
 	if (m_xAODBaseName.find("SV1")!=std::string::npos) {
 	  BTag.setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
+	  BTag.setVariable<float>(m_xAODBaseName, "correctSignificance3d", distnrmCorr);
 	  BTag.setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
 	  BTag.setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
 	  BTag.setVariable<float>(m_xAODBaseName, "L3d", L3d);
