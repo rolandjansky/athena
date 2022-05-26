@@ -6,7 +6,7 @@
 #include "PATCore/AcceptData.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "HIMonitoring/HIMonitoringPhotonsTool.h"
+#include "HIMonitoringPhotonsTool.h"
 
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
