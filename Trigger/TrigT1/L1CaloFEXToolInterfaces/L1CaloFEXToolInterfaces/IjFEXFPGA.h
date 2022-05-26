@@ -12,7 +12,6 @@
 #ifndef IjFEXFPGA_H
 #define IjFEXFPGA_H
 
-
 #include "GaudiKernel/IAlgTool.h"
 #include "L1CaloFEXSim/jTower.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -47,6 +46,8 @@ Interface definition for jFEXFPGA
 
     virtual uint32_t formLargeRJetTOB(int &, int &) =0;
     virtual std::vector <std::vector <uint32_t>> getLargeRJetTOBs() = 0;
+
+    virtual std::vector <std::vector <uint32_t>> getFwdElTOBs() =0;
 
     virtual uint32_t formTauTOB(int &, int &) =0;
     virtual std::vector <std::vector <uint32_t>> getTauTOBs() = 0;
