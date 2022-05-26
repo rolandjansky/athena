@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on PixelOverlayConfig.py
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
@@ -24,6 +24,7 @@ args = parser.parse_args()
 
 # Configure
 defaultTestFlags(ConfigFlags, args)
+ConfigFlags.Output.RDOFileName = 'mcOverlayRDO_Pixel.pool.root'
 postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
