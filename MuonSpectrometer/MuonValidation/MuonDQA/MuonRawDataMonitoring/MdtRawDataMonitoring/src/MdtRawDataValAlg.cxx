@@ -1548,7 +1548,8 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   return sc;
 }
 
-StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, std::set<std::string>  chambers_from_tracks, bool &isNoiseBurstCandidate ) {
+StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, 
+                                                       const std::set<std::string>&  chambers_from_tracks, bool &isNoiseBurstCandidate ) {
 
   StatusCode sc = StatusCode::SUCCESS;
   Identifier digcoll_id = (mdtCollection)->identify();

@@ -648,7 +648,8 @@ void MdtRawDataValAlg::CorrectLayerMax(const std::string & hardware_name, int & 
   if( hardware_name == "EEL1A05" || hardware_name == "EEL1C05" ) numLayers = 3;
 }
 
-StatusCode MdtRawDataValAlg::bookMDTHisto_overview( TH1*& h, TString h_title, TString xtit, TString ytit, int nbin, float xi, float xf, MonGroup& mgrp) {
+StatusCode MdtRawDataValAlg::bookMDTHisto_overview( TH1*& h, const TString& h_title, const TString& xtit, const TString& ytit, 
+                                                    int nbin, float xi, float xf, MonGroup& mgrp) {
   h = new TH1F(h_title, h_title, nbin, xi, xf);  
   h->SetFillColor(42);
   h->SetTitleSize(0.3, "y");
@@ -660,7 +661,8 @@ StatusCode MdtRawDataValAlg::bookMDTHisto_overview( TH1*& h, TString h_title, TS
   return sc;
 }
     
-StatusCode MdtRawDataValAlg::bookMDTHisto_chambers( TH1F_LW*& h, TString h_title, TString xtit, TString ytit, int nbin, float xi, float xf, MonGroup& mgrp) {
+StatusCode MdtRawDataValAlg::bookMDTHisto_chambers( TH1F_LW*& h, const TString& h_title, const TString& xtit, const TString& ytit, 
+                                                    int nbin, float xi, float xf, MonGroup& mgrp) {
   h = TH1F_LW::create(h_title, h_title, nbin, xi, xf);  
   h->GetXaxis()->SetTitle(xtit);
   h->GetYaxis()->SetTitle(ytit);
@@ -670,7 +672,8 @@ StatusCode MdtRawDataValAlg::bookMDTHisto_chambers( TH1F_LW*& h, TString h_title
   return sc;
 }
 
-StatusCode MdtRawDataValAlg::bookMDTHisto_overview_2D( TH2*& h, TString h_title, TString xtit, TString ytit, int nbin1, float xi1, float xf1, int nbin2, float xi2, float xf2, MonGroup& mgrp) {
+StatusCode MdtRawDataValAlg::bookMDTHisto_overview_2D( TH2*& h, const TString& h_title, const TString& xtit, const TString& ytit, 
+                                                       int nbin1, float xi1, float xf1, int nbin2, float xi2, float xf2, MonGroup& mgrp) {
   h = new TH2F(h_title, h_title, nbin1, xi1, xf1, nbin2, xi2, xf2);  
   h->SetOption("COLZ");  
   h->SetMarkerColor(1);  
@@ -684,7 +687,8 @@ StatusCode MdtRawDataValAlg::bookMDTHisto_overview_2D( TH2*& h, TString h_title,
   return sc;
 }
 
-StatusCode MdtRawDataValAlg::bookMDTHisto_chambers_2D( TH2F_LW*& h, TString h_title, TString xtit, TString ytit, int nbin1, float xi1, float xf1, int nbin2, float xi2, float xf2, MonGroup& mgrp) {
+StatusCode MdtRawDataValAlg::bookMDTHisto_chambers_2D( TH2F_LW*& h, const TString& h_title, const TString& xtit, const TString& ytit, 
+                                                       int nbin1, float xi1, float xf1, int nbin2, float xi2, float xf2, MonGroup& mgrp) {
   h = TH2F_LW::create(h_title, h_title, nbin1, xi1, xf1, nbin2, xi2, xf2);  
   h->SetOption("COLZ");  
   //  h->SetFillColor(42);
@@ -699,7 +703,8 @@ StatusCode MdtRawDataValAlg::bookMDTHisto_chambers_2D( TH2F_LW*& h, TString h_ti
   return sc;
 }
 
-StatusCode MdtRawDataValAlg::bookMDTHisto_OccVsLB( TH2*& h, TString h_title, TString xtit, TString ytit, int nbin1, float xi1, float xf1, int nbin2, float xi2, float xf2, MonGroup& mgrp){
+StatusCode MdtRawDataValAlg::bookMDTHisto_OccVsLB( TH2*& h, const TString& h_title, const TString& xtit, const TString& ytit, 
+                                                   int nbin1, float xi1, float xf1, int nbin2, float xi2, float xf2, MonGroup& mgrp){
   h = new TH2F(h_title, h_title, nbin1, xi1, xf1, nbin2, xi2, xf2);  
   h->SetOption("COLZ");  
   h->SetMarkerColor(1);  

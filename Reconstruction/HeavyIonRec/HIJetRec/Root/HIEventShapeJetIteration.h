@@ -27,7 +27,7 @@ class HIEventShapeJetIteration : virtual public IJetExecuteTool,
 
 public:
 
-  HIEventShapeJetIteration(std::string name);
+  HIEventShapeJetIteration(const std::string& name);
 
   virtual StatusCode initialize() override;
 
