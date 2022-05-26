@@ -48,6 +48,15 @@ def createTriggerFlags(doTriggerRecoFlags):
     # Enable NSW sTGC strip trigger
     flags.addFlag('Trigger.L1MuonSim.doStripTrigger', False)
 
+    # Enable Storing NSW Debug Ntuple
+    flags.addFlag('Trigger.L1MuonSim.WriteNSWDebugNtuple', False)
+
+    # Enable Storing MM branches in NSW Debug Ntuple
+    flags.addFlag('Trigger.L1MuonSim.WriteMMBranches', False)
+
+    # Enable Storing NSW Debug Ntuple
+    flags.addFlag('Trigger.L1MuonSim.WritesTGCBranches', False)
+
     # Enable the veto mode of the NSW-TGC coincidence
     flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
 
@@ -125,7 +134,7 @@ def createTriggerFlags(doTriggerRecoFlags):
     flags.addFlag('Trigger.doEDMVersionConversion', False)
 
     # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework).
-    flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
+    flags.addFlag('Trigger.doOnlineNavigationCompactification', True)
 
     # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.
     flags.addFlag('Trigger.doNavigationSlimming', True)
@@ -164,7 +173,7 @@ def createTriggerFlags(doTriggerRecoFlags):
 
     # shortcut to check if job is running in a partition (i.e. partition name is not empty)
     flags.addFlag('Trigger.Online.isPartition', lambda prevFlags: len(prevFlags.Trigger.Online.partitionName)>0)
-    
+
     # write BS output file
     flags.addFlag('Trigger.writeBS', False)
 
@@ -235,7 +244,7 @@ def createTriggerFlags(doTriggerRecoFlags):
     return flags
 
 def createTriggerRecoFlags():
-    flags = AthConfigFlags()    
+    flags = AthConfigFlags()
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
@@ -252,14 +261,14 @@ def createTriggerRecoFlags():
         muonflags.Muon.useTGCPriorNextBC=True
         muonflags.Muon.MuonTrigger=True
         muonflags.Muon.SAMuonTrigger=True
-        return muonflags 
+        return muonflags
 
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         muonflags = createMuonConfigFlags()
         muonflags.Muon.useTGCPriorNextBC=True
         muonflags.Muon.MuonTrigger=True
-        return muonflags 
+        return muonflags
 
     def __muonCombined():
         from MuonCombinedConfig.MuonCombinedConfigFlags import createMuonCombinedConfigFlags
@@ -278,7 +287,7 @@ def createTriggerRecoFlags():
         from TrigTauRec.TrigTauConfigFlags import createTrigTauConfigFlags
         return createTrigTauConfigFlags()
     flags.addFlagsCategory('Trigger.Offline.Tau', __tau )
-    #TODO come back and use systematically the same 
+    #TODO come back and use systematically the same
 
     def __idTrk():
         from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
@@ -313,7 +322,7 @@ def createTriggerRecoFlags():
     flags.addFlagsCategory("Trigger.HTT", __httFlags, prefix=True )
 
     return flags
-    
+
 if __name__ == "__main__":
     import unittest
 

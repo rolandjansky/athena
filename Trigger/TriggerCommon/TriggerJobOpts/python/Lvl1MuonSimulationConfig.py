@@ -247,14 +247,14 @@ def NSWTriggerConfig(flags):
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
 
-    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False, IsMC = flags.Input.isMC, sTGC_DigitContainerName="sTGC_DIGITS_L1")
-    PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
+    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches, IsMC = flags.Input.isMC, sTGC_DigitContainerName="sTGC_DIGITS_L1")
+    PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
-    StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False,IsMC=flags.Input.isMC,sTGC_DigitContainerName="sTGC_DIGITS_L1")
-    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False,IsMC=flags.Input.isMC)
-    StripSegmentTool = CompFactory.NSWL1.StripSegmentTool("NSWL1__StripSegmentTool",DoNtuple=False)
+    StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches,IsMC=flags.Input.isMC,sTGC_DigitContainerName="sTGC_DIGITS_L1")
+    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches,IsMC=flags.Input.isMC)
+    StripSegmentTool = CompFactory.NSWL1.StripSegmentTool("NSWL1__StripSegmentTool",DoNtuple=flags.Trigger.L1MuonSim.WritesTGCBranches)
     MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
-    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
+    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=flags.Trigger.L1MuonSim.WriteMMBranches, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
     TriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
 
     dosTGC =  flags.Trigger.L1MuonSim.doPadTrigger or flags.Trigger.L1MuonSim.doStripTrigger
@@ -264,7 +264,7 @@ def NSWTriggerConfig(flags):
 
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
                                                UseLookup = False,
-                                               DoNtuple = False,
+                                               DoNtuple = flags.Trigger.L1MuonSim.WriteNSWDebugNtuple,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DoMMDiamonds = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DosTGC = dosTGC,
