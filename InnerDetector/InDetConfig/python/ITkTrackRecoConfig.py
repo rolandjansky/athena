@@ -117,6 +117,13 @@ def CombinedTrackingPassFlagSets(flags):
 
     return flags_set
 
+def ITkClusterSplitProbabilityContainerName(flags):
+
+    flags_set = CombinedTrackingPassFlagSets(flags)
+    extension = flags_set[-1].ITk.Tracking.ActivePass.extension
+    ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb" + extension
+    return ClusterSplitProbContainer
+
 def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
@@ -167,7 +174,7 @@ def ITkTrackRecoCfg(flags):
 
     result.merge(ITkTrackCollectionMergerAlgCfg(flags,
                                                 InputCombinedTracks = InputCombinedITkTracks,
-                                                CombinedITkClusterSplitProbContainer = ClusterSplitProbContainer))
+                                                CombinedITkClusterSplitProbContainer = ITkClusterSplitProbabilityContainerName(flags)))
 
     if flags.ITk.Tracking.doTruth:
         from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
@@ -181,7 +188,7 @@ def ITkTrackRecoCfg(flags):
 
     if flags.ITk.Tracking.writeExtendedPRDInfo:
         from InDetConfig.InDetPrepRawDataToxAODConfig import ITkPixelPrepDataToxAODCfg, ITkStripPrepDataToxAODCfg
-        result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ITkClusterSplitProbabilityContainerName(flags)))
         result.merge(ITkStripPrepDataToxAODCfg(flags))
 
         from DerivationFrameworkInDet.InDetToolsConfig import ITkTrackStateOnSurfaceDecoratorCfg
@@ -214,6 +221,23 @@ def ITkTrackRecoOutputCfg(flags):
     if not flags.ITk.Tracking.writeExtendedPRDInfo:
         excludedAuxData += '.-msosLink'
 
+    # Save PRD
+    toESD += [
+        "InDet::SCT_ClusterContainer#ITkStripClusters",
+        "InDet::PixelClusterContainer#ITkPixelClusters",
+        "InDet::PixelGangedClusterAmbiguities#ITkPixelClusterAmbiguitiesMap",
+        "InDet::PixelGangedClusterAmbiguities#ITkSplitClusterAmbiguityMap"
+    ]
+    toESD += ["Trk::ClusterSplitProbabilityContainer#" + ITkClusterSplitProbabilityContainerName(flags)]
+
+    # add tracks
+    if flags.ITk.Tracking.doStoreTrackSeeds:
+        toESD += ["TrackCollection#SiSPSeedSegments"]
+
+    toESD += ["TrackCollection#SiSPSeededTracks"]
+    toESD += ["TrackCollection#CombinedInDetTracks"]
+
+    ##### AOD #####
     toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
     toAOD += [f"xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.{excludedAuxData}"]
 
