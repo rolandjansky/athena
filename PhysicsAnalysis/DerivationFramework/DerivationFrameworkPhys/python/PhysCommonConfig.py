@@ -68,15 +68,17 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                              MergeLRT = False)) 
     acc.merge(MuonsCommonCfg(ConfigFlags))
     acc.merge(EGammaCommonCfg(ConfigFlags))
-    # Jets, di-taus, tau decorations and flavour tagging
+    # Jets, di-taus, tau decorations, flavour tagging, MET association
     from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
     from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollectionsCfg
     from DerivationFrameworkTau.TauCommonConfig import AddDiTauLowPtCfg
-    from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg 
+    from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg
+    from DerivationFrameworkJetEtMiss.METCommonConfig import METAssociationAlgCfg 
     acc.merge(JetCommonCfg(ConfigFlags))
     acc.merge(AddDiTauLowPtCfg(ConfigFlags, prefix = 'PhysCommon'))
     acc.merge(AddTauWPDecorationCfg(ConfigFlags, prefix = 'PhysCommon', evetoFixTag="v1"))
     acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
+    acc.merge(METAssociationAlgCfg(ConfigFlags))
     # Trigger matching
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun3Cfg
