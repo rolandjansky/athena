@@ -115,7 +115,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    if "AOD" in streamName:
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
-   result.addEventAlgo(outputStream)
+   result.addEventAlgo(outputStream, domain='IO')
    return result
 
 def addToESD(configFlags, itemOrList, **kwargs):
