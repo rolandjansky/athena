@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVALHISTUTILS_IDHITPLOTS_H
@@ -12,7 +12,7 @@ namespace Trk{
 
 class IDHitPlots: public PlotBase {
   public:
-    IDHitPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
+    IDHitPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir){ init();}
     void fill(const xAOD::TrackParticle& trk);
 
     ///@name Basic hit content of xAOD::TrackParticle

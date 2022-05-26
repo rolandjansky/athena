@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TOPORDO_L1TOPORDOHELPERS_H
@@ -37,11 +37,11 @@ namespace L1Topo {
   const std::string formatVecHex8(const std::vector<uint32_t>& vec);
 
   //! OUT OF DATE DO NOT USE Helper to calculate the index needed to pack trigger bits into the full 128-bit decision. See 4-bit part of L1Topo TOB definition in https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.4.xlsx
-  unsigned int triggerBitIndex(uint32_t moduleId, L1Topo::L1TopoTOB);
+  unsigned int triggerBitIndex(uint32_t moduleId, const L1Topo::L1TopoTOB&);
 
   //! Helper to calculate the index needed to pack trigger bits into the full 128-bit decision. See 4-bit part of L1Topo TOB definition in https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.4.xlsx ; same as TriggerLine::calcCounter()?
 
-  unsigned int triggerBitIndexNew(uint32_t moduleId, L1Topo::L1TopoTOB, unsigned int bitIdx);
+  unsigned int triggerBitIndexNew(uint32_t moduleId, const L1Topo::L1TopoTOB&, unsigned int bitIdx);
 
   //! Get the trigger decision and overflow bits from the L1Topo ROI data block 'L1Topo TOB' and order them correctly in a bitset. Reference needed for layout.
   //std::pair< std::bitset<128>,std::bitset<128> > getDecisionAndOverflowBits(const std::vector<L1TopoResult>&);

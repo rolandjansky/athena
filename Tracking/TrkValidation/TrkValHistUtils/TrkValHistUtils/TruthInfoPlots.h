@@ -12,7 +12,7 @@ namespace Trk{
 
 class TruthInfoPlots: public PlotBase {
   public:
-    TruthInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir){ init();}
+    TruthInfoPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir){ init();}
   void fill(const xAOD::TruthParticle& truthprt, float weight=1.0);
  		
     TH1* truthType;
