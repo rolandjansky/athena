@@ -124,7 +124,7 @@ namespace NSWL1 {
       m_NSWMM_dig_stripGposZ    = new std::vector< std::vector<double> >;
 
       if (m_tree) {
-        std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+        std::string ToolName = name().substr(  name().find("__")+2,std::string::npos );
         const char* n = ToolName.c_str();
 
         m_tree->Branch(TString::Format("%s_trigger_diamond_bc",n).Data(), &m_trigger_diamond_bc);

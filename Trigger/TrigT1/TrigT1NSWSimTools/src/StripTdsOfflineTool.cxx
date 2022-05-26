@@ -94,7 +94,7 @@ namespace NSWL1 {
       m_strip_time= new std::vector< float >();
 
       if (m_tree) {
-        std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+        std::string ToolName = name().substr(  name().find("__")+2,std::string::npos );
         const char* n = ToolName.c_str();
         m_tree->Branch(TString::Format("%s_nStripHits",n).Data(),&m_nStripHits,TString::Format("%s_nStripHits/i",n).Data());
         m_tree->Branch(TString::Format("%s_charge",n).Data(),&m_stripCharge);

@@ -588,6 +588,9 @@ if hasattr(topSequence,"SGInputLoader"):
 if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
+    if ConfigFlags.Trigger.L1MuonSim.WriteNSWDebugNtuple:
+        svcMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
+
 if hasattr(svcMgr.THistSvc, "Output"):
     from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
@@ -622,8 +625,8 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
     nfilters = sum(len(v) for v in filters.values())
-    nhypos = sum(len(v) for v in hypos.values())    
-    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+    nhypos = sum(len(v) for v in hypos.values())
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos)
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     hltSeeding = findAlgorithm(topSequence, "HLTSeeding")

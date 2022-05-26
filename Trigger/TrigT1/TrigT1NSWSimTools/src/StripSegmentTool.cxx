@@ -324,7 +324,7 @@ namespace NSWL1 {
     m_seg_wedge2_size = new std::vector< int >();
 
     if (m_tree) {
-      std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+      std::string ToolName = name().substr(  name().find("__")+2,std::string::npos );
       const char* n = ToolName.c_str();
       m_tree->Branch(TString::Format("%s_seg_theta",n).Data(),&m_seg_theta);
       m_tree->Branch(TString::Format("%s_seg_dtheta",n).Data(),&m_seg_dtheta);
