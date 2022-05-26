@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,8 +29,8 @@ void CTP_Decoder::setRDO(const CTP_RDO* rdo)
 
    m_BCs.clear();
    m_BCs.resize(nBunches);
-   for (std::vector<CTP_BC>::iterator bcIter=m_BCs.begin(); bcIter!=m_BCs.end(); bcIter++) {
-      bcIter->setCTPVersion(ctpVersionNumber);
+   for (CTP_BC& bc : m_BCs) {
+      bc.setCTPVersion(ctpVersionNumber);
    }
   
    //std::vector<uint32_t> PITs = rdo->getPITWords();
