@@ -378,10 +378,17 @@ void AthenaOutputStream::handle(const Incident& inc)
    std::unique_lock<mutex_t>  lock(m_mutex);
 
    if( inc.type() == "MetaDataStop" )  {
-      if( m_outSeqSvc->inUse() and m_outSeqSvc->inConcurrentEventsMode() ) {
-         // all substreams should be closed by this point
-         ATH_MSG_DEBUG("Ignoring MetaDataStop incident in ES mode");
-         return;
+      if( m_outSeqSvc->inUse() ) {
+         if( m_outSeqSvc->inConcurrentEventsMode() ) {
+            // EventService MT - all substreams should be closed by this point
+            ATH_MSG_DEBUG("Ignoring MetaDataStop incident in ES/MT mode");
+            return;
+         }
+         if( m_outSeqSvc->lastIncident() == "EndEvent" ) {
+            // in r22 EndEvent comes before output writing - queue metadata writing and disconnect for after Event write
+            m_writeMetadataAndDisconnect = true;
+            return;
+         }
       }
       // not in Event Service
       writeMetaData();
@@ -528,6 +535,14 @@ StatusCode AthenaOutputStream::execute() {
    }
    for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
       if(!tool->postExecute().isSuccess()) {
+         failed = true;
+      }
+   }
+   if( m_writeMetadataAndDisconnect ) {
+      writeMetaData();
+      m_writeMetadataAndDisconnect = false;
+      // finalize will disconnect output
+      if( !finalize().isSuccess() ) {
          failed = true;
       }
    }
