@@ -40,11 +40,31 @@ def getCaloInputMaker():
 # Used for chains that use tracking
 def getTrackingInputMaker(trkopt):
     if trkopt=="ftf":
-        InputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI(
-            "IM_Jet_TrackingStep",
-            mergeUsingFeature = False,
-            RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool()),
-            RoIs = trkFSRoI))
+
+        IDTrigConfig = getInDetTrigConfig( 'jet' )
+
+        log.info( "jet FS tracking: useDynamicRoiZWidth: %s", str(IDTrigConfig.useDynamicRoiZWidth) )
+        
+        roiUpdater = None
+        if IDTrigConfig.useDynamicRoiZWidth:
+            roiUpdater = CompFactory.RoiUpdaterTool( useBeamSpot=True )
+
+            log.info( roiUpdater )
+
+            InputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_Jet_TrackingStep",
+                                                                              mergeUsingFeature = False,
+                                                                              RoITool = conf2toConfigurable( CompFactory.ViewCreatorFSROITool( name="RoiTool_FS", 
+                                                                                                                                               RoiUpdater=roiUpdater,
+                                                                                                                                               RoisWriteHandleKey=recordable( IDTrigConfig.roi ) ) ), 
+                                                                              RoIs = trkFSRoI ) )                                                
+        else: 
+            InputMakerAlg = conf2toConfigurable( CompFactory.InputMakerForRoI( "IM_Jet_TrackingStep",
+                                                                               mergeUsingFeature = False,
+                                                                               RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool()),
+                                                                               RoIs = trkFSRoI) )
+
+
+
     elif trkopt=="roiftf":
         IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
         InputMakerAlg = EventViewCreatorAlgorithm(

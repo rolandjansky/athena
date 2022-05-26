@@ -34,6 +34,7 @@ class ConditionDefaults:
             'jvt': {'min': '0', 'max': 'inf'},
             'bdips': {'min': '-inf', 'max': 'inf'},
             'momCuts': {'min': '-inf', 'max': 'inf'},
+            'timing': {'min': '0', 'max': 'inf'},
         }
 
         self.scale_factor = {
@@ -54,6 +55,7 @@ class ConditionDefaults:
             'jvt': 0.01,
             'bdips': 1.,
             'momCuts': 0.01,
+            'timing': 1.0,
         }
   
     def __call__(self, key, lo='', hi=''):

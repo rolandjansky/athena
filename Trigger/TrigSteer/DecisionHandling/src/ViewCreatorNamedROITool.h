@@ -1,9 +1,9 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef DESICIONHANDLING_VIEWCREATORNAMEDROITOOL_H
-#define DESICIONHANDLING_VIEWCREATORNAMEDROITOOL_H
+#ifndef DECISIONHANDLING_VIEWCREATORNAMEDROITOOL_H
+#define DECISIONHANDLING_VIEWCREATORNAMEDROITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/IViewCreatorROITool.h"
@@ -32,4 +32,4 @@ public:
 
 };
 
-#endif //> !DESICIONHANDLING_VIEWCREATORNAMEDROITOOL_H
+#endif //> !DECISIONHANDLING_VIEWCREATORNAMEDROITOOL_H

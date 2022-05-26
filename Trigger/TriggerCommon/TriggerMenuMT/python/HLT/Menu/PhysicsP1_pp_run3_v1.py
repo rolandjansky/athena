@@ -44,7 +44,6 @@ def addP1Signatures(chains):
         # ATR-20650
         ChainProp(name='HLT_mu0_muoncalib_L1MU3V_EMPTY', stream=['Muon_Calibration'], groups=['PS:Online', 'RATE:Muon_Calibration','BW:Muon']),
         ChainProp(name='HLT_mu0_muoncalib_L1MU14FCH', stream=['Muon_Calibration'], groups=['PS:Online', 'RATE:Muon_Calibration','BW:Muon']),
-
      ]
 
     chainsP1['Egamma'] = [
