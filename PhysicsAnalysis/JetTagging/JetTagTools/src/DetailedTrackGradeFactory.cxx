@@ -192,7 +192,7 @@ StatusCode DetailedTrackGradeFactory::initialize()
 
     myGrades.push_back( TrackGrade(nbGrades, std::string( "C01")) ); //no hit 1st pixel layer, no hit 2nd pixel layer
     nbGrades++;
-    myGrades.push_back( TrackGrade(nbGrades, std::string( "C02030405")) ); //no hit 1st pixel layer OR no hit 2nd pixel layer but expected
+    myGrades.push_back( TrackGrade(nbGrades, std::string( "C02030405")) ); //no hit 1st pixel layer OR no hit 2nd pixel layer
     nbGrades++;
     myGrades.push_back( TrackGrade(nbGrades, std::string( "C06")) ); //total number of shared pixel hits > 0
     nbGrades++;
@@ -596,17 +596,23 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
   else if(m_useITkTrackGrading){
 
-    uint8_t nih, nnih;
+    uint8_t nih, nnih, nieh, nnieh;
 
     if(!track.summaryValue(nih, xAOD::numberOfInnermostPixelLayerHits)){
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfInnermostPixelLayerHits for TrackGrade!");
     }
-    if (nih==0) nohitInnermostLayer = true;
+    if(!track.summaryValue(nieh, xAOD::numberOfInnermostPixelLayerEndcapHits)){
+      ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfInnermostPixelLayerEndcapHits for TrackGrade!");
+    }
+    if ((nih+nieh)==0) nohitInnermostLayer = true;
 
     if (!track.summaryValue(nnih, xAOD::numberOfNextToInnermostPixelLayerHits)){
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfNextToInnermostPixelLayerHits for TrackGrade!");
     }
-    if (nnih==0) nohitNextToInnermostLayer = true;
+    if (!track.summaryValue(nnieh, xAOD::numberOfNextToInnermostPixelLayerEndcapHits)){
+      ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfNextToInnermostPixelLayerEndcapHits for TrackGrade!");
+    }
+    if ((nnih+nnieh)==0) nohitNextToInnermostLayer = true;
 
     uint8_t Enih, Ennih;
 

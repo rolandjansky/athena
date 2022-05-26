@@ -153,6 +153,9 @@ public:
    */
    void addPIDInformation(const EventContext& ctx, const Track *track, xAOD::TrackParticle& tp) const;
 
+   /** Add extra detailed hit summary info not computed in Trk::TrkSummary */
+   void addDetailedHitInformation(const DataVector<const TrackStateOnSurface>* trackStates, xAOD::TrackParticle& tp) const;
+
   /** Method to set Defining parameters of a xAOD::TrackParticle */
   void setDefiningParameters(xAOD::TrackParticle& tp,
                              const Perigee& perigee) const;
@@ -259,6 +262,7 @@ private:
   static const SG::AuxElement::Accessor<uint8_t> s_trtdEdxUsedHitsDecoration;
 
   bool m_doIBL;
+  bool m_doITk;
   ///< if the track contains a summary, the shared, expected hit, and PID
   ///< information will be recomputed. The summary of the track is not updated.
   bool m_computeAdditionalInfo;

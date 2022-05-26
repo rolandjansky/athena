@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackSummaryAccessors_v1.cxx 576255 2013-12-19 12:54:41Z emoyse $
@@ -97,6 +97,18 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, numberOfOutliersOnTrack           );
         DEFINE_ACCESSOR( uint8_t, standardDeviationOfChi2OS         );
         DEFINE_ACCESSOR( uint8_t, numberOfGoodPrecisionLayers       );
+        DEFINE_ACCESSOR( uint8_t, numberOfContribPixelBarrelFlatLayers    );
+        DEFINE_ACCESSOR( uint8_t, numberOfContribPixelBarrelInclinedLayers);
+        DEFINE_ACCESSOR( uint8_t, numberOfContribPixelEndcap              );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelFlatHits             );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelInclinedHits         );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelEndcapHits                 );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelFlatHoles            );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelBarrelInclinedHoles        );
+        DEFINE_ACCESSOR( uint8_t, numberOfPixelEndcapHoles                );
+        DEFINE_ACCESSOR( uint8_t, numberOfInnermostPixelLayerEndcapHits   );
+        DEFINE_ACCESSOR( uint8_t, numberOfNextToInnermostPixelLayerEndcapHits);
+
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;
