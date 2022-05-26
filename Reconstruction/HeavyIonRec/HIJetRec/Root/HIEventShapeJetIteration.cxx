@@ -30,7 +30,7 @@ namespace
 } //annonymous namespace
 
 
-HIEventShapeJetIteration::HIEventShapeJetIteration(std::string name) : AsgTool(name)
+HIEventShapeJetIteration::HIEventShapeJetIteration(const std::string& name) : AsgTool(name)
 {
 }
 

@@ -124,7 +124,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   virtual StatusCode  bookMDTHistograms( MDTChamber* chamber, Identifier digcoll_id );//book chamber by chamber histos
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* );//fill chamber by chamber histos
   virtual StatusCode  bookMDTSummaryHistograms( bool newLumiBlock, bool newRun);//Those over barrel/encap layer etc.
-  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, std::set<std::string>, bool &isNoiseBurstCandidate);
+  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, const std::set<std::string>&, bool &isNoiseBurstCandidate);
   virtual StatusCode  bookMDTOverviewHistograms( bool newLumiBlock, bool newRun);
   virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
   StatusCode handleEvent_effCalc(const Trk::SegmentCollection* segms);//, const Muon::MdtPrepDataContainer* mdt_container );
@@ -139,11 +139,11 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   void ChamberTubeNumberCorrection(int & tubeNum, std::string_view hardware_name, int tubePos, int numLayers);
   void CorrectTubeMax(const std::string & hardware_name, int & numTubes);
   void CorrectLayerMax(const std::string & hardware_name, int & numLayers);
-  virtual StatusCode  bookMDTHisto_overview( TH1*&, TString, TString, TString, int, float, float, MonGroup&);
-  virtual StatusCode  bookMDTHisto_chambers( TH1F_LW*&, TString, TString, TString, int, float, float, MonGroup&);
-  virtual StatusCode  bookMDTHisto_overview_2D( TH2*& h, TString, TString, TString, int, float, float, int, float, float, MonGroup&);
-  virtual StatusCode  bookMDTHisto_chambers_2D( TH2F_LW*& h, TString, TString, TString, int, float, float, int, float, float, MonGroup&);
-  virtual StatusCode  bookMDTHisto_OccVsLB( TH2*& h, TString, TString, TString, int, float, float, int, float, float, MonGroup&);
+  virtual StatusCode  bookMDTHisto_overview( TH1*&, const TString&, const TString&, const TString&, int, float, float, MonGroup&);
+  virtual StatusCode  bookMDTHisto_chambers( TH1F_LW*&, const TString&, const TString&, const TString&, int, float, float, MonGroup&);
+  virtual StatusCode  bookMDTHisto_overview_2D( TH2*& h, const TString&, const TString&, const TString&, int, float, float, int, float, float, MonGroup&);
+  virtual StatusCode  bookMDTHisto_chambers_2D( TH2F_LW*& h, const TString&, const TString&, const TString&, int, float, float, int, float, float, MonGroup&);
+  virtual StatusCode  bookMDTHisto_OccVsLB( TH2*& h, const TString&, const TString&, const TString&, int, float, float, int, float, float, MonGroup&);
   virtual StatusCode  fillMDTMaskedTubes(IdentifierHash, const std::string &, TH1F_LW*& h);
   void putBox(TH2* h, float x1, float y1, float x2, float y2);
   void putLine(TH2* h, float x1, float y1, float x2, float y2, Color_t c=kBlack);

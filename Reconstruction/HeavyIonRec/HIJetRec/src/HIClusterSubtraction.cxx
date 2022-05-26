@@ -19,7 +19,7 @@
 
 //**********************************************************************
 
-HIClusterSubtraction::HIClusterSubtraction(std::string name) : asg::AsgTool(name)//,
+HIClusterSubtraction::HIClusterSubtraction(const std::string& name) : asg::AsgTool(name)//,
 {
 }
 
