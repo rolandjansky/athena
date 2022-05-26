@@ -2449,17 +2449,6 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
           /// a penalty term corresponding to how far the seed segments
           /// deviate from a straight line in r-z
           data.ITkSP[t]->setScorePenalty(std::abs((Tzb - Tzt) / (dr * sTzb2)));
-          data.ITkSP[t]->setParam(d0);
-
-          float meanOneOverTanTheta = std::sqrt(meanOneOverTanThetaSquare);
-          if (meanOneOverTanTheta < 1e-8)
-            meanOneOverTanTheta = 1e-8;
-          if (BSquare < 1e-8)
-            BSquare = 1e-8;
-          if(data.ITkSP[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
-          float theta = std::atan(1. / meanOneOverTanTheta);
-          data.ITkSP[t]->setEta(-std::log(std::tan(0.5 * theta)));
-          data.ITkSP[t]->setPt(std::sqrt(onePlusAsquare / BSquare) / (1000 * data.K));
 
           /// record one possible seed candidate, sort by the curvature
           data.ITkCmSp.emplace_back(std::make_pair(B / std::sqrt(onePlusAsquare), data.ITkSP[t]));
@@ -2896,18 +2885,6 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
           /// a penalty term corresponding to how far the seed segments
           /// deviate from a straight line in r-z
           data.ITkSP[t]->setScorePenalty(std::abs((tb - tz) / (dr * sTzb2)));
-          data.ITkSP[t]->setParam(d0);
-          float DR = std::sqrt( xt * xt + yt * yt + zt * zt ); // distance between top and central SP
-          data.ITkSP[t]->setDR(DR);
-
-          if (std::abs(meanOneOverTanTheta) < 1e-8)
-            meanOneOverTanTheta = 1e-8;
-          if (BSquare < 1e-8)
-            BSquare = 1e-8;
-          if(data.ITkSP[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
-          float theta = std::atan(1. / meanOneOverTanTheta);
-          data.ITkSP[t]->setEta(-std::log(std::tan(0.5 * theta)));
-          data.ITkSP[t]->setPt(std::sqrt(onePlusAsquare / BSquare) / (1000 * data.K));
 
           /// record one possible seed candidate, sort by the curvature
           data.ITkCmSp.emplace_back(std::make_pair(B / std::sqrt(onePlusAsquare), data.ITkSP[t]));
@@ -3407,7 +3384,7 @@ const InDet::SiSpacePointsSeed *SiSpacePointsSeedMaker::next(const EventContext 
           return nullptr;
       }
       /// iterate until we find a valid seed satisfying certain quality cuts in set3
-    } while (!(*data.i_ITkSeed++).set3(data.seedOutput));
+    } while (!(*data.i_ITkSeed++).set3(data.seedOutput, 1./(1000. * data.K)));
     /// then return this next seed candidate
     return &data.seedOutput;
   }
