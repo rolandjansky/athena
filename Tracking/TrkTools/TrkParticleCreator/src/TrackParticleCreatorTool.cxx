@@ -13,6 +13,7 @@
 ***************************************************************************/
 #undef NDEBUG
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
+#include "TrkParticleCreator/DetailedHitInfo.h"
 // forward declares
 #include "Particle/TrackParticle.h"
 #include "TrkTrack/Track.h"
@@ -126,6 +127,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
   , m_expressPerigeeToBeamSpot(true)
   , m_perigeeExpression("BeamLine")
 {
+  declareProperty("DoITk" , m_doITk = false);
   declareProperty("ComputeAdditionalInfo", m_computeAdditionalInfo);
   declareProperty("KeepParameters", m_keepParameters);
   declareProperty("KeepFirstParameters", m_keepFirstParameters);
@@ -734,6 +736,7 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
     setTrackSummary(*trackparticle, *summary);
     setHitPattern(*trackparticle, summary->getHitPattern());
     addPIDInformation(ctx, track, *trackparticle);
+    if(m_doITk) addDetailedHitInformation(track->trackStateOnSurfaces(), *trackparticle);
   }
   const auto* beamspot = CacheBeamSpotData(ctx);
   if (beamspot) {
@@ -907,6 +910,9 @@ TrackParticleCreatorTool::setTrackSummary(xAOD::TrackParticle& tp, const TrackSu
     if (i >= Trk::numberOfStgcEtaHits && i <= Trk::numberOfMmHoles) {
       continue;
     }
+    if (m_doITk && i == Trk::numberOfContribPixelLayers){ // Filled in addDetailedHitInformation for ITk
+      continue;
+    }
 
     int value = summary.get(static_cast<Trk::SummaryType>(i));
     uint8_t uvalue = static_cast<uint8_t>(value);
@@ -980,6 +986,69 @@ TrackParticleCreatorTool::addPIDInformation(const EventContext& ctx, const Trk::
   }
 }
 
+
+void
+TrackParticleCreatorTool::addDetailedHitInformation(const DataVector<const TrackStateOnSurface>* trackStates, xAOD::TrackParticle& tp) const
+{
+
+  Trk::DetailedHitInfo detailedInfo;
+
+  for (const TrackStateOnSurface* tsos : *trackStates) {
+
+    const Trk::MeasurementBase* mesb = tsos->measurementOnTrack();
+    if(mesb==nullptr) continue;
+    // Check if the measurement type is RIO on Track (ROT)
+    const RIO_OnTrack* rot = nullptr;
+    if (mesb->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      rot = static_cast<const RIO_OnTrack*>(mesb);
+    }
+    if(rot==nullptr) continue;
+
+    const Identifier& id = rot->identify();
+    if(!m_pixelID->is_pixel(id)) continue;
+
+    Trk::DetectorRegion region;
+    const InDetDD::SiDetectorElement* detEl = dynamic_cast<const InDetDD::SiDetectorElement*>(rot->detectorElement());
+    InDetDD::DetectorType type = detEl->design().type();
+    if(type==InDetDD::PixelInclined)  region = Trk::pixelBarrelInclined;
+    else if(m_pixelID->is_barrel(id)) region = Trk::pixelBarrelFlat;
+    else region = Trk::pixelEndcap;
+
+    // DetectorType defaults to InDetDD::PixelBarrel for ATLAS-P2-RUN4-01-00-00 so workaround used for now
+    // Can be ultimately updated in a new geotag with
+    //
+    // else if(type==InDetDD::PixelBarrel) region = Trk::pixelBarrelFlat;
+    // else region = Trk::pixelEndcap;
+
+    detailedInfo.addHit(region, m_pixelID->layer_disk(id), m_pixelID->eta_module(id));
+
+  }
+
+  uint8_t nContribPixelLayers = static_cast<uint8_t>(detailedInfo.getPixelContributions());
+
+  uint8_t nContribPixelBarrelFlatLayers     = static_cast<uint8_t>(detailedInfo.getContributionFromRegion(Trk::pixelBarrelFlat    ));
+  uint8_t nContribPixelBarrelInclinedLayers = static_cast<uint8_t>(detailedInfo.getContributionFromRegion(Trk::pixelBarrelInclined));
+  uint8_t nContribPixelEndcap               = static_cast<uint8_t>(detailedInfo.getContributionFromRegion(Trk::pixelEndcap        ));
+
+  uint8_t nPixelBarrelFlatHits     = static_cast<uint8_t>(detailedInfo.getHitsFromRegion(Trk::pixelBarrelFlat    ));
+  uint8_t nPixelBarrelInclinedHits = static_cast<uint8_t>(detailedInfo.getHitsFromRegion(Trk::pixelBarrelInclined));
+  uint8_t nPixelEndcapHits         = static_cast<uint8_t>(detailedInfo.getHitsFromRegion(Trk::pixelEndcap        ));
+
+  uint8_t nInnermostPixelLayerEndcapHits = static_cast<uint8_t>(detailedInfo.getHits(Trk::pixelEndcap, 0));
+  uint8_t nNextToInnermostPixelLayerEndcapHits = static_cast<uint8_t>(detailedInfo.getHits(Trk::pixelEndcap, 1)
+								      + detailedInfo.getHits(Trk::pixelEndcap, 2)); // L0.5 shorties + L1
+
+  tp.setSummaryValue(nContribPixelLayers, xAOD::numberOfContribPixelLayers);
+  tp.setSummaryValue(nContribPixelBarrelFlatLayers, xAOD::numberOfContribPixelBarrelFlatLayers);
+  tp.setSummaryValue(nContribPixelBarrelInclinedLayers, xAOD::numberOfContribPixelBarrelInclinedLayers);
+  tp.setSummaryValue(nContribPixelEndcap, xAOD::numberOfContribPixelEndcap);
+  tp.setSummaryValue(nPixelBarrelFlatHits, xAOD::numberOfPixelBarrelFlatHits);
+  tp.setSummaryValue(nPixelBarrelInclinedHits, xAOD::numberOfPixelBarrelInclinedHits);
+  tp.setSummaryValue(nPixelEndcapHits, xAOD::numberOfPixelEndcapHits);
+  tp.setSummaryValue(nInnermostPixelLayerEndcapHits, xAOD::numberOfInnermostPixelLayerEndcapHits);
+  tp.setSummaryValue(nNextToInnermostPixelLayerEndcapHits, xAOD::numberOfNextToInnermostPixelLayerEndcapHits);
+
+}
 
 const InDet::BeamSpotData*
 TrackParticleCreatorTool::CacheBeamSpotData(const EventContext& ctx) const

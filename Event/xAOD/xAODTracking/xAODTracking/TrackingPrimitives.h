@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPrimitives.h 576255 2013-12-19 12:54:41Z emoyse $
@@ -291,8 +291,22 @@ namespace xAOD {
     // removed:   eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
     TRTTrackOccupancy               = 67,  //!< TRT track occupancy. 
+
+    // New ITk SummaryTypes, not inherited from Trk::TrkSummary
+    numberOfContribPixelBarrelFlatLayers     = 68,  //!< number of contributing barrel flat layers of the pixel detector [unit8_t].
+    numberOfContribPixelBarrelInclinedLayers = 69,  //!< number of contributing barrel inclined layers of the pixel detector [unit8_t].
+    numberOfContribPixelEndcap               = 70,  //!< number of contributing endcap layers of the pixel detector [unit8_t].
+    numberOfPixelBarrelFlatHits              = 71,  //!< these are the pixel hits, in the barrel flat layers [unit8_t].
+    numberOfPixelBarrelInclinedHits          = 72,  //!< these are the pixel hits, in the barrel inclined layers [unit8_t].
+    numberOfPixelEndcapHits                  = 73,  //!< these are the pixel hits, in the endcap layers [unit8_t].
+    numberOfPixelBarrelFlatHoles             = 74,  //!< number of pixel barrel flat layers on track with absence of hits [unit8_t].
+    numberOfPixelBarrelInclinedHoles         = 75,  //!< number of pixel barrel flat inclined on track with absence of hits [unit8_t].
+    numberOfPixelEndcapHoles                 = 76,  //!< number of pixel endcap layers on track with absence of hits [unit8_t].
+    numberOfInnermostPixelLayerEndcapHits    = 77,  //!< these are the hits in the 0th pixel layer endcap rings [unit8_t].
+    numberOfNextToInnermostPixelLayerEndcapHits = 78,  //!< these are the hits in the 0.5th and 1st pixel layer endcap rings [unit8_t].
+
     // -- numbers...
-    numberOfTrackSummaryTypes       = 68
+    numberOfTrackSummaryTypes       = 79
   };
 
   /// Enumerates the different types of information stored in Summary. 
