@@ -1183,6 +1183,8 @@ namespace top {
     this->fwdElectronBCIDCleaningMaxRun(fwdElectronBCIDCleaningMaxRun);
 
     m_electronIDSFFile_path = settings->value("ElectronIDSFFilePath");
+    m_electronIDSFFileLoose_path = settings->value("ElectronIDSFFilePathLoose");
+
 
     // Photon configuration
     this->photonPtcut(std::stof(settings->value("PhotonPt")));
