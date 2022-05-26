@@ -152,7 +152,17 @@ endif()
 # This is necessary because the file may be needed very early during the
 # build, and we don't explicitly make everything else wait for this
 # file's installation. Creating a race condition.
-file( INSTALL share/ubsan.supp share/checkergcc.config
+
+option( CHECKERGCCPLUGINS_PEDANTIC
+   "Enable pedantic checkergcc plugin settings" OFF )
+
+if( CHECKERGCCPLUGINS_PEDANTIC )
+   set( CHECKERGCCPLUGINS_CONFIG_NAME "checkergcc-pedantic.config" )
+else()
+   set( CHECKERGCCPLUGINS_CONFIG_NAME "checkergcc.config" )
+endif()
+
+file( INSTALL share/ubsan.supp share/${CHECKERGCCPLUGINS_CONFIG_NAME}
    DESTINATION ${CMAKE_SHARE_OUTPUT_DIRECTORY} )
 install( FILES share/ubsan.supp share/checkergcc.config
    DESTINATION ${CMAKE_INSTALL_SHAREDIR} )
