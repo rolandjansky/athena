@@ -1,17 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "TileTriggerDefaultCalibTool.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
-
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
-//#include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 
@@ -24,19 +17,14 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/TileCablingService.h"
-//for the extended CISpar
-#include "TileIdentifier/TileTBFrag.h"
 
 #include "TFile.h"
 #include "TTree.h"
-#include "TObjString.h"
-#include "TF1.h"
-#include "TGraphErrors.h"
-#include <cmath>
+#include "TString.h"
 
-#include <iostream>
+#include <vector>
+#include <cmath>
 
 
 namespace {
@@ -48,31 +36,21 @@ T square(T x) { return x*x; }
 
 TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type, const std::string& name,const IInterface* pParent):
   AthAlgTool(type, name, pParent)
-  , m_maxNTT(0)
-  , m_nevpmt(0)
   , m_TT_ID(nullptr)
   , m_tileHWID(nullptr)
   , m_tileID(nullptr)
   , m_tileCablingService(nullptr)
-  , m_DACvalue(0)
   , m_charge(0)
   , m_ipmt(0)
   , m_ipmtCount(0)
   , m_ipmtOld(0)
-  , m_nEvtGlobal()
-  , m_TileTriggerContainerID("")
-  //, m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
-  , m_BCID(0)
-  , m_trigType(0)
-  , m_beamElemCnt(nullptr)
+  , m_DACvalue(0)
+  , m_nEvtGlobal(0)
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("MaxNTriggerTowers", m_maxNTT=7200);
   declareProperty("NtupleID", m_ntupleID="h3000");
   declareProperty("NumEventPerPMT", m_nevpmt=195); // changed from 200 to 195
-  declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
-  declareProperty("TileDQstatus", m_dqStatusKey = "TileDQstatus");
-  //  declareProperty("L1TriggerTowerTool", m_ttTool);
   
   m_meanTile = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
   m_rmsTile = new float[Tile::MAX_ROS][Tile::MAX_DRAWER][Tile::MAX_CHAN]();
@@ -380,7 +358,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
     
   }// end of trigger tower loop for L1Calo
 
-  ++m_nEvtGlobal[0]; // Number of MaxEvt from Athena
+  ++m_nEvtGlobal; // Number of MaxEvt from Athena
 
   for (int ros=0;ros<5;ros++) {
     for (int drawer=0;drawer<64;drawer++) {
@@ -453,25 +431,27 @@ StatusCode TileTriggerDefaultCalibTool::writeNtuple(int runNumber, int runType, 
   ATH_MSG_INFO ( "writeNtuple(" << runNumber << "," << runType << "," << rootFile << ")" );
 
   TTree *t = new TTree(m_ntupleID.c_str(), "TileCalib-Ntuple");
-  t->Branch("meanTile",&m_meanTile,"meanTile[5][64][48]/F");
-  t->Branch("rmsTile",&m_rmsTile,"rmsTile[5][64][48]/F");
-  t->Branch("meanTileDAC",&m_meanTileDAC,"meanTileDAC[5][64][48]/F");
-  t->Branch("rmsTileDAC",&m_rmsTileDAC,"rmsTileDAC[5][64][48]/F");
-  t->Branch("ietaTile",&m_ietaTile,"ietaTile[5][64][48]/I");
-  t->Branch("iphiTile",&m_iphiTile,"iphiTile[5][64][48]/I");
-  t->Branch("ipmtTile",&m_ipmtTile,"ipmtTile[5][64][48]/I");
-  t->Branch("nEvtTile",&m_nEvtTile,"nEvtTile[5][64][48]/I");
-  t->Branch("meanL1Calo",&m_meanL1Calo,"meanL1Calo[5][64][48]/F");
-  t->Branch("rmsL1Calo",&m_rmsL1Calo,"rmsL1Calo[5][64][48]/F");
-  t->Branch("meanL1CaloDAC",&m_meanL1CaloDAC,"meanL1CaloDAC[5][64][48]/F");
-  t->Branch("rmsL1CaloDAC",&m_rmsL1CaloDAC,"rmsL1CaloDAC[5][64][48]/F");
-  t->Branch("ietaL1Calo",&m_ietaL1Calo,"ietaL1Calo[5][64][48]/I");
-  t->Branch("iphiL1Calo",&m_iphiL1Calo,"iphiL1Calo[5][64][48]/I");
-  t->Branch("ipmtL1Calo",&m_ipmtL1Calo,"ipmtL1Calo[5][64][48]/I");
-  t->Branch("nEvtL1Calo",&m_nEvtL1Calo,"nEvtL1Calo[5][64][48]/I");
-  t->Branch("nEvtGlobal",&m_nEvtGlobal,"nEvtGlobal[1]/I");
-  t->Branch("meanTileL1Calo",&m_meanTileL1Calo,"meanTileL1Calo[5][64][48]/F");
-  t->Branch("rmsTileL1Calo",&m_rmsTileL1Calo,"rmsTileL1Calo[5][64][48]/F");
+  TString ind = TString::Format("[%d][%d][%d]",Tile::MAX_ROS,Tile::MAX_DRAWER,Tile::MAX_CHAN);
+
+  t->Branch("meanTile",m_meanTile,ind.Format("meanTile%s/F",(const char *)ind));
+  t->Branch("rmsTile",m_rmsTile,ind.Format("rmsTile%s/F",(const char *)ind));
+  t->Branch("meanTileDAC",m_meanTileDAC,ind.Format("meanTileDAC%s/F",(const char *)ind));
+  t->Branch("rmsTileDAC",m_rmsTileDAC,ind.Format("rmsTileDAC%s/F",(const char *)ind));
+  t->Branch("ietaTile",m_ietaTile,ind.Format("ietaTile%s/I",(const char *)ind));
+  t->Branch("iphiTile",m_iphiTile,ind.Format("iphiTile%s/I",(const char *)ind));
+  t->Branch("ipmtTile",m_ipmtTile,ind.Format("ipmtTile%s/I",(const char *)ind));
+  t->Branch("nEvtTile",m_nEvtTile,ind.Format("nEvtTile%s/I",(const char *)ind));
+  t->Branch("meanL1Calo",m_meanL1Calo,ind.Format("meanL1Calo%s/F",(const char *)ind));
+  t->Branch("rmsL1Calo",m_rmsL1Calo,ind.Format("rmsL1Calo%s/F",(const char *)ind));
+  t->Branch("meanL1CaloDAC",m_meanL1CaloDAC,ind.Format("meanL1CaloDAC%s/F",(const char *)ind));
+  t->Branch("rmsL1CaloDAC",m_rmsL1CaloDAC,ind.Format("rmsL1CaloDAC%s/F",(const char *)ind));
+  t->Branch("ietaL1Calo",m_ietaL1Calo,ind.Format("ietaL1Calo%s/I",(const char *)ind));
+  t->Branch("iphiL1Calo",m_iphiL1Calo,ind.Format("iphiL1Calo%s/I",(const char *)ind));
+  t->Branch("ipmtL1Calo",m_ipmtL1Calo,ind.Format("ipmtL1Calo%s/I",(const char *)ind));
+  t->Branch("nEvtL1Calo",m_nEvtL1Calo,ind.Format("nEvtL1Calo%s/I",(const char *)ind));
+  t->Branch("meanTileL1Calo",m_meanTileL1Calo,ind.Format("meanTileL1Calo%s/F",(const char *)ind));
+  t->Branch("rmsTileL1Calo",m_rmsTileL1Calo,ind.Format("rmsTileL1Calo%s/F",(const char *)ind));
+  t->Branch("nEvtGlobal",&m_nEvtGlobal,"nEvtGlobal/I");
   t->Branch("DACvalue",&m_DACvalue,"DACvalue/F");
 
   // Fill with current values (i.e. tree will have only one entry for this whole run)
