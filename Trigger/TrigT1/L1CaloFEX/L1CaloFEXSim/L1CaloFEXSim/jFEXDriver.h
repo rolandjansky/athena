@@ -4,6 +4,7 @@
 // STL
 #include <string>
 
+
 // Athena/Gaudi
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -20,7 +21,7 @@
 #include "xAODTrigger/jFexSRJetRoIContainer.h" 
 #include "xAODTrigger/jFexLRJetRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h" 
-
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
 
 class CaloIdManager;
 
@@ -41,6 +42,7 @@ class jFEXDriver : public AthAlgorithm
   virtual StatusCode testSRJetEDM();
   virtual StatusCode testLRJetEDM();
   virtual StatusCode testTauEDM();
+  virtual StatusCode testFwdElEDM();
 
  private: 
 
@@ -53,7 +55,7 @@ class jFEXDriver : public AthAlgorithm
   SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetEDMKey {this, "myEDMSR", "L1_jFexSRJetRoI", "Reading container of jFexSRRoIs"};
   SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jFexLRJetEDMKey {this, "myEDMLR", "L1_jFexLRJetRoI", "Reading container of jFexLRRoIs"};
   SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jFexTauEDMKey {this, "myEDMTau", "L1_jFexTauRoI", "Reading container of jFexTauRoIs"};
-
+  SG::ReadHandleKey<xAOD::jFexFwdElRoIContainer> m_jFexFwdElEDMKey {this, "myEDMFwdEl", "L1_jFexFwdElRoI", "Reading container of jFexFwdElRoIs"};
 
   ToolHandle<IjTowerBuilder> m_jTowerBuilderTool {this, "jTowerBuilderTool", "LVL1::jTowerBuilder", "Tool that builds jTowers for simulation"};
   ToolHandle<IjSuperCellTowerMapper> m_jSuperCellTowerMapperTool {this, "jSuperCellTowerMapperTool", "LVL1::jSuperCellTowerMapper", "Tool that maps supercells to jTowers"};
