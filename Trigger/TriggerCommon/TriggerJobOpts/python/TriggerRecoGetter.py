@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
 log = logging.getLogger( "TriggerRecoGetter.py" )
@@ -20,15 +21,9 @@ class TriggerRecoGetter(Configured):
         cfg = TriggerConfigGetter()  # noqa: F841
 
         # configure TrigDecisionTool
-        from AthenaCommon.Configurable import ConfigurableRun3Behavior
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        tdtAcc = None
-        with ConfigurableRun3Behavior():
-            from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
-            tdtAcc = TrigDecisionToolCfg(ConfigFlags)
-
-        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-        appendCAtoAthena(tdtAcc)
+        from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+        CAtoGlobalWrapper(TrigDecisionToolCfg, ConfigFlags)
 
         if 'L1' in ConfigFlags.Trigger.availableRecoMetadata:
             log.info("configuring lvl1")

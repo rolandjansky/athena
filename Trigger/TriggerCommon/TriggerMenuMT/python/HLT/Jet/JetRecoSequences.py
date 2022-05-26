@@ -14,6 +14,12 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from . import JetRecoCommon
 from TriggerMenuMT.HLT.CommonSequences.CaloSequences import caloClusterRecoSequence, LCCaloClusterRecoSequence
 from eflowRec.PFHLTSequence import PFHLTSequence
+from eflowRec.PFHLTSequence import trackvtxcontainers
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking, makeInDetTrigFastTrackingNoView
+from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
+from .JetTrackingConfig import jetTTVA
+from JetRec.JetRecConf import JetViewAlg
 
 # this code uses CA internally, needs to be in this context manager,
 # at least until ATLASRECTS-6635 is closed
@@ -52,10 +58,28 @@ def jetRecoSequence( configFlags, clustersKey, **jetRecoDict ):
             configFlags, dataSource=dataSource,
             clustersKey=clustersKey, **jetRecoDict)
     else:
-        return RecoFragmentsPool.retrieve(
-            standardJetRecoSequence,
-            configFlags, dataSource=dataSource,
-            clustersKey=clustersKey, **jetRecoDict)
+        jetRecoSeq, jetsIn, jetDef = RecoFragmentsPool.retrieve(
+                                     standardJetRecoSequence,
+                                     configFlags, dataSource=dataSource,
+                                     clustersKey=clustersKey, **jetRecoDict)
+        return jetRecoSeq, jetsIn, jetDef
+
+# Get a configured JetViewAlg that creates a VIEW_ELEMENTS container of jets above a minimum jet pT
+# Filtered jets are given to hypo.
+# jetPtMin is minimum jet pt in GeV for jets to be seen by hypo
+def getJetViewAlg(configFlags,jetsIn,jetPtMin=10,**jetRecoDict):
+
+    decorList = JetRecoCommon.getDecorList(jetRecoDict)
+    filteredJetsName = f"{jetsIn}_pt{int(jetPtMin)}"
+    jetViewAlg= JetViewAlg("jetview_"+filteredJetsName,
+                          InputContainer=jetsIn,
+                          OutputContainer=filteredJetsName,
+                          PtMin=jetPtMin*1e3, #MeV
+                          DecorDeps=decorList
+    )
+    jetsOut = filteredJetsName
+
+    return jetViewAlg,jetsOut
 
 def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
     """This build the standard jet (not groomed or reclustered).
@@ -70,7 +94,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     
     jetDefString = JetRecoCommon.jetRecoDictToString(jetRecoDict)
     buildSeq = parOR( "JetBuildSeq_"+jetDefString, [])
-    doesTracking = JetRecoCommon.doTracking(jetRecoDict)
+    doesFSTracking = JetRecoCommon.doFSTracking(jetRecoDict)
 
     context = JetRecoCommon.getJetContext(jetRecoDict)
     
@@ -93,7 +117,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     # build the list of jetModifiers.
     # Sort and filter
     jetModList = ["Sort", "Filter:"+str(JetRecoCommon.getFilterCut(jetRecoDict["recoAlg"])), "ConstitFourMom_copy"]
-    if doesTracking:
+    if doesFSTracking:
         jetModList += ["TrackMoments", "JVF", "JVT"]
 
     if jetRecoDict["recoAlg"] == "a4":
@@ -155,10 +179,6 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
 def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
     jetDefString = JetRecoCommon.jetRecoDictToString(jetRecoDict)
 
-    if jetRecoDict["jetCalib"]=="nojcalib":
-        return RecoFragmentsPool.retrieve( standardJetBuildSequence, configFlags, dataSource=dataSource,
-                                           clustersKey=clustersKey,**jetRecoDict)
-
     # Schedule reconstruction w/o calibration
     # This is just a starting point -- will change so that
     # the calibration is only ever done at the end for ungroomed
@@ -169,6 +189,13 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
                                                             clustersKey=clustersKey, **_jetRecoDictNoJCalib)
 
     recoSeq = parOR( "JetRecSeq_"+jetDefString, [buildSeq])
+
+    # prepare and return here if original calibration is nojcalib - no further calibration or modifiers required
+    if jetRecoDict["jetCalib"]=="nojcalib":
+        jetViewAlg, jetsOut = getJetViewAlg(configFlags,jetsIn=jetDefNoCalib.fullname(),**jetRecoDict)
+        recoSeq += jetViewAlg
+        return recoSeq, jetsOut, jetDefNoCalib
+
     # Get the calibration tool if desired. 
     jetDef = jetDefNoCalib.clone()
     jetDef.suffix = jetDefNoCalib.suffix.replace("nojcalib",jetRecoDict["jetCalib"])
@@ -188,9 +215,8 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     jetDef.modifiers = JetRecoCommon.getCalibMods(jetRecoDict,dataSource,rhoKey)
     # If we need JVT, just rerun the JVT modifier
     decorList = JetRecoCommon.getDecorList(jetRecoDict)
-    decorList.append("GhostTrack_ftf")
 
-    if JetRecoCommon.doTracking(jetRecoDict):
+    if JetRecoCommon.doFSTracking(jetRecoDict):
         jetDef.modifiers.append("JVT")
     #Configuring jet cleaning mods now
     if not JetRecoCommon.isPFlow(jetRecoDict) and jetRecoDict['recoAlg']=='a4': #Add jet cleaning decorations only to small-R non-PFlow jets for now
@@ -225,16 +251,8 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         )
         recoSeq += jetFTagSeq
 
-    jetPtMin = 10e3 # 10 GeV minimum pt for jets to be seen by hypo
-    from JetRec.JetRecConf import JetViewAlg
-    filteredJetsName = jetDef.fullname()+"_pt10"
-    recoSeq += JetViewAlg("jetview_"+filteredJetsName,
-                          InputContainer=jetDef.fullname(),
-                          OutputContainer=filteredJetsName,
-                          PtMin=jetPtMin,
-                          DecorDeps=decorList
-    )
-    jetsOut = filteredJetsName
+    jetViewAlg, jetsOut = getJetViewAlg(configFlags,jetsIn=jetDef.fullname(),**jetRecoDict)
+    recoSeq += jetViewAlg
 
     # End of basic jet reco
     return recoSeq, jetsOut, jetDef
@@ -263,7 +281,6 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
     log.debug("Generating jetCaloRecoSequences for configuration %s",JetRecoCommon.jetRecoDictToString(jetRecoDict))
 
     # Get the topocluster reconstruction sequence
-    from .JetRecoSequences import jetClusterSequence, jetRecoSequence
     topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
         jetClusterSequence, configFlags, RoIs=RoIs, clusterCalib=jetRecoDict["clusterCalib"])
 
@@ -300,22 +317,75 @@ def getFastFlavourTaggingSequence( dummyFlags, name, inputJets, inputVertex, inp
 
     return jetFFTSeq
 
-# This sets up the reconstruction where tracks are required.
+# Returns reco sequence for full scan track & primary vertex reconstruction
+def JetFSTrackingSequence(dummyFlags,trkopt,RoIs):
+
+    IDTrigConfig = getInDetTrigConfig( 'jet' )
+
+    trackcollmap = None
+
+    viewAlgs = makeInDetTrigFastTrackingNoView( config = IDTrigConfig, rois=RoIs)
+
+    # add the collections for the eflowRec reconstriction in the trigger
+    trackvtxcontainers[trkopt] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet ) 
+
+    vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, IDTrigConfig.adaptiveVertex_jet )
+
+    # now run the actual vertex finders and TTVA tools
+    if IDTrigConfig.vertex_jet != IDTrigConfig.vertex:
+        vtxAlgs += makeInDetTrigVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
+
+    jetTrkSeq = parOR(f"JetFSTracking_{trkopt}_RecoSequence", viewAlgs+vtxAlgs)
+    trackcollmap = jetTTVA( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,  adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
+
+    return jetTrkSeq, trackcollmap
+
+
+def getFastFtaggedJetCopyAlg(dummyFlags,jetsIn,jetRecoDict):
+
+    caloJetRecoDict = JetRecoCommon.jetRecoDictFromString(jetsIn)
+    caloJetDef = JetRecoCommon.defineJets(caloJetRecoDict,clustersKey=JetRecoCommon.getClustersKey(caloJetRecoDict),prefix=jetNamePrefix,suffix='fastftag')
+    decorList = JetRecoCommon.getDecorList(jetRecoDict)
+    copyJetAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsIn,jetsoutdef=caloJetDef,decorations=decorList)
+    ftaggedJetsIn = caloJetDef.fullname()
+    return copyJetAlg,ftaggedJetsIn
+
+# Returns reco sequence for RoI-based track reco + low-level flavour tagging 
+def JetRoITrackJetTagSequence(dummyFlags,jetsIn,trkopt,RoIs):
+
+    IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
+
+    viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
+    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),( 'xAOD::JetContainer' , 'StoreGateSvc+%s' % jetsIn)]
+
+    IDTrigConfig = getInDetTrigConfig('jetSuper')
+    tracksIn = IDTrigConfig.tracks_FTF()
+
+    jetTrkSeq=getFastFlavourTaggingSequence(
+        dummyFlags,
+        f"JetRoITrackJetTag_{trkopt}_RecoSequence",
+        jetsIn,
+        "",
+        tracksIn,
+        addAlgs=viewAlgs,
+    )
+
+    return jetTrkSeq
+
+# This sets up the reconstruction where full scan tracks are required.
 # Topoclustering will not be scheduled, we just pass in the name of the cluster collection.
 def jetTrackingRecoSequences(configFlags, RoIs, clustersKey, **jetRecoDict):
-    if not JetRecoCommon.doTracking(jetRecoDict):
-        raise ValueError("Jet reco with tracks called without a tracking option!")
+    if not JetRecoCommon.doFSTracking(jetRecoDict):
+        raise ValueError("Jet reco with tracks called without full scan tracking option 'ftf'!")
 
     log.debug("Generating jetTrackingRecoSequences for configuration %s",JetRecoCommon.jetRecoDictToString(jetRecoDict))
 
     # Get the track reconstruction sequence
-    from .JetTrackingConfig import JetFSTrackingSequence
     (jetTrkSeq, trkcolls) = RecoFragmentsPool.retrieve(
         JetFSTrackingSequence, configFlags, trkopt=jetRecoDict["trkopt"], RoIs=RoIs)
 
     # Get the jet reconstruction sequence including the jet definition and output collection
     # Pass in the cluster and track collection names
-    from .JetRecoSequences import jetRecoSequence
     jetRecoSeq, jetsOut, jetDef  = RecoFragmentsPool.retrieve(
         jetRecoSequence,
         configFlags, clustersKey=clustersKey, **trkcolls, **jetRecoDict )
@@ -371,13 +441,9 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
         **basicJetRecoDict)
     recoSeq += basicJetRecoSequence
 
-    rcJetPtMin = 15e3 # 15 GeV minimum pt for jets to be reclustered
-    from JetRec.JetRecConf import JetViewAlg
-    filteredJetsName = basicJetDef.fullname()+"_pt15"
-    recoSeq += JetViewAlg("jetview_"+filteredJetsName,
-                          InputContainer=basicJetDef.fullname(),
-                          OutputContainer=filteredJetsName,
-                          PtMin=rcJetPtMin)
+    rcJetPtMin = 15 # 15 GeV minimum pt for jets to be reclustered
+    jetViewAlg, filteredJetsName = getJetViewAlg(configFlags,jetsIn=basicJetDef.fullname(),jetPtMin=rcJetPtMin,**jetRecoDict)
+    recoSeq+=jetViewAlg
 
     rcJetDef = JetRecoCommon.defineReclusteredJets(jetRecoDict, filteredJetsName, basicJetDef.inputdef.label, jetNamePrefix, '_'+jetRecoDict["jetCalib"])
     rcModList = [] # Could set substructure mods
@@ -393,7 +459,7 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
 
     rcJetDef._internalAtt['finalPJContainer'] = rcConstitPJKey
     # Depending on whether running the trackings step
-    ftf_suffix = "" if not JetRecoCommon.doTracking(jetRecoDict) else "_ftf" 
+    ftf_suffix = "" if not JetRecoCommon.doFSTracking(jetRecoDict) else "_ftf" 
     rcJetRecAlg = JetRecConfig.getJetRecAlg(rcJetDef, monTool, ftf_suffix)
     recoSeq += conf2toConfigurable( rcJetRecAlg )
 

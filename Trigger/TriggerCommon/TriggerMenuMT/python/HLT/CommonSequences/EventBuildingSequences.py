@@ -19,7 +19,7 @@ from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 log = logging.getLogger(__name__)
 
 
-def addEventBuildingSequence(chain, eventBuildType, chainDict):
+def addEventBuildingSequence(flags, chain, eventBuildType, chainDict):
     '''
     Add an extra ChainStep to a Chain object with a PEBInfoWriter sequence configured for the eventBuildType
     '''
@@ -31,9 +31,9 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
         return
 
     def pebInfoWriterToolGenerator(chainDict):
-        return pebInfoWriterTool(chainDict['chainName'], eventBuildType)
+        return pebInfoWriterTool(flags, chainDict['chainName'], eventBuildType)
 
-    inputMaker = pebInputMaker(chain, eventBuildType)
+    inputMaker = pebInputMaker(flags, chain, eventBuildType)
     seq = MenuSequence(
         Sequence    = pebSequence(eventBuildType, inputMaker),
         Maker       = inputMaker,
@@ -58,7 +58,7 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
     chain.steps.append(step)
 
 
-def pebInfoWriterTool(name, eventBuildType):
+def pebInfoWriterTool(flags, name, eventBuildType):
     '''
     Create PEBInfoWriterTool configuration for the eventBuildType
     '''
@@ -78,7 +78,7 @@ def pebInfoWriterTool(name, eventBuildType):
         ])
     elif 'MuonTrkPEB' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
-        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'MDT', 'RPC', 'TGC', 'CSC', 'MM', 'sTGC'])
+        tool.addRegSelDets(flags, ['Pixel', 'SCT', 'TRT', 'MDT', 'RPC', 'TGC', 'CSC', 'MM', 'sTGC'])
         tool.MaxRoIs = 99
         tool.EtaWidth= 0.75#values from run2 check later
         tool.PhiWidth= 0.75#values from run2 check later
@@ -86,7 +86,7 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'IDCalibPEB' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
-        tool.addRegSelDets(['Pixel', 'SCT', 'TRT'])
+        tool.addRegSelDets(flags, ['Pixel', 'SCT', 'TRT'])
         tool.EtaWidth = 0.1
         tool.PhiWidth = 0.1
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
@@ -108,14 +108,14 @@ def pebInfoWriterTool(name, eventBuildType):
         ])
     elif 'LArPEBHLT' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
-        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
+        tool.addRegSelDets(flags, ['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
         tool.addROBs(LATOMESourceIDs) # add full-scan LATOME data
     elif 'LArPEB' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
-        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
+        tool.addRegSelDets(flags, ['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
         tool.addROBs(LATOMESourceIDs) # add full-scan LATOME data
@@ -156,7 +156,7 @@ def pebInfoWriterTool(name, eventBuildType):
         ])
     elif 'LArPEBNoise' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
-        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
+        tool.addRegSelDets(flags, ['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
@@ -206,12 +206,12 @@ def pebInfoWriterTool(name, eventBuildType):
     return tool
 
 
-def pebInputMaker(chain, eventBuildType):
+def pebInputMaker(flags, chain, eventBuildType):
     # Check if we are configuring a chain with at least one full-scan leg
     isFullscan = (mapThresholdToL1DecisionCollection('FSNOSEED') in chain.L1decisions)
 
     # Check if we are configuring RoI-based PEB
-    _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
+    _tmpTool = pebInfoWriterTool(flags, 'tmpTool_'+eventBuildType, eventBuildType)
     _isRoIBasedPEB = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
     _isStaticPEB = isinstance(_tmpTool, CompFactory.StaticPEBInfoWriterTool)
     if not _isRoIBasedPEB and not _isStaticPEB:
@@ -301,11 +301,11 @@ def alignEventBuildingSteps(chain_configs, chain_dicts):
             chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
 
 
-def isRoIBasedPEB(eventBuildType):
+def isRoIBasedPEB(flags, eventBuildType):
     '''Helper function to determine if eventBuildType corresponds to RoI-based PEB'''
     if not eventBuildType:
         return False
-    _tmpTool = pebInfoWriterTool('tmpTool_'+eventBuildType, eventBuildType)
+    _tmpTool = pebInfoWriterTool(flags, 'tmpTool_'+eventBuildType, eventBuildType)
     result = isinstance(_tmpTool, CompFactory.RoIPEBInfoWriterTool)
     del _tmpTool
     return result
@@ -313,11 +313,15 @@ def isRoIBasedPEB(eventBuildType):
 
 # Unit test
 if __name__ == "__main__":
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.Input.Files = defaultTestFiles.RAW
+    flags.lock()
     failures = 0
     for eb_identifier in EventBuildingInfo.getAllEventBuildingIdentifiers():
         tool = None
         try:
-            tool = pebInfoWriterTool('TestTool_'+eb_identifier, eb_identifier)
+            tool = pebInfoWriterTool(flags, 'TestTool_'+eb_identifier, eb_identifier)
         except Exception as ex:
             failures += 1
             log.error('Caught exception while configuring PEBInfoWriterTool for %s: %s', eb_identifier, ex)

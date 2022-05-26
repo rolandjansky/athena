@@ -124,7 +124,7 @@ namespace NSWL1 {
     m_cl_phiId= new std::vector<int>();
 
     if (m_tree) {
-      std::string ToolName = name().substr(  name().find("::")+2,std::string::npos );
+      std::string ToolName = name().substr(  name().find("__")+2,std::string::npos );
       const char* n = ToolName.c_str();
       m_tree->Branch(TString::Format("%s_cl_n",n).Data(),&m_cl_n,TString::Format("%s_cl_n/i",n).Data());
       m_tree->Branch(TString::Format("%s_cl_charge",n).Data(),&m_cl_charge);

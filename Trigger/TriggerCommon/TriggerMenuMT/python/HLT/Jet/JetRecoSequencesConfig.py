@@ -14,7 +14,7 @@ from .JetRecoCommon import (
     defineGroomedJets,
     defineReclusteredJets,
     isPFlow,
-    doTracking
+    doFSTracking
 )
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -71,8 +71,8 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     """
 
     acc = ComponentAccumulator()
-    use_tracking = doTracking(jetRecoDict)
-    if use_tracking and not trkcolls:
+    use_FS_tracking = doFSTracking(jetRecoDict)
+    if use_FS_tracking and not trkcolls:
         raise ValueError(
             f"No track collections supplied for trkopt {jetRecoDict['trkopt']}"
         )
@@ -114,7 +114,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     ]
     if jetRecoDict["recoAlg"] == "a4":
         jetDef.modifiers += ["CaloEnergies"]  # needed for GSC
-    if use_tracking:
+    if use_FS_tracking:
         jetDef.modifiers += getTrackMods(jetRecoDict["trkopt"])
         
     jetsOut = recordable(jetDef.fullname())
@@ -137,7 +137,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     pj_name = pj_alg.OutputContainer.Path
     acc.addEventAlgo(pj_alg)
 
-    if use_tracking:
+    if use_FS_tracking:
 
         # Make sure that the jets are constructed with the ghost tracks included
         merge_alg = CompFactory.PseudoJetMerger(
@@ -196,13 +196,13 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
 
 
     # If we need JVT rerun the JVT modifier
-    use_tracking = doTracking(jetRecoDict)
+    use_FS_tracking = doFSTracking(jetRecoDict)
     is_pflow = isPFlow(jetRecoDict)
 
     decorList = getDecorList(jetRecoDict)
     
     jetDef.modifiers = getCalibMods(jetRecoDict, dataSource, rhoKey)
-    if use_tracking:
+    if use_FS_tracking:
         jetDef.modifiers += [f"JVT:{jetRecoDict['trkopt']}"]
 
     if not is_pflow and jetRecoDict["recoAlg"] == "a4":

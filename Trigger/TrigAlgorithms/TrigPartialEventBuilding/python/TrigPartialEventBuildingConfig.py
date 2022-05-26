@@ -7,6 +7,9 @@ from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
 from libpyeformat_helper import SourceIdentifier, SubDetector
 from RegionSelector import RegSelToolConfig
 
+from AthenaCommon.Logging import logging
+_log = logging.getLogger(__name__)
+
 
 def StaticPEBInfoWriterToolCfg(name='StaticPEBInfoWriterTool'):
     def addROBs(self, robs):
@@ -34,18 +37,36 @@ def StaticPEBInfoWriterToolCfg(name='StaticPEBInfoWriterTool'):
 
 
 def RoIPEBInfoWriterToolCfg(name='RoIPEBInfoWriterTool'):
-    def addRegSelDets(self, detNames):
+    def addRegSelDets(self, flags, detNames):
         '''
         Add RegionSelector tools for given detector look-up tables to build PEB list of ROBs
         in these detectors that intersect with the RoI. Special value 'All' can be also given
         in the detNames list to include all detectors available in RegionSelector.
         '''
+        # To check Detector flags before adding RegSel tool configs, we need to map RegSel det names to Detector flag names
+        _regSelToDetFlagMap = {
+            # Calo
+            'TTEM': 'Calo',
+            'TTHEC': 'Calo',
+            'FCALEM': 'LAr',
+            'FCALHAD': 'LAr',
+            'TILE': 'Tile',
+        }
+        # ID
+        _regSelToDetFlagMap |= dict([(d,d) for d in ['Pixel', 'SCT', 'TRT']])
+        # Muon
+        _regSelToDetFlagMap |= dict([(d,d) for d in ['MDT', 'RPC', 'TGC', 'CSC', 'MM', 'sTGC']])
         if 'All' in detNames:
-            detNames = [
-                'Pixel', 'SCT', 'TRT',  # ID
-                'MDT', 'RPC', 'TGC', 'CSC', 'MM', 'sTGC',  # Muon
-                'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD', 'TILE']  # Calo
+            detNames = _regSelToDetFlagMap.keys()
         for det in detNames:
+            if det not in _regSelToDetFlagMap:
+                raise RuntimeError('Cannot add detector "' + det + '" because it is not in _regSelToDetFlagMap')
+            detFlag = 'Enable'+_regSelToDetFlagMap[det]
+            detFlagCont = getattr(flags, 'Detector')
+            detEnabled = getattr(detFlagCont, detFlag)
+            if not detEnabled:
+                _log.debug('addRegSelDets: skip adding detector "%s" because the flag Detector.%s is False', det, detFlag)
+                continue
             funcName = 'makeRegSelTool_' + det
             if not hasattr(RegSelToolConfig, funcName):
                 raise RuntimeError('Cannot add detector "' + det + '", RegSelToolConfig does not have a function ' + funcName)

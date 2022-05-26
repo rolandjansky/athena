@@ -3,8 +3,9 @@
 if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc20e_13TeV/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.ESD.e4993_s3227_r12689/myESD.pool.root"]
-    ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-RUN2-09"
+    #Made in master, 25 May 2022 using
+    #https://gitlab.cern.ch/atlas/athena/-/blob/b74428c8ff7dcd8c859fce16001c60a14b78256b/Reconstruction/RecExample/RecJobTransformTests/test/test_mc20e_13TeV.sh
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.ESD.e6337_s3681_r13145/myESD.pool.root"]
     ConfigFlags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
