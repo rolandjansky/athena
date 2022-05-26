@@ -34,7 +34,6 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
 
   //Output object & range:
   auto bccd=std::make_unique<BunchCrossingCondData>();
-  EventIDRange range;
 
   if (m_mode == 2) { // use trigger bunch groups
     const std::vector< TrigConf::BunchGroup >& bgs =
@@ -60,15 +59,16 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
     bccd->m_trains=findTrains(bccd->m_luminous, m_maxBunchSpacing,m_minBunchesPerTrain);
     // we will only trust the validity for 1 LB but that's OK
     const auto& thisevt = ctx.eventID();
-    range = EventIDRange(EventIDBase(thisevt.run_number(), EventIDBase::UNDEFEVT, 
+    EventIDRange range = EventIDRange(EventIDBase(thisevt.run_number(), EventIDBase::UNDEFEVT, 
                                       EventIDBase::UNDEFNUM, 0, thisevt.lumi_block()),
                           EventIDBase(thisevt.run_number(), EventIDBase::UNDEFEVT,
                                       EventIDBase::UNDEFNUM, 0, thisevt.lumi_block()+1));
+    writeHdl.addDependency(range);
   }
 
   if (m_mode == 3) { // use luminosity data
     SG::ReadCondHandle<LuminosityCondData> prefLumiHdl{m_lumiCondDataKey, ctx};
-    ATH_CHECK( prefLumiHdl.range (range) );
+    writeHdl.addDependency(prefLumiHdl);
 
     // consider BCID filled if mu < 1000*average mu
     float avMu = prefLumiHdl->lbAverageInteractionsPerCrossing();
@@ -89,7 +89,7 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
   if (m_mode == 0 || m_mode == 1) { // use FILLPARAMS (data) or /Digitization/Parameters (MC)
 
     SG::ReadCondHandle<AthenaAttributeList> fillParamsHdl (m_fillParamsFolderKey, ctx);
-    ATH_CHECK( fillParamsHdl.range (range) );
+    writeHdl.addDependency(fillParamsHdl);
 
     const AthenaAttributeList* attrList=*fillParamsHdl;
 
@@ -243,7 +243,7 @@ StatusCode BunchCrossingCondAlg::execute (const EventContext& ctx) const {
     }//end else is data
   }
   
-  ATH_CHECK( writeHdl.record (range, std::move (bccd)) );
+  ATH_CHECK( writeHdl.record (std::move (bccd)) );
   return StatusCode::SUCCESS;
 }
 

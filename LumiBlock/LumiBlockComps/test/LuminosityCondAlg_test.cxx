@@ -471,7 +471,7 @@ void test4 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
   assert (rangeout->start().time_stamp() == 0);
   assert (rangeout->start().run_number() == 1);
   assert (rangeout->start().lumi_block() == 10);
-  assert (rangeout->stop().time_stamp() == EventIDBase::UNDEFNUM-1);
+  assert (rangeout->stop().time_stamp() == EventIDBase::UNDEFNUM);
   assert (rangeout->stop().run_number() == 1);
   assert (rangeout->stop().lumi_block() == 100);
  

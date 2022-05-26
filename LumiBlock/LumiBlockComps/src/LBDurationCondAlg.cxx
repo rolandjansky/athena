@@ -37,10 +37,13 @@ LBDurationCondAlg::initialize()
 StatusCode
 LBDurationCondAlg::execute (const EventContext& ctx) const
 {
+
+  SG::WriteCondHandle<LBDurationCondData> lbDurationCondData
+    (m_lbDurationOutputKey, ctx);
+
   SG::ReadCondHandle<AthenaAttributeList> lblbFolder
     (m_lblbFolderInputKey, ctx);
-  EventIDRange range;
-  ATH_CHECK( lblbFolder.range (range) );
+  lbDurationCondData.addDependency(lblbFolder);
 
   if ((**lblbFolder)["StartTime"].isNull()) {
     ATH_MSG_ERROR( "StartTime is NULL in " << m_lblbFolderInputKey.key() << "!" );
@@ -61,9 +64,8 @@ LBDurationCondAlg::execute (const EventContext& ctx) const
 
   auto lbdur = std::make_unique<LBDurationCondData> (duration);
 
-  SG::WriteCondHandle<LBDurationCondData> lbDurationCondData
-    (m_lbDurationOutputKey, ctx);
-  ATH_CHECK( lbDurationCondData.record (range, std::move (lbdur)) );
+ 
+  ATH_CHECK( lbDurationCondData.record (std::move (lbdur)) );
   return StatusCode::SUCCESS;
 }
 
