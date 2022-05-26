@@ -157,7 +157,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         return
 
-    def generateChains(self):
+    def generateChains(self, flags):
 
         all_chains = []
         combinations_in_menu = []
@@ -166,7 +166,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         for chainDict in self.chainDicts:
             log.debug("Next: getting chain configuration for chain %s ", chainDict['chainName'])
-            chainConfig,lengthOfChainConfigs = self.__generateChainConfig(chainDict)
+            chainConfig,lengthOfChainConfigs = self.__generateChainConfig(flags, chainDict)
             if Configurable.configurableRun3Behavior: 
                 # skip chain generation if no ChainConfig was found
                 if chainConfig is None:
@@ -224,7 +224,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.importSignaturesToGenerate()
 
         log.info("Will now generate the chain configuration for each chain")
-        self.generateChains()
+        self.generateChains(flags)
 
         log.info("Will now calculate the alignment parameters")
         #dict of signature: set it belongs to
@@ -332,7 +332,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             pprint.pprint(self.chainsInMenu)
 
 
-    def __generateChainConfig(self, mainChainDict):
+    def __generateChainConfig(self, flags, mainChainDict):
         """
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
@@ -444,11 +444,12 @@ class GenerateMenuMT(object, metaclass=Singleton):
                     TLABuildingSequences.addTLAStep(theChainConfig, mainChainDict)
             
                 log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-                EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
-            except TypeError:
+                EventBuildingSequences.addEventBuildingSequence(flags, theChainConfig, eventBuildType, mainChainDict)
+            except TypeError as ex:
                 if Configurable.configurableRun3Behavior: 
                     log.warning(str(NoCAmigration("[__generateChainConfigs] EventBuilding/TLA sequences failed with CA configurables")) )                                  
                 else:
+                    log.error(ex)
                     raise Exception('[__generateChainConfigs] Stopping menu generation for EventBuilding/TLA sequences. Please investigate the exception shown above.')
             
 
