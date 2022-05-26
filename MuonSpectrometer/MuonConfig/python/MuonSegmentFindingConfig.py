@@ -128,7 +128,9 @@ def MdtSegmentT0FitterCfg(flags, name="MdtSegmentT0Fitter", **kwargs):
     result.setPrivateTools(CompFactory.TrkDriftCircleMath.MdtSegmentT0Fitter(name, **kwargs))    
     return result
 
-def DCMathSegmentMakerCfg(flags, **kwargs):    
+def DCMathSegmentMakerCfg(flags, doSegmentT0Fit=None, **kwargs):
+    doSegmentT0Fit = kwargs.pop('doSegmentT0Fit', flags.Muon.doSegmentT0Fit)
+
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg
      
@@ -168,7 +170,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
 
-    if flags.Muon.doSegmentT0Fit:
+    if doSegmentT0Fit:
         mdt_dcot_CA = MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreatorAdjustableT0", TimingMode=3, \
                    DoTofCorrection=True, TimeWindowSetting=MdtCalibWindowNumber('Collision_data'))
         kwargs.setdefault("MdtCreatorT0", result.getPrimaryAndMerge(mdt_dcot_CA)) # TODO - is this correct? 
@@ -796,6 +798,9 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
         result.merge(MuonSegmentFilterAlgCfg(flags))
 
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
+    result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",
+                                                                      SegmentContainerName="NCB_TrackMuonSegments",
+                                                                      xAODContainerName="NCB_MuonSegments") )
 
     if flags.Detector.EnableMM or flags.Detector.EnablesTGC:
         result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("QuadNSW_MuonSegmentCnvAlg",
