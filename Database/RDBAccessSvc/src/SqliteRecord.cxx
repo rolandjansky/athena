@@ -64,14 +64,14 @@ float SqliteRecord::getFloat(const std::string& field) const
   return (float)getDouble(field);
 }
 
-std::string SqliteRecord::getString(const std::string& field) const
+const std::string& SqliteRecord::getString(const std::string& field) const
 {
   auto [recIt,checkCode] = checkField(field,SQLITEINP_STRING);
   if(checkCode==FIELD_CHECK_OK) {
     return std::get<std::string>(recIt->second);
   }
   handleError(field,checkCode);
-  return std::string();
+  throw std::runtime_error("Unexpected error in SqliteRecord::getString()");
 }
 
 int SqliteRecord::getInt(const std::string& field, unsigned int index) const
@@ -94,7 +94,7 @@ float SqliteRecord::getFloat(const std::string& field, unsigned int index) const
   return getFloat(field + "_" + std::to_string(index));
 }
 
-std::string SqliteRecord::getString(const std::string& field, unsigned int index) const
+const std::string& SqliteRecord::getString(const std::string& field, unsigned int index) const
 {
   return getString(field + "_" + std::to_string(index));
 }

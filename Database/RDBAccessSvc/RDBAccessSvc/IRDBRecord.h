@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,8 +13,8 @@
  */
 
 
-#ifndef _IRDBRECORD_H_
-#define _IRDBRECORD_H_
+#ifndef RDBACCESSSVC_IRDBRECORD_H
+#define RDBACCESSSVC_IRDBRECORD_H
 
 
 #include <string>
@@ -59,7 +59,7 @@ class IRDBRecord
   /// Get string field value
   /// @param fieldName [IN] field name
   /// @return field value
-  virtual std::string getString(const std::string& fieldName) const = 0;
+  virtual const std::string& getString(const std::string& fieldName) const = 0;
 
 
   // Access array values by index
@@ -93,7 +93,7 @@ class IRDBRecord
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  virtual std::string getString(const std::string& fieldName, unsigned int index) const = 0;
+  virtual const std::string& getString(const std::string& fieldName, unsigned int index) const = 0;
 
 };
 

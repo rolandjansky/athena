@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -71,7 +71,7 @@ class RDBRecord final : public IRDBRecord
   /// Get string field value
   /// @param fieldName [IN] field name
   /// @return field value
-  std::string getString(const std::string& fieldName) const override;
+  virtual const std::string& getString(const std::string& fieldName) const override;
 
   // Access array values by index
   // arrays are implemented using the field with names like NAME_0, NAME_1 etc.
@@ -104,7 +104,7 @@ class RDBRecord final : public IRDBRecord
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  std::string getString(const std::string& fieldName, unsigned int index) const override;
+  virtual const std::string& getString(const std::string& fieldName, unsigned int index) const override;
 
   // Comparison operator
   bool operator!=(const RDBRecord& rhs) const;

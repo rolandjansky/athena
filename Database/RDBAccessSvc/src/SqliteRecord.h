@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -84,7 +84,7 @@ class SqliteRecord final : public IRDBRecord
   /// Get string field value
   /// @param field [IN] field name
   /// @return field value
-  std::string getString(const std::string& field) const override;
+  virtual const std::string& getString(const std::string& field) const override;
 
   // Access array values by index
   // arrays are implemented using the field with names like NAME_0, NAME_1 etc.
@@ -117,7 +117,7 @@ class SqliteRecord final : public IRDBRecord
   /// @param field [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  std::string getString(const std::string& field, unsigned int index) const override;
+  virtual const std::string& getString(const std::string& field, unsigned int index) const override;
 
   /// Dump to cout
   void dump() const;
