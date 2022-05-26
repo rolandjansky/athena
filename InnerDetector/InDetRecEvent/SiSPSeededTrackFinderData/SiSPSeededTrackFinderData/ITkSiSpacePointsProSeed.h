@@ -48,10 +48,11 @@ namespace ITk
     
     void set(SiSpacePointForSeed*&,SiSpacePointForSeed*&,SiSpacePointForSeed*&,float);
     bool setQuality(float);
-    bool set3(InDet::SiSpacePointsSeed&);
+    bool set3(InDet::SiSpacePointsSeed&, float pTPerHelixRadius);
     void set2(InDet::SiSpacePointsSeed&);
 
   private:
+    void estimateParameters(float pTPerHelixRadius);
     
     SiSpacePointForSeed* m_s0{};
     SiSpacePointForSeed* m_s1{};
