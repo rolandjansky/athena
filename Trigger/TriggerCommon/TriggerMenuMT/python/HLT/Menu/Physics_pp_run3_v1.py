@@ -466,6 +466,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_idperf_tight_nogsf_L1eEM5', groups=SingleElectronGroup+SupportPhIGroup, monGroups=['idMon:t0']),
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_L1eEM5', groups=SingleElectronGroup+SupportPhIGroup, monGroups=['idMon:shifter']),
         ChainProp(name='HLT_e26_idperf_loose_L1eEM26M', groups=SingleElectronGroup+SupportPhIGroup),
+        ChainProp(name='HLT_e26_idperf_tight_nogsf_L1eEM26M', groups=SingleElectronGroup+SupportPhIGroup, monGroups=['idMon:shifter']),
         ChainProp(name='HLT_e26_idperf_tight_L1eEM26M', stream=[PhysicsStream,'express'], groups=SingleElectronGroup+SupportPhIGroup, monGroups=['idMon:shifter']),
         ChainProp(name='HLT_e60_idperf_medium_L1eEM26M', groups=SingleElectronGroup+SupportPhIGroup, monGroups=['idMon:t0']),
         ChainProp(name='HLT_e60_idperf_medium_nogsf_L1eEM26M', groups=SingleElectronGroup+SupportPhIGroup, monGroups=['idMon:t0']),
@@ -1259,7 +1260,7 @@ def setupMenu():
         ChainProp(name="HLT_tau35_perf_tracktwoMVABDT_L1cTAU30M", groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1cTAU30M", groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
 
-        ChainProp(name="HLT_tau80_idperf_tracktwoMVABDT_L1eTAU60", stream=[PhysicsStream,'express'], groups=SingleTauGroup+SupportPhIGroup),
+        ChainProp(name="HLT_tau80_idperf_tracktwoMVABDT_L1eTAU80", stream=[PhysicsStream,'express'], groups=SingleTauGroup+SupportPhIGroup),
 
         # Monitoring and backup MVA for Phase-1
         ChainProp(name='HLT_tau20_mediumRNN_tracktwoMVA_L1eTAU12', groups=SupportPhIGroup+SingleTauGroup),

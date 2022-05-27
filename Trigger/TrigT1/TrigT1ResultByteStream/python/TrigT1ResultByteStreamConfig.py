@@ -1,8 +1,7 @@
 #
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -192,13 +191,6 @@ def L1TriggerByteStreamEncoderCfg(flags):
 
   return acc
 
-def L1ByteStreamDecodersRecExSetup():
-  # Use new-style config from the above functions and import into old-style JO
-  CAtoGlobalWrapper(L1TriggerByteStreamDecoderCfg,ConfigFlags)
-
-def L1ByteStreamEncodersRecExSetup():
-  # Use new-style config from the above functions and import into old-style JO
-  CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg,ConfigFlags)
 
 if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags

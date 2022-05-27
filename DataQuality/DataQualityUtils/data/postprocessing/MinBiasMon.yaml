@@ -1,0 +1,8 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
+---
+Input: ['HLT/MinBiasMon/Tracking/HLT_mb_sptrk_L1RD0_FILLED/onlTrk(?P<var>Pt|Eta|Phi)',
+        'HLT/MinBiasMon/Tracking/HLT_mb_sptrk_L1RD0_FILLED/trk(?P<var>Pt|Eta|Phi)']
+Output: ['HLT/MinBiasMon/Tracking/HLT_mb_sptrk_L1RD0_FILLED/ratioTrk{var}']
+Function: TrigMinBiasMonitoring.MinBiasPostProcess.ratioOnlineOffline
+Description: Online-to-offline ratio for basic tracking

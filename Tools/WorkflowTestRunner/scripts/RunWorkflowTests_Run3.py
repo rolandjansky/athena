@@ -23,7 +23,8 @@ def main():
     tests_to_run = []
     if options.simulation:
         if not options.workflow or options.workflow is WorkflowType.FullSim:
-            tests_to_run.append(SimulationTest("s3760", run, WorkflowType.FullSim, ["EVNTtoHITS"], setup, options.extra_args + " --postInclude Campaigns/postInclude.MC21BirksConstantTune.py"))
+            ami_tag = "s3760" if not options.ami_tag else options.ami_tag
+            tests_to_run.append(SimulationTest(ami_tag, run, WorkflowType.FullSim, ["EVNTtoHITS"], setup, options.extra_args + " --postInclude Campaigns/postInclude.MC21BirksConstantTune.py"))
         if not options.workflow or options.workflow is WorkflowType.AF3:
             log.error("AF3 not supported yet")
     elif options.overlay:
@@ -31,15 +32,18 @@ def main():
         exit(1)
     elif options.pileup:
         if not options.workflow or options.workflow is WorkflowType.PileUpPresampling:
-            tests_to_run.append(PileUpTest("d1744", run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
+            ami_tag = "d1744" if not options.ami_tag else options.ami_tag
+            tests_to_run.append(PileUpTest(ami_tag, run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
     else:
         if not options.workflow or options.workflow is WorkflowType.MCReco:
+            ami_tag = "q445" if not options.ami_tag else options.ami_tag
             if "--CA" in options.extra_args:
-                tests_to_run.append(QTest("q445", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoALL"], setup, options.extra_args + " --steering doRAWtoALL"))
+                tests_to_run.append(QTest(ami_tag, run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoALL"], setup, options.extra_args + " --steering doRAWtoALL"))
             else:
-                tests_to_run.append(QTest("q445", run, WorkflowType.MCReco, ["HITtoRDO", "RDOtoRDOTrigger", "RAWtoALL"], setup, options.extra_args))
+                tests_to_run.append(QTest(ami_tag, run, WorkflowType.MCReco, ["HITtoRDO", "RDOtoRDOTrigger", "RAWtoALL"], setup, options.extra_args))
         if not options.workflow or options.workflow is WorkflowType.DataReco:
-            log.error("Data reconstruction not supported yet")
+            ami_tag = "q449" if not options.ami_tag else options.ami_tag
+            tests_to_run.append(QTest(ami_tag, run, WorkflowType.DataReco, ["RAWtoALL"], setup, options.extra_args))
 
     # Define which perfomance checks to run
     performance_checks = get_standard_performance_checks(setup)

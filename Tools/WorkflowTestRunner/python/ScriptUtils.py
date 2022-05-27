@@ -133,8 +133,8 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
     # not in global setup:
     # options.extra_args
 
-    if options.ami_tag:
-        log.error("Custom AMI tags not supported yet!")
+    if options.ami_tag and not options.workflow:
+        log.error("Custom AMI tags supported only with specific workflows!")
         exit(1)
 
     # Are we running in CI

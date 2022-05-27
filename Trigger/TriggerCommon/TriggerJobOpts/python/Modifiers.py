@@ -305,8 +305,9 @@ class rewriteLVL1(_modifier):
     # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
 
     def preSetup(self, flags):
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
-        L1ByteStreamEncodersRecExSetup()
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamEncoderCfg
+        CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg, flags)
 
     def postSetup(self, flags):
         if not flags.Output.doWriteBS:

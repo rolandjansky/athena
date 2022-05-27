@@ -105,8 +105,8 @@ protected:
         
         //Noise values applied
         // It should be 0 GeV and 1 GeV in firmware LSB scale (bitwise is using MeV right now, CHANGE IF NEEDED!)
-        int m_et_low  = 0;
-        int m_et_high = 1000.;
+        int m_et_low  = 100;
+        int m_et_high = 1000;
         
         
         std::unordered_map<int,std::vector<int> > m_map_Etvalues_EM;
