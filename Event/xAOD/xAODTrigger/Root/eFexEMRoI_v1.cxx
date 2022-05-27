@@ -217,7 +217,7 @@ namespace xAOD {
    }
 
    float eFexEMRoI_v1::Wstot() const {
-     if (WstotDenominator() > 0) return (WstotNumerator()/WstotDenominator());
+     if (WstotDenominator() > 0) return (static_cast<float>(WstotNumerator())/WstotDenominator());
      else         return -1.;
    }
 
