@@ -2,9 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <string>
-#include <vector>
-
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODParticleEvent/Particle.h"
@@ -77,7 +74,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed* inSeed, xAO
         
   //set the PFO link vector and pantau 4-vector to default values for every tau first (xAOD technicality)
   //if the tau is valid, overwrite with non-default values
-  xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
+  xAOD::TauJet* tauJet = inSeed->getTauJet();
     
   if(isBadSeed) {
     ATH_MSG_DEBUG("This seed is not useable for detail arranging (other than validity flag)");
@@ -126,10 +123,10 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed* inSeed, xAO
 }
 
 
-void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed*                            inSeed,
-                                                           std::string                            featName,
-                                                           xAOD::TauJetParameters::PanTauDetails  detailEnum,
-                                                           PanTauDetailsType                      detailType) const {
+void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed* inSeed,
+                                                           const std::string& featName,
+                                                           xAOD::TauJetParameters::PanTauDetails detailEnum,
+                                                           PanTauDetailsType detailType) const {
 
   bool isValid;
   const PanTau::TauFeature* features  = inSeed->getFeatures();
@@ -146,7 +143,7 @@ void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed*          
     theValue = -1111.;
   }
 
-  xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
+  xAOD::TauJet* tauJet = inSeed->getTauJet();
   int     valueToAddInt   = -1;
   float   valueToAddFloat = -1.1;
 
@@ -329,7 +326,7 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed* inS
 
 
 // Calculate final 4-vector:
-void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic){
+void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, const std::string& inputAlg, const std::string& varTypeName_Basic){
 
   std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks       = tauJet->chargedPFOLinks();
   std::vector< ElementLink< xAOD::PFOContainer > > finalPi0PFOLinks        = tauJet->pi0PFOLinks();
@@ -360,10 +357,9 @@ void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed* inSeed, xAOD::
 }
 
 
-bool PanTau::Tool_DetailsArranger::HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, TString inputAlg){
+bool PanTau::Tool_DetailsArranger::HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, const std::string& inputAlg){
 
-  // this is only relevant for reco 1p1n modes, hence restrict the
-  // output to these modes
+  // this is only relevant for reco 1p1n modes, hence restrict the output to these modes
 
   int nPi0sPerCluster = 1;
 
@@ -392,7 +388,7 @@ void PanTau::Tool_DetailsArranger::SetNeutralConstituentMass(xAOD::PFO* neutral_
 }
 
 
-void PanTau::Tool_DetailsArranger::SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, double mass){
+void PanTau::Tool_DetailsArranger::SetNeutralConstituentVectorMasses(const std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass){
     
   for(unsigned int iNeutral=0; iNeutral<neutralPFOLinks.size(); iNeutral++) {
     ElementLink<xAOD::PFOContainer> curNeutralPFOLink   = neutralPFOLinks.at(iNeutral);
@@ -405,7 +401,9 @@ void PanTau::Tool_DetailsArranger::SetNeutralConstituentVectorMasses(std::vector
 }
 
 
-std::vector< ElementLink< xAOD::PFOContainer > > PanTau::Tool_DetailsArranger::CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent::Type type ){
+std::vector< ElementLink< xAOD::PFOContainer > > PanTau::Tool_DetailsArranger::CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed,
+													      const std::vector< ElementLink< xAOD::PFOContainer > >& cellbased_neutralPFOLinks,
+													      PanTau::TauConstituent::Type type ){
   // collect element links from tau constituents in the Pantau
   // seed of type "type". cellbased_neutralPFOLinks is only used
   // to obtain the ElementLinks.

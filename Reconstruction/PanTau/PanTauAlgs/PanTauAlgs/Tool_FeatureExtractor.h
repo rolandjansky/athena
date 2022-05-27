@@ -66,12 +66,12 @@ namespace PanTau {
         StatusCode addImpactParameterFeatures(PanTau::PanTauSeed* inSeed) const;
         
         //Function to fill the m_Variants_SeedEt member
-        void fillVariantsSeedEt(std::vector<PanTau::TauConstituent*> tauConstituents);
+        void fillVariantsSeedEt(const std::vector<PanTau::TauConstituent*>& tauConstituents);
         
         
         //helper function to fill the m_Variants_SeedEt map
         void    addFeatureWrtSeedEnergy(PanTau::TauFeature* targetMap,
-                                        std::string featName,
+                                        const std::string& featName,
                                         double numerator,
                                         std::map<std::string, double>* denominatorMap) const;
         
