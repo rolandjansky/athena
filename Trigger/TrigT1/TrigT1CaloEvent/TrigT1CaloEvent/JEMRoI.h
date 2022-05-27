@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALO_JEMROI_H
 #define TRIGT1CALO_JEMROI_H
@@ -50,7 +50,7 @@ class JEMRoI {
  private:
 
    /// RoI word ID
-   static const int s_wordIdVal       = 0x4;
+   static const unsigned int s_wordIdVal       = 0x4;
    //  Data locations
    static const int s_wordIdBit       = 29;
    static const int s_crateBit        = 28;

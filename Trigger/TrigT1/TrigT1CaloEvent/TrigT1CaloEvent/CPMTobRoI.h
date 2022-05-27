@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1CALO_CPMTOBROI_H
 #define TRIGT1CALO_CPMTOBROI_H
@@ -50,7 +50,7 @@ class CPMTobRoI {
  private:
 
    /// RoI word ID
-   static const int s_wordIdVal       = 0xa;
+   static const unsigned int s_wordIdVal       = 0xa;
    //  Data locations
    static const int s_wordIdBit       = 28;
    static const int s_crateBit        = 26;
