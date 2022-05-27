@@ -103,7 +103,7 @@ public:
             for(std::vector<sTgcDigit>::iterator it_digit = m_digitBuffer.begin(); it_digit != m_digitBuffer.end();
                 ++it_digit) {
                 ATH_MSG_VERBOSE("Examining Digit at time : " << it_digit->time() << " charge: " << it_digit->charge());
-                if(it_digit->charge() >= m_mainThreshold || m_channelType != 1) {
+                if(it_digit->charge() >= m_mainThreshold) {
                     ATH_MSG_VERBOSE("Begin VMM READ at time : " << it_digit->time() << " charge: " << it_digit->charge());
                     beginRead(m_vmmTime); // If a digit crosses threshold, begin readout window at the beginning of the tick
                     thresh_trig = true;
