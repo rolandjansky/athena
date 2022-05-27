@@ -268,7 +268,7 @@ void PanTau::TauConstituent::addShot(TauConstituent* shot) {
 }
 
 
-std::vector<PanTau::TauConstituent*> PanTau::TauConstituent::getShots() {
+std::vector<PanTau::TauConstituent*> PanTau::TauConstituent::getShots() const {
   return m_Shots;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_DETAILSARRANGER_H
@@ -18,7 +18,8 @@
 #include "PanTauAlgs/ITool_InformationStore.h"
 #include "PanTauAlgs/TauConstituent.h"
 
-#include <TString.h>
+#include <vector>
+#include <string>
 
 namespace PanTau {
     class PanTauSeed;
@@ -56,34 +57,32 @@ namespace PanTau {
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;
         
-        void                        addPanTauDetailToTauJet(PanTauSeed*                            inSeed,
-                                                            std::string                            featName,
-                                                            xAOD::TauJetParameters::PanTauDetails  detailEnum,
-                                                            PanTauDetailsType                      detailType) const;
+        void addPanTauDetailToTauJet(PanTauSeed* inSeed,
+				     const std::string& featName,
+				     xAOD::TauJetParameters::PanTauDetails detailEnum,
+				     PanTauDetailsType detailType) const;
+	
+        StatusCode arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container);
 
-        StatusCode                        arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container);
+        void SetHLVTau(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, const std::string& inputAlg, const std::string& varTypeName_Basic);
 
-        void                        SetHLVTau(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic);
-
-	std::vector< ElementLink< xAOD::PFOContainer > > PreselectNeutralLinks(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, xAOD::TauJet* tauJet);
-
-	void StripPi0ConstsFromNeutralConsts(std::vector< ElementLink< xAOD::PFOContainer > > &neutralPFOLinks, std::vector< ElementLink< xAOD::PFOContainer > > pi0PFOLinks);
-
-	bool HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, TString inputAlg);
+	bool HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, const std::string& inputAlg);
 
 	void SetNeutralConstituentMass(xAOD::PFO* neutral_pfo, double mass);
 
-	void SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, double mass);
+	void SetNeutralConstituentVectorMasses(const std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass);
 
-	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent::Type type );
+	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed,
+											const std::vector< ElementLink< xAOD::PFOContainer > >& cellbased_neutralPFOLinks,
+											PanTau::TauConstituent::Type type );
 
 	void createPi0Vectors(xAOD::TauJet* tauJet, std::vector<TLorentzVector>& vPi0s, std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > &vec_pi0pfos);
     
-        bool        m_expectInvalidFeatures;
+        bool m_expectInvalidFeatures;
         
 	static const constexpr float MASS_PI0 = 134.98; // in MeV
         
-        double      m_CoreCone;
+        double m_CoreCone;
         std::vector<double> m_EtaBinEdges;
         std::vector<double> m_EtaBinnedEtCuts;
         
