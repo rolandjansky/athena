@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -159,13 +159,6 @@ StatusCode TauDecayModeNNClassifier::execute(xAOD::TauJet &xTau) const
       accProb(xTau) = probs[i];
     }
   }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauDecayModeNNClassifier::finalize()
-{
-  m_lwtGraph.reset(nullptr);
 
   return StatusCode::SUCCESS;
 }
