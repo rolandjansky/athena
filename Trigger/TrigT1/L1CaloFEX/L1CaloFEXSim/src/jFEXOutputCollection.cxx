@@ -9,6 +9,7 @@
 //     email                : varsiha.sothilingam@cern.ch
 //  **************************************************************************
 //
+
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 
 LVL1::jFEXOutputCollection::jFEXOutputCollection() {
@@ -27,6 +28,10 @@ LVL1::jFEXOutputCollection::~jFEXOutputCollection() {
 
     for(uint i=0; i<m_allvalues_tau.size(); i++) {
         m_allvalues_tau.at(i).reset();
+    }
+
+    for(uint i=0; i<m_allvalues_fwdEl.size(); i++) {
+      m_allvalues_fwdEl.at(i).reset();
     }
 
     for(uint i=0; i<m_allvalues_pileup.size(); i++) {
@@ -54,6 +59,10 @@ void LVL1::jFEXOutputCollection::clear()
         (*m_allvalues_tau.at(i)).clear();
     }
 
+    for(uint i=0; i<m_allvalues_fwdEl.size(); i++) {
+      (*m_allvalues_fwdEl.at(i)).clear();
+    }
+
     for(uint i=0; i<m_allvalues_pileup.size(); i++) {
         (*m_allvalues_pileup.at(i)).clear();
     }
@@ -78,6 +87,12 @@ void LVL1::jFEXOutputCollection::addValue_tau(std::string key, int value)
 {
     m_values_tem_tau.insert(std::make_pair(key, value));
 }
+
+void LVL1::jFEXOutputCollection::addValue_fwdEl(std::string key, int value)
+{
+  m_values_tem_fwdEl.insert(std::make_pair(key, value));
+}
+
 
 void LVL1::jFEXOutputCollection::addValue_pileup(std::string key, int value)
 {
@@ -110,6 +125,14 @@ void LVL1::jFEXOutputCollection::fill_tau()
     m_values_tem_tau.clear();
 
 }
+
+void LVL1::jFEXOutputCollection::fill_fwdEl()
+{
+  std::unique_ptr<std::unordered_map<std::string, int>> values_local = std::make_unique<std::unordered_map<std::string, int>>(m_values_tem_fwdEl);
+  m_allvalues_fwdEl.push_back(std::move(values_local));
+  m_values_tem_fwdEl.clear();
+
+}
 void LVL1::jFEXOutputCollection::fill_pileup()
 {
     std::unique_ptr<std::unordered_map<std::string, int>> values_local = std::make_unique<std::unordered_map<std::string, int>>(m_values_tem_pileup);
@@ -135,6 +158,10 @@ int LVL1::jFEXOutputCollection::TauSize() const
 {
     return m_allvalues_tau.size();
 }
+int LVL1::jFEXOutputCollection::FwdElSize() const
+{
+  return m_allvalues_fwdEl.size();
+}
 int LVL1::jFEXOutputCollection::PileupSize() const
 {
     return m_allvalues_pileup.size();
@@ -156,6 +183,11 @@ int LVL1::jFEXOutputCollection::get_tau(int location,std::string str_) const
 {
     return (*m_allvalues_tau.at(location))[str_];
 }
+int LVL1::jFEXOutputCollection::get_fwdEl(int location,std::string str_) const
+{
+  return (*m_allvalues_fwdEl.at(location))[str_];
+}
+
 int LVL1::jFEXOutputCollection::get_pileup(int location,std::string str_) const
 {
     return (*m_allvalues_pileup.at(location))[str_];

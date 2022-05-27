@@ -11,7 +11,6 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
-#include <string>
 #include <memory>
 
 PanTau::Tool_ModeDiscriminator::Tool_ModeDiscriminator(const std::string& name) :
@@ -63,13 +62,7 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
     ATH_MSG_ERROR("Number of variable names does not match number of default values! Check jobOptions!");
     return StatusCode::FAILURE;
   }
-    
-  // Create list of BDT variables to link to the reader    
-  m_List_BDTVariableValues = std::vector<float*>(0);
-  for (unsigned int iVar=0; iVar<m_List_BDTVariableNames.size(); iVar++) {
-    m_List_BDTVariableValues.push_back(new float(0));
-  }
-    
+  
   // Create reader for each pT Bin    
   unsigned int nPtBins = m_BinEdges_Pt.size() - 1; // nBins =  Edges-1
   for (unsigned int iPtBin=0; iPtBin<nPtBins; iPtBin++) {
@@ -98,13 +91,16 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
       return StatusCode::FAILURE;
     }
     
-    // TMVA Readers        
+    // MVAUtils BDT       
     std::unique_ptr<TFile> fBDT = std::make_unique<TFile>( resolvedWeightFileName.c_str() );
     TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
-    MVAUtils::BDT* curBDT = new MVAUtils::BDT(tBDT);
-    curBDT->SetPointers(m_List_BDTVariableValues);
+    std::unique_ptr<MVAUtils::BDT> curBDT = std::make_unique<MVAUtils::BDT>(tBDT);
+    if (curBDT == nullptr) {
+      ATH_MSG_ERROR( "Failed to create MVAUtils::BDT for " << resolvedWeightFileName );
+      return StatusCode::FAILURE;
+    }
 
-    m_MVABDT_List.push_back(curBDT);
+    m_MVABDT_List.push_back(std::move(curBDT));
         
   }//end loop over pt bins to get weight files, reference hists and MVAUtils::BDT objects
     
@@ -112,22 +108,7 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
 }
 
 
-StatusCode PanTau::Tool_ModeDiscriminator::finalize() {
-  // FIXME: use smart pointers instead
-  //delete the readers
-  for (unsigned int iReader=0; iReader<m_MVABDT_List.size(); iReader++) {
-    MVAUtils::BDT* curBDT = m_MVABDT_List[iReader];
-    if(curBDT != nullptr) delete curBDT;
-  }
-  m_MVABDT_List.clear();
-  for ( float* f : m_List_BDTVariableValues ) delete f;
-  m_List_BDTVariableValues.clear();
-
-  return StatusCode::SUCCESS;
-}
-
-
-void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* inSeed) {
+void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* inSeed, std::vector<float>& list_BDTVariableValues) {
     
   //update features used in MVA with values from current seed
   // use default value for feature if it is not present in current seed
@@ -147,8 +128,8 @@ void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* i
       seedFeatures->addFeature(curVar, newValue);
     }
         
-    *(m_List_BDTVariableValues[iVar]) = (float)newValue;
-  }//end loop over BDT vars for update
+    list_BDTVariableValues[iVar] = static_cast<float>(newValue);
+  }//end loop over BDT vars
     
   return;
 }
@@ -156,7 +137,9 @@ void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* i
 
 double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) {
     
-  updateReaderVariables(inSeed);
+  std::vector<float> list_BDTVariableValues(m_List_BDTVariableNames.size());
+
+  updateReaderVariables(inSeed, list_BDTVariableValues);
     
   if (inSeed->isOfTechnicalQuality(PanTau::PanTauSeed::t_BadPtValue)) {
     ATH_MSG_DEBUG("WARNING Seed has bad pt value! " << inSeed->getTauJet()->pt() << " MeV");
@@ -181,14 +164,7 @@ double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, b
   }
     
   //get mva response
-  MVAUtils::BDT* curBDT = m_MVABDT_List[ptBin];
-  if (curBDT == nullptr) {
-    ATH_MSG_ERROR("MVAUtils::BDT object for current tau seed points to 0");
-    isOK = false;
-    return -2.;
-  }
-    
-  double mvaResponse = curBDT->GetGradBoostMVA(m_List_BDTVariableValues);
+  double mvaResponse = m_MVABDT_List[ptBin]->GetGradBoostMVA(list_BDTVariableValues);
     
   isOK = true;
   return mvaResponse;

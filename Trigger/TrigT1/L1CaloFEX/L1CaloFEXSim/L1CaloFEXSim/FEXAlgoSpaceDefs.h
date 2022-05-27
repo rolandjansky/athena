@@ -9,7 +9,6 @@
 //     email                : jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
-
 #ifndef FEXAlgoSpaceDefs_H
 #define FEXAlgoSpaceDefs_H
 
@@ -42,8 +41,9 @@ namespace LVL1 {
     constexpr static int jFEX_algoSpace_A_lowerEM_eta = 0;
     constexpr static int jFEX_algoSpace_A_upperEM_eta = 33;
     
-    //Eta space for core and overlaps, FCAL 2 and 3
+    //Eta space for core and overlaps, FCAL 2 (33-40) and 3 (41-44)
     constexpr static int jFEX_algoSpace_A_lowerFCAL_eta = 33;
+    constexpr static int jFEX_algoSpace_A_upperFCAL2_eta = 41;
     constexpr static int jFEX_algoSpace_A_upperFCAL_eta = 45;
 
 //C side (jFEX module 0):
@@ -61,10 +61,20 @@ namespace LVL1 {
     constexpr static int jFEX_algoSpace_C_lowerEM_eta = 12;
     constexpr static int jFEX_algoSpace_C_upperEM_eta = 45;
     
-    //Eta space for core and overlaps, FCAL 2 and 3
+    //Eta space for core and overlaps, FCAL 2 (4-11) and 3 (0-3)
     constexpr static int jFEX_algoSpace_C_lowerFCAL_eta = 0;
+    constexpr static int jFEX_algoSpace_C_lowerFCAL2_eta = 4;
     constexpr static int jFEX_algoSpace_C_upperFCAL_eta = 12;
+
+    //First and second FCAL 1st layer  eta bins
+    constexpr static int jFEX_algoSpace_FCAL1_2nd =  22;
+    constexpr static int jFEX_algoSpace_A_FCAL1_1st =  21;
+    constexpr static int jFEX_algoSpace_C_FCAL1_1st =  23;
     
+    //Lowest/highest  eta for jFEX Electrons
+    constexpr static int jFEX_algoSpace_A_FwdEl_start =  14;
+    constexpr static int jFEX_algoSpace_C_FwdEl_start =  30;
+
     //Phi space breakdown
     constexpr static int jFEX_algoSpace_EMB_start_phi =  8;    
     constexpr static int jFEX_algoSpace_EMB_end_phi  = 24; 
@@ -81,6 +91,17 @@ namespace LVL1 {
       static const int jTau_etaBit = 5;
       static const int jTau_phiBit = 1;
       static const int jTau_satBit = 0;
+
+      // jFEX Forward Electrons (jEM)
+      // Data locations within word
+      static const int jEM_resBit  = 27;
+      static const int jEM_emf2Bit = 25;
+      static const int jEM_emf1Bit = 23;
+      static const int jEM_isoBit  = 21;
+      static const int jEM_etBit   = 10;
+      static const int jEM_etaBit  = 5;
+      static const int jEM_phiBit  = 1;
+      static const int jEM_satBit  = 0;
       
     // jFEX SRJets (jJ)
       // Data locations within word

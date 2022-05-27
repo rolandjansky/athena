@@ -5,7 +5,7 @@
 
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "HIMonitoring/HIMonitoringEventShapeTool.h"
+#include "HIMonitoringEventShapeTool.h"
 #include "xAODTrigMinBias/TrigT2ZdcSignals.h"
 
 #include "LWHists/TH1D_LW.h"

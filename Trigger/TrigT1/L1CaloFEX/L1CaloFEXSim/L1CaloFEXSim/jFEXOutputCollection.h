@@ -8,7 +8,6 @@
 //     email                : varsiha.sothilingam@cern.ch
 //  **************************************************************************
 
-
 #ifndef JFEX_OUTPUT_COLLECTION_H
 #define JFEX_OUTPUT_COLLECTION_H
 
@@ -32,12 +31,15 @@ class jFEXOutputCollection
         void fill_largeRJet();
         void addValue_tau(std::string, int);
         void fill_tau();
+        void addValue_fwdEl(std::string, int);
+        void fill_fwdEl();
         void addValue_pileup(std::string, int);
         void addValue_pileup(std::string, std::vector<int> );
         void fill_pileup();
         int SRJetSize() const;
         int LRJetSize() const;
         int TauSize() const;
+        int FwdElSize() const;
         int PileupSize() const;
         int PileupEtSize() const;
         void setdooutput(bool);
@@ -45,6 +47,7 @@ class jFEXOutputCollection
         int get_smallRJet(int,std::string) const;
         int get_largeRJet(int,std::string) const;
         int get_tau(int,std::string) const;
+        int get_fwdEl(int,std::string) const;
         int get_pileup(int,std::string) const;
         std::vector<int> get_pileup_map(int,std::string) const;
     private:
@@ -55,6 +58,8 @@ class jFEXOutputCollection
         std::vector<std::unique_ptr<std::unordered_map<std::string, int>> > m_allvalues_largeRJet;
         std::unordered_map<std::string, int> m_values_tem_tau;
         std::vector<std::unique_ptr<std::unordered_map<std::string, int>> > m_allvalues_tau;
+	std::unordered_map<std::string, int> m_values_tem_fwdEl;
+	std::vector<std::unique_ptr<std::unordered_map<std::string, int>> > m_allvalues_fwdEl;
         std::unordered_map<std::string, int> m_values_tem_pileup;
         std::vector< std::unique_ptr<std::unordered_map<std::string, int>> > m_allvalues_pileup;
         std::unordered_map<std::string, std::vector<int> > m_values_tem_pileup_maps;

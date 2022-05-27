@@ -1219,23 +1219,41 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
     # In the old configuration this was split over several functions. But since these Stau tools are only used here,
     # trying a new approach. We can always refactorise later if necessary.
 
-    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonPRDSelectionToolCfg
     from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryToolCfg
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg, MuonSeededSegmentFinderCfg
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg
 
+    kwargs.setdefault("DoSummary", flags.Muon.printSummary)
     kwargs.setdefault("ConsideredPDGs", [13, -13, 1000015, -1000015])
     kwargs.setdefault("DoTruth", flags.Input.isMC)
-    kwargs.setdefault("DoSummary", flags.Muon.printSummary)
-    result = MdtDriftCircleOnTrackCreatorStauCfg(flags)
+
+    result = MuonEDMPrinterToolCfg(flags)
+    # Not setting up MuonIdHelperSvc nor MuonEDMHelperSvc
+    kwargs.setdefault("MuonEDMPrinterTool", result.getPrimary())
+
     # This is going to be used in a few tools below
-    rotcreator = result.popPrivateTools()
+    rotcreator = result.popToolsAndMerge( MdtDriftCircleOnTrackCreatorStauCfg(flags))
 
     segmentmaker = result.popToolsAndMerge(DCMathSegmentMakerCfg(
         flags, name="DCMathStauSegmentMaker", MdtCreator=rotcreator))
-    # Also used by MuonSeededSegmentFinder below
+    # segmentmaker also used by MuonSeededSegmentFinder below
     kwargs.setdefault("MuonSegmentMaker", segmentmaker)
+    kwargs.setdefault("MuonSegmentMakerT0Fit", result.popToolsAndMerge(DCMathSegmentMakerCfg(
+        flags, name="DCMathStauSegmentMaker", MdtCreator=rotcreator, doSegmentT0Fit=True)))
 
+    kwargs.setdefault("MuonLayerSegmentMatchingTool", result.popToolsAndMerge(MuonLayerSegmentMatchingToolCfg(flags)))
+
+    # Not configuring MuonRecoValidationTool as it is off by default, but it would need configuring if used
+    kwargs.setdefault("TrackAmbiguityProcessor",
+                      result.popToolsAndMerge(MuonAmbiProcessorCfg(flags)))
+    # I don't believe MuonHitTimingTool needs configuration.
+    kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge(
+        MuonPRDSelectionToolCfg(flags)))
+    kwargs.setdefault("MuonPRDSelectionToolStau", result.popToolsAndMerge(
+        MuonPRDSelectionToolCfg(flags, MdtDriftCircleOnTrackCreator=rotcreator)))
+    kwargs.setdefault("MdtDriftCircleOnTrackCreator",   result.popToolsAndMerge(MdtDriftCircleOnTrackCreatorCfg(flags)))
     # Now setup MuonInsideOutRecoTool property of MuonStauRecoTool. Long chain here! Could split for clarity. Another option would be to have a Stau flag on
     # shared tool functions.
     chamberholerecoverytool = result.popToolsAndMerge(
@@ -1253,12 +1271,10 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
     kwargs.setdefault("MuonInsideOutRecoTool", result.popToolsAndMerge(
         MuonInsideOutRecoToolCfg(flags, MuonCandidateTrackBuilderTool=muoncandidatetrackbuilder)))
     # Rest
-    kwargs.setdefault("TrackAmbiguityProcessor",
-                      result.popToolsAndMerge(MuonAmbiProcessorCfg(flags)))
+
     kwargs.setdefault("MdtCalibrationDbTool", result.popToolsAndMerge(
         MdtCalibrationDbToolCfg(flags)))
 
-    kwargs.setdefault("MuonLayerSegmentMatchingTool", result.popToolsAndMerge(MuonLayerSegmentMatchingToolCfg(flags)))
 
     tool = CompFactory.MuonCombined.MuonStauRecoTool(name, **kwargs)
     result.setPrivateTools(tool)

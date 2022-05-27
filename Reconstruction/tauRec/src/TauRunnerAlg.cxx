@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TauRunnerAlg.h"
@@ -41,7 +41,7 @@ StatusCode TauRunnerAlg::initialize() {
   //-------------------------------------------------------------------------
   // No tools allocated!
   //-------------------------------------------------------------------------
-  if (m_tools.size() == 0) {
+  if (m_tools.empty()) {
     ATH_MSG_ERROR("no tools given!");
     return StatusCode::FAILURE;
   }
@@ -79,28 +79,6 @@ StatusCode TauRunnerAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-//-----------------------------------------------------------------------------
-// Finalizer
-//-----------------------------------------------------------------------------
-StatusCode TauRunnerAlg::finalize() {
-
-  StatusCode sc;
-
-  //-----------------------------------------------------------------
-  // Loop stops when Failure indicated by one of the tools
-  //-----------------------------------------------------------------
-  for (ToolHandle<ITauToolBase>& tool : m_tools) {
-    ATH_MSG_VERBOSE("Invoking tool " << tool->name());
-    sc = tool->finalize();
-    if (sc.isFailure()) break;
-  }
-
-  if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("All the invoded tools are finilized successfully.");
-  } 
-
-  return StatusCode::SUCCESS;
-}
 
 //-----------------------------------------------------------------------------
 // Execution

@@ -149,7 +149,7 @@ StatusCode PanTau::Tool_InformationStore::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PanTau::Tool_InformationStore::getInfo_Int(const std::string& varName, int& value) {  
+StatusCode PanTau::Tool_InformationStore::getInfo_Int(const std::string& varName, int& value) const {
   MapInt::const_iterator it = m_Infos_Int.find(varName);
   if(it == m_Infos_Int.end()) {
     ATH_MSG_ERROR("getInfo_Int: No integer information called " << varName << " present in InformationStore");
@@ -159,7 +159,7 @@ StatusCode PanTau::Tool_InformationStore::getInfo_Int(const std::string& varName
   return StatusCode::SUCCESS;
 }
 
-StatusCode PanTau::Tool_InformationStore::getInfo_Double(const std::string& varName, double& value) {
+StatusCode PanTau::Tool_InformationStore::getInfo_Double(const std::string& varName, double& value) const {
   MapDouble::const_iterator it = m_Infos_Double.find(varName);
   if(it == m_Infos_Double.end()) {
     ATH_MSG_ERROR("getInfo_Double: No double information called " << varName << " present in InformationStore");
@@ -169,7 +169,7 @@ StatusCode PanTau::Tool_InformationStore::getInfo_Double(const std::string& varN
   return StatusCode::SUCCESS;
 }
 
-StatusCode PanTau::Tool_InformationStore::getInfo_VecDouble(const std::string& varName, std::vector<double>& value) {
+StatusCode PanTau::Tool_InformationStore::getInfo_VecDouble(const std::string& varName, std::vector<double>& value) const {
   MapVecDouble::const_iterator it = m_Infos_VecDouble.find(varName);
   if(it == m_Infos_VecDouble.end()) {
     ATH_MSG_ERROR("getInfo_VecDouble: No double information called " << varName << " present in InformationStore");
@@ -179,7 +179,7 @@ StatusCode PanTau::Tool_InformationStore::getInfo_VecDouble(const std::string& v
   return StatusCode::SUCCESS;
 }
 
-StatusCode PanTau::Tool_InformationStore::getInfo_String(const std::string& varName, std::string& value) {
+StatusCode PanTau::Tool_InformationStore::getInfo_String(const std::string& varName, std::string& value) const {
   MapString::const_iterator it = m_Infos_String.find(varName);
   if(it == m_Infos_String.end()) {
     ATH_MSG_ERROR("getInfo_String: No string information called " << varName << " present in InformationStore");
@@ -189,7 +189,7 @@ StatusCode PanTau::Tool_InformationStore::getInfo_String(const std::string& varN
   return StatusCode::SUCCESS;
 }
 
-StatusCode PanTau::Tool_InformationStore::getInfo_VecString(const std::string& varName, std::vector<std::string>& value) {
+StatusCode PanTau::Tool_InformationStore::getInfo_VecString(const std::string& varName, std::vector<std::string>& value) const {
   MapVecString::const_iterator it = m_Infos_VecString.find(varName);
   if(it == m_Infos_VecString.end()) {
     ATH_MSG_ERROR("getInfo_VecString: No std::string information called " << varName << " present in InformationStore");

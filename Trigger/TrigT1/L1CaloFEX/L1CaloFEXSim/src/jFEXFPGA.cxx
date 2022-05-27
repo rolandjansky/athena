@@ -8,6 +8,7 @@
 //     begin                : 19 10 2020
 //     email                : jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
+
 #include "L1CaloFEXSim/jFEXFPGA.h"
 #include "L1CaloFEXSim/jTower.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
@@ -26,6 +27,7 @@
 #include "L1CaloFEXSim/jFEXForwardJetsAlgo.h"
 #include "L1CaloFEXSim/jFEXForwardJetsInfo.h"
 #include "L1CaloFEXSim/jFEXForwardElecAlgo.h"
+#include "L1CaloFEXSim/jFEXForwardElecInfo.h"
 #include "L1CaloFEXSim/jFEXPileupAndNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -87,7 +89,7 @@ void jFEXFPGA::reset() {
     m_map_Etvalues_FPGA.clear();
     m_map_EM_Etvalues_FPGA.clear();
     m_map_HAD_Etvalues_FPGA.clear();
-
+    m_FwdEl_tobwords.clear();
 }
 
 StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
@@ -358,15 +360,51 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
         //********** Forward Electrons ***********************
         ATH_CHECK(m_jFEXForwardElecAlgoTool->safetyTest());
         ATH_CHECK(m_jFEXForwardElecAlgoTool->reset());
-        m_jFEXForwardElecAlgoTool->setFPGAEnergy(m_map_EM_Etvalues_FPGA,m_map_HAD_Etvalues_FPGA);
-        
-        /* This is a work in progress, PLEASE DO NOT REMOVE IT YET
-         * To enter in the algorithm, just uncomment the line below
-         * it should also enter when is a FWD FPGA so 8 times per eventloop
-        m_jFEXForwardElecAlgoTool->setup();        
-        */
-        
+        m_jFEXForwardElecAlgoTool->setFPGAEnergy(m_map_EM_Etvalues_FPGA,m_map_HAD_Etvalues_FPGA);        
+	m_jFEXForwardElecAlgoTool->setup(m_jTowersIDs_Wide,m_jfexid,m_id);
+        m_ForwardElecs = m_jFEXForwardElecAlgoTool->calculateEDM();
 
+        /// Retrieve the L1 menu configuration 
+	SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
+	const TrigConf::L1ThrExtraInfo_jEM & thr_jEM = l1Menu->thrExtraInfo().jEM();
+        const uint jFEXETResolution = thr_jEM.resolutionMeV();//200 
+	std::string str_jfexname = m_jfex_string[m_jfexid];
+	uint minEtThreshold = thr_jEM.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
+	//uint Cval[9] = {1,2,3,20,30,40,20,30,40};//C values for iso, emfr1 and emfr2    
+	std::vector<uint> Ciso;
+	std::vector<uint> Chad1;
+	std::vector<uint> Chad2;
+
+	for(std::unordered_map<uint, jFEXForwardElecInfo>::iterator itel = m_ForwardElecs.begin(); itel!=(m_ForwardElecs.end()); ++itel) {
+	  uint32_t TTID = itel->first;
+	  jFEXForwardElecInfo elCluster = itel->second;
+	  uint meta = elCluster.getCoreIeta();//check whether this is the one used by the Trigger conf
+
+	  //retrieve jet rejection thresholds from trigger configuration
+	  auto wp_loose  = thr_jEM.isolation(TrigConf::Selection::WP::LOOSE, meta);
+	  auto wp_medium = thr_jEM.isolation(TrigConf::Selection::WP::MEDIUM, meta);
+	  auto wp_tight  = thr_jEM.isolation(TrigConf::Selection::WP::TIGHT, meta);
+	  Ciso.clear();
+	  Chad1.clear();
+	  Chad2.clear();
+	  Ciso.push_back(wp_loose.iso_fw());
+	  Ciso.push_back(wp_medium.iso_fw());
+	  Ciso.push_back(wp_tight.iso_fw());
+	  Chad1.push_back(wp_loose.frac_fw());
+	  Chad1.push_back(wp_medium.frac_fw());
+	  Chad1.push_back(wp_tight.frac_fw());
+	  Chad2.push_back(wp_loose.frac2_fw());
+	  Chad2.push_back(wp_medium.frac2_fw());
+	  Chad2.push_back(wp_tight.frac2_fw());
+	  uint Cval[9] = {Ciso[0], Ciso[1], Ciso[2], Chad1[0], Chad1[1], Chad1[2], Chad2[0], Chad2[1], Chad2[2]};
+
+	  elCluster.setup(Cval,jFEXETResolution);
+          elCluster.calcFwdElEDM();
+	  uint etEM = elCluster.getEt();
+	  uint32_t FwdEl_tobword = elCluster.getTobWord();
+	  std::vector<uint32_t> FwdEltob_aux{FwdEl_tobword,TTID};
+	  if ( FwdEl_tobword != 0  && etEM>minEtThreshold) m_FwdEl_tobwords.push_back(FwdEltob_aux);
+	}
     
         //******************************** TAU **********************************************
         int jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
@@ -516,6 +554,27 @@ std::vector <std::vector <uint32_t>> jFEXFPGA::getLargeRJetTOBs()
     return tobsSort;
 
 }
+
+  std::vector <std::vector <uint32_t>> jFEXFPGA::getFwdElTOBs()
+  {
+    auto tobsSort = m_FwdEl_tobwords;
+
+    ATH_MSG_DEBUG("number of Forward Elec tobs: " << tobsSort.size() << " in FPGA: " << m_id<< " before truncation");
+    //sort tobs by their et 
+    std::sort (tobsSort.begin(), tobsSort.end(), etFwdElSort);
+
+   
+    while(tobsSort.size()<5) {
+      std::vector <uint32_t> v{0,0};
+      tobsSort.push_back(v);
+    }
+   
+    tobsSort.resize(5);
+
+  
+    return tobsSort;
+
+  }
 
 uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
     uint32_t tobWord = 0;

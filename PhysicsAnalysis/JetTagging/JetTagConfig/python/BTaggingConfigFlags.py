@@ -34,7 +34,7 @@ def getTaggerList(flags):
     # NOTE: MV2c10 is deprecated but something in trigger is asking
     # for it... maybe online monitoring?
     base = ['IP2D','IP3D','SV1','JetFitterNN']
-    flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip']
+    flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip','SV1Flip']
     if flags.BTagging.RunFlipTaggers:
         return base + flip
     return base

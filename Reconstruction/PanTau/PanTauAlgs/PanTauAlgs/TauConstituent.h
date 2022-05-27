@@ -146,7 +146,7 @@ namespace PanTau {
     const xAOD::PFO*                        getPFO() const;
     
     void                                    addShot(TauConstituent* shot);
-    std::vector<TauConstituent*>            getShots();
+    std::vector<TauConstituent*>            getShots() const;
     unsigned int                            getNShots() const;
     
     void                                    setNPhotonsInShot(int nPhotons);
