@@ -24,7 +24,9 @@ def writeDigitizationMetadata(ConfigFlags):
                           'IOVDbGlobalTag' : 'IOVDb.GlobalTag',
                           'DetDescrVersion' : 'GeoModel.AtlasVersion',
                           'finalBunchCrossing' : 'Digitization.PU.FinalBunchCrossing',
-                          'initialBunchCrossing' : 'Digitization.PU.InitialBunchCrossing'
+                          'initialBunchCrossing' : 'Digitization.PU.InitialBunchCrossing',
+                          'physicsList' : 'Sim.PhysicsList', #TODO migrate clients to use /Simulation/Parameters metadata?
+                          'digiSteeringConf' : 'Digitization.DigiSteeringConf'
                       }
     logDigitizationWriteMetadata.info('Filling Digitization MetaData')
     for testKey, testFlag in digitMetaDataKeys.items():
