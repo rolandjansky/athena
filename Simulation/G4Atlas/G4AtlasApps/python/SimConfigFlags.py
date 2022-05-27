@@ -56,7 +56,17 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.G4Version", _check_G4_version)
 
-    scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
+    def _checkPhysicsListConf(prevFlags):
+        physicsList = "FTFP_BERT_ATL"
+        if prevFlags.Input.Files:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            physicsList = GetFileMD(prevFlags.Input.Files).get("PhysicsList", "")
+            if not physicsList:
+                # Currently physicsList is also part of /Digitization/Parameters metadata. TODO migrate away from this.
+                physicsList = GetFileMD(prevFlags.Input.Files).get("physicsList", "FTFP_BERT_ATL")
+        return physicsList
+
+    scf.addFlag("Sim.PhysicsList", _checkPhysicsListConf)
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
     scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics

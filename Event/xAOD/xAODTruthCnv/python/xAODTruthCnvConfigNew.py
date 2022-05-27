@@ -17,15 +17,9 @@ def GEN_AOD2xAODCfg(flags, name="GEN_AOD2xAOD", **kwargs):
 
     writeInTimePileUpTruth=False
 
-    # Use digiSteeringConf from metadata to write full-PU truth
-    # Not available yet in metadata
-
-    from PyUtils.MetaReader import read_metadata
-    infile = flags.Input.Files[0]
-    thisFileMD = read_metadata(infile, None, 'full')
-    metadata = thisFileMD[infile]
-    digiSteeringConf = metadata['/Digitization/Parameters'].get("digiSteeringConf","")
-    if digiSteeringConf == 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg':
+    # Use digiSteeringConf from metadata to check whether full-PU
+    # truth should be written.
+    if flags.Digitization.DigiSteeringConf == 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg':
         writeInTimePileUpTruth = True
 
     kwargs.setdefault('WriteInTimePileUpTruth',  writeInTimePileUpTruth)
