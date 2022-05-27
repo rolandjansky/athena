@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // BarrelCryostatConstruction
@@ -198,7 +198,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope(const VDetectorP
   for (unsigned int ind=0; ind<cryoPcons->size(); ind++)
   {
     int key = (*cryoPcons)[ind]->getInt("PLANE_ID");
-    std::string pconName = (*cryoPcons)[ind]->getString("PCON");
+    const std::string& pconName = (*cryoPcons)[ind]->getString("PCON");
     if(pconName=="Barrel::InnerWall")
       innerWallPlanes[key] = ind;
     if (pconName=="Barrel::InnerEndWall")
@@ -620,19 +620,18 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope(const VDetectorP
 							      larVersionKey.node());
     if (extraCones->size() > 0 ) {
       int nextra=0;
-      for (unsigned int i=0; i<extraCones->size(); i++) {
-	std::string conName = (*extraCones)[i]->getString("CONE");
-	//      std::cout << " cone name " << conName << std::endl;
+      for(auto cone : *extraCones) {
+	const std::string& conName = cone->getString("CONE");
 	if (conName.find("ExtraInCryo") != std::string::npos) {
 	  nextra++;
-	  double extra_dz = 0.5*( (*extraCones)[i]->getDouble("DZ") );
-	  double extra_rmin1 = (*extraCones)[i]->getDouble("RMIN1");
-	  double extra_rmin2 = (*extraCones)[i]->getDouble("RMIN2");
-	  double extra_rmax1 = (*extraCones)[i]->getDouble("RMAX1");
-	  double extra_rmax2 = (*extraCones)[i]->getDouble("RMAX2");
-	  double extra_phi0  = (*extraCones)[i]->getDouble("PHI0");
-	  double extra_dphi  = (*extraCones)[i]->getDouble("DPHI");
-	  double extra_zpos  = (*extraCones)[i]->getDouble("ZPOS");
+	  double extra_dz = 0.5*( cone->getDouble("DZ") );
+	  double extra_rmin1 = cone->getDouble("RMIN1");
+	  double extra_rmin2 = cone->getDouble("RMIN2");
+	  double extra_rmax1 = cone->getDouble("RMAX1");
+	  double extra_rmax2 = cone->getDouble("RMAX2");
+	  double extra_phi0  = cone->getDouble("PHI0");
+	  double extra_dphi  = cone->getDouble("DPHI");
+	  double extra_zpos  = cone->getDouble("ZPOS");
 	  // GU 20-feb-06
 	  // if extra_dphi is close to 2pi (6.283185) it seems safer for G4 navigation
 	  // to impose exactly same dphi as mother volume instead of a sligthly smaller dphi
@@ -920,7 +919,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope(const VDetectorP
 	  cylStream << "LAr::Barrel::Cryostat::";
 
 	  if (!currentRecord->isFieldNull("QUALIFIER")) {
-	    std::string qualifier = currentRecord->getString("QUALIFIER");
+	    const std::string& qualifier = currentRecord->getString("QUALIFIER");
 	    if (qualifier.size()) cylStream << qualifier << "::";
 	  }
 	  cylStream <<  "Cylinder::#" << currentRecord->getInt("CYL_ID");
