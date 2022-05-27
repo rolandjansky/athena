@@ -410,8 +410,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 	  if ( m_mcTruth ) tnp = new TagNProbe( "Truth",   massMin, massMax );
 	  else             tnp = new TagNProbe( "Offline", massMin, massMax );
 
-	  tnp->tag(tag) ;
-	  tnp->probe(probe) ;
+	  tnp->tag(tag.raw()) ;
+	  tnp->probe(probe.raw()) ;
 	  
 	  ATH_MSG_DEBUG( "Tag and probe pair found: " << tag << " : " << probe );
 	  
@@ -514,22 +514,19 @@ StatusCode TrigR3Mon::fillHistograms(const EventContext &/*context*/) const {
   int passed_count = 0;
   
   /// print out all the configured chains if need be
-  /// not properly thread safe, but only for printout so ok
-  static bool first = true;
-  for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
-    if ( first ) ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
-  }
-
-#if 1
-  if ( first ) { 
+  if ( m_first ) { 
+    for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
+      ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
+    }
+    
     for ( size_t i=selectChains.size() ; i-- ; ) {
       if ( i>5 ) i=5;
       ATH_MSG_INFO( "^[[91;1m" << "configured chain " << selectChains[i] << "^[[m" );
     }
   }
-#endif
-
-  first = false;
+  
+  /// not properly thread safe, but it is only protects printout on the first event so should be ok 
+  m_first = false;
 
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
     if ( m_tdt->isPassed(selectChains[i]) ) {
