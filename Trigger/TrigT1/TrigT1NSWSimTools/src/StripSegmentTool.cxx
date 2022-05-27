@@ -153,7 +153,8 @@ namespace NSWL1 {
 
       bandId=cl->bandId();
 
-      std::string id_str=std::to_string(hash)+std::to_string(bandId);
+      
+      std::string id_str=std::to_string(hash)+"000"+std::to_string(bandId); // [1,32]*1000 + [0,90](could be extended in the future), the 1000 factor promise there's no confusion, such as '1'+'12" and '11'+'2'
       uint32_t hash_bandid=atoi(id_str.c_str());
 
       // use the clusters in 2 wedges, with the same bandId, to form the sector segment
@@ -254,9 +255,6 @@ namespace NSWL1 {
 
       ATH_MSG_DEBUG("StripSegmentTool: phi:" << phi << " theta:" << theta << " eta: " << eta << " theta_inf: " << theta_inf << " eta_inf: " << eta_inf << " dtheta: " << dtheta);
 
-      //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
-      if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
-
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
 
@@ -282,8 +280,6 @@ namespace NSWL1 {
       bool phiRes=true;
       bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
       uint8_t dtheta_int=findDtheta(dtheta);
-      auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);
-      trgRawData->push_back(std::move(rdo_segment));
 
       if (m_doNtuple) {
         m_seg_wedge1_size->push_back(band.second[0].size());
@@ -301,7 +297,13 @@ namespace NSWL1 {
         m_seg_global_y->push_back(gly);
         m_seg_global_z->push_back(avg_z);
       }
+
+      //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
+      if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
+      auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);
+      trgRawData->push_back(std::move(rdo_segment));
       trgContainer->push_back(std::move(trgRawData));
+      
     }//end of clmap loop
     return StatusCode::SUCCESS;
   }

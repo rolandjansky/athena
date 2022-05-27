@@ -407,7 +407,8 @@ namespace NSWL1 {
         }
 
       }
-          
+      
+      std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > cluster_cache;
       for (auto &item : stripMap) {
         std::vector<std::unique_ptr<StripData>>& stripList = item.second;
       
@@ -421,8 +422,7 @@ namespace NSWL1 {
         int prev_ch=-1;
 
         auto cr_cluster=std::make_shared< std::vector<std::unique_ptr<StripData>> >();
-        std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > cluster_cache;
-
+        
         for(auto& this_hit : stripList){
           if(!(this_hit)->readStrip() ) continue;
           if( ((this_hit)->bandId()==-1 || this_hit->phiId()==-1) ){
@@ -431,7 +431,7 @@ namespace NSWL1 {
             continue;
           }
 
-          if (first_ch==(this_hit)->channelId()){//for the first time...
+          if (prev_ch==-1){//for the first time...
             prev_ch = first_ch;
             cr_cluster->push_back(std::move(this_hit));
             continue;
@@ -454,11 +454,11 @@ namespace NSWL1 {
         }
 
         if(!cr_cluster->empty()) cluster_cache.push_back(std::move(cr_cluster));    //don't forget the last cluster in the loop
-
-        ATH_MSG_DEBUG("Found :" << cluster_cache.size() << " clusters");
-        ATH_CHECK(fill_strip_validation_id(clusters, cluster_cache));
-        cluster_cache.clear();
       }
+
+      ATH_MSG_DEBUG("Found :" << cluster_cache.size() << " clusters");
+      ATH_CHECK(fill_strip_validation_id(clusters, cluster_cache));
+      cluster_cache.clear();
 
       return StatusCode::SUCCESS;
   }
