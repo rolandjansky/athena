@@ -586,10 +586,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         else
           newTime += globalHitTime;
 
-        float newCharge = -1.;
-        if(newChannelType==1)
-          newCharge = (*it_digiHits)->charge();
-        Identifier elemId = m_idHelperSvc->stgcIdHelper().elementID(newDigitId);
+        float newCharge = (*it_digiHits)->charge();
 
         if(newChannelType!=0 && newChannelType!=1 && newChannelType!=2) {
           ATH_MSG_WARNING( "Wrong channelType " << newChannelType );
@@ -608,6 +605,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         ATH_MSG_VERBOSE(" digitTime = " << newDigit.time()) ;
         ATH_MSG_VERBOSE(" charge = "    << newDigit.charge()) ;
 
+
         // Create a MuonSimData (SDO) corresponding to the digit
         MuonSimData::Deposit deposit(particleLink, MuonMCData(hit.depositEnergy(), tof));
         std::vector<MuonSimData::Deposit> deposits;
@@ -619,6 +617,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         simData.setPosition(glob_hitOnSurf_wire);
         simData.setTime(globalHitTime);
 
+        Identifier elemId = m_idHelperSvc->stgcIdHelper().elementID(newDigitId);
         if(newChannelType == 0){ //Pad Digit
           //Put the hit and digit in a vector associated with the RE
           unmergedPadDigits[elemId][newDigitId].emplace_back(simData, newDigit);
@@ -1003,7 +1002,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
-    if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
       // Change strip charge to PDO
       // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
       // Conversion from V to PDO from Shandong Cosmics tests: PDO = mV * 1.0304 + 59.997
@@ -1016,7 +1014,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       chargeAfterSmearing = chargeAfterSmearing*1.0304;
       
       if (chargeAfterSmearing < 1.0) continue;
-    }
 
     std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 

@@ -640,7 +640,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     }  
     newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, padNumber, isValid);
     if(isValid) {  
-      addDigit(digits.get(), newId, bctag, sDigitTimePad, channelType);
+      addDigit(digits.get(), newId, bctag, sDigitTimePad, 0.5*total_charge, channelType);
     }
     else if(padNumber != -1) {  
       ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
@@ -691,7 +691,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   
         if(isValid) {
           int NumberOfWiregroups = detEl->numberOfStrips(newId);
-          if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(digits.get(), newId, bctag, sDigitTimeWire, channelType);
+          if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(digits.get(), newId, bctag, sDigitTimeWire, total_charge, channelType);
         } // end of if(isValid)
         else if (wiregroupNumber != -1){
           ATH_MSG_ERROR("Failed to obtain wiregroup identifier " << m_idHelper->print_to_string(newId) );
@@ -915,13 +915,20 @@ void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, 
 
 void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const {
 
-  if(channelType!=sTgcIdHelper::sTgcChannelTypes::Strip) {
+  if ((channelType==sTgcIdHelper::sTgcChannelTypes::Pad) || 
+      (channelType==sTgcIdHelper::sTgcChannelTypes::Strip) ||
+      (channelType==sTgcIdHelper::sTgcChannelTypes::Wire))
+  {
+    ATH_MSG_VERBOSE("Adding to the collection a sTGC digit, channelType = " << channelType 
+                    << " time = " << digittime << " charge = " << charge);
+  } else {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
   }
 
   bool duplicate = false;
+  float tolerance = 0.1;
   for(sTgcDigitCollection::iterator it=digits->begin(); it!=digits->end(); ++it) {
-    if(id==(*it)->identify() && digittime==(*it)->time()) {
+    if(id==(*it)->identify() && (std::abs(digittime - (*it)->time()) < tolerance)) {
       (*it)->set_charge(charge+(*it)->charge());  
       duplicate = true;
       break;

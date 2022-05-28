@@ -19,6 +19,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 
+
 namespace LVL1 {
   
 /*
@@ -42,6 +43,7 @@ Interface definition for jFEXSim
     virtual std::vector<std::vector<std::vector<uint32_t>>> getSmallRJetTOBs() =0;
     virtual std::vector<std::vector<std::vector<uint32_t>>> getLargeRJetTOBs() =0;
     virtual std::vector<std::vector<std::vector<uint32_t>>> getTauTOBs() =0;
+    virtual std::vector<std::vector<std::vector<uint32_t>>> getFwdElTOBs() =0;
     virtual std::vector<std::vector<uint32_t>> getSumEtTOBs() =0;
     virtual std::vector<std::vector<uint32_t>> getMetTOBs() =0;
 

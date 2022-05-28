@@ -157,25 +157,25 @@ def JetTagMonitorConfig(inputFlags):
 
     #General histograms: cutflow, run, PV, tracks, hits
     GeneralGroup.defineHistogram('Cutflow_Event',
-                                 title='Event CutFlow;Pass Event CutFlow;Events',
-                                 path='Shifter',
-                                 xbins=8,
-                                 xmin=-0.5,
-                                 xmax=7.5,
-                                 xlabels=["All", "Good LAr", "PV present", 
-                                          "PV Tracks", "Iso lepton", ">= 1 El", 
-                                          ">=1 Mu", ""]
-                                )
-
-    GeneralGroup.defineHistogram('Cutflow_Jet',
-                                 title='Jet CutFlow;Pass Jet CutFlow;Jets',
+                                 title='Event CutFlow;Pass;Events',
                                  path='Shifter',
                                  xbins=9,
                                  xmin=-0.5,
                                  xmax=8.5,
+                                 xlabels=["All", "Good LAr", "PV present", 
+                                          "PV Tracks", "Iso lepton", ">= 1 El", 
+                                          ">=1 Mu", "", ""]
+                                )
+
+    GeneralGroup.defineHistogram('Cutflow_Jet',
+                                 title='Jet CutFlow;Pass;Jets',
+                                 path='Shifter',
+                                 xbins=10,
+                                 xmin=-0.5,
+                                 xmax=9.5,
                                  xlabels=["All", "Filter", "Kinematic", 
                                           "JVT", "Overlap", "Good", 
-                                          "Suspect", "Bad", ""]
+                                          "Suspect", "Bad", "", ""]
                                 )
 
     GeneralGroup.defineHistogram('Run_lb',title='Lumi Block;LB;Events',path='Expert',xbins=1000,xmin=-0.5,xmax=999.5)
@@ -452,8 +452,8 @@ if __name__=='__main__':
     
     #Data r22 ART input working:
     #ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_ORD22/run/DQ_ARTs/myESD.data15HI.15Mar.root"] #ESD from ART test, 15 Mar 22, data15_heavy_ion
-    ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ/dq_devel/run/AOD_folder/AOD.27639508._001258.pool.root.1"] #AOD, data18_13TeV
-    #ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ_art/myESD.pool.root"] #ESD from ART test, 15 Feb 22, data18
+    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_MAY22/run/DQ_ARTs/myESD.data18.26May.root"] #ESD from 22.0 ART, 25 May 22, data18_13TeV
+    #ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ/dq_devel/run/AOD_folder/AOD.27639508._001258.pool.root.1"] #AOD, data18_13TeV
     ConfigFlags.Input.isMC = False
 
     #MC r22 ART input working:

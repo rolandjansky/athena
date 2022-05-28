@@ -501,7 +501,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
     // Check if jet is taggable (defined as goodJet or suspectJet or badJet)
     Jet_t qualityLabel = getQualityLabel(jetItr, PVZ); 
 
-    if ( qualityLabel == goodJet ) {
+    //Fill Good jet plots including both good and suspect jets
+    if ( qualityLabel == goodJet || qualityLabel == suspectJet ) {
       Cutflow_Jet = 5;
 
       jet_pT_good = jetItr->pt() / Gaudi::Units::GeV;
@@ -584,13 +585,14 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	++SMTJets_n;
       }
 
-    }
-    else if ( qualityLabel == suspectJet ) {
-      Cutflow_Jet = 6;
-      jet_eta_suspect = jetItr->eta();
-      jet_phi_suspect = jetItr->phi();
-      fill(tool,Cutflow_Jet,jet_eta_suspect,jet_phi_suspect);
-      fillSuspectJetHistos(jetItr); //other histograms to fill
+      //Suspect jets as sub-group of Good jets, but with separate plots
+      if ( qualityLabel == suspectJet ) {
+	Cutflow_Jet = 6;
+	jet_eta_suspect = jetItr->eta();
+	jet_phi_suspect = jetItr->phi();
+	fill(tool,Cutflow_Jet,jet_eta_suspect,jet_phi_suspect);
+	fillSuspectJetHistos(jetItr); //other histograms to fill
+      }
     }
     else if ( qualityLabel == badJet ) {
       Cutflow_Jet = 7;

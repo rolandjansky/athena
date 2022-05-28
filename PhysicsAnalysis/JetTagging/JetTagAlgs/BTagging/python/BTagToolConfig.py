@@ -58,6 +58,11 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
           from JetTagTools.SV1TagConfig import SV1TagCfg
           sv1tool = acc.popToolsAndMerge(SV1TagCfg(ConfigFlags, 'SV1Tag', scheme))
           tagToolList.append(sv1tool)
+      
+      if 'SV1Flip' in TaggerList:
+          from JetTagTools.SV1TagConfig import SV1TagCfg
+          sv1fliptool = acc.popToolsAndMerge(SV1TagCfg(ConfigFlags, 'SV1FlipTag', scheme))
+          tagToolList.append(sv1fliptool)
 
       if 'JetFitterNN' in TaggerList:
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg

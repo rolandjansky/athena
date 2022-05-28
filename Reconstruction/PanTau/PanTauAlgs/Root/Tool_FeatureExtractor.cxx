@@ -80,7 +80,7 @@ StatusCode PanTau::Tool_FeatureExtractor::initialize() {
 }
 
 
-void PanTau::Tool_FeatureExtractor::fillVariantsSeedEt(std::vector<PanTau::TauConstituent*> tauConstituents) {
+void PanTau::Tool_FeatureExtractor::fillVariantsSeedEt(const std::vector<PanTau::TauConstituent*>& tauConstituents) {
 
   //use different approaches to calculate total energy of seed:
   m_Variants_SeedEt["EtAllConsts"] = 0.0;
@@ -118,7 +118,7 @@ void PanTau::Tool_FeatureExtractor::fillVariantsSeedEt(std::vector<PanTau::TauCo
 
 
 void PanTau::Tool_FeatureExtractor::addFeatureWrtSeedEnergy(PanTau::TauFeature* targetMap,
-							    std::string featName,
+							    const std::string& featName,
 							    double numerator,
 							    std::map<std::string, double>* denominatorMap) const {
   std::map<std::string, double>::iterator it = denominatorMap->begin();
@@ -180,7 +180,8 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateBasicFeatures(PanTau::PanTauS
     
   std::string featureAlg    = inSeed->getNameInputAlgorithm();
   std::string featurePrefix = m_varTypeName_Basic;
-    
+  std::string name = featureAlg + "_" + featurePrefix;
+  
   double SumCharge = 0;
   double AbsCharge = 0;
     
@@ -196,7 +197,7 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateBasicFeatures(PanTau::PanTauS
     //store multiplicity of current type
     std::string     typeName        = PanTau::TauConstituent::getTypeName((PanTau::TauConstituent::Type)iType);
     unsigned int    nConstituents   = curList.size();
-    featureMap->addFeature(featureAlg + "_" + featurePrefix + "_N" + typeName + "Consts", nConstituents);        
+    featureMap->addFeature(name + "_N" + typeName + "Consts", nConstituents);        
         
     //count charge, i.e. skip if not charged
     if(iType != (int)PanTau::TauConstituent::t_Charged) continue;
@@ -208,28 +209,28 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateBasicFeatures(PanTau::PanTauS
   }
     
   //store charge
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_SumCharge", SumCharge);
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_AbsCharge", AbsCharge);
+  featureMap->addFeature(name + "_SumCharge", SumCharge);
+  featureMap->addFeature(name + "_AbsCharge", AbsCharge);
     
   //! Fill multiplicity for any constituents
   //all constituents
   std::string typeNameAll = PanTau::TauConstituent::AllConstituentsName();
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_N" + typeNameAll + "Consts", inSeed->getConstituentsAsList_Core().size() + inSeed->getConstituentsAsList_Wide().size());
+  featureMap->addFeature(name + "_N" + typeNameAll + "Consts", inSeed->getConstituentsAsList_Core().size() + inSeed->getConstituentsAsList_Wide().size());
     
   //! Fill the proto vector (i.e. sum momentum of constituents)
   //proto 4-vector (just the sum of all constituents)
   // will have better four momentum after mode ID
   TLorentzVector tlv_ProtoMomentumCore = inSeed->getProtoMomentumCore();
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumCore_pt", tlv_ProtoMomentumCore.Perp());
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumCore_eta", tlv_ProtoMomentumCore.Eta());
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumCore_phi", tlv_ProtoMomentumCore.Phi());
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumCore_m", tlv_ProtoMomentumCore.M());
+  featureMap->addFeature(name + "_ProtoMomentumCore_pt", tlv_ProtoMomentumCore.Perp());
+  featureMap->addFeature(name + "_ProtoMomentumCore_eta", tlv_ProtoMomentumCore.Eta());
+  featureMap->addFeature(name + "_ProtoMomentumCore_phi", tlv_ProtoMomentumCore.Phi());
+  featureMap->addFeature(name + "_ProtoMomentumCore_m", tlv_ProtoMomentumCore.M());
     
   TLorentzVector tlv_ProtoMomentumWide = inSeed->getProtoMomentumWide();
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumWide_pt", tlv_ProtoMomentumWide.Perp());
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumWide_eta", tlv_ProtoMomentumWide.Eta());
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumWide_phi", tlv_ProtoMomentumWide.Phi());
-  featureMap->addFeature(featureAlg + "_" + featurePrefix + "_ProtoMomentumWide_m", tlv_ProtoMomentumWide.M());    
+  featureMap->addFeature(name + "_ProtoMomentumWide_pt", tlv_ProtoMomentumWide.Perp());
+  featureMap->addFeature(name + "_ProtoMomentumWide_eta", tlv_ProtoMomentumWide.Eta());
+  featureMap->addFeature(name + "_ProtoMomentumWide_phi", tlv_ProtoMomentumWide.Phi());
+  featureMap->addFeature(name + "_ProtoMomentumWide_m", tlv_ProtoMomentumWide.M());    
     
   return StatusCode::SUCCESS;
 }
@@ -245,15 +246,16 @@ StatusCode PanTau::Tool_FeatureExtractor::addConstituentMomenta(PanTau::PanTauSe
     unsigned int                            n_Constituents_Type     = list_TypeConstituents.size();          // number of objects of current type
     TLorentzVector                          tlv_TypeConstituents    = inSeed->getSubsystemHLV(iType, isOK); // summed hlv of objects of current type
     std::string                             curTypeName             = PanTau::TauConstituent::getTypeName((PanTau::TauConstituent::Type)iType);
+    std::string name = inputAlgName + "_" + curTypeName + "_" + prefixVARType;
         
     std::vector<PanTau::TauConstituent*>    list_TypeConstituents_SortBDT = inSeed->getConstituentsOfType(iType, isOK);
     std::sort(list_TypeConstituents_SortBDT.begin(), list_TypeConstituents_SortBDT.end(), sortTauConstituentMVA);
         
     if(!list_TypeConstituents.empty()) {
-      tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_SumPt",  tlv_TypeConstituents.Perp());
-      tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_SumEta", tlv_TypeConstituents.Eta());
-      tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_SumPhi", tlv_TypeConstituents.Phi());
-      tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_SumM",   tlv_TypeConstituents.M());
+      tauFeatureMap->addFeature(name + "_SumPt",  tlv_TypeConstituents.Perp());
+      tauFeatureMap->addFeature(name + "_SumEta", tlv_TypeConstituents.Eta());
+      tauFeatureMap->addFeature(name + "_SumPhi", tlv_TypeConstituents.Phi());
+      tauFeatureMap->addFeature(name + "_SumM",   tlv_TypeConstituents.M());
     }
         
     //store 4-vectors of current type (et sort);
@@ -268,10 +270,10 @@ StatusCode PanTau::Tool_FeatureExtractor::addConstituentMomenta(PanTau::PanTauSe
       curConsts_phi.push_back(tlv_curConst.Phi());
       curConsts_m.push_back(tlv_curConst.M());
     }
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_EtSort_Constituents_pt", curConsts_pt);
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_EtSort_Constituents_eta", curConsts_eta);
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_EtSort_Constituents_phi", curConsts_phi);
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_EtSort_Constituents_m", curConsts_m);
+    tauFeatureMap->addVecFeature(name + "_EtSort_Constituents_pt", curConsts_pt);
+    tauFeatureMap->addVecFeature(name + "_EtSort_Constituents_eta", curConsts_eta);
+    tauFeatureMap->addVecFeature(name + "_EtSort_Constituents_phi", curConsts_phi);
+    tauFeatureMap->addVecFeature(name + "_EtSort_Constituents_m", curConsts_m);
     
     //store 4-vectors of current type (bdt sort)
     std::vector<double> curConstsBDT_pt    = std::vector<double>(0);
@@ -285,10 +287,10 @@ StatusCode PanTau::Tool_FeatureExtractor::addConstituentMomenta(PanTau::PanTauSe
       curConstsBDT_phi.push_back(tlv_curConstBDT.Phi());
       curConstsBDT_m.push_back(tlv_curConstBDT.M());
     }
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTSort_Constituents_pt", curConstsBDT_pt);
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTSort_Constituents_eta", curConstsBDT_eta);
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTSort_Constituents_phi", curConstsBDT_phi);
-    tauFeatureMap->addVecFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTSort_Constituents_m", curConstsBDT_m);
+    tauFeatureMap->addVecFeature(name + "_BDTSort_Constituents_pt", curConstsBDT_pt);
+    tauFeatureMap->addVecFeature(name + "_BDTSort_Constituents_eta", curConstsBDT_eta);
+    tauFeatureMap->addVecFeature(name + "_BDTSort_Constituents_phi", curConstsBDT_phi);
+    tauFeatureMap->addVecFeature(name + "_BDTSort_Constituents_m", curConstsBDT_m);
     
   } //end loop over constituent types
     
@@ -1086,11 +1088,3 @@ StatusCode PanTau::Tool_FeatureExtractor::addImpactParameterFeatures(PanTau::Pan
     
   return StatusCode::SUCCESS;
 }
-
-
-
-
-
-
-
-
