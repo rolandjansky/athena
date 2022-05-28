@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthTPCnvSvc.cxx 
@@ -45,8 +45,6 @@ AthTPCnvSvc::AthTPCnvSvc( const std::string& name,
 ///////////////
 AthTPCnvSvc::~AthTPCnvSvc()
 {
-  for (auto p : m_cnvs)
-    delete p;
 }
 
 
@@ -63,7 +61,8 @@ AthTPCnvSvc::load_tpcnv(const std::string& cls)
                  << "] via Reflex::PluginService");
   }
   else {
-    m_cnvs.push_back (cnv);
+    std::scoped_lock lock (m_mutex);
+    m_cnvs.emplace_back (cnv);
   }
   return cnv;
 }
@@ -84,7 +83,8 @@ AthTPCnvSvc::t2p_cnv(const std::string& transClassName,
                     << transClassName << "]");
   }
   else {
-    m_cnvs.push_back (cnv);
+    std::scoped_lock lock (m_mutex);
+    m_cnvs.emplace_back (cnv);
   }
   return cnv;
 }
@@ -119,7 +119,8 @@ AthTPCnvSvc::t2p_cnv(const CLID& transClid,
                     << transClid << "] (" << trans_type << ")");
   }
   else {
-    m_cnvs.push_back (cnv);
+    std::scoped_lock lock (m_mutex);
+    m_cnvs.emplace_back (cnv);
   }
   return cnv;
 }
@@ -139,7 +140,8 @@ AthTPCnvSvc::p2t_cnv(const std::string& persClassName,
                     << persClassName << "]");
   }
   else {
-    m_cnvs.push_back (cnv);
+    std::scoped_lock lock (m_mutex);
+    m_cnvs.emplace_back (cnv);
   }
   return cnv;
 }
