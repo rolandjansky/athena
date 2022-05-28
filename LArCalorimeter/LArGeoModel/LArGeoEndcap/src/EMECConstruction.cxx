@@ -267,8 +267,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
   double zMSTrans = 0.*Gaudi::Units::mm;
 
   GeoPcon* emecMotherShape = new GeoPcon(phiPosition - phiSize, 2.*phiSize);  //start phi,total phi
-  for(unsigned int i = 0; i < cryoPcons->size(); ++ i){
-    const IRDBRecord *currentRecord = (*cryoPcons)[i];
+  for(auto currentRecord : *cryoPcons) {
     if(currentRecord->getString("PCON") == "EMEC::Mother"){
       if(!refSystemTransform){
         if(m_isTB){
@@ -523,17 +522,17 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
         double front_shift = 0.*Gaudi::Units::mm;
         double back_shift = 0.*Gaudi::Units::mm;
         try {
-            for(unsigned int i = 0; i < DMpcons->size(); ++ i){
-                std::string object = (*DMpcons)[i]->getString("PCONNAME");
+	    for(auto dmPcon : *DMpcons) {
+                const std::string& object = dmPcon->getString("PCONNAME");
                 if(object == "FrontSupportMother"){
-                    int zplane = (*DMpcons)[i]->getInt("NZPLANE");
-                    if(zplane == 0) front_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
-                    else if(zplane == 1) front_shift -= (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+                    int zplane = dmPcon->getInt("NZPLANE");
+                    if(zplane == 0) front_shift += dmPcon->getDouble("ZPOS")*Gaudi::Units::mm;
+                    else if(zplane == 1) front_shift -= dmPcon->getDouble("ZPOS")*Gaudi::Units::mm;
                     else continue;
                 } else if(object == "BackSupportMother"){
-                    int zplane = (*DMpcons)[i]->getInt("NZPLANE");
-                    if(zplane == 0) back_shift -= 0.;//(*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
-                    else if(zplane == 1) back_shift += (*DMpcons)[i]->getDouble("ZPOS")*Gaudi::Units::mm;
+                    int zplane = dmPcon->getInt("NZPLANE");
+                    if(zplane == 0) back_shift -= 0.;//dmPcon->getDouble("ZPOS")*Gaudi::Units::mm;
+                    else if(zplane == 1) back_shift += dmPcon->getDouble("ZPOS")*Gaudi::Units::mm;
                     else continue;
                 }
             }
