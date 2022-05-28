@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    RoiDescriptor.h        
@@ -42,8 +42,8 @@ class RoiDescriptor : public IRoiDescriptor {
 public:
 
   /// convenient
-  static const bool FULLSCAN = true;
-  static const bool ROI = false;
+  static constexpr bool FULLSCAN = true;
+  static constexpr bool ROI = false;
 
 public:
 
