@@ -201,7 +201,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   for (unsigned int ind=0; ind<cryoPcons->size(); ind++)
   {
     int key = (*cryoPcons)[ind]->getInt("PLANE_ID");
-    std::string pconName = (*cryoPcons)[ind]->getString("PCON");
+    const std::string& pconName = (*cryoPcons)[ind]->getString("PCON");
     if(pconName=="Endcap::CryoMother") {
       cryoMotherPlanes[key] = ind;
     }
@@ -290,7 +290,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
       log << MSG::DEBUG << "activate extra material in front of PS" << endmsg;
       bool finloop=false;
       for(unsigned int i=0;i<nextra;i++){
-        std::string name=(*cryoExtraCyl)[i]->getString("CONE");
+        const std::string& name=(*cryoExtraCyl)[i]->getString("CONE");
           if(name.find("EmecCylBeforePS") != std::string::npos){
             double rmin=(*cryoExtraCyl)[i]->getDouble("RMIN1"); //PS rmin
             double rmax=(*cryoExtraCyl)[i]->getDouble("RMAX1"); //PS rmax
@@ -336,7 +336,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
                 double phi0=(*cryoExtraCyl)[i]->getDouble("PHI0");
                 double dphi=(*cryoExtraCyl)[i]->getDouble("DPHI");
                 if(dphi>6.28) dphi=2.*M_PI;
-                std::string material=(*cryoExtraCyl)[i]->getString("MATERIAL"); //lead
+                const std::string& material=(*cryoExtraCyl)[i]->getString("MATERIAL"); //lead
                 const GeoMaterial *mat = materialManager->getMaterial(material);
                 if (!mat) {
                   throw std::runtime_error("Error in EndcapCryostatConstruction,material for CylBeforePS is not found.");
@@ -392,7 +392,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
         std::string cylName = (cylNumber == 100?"JDSH_AddShield_Inner":cylStream.str());
 
         if(!currentRecord->isFieldNull("QUALIFIER")){
-          std::string qualifier = currentRecord->getString("QUALIFIER");
+          const std::string& qualifier = currentRecord->getString("QUALIFIER");
           if (qualifier.size()) cylName = cylName + "::" + qualifier;
         }
 
@@ -796,7 +796,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
     double zposMM = 0.;
     std::map<std::string,unsigned> trdMap;  // Used in the new description only
     for(unsigned indTrd(0);indTrd<mbtsTrds->size();++indTrd) {
-      std::string keyTrd = (*mbtsTrds)[indTrd]->getString("TRD");
+      const std::string& keyTrd = (*mbtsTrds)[indTrd]->getString("TRD");
       trdMap[keyTrd]=indTrd;
     }
 
@@ -816,13 +816,16 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// ****
 
 	for(; first!=last; ++first) {
-	  std::string strTubeName = (*first)->getString("TUBE");
-	  if(strTubeName == "MBTS_mother")
+	  const std::string& strTubeName = (*first)->getString("TUBE");
+	  if(strTubeName == "MBTS_mother") {
 	    itMother = first;
-	  else if(strTubeName == "Moderator")
+	  }
+	  else if(strTubeName == "Moderator") {
 	    itModerator = first;
-	  else if(strTubeName == "JMTUBE")
+	  }
+	  else if(strTubeName == "JMTUBE") {
 	    itTube = first;
+	  }
 	}
 
 	// Build mother volume
@@ -891,7 +894,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 	for (unsigned int ind=0; ind<mbtsPcons->size(); ind++) {
 	  int key = (*mbtsPcons)[ind]->getInt("PLANE_ID");
-	  std::string pconName = (*mbtsPcons)[ind]->getString("PCON");
+	  const std::string& pconName = (*mbtsPcons)[ind]->getString("PCON");
 	  if(pconName=="MBTS::Mother") {
 	    mbtsMotherPlanes[key] = ind;
 	  }
@@ -1034,7 +1037,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// Build direct children of the air envelope
 	for(itTrdMap=trdMap.begin();itTrdMap!=trdMap.end();++itTrdMap) {
 	  rec = (*mbtsTrds)[itTrdMap->second];
-	  std::string trd = rec->getString("TRD");
+	  const std::string& trd = rec->getString("TRD");
 	  if(rec->getString("PARENT")=="MBTSAirEnv") {
 	    GeoPhysVol* nevVol = buildMbtsTrd(rec,materialManager,pvAirEnv);
 	    if(trd.compare("MBTSAluEnv")==0)
@@ -1045,7 +1048,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	// Build direct children of the aluminum envelope
 	for(itTrdMap=trdMap.begin();itTrdMap!=trdMap.end();++itTrdMap) {
 	  rec = (*mbtsTrds)[itTrdMap->second];
-	  std::string trd = rec->getString("TRD");
+	  const std::string& trd = rec->getString("TRD");
 	  if(rec->getString("PARENT")=="MBTSAluEnv") {
 	    GeoPhysVol* nevVol = buildMbtsTrd(rec,materialManager,pvAluEnv);
 	    if(trd.compare("MBTSAirInAlu")==0)

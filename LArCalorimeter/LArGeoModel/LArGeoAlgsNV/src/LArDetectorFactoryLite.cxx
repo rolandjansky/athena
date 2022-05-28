@@ -172,7 +172,7 @@ void LArGeo::LArDetectorFactoryLite::create(GeoPhysVol* world)
 
   std::map<std::string,unsigned> trdMap;
   for(unsigned indTrd(0);indTrd<mbtsTrds->size();++indTrd) {
-    std::string keyTrd = (*mbtsTrds)[indTrd]->getString("TRD");
+    const std::string& keyTrd = (*mbtsTrds)[indTrd]->getString("TRD");
     trdMap[keyTrd]=indTrd;
   }
 

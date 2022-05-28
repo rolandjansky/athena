@@ -227,26 +227,25 @@ static void printWarning(const std::ostringstream &message)
 typedef std::map<std::string, unsigned int> map_t;
 static map_t getMap(const IRDBRecordset_ptr& db, const std::string& s)
 {
-    map_t result;
-    for(unsigned int i = 0; i < db->size(); ++ i){
-        std::string key = (*db)[i]->getString(s);
-        result[key] = i;
-    }
-    return result;
+  map_t result;
+  for(unsigned int i = 0; i < db->size(); ++ i) {
+    const std::string& key = (*db)[i]->getString(s);
+    result[key] = i;
+  }
+  return result;
 }
 
 static map_t getNumbersMap(const IRDBRecordset_ptr& db, const std::string& s)
 {
-	map_t result;
-	for(unsigned int i = 0; i < db->size(); ++ i){
-		std::string object = (*db)[i]->getString("OBJECTNAME");
-		if(object == s){
-			std::string key = (*db)[i]->getString("PARNAME");
-			result[key] = i;
-//std::cout << s << ": " << key << " -> " << i << std::endl;
-		}
-	}
-	return result;
+  map_t result;
+  for(unsigned int i = 0; i < db->size(); ++ i) {
+    const std::string& object = (*db)[i]->getString("OBJECTNAME");
+    if(object == s) {
+      const std::string& key = (*db)[i]->getString("PARNAME");
+      result[key] = i;
+    }
+  }
+  return result;
 }
 
 static double getNumber(
@@ -271,9 +270,9 @@ static double getNumber(
 	const std::string &parameter, double defval = 0.)
 {
 	for(unsigned int i = 0; i < db->size(); ++ i){
-		std::string object = (*db)[i]->getString("OBJECTNAME");
+		const std::string& object = (*db)[i]->getString("OBJECTNAME");
 		if(object == s){
-			std::string key = (*db)[i]->getString("PARNAME");
+			const std::string& key = (*db)[i]->getString("PARNAME");
 			if(key == parameter){
 				double value = (*db)[i]->getDouble("PARVALUE");
 				assert(value == defval);
@@ -334,7 +333,7 @@ GeoPcon* EMECSupportConstruction::getPcon(const std::string& id) const
 	int nzplanes = 0;
 	double R0 = 0.;
 	for(unsigned int i = 0; i < m_DB_pcons->size(); ++ i){
-		std::string object = (*m_DB_pcons)[i]->getString("PCONNAME");
+		const std::string& object = (*m_DB_pcons)[i]->getString("PCONNAME");
 		if(object == id1){
 			int key = (*m_DB_pcons)[i]->getInt("NZPLANE");
 			if(pcone.find(key) != pcone.end()){
@@ -1733,7 +1732,7 @@ void EMECSupportConstruction::put_front_outer_extracyl(GeoPhysVol *motherPhysica
       bool finloop=false;
       double dzmax=6.6;
       for(unsigned int i=0;i<nextra;i++){
-        std::string name=(*m_DB_emecExtraCyl)[i]->getString("CONE");
+        const std::string& name=(*m_DB_emecExtraCyl)[i]->getString("CONE");
           if(name.find("EmecCylAfterPS") != std::string::npos){
             double rmin=(*m_DB_emecExtraCyl)[i]->getDouble("RMIN1"); //PS rmin
             double rmax=(*m_DB_emecExtraCyl)[i]->getDouble("RMAX1"); //PS rmax
@@ -1750,7 +1749,7 @@ void EMECSupportConstruction::put_front_outer_extracyl(GeoPhysVol *motherPhysica
                 throw std::runtime_error("Error in EMECSupportConstruction: cannot find MATERIALS.");
               }
 
-              std::string material=(*m_DB_emecExtraCyl)[i]->getString("MATERIAL"); //lead
+              const std::string& material=(*m_DB_emecExtraCyl)[i]->getString("MATERIAL"); //lead
               const GeoMaterial *mat = materialManager->getMaterial(material);
               if (!mat) {
                 throw std::runtime_error("Error in EMECSupportConstruction/extracyl,material for CylBeforePS is not found.");
