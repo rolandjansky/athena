@@ -2449,6 +2449,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
           /// a penalty term corresponding to how far the seed segments
           /// deviate from a straight line in r-z
           data.ITkSP[t]->setScorePenalty(std::abs((Tzb - Tzt) / (dr * sTzb2)));
+          data.ITkSP[t]->setParam(d0);
 
           /// record one possible seed candidate, sort by the curvature
           data.ITkCmSp.emplace_back(std::make_pair(B / std::sqrt(onePlusAsquare), data.ITkSP[t]));
@@ -2885,6 +2886,9 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
           /// a penalty term corresponding to how far the seed segments
           /// deviate from a straight line in r-z
           data.ITkSP[t]->setScorePenalty(std::abs((tb - tz) / (dr * sTzb2)));
+          data.ITkSP[t]->setParam(d0);
+          float DR = std::sqrt( xt * xt + yt * yt + zt * zt ); // distance between top and central SP
+          data.ITkSP[t]->setDR(DR);
 
           /// record one possible seed candidate, sort by the curvature
           data.ITkCmSp.emplace_back(std::make_pair(B / std::sqrt(onePlusAsquare), data.ITkSP[t]));
