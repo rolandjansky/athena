@@ -35,6 +35,7 @@
 #include "LArHVScaleCorrTool.h"
 
 #include <atomic>
+#include <functional>
 
 // forward declaration
 class CondAttrListCollection;
@@ -132,8 +133,18 @@ private:
 
   typedef std::vector<voltageCell_t> voltagePerCell_t;
 
-  ///Internal strucutre for HV pathologies
+  ///Internal structure for HV pathologies
   typedef std::vector<std::vector<unsigned short> > pathVec;
+
+  StatusCode makeHVScaleCorr (const EventContext& ctx,
+                              voltagePerLine_t& voltagePerLine) const;
+  StatusCode makeAffectedRegionInfo (const EventContext& ctx,
+                                     voltagePerLine_t& voltagePerLine) const;
+
+  using addDepFcn_t = std::function<const EventIDRange& (SG::ReadCondHandle<CondAttrListCollection>& h)>;
+  StatusCode getVoltagePerLine (const EventContext& ctx,
+                                voltagePerLine_t& voltagePerLine,
+                                addDepFcn_t addDep) const;
 
   /// Add voltage/weight for a sub-gap of a cell 
   void addHV(voltageCell_t& v, float hv, float weight) const;

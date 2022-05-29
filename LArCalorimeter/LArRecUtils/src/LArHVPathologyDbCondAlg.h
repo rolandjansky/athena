@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHVPATHOLOGYDBCONDALG
@@ -39,13 +39,14 @@ class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
  private:
 
   void fillElectMap(const CaloDetDescrManager* calodetdescrmgr,
-                    LArHVPathology* hvpath) const;
+                    LArHVPathology* hvpath,
+                    SG::WriteCondHandle<LArHVPathology>& writeHandle) const;
 
   SG::ReadCondHandleKey<AthenaAttributeList> m_pathologyFolderKey {this, "PathologyFolder", "/LAR/HVPathologiesOfl/Pathologies", "Cool folder for HV pathologies" };
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
-  SG::WriteCondHandleKey<LArHVPathology> m_hvPAthologyKey {this, "HVPAthologyKey", "LArHVPathology", "Key for HV pathologies in Cond. store"};
+  SG::WriteCondHandleKey<LArHVPathology> m_hvPathologyKey {this, "HVPAthologyKey", "LArHVPathology", "Key for HV pathologies in Cond. store"};
 
   const LArEM_ID*       m_larem_id=nullptr;
   const LArHEC_ID*       m_larhec_id=nullptr;
