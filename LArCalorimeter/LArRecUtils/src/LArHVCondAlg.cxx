@@ -86,277 +86,260 @@ StatusCode LArHVCondAlg::initialize(){
 }
 
 
-StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
-
+StatusCode LArHVCondAlg::execute(const EventContext& ctx) const
+{
   ATH_MSG_DEBUG("executing");
-  bool doHVData=false;
-  bool doAffected=false;
 
-  SG::WriteCondHandle<LArHVCorr> writeHandle{m_outputHVScaleCorrKey, ctx};
-  if(m_doHV || m_doAffectedHV) {
-    if (writeHandle.isValid()) {
-      ATH_MSG_DEBUG("Found valid write handle for LArHVCorr");
-    } else {
-      doHVData=true;
-    }
-  } 
-
-  SG::WriteCondHandle<CaloAffectedRegionInfoVec> writeAffectedHandle{m_affectedKey, ctx};
-  if(m_doAffected){
-    if (writeAffectedHandle.isValid()) {
-      ATH_MSG_DEBUG("Found valid write LArAffectedRegions handle");
-    } else {
-      doAffected=true;
-    }
+  // Allow sharing this between the two calls.
+  voltagePerLine_t voltagePerLine;
+  if (m_doHV || m_doAffectedHV) {
+    ATH_CHECK( makeHVScaleCorr (ctx, voltagePerLine) );
   }
+  if (m_doAffected) {
+    ATH_CHECK( makeAffectedRegionInfo (ctx, voltagePerLine) );
+  }
+  
+  return StatusCode::SUCCESS;
+}
 
-  if (!doHVData && !doAffected) {
-    //Nothing to do, bail out. 
+StatusCode LArHVCondAlg::makeHVScaleCorr (const EventContext& ctx,
+                                          voltagePerLine_t& voltagePerLine) const
+{
+  SG::WriteCondHandle<LArHVCorr> writeHandle{m_outputHVScaleCorrKey, ctx};
+  if (writeHandle.isValid()) {
+    ATH_MSG_DEBUG("Found valid write handle for LArHVCorr");
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG("Executing with doHV " << doHVData << " doAffected " << doAffected );
-
-  std::vector<const CondAttrListCollection*> attrvec;
-  const LArHVIdMapping* hvCabling{nullptr};
-  const float* rValues{nullptr};
-  const ILArHVScaleCorr *onlHVCorr{nullptr};
-
-
-  //Start with infinte range and narrow it down
+  //Start with infinite range and narrow it down
   const EventIDRange fullRange=IOVInfiniteRange::infiniteMixed();
   writeHandle.addDependency (fullRange);
-  writeAffectedHandle.addDependency (fullRange);
-
 
   SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey, ctx);
   const LArOnOffIdMapping* cabling=*larCablingHdl;
-  if(!cabling) {
-     ATH_MSG_ERROR("Could not get LArOnOffIdMapping !!");
-     return StatusCode::FAILURE;
-  }
   ATH_MSG_DEBUG("Range of cabling" << larCablingHdl.getRange() << ", intersection: " << writeHandle.getRange());
   writeHandle.addDependency(larCablingHdl);
-  
-  if(doHVData || (doAffected && m_doAffectedHV) ) {
-    SG::ReadCondHandle<LArHVIdMapping> mappingHdl{m_hvMappingKey, ctx};
-    hvCabling = *mappingHdl;
-    if(!hvCabling) {
-      ATH_MSG_ERROR("Unable to access LArHVIdMapping Cond Object");
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
+  writeHandle.addDependency(caloMgrHandle);
+
+  const ILArHVScaleCorr *onlHVCorr{nullptr};
+  if(m_undoOnlineHVCorr) {
+    SG::ReadCondHandle<ILArHVScaleCorr> onlHVCorrHdl(m_onlineHVScaleCorrKey, ctx);
+    onlHVCorr = *onlHVCorrHdl;
+    writeHandle.addDependency(onlHVCorrHdl);
+    ATH_MSG_DEBUG("Range of online HV correction  " << onlHVCorrHdl.getRange() << ", intersection: " << writeHandle.getRange());
+  }
+
+  SG::ReadCondHandle<LArHVIdMapping> mappingHdl{m_hvMappingKey, ctx};
+  const LArHVIdMapping* hvCabling = *mappingHdl;
+  writeHandle.addDependency(mappingHdl);
+
+  pathVec  hasPathologyEM;
+  pathVec  hasPathologyHEC;
+  pathVec  hasPathologyFCAL;
+  hasPathologyEM.resize(m_larem_id->channel_hash_max());
+  hasPathologyHEC.resize(m_larhec_id->channel_hash_max());
+  hasPathologyFCAL.resize(m_larfcal_id->channel_hash_max());
+
+  bool doPathology=true; 
+  SG::ReadCondHandle<LArHVPathology> pHdl(m_pathologiesKey,ctx);
+  const LArHVPathology* pathologyContainer = *pHdl;
+  if(!pathologyContainer) {
+    ATH_MSG_WARNING("Why do not have HV pathology object " << m_pathologiesKey.fullKey() << " ? Work without pathologies !!!");
+    doPathology=false;
+  }
+ 
+  if(doPathology) {
+    writeHandle.addDependency(pHdl);
+    ATH_MSG_DEBUG("Range of HV-Pathology " << pHdl.getRange() << ", intersection: " << writeHandle.getRange());
+    const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &pathCont = pathologyContainer->getPathology();
+    const size_t nPathologies=pathCont.size();
+    if (m_nPathologies != nPathologies) {
+      ATH_MSG_INFO( "Number of HV pathologies found " << nPathologies);
+      m_nPathologies=nPathologies;
+    }
+    for(unsigned i=0; i<nPathologies; ++i) {
+      LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathCont[i];
+      Identifier id(electPath.cellID);
+      if (m_larem_id->is_lar_em(id)) {
+        IdentifierHash idHash = m_larem_id->channel_hash(id);
+        unsigned int index = (unsigned int)(idHash);
+        if (index<hasPathologyEM.size()) {
+          if(hasPathologyEM[index].size()) {
+            if(hasPathologyEM[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+              hasPathologyEM[index].resize(electPath.electInd+1);
+            hasPathologyEM[index][electPath.electInd]=electPath.pathologyType;
+          } else {
+            std::vector<unsigned short> svec;
+            svec.resize(electPath.electInd+1);
+            svec[electPath.electInd]=electPath.pathologyType;
+            hasPathologyEM[index]=svec;
+          }
+        }
+      }
+      if (m_larhec_id->is_lar_hec(id)) {
+        IdentifierHash idHash = m_larhec_id->channel_hash(id);
+        unsigned int index = (unsigned int)(idHash);
+        if (index<hasPathologyHEC.size()) {
+          if(hasPathologyHEC[index].size()) {
+            if(hasPathologyHEC[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+              hasPathologyHEC[index].resize(electPath.electInd+1);
+            hasPathologyHEC[index][electPath.electInd]=electPath.pathologyType;
+          } else {
+            std::vector<unsigned short> svec;
+            svec.resize(electPath.electInd+1);
+            svec[electPath.electInd]=electPath.pathologyType;
+            hasPathologyHEC[index]=svec;
+          }
+        }
+      }
+      if (m_larfcal_id->is_lar_fcal(id)) {
+        IdentifierHash idHash = m_larfcal_id->channel_hash(id);
+        unsigned int index = (unsigned int)(idHash);
+        if (index<hasPathologyFCAL.size()) {
+          if(hasPathologyFCAL[index].size()) {
+            if(hasPathologyFCAL[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+              hasPathologyFCAL[index].resize(electPath.electInd+1);
+            hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
+          } else {
+            std::vector<unsigned short> svec;
+            svec.resize(electPath.electInd+1);
+            svec[electPath.electInd]=electPath.pathologyType;
+            hasPathologyFCAL[index]=svec;
+          }
+ 
+        }
+      }
+    } // Pathology containers
+  }//doPathology
+
+  const float* rValues{nullptr};
+  if(m_doR) {
+    SG::ReadCondHandle<AthenaAttributeList> readAttrHandle{m_hvRKey, ctx};
+    const AthenaAttributeList* attr = *readAttrHandle;
+    writeHandle.addDependency(readAttrHandle);
+    // store the conditions blob
+    const coral::Blob& rBlob = (*attr)["ElectrodeRvalues"].data<coral::Blob>();
+    if(rBlob.size()/sizeof(float) != m_electrodeID->electrodeHashMax()) {
+      ATH_MSG_ERROR("Expected " << m_electrodeID->electrodeHashMax() << " R values, but got " << rBlob.size()/sizeof(float) << " aborting");
       return StatusCode::FAILURE;
     }
-    writeHandle.addDependency(mappingHdl);
-    writeAffectedHandle.addDependency(mappingHdl);
-    ATH_MSG_DEBUG("Range of HV-cabling " << mappingHdl.getRange() << ", intersection: " << writeHandle.getRange());
+    rValues = static_cast<const float*>(rBlob.startingAddress());
+  }
 
-    // Online HVScaleCorr (if needed to subtract)
+  auto addDep = [&writeHandle] (SG::ReadCondHandle<CondAttrListCollection>& h) {
+                  writeHandle.addDependency (h);
+                  return writeHandle.getRange();
+                };
+  ATH_CHECK( getVoltagePerLine (ctx, voltagePerLine, addDep) );
 
-    if(m_undoOnlineHVCorr) {
-      SG::ReadCondHandle<ILArHVScaleCorr> onlHVCorrHdl(m_onlineHVScaleCorrKey, ctx);
-      onlHVCorr = *onlHVCorrHdl;
-      if(!onlHVCorr) {
-	ATH_MSG_ERROR("Do not have online HV corr. conditions object, but asked to undo !!!!");
-	return StatusCode::FAILURE;
-      }
-      writeHandle.addDependency(onlHVCorrHdl);
-      ATH_MSG_DEBUG("Range of online HV correction  " << onlHVCorrHdl.getRange() << ", intersection: " << writeHandle.getRange());
-    }
-    // get handles to DCS Database folders
-    for (const auto& fldkey: m_DCSFolderKeys ) {
-      SG::ReadCondHandle<CondAttrListCollection> dcsHdl(fldkey, ctx);
-      const CondAttrListCollection* cattr = *dcsHdl;
-      if(cattr) {
-        ATH_MSG_DEBUG("Folder: "<<dcsHdl.key()<<" has size: "<<std::distance(cattr->begin(),cattr->end()));
-        attrvec.push_back(cattr);
-	writeHandle.addDependency(dcsHdl);
-	writeAffectedHandle.addDependency(dcsHdl);
-	ATH_MSG_DEBUG("Range of " << dcsHdl.key() << " " << dcsHdl.getRange() << ", intersection: " << writeHandle.getRange());
-       
-      } else {
-         ATH_MSG_WARNING("Why do not have DCS folder " << fldkey.fullKey());
-      }
-    } // over DCS folders
-    if(m_doR) {
-      SG::ReadCondHandle<AthenaAttributeList> readAttrHandle{m_hvRKey, ctx};
-      const AthenaAttributeList* attr = *readAttrHandle;
-      if(!attr) {
-        ATH_MSG_ERROR("Unable to access R values Cond Object");
-        return StatusCode::FAILURE;
-      }
-      // store the conditions blob
-      const coral::Blob& rBlob = (*attr)["ElectrodeRvalues"].data<coral::Blob>();
-      if(rBlob.size()/sizeof(float) != m_electrodeID->electrodeHashMax()) {
-        ATH_MSG_ERROR("Expected " << m_electrodeID->electrodeHashMax() << " R values, but got " << rBlob.size()/sizeof(float) << " aborting");
-        return StatusCode::FAILURE;
-      }
-      rValues = static_cast<const float*>(rBlob.startingAddress());
+  voltagePerCell_t voltageVec(MAX_LAR_CELLS);
+  ATH_CHECK(fillPathAndCellHV(voltageVec, hvCabling, voltagePerLine, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL, rValues));
+
+  std::vector<float> vScale;
+  vScale.resize(MAX_LAR_CELLS,(float)1.0);
+  for (unsigned i=0;i<MAX_LAR_CELLS;++i) {
+    IdentifierHash hash(i);
+    const CaloDetDescrElement* dde = calodetdescrmgr->get_element(hash); 
+    vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i],msg());
+    if(onlHVCorr) { // undo the online one
+      const float hvonline = onlHVCorr->HVScaleCorr(cabling->createSignalChannelIDFromHash(hash));
+      if (hvonline>0. && hvonline<100.) vScale[i]=vScale[i]/hvonline;
     }
   }
 
+  auto hvCorr = std::make_unique<LArHVCorr>(std::move(vScale), cabling, m_calocellID);
 
+  if (writeHandle.record(std::move(hvCorr)).isFailure()) {
+    ATH_MSG_ERROR("Could not record LArHVCorr object with " << writeHandle.key()
+                  << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
+    return StatusCode::FAILURE;
+  }
 
-  voltagePerLine_t voltagePerLine;  
- 
-  if(doHVData) {
-    // Fill pathology info
-    pathVec  hasPathologyEM;
-    pathVec  hasPathologyHEC;
-    pathVec  hasPathologyFCAL;
-    hasPathologyEM.resize(m_larem_id->channel_hash_max());
-    hasPathologyHEC.resize(m_larhec_id->channel_hash_max());
-    hasPathologyFCAL.resize(m_larfcal_id->channel_hash_max());
- 
-    bool doPathology=true; 
-    SG::ReadCondHandle<LArHVPathology> pHdl(m_pathologiesKey,ctx);
-    const LArHVPathology* pathologyContainer = *pHdl;
-    if(!pathologyContainer) {
-       ATH_MSG_WARNING("Why do not have HV pathology object " << m_pathologiesKey.fullKey() << " ? Work without pathologies !!!");
-       doPathology=false;
-    }
- 
-    if(doPathology) {
-      writeHandle.addDependency(pHdl);
-      writeAffectedHandle.addDependency(pHdl);
-      ATH_MSG_DEBUG("Range of HV-Pathology " << pHdl.getRange() << ", intersection: " << writeHandle.getRange());
-       const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &pathCont = pathologyContainer->getPathology();
-       const size_t nPathologies=pathCont.size();
-       if (m_nPathologies != nPathologies) {
-	 ATH_MSG_INFO( "Number of HV pathologies found " << nPathologies);
-	 m_nPathologies=nPathologies;
-       }
-       for(unsigned i=0; i<nPathologies; ++i) {
-           LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathCont[i];
-           Identifier id(electPath.cellID);
-           if (m_larem_id->is_lar_em(id)) {
-               IdentifierHash idHash = m_larem_id->channel_hash(id);
-               unsigned int index = (unsigned int)(idHash);
-               if (index<hasPathologyEM.size()) {
-                  if(hasPathologyEM[index].size()) {
-                    if(hasPathologyEM[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
-                      hasPathologyEM[index].resize(electPath.electInd+1);
-                     hasPathologyEM[index][electPath.electInd]=electPath.pathologyType;
-                  } else {
-                     std::vector<unsigned short> svec;
-                     svec.resize(electPath.electInd+1);
-                     svec[electPath.electInd]=electPath.pathologyType;
-                     hasPathologyEM[index]=svec;
-                  }
-               }
-           }
-           if (m_larhec_id->is_lar_hec(id)) {
-               IdentifierHash idHash = m_larhec_id->channel_hash(id);
-               unsigned int index = (unsigned int)(idHash);
-               if (index<hasPathologyHEC.size()) {
-                  if(hasPathologyHEC[index].size()) {
-                    if(hasPathologyHEC[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
-                      hasPathologyHEC[index].resize(electPath.electInd+1);
-                     hasPathologyHEC[index][electPath.electInd]=electPath.pathologyType;
-                  } else {
-                     std::vector<unsigned short> svec;
-                     svec.resize(electPath.electInd+1);
-                     svec[electPath.electInd]=electPath.pathologyType;
-                     hasPathologyHEC[index]=svec;
-                  }
-               }
-           }
-           if (m_larfcal_id->is_lar_fcal(id)) {
-               IdentifierHash idHash = m_larfcal_id->channel_hash(id);
-               unsigned int index = (unsigned int)(idHash);
-               if (index<hasPathologyFCAL.size()) {
-                  if(hasPathologyFCAL[index].size()) {
-                    if(hasPathologyFCAL[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
-                      hasPathologyFCAL[index].resize(electPath.electInd+1);
-                    hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
-                  } else {
-                     std::vector<unsigned short> svec;
-                     svec.resize(electPath.electInd+1);
-                     svec[electPath.electInd]=electPath.pathologyType;
-                     hasPathologyFCAL[index]=svec;
-                  }
- 
-               }
-           }
-       } // Pathology containers
-    }//doPathology
-    // now call filling of HV values
-    if(doHVData || (doAffected && m_doAffectedHV)) {
-      ATH_CHECK(dcs2LineVoltage(voltagePerLine, attrvec));
-    }
-    
-
-    voltagePerCell_t voltageVec(MAX_LAR_CELLS);
-    
-    ATH_CHECK(fillPathAndCellHV(voltageVec, hvCabling, voltagePerLine, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL, rValues));
-  
-    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
-    const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
-    writeHandle.addDependency(caloMgrHandle);
-    writeAffectedHandle.addDependency(caloMgrHandle);
-
-    std::vector<float> vScale;
-    vScale.resize(MAX_LAR_CELLS,(float)1.0);
-    for (unsigned i=0;i<MAX_LAR_CELLS;++i) {
-      IdentifierHash hash(i);
-      const CaloDetDescrElement* dde= calodetdescrmgr->get_element(hash); 
-      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i],msg());
-      if(onlHVCorr) { // undo the online one
-	const float hvonline = onlHVCorr->HVScaleCorr(cabling->createSignalChannelIDFromHash(hash));
-	if (hvonline>0. && hvonline<100.) vScale[i]=vScale[i]/hvonline;
-      }
-    }
-  
-    std::unique_ptr<LArHVCorr> hvCorr = std::make_unique<LArHVCorr>(std::move(vScale), cabling, m_calocellID);
-
-    if(writeHandle.record(std::move(hvCorr)).isFailure()) {
-      ATH_MSG_ERROR("Could not record LArHVCorr object with " << writeHandle.key()
-		    << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
-      return StatusCode::FAILURE;
-    }
-
-    ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
-  
-  } // doHVData
-
-  if(doAffected) {
-       SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey, ctx};
-       const LArBadFebCont* bfCont{*readBFHandle};
-       if(!bfCont){
-         ATH_MSG_ERROR("Faild to get Bad FEBs info with key " << m_BFKey.key() );
-         return StatusCode::FAILURE;
-       }
-       writeAffectedHandle.addDependency(readBFHandle);
-       ATH_MSG_DEBUG("Range of BadFeb " << readBFHandle.getRange() << ", intersection: " << writeAffectedHandle.getRange());
-
-       SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
-       const LArOnOffIdMapping* cabling{*cablingHdl};
-       if(!cabling) {
-         ATH_MSG_ERROR("Do not have cabling mapping from key " << m_cablingKey.key() );
-         return StatusCode::FAILURE;
-       }
-       writeAffectedHandle.addDependency(cablingHdl);
-       ATH_MSG_DEBUG("Range of LArCabling " << cablingHdl.getRange() << ", intersection: " << writeAffectedHandle.getRange());
-
-       std::unique_ptr<CaloAffectedRegionInfoVec> vAffected = std::make_unique<CaloAffectedRegionInfoVec>();
-       if (m_doAffectedHV) {
-         ATH_CHECK(searchNonNominalHV_EMB(vAffected.get(), hvCabling, voltagePerLine));
-         ATH_CHECK(searchNonNominalHV_EMEC_OUTER(vAffected.get(), hvCabling, voltagePerLine));
-         ATH_CHECK(searchNonNominalHV_EMEC_INNER(vAffected.get(), hvCabling, voltagePerLine));
-         ATH_CHECK(searchNonNominalHV_HEC(vAffected.get(), hvCabling, voltagePerLine));
-         ATH_CHECK(searchNonNominalHV_FCAL(vAffected.get(), hvCabling, voltagePerLine));
-       }
-   
-   
-       ATH_CHECK(updateMethod(vAffected.get(), bfCont, cabling));
-   
-       ATH_CHECK(writeAffectedHandle.record(std::move(vAffected)));
-       
-       ATH_MSG_INFO("recorded new " << writeAffectedHandle.key() << " with range " 
-		    <<  writeAffectedHandle.getRange()<< " into Conditions Store");
-  } //doAffected
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
-
 }
+
+
+StatusCode LArHVCondAlg::makeAffectedRegionInfo (const EventContext& ctx,
+                                                 voltagePerLine_t& voltagePerLine) const
+{
+  SG::WriteCondHandle<CaloAffectedRegionInfoVec> writeAffectedHandle{m_affectedKey, ctx};
+  if (writeAffectedHandle.isValid()) {
+    ATH_MSG_DEBUG("Found valid write LArAffectedRegions handle");
+    return StatusCode::SUCCESS;
+  }
+
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey, ctx);
+  const LArOnOffIdMapping* cabling=*larCablingHdl;
+  ATH_MSG_DEBUG("Range of cabling" << larCablingHdl.getRange() << ", intersection: " << writeAffectedHandle.getRange());
+  writeAffectedHandle.addDependency(larCablingHdl);
+
+  SG::ReadCondHandle<LArBadFebCont> readBFHandle{m_BFKey, ctx};
+  const LArBadFebCont* bfCont = *readBFHandle;
+  writeAffectedHandle.addDependency(readBFHandle);
+  ATH_MSG_DEBUG("Range of BadFeb " << readBFHandle.getRange() << ", intersection: " << writeAffectedHandle.getRange());
+
+  auto vAffected = std::make_unique<CaloAffectedRegionInfoVec>();
+  if (m_doAffectedHV) {
+    auto addDep = [&writeAffectedHandle] (SG::ReadCondHandle<CondAttrListCollection>& h) {
+                    writeAffectedHandle.addDependency (h);
+                    return writeAffectedHandle.getRange();
+                  };
+    ATH_CHECK( getVoltagePerLine (ctx, voltagePerLine, addDep) );
+
+    SG::ReadCondHandle<LArHVIdMapping> mappingHdl{m_hvMappingKey, ctx};
+    const LArHVIdMapping* hvCabling = *mappingHdl;
+    writeAffectedHandle.addDependency(mappingHdl);
+
+    ATH_CHECK(searchNonNominalHV_EMB(vAffected.get(), hvCabling, voltagePerLine));
+    ATH_CHECK(searchNonNominalHV_EMEC_OUTER(vAffected.get(), hvCabling, voltagePerLine));
+    ATH_CHECK(searchNonNominalHV_EMEC_INNER(vAffected.get(), hvCabling, voltagePerLine));
+    ATH_CHECK(searchNonNominalHV_HEC(vAffected.get(), hvCabling, voltagePerLine));
+    ATH_CHECK(searchNonNominalHV_FCAL(vAffected.get(), hvCabling, voltagePerLine));
+  }
+
+  ATH_CHECK(updateMethod(vAffected.get(), bfCont, cabling));
+  ATH_CHECK(writeAffectedHandle.record(std::move(vAffected)));
+  ATH_MSG_INFO("recorded new " << writeAffectedHandle.key() << " with range " 
+               <<  writeAffectedHandle.getRange()<< " into Conditions Store");
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode LArHVCondAlg::getVoltagePerLine (const EventContext& ctx,
+                                            voltagePerLine_t& voltagePerLine,
+                                            addDepFcn_t addDep) const
+{
+  // Do this bit unconditionally, so that dependencies are propagated correctly.
+  std::vector<const CondAttrListCollection*> attrvec;
+  // get handles to DCS Database folders
+  for (const auto& fldkey: m_DCSFolderKeys ) {
+    SG::ReadCondHandle<CondAttrListCollection> dcsHdl(fldkey, ctx);
+    const CondAttrListCollection* cattr = *dcsHdl;
+    if(cattr) {
+      ATH_MSG_DEBUG("Folder: "<<dcsHdl.key()<<" has size: "<<std::distance(cattr->begin(),cattr->end()));
+      attrvec.push_back(cattr);
+      const EventIDRange& range = addDep (dcsHdl);
+      ATH_MSG_DEBUG("Range of " << dcsHdl.key() << " " << dcsHdl.getRange() << ", intersection: " << range);
+       
+    } else {
+      ATH_MSG_WARNING("Why do not have DCS folder " << fldkey.fullKey());
+    }
+  } // over DCS folders
+
+  // But we can skip this if we've already done it.
+  if (voltagePerLine.empty()) {
+    ATH_CHECK(dcs2LineVoltage(voltagePerLine, attrvec));
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode LArHVCondAlg::fillPathAndCellHV(voltagePerCell_t& hvdata
 					   , const LArHVIdMapping* hvCabling
