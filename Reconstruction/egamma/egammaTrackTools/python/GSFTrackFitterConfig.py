@@ -13,10 +13,10 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
 
     if "Propagators" not in kwargs:
         from TrkConfig.TrkExRungeKuttaPropagatorConfig import (
-            egRungeKuttaPropagatorCfg)
-        egTrkPropagator = acc.popToolsAndMerge(
-            egRungeKuttaPropagatorCfg(flags))
-        kwargs["Propagator"] = egTrkPropagator
+            GSFRungeKuttaPropagatorCfg)
+        gsfTrkPropagator = acc.popToolsAndMerge(
+            GSFRungeKuttaPropagatorCfg(flags))
+        kwargs["Propagator"] = gsfTrkPropagator
 
     if "Navigator" not in kwargs:
         from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
@@ -25,7 +25,8 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
 
     if "ElectronMaterialConvolution" not in kwargs:
         GsfMaterialUpdator = CompFactory.Trk.ElectronMaterialMixtureConvolution(
-            name="ElectronMaterialUpdator", MaximumNumberOfComponents=12
+            name="ElectronMaterialUpdator",
+            MaximumNumberOfComponents=12
         )
         kwargs["GsfMaterialConvolution"] = GsfMaterialUpdator
 
