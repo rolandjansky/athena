@@ -460,8 +460,13 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
     new_opts.close()
     mglog.info('Make file hacking complete.')
 
+    # Change directories
     currdir=os.getcwd()
     os.chdir(process_dir)
+    # Record the change
+    global MADGRAPH_COMMAND_STACK
+    MADGRAPH_COMMAND_STACK += [ 'cd ${MGaMC_PROCESS_DIR}' ]
+
 
     # Check the run card
     run_card_consistency_check(isNLO=isNLO)
@@ -470,7 +475,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
     print_cards_from_dir(process_dir=os.getcwd())
 
     # Check the param card
-    code = check_PMG_updates(process_dir)
+    code = check_PMG_updates(process_dir=os.getcwd())
     if requirePMGSettings and code!=0:
         raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
@@ -488,7 +493,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
     # Special handling for mode 1
     if mode==1:
         mglog.info('Setting up cluster running')
-        modify_config_card(process_dir=process_dir,settings={'run_mode':1})
+        modify_config_card(process_dir=os.getcwd(),settings={'run_mode':1})
         if cluster_type=='pbs':
             mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
             os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
@@ -497,9 +502,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
     elif mode==0:
         mglog.info('Setting up serial generation.')
 
-    generate_prep(process_dir)
-    global MADGRAPH_COMMAND_STACK
-    MADGRAPH_COMMAND_STACK += [ 'cd ${MGaMC_PROCESS_DIR}' ]
+    generate_prep(process_dir=os.getcwd())
     global MADGRAPH_CATCH_ERRORS
     generate = stack_subprocess(command,stdin=subprocess.PIPE, stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
