@@ -23,6 +23,7 @@
 #include <cstring>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
@@ -339,9 +340,24 @@ void Sherpa_i::compilePlugin(std::string pluginCode) {
 using namespace ATOOLS;
 
 Atlas_RNG::Atlas_RNG(CLHEP::HepRandomEngine* engine) :
-  External_RNG(), p_engine(engine)
+  External_RNG(), p_engine(engine), p_filename("Config.conf")
 {
+  const int nMax = 26;
+  char alphabet[nMax] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                          'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                          'o', 'p', 'q', 'r', 's', 't', 'u',
+                          'v', 'w', 'x', 'y', 'z' };
+                                                                                 
+  struct stat info;
+  if ( !stat("/dev/shm", &info)) {
+    p_filename = "/dev/shm/Config.conf.";
+    for (size_t i = 0; i < 6; ++i)
+      p_filename += alphabet[rand() % nMax];
+  }
+  std::cout << "RNG state being saved to: " << p_filename << std::endl;
 }
+
+Atlas_RNG::~Atlas_RNG() { std::remove(p_filename.c_str()); }
 
 double Atlas_RNG::Get(){
 
@@ -349,9 +365,9 @@ double Atlas_RNG::Get(){
 
 }
 
-void Atlas_RNG::SaveStatus() { p_engine->saveStatus(); }
+void Atlas_RNG::SaveStatus() { p_engine->saveStatus(p_filename.c_str()); }
 
-void Atlas_RNG::RestoreStatus() { p_engine->restoreStatus(); }
+void Atlas_RNG::RestoreStatus() { p_engine->restoreStatus(p_filename.c_str()); }
 
 // some getter magic to make this random number generator available to sherpa
 DECLARE_GETTER(Atlas_RNG,"Atlas_RNG",External_RNG,RNG_Key);
