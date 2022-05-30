@@ -23,7 +23,7 @@ private:
   SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_inputKey{ this, "InputKey", "", "ReadHandleKey for Pileup TRT_DriftCircleContainer" };
   SG::WriteHandleKey<InDet::TRT_DriftCircleContainer> m_outputKey{ this, "OutputKey", "", "WriteHandleKey for Output TRT_DriftCircleContainer" };
 
-  const TRT_ID* m_idHelper;
+  const TRT_ID* m_idHelper = nullptr;
 
 };
 
