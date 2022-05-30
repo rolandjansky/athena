@@ -64,9 +64,8 @@ StatusCode TRT_LocalOccupancy::initialize()
 
   ATH_MSG_INFO ("initialize() successful in " << name());
 
-  //Initlalize ReadHandleKey
-  ATH_CHECK( m_trt_rdo_location.initialize( m_isTrigger));
-  ATH_CHECK( m_trt_driftcircles.initialize( SG::AllowEmpty));
+  //Initialize ReadHandleKeys -  AllowEmpty has to be kept for overlay client passing RDOs as input arg
+  ATH_CHECK( m_trt_driftcircles.initialize(SG::AllowEmpty));  
 
   ATH_CHECK( m_strawStatusKey.initialize() );
   ATH_CHECK( m_strawStatusPermKey.initialize() );
@@ -270,17 +269,12 @@ TRT_LocalOccupancy::countHitsNearTrack (const EventContext &ctx,
                                         OccupancyData& data,
                                         int track_local[NLOCAL][NLOCALPHI]) const
 {
-    SG::ReadHandle<TRT_RDO_Container> p_trtRDOContainer{m_trt_rdo_location, ctx};
-    if ( !p_trtRDOContainer.isValid() ) {
-      ATH_MSG_ERROR( "Could not find the TRT_RDO_Container "
-		     << m_trt_rdo_location.key() );
+
+    SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles,ctx );
+    if (!driftCircleContainer.isValid()){
+      ATH_MSG_FATAL("driftCircleContainer " << m_trt_driftcircles << " not available");
       return;
     }
-
-    SG::ReadCondHandle<TRTCond::StrawStatusData> strawStatusHandle{m_strawStatusKey, ctx};
-    SG::ReadCondHandle<TRTCond::StrawStatusData> strawStatusPermHandle{m_strawStatusPermKey, ctx};
-    const TRTCond::StrawStatusData *strawStatus{*strawStatusHandle};
-    const TRTCond::StrawStatusData *strawStatusPerm{*strawStatusPermHandle};
 
     bool allOfEndcapAFound[2][NLOCALPHI] = {{false}};
 
@@ -293,56 +287,29 @@ TRT_LocalOccupancy::countHitsNearTrack (const EventContext &ctx,
 	// if we already filled this region, skip it
 	if (data.m_hit_local[i][j] > 0) continue;
 
-	TRT_RDO_Container::const_iterator RDO_collection_iter = p_trtRDOContainer->begin();
-	TRT_RDO_Container::const_iterator RDO_collection_end  = p_trtRDOContainer->end();
-	for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
-	  const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
-	  if (!RDO_Collection) return;
-	  if (!RDO_Collection->empty()){
-	    DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end();
+	for (const InDet::TRT_DriftCircleCollection *colNext : *driftCircleContainer) {
+	  if (!colNext) continue;
+	  DataVector<TRT_DriftCircle>::const_iterator p_rdo           =    colNext->begin();
+	  DataVector<TRT_DriftCircle>::const_iterator p_rdo_end       =    colNext->end();
+	  for(; p_rdo!=p_rdo_end; ++p_rdo){
+	    const TRT_DriftCircle* rdo = (*p_rdo);
+	    if(!rdo)        continue;
+ 
+	      Identifier id = rdo->identify();
 
-	    for(r=rb; r!=re; ++r) {
-	      if (!*r)                                continue;
-	      Identifier rdo_id = (*r)->identify();
-
-	      int det      = m_TRTHelper->barrel_ec(         rdo_id)     ;
-	      int lay      = m_TRTHelper->layer_or_wheel(    rdo_id)     ;
-	      int phi      = m_TRTHelper->phi_module(        rdo_id)     ;
+	      int det      = m_TRTHelper->barrel_ec(         id)     ;
+	      int lay      = m_TRTHelper->layer_or_wheel(    id)     ;
+	      int phi      = m_TRTHelper->phi_module(        id)     ;
 	      int i_total       = findArrayTotalIndex(det, lay)-1;
 
 	      if (i_total != i || phi != j) continue; // only fill the one region [i][j]
 
-        IdentifierHash straw_hash = m_TRTHelper->straw_hash(rdo_id);
-	      if((strawStatus->findStatus(straw_hash) != TRTCond::StrawStatus::Good)
-          || (strawStatusPerm->findStatus(straw_hash))) {
-		      continue;
-	      }
-
-	      unsigned int word = (*r)->getWord();
-
-	      double t0 = 0.;
-	      if (m_T0Shift) {
-		unsigned  mask = 0x02000000;
-		bool SawZero = false;
-		int tdcvalue;
-		for(tdcvalue=0;tdcvalue<24;++tdcvalue)
-		  { if      (  (word & mask) && SawZero) break;
-		    if ( !(word & mask) ) SawZero = true;
-		    mask>>=1;
-		    if(tdcvalue==7 || tdcvalue==15) mask>>=1;
-		  }
-		if(!(tdcvalue==0 || tdcvalue==24)) {
-                  t0 =  m_CalDbTool->getT0(rdo_id);
-		}
-	      }
-
-	      if (!passValidityGate(word, t0)) continue;
-	      if (i%3==1 && lay>4)	allOfEndcapAFound[(i<3?0:1)][phi]=true;
+	      if (i%3==1 && lay>4)	allOfEndcapAFound[(i<3?0:1)][phi]=true;  //why the rescaling below?
 
 	      data.m_hit_local[i_total][phi]           +=1;
-	    }
 	  }
 	}
+
 	int hits = data.m_hit_local[i][j];
 	int stws = data.m_stw_local[i][j];
 	data.m_occ_local[i][j] = int(hits*100) / stws;
