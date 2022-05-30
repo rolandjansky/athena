@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import logging
 import threading
 from argparse import ArgumentParser, Namespace
@@ -93,7 +93,8 @@ def setup_parser() -> ArgumentParser:
     advanced.add_argument("-z", "--exclusion-lists", type=str, dest="diff_rules_path", default=".",
                           help="""Specify the directory that contains the lists of variables that will be omitted
                                 while comparing the outputs. The default is ./ and the format of the files is
-                                ${q-test}_${format}_diff-exclusion-list.txt, e.g. q431_AOD_diff-exclusion-list.txt.""")
+                                ${format}_diff-exclusion-list.txt, e.g. AOD_diff-exclusion-list.txt.
+                                The file should contain one regexp per line.""")
     advanced.add_argument("--no-output-checks", action="store_true", dest="disable_output_checks", default=False,
                           help="Disable output checks")
 
