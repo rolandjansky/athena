@@ -105,3 +105,21 @@ def LengthIntegratorToolCfg(ConfigFlags, name="G4UA::UserActionSvc.LengthIntegra
     result.setPrivateTools(CompFactory.G4UA.LengthIntegratorTool(name, **kwargs))
     return result
 
+def RadiationMapsMakerToolCfg(ConfigFlags, name="G4UA::UserActionSvc.RadiationMapsMakerTool", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("ActivationFileName","Activations.txt")
+    kwargs.setdefault("NBinsDPhi",1) 
+    kwargs.setdefault("NBinsTheta",1) 
+    kwargs.setdefault("NBinsR3D",120) 
+    kwargs.setdefault("NBinsZ3D",240) 
+    kwargs.setdefault("NBinsPhi3D",28) 
+    kwargs.setdefault("NBinsLogTimeCut",26) 
+    kwargs.setdefault("PhiMinZoom",0.0) 
+    kwargs.setdefault("PhiMaxZoom",22.5) 
+    kwargs.setdefault("LogTMin",-3.0) 
+    kwargs.setdefault("LogTMax",10.0) 
+    kwargs.setdefault("ElemZMin",1) 
+    kwargs.setdefault("ElemZMax",1) 
+    result.setPrivateTools(CompFactory.G4UA.RadiationMapsMakerTool(name, **kwargs))
+    return result
+
