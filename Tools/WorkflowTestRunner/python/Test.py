@@ -24,7 +24,7 @@ class TestSetup:
         self.checks_only = False
         self.release_reference = ""
         self.release_validation = ""
-        self.release_ID = "master"  # The following is not flexible enough, can probably be hardcoded: environ["AtlasVersion"][0:4]
+        self.release_ID = "22.0"  # The following is not flexible enough, can probably be hardcoded: environ["AtlasVersion"][0:4]
         self.parallel_execution = False
         self.disable_output_checks = False
         self.custom_threads = None
