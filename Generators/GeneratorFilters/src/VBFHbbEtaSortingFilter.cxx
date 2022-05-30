@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -16,12 +16,12 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 // Other classes used by this class:-
-#include <math.h>
+#include <cmath>
 #include <TLorentzVector.h>
 #include <TMath.h>
 #include "xAODJet/JetContainer.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 //--------------------------------------------------------------------------
 VBFHbbEtaSortingFilter::VBFHbbEtaSortingFilter(const std::string& name, ISvcLocator* pSvcLocator): 
@@ -102,7 +102,10 @@ StatusCode VBFHbbEtaSortingFilter::filterEvent() {
     four_jets_etaordering.insert(std::pair<double, const xAOD::Jet*> ( (ite_c->second)->eta(), (ite_c->second)));
     if (m_debug) printf("dbg> ijet=%2d %10.1f @ %d \n", iJet, (ite_c->second)->pt(), __LINE__);
   }
-  
+  if (four_jets_etaordering.size() < 4){
+    setFilterPassed(false);
+    return StatusCode::SUCCESS;
+  }
   ite_c = four_jets_etaordering.begin();
   const xAOD::Jet* forward_jet_1 = (ite_c)->second; ++ite_c; // 1st jet in eta ordering
   const xAOD::Jet* central_jet_1 = (ite_c)->second; ++ite_c; // 2nd jet in eta ordering
