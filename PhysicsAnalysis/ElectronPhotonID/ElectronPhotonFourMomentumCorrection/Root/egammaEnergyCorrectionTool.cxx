@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,6 +11,7 @@
 #include <exception>
 #include <iomanip>
 #include <ios>
+#include <utility>
 
 #include <boost/format.hpp>
 #include <memory>
@@ -1253,8 +1254,8 @@ namespace AtlasRoot {
     if ( ptype == PATCore::ParticleType::Electron && dataType != PATCore::ParticleDataType::Data ) {
 
       double corr = 0;
-      if( scaleVar==egEnergyCorr::Scale::MomentumUp )  corr = m_trkSyst->GetBinContent( m_trkSyst->FindBin(aeta) );
-      else if( scaleVar==egEnergyCorr::Scale::MomentumDown )corr = -m_trkSyst->GetBinContent( m_trkSyst->FindBin(aeta) );
+      if( scaleVar==egEnergyCorr::Scale::MomentumUp )  corr = m_trkSyst->GetBinContent( m_trkSyst->FindFixBin(aeta) );
+      else if( scaleVar==egEnergyCorr::Scale::MomentumDown )corr = -m_trkSyst->GetBinContent( m_trkSyst->FindFixBin(aeta) );
 
       correctedMomentum *= 1. + corr*varSF;
     }
@@ -1276,7 +1277,7 @@ namespace AtlasRoot {
 							 egEnergyCorr::Scale::Variation scaleVar,
                                                          egEnergyCorr::Resolution::Variation resVar,
                                                          egEnergyCorr::Resolution::resolutionType resType,
-                                                         double varSF ) const {
+                                                         double varSF ) {
     double fullyCorrectedEnergy = energy;
 
     // Correct fast sim flavours
@@ -1494,7 +1495,7 @@ namespace AtlasRoot {
       if (m_gain_tool) { // recipe for run1
         if (!(fabs(cl_eta) < 1.52 and fabs(cl_eta) > 1.37) and fabs(cl_eta) < 2.4) {
   	      double evar = m_gain_tool->CorrectionGainTool(cl_eta, energy/GeV, energyS2/GeV, ptype);
-  	      double meanES2 = m_zeeES2Profile->GetBinContent(m_zeeES2Profile->FindBin(cl_eta)); // in GeV already
+  	      double meanES2 = m_zeeES2Profile->GetBinContent(m_zeeES2Profile->FindFixBin(cl_eta)); // in GeV already
   	      double eref = m_gain_tool->CorrectionGainTool(cl_eta, meanE/GeV, meanES2, PATCore::ParticleType::Electron );
   	      daL2GainSwitch = evar/energy - eref/meanE;
   	      if( var==egEnergyCorr::Scale::L2GainDown )
@@ -1761,11 +1762,11 @@ namespace AtlasRoot {
   // constant term fitted in data (long range)
 
   double egammaEnergyCorrectionTool::dataConstantTerm( double eta ) const {
-    return std::max(0., m_resNom->GetBinContent(m_resNom->FindBin(eta)));
+    return std::max(0., m_resNom->GetBinContent(m_resNom->FindFixBin(eta)));
   }
 
   double egammaEnergyCorrectionTool::dataConstantTermError( double eta ) const {
-    return m_resSyst->GetBinContent(m_resSyst->FindBin(eta));
+    return m_resSyst->GetBinContent(m_resSyst->FindFixBin(eta));
   }
 
 
@@ -1773,7 +1774,7 @@ namespace AtlasRoot {
 
   double egammaEnergyCorrectionTool::dataZPeakResolution( double cl_eta ) const {
 
-    return m_peakResData->GetBinContent( m_peakResData->GetXaxis()->FindBin(cl_eta) );
+    return m_peakResData->GetBinContent( std::as_const(*m_peakResData).GetXaxis()->FindBin(cl_eta) );
 
   }
 
@@ -1782,7 +1783,7 @@ namespace AtlasRoot {
 
   double egammaEnergyCorrectionTool::mcZPeakResolution( double cl_eta ) const {
 
-    return m_peakResMC->GetBinContent( m_peakResMC->GetXaxis()->FindBin(cl_eta) );
+    return m_peakResMC->GetBinContent( std::as_const(*m_peakResMC).GetXaxis()->FindBin(cl_eta) );
 
   }
 
@@ -2020,7 +2021,7 @@ namespace AtlasRoot {
                                                            PATCore::ParticleType::Type ptype,
                                                            PATCore::ParticleDataType::DataType dataType,
                                                            egEnergyCorr::Resolution::Variation value,
-                                                           egEnergyCorr::Resolution::resolutionType resType) const {
+                                                           egEnergyCorr::Resolution::resolutionType resType) {
 
     if (dataType == PATCore::ParticleDataType::Data) { ATH_MSG_FATAL("Trying to compute smearing correction on data"); }
 
@@ -2138,7 +2139,7 @@ namespace AtlasRoot {
     }
     else {
       // run 1
-      return m_G4OverAFII_electron->GetBinContent( m_G4OverAFII_electron->GetXaxis()->FindBin(eta) );
+      return m_G4OverAFII_electron->GetBinContent( std::as_const(*m_G4OverAFII_electron).GetXaxis()->FindBin(eta) );
     }
   }
 
@@ -2151,7 +2152,7 @@ namespace AtlasRoot {
     if( aeta<3.3 || aeta>4.9 )
       return 1.;
 
-    return m_G4OverFrSh->GetBinContent( m_G4OverFrSh->GetXaxis()->FindBin(aeta) );
+    return m_G4OverFrSh->GetBinContent( std::as_const(*m_G4OverFrSh).GetXaxis()->FindBin(aeta) );
 
   }
 
@@ -2164,45 +2165,45 @@ namespace AtlasRoot {
       return -999.0;
     }
 
-    int ieta = m_zeeNom->GetXaxis()->FindBin(eta);
+    int ieta = std::as_const(*m_zeeNom).GetXaxis()->FindBin(eta);
     double value = m_zeeNom->GetBinContent(ieta);
 
     // for es2018_R21_v0 and v1 different set of scales for 2018, 2017, 2016 and 2015 data
     if ((m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1)  && runnumber<=341649 && runnumber>=324320){
-      int ieta = m_zeeNom_data2017->GetXaxis()->FindBin(eta);
+      int ieta = std::as_const(*m_zeeNom_data2017).GetXaxis()->FindBin(eta);
       value = m_zeeNom_data2017->GetBinContent(ieta);
     }
 
      // for es2017_R21_v0 different set of scales for 2017, 2016 and 2015 data
     if ( m_esmodel == egEnergyCorr::es2017_R21_v0 && runnumber<322817 && runnumber>=297000) {
-       int ieta = m_zeeNom_data2016->GetXaxis()->FindBin(eta);
+      int ieta = std::as_const(*m_zeeNom_data2016).GetXaxis()->FindBin(eta);
        value = m_zeeNom_data2016->GetBinContent(ieta);
     }
 
     if ( (m_esmodel == egEnergyCorr::es2017_R21_v1 || m_esmodel == egEnergyCorr::es2018_R21_v0 || m_esmodel == egEnergyCorr::es2018_R21_v1) && runnumber<322817 && runnumber>=297000) {
-      int ieta = m_zeeNom_data2016->GetXaxis()->FindBin(eta);
+      int ieta = std::as_const(*m_zeeNom_data2016).GetXaxis()->FindBin(eta);
       value = m_zeeNom_data2016->GetBinContent(ieta);
     }
 
     if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 && runnumber<322817 && runnumber>=297000) {
-      int ieta = m_zeeNom_data2016->GetXaxis()->FindBin(eta);
+      int ieta = std::as_const(*m_zeeNom_data2016).GetXaxis()->FindBin(eta);
       value = m_zeeNom_data2016->GetBinContent(ieta);
     }
 
     if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 && runnumber<297000) {
-       int ieta = m_zeeNom_data2015->GetXaxis()->FindBin(eta);
+       int ieta = std::as_const(*m_zeeNom_data2015).GetXaxis()->FindBin(eta);
        value = m_zeeNom_data2015->GetBinContent(ieta);
     }
 
     if (m_esmodel == egEnergyCorr::es2017_R21_ofc0_v1 && runnumber>347847) {
-        int ieta = m_zeeNom_data2018->GetXaxis()->FindBin(eta);
+        int ieta = std::as_const(*m_zeeNom_data2018).GetXaxis()->FindBin(eta);
         value = m_zeeNom_data2018->GetBinContent(ieta);
     }
 
     if ((m_esmodel==egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1 or m_esmodel == egEnergyCorr::es2018_R21_v0 or m_esmodel == egEnergyCorr::es2018_R21_v1) && runnumber < 297000) {
       // 2 sets of scales for this configuration
       // change histogram if 2015 data
-      int ieta = m_zeeNom_data2015->GetXaxis()->FindBin(eta);
+      int ieta = std::as_const(*m_zeeNom_data2015).GetXaxis()->FindBin(eta);
       value = m_zeeNom_data2015->GetBinContent(ieta);
     }
 
@@ -2294,13 +2295,13 @@ namespace AtlasRoot {
       value -= get_ZeeSyst(eta) * varSF;
     } else if( var==egEnergyCorr::Scale::ZeePhysUp && m_zeePhys ) {
 
-      ieta = m_zeePhys->GetXaxis()->FindBin( eta );
+      ieta = std::as_const(*m_zeePhys).GetXaxis()->FindBin( eta );
       value += m_zeePhys->GetBinContent(ieta) * varSF;
 
 
     } else if( var==egEnergyCorr::Scale::ZeePhysDown && m_zeePhys ) {
 
-      ieta = m_zeePhys->GetXaxis()->FindBin( eta );
+      ieta = std::as_const(*m_zeePhys).GetXaxis()->FindBin( eta );
       value -= m_zeePhys->GetBinContent(ieta) * varSF;
 
 
@@ -2342,7 +2343,7 @@ namespace AtlasRoot {
 
     else if( var==egEnergyCorr::Scale::ZeeAllDown || var==egEnergyCorr::Scale::ZeeAllUp ) {
 
-      ieta = m_zeeNom->GetXaxis()->FindBin( eta );
+      ieta = std::as_const(*m_zeeNom).GetXaxis()->FindBin( eta );
       double diff = pow(m_zeeNom->GetBinError(ieta) * varSF, 2);
 
       if( m_zeeSyst ) {
@@ -2350,7 +2351,7 @@ namespace AtlasRoot {
       }
 
       if( m_zeePhys ) {
-        ieta = m_zeePhys->GetXaxis()->FindBin(eta);
+        ieta = std::as_const(*m_zeePhys).GetXaxis()->FindBin(eta);
         diff += pow(m_zeePhys->GetBinContent(ieta) * varSF, 2);
       }
 
@@ -2467,31 +2468,31 @@ namespace AtlasRoot {
     if( iLayer==0 ) { // use nearestEta
 
       if( var==egEnergyCorr::Scale::PSUp && m_aPSNom )
-	value =  m_aPSNom->GetBinError( m_aPSNom->FindBin(nearestEta) );
+	value =  m_aPSNom->GetBinError( m_aPSNom->FindFixBin(nearestEta) );
 
       else if( var==egEnergyCorr::Scale::PSDown && m_aPSNom )
-	value = -m_aPSNom->GetBinError( m_aPSNom->FindBin(nearestEta) );
+	value = -m_aPSNom->GetBinError( m_aPSNom->FindFixBin(nearestEta) );
 
       else if( var==egEnergyCorr::Scale::PSb12Up && m_daPSb12 )
-	value =  m_daPSb12->GetBinContent( m_daPSb12->FindBin(nearestEta) );
+	value =  m_daPSb12->GetBinContent( m_daPSb12->FindFixBin(nearestEta) );
 
       else if( var==egEnergyCorr::Scale::PSb12Down && m_daPSb12 )
-	value = -m_daPSb12->GetBinContent( m_daPSb12->FindBin(nearestEta) );
+	value = -m_daPSb12->GetBinContent( m_daPSb12->FindFixBin(nearestEta) );
 
       else if( var==egEnergyCorr::Scale::LArElecUnconvUp && m_daPSCor )
-	value =  m_daPSCor->GetBinContent( m_daPSCor->FindBin(nearestEta) );
+	value =  m_daPSCor->GetBinContent( m_daPSCor->FindFixBin(nearestEta) );
 
       else if( var==egEnergyCorr::Scale::LArElecUnconvDown && m_daPSCor )
-	value = -m_daPSCor->GetBinContent( m_daPSCor->FindBin(nearestEta) );
+	value = -m_daPSCor->GetBinContent( m_daPSCor->FindFixBin(nearestEta) );
 
     }
 
     else if( iLayer==1 ) { // use cl_eta
 
-      if (var == egEnergyCorr::Scale::S12Up && m_aS12Nom)	{ value = m_aS12Nom->GetBinError(m_aS12Nom->FindBin(cl_eta)); }
-      else if (var == egEnergyCorr::Scale::S12Down && m_aS12Nom) { value = -m_aS12Nom->GetBinError(m_aS12Nom->FindBin(cl_eta)); }
-      else if (var == egEnergyCorr::Scale::LArCalibUp && m_daS12Cor) { value = m_daS12Cor->GetBinContent(m_daS12Cor->FindBin(cl_eta)); }
-      else if (var == egEnergyCorr::Scale::LArCalibDown && m_daS12Cor) { value = -m_daS12Cor->GetBinContent( m_daS12Cor->FindBin(cl_eta)); }
+      if (var == egEnergyCorr::Scale::S12Up && m_aS12Nom)	{ value = m_aS12Nom->GetBinError(m_aS12Nom->FindFixBin(cl_eta)); }
+      else if (var == egEnergyCorr::Scale::S12Down && m_aS12Nom) { value = -m_aS12Nom->GetBinError(m_aS12Nom->FindFixBin(cl_eta)); }
+      else if (var == egEnergyCorr::Scale::LArCalibUp && m_daS12Cor) { value = m_daS12Cor->GetBinContent(m_daS12Cor->FindFixBin(cl_eta)); }
+      else if (var == egEnergyCorr::Scale::LArCalibDown && m_daS12Cor) { value = -m_daS12Cor->GetBinContent( m_daS12Cor->FindFixBin(cl_eta)); }
       else if (var == egEnergyCorr::Scale::LArCalibExtra2015PreUp and
 	       (m_esmodel == egEnergyCorr::es2015PRE or m_esmodel == egEnergyCorr::es2015PRE_res_improved or
 		m_esmodel == egEnergyCorr::es2015cPRE or m_esmodel == egEnergyCorr::es2015cPRE_res_improved or
@@ -2623,14 +2624,14 @@ namespace AtlasRoot {
 
       if( iLayer==0 ) {
 
-	const int ieta = m_psUnconvertedEtaBins->FindBin( aeta ) - 1;
+	const int ieta = m_psUnconvertedEtaBins->FindFixBin( aeta ) - 1;
 	if (ieta >= 0 and ieta < m_psUnconvertedGraphs->GetSize()) {
 	  value = ((TF1*)m_psUnconvertedGraphs->At(ieta))->Eval( ET );
 	}
 
       } else if( iLayer==1 ) {
 
-	const int ieta = m_s12UnconvertedEtaBins->FindBin( aeta ) - 1;
+	const int ieta = m_s12UnconvertedEtaBins->FindFixBin( aeta ) - 1;
 	if (ieta >= 0 and ieta < m_s12UnconvertedGraphs->GetSize()) {
 	  value = ((TF1*)m_s12UnconvertedGraphs->At(ieta))->Eval( ET );
 	}
@@ -2640,14 +2641,14 @@ namespace AtlasRoot {
 
       if( iLayer==0 ) {
 
-	const int ieta = m_psConvertedEtaBins->FindBin( aeta ) - 1;
+	const int ieta = m_psConvertedEtaBins->FindFixBin( aeta ) - 1;
 	if (ieta >= 0 and ieta < m_psConvertedGraphs->GetSize()) {
 	  value = ((TF1*)m_psConvertedGraphs->At(ieta))->Eval( ET );
 	}
 
       } else if( iLayer==1 ) {
 
-	const int ieta = m_s12ConvertedEtaBins->FindBin( aeta ) - 1;
+	const int ieta = m_s12ConvertedEtaBins->FindFixBin( aeta ) - 1;
 	if (ieta >= 0 and ieta < m_s12ConvertedGraphs->GetSize()) {
 	  value = ((TF1*)m_s12ConvertedGraphs->At(ieta))->Eval( ET );
 	}
@@ -2684,71 +2685,71 @@ namespace AtlasRoot {
       // ... NOTE : watch out here : this histo does not follow the usual value/error look-up convention
 
       if( var==egEnergyCorr::Scale::MatIDUp )
-	value += m_dX_ID_Nom->GetBinContent( m_dX_ID_Nom->FindBin(aeta) );
+	value += m_dX_ID_Nom->GetBinContent( m_dX_ID_Nom->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::MatIDDown )
-	value -= m_dX_ID_Nom->GetBinContent( m_dX_ID_Nom->FindBin(aeta) );
+	value -= m_dX_ID_Nom->GetBinContent( m_dX_ID_Nom->FindFixBin(aeta) );
 
       // "Cryo" : integral from IP to PS or Acc, depending on eta
 
     } else if( imat==egEnergyCorr::MatCryo && aeta<1.82 && m_dX_IPPS_Nom ) { // Integral between IP and PS
 
-      value = m_dX_IPPS_Nom->GetBinContent( m_dX_IPPS_Nom->FindBin(aeta) );
+      value = m_dX_IPPS_Nom->GetBinContent( m_dX_IPPS_Nom->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::MatCryoUp )
-	value += m_dX_IPPS_Nom->GetBinError( m_dX_IPPS_Nom->FindBin(aeta) );
+	value += m_dX_IPPS_Nom->GetBinError( m_dX_IPPS_Nom->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::MatCryoDown )
-	value -= m_dX_IPPS_Nom->GetBinError( m_dX_IPPS_Nom->FindBin(aeta) );
+	value -= m_dX_IPPS_Nom->GetBinError( m_dX_IPPS_Nom->FindFixBin(aeta) );
 
       // ... careful : sign below should be opposite to the effect of this source on the PS scale!
       if( var==egEnergyCorr::Scale::LArElecUnconvUp && m_dX_IPPS_LAr )
-	value -= m_dX_IPPS_LAr->GetBinContent( m_dX_IPPS_LAr->FindBin(aeta) );
+	value -= m_dX_IPPS_LAr->GetBinContent( m_dX_IPPS_LAr->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::LArElecUnconvDown && m_dX_IPPS_LAr )
-	value += m_dX_IPPS_LAr->GetBinContent( m_dX_IPPS_LAr->FindBin(aeta) );
+	value += m_dX_IPPS_LAr->GetBinContent( m_dX_IPPS_LAr->FindFixBin(aeta) );
 
     } else if( imat==egEnergyCorr::MatCryo && aeta>1.82 && m_dX_IPAcc_Nom ) { // Integral between IP and Accordion
 
-      value = m_dX_IPAcc_Nom->GetBinContent( m_dX_IPAcc_Nom->FindBin(aeta) );
+      value = m_dX_IPAcc_Nom->GetBinContent( m_dX_IPAcc_Nom->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::MatCryoUp )
-	value += m_dX_IPAcc_Nom->GetBinError( m_dX_IPAcc_Nom->FindBin(aeta) );
+	value += m_dX_IPAcc_Nom->GetBinError( m_dX_IPAcc_Nom->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::MatCryoDown )
-	value -= m_dX_IPAcc_Nom->GetBinError( m_dX_IPAcc_Nom->FindBin(aeta) );
+	value -= m_dX_IPAcc_Nom->GetBinError( m_dX_IPAcc_Nom->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::LArElecCalibUp && m_dX_IPAcc_LAr )
-	value += m_dX_IPAcc_LAr->GetBinContent( m_dX_IPAcc_LAr->FindBin(aeta) );
+	value += m_dX_IPAcc_LAr->GetBinContent( m_dX_IPAcc_LAr->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::LArElecCalibDown && m_dX_IPAcc_LAr )
-	value -= m_dX_IPAcc_LAr->GetBinContent( m_dX_IPAcc_LAr->FindBin(aeta) );
+	value -= m_dX_IPAcc_LAr->GetBinContent( m_dX_IPAcc_LAr->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::G4Up && m_dX_IPAcc_G4 )
-	value += m_dX_IPAcc_G4->GetBinContent( m_dX_IPAcc_G4->FindBin(aeta) );
+	value += m_dX_IPAcc_G4->GetBinContent( m_dX_IPAcc_G4->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::G4Down && m_dX_IPAcc_G4 )
-	value -= m_dX_IPAcc_G4->GetBinContent( m_dX_IPAcc_G4->FindBin(aeta) );
+	value -= m_dX_IPAcc_G4->GetBinContent( m_dX_IPAcc_G4->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::L1GainUp && m_dX_IPAcc_GL1 )
-      	value += m_dX_IPAcc_GL1->GetBinContent( m_dX_IPAcc_GL1->FindBin(aeta) );
+      	value += m_dX_IPAcc_GL1->GetBinContent( m_dX_IPAcc_GL1->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::L1GainDown && m_dX_IPAcc_GL1 )
-      	value -= m_dX_IPAcc_GL1->GetBinContent( m_dX_IPAcc_GL1->FindBin(aeta) );
+      	value -= m_dX_IPAcc_GL1->GetBinContent( m_dX_IPAcc_GL1->FindFixBin(aeta) );
 
       // "Calo" : between PS and Strips
 
     } else if( imat==egEnergyCorr::MatCalo && aeta<1.82 && m_dX_PSAcc_Nom ) {
 
-      value = m_dX_PSAcc_Nom->GetBinContent( m_dX_PSAcc_Nom->FindBin(aeta) );
+      value = m_dX_PSAcc_Nom->GetBinContent( m_dX_PSAcc_Nom->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::MatCaloUp )
-	value += m_dX_PSAcc_Nom->GetBinError( m_dX_PSAcc_Nom->FindBin(aeta) );
+	value += m_dX_PSAcc_Nom->GetBinError( m_dX_PSAcc_Nom->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::MatCaloDown )
-	value -= m_dX_PSAcc_Nom->GetBinError( m_dX_PSAcc_Nom->FindBin(aeta) );
+	value -= m_dX_PSAcc_Nom->GetBinError( m_dX_PSAcc_Nom->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::LArUnconvCalibUp && m_dX_PSAcc_LAr )
-	value += m_dX_PSAcc_LAr->GetBinContent( m_dX_PSAcc_LAr->FindBin(aeta) );
+	value += m_dX_PSAcc_LAr->GetBinContent( m_dX_PSAcc_LAr->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::LArUnconvCalibDown && m_dX_PSAcc_LAr )
-	value -= m_dX_PSAcc_LAr->GetBinContent( m_dX_PSAcc_LAr->FindBin(aeta) );
+	value -= m_dX_PSAcc_LAr->GetBinContent( m_dX_PSAcc_LAr->FindFixBin(aeta) );
 
       if( var==egEnergyCorr::Scale::G4Up && m_dX_PSAcc_G4 )
-	value += m_dX_PSAcc_G4->GetBinContent( m_dX_PSAcc_G4->FindBin(aeta) );
+	value += m_dX_PSAcc_G4->GetBinContent( m_dX_PSAcc_G4->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::G4Down && m_dX_PSAcc_G4 )
-	value -= m_dX_PSAcc_G4->GetBinContent( m_dX_PSAcc_G4->FindBin(aeta) );
+	value -= m_dX_PSAcc_G4->GetBinContent( m_dX_PSAcc_G4->FindFixBin(aeta) );
 
     }
 
@@ -2979,7 +2980,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
        DAlphaDXCalo = getMaterialEffect(geoCalo,ptype,cl_eta,ET);
 
     } else {
-      int ialpha = m_matElectronEtaBins->FindBin( fabs(cl_eta) ) - 1;
+      int ialpha = m_matElectronEtaBins->FindFixBin( fabs(cl_eta) ) - 1;
       if (ialpha<0 || ialpha>=m_matElectronGraphs[geoGp]->GetSize())
         return 0.;
 
@@ -3055,17 +3056,17 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     if( ptype==PATCore::ParticleType::UnconvertedPhoton ) {
 
       if( var==egEnergyCorr::Scale::LeakageUnconvUp ) {
-	alpha =  m_leakageUnconverted->GetBinContent( m_leakageUnconverted->FindBin(aeta) );
+	alpha =  m_leakageUnconverted->GetBinContent( m_leakageUnconverted->FindFixBin(aeta) );
       } else if( var==egEnergyCorr::Scale::LeakageUnconvDown ) {
-	alpha = -m_leakageUnconverted->GetBinContent( m_leakageUnconverted->FindBin(aeta) );
+	alpha = -m_leakageUnconverted->GetBinContent( m_leakageUnconverted->FindFixBin(aeta) );
       }
 
     } else if( ptype==PATCore::ParticleType::ConvertedPhoton ) {
 
       if( var==egEnergyCorr::Scale::LeakageConvUp ) {
-	alpha =  m_leakageConverted->GetBinContent( m_leakageConverted->FindBin(aeta) );
+	alpha =  m_leakageConverted->GetBinContent( m_leakageConverted->FindFixBin(aeta) );
       } else if( var==egEnergyCorr::Scale::LeakageConvDown ) {
-	alpha = -m_leakageConverted->GetBinContent( m_leakageConverted->FindBin(aeta) );
+	alpha = -m_leakageConverted->GetBinContent( m_leakageConverted->FindFixBin(aeta) );
       }
 
     }
@@ -3087,20 +3088,20 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     if( ptype==PATCore::ParticleType::UnconvertedPhoton ) {
 
       if( var==egEnergyCorr::Scale::ConvEfficiencyUp )
-	alpha =  m_convRecoEfficiency->GetBinContent( m_convRecoEfficiency->FindBin(aeta) );
+	alpha =  m_convRecoEfficiency->GetBinContent( m_convRecoEfficiency->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::ConvEfficiencyDown )
-	alpha = -m_convRecoEfficiency->GetBinContent( m_convRecoEfficiency->FindBin(aeta) );
+	alpha = -m_convRecoEfficiency->GetBinContent( m_convRecoEfficiency->FindFixBin(aeta) );
 
     } else if( ptype==PATCore::ParticleType::ConvertedPhoton ) {
 
       if( var==egEnergyCorr::Scale::ConvFakeRateUp )
-	alpha =  m_convFakeRate->GetBinContent( m_convFakeRate->FindBin(aeta) );
+	alpha =  m_convFakeRate->GetBinContent( m_convFakeRate->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::ConvFakeRateDown )
-	alpha = -m_convFakeRate->GetBinContent( m_convFakeRate->FindBin(aeta) );
+	alpha = -m_convFakeRate->GetBinContent( m_convFakeRate->FindFixBin(aeta) );
       else if( var==egEnergyCorr::Scale::ConvRadiusUp )
-	alpha =  m_convRadius->GetBinContent( m_convRadius->FindBin(aeta, ET) );
+	alpha =  m_convRadius->GetBinContent( m_convRadius->FindFixBin(aeta, ET) );
       else if( var==egEnergyCorr::Scale::ConvRadiusDown )
-	alpha = -m_convRadius->GetBinContent( m_convRadius->FindBin(aeta, ET) );
+	alpha = -m_convRadius->GetBinContent( m_convRadius->FindFixBin(aeta, ET) );
 
     }
 
@@ -3155,13 +3156,13 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     if( var==egEnergyCorr::Scale::PedestalUp || var==egEnergyCorr::Scale::PedestalDown ) {
 
       if( iLayer==0 )
-	pedestal = m_pedestalL0->GetBinContent( m_pedestalL0->FindBin(aeta) );
+	pedestal = m_pedestalL0->GetBinContent( m_pedestalL0->FindFixBin(aeta) );
       else if( iLayer==1 )
-	pedestal = m_pedestalL1->GetBinContent( m_pedestalL1->FindBin(aeta) );
+	pedestal = m_pedestalL1->GetBinContent( m_pedestalL1->FindFixBin(aeta) );
       else if( iLayer==2 )
-	pedestal = m_pedestalL2->GetBinContent( m_pedestalL2->FindBin(aeta) );
+	pedestal = m_pedestalL2->GetBinContent( m_pedestalL2->FindFixBin(aeta) );
       else if( iLayer==3 )
-	pedestal = m_pedestalL3->GetBinContent( m_pedestalL3->FindBin(aeta) );
+	pedestal = m_pedestalL3->GetBinContent( m_pedestalL3->FindFixBin(aeta) );
 
       if( ptype==PATCore::ParticleType::UnconvertedPhoton && aeta<1.4 ) {
 	if( iLayer<=1 )
@@ -3552,7 +3553,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 
   double egammaEnergyCorrectionTool::get_ZeeSyst(double eta) const
   {
-    const auto ieta = m_zeeSyst->GetXaxis()->FindFixBin(eta);
+    const auto ieta = std::as_const(*m_zeeSyst).GetXaxis()->FindFixBin(eta);
     auto value_histo = m_zeeSyst->GetBinContent(ieta);
 
     return value_histo;
@@ -3560,7 +3561,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 
   const TAxis& egammaEnergyCorrectionTool::get_ZeeStat_eta_axis() const
   {
-    return *m_zeeNom->GetXaxis();
+    return *std::as_const(*m_zeeNom).GetXaxis();
   }
 
 

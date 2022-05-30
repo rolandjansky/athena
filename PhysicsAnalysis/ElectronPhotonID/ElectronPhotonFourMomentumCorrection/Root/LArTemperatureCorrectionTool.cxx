@@ -55,7 +55,7 @@ LArTemperatureCorrectionTool::LArTemperatureCorrectionTool(const std::string& fi
 }
 
 LArTemperatureCorrectionTool::AllValues
-LArTemperatureCorrectionTool::search_correction(int run) const
+LArTemperatureCorrectionTool::search_correction(int run)
 {
   AllValues temp = search_temperature(run);
   temp.barrel = 1. - (temp.barrel - base_temperature.barrel) * sensitivity_temperature.barrel;
@@ -65,7 +65,7 @@ LArTemperatureCorrectionTool::search_correction(int run) const
 }
 
 LArTemperatureCorrectionTool::AllValues
-LArTemperatureCorrectionTool::search_temperature(int run) const
+LArTemperatureCorrectionTool::search_temperature(int run)
 {
   Float_t t_barrel = base_temperature.barrel;
   Float_t t_endcapA = base_temperature.endcapA;
@@ -108,7 +108,7 @@ LArTemperatureCorrectionTool::search_temperature(int run) const
 }
 
 LArTemperatureCorrectionTool::AllValues
-LArTemperatureCorrectionTool::get_corrections(int run) const
+LArTemperatureCorrectionTool::get_corrections(int run)
 {
   const auto it = m_cache.find(run);
   if (it != m_cache.end()) {

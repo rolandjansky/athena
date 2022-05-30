@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ namespace AtlasRoot {
 			       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
 			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
-			       double varSF = 1.0 ) const;
+			       double varSF = 1.0 );
 
 
     double resolution(double energy, double cl_eta, double cl_etaCalo,
@@ -344,12 +344,11 @@ namespace AtlasRoot {
     const TAxis& get_ZeeStat_eta_axis() const;
 
   private:
-    // TODO: remove mutable
-    mutable std::unique_ptr<egGain::GainTool> m_gain_tool;                    // run 1
+    std::unique_ptr<egGain::GainTool> m_gain_tool;                    // run 1
     std::unique_ptr<egGain::GainUncertainty> m_gain_tool_run2;        // based on special run for run2
-    mutable std::unique_ptr<eg_resolution> m_resolution_tool;
-    mutable std::unique_ptr<get_MaterialResolutionEffect> m_getMaterialDelta;
-    mutable std::unique_ptr<e1hg_systematics> m_e1hg_tool;
+    std::unique_ptr<eg_resolution> m_resolution_tool;
+    std::unique_ptr<get_MaterialResolutionEffect> m_getMaterialDelta;
+    std::unique_ptr<e1hg_systematics> m_e1hg_tool;
 
     double getAlphaValue(long int runnumber, double cl_eta, double cl_etaCalo,
 			 double energy, double energyS2, double eraw,
@@ -373,7 +372,7 @@ namespace AtlasRoot {
 				  PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
 				  PATCore::ParticleDataType::DataType dataType = PATCore::ParticleDataType::Full,
                                   egEnergyCorr::Resolution::Variation value = egEnergyCorr::Resolution::Nominal,
-                                  egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 ) const;
+                                  egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 );
 
     /// MC calibration corrections
 
@@ -460,7 +459,7 @@ namespace AtlasRoot {
 
     std::string m_rootFileName;
 
-    mutable TRandom3   m_random3;
+    TRandom3   m_random3;
 
     unsigned int  m_begRunNumber;
     unsigned int  m_endRunNumber;

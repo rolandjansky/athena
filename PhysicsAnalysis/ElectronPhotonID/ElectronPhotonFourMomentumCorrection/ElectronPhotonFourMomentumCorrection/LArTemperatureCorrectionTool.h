@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTEMPERATURECORRECTIONTOOL_H
@@ -37,10 +37,10 @@ public:
   struct AllValues { double barrel; double endcapA; double endcapC; };
   LArTemperatureCorrectionTool(const std::string& filename);
   /** correction should be applied on MC as a multiplication: E = E * correction **/
-  AllValues get_corrections(int run) const;
-  double get_correction_barrel(int run) const { return get_corrections(run).barrel; }
-  double get_correction_endcapA(int run) const { return get_corrections(run).endcapA; }
-  double get_correction_endcapC(int run) const { return get_corrections(run).endcapC; }
+  AllValues get_corrections(int run);
+  double get_correction_barrel(int run) { return get_corrections(run).barrel; }
+  double get_correction_endcapA(int run) { return get_corrections(run).endcapA; }
+  double get_correction_endcapC(int run) { return get_corrections(run).endcapC; }
   int get_cache_size() const { return m_cache.size(); }
   int get_first_run() const { return m_first_run; }
   int get_last_run() const { return m_last_run; }
@@ -49,9 +49,9 @@ public:
 private:
   std::unique_ptr<TFile> m_file;
   TTree* m_tree;  // raw pointer, let ROOT manage it
-  AllValues search_temperature(int run) const;
-  AllValues search_correction(int run) const;
-  mutable std::map<int, AllValues> m_cache;
+  AllValues search_temperature(int run);
+  AllValues search_correction(int run);
+  std::map<int, AllValues> m_cache;
   int m_first_run, m_last_run;
 };
 
