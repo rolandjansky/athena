@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKPARTICLETRUTHCOLLECTIONCNV_P2_H 
@@ -15,23 +15,26 @@ namespace Rec { class TrackParticleTruthCollection_p2; }
 
 
 class TrackParticleTruthCollectionCnv_p2 
-  : public T_AthenaPoolTPCnvBase<TrackParticleTruthCollection,
-                                 Rec::TrackParticleTruthCollection_p2>
+  : public T_AthenaPoolTPCnvConstBase<TrackParticleTruthCollection,
+                                      Rec::TrackParticleTruthCollection_p2>
 { 
-public: 
+public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
   /** Method creating the transient representation of @c Analysis::TrackParticleTruthCollection
    *  from its persistent representation @c TrackParticleTruthCollection_p2
    */
   virtual void persToTrans( const Rec::TrackParticleTruthCollection_p2* persObj, 
                             TrackParticleTruthCollection* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
   
   /** Method creating the persistent representation @c TrackParticleTruthCollection_p2
    *  from its transient representation @c Analysis::TrackParticleTruthCollection
    */
   virtual void transToPers( const TrackParticleTruthCollection* transObj, 
                             Rec::TrackParticleTruthCollection_p2* persObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
 }; 
 
