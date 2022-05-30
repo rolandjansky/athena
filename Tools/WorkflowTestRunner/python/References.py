@@ -8,7 +8,7 @@
 # Then the subfolders follow the format branch/test/version, i.e. for s3760 in master the reference files are under
 # /eos/atlas/atlascerngroupdisk/data-art/grid-input/WorkflowReferences/master/s3760/v1 for v1 version
 
-# Format is "test-branch" : "version"
+# Format is "test" : "version"
 references_map = {
     # Simulation
     "s3759": "v9",
