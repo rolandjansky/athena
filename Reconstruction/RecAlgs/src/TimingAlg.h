@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECALGS_TIMINGALG_H
@@ -8,6 +8,7 @@
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -21,7 +22,7 @@ from a getrusage call to the vector.
 @author Rolf Seuster <seuster AT cern.ch>
 */
 
-class TimingAlg : public AthAlgorithm
+class ATLAS_NOT_THREAD_SAFE TimingAlg : public AthAlgorithm
 {
  public:
   
