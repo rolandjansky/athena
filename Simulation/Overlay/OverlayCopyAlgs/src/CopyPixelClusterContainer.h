@@ -23,7 +23,7 @@ private:
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_inputKey{ this, "InputKey", "", "ReadHandleKey for Pileup PixelClusterContainer" };
   SG::WriteHandleKey<InDet::PixelClusterContainer> m_outputKey{ this, "OutputKey", "", "WriteHandleKey for Output PixelClusterContainer" };
 
-  const PixelID* m_idHelper;
+  const PixelID* m_idHelper = nullptr;
 
 };
 

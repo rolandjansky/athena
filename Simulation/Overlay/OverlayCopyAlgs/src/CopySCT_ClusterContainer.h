@@ -23,7 +23,7 @@ private:
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey{ this, "InputKey", "", "ReadHandleKey for Pileup SCT_ClusterContainer" };
   SG::WriteHandleKey<InDet::SCT_ClusterContainer> m_outputKey{ this, "OutputKey", "", "WriteHandleKey for Output SCT_ClusterContainer" };
 
-  const SCT_ID* m_idHelper;
+  const SCT_ID* m_idHelper = nullptr;
 
 };
 
