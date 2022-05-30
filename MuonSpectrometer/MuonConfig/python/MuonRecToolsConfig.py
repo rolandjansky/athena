@@ -282,9 +282,7 @@ def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kw
 
     kwargs.setdefault("AtlasExtrapolator", result.popToolsAndMerge( AtlasExtrapolatorCfg(flags) ) )
     kwargs.setdefault("MuonExtrapolator",  result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) )
-    kwargs.setdefault("MuonExtrapolator2", result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) ) # Reported in ATLASRECTS-6658
     kwargs.setdefault('EDMPrinter', result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
-
     result.setPrivateTools(
         CompFactory.Muon.MuonTrackExtrapolationTool(name, **kwargs))
     return result
