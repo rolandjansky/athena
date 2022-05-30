@@ -4,7 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-include: 22.0/Athena
-# art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
+# art-input: mc21.601190.PhPy8EG_AZNLO_Zmumu.recon.RDO.e8392_e7400_s3775_r13614
 # art-input-nfiles: 4
 # art-athena-mt: 8
 # art-memory: 4096
