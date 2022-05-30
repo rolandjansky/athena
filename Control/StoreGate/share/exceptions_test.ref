@@ -4,10 +4,15 @@ SG::ExcBadHandleKey: Bad key format for VarHandleKey: `xkey'
 SG::ExcForbiddenMethod: Forbidden method called: `meth'
 SG::ExcHandleInitError: Error initializing VarHandle from VarHandleKey: FooSvc+foo[123]
 SG::ExcUninitKey: Error initializing VarHandle from uninitialized VarHandleKey: FooSvc+foo[123]; keys should be initialized in your initialize().
+SG::ExcUninitKey: Error initializing Flooby from uninitialized FloobyKey: FooSvc+foo[123]; keys should be initialized in your initialize(). Key held by holder.
 SG::ExcConstObject: Tried to retrieve non-const pointer to const object via VarHandleKey: FooSvc+foo[123]
 SG::ExcNullWriteHandle: Attempt to dereference write handle before record: FooSvc+foo[123]
 SG::ExcNullReadHandle: Dereference of read handle failed: FooSvc+foo[123]
 SG::ExcNullUpdateHandle: Dereference of update handle failed: FooSvc+foo[123]
 SG::ExcNonConstHandleKey: Attempt to get non-const VarHandleKey from non-owning VarHandle: FooSvc+foo[123]
-Attempt to dereference invalid SG::Iterator/SG::ConstIterator
+SG::ExcInvalidIterator: Attempt to dereference invalid SG::Iterator/SG::ConstIterator
 Initialization of InitializedReadHandleKey failed.
+SG::ExcBadContext: Bad EventContext extension while building ReadCondHandle. The EventContext extension is not set for key foo.
+SG::ExcNoCondCont: Can't retrieve CondCont from ReadCondHandle for key foo. because
+SG::ExcBadReadCondHandleInit: ReadCondHandle didn't initialize in getRange().
+SG::ExcBadReadCondHandleInit: Range not set in ReadCondHandle::getRange().

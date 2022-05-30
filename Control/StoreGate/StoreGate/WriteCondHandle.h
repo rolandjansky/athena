@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_WRITECONDHANDLE_H
@@ -123,12 +123,8 @@ namespace SG {
     }
 
     if (! m_hkey.isInit()) {
-      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
-      msg << MSG::ERROR 
-          << "WriteCondHandleKey " << key.objKey() << " was not initialized"
-          << endmsg;
-      throw std::runtime_error("WriteCondHandle: WriteCondHandleKey was not initialized");
-
+      throw SG::ExcUninitKey (key.clid(), key.key(), key.storeHandle().name(),
+                              "", "WriteCond");
     }
     
   }

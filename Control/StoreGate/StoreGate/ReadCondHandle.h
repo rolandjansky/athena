@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_READCONDHANDLE_H
@@ -12,6 +12,7 @@
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/exceptions.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 
@@ -110,21 +111,12 @@ namespace SG {
       }
     }
     catch (const std::bad_any_cast& e) {
-      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-      msg << MSG::ERROR
-          << "EventContext extension is not "
-          << (ctx.hasExtension() ? "of type Atlas::ExtendedEventContext" : "set")
-          << " for key "<<key.objKey()<<"."
-          << endmsg;
-      throw;
+      throw SG::ExcBadContext (ctx, key.objKey());
     }
 
     if (ATH_UNLIKELY(!key.isInit())) {
-      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-      msg << MSG::ERROR 
-          << "ReadCondHandleKey " << key.objKey() << " was not initialized"
-          << endmsg;
-      throw std::runtime_error("ReadCondHandle: ReadCondHandleKey was not initialized");
+      throw SG::ExcUninitKey (key.clid(), key.key(), key.storeHandle().name(),
+                              "", "ReadCond");
     }
 
     if (ATH_UNLIKELY(m_cc == 0)) {
@@ -132,37 +124,14 @@ namespace SG {
       StoreGateSvc* cs = m_hkey.getCS();
       CondContBase *cb(nullptr);
       if (cs->retrieve(cb, m_hkey.key()).isFailure()) {
-        MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-        msg << MSG::ERROR
-            << "can't retrieve " << m_hkey.fullKey() 
-            << " via base class" << endmsg;
-        throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+        throw SG::ExcNoCondCont (m_hkey.fullKey().key(), "Can't retrieve.");
       } else {
         m_cc = dynamic_cast< CondCont<T>* > (cb);
         if (m_cc == 0) {
-          MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-          msg << MSG::ERROR
-              << "can't dcast CondContBase to " << m_hkey.fullKey() 
-              << endmsg;
-          throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+          throw SG::ExcNoCondCont (m_hkey.fullKey().key(), "Can't dcast CondContBase.");
         }
       }
-          
-
-
-
-      // if ( m_cs->retrieve(m_cc, SG::VarHandleKey::key()).isFailure() ) {
-      //   MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-      //   msg << MSG::ERROR
-      //       << "ReadCondHandle : unable to retrieve ReadCondHandle of type"
-      //       << Gaudi::DataHandle::fullKey() << " from "
-      //       << StoreID::storeName(StoreID::CONDITION_STORE)
-      //       << " with key " << SG::VarHandleKey::key()
-      //       << endmsg;
-      //   throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
-      // }
     }
-  
   }
 
   //---------------------------------------------------------------------------
@@ -270,12 +239,12 @@ namespace SG {
 
     if (m_obj == 0) {
       if (!initCondHandle()) {
-        throw std::runtime_error("ReadCondHandle: handle not initialized when doing getRange()");
+        throw SG::ExcBadReadCondHandleInit();
       }
     }
 
     if (!m_range) {
-        throw std::runtime_error("ReadCondHandle: range obj not set when doing getRange()");
+        throw SG::ExcNoRange();
     }
     return *m_range;
 
