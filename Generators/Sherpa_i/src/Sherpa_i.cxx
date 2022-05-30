@@ -470,7 +470,7 @@ void Sherpa_i::compilePlugin(std::string pluginCode) {
 using namespace ATOOLS;
 
 Atlas_RNG::Atlas_RNG(CLHEP::HepRandomEngine* engine) :
-  External_RNG(), p_engine(engine), p_filename("Config.conf")
+  External_RNG(), p_engine(engine), m_filename("Config.conf")
 {
   const int nMax = 26;
   char alphabet[nMax] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
@@ -480,14 +480,14 @@ Atlas_RNG::Atlas_RNG(CLHEP::HepRandomEngine* engine) :
                                                                                  
   struct stat info;
   if ( !stat("/dev/shm", &info)) {
-    p_filename = "/dev/shm/Config.conf.";
+    m_filename = "/dev/shm/Config.conf.";
     for (size_t i = 0; i < 6; ++i)
-      p_filename += alphabet[rand() % nMax];
+      m_filename += alphabet[rand() % nMax];
   }
-  std::cout << "RNG state being saved to: " << p_filename << std::endl;
+  std::cout << "RNG state being saved to: " << m_filename << std::endl;
 }
 
-Atlas_RNG::~Atlas_RNG() { std::remove(p_filename.c_str()); }
+Atlas_RNG::~Atlas_RNG() { std::remove(m_filename.c_str()); }
 
 double Atlas_RNG::Get(){
 
@@ -495,9 +495,9 @@ double Atlas_RNG::Get(){
 
 }
 
-void Atlas_RNG::SaveStatus() { p_engine->saveStatus(p_filename.c_str()); }
+void Atlas_RNG::SaveStatus() { p_engine->saveStatus(m_filename.c_str()); }
 
-void Atlas_RNG::RestoreStatus() { p_engine->restoreStatus(p_filename.c_str()); }
+void Atlas_RNG::RestoreStatus() { p_engine->restoreStatus(m_filename.c_str()); }
 
 // some getter magic to make this random number generator available to sherpa
 DECLARE_GETTER(Atlas_RNG,"Atlas_RNG",External_RNG,RNG_Key);
