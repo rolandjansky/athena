@@ -127,7 +127,7 @@ protected:
   bool m_fileopen;
 
   /// is this the first event
-  bool m_first; 
+  mutable bool m_first; 
 
   /// use only the highest pt tracks
   bool m_useHighestPT;
