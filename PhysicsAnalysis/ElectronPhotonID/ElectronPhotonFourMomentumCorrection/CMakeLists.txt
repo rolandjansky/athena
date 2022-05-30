@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ElectronPhotonFourMomentumCorrection )
@@ -21,7 +21,7 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgMessagingLib xAODCaloEvent xAODEgamma
    xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib egammaUtils PATCoreAcceptLib
-   xAODRootAccess xAODTracking
+   xAODRootAccess xAODTracking CxxUtils
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks xAODMetaData egammaLayerRecalibTool
    PathResolver ${extra_libs} )
 

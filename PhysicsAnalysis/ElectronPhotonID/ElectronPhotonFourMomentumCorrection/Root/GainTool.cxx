@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -135,7 +135,7 @@ namespace egGain {
     }
   }
 
-  double GainTool::CorrectionGainTool(double eta_input, double energy_input, double energy_layer2_input, PATCore::ParticleType::Type ptype){
+  double GainTool::CorrectionGainTool(double eta_input, double energy_input, double energy_layer2_input, PATCore::ParticleType::Type ptype) const {
 
     double eta_low[28] = {-2.4,-2.32,-2.22,-2.12,-2.02,-1.92,-1.82,-1.72,-1.62,-1.37,-1.2,-0.8,-0.6,-0.4,0.,0.4,0.6,0.8,1.2,1.52,1.62,1.72,1.82,1.92,2.02,2.12,2.22,2.32};
     double eta_high[28] = {-2.32,-2.22,-2.12,-2.02,-1.92,-1.82,-1.72,-1.62,-1.52,-1.2,-0.8,-0.6,-0.4,0,0.4,0.6,0.8,1.2,1.37,1.62,1.72,1.82,1.92,2.02,2.12,2.22,2.32,2.4};

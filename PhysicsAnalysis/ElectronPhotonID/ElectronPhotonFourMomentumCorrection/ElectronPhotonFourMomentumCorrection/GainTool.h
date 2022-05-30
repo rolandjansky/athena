@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINTOOL_H
@@ -22,7 +22,7 @@ namespace egGain {
     virtual ~GainTool();
 
     double CorrectionGainTool(double eta_input, double energy_input, double energy_layer2_input,
-			      PATCore::ParticleType::Type ptype=PATCore::ParticleType::Electron);
+			      PATCore::ParticleType::Type ptype=PATCore::ParticleType::Electron) const;
 
   private:
 
