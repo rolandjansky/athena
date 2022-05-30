@@ -106,6 +106,8 @@ class ComponentAccumulator:
         self._auditors = []              #List of auditors
         self._privateTools = None        #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp = None         #A placeholder to designate the primary service
+        self._currentDomain = None       #Currently marked PerfMon domain
+        self._domainsRegistry = {}       #PerfMon domains registry
 
         self._theAppProps = dict()        #Properties of the ApplicationMgr
 
@@ -372,7 +374,57 @@ class ComponentAccumulator:
         self.merge(other)
         return tool
 
-    def addEventAlgo(self, algorithms,sequenceName=None,primary=False):
+    def flagPerfmonDomain(self, name):
+        """ Mark the beginning of a new PerfMon domain. """
+        self._msg.debug(f"Toggling the current algorithm domain to {name}")
+        self._currentDomain = name
+
+    def getInvertedPerfmonDomains(self):
+        """ The actual registry keeps "alg":"domain".
+        This function inverts the registry to get "domain":["algs"].
+        """
+        result = {}
+        for i, v in self._domainsRegistry.items():
+            result[v] = [i] if v not in result.keys() else result[v] + [i]
+        return result
+
+    def getAlgPerfmonDomain(self, name):
+        """ Return the PerfMon domain of the given algorithm """
+        if name in self._domainsRegistry:
+            return self._domainsRegistry[name]
+        else:
+            self._msg.info(f"Algorithm {name} is not in PerfMon domains registry")
+            return None
+
+    def addAlgToPerfmonDomains(self, name, domain, overwrite=False):
+        """ Add the algorithm to the domains registry. """
+        if name not in self._domainsRegistry:
+            if domain:
+                self._domainsRegistry[name] = domain
+                self._msg.debug(f"Added algorithm {name} to the PerfMon domain {domain}")
+        else:
+            if overwrite and domain:
+                self._msg.info(f"Reassigned algorithm {name} "
+                               f"from {self._domainsRegistry[name]} "
+                               f"to {domain} PerfMon domain")
+                self._domainsRegistry[name] = domain
+            else:
+                self._msg.debug(f"Algorithm {name} is already in the PerfMon "
+                                 "domain, if you want to reassign do overwrite=True")
+
+    def printPerfmonDomains(self):
+        """ Print the PerfMon domains. """
+        invertedDomains = self.getInvertedPerfmonDomains()
+        self._msg.info(":: This CA contains the following PerfMon domains ::")
+        self._msg.info(f":: There are a total of {len(self._domainsRegistry)} "
+                       f"registered algorithms in {len(invertedDomains)} domains  ::")
+        for domain, algs in invertedDomains.items():
+            self._msg.info(f"+ Domain : {domain}")
+            for alg in algs:
+                self._msg.info("\\_ %s", alg)
+        self._msg.info(":: End of PerfMon domains ::")
+
+    def addEventAlgo(self, algorithms,sequenceName=None,primary=False,domain=None):
         if not isinstance(algorithms, Sequence):
             #Swallow both single algorithms as well as lists or tuples of algorithms
             algorithms=[algorithms,]
@@ -403,6 +455,8 @@ class ComponentAccumulator:
             existingAlgInDest = findAlgorithm(seq, algo.name)
             if not existingAlgInDest:
                 seq.Members.append(self._algorithms[algo.name])
+                # Assign the algorithm to a domain
+                self.addAlgToPerfmonDomains(algo.name, self._currentDomain if not domain else domain)
 
         if primary:
             if len(algorithms)>1:
@@ -436,7 +490,7 @@ class ComponentAccumulator:
             seq = findSubSequence(self._sequence, seqName )
         return list( OrderedDict.fromkeys( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ).keys() )
 
-    def addCondAlgo(self,algo,primary=False):
+    def addCondAlgo(self,algo,primary=False,domain=None):
         """Add Conditions algorithm"""
         if not isinstance(algo, (GaudiConfig2._configurables.Configurable,
                                  AthenaPython.Configurables.CfgPyAlgorithm)):
@@ -459,6 +513,9 @@ class ComponentAccumulator:
         self._lastAddedComponent=algo.name
         if "trackCondAlgo" in ComponentAccumulator.debugMode:
             self._componentsContext[algo.name] = shortCallStack()
+
+        # Assign the algorithm to a domain
+        self.addAlgToPerfmonDomains(algo.name, 'Conditions' if not domain else domain)
 
         return algo
 
@@ -668,6 +725,8 @@ class ComponentAccumulator:
                                 deduplicateOne(algInstance, self._algorithms[name])
                             for _, parent, idx in existingAlgs: # put the deduplicated algo back into original sequences
                                 parent.Members[idx] = self._algorithms[name]
+                            # Add the algorithm to the PerfMon domains
+                            self.addAlgToPerfmonDomains(name, other._domainsRegistry[name] if name in other._domainsRegistry else self._currentDomain)
                         dest.Members.append(c)
 
                 else: # an algorithm
@@ -686,6 +745,8 @@ class ComponentAccumulator:
                         self._msg.debug("   Adding algorithm %s to a sequence %s", c.name, dest.name )
                         dest.Members.append(c)
 
+                    # Add the algorithm to the PerfMon domains
+                    self.addAlgToPerfmonDomains(c.name, other._domainsRegistry[c.name] if c.name in other._domainsRegistry else self._currentDomain)
 
         # Merge sequences:
         # mergeSequences(destSeq, other._sequence)

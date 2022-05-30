@@ -18,6 +18,7 @@ def RecoSteering(flags):
     acc = MainServicesCfg(flags)
 
     # setup input
+    acc.flagPerfmonDomain('IO')
     if flags.Input.Format is Format.BS:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
@@ -37,18 +38,21 @@ def RecoSteering(flags):
         log.info("---------- Configured POOL reading")
 
     # AOD2xAOD Truth conversion
+    acc.flagPerfmonDomain('Truth')
     if flags.Input.isMC:
         from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
         acc.merge(GEN_AOD2xAODCfg(flags))
         log.info("---------- Configured AODtoxAOD Truth Conversion")
 
     # trigger
+    acc.flagPerfmonDomain('Trigger')
     if flags.Reco.EnableTrigger:
         from TriggerJobOpts.TriggerRecoConfig import TriggerRecoCfg
         acc.merge(TriggerRecoCfg(flags))
         log.info("---------- Configured trigger data decoding")
 
     # calorimeter
+    acc.flagPerfmonDomain('Calo')
     if flags.Detector.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
         acc.merge(CaloRecoCfg(flags))
@@ -61,24 +65,28 @@ def RecoSteering(flags):
         log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
+    acc.flagPerfmonDomain('ID')
     if flags.Reco.EnableTracking:
         from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
         acc.merge(InDetTrackRecoCfg(flags))
         log.info("---------- Configured tracking")
 
     # HGTD
+    acc.flagPerfmonDomain('HGTD')
     if flags.Reco.EnableHGTDExtension:
         from HGTD_Config.HGTD_RecoConfig import HGTD_RecoCfg
         acc.merge(HGTD_RecoCfg(flags))
         log.info("---------- Configured HGTD track extension")
 
     # Muon
+    acc.flagPerfmonDomain('Muon')
     if flags.Detector.EnableMuon:
         from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
         acc.merge(MuonReconstructionCfg(flags))
         log.info("---------- Configured muon tracking")
 
     # EGamma
+    acc.flagPerfmonDomain('EGamma')
     if flags.Reco.EnableEgamma:
         from egammaConfig.egammaSteeringConfig import EGammaSteeringCfg
         acc.merge(EGammaSteeringCfg(flags))
@@ -86,6 +94,7 @@ def RecoSteering(flags):
 
     # Caching of CaloExtension for downstream
     # Combined Performance algorithms.
+    acc.flagPerfmonDomain('CaloExtension')
     if flags.Reco.EnableCaloExtension:
         from TrackToCalo.CaloExtensionBuilderAlgCfg import (
             CaloExtensionBuilderCfg)
@@ -93,6 +102,7 @@ def RecoSteering(flags):
         log.info("---------- Configured track calorimeter extension builder")
 
     # Muon Combined
+    acc.flagPerfmonDomain('CombinedMuon')
     if flags.Reco.EnableCombinedMuon:
         from MuonCombinedConfig.MuonCombinedReconstructionConfig import (
             MuonCombinedReconstructionCfg)
@@ -100,6 +110,7 @@ def RecoSteering(flags):
         log.info("---------- Configured combined muon reconstruction")
 
     # TrackParticleCellAssociation = add cells crossed by high pt ID tracks
+    acc.flagPerfmonDomain('TrackCellAssociation')
     if flags.Reco.EnableTrackCellAssociation:
         from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConfig import (
             TrackParticleCellAssociationAlgCfg)
@@ -107,30 +118,35 @@ def RecoSteering(flags):
         log.info("---------- Configured track particle-cell association")
 
     # PFlow
+    acc.flagPerfmonDomain('PFlow')
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFCfg
         acc.merge(PFCfg(flags))
         log.info("---------- Configured particle flow")
 
     # EGamma and CombinedMuon isolation
+    acc.flagPerfmonDomain('Isolation')
     if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
         from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
         acc.merge(IsolationSteeringCfg(flags))
         log.info("---------- Configured isolation")
 
     # jets
+    acc.flagPerfmonDomain('Jets')
     if flags.Reco.EnableJet:
         from JetRecConfig.JetRecoSteering import JetRecoSteeringCfg
         acc.merge(JetRecoSteeringCfg(flags))
         log.info("---------- Configured jets")
 
     # btagging
+    acc.flagPerfmonDomain('FTag')
     if flags.Reco.EnableBTagging:
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
 
     # Tau
+    acc.flagPerfmonDomain('Tau')
     if flags.Reco.EnableTau:
         from tauRec.TauConfig import TauReconstructionCfg
         acc.merge(TauReconstructionCfg(flags))
@@ -142,29 +158,34 @@ def RecoSteering(flags):
             log.info("---------- Configured particle flow tau FE linking")
 
     # MET
+    acc.flagPerfmonDomain('MET')
     if flags.Reco.EnableMet:
         from METReconstruction.METRecCfg import METCfg
         acc.merge(METCfg(flags))
         log.info("---------- Configured MET")
 
     # HI
+    acc.flagPerfmonDomain('HI')
     if flags.Reco.EnableHI:
         from HIRecConfig.HIRecConfig import HIRecCfg
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
 
     # AFP
+    acc.flagPerfmonDomain('AFP')
     if flags.Reco.EnableAFP:
         from ForwardRec.AFPRecConfig import AFPRecCfg
         acc.merge(AFPRecCfg(flags))
         log.info("---------- Configured AFP reconstruction")
 
     # Setup the final post-processing
+    acc.flagPerfmonDomain('PostProcessing')
     if flags.Reco.EnablePostProcessing:
         acc.merge(RecoPostProcessingCfg(flags))
         log.info("---------- Configured post-processing")
 
     # setup output
+    acc.flagPerfmonDomain('IO')
     if any((flags.Output.doWriteESD,
             flags.Output.doWriteAOD,
             flags.Output.doWriteRDO)):
@@ -188,10 +209,12 @@ def RecoSteering(flags):
         log.info("---------- Configured AOD writing")
 
     # Set up PerfMon
+    acc.flagPerfmonDomain('PerfMon')
     if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
         acc.merge(PerfMonMTSvcCfg(flags))
         log.info("---------- Configured PerfMon")
+        acc.printPerfmonDomains()
 
     return acc
 
