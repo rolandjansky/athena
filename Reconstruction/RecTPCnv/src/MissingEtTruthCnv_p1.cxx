@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -28,7 +28,7 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 #include "RecTPCnv/MissingETCnv_p1.h"
 
 // MissingET converter
-static MissingETCnv_p1 metCnv;
+static const MissingETCnv_p1 metCnv;
 
 
 void MissingEtTruthCnv_p1::persToTrans( const MissingEtTruth_p1* pers,

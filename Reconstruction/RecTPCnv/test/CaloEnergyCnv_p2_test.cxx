@@ -17,6 +17,7 @@
 #include "muonEvent/CaloEnergy.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -90,7 +91,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE()
 {
   std::cout << "RecTPCnv/CaloEnergyCnv_p2\n";
   test1();
