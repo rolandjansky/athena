@@ -87,8 +87,8 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
     /// If the remainder segment container is not needed we can quit here
     if (!m_saveUnassocSegs) return StatusCode::SUCCESS;
 
-    std::set<const Trk::Segment*> to_copy{};
-
+    std::vector<const Trk::Segment*> to_copy{};
+    
     /// Retrieve the list of segments to be copied
     for (SG::ReadHandle<Trk::SegmentCollection>& inputSegColl : m_inputSegContainerName.makeHandles(ctx)) {
         if (!inputSegColl.isValid()) {
@@ -98,7 +98,7 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
         for (const Trk::Segment* seg : *inputSegColl) {
             /// The segment has already been used
             if (assoc_segs.count(seg)) continue;
-            to_copy.insert(seg);
+            to_copy.emplace_back(seg);
         }
     }
     /// Solve ambiguities between the segments to keep the container size small
@@ -118,29 +118,20 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
             ambi_tracks.push_back(std::move(trk));
         }
         std::unique_ptr<const TrackCollection> resolved_trks{m_ambiguityProcessor->process(&ambi_tracks)};
-        std::set<const Trk::Segment*> resolved_copies{};
+        std::vector<const Trk::Segment*> resolved_copies{};
         for (const Trk::Track* res : *resolved_trks) {
             const Trk::Segment* seg = track_seg_map[res];
             /// Should never happen but we never know
             if (!seg) continue;
-            resolved_copies.insert(seg);
+            resolved_copies.emplace_back(seg);
         }
         ATH_MSG_DEBUG("Number of segments before the ambiguity solving " << to_copy.size() << " vs. after solving "
                                                                          << resolved_copies.size());
         to_copy = std::move(resolved_copies);
     }
-    /// Before everything is pushed back, the segments have to be sorted in a fixed way
-    /// avoiding false positives of irreproducible output
-    std::vector<const Trk::Segment*> to_copy_vec{};
-    to_copy_vec.insert(to_copy_vec.end(), to_copy.begin(), to_copy.end());
-    std::sort(to_copy_vec.begin(),to_copy_vec.end(), [] (const Trk::Segment* a, const Trk::Segment* b){
-        const double chi2_a{chi2(a)}, chi2_b{chi2(b)};
-        if (chi2_a != chi2_b) return chi2_a < chi2_b;
-        return a->globalPosition().mag2() < b->globalPosition().mag2();
 
-    });
     out_container = std::make_unique<Trk::SegmentCollection>();
-    for (const Trk::Segment* seg : to_copy_vec) {
+    for (const Trk::Segment* seg : to_copy) {
         /// Dynamic cast to the MuonSegment pointer
         const Muon::MuonSegment* muon_seg = dynamic_cast<const Muon::MuonSegment*>(seg);
         if (!muon_seg) continue;
