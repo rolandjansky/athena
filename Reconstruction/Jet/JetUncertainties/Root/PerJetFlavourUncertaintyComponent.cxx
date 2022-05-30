@@ -126,7 +126,7 @@ bool PerJetFlavourUncertaintyComponent::isSupportedLabel(const int label) const
 
 bool PerJetFlavourUncertaintyComponent::checkTruthLabel(const xAOD::Jet& jet) const
 {
-    static SG::AuxElement::ConstAccessor<int> truthLabelAccessor ("PartonTruthLabelID");
+    static const SG::AuxElement::ConstAccessor<int> truthLabelAccessor ("PartonTruthLabelID");
     if (!truthLabelAccessor.isAvailable(jet))
     {
         ATH_MSG_ERROR("Unable to find PartonTruthLabelID on the jet");

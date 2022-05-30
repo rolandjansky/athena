@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
@@ -313,9 +313,9 @@ bool CombinedMassUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, con
 StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::Jet& jet, const double shiftFactorCalo, const double shiftFactorTA, double& combMass) const
 {
     // Accessors for the scales we need
-    static JetFourMomAccessor caloMassScale(CompMassDef::getJetScaleString(CompMassDef::CaloMass).Data());
-    static JetFourMomAccessor TAMassScale(CompMassDef::getJetScaleString(CompMassDef::TAMass).Data());
-    static JetFourMomAccessor combMassScale(CompMassDef::getJetScaleString(CompMassDef::CombMassQCD).Data());
+    static const JetFourMomAccessor caloMassScale(CompMassDef::getJetScaleString(CompMassDef::CaloMass).Data());
+    static const JetFourMomAccessor TAMassScale(CompMassDef::getJetScaleString(CompMassDef::TAMass).Data());
+    static const JetFourMomAccessor combMassScale(CompMassDef::getJetScaleString(CompMassDef::CombMassQCD).Data());
 
     // Get the weight factors
     const double factorCalo = getWeightFactorCalo(jet,shiftFactorCalo);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_JETUNCERTAINTIESTOOL_H
@@ -8,6 +8,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetUncertainties/UncertaintyEnum.h"
 #include "AsgTools/AsgTool.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -37,8 +38,9 @@ namespace xAOD
     class ShallowAuxContainer;
 }
 
-class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
-                                public asg::AsgTool
+// Not thread-safe due to use of statics and TRandom3
+class ATLAS_NOT_THREAD_SAFE JetUncertaintiesTool : virtual public ICPJetUncertaintiesTool,
+                                                   public asg::AsgTool
 {
     ASG_TOOL_CLASS(JetUncertaintiesTool,ICPJetUncertaintiesTool)
 

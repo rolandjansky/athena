@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // General package includes
@@ -1892,8 +1892,8 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
 {
     if (!m_caloMassWeight || !m_TAMassWeight) return 0;
 
-    static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
-    static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
+    static const JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
+    static const JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
     const double caloRes = m_caloMassWeight ? readHistoFromParam(caloScale(jet),*m_caloMassWeight,m_combMassParam) : 0;
     const double TARes   = m_TAMassWeight ? readHistoFromParam(TAScale(jet),*m_TAMassWeight,m_combMassParam) : 0;
@@ -1912,8 +1912,8 @@ double JetUncertaintiesTool::getNormalizedTAMassWeight(const xAOD::Jet& jet) con
 {
     if (!m_caloMassWeight || !m_TAMassWeight) return 0;
 
-    static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
-    static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
+    static const JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
+    static const JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
 
     const double caloRes = m_caloMassWeight->getValue(caloScale.pt(jet)*m_energyScale,caloScale.m(jet)/caloScale.pt(jet) );
@@ -2291,7 +2291,7 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
     static xAOD::EventInfo*           eInfoObj = NULL;
     static xAOD::ShallowAuxContainer* eInfoAux = NULL;
     static unsigned long long         eventNum = 0;
-    static SG::AuxElement::Accessor<float> accNPV("NPV");
+    static const SG::AuxElement::Accessor<float> accNPV("NPV");
 
     // Retrieve the EventInfo object
     const xAOD::EventInfo* eInfoConst = NULL;
@@ -2505,7 +2505,7 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
 StatusCode JetUncertaintiesTool::updateSplittingScale12(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accD12("Split12");
+    static const SG::AuxElement::Accessor<float> accD12("Split12");
 
     const xAOD::Jet& constJet = jet;
     if (accD12.isAvailable(constJet))
@@ -2521,7 +2521,7 @@ StatusCode JetUncertaintiesTool::updateSplittingScale12(xAOD::Jet& jet, const do
 
 StatusCode JetUncertaintiesTool::updateSplittingScale23(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accD23("Split23");
+    static const SG::AuxElement::Accessor<float> accD23("Split23");
 
     const xAOD::Jet& constJet = jet;
     if (accD23.isAvailable(constJet))
@@ -2537,11 +2537,11 @@ StatusCode JetUncertaintiesTool::updateSplittingScale23(xAOD::Jet& jet, const do
 
 StatusCode JetUncertaintiesTool::updateTau21(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accTau1("Tau1");
-    static SG::AuxElement::Accessor<float> accTau2("Tau2");
-    static SG::AuxElement::Accessor<float> accTau21("Tau21");
-    const static bool Tau21wasAvailable = accTau21.isAvailable(jet);
-    const static bool TauNNwasAvailable = accTau2.isAvailable(jet) && accTau1.isAvailable(jet);
+    static const SG::AuxElement::Accessor<float> accTau1("Tau1");
+    static const SG::AuxElement::Accessor<float> accTau2("Tau2");
+    static const SG::AuxElement::Accessor<float> accTau21("Tau21");
+    static const bool Tau21wasAvailable = accTau21.isAvailable(jet);
+    static const bool TauNNwasAvailable = accTau2.isAvailable(jet) && accTau1.isAvailable(jet);
 
     const xAOD::Jet& constJet = jet;
     if (Tau21wasAvailable)
@@ -2586,11 +2586,11 @@ StatusCode JetUncertaintiesTool::updateTau21(xAOD::Jet& jet, const double shift)
 
 StatusCode JetUncertaintiesTool::updateTau32(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accTau2("Tau2");
-    static SG::AuxElement::Accessor<float> accTau3("Tau3");
-    static SG::AuxElement::Accessor<float> accTau32("Tau32");
-    const static bool Tau32wasAvailable = accTau32.isAvailable(jet);
-    const static bool TauNNwasAvailable = accTau3.isAvailable(jet) && accTau2.isAvailable(jet);
+    static const SG::AuxElement::Accessor<float> accTau2("Tau2");
+    static const SG::AuxElement::Accessor<float> accTau3("Tau3");
+    static const SG::AuxElement::Accessor<float> accTau32("Tau32");
+    static const bool Tau32wasAvailable = accTau32.isAvailable(jet);
+    static const bool TauNNwasAvailable = accTau3.isAvailable(jet) && accTau2.isAvailable(jet);
 
     const xAOD::Jet& constJet = jet;
     if (Tau32wasAvailable)
@@ -2635,16 +2635,16 @@ StatusCode JetUncertaintiesTool::updateTau32(xAOD::Jet& jet, const double shift)
 
 StatusCode JetUncertaintiesTool::updateTau21WTA(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accTau1wta("Tau1_wta");
-    static SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
-    static SG::AuxElement::Accessor<float> accTau21wta("Tau21_wta");
-    static SG::AuxElement::Accessor<float> accTau1WTA("Tau1_WTA");
-    static SG::AuxElement::Accessor<float> accTau2WTA("Tau2_WTA");
-    static SG::AuxElement::Accessor<float> accTau21WTA("Tau21_WTA");
-    const static bool Tau21wtawasAvailable = accTau21wta.isAvailable(jet);
-    const static bool Tau21WTAwasAvailable = accTau21WTA.isAvailable(jet);
-    const static bool TauNNwtawasAvailable = accTau2wta.isAvailable(jet) && accTau1wta.isAvailable(jet);
-    const static bool TauNNWTAwasAvailable = accTau2WTA.isAvailable(jet) && accTau1WTA.isAvailable(jet);
+    static const SG::AuxElement::Accessor<float> accTau1wta("Tau1_wta");
+    static const SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
+    static const SG::AuxElement::Accessor<float> accTau21wta("Tau21_wta");
+    static const SG::AuxElement::Accessor<float> accTau1WTA("Tau1_WTA");
+    static const SG::AuxElement::Accessor<float> accTau2WTA("Tau2_WTA");
+    static const SG::AuxElement::Accessor<float> accTau21WTA("Tau21_WTA");
+    static const bool Tau21wtawasAvailable = accTau21wta.isAvailable(jet);
+    static const bool Tau21WTAwasAvailable = accTau21WTA.isAvailable(jet);
+    static const bool TauNNwtawasAvailable = accTau2wta.isAvailable(jet) && accTau1wta.isAvailable(jet);
+    static const bool TauNNWTAwasAvailable = accTau2WTA.isAvailable(jet) && accTau1WTA.isAvailable(jet);
 
     const xAOD::Jet& constJet = jet;
     if (Tau21wtawasAvailable)
@@ -2699,16 +2699,16 @@ StatusCode JetUncertaintiesTool::updateTau21WTA(xAOD::Jet& jet, const double shi
 }
 StatusCode JetUncertaintiesTool::updateTau32WTA(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
-    static SG::AuxElement::Accessor<float> accTau3wta("Tau3_wta");
-    static SG::AuxElement::Accessor<float> accTau32wta("Tau32_wta");
-    static SG::AuxElement::Accessor<float> accTau2WTA("Tau2_WTA");
-    static SG::AuxElement::Accessor<float> accTau3WTA("Tau3_WTA");
-    static SG::AuxElement::Accessor<float> accTau32WTA("Tau32_WTA");
-    const static bool Tau32wtawasAvailable = accTau32wta.isAvailable(jet);
-    const static bool Tau32WTAwasAvailable = accTau32WTA.isAvailable(jet);
-    const static bool TauNNwtawasAvailable = accTau3wta.isAvailable(jet) && accTau2wta.isAvailable(jet);
-    const static bool TauNNWTAwasAvailable = accTau3WTA.isAvailable(jet) && accTau2WTA.isAvailable(jet);
+    static const SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
+    static const SG::AuxElement::Accessor<float> accTau3wta("Tau3_wta");
+    static const SG::AuxElement::Accessor<float> accTau32wta("Tau32_wta");
+    static const SG::AuxElement::Accessor<float> accTau2WTA("Tau2_WTA");
+    static const SG::AuxElement::Accessor<float> accTau3WTA("Tau3_WTA");
+    static const SG::AuxElement::Accessor<float> accTau32WTA("Tau32_WTA");
+    static const bool Tau32wtawasAvailable = accTau32wta.isAvailable(jet);
+    static const bool Tau32WTAwasAvailable = accTau32WTA.isAvailable(jet);
+    static const bool TauNNwtawasAvailable = accTau3wta.isAvailable(jet) && accTau2wta.isAvailable(jet);
+    static const bool TauNNWTAwasAvailable = accTau3WTA.isAvailable(jet) && accTau2WTA.isAvailable(jet);
 
     const xAOD::Jet& constJet = jet;
     if (Tau32wtawasAvailable)
@@ -2788,12 +2788,12 @@ StatusCode JetUncertaintiesTool::updateTau32WTA(xAOD::Jet& jet, const double shi
 
 StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accD2("D2");
-    static SG::AuxElement::Accessor<float> accECF1("ECF1");
-    static SG::AuxElement::Accessor<float> accECF2("ECF2");
-    static SG::AuxElement::Accessor<float> accECF3("ECF3");
-    const static bool D2wasAvailable  = accD2.isAvailable(jet);
-    const static bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
+    static const SG::AuxElement::Accessor<float> accD2("D2");
+    static const SG::AuxElement::Accessor<float> accECF1("ECF1");
+    static const SG::AuxElement::Accessor<float> accECF2("ECF2");
+    static const SG::AuxElement::Accessor<float> accECF3("ECF3");
+    static const bool D2wasAvailable  = accD2.isAvailable(jet);
+    static const bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
 
     const xAOD::Jet& constJet = jet;
     if (D2wasAvailable)
@@ -2842,12 +2842,12 @@ StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shif
 
 StatusCode JetUncertaintiesTool::updateC2Beta1(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accC2("C2");
-    static SG::AuxElement::Accessor<float> accECF1("ECF1");
-    static SG::AuxElement::Accessor<float> accECF2("ECF2");
-    static SG::AuxElement::Accessor<float> accECF3("ECF3");
-    const static bool C2wasAvailable  = accC2.isAvailable(jet);
-    const static bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
+    static const SG::AuxElement::Accessor<float> accC2("C2");
+    static const SG::AuxElement::Accessor<float> accECF1("ECF1");
+    static const SG::AuxElement::Accessor<float> accECF2("ECF2");
+    static const SG::AuxElement::Accessor<float> accECF3("ECF3");
+    static const bool C2wasAvailable  = accC2.isAvailable(jet);
+    static const bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
 
     const xAOD::Jet& constJet = jet;
     if (C2wasAvailable)
@@ -2881,7 +2881,7 @@ StatusCode JetUncertaintiesTool::updateC2Beta1(xAOD::Jet& jet, const double shif
 
 StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) const
 {
-    static SG::AuxElement::Accessor<float> accQw("Qw");
+    static const SG::AuxElement::Accessor<float> accQw("Qw");
 
     const xAOD::Jet& constJet = jet;
     if (accQw.isAvailable(constJet))

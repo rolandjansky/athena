@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/JetUncertaintiesTool.h"
@@ -15,6 +15,9 @@
 
 #include <vector>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // standalone application
+
 const double fixedRangeDiff = 0;
 const bool addExtremumInfo = true;
 const bool addScenarioInfo = false;
@@ -22,10 +25,8 @@ const bool makeGrid = true;
 const bool minRepStyle = false;
 const bool testJER = false;
 
-TFile* outHistFile = NULL;
 bool useRelativeMetric = true;
 int iEPS = 0;
-
 
 double relativeMetric(const double numerator, const double denominator)
 {
@@ -44,14 +45,14 @@ double relativeMetric(const double numerator, const double denominator)
 void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedValue2, const JetUncertaintiesTool* uncTool, const JetUncertaintiesTool* uncToolDiff = NULL, const double mean = 0, const double extremum = 0, const int extremeX = -1, const int extremeY = -1)
 {
     // Create the tex making object
-    static TLatex* tex = NULL;
-    if (!tex)
+    static TLatex* tex = []()
     {
         tex = new TLatex();
         tex->SetNDC();
         tex->SetTextSize(0.045);
         tex->SetTextColor(kBlack);
-    }
+        return tex;
+    }();
 
     // Add the ATLAS label
     ATLASLabel(0.13,minRepStyle?0.825:0.955,"",kBlack);
@@ -132,7 +133,7 @@ void FormatHisto(TH2D* histo)
     histo->GetXaxis()->SetMoreLogLabels();
 }
 
-void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers, const std::vector<TH2D*>& corrMats, const double fixedValue1, const double fixedValue2)
+void PlotCorrelationHistos(const TString& outFile, TCanvas* canvas, TFile* outHistFile, const std::vector<JetUncertaintiesTool*>& providers, const std::vector<TH2D*>& corrMats, const double fixedValue1, const double fixedValue2)
 {
     // First make the difference histograms
     // Must be now as colz bug fixes axis range once draw is called
@@ -250,7 +251,7 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
     }
 }
 
-void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::pair<double,double> >& fixedEta,const std::vector< std::pair<double,double> >& fixedPt)
+void MakeCorrelationPlots(const TString& outFile, TCanvas* canvas, TFile* outHistFile, const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::pair<double,double> >& fixedEta,const std::vector< std::pair<double,double> >& fixedPt)
 {
     const TString release  = providers.at(0)->getRelease();
     const double minPtVal  = release.EndsWith("TLA") ? 75 : 17;
@@ -286,7 +287,7 @@ void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vect
         }
 
         // Now plot them and the difference histograms
-        PlotCorrelationHistos(outFile,canvas,providers,corrPt,etaVal1,etaVal2);
+        PlotCorrelationHistos(outFile,canvas,outHistFile,providers,corrPt,etaVal1,etaVal2);
 
     }
     
@@ -317,13 +318,13 @@ void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vect
         }
 
         // Now plot them and the difference histograms
-        PlotCorrelationHistos(outFile,canvas,providers,corrEta,ptVal1,ptVal2);
+        PlotCorrelationHistos(outFile,canvas,outHistFile,providers,corrEta,ptVal1,ptVal2);
     }
 }
 
 
 
-int main (int argc, char* argv[])
+int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[])
 {
     if (argc != 7 && argc != 8 && argc != 9)
     {
@@ -341,8 +342,9 @@ int main (int argc, char* argv[])
         printf("\t   Note: Expected units are GeV, not MeV\n");
         printf("\t7. Output histogram root file (OPTIONAL)\n");
         printf("\t8. Whether to switch to relative differences (OPTIONAL, default \"false\")\n");
-        exit(1);
+        return 1;
     }
+    TFile* outHistFile = nullptr;
     TString outFile = argv[1];
     std::vector<TString> jetDefs = jet::utils::vectorize<TString>(argv[2],";");
     TString mcType  = argv[3];
@@ -361,14 +363,14 @@ int main (int argc, char* argv[])
     if (!configs.size())
     {
         printf("Failed to find any configs: %s\n",argv[4]);
-        exit(2);
+        return 2;
     }
 
     // Ensure we have to do something
     if (!fixedEtaS.size() && !fixedPtS.size())
     {
         printf("No fixed pT or eta values were specified, nothing to do.\n");
-        exit(2);
+        return 2;
     }
 
     // Convert fixed value singlets or pairs to pairs
@@ -393,7 +395,7 @@ int main (int argc, char* argv[])
             {
                 printf("Specified a fixed eta term which is not 1 or 2 values: %s\n",fixedEtaS.at(iEta).Data());
                 printf("Unsure of how to interpret this term, exiting.\n");
-                exit(3);
+                return 3;
             }
         }
     }
@@ -417,7 +419,7 @@ int main (int argc, char* argv[])
             {
                 printf("Specified a fixed pt term which is not 1 or 2 values: %s\n",fixedPtS.at(iPt).Data());
                 printf("Unsure of how to interpret this term, exiting.\n");
-                exit(4);
+                return 4;
             }
         }
     }
@@ -454,17 +456,17 @@ int main (int argc, char* argv[])
             if (providers.back()->setProperty("JetDefinition",jetDef.Data()).isFailure())
             {
                 printf("Failed to set JetDefinition to %s\n",jetDef.Data());
-                exit(5);
+                return 5;
             }
             if (providers.back()->setProperty("MCType",mcType.Data()).isFailure())
             {
                 printf("Failed to set MCType to %s\n",mcType.Data());
-                exit(6);
+                return 6;
             }
             if (providers.back()->setProperty("ConfigFile",configs.at(iConfig).Data()).isFailure())
             {
                 printf("Failed to set ConfigFile to %s\n",configs.at(iConfig).Data());
-                exit(7);
+                return 7;
             }
 
             //// Check if we want to change topology from unknown to dijet
@@ -482,19 +484,19 @@ int main (int argc, char* argv[])
             if (providers.back()->setScaleToGeV().isFailure())
             {
                 printf("Failed to set tool scale to GeV for config: %s\n",configs.at(iConfig).Data());
-                exit(8);
+                return 8;
             }
 
             // Done setting properties, initialize the tool
             if (providers.back()->initialize().isFailure())
             {
                 printf("Failed to initialize tool for config: %s\n",configs.at(iConfig).Data());
-                exit(9);
+                return 9;
             }
         }
 
         // Make the plots
-        MakeCorrelationPlots(outFile,canvas,providers,fixedEta,fixedPt);
+        MakeCorrelationPlots(outFile,canvas,outHistFile,providers,fixedEta,fixedPt);
 
         // Clean up
         for (size_t iProv = 0; iProv < providers.size(); ++iProv)

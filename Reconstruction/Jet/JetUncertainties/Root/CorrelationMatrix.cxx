@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/CorrelationMatrix.h"
@@ -263,10 +263,10 @@ StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& u
 {
 
     // TODO make this part of a common file
-    static SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
-    static SG::AuxElement::Accessor<char> IsBjet("IsBjet");
-    static SG::AuxElement::Accessor<float> mu("averageInteractionsPerCrossing");
-    static SG::AuxElement::Accessor<float> NPV("NPV");   
+    static const SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
+    static const SG::AuxElement::Accessor<char> IsBjet("IsBjet");
+    static const SG::AuxElement::Accessor<float> mu("averageInteractionsPerCrossing");
+    static const SG::AuxElement::Accessor<float> NPV("NPV");   
  
     // 25 segments is about average for jets receiving a correction
     // This is modulated by the probability of punchthrough
@@ -309,8 +309,8 @@ StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& u
     }
     else
     {
-        printf("Unexpected year for setPileupShiftsForYear in config: %s\n",config.Data());
-        exit(-1);
+        ATH_MSG_ERROR("Unexpected year for setPileupShiftsForYear in config: " << config.Data());
+        return StatusCode::FAILURE;
     }
     
     mu(*m_eInfo) = uncTool.getRefMu()+sigmaMu;
