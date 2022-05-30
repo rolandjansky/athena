@@ -13,17 +13,21 @@ namespace NswAsBuilt {
   // quadruplet, a PCB or a strip. (Probably something similar already exists
   // somewhere in the code)
 
-  /**
-  * Athena indices for a MM quadruplet:
-  *  - stationName: MMS(55) or MML(56) for Micromegas chambers
-  *  - eta: 1,2 (A side), -1,-2 (C side)
-  *  - phi: in [1,8]
-  *  - multilayer: 1 for IP quadruplet, 2 for HO quadruplet
-  */
+ /**
+   * Athena indices for a MM quadruplet:
+   *  - stationName: MMS(55) or MML(56) for MM chambers
+   *                 STS(57) or STL(57) for sTGC chambers
+   *  - eta: 1,2 (A side), -1,-2 (C side) for MM
+   *  - eta: 1,2,3 (A side), -1,-2,-3 (C side) for sTGC
+   *  - phi: in [1,8]
+   *  - multilayer: 1 for IP quadruplet, 2 for HO quadruplet
+   */
   struct quadrupletIdentifier_t {
     enum StationName {
       MMS=55,
-      MML=56
+      MML=56,
+      STL=57,
+      STS=58
     };
 
     StationName stationName{};
@@ -32,7 +36,8 @@ namespace NswAsBuilt {
     int multilayer{0};
 
     std::string stationNameStr() const {
-      return (stationName==MMS) ? "MMS" : "MML";
+      if (stationName > 56) return (stationName==STS) ? "STS" : "STL";
+      else return (stationName==MMS) ? "MMS" : "MML";
     }
     
     bool operator<(const quadrupletIdentifier_t& o) const {
@@ -46,10 +51,11 @@ namespace NswAsBuilt {
   };
 
   /**
-  * The indices of a MM PCB
-  *  - ilayer: in [1,4], layer 1 is the closest to IP
-  *  - ipcb: in [1,5] for LM1 and SM1, in [6,8] for LM2 and SM2
-  */
+   * The indices of a MM PCB
+   *  - ilayer: in [1,4], layer 1 is the closest to IP
+   *  - ipcb: in [1,5] for LM1 and SM1, in [6,8] for LM2 and SM2
+   *  - ipcb: 9 for sTGC, since strip boards are identical
+   */
   struct pcbIdentifier_t {
     quadrupletIdentifier_t quadruplet{};
     int ilayer{0};
@@ -65,10 +71,13 @@ namespace NswAsBuilt {
   };
 
   /**
-  * Athena indices of a MM strip
-  *  - ilayer: in [1,4], layer 1 is the closest to IP
-  *  - istrip: from 1 to 5*1024 (LM1 and SM1) or 1 to 3*1024 (LM2 and SM2)
-  */
+   * Athena indices of a MM strip
+   *  - ilayer: in [1,4], layer 1 is the closest to IP
+   *  - istrip: from 1 to 5*1024 (LM1 and SM1) or 1 to 3*1024 (LM2 and SM2)
+   *  - istrip: for stGC this depends on quad type and size
+   *            Small wedge QS1, QS2, QS3 = [406, 365, 307]
+   *            Large wedge QL1, QL2, QL3 = [408, 366, 353]
+   */
   struct stripIdentifier_t {
     quadrupletIdentifier_t quadruplet{};
     int ilayer{0};
