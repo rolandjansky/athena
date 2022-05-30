@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file StoreGate/exceptions.h
@@ -16,6 +16,7 @@
 
 
 #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/EventContext.h"
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
@@ -111,11 +112,14 @@ public:
    * @param clid CLID from the key.
    * @param sgkey StoreGate key from the key.
    * @param storename Store name from the key.
+   * @param holdername IDataHandleHolder holding the key.
+   * @param htype Handle type.
    */
   ExcUninitKey (CLID clid,
                 const std::string& sgkey,
                 const std::string& storename,
-                const std::string& holdername="");
+                const std::string& holdername = "",
+                const std::string& htype = "VarHandle");
 };
 
 
@@ -292,6 +296,70 @@ public:
    * @brief Constructor.
    */
   ExcBadInitializedReadHandleKey();
+};
+
+
+/**
+ * @brief Exception --- Bad EventContext extension while building ReadCondHandle.
+ *
+ * The EventContext was not set or is of the wrong type.
+ */
+class ExcBadContext
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param ctx The bad EventContext.
+   * @param key The key of the handle being built.
+   */
+  ExcBadContext (const EventContext& ctx, const std::string& key);
+};
+
+
+/**
+ * @brief Exception --- Can't retrieve CondCont from ReadCondHandle.
+ *
+ * The CondCont was not in the conditions store or is of the wrong type.
+ */
+class ExcNoCondCont
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param key The key being looked up.
+   * @param why Further description.
+   */
+  ExcNoCondCont (const std::string& key, const std::string& why);
+};
+
+
+/**
+ * @brief Exception --- ReadCondHandle didn't initialize in getRange().
+ */
+class ExcBadReadCondHandleInit
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcBadReadCondHandleInit();
+};
+
+
+/**
+ * @brief Exception --- Range not set in ReadCondHandle::getRange().
+ */
+class ExcNoRange
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcNoRange();
 };
 
 

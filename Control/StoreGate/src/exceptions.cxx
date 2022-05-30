@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file StoreGate/src/exceptions.cxx
@@ -99,12 +99,13 @@ ExcHandleInitError::ExcHandleInitError (CLID clid,
 std::string excUninitKey_format (CLID clid,
                                  const std::string& sgkey,
                                  const std::string& storename,
-                                 const std::string& holdername)
+                                 const std::string& holdername,
+                                 const std::string& htype)
                                        
 {
   std::ostringstream os;
   os << "SG::ExcUninitKey: "
-     << "Error initializing VarHandle from uninitialized VarHandleKey: "
+     << "Error initializing " << htype << " from uninitialized " << htype << "Key: "
      << storename << "+" << sgkey << "[" << clid << "]; "
      << "keys should be initialized in your initialize().";
   if ( holdername.size() ) os << " Key held by " << holdername << ".";
@@ -117,12 +118,15 @@ std::string excUninitKey_format (CLID clid,
  * @param clid CLID from the key.
  * @param sgkey StoreGate key from the key.
  * @param storename Store name from the key.
+ * @param holdername IDataHandleHolder holding the key.
+ * @param htype Handle type.
  */
 ExcUninitKey::ExcUninitKey (CLID clid,
                             const std::string& sgkey,
                             const std::string& storename,
-                            const std::string& holdername)
-  : std::runtime_error (excUninitKey_format (clid, sgkey, storename, holdername))
+                            const std::string& holdername /*= ""*/,
+                            const std::string& htype /*= "VarHandle"*/)
+  : std::runtime_error (excUninitKey_format (clid, sgkey, storename, holdername, htype))
 {
 }
 
@@ -345,7 +349,7 @@ void throwExcNonConstHandleKey (CLID clid,
  * @brief Constructor.
  */
 ExcInvalidIterator::ExcInvalidIterator()
-  : std::runtime_error ("Attempt to dereference invalid SG::Iterator/SG::ConstIterator")
+  : std::runtime_error ("SG::ExcInvalidIterator: Attempt to dereference invalid SG::Iterator/SG::ConstIterator")
 {
 }
 
@@ -358,6 +362,84 @@ ExcInvalidIterator::ExcInvalidIterator()
  */
 ExcBadInitializedReadHandleKey::ExcBadInitializedReadHandleKey()
   : std::runtime_error ("Initialization of InitializedReadHandleKey failed.")
+{
+}
+
+
+//****************************************************************************
+
+
+/// Helper: format exception error string.
+std::string excBadContext_format (const EventContext& ctx,
+                                  const std::string& key)
+  
+{
+  std::ostringstream os;
+  os << "SG::ExcBadContext: Bad EventContext extension while building ReadCondHandle. "
+     << "The EventContext extension is not "
+     << (ctx.hasExtension() ? "of type Atlas::ExtendedEventContext" : "set")
+     << " for key " << key << ".";
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param ctx The bad EventContext.
+ * @param key The key of the handle being built.
+ */
+ExcBadContext::ExcBadContext (const EventContext& ctx, const std::string& key)
+  : std::runtime_error (excBadContext_format (ctx, key))
+{
+}
+
+
+//****************************************************************************
+
+
+/// Helper: format exception error string.
+std::string excNoCondCont_format (const std::string& key,
+                                  const std::string& why)
+  
+{
+  std::ostringstream os;
+  os << "SG::ExcNoCondCont: Can't retrieve CondCont from ReadCondHandle for key "
+     << key << ". " << why;
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param key The key being looked up.
+ * @param why Further description.
+ */
+ExcNoCondCont::ExcNoCondCont (const std::string& key, const std::string& why)
+  : std::runtime_error (excNoCondCont_format (key, why))
+{
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcBadReadCondHandleInit::ExcBadReadCondHandleInit()
+  : std::runtime_error ("SG::ExcBadReadCondHandleInit: ReadCondHandle didn't initialize in getRange().")
+{
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcNoRange::ExcNoRange()
+  : std::runtime_error ("SG::ExcBadReadCondHandleInit: Range not set in ReadCondHandle::getRange().")
 {
 }
 
