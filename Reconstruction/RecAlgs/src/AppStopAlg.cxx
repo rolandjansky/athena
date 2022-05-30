@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "AppStopAlg.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IEventProcessor.h"
 #include "csignal"
 
 
 namespace
 {
-  volatile std::sig_atomic_t gSignalStatus=0;
+  volatile std::sig_atomic_t gSignalStatus ATLAS_THREAD_SAFE = 0;
 }
  
 
