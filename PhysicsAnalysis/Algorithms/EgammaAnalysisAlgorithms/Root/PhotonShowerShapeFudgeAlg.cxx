@@ -34,8 +34,8 @@ namespace CP
   {
     ANA_CHECK (m_showerShapeFudgeTool.retrieve());
     ANA_CHECK (m_photonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_photonHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -51,7 +51,7 @@ namespace CP
       ANA_CHECK (m_photonHandle.getCopy (photons, sys));
       for (xAOD::Photon *photon : *photons)
       {
-        if (m_preselection.getBool (*photon))
+        if (m_preselection.getBool (*photon, sys))
         {
           ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_showerShapeFudgeTool->applyCorrection (*photon));
         }

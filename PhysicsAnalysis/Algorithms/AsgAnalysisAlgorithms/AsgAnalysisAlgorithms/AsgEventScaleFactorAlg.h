@@ -10,7 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
-#include <SelectionHelpers/SelectionReadHandle.h>
+#include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysReadDecorHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>
@@ -53,7 +53,7 @@ namespace CP
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection {
+    SysReadSelectionHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
     /// \brief the decoration for reading systematically aware preselection

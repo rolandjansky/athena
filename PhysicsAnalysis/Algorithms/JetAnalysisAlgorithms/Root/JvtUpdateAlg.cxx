@@ -42,8 +42,8 @@ namespace CP
 
     ANA_CHECK (m_jvtTool.retrieve());
     ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -58,7 +58,7 @@ namespace CP
       ANA_CHECK (m_jetHandle.getCopy (jets, sys));
       for (xAOD::Jet *jet : *jets)
       {
-        if (m_preselection.getBool (*jet))
+        if (m_preselection.getBool (*jet, sys))
         {
           // manually update jvt decoration using the tool
           const float jvt = m_jvtTool->updateJvt (*jet);

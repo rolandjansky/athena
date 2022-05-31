@@ -34,8 +34,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_inputHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_inputHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -69,7 +69,7 @@ namespace CP
       for (std::size_t iter = 0; iter != input->size(); ++ iter)
       {
         const xAOD::IParticle *particle = (*input)[iter];
-        if (m_preselection.getBool (*particle))
+        if (m_preselection.getBool (*particle, sys))
         {
           while (histIter->second.perObject.size() <= count)
           {

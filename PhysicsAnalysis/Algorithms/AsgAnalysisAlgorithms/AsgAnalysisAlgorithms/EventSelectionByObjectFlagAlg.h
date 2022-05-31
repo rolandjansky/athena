@@ -8,7 +8,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__EVENT_SELECTION_BY_OBJECT_FLAG_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <SelectionHelpers/SelectionReadHandle.h>
+#include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysFilterReporterParams.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -48,11 +48,11 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection{this, "preselection", "", "the preselection to apply"};
+    SysReadSelectionHandle m_preselection{this, "preselection", "", "the preselection to apply"};
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_veto{this, "veto", "", "selection upon which events are vetoed"};
+    SysReadSelectionHandle m_veto{this, "veto", "", "selection upon which events are vetoed"};
 };
 
 } // namespace CP

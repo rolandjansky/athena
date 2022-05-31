@@ -10,7 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetInterface/IJetUpdateJvt.h>
-#include <SelectionHelpers/SelectionReadHandle.h>
+#include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -50,7 +50,7 @@ namespace CP
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection {
+    SysReadSelectionHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
     /// \brief the name of the decoration we create

@@ -44,8 +44,8 @@ namespace CP
 
     ANA_CHECK (m_isolationTool.retrieve());
     ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_preselection, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
 
     asg::AcceptData blankAccept {&m_isolationTool->getObjAcceptInfo()};
     m_setOnFail = selectionFromAccept(blankAccept);
@@ -64,7 +64,7 @@ namespace CP
       ANA_CHECK (m_muonHandle.retrieve (muons, sys));
       for (const xAOD::Muon *muon : *muons)
       {
-        if (m_preselection.getBool (*muon))
+        if (m_preselection.getBool (*muon, sys))
         {
           m_isolationAccessor->setBits
             (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));

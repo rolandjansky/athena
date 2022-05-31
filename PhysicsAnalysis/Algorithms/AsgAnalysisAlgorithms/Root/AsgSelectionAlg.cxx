@@ -48,8 +48,8 @@ namespace CP
       ANA_CHECK (m_systematicsList.addSystematics (*m_systematicsTool));
       
     ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particlesHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
 
     asg::AcceptData blankAccept (&m_selectionTool->getAcceptInfo());
     // Just in case this isn't initially set up as a failure clear it this one
@@ -74,7 +74,7 @@ namespace CP
       ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
       for (xAOD::IParticle *particle : *particles)
       {
-        if (m_preselection.getBool (*particle))
+        if (m_preselection.getBool (*particle, sys))
         {
           m_selectionAccessor->setBits
             (*particle, selectionFromAccept (m_selectionTool->accept (particle)));

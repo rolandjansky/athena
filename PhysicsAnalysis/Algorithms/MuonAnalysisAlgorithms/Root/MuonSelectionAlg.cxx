@@ -48,8 +48,8 @@ namespace CP
     }
 
     ANA_CHECK (m_muonsHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_muonsHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
 
     auto *selectionTool = dynamic_cast<IAsgSelectionTool *>(&*m_selectionTool);
     asg::AcceptData blankAccept {&selectionTool->getAcceptInfo()};
@@ -69,7 +69,7 @@ namespace CP
       ANA_CHECK (m_muonsHandle.retrieve (muons, sys));
       for (const xAOD::Muon *muon : *muons)
       {
-        if (m_preselection.getBool (*muon))
+        if (m_preselection.getBool (*muon, sys))
         {
           m_selectionAccessor->setBits
             (*muon, selectionFromAccept (m_selectionTool->accept (*muon)));

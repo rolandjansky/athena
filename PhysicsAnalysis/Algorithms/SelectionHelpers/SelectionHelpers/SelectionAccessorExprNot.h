@@ -19,10 +19,20 @@ class SelectionAccessorExprNot : public SelectionAccessorExprBase {
 
   /// @param element AuxElement to evaluate the selection on
   /// @return Result of the negated result of @c child
-  virtual bool getBool(const SG::AuxElement &element) const override;
+  virtual bool getBool(const SG::AuxElement &element,
+                       const CP::SystematicSet *sys) const override;
 
   /// @return Returns a readable and parseable representation
   virtual std::string label() const override;
+
+  virtual CP::SystematicSet
+  getInputAffecting (const ISystematicsSvc& svc,
+                     const std::string& objectName) const override;
+
+  virtual StatusCode
+  fillSystematics (const ISystematicsSvc& svc,
+                   const std::vector<CP::SystematicSet>& sysList,
+                   const std::string& objectName) override;
 
  private:
   std::unique_ptr<ISelectionAccessor> m_child;
