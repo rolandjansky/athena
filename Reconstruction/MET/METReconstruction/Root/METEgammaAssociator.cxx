@@ -44,16 +44,9 @@ namespace met {
     // 0 is delta-R geometrical matching
     // 1 is using TopoClusterLink decoration on clusters
     declareProperty( "TCMatchMethod",     m_tcMatch_method = DeltaR );
-
     declareProperty( "TCMatchMaxRat",     m_tcMatch_maxRat = 1.5    );
     declareProperty( "TCMatchDeltaR",     m_tcMatch_dR     = 0.1    );
-
     declareProperty( "ExtraTrackMatchDeltaR", m_extraTrkMatch_dR = 0.05 );
-
-    declareProperty( "UsePFOElectronLinks", m_usePFOElectronLinks = false );
-    declareProperty( "UsePFOPhotonLinks", m_usePFOPhotonLinks = false);
-    declareProperty( "UseFEElectronLinks", m_useFEElectronLinks = false ); 
-    declareProperty( "UseFEPhotonLinks", m_useFEPhotonLinks = false); 
     declareProperty( "CheckUnmatched", m_checkUnmatched = false); 
   }
 
@@ -164,12 +157,10 @@ namespace met {
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
 
-    if (((m_usePFOElectronLinks || m_usePFOLinks)&& eg->type() == xAOD::Type::Electron) || ((m_usePFOPhotonLinks || m_usePFOLinks) && eg->type() == xAOD::Type::Photon)) { 
+    if (m_usePFOLinks)
       ATH_CHECK( extractPFOsFromLinks(eg, pfolist,constits) );
-    } 
-    else {
+    else
       ATH_CHECK( extractPFOs(eg, pfolist, constits) );
-    }
 
     return StatusCode::SUCCESS;
   }
@@ -329,12 +320,10 @@ namespace met {
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
 
-    if (((m_useFEElectronLinks || m_useFELinks) && eg->type() == xAOD::Type::Electron) || ((m_useFEPhotonLinks || m_useFELinks) && eg->type() == xAOD::Type::Photon)) { 
+    if (m_useFELinks)
       ATH_CHECK( extractFEsFromLinks(eg, felist,constits) );
-    } 
-    else {
+    else
       ATH_CHECK( extractFEs(eg, felist, constits) );
-    }
 
     return StatusCode::SUCCESS;
   }

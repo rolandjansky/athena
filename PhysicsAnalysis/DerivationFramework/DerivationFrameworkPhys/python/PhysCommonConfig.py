@@ -73,12 +73,12 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollectionsCfg
     from DerivationFrameworkTau.TauCommonConfig import AddDiTauLowPtCfg
     from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg
-    from DerivationFrameworkJetEtMiss.METCommonConfig import METAssociationAlgCfg 
+    from DerivationFrameworkJetEtMiss.METCommonConfig import METCommonCfg 
     acc.merge(JetCommonCfg(ConfigFlags))
     acc.merge(AddDiTauLowPtCfg(ConfigFlags, prefix = 'PhysCommon'))
     acc.merge(AddTauWPDecorationCfg(ConfigFlags, prefix = 'PhysCommon', evetoFixTag="v1"))
     acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
-    acc.merge(METAssociationAlgCfg(ConfigFlags))
+    acc.merge(METCommonCfg(ConfigFlags))
     # Trigger matching
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun3Cfg

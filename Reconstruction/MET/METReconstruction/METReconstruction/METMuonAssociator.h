@@ -80,7 +80,6 @@ namespace met{
     private:
 
     Gaudi::Property<bool> m_doMuonClusterMatch{this, "DoClusterMatch", true, ""};
-    Gaudi::Property<bool> m_useFEMuonLinks{this, "UseFEMuonLinks", false, ""};
 
     /// Default constructor: 
     METMuonAssociator();
