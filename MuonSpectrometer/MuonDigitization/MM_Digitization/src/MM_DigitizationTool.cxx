@@ -149,6 +149,7 @@ StatusCode MM_DigitizationTool::initialize() {
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
 
+  ATH_CHECK(m_condThrshldsKey.initialize());
   ATH_CHECK(m_fieldCondObjInputKey.initialize());
   ATH_CHECK(m_calibrationTool.retrieve());
 
@@ -199,21 +200,17 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_StripsResponseSimulation->setCrossTalk2(m_crossTalk2);
 	
 	// get gas properties from calibration tool 
-    float longDiff, transDiff, vDrift, interactionDensityMean, interactionDensitySigma;
-    TF1* lorentzAngleFunction;
+  NSWCalib::MicroMegaGas prop = m_calibrationTool->mmGasProperties();
+  float peakTime = m_calibrationTool->mmPeakTime();
 
-    ATH_CHECK(m_calibrationTool->mmGasProperties(vDrift, longDiff, transDiff, interactionDensityMean, interactionDensitySigma,  lorentzAngleFunction));
-    float peakTime = m_calibrationTool->peakTime();
-
-	m_driftVelocity = vDrift;
-
-	m_StripsResponseSimulation->setTransverseDiffusionSigma(transDiff);
-	m_StripsResponseSimulation->setLongitudinalDiffusionSigma(longDiff);
-	m_StripsResponseSimulation->setDriftVelocity(vDrift);
+	m_driftVelocity = prop.vDrift;
+	m_StripsResponseSimulation->setTransverseDiffusionSigma(prop.transDiff);
+	m_StripsResponseSimulation->setLongitudinalDiffusionSigma(prop.longDiff);
+	m_StripsResponseSimulation->setDriftVelocity(prop.vDrift);
 	m_StripsResponseSimulation->setAvalancheGain(m_avalancheGain);
-	m_StripsResponseSimulation->setInteractionDensityMean(interactionDensityMean);
-	m_StripsResponseSimulation->setInteractionDensitySigma(interactionDensitySigma);
-	m_StripsResponseSimulation->setLorentzAngleFunction(lorentzAngleFunction);
+	m_StripsResponseSimulation->setInteractionDensityMean(prop.interactionDensityMean);
+	m_StripsResponseSimulation->setInteractionDensitySigma(prop.interactionDensitySigma);
+	m_StripsResponseSimulation->setLorentzAngleFunction(prop.lorentzAngleFunction);
 	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation Creation
@@ -1175,6 +1172,15 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 
 MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput){
 
+    // set up pointer to conditions object
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<NswCalibDbThresholdData> readThresholds{m_condThrshldsKey, ctx};
+    if(!readThresholds.isValid()){
+      ATH_MSG_ERROR("Cannot find conditions data container for VMM thresholds!");
+    } 
+    const NswCalibDbThresholdData* thresholdData = readThresholds.cptr();
+
+
 	std::vector <int> v_stripStripResponseAllHits;
 	std::vector < std::vector <float> > v_timeStripResponseAllHits;
 	std::vector < std::vector <float> > v_qStripResponseAllHits;
@@ -1215,8 +1221,14 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 				v_stripStripResponseAllHits.push_back(strip_id);
 				v_timeStripResponseAllHits.push_back(i_stripDigitOutput.chipTime()[i]);
 				v_qStripResponseAllHits.push_back(i_stripDigitOutput.chipCharge()[i]);
-				if(m_useThresholdScaling) {
-
+				if(m_useCondThresholds){
+					const Identifier id = m_idHelperSvc->mmIdHelper().channelID(digitID, m_idHelperSvc->mmIdHelper().multilayer(digitID), m_idHelperSvc->mmIdHelper().gasGap(digitID), strip_id);
+					double threshold = 0;
+					if(!thresholdData->getThreshold(id, threshold))
+						ATH_MSG_ERROR("Cannot find retrieve VMM threshold from conditions data base!");
+					v_stripThresholdResponseAllHits.push_back(threshold);
+				}
+				else if(m_useThresholdScaling) {
 					Identifier id = m_idHelperSvc->mmIdHelper().channelID(digitID, m_idHelperSvc->mmIdHelper().multilayer(digitID), m_idHelperSvc->mmIdHelper().gasGap(digitID), strip_id);
 					const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(id);
 					float stripLength = detectorReadoutElement->stripLength(id);

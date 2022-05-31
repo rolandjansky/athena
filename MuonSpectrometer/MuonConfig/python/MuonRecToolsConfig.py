@@ -307,3 +307,9 @@ def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
     result.setPrivateTools(CompFactory.Muon.MuonRefitTool(name, **kwargs))
     return result
 
+def  SimpleMMClusterBuilderToolCfg(flags, name = "SimpleMMClusterBuilderTool", **kwargs):
+    result = ComponentAccumulator()
+    the_tool = CompFactory.Muon.SimpleMMClusterBuilderTool(name,**kwargs)
+    result.setPrivateTools(the_tool)   
+    return result
+  

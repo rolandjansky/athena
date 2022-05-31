@@ -127,22 +127,28 @@ def MuonSegmentFinderAlg( name="MuonSegmentMaker", **kwargs):
     SegmentLocation = "TrackMuonSegments"
     if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
         SegmentLocation = "ThirdChainSegments"
-    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( name,SegmentCollectionName=SegmentLocation, 
-                                                        MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
-                                                        MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
-                                                        PrintSummary = muonStandaloneFlags.printSummary(),
-                                                        TGC_PRDs ='TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements' , 
-                                                        **kwargs )
+    reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
+    reco_mircomegas = muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()
+    reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    kwargs.setdefault("Csc2dSegmentMaker",  getPublicTool("Csc2dSegmentMaker") if reco_cscs else "")
+    kwargs.setdefault("Csc4dSegmentMaker",  getPublicTool("Csc4dSegmentMaker") if reco_cscs else "")
+    
+    kwargs.setdefault("MMClusterCreator",  getPublicTool("MMClusterOnTrackCreator") if reco_mircomegas else "")
+    kwargs.setdefault("MuonClusterSegmentFinderTool", getPublicTool("MuonClusterSegmentFinderTool") if reco_mircomegas or reco_stgc else "" )
+    kwargs.setdefault("SegmentCollectionName",SegmentLocation)
+    kwargs.setdefault("MuonPatternCalibration", getPublicTool("MuonPatternCalibration"))
+    kwargs.setdefault("MuonPatternSegmentMaker", getPublicTool("MuonPatternSegmentMaker"))
+    kwargs.setdefault("PrintSummary",  muonStandaloneFlags.printSummary())
+    kwargs.setdefault("MuonClusterSegmentFinder", getPublicTool("MuonClusterSegmentFinder"))
+    kwargs.setdefault("TGC_PRDs", 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
+
+    MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( name, **kwargs )
    # print ('TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
    
     # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
-    if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC():
-        getPublicTool("CscSegmentUtilTool")
-        MuonSegmentFinderAlg.Csc2dSegmentMaker = getPublicTool("Csc2dSegmentMaker")
-        MuonSegmentFinderAlg.Csc4dSegmentMaker = getPublicTool("Csc4dSegmentMaker")
-    else:
-        MuonSegmentFinderAlg.Csc2dSegmentMaker = ""
-        MuonSegmentFinderAlg.Csc4dSegmentMaker = ""
+    if reco_cscs:
+        getPublicTool("CscSegmentUtilTool")       
+    else:       
         MuonSegmentFinderAlg.CSC_clusterkey = ""
     return MuonSegmentFinderAlg
 

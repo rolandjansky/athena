@@ -33,7 +33,7 @@ class sTgcVMMSim : public AthMessaging
 public:
     // functions
     sTgcVMMSim()
-        : sTgcVMMSim({}, 0, 0, 0, false, 0)
+        : sTgcVMMSim({}, 0, 0, 0, false, 0, 0.)
     {
         readVMMConfig();
     }
@@ -44,7 +44,8 @@ public:
         float deadWindow,
         float readWindow,
         bool readDeadDigits,
-        int typeOfChannel)
+        int typeOfChannel,
+        float mainThreshold)
         : AthMessaging("sTgcVMMSim")
         , m_deadtimeStart(-9999)
         , m_readtimeStart(-9999)
@@ -57,7 +58,7 @@ public:
         , m_channelType(typeOfChannel)
         , m_readoutTick(1)
         , m_mode_neighborOn(false)
-        , m_mainThreshold(1)
+        , m_mainThreshold(mainThreshold)
         , m_neighborThreshold(1)
     {
         readVMMConfig();
@@ -245,11 +246,12 @@ private: // data
                 ATH_MSG_DEBUG("m_deadtimeON = " << (bool)value);
                 continue;
             }
-            if(var.compare("mainThreshold") == 0) {
-                m_mainThreshold = value;
-                ATH_MSG_DEBUG("mainThreshold = " << value);
-                continue;
-            }
+            // Main threshold is retrieved from the cond database
+            //if(var.compare("mainThreshold") == 0) {
+            //    m_mainThreshold = value;
+            //    ATH_MSG_DEBUG("mainThreshold = " << value);
+            //    continue;
+            //}
             if(var.compare("neighborThreshold") == 0) {
                 m_neighborThreshold = value;
                 ATH_MSG_DEBUG("neighborThreshold = " << value);
@@ -260,7 +262,6 @@ private: // data
                 ATH_MSG_DEBUG("readoutTick = " << value);
                 continue;
             }
-            ATH_MSG_WARNING("Unknown value encountered reading VMM.config");
         }
 
         ifs.close();

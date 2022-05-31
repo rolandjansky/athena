@@ -17,9 +17,11 @@ def sTGC_LastXing():
     return 100
 
 def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
+    from AthenaCommon.CfgGetter import getPublicTool 
+    kwargs.setdefault("CalibrationTool", getPublicTool("NSWCalibTool"))
     if jobproperties.Digitization.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", sTGC_FirstXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py
-        kwargs.setdefault("LastXing",  sTGC_LastXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py   
+        kwargs.setdefault("LastXing",  sTGC_LastXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py  
     from AthenaCommon.DetFlags import DetFlags
     if not DetFlags.pileup.any_on():
         kwargs.setdefault("MergeSvc", '')

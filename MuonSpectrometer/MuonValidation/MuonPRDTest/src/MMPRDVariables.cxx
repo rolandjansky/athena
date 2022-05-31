@@ -18,6 +18,13 @@
 
 #include "TTree.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
+
+namespace {
+  constexpr double const& reciprocalSpeedOfLight = 1. / Gaudi::Units::c_light; // mm/ns  
+}
+
 
 StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
@@ -73,6 +80,9 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
       m_NSWMM_prd_channel->push_back(channel);
       m_NSWMM_prd_time->push_back(prd->time());
 
+      m_NSWMM_prd_strips_charge->push_back(prd->stripCharges());
+      m_NSWMM_prd_strips_time->push_back(prd->stripTimes());
+
       const MuonGM::MMReadoutElement* det = prd->detectorElement();
       if (!det) throw std::runtime_error(Form("File: %s, Line: %d\nMMPRDVariables::fillVariables() - no associated detectorElement", __FILE__, __LINE__));
       Amg::Vector3D pos    = prd->globalPosition();
@@ -107,7 +117,9 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
         m_NSWMM_prd_rdos_charge->back().push_back(rdo->charge());
         m_NSWMM_prd_rdos_time->back().push_back(rdo->time());
         m_NSWMM_prd_rdos_channel->back().push_back(m_MmIdHelper->channel(id_rdo));
-        
+        Amg::Vector3D globalPos;
+        det->stripGlobalPosition(id_rdo,globalPos);
+        m_NSWMM_prd_strips_timeOfFlight->back().push_back(globalPos.norm()*reciprocalSpeedOfLight); 
       }
 
       m_NSWMM_prd_uTPCAngle->push_back(prd->angle());  
@@ -149,6 +161,11 @@ void MMPRDVariables::deleteVariables()
   delete m_NSWMM_prd_rdos_channel;
   delete m_NSWMM_prd_nRdos;
 
+  delete m_NSWMM_prd_strips_charge;
+  delete m_NSWMM_prd_strips_time;
+  delete m_NSWMM_prd_strips_timeOfFlight;
+
+
   delete m_NSWMM_prd_uTPCAngle;  
   delete m_nsw_prd_uTPCChiSqProb;
 
@@ -176,7 +193,10 @@ void MMPRDVariables::deleteVariables()
   m_NSWMM_prd_rdos_time=nullptr;
   m_NSWMM_prd_rdos_channel=nullptr;
   m_NSWMM_prd_nRdos=nullptr;
-
+  
+  m_NSWMM_prd_strips_charge=nullptr;
+  m_NSWMM_prd_strips_time=nullptr;
+  m_NSWMM_prd_strips_timeOfFlight=nullptr;
   m_NSWMM_prd_uTPCAngle=nullptr;
   m_nsw_prd_uTPCChiSqProb=nullptr;
 
@@ -205,11 +225,16 @@ StatusCode MMPRDVariables::clearVariables()
   m_NSWMM_prd_localPosX->clear();
   m_NSWMM_prd_localPosY->clear();
   m_NSWMM_prd_covMatrix_1_1->clear();
-
+  
   m_NSWMM_prd_rdos_charge->clear();
   m_NSWMM_prd_rdos_time->clear();
   m_NSWMM_prd_rdos_channel->clear();
   m_NSWMM_prd_nRdos->clear();
+  
+  m_NSWMM_prd_strips_charge->clear();
+  m_NSWMM_prd_strips_time->clear();
+  m_NSWMM_prd_strips_timeOfFlight->clear();
+  
   m_NSWMM_prd_uTPCAngle->clear();  
   m_nsw_prd_uTPCChiSqProb->clear();
 
@@ -245,6 +270,11 @@ StatusCode MMPRDVariables::initializeVariables()
   m_NSWMM_prd_rdos_channel = new std::vector<std::vector<int>>();
   m_NSWMM_prd_nRdos = new std::vector<int>();
 
+
+  m_NSWMM_prd_strips_charge = new std::vector<std::vector<int>>(); ;
+  m_NSWMM_prd_strips_time = new std::vector<std::vector<short int>>();;
+  m_NSWMM_prd_strips_timeOfFlight = new std::vector<std::vector<int>>();
+
   m_NSWMM_prd_uTPCAngle   = new std::vector<double>();
   m_nsw_prd_uTPCChiSqProb = new std::vector<double>();
 
@@ -274,6 +304,10 @@ StatusCode MMPRDVariables::initializeVariables()
     m_tree->Branch("PRD_MM_rdos_time", &m_NSWMM_prd_rdos_time);
     m_tree->Branch("PRD_MM_rdos_channel", &m_NSWMM_prd_rdos_channel);
     m_tree->Branch("PRD_MM_nRdos", &m_NSWMM_prd_nRdos);
+    
+    m_tree->Branch("PRD_MM_strips_charge", &m_NSWMM_prd_strips_charge);
+    m_tree->Branch("PRD_MM_strips_time", &m_NSWMM_prd_strips_time);
+    m_tree->Branch("PRD_MM_strips_timeOfFlight", &m_NSWMM_prd_strips_timeOfFlight);
 
     m_tree->Branch("PRD_MM_uTPCAngle",&m_NSWMM_prd_uTPCAngle);
     m_tree->Branch("PRD_MM_uTPCChiSqProb",&m_nsw_prd_uTPCChiSqProb);

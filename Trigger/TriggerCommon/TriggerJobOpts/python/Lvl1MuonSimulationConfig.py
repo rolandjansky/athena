@@ -178,6 +178,22 @@ def RecoMuonSegmentSequence(flags):
     acc.addEventAlgo(xAODMuonSegmentCnv)
     return acc
 
+
+
+def MuonRdoToMuonDigitToolCfg(flags, name="MuonRdoToMuonDigitTool", **kwargs ):
+    result = ComponentAccumulator()
+    kwargs.setdefault("DecodeSTGC_RDO", flags.Detector.GeometrysTGC)
+    kwargs.setdefault("DecodeMM_RDO", flags.Detector.GeometryMM)
+    from MuonConfig.MuonByteStreamCnvTestConfig import STgcRdoDecoderCfg, MMRdoDecoderCfg, MdtRdoDecoderCfg
+    kwargs.setdefault( "stgcRdoDecoderTool", result.popToolsAndMerge(STgcRdoDecoderCfg(flags))
+                         if flags.Detector.GeometrysTGC else "" )
+    kwargs.setdefault("mmRdoDecoderTool", result.popToolsAndMerge(MMRdoDecoderCfg(flags))
+                         if flags.Detector.GeometryMM else "" )    
+    kwargs.setdefault("mdtRdoDecoderTool", result.popToolsAndMerge(MdtRdoDecoderCfg(flags)))
+    the_tool = CompFactory.MuonRdoToMuonDigitTool (name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+
 def MuonRdo2DigitConfig(flags):
     acc = ComponentAccumulator()
 
@@ -204,12 +220,10 @@ def MuonRdo2DigitConfig(flags):
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
-    MuonRdoToMuonDigitTool = CompFactory.MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
-                                                                 DecodeRpcRDO = True,
+    MuonRdoToMuonDigitTool = acc.popToolsAndMerge(MuonRdoToMuonDigitToolCfg(flags,DecodeRpcRDO = True,
                                                                  DecodeTgcRDO = True,
                                                                  DecodeCscRDO = False,
-                                                                 DecodeSTGC_RDO = flags.Detector.GeometrysTGC,
-                                                                 DecodeMM_RDO = flags.Detector.GeometryMM,
+                                                                 DecodeMdtRDO = False,
                                                                  mdtRdoDecoderTool="",
                                                                  cscRdoDecoderTool="",
                                                                  cscCalibTool = "",
@@ -220,12 +234,9 @@ def MuonRdo2DigitConfig(flags):
                                                                  MmDigitContainer = "MM_DIGITS_L1",
                                                                  sTgcDigitContainer = "sTGC_DIGITS_L1",
                                                                  RpcDigitContainer = "RPC_DIGITS_L1",
-                                                                 TgcDigitContainer = "TGC_DIGITS_L1")
+                                                                 TgcDigitContainer = "TGC_DIGITS_L1"))
 
-    if not flags.Detector.GeometrysTGC:
-        MuonRdoToMuonDigitTool.stgcRdoDecoderTool=""
-    if not flags.Detector.GeometryMM:
-        MuonRdoToMuonDigitTool.mmRdoDecoderTool=""
+   
 
     acc.addPublicTool(MuonRdoToMuonDigitTool)
     rdo2digit = CompFactory.MuonRdoToMuonDigit( "MuonRdoToMuonDigit",

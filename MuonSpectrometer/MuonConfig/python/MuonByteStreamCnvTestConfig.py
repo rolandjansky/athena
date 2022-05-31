@@ -205,7 +205,10 @@ def STGC_DigitToRDOCfg(flags, name="STGC_DigitToRDO", **kwargs):
     else:
         kwargs.setdefault("OutputObjectName", "sTGCRDO")
 
-    acc.addEventAlgo(CompFactory.STGC_DigitToRDO(name, **kwargs))
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("CalibrationTool", acc.popToolsAndMerge(NSWCalibToolCfg(flags)))
+    the_alg  = CompFactory.STGC_DigitToRDO(name, **kwargs)
+    acc.addEventAlgo(the_alg)
     return acc
 
 
@@ -219,7 +222,10 @@ def MM_DigitToRDOCfg(flags, name="MM_DigitToRDO", **kwargs):
     else:
         kwargs.setdefault("OutputObjectName", "MMRDO")
 
-    acc.addEventAlgo(CompFactory.MM_DigitToRDO(name, **kwargs))
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("CalibrationTool", acc.popToolsAndMerge(NSWCalibToolCfg(flags)))    
+    the_alg =  CompFactory.MM_DigitToRDO(name, **kwargs) 
+    acc.addEventAlgo(the_alg)
     return acc
 
 
@@ -251,3 +257,29 @@ def SigTgcDigitToTgcRDOCfg(flags, name="SigTgcDigitToTgcRDO", **kwargs):
     kwargs.setdefault("OutputObjectName", f"{flags.Overlay.SigPrefix}TGCRDO")
     acc.addEventAlgo(CompFactory.TgcDigitToTgcRDO(name, **kwargs))
     return acc
+
+def STgcRdoDecoderCfg(flags, name="STGC_RDO_Decoder", **kwargs):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))    
+    the_tool = CompFactory.Muon.STGC_RDO_Decoder(name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+    
+def MMRdoDecoderCfg(flags, name="MM_RDO_Decoder", **kwargs):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))    
+    the_tool = CompFactory.Muon.MM_RDO_Decoder(name, **kwargs)
+    result.setPrivateTools(the_tool)   
+    return result
+
+def MdtRdoDecoderCfg(flags,name= "MDT_RDO_Decoder", **kwargs):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    result.merge(MDTCablingConfigCfg(flags))
+    the_tool = CompFactory.Muon.MdtRDO_Decoder(name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+  
+
