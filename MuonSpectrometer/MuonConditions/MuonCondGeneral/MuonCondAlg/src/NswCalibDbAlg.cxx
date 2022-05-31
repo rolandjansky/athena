@@ -21,27 +21,30 @@ NswCalibDbAlg::initialize(){
 
 	// retrievals
 	ATH_MSG_DEBUG( "initializing " << name() );                
+	ATH_CHECK(m_condSvc	   .retrieve());
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
-    // read keys
-    ATH_CHECK(m_readKey_data_mm_sidea_tdo  .initialize(!m_readKey_data_mm_sidea_tdo  .empty() && m_isData));
-    ATH_CHECK(m_readKey_data_mm_sidec_tdo  .initialize(!m_readKey_data_mm_sidec_tdo  .empty() && m_isData));
-    ATH_CHECK(m_readKey_data_mm_sidea_pdo  .initialize(!m_readKey_data_mm_sidea_pdo  .empty() && m_isData));
-    ATH_CHECK(m_readKey_data_mm_sidec_pdo  .initialize(!m_readKey_data_mm_sidec_pdo  .empty() && m_isData));
-    ATH_CHECK(m_readKey_data_mm_sidea_vmm  .initialize(!m_readKey_data_mm_sidea_vmm  .empty() && m_isData));
-    ATH_CHECK(m_readKey_data_mm_sidec_vmm  .initialize(!m_readKey_data_mm_sidec_vmm  .empty() && m_isData));
-    ATH_CHECK(m_readKey_data_stgc_sidea_tdo.initialize(!m_readKey_data_stgc_sidea_tdo.empty() && m_isData));
-    ATH_CHECK(m_readKey_data_stgc_sidec_tdo.initialize(!m_readKey_data_stgc_sidec_tdo.empty() && m_isData));
-    ATH_CHECK(m_readKey_data_stgc_sidea_pdo.initialize(!m_readKey_data_stgc_sidea_pdo.empty() && m_isData));
-    ATH_CHECK(m_readKey_data_stgc_sidec_pdo.initialize(!m_readKey_data_stgc_sidec_pdo.empty() && m_isData));
-    ATH_CHECK(m_readKey_data_stgc_sidea_vmm.initialize(!m_readKey_data_stgc_sidea_vmm.empty() && m_isData));
-    ATH_CHECK(m_readKey_data_stgc_sidec_vmm.initialize(!m_readKey_data_stgc_sidec_vmm.empty() && m_isData));
+	// initialize read keys
+	ATH_CHECK(m_readKey_mm_sidea_tdo  .initialize(!m_readKey_mm_sidea_tdo  .empty()             ));
+	ATH_CHECK(m_readKey_mm_sidec_tdo  .initialize(!m_readKey_mm_sidec_tdo  .empty()             ));
+	ATH_CHECK(m_readKey_mm_sidea_pdo  .initialize(!m_readKey_mm_sidea_pdo  .empty()             ));
+	ATH_CHECK(m_readKey_mm_sidec_pdo  .initialize(!m_readKey_mm_sidec_pdo  .empty()             ));
+	ATH_CHECK(m_readKey_mm_sidea_thr  .initialize(!m_readKey_mm_sidea_thr  .empty() && !m_isData));
+	ATH_CHECK(m_readKey_mm_sidec_thr  .initialize(!m_readKey_mm_sidec_thr  .empty() && !m_isData));
+	ATH_CHECK(m_readKey_stgc_sidea_tdo.initialize(!m_readKey_stgc_sidea_tdo.empty()             ));
+	ATH_CHECK(m_readKey_stgc_sidec_tdo.initialize(!m_readKey_stgc_sidec_tdo.empty()             ));
+	ATH_CHECK(m_readKey_stgc_sidea_pdo.initialize(!m_readKey_stgc_sidea_pdo.empty()             ));
+	ATH_CHECK(m_readKey_stgc_sidec_pdo.initialize(!m_readKey_stgc_sidec_pdo.empty()             ));
+	ATH_CHECK(m_readKey_stgc_sidea_thr.initialize(!m_readKey_stgc_sidea_thr.empty() && !m_isData));
+	ATH_CHECK(m_readKey_stgc_sidec_thr.initialize(!m_readKey_stgc_sidec_thr.empty() && !m_isData));
 
-	// write keys	
+	// write key for time/charge data
 	ATH_CHECK(m_writeKey_tdopdo.initialize());
-	ATH_CHECK(m_writeKey_vmm   .initialize());
 
-    return StatusCode::SUCCESS;
+	// write key for threshold data
+	ATH_CHECK(m_writeKey_thr.initialize(!m_isData));
+
+	return StatusCode::SUCCESS;
 }
 
 
@@ -51,72 +54,95 @@ NswCalibDbAlg::execute(const EventContext& ctx) const {
 
 	ATH_MSG_DEBUG( "execute " << name() );   
 
-	// nothing to do when online	
-	if(m_isOnline) {
-		ATH_MSG_DEBUG( "IsOnline is set to True; nothing to do!" );   
-		return StatusCode::SUCCESS;
-	}
-	
-	// retrieving data (for future: add calls to separate methods here, if any)
-	if(m_isData) {
-		ATH_CHECK(loadDataCalibMm  (ctx));
-		ATH_CHECK(loadDataCalibStgc(ctx));
-	}
-	else {
-		// keep for now: place to drop MC-only methods, if any
-	} 
-	
+	if(processTdoPdoData(ctx).isFailure()) return StatusCode::FAILURE;
+	if(processThrData   (ctx).isFailure()) return StatusCode::FAILURE;
 
-	// return	
 	return StatusCode::SUCCESS;
+
+}
+
+// processTdoPdoData
+StatusCode 
+NswCalibDbAlg::processTdoPdoData(const EventContext& ctx) const {
+
+	// set up write handles for time/charge data
+	SG::WriteCondHandle<NswCalibDbTimeChargeData> wrHdl{m_writeKey_tdopdo, ctx};
+	if (wrHdl.isValid()) {
+		ATH_MSG_DEBUG("CondHandle " << wrHdl.fullKey() << " is already valid."
+			  << " In theory this should not be called, but may happen"
+			  << " if multiple concurrent events are being processed out of order.");
+	}
+	ATH_MSG_DEBUG("Range of time/charge output is " << wrHdl.getRange());
+	std::unique_ptr<NswCalibDbTimeChargeData> wrCdo{std::make_unique<NswCalibDbTimeChargeData>(m_idHelperSvc->mmIdHelper(), m_idHelperSvc->stgcIdHelper())};
+
+	// MM
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_mm_sidea_tdo  , TimeChargeTech::MM  , TimeChargeType::TDO, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_mm_sidec_tdo  , TimeChargeTech::MM  , TimeChargeType::TDO, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_mm_sidea_pdo  , TimeChargeTech::MM  , TimeChargeType::PDO, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_mm_sidec_pdo  , TimeChargeTech::MM  , TimeChargeType::PDO, wrHdl, wrCdo.get()));
+
+	// sTGC
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_stgc_sidea_tdo, TimeChargeTech::STGC, TimeChargeType::TDO, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_stgc_sidec_tdo, TimeChargeTech::STGC, TimeChargeType::TDO, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_stgc_sidea_pdo, TimeChargeTech::STGC, TimeChargeType::PDO, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadTimeChargeData(ctx, m_readKey_stgc_sidec_pdo, TimeChargeTech::STGC, TimeChargeType::PDO, wrHdl, wrCdo.get()));
+
+	// insert/write data for time/charge data
+	if (wrHdl.record(std::move(wrCdo)).isFailure()) {
+		ATH_MSG_FATAL("Could not record " << wrHdl.key() 
+		      << " with EventRange " << wrHdl.getRange()
+		      << " into Conditions Store");
+		return StatusCode::FAILURE;
+	}		  
+	ATH_MSG_DEBUG("Recorded new " << wrHdl.key() << " with range " << wrHdl.getRange() << " into Conditions Store");
+
+	return StatusCode::SUCCESS; // nothing to do
+
 }
 
 
-// loadDataCalibMm
-StatusCode
-NswCalibDbAlg::loadDataCalibMm(const EventContext& ctx) const{
+// processThrData
+StatusCode 
+NswCalibDbAlg::processThrData(const EventContext& ctx) const {
 
-	if(loadTimeChargeData(ctx, m_readKey_data_mm_sidea_tdo, "TDO").isFailure()) return StatusCode::FAILURE;
-	if(loadTimeChargeData(ctx, m_readKey_data_mm_sidec_tdo, "TDO").isFailure()) return StatusCode::FAILURE;
-	if(loadTimeChargeData(ctx, m_readKey_data_mm_sidea_pdo, "PDO").isFailure()) return StatusCode::FAILURE;
-	if(loadTimeChargeData(ctx, m_readKey_data_mm_sidec_pdo, "PDO").isFailure()) return StatusCode::FAILURE;
-	if(loadThresholdData (ctx, m_readKey_data_mm_sidea_vmm       ).isFailure()) return StatusCode::FAILURE;
-	if(loadThresholdData (ctx, m_readKey_data_mm_sidec_vmm       ).isFailure()) return StatusCode::FAILURE;
-	return StatusCode::SUCCESS;
-}
+	if(m_isData) return StatusCode::SUCCESS; // nothing to do
+
+	// set up write handles for threshold data
+	SG::WriteCondHandle<NswCalibDbThresholdData> wrHdl{m_writeKey_thr, ctx};
+	if (wrHdl.isValid()) {
+		ATH_MSG_DEBUG("CondHandle " << wrHdl.fullKey() << " is already valid."
+			  << " In theory this should not be called, but may happen"
+			  << " if multiple concurrent events are being processed out of order.");
+	}
+	ATH_MSG_DEBUG("Range of threshold output is " << wrHdl.getRange());
+	std::unique_ptr<NswCalibDbThresholdData> wrCdo{std::make_unique<NswCalibDbThresholdData>(m_idHelperSvc->mmIdHelper(), m_idHelperSvc->stgcIdHelper())};
+
+	ATH_CHECK(loadThresholdData(ctx, m_readKey_mm_sidea_thr  , ThresholdTech::MM  , wrHdl, wrCdo.get()));
+	ATH_CHECK(loadThresholdData(ctx, m_readKey_mm_sidec_thr  , ThresholdTech::MM  , wrHdl, wrCdo.get()));
+	ATH_CHECK(loadThresholdData(ctx, m_readKey_stgc_sidea_thr, ThresholdTech::STGC, wrHdl, wrCdo.get()));
+	ATH_CHECK(loadThresholdData(ctx, m_readKey_stgc_sidec_thr, ThresholdTech::STGC, wrHdl, wrCdo.get()));
 	
+	// insert/write data for threshold data
+	if (wrHdl.record(std::move(wrCdo)).isFailure()) {
+		ATH_MSG_FATAL("Could not record " << wrHdl.key() 
+		      << " with EventRange " << wrHdl.getRange()
+		      << " into Conditions Store");
+		return StatusCode::FAILURE;
+	}		  
+	ATH_MSG_DEBUG("Recorded new " << wrHdl.key() << " with range " << wrHdl.getRange() << " into Conditions Store");
 
-// loadDataPdo
-StatusCode
-NswCalibDbAlg::loadDataCalibStgc(const EventContext& ctx) const {
-	if(loadTimeChargeData(ctx, m_readKey_data_stgc_sidea_tdo, "TDO").isFailure()) return StatusCode::FAILURE;
-	if(loadTimeChargeData(ctx, m_readKey_data_stgc_sidec_tdo, "TDO").isFailure()) return StatusCode::FAILURE;
-	if(loadTimeChargeData(ctx, m_readKey_data_stgc_sidea_pdo, "PDO").isFailure()) return StatusCode::FAILURE;
-	if(loadTimeChargeData(ctx, m_readKey_data_stgc_sidec_pdo, "PDO").isFailure()) return StatusCode::FAILURE;
-	if(loadThresholdData (ctx, m_readKey_data_stgc_sidea_vmm       ).isFailure()) return StatusCode::FAILURE;
-	if(loadThresholdData (ctx, m_readKey_data_stgc_sidec_vmm       ).isFailure()) return StatusCode::FAILURE;
 	return StatusCode::SUCCESS;
 }
 
 
 // loadThresholdData
 StatusCode
-NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readKey) const {
-
-	// set up write handle
-	SG::WriteCondHandle<NswCalibDbThresholdData> writeHandle{m_writeKey_vmm, ctx};
-	if (writeHandle.isValid()) {
-		ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
-			  << " In theory this should not be called, but may happen"
-			  << " if multiple concurrent events are being processed out of order.");
-		return StatusCode::SUCCESS; 
-	}
-	std::unique_ptr<NswCalibDbThresholdData> writeCdo{std::make_unique<NswCalibDbThresholdData>(m_idHelperSvc->mmIdHelper(), m_idHelperSvc->stgcIdHelper())};
+NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readKey, const ThresholdTech tech, writeHandleThr_t& writeHandle, NswCalibDbThresholdData* writeCdo) const {
 
 	// set up read handle
 	SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
 	const CondAttrListCollection* readCdo{*readHandle}; 
-	if(readCdo==nullptr){
+	if(!readCdo){
 	  ATH_MSG_ERROR("Null pointer to the read conditions object");
 	  return StatusCode::FAILURE; 
 	} 
@@ -162,48 +188,34 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readK
 				ATH_MSG_WARNING("Could not find valid channelId for elink "<<elinkId);
 				continue;
 			}
-			writeCdo->setData(&channelId, threshold);
-        	++nChns;
+			if(channelId.get_compact()==0){
+				writeCdo->setZero(tech, threshold);
+				++nChns;
+				continue;
+			}
+			writeCdo->setData(channelId, threshold);
+			++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
-        ++nObjs;
-    }
+		++nObjs;
+	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
 
-	// insert/write data
-	if (writeHandle.record(std::move(writeCdo)).isFailure()) {
-		ATH_MSG_FATAL("Could not record NswCalibDbTimeChargeData " << writeHandle.key() 
-		      << " with EventRange " << writeHandle.getRange()
-		      << " into Conditions Store");
-		return StatusCode::FAILURE;
-	}		  
-	ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
-
-    return StatusCode::SUCCESS;
+	return StatusCode::SUCCESS;
 }
 
 
 
 // loadTimeChargeData
 StatusCode
-NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& readKey, const std::string& type) const {
-
-	// set up write handle
-	SG::WriteCondHandle<NswCalibDbTimeChargeData> writeHandle{m_writeKey_tdopdo, ctx};
-	if (writeHandle.isValid()) {
-		ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
-			  << " In theory this should not be called, but may happen"
-			  << " if multiple concurrent events are being processed out of order.");
-		return StatusCode::SUCCESS; 
-	}
-	std::unique_ptr<NswCalibDbTimeChargeData> writeCdo{std::make_unique<NswCalibDbTimeChargeData>(m_idHelperSvc->mmIdHelper(), m_idHelperSvc->stgcIdHelper())};
+NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& readKey, const TimeChargeTech tech, const TimeChargeType type, writeHandleTdoPdo_t& writeHandle, NswCalibDbTimeChargeData* writeCdo) const {
 
 	// set up read handle
 	SG::ReadCondHandle<CondAttrListCollection> readHandle{readKey, ctx};
 	const CondAttrListCollection* readCdo{*readHandle}; 
-	if(readCdo==nullptr){
-	  ATH_MSG_ERROR("Null pointer to the read conditions object");
-	  return StatusCode::FAILURE; 
+	if(!readCdo){
+		ATH_MSG_ERROR("Null pointer to the read conditions object");
+		return StatusCode::FAILURE; 
 	} 
 	writeHandle.addDependency(readHandle);
 	ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
@@ -228,15 +240,8 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 		}
 
 		// parse tree
-		unsigned int elinkId;
-		unsigned int vmm; 
-		unsigned int channel;
-		float slope;
-		float slopeError;
-		float intercept;
-		float interceptError;
-		float chi2;
-		float prob;
+		unsigned int elinkId{0}, vmm{0}, channel{0};
+		float slope{0}, slopeError{0}, intercept{0},interceptError{0};	
 
 		tree->SetBranchAddress("vmm"           , &vmm           );
 		tree->SetBranchAddress("channel"       , &channel       );
@@ -245,42 +250,51 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 		tree->SetBranchAddress("slopeError"    , &slopeError    );
 		tree->SetBranchAddress("intercept"     , &intercept     );
 		tree->SetBranchAddress("interceptError", &interceptError);
-		tree->SetBranchAddress("chi2"          , &chi2          );
-		tree->SetBranchAddress("prob"          , &prob          );
+		
 
 		// loop over channels
 		unsigned int nChns = 0; 
 		for(unsigned int iEvt=0; iEvt<tree->GetEntries(); ++iEvt){
 			tree->GetEntry(iEvt);
-			Identifier channelId;
+			Identifier channelId{0};
 			if(!buildChannelId(channelId, elinkId, vmm, channel)){
 				ATH_MSG_WARNING("Could not find valid channelId for elink "<<elinkId);
 				continue;
 			}
-			writeCdo->setData(type, &channelId, slope, slopeError, intercept, interceptError);
-        	++nChns;
+
+			NswCalibDbTimeChargeData::CalibConstants calib_data{};
+			calib_data.slope = slope;
+			calib_data.slopeError = slopeError;
+			calib_data.intercept = intercept;
+			calib_data.interceptError = interceptError;
+			
+			if(channelId.get_compact()==0){
+				writeCdo->setZero(type, tech, std::move(calib_data));
+				++nChns;
+				continue;
+			}
+
+			writeCdo->setData(type, channelId, std::move(calib_data));
+			++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
-        ++nObjs;
-    }
+		++nObjs;
+	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
 
-	// insert/write data
-	if (writeHandle.record(std::move(writeCdo)).isFailure()) {
-		ATH_MSG_FATAL("Could not record NswCalibDbTimeChargeData " << writeHandle.key() 
-		      << " with EventRange " << writeHandle.getRange()
-		      << " into Conditions Store");
-		return StatusCode::FAILURE;
-	}		  
-	ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
-
-    return StatusCode::SUCCESS;
+	return StatusCode::SUCCESS;
 }
 
 
 // buildChannelId
 bool
 NswCalibDbAlg::buildChannelId(Identifier& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const {
+
+	// return dummy Identifier
+	if(elinkId==0){
+		channelId = Identifier(0);
+		return true;
+	}
 
 	// build NSWOfflineHelper
 	Muon::nsw::NSWResourceId* resId = new Muon::nsw::NSWResourceId((uint32_t) elinkId);

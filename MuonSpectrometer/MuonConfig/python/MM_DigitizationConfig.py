@@ -10,7 +10,6 @@ from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MM_DigitToRDOCfg
-from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
@@ -38,16 +37,18 @@ def MM_RangeCfg(flags, name="MMRange", **kwargs):
 
 def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitizationTool"""
-    acc = MagneticFieldSvcCfg(flags)
-    acc.merge(MuonDetectorCondAlgCfg(flags))
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    result = ComponentAccumulator()
+    kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))
+    result.merge(MagneticFieldSvcCfg(flags))
     if flags.Digitization.PileUp:
         intervals = []
         if flags.Digitization.DoXingByXingPileUp:
             kwargs.setdefault("FirstXing", MM_FirstXing())
             kwargs.setdefault("LastXing", MM_LastXing())
         else:
-            intervals += [acc.popToolsAndMerge(MM_RangeCfg(flags))]
-        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+            intervals += [result.popToolsAndMerge(MM_RangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", result.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
     else:
         kwargs.setdefault("MergeSvc", '')
     kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
@@ -62,9 +63,9 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "MM_SDO")
     from RngComps.RandomServices import AthRNGSvcCfg
-    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
-    acc.setPrivateTools(CompFactory.MM_DigitizationTool(name, **kwargs))
-    return acc
+    kwargs.setdefault("RndmSvc", result.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+    result.setPrivateTools(CompFactory.MM_DigitizationTool(name, **kwargs))
+    return result
 
 
 def MM_OverlayDigitizationToolCfg(flags, name="MM_OverlayDigitizationTool", **kwargs):

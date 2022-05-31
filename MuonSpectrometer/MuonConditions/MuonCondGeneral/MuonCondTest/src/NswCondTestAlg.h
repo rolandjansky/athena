@@ -29,8 +29,10 @@ public:
     virtual StatusCode execute(const EventContext &) const override;
 
 private:
-    StatusCode retrieveTdoPdo(const EventContext &, const std::string &, const std::string &, const std::string &,
-                              std::chrono::duration<double> &) const;
+    using TimeChargeType = NswCalibDbTimeChargeData::CalibDataType;
+
+    StatusCode retrieveTdoPdo(const EventContext& ctx, TimeChargeType data, const std::string& tech,
+                              const std::string& side, std::chrono::duration<double>& timer) const;
     StatusCode retrieveVmm(const EventContext &, const std::string &, const std::string &, std::chrono::duration<double> &) const;
     std::string timestamp() const;
 

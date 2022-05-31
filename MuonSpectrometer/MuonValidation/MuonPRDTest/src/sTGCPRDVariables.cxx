@@ -77,7 +77,8 @@ StatusCode sTGCPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
       m_NSWsTGC_prd_localPosY->push_back(loc_pos[1]);
       m_NSWsTGC_prd_covMatrix_1_1->push_back(err_x);
       m_NSWsTGC_prd_covMatrix_2_2->push_back(err_y);
-
+      m_NSWsTGC_prd_channel_charge->push_back(prd->stripCharges());
+      m_NSWsTGC_prd_channel_time->push_back(prd->stripTimes());
       m_NSWsTGC_nPRDs++;
     }
   }
@@ -107,6 +108,9 @@ void sTGCPRDVariables::deleteVariables()
   delete m_NSWsTGC_prd_localPosY;
   delete m_NSWsTGC_prd_covMatrix_1_1;
   delete m_NSWsTGC_prd_covMatrix_2_2;
+  
+  delete m_NSWsTGC_prd_channel_charge;
+  delete m_NSWsTGC_prd_channel_time;
 
   m_NSWsTGC_nPRDs = 0;
   m_NSWsTGC_prd_stationName   = nullptr;
@@ -127,7 +131,9 @@ void sTGCPRDVariables::deleteVariables()
   m_NSWsTGC_prd_localPosY     = nullptr;
   m_NSWsTGC_prd_covMatrix_1_1 = nullptr;
   m_NSWsTGC_prd_covMatrix_2_2 = nullptr;
-
+  
+  m_NSWsTGC_prd_channel_charge = nullptr;
+  m_NSWsTGC_prd_channel_time = nullptr;
   return;
 }
 
@@ -155,6 +161,10 @@ StatusCode sTGCPRDVariables::clearVariables()
   m_NSWsTGC_prd_covMatrix_1_1 ->clear();
   m_NSWsTGC_prd_covMatrix_2_2 ->clear();
 
+  m_NSWsTGC_prd_channel_charge->clear();
+  m_NSWsTGC_prd_channel_time->clear();
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -180,7 +190,10 @@ StatusCode sTGCPRDVariables::initializeVariables()
   m_NSWsTGC_prd_localPosY     = new std::vector<double>;
   m_NSWsTGC_prd_covMatrix_1_1 = new std::vector<double>;
   m_NSWsTGC_prd_covMatrix_2_2 = new std::vector<double>;
-
+  
+  m_NSWsTGC_prd_channel_charge = new std::vector<std::vector<int>>;
+  m_NSWsTGC_prd_channel_time = new std::vector<std::vector<short int>>;
+  
   if(m_tree) {
     m_tree->Branch("PRD_sTGC", &m_NSWsTGC_nPRDs, "PRDs_sTGC_n/i");
     m_tree->Branch("PRD_sTGC_stationName", &m_NSWsTGC_prd_stationName);
@@ -201,7 +214,9 @@ StatusCode sTGCPRDVariables::initializeVariables()
     m_tree->Branch("PRD_sTGC_localPosY",   &m_NSWsTGC_prd_localPosY);
     m_tree->Branch("PRD_sTGC_covMatrix_1_1", &m_NSWsTGC_prd_covMatrix_1_1);
     m_tree->Branch("PRD_sTGC_covMatrix_2_2", &m_NSWsTGC_prd_covMatrix_2_2);
-
+    
+    m_tree->Branch("PRD_sTGC_channel_charge",&m_NSWsTGC_prd_channel_charge);
+    m_tree->Branch("PRD_sTGC_channel_time",&m_NSWsTGC_prd_channel_time);
   }
 
   return StatusCode::SUCCESS;

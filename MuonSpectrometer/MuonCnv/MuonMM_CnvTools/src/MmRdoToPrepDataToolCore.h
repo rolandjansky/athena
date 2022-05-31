@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMmRdoToPrepDataToolCore_H
@@ -62,17 +62,20 @@ namespace Muon
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
     
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    
+ 
     /// MdtPrepRawData containers
-    SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey {this,"OutputCollection", "MM_Measurements","Muon::MMPrepDataContainer to record"};
-    SG::ReadHandleKey<MM_RawDataContainer> m_rdoContainerKey{this,"InputCollection","MMRDO","MM RDO to read"};
+    SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey{this, "OutputCollection", "MM_Measurements"};
+    SG::ReadHandleKey<MM_RawDataContainer> m_rdoContainerKey{this, "InputCollection", "MMRDO"};
 
-    Gaudi::Property<bool> m_merge {this,"MergePrds",true};
+    std::string m_outputCollectionLocation;            
+    Gaudi::Property<bool> m_merge{this, "MergePrds", true}; 
+
+    ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool{this,"ClusterBuilderTool","Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool"};
+    ToolHandle<INSWCalibTool> m_calibTool{this,"NSWCalibTool", ""};
+
     // charge cut is temporarily disabled for comissioning studies. Should be reenabled at some point. pscholer 13.05.2022
     Gaudi::Property<float> m_singleStripChargeCut {this,"singleStripChargeCut", FLT_MIN /*6241 * 0.4*/}; // 0.4 fC from BB5 cosmics
 
-    ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool{this,"ClusterBuilderTool","Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool"};
-    ToolHandle<INSWCalibTool> m_calibTool{this,"NSWCalibTool","Muon::NSWCalibTool/NSWCalibTool"};
   }; 
 } // end of namespace
 

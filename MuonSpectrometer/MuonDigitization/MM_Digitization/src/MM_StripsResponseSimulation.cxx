@@ -111,9 +111,9 @@ void MM_StripsResponseSimulation::initialize()
 	// values are from G. Iakovidis
 
 	m_NelectronPropBins = 300;
-	std::vector<double> NelectronProb = {65.6,15,6.4,3.5,2.25,1.55,1.05,0.81,0.61,0.49,0.39,0.3,0.25,0.2,0.16,0.12,0.095,0.075,0.063,0.054,0.049,0.045,0.044};
+	 std::vector<double> NelectronProb{65.6,15.,6.4,3.5,2.25,1.55,1.05,0.81,0.61,0.49,0.39,0.3,0.25,0.2,0.16,0.12,0.095,0.075,0.063,0.054,0.049,0.045,0.044};
 	NelectronProb.reserve(m_NelectronPropBins);
-	for(int Nelectron = 23; Nelectron<m_NelectronPropBins; Nelectron++) NelectronProb.push_back(21.6/((Nelectron)*(Nelectron)));
+	for(int Nelectron = NelectronProb.size(); Nelectron<m_NelectronPropBins; Nelectron++) NelectronProb.push_back(21.6/((Nelectron)*(Nelectron)));
 
 	m_randNelectrons=std::make_unique<CLHEP::RandGeneral>(&NelectronProb[0],m_NelectronPropBins,1); // 1 means non-continious random numbers
 
@@ -392,7 +392,7 @@ MM_StripsResponseSimulation::~MM_StripsResponseSimulation()
 {
 	if(m_outputFile){
 		writeHistos();
-		delete m_outputFile;
+		
 	}
 
 }

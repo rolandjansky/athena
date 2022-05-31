@@ -1,13 +1,18 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-run = "datatest" ## "mc" or "dataR1" or "dataR2"
+run = "mc" ## "data" or "mc"
 
 from AthenaCommon.GlobalFlags import GlobalFlags, globalflags
-if run == "datatest":
+if run == "data":
 	globalflags.DetGeo.set_Value_and_Lock('atlas') 
 	globalflags.DataSource.set_Value_and_Lock('data')
-	#globalflags.DatabaseInstance.set_Value_and_Lock("OFLP200")
 	globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
+elif run == "mc":
+	globalflags.DetGeo.set_Value_and_Lock('atlas') 
+	globalflags.DataSource.set_Value_and_Lock('data')
+#	globalflags.DatabaseInstance.set_Value_and_Lock("OFLP200")
+
+
 
 from AthenaCommon.JobProperties import jobproperties
 
@@ -36,7 +41,7 @@ import AthenaCommon.AtlasUnixStandardJob
 
 from AthenaCommon.AppMgr import ServiceMgr,athCondSeq
 import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/work/c/cheidegg/ec/AthenaDev/test.HITS.pool.root"]
+ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/work/c/cheidegg/ec/_testFiles/test.HITS.pool.root"]
 
 # use auditors
 from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
@@ -76,37 +81,35 @@ svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 from IOVDbSvc.CondDB import conddb
 
 
-if run=="datatest":
-	print("fooooooo")
-	svcMgr.IOVDbSvc.DBInstance="CONDBR2"
-	print(svcMgr.IOVDbSvc.DBInstance)
+if run=="data":
+	#svcMgr.IOVDbSvc.DBInstance=""
 
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/TIME/SIDEA"    , "MmTdoSideA-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/TIME/SIDEC"    , "MmTdoSideC-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/CHARGE/SIDEA"  , "MmPdoSideA-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/CHARGE/SIDEC"  , "MmPdoSideC-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/VMM/SIDEA"     , "MmVmmSideA-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_MDT;dbname=CONDBR2;user=ATLAS_COOLOFL_MDT_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/MDT/MM/VMM/SIDEC"     , "MmVmmSideC-Rnd-TEST",className='CondAttrListCollection')
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/TIME/SIDEA"   , "MmTdoSideA-TEST-Rnd"  , forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/TIME/SIDEC"   , "MmTdoSideC-TEST-Rnd"  , forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/CHARGE/SIDEA" , "MmPdoSideA-TEST-Rnd"  , forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/CHARGE/SIDEC" , "MmPdoSideC-TEST-Rnd"  , forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/TIME/SIDEA"  , "sTgcTdoSideA-TEST-Rnd", forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/TIME/SIDEC"  , "sTgcTdoSideC-TEST-Rnd", forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/CHARGE/SIDEA", "sTgcPdoSideA-TEST-Rnd", forceData=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/CHARGE/SIDEC", "sTgcPdoSideC-TEST-Rnd", forceData=True, className='CondAttrListCollection');
 
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_TGC;dbname=CONDBR2;user=ATLAS_COOLOFL_TGC_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/TGC/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_TGC;dbname=CONDBR2;user=ATLAS_COOLOFL_TGC_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/TGC/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_TGC;dbname=CONDBR2;user=ATLAS_COOLOFL_TGC_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/TGC/NSW/CHARGE/SIDEA", "sTgcPdoSideA-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_TGC;dbname=CONDBR2;user=ATLAS_COOLOFL_TGC_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/TGC/NSW/CHARGE/SIDEC", "sTgcPdoSideC-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_TGC;dbname=CONDBR2;user=ATLAS_COOLOFL_TGC_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/TGC/NSW/VMM/SIDEA"   , "sTgcVmmSideA-Rnd-TEST",className='CondAttrListCollection')
-	#conddb.addFolderWithTag("", "<dbConnection>oracle://INT8R;schema=ATLAS_COOLOFL_TGC;dbname=CONDBR2;user=ATLAS_COOLOFL_TGC_W;password=do5cM5Gmcfl0BbdKo3Myz_jAd04z</dbConnection>/TGC/NSW/VMM/SIDEC"   , "sTgcVmmSideC-Rnd-TEST",className='CondAttrListCollection')
 
-	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/TIME/SIDEA"   , "MmTdoSideA-Rnd-TEST"  , forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/TIME/SIDEC"   , "MmTdoSideC-Rnd-TEST"  , forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/CHARGE/SIDEA" , "MmPdoSideA-Rnd-TEST"  , forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/CHARGE/SIDEC" , "MmPdoSideC-Rnd-TEST"  , forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/VMM/SIDEA"    , "MmVmmSideA-Rnd-TEST"  , forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/VMM/SIDEC"    , "MmVmmSideC-Rnd-TEST"  , forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Rnd-TEST", forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Rnd-TEST", forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/CHARGE/SIDEA", "sTgcPdoSideA-Rnd-TEST", forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/CHARGE/SIDEC", "sTgcPdoSideC-Rnd-TEST", forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/VMM/SIDEA"   , "sTgcPdoSideA-Rnd-TEST", forceData=True, className='CondAttrListCollection');
-	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/VMM/SIDEC"   , "sTgcPdoSideC-Rnd-TEST", forceData=True, className='CondAttrListCollection');
+elif run=="mc":
+
+	svcMgr.IOVDbSvc.DBInstance="OFLP200"
+	
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/TIME/SIDEA"   , "MmTdoSideA-Const-3p73"  , forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/TIME/SIDEC"   , "MmTdoSideC-Const-3p73"  , forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/CHARGE/SIDEA" , "MmPdoSideA-Const-9p0"   , forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/CHARGE/SIDEC" , "MmPdoSideC-Const-9p0"   , forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/THR/SIDEA"    , "MmThrSideA-Const-55p4"  , forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("MDT_OFL", "/MDT/MM/THR/SIDEC"    , "MmThrSideC-Const-55p4"  , forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Const-0p27", forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Const-0p27", forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/CHARGE/SIDEA", "sTgcPdoSideA-Const-0p78", forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/CHARGE/SIDEC", "sTgcPdoSideC-Const-0p78", forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/THR/SIDEA"   , "sTgcThrSideA-Const-52p7", forceMC=True, className='CondAttrListCollection');
+	conddb.addFolderWithTag("TGC_OFL", "/TGC/NSW/THR/SIDEC"   , "sTgcThrSideC-Const-52p7", forceMC=True, className='CondAttrListCollection');
 
 
 
@@ -118,9 +121,9 @@ if run=="datatest":
 
 from MuonCondAlg.MuonCondAlgConf import NswCalibDbAlg
 alg = NswCalibDbAlg("NswCalibDbAlg")
-alg.OutputLevel = VERBOSE
-alg.isOnline = False
-alg.isData   = True
+alg.OutputLevel = DEBUG
+alg.isOnline    = False
+alg.isData      = True
 
 if "mc" in run:
 	alg.isData = False

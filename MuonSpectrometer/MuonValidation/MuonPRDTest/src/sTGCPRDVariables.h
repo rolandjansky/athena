@@ -37,7 +37,9 @@ class sTGCPRDVariables : public ValAlgVariables
     m_NSWsTGC_prd_localPosX(0),
     m_NSWsTGC_prd_localPosY(0),
     m_NSWsTGC_prd_covMatrix_1_1(0),
-    m_NSWsTGC_prd_covMatrix_2_2(0)
+    m_NSWsTGC_prd_covMatrix_2_2(0),
+    m_NSWsTGC_prd_channel_charge(0),
+    m_NSWsTGC_prd_channel_time(0)
   {
     setHelper(idhelper);
   }
@@ -84,6 +86,8 @@ class sTGCPRDVariables : public ValAlgVariables
   std::vector<double> *m_NSWsTGC_prd_localPosY;
   std::vector<double> *m_NSWsTGC_prd_covMatrix_1_1;
   std::vector<double> *m_NSWsTGC_prd_covMatrix_2_2;
+  std::vector<std::vector<int>> *m_NSWsTGC_prd_channel_charge;
+  std::vector<std::vector<short int>> *m_NSWsTGC_prd_channel_time;
 
 };
 

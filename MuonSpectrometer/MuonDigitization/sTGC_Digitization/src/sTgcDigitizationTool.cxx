@@ -47,13 +47,10 @@
 
 #include <memory>
 
-namespace Trk{
-   class PlaneSurface;
-}
 
 using namespace MuonGM;
 
-typedef struct {
+struct structDigitType{
   uint16_t bcTag; // 001 --> PREVIOUS BC, 010 --> CURRENT BC, 100 --> NEXT BC ==> if digitTime inside the overlap of the PREVIOUS and CURRENT BC, bcTag = 011 (=3)
   float charge;  // for pad/wire response, charge = 0. 
   int channelType; // 0 --> pad, 1 --> strip,  2 --> wire
@@ -62,11 +59,11 @@ typedef struct {
   int keep;  // a flag used to label this digit object is kept or not (could be removed by the electronics threshold / deadtime) 0 --> do not keep, 1 --> keep if the strip is turned on by neighborOn mode; 2 --> keep because of a signal over threshold 
   bool isDead;
   bool isPileup;
-} structDigitType; 
+} ; 
 
 using tempDigitType = std::pair<float, structDigitType>; // pair<float digitTime, structDigitType>  
 
-using structReadoutElement = struct {
+struct structReadoutElement{
 
   int readLevel;
 
@@ -90,6 +87,7 @@ inline bool sort_digitsEarlyToLate(const sTgcSimDigitData &a, const sTgcSimDigit
 /*******************************************************************************/
 sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent) :
     PileUpToolBase(type, name, parent),
+    m_chargeThreshold(0.02),
     m_readoutThreshold(0),
     m_neighborOnThreshold(0),
     m_saturation(0),
@@ -139,6 +137,12 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // sTgcHitIdHelper
   m_hitIdHelper = sTgcHitIdHelper::GetHelper();
+
+  // calibration tool
+  ATH_CHECK(m_calibTool.retrieve());
+
+  // initialize ReadCondHandleKey
+  ATH_CHECK(m_condThrshldsKey.initialize());
 
   // Initialize ReadHandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(true));
@@ -634,6 +638,19 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
     } // end of while(i != e)
   } //end of while(m_thpcsTGC->nextDetectorElement(i, e))
 
+  /***************************
+  * Retrieve conditions data *
+  ***************************/
+
+  // set up pointer to conditions object
+  SG::ReadCondHandle<NswCalibDbThresholdData> readThresholds{m_condThrshldsKey, ctx};
+  if(!readThresholds.isValid()){
+    ATH_MSG_ERROR("Cannot find conditions data container for VMM thresholds!");
+  } 
+  const NswCalibDbThresholdData* thresholdData = readThresholds.cptr();
+  
+
+
   /*********************
   * Process Pad Digits *
   *********************/
@@ -707,7 +724,21 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_pad_digits.begin())).time();
 
-      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_pad_digits), vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+      // overwrite VMM charge threshold value
+      double threshold = m_chargeThreshold;
+      if(m_useCondThresholds){
+        const Identifier chnlId = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().parentID  (it_REID->first),
+                                                                          m_idHelperSvc->stgcIdHelper().multilayer(it_REID->first),
+                                                                          m_idHelperSvc->stgcIdHelper().gasGap    (it_REID->first),
+                                                                          0, 1);
+        double elecThrsld = 0;
+        if(!thresholdData->getThreshold(chnlId, elecThrsld))
+          ATH_MSG_ERROR("Cannot find retrieve VMM threshold from conditions data base!");
+        if(!m_calibTool->pdoToCharge(ctx, true, (int) elecThrsld, chnlId, threshold))
+          ATH_MSG_ERROR("Cannot convert VMM charge threshold via conditions data!");
+      }
+
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_pad_digits), vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0, threshold);  // object to simulate the VMM response
       theVMM->setLevel(static_cast<MSG::Level>(msgLevel()));
       theVMM->initialReport();
 
@@ -802,11 +833,24 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       ATH_MSG_WARNING("Number of merged pad digits (" << size_mergedDigits << ") is not equal to the number of digits on pad channel (" << size_channelDigits << ") after merging. Please verify.");
       }
 
+      // overwrite VMM charge threshold value
+      double threshold = m_chargeThreshold;
+      if(m_useCondThresholds){
+        const Identifier chnlId = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().parentID  (it_REID->first),
+                                                                          m_idHelperSvc->stgcIdHelper().multilayer(it_REID->first),
+                                                                          m_idHelperSvc->stgcIdHelper().gasGap    (it_REID->first),
+                                                                          1, 1);
+        double elecThrsld = 0;
+        if(!thresholdData->getThreshold(chnlId, elecThrsld))
+          ATH_MSG_ERROR("Cannot find retrieve VMM threshold from conditions data base!");
+        if(!m_calibTool->pdoToCharge(ctx, true, (int) elecThrsld, chnlId, threshold))
+          ATH_MSG_ERROR("Cannot convert VMM charge threshold via conditions data!");
+      }
 
       ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
       vmmArray[it_DETEL->first][it_REID->first].first = true;
-      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(std::move(merged_strip_digits), (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1); // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> vMMSimPtr = std::make_unique<sTgcVMMSim>(std::move(merged_strip_digits), (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1, threshold); // object to simulate the VMM response
       vmmArray[it_DETEL->first][it_REID->first].second = std::move(vMMSimPtr);
       vmmArray[it_DETEL->first][it_REID->first].second->setLevel(static_cast<MSG::Level>(msgLevel()));
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
@@ -950,7 +994,21 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
       float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
-      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_wire_digits), vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+      // overwrite VMM charge threshold value
+      double threshold = m_chargeThreshold;
+      if(m_useCondThresholds){
+        const Identifier chnlId = m_idHelperSvc->stgcIdHelper().channelID(m_idHelperSvc->stgcIdHelper().parentID  (it_REID->first),
+                                                                          m_idHelperSvc->stgcIdHelper().multilayer(it_REID->first),
+                                                                          m_idHelperSvc->stgcIdHelper().gasGap    (it_REID->first),
+                                                                          2, 1);
+        double elecThrsld = 0;
+        if(!thresholdData->getThreshold(chnlId, elecThrsld))
+          ATH_MSG_ERROR("Cannot find retrieve VMM threshold from conditions data base!");
+        if(!m_calibTool->pdoToCharge(ctx, true, (int) elecThrsld, chnlId, threshold))
+          ATH_MSG_ERROR("Cannot convert VMM charge threshold via conditions data!");
+      }
+
+      std::unique_ptr<sTgcVMMSim> theVMM = std::make_unique<sTgcVMMSim>(std::move(merged_wire_digits), vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2, threshold);  // object to simulate the VMM response
       theVMM->setLevel(msgLevel());
       theVMM->initialReport();
 
@@ -1002,18 +1060,11 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
-      // Change strip charge to PDO
-      // VMM gain setting for conversion from charge to potential, 1mV=1fC; from McGill cosmics tests
-      // Conversion from V to PDO from Shandong Cosmics tests: PDO = mV * 1.0304 + 59.997
-      // link to study outlining conversion https://doi.org/10.1016/j.nima.2019.02.061
-      /* Note from Alexandre Laurier - 2021-05-17
-      // Removing the pedestal of 59.997; It us causing issues in clustering
-         This instead needs to be accounted for by calibration tools.
-      */
-      chargeAfterSmearing = 1000*chargeAfterSmearing;
-      chargeAfterSmearing = chargeAfterSmearing*1.0304;
-      
-      if (chargeAfterSmearing < 1.0) continue;
+    if ( m_idHelperSvc->stgcIdHelper().channelType(it_digit->identify()) == 1 ) {
+      // Select strips with charge > 0.001 pC to avoid having zero ADC count when converting 
+      // charge [pC] to PDO [ADC count]
+      if (chargeAfterSmearing < 0.001) continue;
+    }
 
     std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
 									      it_digit->bcTag(), 
