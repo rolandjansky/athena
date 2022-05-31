@@ -179,9 +179,9 @@ def MuonDetectorCondAlgCfg(flags):
     if applyPassivation:
         from MuonConfig.MuonCondAlgConfig import NswPassivationDbAlgCfg
         acc.merge(NswPassivationDbAlgCfg(flags))
-    MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
-    MuonDetectorCondAlg.applyMmPassivation = applyPassivation
-    MuonDetectorManagerCond = MuonDetectorCondAlg()
+    MuonDetectorManagerCond = CompFactory.MuonDetectorCondAlg()
+    MuonDetectorManagerCond.applyMmPassivation = applyPassivation
+    
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
     if flags.IOVDb.DatabaseInstance != 'COMP200' and \
