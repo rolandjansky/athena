@@ -28,12 +28,8 @@ def getmodule(modname):
         pass
 
     # Does it match a pattern?
-    if (modname.endswith('_900GeV')
-        or modname.endswith('_2p76TeV')
-        or modname.endswith('_5TeV')
-        or modname.endswith('_7TeV')
-        or modname.endswith('_8TeV')
-        or modname.endswith('_13TeV')
+    if (modname.endswith('GeV')
+        or modname.endswith('TeV')
         or modname.endswith('_calib')
         or modname.endswith('_comm')):
         from . import base_data; return base_data
