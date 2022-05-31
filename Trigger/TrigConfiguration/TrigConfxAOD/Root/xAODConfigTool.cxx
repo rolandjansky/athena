@@ -336,9 +336,7 @@ namespace TrigConf {
 
          // Load the first elements by default
          ATH_CHECK( m_hltJson->size() > 0 );
-         if (m_hltmonitoringJson) { // Optional
-            ATH_CHECK( m_hltmonitoringJson->size() > 0 );
-         }
+         //ATH_CHECK( m_hltmonitoringJson->size() > 0 ); // Optional - re-enable this check in the future when all used AODs contains this
          ATH_CHECK( m_l1Json->size() > 0 );
          ATH_CHECK( m_hltpsJson->size() > 0 );
          ATH_CHECK( m_l1psJson->size() > 0 );
@@ -347,7 +345,7 @@ namespace TrigConf {
          }
 
          m_currentHltJson = m_hltJson->at( 0 );
-         if (m_hltmonitoringJson) { // Optional
+         if (m_hltmonitoringJson && m_hltmonitoringJson->size()) { // Optional
             m_currentHltmonitoringJson = m_hltmonitoringJson->at( 0 );
          }
          m_currentL1Json = m_l1Json->at( 0 );
@@ -501,7 +499,7 @@ namespace TrigConf {
 
       // If not, load correct JSON menus from their respective containers, matching against the event's keys ...
       ATH_CHECK( loadJsonByKey("HLT Menu", m_hltJson, keys->smk(), m_currentHltJson) );
-      if (m_hltmonitoringJson) {
+      if (m_hltmonitoringJson && m_hltmonitoringJson->size()) {
          ATH_CHECK( loadJsonByKey("HLT Monitoring", m_hltmonitoringJson, keys->smk(), m_currentHltmonitoringJson) );
       }
       ATH_CHECK( loadJsonByKey("L1 Menu", m_l1Json, keys->smk(), m_currentL1Json) );
