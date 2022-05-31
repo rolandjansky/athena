@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv.cxx 
@@ -61,10 +61,10 @@ INav4MomAssocs* INav4MomAssocsCnv::createTransient()
 
   INav4MomAssocs *transObj = 0;
 
-  static pool::Guid tr_guid("DF941034-CCB2-4A1A-9A8C-5F3D5EAFD08C");
-  static pool::Guid p1_guid("85027AE1-4FD4-4808-B151-5485634ACD5D");
-  static pool::Guid p2_guid("8040BEAA-BC65-43B8-B468-A7157C89ACB3");
-  static pool::Guid p3_guid("455AEE6B-9834-4E72-8F81-2532A52E3BE7");
+  static const pool::Guid tr_guid("DF941034-CCB2-4A1A-9A8C-5F3D5EAFD08C");
+  static const pool::Guid p1_guid("85027AE1-4FD4-4808-B151-5485634ACD5D");
+  static const pool::Guid p2_guid("8040BEAA-BC65-43B8-B468-A7157C89ACB3");
+  static const pool::Guid p3_guid("455AEE6B-9834-4E72-8F81-2532A52E3BE7");
 
   if( compareClassGuid(p3_guid) ) {
     // using unique_ptr ensures deletion of the persistent object
