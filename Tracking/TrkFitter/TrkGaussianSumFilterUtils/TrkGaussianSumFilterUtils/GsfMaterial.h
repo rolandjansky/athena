@@ -55,29 +55,8 @@ struct Combined
     AmgSymMatrix(5),
     GSFConstants::maxNumberofMatComponents> deltaCovariances = {};
 
-  size_t numWeights = 0;
-  size_t numDeltaPs = 0;
-  size_t numDeltaParameters = 0;
-  size_t numDeltaCovariance = 0;
-  void reset()
-  {
-    numWeights = 0;
-    numDeltaPs = 0;
-    numDeltaParameters = 0;
-    numDeltaCovariance = 0;
-  }
+  size_t numEntries = 0;
 
-  void resetAndAddDummyValues()
-  {
-    weights[0] = 1;
-    deltaPs[0] = 0;
-    deltaParameters[0] = AmgVector(5)::Zero();
-    deltaCovariances[0] = AmgSymMatrix(5)::Zero();
-    numWeights = 1;
-    numDeltaPs = 1;
-    numDeltaParameters = 1;
-    numDeltaCovariance = 1;
-  }
 };
 
 } // end namespace GSFMaterial
