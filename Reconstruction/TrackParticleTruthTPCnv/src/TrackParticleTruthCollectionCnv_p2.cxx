@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleTruth/TrackParticleTruthCollection.h"
@@ -16,15 +16,15 @@
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionAccessor.h"
 
 namespace {
-    HepMcParticleLinkCnv_p2 particleLinkConverter;
-    DataLinkCnv_p1<DataLink<Rec::TrackParticleContainer> > dataLinkConverter;
+    const HepMcParticleLinkCnv_p2 particleLinkConverter;
+    const DataLinkCnv_p1<DataLink<Rec::TrackParticleContainer> > dataLinkConverter;
 }
 
 typedef ElementLinkCnv_p3<ElementLink<Rec::TrackParticleContainer> > TrackLinkCnv_t;
 
 void TrackParticleTruthCollectionCnv_p2::persToTrans( const Rec::TrackParticleTruthCollection_p2* pers,
                                                       TrackParticleTruthCollection* trans, 
-                                                      MsgStream& msg ) 
+                                                      MsgStream& msg ) const
 {
     trans->clear();
 
@@ -45,7 +45,7 @@ void TrackParticleTruthCollectionCnv_p2::persToTrans( const Rec::TrackParticleTr
 
 void TrackParticleTruthCollectionCnv_p2::transToPers( const TrackParticleTruthCollection* trans, 
                                                       Rec::TrackParticleTruthCollection_p2* pers, 
-                                                      MsgStream& msg ) 
+                                                      MsgStream& msg ) const
 {
     if (msg.level() <= MSG::DEBUG) {
         msg << MSG::DEBUG << "TrackParticleTruthCollectionCnv_p2::transToPers()" << endmsg;
