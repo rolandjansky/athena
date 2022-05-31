@@ -18,17 +18,15 @@ NswPassivationDbData::NswPassivationDbData(const MmIdHelper& mmIdHelper):
 
 // setData
 void
-NswPassivationDbData::setData(const Identifier chnlId, const int pcb, const float indiv, const float extra, const std::string& position) {
+NswPassivationDbData::setData(const Identifier& chnlId, const int pcb, const float indiv, const float extra, const std::string& position) {
 	unsigned long long channelId = chnlId.get_compact();
-	if(m_data.find(channelId) == m_data.end()) {
-		std::array<float, 4> empty = {0,0,0,0}; // left, right, top, bottom
-		m_data[channelId] = empty;
-	}
-	if     (position=="left" ) m_data[channelId][0] = indiv + extra;
-	else if(position=="right") m_data[channelId][1] = indiv + extra;
+	PCBPassivation& passiv = m_data[channelId];
+    passiv.valid = true;
+	if     (position=="left" ) passiv.left = indiv + extra;
+	else if(position=="right") passiv.right = indiv + extra;
 	else {
-		m_data[channelId][0] = extra;
-		m_data[channelId][1] = extra;
+		passiv.left = extra;
+		passiv.right = extra;
 	}
 	if(extra==0) return;
 	/* in case an extra passivation is given (extra>0), it is applied (1/2) 
@@ -37,8 +35,8 @@ NswPassivationDbData::setData(const Identifier chnlId, const int pcb, const floa
 	* if pcb = 5 or 8 => only bottom
 	* else (if pcb = 2, 3, 4 or 7) => both top and bottom
 	*/
-	if(pcb!=5 && pcb!=8) m_data[channelId][2] = extra/2;
-	if(pcb!=1 && pcb!=6) m_data[channelId][3] = extra/2;
+	if(pcb!=5 && pcb!=8) passiv.top = extra/2;
+	if(pcb!=1 && pcb!=6) passiv.bottom = extra/2;
 }
 
 
@@ -57,35 +55,16 @@ NswPassivationDbData::getChannelIds() const {
 	return keys;
 }
 
-// getPassivatedWidth
-bool
-NswPassivationDbData::getPassivatedWidth(const Identifier chnlId, float& left, float& right) const {
-	unsigned long long channelId = buildChannelId(chnlId);
-	for (const auto& p : m_data) {
-		if(p.first != channelId) continue;
-		left  = p.second[0];
-		right = p.second[1];
-		return true;
-	}
-	return false;
+const NswPassivationDbData::PCBPassivation&  NswPassivationDbData::getPassivation(const Identifier& id) const {
+    unsigned long long channelId = buildChannelId(id);
+    std::map<unsigned long long, PCBPassivation>::const_iterator itr = m_data.find(channelId);
+    if (itr != m_data.end()) return itr->second;
+    static const PCBPassivation dummy{};
+    return dummy;    
 }
-
-// getPassivatedHeight
-bool
-NswPassivationDbData::getPassivatedHeight(const Identifier chnlId, float& top, float& bottom) const {
-	unsigned long long channelId = buildChannelId(chnlId);
-	for (const auto& p : m_data) {
-		if(p.first != channelId) continue;
-		top    = p.second[2];
-		bottom = p.second[3];
-		return true;
-	}
-	return false;
-}
-
 // buildChannelId
 unsigned long long
-NswPassivationDbData::buildChannelId(const Identifier chnlId) const {
+NswPassivationDbData::buildChannelId(const Identifier& chnlId) const {
 	int chnl       = m_mmIdHelper.channel(chnlId);
 	int pcb        = (chnl-1)/1024+1; // int division should round downwards
 	int newChnl    = (pcb -1)*1024+1; // normalizing to the first strip
