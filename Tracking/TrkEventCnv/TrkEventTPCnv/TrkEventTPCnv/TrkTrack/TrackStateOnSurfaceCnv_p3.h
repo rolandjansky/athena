@@ -15,6 +15,7 @@
 
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventTPCnv/TrkTrack/TrackStateOnSurface_p3.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQualityCnv_p1.h"
 #include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p1.h"
@@ -41,4 +42,28 @@ private:
   TrackParametersCnv_p2             *m_parametersCnv;
 };
 
+// We need to handle MultiComponentStateOnSurface trans
+// to TrackStateOnSurface_p3 pe
+// We care just for the TSOS base part
+class MultiComponentStateOnSurfaceCnv_p1
+  : public T_AthenaPoolTPCnvBase<Trk::MultiComponentStateOnSurface,
+                                 Trk::TrackStateOnSurface_p3>
+{
+public:
+  MultiComponentStateOnSurfaceCnv_p1()
+    : m_trackStateOnSurfaceCnv(nullptr)
+  {
+  }
+  virtual void persToTrans(
+    const Trk::TrackStateOnSurface_p3* persObj,
+    Trk::MultiComponentStateOnSurface* transObj,
+    MsgStream& log);
+  virtual void transToPers(
+    const Trk::MultiComponentStateOnSurface* transObj,
+    Trk::TrackStateOnSurface_p3* persObj,
+    MsgStream& log);
+
+private:
+  TrackStateOnSurfaceCnv_p3 *m_trackStateOnSurfaceCnv;
+};
 #endif // TRACK_STATE_ON_SURFACE_CNV_P2_H
