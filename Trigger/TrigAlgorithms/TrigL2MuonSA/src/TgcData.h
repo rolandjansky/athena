@@ -24,7 +24,6 @@ class TgcHitData
 	 bcTag(0),
          inRoad(false)
       {};
-      ~TgcHitData() {};
 
    public:
       double eta;

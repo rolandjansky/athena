@@ -14,7 +14,6 @@ namespace TrigL2MuonSA {
   {
   public:
     RpcFitResult() { Clear(); };
-    ~RpcFitResult() {};
     
   public:
     void Clear()

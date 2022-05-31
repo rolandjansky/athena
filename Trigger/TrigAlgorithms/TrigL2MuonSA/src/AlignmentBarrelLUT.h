@@ -7,9 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TMath.h"
-
-#include "GaudiKernel/Service.h"
 
 #include <string>
 
@@ -32,11 +29,11 @@ class AlignmentBarrelLUT: public AthAlgTool
 
   private:
 
-    static const int s_saddress = 4;
-    static const int s_innerR = 2;
-    static const int s_eta = 15;
-    static const int s_phi = 30;
-    static const int s_etaQ = 2;
+    static constexpr int s_saddress = 4;
+    static constexpr int s_innerR = 2;
+    static constexpr int s_eta = 15;
+    static constexpr int s_phi = 30;
+    static constexpr int s_etaQ = 2;
 
     double m_dZ[s_saddress][s_innerR][s_eta][s_phi][s_etaQ];
 

@@ -44,7 +44,6 @@ class PBFitResult
           for (int j=0; j<2; j++)
             DABLIN[i][j] = 0;
      };
-  ~PBFitResult() {};
 
  public:
   int   IDMEA[NMEAMX];
@@ -97,8 +96,6 @@ class SuperPoint
    //////
   };
 
-  ~SuperPoint() {};
-    
  public:
   int   Npoint;
   int   Ndigi;

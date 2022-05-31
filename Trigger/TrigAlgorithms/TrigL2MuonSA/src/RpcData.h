@@ -31,7 +31,6 @@ namespace TrigL2MuonSA {
       measuresPhi(false),
       stationName("")
 	{};
-      ~RpcHitData() {};
       
   public:
       double x;

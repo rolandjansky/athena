@@ -10,8 +10,6 @@
 #include "StgcData.h"
 #include "SuperPointData.h"
 
-#define NCHAMBER 11
-
 namespace TrigL2MuonSA {
 
 class TrackPattern
@@ -54,13 +52,12 @@ class TrackPattern
    hashID_CSC(999)
    {};
    
-    ~TrackPattern() {};
-    
  public:
-    TrigL2MuonSA::MdtHits    mdtSegments[NCHAMBER]; // MDT hits associated with the track
+    static constexpr int s_NCHAMBER = 11;
+    TrigL2MuonSA::MdtHits    mdtSegments[s_NCHAMBER]; // MDT hits associated with the track
     TrigL2MuonSA::MmHits     mmSegment; // MM hits associated with the track
     TrigL2MuonSA::StgcHits   stgcSegment; // sTGC hits associated with the track
-    TrigL2MuonSA::SuperPoint superPoints[NCHAMBER]; // Super points at each station
+    TrigL2MuonSA::SuperPoint superPoints[s_NCHAMBER]; // Super points at each station
 
     double pt;
     double charge;

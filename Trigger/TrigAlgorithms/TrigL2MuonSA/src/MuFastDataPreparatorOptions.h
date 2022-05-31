@@ -19,8 +19,6 @@ class MuFastDataPreparatorOptions
       MuFastDataPreparatorOptions() : m_tgcOptions(), m_mdtOptions(), m_doTgcPatRec(true)
       {};
 
-      ~MuFastDataPreparatorOptions() {};
-
    public:
       const TrigL2MuonSA::TgcDataPreparatorOptions& tgcOptions() const { return m_tgcOptions; };
       const TrigL2MuonSA::MdtDataPreparatorOptions& mdtOptions() const { return m_mdtOptions; };

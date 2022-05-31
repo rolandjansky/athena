@@ -14,7 +14,6 @@ class RecMuonRoIUtils
 {
    public:
       RecMuonRoIUtils() {};
-      ~RecMuonRoIUtils() {};
 
    public:
       bool isBarrel(const LVL1::RecMuonRoI* p_roi) const {

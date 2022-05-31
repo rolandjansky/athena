@@ -14,7 +14,6 @@ namespace TrigL2MuonSA {
     
   public:
     BarrelRoadData();
-    ~BarrelRoadData(void);
     
   public:
     Roads roads(void) const;

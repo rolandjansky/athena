@@ -3,7 +3,6 @@
 */
 
 #include "BarrelRoadData.h"
-#include <iostream>
 
 const float MuonRoads[2][12][8] = {{ // LOW PT threshold
 /*  HP data ... 96 % cut */
@@ -52,9 +51,5 @@ TrigL2MuonSA::BarrelRoadData::BarrelRoadData()
       }
     }
   }
-}
-
-TrigL2MuonSA::BarrelRoadData::~BarrelRoadData(void)
-{
 }
 
