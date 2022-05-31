@@ -16,7 +16,6 @@ from .MuonAlignFlags import muonAlignFlags
 # defaults have to be re-set maybe 
 muonAlignFlags.setDefaults()
 
-
 ###############################################################
 # There are 3 types of problems in some old global tags (already locked)
 # Pb 1: no TGC alignment folders exist
@@ -26,6 +25,11 @@ muonAlignFlags.setDefaults()
 # To avoid crashes, a check on old, locked global tags is done and action is taken not to read some alignment folders
 ###############################################################
 
+####
+# A very grumpy but helpful comment to my dear successor or a future developer, if you're faced to scheduling problems in serial athena
+# The TrackingGeometryCondAlg/python/AtlasTrackingGeometryCondAlg reshuffles all the geometry algortihms. 
+# If you ever add an extra dependency to the MuonDetectorManager please have a look there and check that the alg
+# is also considered properly by this reshuffling!
 
 logMuon.info("Reading alignment constants from DB")
 if not conddb.folderRequested('/MUONALIGN/Onl/MDT/BARREL') and not conddb.folderRequested('/MUONALIGN/MDT/BARREL'):
@@ -111,20 +115,20 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 
     conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS",className='CondAttrListCollection')
     condSequence += MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg")
+applyPassivation = not conddb.isOnline and CommonGeometryFlags.Run not in ["RUN1","RUN2"]
+if applyPassivation and not hasattr(condSequence, "NswPassivationDbAlg"):
+    from MuonCondAlg.MuonTopCondAlgConfigRUN2 import NswPassivationDbAlg
+    NswPassAlg = NswPassivationDbAlg("NswPassivationDbAlg")
+    condSequence += NswPassAlg
 
-if not conddb.isOnline:
-    if CommonGeometryFlags.Run not in ["RUN1","RUN2"]:
-        from MuonCondAlg.MuonTopCondAlgConfigRUN2 import NswPassivationDbAlg
-        NswPassAlg = NswPassivationDbAlg("NswPassivationDbAlg")
-        condSequence += NswPassAlg
+if not hasattr(condSequence, "MuonDetectorCondAlg"):
+    from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+    MuonDetectorManagerCond = MuonDetectorCondAlg("MuonDetectorCondAlg")
+    MuonDetectorManagerCond.applyMmPassivation = applyPassivation
+    MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
+    MuonDetectorManagerCond.MuonDetectorTool.FillCacheInitTime = 1 # CondAlg cannot update itself later - not threadsafe
 
-from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
-MuonDetectorManagerCond = MuonDetectorCondAlg()
-MuonDetectorManagerCond.applyMmPassivation = False if CommonGeometryFlags.Run in ["RUN1","RUN2"] or conddb.isOnline else True
-MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
-MuonDetectorManagerCond.MuonDetectorTool.FillCacheInitTime = 1 # CondAlg cannot update itself later - not threadsafe
-
-if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
-   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
-    MuonDetectorManagerCond.IsData = False
-condSequence+=MuonDetectorManagerCond
+    if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+    'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+        MuonDetectorManagerCond.IsData = False
+    condSequence+=MuonDetectorManagerCond
