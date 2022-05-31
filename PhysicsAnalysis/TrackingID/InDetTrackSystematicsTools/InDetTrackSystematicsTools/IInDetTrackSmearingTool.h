@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKSMEARINGTOOL_H
@@ -31,7 +31,7 @@ namespace InDet {
     : public virtual asg::IAsgTool
     , public virtual CP::ISystematicsTool
   {
-    
+
     /// Declare the interface that the class provides
     ASG_TOOL_INTERFACE( InDet::IInDetTrackSmearingTool )
 
@@ -51,10 +51,10 @@ namespace InDet {
     virtual CP::SystematicSet affectingSystematics() const = 0;
     /// returns: list of recommended systematics to use with this tool
     virtual CP::SystematicSet recommendedSystematics() const = 0;
-    
+
     /// configure the tool to apply a given list of systematic variations
     virtual StatusCode applySystematicVariation( const CP::SystematicSet& ) = 0;
-    
+
 
   };/// class IInDetTrackSmearingTool
 

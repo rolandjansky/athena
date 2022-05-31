@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKBIASINGTOOL_H
@@ -36,7 +36,7 @@ namespace InDet {
   {
 
     ASG_TOOL_CLASS( InDetTrackBiasingTool,
-		    InDet::IInDetTrackBiasingTool )
+        InDet::IInDetTrackBiasingTool )
 
     public:
 
@@ -49,7 +49,7 @@ namespace InDet {
     /// Computes the tracks origin
     virtual CP::CorrectionCode applyCorrection(xAOD::TrackParticle& track) override;
     virtual CP::CorrectionCode correctedCopy( const xAOD::TrackParticle& in,
-					      xAOD::TrackParticle*& out ) override;
+                xAOD::TrackParticle*& out ) override;
     virtual CP::CorrectionCode applyContainerCorrection( xAOD::TrackParticleContainer& cont ) override;
 
 
@@ -63,7 +63,7 @@ namespace InDet {
     virtual StatusCode applySystematicVariation( const CP::SystematicSet& ) override;
 
   protected:
-    
+
     StatusCode initHistograms(int runNumber);
     StatusCode firstCall();
 
@@ -72,7 +72,7 @@ namespace InDet {
 
     float m_biasD0 = 0.f;
     float m_biasZ0 = 0.f;
-    float m_biasQoverPsagitta = 0.f;    
+    float m_biasQoverPsagitta = 0.f;
 
     TH2* m_biasD0Histogram = nullptr; //!
     TH2* m_biasZ0Histogram = nullptr; //!
@@ -90,6 +90,14 @@ namespace InDet {
     bool m_doD0Bias = true;
     bool m_doZ0Bias = true;
     bool m_doQoverPBias = true;
+
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileData15;
+    std::string m_calibFileData16_preTS1;
+    std::string m_calibFileData16_postTS1;
+    std::string m_calibFileData17_preFire;
+    std::string m_calibFileData17_postFire;
+    std::string m_calibFileData18;
 
   }; // class InDetTrackBiasingTool
 

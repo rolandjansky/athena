@@ -22,9 +22,9 @@ namespace InDet {
     : public virtual asg::IAsgTool
     , public virtual CP::ISystematicsTool
   {
-    
+
     ASG_TOOL_INTERFACE( InDet::IInDetTrackBiasingTool )
-    
+
   public:
     virtual StatusCode initialize() = 0;
     virtual void prepare() = 0;
@@ -32,10 +32,10 @@ namespace InDet {
     /** Computes the tracks origin */
     virtual CP::CorrectionCode applyCorrection(xAOD::TrackParticle& track) = 0;
     virtual CP::CorrectionCode correctedCopy( const xAOD::TrackParticle& in,
-					      xAOD::TrackParticle*& out ) = 0;
+                xAOD::TrackParticle*& out ) = 0;
     virtual CP::CorrectionCode applyContainerCorrection( xAOD::TrackParticleContainer& cont ) = 0;
-    
-    // implement the CP::ISystematicTool interface      
+
+    // implement the CP::ISystematicTool interface
     /// returns: whether the tool is affected by the systematic
     virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const = 0;
     /// returns: list of systematics this tool can be affected by
