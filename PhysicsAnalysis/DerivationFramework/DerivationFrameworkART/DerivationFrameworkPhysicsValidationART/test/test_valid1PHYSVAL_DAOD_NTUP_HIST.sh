@@ -1,8 +1,8 @@
 #!/bin/sh -x
 #
-# art-description: AOD to DAOD to PHYSVAL
+# art-description: AOD to DAOD_PHYSVAL to NTUP_PHYSVAL
 # art-type: grid
-# art-input: valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3227_r12287
+# art-input: valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3834_r13556
 # art-include: master/Athena
 # art-input-nfiles: 10
 # art-cores: 5
@@ -50,7 +50,7 @@ case $ArtProcess in
 
     *)
 	echo "Test $ArtProcess"
-	
+
 	mkdir "art_core_${ArtProcess}"
 	cd "art_core_${ArtProcess}"
 	
@@ -63,13 +63,12 @@ case $ArtProcess in
 	unset  ATHENA_PROC_NUMBER
 	echo "Unset ATHENA_NUM_PROC=${ATHENA_NUM_PROC} and ATHENA_PROC_NUMBER=${ATHENA_PROC_NUMBER}"
 	
-	DAOD_PE="default:from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); from AthenaMP.AthenaMPFlags import jobproperties as ampjp;ampjp.AthenaMPFlags.UseSharedWriter=True; import AthenaPoolCnvSvc.AthenaPool;ServiceMgr.AthenaPoolCnvSvc.OutputMetadataContainer=\"MetaData\"; from AthenaCommon.AlgSequence import AlgSequence;topSequence = AlgSequence ();topSequence += CfgMgr.xAODMaker__DynVarFixerAlg(\"BTaggingELFixer\", Containers = [\"BTagging_AntiKt4EMTopoAux.\" ] ); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg(\"JetELFixer\", Containers = [\"AntiKt4EMTopoJetsAux.\"] );"
+	DAOD_PE="default:from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();"
 
-	NTUP_PE="all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);"
-	
-	#VALIDFLAGS="doExample,doMET,doPFlow,doEgamma,doInDet,doJet,doBtag,doMuon,doTopoCluster"
-	VALIDFLAGS="doExample,doMET,doPFlow,doEgamma,doInDet,doJet,doBtag,doMuon,doTau,doTopoCluster"
-	
+	NTUP_PE="all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags;InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);InDetPhysValFlags.doValidateMuonMatchedTracks.set_Value_and_Lock(True);InDetPhysValFlags.doValidateElectronMatchedTracks.set_Value_and_Lock(True)"
+                 
+	VALIDFLAGS="doExample,doMET,doEgamma,doInDet,doTau,doJet,doBtag,doMuon,doZee,doTopoCluster,doPFlow_FlowElements"
+
 	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile part1.pool.root
 	echo  "art-result: $? daod_part1"
 
@@ -91,13 +90,13 @@ case $ArtProcess in
 		ls -lR 
         fi
 
-	
+
 	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile part2.pool.root --skipEvents 5000
 	echo  "art-result: $? daod_part2"
 	
 	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part2.pool.root --outputNTUP_PHYSVALFile PHYSVAL.part2.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
 	echo  "art-result: $? physval_part2"
-	
+
 	ls -lR
 	echo "Removing DAOD part 2"
 	rm -f DAOD_PHYSVAL.part2.pool.root
