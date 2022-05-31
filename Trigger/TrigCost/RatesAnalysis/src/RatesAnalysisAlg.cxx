@@ -204,9 +204,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
   for( auto & p : hltPrescalesSet.data().get_child("prescales") ) {
     if ((!m_prescalesJSON.value().count(p.first) && !runWithPrescaleJSON) || hltPrescalesSet.prescale(p.first).prescale < 0){
       m_prescalesJSON[p.first]["prescale"] = hltPrescalesSet.prescale(p.first).prescale;
-
-      //TODO - check also express prescales. can be done when TrigConf::HLTPrescale express stream methods are in place
-
+      m_prescalesJSON[p.first]["prescale_express"] = hltPrescalesSet.prescale_express(p.first).prescale;
       if (hltPrescalesSet.prescale(p.first).prescale < 0){
         ATH_MSG_WARNING("Trigger " << p.first << " disabled in supplied AOD file. DISABLING");
       }
