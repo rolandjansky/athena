@@ -119,10 +119,6 @@ namespace met{
     SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralFEReadDecorKey{this,"electronNeutralFEReadDecorKey","", "Neutral FE links key"};
     SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronChargedFEReadDecorKey{this,"electronCargedFEReadDecorKey","", "Charged FE links key"};
 
-    bool m_usePFOElectronLinks;
-    bool m_usePFOPhotonLinks; 
-    bool m_useFEElectronLinks;
-    bool m_useFEPhotonLinks;
     bool m_checkUnmatched; 
 
     private:

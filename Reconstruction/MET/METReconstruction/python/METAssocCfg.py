@@ -1,7 +1,9 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
+
+from AthenaCommon import Logging
+metlog = Logging.logging.getLogger('METConfig')
 
 from GaudiKernel.Constants import INFO
 import six
@@ -36,7 +38,7 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow=False,
+def getAssociator(configFlags, config,suffix,doPFlow=False,
                   trkseltool=None,
                   trkisotool=None,caloisotool=None,
                   useFELinks=False,
@@ -48,17 +50,13 @@ def getAssociator(config,suffix,doPFlow=False,
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
 
-    from METReconstruction.METRecoFlags import metFlags
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
         tool = CompFactory.getComp("met::METElectronAssociator")('MET_ElectronAssociator_'+suffix,TCMatchMethod=1)
-        tool.UseFEElectronLinks = metFlags.UseFEElectronLinks()
     if config.objType == 'Gamma':
         tool = CompFactory.getComp("met::METPhotonAssociator")('MET_PhotonAssociator_'+suffix,TCMatchMethod=1)
-        tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
     if config.objType == 'Tau':
         tool = CompFactory.getComp("met::METTauAssociator")('MET_TauAssociator_'+suffix)
-        tool.UseFETauLinks = metFlags.UseFETauLinks()
     if config.objType == 'LCJet':
         tool = CompFactory.getComp("met::METJetAssocTool")('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':
@@ -67,7 +65,6 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CompFactory.getComp("met::METJetAssocTool")('MET_PFlowJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CompFactory.getComp("met::METMuonAssociator")('MET_MuonAssociator_'+suffix)
-        tool.UseFEMuonLinks = metFlags.UseFEMuonLinks()
     if config.objType == 'Soft':
         tool = CompFactory.getComp("met::METSoftAssociator")('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
@@ -93,12 +90,8 @@ def getAssociator(config,suffix,doPFlow=False,
         tool.ClusColl = modLCClus
         if 'EMTopo' in suffix: tool.ClusColl = modEMClus
     tool.TrkColl = defaultInputKey['Tracks']
-
-    from METReconstruction.METRecoFlags import metFlags
-    tool.UseTracks = metFlags.UseTracks()
-    #
+    tool.UseTracks = configFlags.MET.UseTracks
     tool.TrackSelectorTool = trkseltool
-    #
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
 
@@ -115,14 +108,14 @@ class METAssocConfig:
     def outputMap(self):
         return 'METAssoc_'+self.suffix
     #
-    def setupAssociators(self,buildconfigs):
-        print("{} Setting up associators for MET config {}".format(prefix,self.suffix))
+    def setupAssociators(self, configFlags, buildconfigs):
+        metlog.info("{} Setting up associators for MET config {}".format(prefix,self.suffix))
         for config in buildconfigs:
             if config.objType in self.associators:
-                print ("{} Config {} already contains a associator of type {}".format(prefix,self.suffix,config.objType))
+                metlog.error("{} Config {} already contains a associator of type {}".format(prefix,self.suffix,config.objType))
                 raise LookupError
             else:
-                associator = getAssociator(config=config,suffix=self.suffix,
+                associator = getAssociator(configFlags, config=config,suffix=self.suffix,
                                            doPFlow=self.doPFlow,
                                            useFELinks=self.useFELinks,
                                            trkseltool=self.trkseltool,
@@ -130,13 +123,12 @@ class METAssocConfig:
                                            caloisotool=self.caloisotool,
                                            modConstKey=self.modConstKey,
                                            modClusColls=self.modClusColls)
-                from METReconstruction.METRecoFlags import metFlags
-                if config.objType == 'Soft' and metFlags.DecorateSoftConst:
-                    print ("activate soft term decoration")
+                if config.objType == 'Soft' and configFlags.MET.DecorateSoftConst:
+                    metlog.verbose("activate soft term decoration")
                     associator.DecorateSoftConst = True
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
-                print("{} Added {} tool named {}".format(prefix,config.objType,associator.name))
+                metlog.info("{} Added {} tool named {}".format(prefix,config.objType,associator.name))
     #
     def __init__(self,suffix,inputFlags,buildconfigs=[],
                  doPFlow=False, doTruth=False,
@@ -157,9 +149,9 @@ class METAssocConfig:
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
                                                            'EMOriginCorrClusters':'EMOriginTopoClusters'}
         if doTruth:
-            print ("{} Creating MET TruthAssoc config {}".format(prefix,suffix))
+            metlog.info("{} Creating MET TruthAssoc config {}".format(prefix,suffix))
         else:
-            print ("{} Creating MET Assoc config {}".format(prefix,suffix))
+            metlog.info("{} Creating MET Assoc config {}".format(prefix,suffix))
         self.suffix = suffix
         self.doPFlow = doPFlow
         self.useFELinks = usePFOLinks
@@ -190,12 +182,11 @@ class METAssocConfig:
         self.associators = {}
         self.assoclist = [] # need an ordered list
         #
-        self.setupAssociators(buildconfigs)
+        self.setupAssociators(inputFlags, buildconfigs)
 
 # Set up a top-level tool with mostly defaults
 def getMETAssocTool(topconfig,msglvl=INFO):
     assocTool = None
-    from METReconstruction.METRecoFlags import metFlags
     if topconfig.doTruth:
         assocTool = CompFactory.getComp("met::METAssociationTool")('MET_TruthAssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
@@ -206,28 +197,23 @@ def getMETAssocTool(topconfig,msglvl=INFO):
                                                    METSuffix = topconfig.suffix,
                                                    TimingDetail=0,
                                                    OutputLevel=msglvl)
-        if metFlags.AllowOverwrite:
-            assocTool.AllowOverwrite = True
     return assocTool
 
-# Allow user to configure reco tools directly or get more default configurations
+# Convert the provided METAssocConfigs into a concrete algorithm
 def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
 
     assocTools = []
     assocTools += tools
 
-    from METReconstruction.METRecoFlags import metFlags
     if configs=={} and tools==[]:
-        print ("{} Taking configurations from METRecoFlags".format(prefix))
-        configs = metFlags.METAssocConfigs()
-        print (configs)
+        metlog.info("{} Empty list of MET association configs provided. None will be reconstructed.".format(prefix))
     for key,conf in six.iteritems(configs):
-        print ("{} Generate METAssocTool for MET_{}".format(prefix,key))
+        metlog.info("{} Generate METAssocTool for MET_{}".format(prefix,key))
         assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)
 
     for tool in assocTools:
-        print ("{} Added METAssocTool {} to alg {}".format(prefix,tool.name,algName))
+        metlog.info("{} Added METAssocTool {} to alg {}".format(prefix,tool.name,algName))
     assocAlg = CompFactory.getComp("met::METRecoAlg")(name=algName,
                                       RecoTools=assocTools)
     return assocAlg

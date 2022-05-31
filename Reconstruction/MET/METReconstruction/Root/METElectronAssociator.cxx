@@ -40,13 +40,13 @@ namespace met {
     ATH_CHECK( m_elContKey.initialize());
     ATH_CHECK( METEgammaAssociator::initialize() );
 
-    if (m_usePFOLinks || m_usePFOElectronLinks) {
+    if (m_usePFOLinks) {
         if (m_electronNeutralPFOReadDecorKey.empty()) {ATH_CHECK( m_electronNeutralPFOReadDecorKey.assign(m_elContKey.key()+"."+m_neutralPFOLinksKey));} 
         if (m_electronChargedPFOReadDecorKey.empty()) {ATH_CHECK( m_electronChargedPFOReadDecorKey.assign(m_elContKey.key()+"."+m_chargedPFOLinksKey));} 
 	ATH_CHECK(m_electronNeutralPFOReadDecorKey.initialize());
     	ATH_CHECK(m_electronChargedPFOReadDecorKey.initialize());
     }
-    if (m_useFELinks || m_useFEElectronLinks) {
+    if (m_useFELinks) {
         if (m_electronNeutralFEReadDecorKey.empty())  {ATH_CHECK( m_electronNeutralFEReadDecorKey.assign(m_elContKey.key()+"."+m_neutralFELinksKey));} 
         if (m_electronChargedFEReadDecorKey.empty())  {ATH_CHECK( m_electronChargedFEReadDecorKey.assign(m_elContKey.key()+"."+m_chargedFELinksKey));} 
     	ATH_CHECK(m_electronNeutralFEReadDecorKey.initialize());

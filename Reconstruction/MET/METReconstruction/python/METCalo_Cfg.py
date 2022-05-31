@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METRecoCfg import BuildConfig, METConfig,getMETRecoAlg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 

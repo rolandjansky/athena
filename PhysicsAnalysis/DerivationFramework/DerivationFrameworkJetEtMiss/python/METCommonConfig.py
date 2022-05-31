@@ -6,19 +6,23 @@
 # Component accumulator version  
 #********************************************************************
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def METAssociationAlgCfg(ConfigFlags, algname = 'METStandardAssociationAlg'):
+
+def METCommonCfg(ConfigFlags):
     """Configure MET for the derivation framework"""
-    
+
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from METReconstruction.METAssociatorCfg import METAssociatorCfg
+
     acc = ComponentAccumulator()
-    from METReconstruction.METAssocCfg import getMETAssocAlg
 
-    from METReconstruction.METRecoFlags import metFlags
-    standardConfigs = {k : v for k, v in metFlags.METAssocConfigs().items() if ("EMTopo" in k or "EMPFlow" in k)}    
+    metDefs = ['AntiKt4EMTopo']
+    if ConfigFlags.MET.DoPFlow:
+        metDefs.append('AntiKt4EMPFlow')
+        
+    for metDef in metDefs:
+        acc.merge(METAssociatorCfg(ConfigFlags, metDef))
 
-    assocAlg = getMETAssocAlg(algname, standardConfigs)
-    acc.addEventAlgo(assocAlg)
     return acc
 
 
