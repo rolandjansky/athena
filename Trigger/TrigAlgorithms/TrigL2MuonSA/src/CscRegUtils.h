@@ -126,9 +126,8 @@ inline int CscRegDict::stationPhi(int hash) const
 class ReturnCode{
 
 public:
-  ReturnCode(){}
+  ReturnCode()=delete; //Forbid uninitialisation
   ReturnCode(unsigned int retcode){m_retcode=retcode;}
-  ~ReturnCode(){}
 
   enum{
     FAILURE=0,

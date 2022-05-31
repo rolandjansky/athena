@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
-#include <set>
+
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -177,6 +177,18 @@ void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, Trig
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+size_t TrigL2MuonSA::TgcFit::countUniqueStations(const TrigL2MuonSA::TgcFit::PointArray& array) const{
+  std::vector<int> Stations;
+  Stations.reserve(array.size());
+  for (const TrigL2MuonSA::TgcFit::Point& wirePt : array)
+  {
+    Stations.push_back(wirePt.nStation);
+  }
+  std::sort(Stations.begin(), Stations.end());
+  Stations.erase( std::unique( Stations.begin(), Stations.end() ), Stations.end() );
+  return Stations.size();
+}
+
 TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::TgcFit::PointArray& stripPoints,
     TrigL2MuonSA::TgcFit::PointArray& wirePoints,
     TrigL2MuonSA::TgcFitResult& tgcFitResult) const
@@ -193,18 +205,11 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
   Status status = FIT_NONE;
   LinStats stripStats;
   LinStats wireStats;
-  std::set<int> wireStations, stripStations;
+  const int wireStationsCount = countUniqueStations(wirePoints);
+  const int stripStationsCount = countUniqueStations(stripPoints);
 
-  for (const TrigL2MuonSA::TgcFit::Point& wirePt : wirePoints)
-  {
-    wireStations.insert(wirePt.nStation);
-  }
-  for (const TrigL2MuonSA::TgcFit::Point& stripPt : stripPoints)
-  {
-    stripStations.insert(stripPt.nStation);
-  }
 
-  if (wireStations.size() == 1 || wirePoints.size() < m_MIN_WIRE_POINTS)
+  if (wireStationsCount == 1 || wirePoints.size() < m_MIN_WIRE_POINTS)
   {
     status = FIT_POINT;
     printDebug("runTgcMiddle: Wires fit point");
@@ -225,7 +230,7 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
     status = FIT_LINE;
     printDebug("runTgcMiddle: Wires fit line");
     linReg(wirePoints, wireStats);
-    if (stripStations.size() == 1 || stripPoints.size() < m_MIN_STRIP_POINTS)
+    if (stripStationsCount == 1 || stripPoints.size() < m_MIN_STRIP_POINTS)
     {
       printDebug("runTgcMiddle: Strips fit point");
       SimpleStats stats;

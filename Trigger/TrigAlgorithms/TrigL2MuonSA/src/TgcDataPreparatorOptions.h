@@ -22,8 +22,6 @@ class TgcDataPreparatorRoadParameters
 	 m_PHI_INN_DELTA(0.10)
       {};
 
-      ~TgcDataPreparatorRoadParameters() {};
-
    public:
       inline double deltaEtaAtMiddleForLowPt()  const { return m_ETA_LOW_MID_DELTA; };
       inline double deltaEtaAtMiddleForHighPt() const { return m_ETA_HIGH_MID_DELTA; };
@@ -49,7 +47,6 @@ class TgcDataPreparatorOptions
 {
    public:
       TgcDataPreparatorOptions() : m_isOnTimeOnly(true), m_roadParameters() {};
-      ~TgcDataPreparatorOptions() {};
 
       inline bool isOnTimeOnly() const { return m_isOnTimeOnly; };
       inline const TgcDataPreparatorRoadParameters& roadParameters() const { return m_roadParameters; };

@@ -12,15 +12,14 @@ namespace TrigL2MuonSA {
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
   
-  const int N_STATION = 11; //barrel  0: inner, 1: middle, 2: outer, endcap 3: inner, 4: middle, 5: outer, 6: ee, 7: csc 8: BEE 9: BME 10:BMG
-  const int N_SECTOR = 2; // 0: normal, 1:overlap
-  const int N_LAYER = 8; 
+  constexpr int N_STATION = 11; //barrel  0: inner, 1: middle, 2: outer, endcap 3: inner, 4: middle, 5: outer, 6: ee, 7: csc 8: BEE 9: BME 10:BMG
+  constexpr int N_SECTOR = 2; // 0: normal, 1:overlap
+  constexpr int N_LAYER = 8; 
   
   class MuonRoad
   {
   public:
     MuonRoad() { Clear(); };
-    ~MuonRoad() {};
 
   public:
     void Clear()

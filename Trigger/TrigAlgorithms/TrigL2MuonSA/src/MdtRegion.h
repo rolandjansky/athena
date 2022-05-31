@@ -14,7 +14,6 @@ namespace TrigL2MuonSA {
   {
   public:
     MdtRegion() { Clear(); };    
-    ~MdtRegion() {};
     
     void Clear()
 	{

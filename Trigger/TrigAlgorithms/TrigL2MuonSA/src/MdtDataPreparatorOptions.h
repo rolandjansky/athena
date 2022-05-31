@@ -14,7 +14,6 @@ class MdtDataPreparatorOptions
 {
    public:
       MdtDataPreparatorOptions() {};
-      ~MdtDataPreparatorOptions() {};
 };
 
 // --------------------------------------------------------------------------------
