@@ -15,6 +15,7 @@
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -66,7 +67,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE()
 {
   std::cout << "RecTPCnv/MissingETCompositionCnv_p2\n";
   SGTest::initTestStore();

@@ -13,6 +13,7 @@
 #include "MissingETEvent/MissingEtRegions.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -52,7 +53,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE()
 {
   std::cout << "RecTPCnv/MissingEtRegionsCnv_p1\n";
   test1();
