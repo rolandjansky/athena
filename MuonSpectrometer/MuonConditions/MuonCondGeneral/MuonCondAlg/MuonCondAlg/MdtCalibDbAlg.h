@@ -59,9 +59,10 @@ private:
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool{this, "IdToFixedIdTool", "MuonCalib::IdToFixedIdTool"};
     ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc{this, "MdtCalibrationRegionSvc", "MdtCalibrationRegionSvc"};
 
-    const MuonGM::MuonDetectorManager* m_detMgr{
-        nullptr};  // only needed to retrieve information on number of tubes etc. (no alignment needed)
+    const MuonGM::MuonDetectorManager* m_detMgr{nullptr};  
+    /// only needed to retrieve information on number of tubes etc. (no alignment needed)
 
+    Gaudi::Property<bool> m_checkTubes{this, "checkTubes", false,"If true the number of tubes must agree between the conditions DB & geometry"};
     // new conditions format 2020
     Gaudi::Property<bool> m_newFormat2020{this, "NewFormat2020", false, "Use the new calibration data format "};
 
@@ -106,7 +107,7 @@ private:
 
     ServiceHandle<IAthRNGSvc> m_AthRNGSvc{this, "AthRNGSvc", "AthRNGSvc"};
     StringProperty m_randomStream{this, "RandomStream", "MDTCALIBDBALG"};
-    ATHRNG::RNGWrapper* m_RNGWrapper;
+    ATHRNG::RNGWrapper* m_RNGWrapper{nullptr};
 
     StringArrayProperty m_RTfileNames{this,
                                       "RT_InputFiles",
