@@ -37,9 +37,6 @@
 // Other includes:
 #include "xAODCore/ShallowCopy.h"
 
-using std::string;
-using std::make_unique;
-
 
 #define CHECK( ARG )                                     \
    do {                                                  \
@@ -56,13 +53,13 @@ int main( int argc, char* argv[] ) {
 
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
-   string fileName;
+   std::string fileName;
    // Check if we received a file name:
    if( argc < 2 ) {
-     fileName = std::getenv("ROOTCORE_TEST_FILE");
-     if (fileName.empty()) Error( APP_NAME, "Could not open $ROOTCORE_TEST_FILE" );
+      fileName = std::getenv("ROOTCORE_TEST_FILE");
+      if (fileName.empty()) Error( APP_NAME, "Could not open $ROOTCORE_TEST_FILE" );
    } else {
-     fileName = argv[ 1 ];
+      fileName = argv[ 1 ];
    }
 
    StatusCode::enableFailure();
@@ -96,7 +93,7 @@ int main( int argc, char* argv[] ) {
       }
    } else {
      // set maximum to 500
-     if (entries > 500) entries = 500;
+      if (entries > 500) entries = 500;
    }
 
    // Create the tool(s) to test:
@@ -109,7 +106,7 @@ int main( int argc, char* argv[] ) {
    // CHECK( biasingTool.setProperty( "runNumber", testRunNumber ) ); // this line is only for testing that other files are properly accessible
 
    InDet::InDetTrackTruthFilterTool filterTool( "InDetTrackFilterTool" );
-   auto originTool = make_unique<InDet::InDetTrackTruthOriginTool> ( "InDetTrackTruthOriginTool" );
+   auto originTool = std::make_unique<InDet::InDetTrackTruthOriginTool> ( "InDetTrackTruthOriginTool" );
    CHECK( originTool->initialize() );
    ToolHandle< InDet::IInDetTrackTruthOriginTool > trackTruthOriginToolHandle( originTool.get() );
    CHECK( filterTool.setProperty("trackOriginTool", trackTruthOriginToolHandle) );
@@ -155,10 +152,10 @@ int main( int argc, char* argv[] ) {
    }
 
    bool doTIDE = true;
-   string jetCollectionName = "AntiKt4EMTopoJets";
+   std::string jetCollectionName = "AntiKt4EMTopoJets";
    if ( !event.contains< xAOD::JetContainer >( jetCollectionName ) ) doTIDE = false;
 
-   auto outfile = make_unique<TFile>("InDetTrackSystsToolTester.out.root","RECREATE");
+   auto outfile = std::make_unique<TFile>("InDetTrackSystsToolTester.out.root","RECREATE");
 
    TH1* d0_before = new TH1F("d0_before","original d_{0}",100,-5,5);
    TH1* z0_before = new TH1F("z0_before","original z_{0}",100,-200,200);
@@ -188,67 +185,67 @@ int main( int argc, char* argv[] ) {
       event.getEntry( entry );
     
       // Create a shallow copy of InDetTrackParticles:
-      const xAOD::TrackParticleContainer *ParticlesID = nullptr;
+      const xAOD::TrackParticleContainer* ParticlesID = nullptr;
       CHECK( event.retrieve( ParticlesID , "InDetTrackParticles" ) );
    
       const xAOD::JetContainer* jets = nullptr;
       if (doTIDE) {
-	CHECK( event.retrieve( jets, jetCollectionName ) );
+        CHECK( event.retrieve( jets, jetCollectionName ) );
       }
 
       std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > ParticlesID_shallowCopy = xAOD::shallowCopyContainer( *ParticlesID );
       for ( xAOD::TrackParticle* trkCpy : *(ParticlesID_shallowCopy.first) ) {
 
-	if ( isSim ) {
-	  if ( !filterTool.accept(trkCpy) ) continue;
-	}
-	if ( doTIDE && !jetFilterTool.accept( trkCpy, jets ) ) continue;
+         if ( isSim ) {
+           if ( !filterTool.accept(trkCpy) ) continue;
+         }
+         if ( doTIDE && !jetFilterTool.accept( trkCpy, jets ) ) continue;
 
-	auto d0b = trkCpy->d0();
-	auto z0b = trkCpy->z0();
-	auto qOverPb = trkCpy->qOverP();
+         auto d0b = trkCpy->d0();
+         auto z0b = trkCpy->z0();
+         auto qOverPb = trkCpy->qOverP();
 
-	if (biasingTool.applyCorrection(*trkCpy) == CP::CorrectionCode::Error) {
-	  Error(__func__, "Could not apply bias correction!" );
-	}
-	if (smearingTool.applyCorrection(*trkCpy) == CP::CorrectionCode::Error) {
-	  Error(__func__, "Could not apply smearing correction!" );
-	}
+         if (biasingTool.applyCorrection(*trkCpy) == CP::CorrectionCode::Error) {
+           Error(__func__, "Could not apply bias correction!" );
+         }
+         if (smearingTool.applyCorrection(*trkCpy) == CP::CorrectionCode::Error) {
+           Error(__func__, "Could not apply smearing correction!" );
+         }
 
-	auto d0a = trkCpy->d0();
-	auto z0a = trkCpy->z0();
-	auto qOverPa = trkCpy->qOverP();
-	auto d0d = d0a - d0b;
-	auto z0d = z0a - z0b;
-	auto qOverPd = qOverPa - qOverPb;
+         auto d0a = trkCpy->d0();
+         auto z0a = trkCpy->z0();
+         auto qOverPa = trkCpy->qOverP();
+         auto d0d = d0a - d0b;
+         auto z0d = z0a - z0b;
+         auto qOverPd = qOverPa - qOverPb;
 
-	if (debugN > 0) {
-	  std::cout << "d0, before/after/diff:\t" << d0b
-		    << "/" << d0a << "/" << d0d << std::endl;
-	  std::cout << "z0, before/after/diff:\t" << z0b
-		    << "/" << z0a << "/" << z0d << std::endl;
-	  std::cout << "q/p, before/after/diff:\t" << qOverPb
-		    << "/" << qOverPa << "/" << qOverPd << std::endl;
-	  --debugN;
-	}
-	if (debugN == 0) {
-	  std::cout << "supressing debug output..." << std::endl;
-	  --debugN;
-	}
+         if (debugN > 0) {
+           std::cout << "d0, before/after/diff:\t" << d0b
+                << "/" << d0a << "/" << d0d << std::endl;
+           std::cout << "z0, before/after/diff:\t" << z0b
+                << "/" << z0a << "/" << z0d << std::endl;
+           std::cout << "q/p, before/after/diff:\t" << qOverPb
+                << "/" << qOverPa << "/" << qOverPd << std::endl;
+           --debugN;
+         }
+         if (debugN == 0) {
+           std::cout << "supressing debug output..." << std::endl;
+           --debugN;
+         }
 
-	d0_before->Fill( d0b );
-	z0_before->Fill( z0b );
-	qOverP_before->Fill( qOverPb );
-	d0_after->Fill( d0a );
-	z0_after->Fill( z0a );
-	qOverP_after->Fill( qOverPa );
-	d0_diff->Fill( d0d );
-	z0_diff->Fill( z0d );
-	qOverP_diff->Fill( qOverPd );
+         d0_before->Fill( d0b );
+         z0_before->Fill( z0b );
+         qOverP_before->Fill( qOverPb );
+         d0_after->Fill( d0a );
+         z0_after->Fill( z0a );
+         qOverP_after->Fill( qOverPa );
+         d0_diff->Fill( d0d );
+         z0_diff->Fill( z0d );
+         qOverP_diff->Fill( qOverPd );
       }
 
       delete ParticlesID_shallowCopy.first;
-      delete ParticlesID_shallowCopy.second; 
+      delete ParticlesID_shallowCopy.second;
 
    }
    

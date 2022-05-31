@@ -10,7 +10,7 @@
 #include <unordered_map>
 
 namespace InDet {
-  
+
   enum TrackSystematic {
     // resolution smearing systematics from material and dead sensors
     TRK_RES_D0_MEAS,
@@ -19,8 +19,6 @@ namespace InDet {
     TRK_RES_Z0_MEAS_UP,
     TRK_RES_D0_MEAS_DOWN,
     TRK_RES_Z0_MEAS_DOWN,
-    TRK_RES_D0Z0_MEAS,
-    TRK_RES_D0Z0Corl_MEAS,
     TRK_RES_D0_DEAD,
     TRK_RES_Z0_DEAD,
     // weak mode alignment systematics
@@ -55,9 +53,6 @@ namespace InDet {
     {TRK_RES_Z0_MEAS_UP,         CP::SystematicVariation("TRK_RES_Z0_MEAS", 1)},
     {TRK_RES_D0_MEAS_DOWN,       CP::SystematicVariation("TRK_RES_D0_MEAS", -1)},
     {TRK_RES_Z0_MEAS_DOWN,       CP::SystematicVariation("TRK_RES_Z0_MEAS", -1)},
-    DEF_SYST( RES_D0Z0_MEAS ),
-    DEF_SYST( RES_D0Z0Corl_MEAS ),
-    DEF_SYST( RES_Z0_DEAD ),
     DEF_SYST( RES_D0_DEAD ),
     DEF_SYST( RES_Z0_DEAD ),
     DEF_SYST( BIAS_D0_WM ),

@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSYSTEMATICSTOOL_H
@@ -18,7 +18,7 @@
 #include <TFile.h>
 
 namespace InDet {
-  
+
   class InDetTrackSystematicsTool : public virtual CP::ISystematicsTool, public asg::AsgTool {
 
     ASG_TOOL_CLASS2( InDetTrackSystematicsTool,
@@ -41,8 +41,7 @@ namespace InDet {
 
   protected:
     /// open and return a file with the given name.
-    /// the location in which to search depends on whether in athena or rootcore
-    TFile* getFile( const std::string& ) const;
+    std::unique_ptr<TFile> getFile( const std::string& ) const;
 
     /// a function to initialize an object from a root file
     template <class T> StatusCode initObject(T*& obj, std::string rootFileName, std::string objName) const;
@@ -53,10 +52,9 @@ namespace InDet {
 
     const CP::SystematicSet* m_activeSysts = nullptr;
 
-    bool isActive( TrackSystematic ) const;    
+    bool isActive( TrackSystematic ) const;
+
   };
-
-
 
 }
 
@@ -65,7 +63,7 @@ template <class T>
 StatusCode InDet::InDetTrackSystematicsTool::initObject(T*& obj, std::string rootFileName, std::string objName) const
 {
   if (obj != nullptr) ATH_MSG_WARNING( obj->GetName() << " is not null, yet we are now attempting to initialize from " << rootFileName );
-  auto F = std::unique_ptr<TFile>(getFile(rootFileName));
+  std::unique_ptr<TFile> F = getFile(rootFileName);
   if(!F || F->IsZombie()) {
     ATH_MSG_ERROR( "Could not open file " << rootFileName );
     return StatusCode::FAILURE;
