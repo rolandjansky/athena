@@ -320,8 +320,8 @@ Trk::ElectronCombinedMaterialEffects::compute(
   /*
    * 3. Combine the multiple scattering with each of the  energy loss components
    */
-  // Reset everything before computation
-  cache.reset();
+  // Cache is to be filled so 0 entries here
+  cache.numEntries=0;
   for (int i = 0; i < cache_energyLoss.numElements; ++i) {
     double combinedWeight = cache_energyLoss.elements[i].weight;
     double combinedDeltaP = cache_energyLoss.elements[i].deltaP;
@@ -340,9 +340,7 @@ Trk::ElectronCombinedMaterialEffects::compute(
     } else {
       cache.deltaCovariances[i].setZero();
     }
-    ++cache.numWeights;
-    ++cache.numDeltaPs;
-    ++cache.numDeltaCovariance;
+    ++cache.numEntries;
   } // end for loop over energy loss components
 }
 
