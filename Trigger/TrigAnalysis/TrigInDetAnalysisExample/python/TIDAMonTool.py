@@ -288,9 +288,6 @@ def monGroup( analysis_chain ) :
 
         mg += "/"+chain.tail
 
-        if chain.extra != "" :
-            mg += "_" + chain.extra
-
         if chain.roi != "" :
             mg += "_"+chain.roi
             
@@ -300,6 +297,9 @@ def monGroup( analysis_chain ) :
         if chain.element != "" :
             mg += "_" + chain.element
         
+        if chain.extra != "" :
+            mg += "_" + chain.extra
+
         if chain.passed :
             mg += "/DTE"
 
