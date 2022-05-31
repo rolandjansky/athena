@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/UncertaintyHistogram.h"
@@ -193,7 +193,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check first dimension boundaries, always applicable
-    const float valX = checkBoundariesByBin(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
+    const float valX = checkBoundariesByBin(std::as_const(*m_histo).GetXaxis(),m_histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
         switch (m_interpolate)
@@ -203,7 +203,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
                 return JetHelpers::Interpolate(m_histo,valX);
 
             case Interpolate::None:
-                return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX));
+                return m_histo->GetBinContent(std::as_const(*m_histo).GetXaxis()->FindFixBin(valX));
 
             default:
                 ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -212,7 +212,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check second dimension boundaries, if applicable
-    const float valY = checkBoundariesByBin(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
+    const float valY = checkBoundariesByBin(std::as_const(*m_histo).GetYaxis(),m_histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
         // We need a 2D histogram for the projection calls
@@ -223,14 +223,15 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
 
             case Interpolate::OnlyX:
                 // Interpolate on the x projection for a given Y bin
-                return JetHelpers::Interpolate(m_cachedProj.at(0).at((m_histo->GetYaxis())->FindBin(valY)).get(),valX);
+                return JetHelpers::Interpolate(m_cachedProj.at(0).at(std::as_const(*m_histo).GetYaxis()->FindFixBin(valY)).get(),valX);
 
             case Interpolate::OnlyY:
                 // Interpolate on the y projection for a given X bin
-                return JetHelpers::Interpolate(m_cachedProj.at(0).at((m_histo->GetXaxis())->FindBin(valX)).get(),valY);
+                return JetHelpers::Interpolate(m_cachedProj.at(0).at(std::as_const(*m_histo).GetXaxis()->FindFixBin(valX)).get(),valY);
 
             case Interpolate::None:
-                return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX),(m_histo->GetYaxis())->FindBin(valY));
+                return m_histo->GetBinContent(std::as_const(*m_histo).GetXaxis()->FindFixBin(valX),
+                                              std::as_const(*m_histo).GetYaxis()->FindFixBin(valY));
 
             default:
                 ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -239,7 +240,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check third dimension boundaries, if applicable
-    const float valZ = checkBoundariesByBin(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
+    const float valZ = checkBoundariesByBin(std::as_const(*m_histo).GetZaxis(),m_histo->GetNbinsZ(),var3);
     
     switch (m_interpolate)
     {
@@ -248,14 +249,16 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
 
         case Interpolate::OnlyX:
             // Interpolate on the x projection for a given y,z bin
-            return JetHelpers::Interpolate(m_cachedProj.at((m_histo->GetYaxis())->FindBin(valY)).at((m_histo->GetZaxis())->FindBin(valZ)).get(),valX);
+            return JetHelpers::Interpolate(m_cachedProj.at(std::as_const(*m_histo).GetYaxis()->FindFixBin(valY)).at(std::as_const(*m_histo).GetZaxis()->FindFixBin(valZ)).get(),valX);
 
         case Interpolate::OnlyY:
             // Interpolate on the y projection for a given x,z bin
-            return JetHelpers::Interpolate(m_cachedProj.at((m_histo->GetXaxis())->FindBin(valX)).at((m_histo->GetZaxis())->FindBin(valZ)).get(),valY);
+            return JetHelpers::Interpolate(m_cachedProj.at(std::as_const(*m_histo).GetXaxis()->FindFixBin(valX)).at(std::as_const(*m_histo).GetZaxis()->FindFixBin(valZ)).get(),valY);
 
         case Interpolate::None:
-            return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX),(m_histo->GetYaxis())->FindBin(valY),(m_histo->GetZaxis())->FindBin(valZ));
+            return m_histo->GetBinContent(std::as_const(*m_histo).GetXaxis()->FindFixBin(valX),
+                                          std::as_const(*m_histo).GetYaxis()->FindFixBin(valY),
+                                          std::as_const(*m_histo).GetZaxis()->FindFixBin(valZ));
 
         default:
             ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
@@ -290,7 +293,7 @@ double UncertaintyHistogram::checkBoundariesByBin(const TAxis* axis, const int n
 double UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const
 {
     const static int maxNumWarn = 0; //100
-    static int       numWarn    = 0;
+    static std::atomic<int> numWarn = 0;
     
     // Bins are structured for [lowEdge,highEdge)
     // As such, do not need to worry about equality sign for low edge
@@ -302,7 +305,9 @@ double UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBin
     if (val < lowVal || val >= highVal)
     {
         if (val != highVal && ++numWarn < maxNumWarn)
-            ATH_MSG_WARNING(Form("Variable value is %f, outside of the axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",val,lowVal,highVal,getName().Data(),maxNumWarn,numWarn));
+            ATH_MSG_WARNING(Form("Variable value is %f, outside of the axis range of (%f,%f) for %s. "
+                                 "Using closest valid value.",val,lowVal,highVal,getName().Data())
+                            << " (Only first " << maxNumWarn << " instances printed, this is " << numWarn << ")");
     
         // Watch for the boundary sign (controls the scale factor)
         if (val < lowVal)

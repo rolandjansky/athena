@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_CORRELATIONMATRIX_H
 #define JETUNCERTAINTIES_CORRELATIONMATRIX_H
 
 #include "AsgMessaging/AsgMessaging.h"
+#include "CxxUtils/checker_macros.h"
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
 #include "xAODJet/Jet.h"
@@ -22,7 +23,8 @@ class TH2D;
 namespace jet
 {
 
-class CorrelationMatrix : public asg::AsgMessaging
+class ATLAS_NOT_THREAD_SAFE CorrelationMatrix : public asg::AsgMessaging
+//    ^ because using JetUncertaintiesTool
 {
     public:
         // Constructor/destructor
@@ -40,7 +42,7 @@ class CorrelationMatrix : public asg::AsgMessaging
 
         // Information retrieval methods
         virtual TString getName()   const { return m_name; }
-        virtual TH2D*   getMatrix() const { return m_corrMat; }
+        virtual const TH2D* getMatrix() const { return m_corrMat; }
 
 
     private:

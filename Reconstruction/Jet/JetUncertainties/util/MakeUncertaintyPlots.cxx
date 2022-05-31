@@ -657,8 +657,8 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
 void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInfo* eInfo, const xAOD::Jet* jet = NULL)
 {
 
-    static SG::AuxElement::Accessor<float> mu("averageInteractionsPerCrossing");
-    static SG::AuxElement::Accessor<float> NPV("NPV");
+    static const SG::AuxElement::Accessor<float> mu("averageInteractionsPerCrossing");
+    static const SG::AuxElement::Accessor<float> NPV("NPV");
 
     float    sigmaMu  = 0;
     float    sigmaNPV = 0;
@@ -937,15 +937,15 @@ std::vector< std::vector<int> > getComponentIndicesFromNames(const JetUncertaint
 
 void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::vector< std::vector<int> > >& compSetIndices,const std::vector< std::vector<TString> >& labelNames,TH1D* frame,const double fixedValue,const std::vector<double>& scanBins,const bool fixedIsEta, const float mOverPt, const bool doComparison, const bool doCompareOnly, const bool mOverPtIsMass)
 {
-    static SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
-    static SG::AuxElement::Accessor<char> IsBjet("IsBjet");
-    static SG::AuxElement::Accessor<float> minDR("MinDR");
-    static SG::AuxElement::Accessor<int> NJets("Njet");
+    static const SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
+    static const SG::AuxElement::Accessor<char> IsBjet("IsBjet");
+    static const SG::AuxElement::Accessor<float> minDR("MinDR");
+    static const SG::AuxElement::Accessor<int> NJets("Njet");
 
     // Combined mass helpers
     static jet::JetFourMomAccessor scaleCalo(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CaloMass).Data());
     static jet::JetFourMomAccessor scaleTA(jet::CompMassDef::getJetScaleString(jet::CompMassDef::TAMass).Data());
-    static SG::AuxElement::Accessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+    static const SG::AuxElement::Accessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
     static jet::JetFourMomAccessor scaleCombQCD(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassQCD).Data());
     static jet::JetFourMomAccessor scaleCombWZ(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassWZ).Data());
     static jet::JetFourMomAccessor scaleCombHbb(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassHbb).Data());
