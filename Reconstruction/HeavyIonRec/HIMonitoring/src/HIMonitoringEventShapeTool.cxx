@@ -12,21 +12,14 @@
 #include "LWHists/TH2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 
+#include <cmath>
 HIMonitoringEventShapeTool::
 HIMonitoringEventShapeTool( const std::string & type, const std::string & name,
                             const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
 {
-	m_FCalEt=0;
-	m_FCalEt_A=0;
-	m_FCalEt_C=0;
-	m_ZDC_HG=0;
-	m_ZDC_LG=0;
-	m_h_FCalEt=0;
-	m_h_FCalEt_vs_eta=0;
 	m_nbins_phi=64;
 	m_nbins_eta=s_num_of_eta_bins;
 	m_eta_range=5.0;
-	m_Pi = 3.14159265359;
 	declareProperty( "ZDCmon", m_ZDCmon=true);
 	declareProperty( "ESmon", m_ESmon=true);
 	declareProperty( "FCalEt_eta_hist_cut", m_FCalEt_eta_hist_cut=0.05); // in TeV
@@ -230,19 +223,19 @@ void HIMonitoringEventShapeTool::bookES_hist() {
     hist_name = "h_psi" + m_sqn_num[i] + "_A_vs_FCalEt";
     hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{" + m_sqn_num[i] + "} Side A";
     m_h_psin_A_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt,
-                                              m_nbins_phi, -m_Pi / (i + 1), m_Pi / (i + 1));
+                                              m_nbins_phi, -M_PI / (i + 1), M_PI / (i + 1));
     regHist(m_h_psin_A_vs_FCalEt[i], fullpath, run).ignore();
 
     hist_name = "h_psi" + m_sqn_num[i] + "_C_vs_FCalEt";
     hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{" + m_sqn_num[i] + "} Side C";
     m_h_psin_C_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt,
-                                              m_nbins_phi, -m_Pi / (i + 1), m_Pi / (i + 1));
+                                              m_nbins_phi, -M_PI / (i + 1), M_PI / (i + 1));
     regHist(m_h_psin_C_vs_FCalEt[i], fullpath, run).ignore();
 
     hist_name = "h_psi" + m_sqn_num[i] + "_ACdiff_vs_FCalEt";
     hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{" + m_sqn_num[i] + "} Side A - #psi_{" + m_sqn_num[i] + "} Side C";
     m_h_psin_ACdiff_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt,
-                                                   m_nbins_phi, -m_Pi / (i + 1), m_Pi / (i + 1));
+                                                   m_nbins_phi, -M_PI / (i + 1), M_PI / (i + 1));
     regHist(m_h_psin_ACdiff_vs_FCalEt[i], fullpath, run).ignore();
 
     hist_name = "h_psi" + m_sqn_num[i] + "_R_vs_FCalEt";
@@ -400,14 +393,14 @@ double HIMonitoringEventShapeTool::calc_psin(int n, double qnx, double qny) {
 double HIMonitoringEventShapeTool::calc_psin_diff(int n, double psi1, double psi2) {
   n = n + 1;
   double diff = psi1 - psi2;
-  if (diff > (m_Pi / n)) {
-    return(diff - (2 * m_Pi / n));
+  if (diff > (M_PI / n)) {
+    return(diff - (2 * M_PI / n));
   }
-  if (diff < (-m_Pi / n)) {
-    return(diff + (2 * m_Pi / n));
+  if (diff < (-M_PI / n)) {
+    return(diff + (2 * M_PI / n));
   }
-  if ((diff >= (-m_Pi / n)) &&
-      (diff <= (m_Pi / n))) {
+  if ((diff >= (-M_PI / n)) &&
+      (diff <= (M_PI / n))) {
     return diff;
   }
 

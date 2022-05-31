@@ -66,29 +66,29 @@ private:
     "1", "2", "3", "4", "5", "6", "7"
   };
 
-  double m_FCalEt;
-  double m_FCalEt_A;
-  double m_FCalEt_C;
-  double m_FCalEt_eta[s_num_of_eta_bins];
+  double m_FCalEt = 0.0;
+  double m_FCalEt_A = 0.0;
+  double m_FCalEt_C = 0.0;
+  double m_FCalEt_eta[s_num_of_eta_bins]{};
 
-  double m_ZDC_HG;
-  double m_ZDC_LG;
+  double m_ZDC_HG = 0.0;
+  double m_ZDC_LG = 0.0;
 
-  double m_qnx[s_num_of_harm];
-  double m_qny[s_num_of_harm];
-  double m_qn[s_num_of_harm];
+  double m_qnx[s_num_of_harm]{};
+  double m_qny[s_num_of_harm]{};
+  double m_qn[s_num_of_harm]{};
 
-  double m_qnx_A[s_num_of_harm];
-  double m_qny_A[s_num_of_harm];
+  double m_qnx_A[s_num_of_harm]{};
+  double m_qny_A[s_num_of_harm]{};
 
-  double m_qnx_C[s_num_of_harm];
-  double m_qny_C[s_num_of_harm];
+  double m_qnx_C[s_num_of_harm]{};
+  double m_qny_C[s_num_of_harm]{};
 
-  double m_qnx_eta[s_num_of_harm][s_num_of_eta_bins];
-  double m_qny_eta[s_num_of_harm][s_num_of_eta_bins];
+  double m_qnx_eta[s_num_of_harm][s_num_of_eta_bins]{};
+  double m_qny_eta[s_num_of_harm][s_num_of_eta_bins]{};
 
-  double m_psin_A[s_num_of_harm];
-  double m_psin_C[s_num_of_harm];
+  double m_psin_A[s_num_of_harm]{};
+  double m_psin_C[s_num_of_harm]{};
 
   /// histograms
 
@@ -123,7 +123,6 @@ private:
   double m_high_FCalEt;
 
   int m_nbins_phi;
-  double m_Pi;
 
   int m_nbins_eta;
   double m_eta_range;
