@@ -43,7 +43,7 @@ def EMBremCollectionBuilderCfg(flags,
                 TRT_ElectronPidToolCfg(
                     flags,
                     name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=(flags.GeoModel.Run is LHCPeriod.Run3),
+                    CalculateNNPid=False,
                     MinimumTrackPtForNNPid=0.))
                 if flags.Detector.EnableTRT else None),
             BadClusterID=0,
