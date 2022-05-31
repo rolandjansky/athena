@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** IParticleLinkContainerCnv.cxx
@@ -48,7 +48,7 @@ IParticleLinkContainer* IParticleLinkContainerCnv::createTransient()
   MsgStream log( msgSvc(), "IParticleLinkContainerConverter" );
 
   // Define the pool IDs
-  static pool::Guid  p1_guid("E82C71AF-AC5C-453B-9A35-FA45A849838E");
+  static const pool::Guid  p1_guid("E82C71AF-AC5C-453B-9A35-FA45A849838E");
 
   if( compareClassGuid(p1_guid) )
     {

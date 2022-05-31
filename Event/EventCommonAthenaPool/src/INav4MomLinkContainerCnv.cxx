@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** INav4MomLinkContainerCnv.cxx
@@ -41,7 +41,7 @@ INav4MomLinkContainer* INav4MomLinkContainerCnv::createTransient()
   MsgStream log( msgSvc(), "INav4MomLinkContainerConverter" );
 
   // Define the pool IDs
-  static pool::Guid  p1_guid("A7F0A4C5-F343-4724-B317-FB5A890355FA");
+  static const pool::Guid  p1_guid("A7F0A4C5-F343-4724-B317-FB5A890355FA");
 
   if( compareClassGuid(p1_guid) )
     {
