@@ -11,7 +11,7 @@ export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-
 
 
 Reco_tf.py  \
---AMI f1210  \
+--AMI f1218  \
 --inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_calib.00412340.physics_CosmicCalo.daq.RAW._lb0018._SFO-14._0001.data" \
 --outputAODFile="AOD.pool.root" \
 --outputESDFile="ESD.pool.root" \
