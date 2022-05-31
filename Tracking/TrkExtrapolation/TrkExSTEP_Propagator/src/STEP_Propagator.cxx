@@ -129,7 +129,7 @@ namespace{
           if (!currentDist.empty()) {
             oIter = currentDist.end();
             while (oIter != currentDist.begin() && distSol.first() < (*(oIter - 1)).second)
-              oIter--;
+              --oIter;
             oIter = currentDist.insert(oIter, std::pair<unsigned int, double>(numSf, distSol.first()));
           } else {
             currentDist.emplace_back(numSf, distSol.first());
@@ -139,7 +139,7 @@ namespace{
           if (!currentDist.empty()) {
             oIter = currentDist.end();
             while (oIter != currentDist.begin() && distSol.second() < (*(oIter - 1)).second)
-              oIter--;
+              --oIter;
             oIter = currentDist.insert(oIter, std::pair<unsigned int, double>(numSf, distSol.second()));
           } else {
             currentDist.emplace_back(numSf, distSol.second());
