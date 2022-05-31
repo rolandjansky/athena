@@ -48,19 +48,13 @@ if (InDetTrigFlags.doPrintConfigurables()):
 InDetTrigTRT_ElectronPidTool = None
 from AthenaCommon.DetFlags import DetFlags
 if DetFlags.haveRIO.TRT_on() :
-    from AthenaCommon.GlobalFlags import globalflags
     from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTRTCalDbTool
-
-    TRT_RDO_Key = "TRT_RDOs"
-    if globalflags.DataSource == 'data':
-        TRT_RDO_Key = TrigTRTKeys.RDOs
 
     from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
     InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
                                                             isTrigger = True,
-                                                            TRT_RDOContainerName = TRT_RDO_Key,
                                                             TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
                                                             TRTCalDbTool = InDetTRTCalDbTool)
     ToolSvc += InDetTrigTRT_LocalOccupancy
