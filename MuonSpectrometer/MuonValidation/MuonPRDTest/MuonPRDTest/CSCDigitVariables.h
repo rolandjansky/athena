@@ -23,7 +23,6 @@ namespace MuonPRDTest{
         ScalarBranch<unsigned int>& m_CSC_nDigits{parent().newScalar<unsigned int>("N_Digits_CSC")};
         VectorBranch<float>& m_CSC_dig_localPosX{parent().newVector<float>("Digits_CSC_localPosX")};
         VectorBranch<float>& m_CSC_dig_localPosY{parent().newVector<float>("Digits_CSC_localPosY")};
-        VectorBranch<int>& m_CSC_dig_stripNumber{parent().newVector<int>("Digits_CSC_stripNumber")};
         ThreeVectorBranch m_CSC_dig_globalPos{parent(), "Digits_CSC_globalPos"};
         CscIdentifierBranch m_CSC_dig_id{parent(), "Digits_CSC"};
     };
