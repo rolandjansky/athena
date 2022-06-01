@@ -36,7 +36,7 @@ namespace PanTau {
 	virtual ~HelperFunctions () {};
         
         TauConstituent* getNeutralConstWithLargestAngle(const TLorentzVector& charged, 
-                                                        const std::vector<PanTau::TauConstituent*>& neutral);
+                                                        const std::vector<PanTau::TauConstituent*>& neutral) const;
         
         virtual std::string convertNumberToString(double x) const;
         

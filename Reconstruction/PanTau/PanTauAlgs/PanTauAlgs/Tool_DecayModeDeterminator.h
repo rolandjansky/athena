@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_DECAYMODEDETERMINATOR_H
@@ -44,7 +44,7 @@ namespace PanTau {
         
         virtual StatusCode initialize();
         
-        virtual StatusCode execute(PanTau::PanTauSeed* inSeed);
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed) const;
         
     private:
         

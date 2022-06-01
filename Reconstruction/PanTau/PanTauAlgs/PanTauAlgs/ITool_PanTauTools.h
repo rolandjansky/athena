@@ -44,7 +44,7 @@ namespace PanTau {
 
     virtual bool isInitialized() = 0;
             // used in Tool_FeatureExtractor, Tool_DecayModeDeterminator and Tool_DetailsArranger:
-            virtual StatusCode execute(PanTau::PanTauSeed* inSeed) = 0;
+            virtual StatusCode execute(PanTau::PanTauSeed* inSeed) const = 0;
 
     };
 

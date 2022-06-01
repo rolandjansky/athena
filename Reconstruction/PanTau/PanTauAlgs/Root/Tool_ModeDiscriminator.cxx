@@ -108,7 +108,7 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
 }
 
 
-void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* inSeed, std::vector<float>& list_BDTVariableValues) {
+void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* inSeed, std::vector<float>& list_BDTVariableValues) const {
     
   //update features used in MVA with values from current seed
   // use default value for feature if it is not present in current seed
@@ -135,7 +135,7 @@ void PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed* i
 }
 
 
-double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) {
+double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) const {
     
   std::vector<float> list_BDTVariableValues(m_List_BDTVariableNames.size());
 
