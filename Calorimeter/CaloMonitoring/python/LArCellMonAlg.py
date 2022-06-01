@@ -19,6 +19,11 @@ def LArCellMonConfigOld(inputFlags):
     else:
        isMC=True
 
+    from RecExConfig.RecFlags import rec   
+    from RecExConfig.AutoConfiguration import ConfigureTriggerStream
+    ConfigureTriggerStream()
+    TriggerStream=rec.triggerStream()
+
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     if not isMC and DQMonFlags.enableLumiAccess():
         from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault
@@ -31,7 +36,9 @@ def LArCellMonConfigOld(inputFlags):
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg()
 
-    algo = LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    algo = LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, 
+                                TriggerStream, isMC, athenaCommonFlags.isOnline)
 
     from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
     algo.ReadyFilterTool = GetAtlasReadyFilterTool()
@@ -84,7 +91,9 @@ def LArCellMonConfig(inputFlags):
 
     algo = LArCellMonConfigCore(helper, lArCellMonAlg, inputFlags,
                                 inputFlags.Beam.Type is BeamType.Cosmics,
-                                inputFlags.Input.isMC, algname)
+                                inputFlags.Input.TriggerStream,
+                                inputFlags.Input.isMC, inputFlags.Common.isOnline,
+                                algname)
     algo.useTrigger = inputFlags.DQ.useTrigger
 
     #copied from LArCellMonTool
@@ -93,9 +102,6 @@ def LArCellMonConfig(inputFlags):
     algo.minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1"
     algo.metTriggerNames     = "EF_xe[0-9]+.*"
     algo.miscTriggerNames    = ""
-
-
-
 
     from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
     algo.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
@@ -112,7 +118,7 @@ def LArCellMonConfig(inputFlags):
     return cfg
 
 
-def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=False, algname='LArCellMonAlg'):
+def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerStream='CosmicCalo', isMC=False, isOnline=False, algname='LArCellMonAlg'):
 
 
     LArCellMonAlg = helper.addAlgorithm(algclass, algname)
@@ -134,11 +140,17 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     else:
         LArCellMonAlg.useBadLBTool=True
 
-# FIXME: to be added:    if isCosmics or rec.triggerStream()!='CosmicCalo':
-    LArCellMonAlg.useBeamBackgroundRemoval = False
-    LArCellMonAlg.useLArCollisionFilterTool = False #FIXME: set to true for cosmicCalo
-# FIXME: to be added:    else:
-# FIXME: to be added:       LArCellMonAlg.useBeamBackgroundRemoval = True
+    if isCosmics or TriggerStream!='CosmicCalo':
+       LArCellMonAlg.useBeamBackgroundRemoval = False
+       LArCellMonAlg.useLArCollisionFilterTool = False 
+    else:
+       LArCellMonAlg.useBeamBackgroundRemoval = True
+       LArCellMonAlg.useLArCollisionFilterTool = True
+
+    if isOnline:
+       LArCellMonAlg.useLArNoisyAlg = False   
+    else:   
+       LArCellMonAlg.useLArNoisyAlg = True
 
     GroupName="LArCellMon"
     LArCellMonAlg.MonGroupName = GroupName
@@ -176,13 +188,10 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     # Global Settings:
 
     # All 2D plot occupancy are activate only for express and cosmiccalo
-#FIXME to be added     if (isCosmics or rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()<=='ZeroBias') or (inputFlags.Common.isOnline):
-#FIXME to be added        do2DOcc = True
-#FIXME to be added    else:
-#FIXME to be added        do2DOcc = False
-
-    do2DOcc = True #TMP
-
+    if (isCosmics or TriggerStream=='CosmicCalo' or TriggerStream=='express' or TriggerStream=='Main' or TriggerStream=='ZeroBias') or isOnline:
+        do2DOcc = True
+    else:
+        do2DOcc = False
 
     thresholdDict = {}
     thresholdDict["ThresholdType"]         = [ "noEth_CSCveto", "noEth_rndm_CSCveto", "medEth_CSCveto", "5Sigma_CSCveto", "hiEth_CSCveto", "hiEth_noVeto", "met_CSCveto"  ]
