@@ -16,33 +16,29 @@ from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorI
 from AthenaCommon.CFElements import seqAND
 
 
-# --------------------
-# LArNoiseBurst end-of-event configuration
-# --------------------
-def getLArNoiseBurstEndOfEvent():
+def getLArNoiseBurstRecoSequence():
+    from AthenaCommon.CFElements import parOR
+    noiseBurstRecoSeq = parOR('LArNoiseRecoSeq')
     from TriggerMenuMT.HLT.CommonSequences.CaloSequences import cellRecoSequence
+    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
+    noiseBurstRecoSeq += cells_sequence
+    from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstRecoAlgCfg
+    noiseBurstRecoSeq += TrigLArNoiseBurstRecoAlgCfg(CellContainerKey=cells_name)
+    
+    return noiseBurstRecoSeq
 
-    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
-    return cells_sequence, ''
 
 # --------------------
 # LArNoiseBurst configuration
 # --------------------
-
 def getLArNoiseBurst(self):
 
     hypoAlg = CompFactory.TrigLArNoiseBurstAlg("NoiseBurstAlg")
     from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstHypoToolGen
     from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-    from TriggerMenuMT.HLT.CommonSequences.CaloSequences import cellRecoSequence
-    noiseBurstInputMakerAlg= conf2toConfigurable(clusterFSInputMaker())
+    noiseBurstInputMakerAlg = conf2toConfigurable(clusterFSInputMaker())
 
-    from AthenaCommon.CFElements import parOR, seqAND
-    noiseBurstRecoSeq = parOR( "LArNoiseRecoSeq")
-    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
-    noiseBurstRecoSeq += cells_sequence
-    from TrigCaloHypo.TrigCaloHypoConfig import TrigLArNoiseBurstRecoAlgCfg
-    noiseBurstRecoSeq += TrigLArNoiseBurstRecoAlgCfg(CellContainerKey=cells_name)
+    noiseBurstRecoSeq = getLArNoiseBurstRecoSequence()
 
     noiseBurstMenuSeq =  seqAND("LArNoiseMenuSeq", [noiseBurstInputMakerAlg, noiseBurstRecoSeq])
 

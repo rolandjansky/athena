@@ -18,7 +18,6 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
 from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
 
-
 def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetTrackParticles'):
     acc=ComponentAccumulator()
     # Delete BTagging container read from input ESD
@@ -103,13 +102,23 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
 
     # By default, in Run3 we don't write out BTagging containers in AOD or ESD
     # following allows to write them out when using Reco_tf.py --CA run 3 style configuration
-
+    
     if inputFlags.Output.doWriteAOD and inputFlags.Jet.WriteToAOD:
-     result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=True, toESD=False))
-
+     result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=True, toESD=False))     
+     
     if inputFlags.Output.doWriteESD:
      result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=False, toESD=True))
-
+    
+    # Hits should be written out if Trackless flag is used
+    if inputFlags.BTagging.Trackless:
+        from JetHitAssociation.JetHitAssociationConfig import JetHitAssociationCfg
+        result.merge(JetHitAssociationCfg(inputFlags))        	
+        BTaggingAODList = ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
+                           'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
+        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
+                           'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
+        result.merge(addToAOD(inputFlags, BTaggingAODList))
+      
     return result
 
 
@@ -268,12 +277,6 @@ def addBTagToOutput(inputFlags, JetCollectionList, toAOD=True, toESD=True):
 
     BTaggingAODList = BTaggingFlags.btaggingAODList if toAOD else []
     BTaggingESDList = BTaggingFlags.btaggingESDList if toESD else []
-
-    if BTaggingFlags.DoJetHitAssociation:
-        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
-                            'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
-        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
-                            'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
 
     if toESD:
         result.merge(addToESD(inputFlags, BTaggingESDList))

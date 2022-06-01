@@ -19,13 +19,13 @@ NSWPRDValAlg.doMuEntry = True
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 NSWPRDValAlg.doMMHit = MuonGeometryFlags.hasMM()
-NSWPRDValAlg.doMMDigit = MuonGeometryFlags.hasMM()
+NSWPRDValAlg.doMMDigit = False # no sTGC Digits present in RDO files
 NSWPRDValAlg.doMMRDO = MuonGeometryFlags.hasMM()
 NSWPRDValAlg.doMMPRD = MuonGeometryFlags.hasMM()
 NSWPRDValAlg.doMMFastDigit = False
 
 NSWPRDValAlg.doSTGCHit = MuonGeometryFlags.hasSTGC()
-NSWPRDValAlg.doSTGCDigit = MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCDigit = False # no sTGC Digits present in RDO files
 NSWPRDValAlg.doSTGCRDO = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCPRD = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCFastDigit = False

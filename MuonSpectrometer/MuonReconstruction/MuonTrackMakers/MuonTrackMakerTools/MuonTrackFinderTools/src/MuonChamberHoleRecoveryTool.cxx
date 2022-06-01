@@ -64,7 +64,7 @@ namespace Muon {
         }
 
         ATH_CHECK(m_clusRotCreator.retrieve());
-        ATH_CHECK(m_mmClusRotCreator.retrieve());
+        if (m_idHelperSvc->recoMM() || m_idHelperSvc->recosTgc()) ATH_CHECK(m_mmClusRotCreator.retrieve());
         ATH_CHECK(m_pullCalculator.retrieve());
       
         ATH_CHECK(m_key_mdt.initialize());

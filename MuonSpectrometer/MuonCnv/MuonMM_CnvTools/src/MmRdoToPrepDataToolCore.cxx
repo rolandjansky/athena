@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MmRdoToPrepDataToolCore.h"
@@ -18,14 +18,13 @@ using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
 
+class NswCalibDbTimeChargeData;
+
 Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 					       const std::string& n,
 					       const IInterface*  p )
   :
-  base_class(t,n,p)
-{
-
-}
+  base_class(t,n,p) {}
 
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
@@ -36,6 +35,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_muDetMgrKey.initialize());
+  ATH_CHECK(m_calibTool.retrieve());
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -45,7 +45,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
 							std::vector<IdentifierHash>& idWithDataVect) const
 {
   ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   bool merge = m_merge;
 // protect for large splashes 
   if(rdoColl->size()>100) merge = true; 
@@ -86,21 +86,18 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
   }  
 
   // MuonDetectorManager from the conditions store
-  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_muDetMgrKey};
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_muDetMgrKey,ctx};
   const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
-  if(MuonDetMgr==nullptr){
+  if(!MuonDetMgr){
     ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
     return StatusCode::FAILURE;
   }
  
   std::vector<MMPrepData> MMprds;
   // convert the RDO collection to a PRD collection
-  MM_RawDataCollection::const_iterator it = rdoColl->begin();
-  for ( ; it != rdoColl->end() ; ++it ) {
-
+  for (const MM_RawData* rdo : *rdoColl ) {
     ATH_MSG_DEBUG("Adding a new MM PrepRawData");
 
-    const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
     if (!m_idHelperSvc->isMM(rdoId)) {
       ATH_MSG_WARNING("given Identifier "<<rdoId.get_compact()<<" ("<<m_idHelperSvc->mmIdHelper().print_to_string(rdoId)<<") is no MicroMega Identifier, continuing");
@@ -134,7 +131,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
       continue;
     }
     NSWCalib::CalibratedStrip calibStrip;
-    ATH_CHECK (m_calibTool->calibrateStrip(rdo, calibStrip));
+    ATH_CHECK (m_calibTool->calibrateStrip(ctx, rdo, calibStrip));
 
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;

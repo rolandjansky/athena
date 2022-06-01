@@ -37,15 +37,17 @@ def sTGC_RangeCfg(flags, name="sTgcRange", **kwargs):
 
 def sTGC_DigitizationToolCfg(flags, name="sTgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured sTgcDigitizationTool"""
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    result = ComponentAccumulator()
+    kwargs.setdefault("CalibrationTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))
     if flags.Digitization.PileUp:
         intervals = []
         if flags.Digitization.DoXingByXingPileUp:
             kwargs.setdefault("FirstXing", sTGC_FirstXing())
             kwargs.setdefault("LastXing", sTGC_LastXing())
         else:
-            intervals += [acc.popToolsAndMerge(sTGC_RangeCfg(flags))]
-        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+            intervals += [result.popToolsAndMerge(sTGC_RangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", result.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)))
     else:
         kwargs.setdefault("MergeSvc", '')
     kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
@@ -57,14 +59,14 @@ def sTGC_DigitizationToolCfg(flags, name="sTgcDigitizationTool", **kwargs):
         kwargs.setdefault("InputObjectName", "sTGC_Hits")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     from RngComps.RandomServices import AthRNGSvcCfg
-    kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
+    kwargs.setdefault("RndmSvc", result.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "sTGC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "sTGC_SDO")
-    sTgcDigitizationTool = CompFactory.sTgcDigitizationTool
-    acc.setPrivateTools(sTgcDigitizationTool(name, **kwargs))
-    return acc
+    sTgcDigitizationTool = CompFactory.sTgcDigitizationTool(name, **kwargs)
+    result.setPrivateTools(sTgcDigitizationTool)
+    return result
 
 
 def sTGC_OverlayDigitizationToolCfg(flags, name="STGC_OverlayDigitizationTool", **kwargs):

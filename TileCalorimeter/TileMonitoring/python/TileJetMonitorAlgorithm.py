@@ -12,7 +12,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileJetMonitorAlgorithm algorithm in the monitoring system.'''
 
-    # Define one top-level monitoring algorithm. The new configuration 
+    # Define one top-level monitoring algorithm. The new configuration
     # framework uses a component accumulator.
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
@@ -40,6 +40,17 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
     tileJetMonAlg.TileBadChanTool = badChanTool
     tileJetMonAlg.TriggerChain = ''
+
+    if flags.Tile.doTimingHistogramsForGain in [0, 1]:
+        kwargs.setdefault('Do1DHistograms', True)
+        if flags.Tile.doTimingHistogramsForGain == 0:
+            # Low Gain
+            kwargs.setdefault('ChannelEnergyMin', 15000)
+            kwargs.setdefault('ChannelEnergyMax', 50000)
+        else:
+            # High Gain
+            kwargs.setdefault('ChannelEnergyMin', 2000)
+            kwargs.setdefault('ChannelEnergyMax', 4000)
 
     for k, v in kwargs.items():
         setattr(tileJetMonAlg, k, v)
@@ -92,7 +103,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
     # 1) Configure histogram with TileJetMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileJetMonAlg, 'TileJetMonExecuteTime', 'Tile/')
-    executeTimeGroup.defineHistogram('TIME_execute', path = 'Jet', type='TH1F', 
+    executeTimeGroup.defineHistogram('TIME_execute', path = 'Jet', type='TH1F',
                                      title = 'Time for execute TileJetMonAlg algorithm;time [#mus]',
                                      xbins = 300, xmin = 0, xmax = 300000)
 
@@ -104,7 +115,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
     # 2) Configure 2D histograms (profiles/maps) with Tile channel time vs module and channel per partion (DQ summary)
     channelTimeDQGroup = helper.addGroup(tileJetMonAlg, 'TileJetChanTimeDQ', 'Tile/Jet/')
-    addValueVsModuleAndChannelMaps(channelTimeDQGroup, name = 'tileJetChanTime', title = 'Average time with jets', 
+    addValueVsModuleAndChannelMaps(channelTimeDQGroup, name = 'tileJetChanTime', title = 'Average time with jets',
                                    path = 'DQ', type = 'TProfile2D', value='time', run = str(runNumber))
 
 
@@ -155,7 +166,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
                     title += ' [' + str(fromEnergy) + ' .. ' + str(toEnergy) + ') MeV; time [ns]'
                 cellTimeGroup.defineHistogram(name, title = title, path = partition, type = 'TH1F',
                                               xbins = 600, xmin = -30.0, xmax = 30.0)
-        
+
 
 
     if DoEnergyProfiles:
@@ -172,7 +183,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
                 nbins = len(energiesALL[gain]) + 1
                 cellEnergyProfileGroup.defineHistogram(name, title = title, path = partition, type = 'TProfile',
                                                        xbins = nbins, xmin = -0.5, xmax = xmax)
-        
+
 
     else:
 
@@ -212,7 +223,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
 
     if DoEnergyDiffHistograms:
-    
+
         # 7) Configure 1D histograms with Tile cell relative energy difference between two channels per even channel
         energyDiffGroup = helper.addGroup(tileJetMonAlg, 'TileJetEnergyDiff', 'Tile/Jet/EnergyDiff/')
 
@@ -230,7 +241,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
                                                             xbins = 100, xmin = -1.0, xmax = 1.0)
 
 
-    
+
     accumalator = helper.result()
     result.merge(accumalator)
     return result
@@ -259,13 +270,13 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    tileJetMonitorAccumulator  = TileJetMonitoringConfig(ConfigFlags, 
-                                                         Do1DHistograms = True, 
+    tileJetMonitorAccumulator  = TileJetMonitoringConfig(ConfigFlags,
+                                                         Do1DHistograms = True,
                                                          DoEnergyDiffHistograms = True)
     cfg.merge(tileJetMonitorAccumulator)
     #cfg.printConfig(withDetails = True, summariseProps = True)

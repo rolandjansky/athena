@@ -242,10 +242,8 @@ namespace MuonCombined {
         ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_trackAmbibuityResolver{this, "TrackAmbiguityProcessor",
                                                                                "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
         ToolHandle<Muon::IMuonHitTimingTool> m_hitTimingTool{this, "MuonHitTimingTool", "Muon::MuonHitTimingTool/MuonHitTimingTool"};
-        ToolHandle<Muon::IMuonPRDSelectionTool> m_muonPRDSelectionTool{this, "MuonPRDSelectionTool",
-                                                                       "Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"};
-        ToolHandle<Muon::IMuonPRDSelectionTool> m_muonPRDSelectionToolStau{this, "MuonPRDSelectionToolStau",
-                                                                           "Muon::MuonPRDSelectionTool/MuonPRDSelectionToolStau"};
+        ToolHandle<Muon::IMuonPRDSelectionTool> m_muonPRDSelectionTool{this, "MuonPRDSelectionTool", ""};
+        ToolHandle<Muon::IMuonPRDSelectionTool> m_muonPRDSelectionToolStau{this, "MuonPRDSelectionToolStau", ""};
         ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtCreator{this, "MdtDriftCircleOnTrackCreator",
                                                                      "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
         ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtCreatorStau{
