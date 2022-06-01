@@ -127,23 +127,28 @@ class ConfigDBLoader(ConfigLoader):
             raise RuntimeError("DB %s not available in %s" % (dbalias, dblookupFile))
         # now get the account and pw for oracle connections
         credentials = odict().fromkeys(listOfServices)
-        authFile = ConfigDBLoader.getResolvedFileName("authentication.xml", "CORAL_AUTH_PATH")
 
         for svc in filter(lambda s : s.startswith("frontier:"), listOfServices):
             credentials[svc] = dict()
             credentials[svc]["user"] = svc
             credentials[svc]["password"] = ""
 
-        for svc in filter(lambda s : s.startswith("oracle:"), listOfServices):
-            ap = ET.parse(authFile)
-            count = 0
-            for con in filter( lambda c: c.attrib["name"]==svc, ap.iter("connection")):
-                credentials[svc] = dict([(par.attrib["name"],par.attrib["value"]) for par in con])
-                count += 1
-            if count==0:
-                raise RuntimeError("No credentials found for connection %s from service %s for db %s" % (con,svc,dbalias))
-            if count>1:
-                raise RuntimeError("More than 1 connection found in %s for service %s" % (authFile, svc))
+        try:
+            authFile = ConfigDBLoader.getResolvedFileName("authentication.xml", "CORAL_AUTH_PATH")
+        except Exception as e:
+            log.warning("File authentication.xml is not available! Oracle connection cannot be established. Exception message is: {0}".format(e))
+        else:
+            for svc in filter(lambda s : s.startswith("oracle:"), listOfServices):
+                ap = ET.parse(authFile)
+                count = 0
+                for con in filter( lambda c: c.attrib["name"]==svc, ap.iter("connection")):
+                    credentials[svc] = dict([(par.attrib["name"],par.attrib["value"]) for par in con])
+                    count += 1
+                if count==0:
+                    raise RuntimeError("No credentials found for connection %s from service %s for db %s" % (con,svc,dbalias))
+                if count>1:
+                    raise RuntimeError("More than 1 connection found in %s for service %s" % (authFile, svc))
+        
         return credentials
 
     @staticmethod
