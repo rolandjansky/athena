@@ -6,7 +6,6 @@ def getNewConfigFlags():
     from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
     ConfigFlags = getNewConfigFlags()
     """
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     # Import some old-style flags
@@ -20,6 +19,7 @@ def getNewConfigFlags():
     from RecExConfig.RecFlags import rec
     from RecExConfig.RecAlgsFlags import recAlgs
     from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+    from MuonRecExample.MuonRecFlags import muonRecFlags
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -101,6 +101,7 @@ def getNewConfigFlags():
     # Muon reco flags
     ConfigFlags.MuonCombined.doMuGirl = recAlgs.doMuGirl()
     ConfigFlags.MuonCombined.doMuGirlLowBeta = muonCombinedRecFlags.doMuGirlLowBeta()
+    ConfigFlags.Muon.doMSVertex = muonRecFlags.doMSVertex()
 
     # data overlay
     from AthenaCommon.GlobalFlags import globalflags

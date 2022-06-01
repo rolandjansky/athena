@@ -96,7 +96,7 @@ def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg", **kwargs):
                       'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     kwargs.setdefault("CombinedTrackCollection", "MuGirlStauCombinedTracks")
     kwargs.setdefault("METrackCollection", "")
-    kwargs.setdefault("SegmentCollection", "MuGirlStauSegments")
+    kwargs.setdefault("SegmentCollection", "TrkStauSegments")
     kwargs.setdefault("InDetCandidateLocation",
                       "InDetCandidates" if not flags.MuonCombined.doCombinedFit else "InDetCandidatesStaus")
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name, **kwargs)
@@ -304,7 +304,7 @@ def LRT_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_LRT", **kwargs):
     kwargs.setdefault("MuonContainerLocation", "MuonsLRT")
     kwargs.setdefault("ExtrapolatedLocation", "ExtraPolatedMuonsLRT")
     kwargs.setdefault("MSOnlyExtrapolatedLocation",
-                      "MSOnlyExtrapolatedMuonsLRT")
+                      "MSOnlyExtraPolatedMuonsLRT")
     kwargs.setdefault("CombinedLocation", "CombinedMuonsLRT")
     kwargs.setdefault("BuildSlowMuon", False)
     kwargs.setdefault("MakeClusters", False)
@@ -401,7 +401,7 @@ def GetCombinedTrkContainers(flags):
     if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
         tp_coll += ["CombinedMuonsLRTTrackParticles",
                     "ExtraPolatedMuonsLRTTrackParticles",
-                    "MSOnlyExtrapolatedMuonsLRTTrackParticles"]
+                    "MSOnlyExtraPolatedMuonsLRTTrackParticles"]
         track_coll += ["CombinedMuonsLRTTracks",
                        "ExtraPolatedMuonsLRTTracks",
                        "MSOnlyExtraPolatedMuonsLRTTracks"]
@@ -635,12 +635,11 @@ def MuonCombinedReconstructionCfg(flags):
                                                              SegmentContainerName="UnAssocMuonTrkSegments",
                                                              xAODContainerName="UnAssocMuonSegments",
                                                              MuonSegmentConverterTool=muonSegmentCnvTool)  )
-    # FIXME - comment out for now, because it fails with missing TrkStauSegments
-    # if flags.MuonCombined.doMuGirlLowBeta:
-    #     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonStauSegmentCnvAlg",
-    #                                                         SegmentContainerName="TrkStauSegments",
-    #                                                         xAODContainerName="StauSegments",
-    #                                                         MuonSegmentConverterTool=muonSegmentCnvTool))          
+    if flags.MuonCombined.doMuGirlLowBeta:
+        result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonStauSegmentCnvAlg",
+                                                            SegmentContainerName="TrkStauSegments",
+                                                            xAODContainerName="StauSegments",
+                                                            MuonSegmentConverterTool=muonSegmentCnvTool))          
     
     # runs over outputs and create xAODMuon collection
     result.merge(MuonCreatorAlgCfg(flags))
