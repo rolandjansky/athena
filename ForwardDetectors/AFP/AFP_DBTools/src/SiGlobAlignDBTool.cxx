@@ -34,16 +34,16 @@ namespace AFP
   }
   
   
-  const SiGlobAlignData SiGlobAlignDBTool::alignment (const EventContext& ctx, const int stationID) const
+  nlohmann::json SiGlobAlignDBTool::alignmentData(const EventContext& ctx) const
   {
-    ATH_MSG_DEBUG("will get global alignment for run "<<ctx.eventID().run_number()<<", lb "<<ctx.eventID().lumi_block()<<", event "<<ctx.eventID().event_number()<<", station "<<stationID);
+    ATH_MSG_DEBUG("will get global alignment for run "<<ctx.eventID().run_number()<<", lb "<<ctx.eventID().lumi_block()<<", event "<<ctx.eventID().event_number());
 
     SG::ReadCondHandle<CondAttrListCollection> ch_glob( m_rch_glob, ctx );
     const CondAttrListCollection* attrGlobList { *ch_glob};
     if ( attrGlobList == nullptr )
     {
-        ATH_MSG_WARNING("global alignment data for key " << m_rch_glob.fullKey() << " not found, returning zeros");
-        return SiGlobAlignData(stationID);
+        ATH_MSG_WARNING("global alignment data for key " << m_rch_glob.fullKey() << " not found, returning empty string");
+        return std::move(nlohmann::json::parse(""));
     }
     
     if(attrGlobList->size()>1) ATH_MSG_INFO("there should be only one real channel in "<< m_rch_glob.fullKey() <<", there are "<<attrGlobList->size()<<" real channels, only the first one will be used ");
@@ -52,7 +52,13 @@ namespace AFP
     const coral::AttributeList &atr = itr->second;
     std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
 
-    nlohmann::json jsondata = nlohmann::json::parse(data);
+    return std::move(nlohmann::json::parse(data));
+  }
+  
+  
+  const SiGlobAlignData SiGlobAlignDBTool::alignment(const nlohmann::json& jsondata, const int stationID) const
+  {
+    ATH_MSG_DEBUG("will get global alignment for station "<<stationID);
     nlohmann::json channeldata=jsondata["data"];
 
     // first, try to guess the channel nr.
