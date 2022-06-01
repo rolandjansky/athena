@@ -19,4 +19,5 @@ atlas_add_component( JetHitAssociation
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventInfo EventPrimitives GaudiKernel JetHitAssociationLib )
 
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} ) 
 atlas_install_joboptions( share/*.py )

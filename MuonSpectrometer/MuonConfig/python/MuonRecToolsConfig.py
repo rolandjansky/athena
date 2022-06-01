@@ -282,9 +282,7 @@ def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kw
 
     kwargs.setdefault("AtlasExtrapolator", result.popToolsAndMerge( AtlasExtrapolatorCfg(flags) ) )
     kwargs.setdefault("MuonExtrapolator",  result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) )
-    kwargs.setdefault("MuonExtrapolator2", result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) ) # Reported in ATLASRECTS-6658
     kwargs.setdefault('EDMPrinter', result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
-
     result.setPrivateTools(
         CompFactory.Muon.MuonTrackExtrapolationTool(name, **kwargs))
     return result
@@ -309,3 +307,9 @@ def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
     result.setPrivateTools(CompFactory.Muon.MuonRefitTool(name, **kwargs))
     return result
 
+def  SimpleMMClusterBuilderToolCfg(flags, name = "SimpleMMClusterBuilderTool", **kwargs):
+    result = ComponentAccumulator()
+    the_tool = CompFactory.Muon.SimpleMMClusterBuilderTool(name,**kwargs)
+    result.setPrivateTools(the_tool)   
+    return result
+  

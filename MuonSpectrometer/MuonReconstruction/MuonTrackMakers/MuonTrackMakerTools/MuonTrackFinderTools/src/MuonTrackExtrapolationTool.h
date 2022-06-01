@@ -57,15 +57,15 @@ namespace Muon {
 
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets
          * ownership of the new parameters */
-        const Trk::TrackParameters *extrapolateToMuonEntryRecord(const EventContext &ctx, const Trk::TrackParameters &pars,
+        std::unique_ptr<Trk::TrackParameters> extrapolateToMuonEntryRecord(const EventContext &ctx, const Trk::TrackParameters &pars,
                                                                  Trk::ParticleHypothesis particleHypo = Trk::muon) const;
 
         /** extrapolates track parameters to muon entry record, will return a zero pointer if the extrapolation fails. The caller gets
          * ownership of the new parameters */
-        virtual const Trk::TrackParameters *extrapolateToIP(const Trk::TrackParameters &pars,
+        std::unique_ptr<Trk::TrackParameters> extrapolateToIP(const EventContext& ctx, const Trk::TrackParameters &pars,
                                                             Trk::ParticleHypothesis particleHypo = Trk::muon) const;
 
-        const Trk::Perigee *createPerigee(const Trk::TrackParameters &pars) const;
+        std::shared_ptr<Trk::Perigee> createPerigee(const EventContext& ctx, const Trk::TrackParameters &pars) const;
 
         // Read handle for conditions object to get the field cache
         SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj",
@@ -81,8 +81,7 @@ namespace Muon {
                                                        "helper to nicely print out tracks"};
         ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator{this, "AtlasExtrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
         ToolHandle<Trk::IExtrapolator> m_muonExtrapolator{this, "MuonExtrapolator", "Trk::Extrapolator/MuonExtrapolator"};
-        ToolHandle<Trk::IExtrapolator> m_muonExtrapolator2{this, "MuonExtrapolator2", "Trk::Extrapolator/MuonExtrapolator"};
-
+    
         Gaudi::Property<bool> m_cosmics{this, "Cosmics", false};
         Gaudi::Property<bool> m_keepOldPerigee{this, "KeepInitialPerigee", true};
         Gaudi::Property<std::string> m_msEntranceName{this, "MuonSystemEntranceName", "MuonSpectrometerEntrance"};

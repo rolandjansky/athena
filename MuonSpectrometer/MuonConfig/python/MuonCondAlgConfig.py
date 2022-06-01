@@ -170,24 +170,106 @@ def TgcDigitTimeOffsetCondAlgCfg(flags):
 
 def NswCalibDbAlgCfg(flags, **kwargs):
     result = ComponentAccumulator()
+
+    ## online scenario
     if flags.Common.isOnline:
-        return result ## avoid adding algo to the component accumulator
-    if flags.Input.isMC:
-        kwargs['isData'  ] = False
-        kwargs['isOnline'] = False
+        kwargs['isData'] = True
+
+        ## MM folders
+        scheme  = "MDT_ONL"
+        #folders = ["/MDT/Onl/MM/TIME/SIDEA", "/MDT/Onl/MM/CHARGE/SIDEA", \
+        #           "/MDT/Onl/MM/TIME/SIDEC", "/MDT/Onl/MM/CHARGE/SIDEC"]
+        #result.merge( addFolders(flags, folders, detDb=scheme, className='CondAttrListCollection') )
+        
+        # use specific folder tags for now
+        result.merge( addFolders(flags, ["/MDT/Onl/MM/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="MmTdoSideA-Const-3p73") )
+        result.merge( addFolders(flags, ["/MDT/Onl/MM/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="MmTdoSideC-Const-3p73") )
+        result.merge( addFolders(flags, ["/MDT/Onl/MM/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="MmPdoSideA-Const-9p0" ) )
+        result.merge( addFolders(flags, ["/MDT/Onl/MM/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="MmPdoSideC-Const-9p0" ) )
+
+        kwargs["ReadKey_MM_SIDEA_TDO"] = "/MDT/Onl/MM/TIME/SIDEA"
+        kwargs["ReadKey_MM_SIDEC_TDO"] = "/MDT/Onl/MM/TIME/SIDEC"
+        kwargs["ReadKey_MM_SIDEA_PDO"] = "/MDT/Onl/MM/CHARGE/SIDEA"
+        kwargs["ReadKey_MM_SIDEC_PDO"] = "/MDT/Onl/MM/CHARGE/SIDEC"
+
+
+        ## sTGC folders
+        scheme  = "TGC_ONL"
+        #folders = ["/TGC/Onl/NSW/TIME/SIDEA", "/TGC/Onl/NSW/CHARGE/SIDEA", \
+        #           "/TGC/Onl/NSW/TIME/SIDEC", "/TGC/Onl/NSW/CHARGE/SIDEC"]
+        #result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+
+        # use specific folder tags for now
+        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideA-Const-0p78"))
+        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideC-Const-0p78"))
+
+        kwargs["ReadKey_STGC_SIDEA_TDO"] = "/TGC/Onl/NSW/TIME/SIDEA"
+        kwargs["ReadKey_STGC_SIDEC_TDO"] = "/TGC/Onl/NSW/TIME/SIDEC"
+        kwargs["ReadKey_STGC_SIDEA_PDO"] = "/TGC/Onl/NSW/CHARGE/SIDEA"
+        kwargs["ReadKey_STGC_SIDEC_PDO"] = "/TGC/Onl/NSW/CHARGE/SIDEC"
+
+    elif flags.Input.isMC:
+        kwargs['isData'] = False
+
+        ## MM folders
+        scheme  = "MDT_OFL"
+        #folders = ["/MDT/MM/TIME/SIDEA" , "/MDT/MM/CHARGE/SIDEA" , "/MDT/MM/THR/SIDEA" , \
+        #           "/MDT/MM/TIME/SIDEC" , "/MDT/MM/CHARGE/SIDEC" , "/MDT/MM/THR/SIDEC" ]
+        #result.merge( addFolders(flags, folders, detDb=scheme, className='CondAttrListCollection') )
+        
+        # use specific folder tags for now
+        result.merge( addFolders(flags, ["/MDT/MM/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="MmTdoSideA-Const-3p73") )
+        result.merge( addFolders(flags, ["/MDT/MM/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="MmTdoSideC-Const-3p73") )
+        result.merge( addFolders(flags, ["/MDT/MM/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="MmPdoSideA-Const-9p0" ) )
+        result.merge( addFolders(flags, ["/MDT/MM/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="MmPdoSideC-Const-9p0" ) )
+        result.merge( addFolders(flags, ["/MDT/MM/THR/SIDEA"   ], detDb=scheme, className='CondAttrListCollection' , tag="MmThrSideA-Const-55p4") )
+        result.merge( addFolders(flags, ["/MDT/MM/THR/SIDEC"   ], detDb=scheme, className='CondAttrListCollection' , tag="MmThrSideC-Const-55p4") )
+
+        ## sTGC folders
+        scheme  = "TGC_OFL"
+        #folders = ["/TGC/NSW/TIME/SIDEA", "/TGC/NSW/CHARGE/SIDEA", "/TGC/NSW/THR/SIDEA", \
+        #           "/TGC/NSW/TIME/SIDEC", "/TGC/NSW/CHARGE/SIDEC", "/TGC/NSW/THR/SIDEC"]
+        #result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+
+        # use specific folder tags for now
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideA-Const-0p78"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideC-Const-0p78"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/THR/SIDEA"   ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcThrSideA-Const-52p7"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/THR/SIDEC"   ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcThrSideC-Const-52p7"))
+
+    ## offline
     else:
-        kwargs['isData'  ] = True
-        kwargs['isOnline'] = True if flags.Common.isOnline else False
-    folders = ["/MDT/MM/TIME/SIDEA" , "/MDT/MM/CHARGE/SIDEA" , "/MDT/MM/VMM/SIDEA" , \
-               "/MDT/MM/TIME/SIDEC" , "/MDT/MM/CHARGE/SIDEC" , "/MDT/MM/VMM/SIDEC" ]
-    scheme  = "MDT_OFL"
-    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
-    folders = ["/TGC/NSW/TIME/SIDEA", "/TGC/NSW/CHARGE/SIDEA", "/TGC/NSW/VMM/SIDEA", \
-               "/TGC/NSW/TIME/SIDEC", "/TGC/NSW/CHARGE/SIDEC", "/TGC/NSW/VMM/SIDEC"]
-    scheme  = "TGC_OFL"
-    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
-    alg     = CompFactory.NswCalibDbAlg(**kwargs)
-    result.addCondAlgo(alg)
+        kwargs['isData'] = True
+
+        ## MM folders
+        scheme  = "MDT_OFL"
+        #folders = ["/MDT/MM/TIME/SIDEA", "/MDT/MM/CHARGE/SIDEA", \
+        #           "/MDT/MM/TIME/SIDEC", "/MDT/MM/CHARGE/SIDEC"]
+        #result.merge( addFolders(flags, folders, detDb=scheme, className='CondAttrListCollection') )
+        
+        # use specific folder tags for now
+        result.merge( addFolders(flags, ["/MDT/MM/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="MmTdoSideA-Const-3p73") )
+        result.merge( addFolders(flags, ["/MDT/MM/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="MmTdoSideC-Const-3p73") )
+        result.merge( addFolders(flags, ["/MDT/MM/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="MmPdoSideA-Const-9p0" ) )
+        result.merge( addFolders(flags, ["/MDT/MM/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="MmPdoSideC-Const-9p0" ) )
+       
+        ## sTGC folders
+        scheme  = "TGC_OFL"
+        #folders = ["/TGC/NSW/TIME/SIDEA", "/TGC/NSW/CHARGE/SIDEA", \
+        #           "/TGC/NSW/TIME/SIDEC", "/TGC/NSW/CHARGE/SIDEC"]
+        #result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+
+        # use specific folder tags for now
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideA-Const-0p78"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideC-Const-0p78"))
+    
+    result.addCondAlgo(CompFactory.NswCalibDbAlg(**kwargs))
     return result
 
 def NswPassivationDbAlgCfg(flags, **kwargs):

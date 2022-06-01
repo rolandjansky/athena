@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "STGC_RDO_Decoder.h"
@@ -16,6 +16,7 @@ STGC_RDO_Decoder::STGC_RDO_Decoder(const std::string& type, const std::string& n
 StatusCode STGC_RDO_Decoder::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_stgcIdHelper, "STGCIDHELPER"));
+  ATH_CHECK(m_calibTool.retrieve());
 
   return StatusCode::SUCCESS;
 }

@@ -71,9 +71,11 @@ namespace Muon
 
       /** TgcPrepRawData container key for current BC */ 
       std::string m_outputCollectionLocation;      
-      SG::ReadHandleKey<STGC_RawDataContainer> m_rdoContainerKey;//"TGCRDO"
-      SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey;
-      bool m_merge; // merge Prds
+
+    
+      SG::ReadHandleKey<STGC_RawDataContainer> m_rdoContainerKey{this, "InputCollection", "sTGCRDO", "RDO container to read"};
+      SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey{this, "OutputCollection", "STGC_Measurements", "Muon::sTgcPrepDataContainer to record"};
+      Gaudi::Property<bool> m_merge{this, "Merge", true}; // merge Prds
 
       ToolHandle<ISTgcClusterBuilderTool> m_clusterBuilderTool{this,"ClusterBuilderTool","Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool"};
 

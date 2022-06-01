@@ -82,8 +82,8 @@ namespace Muon {
             "Trk::TrackSummaryTool/MuidTrackSummaryTool",
         };
 
-        ToolHandle<IMuonClusterOnTrackCreator> m_mmClusterCreator{this, "MMClusterCreator", "Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"};
-        ToolHandle<IMuonClusterOnTrackCreator> m_stgcClusterCreator{this, "MuonClusterCreator", "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
+        ToolHandle<IMuonClusterOnTrackCreator> m_mmClusterCreator{this, "MMClusterCreator", ""};
+        ToolHandle<IMuonClusterOnTrackCreator> m_stgcClusterCreator{this, "MuonClusterCreator", ""};
      
         Gaudi::Property<bool>   m_ipConstraint{ this, "IPConstraint", true};  // use a ip perigee(0,0) constraint in the segment fit
         Gaudi::Property<double> m_maxClustDist{ this, "ClusterDistance", 5.};
@@ -117,7 +117,7 @@ namespace Muon {
         // find segment seeds
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > segmentSeed(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, bool usePhi) const;
                                                                           
-	std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> >  segmentSeedFromMM(std::vector< Amg::Vector3D >& phiStereo) const;
+	    std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> >  segmentSeedFromMM(std::vector< Amg::Vector3D >& phiStereo) const;
 
         std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > segmentSeedFromPads(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, 
                                                                                   const Muon::MuonSegment* etaSeg) const;

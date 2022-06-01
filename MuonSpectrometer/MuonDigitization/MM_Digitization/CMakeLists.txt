@@ -13,7 +13,7 @@ atlas_add_library( MM_DigitizationLib
                    PUBLIC_HEADERS MM_Digitization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeoPrimitives HitManagement Identifier MagFieldConditions MagFieldElements MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent NSWCalibToolsLib PileUpToolsLib xAODEventInfo
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeoPrimitives HitManagement Identifier MagFieldConditions MagFieldElements MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent NSWCalibToolsLib PileUpToolsLib xAODEventInfo MuonCondData
                    PRIVATE_LINK_LIBRARIES AtlasHepMCLib GeneratorObjects MuonAGDDDescription MuonReadoutGeometry PathResolver TrkDetDescrUtils TrkEventPrimitives TrkSurfaces )
 
 atlas_add_component( MM_Digitization

@@ -1093,34 +1093,15 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonPRDSelectionToolCfg
     result = ComponentAccumulator()
 
-    csc2d = ""
-    csc4d = ""
-    if flags.Detector.GeometryCSC:
-        from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, Csc4dSegmentMakerCfg
-        acc = Csc2dSegmentMakerCfg(flags)
-        csc2d = acc.popPrivateTools()
-        result.merge(acc)
-        acc = Csc4dSegmentMakerCfg(flags)
-        csc4d = acc.popPrivateTools()
-        result.merge(acc)
-    kwargs.setdefault("Csc2DSegmentMaker",               csc2d)
-    kwargs.setdefault("Csc4DSegmentMaker",               csc4d)
+    
+    from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, Csc4dSegmentMakerCfg
+    kwargs.setdefault("Csc2DSegmentMaker", result.popToolsAndMerge(Csc2dSegmentMakerCfg(flags))  if flags.Detector.GeometryCSC  else "" )
+    kwargs.setdefault("Csc4DSegmentMaker", result.popToolsAndMerge(Csc4dSegmentMakerCfg(flags))  if flags.Detector.GeometryCSC  else "" )
 
-    kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge(
-        MuonPRDSelectionToolCfg(flags)))
-
-    acc = DCMathSegmentMakerCfg(flags, name="DCMathSegmentMaker")
-    segmentmaker = acc.popPrivateTools()
-    kwargs.setdefault("SegmentMaker",               segmentmaker)
-    result.merge(acc)
-
-    acc = MuonClusterSegmentFinderToolCfg(
-        flags, name="MuonClusterSegmentFinderTool")
-    clustersegmentfindertool = acc.popPrivateTools()
-    kwargs.setdefault("NSWMuonClusterSegmentFinderTool",
-                      clustersegmentfindertool)
-    result.merge(acc)
-
+    kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge(MuonPRDSelectionToolCfg(flags)))
+    kwargs.setdefault("SegmentMaker",  result.popToolsAndMerge(DCMathSegmentMakerCfg(flags, name="DCMathSegmentMaker")))
+    kwargs.setdefault("NSWMuonClusterSegmentFinderTool", 
+                      result.popToolsAndMerge(MuonClusterSegmentFinderToolCfg(flags, name="MuonClusterSegmentFinderTool")))  
     tool = CompFactory.Muon.MuonLayerSegmentFinderTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
@@ -1231,10 +1212,15 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
 
     result = MuonEDMPrinterToolCfg(flags)
     # Not setting up MuonIdHelperSvc nor MuonEDMHelperSvc
-    kwargs.setdefault("MuonEDMPrinterTool", result.getPrimary())
-
+    kwargs.setdefault("MuonEDMPrinterTool"  , result.getPrimary())
+    kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge(MuonPRDSelectionToolCfg(flags)))
+    
     # This is going to be used in a few tools below
-    rotcreator = result.popToolsAndMerge( MdtDriftCircleOnTrackCreatorStauCfg(flags))
+    rotcreator = result.popToolsAndMerge(MdtDriftCircleOnTrackCreatorStauCfg(flags))
+    kwargs.setdefault("MuonPRDSelectionToolStau", 
+                      result.popToolsAndMerge(MuonPRDSelectionToolCfg(flags,
+                                                "MuonPRDSelectionToolStau",
+                                                MdtDriftCircleOnTrackCreator = rotcreator)))
 
     segmentmaker = result.popToolsAndMerge(DCMathSegmentMakerCfg(
         flags, name="DCMathStauSegmentMaker", MdtCreator=rotcreator))

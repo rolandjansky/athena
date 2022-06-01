@@ -191,6 +191,17 @@ def pebInfoWriterTool(flags, name, eventBuildType):
                          SubDetector.PIXEL_DBM,
                          SubDetector.TDAQ_CTP # add full CTP data to the output
         ])
+    elif 'Lvl1CaloPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addHLTResultToROBList()
+        tool.MaxRoIs = 1
+        tool.addSubDets([SubDetector.TDAQ_CALO_PREPROC,
+                         SubDetector.TDAQ_CALO_CLUSTER_PROC_DAQ,
+                         SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI,
+                         SubDetector.TDAQ_CALO_JET_PROC_DAQ,
+                         SubDetector.TDAQ_CALO_JET_PROC_ROI,
+                         SubDetector.TDAQ_CTP
+        ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration

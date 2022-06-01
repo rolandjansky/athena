@@ -13,13 +13,7 @@ using namespace Muon;
 
 //============================================================================
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) 
-: base_class(t,n,p)
-{
-    //  template for property decalration
-    declareProperty("OutputCollection", m_stgcPrepDataContainerKey = std::string("STGC_Measurements"), "Muon::sTgcPrepDataContainer to record");
-    declareProperty("InputCollection", m_rdoContainerKey = std::string("sTGCRDO"), "RDO container to read");
-    declareProperty("Merge",  m_merge = true);
-}
+: base_class(t,n,p){}
 
 
 //============================================================================
@@ -39,6 +33,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
 //============================================================================
 StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepDataContainer* stgcPrepDataContainer, const STGC_RawDataCollection *rdoColl, std::vector<IdentifierHash>& idWithDataVect) const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     const IdentifierHash hash = rdoColl->identifyHash();
 
     ATH_MSG_DEBUG(" ***************** Start of process STGC Collection with hash Id: " << hash);
@@ -81,22 +76,19 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
     sTgcPadPrds.reserve(rdoColl->size());
     sTgcWirePrds.reserve(rdoColl->size());
     
-    // convert the RDO collection to a PRD collection
-    STGC_RawDataCollection::const_iterator it = rdoColl->begin();
   
     // MuonDetectorManager from the conditions store
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey};
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey,ctx};
     const MuonGM::MuonDetectorManager* muonDetMgr = detMgrHandle.cptr(); 
     if(!muonDetMgr){
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
         return StatusCode::FAILURE;
     }
-  
-    for (; it != rdoColl->end() ; ++it ) {
+    // convert the RDO collection to a PRD collection
+    for ( const STGC_RawData* rdo : * rdoColl) {
 
         ATH_MSG_DEBUG("Adding a new sTgc PrepRawData");
 
-        const STGC_RawData* rdo = *it;
         const Identifier  rdoId = rdo->identify();
 
         if (!m_idHelperSvc->issTgc(rdoId)) {
@@ -149,8 +141,8 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
                 width = design->channelWidth(localPos);
             }
         }
-
-        const double resolution = width/sqrt(12.); 
+        
+        const double resolution = width/ std::sqrt(12.); 
         auto   cov = Amg::MatrixX(1,1);
         cov.setIdentity();
         (cov)(0,0) = resolution*resolution;  

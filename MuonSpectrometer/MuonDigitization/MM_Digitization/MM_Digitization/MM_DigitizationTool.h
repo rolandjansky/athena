@@ -61,6 +61,8 @@
 #include "NSWCalibTools/INSWCalibTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonCondData/NswCalibDbThresholdData.h"
 
 #include <memory>
 #include <string>
@@ -129,6 +131,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool{this,"CalibrationTool","Muon::NSWCalibTool/NSWCalibTool"};
 
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
+        SG::ReadCondHandleKey<NswCalibDbThresholdData> m_condThrshldsKey {this, "CondThrshldsKey", "NswCalibDbThresholdData", "Key of NswCalibDbThresholdData object containing calibration data (VMM thresholds)"};
 
   	Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   	SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MM_Hits", "name of the input objects"};
@@ -173,6 +176,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
 
 
+		Gaudi::Property<bool> m_useCondThresholds{this, "useCondThresholds", false, "Use conditions data to get thresholds, overrules useThresholdScaling"};
 		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
 		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
 		Gaudi::Property<float> m_vmmDeadtime{this,"vmmDeadtime",200,"Specifies how much before the lower time limit the VMM simulation should start evaluating the signal"};

@@ -209,9 +209,8 @@ def makeHLTTree(flags, newJO=False, hltMenuConfig = None):
 
             # The LAr Noise Burst end-of-event sequence
             if 'larnoiseburst' in acceptedEventChainDict['chainParts'][0]['purpose']:
-                from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
-                recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
-                endOfEventRoIMaker.RoIs += [LArNBRoIs]
+                from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstRecoSequence
+                recoSeq = getLArNoiseBurstRecoSequence()
                 acceptedEventSeq += conf2toConfigurable(recoSeq)
             # elif ... add other end of event sequences (with the corresponding chain) here if needed
 

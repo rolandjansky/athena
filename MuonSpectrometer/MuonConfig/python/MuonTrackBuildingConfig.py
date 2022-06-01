@@ -105,32 +105,19 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
     muon_prop = result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name="MuonSTEP_Propagator"))
-    kwargs.setdefault("Propagator", muon_prop)    
-    
-    acc = MuonChamberHoleRecoveryToolCfg(flags)
-    hole_recovery_tool =  acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) 
+    kwargs.setdefault("Propagator", muon_prop) 
+    kwargs.setdefault("ChamberHoleRecoveryTool",  
+                     result.popToolsAndMerge(MuonChamberHoleRecoveryToolCfg(flags))) 
 
-    acc  = MagneticFieldSvcCfg(flags) 
-    result.merge(acc)
+    result.merge(MagneticFieldSvcCfg(flags) )
     
-    acc = MuonTrackToSegmentToolCfg(flags)
-    track_to_segment_tool =  acc.getPrimary()
-    kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
-    result.merge(acc)
-    
+    kwargs.setdefault("TrackToSegmentTool",  result.popToolsAndMerge(MuonTrackToSegmentToolCfg(flags)))        
     kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
-
     kwargs.setdefault('Extrapolator', result.popToolsAndMerge( MuonTrackExtrapolationToolCfg(flags) ) )
 
     # FIXME - remove ErrorOptimisationTool from cxx?
     # declareProperty("ErrorOptimisationTool","" );Extrapolator
-
-    acc=MuPatCandidateToolCfg(flags)
-    cand_tool = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("CandidateTool",       cand_tool)
+    kwargs.setdefault("CandidateTool",       result.popToolsAndMerge(MuPatCandidateToolCfg(flags)))
 
     kwargs.setdefault("CandidateMatchingTool", 
                       result.popToolsAndMerge(MooCandidateMatchingToolCfg(flags)))
@@ -333,6 +320,10 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
+    if flags.Detector.GeometrysTGC or flags.Detector.GeometryMM:
+        from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MMClusterOnTrackCreatorCfg
+        kwargs.setdefault("MmClusterRotCreator", result.popToolsAndMerge(MMClusterOnTrackCreatorCfg(flags)))
+
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
     kwargs.setdefault("EDMPrinter", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
 

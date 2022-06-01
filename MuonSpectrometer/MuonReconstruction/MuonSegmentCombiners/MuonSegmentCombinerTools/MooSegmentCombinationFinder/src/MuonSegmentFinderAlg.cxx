@@ -32,7 +32,8 @@ StatusCode MuonSegmentFinderAlg::initialize() {
     ATH_CHECK(m_clusterSegMaker.retrieve());
 
     ATH_CHECK(m_clusterCreator.retrieve());
-    if (m_idHelperSvc->recoMM() || m_idHelperSvc->recosTgc()){
+    const bool doNSW = m_idHelperSvc->recoMM() || m_idHelperSvc->recosTgc();
+    if (doNSW){
         ATH_CHECK(m_mmClusterCreator.retrieve());
         ATH_CHECK(m_clusterSegMakerNSW.retrieve());
     }
@@ -48,7 +49,7 @@ StatusCode MuonSegmentFinderAlg::initialize() {
         m_csc4dSegmentFinder.disable();
 
     ATH_CHECK(m_segmentCollectionKey.initialize());
-    ATH_CHECK(m_segmentNSWCollectionKey.initialize()); //used to perform the alignment in the NSW
+    ATH_CHECK(m_segmentNSWCollectionKey.initialize(doNSW)); //used to perform the alignment in the NSW
     ATH_CHECK(m_cscPrdsKey.initialize(!m_cscPrdsKey.empty()));  // check for layouts without CSCs
     ATH_CHECK(m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust));
     ATH_CHECK(m_rpcPrdsKey.initialize());

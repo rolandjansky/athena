@@ -108,6 +108,9 @@ def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):
    kwargs.setdefault("MuonInsideOutRecoTool", getPublicTool("MuonStauInsideOutRecoTool") )
    kwargs.setdefault("TrackAmbiguityProcessor", getPublicTool("MuonAmbiProcessor") )
    kwargs.setdefault("MdtCalibrationDbTool", MdtCalibrationDbTool())
+   kwargs.setdefault("MuonPRDSelectionTool", getPublicTool("MuonPRDSelectionTool") )
+   kwargs.setdefault("MuonPRDSelectionToolStau", getPublicTool("MuonPRDSelectionToolStau") )
+    
    return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
 
 

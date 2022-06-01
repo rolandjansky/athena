@@ -38,7 +38,8 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
 def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
-    return CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs)
+    kwargs.setdefault("NSWCalibTool", getPublicTool("NSWCalibTool"))
+    return  CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs) 
 
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
     error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
@@ -256,6 +257,14 @@ def MuonTrackSummaryHelperTool(name="MuonTrackSummaryHelperTool",**kwargs):
 
 # end of factory function MuonTrackSummaryHelper
 
+def MuonPRDSelectionTool(name="MuonPRDSelectionTool", **kwargs):
+    kwargs.setdefault("MdtDriftCircleOnTrackCreator", getPublicTool("MdtDriftCircleOnTrackCreator"))
+    kwargs.setdefault("MuonClusterOnTrackCreator", getPublicTool("MuonClusterOnTrackCreator"))
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
+    if reco_stgcs or reco_mm:
+        kwargs.setdefault("MmClusterOnTrackCreator", getPublicTool("MMClusterOnTrackCreator"))
+    return CfgMgr.Muon__MuonPRDSelectionTool(name,**kwargs)
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 class MuonTrackSummaryTool(Trk__TrackSummaryTool,ConfiguredBase):
@@ -364,6 +373,7 @@ def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,*
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
     kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
     kwargs.setdefault("TrackToSegmentTool", getPublicTool("MuonTrackToSegmentTool") )
+    kwargs.setdefault("MuonPRDSelectionTool", getPublicTool("MuonPRDSelectionTool") )
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
@@ -376,6 +386,11 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
+    if reco_stgcs or reco_mm:
+        kwargs.setdefault("MMClusterCreator", getPublicTool("MMClusterOnTrackCreator")) 
+        kwargs.setdefault("MuonClusterCreator", getPublicTool("MuonClusterOnTrackCreator")) 
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
@@ -474,7 +489,8 @@ else: # not (DetFlags.Muon_on() and rec.doMuon())
 
 def MuonLayerSegmentFinderTool(name='MuonLayerSegmentFinderTool',extraFlags=None,**kwargs):
     kwargs.setdefault("Csc2DSegmentMaker", getPublicTool("Csc2dSegmentMaker") if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC() else "")
-    kwargs.setdefault("Csc4DSegmentMaker", getPublicTool("Csc4dSegmentMaker") if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC() else "")    
+    kwargs.setdefault("Csc4DSegmentMaker", getPublicTool("Csc4dSegmentMaker") if muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC() else "")
+    kwargs.setdefault("MuonPRDSelectionTool", getPublicTool("MuonPRDSelectionTool") )
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def ExtraTreeTrackFillerTool(name="ExtraTreeTrackFillerTool",extraFlags=None,**kwargs):
