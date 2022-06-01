@@ -19,15 +19,8 @@ BasicCellBuilderTool::BasicCellBuilderTool(
                                            const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent)
-  :base_class(type, name, parent),
-   m_caloCID(nullptr)
+  : base_class(type, name, parent)
 {
-  declareProperty("phi0_em",m_phi0_em);
-  declareProperty("phi0_had",m_phi0_had);
-
-  m_phi0_em=-1000;
-  m_phi0_had=-1000;
-
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) m_isCaloBarrel[i]=true;
   for(int i=CaloCell_ID_FCS::PreSamplerE;i<=CaloCell_ID_FCS::EME3;++i) m_isCaloBarrel[i]=false;
   m_isCaloBarrel[CaloCell_ID_FCS::TileGap3]=false;
@@ -36,16 +29,11 @@ BasicCellBuilderTool::BasicCellBuilderTool(
 }
 
 
-BasicCellBuilderTool::~BasicCellBuilderTool()
-{
-  ATH_MSG_DEBUG("in destructor ");
-}
-
 void BasicCellBuilderTool::find_phi0(const CaloDetDescrManager* caloDDM)
 {
-  if(m_phi0_em==-1000) {
+  if(m_cellinfoCont.getPhi0Em()==-1000) {
     ATH_MSG_DEBUG("Trying to find best phi0 of EM calo :");
-    m_phi0_em=0;
+    m_cellinfoCont.getPhi0Em()=0;
     cellinfo_vec test_vec;
     const double dphi=2*M_PI/64;
     findCells(caloDDM,test_vec,0.1,0.2,-dphi,dphi,1);
@@ -61,14 +49,14 @@ void BasicCellBuilderTool::find_phi0(const CaloDetDescrManager* caloDDM)
       if(fabs(phi0)<fabs(bestphi0)) bestphi0=phi0;
     }
 
-    if(bestphi0!=10000) m_phi0_em=bestphi0;
+    if(bestphi0!=10000) m_cellinfoCont.getPhi0Em()=bestphi0;
 
     ATH_MSG_DEBUG("Best phi0 EM=" << bestphi0);
   }
 
-  if(m_phi0_had==-1000) {
+  if(m_cellinfoCont.getPhi0Had()==-1000) {
     ATH_MSG_DEBUG("Trying to find best phi0 of Tile calo :");
-    m_phi0_had=0;
+    m_cellinfoCont.getPhi0Had()=0;
     cellinfo_vec test_vec;
     const double dphi=2*M_PI/64;
     findCells(caloDDM,test_vec,0.1,0.2,-dphi,dphi,3);
@@ -84,46 +72,19 @@ void BasicCellBuilderTool::find_phi0(const CaloDetDescrManager* caloDDM)
       if(fabs(phi0)<fabs(bestphi0)) bestphi0=phi0;
     }
 
-    if(bestphi0!=10000) m_phi0_had=bestphi0;
+    if(bestphi0!=10000) m_cellinfoCont.getPhi0Had()=bestphi0;
 
     ATH_MSG_DEBUG("Best phi0 HAD=" << bestphi0);
   }
 }
-
-
-StatusCode BasicCellBuilderTool::initialize()
-{
-  ATH_CHECK( detStore()->retrieve (m_caloCID, "CaloCell_ID") );
-  return StatusCode::SUCCESS;
-
-}
-
-/*
-  void BasicCellBuilderTool::init_map(cellinfo_map& map, int layer)
-  {
-  ATH_MSG_DEBUG("Building map layer=" << layer);
-
-  double eta_min=0;
-  double eta_max=0;
-  double phi_min=0;
-  double phi_max=0;
-  for(unsigned int i=0;i<map.neta();++i) {
-  map.eta_range(i,eta_min,eta_max);
-  for(unsigned int j=0;j<map.nphi();++j) {
-  map.phi_range(j,phi_min,phi_max);
-  findCells(map.vec(i,j),eta_min,eta_max,phi_min,phi_max,layer);
-  }
-  }
-  }
-*/
 
 double BasicCellBuilderTool::deta(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
   int side=0;
   if(eta>0) side=1;
 
-  double mineta=m_min_eta_sample[side][sample];
-  double maxeta=m_max_eta_sample[side][sample];
+  double mineta=m_cellinfoCont.getMinEtaSample(side,sample);
+  double maxeta=m_cellinfoCont.getMaxEtaSample(side,sample);
 
   if(eta<mineta) {
     return fabs(eta-mineta);
@@ -139,61 +100,62 @@ double BasicCellBuilderTool::deta(CaloCell_ID_FCS::CaloSample sample,double eta)
 
 void BasicCellBuilderTool::minmaxeta(CaloCell_ID_FCS::CaloSample sample,double eta,double& mineta,double& maxeta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  mineta=m_min_eta_sample[side][sample];
-  maxeta=m_max_eta_sample[side][sample];
+  mineta=m_cellinfoCont.getMinEtaSample(side,sample);
+  maxeta=m_cellinfoCont.getMaxEtaSample(side,sample);
 }
 
 double BasicCellBuilderTool::rmid(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  return m_rmid_map[side][sample].find_closest(eta)->second;
+  return m_cellinfoCont.getRmidMap(side,sample).find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  return m_zmid_map[side][sample].find_closest(eta)->second;
+  return m_cellinfoCont.getZmidMap(side,sample).find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::rzmid(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  if(isCaloBarrel(sample)) return m_rmid_map[side][sample].find_closest(eta)->second;
-  else                    return m_zmid_map[side][sample].find_closest(eta)->second;
+  if(isCaloBarrel(sample)) {
+    return m_cellinfoCont.getRmidMap(side,sample).find_closest(eta)->second;
+  }
+  else {
+    return m_cellinfoCont.getZmidMap(side,sample).find_closest(eta)->second;
+  }
 }
 
 double BasicCellBuilderTool::rent(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  return m_rent_map[side][sample].find_closest(eta)->second;
+  return m_cellinfoCont.getRentMap(side,sample).find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::zent(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  return m_zent_map[side][sample].find_closest(eta)->second;
+  return m_cellinfoCont.getZentMap(side,sample).find_closest(eta)->second;
 }
 
 double BasicCellBuilderTool::rzent(CaloCell_ID_FCS::CaloSample sample,double eta) const
 {
-  int side=0;
-  if(eta>0) side=1;
+  int side = eta>0 ? 1 : 0;
 
-  if(isCaloBarrel(sample)) return m_rent_map[side][sample].find_closest(eta)->second;
-  else                    return m_zent_map[side][sample].find_closest(eta)->second;
+  if(isCaloBarrel(sample)) {
+    return m_cellinfoCont.getRentMap(side,sample).find_closest(eta)->second;
+  }
+  else {
+    return m_cellinfoCont.getZentMap(side,sample).find_closest(eta)->second;
+  }
 }
 
 
@@ -210,18 +172,6 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
                 <<  "; LARHEC="         <<caloDDM->element_end(CaloCell_ID::LARHEC)-caloDDM->element_begin(CaloCell_ID::LARHEC)
                 <<  "; LARFCAL="        <<caloDDM->element_end(CaloCell_ID::LARFCAL)-caloDDM->element_begin(CaloCell_ID::LARFCAL) );
 
-/*
-  int nokfcal=0;
-  log << MSG::INFO <<  "Loop only fcal" << endmsg ;
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=caloDDM->element_begin(CaloCell_ID::LARFCAL);calo_iter<caloDDM->element_end(CaloCell_ID::LARFCAL);++calo_iter) {
-    const CaloDetDescrElement* theDDE=*calo_iter;
-    if(theDDE) {
-      ++nokfcal;
-      if(fabs(theDDE->eta()+4.95)<0.1) log << MSG::DEBUG <<  "init cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo()<< endmsg ;
-    }
-  }
-  log << MSG::INFO <<  "Loop only fcal finished nok="<<nokfcal << endmsg ;
-*/
   int nok=0;
   int nvolOK=0;
   int naccept=0;
@@ -241,8 +191,8 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
 
 
   for(int side=0;side<=1;++side) for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-    m_min_eta_sample[side][sample]=+1000;
-    m_max_eta_sample[side][sample]=-1000;
+    m_cellinfoCont.getMinEtaSample(side,sample)=+1000;
+    m_cellinfoCont.getMaxEtaSample(side,sample)=-1000;
   }
 
 
@@ -250,14 +200,7 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
       ++nok;
-      /*
-        CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
-        if( calo==CaloCell_ID::LARFCAL ) {
-        log << MSG::DEBUG <<  "init cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo();
-        log<<" deta="<<theDDE->deta()<<" dphi="<<theDDE->dphi()<<" dr="<<theDDE->dr()<<" vol="<<theDDE->volume() ;
-        log<<" dx="<<theDDE->dx()<<" dy="<<theDDE->dy()<<" dz="<<theDDE->dz()<< endmsg ;
-      }
-*/
+
       CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
       CaloCell_ID_FCS::CaloSample sample=(CaloCell_ID_FCS::CaloSample)theDDE->getSampling();
 
@@ -270,8 +213,8 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
       }
       double min_eta=theDDE->eta()-theDDE->deta()/2;
       double max_eta=theDDE->eta()+theDDE->deta()/2;
-      if(min_eta<m_min_eta_sample[side][sample]) m_min_eta_sample[side][sample]=min_eta;
-      if(max_eta>m_max_eta_sample[side][sample]) m_max_eta_sample[side][sample]=max_eta;
+      if(min_eta<m_cellinfoCont.getMinEtaSample(side,sample)) m_cellinfoCont.getMinEtaSample(side,sample)=min_eta;
+      if(max_eta>m_cellinfoCont.getMaxEtaSample(side,sample)) m_cellinfoCont.getMaxEtaSample(side,sample)=max_eta;
 
       if(rz_map_eta[side][sample].find(eta_raw)==rz_map_eta[side][sample].end()) {
         rz_map_eta [side][sample][eta_raw]=0;
@@ -359,14 +302,6 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
         if(calo==CaloCell_ID::LAREM)   {
           curmap=&(m_cellinfoCont.getEmMap());
           if(fabs(theDDE->eta())<2.9 && m_cellinfoCont.getEmFineMap().neta()>0) curmap2=&(m_cellinfoCont.getEmFineMap());
-/*
-          if(log.level()<=MSG::DEBUG) {
-            if(theDDE->phi()>0.0 && theDDE->phi()<0.1 && theDDE->eta()>0) {
-              log<<"init cell eta="<<theDDE->eta()<<" phi="<<theDDE->phi()<<" r="<<theDDE->r()<<" z="<<theDDE->z()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo();
-              log<<endmsg;
-            }
-          }
-*/
         }
         if(sample==CaloCell_ID_FCS::FCAL0) curmap=&(m_cellinfoCont.getEmMap());
 
@@ -380,12 +315,8 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
         if(curmap) {
           if(sample!=CaloCell_ID_FCS::EMB1 && sample!=CaloCell_ID_FCS::EME1) init_cell(*curmap,theDDE);
         }
-      } else {
-          //        log << MSG::WARNING <<  "volume=0 cell eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo()<< endmsg ;
-      }
-    } else {
-      //      log << MSG::ERROR <<  "empty caloDDM element"<< endmsg ;
-    }
+      } 
+    } 
   }
   for(int side=0;side<=1;++side) for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
       if(!rz_map_n[side][sample].empty()) {
@@ -400,13 +331,13 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
             double rent=rz_map_rent[side][sample][eta_raw]/iter->second;
             double zent=rz_map_zent[side][sample][eta_raw]/iter->second;
 
-            m_rmid_map[side][sample][eta]=rmid;
-            m_zmid_map[side][sample][eta]=zmid;
-            m_rent_map[side][sample][eta]=rent;
-            m_zent_map[side][sample][eta]=zent;
+            m_cellinfoCont.getRmidMap(side,sample)[eta]=rmid;
+            m_cellinfoCont.getZmidMap(side,sample)[eta]=zmid;
+            m_cellinfoCont.getRentMap(side,sample)[eta]=rent;
+            m_cellinfoCont.getZentMap(side,sample)[eta]=zent;
           }
         }
-        ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<m_rmid_map[side][sample].size());
+        ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<m_cellinfoCont.getRmidMap(side,sample).size());
       } else {
         ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" is empty!!!");
       }
@@ -465,17 +396,7 @@ void BasicCellBuilderTool::init_cell(cellinfo_map& map,const CaloDetDescrElement
       if(eta<c_eta_min) c_eta_min=eta;
       if(eta>c_eta_max) c_eta_max=eta;
 
-//      log << MSG::DEBUG<<"corner "<<i<<" eta="<<eta<<" phi="<<phi;
-//      log<<" ndeta="<<c_eta_max-c_eta_min<<" ndphi="<<c_phi_max_org-c_phi_min_org<< endmsg ;
     }
-/*
-    if( (fabs(c_eta_max)>4.9 || fabs(c_eta_min)>4.9) && fabs(theDDE->phi())<0.5 ) log<<MSG::DEBUG;
-     else log << MSG::VERBOSE;
-    log<<  "init FCAL cell "<<map.name()<<" eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" sample="<<theDDE->getSampling() <<" calo="<<theDDE->getSubCalo();
-    log<<" deta="<<theDDE->deta()<<" dphi="<<theDDE->dphi()<<" dr="<<theDDE->dr()<<" vol="<<theDDE->volume() ;
-    log<<" dx="<<theDDE->dx()<<" dy="<<theDDE->dy()<<" dz="<<theDDE->dz();
-    log<<" ndeta="<<c_eta_max-c_eta_min<<" ndphi="<<c_phi_max_org-c_phi_min_org<< endmsg ;
-*/
   }
 
 

@@ -21,7 +21,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "FastCaloSim/CellInfoContainer.h"
-#include "FastCaloSim/FSmap.h"
 
 class CaloCellContainer;
 class CaloDetDescrManager;
@@ -40,10 +39,7 @@ public:
                        const std::string& name,
                        const IInterface* parent);
 
-  virtual ~BasicCellBuilderTool();
-
-
-  virtual StatusCode initialize() override;
+  virtual ~BasicCellBuilderTool() = default;
 
   // update theCellContainer
   virtual StatusCode process (CaloCellContainer* theCellContainer,
@@ -62,19 +58,7 @@ protected:
 
   void addCell(CaloCellContainer * theCellContainer, int etabin, int phibin, double energy, cellinfo_map& map );
 
-  Identifier m_id;
-  double m_phi0_em;
-  double m_phi0_had;
-
   CellInfoContainer m_cellinfoCont;
-
-  double                   m_min_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  double                   m_max_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > m_rmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > m_zmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > m_rent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-  FSmap< double , double > m_zent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-
 
   double deta(CaloCell_ID_FCS::CaloSample sample,double eta) const;
   void   minmaxeta(CaloCell_ID_FCS::CaloSample sample,double eta,double& mineta,double& maxeta) const;
@@ -84,8 +68,6 @@ protected:
   double rent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
   double zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
   double zent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-
-  const CaloCell_ID*  m_caloCID;
 
   bool m_isCaloBarrel[CaloCell_ID_FCS::MaxSample];
   bool isCaloBarrel(CaloCell_ID_FCS::CaloSample sample) const {return m_isCaloBarrel[sample];};

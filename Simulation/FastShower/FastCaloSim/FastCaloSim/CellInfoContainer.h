@@ -5,6 +5,7 @@
 #ifndef FASTCALOSIM_CELLINFOCONTAINER_H
 #define FASTCALOSIM_CELLINFOCONTAINER_H
 
+#include "FastCaloSim/FSmap.h"
 #include "FastCaloSim/FastCaloSim_CaloCell_ID.h"
 #include <vector>
 #include <map>
@@ -170,6 +171,17 @@ class CellInfoContainer
   inline const cellinfo_map& getEmFineMap() const {return m_em_fine_map;}
   inline const cellinfo_map& getHadMap() const {return m_had_map;}
 
+  inline double getPhi0Em()  const {return m_phi0_em;}
+  inline double getPhi0Had() const {return m_phi0_had;}
+
+  inline double getMinEtaSample(unsigned side, unsigned calosample) const {return m_min_eta_sample[side][calosample];}
+  inline double getMaxEtaSample(unsigned side, unsigned calosample) const {return m_max_eta_sample[side][calosample];}
+
+  inline const FSmap< double , double >& getRmidMap(unsigned side, unsigned calosample) const {return m_rmid_map[side][calosample];}
+  inline const FSmap< double , double >& getZmidMap(unsigned side, unsigned calosample) const {return m_zmid_map[side][calosample];}
+  inline const FSmap< double , double >& getRentMap(unsigned side, unsigned calosample) const {return m_rent_map[side][calosample];}
+  inline const FSmap< double , double >& getZentMap(unsigned side, unsigned calosample) const {return m_zent_map[side][calosample];}
+
  protected:
   inline cellinfo_map& getCellistMap(int sample) {return m_celllist_maps[sample];}
   inline cellinfo_map& getEmCellistMap() {return m_em_celllist_map;}
@@ -177,11 +189,34 @@ class CellInfoContainer
   inline cellinfo_map& getEmFineMap() {return m_em_fine_map;}
   inline cellinfo_map& getHadMap() {return m_had_map;}
 
+  inline double& getPhi0Em()  {return m_phi0_em;}
+  inline double& getPhi0Had() {return m_phi0_had;}
+
+  inline double& getMinEtaSample(unsigned side, unsigned calosample) {return m_min_eta_sample[side][calosample];}
+  inline double& getMaxEtaSample(unsigned side, unsigned calosample) {return m_max_eta_sample[side][calosample];}
+
+  inline FSmap< double , double >& getRmidMap(unsigned side, unsigned calosample) {return m_rmid_map[side][calosample];}
+  inline FSmap< double , double >& getZmidMap(unsigned side, unsigned calosample) {return m_zmid_map[side][calosample];}
+  inline FSmap< double , double >& getRentMap(unsigned side, unsigned calosample) {return m_rent_map[side][calosample];}
+  inline FSmap< double , double >& getZentMap(unsigned side, unsigned calosample) {return m_zent_map[side][calosample];}
+
  private:
   cellinfo_map m_celllist_maps[CaloCell_ID_FCS::MaxSample];
   cellinfo_map m_em_celllist_map;
   cellinfo_map m_em_map;
   cellinfo_map m_em_fine_map;
   cellinfo_map m_had_map;
+
+  double m_phi0_em{-1000.};
+  double m_phi0_had{-1000.};
+
+  double m_min_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  double m_max_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+
+  FSmap< double , double > m_rmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_zmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_rent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+  FSmap< double , double > m_zent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
+
 };
 #endif

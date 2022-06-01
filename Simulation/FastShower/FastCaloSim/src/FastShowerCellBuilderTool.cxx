@@ -674,25 +674,25 @@ StatusCode FastShowerCellBuilderTool::caloAligned( IOVSVC_CALLBACK_ARGS)
   find_phi0(caloDDM);
 
   ATH_MSG_INFO("========================= Init EM map =============================");
-  m_cellinfoCont.getEmFineMap().init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64);
+  m_cellinfoCont.getEmFineMap().init(-5,+5,-M_PI+m_cellinfoCont.getPhi0Em() ,+M_PI+m_cellinfoCont.getPhi0Em() ,100,64);
   m_cellinfoCont.getEmFineMap().setname("EM");
 
   ATH_MSG_INFO("========================= Init EM fine map ========================");
-  m_cellinfoCont.getEmFineMap().init(-2.8,+2.8,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,224,256);
+  m_cellinfoCont.getEmFineMap().init(-2.8,+2.8,-M_PI+m_cellinfoCont.getPhi0Em() ,+M_PI+m_cellinfoCont.getPhi0Em() ,224,256);
   m_cellinfoCont.getEmFineMap().setname("EM fine");
 
   ATH_MSG_INFO("========================= Init HAD map ============================");
-  m_cellinfoCont.getHadMap().init(-5,+5,-M_PI+m_phi0_had,+M_PI+m_phi0_had,100,64);
+  m_cellinfoCont.getHadMap().init(-5,+5,-M_PI+m_cellinfoCont.getPhi0Had(),+M_PI+m_cellinfoCont.getPhi0Had(),100,64);
   m_cellinfoCont.getHadMap().setname("HAD");
 
   ATH_MSG_INFO("========================= Init EM celllist map =============================");
-  m_cellinfoCont.getEmCellistMap().init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,2,2);
+  m_cellinfoCont.getEmCellistMap().init(-5,+5,-M_PI+m_cellinfoCont.getPhi0Em() ,+M_PI+m_cellinfoCont.getPhi0Em() ,100,64,2,2);
   m_cellinfoCont.getEmCellistMap().setname("EMlist");
 
   ATH_MSG_INFO("========================= Init celllist maps sample 0 ... "<< CaloCell_ID_FCS::LastSample);
   for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
     //log << MSG::INFO <<  "========================= Init celllist map sample "<<sample<<" =============================" <<endmsg;
-    m_cellinfoCont.getCellistMap(sample).init(-5,+5,-M_PI+m_phi0_em ,+M_PI+m_phi0_em ,100,64,3,3);
+    m_cellinfoCont.getCellistMap(sample).init(-5,+5,-M_PI+m_cellinfoCont.getPhi0Em() ,+M_PI+m_cellinfoCont.getPhi0Em() ,100,64,3,3);
     m_cellinfoCont.getCellistMap(sample).setname("samplecelllist");
     //    m_celllist_maps[sample];
   }
