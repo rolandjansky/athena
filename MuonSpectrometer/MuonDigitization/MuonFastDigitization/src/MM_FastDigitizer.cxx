@@ -4,15 +4,12 @@
 
 #include "MM_FastDigitizer.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "MuonSimData/MuonSimDataCollection.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "MuonSimData/MuonSimData.h"
-#include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
-#include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
@@ -32,73 +29,8 @@
 using namespace Muon;
 /*******************************************************************************/ 
 MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
-    m_detManager(nullptr),
-    m_file(nullptr),
-    m_ntuple(nullptr),
-    m_dlx(0.),
-    m_dly(0.),
-    m_dlz(0.),
-    m_sulx(0.),
-    m_suly(0.),
-    m_tsulx(0.),
-    m_tsuly(0.),
-    m_tsulz(0.),
-    m_stsulx(0.),
-    m_stsuly(0.),
-    m_stsulz(0.),
-    m_ang(0.),
-    m_shift(0.),
-    m_suresx(0.),
-    m_suresy(0.),
-    m_err(0.),
-    m_res(0.),
-    m_pull(0.),
-    m_is(0),
-    m_seta(0),
-    m_sphi(0),
-    m_sml(0),
-    m_sl(0),
-    m_ss(0),
-    m_ieta(0),
-    m_iphi(0),
-    m_iml(0),
-    m_il(0),
-    m_ich(0),
-    m_istr(0),
-    m_exitcode(0),
-    m_mode(0),
-    m_pdg(0),
-    m_trkid(0),
-    m_gpx(0.),
-    m_gpy(0.),
-    m_gpz(0.),
-    m_gpr(0.),
-    m_gpp(0.),
-    m_dgpx(0.),
-    m_dgpy(0.),
-    m_dgpz(0.),
-    m_dgpr(0.),
-    m_dgpp(0.),
-    m_tofCorrection(0.),
-    m_bunchTime(0.),
-    m_globalHitTime(0.),
-    m_e(0.),
-    m_edep(0.),
-    m_surfcentx(0.),
-    m_surfcenty(0.),
-    m_surfcentz(0.),
-    m_inputObjectName("MM_Hits"),
-    m_sdoName("MMfast_SDO")
-{
-  declareProperty("InputObjectName", m_inputObjectName  =  "MM_Hits", "name of the input object");
-  declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
-  declareProperty("UseTimeShift", m_useTimeShift = true,        "Use time shift");
-  declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy to produce a PRD"  );
-  declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
-  declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
-  declareProperty("SDOname", m_sdoName = "MMfast_SDO"  );
-  declareProperty("MicroTPC", m_microTPC = true,  "Turn on microTPC mode"  );
+    AthAlgorithm(name, pSvcLocator) {
+  
 }
 /*******************************************************************************/ 
 StatusCode MM_FastDigitizer::initialize() {
@@ -106,23 +38,13 @@ StatusCode MM_FastDigitizer::initialize() {
   ATH_MSG_DEBUG ( "Retrieved StoreGateSvc." );
   ATH_CHECK(m_muonClusterCreator.retrieve());
   ATH_CHECK(m_sdoName.initialize());
+  ATH_CHECK(m_prepDataKey.initialize());
+  ATH_CHECK(m_inputObjectName.initialize());
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
-  StoreGateSvc* detStore=nullptr;
-  ATH_CHECK(serviceLocator()->service("DetectorStore", detStore));
-  if(detStore->contains<MuonGM::MuonDetectorManager>("Muon")) {
-      ATH_CHECK(detStore->retrieve(m_detManager));
-      ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
-  }
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
   // check the input object name
-  if (m_inputObjectName.empty()) {
-    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
-  }
-
+ 
   // getting our random numbers stream
   ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
   ATH_CHECK(m_rndmSvc.retrieve());
@@ -186,27 +108,38 @@ StatusCode MM_FastDigitizer::initialize() {
 }
 /*******************************************************************************/ 
 StatusCode MM_FastDigitizer::execute() {
+  const EventContext& ctx = Gaudi::Hive::currentContext(); 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonGeoMgrHandle{m_DetectorManagerKey,ctx};
+  if (!muonGeoMgrHandle.isValid()){
+      ATH_MSG_FATAL("Failed to retrieve the detector manager from the conditiosn store");
+      return StatusCode::FAILURE;
+  }
+  const MuonGM::MuonDetectorManager* muonGeoMgr = *muonGeoMgrHandle;
   // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
-  ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
-
+  std::unique_ptr<MuonSimDataCollection> h_sdoContainer =  std::make_unique<MuonSimDataCollection>();
+  
   CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, Gaudi::Hive::currentContextEvt());
 
-  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelperSvc->mmIdHelper().module_hash_max());
-  std::string key = "MM_Measurements";
-  ATH_MSG_DEBUG(" Done! Total number of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
-  ATH_CHECK( evtStore()->record(prdContainer,key) );
-
+ 
+  std::unique_ptr<MMPrepDataContainer> prdContainer = std::make_unique<MMPrepDataContainer>(m_idHelperSvc->mmIdHelper().module_hash_max());
+  
+  
+ 
   if( m_maskMultiplet == 3 ) {
-    
+    SG::WriteHandle<MMPrepDataContainer> prdWriteHandle{m_prepDataKey,ctx};
+    ATH_CHECK(prdWriteHandle.record(std::move(prdContainer)));
+  
+    SG::WriteHandle<MuonSimDataCollection> writHandle(m_sdoName, ctx);
+    ATH_CHECK( writHandle.record (std::move(h_sdoContainer) ) );
     return StatusCode::SUCCESS;
   }
   // as the MMPrepDataContainer only allows const accesss, need a local vector as well.
   std::vector<MMPrepDataCollection*> localMMVec(m_idHelperSvc->mmIdHelper().module_hash_max());
 
-  const DataHandle< MMSimHitCollection > collGMSH;
-  ATH_CHECK(evtStore()->retrieve( collGMSH,m_inputObjectName ));
-
+  SG::ReadHandle< MMSimHitCollection > collGMSH{m_inputObjectName, ctx};
+  if (!collGMSH.isValid()){
+     ATH_MSG_ERROR("Failed to retrieve "<<m_inputObjectName.fullKey());
+  }
   ATH_MSG_DEBUG( "Retrieved " <<  collGMSH->size() << " MM hits!");
 
   // Get the MicroMegas Id hit helper
@@ -261,7 +194,7 @@ StatusCode MM_FastDigitizer::execute() {
     if( m_maskMultiplet == m_idHelperSvc->stgcIdHelper().multilayer(layid) ) continue; 
 
     // get readout element
-    const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(layid);
+    const MuonGM::MMReadoutElement* detEl = muonGeoMgr->getMMReadoutElement(layid);
     if( !detEl ){
       ATH_MSG_WARNING("Failed to retrieve detector element for: " << m_idHelperSvc->toString(layid) );
       continue;
@@ -438,8 +371,11 @@ StatusCode MM_FastDigitizer::execute() {
     // Recalculate the Identifier using the strip number
     // here need to use parent ID to avoid creating corrupted identifiers
     Identifier parentID = m_idHelperSvc->mmIdHelper().parentID(layid);
-    Identifier id = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,m_checkIds);
-
+    bool is_valid{!m_checkIds};
+    Identifier id = m_checkIds ? 
+        m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,is_valid) : 
+        m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber);
+    if (!is_valid) continue;
     // only one hit per channel
     int& counts = hitsPerChannel[id];
     ++counts;
@@ -457,8 +393,11 @@ StatusCode MM_FastDigitizer::execute() {
 
     // Recalculate the Identifier using the strip number
     // here need to use parent ID to avoid creating corrupted identifiers
-    id = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,m_checkIds);
+    
+    id = m_checkIds ? m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,is_valid):
+                      m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber);
 
+    if (!is_valid) continue;
     if( stripNumber != m_idHelperSvc->mmIdHelper().channel(id) ) {
       ATH_MSG_WARNING(" bad stripNumber: in  "  << stripNumber << " from id " << m_idHelperSvc->mmIdHelper().channel(id));
       m_exitcode = 4;
@@ -521,7 +460,9 @@ StatusCode MM_FastDigitizer::execute() {
             CurrentHitInDriftGap += stepInDriftGap;
             continue;
           }
-          id = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,m_checkIds);
+          id =  m_checkIds? m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,is_valid):
+                            m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber);
+          if (!is_valid) continue;
           if( stripNumber != m_idHelperSvc->mmIdHelper().channel(id) ) {
             CurrentHitInDriftGap += stepInDriftGap;
             continue;
@@ -576,6 +517,12 @@ StatusCode MM_FastDigitizer::execute() {
       ATH_MSG_DEBUG(" " << m_idHelperSvc->toString(hit->first) << " ->  " << hit->second);
     }
   }
+  SG::WriteHandle<MMPrepDataContainer> prdWriteHandle{m_prepDataKey,ctx};
+  ATH_CHECK(prdWriteHandle.record(std::move(prdContainer)));
+  
+  SG::WriteHandle<MuonSimDataCollection> writHandle(m_sdoName, ctx);
+  ATH_CHECK( writHandle.record (std::move(h_sdoContainer) ) );
+
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/ 
@@ -587,9 +534,10 @@ StatusCode MM_FastDigitizer::finalize() {
 }
 /*******************************************************************************/ 
 /** Function to convert Radians into Degrees  */
-float MM_FastDigitizer::RadsToDegrees(float Radians)
+float MM_FastDigitizer::RadsToDegrees(float Radians) const
 {
-  float Degrees = Radians * (180.) / M_PI;
+  constexpr float ToDegree = 180. / M_PI;
+  float Degrees = Radians * ToDegree;
   return Degrees;
 }
 
