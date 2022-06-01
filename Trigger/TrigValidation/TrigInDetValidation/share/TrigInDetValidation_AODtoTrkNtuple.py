@@ -16,15 +16,10 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
-Configurable.configurableRun3Behavior+=1
-tdtAcc = TrigDecisionToolCfg(ConfigFlags)
-Configurable.configurableRun3Behavior-=1
-appendCAtoAthena( tdtAcc )
-
+CAtoGlobalWrapper(TrigDecisionToolCfg, ConfigFlags)
 
 from AthenaCommon.AppMgr import topSequence
 
