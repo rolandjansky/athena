@@ -15,6 +15,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "StoreGate/ReadDecorHandle.h"
+#include "StoreGate/WriteDecorHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
 

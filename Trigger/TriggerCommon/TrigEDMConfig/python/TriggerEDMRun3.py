@@ -90,7 +90,7 @@ JetFastFTagVars = '.'.join(JetFastFTagVarsToKeep)
 TLAJetVarsToKeep = sorted(list(set(JetVarsToKeep+JetFastFTagVarsToKeep)))
 TLAJetVars='.'.join(TLAJetVarsToKeep)
 
-ElToKeep = ['ptcone20', 'ptvarcone20']
+ElToKeep = ['ptcone20', 'ptvarcone20','trk_d0','cl_eta2','cl_phi2']
 ElVars = '.'.join(ElToKeep)
 
 PhToKeep = ['topoetcone20', 'etcone20']
