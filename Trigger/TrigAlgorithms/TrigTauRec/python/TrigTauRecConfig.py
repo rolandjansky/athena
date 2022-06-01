@@ -9,7 +9,7 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             super( TrigTauRecMerged_TauCaloOnlyMVA , self ).__init__( name )
             self.MonTool = tauMonitoringCaloOnlyMVA()
             self._mytools = [] 
-          
+
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -30,10 +30,10 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
 
-            from TrigTauRec.TrigTauFlags import TrigTauFlags
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = TrigTauFlags.CalibPath()
+                tool.calibFolder = ConfigFlags.Trigger.Offline.Tau.tauRecToolsCVMFSPath
 
             self.Tools = tools
 
@@ -90,10 +90,10 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # flattened RNN score and WP
             tools.append(taualgs.getTauWPDecoratorJetRNN(LLP = doLLP))
 
-            from TrigTauRec.TrigTauFlags import TrigTauFlags
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = TrigTauFlags.CalibPath()
+                tool.calibFolder = ConfigFlags.Trigger.Offline.Tau.tauRecToolsCVMFSPath
 
             self.Tools = tools
 
@@ -119,10 +119,10 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     # Decorate the clusters
     tools.append(CompFactory.TauClusterFinder(UseOriginalCluster = False)) # TODO use JetRec.doVertexCorrection once available
 
-    tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = flags.Tau.SeedJetCollection))
+    tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = flags.Trigger.Offline.Tau.SeedJetCollection))
 
     # Calibrate to TES
-    tools.append(CompFactory.TauCalibrateLC(calibrationFile = flags.Tau.CalibrateLCConfig,
+    tools.append(CompFactory.TauCalibrateLC(calibrationFile = flags.Trigger.Offline.Tau.CalibrateLCConfig,
                                             Key_vertexInputContainer = ""))
     # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
     from AthenaCommon.SystemOfUnits import GeV
@@ -133,11 +133,11 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     tools.append(CompFactory.MvaTESVariableDecorator(Key_vertexInputContainer='',
                                                      EventShapeKey='',
                                                      VertexCorrection = False))
-    tools.append(CompFactory.MvaTESEvaluator(WeightFileName = flags.Tau.MvaTESConfig))
+    tools.append(CompFactory.MvaTESEvaluator(WeightFileName = flags.Trigger.Offline.Tau.MvaTESConfig))
 
     for tool in tools:
         tool.inTrigger = True
-        tool.calibFolder = 'TrigTauRec/00-11-02/'
+        tool.calibFolder = flags.Trigger.Offline.Tau.tauRecToolsCVMFSPath
 
 
     ## add beam type flag
@@ -159,8 +159,6 @@ def TrigTauRecMergedOnlyMVACfg(flags):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files = defaultTestFiles.RAW
