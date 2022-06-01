@@ -41,6 +41,10 @@ class ThrType( Enum ):
     def NIMTypes():
         return [ ThrType.BCM, ThrType.BCMCMB, ThrType.LUCID, ThrType.ZDC, ThrType.BPTX, ThrType.CALREQ, ThrType.MBTS, ThrType.MBTSSI, ThrType.NIM ]
 
+    @staticmethod
+    def CaloTypes():
+        return [tt for tt in ThrType.LegacyTypes()+ThrType.Run3Types() if tt != ThrType.MU]
+
     def __lt__(self,other):
         return self.name < other
 
