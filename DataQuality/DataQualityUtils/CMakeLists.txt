@@ -108,6 +108,16 @@ atlas_add_test( physval_make_web_display_test
     POST_EXEC_SCRIPT nopost.sh
 )
 
+atlas_add_test( physval_make_web_display_test2
+    SCRIPT "physval_make_web_display.py \
+        /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/example_root/Data.root \
+        --reffile ref1:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/example_root/Reference.root,ref2:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/example_root/Reference.root \
+        --startpath eb1 \
+        --refstartpath ref1:eb1"
+    PROPERTIES TIMEOUT 300
+    POST_EXEC_SCRIPT nopost.sh
+)
+
 atlas_add_test( han_results_print_test
     SCRIPT test/test_han_results_print.sh ${CMAKE_CURRENT_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_han_results_print_test

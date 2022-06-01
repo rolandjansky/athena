@@ -147,7 +147,7 @@ def process(infname, confname, options, refs=None):
     print('Building tree...')
     refpairs = refs.split(',') if refs else []
     try:
-        refdict = dict(_.split(':') for _ in refpairs)
+        refdict = dict(_.split(':', 1) for _ in refpairs)
     except Exception as e:
         print(e)
     # "Model" references
@@ -170,6 +170,23 @@ def process(infname, confname, options, refs=None):
         topindir = f
         topindirname = f.GetPath()
         startpath = None
+
+    # make a map for the reference path names
+    refstartpaths = options.refstartpath.split(',') if options.refstartpath else []
+    try:
+        refstartpathdict = dict(_.split(':') for _ in refstartpaths)
+        for k, v in refstartpathdict.items():
+            refstartpathdict[k] = v.strip('/')
+    except Exception as e:
+        print(e)
+    def refpath_manglefunc(path, id):
+        try:
+            pfx = refstartpathdict[id]
+            # consider also the case where pfx is ''
+            return path.replace(':' + (startpath + '/' if startpath else ''), ':' + (pfx +'/' if pfx else ''), 1) 
+        except KeyError:
+            return path
+            
     hists = []
     if options.histlistfile:
         hists = [re.compile(line.rstrip('\n')) for line in open(options.histlistfile)]
@@ -180,7 +197,7 @@ def process(infname, confname, options, refs=None):
         import importlib
         manglefunc = importlib.import_module(options.refmangle).mangle
     else:
-        manglefunc = None
+        manglefunc = refpath_manglefunc
     recurse(topindir, top_level, topindirname, dqrs, displaystring, displaystring2D,
             re.compile(options.pathregex), startpath, hists, manglefunc=manglefunc)
     print('Pruning dead branches...')
@@ -262,7 +279,7 @@ def super_process(fname, options):
 ##                except Exception, e:
 ##                    print 'Unable to create %s for some reason: %s' % (hantargetdir, e)
 ##                    raise Exception('Error during execute')
-##            shutil.copy2(hanoutput, hantargetfile)
+##            shutil.copy2(hanoutput, os.getcwd())
 ##            print '====> Cleaning up'
             os.unlink(hanoutput)
         except Exception as e:
@@ -310,6 +327,8 @@ if __name__=="__main__":
                       help='Specify regex to match histograms, e.g. "(Btag|Jets)"')
     parser.add_option('--startpath', default=None,
                       help='Start from this subdirectory of the file')
+    parser.add_option('--refstartpath', default=None,
+                      help='Start from this subdirectory of reference files. By default is the same as startpath. Format: tag1:dir1,tag2:dir2,...')
     parser.add_option('--histlistfile',
                       help='text file with a list of regexes/histogram names')
     parser.add_option('--scaleref', type="float", default=1,

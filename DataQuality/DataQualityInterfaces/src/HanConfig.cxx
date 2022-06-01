@@ -388,7 +388,7 @@ Visit( const MiniConfigTreeNode* node ) const
     std::string newHistoName=dqi::ConditionsSingleton::getInstance().getNewRefHistoName();
     //node->SetAttribute("newname",newHistoName,false);//add new name to tree
     //    std::cout<<"Writing \""<<name<<"\" in \""<<fileName<<"\" with new name \""<<newHistoName<<"\""<<std::endl;
-    dqi::ConditionsSingleton::getInstance().setNewReferenceName(name,newHistoName);
+    dqi::ConditionsSingleton::getInstance().setNewReferenceName(fileName+":/"+name,newHistoName);
     obj->Write(newHistoName.c_str());
     delete obj;
     TObjString* fnameostr = new TObjString(fileName.c_str());
@@ -591,7 +591,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
         std::string algRefInfo( m_refConfig.GetStringAttribute(refID,"info") );
         std::string algRefFile( m_refConfig.GetStringAttribute(refID,"file") );
         if (algRefName != "same_name" && !isMultiRef) {
-          newRefId=CS.getNewReferenceName(algRefName,true);
+          newRefId=CS.getNewReferenceName(algRefFile+":/"+algRefName,true);
           
           if(newRefId.empty()){
             std::string algRefPath( m_refConfig.GetStringAttribute(refID,"path") );
@@ -658,7 +658,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
                   }
                   m_outfile->cd(); //we are writing to the / folder of file
                   std::shared_ptr<TObject> q(key->ReadObj());
-                  objects[iRefID].emplace_back(absAlgRefName, key->ReadObj());
+                  objects[iRefID].emplace_back(absAlgRefName, q);
                 }
               }
             } else {
@@ -680,7 +680,17 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
                 }
                 m_outfile->cd(); //we are writing to the / folder of file
                 std::shared_ptr<TObject> q(key->ReadObj());
-                objects[iRefID].emplace_back(absAlgRefName, key->ReadObj());
+                TNamed* qn = dynamic_cast<TNamed*>(q.get());
+                if (isMultiRef && qn) {
+                  std::string multirefname = thisRefID; // fallback
+                  if (algRefInfo != "") {
+                    multirefname = algRefInfo;
+                  } else if (algRefFile != "") {
+                    multirefname = algRefFile;
+                  }
+                  qn->SetName(multirefname.c_str());
+                }
+                objects[iRefID].emplace_back(absAlgRefName, q);
               } else {
                 std::cerr << "No file specified for " << absAlgRefName << " ?" << std::endl;
               }
@@ -690,7 +700,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
           std::shared_ptr<TObject> toWriteOut;
           std::string algRefUniqueName;
           std::string algRefSourceInfo = (algRefInfo != "" ? algRefInfo.c_str() : "Reference");
-;
+
           if (!isMultiRef) {
             // is this a regex?
             if (dqpar->GetIsRegex() && !objects[0].empty()) {
@@ -756,14 +766,19 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
             if(newRefId.empty()){
               newRefId=CS.getNewRefHistoName();
               CS.setNewReferenceName(algRefUniqueName,newRefId);
-              m_refsourcedata->Add(new TObjString(newRefId.c_str()),
-                new TObjString(algRefFile.c_str()));
-            }
-            if (! isMultiRef) {
-              // register file information
-              if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
-                m_refsourcedata->Add(new TObjString(algRefFile.c_str()), 
-                  new TObjString(algRefInfo != "" ? algRefInfo.c_str() : "Reference"));
+              if (! isMultiRef) {
+                // ref to file
+                m_refsourcedata->Add(new TObjString(newRefId.c_str()),
+                  new TObjString(algRefFile.c_str()));
+                // file to further info
+                if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
+                  m_refsourcedata->Add(new TObjString(algRefFile.c_str()), 
+                    new TObjString(algRefSourceInfo.c_str()));
+                }
+              } else {
+                // ref to "Multiple references"
+                m_refsourcedata->Add(new TObjString(newRefId.c_str()), 
+                  new TObjString(algRefSourceInfo.c_str()));                
               }
             }
             m_outfile->cd();
