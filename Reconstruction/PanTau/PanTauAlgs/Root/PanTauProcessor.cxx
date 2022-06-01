@@ -83,7 +83,7 @@ StatusCode PanTau::PanTauProcessor::finalize() {
 }
 
 
-StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container) {
+StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container) const {
     
   //get the current TauJet
   xAOD::TauJet* curTauJet = &pTau;
@@ -179,7 +179,7 @@ StatusCode PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::Part
 }
 
 
-void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
+void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) const {
   //default four momentum set to previous calibration state: TauEnergyScale
   TLorentzVector defaultP4 = tauJet->p4(xAOD::TauJetParameters::TauEnergyScale);
   tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased, defaultP4.Pt(), defaultP4.Eta(), defaultP4.Phi(), defaultP4.M());

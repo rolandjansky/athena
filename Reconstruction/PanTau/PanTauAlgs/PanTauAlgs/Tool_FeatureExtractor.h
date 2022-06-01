@@ -34,51 +34,50 @@ namespace PanTau {
     public:
 
         Tool_FeatureExtractor(const std::string &name);
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
         
         //get the features for an input seed
-        virtual StatusCode execute(PanTau::PanTauSeed* inSeed);
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed) const override;
         
     protected:
         
         //handle to the helper function
-        PanTau::HelperFunctions   m_HelperFunctions;
-        ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
+        PanTau::HelperFunctions m_HelperFunctions;
+        ToolHandle<PanTau::ITool_InformationStore> m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;
-        
-        //map containing different methods to calc seed et
-        std::map<std::string, double>   m_Variants_SeedEt;
-        
+        	
         //Function to calculate basic features
-        StatusCode calculateBasicFeatures(PanTau::PanTauSeed* inSeed);
+        StatusCode calculateBasicFeatures(PanTau::PanTauSeed* inSeed) const;
         
         //Function to calculate features for one set of constituents
-        StatusCode calculateFeatures(PanTau::PanTauSeed*    inSeed,
-                                     int                    tauConstituentType);
+        StatusCode calculateFeatures(PanTau::PanTauSeed* inSeed,
+                                     int tauConstituentType,
+				     const std::map<std::string, double>& variants_SeedEt) const;
         
         //Function to add the 4 momenta of the tau constituents to the features
-        StatusCode addConstituentMomenta(PanTau::PanTauSeed* inSeed);
+        StatusCode addConstituentMomenta(PanTau::PanTauSeed* inSeed) const;
         
         //Function to calculate features based on two sets of constituents
-        StatusCode addCombinedFeatures(PanTau::PanTauSeed* inSeed);
+        StatusCode addCombinedFeatures(PanTau::PanTauSeed* inSeed,
+				       const std::map<std::string, double>& variants_SeedEt) const;
         
         //Function to add impact parameter features
         StatusCode addImpactParameterFeatures(PanTau::PanTauSeed* inSeed) const;
         
-        //Function to fill the m_Variants_SeedEt member
-        void fillVariantsSeedEt(const std::vector<PanTau::TauConstituent*>& tauConstituents);
+        //Function to fill the variants_SeedEt member
+        void fillVariantsSeedEt(const std::vector<PanTau::TauConstituent*>& tauConstituents,
+				std::map<std::string, double>& variants_SeedEt) const;
+                
+        //helper function to fill the variants_SeedEt map
+        void addFeatureWrtSeedEnergy(PanTau::TauFeature* targetMap,
+				     const std::string& featName,
+				     double numerator,
+				     const std::map<std::string, double>& denominatorMap) const;
+        
+        int m_Config_UseEmptySeeds;
         
         
-        //helper function to fill the m_Variants_SeedEt map
-        void    addFeatureWrtSeedEnergy(PanTau::TauFeature* targetMap,
-                                        const std::string& featName,
-                                        double numerator,
-                                        std::map<std::string, double>* denominatorMap) const;
-        
-        int     m_Config_UseEmptySeeds;
-        
-        
-        //! Helper members  m_Config_CellBased_EtaBinned_Pi0MVACut_3prong
+        //! Helper members
         std::vector<double> m_Config_CellBased_BinEdges_Eta;
         std::vector<double> m_Config_CellBased_EtaBinned_Pi0MVACut_1prong;
         std::vector<double> m_Config_CellBased_EtaBinned_Pi0MVACut_3prong;
@@ -120,10 +119,10 @@ namespace PanTau {
         std::string m_varTypeName_PID;
 
 	bool m_init=false;
+
   public:
-	inline bool isInitialized(){return m_init;}
+	inline bool isInitialized() override {return m_init;}
 };
 
 } // end of namespace PanTau
 #endif // PANTAUALGS_TOOL_FEATUREEXTRACTOR_H
- 

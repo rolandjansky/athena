@@ -50,7 +50,7 @@ namespace PanTau {
         
         virtual StatusCode initialize();
         
-        virtual StatusCode execute(PanTau::PanTauSeed* inSeed, xAOD::ParticleContainer& pi0Container);
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed, xAOD::ParticleContainer& pi0Container) const;
         
     protected:
         
@@ -62,24 +62,22 @@ namespace PanTau {
 				     xAOD::TauJetParameters::PanTauDetails detailEnum,
 				     PanTauDetailsType detailType) const;
 	
-        StatusCode arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container);
+        StatusCode arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container) const;
 
-        void SetHLVTau(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, const std::string& inputAlg, const std::string& varTypeName_Basic);
+        void SetHLVTau(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, const std::string& inputAlg, const std::string& varTypeName_Basic) const;
 
-	bool HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, const std::string& inputAlg);
+	bool HasMultPi0sInOneCluster(const xAOD::PFO* pfo, int decayModeProto, const std::string& inputAlg) const ;
 
-	void SetNeutralConstituentMass(xAOD::PFO* neutral_pfo, double mass);
+	void SetNeutralConstituentMass(xAOD::PFO* neutral_pfo, double mass) const;
 
-	void SetNeutralConstituentVectorMasses(const std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass);
+	void SetNeutralConstituentVectorMasses(const std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass) const;
 
 	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed,
 											const std::vector< ElementLink< xAOD::PFOContainer > >& cellbased_neutralPFOLinks,
-											PanTau::TauConstituent::Type type );
+											PanTau::TauConstituent::Type type ) const;
 
-	void createPi0Vectors(xAOD::TauJet* tauJet, std::vector<TLorentzVector>& vPi0s, std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > &vec_pi0pfos);
-    
-        bool m_expectInvalidFeatures;
-        
+	void createPi0Vectors(xAOD::TauJet* tauJet, std::vector<TLorentzVector>& vPi0s, std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > &vec_pi0pfos) const;
+	
 	static const constexpr float MASS_PI0 = 134.98; // in MeV
         
         double m_CoreCone;
