@@ -63,7 +63,7 @@ StatusCode NswPassivationTestAlg::retrieve(const EventContext& ctx, std::chrono:
     // Retrieve Data Object
     SG::ReadCondHandle<NswPassivationDbData> readHandle{m_readKey, ctx};
     const NswPassivationDbData* readCdo{*readHandle};
-    if (readCdo == nullptr) {
+    if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -88,20 +88,15 @@ StatusCode NswPassivationTestAlg::retrieve(const EventContext& ctx, std::chrono:
 
     // retrieve data for the first channel
 	for(unsigned int i=0; i<channelIds.size(); ++i){
-        Identifier channel = channelIds[i];
-		float left   = 0;
-		float right  = 0;
-		float top    = 0;
-		float bottom = 0;
-		readCdo->getPassivatedWidth (channel, left, right );
-		readCdo->getPassivatedHeight(channel, top , bottom);
+        const Identifier& channel = channelIds[i];
+        NswPassivationDbData::PCBPassivation passiv = readCdo->getPassivation(channel);
 		int eta  = m_idHelperSvc->mmIdHelper().stationEta(channel);
 		int chnl = m_idHelperSvc->mmIdHelper().channel   (channel);
 		int pcb  = (chnl-1)/1024+1; // int division should round downwards
-		if(abs(eta)>1) pcb+=5;
+		if(std::abs(eta)>1) pcb+=5;
 
-        ATH_MSG_INFO("Board "<<i<<" ("<<channel.get_compact()<<"): "<<left<<", "<<right<<", "<<top<<", "<<bottom);
-		fout << channel.get_compact()<<","<<pcb<<","<<m_idHelperSvc->mmIdHelper().stationName(channel)<<","<<m_idHelperSvc->mmIdHelper().stationEta(channel)<<","<<m_idHelperSvc->mmIdHelper().stationPhi(channel)<<","<<m_idHelperSvc->mmIdHelper().multilayer(channel)<<","<<m_idHelperSvc->mmIdHelper().gasGap(channel)<<","<<left<<","<<right<<","<<top<<","<<bottom<<"\n";
+        ATH_MSG_INFO("Board "<<i<<" ("<<channel.get_compact()<<"): "<<passiv.left<<", "<<passiv.right<<", "<<passiv.top<<", "<<passiv.bottom);
+		fout << channel.get_compact()<<","<<pcb<<","<<m_idHelperSvc->toString(channel)<<","<<passiv.left<<","<<passiv.right<<","<<passiv.top<<","<<passiv.bottom<<std::endl;
     }
 
 	fout.close();

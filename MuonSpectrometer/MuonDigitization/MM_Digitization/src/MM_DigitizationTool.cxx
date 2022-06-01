@@ -30,7 +30,6 @@
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
 //Geometry
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
@@ -78,36 +77,8 @@ using namespace MuonGM;
 
 /*******************************************************************************/
 MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::string& name, const IInterface* parent):
-  PileUpToolBase(type, name, parent),
-  m_driftVelocity(0),
-  // Tree Branches...
-  m_n_Station_side(-INT_MAX),
-  m_n_Station_eta(-INT_MAX),
-  m_n_Station_phi(-INT_MAX),
-  m_n_Station_multilayer(-INT_MAX),
-  m_n_Station_layer(-INT_MAX),
-  m_n_hitStripID(-INT_MAX),
-  m_n_StrRespTrg_ID(-INT_MAX),
-  m_n_strip_multiplicity(-INT_MAX),
-  m_n_strip_multiplicity_2(-INT_MAX),
-  m_n_hitPDGId(-INT_MAX),
-  m_n_hitOnSurface_x(-DBL_MAX),
-  m_n_hitOnSurface_y(-DBL_MAX),
-  m_n_hitDistToChannel(-DBL_MAX),
-  m_n_hitIncomingAngle(-DBL_MAX),
-  m_n_StrRespTrg_Time(-DBL_MAX),
-  m_n_hitIncomingAngleRads(-DBL_MAX),
-  m_n_hitKineticEnergy(-DBL_MAX),
-  m_n_hitDepositEnergy(-DBL_MAX),
-  m_exitcode(0),
-  // Timings
-  m_tofCorrection(-FLT_MAX),
-  m_bunchTime(-FLT_MAX),
-  m_globalHitTime(-FLT_MAX),
-  m_eventTime(-FLT_MAX),
-  m_n_StrRespID(),
-  m_n_StrRespCharge(),
-  m_n_StrRespTime() {}
+  PileUpToolBase(type, name, parent)
+   {}
   
 
 /*******************************************************************************/
@@ -121,11 +92,7 @@ StatusCode MM_DigitizationTool::initialize() {
   
 
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
-	if(detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )){
-		ATH_CHECK( detStore()->retrieve(m_MuonGeoMgr) );
-		ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
-	}
-
+	ATH_CHECK(m_DetectorManagerKey.initialize());    
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
   if (m_hitsContainerKey.key().empty()) {
@@ -190,7 +157,8 @@ StatusCode MM_DigitizationTool::initialize() {
 	  m_ntuple->Branch("globalHitTime",&m_globalHitTime);
 	  m_ntuple->Branch("eventTime",&m_eventTime);
 	}
-
+    
+    
 	// StripsResponseSimulation Creation
 	m_StripsResponseSimulation = std::make_unique<MM_StripsResponseSimulation>();
 	m_StripsResponseSimulation->writeOutputFile(m_writeOutputFile); 
@@ -257,7 +225,10 @@ StatusCode MM_DigitizationTool::initialize() {
   // identifier for first gas gap in a large MM sector, layer is eta layer, station Eta = 1 to get shortest strip
   tmpId = m_idHelperSvc->mmIdHelper().channelID("MML",1,1,1,1,1); 
   
-  const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(tmpId);
+  
+  const MuonGM::MuonDetectorManager* muonGeoMgr{nullptr};
+  ATH_CHECK(detStore()->retrieve(muonGeoMgr));
+  const MuonGM::MMReadoutElement* detectorReadoutElement = muonGeoMgr->getMMReadoutElement(tmpId);
   int stripNumberShortestStrip = (detectorReadoutElement->getDesign(tmpId))->nMissedBottomEta + 1;
   Identifier tmpIdShortestStrip = m_idHelperSvc->mmIdHelper().channelID("MML",1,1,1,1,stripNumberShortestStrip); // identifier for first gas gap in a large MM sector, layer is eta layer
   float shortestStripLength = detectorReadoutElement->stripLength(tmpIdShortestStrip);
@@ -265,7 +236,7 @@ StatusCode MM_DigitizationTool::initialize() {
   // identifier for first gas gap in a large MM sector, layer is eta layer, station Eta = 2 to get the longest strip
   Identifier tmpId2 = m_idHelperSvc->mmIdHelper().channelID("MML",2,1,1,1,1);
   
-  detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(tmpId2);
+  detectorReadoutElement = muonGeoMgr->getMMReadoutElement(tmpId2);
   int stripNumberLongestStrip = (detectorReadoutElement->getDesign(tmpId))->totalStrips - (detectorReadoutElement->getDesign(tmpId))->nMissedTopEta;
   Identifier tmpIdLongestStrip = m_idHelperSvc->mmIdHelper().channelID("MML",2,1,1,1,stripNumberLongestStrip); // identifier for first gas gap in a large MM sector, layer is eta layer
   float longestStripLength = detectorReadoutElement->stripLength(tmpIdLongestStrip);
@@ -311,7 +282,7 @@ StatusCode MM_DigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsign
 
 	m_MMHitCollList.clear();
 
-	if (m_timedHitCollection_MM == nullptr) {
+	if (!m_timedHitCollection_MM) {
 		m_timedHitCollection_MM = std::make_unique<TimedHitCollection<MMSimHit>>();
 	} else {
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
@@ -472,6 +443,13 @@ StatusCode MM_DigitizationTool::finalize() {
 StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 
   CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
+  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonGeoMgrHandle{m_DetectorManagerKey,ctx};
+  if (!muonGeoMgrHandle.isValid()){
+      ATH_MSG_FATAL("Failed to retrieve the detector manager from the conditiosn store");
+      return StatusCode::FAILURE;
+  }
+  const MuonGM::MuonDetectorManager* muonGeoMgr = *muonGeoMgrHandle;
 
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
@@ -491,7 +469,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
   }
   
   // Perform null check on m_thpcCSC
-  if (m_timedHitCollection_MM == nullptr) {
+  if (!m_timedHitCollection_MM) {
     ATH_MSG_ERROR ( "m_timedHitCollection_MM is null" );
     return StatusCode::FAILURE;
   }
@@ -643,7 +621,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       }
       
       // get readout element
-      const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(layerID);
+      const MuonGM::MMReadoutElement* detectorReadoutElement = muonGeoMgr->getMMReadoutElement(layerID);
       if( !detectorReadoutElement ){
 	ATH_MSG_WARNING( "Failed to retrieve detector element for: isSmall "
 			 <<     isSmall
@@ -1180,6 +1158,11 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
     } 
     const NswCalibDbThresholdData* thresholdData = readThresholds.cptr();
 
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonGeoMgrHandle{m_DetectorManagerKey,ctx};
+    if (!muonGeoMgrHandle.isValid()){
+        ATH_MSG_FATAL("Failed to retrieve the detector manager from the conditiosn store");       
+    }
+    const MuonGM::MuonDetectorManager* muonGeoMgr = *muonGeoMgrHandle;
 
 	std::vector <int> v_stripStripResponseAllHits;
 	std::vector < std::vector <float> > v_timeStripResponseAllHits;
@@ -1230,7 +1213,7 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 				}
 				else if(m_useThresholdScaling) {
 					Identifier id = m_idHelperSvc->mmIdHelper().channelID(digitID, m_idHelperSvc->mmIdHelper().multilayer(digitID), m_idHelperSvc->mmIdHelper().gasGap(digitID), strip_id);
-					const MuonGM::MMReadoutElement* detectorReadoutElement = m_MuonGeoMgr->getMMReadoutElement(id);
+					const MuonGM::MMReadoutElement* detectorReadoutElement = muonGeoMgr->getMMReadoutElement(id);
 					float stripLength = detectorReadoutElement->stripLength(id);
 					float threshold = (m_noiseSlope*stripLength + m_noiseIntercept) * m_thresholdScaleFactor;
 					v_stripThresholdResponseAllHits.push_back(threshold);        

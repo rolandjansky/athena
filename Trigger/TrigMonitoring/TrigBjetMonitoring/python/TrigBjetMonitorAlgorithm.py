@@ -183,11 +183,11 @@ def TrigBjetMonConfig(inputFlags):
 
             HistName = 'RatioPt_' + chain[2:]
             if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon/Pt_jet_jet;Pt_muon/Pt_jet_jet;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon/Pt_jet;Pt_muon/Pt_jet;Events',
                                              path='Expert/'+chain[2:],xbins=100,xmin=0.,xmax=2.0)
 
             if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon/Pt_jet_jet;Pt_muon/Pt_jet_jet;Events',
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_muon/Pt_jet;Pt_muon/Pt_jet;Events',
                                              path='Shifter/'+chain[2:],xbins=100,xmin=0.,xmax=2.0)
 
             HistName = 'RelPt_' + chain[2:]
@@ -203,11 +203,11 @@ def TrigBjetMonConfig(inputFlags):
             HistName = 'wDL1d_' + chain[2:] + ',RelPt_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName,type='TH2F',title='RelPt vs DL1d weight;DL1d weight;RelPt',
-                                             path='Expert/'+chain[2:],xbins=20,xmin=-50.0,xmax=+50.0,ybins=20,ymin=0.,ymax=20.)
+                                             path='Expert/'+chain[2:],xbins=20,xmin=-20.0,xmax=+20.0,ybins=20,ymin=0.,ymax=20.)
 
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName,type='TH2F',title='RelPt vs DL1d weight;DL1d weight;RelPt',
-                                             path='Shifter/'+chain[2:],xbins=20,xmin=-50.0,xmax=+50.0,ybins=20,ymin=0.,ymax=20.)
+                                             path='Shifter/'+chain[2:],xbins=20,xmin=-20.0,xmax=+20.0,ybins=20,ymin=0.,ymax=20.)
 
 
 

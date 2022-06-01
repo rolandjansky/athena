@@ -184,7 +184,7 @@ class AODContentCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} AOD content check")
 
         file_name = "myAOD.pool.root"
-        output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.txt"
+        output_name = f"{test.ID}_AOD_content.txt"
 
         validation_file = test.validation_path / file_name
         validation_output = test.validation_path / output_name
@@ -200,7 +200,7 @@ class AODContentCheck(WorkflowCheck):
         if self.setup.validation_only:
             # try to get the reference
             reference_path = test.validation_path
-            reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.ref"
+            reference_output_name = f"{test.ID}_AOD_content.ref"
             reference_output = reference_path / reference_output_name
             subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not reference_output.exists():
@@ -261,7 +261,7 @@ class AODDigestCheck(WorkflowCheck):
         self.logger.info(f"Running {test.ID} AOD digest")
 
         file_name = "myAOD.pool.root"
-        output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.txt"
+        output_name = f"{test.ID}_AOD_digest.txt"
 
         validation_file = test.validation_path / file_name
         validation_output = test.validation_path / output_name
@@ -278,7 +278,7 @@ class AODDigestCheck(WorkflowCheck):
         if self.setup.validation_only:
             # try to get the reference
             reference_path = test.validation_path
-            reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.ref"
+            reference_output_name = f"{test.ID}_AOD_digest.ref"
             reference_output = reference_path / reference_output_name
             subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not reference_output.exists():

@@ -81,10 +81,12 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                     AssociationTool="InDetTrigPrdAssociationTool")
 
             GSFBuildTRT_ElectronPidTool = TrackingCommon.getInDetTRT_ElectronPidTool(
-                    name="GSFBuildTRT_ElectronPidTool",
-                    private=True,
-                    TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
-                    TRT_ToT_dEdx_Tool=TRT_ToT_dEdx_Tool)
+                name="GSFBuildTRT_ElectronPidTool",
+                private=True,
+                CalculateNNPid=False,
+                MinimumTrackPtForNNPid=0.,
+                TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
+                TRT_ToT_dEdx_Tool=TRT_ToT_dEdx_Tool)
 
         #
         #  InDet Track Summary Helper, no Association and no hole

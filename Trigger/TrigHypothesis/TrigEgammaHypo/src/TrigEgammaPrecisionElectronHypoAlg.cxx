@@ -36,6 +36,7 @@ StatusCode TrigEgammaPrecisionElectronHypoAlg::initialize()
   ATH_CHECK( m_avgMuKey.initialize() );
   ATH_CHECK( m_electronsKey.initialize() );
   renounce( m_electronsKey );// electrons are made in views, so they are not in the EvtStore: hide them
+
   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   return StatusCode::SUCCESS;
 }
@@ -82,13 +83,19 @@ StatusCode TrigEgammaPrecisionElectronHypoAlg::execute( const EventContext& cont
     auto electronHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context);
     ATH_CHECK( electronHandle.isValid() );
     ATH_MSG_DEBUG ( "Precision Electron handle size: " << electronHandle->size() << "..." );
+
+    // Make decorators to output track d0 and cluster eta/phi
+    static const SG::AuxElement::Decorator< float > decor_d0( "trk_d0" );
+    static const SG::AuxElement::Decorator< float > decor_clEta( "cl_eta2" );
+    static const SG::AuxElement::Decorator< float > decor_clPhi( "cl_phi2" );
+
     // Loop over the electronHandles
     size_t validelectrons=0;
     for (size_t cl=0; cl< electronHandle->size(); cl++){
       
       {
         auto el = ViewHelper::makeLink( *viewEL, electronHandle, cl );
-        ATH_MSG_DEBUG ( "Checking ph.isValid()...");
+        ATH_MSG_DEBUG ( "Checking el.isValid()...");
         if( !el.isValid() ) {
           ATH_MSG_DEBUG ( "Precision ElectronHandle in position " << cl << " -> invalid ElemntLink!. Skipping...");
         }
@@ -156,6 +163,11 @@ StatusCode TrigEgammaPrecisionElectronHypoAlg::execute( const EventContext& cont
           timer_dnn.stop();
           idx++;
         }
+
+        // Add track d0 and cluster eta/phi decorations for output electrons
+        decor_d0(*electronHandle.cptr()->at(cl)) = electronHandle.cptr()->at(cl)->trackParticle()->d0();
+        decor_clEta(*electronHandle.cptr()->at(cl)) = electronHandle.cptr()->at(cl)->caloCluster()->etaBE(2);
+        decor_clPhi(*electronHandle.cptr()->at(cl)) = electronHandle.cptr()->at(cl)->caloCluster()->phiBE(2);
 
         toolInput.push_back( info );
         validelectrons++;

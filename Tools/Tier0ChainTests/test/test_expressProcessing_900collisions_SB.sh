@@ -11,7 +11,7 @@ export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-
 
 
 Reco_tf.py  \
---AMI x646  \
+--AMI x654  \
 --inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00423110.express_express.merge.RAW._lb0100._SFO-ALL._0001.1" \
 --outputAODFile="AOD.pool.root" \
 --outputESDFile="ESD.pool.root" \

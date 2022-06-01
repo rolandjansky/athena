@@ -25,6 +25,7 @@
 
 #include "nlohmann/json.hpp"
 #include <string>
+#include <utility>
 
 namespace AFP
 {
@@ -44,7 +45,8 @@ namespace AFP
     virtual StatusCode finalize() override;
 
     /// Provide alignment parameters for a given plane. Returns zeros if no data available.
-    const SiLocAlignData alignment (const EventContext& ctx, const int stationID, const int planeID) const override;
+    nlohmann::json alignmentData (const EventContext& ctx) const override;
+    const SiLocAlignData alignment (const nlohmann::json& jsondata, const int stationID, const int planeID) const override;
 
   private:
     SG::ReadCondHandleKey<CondAttrListCollection> m_rch_loc {this, "loc_align_key", "/FWD/Onl/AFP/Align/Local", "read condition handle for local alignement"};

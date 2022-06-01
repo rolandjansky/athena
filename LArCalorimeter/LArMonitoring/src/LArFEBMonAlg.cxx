@@ -22,29 +22,16 @@
 #include <math.h>
 #include <sys/types.h>
 
-//const unsigned nFEBnominal=1524;
+const unsigned sizeNorm=262144;
 
 // ********************************************************************
 LArFEBMonAlg::LArFEBMonAlg( const std::string& name, ISvcLocator* pSvcLocator) 
   : AthMonitorAlgorithm(name, pSvcLocator),
-    //m_CorruptTree(nullptr),
-    // m_eventTime(0),
-    // m_eventTime_ns(0),
     m_onlineHelper(nullptr),
     m_dspThrDone(false),
     m_maskedDone(false),
     m_nbOfFebBlocksTotal(-1)
 {
-  /** Give the name of the streams you want to monitor, if empty, only simple profile per partition (offline case):*/
-  //declareProperty("Streams",m_streams);
- 
-  /*
-  for (unsigned i = 0;i < nFEBnominal; i++) {
-    m_bfebIE[i]     = false;
-  }
-  FIXME*/
-
-  //m_CorruptTree		= nullptr;
 
 }
 
@@ -348,7 +335,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
     evtrej=6; evt_yield = 0.; evtyieldout=0.;
   }
   evtyield=evt_yield;
-  auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/262144);
+  auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/sizeNorm);
   auto sweet2 = Monitored::Scalar<int>("NbOfSweet2",totNbOfSweet2);
   auto lb0 = Monitored::Scalar<int>("LB0",lumi_block); //to avoid 'NbOfEventsVSLB' being filled multiple times
   fill(m_monGroupName,evtrej,evtyieldout,evtyield,evSize, sweet2, lb0);
@@ -391,12 +378,12 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 	}
       }
       streambin =  streamsThisEvent[str];
-      evsize = larEventSize;
+      evsize = larEventSize/sizeNorm;
       fill(m_monGroupName,lb,streambin,evsize);
       
       for(unsigned i=0; i <m_partitions.size(); ++i){
         unsigned subdet = i / 2;
-        evsize =  larEventSize_part[i]/262144;
+        evsize =  larEventSize_part[i]/sizeNorm;
         fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[i])],lb,streambin,evsize);
       }
 
@@ -404,7 +391,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   } else { // we are filling only simple profiles
     for(unsigned i=0; i<m_partitions.size(); ++i) { 
        unsigned subdet = i / 2;
-       evsize=larEventSize_part[i]/262144;
+       evsize=larEventSize_part[i]/sizeNorm;
        fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[i])],lb,evsize);
     }
   }

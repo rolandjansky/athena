@@ -59,14 +59,6 @@ private:
   /* Histogram grouping (part) */
   std::vector<std::map<std::string,int> > m_histoGroups;
 
-  // Variables, which should fill the TTree, waiting until it will be supported by central monitoring
-  //TTree* m_CorruptTree;
-
-  //mutable unsigned int m_eventTime ATLAS_THREAD_SAFE;
-  //mutable unsigned int m_eventTime_ns ATLAS_THREAD_SAFE;
-  //mutable std::vector<int> m_febInErrorTree ATLAS_THREAD_SAFE;
-  //mutable std::vector<int> m_febErrorTypeTree ATLAS_THREAD_SAFE;
-  
   // Id helper
   const LArOnlineID* m_onlineHelper;
 

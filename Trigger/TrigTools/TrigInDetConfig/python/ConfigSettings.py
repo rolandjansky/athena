@@ -102,6 +102,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       self._phiHalfWidth   = 0.4
       self._zedHalfWidth   = 7.0
       self._adaptiveVertex = True
+      self._actsVertex     = True
       self._addSingleTrackVertices = True
       self._vertex         = "HLT_IDVertex_Tau"
       self._electronPID         = True

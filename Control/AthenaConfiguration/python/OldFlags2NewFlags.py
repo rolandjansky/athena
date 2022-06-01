@@ -8,6 +8,7 @@ def getNewConfigFlags():
     """
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import BeamType
 
     # Import some old-style flags
     from AthenaCommon.DetFlags import DetFlags
@@ -30,6 +31,7 @@ def getNewConfigFlags():
                                     jobproperties.AthenaCommonFlags.PoolHitsInput() )
 
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
+    ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType())
     ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
     ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
     # Geometry - General

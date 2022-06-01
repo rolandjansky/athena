@@ -90,7 +90,7 @@ JetFastFTagVars = '.'.join(JetFastFTagVarsToKeep)
 TLAJetVarsToKeep = sorted(list(set(JetVarsToKeep+JetFastFTagVarsToKeep)))
 TLAJetVars='.'.join(TLAJetVarsToKeep)
 
-ElToKeep = ['ptcone20', 'ptvarcone20']
+ElToKeep = ['ptcone20', 'ptvarcone20','trk_d0','cl_eta2','cl_phi2']
 ElVars = '.'.join(ElToKeep)
 
 PhToKeep = ['topoetcone20', 'etcone20']
@@ -379,7 +379,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_LRTGSFAux.',           'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_GSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionTracking_GSFRefittedViews_GSF'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.eProbabilityNN.parameterPX.parameterPY.parameterPZ.parameterPosition',        'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.parameterPX.parameterPY.parameterPZ.parameterPosition',        'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo step
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_Electron',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloElectronViews'),
