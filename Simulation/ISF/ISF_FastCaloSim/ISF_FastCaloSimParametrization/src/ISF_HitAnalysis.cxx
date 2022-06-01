@@ -794,7 +794,13 @@ StatusCode ISF_HitAnalysis::execute()
        if(loopEnd==-1) {
          loopEnd = particles_size; //is this the correct thing?
        }
-       for (const auto part: *(*mcEvent->begin())) {
+#ifdef HEPMC3
+       for (const auto& part: *(*mcEvent->begin()))
+#else
+       for (const auto part: *(*mcEvent->begin()))
+#endif
+       {
+         
          ATH_MSG_DEBUG("Number truth particles="<<particles_size<<" loopEnd="<<loopEnd);
          particleIndex++;
 
