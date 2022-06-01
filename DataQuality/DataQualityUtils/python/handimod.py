@@ -634,7 +634,12 @@ def makeOneHistFile(htmlDir, name, subname, sp, runlistLoc, compare, jsRoot):
                     k.write('<td>'+resultval+'</td></tr>\n')
             else:
                 k.write('<tr><td align="right"><b>'+sp[cc]+' </b></td>')
-                k.write('<td>'+sp[cc+1]+'</td></tr>\n')
+                if sp[cc+1:cc+3] == ['Multiple', 'references']:
+                    k.write('<td>'+' '.join(sp[cc+1:cc+3])+'</td></tr>\n')
+                    cc += 1
+                    extra -= 1
+                else:              
+                    k.write('<td>'+sp[cc+1]+'</td></tr>\n')
             cc += 2
             extra -= 2
         else:
