@@ -147,33 +147,34 @@ def TrigMETMonConfig(inputFlags):
     TrigMETMonAlg.HLTChainsT0 = HLTChainsT0
 
     ### algorithm selection
-    algsL1 = ["roi", 
-              "jnc", 
-              "jrho", 
-              "gnc", 
-              "grho", 
-              "gjwoj", 
-              "gpufit"]
+    algsL1 = ["roi"] 
+    algsL1Expert = ["jnc", 
+                    "jrho", 
+                    "gnc", 
+                    "grho", 
+                    "gjwoj", 
+                    "gpufit"]
     algsL1Fex = ["jFex",
                  "gFexJwoj"]
     algsHLT = ["cell", 
                "tcpufit", 
-               "mht", 
-               "tc_em", 
-               "pfsum", 
                "pfsum_cssk", 
                "pfsum_vssk", 
                "pfopufit", 
-               "cvfpufit", 
                "mhtpufit_pf", 
                "mhtpufit_em",
                "met_nn"]
     algsHLT2d = ["cell", 
                  "tcpufit", 
                  "pfopufit"]
-    algsHLTExpert = ["trkmht"]
+    algsHLTExpert = ["mht",
+                     "tc_em",
+                     "cvfpufit",
+                     "pfsum",
+                     "trkmht"]
     ## pass algorithmss to TrigMETMonAlg
     TrigMETMonAlg.algsL1 = algsL1
+    TrigMETMonAlg.algsL1Expert = algsL1Expert
     TrigMETMonAlg.algsHLT = algsHLT
     TrigMETMonAlg.algsHLT2d = algsHLT2d
     TrigMETMonAlg.algsHLTExpert = algsHLTExpert
@@ -306,13 +307,13 @@ def TrigMETMonConfig(inputFlags):
                              path='Expert/Offline',xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
     ## HLT electron and muon
     metGroup.defineHistogram('hlt_el_mult',title='HLT Electron Multiplicity;Number of electrons;Events',
-                           path='Expert/HLT_ElMu',xbins=10,xmin=0,xmax=10)
+                           path='Expert/ElMu',xbins=10,xmin=0,xmax=10)
     metGroup.defineHistogram('hlt_el_pt',title='HLT Electron p_{T};p_{T} [GeV];Events',
-                           path='Expert/HLT_ElMu',xbins=100,xmin=0,xmax=100)
+                           path='Expert/ElMu',xbins=100,xmin=0,xmax=100)
     metGroup.defineHistogram('hlt_mu_mult',title='HLT Muon Multiplicity;Number of muons;Events',
-                           path='Expert/HLT_ElMu',xbins=10,xmin=0,xmax=10)
+                           path='Expert/ElMu',xbins=10,xmin=0,xmax=10)
     metGroup.defineHistogram('hlt_mu_pt',title='HLT Muon p_{T};p_{T} [GeV];Events',
-                           path='Expert/HLT_ElMu',xbins=100,xmin=0,xmax=100)
+                           path='Expert/ElMu',xbins=100,xmin=0,xmax=100)
     ## Topoclusters
     metGroup.defineHistogram('hlt_topoclusters_mult',title='HLT Topoclusters Multiplicity;Number of Clusters;Events',
                            path='Expert/Topoclusters',xbins=120,xmin=0,xmax=1200)
@@ -380,7 +381,7 @@ def TrigMETMonConfig(inputFlags):
       metGroup.defineHistogram('L1_{}_Ex_log'.format(alg),
                              title='L1_{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
-                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+                             xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('L1_{}_HT_Ex_log'.format(alg),
                              title='L1_{} HT Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
                              path='Shifter/L1_{}'.format(alg),
@@ -433,44 +434,44 @@ def TrigMETMonConfig(inputFlags):
     for alg in algsHLT:
       metGroup.defineHistogram('{}_Ex'.format(alg),
                              title='{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('{}_Ex_log'.format(alg),
                              title='{} Missing E_{{x}} log;sgn(E_{{x}}) log(E_{{x}}/GeV);Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('{}_Ey'.format(alg),
                              title='{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('{}_Ey_log'.format(alg),
                              title='{} Missing E_{{y}} log;sgn(E_{{y}}) log(E_{{y}}/GeV);Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
       metGroup.defineHistogram('{}_Et'.format(alg),
                              title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=et_bins,xmin=et_min,xmax=et_max)
       metGroup.defineHistogram('{}_Et_log'.format(alg),
                              title='{} Missing E_{{T}} log;log(E_{{T}}/GeV);Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
       metGroup.defineHistogram('{}_sumEt'.format(alg),
                              title='{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
       metGroup.defineHistogram('{}_sumEt_log'.format(alg),
                              title='{} sumE_{{T}} log;log(sumE_{{T}}/GeV);Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
       metGroup.defineHistogram('{}_phi'.format(alg),
                              title='{} #phi;#phi;Events'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=phi_bins,xmin=phi_min,xmax=phi_max)
       metGroup.defineHistogram('{0}_phi;{0}_phi_etweight'.format(alg), 
                              title='{} #phi (etweighted);#phi;Et weighted events'.format(alg),
                              weight='{}_Et'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=phi_bins,xmin=phi_min,xmax=phi_max)
       metGroup.defineHistogram('{}_presel_Et'.format(alg),
                              title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
@@ -567,13 +568,13 @@ def TrigMETMonConfig(inputFlags):
       metGroup.defineHistogram('{0}_eta,{0}_phi;{0}_eta_phi'.format(alg), 
                              type='TH2F', 
                              title='{} #eta - #phi;#eta;#phi'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
       metGroup.defineHistogram('{a}_eta,{a}_phi;{a}_eta_phi_etweight'.format(a=alg), 
                              type='TH2F', 
                              title='{} #eta - #phi (etweighted);#eta;#phi'.format(alg),
                              weight='{}_Et'.format(alg),
-                             path='Shifter/{}'.format(alg),
+                             path='Shifter/HLT_{}'.format(alg),
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
 
     ## L1 efficiency
@@ -625,20 +626,42 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/Component',
                              xbins=len(comp_names),xmin=-0.5,xmax=24.5,ybins=len(comp_names),ymin=-0.5,ymax=31.5,
                              xlabels=comp_names, ylabels=bit_names)
+    ## L1 Expert
+    for alg in algsL1Expert:
+      metGroup.defineHistogram('L1_{}_Ex'.format(alg),
+                             title='L1_{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
+                             path='Expert/L1_{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_Ey'.format(alg),
+                             title='L1_{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
+                             path='Expert/L1_{}'.format(alg),
+                             xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+      metGroup.defineHistogram('L1_{}_Et'.format(alg),
+                             title='L1_{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
+                             path='Expert/L1_{}'.format(alg),
+                             xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('L1_{}_sumEt'.format(alg),
+                             title='L1_{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
+                             path='Expert/L1_{}'.format(alg),
+                             xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
     ## HLT Expert
     for alg in algsHLTExpert:
       metGroup.defineHistogram('{}_Ex'.format(alg),
                                title='{} Missing E_{{x}};E_{{x}} [GeV];Events'.format(alg),
-                               path='Expert/{}'.format(alg),
+                               path='Expert/HLT_{}'.format(alg),
                                xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('{}_Ey'.format(alg),
                                title='{} Missing E_{{y}};E_{{y}} [GeV];Events'.format(alg),
-                               path='Expert/{}'.format(alg),
+                               path='Expert/HLT_{}'.format(alg),
                                xbins=ec_bins,xmin=ec_min,xmax=ec_max)
       metGroup.defineHistogram('{}_Et'.format(alg), 
                                title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
-                               path='Expert/{}'.format(alg),
+                               path='Expert/HLT_{}'.format(alg),
                                xbins=et_bins,xmin=et_min,xmax=et_max)
+      metGroup.defineHistogram('{}_sumEt'.format(alg),
+                               title='{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
+                               path='Expert/HLT_{}'.format(alg),
+                               xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
     ## Chain specific
     metChain1Group.defineHistogram('cell_Ex',
                                   title='cell Missing E_{x};E_{x} [GeV];Events',

@@ -134,7 +134,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         ATH_MSG_DEBUG("Container "<< m_lvl1_gpufit_key << " does not exist or is empty");
     }
 
-    // access L1 Fex Net cintainers
+    // access L1 Fex met containers
     SG::ReadHandle<xAOD::jFexMETRoIContainer> l1_jFexMet_cont(m_l1_jFexMet_key, ctx);
     if (! l1_jFexMet_cont.isValid() ) {
         ATH_MSG_DEBUG("Container "<< m_l1_jFexMet_key << " does not exist or is empty");
@@ -697,6 +697,42 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       }
     }
 
+    // access L1 MET Expert values
+    for (const std::string& alg : m_algsL1Expert) {
+      SG::ReadHandle<xAOD::EnergySumRoI> l1_met_cont;
+      if (alg == "roi" && l1_roi_cont.isValid()) {
+        l1_met_cont = l1_roi_cont;
+      } else if (alg == "jnc" && l1_jnc_cont.isValid()) {
+        l1_met_cont = l1_jnc_cont;
+      } else if (alg == "jrho" && l1_jrho_cont.isValid()) {
+        l1_met_cont = l1_jrho_cont;
+      } else if (alg == "gnc" && l1_gnc_cont.isValid()) {
+        l1_met_cont = l1_gnc_cont;
+      } else if (alg == "grho" && l1_grho_cont.isValid()) {
+        l1_met_cont = l1_grho_cont;
+      } else if (alg == "gjwoj" && l1_gjwoj_cont.isValid()) {
+        l1_met_cont = l1_gjwoj_cont;
+      } else if (alg == "gpufit" && l1_gpufit_cont.isValid()) {
+        l1_met_cont = l1_gpufit_cont;
+      }
+
+      if ( l1_met_cont.isValid() ) {
+        if ((l1_met_cont->energyX())>-9e12 && (l1_met_cont->energyX())<9e12 && (l1_met_cont->energyY())>-9e12 && (l1_met_cont->energyY())<9e12) {
+          float L1_met_Ex = - (l1_met_cont->energyX())/1000.;
+          float L1_met_Ey = - (l1_met_cont->energyY())/1000.;
+          float L1_met_Et = std::sqrt(L1_met_Ex*L1_met_Ex + L1_met_Ey*L1_met_Ey);
+          float L1_met_sumEt = (l1_met_cont->energyT())/1000.;
+
+          auto L1_Ex = Monitored::Scalar<float>("L1_"+alg+"_Ex", static_cast<float>(L1_met_Ex));
+          auto L1_Ey = Monitored::Scalar<float>("L1_"+alg+"_Ey", static_cast<float>(L1_met_Ey));
+          auto L1_Et = Monitored::Scalar<float>("L1_"+alg+"_Et", static_cast<float>(L1_met_Et));
+          auto L1_sumEt = Monitored::Scalar<float>("L1_"+alg+"_sumEt", static_cast<float>(L1_met_sumEt));
+          fill(tool, L1_Ex, L1_Ey, L1_Et, L1_sumEt);
+        }
+      }
+    }
+
+
     // access HLT  MET Expert values
     for (const std::string& alg : m_algsHLTExpert) {
       if (alg == "cell" && hlt_cell_met_cont.isValid() && hlt_cell_met_cont->size() > 0) {
@@ -733,11 +769,13 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         float hlt_Ex = (hlt_met->ex())/1000.;
         float hlt_Ey = (hlt_met->ey())/1000.;
         float hlt_Et = std::sqrt(hlt_Ex*hlt_Ex + hlt_Ey*hlt_Ey);
+        float hlt_sumEt = (hlt_met->sumEt())/1000.;
 
         auto met_Ex = Monitored::Scalar<float>(alg+"_Ex", static_cast<float>(hlt_Ex));
         auto met_Ey = Monitored::Scalar<float>(alg+"_Ey", static_cast<float>(hlt_Ey));
         auto met_Et = Monitored::Scalar<float>(alg+"_Et", static_cast<float>(hlt_Et));
-        fill(tool,met_Ex,met_Ey,met_Et);
+        auto met_sumEt = Monitored::Scalar<float>(alg+"_sumEt", static_cast<float>(hlt_sumEt));
+        fill(tool,met_Ex,met_Ey,met_Et,met_sumEt);
         ATH_MSG_DEBUG(alg << ": hlt_Et = " << hlt_Et);
         if (L1_roiMet_Et > 50.) {
           auto met_presel_Et = Monitored::Scalar<float>(alg+"_presel_Et", static_cast<float>(hlt_Et));
