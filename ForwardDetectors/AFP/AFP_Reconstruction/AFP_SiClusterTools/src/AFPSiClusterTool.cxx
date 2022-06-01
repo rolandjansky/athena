@@ -177,6 +177,10 @@ StatusCode AFPSiClusterTool::saveToXAOD(std::unique_ptr<xAOD::AFPSiHitsClusterCo
   }
   
   // fill xAOD container
+  
+  nlohmann::json dataLA, dataGA;
+  bool dataLA_init{false}, dataGA_init{false};
+  
   for (std::vector<AFPSiClusterLayerBasicObj>& station : my_layers)
     for (AFPSiClusterLayerBasicObj& layer : station) {
       if(layer.clusters().empty()) continue;
@@ -184,8 +188,21 @@ StatusCode AFPSiClusterTool::saveToXAOD(std::unique_ptr<xAOD::AFPSiHitsClusterCo
       const int stationID = layer.stationID();
       const int layerID = layer.layerID();
       
-      const AFP::SiLocAlignData LA=m_siLocAlignDBTool->alignment(ctx, stationID, layerID);
-      const AFP::SiGlobAlignData GA=m_siGlobAlignDBTool->alignment(ctx, stationID);
+      if(!dataLA_init)
+      {
+      	// read from DB only if necessary
+      	dataLA=m_siLocAlignDBTool->alignmentData(ctx);
+      	dataLA_init=true;
+      }
+      if(!dataGA_init)
+      {
+      	// read from DB only if necessary
+      	dataGA=m_siGlobAlignDBTool->alignmentData(ctx);
+      	dataGA_init=true;
+      }
+      
+      const AFP::SiLocAlignData LA=m_siLocAlignDBTool->alignment(dataLA, stationID, layerID);
+      const AFP::SiGlobAlignData GA=m_siGlobAlignDBTool->alignment(dataGA, stationID);
       
       for (const AFPSiClusterBasicObj& theCluster : layer.clusters()) {
         // create xAOD object and set cluster coordinates and errors
