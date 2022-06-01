@@ -10,7 +10,8 @@
 
 #include <AsgTools/MsgStream.h>
 #include <AthContainers/AuxElement.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <CxxUtils/AthUnlikelyMacros.h>
+#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <xAODBase/IParticle.h>
 #include <memory>

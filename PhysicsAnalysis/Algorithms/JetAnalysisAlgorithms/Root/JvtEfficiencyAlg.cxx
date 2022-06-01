@@ -54,10 +54,10 @@ namespace CP
     ANA_CHECK (m_outOfValidity.initialize());
 
     if (m_dofJVT && !m_fJVTStatus.empty())
-      ANA_CHECK (makeSelectionAccessor (m_fJVTStatus, m_fJVTStatusAccessor));
+      ANA_CHECK (makeSelectionReadAccessor (m_fJVTStatus, m_fJVTStatusAccessor));
 
     if (!m_selection.empty())
-      ANA_CHECK (makeSelectionAccessor (m_selection, m_selectionAccessor));
+      ANA_CHECK (makeSelectionWriteAccessor (m_selection, m_selectionAccessor));
 
     return StatusCode::SUCCESS;
   }

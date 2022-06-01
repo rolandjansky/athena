@@ -16,13 +16,13 @@ class StatusCode;
 
 namespace CP
 {
-  class ISelectionAccessor;
+  class ISelectionReadAccessor;
 
   /// \brief a data handle for reading selection properties from
   /// objects
   ///
   /// Essentially this is just a wrapper around \ref
-  /// ISelectionAccessor to make it easier to use in an algorithm.
+  /// ISelectionReadAccessor to make it easier to use in an algorithm.
   /// Since we are now using this a lot, it seems like a good idea to
   /// streamline this as much as possible.
 
@@ -70,7 +70,7 @@ namespace CP
 
     /// \brief the accessor we use
   private:
-    std::unique_ptr<ISelectionAccessor> m_accessor;
+    std::unique_ptr<ISelectionReadAccessor> m_accessor;
 
 
     /// \brief the message stream we use

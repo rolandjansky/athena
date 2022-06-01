@@ -51,8 +51,8 @@ namespace CP
               if(m_invertFlags.size()<index+1) {m_invertFlags.push_back(false);}
               std::string doInvertStr = m_invertFlags[index] ? "!" : "";
               m_accept.addCut (doInvertStr + thisflag, doInvertStr + thisflag);
-              std::unique_ptr<ISelectionAccessor> accessor;
-              ATH_CHECK (makeSelectionAccessor (thisflag, accessor, true));
+              std::unique_ptr<ISelectionReadAccessor> accessor;
+              ATH_CHECK (makeSelectionReadAccessor (thisflag, accessor, true));
               m_acc_selFlags.push_back (std::move (accessor));
           }
       }

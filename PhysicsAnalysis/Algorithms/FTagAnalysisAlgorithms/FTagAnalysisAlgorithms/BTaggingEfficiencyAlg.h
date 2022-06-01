@@ -11,7 +11,6 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>

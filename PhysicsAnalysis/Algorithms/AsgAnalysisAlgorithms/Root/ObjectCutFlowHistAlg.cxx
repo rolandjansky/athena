@@ -62,8 +62,8 @@ namespace CP
         ANA_MSG_ERROR ("entries in selectionNCuts need to be less or equal to " << (8 * sizeof (SelectionType)));
         return StatusCode::FAILURE;
       }
-      std::unique_ptr<ISelectionAccessor> accessor;
-      ANA_CHECK (makeSelectionAccessor (m_selection[iter], accessor));
+      std::unique_ptr<ISelectionReadAccessor> accessor;
+      ANA_CHECK (makeSelectionReadAccessor (m_selection[iter], accessor));
       m_accessors.push_back (std::make_pair (std::move (accessor), ncuts));
       for (unsigned i = 1; i <= ncuts; i++)
       {

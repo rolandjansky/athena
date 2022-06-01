@@ -10,7 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -70,7 +70,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_fJVTStatus
   private:
-    std::unique_ptr<ISelectionAccessor> m_fJVTStatusAccessor;
+    std::unique_ptr<ISelectionReadAccessor> m_fJVTStatusAccessor;
 
     /// \brief the decoration for the JVT selection
   private:
@@ -78,7 +78,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_selection
   private:
-    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
+    std::unique_ptr<ISelectionWriteAccessor> m_selectionAccessor;
 
     /// \brief the decoration for the JVT scale factor
   private:

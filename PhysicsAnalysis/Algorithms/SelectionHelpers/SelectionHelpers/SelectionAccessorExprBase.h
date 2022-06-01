@@ -5,26 +5,18 @@
 #ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_EXPR_BASE_H
 #define SELECTION_HELPERS__SELECTION_ACCESSOR_EXPR_BASE_H
 
-#include "SelectionHelpers/ISelectionAccessor.h"
+#include "SelectionHelpers/ISelectionReadAccessor.h"
 
 namespace CP {
 
 /// @brief Serves as the base for a few logical expression classes.
-class SelectionAccessorExprBase : public ISelectionAccessor {
+class SelectionAccessorExprBase : public ISelectionReadAccessor {
   // leave getBool pure virtual
   // leave label pure virtual
 
  public:
   virtual SelectionType getBits(const SG::AuxElement &element,
                                 const CP::SystematicSet *sys) const override;
-
-  virtual void setBool(const SG::AuxElement & /*element*/,
-                       bool /*value*/,
-                          const CP::SystematicSet *sys) const override;
-
-  virtual void setBits(const SG::AuxElement & /*element*/,
-                       SelectionType /*selection*/,
-                          const CP::SystematicSet *sys) const override;
 };
 
 }  // namespace CP
