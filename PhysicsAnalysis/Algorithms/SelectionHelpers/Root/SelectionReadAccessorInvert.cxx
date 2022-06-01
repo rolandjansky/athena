@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <SelectionHelpers/SelectionAccessorInvert.h>
+#include <SelectionHelpers/SelectionReadAccessorInvert.h>
 
 #include <PATInterfaces/SystematicSet.h>
 
@@ -19,14 +19,14 @@
 
 namespace CP
 {
-  SelectionAccessorInvert ::
-  SelectionAccessorInvert (std::unique_ptr<ISelectionAccessor> val_base)
+  SelectionReadAccessorInvert ::
+  SelectionReadAccessorInvert (std::unique_ptr<ISelectionReadAccessor> val_base)
     : m_base (std::move (val_base))
   {}
 
 
 
-  SelectionType SelectionAccessorInvert ::
+  SelectionType SelectionReadAccessorInvert ::
   getBits (const SG::AuxElement& element,
            const CP::SystematicSet *sys) const
   {
@@ -38,17 +38,7 @@ namespace CP
 
 
 
-  void SelectionAccessorInvert ::
-  setBits (const SG::AuxElement& element,
-           SelectionType selection,
-           const CP::SystematicSet *sys) const
-  {
-    m_base->setBool (element, selection != selectionAccept(), sys);
-  }
-
-
-
-  bool SelectionAccessorInvert ::
+  bool SelectionReadAccessorInvert ::
   getBool (const SG::AuxElement& element,
            const CP::SystematicSet *sys) const
   {
@@ -57,25 +47,15 @@ namespace CP
 
 
 
-  void SelectionAccessorInvert ::
-  setBool (const SG::AuxElement& element,
-           bool selection,
-           const CP::SystematicSet *sys) const
-  {
-    m_base->setBool (element, !selection, sys);
-  }
-
-
-
-  std::string SelectionAccessorInvert ::
+  std::string SelectionReadAccessorInvert ::
   label () const
   {
-    return "not " + m_base->label();
+    return m_base->label() + ",invert";
   }
 
 
 
-  CP::SystematicSet SelectionAccessorInvert ::
+  CP::SystematicSet SelectionReadAccessorInvert ::
   getInputAffecting (const ISystematicsSvc& svc,
                      const std::string& objectName) const
   {
@@ -84,7 +64,7 @@ namespace CP
 
 
 
-  StatusCode SelectionAccessorInvert ::
+  StatusCode SelectionReadAccessorInvert ::
   fillSystematics (const ISystematicsSvc& svc,
                    const std::vector<CP::SystematicSet>& sysList,
                    const std::string& objectName)

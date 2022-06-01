@@ -5,10 +5,10 @@
 /// @author Nils Krumnack
 
 
-#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_NULL_H
-#define SELECTION_HELPERS__SELECTION_ACCESSOR_NULL_H
+#ifndef SELECTION_HELPERS__SELECTION_READ_ACCESSOR_NULL_H
+#define SELECTION_HELPERS__SELECTION_READ_ACCESSOR_NULL_H
 
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 
 namespace CP
 {
@@ -16,17 +16,17 @@ namespace CP
   /// nullptr
   ///
   /// This makes it easier to set up code that just uses an \ref
-  /// ISelectionAccessor to preselect its objects, and doesn't want a
+  /// ISelectionReadAccessor to preselect its objects, and doesn't want a
   /// special code path for the case of no preselections.
 
-  class SelectionAccessorNull final : public ISelectionAccessor
+  class SelectionReadAccessorNull final : public ISelectionReadAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorNull (bool value = true);
+    SelectionReadAccessorNull (bool value = true);
 
   public:
     virtual SelectionType
@@ -34,19 +34,9 @@ namespace CP
              const CP::SystematicSet *sys) const override;
 
   public:
-    virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection,
-                          const CP::SystematicSet *sys) const override;
-
-  public:
     virtual bool
     getBool (const SG::AuxElement& element,
              const CP::SystematicSet *sys) const override;
-
-  public:
-    virtual void setBool (const SG::AuxElement& element,
-                          bool selection,
-                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual std::string label () const override;

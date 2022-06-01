@@ -58,7 +58,7 @@ namespace CP
   StatusCode SelectionReadHandle ::
   initialize ()
   {
-    ANA_CHECK (makeSelectionAccessor (m_selection, m_accessor));
+    ANA_CHECK (makeSelectionReadAccessor (m_selection, m_accessor));
     return StatusCode::SUCCESS;
   }
 }

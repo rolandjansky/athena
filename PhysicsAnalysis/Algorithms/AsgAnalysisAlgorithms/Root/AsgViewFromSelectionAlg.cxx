@@ -210,8 +210,8 @@ namespace CP
       SelectionType ignore = 0;
       if (iter < m_ignore.size())
         ignore = m_ignore[iter];
-      std::unique_ptr<ISelectionAccessor> accessor;
-      ANA_CHECK (makeSelectionAccessor (m_selection[iter], accessor));
+      std::unique_ptr<ISelectionReadAccessor> accessor;
+      ANA_CHECK (makeSelectionReadAccessor (m_selection[iter], accessor));
       m_accessors.push_back (std::make_pair (std::move (accessor), ignore));
     }
 

@@ -41,16 +41,6 @@ namespace CP
 
 
 
-  void SelectionAccessorReadSys ::
-  setBits (const SG::AuxElement& /*element*/,
-           SelectionType /*selection*/,
-           const CP::SystematicSet * /*sys*/) const
-  {
-    throw std::runtime_error ("setting not supported for CP::SelectionAccessorReadSys");
-  }
-
-
-
   bool SelectionAccessorReadSys ::
   getBool (const SG::AuxElement& element,
            const CP::SystematicSet *sys) const
@@ -61,16 +51,6 @@ namespace CP
     if (iter == m_dataCache.end())
       throw std::logic_error ("unknown systematic: " + sys->name());
     return std::get<1>(iter->second)->getBool (element, sys);
-  }
-
-
-
-  void SelectionAccessorReadSys ::
-  setBool (const SG::AuxElement& /*element*/,
-           bool /*selection*/,
-           const CP::SystematicSet * /*sys*/) const
-  {
-    throw std::logic_error ("setting not supported for CP::SelectionAccessorReadSys");
   }
 
 
@@ -120,8 +100,8 @@ namespace CP
       std::string decorName;
       ANA_CHECK (svc.makeSystematicsName (decorName, baseName, inputSys));
       ANA_MSG_DEBUG ("SysReadDecorHandle: " << decorName << " (" << sys.name() << ")");
-      std::unique_ptr<ISelectionAccessor> accessor;
-      ANA_CHECK (makeSelectionAccessor (decorName + suffix, accessor));
+      std::unique_ptr<ISelectionReadAccessor> accessor;
+      ANA_CHECK (makeSelectionReadAccessor (decorName + suffix, accessor));
       m_dataCache.emplace (sys, std::make_tuple (decorName, std::move (accessor)));
     }
     return StatusCode::SUCCESS;

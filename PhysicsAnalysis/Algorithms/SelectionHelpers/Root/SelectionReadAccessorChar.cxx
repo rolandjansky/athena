@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <SelectionHelpers/SelectionAccessorChar.h>
+#include <SelectionHelpers/SelectionReadAccessorChar.h>
 
 #include <PATInterfaces/SystematicSet.h>
 
@@ -19,14 +19,14 @@
 
 namespace CP
 {
-  SelectionAccessorChar ::
-  SelectionAccessorChar (const std::string& name)
-    : m_accessor (name), m_constAccessor (name), m_label(name)
+  SelectionReadAccessorChar ::
+  SelectionReadAccessorChar (const std::string& name)
+    : m_constAccessor (name), m_label(name)
   {}
 
 
 
-  SelectionType SelectionAccessorChar ::
+  SelectionType SelectionReadAccessorChar ::
   getBits (const SG::AuxElement& element,
            const CP::SystematicSet * /*sys*/) const
   {
@@ -38,20 +38,7 @@ namespace CP
 
 
 
-  void SelectionAccessorChar ::
-  setBits (const SG::AuxElement& element,
-           SelectionType selection,
-           const CP::SystematicSet * /*sys*/) const
-  {
-    if (selection == selectionAccept())
-      m_accessor (element) = 1;
-    else
-      m_accessor (element) = 0;
-  }
-
-
-
-  bool SelectionAccessorChar ::
+  bool SelectionReadAccessorChar ::
   getBool (const SG::AuxElement& element,
            const CP::SystematicSet * /*sys*/) const
   {
@@ -60,17 +47,7 @@ namespace CP
 
 
 
-  void SelectionAccessorChar ::
-  setBool (const SG::AuxElement& element,
-           bool selection,
-           const CP::SystematicSet * /*sys*/) const
-  {
-    m_accessor (element) = selection;
-  }
-
-
-
-  std::string SelectionAccessorChar ::
+  std::string SelectionReadAccessorChar ::
   label () const
   {
     return m_label;
@@ -78,7 +55,7 @@ namespace CP
 
 
 
-  CP::SystematicSet SelectionAccessorChar ::
+  CP::SystematicSet SelectionReadAccessorChar ::
   getInputAffecting (const ISystematicsSvc& /*svc*/,
                      const std::string& /*objectName*/) const
   {
@@ -87,7 +64,7 @@ namespace CP
 
 
 
-  StatusCode SelectionAccessorChar ::
+  StatusCode SelectionReadAccessorChar ::
   fillSystematics (const ISystematicsSvc& /*svc*/,
                    const std::vector<CP::SystematicSet>& /*sysList*/,
                    const std::string& /*objectName*/)

@@ -6,7 +6,7 @@
 #include "SelectionHelpers/SelectionAccessorExprNot.h"
 #include "SelectionHelpers/SelectionAccessorExprOr.h"
 #include "SelectionHelpers/SelectionAccessorList.h"
-#include "SelectionHelpers/SelectionAccessorNull.h"
+#include "SelectionHelpers/SelectionReadAccessorNull.h"
 
 #include <iostream>
 #include <regex>
@@ -91,8 +91,8 @@ SelectionExprParser::SelectionExprParser(Lexer lexer, bool defaultToChar)
     : m_lexer(std::move(lexer)), m_defaultToChar(defaultToChar) {}
 
 StatusCode SelectionExprParser::build(
-    std::unique_ptr<ISelectionAccessor>& accessor) {
-  std::unique_ptr<ISelectionAccessor> root{nullptr};
+    std::unique_ptr<ISelectionReadAccessor>& accessor) {
+  std::unique_ptr<ISelectionReadAccessor> root{nullptr};
   ANA_CHECK(expression(root));
 
   if (m_symbol.type != Lexer::END) {
@@ -105,12 +105,12 @@ StatusCode SelectionExprParser::build(
 }
 
 StatusCode SelectionExprParser::expression(
-    std::unique_ptr<ISelectionAccessor>& root) {
+    std::unique_ptr<ISelectionReadAccessor>& root) {
   ANA_CHECK(term(root));
   while (m_symbol.type == Lexer::OR) {
-    std::unique_ptr<ISelectionAccessor> left = std::move(root);
+    std::unique_ptr<ISelectionReadAccessor> left = std::move(root);
     ANA_CHECK(term(root));
-    std::unique_ptr<ISelectionAccessor> right = std::move(root);
+    std::unique_ptr<ISelectionReadAccessor> right = std::move(root);
     root = std::make_unique<SelectionAccessorExprOr>(std::move(left),
                                                      std::move(right));
   }
@@ -118,9 +118,9 @@ StatusCode SelectionExprParser::expression(
 }
 
 StatusCode SelectionExprParser::term(
-    std::unique_ptr<ISelectionAccessor>& root) {
+    std::unique_ptr<ISelectionReadAccessor>& root) {
   ANA_CHECK(factor(root));
-  std::vector<std::unique_ptr<ISelectionAccessor>> factors;
+  std::vector<std::unique_ptr<ISelectionReadAccessor>> factors;
   factors.push_back(std::move(root));
 
   while (m_symbol.type == Lexer::AND) {
@@ -137,17 +137,17 @@ StatusCode SelectionExprParser::term(
 }
 
 StatusCode SelectionExprParser::factor(
-    std::unique_ptr<ISelectionAccessor>& root) {
+    std::unique_ptr<ISelectionReadAccessor>& root) {
   m_symbol = m_lexer.nextSymbol();
   if (m_symbol.type == Lexer::TRUE_LITERAL) {
-    root = std::make_unique<SelectionAccessorNull>(true);
+    root = std::make_unique<SelectionReadAccessorNull>(true);
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::FALSE_LITERAL) {
-    root = std::make_unique<SelectionAccessorNull>(false);
+    root = std::make_unique<SelectionReadAccessorNull>(false);
     m_symbol = m_lexer.nextSymbol();
   } else if (m_symbol.type == Lexer::NOT) {
     ANA_CHECK(factor(root));
-    std::unique_ptr<ISelectionAccessor> notEx =
+    std::unique_ptr<ISelectionReadAccessor> notEx =
         std::make_unique<SelectionAccessorExprNot>(std::move(root));
     root = std::move(notEx);
   } else if (m_symbol.type == Lexer::LEFT) {
@@ -159,7 +159,7 @@ StatusCode SelectionExprParser::factor(
     m_symbol = m_lexer.nextSymbol();
 
   } else if (m_symbol.type == Lexer::VAR) {
-    ANA_CHECK(makeSelectionAccessorVar(m_symbol.value, root, m_defaultToChar));
+    ANA_CHECK(makeSelectionReadAccessorVar(m_symbol.value, root, m_defaultToChar));
     m_symbol = m_lexer.nextSymbol();
   } else {
     throw std::runtime_error("Malformed expression.");

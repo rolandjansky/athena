@@ -20,10 +20,10 @@
 namespace CP
 {
   SelectionAccessorList ::
-  SelectionAccessorList (std::vector<std::unique_ptr<ISelectionAccessor> > val_list)
+  SelectionAccessorList (std::vector<std::unique_ptr<ISelectionReadAccessor> > val_list)
     : m_list (std::move (val_list))
   {
-    for (const std::unique_ptr<ISelectionAccessor> &acc : m_list)
+    for (const std::unique_ptr<ISelectionReadAccessor> &acc : m_list)
     {
       if (!m_label.empty())
         m_label.append(" && ");
@@ -65,19 +65,6 @@ namespace CP
 
 
 
-  void SelectionAccessorList ::
-  setBits (const SG::AuxElement& /*element*/,
-           SelectionType /*selection*/,
-           const CP::SystematicSet * /*sys*/) const
-  {
-    // technically we could support setting by setting all the
-    // components, but I can't think of a situation in which that
-    // would be a good idea
-    throw std::runtime_error ("setting not supported for CP::SelectionAccessorList");
-  }
-
-
-
   bool SelectionAccessorList ::
   getBool (const SG::AuxElement& element,
            const CP::SystematicSet *sys) const
@@ -88,19 +75,6 @@ namespace CP
         return false;
     }
     return true;
-  }
-
-
-
-  void SelectionAccessorList ::
-  setBool (const SG::AuxElement& /*element*/,
-           bool /*selection*/,
-           const CP::SystematicSet * /*sys*/) const
-  {
-    // technically we could support setting by setting all the
-    // components, but I can't think of a situation in which that
-    // would be a good idea
-    throw std::runtime_error ("setting not supported for CP::SelectionAccessorList");
   }
 
 

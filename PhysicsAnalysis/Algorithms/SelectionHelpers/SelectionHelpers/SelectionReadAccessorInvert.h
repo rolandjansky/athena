@@ -5,10 +5,10 @@
 /// @author Nils Krumnack
 
 
-#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_INVERT_H
-#define SELECTION_HELPERS__SELECTION_ACCESSOR_INVERT_H
+#ifndef SELECTION_HELPERS__SELECTION_READ_ACCESSOR_INVERT_H
+#define SELECTION_HELPERS__SELECTION_READ_ACCESSOR_INVERT_H
 
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 
 #include <memory>
 
@@ -17,14 +17,14 @@ namespace CP
   /// \brief the \ref SelectionAccesor for inverting a selection
   /// decoration
 
-  class SelectionAccessorInvert final : public ISelectionAccessor
+  class SelectionReadAccessorInvert final : public ISelectionReadAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorInvert (std::unique_ptr<ISelectionAccessor> val_base);
+    SelectionReadAccessorInvert (std::unique_ptr<ISelectionReadAccessor> val_base);
 
   public:
     virtual SelectionType
@@ -32,19 +32,9 @@ namespace CP
              const CP::SystematicSet *sys) const override;
 
   public:
-    virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection,
-                          const CP::SystematicSet *sys) const override;
-
-  public:
     virtual bool
     getBool (const SG::AuxElement& element,
              const CP::SystematicSet *sys) const override;
-
-  public:
-    virtual void setBool (const SG::AuxElement& element,
-                          bool selection,
-                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual std::string label () const override;
@@ -67,7 +57,7 @@ namespace CP
 
     /// \brief the base selection accessors I invert
   private:
-    std::unique_ptr<ISelectionAccessor> m_base;
+    std::unique_ptr<ISelectionReadAccessor> m_base;
   };
 }
 

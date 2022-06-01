@@ -10,11 +10,12 @@
 // includes
 //
 
-#include <SelectionHelpers/ISelectionAccessor.h>
-#include <SelectionHelpers/SelectionAccessorChar.h>
-#include <SelectionHelpers/SelectionAccessorBits.h>
+#include <SelectionHelpers/SelectionReadAccessorChar.h>
+#include <SelectionHelpers/SelectionWriteAccessorChar.h>
+#include <SelectionHelpers/SelectionReadAccessorBits.h>
+#include <SelectionHelpers/SelectionWriteAccessorBits.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
-#include <SelectionHelpers/SelectionAccessorNull.h>
+#include <SelectionHelpers/SelectionReadAccessorNull.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <xAODJet/Jet.h>
@@ -33,9 +34,9 @@ namespace CP
     jet->makePrivateStore();
 
     // check a basic char accessor
-    std::unique_ptr<ISelectionAccessor> accA;
-    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char", accA));
-    auto* selA = dynamic_cast<SelectionAccessorChar*>(accA.get());
+    std::unique_ptr<ISelectionWriteAccessor> accA;
+    ASSERT_SUCCESS (makeSelectionWriteAccessor ("a,as_char", accA));
+    auto* selA = dynamic_cast<SelectionWriteAccessorChar*>(accA.get());
     // check that this is actually nothing but a simple char accessor
     EXPECT_NE(selA, nullptr);
     accA->setBool (*jet, false);
@@ -48,18 +49,18 @@ namespace CP
     EXPECT_EQ (jet->auxdata<char> ("a"), 1);
 
     // check an implicit char accessor
-    std::unique_ptr<ISelectionAccessor> accB;
-    ASSERT_SUCCESS (makeSelectionAccessor ("b", accB, true));
+    std::unique_ptr<ISelectionWriteAccessor> accB;
+    ASSERT_SUCCESS (makeSelectionWriteAccessor ("b", accB, true));
     accB->setBool (*jet, false);
     EXPECT_EQ (jet->auxdata<char> ("b"), 0);
     accB->setBool (*jet, true);
     EXPECT_EQ (jet->auxdata<char> ("b"), 1);
 
     // check a basic bits accessor
-    std::unique_ptr<ISelectionAccessor> accC;
-    ASSERT_SUCCESS (makeSelectionAccessor ("c,as_bits", accC));
+    std::unique_ptr<ISelectionWriteAccessor> accC;
+    ASSERT_SUCCESS (makeSelectionWriteAccessor ("c,as_bits", accC));
     // check that this is actually nothing but a simple bits accessor
-    auto* selC = dynamic_cast<SelectionAccessorBits*>(accC.get());
+    auto* selC = dynamic_cast<SelectionWriteAccessorBits*>(accC.get());
     EXPECT_NE(selC, nullptr);
     accC->setBool (*jet, false);
     EXPECT_EQ (jet->auxdata<SelectionType> ("c"), selectionReject());
@@ -71,16 +72,16 @@ namespace CP
     EXPECT_EQ (jet->auxdata<SelectionType> ("c"), selectionAccept());
 
     // check an implicit bits accessor
-    std::unique_ptr<ISelectionAccessor> accD;
-    ASSERT_SUCCESS (makeSelectionAccessor ("d", accD, false));
+    std::unique_ptr<ISelectionWriteAccessor> accD;
+    ASSERT_SUCCESS (makeSelectionWriteAccessor ("d", accD, false));
     accD->setBool (*jet, false);
     EXPECT_EQ (jet->auxdata<SelectionType> ("d"), selectionReject());
     accD->setBool (*jet, true);
     EXPECT_EQ (jet->auxdata<SelectionType> ("d"), selectionAccept());
 
     // check an and of two accessors
-    std::unique_ptr<ISelectionAccessor> accAnd;
-    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char&&b,as_char", accAnd));
+    std::unique_ptr<ISelectionReadAccessor> accAnd;
+    ASSERT_SUCCESS (makeSelectionReadAccessor ("a,as_char&&b,as_char", accAnd));
     accA->setBool (*jet, true);
     accB->setBool (*jet, true);
     EXPECT_TRUE (accAnd->getBool (*jet));
@@ -99,7 +100,7 @@ namespace CP
     EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)3);
 
     // check AND of three accessors
-    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char&&b,as_char&&c,as_bits", accAnd));
+    ASSERT_SUCCESS (makeSelectionReadAccessor ("a,as_char&&b,as_char&&c,as_bits", accAnd));
     auto* selAnd = dynamic_cast<SelectionAccessorList*>(accAnd.get());
     EXPECT_NE(selAnd, nullptr);
 
@@ -152,8 +153,8 @@ namespace CP
     EXPECT_EQ (accAnd->getBits (*jet), ~(SelectionType)7);
 
     // check an OR of two accessors
-    std::unique_ptr<ISelectionAccessor> accOr;
-    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char||b,as_char", accOr));
+    std::unique_ptr<ISelectionReadAccessor> accOr;
+    ASSERT_SUCCESS (makeSelectionReadAccessor ("a,as_char||b,as_char", accOr));
     accA->setBool (*jet, false);
     accB->setBool (*jet, true);
     EXPECT_TRUE (accOr->getBool (*jet));
@@ -167,8 +168,8 @@ namespace CP
     EXPECT_FALSE (accOr->getBool (*jet));
     EXPECT_EQ (accOr->getBits (*jet), selectionReject());
 
-    std::unique_ptr<ISelectionAccessor> accEx;
-    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char||(b,as_char && c,as_bits)", accEx));
+    std::unique_ptr<ISelectionReadAccessor> accEx;
+    ASSERT_SUCCESS (makeSelectionReadAccessor ("a,as_char||(b,as_char && c,as_bits)", accEx));
     accA->setBool (*jet, true);
     accB->setBool (*jet, true);
     accC->setBool (*jet, true);
@@ -200,7 +201,7 @@ namespace CP
     EXPECT_TRUE (accEx->getBool (*jet));
     EXPECT_EQ (accEx->getBits (*jet), selectionAccept());
 
-    ASSERT_SUCCESS (makeSelectionAccessor ("a,as_char||(b,as_char && !c,as_bits)", accEx));
+    ASSERT_SUCCESS (makeSelectionReadAccessor ("a,as_char||(b,as_char && !c,as_bits)", accEx));
     accA->setBool (*jet, true);
     accB->setBool (*jet, true);
     accC->setBool (*jet, false);
@@ -234,9 +235,9 @@ namespace CP
 
 
     // test that an empty string produces a SelectionAccessorNull(true)
-    std::unique_ptr<ISelectionAccessor> accEmpty;
-    ASSERT_SUCCESS (makeSelectionAccessor ("", accEmpty));
-    auto accNull = dynamic_cast<SelectionAccessorNull*>(accEmpty.get());
+    std::unique_ptr<ISelectionReadAccessor> accEmpty;
+    ASSERT_SUCCESS (makeSelectionReadAccessor ("", accEmpty));
+    auto accNull = dynamic_cast<SelectionReadAccessorNull*>(accEmpty.get());
     EXPECT_NE (accNull, nullptr); // is in fact a null accessor
     // can either be true or false, let's test that it is true
     EXPECT_TRUE (accEmpty->getBool (*jet));
@@ -410,7 +411,7 @@ namespace CP
   TEST (SelectionExprParser, parser) {
     auto parse = [](std::string s) -> std::string {
       SelectionExprParser p(s, true);
-      std::unique_ptr<ISelectionAccessor> acc;
+      std::unique_ptr<ISelectionReadAccessor> acc;
       if(!p.build(acc).isSuccess()) {
         ADD_FAILURE() << "unable to parse expression";
       } 
@@ -464,7 +465,7 @@ namespace CP
   TEST (SelectionExprParser, evaluate) {
     auto mkex = [](const std::string& s) {
       SelectionExprParser p(s, true);
-      std::unique_ptr<ISelectionAccessor> acc;
+      std::unique_ptr<ISelectionReadAccessor> acc;
       if(!p.build(acc).isSuccess()) {
         ADD_FAILURE() << "unable to parse expression";
       }

@@ -9,7 +9,6 @@
 #define ASG_ANALYSIS_ALGORITHMS__ASG_EVENT_SCALE_FACTOR_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysReadDecorHandle.h>

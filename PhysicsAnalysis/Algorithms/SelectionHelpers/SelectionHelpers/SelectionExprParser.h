@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 
-#include "SelectionHelpers/ISelectionAccessor.h"
+#include "SelectionHelpers/ISelectionReadAccessor.h"
 #include "SelectionHelpers/SelectionHelpers.h"
 
 namespace CP {
@@ -89,15 +89,15 @@ class SelectionExprParser {
   /// Triggers the actual parsing of the expression
   /// @param [out] accessor Unique pointer the resulting accessor will be written to.
   /// @return StatusCode noting whether the operation succeeded.
-  StatusCode build(std::unique_ptr<ISelectionAccessor> &accessor);
+  StatusCode build(std::unique_ptr<ISelectionReadAccessor> &accessor);
 
  private:
   // Construct a binary OR
-  StatusCode expression(std::unique_ptr<ISelectionAccessor> &root);
+  StatusCode expression(std::unique_ptr<ISelectionReadAccessor> &root);
   // Construct an AND, attempts to group all ANDs it can see into a list 
-  StatusCode term(std::unique_ptr<ISelectionAccessor> &root);
+  StatusCode term(std::unique_ptr<ISelectionReadAccessor> &root);
   // Handle other constructs, potentially more ORs or ANDs.
-  StatusCode factor(std::unique_ptr<ISelectionAccessor> &root);
+  StatusCode factor(std::unique_ptr<ISelectionReadAccessor> &root);
 
   // The lexer to generate symbols from.
   DetailSelectionExprParser::Lexer m_lexer;

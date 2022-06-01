@@ -30,7 +30,7 @@ namespace FakeBkgTools
 namespace CP
 {
 
-  class ISelectionAccessor;
+  class ISelectionReadAccessor;
 
 /* 
  * Base class of concrete tools implementations, providing common helper methods
@@ -130,7 +130,7 @@ class BaseFakeBkgTool : virtual public CP::IFakeBkgTool, public CP::IFakeBkgSyst
     std::string m_tightDecoNameAndType;
 
     /// this can't be a unique_ptr as this can cause issues with the dictionary in some particular circumstances
-    CP::ISelectionAccessor* m_tightAccessor = nullptr; //!
+    CP::ISelectionReadAccessor* m_tightAccessor = nullptr; //!
 
     /// \brief property ProgressFileName
     std::string m_progressFileName;
