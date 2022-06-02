@@ -41,6 +41,7 @@ atlas_add_library( FastCaloSimLib
                    src/TLateralShapeCorrection.cxx
                    src/TSplineReweight.cxx
                    src/TCellReweight.cxx
+		   src/CellInfoContainerCondAlg.cxx
                    ${FastCaloSimLibDictSource}
                    PUBLIC_HEADERS FastCaloSim
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
