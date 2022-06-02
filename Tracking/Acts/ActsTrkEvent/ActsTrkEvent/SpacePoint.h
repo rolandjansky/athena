@@ -28,7 +28,7 @@ namespace ActsTrk {
                float& bottomHalfStripLength,
                const Eigen::MatrixBase<position_t>& bottomStripDirection,
                const Eigen::MatrixBase<position_t>& stripCenterDistance,
-               const Eigen::MatrixBase<position_t>& bottomStripCenter,
+               const Eigen::MatrixBase<position_t>& topStripCenter,
                SpacePointData& data,
                SpacePointMeasurementDetails& details,
                const boost::container::static_vector<std::size_t, 2>& measIndexes);
@@ -45,7 +45,7 @@ namespace ActsTrk {
     Acts::Vector3 topStripDirection() const;
     Acts::Vector3 bottomStripDirection() const;
     Acts::Vector3 stripCenterDistance() const;
-    Acts::Vector3 bottomStripCenter() const;
+    Acts::Vector3 topStripCenter() const;
 
     const boost::container::static_vector<std::size_t, 2>& measurementIndexes() const;
 
@@ -81,7 +81,7 @@ namespace ActsTrk {
                          float& bottomHalfStripLength,
                          const Eigen::MatrixBase<position_t>& bottomStripDirection,
                          const Eigen::MatrixBase<position_t>& stripCenterDistance,
-                         const Eigen::MatrixBase<position_t>& bottomStripCenter,
+                         const Eigen::MatrixBase<position_t>& topStripCenter,
                          SpacePointData& data,
                          SpacePointMeasurementDetails& details,
                          const boost::container::static_vector<std::size_t, 2>& measIndexes)
@@ -96,7 +96,7 @@ namespace ActsTrk {
 
     m_indexDetails = m_details->insert(topHalfStripLength, topStripDirection,
                                        bottomHalfStripLength, bottomStripDirection,
-                                       stripCenterDistance, bottomStripCenter);
+                                       stripCenterDistance, topStripCenter);
 
   }
   
@@ -113,33 +113,27 @@ namespace ActsTrk {
   }
 
   inline float SpacePoint::topHalfStripLength() const {
-    assert (hasMeasurementDetails());
     return m_details->topHalfStripLength(m_indexDetails);
   }
 
   inline float SpacePoint::bottomHalfStripLength() const {
-    assert (hasMeasurementDetails());
     return m_details->bottomHalfStripLength(m_indexDetails);
   }
 
   inline Acts::Vector3 SpacePoint::topStripDirection() const {
-    assert (hasMeasurementDetails());
     return m_details->topStripDirection(m_indexDetails);
   }
 
   inline Acts::Vector3 SpacePoint::bottomStripDirection() const {
-    assert (hasMeasurementDetails());
     return m_details->bottomStripDirection(m_indexDetails);
   }
 
   inline Acts::Vector3 SpacePoint::stripCenterDistance() const {
-    assert (hasMeasurementDetails());
     return m_details->stripCenterDistance(m_indexDetails);
   }
 
-  inline Acts::Vector3 SpacePoint::bottomStripCenter() const {
-    assert (hasMeasurementDetails());
-    return m_details->bottomStripCenter(m_indexDetails);
+  inline Acts::Vector3 SpacePoint::topStripCenter() const {
+    return m_details->topStripCenter(m_indexDetails);
   }
 
 } // Acts namespace
