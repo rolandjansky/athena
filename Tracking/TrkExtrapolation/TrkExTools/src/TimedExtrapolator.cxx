@@ -62,7 +62,7 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   m_navigator("Trk::Navigator/AtlasNavigator"),
   m_updators(),
   m_msupdators(),
-  m_elossupdators(),
+  m_elossupdater("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
   // m_dynamicLayerCreator(),
   m_subPropagators(Trk::NumberOfSignatures),
   m_subUpdators(Trk::NumberOfSignatures),
@@ -113,7 +113,7 @@ Trk::TimedExtrapolator::TimedExtrapolator(const std::string &t, const std::strin
   declareProperty("RequireMaterialDestinationHit", m_requireMaterialDestinationHit);
   declareProperty("MaterialEffectsUpdators", m_updators);
   declareProperty("MultipleScatteringUpdators", m_msupdators);
-  declareProperty("EnergyLossUpdators", m_elossupdators);
+  declareProperty("EnergyLossUpdater", m_elossupdater);
   declareProperty("SubMEUpdators", m_updatNames);
   //  declareProperty("CacheLastMaterialLayer", m_cacheLastMatLayer);
   // general behavior navigation
@@ -164,9 +164,7 @@ Trk::TimedExtrapolator::initialize() {
   if (m_msupdators.empty()) {
     m_msupdators.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
   }
-  if (m_elossupdators.empty()) {
-    m_elossupdators.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
-  }
+  
 
   if (!m_propagators.empty()) {
     if (m_propagators.retrieve().isFailure()) {

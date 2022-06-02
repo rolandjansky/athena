@@ -504,8 +504,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
            double x0 = 0.;
 
            int mmat = 0;
-           if (matvec_BACK && !matvec_BACK->empty() &&
-               !matvec_BACK->empty()) {
+           if (matvec_BACK && !matvec_BACK->empty() ) {
              std::vector<const Trk::TrackStateOnSurface*>::const_iterator it =
                matvec_BACK->begin();
              std::vector<const Trk::TrackStateOnSurface*>::const_iterator

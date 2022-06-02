@@ -107,7 +107,7 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
     TimedSubUpdators    += [ MaterialEffectsUpdator.name ]
 
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasEnergyLossUpdatorCfg
-    AtlasELossUpdator = result.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
+    AtlasELossUpdater = result.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
 
     # ----------------------------------------------------------------------------------------------------------       
 
@@ -115,7 +115,7 @@ def NITimedExtrapolatorCfg(flags, name="ISF_NITimedExtrapolator", **kwargs):
     kwargs.setdefault("Propagators", TimedPropagators)
     kwargs.setdefault("SubPropagators", TimedSubPropagators)
     kwargs.setdefault("SubMEUpdators",  TimedSubUpdators)
-    kwargs.setdefault("EnergyLossUpdators", [AtlasELossUpdator])
+    kwargs.setdefault("EnergyLossUpdater", AtlasELossUpdater)
 
     result.setPrivateTools(CompFactory.Trk.TimedExtrapolator(name, **kwargs))
     return result
