@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -6,11 +6,15 @@ log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
-from AthenaCommon.Configurable import Configurable
-if not Configurable.configurableRun3Behavior: 
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+
+if isRun3Cfg():
+    pass
+else:
     from TriggerMenuMT.HLT.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
     from TriggerMenuMT.HLT.MinBias.ALFAMenuSequences import ALFAPerfSequence
     from TriggerMenuMT.HLT.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
+
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 #----------------------------------------------------------------

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -10,8 +10,11 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLT.Config.ChainConfigurationBase import ChainConfigurationBase
-from AthenaCommon.Configurable import Configurable
-if not Configurable.configurableRun3Behavior: 
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+
+if isRun3Cfg():
+    pass
+else:
     from TriggerMenuMT.HLT.Tau.TauMenuSequences import tauCaloMVAMenuSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPrecTrackIsoSeq
 
 #--------------------------------------------------------

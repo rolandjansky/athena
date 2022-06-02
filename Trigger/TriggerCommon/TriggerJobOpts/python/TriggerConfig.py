@@ -706,8 +706,6 @@ def triggerPostRunCfg(flags):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = True
@@ -719,12 +717,7 @@ if __name__ == "__main__":
         menuCA.addSequence( seqAND("HLTAllSteps") )
         return menuCA
 
-
     acc = triggerRunCfg( ConfigFlags, menu = testMenu )
-    Configurable.configurableRun3Behavior=0
-    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-    appendCAtoAthena( acc )
-
 
     f=open("TriggerRunConf.pkl","wb")
     acc.store(f)

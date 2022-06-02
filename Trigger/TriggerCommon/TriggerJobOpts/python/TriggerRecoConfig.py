@@ -287,8 +287,6 @@ def Run3TriggerBSUnpackingCfg(flags):
 
 
 if __name__ == '__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
