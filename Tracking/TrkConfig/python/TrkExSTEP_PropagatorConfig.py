@@ -1,19 +1,37 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-# Configuration of TrkExSTEP_Propagator package
+
+# Configuration of STEP_Propagator package
+# The STEP (Simultaneous Track and Error Propagation)
+# propagates track parameters through the magnetic field.
+# Compared to the Runge Kutta Propagator it
+# includes material effects in the equation of motion
+# and applies corrections to the covariance matrices
+# continuously.
+# It is particularly suited for the propagation
+# of a particle going through a dense block of material.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def AtlasSTEP_PropagatorCfg(flags, name='AtlasSTEP_Propagator', **kwargs):
+
+def AtlasSTEP_PropagatorCfg(flags,
+                            name='AtlasSTEP_Propagator',
+                            **kwargs):
     result = ComponentAccumulator()
     AtlasSTEP_Propagator = CompFactory.Trk.STEP_Propagator(name, **kwargs)
     result.setPrivateTools(AtlasSTEP_Propagator)
     return result
 
-def AtlasNoMatSTEP_PropagatorCfg(flags, name='NoMatSTEP_Propagator', **kwargs):
+
+def AtlasNoMatSTEP_PropagatorCfg(flags,
+                                 name='NoMatSTEP_Propagator',
+                                 **kwargs):
     kwargs.setdefault("MaterialEffects", False)
     return AtlasSTEP_PropagatorCfg(flags, name, **kwargs)
 
-def fatrasSTEP_PropagatorCfg(flags, name="ISF_FatrasSTEP_Propagator", **kwargs):
+
+def fatrasSTEP_PropagatorCfg(flags,
+                             name="ISF_FatrasSTEP_Propagator",
+                             **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("MomentumCutOff", flags.Sim.Fatras.MomCutOffSec)
     kwargs.setdefault("SimulationMode", True)

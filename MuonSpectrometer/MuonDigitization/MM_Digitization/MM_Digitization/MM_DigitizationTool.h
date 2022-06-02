@@ -63,7 +63,7 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonCondData/NswCalibDbThresholdData.h"
-
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include <memory>
 #include <string>
 #include <sstream>
@@ -71,10 +71,6 @@
 #include <map>
 
 /*******************************************************************************/
-
-namespace MuonGM{
-  class MuonDetectorManager;
-}
 
 class MicromegasHitIdHelper;
 class TTree;
@@ -186,46 +182,48 @@ class MM_DigitizationTool : public PileUpToolBase {
 		TFile *m_file{};
 		TTree *m_ntuple{};
 
-		const MicromegasHitIdHelper* m_muonHelper{}; // not owned
-		const MuonGM::MuonDetectorManager* m_MuonGeoMgr{}; // not owned
+		const MicromegasHitIdHelper* m_muonHelper{nullptr}; // not owned
+		SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
+                                                                                "Key of input MuonDetectorManager condition data"};
+
 		std::list<std::unique_ptr<MMSimHitCollection>> m_MMHitCollList{};
 		std::unique_ptr<TimedHitCollection<MMSimHit>> m_timedHitCollection_MM{}; // the pileup hits
 		std::unique_ptr<MM_StripsResponseSimulation> m_StripsResponseSimulation{};
 		std::unique_ptr<MM_ElectronicsResponseSimulation> m_ElectronicsResponseSimulation{};
 
-		float m_driftVelocity;
-		int m_n_Station_side;
-		int m_n_Station_eta;
-		int m_n_Station_phi;
-		int m_n_Station_multilayer;
-		int m_n_Station_layer;
-		int m_n_hitStripID;
-		int m_n_StrRespTrg_ID;
-		int m_n_strip_multiplicity;
-		int m_n_strip_multiplicity_2;
-		int m_n_hitPDGId;
+        double m_driftVelocity{0};
+		int m_n_Station_side{-INT_MAX};
+		int m_n_Station_eta{-INT_MAX};
+		int m_n_Station_phi{-INT_MAX};
+		int m_n_Station_multilayer{-INT_MAX};
+		int m_n_Station_layer{-INT_MAX};
+		int m_n_hitStripID{-INT_MAX};
+		int m_n_StrRespTrg_ID{-INT_MAX};
+		int m_n_strip_multiplicity{-INT_MAX};
+		int m_n_strip_multiplicity_2{-INT_MAX};
+		int m_n_hitPDGId{-INT_MAX};
 
-		double m_n_hitOnSurface_x;
-		double m_n_hitOnSurface_y;
-		double m_n_hitDistToChannel;
-		double m_n_hitIncomingAngle;
-		double m_n_StrRespTrg_Time;
-		double m_n_hitIncomingAngleRads;
-		double m_n_hitKineticEnergy;
-		double m_n_hitDepositEnergy;
+		double m_n_hitOnSurface_x{-DBL_MAX};
+		double m_n_hitOnSurface_y{-DBL_MAX};
+		double m_n_hitDistToChannel{-DBL_MAX};
+		double m_n_hitIncomingAngle{-DBL_MAX};
+		double m_n_StrRespTrg_Time{-DBL_MAX};
+		double m_n_hitIncomingAngleRads{-DBL_MAX};
+		double m_n_hitKineticEnergy{-DBL_MAX};
+		double m_n_hitDepositEnergy{-DBL_MAX};
 
-		int m_exitcode;
+		int m_exitcode{0};
 
-		float m_tofCorrection;
-		float m_bunchTime;
-		float m_globalHitTime;
-		float m_eventTime;
+		double m_tofCorrection{-DBL_MAX};
+		double m_bunchTime{-DBL_MAX};
+		double m_globalHitTime{-DBL_MAX};
+		double m_eventTime{-DBL_MAX};
 		std::vector<int> m_n_StrRespID;
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
 
-		float m_noiseSlope = 0.0F;
-		float m_noiseIntercept = 0.0F;
+		double m_noiseSlope {0.};
+		double m_noiseIntercept{0.};
 };
 
 #endif // MM_DigitizationTool

@@ -8,6 +8,7 @@
 
 Reco_tf.py \
 --AMI=q445 \
+--athenaopts "RDOtoRDOTrigger:--threads=1" \
 --maxEvents=100 \
 --outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root \
 --imf False

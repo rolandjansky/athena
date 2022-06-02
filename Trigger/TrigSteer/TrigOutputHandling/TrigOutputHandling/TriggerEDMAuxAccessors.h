@@ -144,7 +144,8 @@ auto floatAccessors = initAccessors<float>(
   "vsi_twoCirc_dr", "vsi_twoCirc_dphi", "vsi_twoCirc_int_r", "vsi_vrtFast_r", "vsi_vrtFast_eta", "vsi_vrtFast_phi",
   "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2",
   "vsiHypo_nVtx", "vsiHypo_pTcut", "vsiHypo_rCut", "vsiHypo_nTrkCut", "vsiHypo_counts",
-  "eProbabilityNN"
+  "eProbabilityNN",
+  "trk_d0","cl_eta2","cl_phi2"
   );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");

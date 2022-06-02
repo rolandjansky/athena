@@ -109,7 +109,7 @@ namespace MuonPRDTest {
                 const  Amg::Vector3D& globalPrePosition = hit.globalPrePosition();
                 m_NSWsTGC_hitGlobalPrePosition.push_back(globalPrePosition);
                 if (hit.kineticEnergy() < 0.0) {
-                    m_NSWsTGC_hitGlobalPrePosition.push_back(-9999.9, -9999.9, -9999.9);
+                    m_NSWsTGC_hitGlobalPrePosition.push_back(-9999.9);
                 }
 
                 ATH_MSG_DEBUG("sTGC geometry, retrieving detector element for: isSmall " << isSmall << " eta " << idHelperSvc()->stgcIdHelper().stationEta(offId)

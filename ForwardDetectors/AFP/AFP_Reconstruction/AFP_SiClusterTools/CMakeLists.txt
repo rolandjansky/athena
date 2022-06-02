@@ -5,14 +5,15 @@ atlas_subdir( AFP_SiClusterTools )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS MathCore GenVector )
+find_package( ROOT COMPONENTS Math GenVector )
+find_package( nlohmann_json )
 
 atlas_add_library( AFP_SiClusterToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS AFP_SiClusterTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${ROOT_DEFINITIONS} ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AFP_DigiEv AFP_Geometry AFP_DBToolsLib AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel xAODForward )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AFP_DigiEv AFP_Geometry AFP_DBToolsLib AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel xAODForward nlohmann_json::nlohmann_json)
 
 atlas_add_component( AFP_SiClusterTools
                      src/components/*.cxx AFP_SiClusterTools/*.h
