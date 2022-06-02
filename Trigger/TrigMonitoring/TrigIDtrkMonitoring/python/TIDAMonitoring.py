@@ -304,15 +304,8 @@ def histsvc( flags ):
 
 if __name__=='__main__':
 
-    # Run 3 behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO
-    log.setLevel(INFO)
-
     log.info( "test running" )
 
     # Set the Athena configuration flags

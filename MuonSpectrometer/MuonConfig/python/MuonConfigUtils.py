@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # This file is just for shared functions etc used by this package.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -47,7 +47,10 @@ def SetupMuonStandaloneConfigFlags(args):
     # TODO: disable these for now, to be determined if needed
     ConfigFlags.Detector.GeometryCalo  = False
     ConfigFlags.Detector.GeometryID    = False
-    
+
+    # FIXME This is temporary. I think it can be removed with some other refactoring
+    ConfigFlags.Muon.makePRDs          = False
+
     ConfigFlags.Output.ESDFileName=args.output
     
     ConfigFlags.Input.isMC = True
@@ -67,6 +70,11 @@ def SetupMuonStandaloneCA(args,ConfigFlags):
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
+
+    if ConfigFlags.Input.isMC:
+        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        cfg.merge(GEN_AOD2xAODCfg(ConfigFlags))
+
     return cfg
     
 def SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord):

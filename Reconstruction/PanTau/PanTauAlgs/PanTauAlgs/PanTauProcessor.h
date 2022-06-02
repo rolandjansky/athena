@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ namespace PanTau
 
        virtual StatusCode initialize();
        virtual StatusCode finalize();
-       virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container);
+       virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container) const;
        
     private:
         
@@ -80,7 +80,7 @@ namespace PanTau
         double                                              m_Config_MinPt;
         double                                              m_Config_MaxPt;
         
-        void                                                fillDefaultValuesToTau(xAOD::TauJet* tauJet);
+        void                                                fillDefaultValuesToTau(xAOD::TauJet* tauJet) const;
         
         
     }; //end class

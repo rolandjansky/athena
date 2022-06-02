@@ -31,11 +31,6 @@ def main():
 
     flags.Input.Files = glob.glob(options.InputFiles)
     
-    # Setup the Run 3 behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-
     flags.Exec.MaxEvents = -1
     flags.Detector.EnableCalo = True
     flags.Trigger.enableL1CaloLegacy = True
@@ -109,7 +104,6 @@ def main():
     decorator.DecorName_caloCellET = "CaloCellET"
     acc.addEventAlgo(decorator, 'AthAlgSeq')
     
-    from AthenaCommon.Constants import DEBUG, INFO     
     RampMaker = CompFactory.L1CaloRampMaker()
     RampMaker.L1TriggerTowerTool = CompFactory.LVL1.L1TriggerTowerTool()
     RampMaker.DoTile = options.doTile
@@ -119,7 +113,6 @@ def main():
     RampMaker.IsGain1 = True
     RampMaker.CheckProvenance = True
     RampMaker.TileSaturationCut = 255.
-    RampMaker.OutputLevel = INFO
     # special region 1.3 < |eta| < 1.5, saturation on tile side.
     RampMaker.SpecialChannelRange = { 0x6130f02 : 150, 0x7100003 : 150, 0x7180f03 : 150, 0x7180303 : 150, 0x7100200 : 150,
                                       0x6130601 : 150, 0x6130302 : 150, 0x61f0303 : 150, 0x71c0e00 : 150, 0x71c0a00 : 150, 0x7180501 : 150, 0x6130003 : 150, 0x7140d01 : 150,

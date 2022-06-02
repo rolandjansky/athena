@@ -44,11 +44,11 @@ namespace PanTau {
     
     virtual StatusCode initialize();
 
-    virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK);
+    virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) const;
         
   private:
         
-    void                                        updateReaderVariables(PanTau::PanTauSeed* inSeed, std::vector<float>& list_BDTVariableValues);
+    void                                        updateReaderVariables(PanTau::PanTauSeed* inSeed, std::vector<float>& list_BDTVariableValues) const;
         
     std::string                                 m_calib_path; //<! cvmfs folder for data files
     std::string                                 m_Name_InputAlg;

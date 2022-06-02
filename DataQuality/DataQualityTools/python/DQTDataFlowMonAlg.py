@@ -38,6 +38,7 @@ def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
                               xmax=50.5,
                               opt='kAddBinsDynamically',
                               duration='run',
+                              merge='merge',
         )
 
     group.defineHistogram("detstates_idx,detstates;eventflag_summary_lowStat",

@@ -112,9 +112,6 @@ def doRoIBResult(flags):
   return False
 
 def L1TriggerByteStreamDecoderCfg(flags):
-  from AthenaCommon.Configurable import Configurable
-  cb = Configurable.configurableRun3Behavior
-  Configurable.configurableRun3Behavior += 1
 
   decoderTools = []
   maybeMissingRobs = []
@@ -164,7 +161,6 @@ def L1TriggerByteStreamDecoderCfg(flags):
     ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
   acc.merge(readBSAcc)
 
-  Configurable.configurableRun3Behavior = cb
   return acc
 
 def L1TriggerByteStreamEncoderCfg(flags):
@@ -194,12 +190,10 @@ def L1TriggerByteStreamEncoderCfg(flags):
 
 if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-  from AthenaCommon.Configurable import Configurable
   from AthenaCommon.Logging import logging
   from AthenaCommon.Constants import DEBUG
   import sys
 
-  Configurable.configurableRun3Behavior = 1
   log = logging.getLogger('TrigT1ResultByteStreamConfig')
   log.setLevel(DEBUG)
 

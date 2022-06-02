@@ -163,7 +163,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
                                           title = ('Run ' + run + ': Time difference between MBTS on A and C sides vs LumiBlock'
                                                    + ';Luminosity Block;Time difference A-side - C-side [ns]'),
                                           xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 151, ymin = -75.5, ymax = 75.5,
-                                          opt = 'kAddBinsDynamically')
+                                          opt = 'kAddBinsDynamically', merge = 'merge')
 
     # 9) Configure histogram with coincident Hits (energy) between two MBTS counters
     coincidentHitsGroup = helper.addGroup(tileMBTSMonAlg, 'TileCoincidentHitsMBTS', 'Tile')
@@ -209,7 +209,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             title = 'Run ' + run + ': Energy of ' + mbtsName + ' per lumiblock;Lumiblocks;Energy [pC]'
             name = 'lumiBlock,Energy;EnergyLB_' + mbtsName
             tool.defineHistogram(name, title = title, type = 'TProfile', path = 'Cell',
-                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
         # 13) Configure histogram with MBTS counter time
         timeArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileTimeMBTS', topPath = 'Tile/MBTS')
@@ -376,7 +376,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             title = f'Run {run}: Energy with TBP fired of {mbtsName} per lumiblock;Lumiblocks;Energy [pC]'
             name = f'lumiBlock,Energy;EnergyLB_TBP_{mbtsName}'
             tool.defineHistogram(name, title = title, type = 'TProfile', path = 'Cell',
-                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
         # 30) Configure histogram with MBTS counter time with TBP
         timeTrigArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileTimeTrigMBTS', topPath = 'Tile/MBTS')
