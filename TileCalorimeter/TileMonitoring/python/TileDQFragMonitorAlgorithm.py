@@ -110,7 +110,7 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     errorStateGroup = helper.addGroup(tileDQFragMonAlg, 'TileEventsWithErrEventInfoLB', 'Tile/DMUErrors')
     errorStateGroup.defineHistogram('lumiBlock;TileEventsWithErrEventInfo', path = 'BadDrawers', type='TH1F',
                                     title = 'Run ' + run + ': # events with Tile error state in EventInfo;LumiBlock;# events with error',
-                                    xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                                    xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
     # 3) Configure histogram with number of consecutive bad Tile modules
     consecutiveBadGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModules', 'Tile/DMUErrors')
@@ -123,7 +123,7 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     consecutiveBadLBGroup.defineHistogram('lumiBlock,TileConsecutiveBad;TileConsecutiveBadLB', path = 'BadDrawers', type='TH2F',
                                           title = 'Run ' + run + ': Max # Tile consecutive bad modules;LumiBlock;# consecutive bad modules',
                                           xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 17, ymin = -0.5, ymax = 16.5,
-                                          opt = 'kAddBinsDynamically')
+                                          opt = 'kAddBinsDynamically', merge = 'merge')
 
 
     from TileMonitoring.TileMonitoringCfgHelper import getPartitionName
@@ -198,7 +198,7 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
         name = 'lumiBlock,fractionOfBadDMUs;FracTileDigiErrors' + moduleName
 
         tool.defineHistogram(name, title = title, path = 'DMUErrors', type = 'TProfile',
-                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
 
 

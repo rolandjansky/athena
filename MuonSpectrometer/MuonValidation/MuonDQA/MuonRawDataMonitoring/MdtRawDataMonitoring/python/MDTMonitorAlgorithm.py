@@ -417,7 +417,7 @@ def MdtMonitoringConfig(inputFlags):
 
             if ilayer != 'Extra':
                 mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerLayer+";LB;[Eta - Phi]", type='TH2F',
-                                               path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
+                                               path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically', merge='merge')
 
         for icrate in crates:
             maxy=122
@@ -464,17 +464,17 @@ def MdtMonitoringConfig(inputFlags):
             titleOccvsLbPerRegionPerCrate = "OccupancyVsLB_"+iregion+icrate 
             var="lb_mon,y_mon_bin_bycrate_"+iregion+"_"+icrate+";"+titleOccvsLbPerRegionPerCrate
             mdtRegionGroup_bycrate.defineHistogram(var, type='TH2F', title=titleOccvsLbPerRegionPerCrate+";LB;[Eta-Phi]", 
-                                                   path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
+                                                   path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically', merge='merge')
                                            
             titleOccvsLbPerRegionPerCrate_ontrack = "OccupancyVsLB_ontrack_"+iregion+icrate
             var="lb_mon,y_mon_bin_bycrate_ontrack_"+iregion+"_"+icrate+";"+titleOccvsLbPerRegionPerCrate_ontrack
             mdtRegionGroup_bycrate.defineHistogram(var, title=titleOccvsLbPerRegionPerCrate_ontrack+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically') 
+                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically', merge='merge') 
 
     labelsY=getMDTLabelx("labelY_OccupancyVsLB")
     mdtGroup.defineHistogram('lb_mon,sector;OccupancyPerSectorVsLB', type='TH2F',
                              title='OccupancyPerSectorVsLB;LB;[Phi]',
-                             path='Overview', xbins=834, xmin=1, xmax=2502, ybins=64, ymin=0., ymax=64., ylabels=labelsY, opt='kAddBinsDynamically')
+                             path='Overview', xbins=834, xmin=1, xmax=2502, ybins=64, ymin=0., ymax=64., ylabels=labelsY, opt='kAddBinsDynamically', merge='merge')
     
 
     #histograms per chambers
