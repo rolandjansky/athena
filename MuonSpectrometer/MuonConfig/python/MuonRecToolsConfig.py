@@ -203,7 +203,7 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     # take propagator and navigator from the extrapolator
     kwargs.setdefault("PropagatorTool", extrapolator.Propagators[0] if len(extrapolator.Propagators)>0 else "")
     kwargs.setdefault("NavigatorTool",  extrapolator.Navigator)
-    kwargs.setdefault("EnergyLossTool", extrapolator.EnergyLossUpdators[0] if len(extrapolator.EnergyLossUpdators)>0 else "" )
+    kwargs.setdefault("EnergyLossTool", extrapolator.EnergyLossUpdater)
     ### We need to include the tracking geometry conditions 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     geom_cond_key = result.getPrimaryAndMerge(TrackingGeometryCondAlgCfg(flags)).TrackingGeometryWriteKey
