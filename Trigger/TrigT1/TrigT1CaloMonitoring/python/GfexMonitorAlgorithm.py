@@ -138,15 +138,6 @@ def GfexMonitoringConfig(inputFlags):
 
 
 if __name__=='__main__':
-    # For direct tests
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # set debug level for whole job
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO #DEBUG
-    log.setLevel(INFO)
-
     # set input file and config options
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     import glob

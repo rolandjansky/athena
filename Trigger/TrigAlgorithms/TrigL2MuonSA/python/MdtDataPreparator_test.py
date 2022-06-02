@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TrigL2MuonSA/share/MdtDataPreparator_test.py
 # Author: scott snyder
@@ -9,7 +9,6 @@
 #
 
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -51,8 +50,6 @@ def testCfg (configFlags):
     return result
 
 
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
