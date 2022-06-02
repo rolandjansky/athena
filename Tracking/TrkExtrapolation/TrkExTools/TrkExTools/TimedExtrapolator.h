@@ -297,7 +297,7 @@ private:
   ToolHandleArray<ITimedMatEffUpdator> m_updators; //!<  Array of Material Updators
   ToolHandleArray<IMultipleScatteringUpdator>
     m_msupdators;                                      //!<  Array of MultipleScattering Updators
-  ToolHandleArray<IEnergyLossUpdator> m_elossupdators; //!<  Array of EnergyLoss Updators
+  ToolHandle<IEnergyLossUpdator> m_elossupdater; //!<  EnergyLoss Updater
 
   // ---------------- For Extrapolation handling ------------ //
 

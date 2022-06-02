@@ -249,12 +249,8 @@ Trk::Extrapolator::initialize()
   if (m_updaters.empty()) {
     m_updaters.push_back("Trk::MaterialEffectsUpdator/DefaultMaterialEffectsUpdator");
   }
-  if (m_msupdaters.empty()) {
-    m_msupdaters.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
-  }
-  if (m_elossupdaters.empty()) {
-    m_elossupdaters.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
-  }
+ 
+ 
   if (!m_propagators.empty()) {
     ATH_CHECK(m_propagators.retrieve());
   }
@@ -830,7 +826,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           cache.m_extrapolationCache->updateX0(dInX0);
           Trk::MaterialProperties materialProperties(*propagVol, fabs(path));
           double currentqoverp = nextPar->parameters()[Trk::qOverP];
-          std::unique_ptr<EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+          std::unique_ptr<EnergyLoss> eloss = m_elossupdater->energyLoss(
             materialProperties, fabs(1. / currentqoverp), 1., dir, particle);
           ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
                         << nextPar->momentum().mag() - currPar->momentum().mag() << ","
@@ -847,13 +843,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
       if (propagVol->zOverAtimesRho() != 0. && cache.m_matstates) {
         double dInX0 = std::abs(path) / propagVol->x0();
         Trk::MaterialProperties materialProperties(*propagVol, std::abs(path));
-        double scatsigma = std::sqrt(m_msupdaters[0]->sigmaSquare(
+        double scatsigma = std::sqrt(m_msupdater->sigmaSquare(
           materialProperties, 1. / std::abs(nextPar->parameters()[qOverP]), 1., particle));
         auto newsa = Trk::ScatteringAngles(
           0, 0, scatsigma / std::sin(nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
-        std::unique_ptr<EnergyLoss> eloss = (m_elossupdaters[0]->energyLoss(
+        std::unique_ptr<EnergyLoss> eloss = (m_elossupdater->energyLoss(
           materialProperties, std::abs(1. / currentqoverp), 1., dir, particle));
         // compare energy loss
         ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
@@ -1142,7 +1138,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           cache.m_extrapolationCache->updateX0(dInX0);
           Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
           double currentqoverp = nextPar->parameters()[Trk::qOverP];
-          std::unique_ptr<Trk::EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+          std::unique_ptr<Trk::EnergyLoss> eloss = m_elossupdater->energyLoss(
             materialProperties, fabs(1. / currentqoverp), 1., dir, particle);
           cache.m_extrapolationCache->updateEloss(
             eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
@@ -1160,13 +1156,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           ATH_MSG_WARNING(" got negative path!! " << path);
         }
         Trk::MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
-        double scatsigma = std::sqrt(m_msupdaters[0]->sigmaSquare(
+        double scatsigma = std::sqrt(m_msupdater->sigmaSquare(
           materialProperties, 1. / std::abs(nextPar->parameters()[qOverP]), 1., particle));
         auto newsa = Trk::ScatteringAngles(
           0, 0, scatsigma / std::sin(nextPar->parameters()[Trk::theta]), scatsigma);
         // energy loss
         double currentqoverp = nextPar->parameters()[Trk::qOverP];
-        std::unique_ptr<EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+        std::unique_ptr<EnergyLoss> eloss = m_elossupdater->energyLoss(
           materialProperties, std::abs(1. / currentqoverp), 1., dir, particle);
         // compare energy loss
         ATH_MSG_DEBUG("  [M] Energy loss: STEP,EnergyLossUpdator:"
@@ -1285,7 +1281,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                   }
                   cache.m_extrapolationCache->updateX0(dInX0);
                   double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                  std::unique_ptr<EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+                  std::unique_ptr<EnergyLoss> eloss = m_elossupdater->energyLoss(
                     *lmat, fabs(1. / currentqoverp), 1. / costr, dir, particle);
                   cache.m_extrapolationCache->updateEloss(
                     eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
@@ -1300,13 +1296,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
 
               if (cache.m_matstates) {
                 double dInX0 = thick / lx0;
-                double scatsigma = std::sqrt(m_msupdaters[0]->sigmaSquare(
+                double scatsigma = std::sqrt(m_msupdater->sigmaSquare(
                   *lmat, 1. / std::abs(nextPar->parameters()[qOverP]), 1., particle));
                 auto newsa = Trk::ScatteringAngles(
                   0, 0, scatsigma / std::sin(nextPar->parameters()[Trk::theta]), scatsigma);
                 // energy loss
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                std::unique_ptr<EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+                std::unique_ptr<EnergyLoss> eloss = m_elossupdater->energyLoss(
                   *lmat, std::abs(1. / currentqoverp), 1. / costr, dir, particle);
 
                 // use curvilinear TPs to simplify retrieval by fitters
@@ -1442,7 +1438,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 Trk::MaterialProperties materialProperties(
                   *nextLayer->fullUpdateMaterialProperties(*nextPar)); // !<@TODO check
                 double currentqoverp = nextPar->parameters()[Trk::qOverP];
-                std::unique_ptr<EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+                std::unique_ptr<EnergyLoss> eloss = m_elossupdater->energyLoss(
                   materialProperties, fabs(1. / currentqoverp), 1. / costr, dir, particle);
                 cache.m_extrapolationCache->updateEloss(
                   eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
@@ -1458,13 +1454,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               double dInX0 = thick / lx0;
               Trk::MaterialProperties materialProperties(
                 *nextLayer->fullUpdateMaterialProperties(*nextPar)); // !<@TODOcheck
-              double scatsigma = std::sqrt(m_msupdaters[0]->sigmaSquare(
+              double scatsigma = std::sqrt(m_msupdater->sigmaSquare(
                 materialProperties, 1. / std::abs(nextPar->parameters()[qOverP]), 1., particle));
               auto newsa = Trk::ScatteringAngles(
                 0, 0, scatsigma / std::sin(nextPar->parameters()[Trk::theta]), scatsigma);
               // energy loss
               double currentqoverp = nextPar->parameters()[Trk::qOverP];
-              std::unique_ptr<EnergyLoss> eloss = (m_elossupdaters[0]->energyLoss(
+              std::unique_ptr<EnergyLoss> eloss = (m_elossupdater->energyLoss(
                 materialProperties, std::abs(1. / currentqoverp), 1. / costr, dir, particle));
 
               // use curvilinear TPs to simplify retrieval by fitters
@@ -4519,7 +4515,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
       }
       cache.m_extrapolationCache->updateX0(tInX0);
       double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
-      std::unique_ptr<Trk::EnergyLoss> energyLoss(m_elossupdaters[0]->energyLoss(
+      std::unique_ptr<Trk::EnergyLoss> energyLoss(m_elossupdater->energyLoss(
         *materialProperties, std::abs(1. / currentQoP), pathCorrection, propDir, particle));
       cache.m_extrapolationCache->updateEloss(energyLoss->meanIoni(),
                                               energyLoss->sigmaIoni(),
@@ -4535,10 +4531,10 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
     double tInX0 = pathCorrection * materialProperties->thicknessInX0();
     // get the q/p for the energyLoss object
     double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
-    auto energyLoss = std::unique_ptr<EnergyLoss>(m_elossupdaters[0]->energyLoss(
+    auto energyLoss = std::unique_ptr<EnergyLoss>(m_elossupdater->energyLoss(
       *materialProperties, std::abs(1. / currentQoP), pathCorrection, propDir, particle));
     // get the scattering angle
-    double sigmaMS = std::sqrt(m_msupdaters[0]->sigmaSquare(
+    double sigmaMS = std::sqrt(m_msupdater->sigmaSquare(
       *materialProperties, std::abs(1. / currentQoP), pathCorrection, particle));
     auto scatAngles =
       ScatteringAngles(0, 0, sigmaMS / std::sin(parsOnLayer->parameters()[Trk::theta]), sigmaMS);
@@ -5101,7 +5097,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       double dInX0 = fabs(path) / cache.m_currentDense->x0();
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
       MaterialProperties materialProperties(*cache.m_currentDense, fabs(path));
-      std::unique_ptr<EnergyLoss> eloss = (m_elossupdaters[0]->energyLoss(
+      std::unique_ptr<EnergyLoss> eloss = (m_elossupdater->energyLoss(
         materialProperties, fabs(1. / currentqoverp), 1., dir, particle));
       if (m_dumpCache) {
         ATH_MSG_DEBUG(cache.to_string( " extrapolateToVolumeWithPathLimit"));
@@ -5116,13 +5112,13 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
     if (cache.m_currentDense->zOverAtimesRho() != 0. && cache.m_matstates) {
       double dInX0 = std::abs(path) / cache.m_currentDense->x0();
       MaterialProperties materialProperties(*cache.m_currentDense, std::abs(path));
-      double scatsigma = std::sqrt(m_msupdaters[0]->sigmaSquare(
+      double scatsigma = std::sqrt(m_msupdater->sigmaSquare(
         materialProperties, 1. / std::abs(nextPar->parameters()[qOverP]), 1., particle));
       auto newsa = Trk::ScatteringAngles(
         0, 0, scatsigma / std::sin(nextPar->parameters()[Trk::theta]), scatsigma);
       // energy loss
       double currentqoverp = nextPar->parameters()[Trk::qOverP];
-      std::unique_ptr<EnergyLoss> eloss = m_elossupdaters[0]->energyLoss(
+      std::unique_ptr<EnergyLoss> eloss = m_elossupdater->energyLoss(
         materialProperties, std::abs(1. / currentqoverp), 1., dir, particle);
       // compare energy loss
       ATH_MSG_DEBUG(" [M] Energy loss: STEP , EnergyLossUpdator:"

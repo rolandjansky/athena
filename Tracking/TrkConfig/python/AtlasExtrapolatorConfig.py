@@ -123,20 +123,18 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # MS
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Cavern
 
-    AtlasELossUpdator = result.popToolsAndMerge(
-        TC.AtlasEnergyLossUpdatorCfg(flags))
-    AtlasEnergyLossUpdators = [AtlasELossUpdator]
+    AtlasELossUpdater = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
+    AtlasEnergyLossUpdater = AtlasELossUpdater
 
     # call the base class constructor
-    Extrapolator = CompFactory.Trk.Extrapolator(
-        name,
-        Navigator=AtlasNavigator,
-        MaterialEffectsUpdators=AtlasUpdators,
-        Propagators=AtlasPropagators,
-        SubPropagators=AtlasSubPropagators,
-        SubMEUpdators=AtlasSubUpdators,
-        EnergyLossUpdators=AtlasEnergyLossUpdators
-    )
+    Extrapolator = CompFactory.Trk.Extrapolator(name,
+                                                Navigator=AtlasNavigator,
+                                                MaterialEffectsUpdators=AtlasUpdators,
+                                                Propagators=AtlasPropagators,
+                                                SubPropagators=AtlasSubPropagators,
+                                                SubMEUpdators=AtlasSubUpdators,
+                                                EnergyLossUpdater=AtlasEnergyLossUpdater
+                                                )
 
     result.setPrivateTools(Extrapolator)
     return result
@@ -314,10 +312,8 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
     kwargs.setdefault("SubPropagators", sub_propagators)
     kwargs.setdefault("SubMEUpdators", sub_updators)
 
-    AtlasELossUpdator = result.popToolsAndMerge(
-        TC.AtlasEnergyLossUpdatorCfg(flags))
-    # used in ExtrapolateM (GlobalChi2)
-    kwargs.setdefault("EnergyLossUpdators", [AtlasELossUpdator])
+    AtlasELossUpdater = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
+    kwargs.setdefault("EnergyLossUpdater", AtlasELossUpdater)
 
     extrapolator = CompFactory.Trk.Extrapolator(name, **kwargs)
     result.setPrivateTools(extrapolator)
@@ -336,9 +332,8 @@ def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
     AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags))
     kwargs.setdefault("Navigator", AtlasNavigator)
 
-    AtlasELossUpdator = result.popToolsAndMerge(
-        TC.AtlasEnergyLossUpdatorCfg(flags))
-    kwargs.setdefault("EnergyLossUpdators", [AtlasELossUpdator])
+    AtlasELossUpdater = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
+    kwargs.setdefault("EnergyLossUpdater", AtlasELossUpdater)
 
     if 'Propagators' not in kwargs:
         from TrkConfig.TrkExSTEP_PropagatorConfig import (
