@@ -95,6 +95,9 @@ private:
   bool m_caloOnly; 
   float m_trigEtTh;
 
+  // Skip amboguyity check when emulating the HLT 
+  bool m_skipAmbiguityCut;
+
 }; // End: class definition
 
 #endif

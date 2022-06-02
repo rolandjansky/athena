@@ -69,6 +69,8 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(const std::string& myname)
                   m_caloOnly = false,
                   "Flag to tell the tool if its a calo only cutbase");
   declareProperty("trigEtTh", m_trigEtTh = -999., "Trigger threshold");
+
+  declareProperty("skipAmbiguityCut",m_skipAmbiguityCut = false, "If true, it will skip the ambiguity cut. This is useful for HLT photon emulation");
 }
 
 // =================================================================
@@ -420,11 +422,13 @@ AsgPhotonIsEMSelector::execute(const EventContext& ctx,
 
   // Add ambiguity resolution cut for photon (vs electron)
   // to reproduce release 21.2 ambiguity tool configuration
-  static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
-  int AmbiguityType = acc(*eg);
-  if (eg->author() == xAOD::EgammaParameters::AuthorAmbiguous &&
-      AmbiguityType == xAOD::AmbiguityTool::ambiguousNoInnermost) {
-    isEM |= (0x1 << egammaPID::AmbiguityResolution_Photon);
+  if (!m_skipAmbiguityCut){
+	  static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+	  int AmbiguityType = acc(*eg);
+	  if (eg->author() == xAOD::EgammaParameters::AuthorAmbiguous &&
+			  AmbiguityType == xAOD::AmbiguityTool::ambiguousNoInnermost) {
+		  isEM |= (0x1 << egammaPID::AmbiguityResolution_Photon);
+	  }
   }
 
   return StatusCode::SUCCESS;
