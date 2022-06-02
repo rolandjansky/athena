@@ -31,8 +31,6 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     log.setLevel(DEBUG)
 
     ConfigFlags.LAr.doAlign=False

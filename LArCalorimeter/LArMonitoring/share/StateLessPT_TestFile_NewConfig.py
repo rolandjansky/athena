@@ -139,8 +139,6 @@ if __name__=='__main__':
    
    ## And now CA
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior = 1
 
    from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
    allSteeringFlagsOff()
