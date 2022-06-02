@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
@@ -205,15 +205,15 @@ void LArWheelCalculator::fill_sincos_parameterization()
   m_vsincos_par.param_2[3] = m_cos_parametrization[1];
   filled[S] = true;
 
-  // FIXME: nothing below is needed unless debug printing
-
+  //
+  // Nothing below is needed unless for debugging
+  //
 #if DEBUGPRINT
   std::cout << "sin params:" << params_sin << std::endl;
   std::cout << "cos params:" << params_cos << std::endl;
 
   double dsinr = 0., dcosr = 0.;
   double dtrigr = 0;
-#endif
 
   double dsin = 0., dcos = 0.;
   double dtrig = 0.;
@@ -223,38 +223,29 @@ void LArWheelCalculator::fill_sincos_parameterization()
     double sin_a_v, cos_a_v;
     parameterized_sincos(r, sin_a, cos_a);
     m_vsincos_par.eval(r, sin_a_v, cos_a_v);
-#if DEBUGPRINT
     std::streamsize ss = std::cout.precision();
     std::cout.precision(16);
     std::cout << "def: " << r << " " << sin_a << " " << cos_a << std::endl;
     std::cout << "vec: " << r << " " << sin_a_v << " " << cos_a_v << std::endl;
     std::cout << "dif: " << r << " " << (sin_a - sin_a_v) / sin_a << " " << (cos_a - cos_a_v) / cos_a << std::endl;
     std::cout.precision(ss);
-#endif
     double ds = fabs(scalpha.sn - sin_a);
     if(ds > dsin){
       dsin = ds;
-#if DEBUGPRINT
       dsinr = r;
-#endif
     }
     double dc = fabs(scalpha.cs - cos_a);
     if(dc > dcos){
       dcos = dc;
-#if DEBUGPRINT
       dcosr = r;
-#endif
     }
     double dt = fabs(sin_a*sin_a + cos_a*cos_a - 1.);
     if(dt > dtrig){
       dtrig = dt;
-#if DEBUGPRINT
       dtrigr = r;
-#endif
     }
   }
 
-#if DEBUGPRINT
   std::cout << "Max. difference: " << std::endl
             << "\tsin: " << dsin << " at " << dsinr << std::endl
             << "\tcos: " << dcos << " at " << dcosr << std::endl
