@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "DecisionSummaryMakerAlg.h"
@@ -25,6 +25,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   if (m_doCostMonitoring) {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
+  ATH_CHECK( m_prescaler.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -41,6 +42,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   auto container = outputHandle.ptr();
 
   Decision* passRawOutput = newDecisionIn( container, summaryPassNodeName() );
+  Decision* passExpressOutput = newDecisionIn( container, summaryPassExpressNodeName() );
   Decision* prescaledOutput = newDecisionIn( container, summaryPrescaledNodeName() );
 
   DecisionIDContainer allPassingFinalIDs;
@@ -142,6 +144,19 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput, rosMonOutput));
   }
+
+  // Calculate and save express stream prescale decisions
+  // TODO: this involves pointless conversions set<uint> -> vector<HLT::Identifier> -> set<uint>, adapt IPrescalingTool to operate on set<uint>
+  HLT::IDVec allPassingFinalIDsVec{allPassingFinalIDs.begin(),allPassingFinalIDs.end()}; // Convert set to vector
+  HLT::IDVec expressIDsVec;
+  ATH_CHECK( m_prescaler->prescaleChains(context, allPassingFinalIDsVec, expressIDsVec, /*forExpressStream=*/ true) );
+  DecisionIDContainer expressIDs; // Convert vector to set
+  for (const HLT::Identifier& id : expressIDsVec) {
+    expressIDs.insert(id.numeric());
+  }
+  decisionIDs( passExpressOutput ).insert( decisionIDs( passExpressOutput ).end(),
+                                           expressIDs.begin(),
+                                           expressIDs.end() ); // Save this to the output
 
   // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute
   // in events which are accepted by one ore more chains.

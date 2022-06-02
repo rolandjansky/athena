@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H
 #define TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H
@@ -9,14 +9,12 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h" // Defines PEBInfo and keys to retrieve it
-#include "HLTSeeding/IPrescalingTool.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 
 // System includes
 #include <string>
-#include <map>
 #include <unordered_map>
 #include <tuple>
 
@@ -32,8 +30,7 @@ public:
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const override;
 
   virtual StatusCode initialize() override;
-
-  virtual StatusCode finalize() override;
+  virtual StatusCode start() override;
 
   /// Type describing StreamTag information needed by the tool: {name, type, obeysLumiBlock, forceFullEventBuilding}
   using StreamTagInfo = std::tuple<std::string, std::string, bool, bool>;
@@ -46,9 +43,6 @@ private:
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_pebDecisionKeys {this, "PEBDecisionKeys", {},
     "Decisions including PEBInfo" };
-
-  ToolHandle<IPrescalingTool> m_prescaler{
-    this, "prescaler", "PrescalingTool/PrescalingTool", "Prescaling tool"};
 
   /// Chain to streams map filled from the HLT Menu JSON
   std::unordered_map<TrigCompositeUtils::DecisionID, std::vector<StreamTagInfo> > m_mapping;
