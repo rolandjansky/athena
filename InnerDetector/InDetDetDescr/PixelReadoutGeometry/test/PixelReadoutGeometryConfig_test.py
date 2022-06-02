@@ -3,12 +3,10 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg, ITkPixelReadoutManagerCfg
 
 # test setup
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = []
 # test
 PixelReadoutManagerAcc = PixelReadoutManagerCfg(ConfigFlags, name="PixelReadoutManagerTest")

@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
 from glob import glob
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 def GetCustomAthArgs():
     from argparse import ArgumentParser
