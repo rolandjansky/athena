@@ -404,6 +404,11 @@ class fpeAuditor(_modifier):
     Turn on FPEAuditor
     """
     def postSetup(self, flags):
+        import os
+        platform = os.environ.get(os.environ.get('AtlasProject','')+'_PLATFORM','')
+        if 'x86_64' not in platform:
+            log.info('The fpeAuditor Modifier is ignored because FPEAuditor doesn\'t support the platform "%s". It only supports x86_64', platform)
+            return
         from AthenaCommon import CfgMgr
         theApp.AuditAlgorithms = True
         theApp.AuditServices = True
