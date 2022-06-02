@@ -359,7 +359,10 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
             getPublicTool("MuonSegmentTagTool")
             topSequence += getAlgorithm("MuonSegmentTagAlg")
             if InDetFlags.doR3LargeD0(): topSequence += getAlgorithm("MuonSegmentTagAlg_LRT")
-
+        
+        if muonRecFlags.runCommissioningChain(): 
+            topSequence += getAlgorithm("MuonCombinedAlg_EMEO")
+    
         # Gather together all segment containers
         topSequence += getAlgorithm("MuonSegContainerMergerAlg")
         ## Create the segment container
@@ -380,7 +383,6 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         if InDetFlags.doR3LargeD0(): topSequence += getAlgorithm("MuonCreatorAlg_LRT")
         # Commissioning chain
         if muonRecFlags.runCommissioningChain(): 
-            topSequence += getAlgorithm("MuonCombinedAlg_EMEO")
             topSequence += getAlgorithm("MuonCreatorAlg_EMEO") 
             topSequence.MuonCreatorAlg_EMEO.MuonCreatorTool.ParticleCaloExtensionTool.StartFromPerigee=True
 
