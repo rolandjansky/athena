@@ -28,16 +28,11 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 // Local include(s):
 #include "xAODTrackingCnv/ITrackParticleMonitoring.h"
+#include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
+#include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
+#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-class GenericMonitoringTool;
-
-namespace Trk {
-  class ITrackParticleCreatorTool;
-}
-namespace xAODMaker {
-  class ITrackCollectionCnvTool;
-  class IRecTrackParticleContainerCnvTool;
-}
 
 
 namespace xAODMaker {
@@ -69,16 +64,14 @@ namespace xAODMaker {
     virtual StatusCode finalize();
 
   private:
-    /// The key of the input TrackParticlesContainer
-
-          
+  
     /// toggle on adding truth links
-    bool m_addTruthLink;
+    Gaudi::Property<bool> m_addTruthLink{this,"AddTruthLink", false };
     /// The key for the input TrackParticleTruthCollection
 
 
     /// ToolHandle to particle creator
-    ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator;
+    ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator{this,  "TrackParticleCreator", "Trk::TrackParticleCreatorTool/TrackParticleCreatorTool" };
     /// ToolHandle to truth classifier
     ToolHandle<IMCTruthClassifier> m_truthClassifier{
       this,
@@ -88,44 +81,46 @@ namespace xAODMaker {
     };
 
     // handles to the converting tools
-    ToolHandle<xAODMaker::ITrackCollectionCnvTool> m_TrackCollectionCnvTool;
+    ToolHandle<xAODMaker::ITrackCollectionCnvTool> m_TrackCollectionCnvTool{this, "TrackCollectionCnvTool", "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool"};
     ToolHandle<xAODMaker::IRecTrackParticleContainerCnvTool>
-      m_RecTrackParticleContainerCnvTool;
+      m_RecTrackParticleContainerCnvTool{this, "RecTrackParticleContainerCnvTool", "xAODMaker::RecTrackParticleContainerCnvTool/"
+      "RecTrackParticleContainerCnvTool" };
 
-    SG::ReadHandleKey<Rec::TrackParticleContainer> m_aod;
+    SG::ReadHandleKey<Rec::TrackParticleContainer> m_aod{this, "AODContainerName", "TrackParticleCandidate"};
 
-    SG::ReadHandleKey<TrackCollection> m_tracks;
+    SG::ReadHandleKey<TrackCollection> m_tracks{this, "TrackContainerName", "Tracks"};
 
-    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodout;
+    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodout{this, "xAODTrackParticlesFromTracksContainerName", "InDetTrackParticles"};
+    
 
-    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodTrackParticlesout;
+    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodTrackParticlesout{this, "xAODContainerName", "ConvertedTrackParticleCandidate" };
     SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthOriginKey{this,"truthOriginKey", "" , "Key to declare that the alg will write truthOrigin. Will be overwritten during init"};
     SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthTypeKey{this, "truthTypeKey", "" , "Key to declare that the alg will write truthType. Will be overwritten during init" };
     SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthLinkKey{this, "truthLinkKey", "", "Key to declare that the alg will writhe the truthParticleLink. Will be overwritten during init."};
     SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthMatchProbKey{this, "truthMatchProbKey", "", "Key to declare that the alg will writhe the truthParticleLink. Will be overwritten during init."};
 
 
-    SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthParticleLinkVec;
-    SG::ReadHandleKey<TrackParticleTruthCollection> m_aodTruth;
-    SG::ReadHandleKey<TrackTruthCollection> m_trackTruth;
-
+    SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthParticleLinkVec{this, "xAODTruthLinkVector", "xAODTruthLinks"};
+    SG::ReadHandleKey<TrackParticleTruthCollection> m_aodTruth{this, "AODTruthContainerName" , ""};
+    SG::ReadHandleKey<TrackTruthCollection> m_trackTruth{this, "TrackTruthContainerName", ""};
+  
     // Allow monitoring of track parameters during conversion
-    bool m_doMonitoring;
-    ToolHandle<ITrackParticleMonitoring>
-      m_trackMonitoringTool{ this, "TrkMonTool", "", "Tracking Monitoring tool" };
+    Gaudi::Property<bool> m_doMonitoring{this, "DoMonitoring", false};
+    ToolHandle<ITrackParticleMonitoring> m_trackMonitoringTool{ this, "TrkMonTool", "", "Tracking Monitoring tool" };
 
     //for timing we need a handle to the MonTool in the alg 
     ToolHandle<GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
     // Augment observed tracks with information from track observer tool map
-    bool m_augmentObservedTracks;
-    SG::ReadHandleKey<ObservedTrackMap> m_tracksMap;
+    Gaudi::Property<bool> m_augmentObservedTracks{this, "AugmentObservedTracks", false, "augment observed tracks"};
+    SG::ReadHandleKey<ObservedTrackMap> m_tracksMap{this, "TracksMapName", "" , "name of observed tracks map saved in store"};
+
 
     /// toggle on converting AOD track particles to xAOD
-    bool m_convertAODTrackParticles;
+    Gaudi::Property<bool> m_convertAODTrackParticles{this, "ConvertTrackParticles", true};
 
     /// toggle on converting tracks to xAOD
-    bool m_convertTracks;
+    Gaudi::Property<bool> m_convertTracks{this, "ConvertTracks", false};
 
     template<typename CONT, typename TRUTHCONT, typename CONVTOOL>
     int convert(const CONT&,
