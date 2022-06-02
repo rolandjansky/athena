@@ -321,7 +321,7 @@ StatusCode PprMonitorAlgorithm::makePPMTower( const xAOD::TriggerTower_v2* tt,
   
   // LUT JEP
   int jepET = 0;
-  const std::vector<uint_least8_t> jepETvec = tt->lut_jep();
+  const std::vector<uint_least8_t>& jepETvec = tt->lut_jep();
   if (jepETvec.size() > 0) jepET = tt->jepET();
   
   // ADC timeslice
