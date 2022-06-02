@@ -27,8 +27,6 @@ def CaloBCIDAvgAlgCfg (flags):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.loadAllDynamicFlags()
 

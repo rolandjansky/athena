@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -38,11 +38,6 @@ def CaloMonitoringCfg(flags):
 if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-   from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import INFO
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior = True
-   log.setLevel(INFO)
 
    from AthenaConfiguration.TestDefaults import defaultTestFiles
    ConfigFlags.Input.Files = defaultTestFiles.ESD
