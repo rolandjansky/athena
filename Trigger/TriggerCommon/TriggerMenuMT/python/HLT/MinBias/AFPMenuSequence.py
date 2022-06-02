@@ -16,7 +16,6 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     AFPInputMaker.RoIs = "AFPRoIs"
 
     from AthenaCommon.GlobalFlags import globalflags
-    from AthenaCommon.Configurable import Configurable
 
     if globalflags.InputFormat.is_bytestream():
         # bytestream convertor
@@ -24,9 +23,6 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
 
         # digitalization
         AFP_R2D=CompFactory.AFP_Raw2Digi("AFP_Raw2Digi")
-
-    wasRun3=Configurable.configurableRun3Behavior
-    Configurable.configurableRun3Behavior=1 
 
     #cluster reconstruction
 
@@ -46,8 +42,6 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     # vertex reconstruction
     from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_HLT
     AFP_Vtx=algorithmCAToGlobalWrapper(AFP_VertexReco_HLT,ConfigFlags)
-    
-    Configurable.configurableRun3Behavior=wasRun3
     
     if globalflags.InputFormat.is_bytestream():
         AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])

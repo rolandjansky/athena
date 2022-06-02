@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Config.Utility.MenuAlignmentTools import get_alignment_group_ordering as getAlignmentGroupOrdering
 from TriggerMenuMT.HLT.Config.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from TrigCompositeUtils.TrigCompositeUtils import legName
-from AthenaCommon.Configurable import Configurable
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 
 from collections import OrderedDict
@@ -21,7 +21,7 @@ def mergeChainDefs(listOfChainDefs, chainDict):
     #one for each part in the chain
     
     # protect against serial merging in the signature code
-    if Configurable.configurableRun3Behavior:   
+    if isRun3Cfg():
         try:           
             for chainPartConfig in listOfChainDefs:
                 if any ([ "_MissingCA" in step.name for step in chainPartConfig.steps]):
@@ -158,7 +158,7 @@ def EmptyMenuSequenceCfg(flags, name):
     return EmptyMenuSequence(name)
 
 def getEmptyMenuSequence(flags, name):
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
         return EmptyMenuSequenceCfg(flags, name)
     else:
         return RecoFragmentsPool.retrieve(EmptyMenuSequenceCfg, flags=flags, name=name)                
