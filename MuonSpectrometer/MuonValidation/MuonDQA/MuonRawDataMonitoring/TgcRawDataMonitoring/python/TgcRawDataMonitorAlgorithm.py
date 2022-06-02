@@ -1035,6 +1035,6 @@ if __name__=='__main__':
     cfg.merge(L1ConfigSvcCfg(ConfigFlags))
     generateL1Menu(ConfigFlags)
 
-    cfg.printConfig(withDetails=True, summariseProps = True)
+    cfg.printConfig(withDetails=False, summariseProps = False)
 
     cfg.run()
