@@ -368,6 +368,37 @@ TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ2 =  ["AntiKt8EMPFlowExKt
                                                              + "SoftBVrtClusterTool_MSVTight_Vertices_lzsig."
                                                              + "SoftBVrtClusterTool_MSVTight_Vertices_3dsig."]
 
+# Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ4           =  ["AntiKt4EMPFlowJets."
+                                                             + "LargeJetLabel."]
+TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ4           =  ["AntiKt8EMPFlowJets."
+                                                             + "ExKt2GASubJets."
+                                                             + "ExKtbb_dexter_pbb."
+                                                             + "ExKtbb_dexter_pb."
+                                                             + "ExKtbb_dexter_pl."
+                                                             + "dexter_GhostBHadronsCount."
+                                                             + "dexter_GhostCHadronsCount."
+                                                             + "dexter_TruthLabel."
+                                                             ]
+TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ4 =  ["AntiKt8EMPFlowExKt2GASubJets."
+                                                             + "GhostBHadronsFinal."
+                                                             + "GhostBHadronsFinalCount."
+                                                             + "GhostCHadronsFinal."
+                                                             + "GhostCHadronsFinalCount."
+                                                             + "GhostTrack."
+                                                             + "GhostTrackCount."
+                                                             + "InputType."
+                                                             + "ExKtbb_maxsd0."
+                                                             + "ExKtbb_av3sd0."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_pt."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_eta."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_phi."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_mass."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_lxy."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_lxysig."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_lz."
+                                                             + "SoftBVrtClusterTool_MSVTight_Vertices_lzsig."]
+
 # Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "ActiveArea."
