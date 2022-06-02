@@ -29,6 +29,7 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
     tauTriggers        = 'HLT_tau.*'
     jetTriggers        = 'HLT_3j.*|HLT_4j.*|HLT_5j.*|HLT_6j.*|HLT_7j.*|HLT_8j.*|HLT_j.*_a.*| HLT_ht.*'
     bjetTriggers       = 'HLT_.*bmedium.*|HLT_.*btight.*|HLT_.*bloose.*|HLT_.*boffperf.*|HLT_.*bmv2.*'
+    metTriggers        = 'HLT_xe.*'
     TriggerChains      = ''
     if TriggerFilter=='allTriggers':
         TriggerChains      = electronTriggers+"|"+muonTriggers+"|"+tauTriggers+"|"+jetTriggers+"|"+bjetTriggers+"|"+elecPlusMuTriggers
@@ -36,6 +37,8 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
         TriggerChains      = electronTriggers+"|"+muonTriggers+"|"+tauTriggers+"|"+elecPlusMuTriggers
     elif TriggerFilter=='hadronicTriggers':
         TriggerChains      = jetTriggers+"|"+bjetTriggers
+    elif TriggerFilter=='hadronicPlusMetTriggers':
+        TriggerChains      = jetTriggers+"|"+bjetTriggers+"|"+metTriggers
     else:
         print 'Unknown TriggerFilter parameter \"'+TriggerFilter+'\" - acting as \"allTriggers\"'
     print "TOPQ triggers kept: ", TriggerChains
@@ -231,6 +234,31 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
         thinningTools.append(TOPQTrkJetJetFitterThinningTool)
         print TOPQname+".py", TOPQname+"TrkJetJetFitterThinningTool: ", TOPQTrkJetJetFitterThinningTool
 
+    if TOPQname == 'TOPQ4':
+
+        # Keep tracks of the exkt2 jets
+
+        largeR_pt = "AntiKt8EMPFlowJets.pt > 15*GeV"
+        largeR_eta = "abs(AntiKt8EMPFlowJets.eta) < 2.5"
+        largeRsel = "count(({0}) && ({1})) >= 1".format(largeR_pt, largeR_eta)
+        track_particle_thinning_trackjetpt_cut = "AntiKt8EMPFlowExKt2GASubJets.pt >= 5*GeV"
+
+        TOPQTrkJetThinningToolExkt = DerivationFramework__TrkJetTrackThinning(
+            name                    = TOPQname + "TrkJetTrackThinning",
+            ThinningService         = TOPQThinningSvc,
+            TrkJetKey               = "AntiKt8EMPFlowExKt2GASubJets",
+            InDetTrackParticlesKey  = "InDetTrackParticles",
+            TrkJetSelectionString   = track_particle_thinning_trackjetpt_cut,
+            EventSelectionString    = largeRsel,
+            ThinConstituents        = True,
+            ThinJetFitterTracks     = False,
+            ThinSV1Tracks           = False,
+            ApplyAnd                = False
+        )
+        ToolSvc += TOPQTrkJetThinningToolExkt
+        thinningTools.append(TOPQTrkJetThinningToolExkt)
+        print TOPQname+".py", TOPQname+"TrkJetThinningTool: ", TOPQTrkJetThinningToolExkt
+
     if TOPQname == 'TOPQ1':
 
         # Keep tracks of the exkt2 jets
@@ -239,7 +267,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
         largeR_eta = "abs(AntiKt8EMPFlowJets.eta) < 2.5"
         largeRsel = "count(({0}) && ({1})) >= 1".format(largeR_pt, largeR_eta)
         track_particle_thinning_trackjetpt_cut = "AntiKt8EMPFlowExKt2GASubJets.pt >= 5*GeV"
-        
+
         TOPQTrkJetThinningToolExkt = DerivationFramework__TrkJetTrackThinning(
             name                    = TOPQname + "TrkJetTrackThinning",
             ThinningService         = TOPQThinningSvc,

@@ -74,7 +74,7 @@ def setup(TOPQname, stream):
         "AntiKt4EMPFlowJets_BTagging201810",
         "AntiKt4EMPFlowJets_BTagging201903",
         "AntiKt4EMTopoJets",
-        "AntiKt4EMTopoJets_BTagging201810",        
+        "AntiKt4EMTopoJets_BTagging201810",
         "AntiKt4TruthDressedWZJets",
         "AntiKt4TruthJets",
         "AntiKt4TruthWZJets",
@@ -92,7 +92,7 @@ def setup(TOPQname, stream):
         "Muons",
         "Photons",
         "PrimaryVertices",
-        "TauJets",        
+        "TauJets",
     ]
 
     print "TOPQSlimmingHelper.SmartCollections: " , TOPQSlimmingHelper.SmartCollections
@@ -187,11 +187,15 @@ def setup(TOPQname, stream):
         from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
         TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
     elif TOPQname == 'TOPQ2':
-        # for TOPQDERIV-62 and TOPQDERIV-98                                                                                                                                     
+        # for TOPQDERIV-62 and TOPQDERIV-98
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ2
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ2
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ2
     elif TOPQname == 'TOPQ4':
+        # for TOPQDERIV-62 and TOPQDERIV-98
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ4
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ4
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ4
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
@@ -311,7 +315,7 @@ def setup(TOPQname, stream):
                    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                    "AntiKt10UFOCSSKJets",
-                   "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets", 
+                   "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                  ],
                   # Veto the following jet containers in the output
                   ["AntiKt3PV0TrackJets",
