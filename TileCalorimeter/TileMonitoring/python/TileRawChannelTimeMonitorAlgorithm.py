@@ -74,7 +74,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     # 3) Configure histograms with Tile partition average time vs luminosity block per partition
     addTile2DHistogramsArray(helper, tileRawChanTimeMonAlg, name = 'TileAverageTimeLB',
                              xvalue = 'lumiBlock', yvalue = 'time', type='TH2D',
-                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]', opt = 'kAddBinsDynamically',
+                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]', opt = 'kAddBinsDynamically', merge = 'merge',
                              path = 'Tile/RawChannelTime/Summary', run = run, perPartition = True,
                              xbins = 3000, xmin = -0.5, xmax = 2999.5, ybins = 149, ymin = -74.5, ymax = 74.5)
 
@@ -94,7 +94,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
         name = 'lumiBlock,time;TileAverageTimeDifferenceLB_%s-%s' % (partitionName1, partitionName2)
 
         tool.defineHistogram(name, title = title, path = 'Summary', type = 'TProfile',
-                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
 
     from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
@@ -114,7 +114,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
         path = getPartitionName(ros + 1) + '/' + moduleName
 
         tool.defineHistogram(name, title = title, path = path, type = 'TProfile',
-                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
     accumalator = helper.result()
     result.merge(accumalator)

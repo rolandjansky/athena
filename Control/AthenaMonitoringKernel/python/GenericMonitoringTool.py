@@ -1,8 +1,7 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from AthenaCommon.Logging import logging
 
@@ -13,6 +12,13 @@ import json
 
 log = logging.getLogger(__name__)
 
+def _isOnline():
+    if isRun3Cfg():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        return ConfigFlags.Common.isOnline
+    else:
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        return athenaCommonFlags.isOnline()
 
 def GenericMonitoringTool(name='GenericMonitoringTool', **kwargs):
     '''Create GenericMonitoringTool'''
@@ -205,7 +211,7 @@ class GenericMonitoringArray:
 #  @return set of forbidden characters found
 def _invalidName(name):
     blacklist = '/\\'
-    if athenaCommonFlags.isOnline():
+    if _isOnline():
         blacklist += '=,:.()'
     return set(name).intersection(blacklist)
 
@@ -354,7 +360,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     nVars = len(varList)
 
     # Type
-    if athenaCommonFlags.isOnline() and type in ['TTree']:
+    if _isOnline() and type in ['TTree']:
         log.warning('Object %s of type %s is not supported for online running and '
                     'will not be added.', varname, type)
         return ''
@@ -371,7 +377,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     settings['type'] = type
 
     # Path
-    if not athenaCommonFlags.isOnline() and path is None:
+    if not _isOnline() and path is None:
         path = ''
     assert path is not None, 'path argument in defineHistogram() is required.'
     settings['path'] = path
@@ -437,18 +443,24 @@ def defineHistogram(varname, type='TH1F', path=None,
         assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
         settings['zlabels'] = zlabels
 
-    # merge method
-    if merge is not None:
-        assert type not in ['TEfficiency', 'TTree', 'TGraph'],'only default merge defined for non-histogram objects'
-        settings['merge'] = merge
-
     # Tree branches
     if treedef is not None:
         assert type=='TTree','cannot define tree branches for a non-TTree object'
         settings['treeDef'] = treedef
 
-    # Finally, add all other options
+    # Add all other options
     settings.update(_options(opt))
+
+    # some things need merging
+    if (settings['kAddBinsDynamically'] or settings['kRebinAxes'] or settings['kCanRebin']) and not _isOnline():
+        if merge is None:
+            log.warning(f'Merge method for {alias} is not specified but needs to be "merge" due to histogram definition; overriding for your convenience')
+            merge = 'merge'
+
+    # merge method
+    if merge is not None:
+        assert type not in ['TEfficiency', 'TTree', 'TGraph'],'only default merge defined for non-histogram objects'
+        settings['merge'] = merge
 
     # Check that kLBNHistoryDepth and kLive are both non-negative
     assert settings['kLBNHistoryDepth']>=0, f'Histogram "{alias}" has invalid kLBNHistoryDepth.'
@@ -457,7 +469,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     assert settings['kLBNHistoryDepth']==0 or settings['kLive']==0,\
     f'Cannot use both kLBNHistoryDepth and kLive for histogram {alias}.'
     # kLive histograms are only available for Online monitoring.
-    assert settings['kLive']==0 or athenaCommonFlags.isOnline(),\
+    assert settings['kLive']==0 or _isOnline(),\
     f'Cannot use kLive with offline histogram {alias}.'
 
     return json.dumps(settings)

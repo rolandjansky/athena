@@ -31,7 +31,7 @@ def L1CaloLegacyEDMMonitoringConfig(inputFlags):
     myGroup = helper.addGroup(L1CaloLegacyEDMMonAlg, groupName , mainDir)
 
     # add run number plot
-    myGroup.defineHistogram('run',title='Run Number;run;Events', path=trigPath,xbins=1,xmin=-0.5, xmax=1.5, opt='kAddBinsDynamically')
+    myGroup.defineHistogram('run',title='Run Number;run;Events', path=trigPath,xbins=1,xmin=-0.5, xmax=1.5, opt='kAddBinsDynamically', merge='merge')
     #The LVL1EmTau Hists
     myGroup.defineHistogram('LVL1EmTauRoIs_eta',title='EM Tau RoIs eta;EM Tau RoI #eta;Number of EM Tau RoIs', path=inputPath,xbins=100,xmin=-3.5,xmax=3.5)
 

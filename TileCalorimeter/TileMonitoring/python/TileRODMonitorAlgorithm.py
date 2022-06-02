@@ -146,7 +146,7 @@ def TileRODMonitoringConfig(flags, **kwargs):
                                  title = titleAllRodFragSize, path = 'Tile/ROD',
                                  xbins = 1000, xmin = -0.5, xmax = 999.5,
                                  type = 'TProfile', run = run, triggers = l1Triggers,
-                                 perPartition = False, opt = 'kAddBinsDynamically')
+                                 perPartition = False, opt = 'kAddBinsDynamically', merge = 'merge')
 
         from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
         from TileMonitoring.TileMonitoringCfgHelper import getPartitionName

@@ -185,7 +185,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xvalue = 'lumiBlock', value= 'nMaskedChannelsOnFly', title = titleMaskOnFlyLB,
                              xbins = 1000, xmin = -0.5, xmax = 999.5, type = 'TProfile', run = run, triggers = [],
                              perPartition = True, perSample = False, perGain = False, subDirectory = False,
-                             opt = 'kAddBinsDynamically', allPartitions = True)
+                             opt = 'kAddBinsDynamically', merge = 'merge', allPartitions = True)
 
     # 17) Configure histograms with number of masked Tile cells on the fly vs lumi block per partition
     titleMaskCellLB = 'Number of masked cells on the fly'
@@ -194,7 +194,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xvalue = 'lumiBlock', value = 'nMaskedCells', title = titleMaskCellLB,
                              xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, perGain = False,
-                             opt = 'kAddBinsDynamically', allPartitions = True)
+                             opt = 'kAddBinsDynamically', merge = 'merge', allPartitions = True)
 
     # 18) Configure histograms with number of masked Tile channels on the fly due to bad DQ status vs lumi block per partition
     titleMaskDueDQ = 'Number of masked channels on the fly due to bad DQ status'
@@ -203,7 +203,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xvalue = 'lumiBlock', value = 'nMaskedChannelsDueDQ', title = titleMaskDueDQ,
                              xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, perGain = False,
-                             opt = 'kAddBinsDynamically', allPartitions = True)
+                             opt = 'kAddBinsDynamically', merge = 'merge', allPartitions = True)
 
     # 19) Configure histograms with number of masked Tile cells on the fly due to bad DQ status vs lumi block per partition
     titleMaskCellDueDQ = 'Number of masked cells on the fly due to bad DQ status'
@@ -212,7 +212,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xvalue = 'lumiBlock', value = 'nMaskedCellsDueDQ', title = titleMaskCellDueDQ,
                              xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, perGain = False,
-                             opt = 'kAddBinsDynamically', allPartitions = True)
+                             opt = 'kAddBinsDynamically', merge = 'merge', allPartitions = True)
 
     if kwargs['fillChannelTimeHistograms']:
         # Configure histograms with Tile channel time per partition and sample
@@ -241,7 +241,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
 
     # Configure histograms with number of Tile cells vs lumiBlock per partition
     titleCellsNumber = 'Tile Cells number per luminosity block;LumiBlock;Number of reconstructed cells'
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellsNumberLB', opt = 'kAddBinsDynamically',
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellsNumberLB', opt = 'kAddBinsDynamically', merge = 'merge',
                              xvalue = 'lumiBlock', value = 'nCells', title = titleCellsNumber, path = 'Tile/Cell',
                              xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = False, perGain = False, allPartitions = True)
