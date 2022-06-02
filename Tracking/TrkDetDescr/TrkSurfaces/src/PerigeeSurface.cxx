@@ -163,7 +163,7 @@ Trk::PerigeeSurface::globalToLocal(const Amg::Vector3D& glopos,
                                    const Amg::Vector3D& glomom,
                                    Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D perPos = (transform().inverse()) * glopos;
+  Amg::Vector3D perPos = inverseTransformMultHelper(glopos);
   double d0 = perPos.perp();
   double z0 = perPos.z();
   // decide the sign of d0
