@@ -7,6 +7,10 @@
 
 #include "FastCaloSim/FSmap.h"
 #include "FastCaloSim/FastCaloSim_CaloCell_ID.h"
+
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
+
 #include <vector>
 #include <map>
 
@@ -219,4 +223,8 @@ class CellInfoContainer
   FSmap< double , double > m_zent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
 
 };
+
+CLASS_DEF( CellInfoContainer , 1248013772 , 1 );
+CONDCONT_DEF( CellInfoContainer , 1163536718 );
+
 #endif
