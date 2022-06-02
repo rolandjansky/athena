@@ -5,6 +5,7 @@ from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
 from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2MuonSAConfig')
@@ -145,9 +146,15 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         self.USE_ROIBASEDACCESS_MM = False
         #################################
 
+        
         # set the flag whether to use NSW or not
-        self.USE_STGC = True
-        self.USE_MM = True
+        # if running without NSW, commissioning not use them
+        if muonRecFlags.runCommissioningChain():
+           self.USE_STGC = False
+           self.USE_MM = False
+        else: 
+           self.USE_STGC = True
+           self.USE_MM = True
 
         self.RpcErrToDebugStream = True
 
