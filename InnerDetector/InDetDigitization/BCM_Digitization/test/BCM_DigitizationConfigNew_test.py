@@ -6,7 +6,6 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import sys
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -15,7 +14,6 @@ from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 # Configure
 ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"

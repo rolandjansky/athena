@@ -3,9 +3,6 @@
 #
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.Files = ["/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6699_10evt.pool.root"]

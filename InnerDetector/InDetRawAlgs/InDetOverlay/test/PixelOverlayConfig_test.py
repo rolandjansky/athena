@@ -5,7 +5,6 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -14,9 +13,6 @@ from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, defaultTestFlags, postprocessAndLockFlags, printAndRun
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
-
-# Configure
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = CommonTestArgumentParser("PixelOverlayConfig_test.py")
