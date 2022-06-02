@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 def CpmSimMonitoringConfig(inputFlags):
     '''Function to configure LVL1 CpmSim algorithm in the monitoring system.'''
@@ -499,15 +499,6 @@ def CpmSimMonitoringConfig(inputFlags):
 
 
 if __name__=='__main__':
-    # For direct tests
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # set debug level for whole job
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO #DEBUG
-    log.setLevel(INFO)
-
     # set input file and config options
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     import glob

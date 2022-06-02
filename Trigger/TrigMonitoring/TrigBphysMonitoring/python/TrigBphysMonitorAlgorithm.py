@@ -21,10 +21,6 @@ def TrigBphysMonConfig(inputFlags):
     
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'

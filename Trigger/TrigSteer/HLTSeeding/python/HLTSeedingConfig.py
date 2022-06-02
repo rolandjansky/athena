@@ -309,8 +309,6 @@ class HLTSeeding(CompFactory.HLTSeeding) :
 
 
 def HLTSeedingCfg(flags, seqName = None):
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior += 1
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -384,13 +382,9 @@ def HLTSeedingCfg(flags, seqName = None):
     acc.merge( TrigConfigSvcCfg( flags ) )
     acc.merge( HLTPrescaleCondAlgCfg( flags ) )
 
-    Configurable.configurableRun3Behavior -= 1
-
     return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains= True

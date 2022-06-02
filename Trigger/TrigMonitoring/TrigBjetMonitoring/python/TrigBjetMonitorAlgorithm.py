@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigBjetMonitorAlgorithm.py
@@ -652,16 +652,10 @@ def TrigBjetMonConfig(inputFlags):
     # return result
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     log.setLevel(DEBUG)
-    # from AthenaCommon.Constants import INFO
-    # log.setLevel(INFO)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

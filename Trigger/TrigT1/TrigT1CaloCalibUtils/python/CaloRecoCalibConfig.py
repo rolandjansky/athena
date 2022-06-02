@@ -53,8 +53,7 @@ def CaloRecoCalibCfg(configFlags):
 if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+
     ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio/data22_calib/calibration_L1CaloEnergyScan/00408980/data22_calib.00408980.calibration_L1CaloEnergyScan.daq.RAW/data22_calib.00408980.calibration_L1CaloEnergyScan.daq.RAW._lb0000._SFO-1._0001.data']
     ConfigFlags.LAr.doHVCorr = False
     from LArConfiguration.LArConfigFlags import RawChannelSource
