@@ -51,13 +51,19 @@ private:
 
   TIDA::Histogram<float>*  m_hnvtx;
   TIDA::Histogram<float>*  m_hzed;
+  TIDA::Histogram<float>*  m_hx;
+  TIDA::Histogram<float>*  m_hy;
   TIDA::Histogram<float>*  m_hntrax;
 
   TIDA::Histogram<float>*  m_hnvtx_rec;
   TIDA::Histogram<float>*  m_hzed_rec;
+  TIDA::Histogram<float>*  m_hx_rec;
+  TIDA::Histogram<float>*  m_hy_rec;
   TIDA::Histogram<float>*  m_hntrax_rec;
 
   TIDA::Histogram<float>*  m_hzed_res;
+  TIDA::Histogram<float>*  m_hx_res;
+  TIDA::Histogram<float>*  m_hy_res;
 
   TIDA::Histogram<float>*  m_rdz_vs_zed;
   TIDA::Histogram<float>*  m_rdz_vs_ntrax;
