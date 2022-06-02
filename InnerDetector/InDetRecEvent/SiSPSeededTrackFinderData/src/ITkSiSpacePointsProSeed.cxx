@@ -7,6 +7,8 @@
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 #include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
 
+#include <cmath>
+
 namespace ITk
 {
 
@@ -230,8 +232,9 @@ namespace ITk
     // eta
     float meanOneOverTanThetaSquare = isPixel ? (cotThetaB * cotThetaT) :
                                                  std::pow((cotThetaB + cotThetaT) / 2.,2);
-
-    float theta = std::atan(1. / std::sqrt(meanOneOverTanThetaSquare));
+    float theta = std::atan(1. / std::sqrt(meanOneOverTanThetaSquare)); // [0, pi/2)
+    if (top.z()<0) {theta = -theta;} // (-pi/2, pi/2)
+    if (theta < 0.) {theta = theta + M_PI;} // [0, pi)
     float eta = -std::log(std::tan(0.5 * theta));
 
     // pt
