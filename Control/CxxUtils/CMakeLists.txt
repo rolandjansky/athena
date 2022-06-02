@@ -164,7 +164,7 @@ endif()
 
 file( INSTALL share/ubsan.supp share/${CHECKERGCCPLUGINS_CONFIG_NAME}
    DESTINATION ${CMAKE_SHARE_OUTPUT_DIRECTORY} )
-install( FILES share/ubsan.supp share/checkergcc.config
+install( FILES share/ubsan.supp share/${CHECKERGCCPLUGINS_CONFIG_NAME}
    DESTINATION ${CMAKE_INSTALL_SHAREDIR} )
 
 # Set the directory to put the configured environment setup file into:
