@@ -178,61 +178,25 @@ def execute(run, sfile, lb_max):
     shits.append("InnerDetector/Pixel/ECA/Hits/AvgOccActivePerLumi_ECA")
     shits.append("InnerDetector/Pixel/ECC/Hits/AvgOccActivePerLumi_ECC")
 
-    sdisabled = []
-    sdisabled.append(
-        "InnerDetector/Pixel/IBL/_Experts/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL2D_byPostProcess")
-    # sdisabled.append("InnerDetector/Pixel/IBL/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_IBL_byPostProcess")
-    sdisabled.append(
-        "InnerDetector/Pixel/BLayer/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B0_byPostProcess")
-    sdisabled.append(
-        "InnerDetector/Pixel/Layer1/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B1_byPostProcess")
-    sdisabled.append(
-        "InnerDetector/Pixel/Layer2/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_B2_byPostProcess")
-    sdisabled.append(
-        "InnerDetector/Pixel/ECA/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECA_byPostProcess")
-    sdisabled.append(
-        "InnerDetector/Pixel/ECC/DisableAndErrorsLB/DisabledAndSyncErrorsModules_per_lumi_ECC_byPostProcess")
-
     sbtagdeg = "InnerDetector/Pixel/PixelExpert/BTagDegEstimation/TotalDegradationPerLumi"
  
     nlayer = 6
     hhits = []
-    hdisabled = []
     fexist_hhits = True
-    fexist_hdisabled = True
     for i in range(0, nlayer):
         if not file.Get(shits[i]):
             fexist_hhits = False
             continue
 
-        if not file.Get(sdisabled[i]):
-            fexist_hdisabled = False
-            continue
-
         hhits.append(file.Get(shits[i]))
-        hdisabled.append(file.Get(sdisabled[i]))
 
     standby_lb = []
     if fexist_hhits is True:
         find_standby(nlayer, hhits, lb_max, standby_lb)
 
-    notready5to7pct_lb = []
-    notready7to10pct_lb = []
-    notready10to20pct_lb = []
-    notready20to30pct_lb = []
-    notready_gt30pct_lb = []
-
-    if fexist_hhits is True and fexist_hdisabled is True:
-        find_notready(nlayer, hdisabled, 0.05, 0.07, notready5to7pct_lb)
-        find_notready(nlayer, hdisabled, 0.07, 0.1, notready7to10pct_lb)
-        find_notready(nlayer, hdisabled, 0.1, 0.2, notready10to20pct_lb)
-        find_notready(nlayer, hdisabled, 0.2, 0.3, notready20to30pct_lb)
-        find_notready(nlayer, hdisabled, 0.3, 1., notready_gt30pct_lb)
-
     #print_def("standby", standby_lb)
     #user = "atlpixdq"
     #assign_defect(db, "STANDBY", run, standby_lb)
-
 
     fexist_hbtagdeg = True
     hbtagdeg = file.Get(sbtagdeg)
@@ -246,11 +210,6 @@ def execute(run, sfile, lb_max):
         find_btagdeg(hbtagdeg, 0.25, 1., btagdegestim_intolerable_lb)
 
     if 0:
-        print_def("5to7pct", notready5to7pct_lb)
-        print_def("7to10pct", notready7to10pct_lb)
-        print_def("10to20pct", notready10to20pct_lb)
-        print_def("20to30pct", notready20to30pct_lb)
-        print_def("gt30pct", notready_gt30pct_lb)
         print_btagdegdef("tolerable", btagdegestim_tolerable_lb)
         print_btagdegdef("intolerable", btagdegestim_intolerable_lb)
 
