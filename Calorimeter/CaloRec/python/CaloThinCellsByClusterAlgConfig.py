@@ -4,8 +4,6 @@
 # Created: Nov 2019, sss
 # Purpose: Configure CaloThinCellsByClusterAlg.
 
-from __future__ import print_function
-
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -35,8 +33,6 @@ def CaloThinCellsByClusterAlgCfg(flags, streamName, clusters,
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.loadAllDynamicFlags()

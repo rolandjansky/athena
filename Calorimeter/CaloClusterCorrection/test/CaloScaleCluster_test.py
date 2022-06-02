@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: CaloClusterCorrection/test/CaloScaleCluster_test.py
 # Author: scott snyder
@@ -94,8 +94,6 @@ def testCfg (configFlags):
     return result
 
 
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 

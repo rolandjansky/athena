@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: CaloClusterCorrection/python/CaloSwCorrections.py
@@ -136,15 +136,12 @@
 # with a string of the form `MODULE.NAME'.
 #
 
+import re
+
 # Need to be sure that we always get run3 configurables in the imported
 # steering modules.
-from AthenaCommon.Configurable import Configurable
-
-try:
-    _wasRun3 = Configurable.configurableRun3Behavior
-    Configurable.configurableRun3Behavior = True
-
-    import re
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+with ConfigurableRun3Behavior():
     from CaloClusterCorrection.CaloComputeSWcellWeights \
          import make_CaloComputeSWcellWeights
     from CaloClusterCorrection.CaloSwLayers      import make_CaloSwLayers
@@ -171,9 +168,6 @@ try:
     
     from CaloClusterCorrection.CaloClusterRemoveDuplicates import make_CaloClusterRemoveDuplicates
     from CaloClusterCorrection.CaloClusterRemoveBad import make_CaloClusterRemoveBad
-
-finally:
-    Configurable.configurableRun3Behavior = _wasRun3
 
 
 ##############################################################################
@@ -1289,9 +1283,7 @@ def make_CaloSwCorrections (key = None,
                             remdup = False,
                             rembad = False,
                             **kw):
-    try:
-        wasRun3 = Configurable.configurableRun3Behavior
-        Configurable.configurableRun3Behavior = True
+    with ConfigurableRun3Behavior():
         ca = CaloSwCorrections.make_corrections (makeFlags(),
                                                  corrclass = CALOCORR_SW,
                                                  key = key,
@@ -1304,8 +1296,6 @@ def make_CaloSwCorrections (key = None,
                                                  remdup = remdup,
                                                  rembad = rembad,
                                                  **kw)
-    finally:
-        Configurable.configurableRun3Behavior = wasRun3
     return unpackCA (ca)
 
 
