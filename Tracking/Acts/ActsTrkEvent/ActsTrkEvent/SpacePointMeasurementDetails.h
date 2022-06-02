@@ -28,17 +28,17 @@ namespace ActsTrk {
                          const float& bottomHalfStripLength,
                          const Acts::Vector3& bottomStripDirection,
                          const Acts::Vector3& stripCenterDistance,
-                         const Acts::Vector3& bottomStripCenter);
+                         const Acts::Vector3& topStripCenter);
       //@}
 
       /// @name Public methods to return strip properties for space points
       //@{
       inline float topHalfStripLength(std::size_t n) const;
       inline float bottomHalfStripLength(std::size_t n) const;
-      inline Acts::Vector3 topStripDirection(std::size_t n) ;
-      inline Acts::Vector3 bottomStripDirection(std::size_t n) ;
-      inline Acts::Vector3 stripCenterDistance(std::size_t n) ;
-      inline Acts::Vector3 bottomStripCenter(std::size_t n) ;
+      inline Acts::Vector3 topStripDirection(std::size_t n) const;
+      inline Acts::Vector3 bottomStripDirection(std::size_t n) const;
+      inline Acts::Vector3 stripCenterDistance(std::size_t n) const;
+      inline Acts::Vector3 topStripCenter(std::size_t n) const;
       //@}
 
       /// @name Public method to reserve space in containers
@@ -61,8 +61,8 @@ namespace ActsTrk {
       /// @param m_stripCenterDistance distance between strips
       std::vector< std::array< double, 3> > m_stripCenterDistance;
 
-      /// @param m_bottomStripCenter bottom strip center position
-      std::vector< std::array< double, 3> > m_bottomStripCenter;
+      /// @param m_topStripCenter top strip center position
+      std::vector< std::array< double, 3> > m_topStripCenter;
       //@}
   };
 
@@ -74,28 +74,28 @@ namespace ActsTrk {
       return m_bottomHalfStripLength.at(n);
   }
 
-  inline Acts::Vector3 SpacePointMeasurementDetails::topStripDirection(std::size_t n) {
+  inline Acts::Vector3 SpacePointMeasurementDetails::topStripDirection(std::size_t n) const {
       return Acts::Vector3(m_topStripDirection.at(n)[0],
                            m_topStripDirection.at(n)[1],
                            m_topStripDirection.at(n)[2]);
   }
 
-  inline Acts::Vector3 SpacePointMeasurementDetails::bottomStripDirection(std::size_t n) {
+  inline Acts::Vector3 SpacePointMeasurementDetails::bottomStripDirection(std::size_t n) const {
       return Acts::Vector3(m_bottomStripDirection.at(n)[0],
                            m_bottomStripDirection.at(n)[1],
                            m_bottomStripDirection.at(n)[2]);
   }
 
-  inline Acts::Vector3 SpacePointMeasurementDetails::stripCenterDistance(std::size_t n) {
+  inline Acts::Vector3 SpacePointMeasurementDetails::stripCenterDistance(std::size_t n) const {
       return Acts::Vector3(m_stripCenterDistance.at(n)[0],
                            m_stripCenterDistance.at(n)[1],
                            m_stripCenterDistance.at(n)[2]);
   }
 
-  inline Acts::Vector3 SpacePointMeasurementDetails::bottomStripCenter(std::size_t n) {
-      return Acts::Vector3(m_bottomStripCenter.at(n)[0],
-                           m_bottomStripCenter.at(n)[1],
-                           m_bottomStripCenter.at(n)[2]);
+  inline Acts::Vector3 SpacePointMeasurementDetails::topStripCenter(std::size_t n) const {
+      return Acts::Vector3(m_topStripCenter.at(n)[0],
+                           m_topStripCenter.at(n)[1],
+                           m_topStripCenter.at(n)[2]);
   }
 
 } // Acts namespace

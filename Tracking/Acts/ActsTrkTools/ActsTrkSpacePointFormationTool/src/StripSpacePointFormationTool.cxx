@@ -511,12 +511,12 @@ namespace ActsTrk {
             std::swap( variance(0, 0), variance(1, 0) );
 
         // evaluation of measurement details
-        float bottomHalfStripLength = 0.5*firstInfo.stripDirection().norm();
-        Eigen::Matrix<double, 3, 1> bottomStripDirection = -firstInfo.stripDirection()/(2.*bottomHalfStripLength);
-        Eigen::Matrix<double, 3, 1> bottomStripCenter = 0.5*firstInfo.trajDirection();
+        float topHalfStripLength = 0.5*firstInfo.stripDirection().norm();
+        Eigen::Matrix<double, 3, 1> topStripDirection = -firstInfo.stripDirection()/(2.*topHalfStripLength);
+        Eigen::Matrix<double, 3, 1> topStripCenter = 0.5*firstInfo.trajDirection();
 
-        float topHalfStripLength = 0.5*secondInfo.stripDirection().norm();
-        Eigen::Matrix<double, 3, 1> topStripDirection = -secondInfo.stripDirection()/(2.*topHalfStripLength);
+        float bottomHalfStripLength = 0.5*secondInfo.stripDirection().norm();
+        Eigen::Matrix<double, 3, 1> bottomStripDirection = -secondInfo.stripDirection()/(2.*bottomHalfStripLength);
 
         Eigen::Matrix<double, 3, 1> stripCenterDistance = firstInfo.stripCenter()  - secondInfo.stripCenter();
 
@@ -529,7 +529,7 @@ namespace ActsTrk {
                                                    bottomHalfStripLength,
                                                    bottomStripDirection,
                                                    stripCenterDistance,
-                                                   bottomStripCenter,
+                                                   topStripCenter,
                                                    data,
                                                    details,
                                                    measIndexes );
