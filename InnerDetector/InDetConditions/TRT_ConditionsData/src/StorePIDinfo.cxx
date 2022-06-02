@@ -8,21 +8,12 @@
 #include <utility>
 
 
-
-StorePIDinfo::StorePIDinfo(){
-	m_nbins = 0;
-	m_min 	= -9999.9;
-	m_max	= 10000000*2;
-	m_values.clear();
+StorePIDinfo::StorePIDinfo(int nbins, float min, float max, const std::vector<float>& values){
+	update (nbins, min, max, values);
 }
 
-StorePIDinfo::StorePIDinfo(int nbins, float min, float max, std::vector<float> values){
-	update (nbins, min, max, std::move(values));
-}
 
-StorePIDinfo::~StorePIDinfo(){}
-
-void StorePIDinfo::update( int nbins, float min, float max, std::vector<float> values){
+void StorePIDinfo::update( int nbins, float min, float max, const std::vector<float>& values){
 	m_nbins = nbins	;
 	m_min 	= min	;
 	m_max	= max	;
@@ -71,23 +62,15 @@ StatusCode StorePIDinfo::check( int gas, int detpart) const{
         return StatusCode::SUCCESS;
 }
 
-
-float StorePIDinfo::GetValue 	( float input  ) const {
-	return m_values.at(	GetBin(	input	)	);
-}
-
-float StorePIDinfo::GetBinValue 	( int bin) const {
-	return m_values.at(	bin	);
-}
-
-int StorePIDinfo::GetBin	( float input  ) const {
-
-	if (input < m_min) 		return 0;
-        else if (input >= m_max) 	return m_nbins-1;
-	else{
-		float dr = (m_max-m_min)/m_nbins;
-		unsigned int bin = int (                       (input - m_min)/dr    ) ;
-		return bin;
-	}
-	return 0;
+int StorePIDinfo::GetBin(float input) const
+{
+  if (input < m_min){
+    return 0;
+  }
+  else if (input >= m_max){
+    return m_nbins - 1;
+  }
+  float dr = (m_max - m_min) / m_nbins;
+  unsigned int bin = int((input - m_min) / dr);
+  return bin;
 }
