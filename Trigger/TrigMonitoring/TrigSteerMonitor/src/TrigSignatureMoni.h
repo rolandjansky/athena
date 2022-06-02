@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H
 #define TRIGSTEERMONITOR_TRIGSIGNATUREMONI_H 1
@@ -115,7 +115,8 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   std::map<std::string, int> m_sequenceToBinMap; //!< Sequence to bin map for sequence histogram
   std::map<unsigned int, std::set<std::string>> m_chainIDToBunchMap; //!< Chain ID to bunchgroup name map
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_groupToChainMap; //!< Group name to chain objects map
-  std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_streamToChainMap; //!< Stream name to chain objects map
+  std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_streamToChainMap; //!< Stream name to chain objects map, excluding express
+  std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_expressChainMap; //!< Stream name to chain objects map, including only express
 
 
   // Returns number of chains + groups + sequencers based on the menu handle
