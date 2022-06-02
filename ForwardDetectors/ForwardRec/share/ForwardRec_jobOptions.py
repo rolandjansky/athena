@@ -1,7 +1,6 @@
 include.block ('ForwardRec/ForwardRec_jobOptions.py')
 
 from AthenaCommon.Resilience import treatException   
-from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.DetFlags import DetFlags
 from RecExConfig.RecFlags import rec
 
@@ -41,16 +40,7 @@ if rec.doAlfa() and rec.doESD():
     include("ALFA_CLinkAlg/ALFA_CLinkAlg_joboption.py")        
 
 if rec.doAFP() and rec.doESD():
-  from AthenaCommon.Configurable import Configurable
-  from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+  from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from ForwardRec.AFPRecConfig import AFPRecCfg
-  
-  wasRun3=Configurable.configurableRun3Behavior
-  Configurable.configurableRun3Behavior=1
-  
-  acc=AFPRecCfg(ConfigFlags)
-  appendCAtoAthena(acc)
-  
-  Configurable.configurableRun3Behavior=wasRun3
- 
+  CAtoGlobalWrapper(AFPRecCfg, ConfigFlags)
