@@ -20,6 +20,8 @@ class SmoothedTopTagger :
         MassSplit23,
         Tau32Split23,
         QwTau32,
+        // additional modes for HL-LHC tagging
+        MassSphericity
       };
 
       //Default - so root can load based on a name
@@ -36,10 +38,6 @@ class SmoothedTopTagger :
       std::string var2() const {return m_var2CutName;}
 
     private:
-
-      // need to set in initialization
-      std::string m_wkpt;
-      std::string m_configFile;
 
       // parameters for smooth fits
       std::string m_var1CutExpr;
@@ -63,6 +61,7 @@ class SmoothedTopTagger :
       SG::AuxElement::Decorator<float>    m_dec_tau32cut;
       SG::AuxElement::Decorator<float>    m_dec_split23cut;
       SG::AuxElement::Decorator<float>    m_dec_qwcut;
+      SG::AuxElement::Decorator<float>    m_dec_sphericitycut;
   
   };
 

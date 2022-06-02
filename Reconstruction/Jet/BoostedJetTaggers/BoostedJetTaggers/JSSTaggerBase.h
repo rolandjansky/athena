@@ -52,6 +52,7 @@ const static SG::AuxElement::ConstAccessor<float> acc_Split23( "Split23" );
 const static SG::AuxElement::ConstAccessor<float> acc_Qw( "Qw" );
 
 const static SG::AuxElement::ConstAccessor<float> acc_ThrustMaj( "ThrustMaj" );
+const static SG::AuxElement::ConstAccessor<float> acc_Sphericity( "Sphericity" );
 
 const static SG::AuxElement::ConstAccessor<float> acc_L2( "L2" );
 const static SG::AuxElement::ConstAccessor<float> acc_L3( "L3" );

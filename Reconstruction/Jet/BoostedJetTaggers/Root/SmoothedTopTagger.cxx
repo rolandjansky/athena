@@ -9,15 +9,18 @@ SmoothedTopTagger::SmoothedTopTagger( const std::string& name ) :
   m_dec_mcut("mcut"),
   m_dec_tau32cut("tau32cut"),
   m_dec_split23cut("split23cut"),
-  m_dec_qwcut("qwcut")
+  m_dec_qwcut("qwcut"),
+  m_dec_sphericitycut("sphericitycut")
 {
-
+  // minimum and maximum pT of jets to tag
   declareProperty( "JetPtMin",              m_jetPtMin = 350.0e3);
   declareProperty( "JetPtMax",              m_jetPtMax = 3000.0e3);
 
+  // cut functions that describe the tagger cuts that will be made
   declareProperty( "Var1CutFunc", m_var1CutExpr="", "") ;
   declareProperty( "Var2CutFunc", m_var2CutExpr="", "") ;
 
+  // mode that tagger will operate in 
   declareProperty( "TaggerMode",   m_modeName="");
 
 }
@@ -30,7 +33,8 @@ StatusCode SmoothedTopTagger::initialize() {
   std::map<std::string, Mode> knownModes = {
     {"MassTau32" , MassTau32 } ,
     {"Tau32Split23" , Tau32Split23},
-    {"QwTau32" , QwTau32}
+    {"QwTau32" , QwTau32},
+    {"MassSphericity", MassSphericity}
   };
 
   if( ! m_configFile.empty() ) {
@@ -98,7 +102,7 @@ StatusCode SmoothedTopTagger::initialize() {
 
   // add cuts for the output TAccept
   // initialize decorators as decorationName+_decorator
-  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+  ATH_MSG_INFO( "Additional decorators that will be attached to jet :" );
   std::string dec_name;
 
   switch(m_mode) {
@@ -138,12 +142,27 @@ StatusCode SmoothedTopTagger::initialize() {
     m_dec_tau32cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
     break;
   }
+  // extra modes for HL-LHC top taggers
+  case MassSphericity:{
+    m_accept.addCut( "PassMass"       , "mJet > mCut"  );
+    m_accept.addCut( "PassSphericity" , "SphericityJet > SphericityCut"   );
+    
+    dec_name = m_decorationName+"_Cut_m";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on mass" );
+    m_dec_mcut     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_Cut_Sphericity";
+    ATH_MSG_INFO( "  "<<dec_name<<" : working point cut on sphericity" );
+    m_dec_sphericitycut = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    break;
+  }
   default: break;
   }
 
+  /// Call base class initialize
+  ATH_CHECK( JSSTaggerBase::initialize() );
+
   /// Loop over and print out the cuts that have been configured
   printCuts();
-
 
   return StatusCode::SUCCESS;
 } // end initialize()
@@ -225,6 +244,27 @@ Root::TAccept& SmoothedTopTagger::tag( const xAOD::Jet& jet ) const {
         m_accept.setCutResult("PassTau32",true);
       
       break;
+    }
+    // extra taggers for HL-LHC definitions
+    case MassSphericity:{
+      if(m_decorate) {
+        m_dec_mcut(jet)     = cut_var1;
+        m_dec_sphericitycut(jet) = cut_var2;
+      }
+
+      if ( !acc_Sphericity.isAvailable(jet) ) {
+        ATH_MSG_VERBOSE( "The Sphericity variable is not available in your file" );
+        m_accept.setCutResult("ValidJetContent", false);
+      }
+
+      if(jet_mass > cut_var1) {
+        m_accept.setCutResult("PassMass",true);
+      }
+      
+      if (acc_Sphericity(jet) > cut_var2) {
+        m_accept.setCutResult("PassSphericity", true);
+      }
+
     }
     default:
       break;
