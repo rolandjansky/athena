@@ -221,26 +221,11 @@ def getChunkSize(configFlags) -> int:
 
 if __name__=="__main__":
 
-    # -----------------  Hello World Example ------------------
-    # ConfigFlags.Exec.MaxEvents=10
-    # ConfigFlags.Concurrency.NumProcs=2
-
-    # cfg=MainServicesCfg(ConfigFlags)
-
-    # from AthExHelloWorld.HelloWorldConfig import HelloWorldCfg
-    # cfg.merge(HelloWorldCfg())
-
-    # cfg.run()
-    # -----------------  Hello World Example ------------------
-
     # -----------------  Example with input file --------------
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Exec.MaxEvents=10
     ConfigFlags.Concurrency.NumProcs=2
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
 
     cfg=MainServicesCfg(ConfigFlags)
     from AthenaPoolCnvSvc.PoolReadConfig import EventSelectorAthenaPoolCfg
