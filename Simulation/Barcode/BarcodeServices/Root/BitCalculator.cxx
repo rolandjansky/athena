@@ -86,7 +86,7 @@ int
 Barcode::BitCalculator::GetBCID(const int& barcode) const
 {
   // MB this works for both int and unsigned int
-  int negTest = 1<<(8*sizeof(int)-1);
+  int negTest = 1u<<(8*sizeof(int)-1);
   bool isNeg(false);
   if ((barcode&negTest)!=0) { isNeg = true; }
 
