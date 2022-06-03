@@ -130,6 +130,6 @@ def FastShowerCellBuilderToolBaseCfg(flags, name="ISF_FastShowerCellBuilderTool"
     #######################################################################################################
     # kwargs.setdefault("Invisibles", [12, 14, 16, 1000022])
     #########################################################################################################
-
+    acc.addCondAlgo(CompFactory.CellInfoContainerCondAlg())
     acc.setPrivateTools(CompFactory.FastShowerCellBuilderTool(name, **kwargs))
     return acc
