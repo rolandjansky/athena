@@ -1,0 +1,13 @@
+index_ref
+(.*)_mems(.*)
+(.*)_timings(.*)
+(.*)_HLT_(.*)
+(.*)_HLTNav_(.*)
+(.*)_L1_(.*)
+(.*)_LVL1(.*)
+(.*)_BunchConfKey(.*)
+(.*)_TrigConfKeys(.*)
+(.*)_xTrigDecisionAux(.*)
+
+# temporarily excluded
+MuonSegmentAuxContainer_v1_MuonSegmentsAux(.*)
