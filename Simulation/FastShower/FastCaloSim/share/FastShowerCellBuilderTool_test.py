@@ -56,6 +56,9 @@ topSequence = AlgSequence()
 
 theApp.EvtMax=1
 
+from FastCaloSim.FastCaloSimConf import CellInfoContainerCondAlg
+topSequence += CellInfoContainerCondAlg("CellInfoContainerCondAlg")
+
 
 exp_cells = {
     (0, -3,  1,  0,  2,  29) :   873.8,
@@ -266,7 +269,6 @@ class TestAlg (Alg):
 
 
 #########################################################################
-
 
 from FastCaloSim.FastCaloSimFactory import FastCaloSimFactory
 

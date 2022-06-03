@@ -38,8 +38,8 @@ StatusCode CellInfoContainerCondAlg::execute()
   find_phi0(caloDDMgr,cellInfoCont.get());
 
   ATH_MSG_INFO("========================= Init EM map =============================");
-  cellInfoCont->getEmFineMap().init(-5,+5,-M_PI+cellInfoCont->getPhi0Em() ,+M_PI+cellInfoCont->getPhi0Em() ,100,64);
-  cellInfoCont->getEmFineMap().setname("EM");
+  cellInfoCont->getEmMap().init(-5,+5,-M_PI+cellInfoCont->getPhi0Em() ,+M_PI+cellInfoCont->getPhi0Em() ,100,64);
+  cellInfoCont->getEmMap().setname("EM");
 
   ATH_MSG_INFO("========================= Init EM fine map ========================");
   cellInfoCont->getEmFineMap().init(-2.8,+2.8,-M_PI+cellInfoCont->getPhi0Em() ,+M_PI+cellInfoCont->getPhi0Em() ,224,256);

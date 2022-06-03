@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 ################################################################################
 # Package: FastCaloSim
 ################################################################################
@@ -11,15 +13,6 @@ find_package( Eigen )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Gpad Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Html Postscript Gui GX11TTF GX11 )
 find_package( Boost )
-
-# this line failed automatic conversion in cmt2cmake :
-# macro_append FastCaloSim_cppflags " -DFastCaloSim_project_release_v1=`echo $(FastCaloSim_project_release) | awk -F. '{printf("'"'%d'"'",$$1)}'` "
-
-# this line failed automatic conversion in cmt2cmake :
-# macro_append FastCaloSim_cppflags " -DFastCaloSim_project_release_v2=`echo $(FastCaloSim_project_release) | awk -F. '{printf("'"'%d'"'",$$2)}'` "
-
-# this line failed automatic conversion in cmt2cmake :
-# macro_append FastCaloSim_cppflags " -DFastCaloSim_project_release_v3=`echo $(FastCaloSim_project_release) | awk -F. '{printf("'"'%d'"'",$$3)}'` "
 
 # Component(s) in the package:
 atlas_add_root_dictionary( FastCaloSimLib
