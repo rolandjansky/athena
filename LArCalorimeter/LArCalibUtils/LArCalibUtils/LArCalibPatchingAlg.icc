@@ -42,6 +42,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::initialize() {
 
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_CLKey.initialize() );
 
   if(m_patchMethodProp=="FEBNeighbor") {
     m_patchMethod=FEBNeighbor;
@@ -86,16 +87,27 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
   ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToPatch,msg()));
-  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey, ctx};
   const LArBadChannelCont *bcCont {*readHandle};
   if(!bcCont) {
      ATH_MSG_ERROR( "Do not have Bad chan container !!!" );
      return StatusCode::FAILURE;
   }
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling = *cablingHdl;
   if(!cabling) {
      ATH_MSG_ERROR( "Do not have OnOff Id mapping !!!" );
+     return StatusCode::FAILURE;
+  }
+
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey, ctx};
+  const LArCalibLineMapping *clCont {*clHdl};
+  if(!clCont) {
+     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
      return StatusCode::FAILURE;
   }
 
@@ -136,7 +148,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
 	const std::string bcType=packing.stringStatus(bcCont->status(chid));
 	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec << " [" << bcType << "]" 
                        <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." );
-	if (patch(chid,igain, bcCont, cabling)) {
+	if (patch(chid,igain, bcCont, cabling, clCont)) {
 	  ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
         } else {
 	  ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
@@ -149,7 +161,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
                           << " has no calibration but is not (yet?) flagged in the bad-channel database" );
 	  if (m_patchAllMissing) {
 	    ATH_MSG_INFO ( "Will try to patch anyway." );
-	    if (patch(chid,igain, bcCont, cabling)) {
+	    if (patch(chid,igain, bcCont, cabling, clCont)) {
 	      ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
 	    } else {
 	      ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_identifier32().get_compact() << MSG::dec <<" Gain:" << igain );
@@ -176,7 +188,18 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
 }
 
 template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, const int gain, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling) {
+bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, const int gain, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont) {
+
+  if(m_doNotPatchCBs.size()>0) { // check if this channel is not on excluded CalibBoard
+     const std::vector<HWIdentifier>& cLids=clCont->calibSlotLine(chid);
+     for(unsigned cl=0; cl<cLids.size(); ++cl) {
+        const HWIdentifier calibModuleID = m_onlineHelper->calib_module_Id(cLids[cl]);
+        if (std::find(m_doNotPatchCBs.begin(),m_doNotPatchCBs.end(),calibModuleID.get_identifier32().get_compact()) != m_doNotPatchCBs.end()) { // we should not patch this channel
+          return false;
+        }
+     } // over CLs
+  }
+   
   if (m_patchMethod==FEBNeighbor){
     const HWIdentifier febId=m_onlineHelper->feb_Id(chid);
     const int febChan=m_onlineHelper->channel(chid);
