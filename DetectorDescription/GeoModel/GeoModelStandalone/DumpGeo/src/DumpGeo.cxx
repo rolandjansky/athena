@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DumpGeo/DumpGeo.h"
@@ -25,14 +25,13 @@ DumpGeo::DumpGeo(const std::string& name, ISvcLocator* svcLocator):
 //____________________________________________________________________
 StatusCode DumpGeo::initialize()
 {
-  msg(MSG::INFO) << " in initialize() " << endmsg;
+  ATH_MSG_INFO("in initialize()");
 
   //Create GeoExporter object and see if it considers settings to be valid.
   m_geoExporter = new GeoExporter(&(*evtStore()), &(*detStore()), serviceLocator(), m_toolSvc);
   if (!m_geoExporter->argumentsAreValid()) {
     delete m_geoExporter;
     m_geoExporter = 0;
-    exit(1); 
     return StatusCode::FAILURE;
   }
 
@@ -42,7 +41,7 @@ StatusCode DumpGeo::initialize()
   }
   catch ( char* c)
   {
-    std::cout << "Exception: " << c << std::endl;
+    ATH_MSG_ERROR("Exception: " << c);
     return StatusCode::FAILURE;
   }
   
@@ -52,17 +51,16 @@ StatusCode DumpGeo::initialize()
 //____________________________________________________________________
 StatusCode DumpGeo::execute()
 {
-  msg(MSG::DEBUG) <<" in execute() " << endmsg;
   return StatusCode::SUCCESS;
 }
 
 //____________________________________________________________________
 void DumpGeo::handle(const Incident& inc)
 {
-  msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" << endmsg;
+  ATH_MSG_INFO("Handling incident '" << inc.type() << "'");
 
   if (!m_geoExporter) {
-    msg(MSG::INFO) << "Aborting due to null GeoExporter pointer." << endmsg;
+    ATH_MSG_INFO("Aborting due to null GeoExporter pointer.");
     return;
   }
 }

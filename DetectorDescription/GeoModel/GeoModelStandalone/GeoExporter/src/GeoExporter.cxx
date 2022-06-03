@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -103,8 +103,8 @@ void GeoExporter::init()
   VP1Msg::message("===================================================");
   VP1Msg::message("");
 
-  static int argc=1;
-  static char *argv[2];
+  int argc=1;
+  char *argv[2];
 
   QCoreApplication app(argc, argv);
   QCoreApplication::setOrganizationName("ATLAS");
