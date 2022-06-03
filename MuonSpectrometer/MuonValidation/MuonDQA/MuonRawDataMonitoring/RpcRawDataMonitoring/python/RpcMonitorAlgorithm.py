@@ -312,10 +312,6 @@ def RpcMonitoringConfig(inputFlags):
 
 if __name__=="__main__":
     print(" In RpcMonitorAlgorithm !")
-    # Setup the RunIII behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-    
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
