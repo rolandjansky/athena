@@ -86,10 +86,10 @@ StatusCode LArHVCondAlg::initialize(){
 }
 
 
-StatusCode LArHVCondAlg::execute(const EventContext& ctx) const
+StatusCode LArHVCondAlg::execute()
 {
   ATH_MSG_DEBUG("executing");
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // Allow sharing this between the two calls.
   voltagePerLine_t voltagePerLine;
   if (m_doHV || m_doAffectedHV) {
