@@ -159,8 +159,8 @@ class LHEFilters(object):
         athMsgLog.info("Number of buggy events seen (and skipped) by the LHEFilter / total: {} / {}".format(self.buggy_events, self.buggy_events+self.total_events))
 
         # for the meta-data
-        print "MetaData: %s = %s" % ("lheFilterNames", sequence)
-        print "MetaData: %s = %e" % ("LHEFiltEff", self.accepted_weights / self.total_weights)
+        print("MetaData: %s = %s" % ("lheFilterNames", sequence))
+        print("MetaData: %s = %e" % ("LHEFiltEff", self.accepted_weights / self.total_weights))
 
         # if an outputTXTFile is specified, will use it for the name of the filtered lhe file
         if hasattr(runArgs, "outputTXTFile"):
