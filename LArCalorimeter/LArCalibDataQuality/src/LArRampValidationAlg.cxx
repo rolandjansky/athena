@@ -64,7 +64,7 @@ StatusCode LArRampValidationAlg::preLoop() {
   std::vector<std::string>::const_iterator key_it=m_contKey.begin();
   std::vector<std::string>::const_iterator key_it_e=m_contKey.end();
   m_hasRawRampContainer = false;
-  for (;key_it!=key_it_e;key_it++) {
+  for (;key_it!=key_it_e;++key_it) {
     StatusCode sc=detStore()->retrieve(m_rawRampContainer,*key_it);
     if (sc!=StatusCode::SUCCESS || !m_rawRampContainer) {
       ATH_MSG_WARNING ( "Unable to retrieve LArRawRampContainer with key " << *key_it ) ;
@@ -80,11 +80,9 @@ StatusCode LArRampValidationAlg::preLoop() {
   // Check Raw Ramps
   if(m_hasRawRampContainer){
 
-    ATH_MSG_DEBUG ( "Checking LArRawRampContainer with key " << *key_it ) ;
-
     LArRawRampContainer::const_iterator cont_it=m_rawRampContainer->begin();
     LArRawRampContainer::const_iterator cont_it_e=m_rawRampContainer->end();
-    for (;cont_it!=cont_it_e;cont_it++) {
+    for (;cont_it!=cont_it_e;++cont_it) {
       const std::vector<LArRawRamp::RAMPPOINT_t>& singleRamp=(*cont_it)->theRamp(); 
       for (unsigned int DACIndex=0; DACIndex<singleRamp.size(); DACIndex++) {
 
