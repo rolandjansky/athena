@@ -7,6 +7,7 @@ def BTagJetAugmenterAlgCfg(ConfigFlags, BTagCollection, Associator,  TrackCollec
 
     name = (BTagCollection + 'augment').lower()
     flip_config = 'FLIP_SIGN' if doFlipTagger else 'STANDARD'
+    name+=("_"+flip_config)
 
     btagAug = CompFactory.FlavorTagDiscriminants.BTagAugmenterTool(
         name=name,
