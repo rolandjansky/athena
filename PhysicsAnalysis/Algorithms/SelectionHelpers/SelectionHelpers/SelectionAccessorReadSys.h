@@ -5,24 +5,28 @@
 /// @author Nils Krumnack
 
 
-#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_OR_H
-#define SELECTION_HELPERS__SELECTION_ACCESSOR_OR_H
+#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_READ_SYS_H
+#define SELECTION_HELPERS__SELECTION_ACCESSOR_READ_SYS_H
 
+#include <PATInterfaces/SystematicSet.h>
 #include <SelectionHelpers/ISelectionAccessor.h>
+
+#include <memory>
+#include <vector>
 
 namespace CP
 {
-  /// \brief the \ref SelectionAccesor for OR tool selection
-  /// decorations
+  /// \brief the \ref SelectionAccesor for reading systematically
+  /// varied decorations
 
-  class SelectionAccessorChar final : public ISelectionAccessor
+  class SelectionAccessorReadSys final : public ISelectionAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorChar (const std::string& name);
+    SelectionAccessorReadSys (const std::string& val_selectionName);
 
   public:
     virtual SelectionType
@@ -63,17 +67,13 @@ namespace CP
     // private interface
     //
 
-    /// \brief th underlying accessor
+    /// \brief the map of accessor we use
   private:
-    SG::AuxElement::Decorator<char> m_accessor;
+    std::unordered_map<CP::SystematicSet,std::tuple<std::string,std::unique_ptr<ISelectionAccessor>>> m_dataCache;
 
-    /// \brief th underlying accessor
+    /// \brief the selectionName for this accessor
   private:
-    SG::AuxElement::ConstAccessor<char> m_constAccessor;
-
-    /// \brief the label of the accessor
-  private:
-    std::string m_label;
+    std::string m_selectionName;
   };
 }
 

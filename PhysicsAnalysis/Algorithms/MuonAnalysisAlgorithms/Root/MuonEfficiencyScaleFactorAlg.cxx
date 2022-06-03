@@ -42,13 +42,13 @@ namespace CP
 
     ANA_CHECK (m_efficiencyScaleFactorTool.retrieve());
     ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
     ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
     ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
     ANA_CHECK (m_mcEfficiencyDecoration.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
     ANA_CHECK (m_dataEfficiencyDecoration.initialize (m_systematicsList, m_muonHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyScaleFactorTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
 
     return StatusCode::SUCCESS;
@@ -68,7 +68,7 @@ namespace CP
       ANA_CHECK (m_eventInfoHandle.retrieve (eventInfo, sys));
       for (const xAOD::Muon *muon : *muons)
       {
-        if (m_preselection.getBool (*muon))
+        if (m_preselection.getBool (*muon, sys))
         {
           if (m_scaleFactorDecoration) {
             float sf = 0;

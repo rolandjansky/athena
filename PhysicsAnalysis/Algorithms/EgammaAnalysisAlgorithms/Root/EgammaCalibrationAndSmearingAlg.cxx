@@ -34,9 +34,9 @@ namespace CP
   {
     ANA_CHECK (m_calibrationAndSmearingTool.retrieve());
     ANA_CHECK (m_egammaHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_egammaHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.addSystematics (*m_calibrationAndSmearingTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -53,7 +53,7 @@ namespace CP
       ANA_CHECK (m_egammaHandle.getCopy (egammas, sys));
       for (xAOD::Egamma *egamma : *egammas)
       {
-        if (m_preselection.getBool (*egamma))
+        if (m_preselection.getBool (*egamma, sys))
         {
           ANA_CHECK_CORRECTION (m_outOfValidity, *egamma, m_calibrationAndSmearingTool->applyCorrection (*egamma));
         }

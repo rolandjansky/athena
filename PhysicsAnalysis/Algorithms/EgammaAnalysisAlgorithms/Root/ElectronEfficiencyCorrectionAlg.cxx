@@ -40,10 +40,10 @@ namespace CP
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
     ANA_CHECK (m_electronHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_electronHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_electronHandle));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
 
     return StatusCode::SUCCESS;
@@ -61,7 +61,7 @@ namespace CP
       ANA_CHECK (m_electronHandle.retrieve (electrons, sys));
       for (const xAOD::Electron *electron : *electrons)
       {
-        if (m_preselection.getBool (*electron))
+        if (m_preselection.getBool (*electron, sys))
         {
           double sf = 0;
           ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));

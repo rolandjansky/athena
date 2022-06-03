@@ -37,8 +37,8 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_inputHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_inputHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
 
     if (m_selectionNCuts.size() != m_selection.size())
     {
@@ -105,7 +105,7 @@ namespace CP
 
       for (const xAOD::IParticle *particle : *input)
       {
-        if (m_preselection.getBool (*particle))
+        if (m_preselection.getBool (*particle, sys))
         {
           bool keep = true;
           unsigned cutIndex = 1;

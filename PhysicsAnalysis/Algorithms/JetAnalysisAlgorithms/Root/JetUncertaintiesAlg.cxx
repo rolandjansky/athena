@@ -33,9 +33,9 @@ namespace CP
   {
     ANA_CHECK (m_uncertaintiesTool.retrieve());
     ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.addSystematics (*m_uncertaintiesTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -52,7 +52,7 @@ namespace CP
       ANA_CHECK (m_jetHandle.getCopy (jets, sys));
       for (xAOD::Jet *jet : *jets)
       {
-        if (m_preselection.getBool (*jet))
+        if (m_preselection.getBool (*jet, sys))
         {
           ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_uncertaintiesTool->applyCorrection (*jet));
         }

@@ -15,13 +15,16 @@ class SelectionAccessorExprBase : public ISelectionAccessor {
   // leave label pure virtual
 
  public:
-  virtual SelectionType getBits(const SG::AuxElement &element) const override;
+  virtual SelectionType getBits(const SG::AuxElement &element,
+                                const CP::SystematicSet *sys) const override;
 
   virtual void setBool(const SG::AuxElement & /*element*/,
-                       bool /*value*/) const override;
+                       bool /*value*/,
+                          const CP::SystematicSet *sys) const override;
 
   virtual void setBits(const SG::AuxElement & /*element*/,
-                       SelectionType /*selection*/) const override;
+                       SelectionType /*selection*/,
+                          const CP::SystematicSet *sys) const override;
 };
 
 }  // namespace CP

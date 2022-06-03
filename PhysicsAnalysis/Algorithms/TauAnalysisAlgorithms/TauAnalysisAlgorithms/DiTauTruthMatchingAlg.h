@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <TauAnalysisTools/IDiTauTruthMatchingTool.h>
-#include <SelectionHelpers/SelectionReadHandle.h>
+#include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODTau/DiTauJetContainer.h>
@@ -51,7 +51,7 @@ namespace CP
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection {
+    SysReadSelectionHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
   };
 }

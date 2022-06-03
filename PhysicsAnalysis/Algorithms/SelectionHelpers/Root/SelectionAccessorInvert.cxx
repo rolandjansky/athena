@@ -11,6 +11,8 @@
 
 #include <SelectionHelpers/SelectionAccessorInvert.h>
 
+#include <PATInterfaces/SystematicSet.h>
+
 //
 // method implementations
 //
@@ -25,9 +27,10 @@ namespace CP
 
 
   SelectionType SelectionAccessorInvert ::
-  getBits (const SG::AuxElement& element) const
+  getBits (const SG::AuxElement& element,
+           const CP::SystematicSet *sys) const
   {
-    if (m_base->getBool (element) == false)
+    if (m_base->getBool (element, sys) == false)
       return selectionAccept();
     else
       return 0;
@@ -37,26 +40,29 @@ namespace CP
 
   void SelectionAccessorInvert ::
   setBits (const SG::AuxElement& element,
-           SelectionType selection) const
+           SelectionType selection,
+           const CP::SystematicSet *sys) const
   {
-    m_base->setBool (element, selection != selectionAccept());
+    m_base->setBool (element, selection != selectionAccept(), sys);
   }
 
 
 
   bool SelectionAccessorInvert ::
-  getBool (const SG::AuxElement& element) const
+  getBool (const SG::AuxElement& element,
+           const CP::SystematicSet *sys) const
   {
-    return m_base->getBool (element) == false;
+    return m_base->getBool (element, sys) == false;
   }
 
 
 
   void SelectionAccessorInvert ::
   setBool (const SG::AuxElement& element,
-           bool selection) const
+           bool selection,
+           const CP::SystematicSet *sys) const
   {
-    m_base->setBool (element, !selection);
+    m_base->setBool (element, !selection, sys);
   }
 
 
@@ -65,5 +71,24 @@ namespace CP
   label () const
   {
     return "not " + m_base->label();
+  }
+
+
+
+  CP::SystematicSet SelectionAccessorInvert ::
+  getInputAffecting (const ISystematicsSvc& svc,
+                     const std::string& objectName) const
+  {
+    return m_base->getInputAffecting (svc, objectName);
+  }
+
+
+
+  StatusCode SelectionAccessorInvert ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const std::vector<CP::SystematicSet>& sysList,
+                   const std::string& objectName)
+  {
+    return m_base->fillSystematics (svc, sysList, objectName);
   }
 }

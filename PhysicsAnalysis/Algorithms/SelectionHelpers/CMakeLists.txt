@@ -20,7 +20,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( SelectionHelpersLib
    SelectionHelpers/*.h SelectionHelpers/*.icc Root/*.cxx
    PUBLIC_HEADERS SelectionHelpers
-   LINK_LIBRARIES AthContainers AsgTools xAODBase AnaAlgorithmLib
+   LINK_LIBRARIES AthContainers AsgTools xAODBase AnaAlgorithmLib SystematicsHandlesLib
    PRIVATE_LINK_LIBRARIES PATCoreLib PATInterfaces )
 
 atlas_add_dictionary( SelectionHelpersDict

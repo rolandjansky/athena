@@ -40,10 +40,10 @@ namespace CP
 
     ANA_CHECK (m_efficiencyCorrectionsTool.retrieve());
     ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_preselection.initialize (m_systematicsList, m_tauHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_tauHandle));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionsTool));
     ANA_CHECK (m_systematicsList.initialize());
-    ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
     return StatusCode::SUCCESS;
   }
@@ -60,7 +60,7 @@ namespace CP
       ANA_CHECK (m_tauHandle.retrieve (taus, sys));
       for (const xAOD::DiTauJet *tau : *taus)
       {
-        if (m_preselection.getBool (*tau))
+        if (m_preselection.getBool (*tau, sys))
         {
           double sf = 0;
           ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
