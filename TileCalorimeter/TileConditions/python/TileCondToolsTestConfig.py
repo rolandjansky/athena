@@ -93,8 +93,6 @@ def TileCondToolsTestCfg(flags):
 if __name__ == "__main__":
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaCommon.Logging import log
