@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@
 #define DumpGeo_DumpGeo
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 #include <string>
@@ -28,7 +29,7 @@ class DumpGeo: public AthAlgorithm,
 	      public IIncidentListener
 {
  public:
-  DumpGeo(const std::string& name, ISvcLocator* pSvcLocator);
+  DumpGeo(const std::string& name, ISvcLocator* pSvcLocator) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
   ~DumpGeo()=default;
 
   StatusCode initialize();
