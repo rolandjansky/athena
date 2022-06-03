@@ -748,6 +748,13 @@ if ( doLArCalibDataQuality  ) :
    theCaliWaveValidationAlg.TimeShiftDetection=True
    theCaliWaveValidationAlg.PatchMissingFEBs=True
    theCaliWaveValidationAlg.UseCorrChannels=False  
+   ##in case of CalibBoard patching, please uncomment:
+   ## adding new patching
+   #theCaliWaveValidationAlg.PatchCBs=[0x3e198000]
+   ## block standard patching for this CB
+   #if CorrectBadChannels:
+   #   topSequence.LArCaliWavePatcher.DoNotPatchCBs=[0x3e198000]
+
    topSequence+=theCaliWaveValidationAlg
    
    ## second instance of the validation tool to detect "bad" channel 

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -125,7 +125,7 @@ private:
     * @return False if at least one incomplete COOL channel is found, true otherwise
     * Calls @c patchMissingFEBs if @c m_patchMissingFebs is true
     */
-  bool checkCoolChannelCompleteness(const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
+  bool checkCoolChannelCompleteness(const LArOnOffIdMapping *cabling, const LArCalibLineMapping *clCont, const LArBadChannelCont *bcCont);
  
  /** 
     * @brief Verify if all COOL channels in the ref container are also in val
@@ -143,9 +143,19 @@ private:
     */
   bool patchMissingFEBs(const FEBANDGAIN_t& febAndGain, const LArOnOffIdMapping *cabling, const LArBadChannelCont *bcCont);
 
+typedef std::vector<std::pair<std::pair<HWIdentifier,unsigned>, unsigned > > CBANDCHANANDGAIN_t;
+   /** 
+    * @brief Fills channels of missing calib boards 
+    * @param febAndGain A vector of (CalibId,gain) pairs
+    * @return True on success, false otherwise
+    * Inserts the corresponding channel from the reference container 
+    * as correction channel to the validation container
+    */
+  bool patchMissingCalibBoards(const CBANDCHANANDGAIN_t& CBAndGain, const LArOnOffIdMapping *cabling, const LArCalibLineMapping *clCont);
+
   void febOutput(const HWIdentifier& febid, const unsigned gain, const unsigned nGood, const unsigned nBad);
 
-  void findFailedPatterns(const LArOnOffIdMapping *cabling,const LArBadChannelCont *bcCont);
+  void findFailedPatterns(const LArOnOffIdMapping *cabling, const LArCalibLineMapping *clCont, const LArBadChannelCont *bcCont);
 
   std::vector<std::string> m_gainMap;
 
@@ -160,6 +170,7 @@ protected:
   SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
   LArBadChannelMask m_bcMask;
   Gaudi::Property<std::vector<std::string> > m_problemsToMask{this,"ProblemsToMask",{}, "Bad-Channel categories to mask"};
+  Gaudi::Property<std::vector<unsigned int> > m_patchCBs{this, "PatchCBs", {}, "List of missing CalibBoards to patch using values from reference container."};
 
   // Pointers to various identifier helper classes, not used her, but
   // probably useful for deriving algorithm
