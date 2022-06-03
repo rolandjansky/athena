@@ -284,6 +284,15 @@ namespace SG {
       m_range = EventIDRange::intersect(m_range, range);
     }
     m_rangeSet = true;
+    using KeyType = CondContBase::KeyType;
+    if (m_cc->keyType()==KeyType::RUNLBN && (range.start().isTimeStamp() || range.stop().isTimeStamp())) {
+      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+      msg << MSG::ERROR << "Adding a time-stamp dependency on a run-lumi indexed CondCont. Consider a mixed ConditionsContainer for type " << fullKey() <<  endmsg;
+    }
+     if (m_cc->keyType()==KeyType::TIMESTAMP && (range.start().isRunLumi() || range.stop().isRunLumi())) {
+       MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+       msg << MSG::ERROR << "Adding a run-lumi dependency on a timestamp-indexed CondCont. Consider a mixed ConditionsContainer for type " << fullKey() <<  endmsg;
+    }
   }
 
   // Can't take a const RCH, as RCH.range() can load the ptr.

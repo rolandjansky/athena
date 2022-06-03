@@ -7,7 +7,7 @@
 #include <cmath>
 #include <memory>
 
-#include "GaudiKernel/EventIDRange.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 PixelSiPropertiesCondAlg::PixelSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
@@ -38,6 +38,9 @@ StatusCode PixelSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS; 
   }
 
+  writeHandle.addDependency(IOVInfiniteRange::infiniteMixed());
+
+
   // Read Cond Handle (temperature)
   SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);
   const PixelDCSTempData* readCdoTemp(*readHandleTemp);
@@ -45,12 +48,8 @@ StatusCode PixelSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeTemp;
-  if (not readHandleTemp.range(rangeTemp)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleTemp.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
+  writeHandle.addDependency(readHandleTemp); 
+  ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " <<  readHandleTemp.getRange() <<", intersection " << writeHandle.getRange());
 
   // Read Cond Handle (HV)
   SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV, ctx);
@@ -59,20 +58,10 @@ StatusCode PixelSiPropertiesCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeHV;
-  if (not readHandleHV.range(rangeHV)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
+  writeHandle.addDependency(readHandleHV); 
+  ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange() <<", intersection " << writeHandle.getRange());
 
-  // Combined the validity ranges of temp and HV
-  EventIDRange rangeW = EventIDRange::intersect(rangeTemp, rangeHV);
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-    return StatusCode::FAILURE;
-  }
-
+ 
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
@@ -104,11 +93,11 @@ StatusCode PixelSiPropertiesCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelSiliconPropertiesVector " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record PixelSiliconPropertiesVector " << writeHandle.key() << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
