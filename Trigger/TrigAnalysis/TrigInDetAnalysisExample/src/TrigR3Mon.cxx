@@ -90,7 +90,7 @@ TrigR3Mon::TrigR3Mon( const std::string & name, ISvcLocator* pSvcLocator)
   declareProperty( "releaseMetaData",   m_releaseMetaData );
 
   declareProperty( "buildNtuple",   m_buildNtuple = false );
-  declareProperty( "mcTruth",       m_mcTruth = false );
+  declareProperty( "mcTruth",       m_mcTruthIn = false );
 
   declareProperty( "AnalysisConfig", m_analysis_config = "Ntuple");
 
@@ -183,17 +183,22 @@ StatusCode TrigR3Mon::bookHistograms() {
   
   std::string lastvtx = "";
 
+  /// make a copy of the input truth setting job option, so that we can
+  /// change it if required
+
+  bool m_mcTruth = m_mcTruthIn;
+
   if ( m_buildNtuple ) { 
   
-	if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
+        if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
 	  m_sequences.push_back( new AnalysisConfig_Ntuple( m_ntupleChainNames, 
 							    m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
 							    m_keepAllEvents ) );
 	}
 	else {
 	  AnalysisConfigMT_Ntuple* ac = new AnalysisConfigMT_Ntuple( m_ntupleChainNames, 
-									 m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
-									 m_keepAllEvents, m_selectParentTruthPdgId );
+								     m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
+								     m_keepAllEvents, m_selectParentTruthPdgId );
 
 	  ac->set_fiducial_radius( m_fiducial_radius );
 	  ac->set_ptmin( m_pTCutOffline );
@@ -202,10 +207,10 @@ StatusCode TrigR3Mon::bookHistograms() {
 	  
 	m_sequences.back()->releaseData(m_releaseMetaData);
 	if ( m_requireDecision ) m_sequences.back()->setRequireDecision(true);
-	if ( m_mcTruth )         m_sequences.back()->setMCTruth(m_mcTruth);
+	if ( m_mcTruthIn )       m_sequences.back()->setMCTruth(m_mcTruth);
 	m_sequences.back()->setFilterOnRoi( m_filter_on_roi );
   }
-  else if (m_analysis_config == "Tier0") {
+  else if ( m_analysis_config=="Tier0" ) {
 
     /// create sequences if need be ...
 
@@ -372,7 +377,6 @@ StatusCode TrigR3Mon::bookHistograms() {
 	
       }
      
-      
       toolitr++;
     }
 	
@@ -380,6 +384,27 @@ StatusCode TrigR3Mon::bookHistograms() {
       
     // tag and probe object creation                                                                                                                                                                            
     std::vector<std::string>& allchains = m_ntupleChainNames;
+
+    std::vector<ChainString> allcs;
+
+    allcs.reserve(allchains.size());
+
+
+    /// get some configuration flags
+    std::vector<std::string> mtypes;
+
+    for ( size_t i=0 ; i<allchains.size() ; i++ ) {
+      allcs.emplace_back( ChainString( allchains[i] ) );
+      if ( allcs.back().head().find("HLT_")==0 ) continue;
+      if ( allcs.back().head()=="Offline" ) { 
+	m_mcTruth   = false;
+	if ( allcs.back().tail()!="" ) { 
+	  mtypes.push_back( allcs.back().tail() );
+	  ATH_MSG_INFO( "Offline reference collection: " << mtypes.back() );
+	}
+      }
+    }
+
     
     for ( size_t i=0 ; i<m_chainNames.size() ; i++ ) {
 
@@ -421,7 +446,7 @@ StatusCode TrigR3Mon::bookHistograms() {
       }
 
 
-      /// can only iuse R3 navigation now
+      /// only use the R3 navigation now
 
       { 
 
@@ -450,6 +475,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 	    analysis->setOfflineRef( false );
 	}
 
+	if ( mtypes.size()>0 ) analysis->setTypes( mtypes );
+	
 	m_sequences.push_back( analysis );
 
       	std::string highestPT_str = "";
