@@ -1144,7 +1144,7 @@ int main(int argc, char** argv)
     if ( vtxTool!="" ) { 
       ///  don't use the vertex name as the directory, since then we cannot 
       ///  easily plot on the same plot  
-      ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool );
+      ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool, (vertex_refname!="Vertex") );
       // ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( "vertex" );
       analy_conf->store().insert( anal_confvtx, "rvtx" );
     }
