@@ -92,6 +92,9 @@ def TrigMinBiasEff(flags):
     # check all mb_sptrk chains w.r.t. random noalg
     triggerAndRef = [ _c(chain, "HLT_noalg_L1RD0_FILLED")  for chain in mbChains
                     if ("HLT_mb_sptrk_" in chain or "HLT_mb_sp_" in chain or "HLT_mb_mbts_" in chain)]
+    # for monitoring in MB stream
+    triggerAndRef += [ _c(chain, "HLT_noalg_mb_L1RD0_FILLED")  for chain in mbChains
+                    if ("HLT_mb_sptrk_" in chain or "HLT_mb_sp_" in chain or "HLT_mb_mbts_" in chain)]
     triggerAndRef += [ _c("HLT_mb_sptrk_L1RD0_FILLED", "HLT_mb_sp_L1RD0_FILLED") ]
 
     hmt = [c for c in mbChains if ('_hmt_' in c and '_pusup' not in c)]
