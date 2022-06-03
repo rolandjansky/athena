@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -13,7 +13,7 @@
 #ifndef TRIGT1CALOCALIBTOOLS_L1CALOFCAL23CELLS2RXMAPPINGTOOL_H
 #define TRIGT1CALOCALIBTOOLS_L1CALOFCAL23CELLS2RXMAPPINGTOOL_H
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "AsgTools/AsgTool.h"
@@ -41,18 +41,24 @@ public:
   L1CaloFcal23Cells2RxMappingTool& operator=(const L1CaloFcal23Cells2RxMappingTool& rhs) = delete;
 
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  unsigned int offlineCell2RxId(const unsigned int& cellId) const;
-  unsigned int onlineCell2RxId(const unsigned int& cellId) const;
+  virtual unsigned int offlineCell2RxId(const unsigned int& cellId) const override;
+  virtual unsigned int onlineCell2RxId(const unsigned int& cellId) const override;
+
+  enum mapType {
+    mapOfflineCell2RxId,
+    mapOnlineCell2RxId,
+    mapOfflineCellNotConnectedToCalibLines,
+    mapOnlineCellNotConnectedToCalibLines,
+    numMaps
+  };
+
 
 private:
-  std::map<unsigned int, unsigned int>* m_mapOfflineCell2RxId;
-  std::map<unsigned int, unsigned int>* m_mapOnlineCell2RxId;
-
-  std::map<unsigned int, unsigned int>* m_mapOfflineCellNotConnectedToCalibLines;
-  std::map<unsigned int, unsigned int>* m_mapOnlineCellNotConnectedToCalibLines;
+      unsigned int lookup (mapType type, unsigned int cellId) const;
+      std::unordered_map<unsigned int,unsigned int> m_maps[numMaps];
 };
 } // end of namespace
 #endif
