@@ -4,10 +4,14 @@
 
 #include "AFP_DBTools/SiLocAlignDBTool.h"
 #include "AFP_DBTools/SiGlobAlignDBTool.h"
-#include "AFP_DBTools/SiAlignDBTester.h"
+#include "AFP_DBTools/ToFLocParamDBTool.h"
+#include "AFP_DBTools/ToFVtxParamDBTool.h"
+#include "AFP_DBTools/AFPDBTester.h"
 
 using namespace AFP;
 
 DECLARE_COMPONENT( SiLocAlignDBTool )
 DECLARE_COMPONENT( SiGlobAlignDBTool )
-DECLARE_COMPONENT( SiAlignDBTester )
+DECLARE_COMPONENT( ToFLocParamDBTool )
+DECLARE_COMPONENT( ToFVtxParamDBTool )
+DECLARE_COMPONENT( AFPDBTester )

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # file   testAFPDB.py
 # author Petr Balek <petr.balek@cern.ch> (with a lot of inspiration from Tomasz Bold)
@@ -30,34 +30,32 @@ def testAFPDBCfg(flags):
     acc.merge(addFolders(flags, '/CALO/HadCalibration2/CaloEMFrac', 'CALO_ONL', className='CaloLocalHadCoeff', db='CONDBR2'))
     acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
 
-    # set from where to read the local information - from local file
-    # this will read from DB for data
-#     schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
-#     locFolder = "/FWD/Onl/AFP/Align/Local"
-#     locTag = "<tag>AFPAlignLoc-01</tag>"
-#     globFolder = "/FWD/Onl/AFP/Align/Global"
-#     globTag = "<tag>AFPAlignGlob-01</tag>"
-#     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
-#     acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='CONDBR2' ))
     
     # set from where to read the local information - from DB
-#     locFolder = "/FWD/Onl/AFP/Align/Local"
-#     globFolder = "/FWD/Onl/AFP/Align/Global"
-#     acc.merge(addFolders(flags, locFolder, 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignLoc-02', db="CONDBR2"))
-#     acc.merge(addFolders(flags, globFolder, 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignGlob-01', db="CONDBR2"))
+    acc.merge(addFolders(flags, "/FWD/Onl/AFP/Align/Local", 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignLoc-02', db="CONDBR2"))
+    acc.merge(addFolders(flags, "/FWD/Onl/AFP/Align/Global", 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignGlob-01', db="CONDBR2"))
     
-#     acc.addCondAlgo(CompFactory.SiAlignDBTester())
+    # set from where to read the local information - from local file
+    schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
+    locFolder = "/FWD/Onl/AFP/ToFParameters/Local"
+    locTag = "<tag>AFPToFLoc-01</tag>"
+    vtxFolder = "/FWD/Onl/AFP/ToFParameters/Vertex"
+    vtxTag = "<tag>AFPToFVtx-01</tag>"
+    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
+    acc.merge(addFolders(flags, schema+vtxFolder+vtxTag, className='CondAttrListCollection', db='CONDBR2' ))  
+    
+    acc.addCondAlgo(CompFactory.AFPDBTester())
 
     
     # this will read from DB for MC (note that the source file is still data that provides run and LB, thus this is really for testing only)
-    schema = "<db>sqlite://;schema=ExampleMC.db;dbname=OFLP200</db>"
-    locFolder = "/FWD/AFP/Align/Local"
-    locTag = "<tag>AFPMCAlignLoc-329484-02</tag>"
-    globFolder = "/FWD/AFP/Align/Global"
-    globTag = "<tag>AFPMCAlignGlob-331020-01</tag>"
-    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='OFLP200' ))
-    acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='OFLP200' ))    
-    acc.addCondAlgo(CompFactory.SiAlignDBTester("SiAlignDBTester", locshiftXkey="/FWD/AFP/Align/Local", globshiftXkey="/FWD/AFP/Align/Global"))
+#     schema = "<db>sqlite://;schema=ExampleMC.db;dbname=OFLP200</db>"
+#     locFolder = "/FWD/AFP/Align/Local"
+#     locTag = "<tag>AFPMCAlignLoc-329484-02</tag>"
+#     globFolder = "/FWD/AFP/Align/Global"
+#     globTag = "<tag>AFPMCAlignGlob-331020-01</tag>"
+#     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='OFLP200' ))
+#     acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='OFLP200' ))    
+#     acc.addCondAlgo(CompFactory.SiAlignDBTester("SiAlignDBTester", locshiftXkey="/FWD/AFP/Align/Local", globshiftXkey="/FWD/AFP/Align/Global"))
 
     return acc
 
@@ -100,6 +98,6 @@ if __name__ == "__main__":
     acc.merge(testAFPDBCfg(flags))
     from AthenaCommon.Constants import DEBUG, VERBOSE
     acc.foreach_component("*AFP*").OutputLevel=VERBOSE
-    acc.foreach_component("SiAlignDBTester").OutputLevel=DEBUG
+    acc.foreach_component("AFPDBTester").OutputLevel=DEBUG
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.run()
