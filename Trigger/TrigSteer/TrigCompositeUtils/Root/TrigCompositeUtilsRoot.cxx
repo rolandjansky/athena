@@ -229,12 +229,21 @@ namespace TrigCompositeUtils {
   }
 
   const Decision* getTerminusNode(SG::ReadHandle<DecisionContainer>& container) {
-    for (const Decision* decision : *container) {
-      if (decision->name() == summaryPassNodeName()) {
-        return decision;
-      }
-    }
-    return nullptr;
+    return getTerminusNode(*container);
+  }
+
+  const Decision* getTerminusNode(const DecisionContainer& container) {
+    return getNodeByName(container, summaryPassNodeName());
+  }
+
+  const Decision* getExpressTerminusNode(const DecisionContainer& container) {
+    return getNodeByName(container, summaryPassExpressNodeName());
+  }
+
+  const Decision* getNodeByName(const DecisionContainer& container, const std::string& nodeName) {
+    const auto it = std::find_if(container.begin(), container.end(), [&nodeName](const Decision* d){return d->name()==nodeName;});
+    if (it==container.end()) {return nullptr;}
+    return *it;
   }
 
   std::vector<const Decision*> getRejectedDecisionNodes(const asg::EventStoreType* eventStore,
@@ -816,6 +825,10 @@ namespace TrigCompositeUtils {
 
   const std::string& summaryPassNodeName(){
     return Decision::s_summaryPassNodeNameString;
+  }
+
+  const std::string& summaryPassExpressNodeName(){
+    return Decision::s_summaryPassExpressNodeNameString;
   }
 
   const std::string& summaryPrescaledNodeName(){

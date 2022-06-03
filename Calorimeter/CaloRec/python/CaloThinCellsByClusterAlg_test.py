@@ -7,9 +7,6 @@
 # Brief: Test for CaloThinCellsByClusterAlg.
 #
 
-from __future__ import print_function
-
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory 
 from AthenaPython.PyAthenaComps import Alg, StatusCode
@@ -139,8 +136,6 @@ def testCfg (configFlags):
 ROOT.xAOD.CaloClusterContainer_v1
 
 
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 

@@ -176,8 +176,6 @@ def generateChains( flags, chainDict ):
 
 if __name__ == "__main__":
     # run with: python -m TriggerMenuMT.HLT.Tau.generateTau
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW

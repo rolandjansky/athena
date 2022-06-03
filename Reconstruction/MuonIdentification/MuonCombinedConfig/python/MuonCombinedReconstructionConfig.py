@@ -621,7 +621,7 @@ def MuonCombinedReconstructionCfg(flags):
     if flags.Muon.runCommissioningChain:
         result.merge(EMEO_MuonCombinedMuonCandidateAlgCfg(flags))
         result.merge(EMEO_MuonCombinedAlgCfg(flags))
-        result.merge(EMEO_MuonCreatorAlgCfg(flags))
+        
 
     result.merge(MuonSegContainerMergerAlgCfg(flags))
 
@@ -640,7 +640,8 @@ def MuonCombinedReconstructionCfg(flags):
                                                             SegmentContainerName="TrkStauSegments",
                                                             xAODContainerName="StauSegments",
                                                             MuonSegmentConverterTool=muonSegmentCnvTool))          
-    
+    if flags.Muon.runCommissioningChain:
+        result.merge(EMEO_MuonCreatorAlgCfg(flags))
     # runs over outputs and create xAODMuon collection
     result.merge(MuonCreatorAlgCfg(flags))
     if do_LRT:

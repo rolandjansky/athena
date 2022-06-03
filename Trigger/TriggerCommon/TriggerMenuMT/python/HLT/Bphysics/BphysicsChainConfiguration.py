@@ -10,8 +10,11 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 from ..Config.ChainConfigurationBase import ChainConfigurationBase
 from ..Muon.MuonChainConfiguration import MuonChainConfiguration
-from AthenaCommon.Configurable import Configurable
-if not Configurable.configurableRun3Behavior: 
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+
+if isRun3Cfg():
+    pass
+else:
     from ..Muon.MuonChainConfiguration import mul2IOOvlpRmSequenceCfg, mul2mtCBOvlpRmSequenceCfg, muEFCBSequenceCfg
 
     from .BphysicsMenuSequences import dimuL2Sequence, dimuEFSequence, bmumuxSequence

@@ -276,10 +276,28 @@ namespace TrigCompositeUtils {
 
   /**
    * @brief Returns the terminus navigation node from a collection, assuming that the passed collection contains the terminus node
-   * @param[in] Collection of navigation nodes which contains the terminus node
+   * @param[in] container Collection of navigation nodes which contains the terminus node
    * @return The terminus node, or a nullptr if the node is not found
    **/
-  const Decision* getTerminusNode(SG::ReadHandle<DecisionContainer>& container);
+  const Decision* getTerminusNode(const DecisionContainer& container);
+  const Decision* getTerminusNode(SG::ReadHandle<DecisionContainer>& container); // older signature
+
+
+  /**
+   * @brief Returns the express-accept navigation node from a collection or nullptr if missing
+   * @param[in] container Collection of navigation nodes
+   * @return The express-accept node, or a nullptr if the node is not found
+   **/
+  const Decision* getExpressTerminusNode(const DecisionContainer& container);
+
+
+  /**
+   * @brief Returns the navigation node with a given name from a collection or nullptr if missing
+   * @param[in] container Collection of navigation nodes
+   * @param[in] nodeName The name of the node to find
+   * @return The terminus node, or a nullptr if the node is not found
+   **/
+  const Decision* getNodeByName(const DecisionContainer& container, const std::string& nodeName);
   
 
   /**
@@ -366,6 +384,7 @@ namespace TrigCompositeUtils {
   const std::string& comboHypoAlgNodeName();
   const std::string& summaryFilterNodeName();
   const std::string& summaryPassNodeName();
+  const std::string& summaryPassExpressNodeName();
   const std::string& summaryPrescaledNodeName();
   /// @}
 

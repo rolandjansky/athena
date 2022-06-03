@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StreamTagMakerTool.h"
@@ -30,10 +30,14 @@ StatusCode StreamTagMakerTool::initialize() {
   renounceArray( m_pebDecisionKeys );
   ATH_CHECK( m_pebDecisionKeys.initialize() );
   ATH_CHECK( m_finalChainDecisions.initialize() );
-  ATH_CHECK( m_prescaler.retrieve() );
-
   ATH_CHECK( m_hltMenuKey.initialize() );
+  return StatusCode::SUCCESS;
+}
 
+// =============================================================================
+
+StatusCode StreamTagMakerTool::start() {
+  m_mapping.clear();
   auto hltMenu = SG::makeHandle( m_hltMenuKey );
   if( ! hltMenu.isValid() ) {
     ATH_MSG_FATAL("Failed to get the HLT menu from the DetectorStore");
@@ -87,16 +91,12 @@ StatusCode StreamTagMakerTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode StreamTagMakerTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 // =============================================================================
 
 StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const {
   // obtain chain decisions,
   using namespace TrigCompositeUtils;
-  auto chainsHandle = SG::makeHandle( m_finalChainDecisions, ctx );
+  SG::ReadHandle<DecisionContainer> chainsHandle{m_finalChainDecisions, ctx};
   if (!chainsHandle.isValid()) {
     SmartIF<IAlgExecStateSvc> aess = svcLoc()->service<IAlgExecStateSvc>("AlgExecStateSvc", false);
     if (aess.isValid() && aess->eventStatus(ctx) != EventStatus::Success) {
@@ -107,28 +107,31 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
     return StatusCode::FAILURE;
   }
 
-  const Decision* passRawChains = TrigCompositeUtils::getTerminusNode(chainsHandle);
+  // Extract DecisionIDContainer from DecisionContainer
+  auto getPassIDs = [this](const DecisionContainer& finalDecisions, const std::string& nodeName, DecisionIDContainer& passIDs) {
+    const Decision* passNode = getNodeByName(finalDecisions, nodeName);
+    if (passNode==nullptr) {
+      ATH_MSG_ERROR("Unable to read in the " << nodeName << " node from the " << m_finalChainDecisions.key() << " collection from the DecisionSummaryMakerAlg");
+      return StatusCode::FAILURE;
+    }
+    decisionIDs(passNode, passIDs);
+    return StatusCode::SUCCESS;
+  };
 
-  if (passRawChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the HLTPassRaw node from the HLTNav_Summary collection from the DecisionSummaryMakerAlg");
-    return StatusCode::FAILURE;
-  }
-
+  // Get raw pass decisions
   DecisionIDContainer passRawIDs;
-  decisionIDs(passRawChains, passRawIDs);
-
+  ATH_CHECK(getPassIDs(*chainsHandle,summaryPassNodeName(),passRawIDs));
   if (passRawIDs.empty()) {
     ATH_MSG_DEBUG("No chains passed, event rejected");
     return StatusCode::SUCCESS;
   }
 
+  // Get express pass decisions
+  DecisionIDContainer passExpressIDs;
+  ATH_CHECK(getPassIDs(*chainsHandle,summaryPassExpressNodeName(),passExpressIDs));
+
   std::unordered_map<unsigned int, PEBInfoWriterToolBase::PEBInfo> chainToPEBInfo;
   ATH_CHECK(fillPEBInfoMap(chainToPEBInfo, ctx));
-
-  // find chains that pass the express stream
-  HLT::IDVec passedIDs{passRawIDs.begin(),passRawIDs.end()}; // convert set to vector
-  HLT::IDVec expressIDs;
-  ATH_CHECK( m_prescaler->prescaleChains( ctx, passedIDs, expressIDs, true ) );
 
   // for each accepted chain look up the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
@@ -150,9 +153,9 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
 
       // express stream prescaling
       if (st_type == "express") {
-        const auto activeExpress = std::find(expressIDs.begin(), expressIDs.end(), HLT::Identifier( chain ).numeric());
+        const auto activeExpress = std::find(passExpressIDs.begin(), passExpressIDs.end(), chain);
         // chain didn't pass express stream prescale so don't add stream tag
-        if (activeExpress == expressIDs.end()) continue;
+        if (activeExpress == passExpressIDs.end()) continue;
       }
 
       std::set<uint32_t> robs;

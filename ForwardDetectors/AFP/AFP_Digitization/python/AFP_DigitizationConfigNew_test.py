@@ -21,13 +21,11 @@ if __name__ == "__main__":
     
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg
 
     # Set up logging and new style config
     log.setLevel(DEBUG)
-    Configurable.configurableRun3Behavior = True
 
     # Configure
     ConfigFlags.Input.Files = ["test.pool.root"]

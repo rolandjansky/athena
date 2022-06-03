@@ -196,9 +196,6 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files=defaultTestFiles.RDO_RUN2

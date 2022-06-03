@@ -1079,8 +1079,6 @@ def test23 (flags_in):
 
 
 from AthenaConfiguration.TestDefaults import defaultTestFiles
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior = 1
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.loadAllDynamicFlags()

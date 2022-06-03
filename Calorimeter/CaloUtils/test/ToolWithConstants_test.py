@@ -8,9 +8,6 @@
 # Brief: Test for ToolWithConstants.
 #
 
-from __future__ import print_function
-
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaPython.PyAthenaComps import Alg, StatusCode
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -90,8 +87,6 @@ def testCfg (configFlags):
 
 ROOT.errorcheck.ReportMessage.hideFunctionNames (True)
 
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=1
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
