@@ -1,72 +1,87 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DynVarFixerAlg.cxx 803546 2017-04-25 09:44:26Z krasznaa $
+// Local include(s):
+#include "DynVarFixerAlg.h"
+
+// EDM include(s):
+#include "AthContainers/AuxTypeRegistry.h"
+#include "StoreGate/ReadHandle.h"
 
 // ROOT include(s):
 #include <TClass.h>
 #include <TVirtualCollectionProxy.h>
 #include <TGenCollectionProxy.h>
 
-// EDM include(s):
-#include "AthContainers/AuxTypeRegistry.h"
-#include "xAODCore/AuxContainerBase.h"
-
-// Local include(s):
-#include "DynVarFixerAlg.h"
+// System include(s).
+#include <algorithm>
+#include <cassert>
+#include <string>
 
 namespace xAODMaker {
 
-   DynVarFixerAlg::DynVarFixerAlg( const std::string& name,
-                                   ISvcLocator* svcLoc )
-      : AthAlgorithm( name, svcLoc ) {
-
-      // Declare the algorithm's properties:
-      declareProperty( "Containers", m_containers );
-   }
-
    StatusCode DynVarFixerAlg::initialize() {
 
-      // Greet the user:
+      // Greet the user.
       ATH_MSG_INFO( "Initialising" );
       ATH_MSG_DEBUG( "Will be fixing dynamic variables in container(s):" );
-      ATH_MSG_DEBUG( "  " << m_containers );
+      ATH_MSG_DEBUG( "  " << m_constKeys );
 
-      // Reset the cache variable:
+      // Initialise the read handle keys.
+      ATH_CHECK( m_constKeys.initialize() );
+      std::vector< std::string > keys( m_constKeys.size() );
+      std::transform( m_constKeys.begin(), m_constKeys.end(), keys.begin(),
+                      []( const SG::ReadHandleKey< SG::IConstAuxStore >& key ) {
+                         return key.key(); } );
+      ATH_CHECK( m_ioKeys.assign( keys ) );
+      ATH_CHECK( m_ioKeys.initialize() );
+
+      // Reset the cache variable.
       m_dicts.clear();
 
-      // Return gracefully:
+      // Return gracefully.
       return StatusCode::SUCCESS;
    }
 
    StatusCode DynVarFixerAlg::execute() {
 
+      // Construct the SG::IConstAuxStore and SG::IAuxStoreIO read handles.
+      auto constHandles = m_constKeys.makeHandles();
+      auto ioHandles = m_ioKeys.makeHandles();
+      assert( constHandles.size() == ioHandles.size() );
+
       // Loop over the specified containers:
-      for( const std::string& cname : m_containers ) {
+      for( std::size_t i = 0; i < constHandles.size(); ++i ) {
 
-         // Retrieve the container with a constant pointer. Since we probably
-         // can't get a non-const pointer to it anyway.
-         const xAOD::AuxContainerBase* store = nullptr;
-         ATH_CHECK( evtStore()->retrieve( store, cname ) );
+         // Access the appropriate handles.
+         SG::ReadHandle< SG::IConstAuxStore >& constHandle =
+            constHandles.at( i );
+         SG::ReadHandle< SG::IAuxStoreIO >& ioHandle =
+            ioHandles.at( i );
 
-         // If the store is empty, stop here:
-         if( ! store->size() ) {
+         // If the store is empty, stop here.
+         if( constHandle->size() == 0 ) {
             continue;
          }
 
-         // Remember the store's size:
-         const size_t size = store->size();
+         // Remember the store's name and size.
+         const std::string& cname = constHandle.key();
+         const size_t size = constHandle->size();
          ATH_MSG_VERBOSE( "Size of container \"" << cname << "\": " << size );
 
          // Loop over all dynamic variables of the container:
-         for( SG::auxid_t auxid : store->getDynamicAuxIDs() ) {
+         for( SG::auxid_t auxid : ioHandle->getDynamicAuxIDs() ) {
 
             // Access the registry:
             static auto& reg = SG::AuxTypeRegistry::instance();
 
+            // Tell the user what's happening.
+            ATH_MSG_VERBOSE( "Checking variable \"" << cname
+                             << reg.getName( auxid ) << "\"" );
+
             // Access the std::vector variable:
-            const void* vecPtr = store->getIOData( auxid );
+            const void* vecPtr = ioHandle->getIOData( auxid );
 
             // Get a dictionary for the variable:
             ::TClass* cl = getClass( auxid );
@@ -117,7 +132,7 @@ namespace xAODMaker {
          }
       }
 
-      // Return gracefully:
+      // Return gracefully.
       return StatusCode::SUCCESS;
    }
 
