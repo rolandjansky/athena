@@ -317,9 +317,6 @@ def MuonRDOtoPRDConvertorsCfg(flags):
 
 # This function runs the decoding on a data file
 def muonRdoDecodeTestData( forTrigger = False ):
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
@@ -372,8 +369,6 @@ def muonRdoDecodeTestData( forTrigger = False ):
 
 # This function runs the decoding on a MC file
 def muonRdoDecodeTestMC():
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]

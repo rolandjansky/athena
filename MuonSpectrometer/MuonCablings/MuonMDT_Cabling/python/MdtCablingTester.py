@@ -21,9 +21,6 @@ def SetupArgParser():
                         help="Input file to run on ", nargs="+")
     args = parser.parse_args()
 
-    # Setup for new config
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     return args
 
 def setupServicesCfg(flags):

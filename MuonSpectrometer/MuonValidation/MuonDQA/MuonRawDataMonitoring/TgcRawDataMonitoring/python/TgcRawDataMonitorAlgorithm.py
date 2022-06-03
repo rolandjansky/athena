@@ -985,9 +985,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
     return result
     
 if __name__=='__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
     log.setLevel(INFO)

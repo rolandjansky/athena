@@ -6,16 +6,14 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import sys
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from MuonConfig.CSC_DigitizationConfig import CSC_DigitBuilderDigitToRDOCfg
 
-# Set up logging and new style config
+# Set up logging
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 # Configure
 ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
