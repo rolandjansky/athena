@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDTOOLS_COOLHISTSVC_H
@@ -9,6 +9,7 @@
 
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 
 class StoreGateSvc;
@@ -16,7 +17,7 @@ class IPoolSvc;
 class TFile;
 class TDirectory;
 
-class CoolHistSvc : public virtual ICoolHistSvc, 
+class ATLAS_NOT_THREAD_SAFE CoolHistSvc : public virtual ICoolHistSvc,
 		    public virtual IIncidentListener,
 		    public virtual AthService {
   template <class TYPE> class SvcFactory;
@@ -85,7 +86,7 @@ class CoolHistSvc : public virtual ICoolHistSvc,
   FileMap m_filemap;
 
   // directory restore copied from THistSvc
-  class GlobalDirectoryRestore {
+  class ATLAS_NOT_THREAD_SAFE GlobalDirectoryRestore {
   public:
     GlobalDirectoryRestore();
     ~GlobalDirectoryRestore();

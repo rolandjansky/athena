@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDTOOLS_ICOOLSTRFILESVC_H
@@ -11,8 +11,9 @@
 
 #include <string>
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 
-class ICoolStrFileSvc : virtual public IInterface {
+class ATLAS_NOT_THREAD_SAFE ICoolStrFileSvc : virtual public IInterface {
 
  public:
   static const InterfaceID& interfaceID();
