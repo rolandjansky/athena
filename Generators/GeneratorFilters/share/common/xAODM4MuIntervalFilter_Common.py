@@ -4,8 +4,6 @@
 # connecting the filter
 
 include ("GeneratorFilters/CreatexAODSlimContainers.py")
-createxAODSlimmedContainer("TruthEvents",prefiltSeq)
-prefiltSeq.xAODCnv.AODContainerName = 'GEN_EVENT'
 
 from GeneratorFilters.GeneratorFiltersConf import xAODM4MuIntervalFilter
 xAODM4MuIntervalFilter = xAODM4MuIntervalFilter("xAODM4MuIntervalFilter")  

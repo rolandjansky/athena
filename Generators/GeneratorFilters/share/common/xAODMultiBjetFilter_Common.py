@@ -5,8 +5,6 @@
 # connecting the filter
 
 include ("GeneratorFilters/CreatexAODSlimContainers.py")
-createxAODSlimmedContainer("TruthEvents",prefiltSeq)
-prefiltSeq.xAODCnv.AODContainerName = 'GEN_EVENT'
 
 include("GeneratorFilters/FindJets.py")
 CreateJets(prefiltSeq, 0.4)
