@@ -7,6 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 from AthenaCommon.CFElements import seqAND, seqOR, parOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
+from .TriggerRecoConfig import TriggerMetadataWriterCfg
 __log = logging.getLogger('TriggerConfig')
 
 def __isCombo(alg):
@@ -450,19 +451,9 @@ def triggerPOOLOutputCfg(flags):
     decmaker = CompFactory.TrigDec.TrigDecisionMakerMT("TrigDecMakerMT", BitsMakerTool = bitsmaker)
     acc.addEventAlgo( decmaker )
 
-    # Produce trigger metadata
-    menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
-    menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool('KeyWriterToolOffline')
-    acc.addEventAlgo( menuwriter )
-
-    # Schedule the insertion of menus,  prescales & bunchgroups into the conditions store
-    # Required for metadata production
-    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
-    acc.merge( L1ConfigSvcCfg(flags) )
-    acc.merge( HLTConfigSvcCfg(flags) )
-    acc.merge( BunchGroupCondAlgCfg( flags ) )
-    acc.merge( L1PrescaleCondAlgCfg(flags) )
-    acc.merge( HLTPrescaleCondAlgCfg(flags) )
+    # Export trigger metadata during the trigger execution when running with POOL output.
+    metadataAcc, metadataOutputs = TriggerMetadataWriterCfg(flags)
+    acc.merge( metadataAcc )
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
@@ -496,7 +487,7 @@ def triggerPOOLOutputCfg(flags):
         # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
         alg.ExtraInputs += [
             ("xAOD::TrigDecision", str(decmaker.TrigDecisionKey)),
-            ("xAOD::TrigConfKeys", str(menuwriter.KeyWriterTool.ConfKeys))] + xRoIBResultOutputs
+            ("xAOD::TrigConfKeys", metadataOutputs)] + xRoIBResultOutputs
 
         # Keep input RDO objects in the output RDO_TRIG file
         if outputType == 'RDO':
