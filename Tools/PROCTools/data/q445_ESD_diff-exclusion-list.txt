@@ -10,4 +10,4 @@ index_ref
 (.*)_xTrigDecisionAux(.*)
 
 # temporarily excluded
-MuonSegmentAuxContainer_v1_MuonSegmentsAux(.*)
+(.*)MuonSegmentAuxContainer_v1_MuonSegmentsAux(.*)
