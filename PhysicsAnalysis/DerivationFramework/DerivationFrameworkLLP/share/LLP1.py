@@ -399,6 +399,19 @@ LLP1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(LLP1SlimmingHelper)
 PhysCommonTrigger.trigmatching_helper_tau.add_to_slimming(LLP1SlimmingHelper)
 
+# LRT Electron and Muon trigger matching
+from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+lrt_tm_helper = TriggerMatchingHelper(
+    PhysCommonTrigger.trigger_names_notau,
+    name="LRTDFTriggerMatchingTool",
+    OutputContainerPrefix="TrigMatchLRT_",
+    InputElectrons="LRTElectrons",
+    InputMuons="MuonsLRT",
+    add_to_df_job=True
+)
+lrt_tm_helper.add_to_slimming(LLP1SlimmingHelper)
+
+
 # Final construction of output stream
 LLP1SlimmingHelper.AppendContentToStream(LLP1Stream)
 
