@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 """Run unit tests on RandomServices.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from RngComps.RandomServices import dSFMT, Ranlux64, Ranecu, RNG
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 # Make each
 t1 = dSFMT("TestSeed1")
 t2 = Ranlux64("TestSeed2")
