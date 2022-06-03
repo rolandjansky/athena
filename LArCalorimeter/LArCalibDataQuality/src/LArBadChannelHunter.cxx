@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibDataQuality/LArBadChannelHunter.h"
@@ -212,10 +212,8 @@ StatusCode LArBadChannelHunter::stop() {
   }//End loop over cells
 
 //////
-  std::map<unsigned,Average>::iterator itMap=averageMap.begin();
-  std::map<unsigned,Average>::iterator itMap_e=averageMap.end();
-  for(;itMap!=itMap_e;itMap++) {
-    itMap->second.finish(m_recalcPer);
+  for(auto &[i, average]:averageMap) {
+    average.finish(m_recalcPer);
   }
 
 
@@ -393,11 +391,8 @@ StatusCode LArBadChannelHunter::stop() {
   }//end loop over channels
 
 
-  goodAndBadMap_t::const_iterator itCalib=calibLineMap.begin();
-  goodAndBadMap_t::const_iterator itCalib_e=calibLineMap.end();
-  for(;itCalib!=itCalib_e;itCalib++) {
-//    const HWIdentifier& cLid=itCalib->first;
-    const goodAndBad_t& gb=itCalib->second;
+  for(const auto & kv: calibLineMap) {
+    const goodAndBad_t& gb=kv.second;
     for (unsigned i=0;i<gb.second.size();i++) {
     if (gb.first==0) {
       ATH_MSG_INFO ( "All channels belonging to calibLine " << channelDescription(badChanVec[gb.second[i]].first, cabling) 
@@ -673,6 +668,8 @@ unsigned  LArBadChannelHunter::getSymId(const HWIdentifier chid, const LArOnOffI
 		<< std::endl;
       assert(0);
     }
+    //can't reach here if eta is negative
+    //cppcheck-suppress shiftNegativeLHS
     const unsigned retval= (eta<<8) | reghash;
     return retval;
   }
