@@ -180,7 +180,7 @@ StatusCode ISF::FastCaloTool::commonSetup()
   for ( const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerTools_simulate) {
     const FastShowerCellBuilderTool* fcs=dynamic_cast< const FastShowerCellBuilderTool* >(tool.get());
     if(fcs) {
-      if(fcs->setupEvent(ctx, *m_rndm).isFailure()) {
+      if(fcs->setupEvent(ctx, *(m_rndm).get(ctx)).isFailure()) {
         ATH_MSG_ERROR( "Error executing tool " << tool->name() << " in setupEvent");
         return StatusCode::FAILURE;
       }
