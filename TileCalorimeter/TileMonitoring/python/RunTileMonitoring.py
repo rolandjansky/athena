@@ -165,10 +165,6 @@ if __name__=='__main__':
 
     args, _ = parser.parse_known_args()
 
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
