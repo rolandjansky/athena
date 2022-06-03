@@ -5,6 +5,7 @@
 #include "SCT_DCSConditionsHVCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <memory>
 
@@ -40,6 +41,8 @@ StatusCode SCT_DCSConditionsHVCondAlg::execute(const EventContext& ctx) const {
                   << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
+
+  writeHandle.addDependency(IOVInfiniteRange::infiniteMixed());
 
   // Read Cond Handle
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};

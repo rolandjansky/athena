@@ -5,7 +5,7 @@
 #include "SCT_DCSConditionsTempCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
-
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include <memory>
 
 SCT_DCSConditionsTempCondAlg::SCT_DCSConditionsTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -40,6 +40,8 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute(const EventContext& ctx) const 
                   << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS;
   }
+
+  writeHandle.addDependency(IOVInfiniteRange::infiniteMixed());
 
   // Read Cond Handle
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
