@@ -26,9 +26,11 @@
 // EDM include(s):
 #include "xAODTau/TauJetContainer.h"
 
+#include "CxxUtils/checker_macros.h"
+
 using namespace asg::msgUserCode;  //messaging
 
-int main( int argc, char* argv[] )
+int main ATLAS_NOT_THREAD_SAFE ( int argc, char* argv[] )
 {
   ANA_CHECK_SET_TYPE (int);
 

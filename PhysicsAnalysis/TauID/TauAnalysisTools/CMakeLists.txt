@@ -61,7 +61,7 @@ if( NOT XAOD_STANDALONE )
       SOURCES test/ut_TauAnalysisTools_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
-      GaudiKernel AsgTools xAODTau TauAnalysisToolsLib
+      GaudiKernel AsgTools xAODTau TauAnalysisToolsLib CxxUtils
       POST_EXEC_SCRIPT nopost.sh )
 endif()
 

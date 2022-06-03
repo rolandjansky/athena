@@ -225,18 +225,10 @@ StatusCode TauEfficiencyCorrectionsTool::beginEvent()
   m_iMu = xEventInfo->averageInteractionsPerCrossing();
 
   // FIXME: this should be harmonised for R22 recommendations
-  if (xEventInfo->runNumber()==284500)
+  if (xEventInfo->runNumber() != 284500 && xEventInfo->runNumber() != 300000 && xEventInfo->runNumber() != 310000)
   {
-    unsigned int tmp_mu = xEventInfo->averageInteractionsPerCrossing();
-    set_mu(tmp_mu);
-  }
-  else if (xEventInfo->runNumber()==300000 || xEventInfo->runNumber()==310000)
-  {
-    unsigned int tmp_mu = xEventInfo->actualInteractionsPerCrossing();
-    set_mu(tmp_mu);
-  }
-  else
     ANA_MSG_WARNING( "Could not determine MC campaign from run number! The mu dependent systematic of the trigger scale factors should not be trusted." );
+  }
   
   if (m_bReadRandomRunNumber)
   {
