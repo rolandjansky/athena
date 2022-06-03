@@ -29,6 +29,14 @@ atlas_add_component( BarcodeServices
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel BarcodeEventLib BarcodeInterfacesLib BarcodeServicesLib )
 
+
+atlas_add_test(BitCalculator_test
+  SOURCES test/BitCalculator_test.cxx Root/BitCalculator.cxx
+  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} BarcodeServicesLib
+  POST_EXEC_SCRIPT "nopost.sh" )
+  
+  
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
