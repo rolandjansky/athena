@@ -36,8 +36,13 @@ namespace TCS {
       virtual StatusCode process( const TCS::InputTOBArray & input, Count & count ) override final ;
 
       #ifndef TRIGCONF_STANDALONE
-      // Matching function for HLT seeding
+      // Functions for HLT seeding
+      // Returns index of jtau matched to etau
       static size_t cTauMatching( const xAOD::eFexTauRoI & eTau, const xAOD::jFexTauRoIContainer & jTauRoIs );
+      // Returns true when a matching is found
+      static bool cTauMatching( const xAOD::eFexTauRoI & eTau, const xAOD::jFexTauRoI & jTau );
+      // Converts the isolation score to bit to be used for the working point assignement 
+      static unsigned int convertIsoToBit( float jtauIso, float etauPt ); 
       #endif
 
    private:
