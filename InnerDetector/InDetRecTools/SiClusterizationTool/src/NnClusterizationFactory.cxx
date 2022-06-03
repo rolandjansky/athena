@@ -30,7 +30,6 @@
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "DetDescrCondTools/ICoolHistSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 //get std::isnan()

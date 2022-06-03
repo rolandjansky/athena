@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDTOOLS_ICOOLHISTSVC_H
@@ -8,13 +8,14 @@
 // Richard Hawkings, started 22/1/07
 
 #include "GaudiKernel/IInterface.h"
+#include "CxxUtils/checker_macros.h"
 
 class TH1;
 class TH2;
 class TH3;
 class TObject;
 
-class ICoolHistSvc : virtual public IInterface {
+class ATLAS_NOT_THREAD_SAFE ICoolHistSvc : virtual public IInterface {
  public:
   static const InterfaceID& interfaceID();
 

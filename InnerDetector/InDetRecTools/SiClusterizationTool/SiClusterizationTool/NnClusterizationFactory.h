@@ -48,7 +48,6 @@
 
 class TTrainedNetwork;
 class TH1;
-class ICoolHistSvc;
 
 namespace lwt {
   class NanReplacer;    
