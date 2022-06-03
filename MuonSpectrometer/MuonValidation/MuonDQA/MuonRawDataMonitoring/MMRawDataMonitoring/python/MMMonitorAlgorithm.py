@@ -35,7 +35,10 @@ def MMMonitoringConfig(inputFlags):
     
     # Configure histograms
 
-    # Overview histograms
+    # Overview histogram
+    mmGroup.defineHistogram('nseg;nseg',  type='TH1F',  title='Number_of_segments; Number_of_segments; Number of Entries', path='Overview', xbins=100, xmin=0, xmax=100., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('ntrk;ntrk',  type='TH1F',  title='Number_of_tracks; Number_of_tracks; Number of Entries', path='Overview', xbins=100, xmin=0, xmax=100., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('pt_trk;pt',  type='TH1F',  title='pt; pt[GeV]; Number of Entries', path='Overview', xbins=200, xmin=0, xmax=400., opt='kAlwaysCreate')
     mmGroup.defineHistogram('residual;Residuals',  type='TH1F',  title='Residuals; res[mm]; Number of Entries', path='Overview', xbins=200, xmin=-10, xmax=10., opt='kAlwaysCreate')
     mmGroup.defineHistogram('residual,eta_trk;Res_vs_eta', type='TH2F', title="Residuals vs Eta; Residuals [mm]; Eta;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=100, ymin=-3.,ymax=3., opt='kAlwaysCreate')
     mmGroup.defineHistogram('residual,phi_trk;Res_vs_phi', type='TH2F', title="Residuals vs Eta; Residuals [mm]; Phi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=-3.14,ymax=3.14, opt='kAlwaysCreate')
