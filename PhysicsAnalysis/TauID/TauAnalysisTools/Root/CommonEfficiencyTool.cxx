@@ -17,6 +17,7 @@
 #include "TH3.h"
 #include "TROOT.h"
 #include "TClass.h"
+#include <utility>
 
 using namespace TauAnalysisTools;
 
@@ -549,7 +550,21 @@ void CommonEfficiencyTool::ReadInputs(const TFile& fFile)
       }
       else if (sTitle == "mu")
       {
-	m_fY = &average_mu;
+	m_fY = [this](const xAOD::TauJet&) -> double {
+          const xAOD::EventInfo* xEventInfo = nullptr;
+          if (evtStore()->retrieve(xEventInfo,"EventInfo").isFailure()) {
+            return 0;
+          }
+          if (xEventInfo->runNumber()==284500)
+          {
+            return xEventInfo->averageInteractionsPerCrossing();
+          }
+          else if (xEventInfo->runNumber()==300000 || xEventInfo->runNumber()==310000)
+          {
+            return xEventInfo->actualInteractionsPerCrossing();
+          }
+          return 0;
+        };
 	ATH_MSG_DEBUG("using average mu for y-axis");
       }
       else if (sTitle == "truth |eta|")
@@ -697,7 +712,7 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor) const
 {
-  if (m_mSF->find(sHistName) == m_mSF->end())
+  if (std::as_const(*m_mSF).find(sHistName) == std::as_const(*m_mSF).end())
   {
     ATH_MSG_ERROR("Object with name "<<sHistName<<" was not found in input file.");
     ATH_MSG_DEBUG("Content of input file");

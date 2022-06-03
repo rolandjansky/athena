@@ -282,7 +282,7 @@ ElementLink<xAOD::TruthParticleContainer> DiTauTruthMatchingTool::checkTruthLept
   if(!pLepton->isAvailable<ElementLink<xAOD::TruthParticleContainer>>("truthParticleLink")){
     return truthParticleLink;
   }
-  static SG::AuxElement::ConstAccessor<ElementLink<xAOD::TruthParticleContainer>> accTruthParticleLink("truthParticleLink");
+  static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::TruthParticleContainer>> accTruthParticleLink("truthParticleLink");
   truthParticleLink = accTruthParticleLink(*pLepton);
   return truthParticleLink;
 }

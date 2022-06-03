@@ -101,9 +101,8 @@ protected:
   std::map<std::string, int> m_mSystematics;
   std::map<std::string, std::string> m_mSystematicsHistNames;
 
-  // std::function<double> m_fX;
-  double (*m_fX)(const xAOD::TauJet& xTau);
-  double (*m_fY)(const xAOD::TauJet& xTau);
+  std::function<double(const xAOD::TauJet& xTau)> m_fX;
+  std::function<double(const xAOD::TauJet& xTau)> m_fY;
 
   void ReadInputs(const TFile& fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);

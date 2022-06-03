@@ -1,5 +1,5 @@
 /**
- * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * @copyright Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -12,6 +12,7 @@
 
 // ROOT include(s)
 #include "TH2F.h"
+#include <utility>
 
 using namespace TauAnalysisTools;
 
@@ -294,7 +295,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getValue(const std::string& sHistN
     const xAOD::DiTauJet& xDiTau,
     double& dEfficiencyScaleFactor) const
 {
-  if (m_mSF->find(sHistName) == m_mSF->end())
+  if (std::as_const(*m_mSF).find(sHistName) == std::as_const(*m_mSF).end())
   {
     ATH_MSG_ERROR("Object with name "<<sHistName<<" was not found in input file.");
     ATH_MSG_DEBUG("Content of input file");
