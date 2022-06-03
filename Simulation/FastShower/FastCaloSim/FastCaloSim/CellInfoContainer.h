@@ -165,9 +165,7 @@ class CellInfoContainer
   CellInfoContainer() = default;
   ~CellInfoContainer() = default;
 
-  friend class BasicCellBuilderTool;
   friend class CellInfoContainerCondAlg;
-  friend class FastShowerCellBuilderTool;
 
   inline const cellinfo_map& getCellistMap(int sample) const {return m_celllist_maps[sample];}
   inline const cellinfo_map& getEmCellistMap() const {return m_em_celllist_map;}

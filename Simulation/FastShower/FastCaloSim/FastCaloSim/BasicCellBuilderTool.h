@@ -20,20 +20,14 @@
 #include "FastCaloSim/FastCaloSim_CaloCell_ID.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "FastCaloSim/CellInfoContainer.h"
-
-class CaloCellContainer;
 class CaloDetDescrManager;
 class CaloCellContainer;
 class AtlasDetectorID;
+class CellInfoContainer;
 
 class BasicCellBuilderTool: public extends<AthAlgTool, ICaloCellMakerTool>
 {
-public:
-  //  typedef std::vector< std::vector<cellinfo_vec> > cellinfo_map;
-  typedef cellinfo_map::cellinfo cellinfo;
-  typedef cellinfo_map::cellinfo_vec cellinfo_vec;
-
+ public:
   BasicCellBuilderTool(
                        const std::string& type,
                        const std::string& name,
@@ -46,28 +40,14 @@ public:
                               const EventContext& ctx) const override;
 
 protected:
-  void init_all_maps(const CaloDetDescrManager* caloDDM);
-  void init_cell(cellinfo_map& map,const CaloDetDescrElement* theDDE);
-  void init_volume(cellinfo_map& map);
-  void find_phi0(const CaloDetDescrManager* caloDDM);
-
-  //  void init_map(cellinfo_map& map, int layer); //layer 1=EM 3=HAD
-  void findCells(const CaloDetDescrManager* caloDDM,
-                 cellinfo_vec & cell_vec, double eta_min, double eta_max, double phi_min, double phi_max, int layer);
-
-
-  void addCell(CaloCellContainer * theCellContainer, int etabin, int phibin, double energy, cellinfo_map& map );
-
-  CellInfoContainer m_cellinfoCont;
-
-  double deta(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-  void   minmaxeta(CaloCell_ID_FCS::CaloSample sample,double eta,double& mineta,double& maxeta) const;
-  double rzmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-  double rzent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-  double rmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-  double rent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-  double zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-  double zent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
+  double deta(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
+  void   minmaxeta(CaloCell_ID_FCS::CaloSample sample,double eta,double& mineta,double& maxeta, const CellInfoContainer* cont) const;
+  double rzmid(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
+  double rzent(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
+  double rmid(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
+  double rent(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
+  double zmid(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
+  double zent(CaloCell_ID_FCS::CaloSample sample,double eta, const CellInfoContainer* cont) const;
 
   bool m_isCaloBarrel[CaloCell_ID_FCS::MaxSample];
   bool isCaloBarrel(CaloCell_ID_FCS::CaloSample sample) const {return m_isCaloBarrel[sample];};
