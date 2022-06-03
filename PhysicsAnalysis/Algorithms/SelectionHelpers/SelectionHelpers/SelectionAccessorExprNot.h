@@ -15,7 +15,7 @@ namespace CP {
 class SelectionAccessorExprNot : public SelectionAccessorExprBase {
  public:
   /// @param child The selection accessor that is to be negated
-  SelectionAccessorExprNot(std::unique_ptr<ISelectionAccessor> child);
+  SelectionAccessorExprNot(std::unique_ptr<ISelectionReadAccessor> child);
 
   /// @param element AuxElement to evaluate the selection on
   /// @return Result of the negated result of @c child
@@ -35,7 +35,7 @@ class SelectionAccessorExprNot : public SelectionAccessorExprBase {
                    const std::string& objectName) override;
 
  private:
-  std::unique_ptr<ISelectionAccessor> m_child;
+  std::unique_ptr<ISelectionReadAccessor> m_child;
 };
 
 

@@ -40,7 +40,7 @@ namespace CP
       ANA_MSG_ERROR ("no isolation decoration name set");
       return StatusCode::FAILURE;
     }
-    ANA_CHECK (makeSelectionAccessor (m_isolationDecoration, m_isolationAccessor));
+    ANA_CHECK (makeSelectionWriteAccessor (m_isolationDecoration, m_isolationAccessor));
 
     ANA_CHECK (m_isolationTool.retrieve());
     ANA_CHECK (m_muonHandle.initialize (m_systematicsList));

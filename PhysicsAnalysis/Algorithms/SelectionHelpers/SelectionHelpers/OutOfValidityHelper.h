@@ -11,7 +11,7 @@
 #include <AsgMessaging/MsgStream.h>
 #include <AthContainers/AuxElement.h>
 #include <CxxUtils/AthUnlikelyMacros.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <xAODBase/IParticle.h>
 #include <memory>
 
@@ -98,7 +98,7 @@ namespace CP
 
     /// \brief the accessor if we apply one
   private:
-    std::unique_ptr<ISelectionAccessor> m_accessor;
+    std::unique_ptr<ISelectionWriteAccessor> m_accessor;
 
     /// \brief the decoration name we use (if we have one)
   private:

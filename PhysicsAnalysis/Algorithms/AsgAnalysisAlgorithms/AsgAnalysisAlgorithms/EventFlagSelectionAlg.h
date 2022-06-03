@@ -9,7 +9,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <EventBookkeeperTools/FilterReporterParams.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 
 namespace CP
 {
@@ -32,7 +32,7 @@ namespace CP
     std::vector<bool> m_invertFlags;
     
     /// \brief a vector of accessors to read the flags
-    std::vector<std::unique_ptr<ISelectionAccessor>> m_accessors;
+    std::vector<std::unique_ptr<ISelectionReadAccessor>> m_accessors;
 
     /// \brief the filter reporter params
     FilterReporterParams m_filterParams {this, "EventFlagSelection", "event flag selection"};

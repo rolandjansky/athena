@@ -9,7 +9,7 @@
 #define SELECTION_HELPERS__SELECTION_ACCESSOR_READ_SYS_H
 
 #include <PATInterfaces/SystematicSet.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 
 #include <memory>
 #include <vector>
@@ -19,7 +19,7 @@ namespace CP
   /// \brief the \ref SelectionAccesor for reading systematically
   /// varied decorations
 
-  class SelectionAccessorReadSys final : public ISelectionAccessor
+  class SelectionAccessorReadSys final : public ISelectionReadAccessor
   {
     //
     // public interface
@@ -34,19 +34,9 @@ namespace CP
              const CP::SystematicSet *sys) const override;
 
   public:
-    virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection,
-                          const CP::SystematicSet *sys) const override;
-
-  public:
     virtual bool
     getBool (const SG::AuxElement& element,
              const CP::SystematicSet *sys) const override;
-
-  public:
-    virtual void setBool (const SG::AuxElement& element,
-                          bool selection,
-                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual std::string label () const override;
@@ -69,7 +59,7 @@ namespace CP
 
     /// \brief the map of accessor we use
   private:
-    std::unordered_map<CP::SystematicSet,std::tuple<std::string,std::unique_ptr<ISelectionAccessor>>> m_dataCache;
+    std::unordered_map<CP::SystematicSet,std::tuple<std::string,std::unique_ptr<ISelectionReadAccessor>>> m_dataCache;
 
     /// \brief the selectionName for this accessor
   private:

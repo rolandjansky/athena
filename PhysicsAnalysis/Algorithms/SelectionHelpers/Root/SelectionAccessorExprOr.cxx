@@ -9,8 +9,8 @@
 namespace CP {
 
 SelectionAccessorExprOr::SelectionAccessorExprOr(
-    std::unique_ptr<ISelectionAccessor> left,
-    std::unique_ptr<ISelectionAccessor> right)
+    std::unique_ptr<ISelectionReadAccessor> left,
+    std::unique_ptr<ISelectionReadAccessor> right)
     : m_left(std::move(left)), m_right(std::move(right)) {}
 
 bool SelectionAccessorExprOr::getBool(const SG::AuxElement& element,
