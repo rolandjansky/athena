@@ -44,12 +44,12 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         chains = getchains( [ "HLT_e.*idperf(?!.*lrtloose.*).*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",  
                               "HLT_e.*idperf(?!.*lrtloose.*).*:key=HLT_IDTrack_Electron_IDTrig",
                               "HLT_e.*idperf(?!.*lrtloose.*)(?!.*nogsf.*).*:key=HLT_IDTrack_Electron_GSF",
-                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_tag:te=0",
-                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_probe:te=1",
-                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
-                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_probe:te=1",
-                              "HLT_e.*_lhtight_.*_e.*_idperf_gsf_probe_.*inv.*:key=HLT_IDTrack_Electron_GSF:extra=el_tag:te=0",
-                              "HLT_e.*_lhtight_.*_e.*_idperf_gsf_probe_.*inv.*:key=HLT_IDTrack_Electron_GSF:extra=el_probe:te=1" ], monlevel )
+                              "HLT_e.*_lhtight_.*_e.*_idperf_nogsf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_tag:te=0",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_nogsf_probe_.*inv.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el_probe:te=1",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_nogsf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_nogsf_probe_.*inv.*:key=HLT_IDTrack_Electron_IDTrig:extra=el_probe:te=1",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_GSF:extra=el_tag:te=0",
+                              "HLT_e.*_lhtight_.*_e.*_idperf_probe_.*inv.*:key=HLT_IDTrack_Electron_GSF:extra=el_probe:te=1" ], monlevel )
 
         if  len(chains)>0 : 
 
