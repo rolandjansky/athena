@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/AppMgr.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -344,6 +344,10 @@ class AthAppMgr( AppMgr ):
                              Incidents = ['EndAlgorithms'],
                              FireSerial = False)
          athMasterSeq += IPA('IncidentProcAlg3')
+
+         if Logging.log.isEnabledFor(Logging.logging.DEBUG):
+            from AthenaCommon.AlgSequence import dumpSequence
+            dumpSequence(athMasterSeq)
 
          Logging.log.debug ("building master sequence... [done]")
          return athMasterSeq
