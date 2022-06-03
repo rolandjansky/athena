@@ -348,9 +348,9 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
 
 
 def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
-    """
-    Temporarily available method allowing to merge CA into the configurations based on Configurable classes
-    """
+    """Execute the cfgFunc CA with the given flags and arguments and run appendCAtoAthena.
+    Return the result of cfgFunc."""
+
     if not callable(cfgFunc):
         raise TypeError("CAtoGlobalWrapper must be called with a configuration-function as parameter")
 
@@ -362,7 +362,7 @@ def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
             ca = result
 
     appendCAtoAthena(ca)
-
+    return result
 
 def appendCAtoAthena(ca):
     from AthenaCommon.AppMgr import (ServiceMgr, ToolSvc, theApp,
