@@ -7,6 +7,7 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/CondCont.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonDetDescrUtils/BuildNSWReadoutGeometry.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
@@ -22,8 +23,7 @@ StatusCode MuonDetectorCondAlg::initialize() {
 
     // Retrieve the MuonDetectorManager from the detector store to get
     // the applyCscIntAlignment() and applyMdtAsBuiltParams() flags
-    std::string managerName = "Muon";
-    const MuonGM::MuonDetectorManager *MuonDetMgrDS;
+    std::string managerName = "Muon";    const MuonGM::MuonDetectorManager *MuonDetMgrDS;
     if (detStore()->retrieve(MuonDetMgrDS).isFailure()) {
         ATH_MSG_INFO("Could not find the MuonGeoModel Manager: " << managerName << " from the Detector Store! ");
         return StatusCode::FAILURE;
@@ -66,6 +66,9 @@ StatusCode MuonDetectorCondAlg::execute() {
         return StatusCode::SUCCESS;
     }
 
+
+    writeHandle.addDependency(IOVInfiniteRange::infiniteRunLB());
+
     // =======================
     // Create the MuonDetectorManager by calling the MuonDetectorFactory001
     // =======================
@@ -91,6 +94,7 @@ StatusCode MuonDetectorCondAlg::execute() {
               ATH_MSG_ERROR("Cannot find conditions data container for MM passivation!");
               return StatusCode::FAILURE;
             }
+            writeHandle.addDependency(readMmPass);
             success = theBuilder.BuildReadoutGeometry(MuonMgrData.get(), readMmPass.cptr());
         }
         else {
@@ -139,6 +143,7 @@ StatusCode MuonDetectorCondAlg::execute() {
           ATH_MSG_ERROR("Cannot find conditions data container for NSW as-built!");
         else
             ATH_MSG_DEBUG("Retrieved conditions data container for NSW as-built");
+        writeHandle.addDependency(readNswAsBuilt);
         const NswAsBuiltDbData* nswAsBuiltData = readNswAsBuilt.cptr();
         MuonMgrData->setMMAsBuiltCalculator(nswAsBuiltData);
     }
