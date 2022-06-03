@@ -2,6 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "./DataStructs.h"
 #include "TrigL1FexJetMonitorAlgorithm.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 
@@ -14,6 +15,13 @@ TrigL1FexJetMonitorAlgorithm::TrigL1FexJetMonitorAlgorithm( const std::string& n
 TrigL1FexJetMonitorAlgorithm::~TrigL1FexJetMonitorAlgorithm() {}
 
 StatusCode TrigL1FexJetMonitorAlgorithm::initialize() {
+
+  // verify that the tool handle is pointing to an accessible tool
+  if ( m_filler.retrieve().isFailure() ) {
+    ATH_MSG_FATAL ("Failed to retrieve " << m_filler);
+    return StatusCode::FAILURE;
+  }
+
   return   AthMonitorAlgorithm::initialize();
 }
 

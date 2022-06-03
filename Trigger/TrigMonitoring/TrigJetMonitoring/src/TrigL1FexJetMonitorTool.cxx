@@ -4,19 +4,21 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL1FexJetMonitorTool_jFexLR.h"
+#include "TrigL1FexJetMonitorTool.h"
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 
+#include "./JTMContainers.h"
 #include "./L1MonitorAdaptors.h"
+#include "./DataStructs.h"
 #include <memory>
-
 
 /////////////////////////////////////////////////////////////////////////////
 
-TrigL1FexJetMonitorTool_jFexLR::TrigL1FexJetMonitorTool_jFexLR(const std::string& type,
-							       const std::string& name,
-							       const IInterface* parent) 
+template<typename T>
+TrigL1FexJetMonitorTool<T>::TrigL1FexJetMonitorTool(const std::string& type,
+						      const std::string& name,
+						      const IInterface* parent) 
   : AthAlgTool( type, name, parent )
 {
   declareProperty("l1container", m_l1jetContainerkey);
@@ -24,8 +26,23 @@ TrigL1FexJetMonitorTool_jFexLR::TrigL1FexJetMonitorTool_jFexLR(const std::string
 }
 
 
+template<typename T>
+StatusCode
+TrigL1FexJetMonitorTool<T>::queryInterface( const InterfaceID& riid, void** ppvIf )
+{
+  if ( riid == ITrigJetMonitorTool::interfaceID() )  {
+    *ppvIf = (ITrigJetMonitorTool*)this;
+    addRef();
+    return StatusCode::SUCCESS;
+  }
 
-StatusCode TrigL1FexJetMonitorTool_jFexLR::initialize()
+  return AthAlgTool::queryInterface( riid, ppvIf );
+}
+
+
+
+template<typename T>
+StatusCode TrigL1FexJetMonitorTool<T>::initialize()
 {
   ATH_CHECK(m_l1jetContainerkey.initialize());
 
@@ -135,10 +152,11 @@ StatusCode TrigL1FexJetMonitorTool_jFexLR::initialize()
 
 
 
+template<typename T>
 StatusCode
-TrigL1FexJetMonitorTool_jFexLR::getData(const EventContext& ctx,
-					       std::vector<JetData>& jetData
-					       ) const{
+TrigL1FexJetMonitorTool<T>::getData(const EventContext& ctx,
+				      std::vector<JetData>& jetData
+				      ) const{
 
   
   // Retrieve the L1 jet container
@@ -173,11 +191,12 @@ TrigL1FexJetMonitorTool_jFexLR::getData(const EventContext& ctx,
 
 
 
+template<typename T>
 StatusCode
-TrigL1FexJetMonitorTool_jFexLR::getMatchData(const EventContext& ctx,
-					     MatchToEnum matchTo,
-					     std::vector<JetMatchData>& jetMatchData
-					     ) const {
+TrigL1FexJetMonitorTool<T>::getMatchData(const EventContext& ctx,
+					   MatchToEnum matchTo,
+					   std::vector<JetMatchData>& jetMatchData
+					   ) const {
   if (!m_doMatching) {
     // otherwise will attempt to use uniniatialied Keys
     return StatusCode::SUCCESS;
@@ -259,4 +278,10 @@ TrigL1FexJetMonitorTool_jFexLR::getMatchData(const EventContext& ctx,
   
   return StatusCode::SUCCESS;
 }
+
+template class TrigL1FexJetMonitorTool<JTM_JetRoIContainer>;
+template class TrigL1FexJetMonitorTool<JTM_gFexJetRoIContainer>;
+template class TrigL1FexJetMonitorTool<JTM_jFexLRJetRoIContainer>;
+template class TrigL1FexJetMonitorTool<JTM_jFexSRJetRoIContainer>;
+
   

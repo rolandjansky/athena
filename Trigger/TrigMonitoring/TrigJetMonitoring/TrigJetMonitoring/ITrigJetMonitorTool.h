@@ -7,7 +7,6 @@
 #ifndef TRIGJETMONITORING_ITRIGJETMONITORTOOL_H
 #define TRIGJETMONITORING_ITRIGJETMONITORTOOL_H `
 
-#include "./DataStructs.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -17,11 +16,13 @@
 
 enum class MatchToEnum {hlt, offline};
 
-class ITrigJetMonitorTool : virtual public ::IAlgTool {
-public:
-  DeclareInterfaceID(ITrigJetMonitorTool, 1, 0);
-  virtual ~ITrigJetMonitorTool(){}
+class JetData;
+class JetMatchData;
 
+class ITrigJetMonitorTool : virtual public IAlgTool {
+public:
+  // static const InterfaceID&  interfaceID();
+  DeclareInterfaceID(ITrigJetMonitorTool, 1, 0);
   virtual StatusCode getData(const EventContext& ctx,
 			     std::vector<JetData>& jetData) const = 0;
   
