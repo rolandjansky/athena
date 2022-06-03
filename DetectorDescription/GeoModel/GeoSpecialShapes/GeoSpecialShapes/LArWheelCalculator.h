@@ -5,6 +5,7 @@
 #ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
 #define GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
 
+#include <array>
 #include <vector>
 
 // FMV and other checks
@@ -144,9 +145,9 @@ class LArWheelCalculator
     bool m_SaggingOn; // !
     bool m_phiRotation;
     bool m_slant_use_default;
-    double m_slant_parametrization[5]; // pol4
-    double m_sin_parametrization[7]; // up to pol6
-    double m_cos_parametrization[7];
+    std::array<double,5> m_slant_parametrization; // pol4
+    std::array<double,LARWC_SINCOS_POLY+1> m_sin_parametrization;
+    std::array<double,LARWC_SINCOS_POLY+1> m_cos_parametrization;
     std::vector<std::vector<double> > m_sagging_parameter; // !
 
     double m_ActiveLength;

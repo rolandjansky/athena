@@ -96,119 +96,61 @@ static VECTOR findLinearApproximation(
 
 using namespace CLHEP;
 
-void LArWheelCalculator::fill_sincos_parameterization()
-{
-  const Int_t nrPolyDegree = LARWC_SINCOS_POLY;
-#if LARWC_SINCOS_POLY > 4 && DEBUGPRINT
-  std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
-#endif
-  const Int_t nBasisFunctions = nrPolyDegree + 1;
+/// Helper functions to calculate polynomial approximations
+namespace {
+  const Int_t nBasisFunctions = LARWC_SINCOS_POLY + 1;
 
-  // We compute the polynomial approximations once per side, and store them in
-  // the static variables below for reuse in successive calculator instances.
-  // For multi-threading, then, this code needs to be mutex locked.
-  // FIXME: this could done in a cleaner way.
-  static std::mutex fillParamMutex;
-  std::lock_guard<std::mutex> lock(fillParamMutex);
+  /// Helper struct to return sine/cosine values from functions
+  struct sincos_params {
+    std::array<double, nBasisFunctions> sin;
+    std::array<double, nBasisFunctions> cos;
+  };
 
-  static bool filled[2] = { false, false };
-  static double sin_parametrization[2][nBasisFunctions];
-  static double cos_parametrization[2][nBasisFunctions];
+  /// Calculate polynomial approximations for given wheel radii
+  sincos_params calc_params(LArWheelCalculator& lwc, double Rmin, double Rmax) {
 
-  // Reuse the computation if already performed
-  size_t S = m_isInner? 0: 1;
-  if(filled[S]){
-    for(Int_t i = 0; i < nBasisFunctions; ++ i){
-      m_sin_parametrization[i] = sin_parametrization[S][i];
-      m_cos_parametrization[i] = cos_parametrization[S][i];
-    }
+    sincos_params p;
 
-    // Parameterization for the vectorized sincos calculation
-    // see ATLASSIM-4753 for details
-    // s4, s5, c4, c5
-    // s2, s3, c2, c3
-    // s0, s1, c0, c1
-    m_vsincos_par.param_0[0] = m_sin_parametrization[4];
-    m_vsincos_par.param_0[1] = m_sin_parametrization[5];
-    m_vsincos_par.param_0[2] = m_cos_parametrization[4];
-    m_vsincos_par.param_0[3] = m_cos_parametrization[5];
-    m_vsincos_par.param_1[0] = m_sin_parametrization[2];
-    m_vsincos_par.param_1[1] = m_sin_parametrization[3];
-    m_vsincos_par.param_1[2] = m_cos_parametrization[2];
-    m_vsincos_par.param_1[3] = m_cos_parametrization[3];
-    m_vsincos_par.param_2[0] = m_sin_parametrization[0];
-    m_vsincos_par.param_2[1] = m_sin_parametrization[1];
-    m_vsincos_par.param_2[2] = m_cos_parametrization[0];
-    m_vsincos_par.param_2[3] = m_cos_parametrization[1];
-    return;
-  }
-
-  //const Double_t Rmin = m_isInner? 290.*mm: 600.*mm;
-  //const Double_t Rmax = m_isInner? 710.*mm: 2050.*mm;
-  const Double_t Rmin = m_isInner? 250.*mm: 560.*mm;
-  const Double_t Rmax = m_isInner? 750.*mm: 2090.*mm;
-  //const Double_t Rmin = m_isInner? 220.*mm: 530.*mm;
-  //const Double_t Rmax = m_isInner? 780.*mm: 2120.*mm;
-  const Double_t Rstep = 1.*mm;
-  const Int_t nrPoints = (Rmax - Rmin) * (1./Rstep);
-  const Int_t dataLen = nrPoints + 1;
+    const Double_t Rstep = 1.*mm;
+    const Int_t nrPoints = (Rmax - Rmin) * (1./Rstep);
+    const Int_t dataLen = nrPoints + 1;
 #ifndef SINCOSPOLY_USE_EIGEN
-  VECTOR x(dataLen);  // angle points
-  VECTOR ysin(dataLen);  // to be approximated function values at angle points - sin
-  VECTOR ycos(dataLen);  // to be approximated function values at angle points - cos
-  MATRIX bf(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
+    VECTOR x(dataLen);  // angle points
+    VECTOR ysin(dataLen);  // to be approximated function values at angle points - sin
+    VECTOR ycos(dataLen);  // to be approximated function values at angle points - cos
+    MATRIX bf(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
 #else
-  VECTOR x=VECTOR::Zero(dataLen);  // angle points
-  VECTOR ysin=VECTOR::Zero(dataLen);  // to be approximated function values at angle points - sin
-  VECTOR ycos=VECTOR::Zero(dataLen);  // to be approximated function values at angle points - cos
-  MATRIX bf=MATRIX::Zero(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
+    VECTOR x=VECTOR::Zero(dataLen);  // angle points
+    VECTOR ysin=VECTOR::Zero(dataLen);  // to be approximated function values at angle points - sin
+    VECTOR ycos=VECTOR::Zero(dataLen);  // to be approximated function values at angle points - cos
+    MATRIX bf=MATRIX::Zero(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
 #endif
-  for(Int_t i = 0; i < dataLen; ++ i){
-    const Double_t a = Rmin + i * Rstep;
-    x[i] = a;
-    CxxUtils::sincos scalpha(parameterized_slant_angle(a));
-    ysin[i] = scalpha.sn;
-    ycos[i] = scalpha.cs;
-    for(Int_t n = 0; n < nBasisFunctions; ++ n) {
-      bf(n, i) = pow(a, n);
+    for(Int_t i = 0; i < dataLen; ++ i){
+      const Double_t a = Rmin + i * Rstep;
+      x[i] = a;
+      CxxUtils::sincos scalpha(lwc.parameterized_slant_angle(a));
+      ysin[i] = scalpha.sn;
+      ycos[i] = scalpha.cs;
+      for(Int_t n = 0; n < nBasisFunctions; ++ n) {
+        bf(n, i) = pow(a, n);
+      }
     }
-  }
 
-  VECTOR params_sin =
-    findLinearApproximation(dataLen, nBasisFunctions, ysin, bf);
-  VECTOR params_cos =
-    findLinearApproximation(dataLen, nBasisFunctions, ycos, bf);
+    VECTOR params_sin =
+      findLinearApproximation(dataLen, nBasisFunctions, ysin, bf);
+    VECTOR params_cos =
+      findLinearApproximation(dataLen, nBasisFunctions, ycos, bf);
 
-  for(Int_t i = 0; i < nBasisFunctions; ++ i){
-    m_sin_parametrization[i] = params_sin[i];
-    m_cos_parametrization[i] = params_cos[i];
-    sin_parametrization[S][i] = params_sin[i];
-    cos_parametrization[S][i] = params_cos[i];
-  }
-
-  // Parameterization for the vectorized sincos calculation
-  // see ATLASSIM-4753 for details
-  // s4, s5, c4, c5
-  // s2, s3, c2, c3
-  // s0, s1, c0, c1
-  m_vsincos_par.param_0[0] = m_sin_parametrization[4];
-  m_vsincos_par.param_0[1] = m_sin_parametrization[5];
-  m_vsincos_par.param_0[2] = m_cos_parametrization[4];
-  m_vsincos_par.param_0[3] = m_cos_parametrization[5];
-  m_vsincos_par.param_1[0] = m_sin_parametrization[2];
-  m_vsincos_par.param_1[1] = m_sin_parametrization[3];
-  m_vsincos_par.param_1[2] = m_cos_parametrization[2];
-  m_vsincos_par.param_1[3] = m_cos_parametrization[3];
-  m_vsincos_par.param_2[0] = m_sin_parametrization[0];
-  m_vsincos_par.param_2[1] = m_sin_parametrization[1];
-  m_vsincos_par.param_2[2] = m_cos_parametrization[0];
-  m_vsincos_par.param_2[3] = m_cos_parametrization[1];
-  filled[S] = true;
+    for(Int_t i = 0; i < nBasisFunctions; ++ i){
+      p.sin[i] = params_sin[i];
+      p.cos[i] = params_cos[i];
+    }
 
   //
   // Nothing below is needed unless for debugging
   //
 #if DEBUGPRINT
+  std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
   std::cout << "sin params:" << params_sin << std::endl;
   std::cout << "cos params:" << params_cos << std::endl;
 
@@ -218,11 +160,11 @@ void LArWheelCalculator::fill_sincos_parameterization()
   double dsin = 0., dcos = 0.;
   double dtrig = 0.;
   for(double r = Rmin + 40.; r < Rmax - 40.; r += Rstep / 10.){
-    CxxUtils::sincos scalpha(parameterized_slant_angle(r));
+    CxxUtils::sincos scalpha(lwc.parameterized_slant_angle(r));
     double sin_a, cos_a;
     double sin_a_v, cos_a_v;
-    parameterized_sincos(r, sin_a, cos_a);
-    m_vsincos_par.eval(r, sin_a_v, cos_a_v);
+    lwc.parameterized_sincos(r, sin_a, cos_a);
+    lwc.m_vsincos_par.eval(r, sin_a_v, cos_a_v);
     std::streamsize ss = std::cout.precision();
     std::cout.precision(16);
     std::cout << "def: " << r << " " << sin_a << " " << cos_a << std::endl;
@@ -276,7 +218,7 @@ void LArWheelCalculator::fill_sincos_parameterization()
   gettimeofday(&tvpoly_start, 0);
   for(Int_t iIter=0;iIter<nIter;iIter++) {
     for(Int_t i=0;i<dataLen;i++) {
-      parameterized_sincos(x[i], y_testsin[i], y_testcos[i]);
+      lwc.parameterized_sincos(x[i], y_testsin[i], y_testcos[i]);
     }
   }
   gettimeofday(&tvpoly_stop, 0);
@@ -286,4 +228,47 @@ void LArWheelCalculator::fill_sincos_parameterization()
   std::cout << "Approximation is " << timeSinCos/timePoly << " faster " << std::endl;
 #endif
 
+    return p;
+  }
+
+  /// Calculate (and cache) inner wheel parameterization
+  const sincos_params& inner_params(LArWheelCalculator& lwc) {
+    static const sincos_params p = calc_params(lwc, 250.*mm, 750.*mm);
+    return p;
+  }
+
+  /// Calculate (and cache) outer wheel parameterization
+  const sincos_params& outer_params(LArWheelCalculator& lwc) {
+    static const sincos_params p = calc_params(lwc, 560.*mm, 2090.*mm);
+    return p;
+  }
+}
+
+void LArWheelCalculator::fill_sincos_parameterization()
+{
+  // The polynomial approximations are calculated once per side, and stored
+  // as statics for reuse in successive calculator instances.
+  const sincos_params& p = m_isInner ? inner_params(*this) : outer_params(*this);
+
+  // Fill the parameters into our instances variables
+  m_sin_parametrization = p.sin;
+  m_cos_parametrization = p.cos;
+
+  // Parameterization for the vectorized sincos calculation
+  // see ATLASSIM-4753 for details
+  // s4, s5, c4, c5
+  // s2, s3, c2, c3
+  // s0, s1, c0, c1
+  m_vsincos_par.param_0[0] = m_sin_parametrization[4];
+  m_vsincos_par.param_0[1] = m_sin_parametrization[5];
+  m_vsincos_par.param_0[2] = m_cos_parametrization[4];
+  m_vsincos_par.param_0[3] = m_cos_parametrization[5];
+  m_vsincos_par.param_1[0] = m_sin_parametrization[2];
+  m_vsincos_par.param_1[1] = m_sin_parametrization[3];
+  m_vsincos_par.param_1[2] = m_cos_parametrization[2];
+  m_vsincos_par.param_1[3] = m_cos_parametrization[3];
+  m_vsincos_par.param_2[0] = m_sin_parametrization[0];
+  m_vsincos_par.param_2[1] = m_sin_parametrization[1];
+  m_vsincos_par.param_2[2] = m_cos_parametrization[0];
+  m_vsincos_par.param_2[3] = m_cos_parametrization[1];
 }
