@@ -174,6 +174,7 @@ JetChainParts = {
        'presel4j85',
        'presel5j25',
        'presel5j50',
+       'presel5c50',
        'presel6j40',
        'presel7j30',
        # Multiple threshold
@@ -204,8 +205,8 @@ JetChainParts = {
        'preselj20b77',
        'presel3j45b95',
        'presel4j25b95',
-       'presel2j25b85XX2j25',
-       'presel2j25b85XX3j25',
+       'presel2j25XX2j25b85',
+       'presel3j25XX2j25b85',
        'preselj50b85XX3j50',
        'preselj80XX2j45b90',
        'preselj140b85XXj45b85',
