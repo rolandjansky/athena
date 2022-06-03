@@ -210,6 +210,20 @@ def BTagAlgsCfg(inputFlags,
             TrackCollection=trackCollection,
         )
     )
+    
+    #add also Flip tagger information
+    if inputFlags.BTagging.RunFlipTaggers:
+       result.merge(
+           BTagJetAugmenterAlgCfg(
+               inputFlags,
+               BTagCollection=BTagCollection,
+               Associator=BTagTrackAssociator,
+               TrackCollection=trackCollection,
+               doFlipTagger=True,
+           )
+       ) 
+
+    
     if muons:
         result.merge(
             BTagMuonAugmenterAlgCfg(
@@ -257,10 +271,13 @@ def _get_flip_config(nn_path):
 
     Returns a list of flip configurations, or [] for things we don't flip.
     """
-    if 'dl1' in nn_path:
-        return []
+    #flipping of DL1r with 2019 taggers does not work at the moment
+    if (('dl1d' in nn_path) or ('dl1r' in nn_path and '201903' not in nn_path)):
+        return ['FLIP_SIGN']
     if 'rnnip' in nn_path or 'dips' in nn_path or 'gn1' in nn_path:
         return ['NEGATIVE_IP_ONLY']
+    else:
+        return []
 
 
 def addBTagToOutput(inputFlags, JetCollectionList, toAOD=True, toESD=True):
