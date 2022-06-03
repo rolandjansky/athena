@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as perfFlags
-from AthenaCommon.Include import include
-import AthenaCommon.CfgMgr as CfgMgr
-def emulateSC(sCell_sequence, CellsIn="SeedLessFS", SCOut="EmulatedSCell"):
-    # Conversion Service instance 
-    from AthenaCommon.GlobalFlags import globalflags,jobproperties
 
+def emulateSC(sCell_sequence, CellsIn="SeedLessFS", SCOut="EmulatedSCell"):
+    # Conversion Service instance
+    import AthenaCommon.CfgMgr as CfgMgr
+    from AthenaCommon.GlobalFlags import globalflags,jobproperties
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
@@ -21,7 +20,8 @@ def emulateSC(sCell_sequence, CellsIn="SeedLessFS", SCOut="EmulatedSCell"):
 
     if  jobproperties.Global.InputFormat() == 'bytestream':
         #If we are running on the bytestream, we need to enable the Run 2 bytestream converters to get xAOD::TriggerTower. 
-        #Not techincally needed for emulateSC but needed for other things... 
+        #Not technically needed for emulateSC but needed for other things...
+        from AthenaCommon.Include import include
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
     handle_transBS=None

@@ -117,10 +117,10 @@ class Test( unittest.TestCase ):
          defineHistogram('var', opt={'xxx':1})
 
    def test_live( self ):
-      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-      athenaCommonFlags.isOnline = True
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      ConfigFlags.Common.isOnline=True
       check = defineHistogram('var', path='EXPERT', opt='kLive=1')
-      athenaCommonFlags.isOnline = False
+      ConfigFlags.Common.isOnline = False
       true = '{"alias": "var", "allvars": ["var"], "convention": "", "merge": "", "path": "EXPERT", "title": "var", "treeDef": "", "type": "TH1F", "weight": "", "cutMask": "", "xarray": [], "xbins": 100, "xlabels": [], "xmax": 1.0, "xmin": 0.0, "xvar": "var", "yarray": [], "ybins": 0.0, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "", "zbins": 0.0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": "", "Sumw2": false, "kLBNHistoryDepth": 0, "kAddBinsDynamically": false, "kRebinAxes": false, "kCanRebin": false, "kVec": false, "kVecUO": false, "kCumulative": false, "kLive": 1, "kAlwaysCreate": false}'
       self.assertEqual(json.loads(check), json.loads(true))
 
@@ -129,32 +129,32 @@ class Test( unittest.TestCase ):
       self.assertFalse(check)
 
    def test_invalidAlias( self ):
-      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-      athenaCommonFlags.isOnline = True
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      ConfigFlags.Common.isOnline=True
       check = defineHistogram('var;myhist(', path='EXPERT')
       self.assertIs(check, '')
       check = defineHistogram('var;myhist', path='EXPERT')
       self.assertNotEqual(check, '')
 
-      athenaCommonFlags.isOnline = False
+      ConfigFlags.Common.isOnline = False
       check = defineHistogram('var;my/hist')
       self.assertIs(check, '')
       check = defineHistogram('var;myhist(')
       self.assertNotEqual(check, '')
 
    def test_enforcePath( self ):
-      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-      athenaCommonFlags.isOnline = True
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      ConfigFlags.Common.isOnline=True
       with self.assertRaises(AssertionError):
          defineHistogram('var', 'TH1F')
-      athenaCommonFlags.isOnline = False
+      ConfigFlags.Common.isOnline = False
 
    def test_enforceType( self ):
-      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-      athenaCommonFlags.isOnline = True
+      from AthenaConfiguration.AllConfigFlags import ConfigFlags
+      ConfigFlags.Common.isOnline=True
       check = defineTree('var,pass', treedef='var/F:pass/I')
       self.assertIs(check, '')
-      athenaCommonFlags.isOnline = False
+      ConfigFlags.Common.isOnline = False
 
    def test_enforceMergeTypesTest( self ):
       with self.assertRaises(AssertionError):

@@ -281,7 +281,7 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
                              title = '', path = '', weight = '', xbins = 0, xmin = 0, xmax = 0,
                              ybins = 0, ymin = 0, ymax = 0, type = 'TH2D', run = '', triggers = [],
                              xlabels = (), ylabels = (), opt = '', subDirectory = False, perPartition = False,
-                             perSample = False, perGain = False, allPartitions = False, separator = '_' ):
+                             perSample = False, perGain = False, allPartitions = False, separator = '_', merge = None ):
     '''
     This function configures 2D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
 
@@ -309,6 +309,7 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         perGain   -- Configure histograms per gain (if True gain name will be put into the title)
         allPartitions  -- Configure additional histogram with information from all partitions
         separator -- Given it will be used as separtor between name and trigger
+        merge     -- Whether to use a different histogram merging algorithm (must be "merge" for opt=kAddBinsDynamically)
     '''
 
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
@@ -334,7 +335,7 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
                               xlabels = nxlabels, ylabels = nylabels,
                               xbins = xbins, xmin = xmin, xmax = xmax,
                               ybins = ybins, ymin = ymin, ymax = ymax,
-                              weight = weight, opt = opt)
+                              weight = weight, opt = opt, merge = merge)
 
     return array
 
@@ -508,7 +509,7 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
                              weight = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, opt = '',
-                             perGain = False, xlabels = (), allPartitions = False, separator = '_' ):
+                             perGain = False, xlabels = (), allPartitions = False, separator = '_', merge = None ):
     '''
     This function configures 1D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
 
@@ -532,6 +533,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         xlabels    -- List of bin labels
         allPartitions  -- Configure additional histogram with information from all partitions
         separator -- Given it will be used as separtor between name and trigger
+        merge     -- Whether to use a different histogram merging algorithm (must be "merge" for opt=kAddBinsDynamically)
     '''
 
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
@@ -553,7 +555,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = subPath, weight = weight, type = type, title = fullTitle,
-                              xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
+                              xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt, merge = merge)
 
     return array
 

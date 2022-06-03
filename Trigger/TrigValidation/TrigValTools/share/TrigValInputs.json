@@ -194,7 +194,7 @@
         "source": "mc",
         "format": "RDO",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigInDetValidation/samples/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1"
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigInDetValidation/samples/mc21.601190.PhPy8EG_AZNLO_Zmumu.recon.RDO.e8392_e7400_s3775_r13614/RDO.29004500._000021.pool.root.1"
         ]
     },
     "Single_mu_larged0": {

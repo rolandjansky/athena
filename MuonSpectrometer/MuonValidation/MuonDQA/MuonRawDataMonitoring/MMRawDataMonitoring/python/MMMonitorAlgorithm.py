@@ -109,9 +109,9 @@ def MMMonitoringConfig(inputFlags):
             var=f'sector_strip_{iside}_phi{phi},strip_number_{iside}_phi{phi};Strip_number_pergap_{iside}_stPhi{phi}'
             mmSideGroup.defineHistogram(var, type='TH2F', title=title_MMSummary, path='Number_of_strips_percluster_perPhiSector', xbins=16, xmin=0, xmax=16, xlabels=thisLabelx11, ybins=5120, ymin=0., ymax=5120., opt='kAlwaysCreate')
             thisLabely=getMMLabelY("y_lab_occ_lb")
-            mmSideGroup.defineHistogram(f'lb_mon,sector_lb_{iside}_phi{phi};Occupancy_lb_{iside}_phi{phi}', type='TH2F', title=f'Occupancy wrt lb sector {phi}; LB; PCB', path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
-            mmSideGroup.defineHistogram(f'lb_ontrack,sector_lb_{iside}_phi{phi}_ontrack;Occupancy_lb_{iside}_phi{phi}_ontrack', type='TH2F', title=f'Occupancy wrt lb sector {phi} ontrack ; LB; PCB', path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
-            mmSideGroup.defineHistogram(f'lb_onseg,sector_lb_{iside}_phi{phi}_onseg;Occupancy_lb_{iside}_phi{phi}_onseg', type='TH2F', title=f'Occupancy wrt lb sector {phi} onSegms; LB; PCB', path='Segments/Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
+            mmSideGroup.defineHistogram(f'lb_mon,sector_lb_{iside}_phi{phi};Occupancy_lb_{iside}_phi{phi}', type='TH2F', title=f'Occupancy wrt lb sector {phi}; LB; PCB', path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely, merge='merge')
+            mmSideGroup.defineHistogram(f'lb_ontrack,sector_lb_{iside}_phi{phi}_ontrack;Occupancy_lb_{iside}_phi{phi}_ontrack', type='TH2F', title=f'Occupancy wrt lb sector {phi} ontrack ; LB; PCB', path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely, merge='merge')
+            mmSideGroup.defineHistogram(f'lb_onseg,sector_lb_{iside}_phi{phi}_onseg;Occupancy_lb_{iside}_phi{phi}_onseg', type='TH2F', title=f'Occupancy wrt lb sector {phi} onSegms; LB; PCB', path='Segments/Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely, merge='merge')
 
 
             for eta in etasector:

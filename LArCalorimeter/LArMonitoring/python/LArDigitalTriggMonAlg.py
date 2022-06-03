@@ -316,12 +316,9 @@ def LArDigitalTriggMonConfigCore(helper, algoinstance,inputFlags):
 
 if __name__=='__main__':
 
-   #import os
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG, ERROR #WARNING,
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior=1
+   from AthenaCommon.Constants import DEBUG, ERROR
    log.setLevel(DEBUG)
    
    #from LArMonitoring.LArMonitoringConf import  LArSuperCellMonAlg

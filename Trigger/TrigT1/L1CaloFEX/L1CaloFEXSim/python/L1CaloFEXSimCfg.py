@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -139,8 +139,6 @@ if __name__ == '__main__':
     ##################################################
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from TrigValTools.TrigValSteering import Input
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     flags.Input.Files = Input.get_input(args.input).paths
     flags.Output.AODFileName = 'AOD.pool.root'
     flags.Common.isOnline = not flags.Input.isMC

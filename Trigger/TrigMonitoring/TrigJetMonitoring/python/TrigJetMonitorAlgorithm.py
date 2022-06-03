@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file MTMonitoring.py
@@ -1136,10 +1136,6 @@ if __name__=='__main__':
   else:
     logger.error('ERROR: No input file provided, exiting')
     sys.exit(0)
-
-  # Setup the Run III behavior
-  from AthenaCommon.Configurable import Configurable
-  Configurable.configurableRun3Behavior = 1
 
   # Setup logs
   from AthenaCommon.Logging import log

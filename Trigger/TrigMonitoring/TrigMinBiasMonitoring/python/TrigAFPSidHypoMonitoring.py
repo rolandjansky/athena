@@ -20,10 +20,6 @@ def TrigAFPSidHypoMonitoring(configFlags):
     return monConfig.result()
 
 if __name__ == '__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Constants import DEBUG
     # Set the Athena configuration flags

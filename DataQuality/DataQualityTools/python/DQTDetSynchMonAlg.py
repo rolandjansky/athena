@@ -89,14 +89,14 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
             bcidg.defineHistogram('diff_%1d_%1d;m_diff_%s_%s_BCID' % (didx1, didx2, det1, det2),
                                   title='BCID difference between %s and %s detectors' % (det1, det2),
                                   type='TH1I',
-                                  opt=('kRebinAxes' if not run2Compat and not isOnline else ''),
+                                  opt=('kRebinAxes' if not run2Compat and not isOnline else ''), merge='merge',
                                   xbins=51, xmin=-25.5, xmax=25.5)
 
             # L1ID
             l1idg.defineHistogram('diff_%1d_%1d;m_diff_%s_%s_L1ID' % (didx1, didx2, det1, det2),
                                   title='L1ID difference between %s and %s detectors' % (det1, det2),
                                   type='TH1I',
-                                  opt=('kRebinAxes' if not run2Compat and not isOnline else ''),
+                                  opt=('kRebinAxes' if not run2Compat and not isOnline else ''), merge='merge',
                                   xbins=51, xmin=-25.5, xmax=25.5)
             
             if run2Compat and not isOnline:
@@ -104,14 +104,14 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
                 bcidg.defineHistogram('diff_%1d_%1d;m_diff_%s_%s_BCID_Rebin' % (didx1, didx2, det1, det2),
                                       title='BCID difference between %s and %s detectors. Full Range.' % (det1, det2),
                                       type='TH1I',
-                                      opt='kRebinAxes',
+                                      opt='kRebinAxes', merge='merge',
                                       xbins=51, xmin=-25.5, xmax=25.5)
                 
                 # L1ID
                 l1idg.defineHistogram('diff_%1d_%1d;m_diff_%s_%s_L1ID_Rebin' % (didx1, didx2, det1, det2),
                                       title='L1ID difference between %s and %s detectors. Full Range.' % (det1, det2),
                                       type='TH1I',
-                                      opt='kRebinAxes',
+                                      opt='kRebinAxes', merge='merge',
                                       xbins=51, xmin=-25.5, xmax=25.5)
                 
             if ((det1 == 'CTP'
@@ -123,13 +123,13 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
                 bcidg.defineHistogram('LB,diff_%1d_%1d;m_diff_%s_%s_BCID_lumi' % (didx1, didx2, det1, det2),
                                       title='BCID difference between %s and %s detectors as a function of the LumiBlock' % (det1, det2), 
                                       type='TProfile',
-                                      opt='kAddBinsDynamically',
+                                      opt='kAddBinsDynamically', merge='merge',
                                       xbins=30, xmin=0., xmax=30)
                 
                 l1idg.defineHistogram('LB,diff_%1d_%1d;m_diff_%s_%s_L1ID_lumi' % (didx1, didx2, det1, det2),
                                       title='L1ID difference between %s and %s detectors as a function of the LumiBlock' % (det1, det2), 
                                       type='TProfile',
-                                      opt='kAddBinsDynamically',
+                                      opt='kAddBinsDynamically', merge='merge',
                                       xbins=30, xmin=0., xmax=30)
 
     bfieldg.defineHistogram("solenoid_bz;m_Bfield_solenoid",
@@ -140,11 +140,11 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
                             type='TH1I', xbins=50, xmin=-1, xmax=4)
     bfieldg.defineHistogram("LB,solenoid_bz;m_Bfield_solenoid_vsLB",
                             title="Bz of Solenoid vs LB",
-                            opt='kAddBinsDynamically',
+                            opt='kAddBinsDynamically', merge='merge',
                             type='TProfile', xbins=1500, xmin=-0.5, xmax=1499.5)
     bfieldg.defineHistogram("LB,toroid_bx;m_Bfield_toroid_vsLB",
                             title="Bx of Toroid vs LB",
-                            opt='kAddBinsDynamically',
+                            opt='kAddBinsDynamically', merge='merge',
                             type='TProfile', xbins=1500, xmin=-0.5, xmax=1499.5)
 
 

@@ -61,7 +61,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::initialize() {
 }
 
 
-StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed* inSeed) {
+StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed* inSeed) const {
     
   std::string         inAlgName   = inSeed->getNameInputAlgorithm();
   PanTau::TauFeature* features    = inSeed->getFeatures();

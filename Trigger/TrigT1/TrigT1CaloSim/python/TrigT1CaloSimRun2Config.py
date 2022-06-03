@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2TriggerTowerMaker
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -172,8 +172,6 @@ def L1CaloLegacySimCfg(flags):
 
 if __name__ == '__main__':
     import sys
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags

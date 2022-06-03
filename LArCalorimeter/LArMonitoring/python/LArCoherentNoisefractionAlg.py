@@ -181,9 +181,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG #,WARNING
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior=1
+   from AthenaCommon.Constants import DEBUG
    log.setLevel(DEBUG)
 
 

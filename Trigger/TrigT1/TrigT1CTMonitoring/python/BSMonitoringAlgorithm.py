@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # Cpm
 def BSMonitoringConfig(inputFlags):
     '''Function to configure LVL1 BSMonitoring algorithm in the monitoring system.'''
@@ -440,20 +440,6 @@ def BSMonitoringConfig(inputFlags):
     
 
 if __name__=='__main__':
-
-    # local printing                                                                                                                                                                                                                                                 
-    #import logging
-    #local_logger = logging.getLogger('AthenaMonitoringCfg')
-    #info = local_logger.info
-
-    # For direct tests
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # set debug level for whole job
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO #DEBUG
-    log.setLevel(INFO)
 
     # set input file and config options
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

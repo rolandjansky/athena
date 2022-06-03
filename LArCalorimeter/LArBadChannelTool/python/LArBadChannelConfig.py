@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -51,8 +51,6 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     log.setLevel(DEBUG)
 
     ConfigFlags.Input.isMC = False

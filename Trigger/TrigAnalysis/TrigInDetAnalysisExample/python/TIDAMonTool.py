@@ -244,13 +244,19 @@ def createMonTool( flags, slicetag, chain ) :
 
             defineHisto( monTool, "vx_nvtx",  path=mypath, type="TH1F", title=";number of vertices",  xbins=101, xmin=-0.5,  xmax=100.5 )
             defineHisto( monTool, "vx_zed",   path=mypath, type="TH1F", title=";vtx z [mm]",          xbins=100, xmin=-250,  xmax=250   )
+            defineHisto( monTool, "vx_x",     path=mypath, type="TH1F", title=";vtx x [mm]",          xbins=200, xmin=-1.2,    xmax=1.2   )
+            defineHisto( monTool, "vx_y",     path=mypath, type="TH1F", title=";vtx y [mm]",          xbins=200, xmin=-1.2,    xmax=1.2   )
             defineHisto( monTool, "vx_ntrax", path=mypath, type="TH1F", title=";number of tracks",    xbins=vnbins )
             
             defineHisto( monTool, "vx_nvtx_rec",  path=mypath, type="TH1F", title=";number of vertices",   xbins=101, xmin=-0.5,  xmax=100.5 )
             defineHisto( monTool, "vx_zed_rec",   path=mypath, type="TH1F", title=";vtx z [mm]",           xbins=100, xmin=-250,  xmax=250   )
+            defineHisto( monTool, "vx_x_rec",     path=mypath, type="TH1F", title=";vtx x [mm]",           xbins=200, xmin=-1.2,  xmax=1.2   )
+            defineHisto( monTool, "vx_y_rec",     path=mypath, type="TH1F", title=";vtx y [mm]",           xbins=200, xmin=-1.2,  xmax=1.2   )
             defineHisto( monTool, "vx_ntrax_rec", path=mypath, type="TH1F", title=";number of tracks",     xbins=vnbins )
             
-            defineHisto( monTool, "vx_zed_res",   path=mypath, type="TH1F", title="Delta z [mm]", xbins=400, xmin=-10, xmax=10 )
+            defineHisto( monTool, "vx_zed_res",   path=mypath, type="TH1F", title="Delta z [mm]", xbins=400, xmin=-5,  xmax=5  )
+            defineHisto( monTool, "vx_x_res",     path=mypath, type="TH1F", title="Delta x [mm]", xbins=400, xmin=-0.1, xmax=0.1 )
+            defineHisto( monTool, "vx_y_res",     path=mypath, type="TH1F", title="Delta y [mm]", xbins=400, xmin=-0.1, xmax=0.1 )
             
             
             defineHisto( monTool, "vx_rdz_vs_zed",   path=mypath, type="TProfile", title="rdz_vs_zed; vtx z [mm];z residual [mm]",         xbins=100, xmin=-250,  xmax=250 ) 
