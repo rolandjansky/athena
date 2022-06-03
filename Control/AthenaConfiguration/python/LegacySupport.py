@@ -417,6 +417,8 @@ def appendCAtoAthena(ca):
         return seq
 
     def _mergeSequences( currentConfigurableSeq, conf2Sequence, indent="" ):
+        """Merge conf2sequence into currentConfigurableSeq"""
+
         sequence = CFElements.findSubSequence( currentConfigurableSeq, conf2Sequence.name )
         if not sequence:
             sequence = _fetchOldSeq( conf2Sequence.name )
@@ -438,6 +440,13 @@ def appendCAtoAthena(ca):
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
 
     for seq in ca._allSequences:
+
+        # For legacy (serial) support, the AthAlgSeq needs to be mapped into TopAlg
+        # because that's where old-style job options add their algorithms.
+        # Otherwise we can end up with the wrong order, see e.g. ATLASRECTS-7078.
+        if seq.getName() == "AthAlgSeq":
+            seq.name = "TopAlg"
+
         merged = False
         for pre in preconfigured:
             if seq.getName() == pre.getName():
