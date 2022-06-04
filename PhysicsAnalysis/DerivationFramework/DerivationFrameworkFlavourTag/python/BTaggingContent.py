@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # from
 # https://stackoverflow.com/questions/3663450/python-remove-substring-only-at-the-end-of-string
@@ -130,6 +130,18 @@ BTaggingHighLevelAux = [
     , "DL1d20210824r22_pu"
     , "DL1d20210824r22_pc"
     , "DL1d20210824r22_pb"
+    
+    , "DL1dv00Flip_pu"
+    , "DL1dv00Flip_pc"
+    , "DL1dv00Flip_pb"
+
+    , "DL1r20210824r22Flip_pu"
+    , "DL1r20210824r22Flip_pc"
+    , "DL1r20210824r22Flip_pb"
+
+    
+    
+    
 ]
 
 BTaggingXbbAux = [

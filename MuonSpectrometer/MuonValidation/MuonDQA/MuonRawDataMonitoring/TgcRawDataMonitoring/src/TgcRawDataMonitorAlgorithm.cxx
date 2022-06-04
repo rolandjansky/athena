@@ -1143,9 +1143,13 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
       auto muon_passed_l1item = Monitored::Collection(Form("muon_passed_l1item_%s",item.data()),passed);
       thrMonVariables.push_back(muon_passed_l1item);
 
-      auto muon_eta_l1item=Monitored::Collection(Form("muon_eta_l1item_%s",item.data()),mymuons,[](const MyMuon&m){return m.muon->eta();});
+      auto muon_eta_l1item=Monitored::Collection(Form("muon_eta_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
+	  return (m.muon->pt() > pt_30_cut) ? m.muon->eta() : -10;
+	});
       thrMonVariables.push_back(muon_eta_l1item);
-      auto muon_phi_l1item=Monitored::Collection(Form("muon_phi_l1item_%s",item.data()),mymuons,[](const MyMuon&m){return m.muon->phi();});
+      auto muon_phi_l1item=Monitored::Collection(Form("muon_phi_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
+	  return (m.muon->pt() > pt_30_cut) ? m.muon->phi() : -10;
+	});
       thrMonVariables.push_back(muon_phi_l1item);
       auto muon_pt_rpc_l1item=Monitored::Collection(Form("muon_pt_rpc_l1item_%s",item.data()),mymuons,[](const MyMuon&m){
 	  return (std::abs(m.muon->eta()) < barrel_end) ? m.muon->pt() / Gaudi::Units::GeV : -10;

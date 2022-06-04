@@ -80,7 +80,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10BOM_Run3,Mul:1,HLT:HLT_2mu10_l2mt_L1MU10BOM,RPC:4M,TGC:99;"
 
-    tgcRawDataMonAlg.MonitorThresholdPatterns = False
+    tgcRawDataMonAlg.MonitorThresholdPatterns = True
     tgcRawDataMonAlg.ThrPatternList = "MU4,MU6,MU10,MU11,MU20,MU21,"
     tgcRawDataMonAlg.ThrPatternList += "MU3V,MU3VF,MU3VC,MU5VF,MU8F,MU8VF,MU8FC,MU9VF,MU9VFC,MU14FCH,MU14FCHR,MU15VFCH,MU15VFCHR,MU18VFCH,MU10BOM,MU12BOM,MU8FH,MU20FC,MU12FCH,MU4BOM,MU4BO,MU14EOF,MU8EOF,MU3EOF,"
 
@@ -94,6 +94,10 @@ def TgcRawDataMonitoringConfig(inputFlags):
         tgcRawDataMonAlg.MuonRoIContainerBCp1Name = ''
         tgcRawDataMonAlg.MuonRoIContainerBCp2Name = ''
         tgcRawDataMonAlg.TagAndProbe = False
+        tgcRawDataMonAlg.MonitorThresholdPatterns = False
+        tgcRawDataMonAlg.ThrPatternList = ''
+        tgcRawDataMonAlg.MonitorTriggerMultiplicity = False
+        tgcRawDataMonAlg.CtpDecisionMoniorList = ''
 
     if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
@@ -139,17 +143,17 @@ def TgcRawDataMonitoringConfig(inputFlags):
     for monTrig in tgcRawDataMonAlg.ThrPatternList.split(','):
         if monTrig == "":continue
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+monTrig, mainDir)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_phi_'+monTrig+';L1Item_MuonRoI_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_EtaVsPhi_'+monTrig+';MuonRoI Eta;MuonRoI Phi',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_phi_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsPhi_'+monTrig+';MuonRoI Eta;MuonRoI Phi',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_thrNumber_'+monTrig+';L1Item_MuonRoI_EtaVsThrNumber_'+monTrig,title='L1Item_MuonRoI_EtaVsThrNumber_'+monTrig+';MuonRoI Eta;MuonRoI Threshold Number',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_thrNumber_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsThrNumber_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsThrNumber_'+monTrig+';MuonRoI Eta;MuonRoI Threshold Number',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=15,ymin=0.5,ymax=15.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_ismorecand_'+monTrig+';L1Item_MuonRoI_EtaVsIsMoreCand_'+monTrig,title='L1Item_MuonRoI_EtaVsIsMoreCand_'+monTrig+';MuonRoI Eta;MuonRoI IsMoreCand Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_ismorecand_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsIsMoreCand_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsIsMoreCand_'+monTrig+';MuonRoI Eta;MuonRoI IsMoreCand Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_bw3coin_'+monTrig+';L1Item_MuonRoI_EtaVsBW3Coin_'+monTrig,title='L1Item_MuonRoI_EtaVsBW3Coin_'+monTrig+';MuonRoI Eta;MuonRoI BW3Coin Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_bw3coin_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsBW3Coin_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsBW3Coin_'+monTrig+';MuonRoI Eta;MuonRoI BW3Coin Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_innercoin_'+monTrig+';L1Item_MuonRoI_EtaVsInnerCoin_'+monTrig,title='L1Item_MuonRoI_EtaVsInnerCoin_'+monTrig+';MuonRoI Eta;MuonRoI InnerCoin Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_innercoin_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsInnerCoin_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsInnerCoin_'+monTrig+';MuonRoI Eta;MuonRoI InnerCoin Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
-        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_goodmf_'+monTrig+';L1Item_MuonRoI_EtaVsGoodMF_'+monTrig,title='L1Item_MuonRoI_EtaVsGoodMF_'+monTrig+';MuonRoI Eta;MuonRoI GoodMF Flag',
+        monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_goodmf_'+monTrig+';L1Item_MuonRoI_Evt_EtaVsGoodMF_'+monTrig,title='L1Item_MuonRoI_Evt_EtaVsGoodMF_'+monTrig+';MuonRoI Eta;MuonRoI GoodMF Flag',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=3,ymin=-1.5,ymax=1.5)
 
         monTrigGroup.defineHistogram('muon_passed_l1item_'+monTrig+',muon_pt_rpc_l1item_'+monTrig+';L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig,title='L1Item_MuonRoI_Eff_Pt_RPC_'+monTrig+';Offline muon pT [GeV];Efficiency',
@@ -981,9 +985,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
     return result
     
 if __name__=='__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
     log.setLevel(INFO)

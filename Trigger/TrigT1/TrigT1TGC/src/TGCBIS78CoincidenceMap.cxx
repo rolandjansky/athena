@@ -85,7 +85,7 @@ namespace LVL1TGCTrigger {
 					 const int sec,
 					 const int side) const
   {
-    if (side==0) return 0; // BIS78 only in A side
+    if (side!=0) return 0; // BIS78 only in A side
     if ((roi<0)||(roi>=N_ROI_IN_SSC)) return -1;
     if ((ssc<0)||(ssc>=N_Endcap_SSC)) return 0;
     if ((sec<0)||(sec>=N_EndcapSector)) return -1;

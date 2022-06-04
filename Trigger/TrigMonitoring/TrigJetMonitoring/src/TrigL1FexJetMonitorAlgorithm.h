@@ -6,7 +6,7 @@
 #ifndef TRIGJETMONITORING_TRIGL1FEXJETMONITORALGORITHM_H
 #define TRIGJETMONITORING_TRIGL1FEXJETMONITORALGORITHM_H
 
-#include "./ITrigJetMonitorTool.h"
+#include "TrigJetMonitoring/ITrigJetMonitorTool.h"
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -32,7 +32,7 @@ public:
   
 private:
   ToolHandle<ITrigJetMonitorTool> m_filler {
-    this, "filler", {}, "jet data calculator"};
+  this, "filler", {}, "jet data calculator"};
 
   Gaudi::Property<std::string> m_groupName {
     this, "group_name",  {},  "name of monitoring group"};

@@ -20,10 +20,25 @@ AODFix.AODFix_Init()
 #First do Calo-Reco
 pdr.flag_domain('calo')
 if DetFlags.detdescr.Calo_on() and rec.doESD():
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from CaloRec.CaloRecoConfig import CaloRecoCfg
-    CAtoGlobalWrapper(CaloRecoCfg, ConfigFlags)
+    try:
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from CaloRec.CaloRecoConfig import CaloRecoCfg
+        ca=CaloRecoCfg(ConfigFlags)
+    
+        for el in ca._allSequences:
+            el.name = "TopAlg"
 
+            appendCAtoAthena(ca)
+    except Exception:
+        treatException("Could translate CaloRecoCfg into athena")
+    finally:
+        Configurable.configurableRun3Behavior=0
+    pass
+
+    
     #Move L1Calo Trigger tower decoration here for simplicity:
     if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doTrigger():
         include("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")

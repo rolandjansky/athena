@@ -829,16 +829,6 @@ def MdtMonitoringConfig(inputFlags):
 
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # Setup logs
-    #from AthenaCommon.Logging import log
-    #from AthenaCommon.Constants import DEBUG
-    #log.setLevel(DEBUG)    
-
-
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

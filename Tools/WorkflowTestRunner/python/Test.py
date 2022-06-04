@@ -17,7 +17,7 @@ class TestSetup:
         self.logger = logger
         self.pwd = get_pwd()
         self.reference_run_path = Path("/tmp")
-        self.diff_rules_path = Path()
+        self.diff_rules_path = None
         self.unique_ID = str(uuid4())
         self.disable_release_setup = False
         self.validation_only = False

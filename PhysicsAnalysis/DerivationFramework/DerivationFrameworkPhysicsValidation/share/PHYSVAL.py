@@ -216,6 +216,10 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
 				       "BTagging_AntiKt4EMPFlowJFVtxFlip", #Flip version of JetFitter
                                        "BTagging_AntiKt4EMPFlowSecVtx",
 				       "BTagging_AntiKt4EMPFlowSecVtxFlip", #Flip version of SV1
+				       "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+				       "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxFlip",
+				       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx",
+				       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxFlip",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
@@ -254,8 +258,10 @@ StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesA
 StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
 StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
 StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxAux.-vxTrackAtVertex"]
+StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux.-vxTrackAtVertex"]
 if cfgFlags.BTagging.RunFlipTaggers is True:
     StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKt4EMPFlowSecVtxFlipAux.-vxTrackAtVertex"]
+    StaticContent += ["xAOD::VertexAuxContainer#BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxFlipAux.-vxTrackAtVertex"]
 
 PHYSVALSlimmingHelper.StaticContent = StaticContent
 
@@ -299,6 +305,10 @@ if DerivationFrameworkIsMonteCarlo:
                                             'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
                                             'AntiKt10LCTopoJets':'xAOD::JetContainer', 'AntiKt10LCTopoJetsAux':'xAOD::JetAuxContainer',
                                             'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer',
+					    'BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx':'xAOD::BTagVertexContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux':'xAOD::BTagVertexAuxContainer',
+					    'BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxFlip':'xAOD::BTagVertexContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxFlipAux':'xAOD::BTagVertexAuxContainer',
+					    'BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx':'xAOD::VertexContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux':'xAOD::VertexAuxContainer',
+					    'BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxFlip':'xAOD::VertexContainer','BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxFlipAux':'xAOD::VertexAuxContainer',
                                             'EMOriginTopoClusters':'xAOD::CaloClusterContainer', 'EMOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                             'LCOriginTopoClusters':'xAOD::CaloClusterContainer', 'LCOriginTopoClustersAux':'xAOD::ShallowAuxContainer',
                                             'BTagging_AntiKt4EMPFlowJFVtx':'xAOD::BTagVertexContainer','BTagging_AntiKt4EMPFlowJFVtxAux':'xAOD::BTagVertexAuxContainer',

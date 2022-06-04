@@ -9,7 +9,7 @@ class _Conf:
     """Some configuration flags for this module with defaults"""
     useOnlineTHistSvc = True    # set in athenaHLT.py
 
-def setupCommonServices():
+def setupCommonServices(flags):
     from AthenaCommon import CfgMgr
     from AthenaCommon.Logging import logging
     from AthenaCommon.Constants import INFO
@@ -83,10 +83,9 @@ def setupCommonServices():
         svcMgr += THistSvc()
 
     # Online event loop manager
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
     from TrigServices.TrigServicesConfig import TrigServicesCfg
-    CAtoGlobalWrapper(TrigServicesCfg, ConfigFlags)
+    CAtoGlobalWrapper(TrigServicesCfg, flags)
     svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
     svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
 

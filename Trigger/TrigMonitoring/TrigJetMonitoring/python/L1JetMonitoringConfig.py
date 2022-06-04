@@ -38,16 +38,20 @@ class L1JetMonAlg():
     
     def container2tool_class_name():
 
-      # Note: there are two gFex names, both correspond to the same container type.
+      # Note: there are two gFex names, both correspond to the
+      # same container type.
 
+      # The strangeness of the class names in the following dict are
+      # due to them arising from template instantiations.
+      # They can be found in the TrigJetMonitoringConf.py module
+      # which is constructed at build time.
       return  {
-        'L1_jFexSRJetRoI': 'TrigL1FexJetMonitorTool_jFexSR',
-        'L1_jFexLRJetRoI': 'TrigL1FexJetMonitorTool_jFexLR',
-        'L1_gFexSRJetRoI': 'TrigL1FexJetMonitorTool_gFex',
-        'L1_gFexLRJetRoI': 'TrigL1FexJetMonitorTool_gFex',
-        'LVL1JetRoIs': 'TrigL1FexJetMonitorTool_jetRoI',
+        'L1_jFexSRJetRoI': 'TrigL1FexJetMonitorTool_JTM_jFexSRJetRoIContainer_',
+        'L1_jFexLRJetRoI': 'TrigL1FexJetMonitorTool_JTM_jFexLRJetRoIContainer_',
+        'L1_gFexSRJetRoI': 'TrigL1FexJetMonitorTool_JTM_gFexJetRoIContainer_',
+        'L1_gFexLRJetRoI': 'TrigL1FexJetMonitorTool_JTM_gFexJetRoIContainer_',
+        'LVL1JetRoIs': 'TrigL1FexJetMonitorTool_JTM_JetRoIContainer_',
       }[self.L1JetContainer]
-
     
     def container2tool_inst_name():
 
@@ -71,6 +75,7 @@ class L1JetMonAlg():
     alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,
                                    self.name)
     toolClass = getattr(CompFactory, container2tool_class_name())
+
     tool = toolClass(container2tool_inst_name())
     tool.do_matching = self.matched
     tool.offlineJetsToMatch = self.matchedOJ
