@@ -5,4 +5,4 @@
 # Once ATLASDQ-879 is fixed, this script can be deleted and the test defintion
 # (without the --preExec) moved to Athena.cmake.
 
-RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25 --preExec="all:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet=\"AODFULL\""'
+RunWorkflowTests_Run3.py --CI -r -w MCReco -e '--maxEvents 25 --preExec="all:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet=\"AODFULL\""' --no-output-checks
