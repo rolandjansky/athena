@@ -9,9 +9,7 @@ if __name__ == '__main__':
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
-  from AthenaCommon.Configurable import Configurable
   log.setLevel(DEBUG)
-  Configurable.configurableRun3Behavior = 1
 
 
   #import config flags

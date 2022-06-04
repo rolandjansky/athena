@@ -511,16 +511,6 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerS
 
 if __name__=='__main__':
 
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # Setup logs
-    from AthenaCommon.Constants import DEBUG
-#    from AthenaCommon.Constants import WARNING
-    from AthenaCommon.Logging import log
-    log.setLevel(DEBUG)
-
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio//data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0123._SFO-3._0004.data']

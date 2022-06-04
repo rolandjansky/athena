@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
-from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
+from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
 from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
@@ -26,14 +26,10 @@ def TriggerRecoCfg(flags):
     """
     acc = ComponentAccumulator()
     acc.merge( ByteStreamReadCfg(flags) )
-
-
     acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
-    acc.merge( L1ConfigSvcCfg(flags) )
-    acc.merge( HLTConfigSvcCfg(flags) )
-    acc.merge( BunchGroupCondAlgCfg( flags ) )
-    acc.merge( L1PrescaleCondAlgCfg(flags) )
-    acc.merge( HLTPrescaleCondAlgCfg(flags) )
+
+    metadataAcc, _ = TriggerMetadataWriterCfg(flags)
+    acc.merge( metadataAcc )
 
     # Run 3+
     if flags.Trigger.EDMVersion >= 3:
@@ -57,9 +53,7 @@ def TriggerRecoCfg(flags):
 
         from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
         acc.merge (Run1Run2DecisionMakerCfg(flags) )
-        menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
-        menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool("KeyWriterToolOffline")
-        acc.addEventAlgo( menuwriter )
+
         if flags.Trigger.doNavigationSlimming:
             acc.merge(Run2Run1NavigationSlimingCfg(flags))
     else:
@@ -75,6 +69,18 @@ def _asList(edm):
     """Helper to convert EMD dictionary to flat list"""
     return [ f"{type}#{name}" for type, names in edm.items() for name in names ]
 
+def TriggerMetadataWriterCfg(flags):
+    """Sets up access to HLT, L1, BGRP, Monitoring, HLT PS and L1 PS JSON files from 'FILE' or 'DB', writes JSON to metaStore and keys to eventStore"""
+    acc = ComponentAccumulator()
+    keyWriterOutput = ""
+    if not flags.Trigger.InputContainsConfigMetadata:
+        acc.merge( TrigConfigSvcCfg(flags) )
+        acc.merge( L1PrescaleCondAlgCfg(flags) )
+        acc.merge( HLTPrescaleCondAlgCfg(flags) )
+        keyWriterTool = CompFactory.TrigConf.KeyWriterTool("KeyWriterToolOffline")
+        keyWriterOutput = str(keyWriterTool.ConfKeys)
+        acc.addEventAlgo( CompFactory.TrigConf.xAODMenuWriterMT("xAODMenuWriterMT", KeyWriterTool = keyWriterTool) )
+    return acc, keyWriterOutput
 
 def TriggerEDMCfg(flags):
     """Configures which trigger collections are recorded"""
@@ -287,8 +293,6 @@ def Run3TriggerBSUnpackingCfg(flags):
 
 
 if __name__ == '__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 

@@ -23,6 +23,8 @@ muonCombinedRecFlags.doSiAssocForwardMuons = False
 muonCombinedRecFlags.doStatisticalCombination = False
 muonCombinedRecFlags.doCombinedFit = True
 muonRecFlags.enableErrorTuning = False
+muonRecFlags.runCommissioningChain = False
+
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, ViewCreatorNamedROITool, \

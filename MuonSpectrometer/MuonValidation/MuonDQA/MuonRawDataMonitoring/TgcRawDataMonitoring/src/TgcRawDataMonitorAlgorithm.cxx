@@ -709,6 +709,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	const TrigConf::L1Threshold& thr = l1Menu->threshold(item.data());
 	std::vector<const xAOD::MuonRoI*> passed_rois;
 	for(const auto& allBcMuonRoI : AllBCMuonRoIs){
+	  if(allBcMuonRoI.timing!=0)continue; // only current BC
 	  const xAOD::MuonRoI* roi = allBcMuonRoI.muonRoI;
 	  const uint64_t thrPattern = thrPatternAcc(*roi);
 	  bool passed = ( thrPattern & (1 << thr.mapping()) );

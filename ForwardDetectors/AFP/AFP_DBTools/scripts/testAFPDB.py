@@ -64,9 +64,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     #flags.Input.Files = [] # can hardcode file
     # if you have issues wiht data dependencies and want to debug it
     flags.Scheduler.CheckDependencies = True

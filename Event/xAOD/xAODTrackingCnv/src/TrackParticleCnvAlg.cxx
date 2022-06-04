@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.cxx 298303 2013-12-05 08:41:30Z emoyse $
@@ -14,55 +14,18 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+
 
 // Local include(s):
 #include "TrackParticleCnvAlg.h"
-#include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
-#include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
+
 
 
 namespace xAODMaker {
 TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
                                          ISvcLocator* svcLoc)
-  : AthReentrantAlgorithm(name, svcLoc)
-  , m_particleCreator("Trk::TrackParticleCreatorTool/TrackParticleCreatorTool")
-  , m_TrackCollectionCnvTool(
-      "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool",
-      this)
-  , m_RecTrackParticleContainerCnvTool(
-      "xAODMaker::RecTrackParticleContainerCnvTool/"
-      "RecTrackParticleContainerCnvTool",
-      this)
-  , m_aod("TrackParticleCandidate")
-  , m_tracks("Tracks")
-  , m_xaodout("InDetTrackParticles")
-  , m_xaodTrackParticlesout("ConvertedTrackParticleCandidate")
-  , m_truthParticleLinkVec("xAODTruthLinks")
-  , m_aodTruth("")
-  , m_trackTruth("")
-{
-  declareProperty("AODContainerName", m_aod);
-  declareProperty("xAODContainerName", m_xaodTrackParticlesout);
-  declareProperty("TrackParticleCreator", m_particleCreator);
-  declareProperty("AddTruthLink", m_addTruthLink = false);
-  declareProperty("AODTruthContainerName", m_aodTruth);
-  declareProperty("TrackTruthContainerName", m_trackTruth);
-  declareProperty("xAODTruthLinkVector", m_truthParticleLinkVec);
-  declareProperty("TrackContainerName", m_tracks);
-  declareProperty("xAODTrackParticlesFromTracksContainerName", m_xaodout);
-  declareProperty("ConvertTrackParticles", m_convertAODTrackParticles = true);
-  declareProperty("ConvertTracks", m_convertTracks = false);
-  declareProperty("TrackCollectionCnvTool", m_TrackCollectionCnvTool);
-  declareProperty("RecTrackParticleContainerCnvTool",
-                  m_RecTrackParticleContainerCnvTool);
-  declareProperty("DoMonitoring", m_doMonitoring = false);
-  declareProperty("AugmentObservedTracks", m_augmentObservedTracks = false, "augment observed tracks");
-  declareProperty("TracksMapName", m_tracksMap, "name of observed tracks map saved in store");
-}
+  : AthReentrantAlgorithm(name, svcLoc) {}
 
 StatusCode
 TrackParticleCnvAlg::initialize()
@@ -155,6 +118,7 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
       tracks = rh_tracks.cptr();
       ATH_MSG_VERBOSE("Got TrackCollection with key " << m_tracks.key()
                                                       << " found.");
+                                                      
     }
   }
   if (m_addTruthLink) {

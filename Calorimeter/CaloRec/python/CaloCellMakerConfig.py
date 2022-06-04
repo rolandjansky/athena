@@ -72,9 +72,6 @@ if __name__=="__main__":
     from AthenaCommon.Constants import DEBUG
     log.setLevel(DEBUG)
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 

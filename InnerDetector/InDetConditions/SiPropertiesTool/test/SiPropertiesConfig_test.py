@@ -7,13 +7,11 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 
 # test setup
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 ConfigFlags.lock()
 # test

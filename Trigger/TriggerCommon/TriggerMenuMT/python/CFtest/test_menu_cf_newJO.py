@@ -129,10 +129,6 @@ if __name__ == "__main__":
     
     from AthenaConfiguration.Enums import Format
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-    
 
     #flags.Exec.OutputLevel=DEBUG # to swicth all DEBUG (crashing in HLTSeeding now)
     flags.Concurrency.NumThreads = 1

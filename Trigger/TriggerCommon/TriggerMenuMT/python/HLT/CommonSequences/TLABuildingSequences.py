@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from ..Jet.JetChainConfiguration import JetChainConfiguration
-from AthenaCommon.Configurable import Configurable
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 log = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ def alignTLASteps(chain_configs, chain_dicts):
     def getTLAStepPosition(chainConfig):
         tlaStep = findTLAStep(chainConfig)
         try:
-            if Configurable.configurableRun3Behavior and tlaStep is None:
+            if isRun3Cfg() and tlaStep is None:
                 raise NoCAmigration ("[alignTLASteps] Missing TLA sequence with CA configurables")
         except NoCAmigration:
             return 0

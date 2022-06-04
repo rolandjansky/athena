@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 #define TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
@@ -8,13 +8,13 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCostMonitor/ITrigCostSvc.h"
+#include "HLTSeeding/IPrescalingTool.h"
 
 
 /**
  * @class DecisionsSummaryMakerAlg
- * @brief Executes after both the first-pass and second-pass (rerun) chains have finished.
- *        Makes decision objects containing decision IDs per passing chain, prescaled chain and rerun chain.
- *        Sends end-of-HLT processing trigger to cost monitoring. Writes HLTNav_Summary container.
+ * @brief Executes after all chains have finished. Makes decision objects containing decision IDs per passing chain,
+ *        prescaled chain, and express-prescaled chain. Writes HLTNav_Summary container.
  **/
 class DecisionSummaryMakerAlg : public AthReentrantAlgorithm {
 public:
@@ -43,6 +43,9 @@ private:
 
   ServiceHandle<ITrigCostSvc> m_trigCostSvcHandle { this, "TrigCostSvc", "TrigCostSvc",
     "The trigger cost service" };
+
+  ToolHandle<IPrescalingTool> m_prescaler{this, "Prescaler", "PrescalingTool/PrescalingTool",
+    "Prescaling tool used to determine express stream prescale decisions"};
 
   Gaudi::Property< std::map< std::string, std::vector<std::string> > > m_lastStepForChain{ this, "FinalStepDecisions", {},
     "The map of chain name to names of the collections in which the final decision is found" };

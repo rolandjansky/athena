@@ -267,6 +267,9 @@ namespace xAOD {
       /// Constant used to identify the single terminus graph node
       /// the end point of all chains which accept the event
       static const std::string s_summaryPassNodeNameString;
+      /// Constant used to identify the single express-accept graph node.
+      /// A record of all chains which triggered express streaming.
+      static const std::string s_summaryPassExpressNodeNameString;
       /// Constant used to identify the single prescaled graph node.
       /// A record of all chains which did not execute due to HLT prescale.
       static const std::string s_summaryPrescaledNodeNameString;

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from TrigEDMConfig import DataScoutingInfo
@@ -10,11 +10,10 @@ from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterA
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from libpyeformat_helper import SourceIdentifier, SubDetector
-from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory, isRun3Cfg
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from .LATOMESourceIDs import LATOMESourceIDs
 from AthenaCommon.Logging import logging
-from AthenaCommon.Configurable import Configurable
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
 log = logging.getLogger(__name__)
 
@@ -289,7 +288,7 @@ def alignEventBuildingSteps(chain_configs, chain_dicts):
     def getPebStepPosition(chainConfig):
         pebStep = findEventBuildingStep(chainConfig)
         try:
-            if Configurable.configurableRun3Behavior and pebStep is None:
+            if isRun3Cfg() and pebStep is None:
                 raise NoCAmigration ("[alignTLASteps] Missing TLA sequence with CA configurables")
         except NoCAmigration:
             return 0

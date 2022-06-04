@@ -93,9 +93,7 @@ def AFPRecCfg(flags):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
-    
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     
     ConfigFlags.Scheduler.CheckDependencies = True

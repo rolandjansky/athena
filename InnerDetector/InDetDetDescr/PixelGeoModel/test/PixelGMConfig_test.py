@@ -4,8 +4,6 @@
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
