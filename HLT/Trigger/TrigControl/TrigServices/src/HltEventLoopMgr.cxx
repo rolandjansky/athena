@@ -1027,10 +1027,8 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   // Finish handling the failed event
   //----------------------------------------------------------------------------
 
-  // Unless this is a timeout, truncation or processing (i.e. algorithm) failure, increment the number of framework failures
-  if (errorCode != HLT::OnlineErrorCode::TIMEOUT
-      && errorCode != HLT::OnlineErrorCode::RESULT_TRUNCATION
-      && errorCode != HLT::OnlineErrorCode::PROCESSING_FAILURE) {
+  // Unless this is an event data or algorithm processing failure, increment the number of framework failures
+  if (!HLT::isEventProcessingErrorCode(errorCode)) {
     if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("Failure with OnlineErrorCode=" << errorCode
         << " was successfully handled, but the number of tolerable framework errors for this HltEventLoopMgr instance,"
