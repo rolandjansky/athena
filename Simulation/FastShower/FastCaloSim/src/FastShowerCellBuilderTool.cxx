@@ -1090,6 +1090,15 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                                             const EventContext& ctx,
 					    const CellInfoContainer* cont) const
 {
+  const CellInfoContainer* cellInfoCont{cont};
+  if(!cellInfoCont) {
+    // This method gets called directly by some client
+    // Get the CellInfoContainer from the cond handle
+    SG::ReadCondHandle<CellInfoContainer> cellInfoContHandle{m_cellInfoContKey,ctx};
+    ATH_CHECK(cellInfoContHandle.isValid());
+    cellInfoCont = *cellInfoContHandle;
+  }
+
   // no intersections with Calo layers found : abort;
   if(!hitVector || hitVector->empty())  {
     ATH_MSG_DEBUG(" Calo hit vector empty: aborting particle processing ");
@@ -1224,7 +1233,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                        eta_calo_surf,
                        phi_calo_surf,
                        d_calo_surf,
-		       cont))
+		       cellInfoCont))
   {
     if(TMath::Abs(ptruth_eta)>5 || EinT<500) {
       ATH_MSG_DEBUG("Calo hit vector does not contain calo layer entry: aborting processing particle "<<particle_info_str.str());
@@ -1389,7 +1398,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                               lphiCalo,
                               dCalo,
                               distetaCaloBorder,
-			      cont) )
+			      cellInfoCont) )
           {
             p.dist000+=p.E_layer[sample]*dCalo[sample];
             if(dCalo[sample]<0.01 && p.E_layer[sample]>0) {
@@ -1502,9 +1511,9 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
           fcy=shape->phi_center(lphiCalo[sample]);
           lookup_letaCalo=fcx;
           lookup_lphiCalo=fcy;
-          distetaCaloBorder[sample]=deta((CaloCell_ID_FCS::CaloSample)sample,fcx,cont);
+          distetaCaloBorder[sample]=deta((CaloCell_ID_FCS::CaloSample)sample,fcx,cellInfoCont);
           double mineta,maxeta;
-          minmaxeta((CaloCell_ID_FCS::CaloSample)sample,fcx,mineta,maxeta,cont);
+          minmaxeta((CaloCell_ID_FCS::CaloSample)sample,fcx,mineta,maxeta,cellInfoCont);
 
           // correct shower position in calo, if it is outside the calo layer boundaries
           // TODO: Apply relocation of shape to overlap with active calo also if no shape function is found
@@ -1551,7 +1560,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
                  fcx=shape->eta_center(letaCalo[sample],direction_factor*sign);
               */
 
-              distetaCaloBorder[sample]=deta((CaloCell_ID_FCS::CaloSample)sample,fcx,cont);
+              distetaCaloBorder[sample]=deta((CaloCell_ID_FCS::CaloSample)sample,fcx,cellInfoCont);
               if(msgLvl(MSG::DEBUG)) {
                 msg(MSG::DEBUG)<<" new deta="<<distetaCaloBorder[sample]<<endmsg;
               }
@@ -1580,9 +1589,9 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
         }
 
         // Ugly code: does a fast lookup which cells should be considered to be filled with energy
-        int iphi=cont->getCellistMap(sample).phi_to_index(lookup_lphiCalo);
-        int ieta=cont->getCellistMap(sample).eta_to_index(lookup_letaCalo);
-        const cellinfo_map::cellinfo_vec& vec=cont->getCellistMap(sample).vec(ieta,iphi);
+        int iphi=cellInfoCont->getCellistMap(sample).phi_to_index(lookup_lphiCalo);
+        int ieta=cellInfoCont->getCellistMap(sample).eta_to_index(lookup_letaCalo);
+        const cellinfo_map::cellinfo_vec& vec=cellInfoCont->getCellistMap(sample).vec(ieta,iphi);
         int n_cells=vec.size();
 
         ATH_MSG_DEBUG("  n_cells=" <<n_cells);

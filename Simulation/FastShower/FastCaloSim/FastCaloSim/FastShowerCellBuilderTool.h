@@ -88,7 +88,7 @@ public:
                               TRandom3& rndm,
                               Stats& stats,
                               const EventContext& ctx,
-			      const CellInfoContainer* cont) const;
+			      const CellInfoContainer* cont = nullptr) const;
 
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
 
