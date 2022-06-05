@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArCalibParams.h"
@@ -16,7 +16,6 @@ LArCalibParams::LArCalibParams():
 
 StatusCode LArCalibParams::initialize() 
 {
-  //std::cout << "Initialize of LArCalibParams" << std::endl;
   //Get online Helper via DetectorStore
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
   StoreGateSvc* detStore;
@@ -37,7 +36,6 @@ StatusCode LArCalibParams::initialize()
   return (StatusCode::SUCCESS);
 
 }  
-
 
 
 LArCalibParams::~LArCalibParams()
@@ -129,7 +127,7 @@ unsigned LArCalibParams::CalibBoard::DAC(const unsigned event) const
 
 unsigned LArCalibParams::Delay(const unsigned event, const HWIdentifier calibLineID) const
 {if (calibLineID.get_compact()==0) return 0; //Disconnected channel
- if (m_uniqueConfig &&  m_mCalibBoards.size()==1)
+ if (m_uniqueConfig &&  m_mCalibBoards.size()>=1)
    return m_mCalibBoards.begin()->second.Delay(event);
  else {
    if (!m_onlineHelper) {
@@ -148,7 +146,7 @@ unsigned LArCalibParams::Delay(const unsigned event, const HWIdentifier calibLin
 
 unsigned LArCalibParams::DAC(const unsigned event, const HWIdentifier calibLineID) const
 {if (calibLineID.get_compact()==0) return 0; //Disconnected channel
- if (m_uniqueConfig &&  m_mCalibBoards.size()==1)
+ if (m_uniqueConfig &&  m_mCalibBoards.size()>=1)
    return m_mCalibBoards.begin()->second.DAC(event);
  else {
    if (!m_onlineHelper) {
@@ -167,14 +165,15 @@ unsigned LArCalibParams::DAC(const unsigned event, const HWIdentifier calibLineI
 
 
 bool LArCalibParams::isPulsed(const unsigned event, const HWIdentifier calibLineID) const
-{if (calibLineID.get_compact()==0) return false; //Disconnected channel
+{
+ if (calibLineID.get_compact()==0) return false; //Disconnected channel
  if (!m_onlineHelper) {
    MsgStream log(Athena::getMessageSvc(), "LArCalibParams::isPulsed");
    log << MSG::ERROR << "LArOnlineID not defined! Can't determine isPulsed value." << endmsg;
    return false; 
  }
  const int line=m_onlineHelper->channel(calibLineID);
- if (m_uniqueConfig &&  m_mCalibBoards.size()==1) 
+ if (m_uniqueConfig &&  m_mCalibBoards.size()>=1) 
     return m_mCalibBoards.begin()->second.isPulsed(event, line);
  else
    {const HWIdentifier calibModuleID=m_onlineHelper->calib_module_Id(calibLineID);
@@ -190,7 +189,7 @@ bool LArCalibParams::isPulsed(const unsigned event, const HWIdentifier calibLine
 
 unsigned LArCalibParams::getNumberConfig(const HWIdentifier calibModuleID) const
 { //Number of configurations is nDAC*nDelay*nPattern
-  if (m_uniqueConfig &&  m_mCalibBoards.size()==1) {
+  if (m_uniqueConfig &&  m_mCalibBoards.size()>=1) {
     const unsigned nConfig=m_mCalibBoards.begin()->second.m_DAC.size()*
       m_mCalibBoards.begin()->second.m_Delay.size()*m_mCalibBoards.begin()->second.m_Pattern.size()/4;
     return nConfig;
@@ -211,7 +210,7 @@ unsigned LArCalibParams::getNumberConfig(const HWIdentifier calibModuleID) const
 
 unsigned LArCalibParams::NTrigger(const HWIdentifier calibModuleID) const
 {
- if (m_uniqueConfig &&  m_mCalibBoards.size()==1) 
+ if (m_uniqueConfig &&  m_mCalibBoards.size()>=1) 
    return m_mCalibBoards.begin()->second.m_nTrigger;
  else {
    const std::map<HWIdentifier, CalibBoard>::const_iterator map_it=m_mCalibBoards.find(calibModuleID);
@@ -230,3 +229,23 @@ const CalibBoard& LArCalibParams::getCalibBoardParams(const HWIdentifier calibMo
     return m_mCalibBoards[calibModuleID]; //Find would be better....
 }
 */
+
+unsigned LArCalibParams::getNumberPatterns(const HWIdentifier calibModuleID) const
+{ //Number of configurations is nDAC*nDelay*nPattern
+  if ((m_uniqueConfig &&  m_mCalibBoards.size()==1) || // one calib board configured
+      calibModuleID == HWIdentifier(0)) { // assuming equal config for all b. boards configured
+    const unsigned nPatt = m_mCalibBoards.begin()->second.m_Pattern.size()/4;
+    return nPatt;
+  }
+  else {
+    const std::map<HWIdentifier, CalibBoard>::const_iterator map_it=m_mCalibBoards.find(calibModuleID);
+    if (map_it==m_mCalibBoards.end()) 
+      return 0; //Can't find Board configuration -> Assume board is not configured.
+    else {
+      const unsigned nPatt = map_it->second.m_Pattern.size()/4;
+      return nPatt;
+    }
+  }
+}
+
+

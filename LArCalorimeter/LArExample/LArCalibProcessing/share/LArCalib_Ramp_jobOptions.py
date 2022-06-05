@@ -163,7 +163,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'DBConnectionCOOL' in dir():
-   DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
+   DBConnectionCOOL = "COOLOFL_LAR/CONDBR2"
 
 ## HEC map
 if not 'ReadHECMapFromCOOL' in dir():
@@ -308,8 +308,8 @@ if ( PeakOF and ReadOFCFromCOOL ):
    RampLog.info( " InputDBConnectionOFC               = "+InputDBConnectionOFC )
 elif ( PeakOF) :
    RampLog.info( " InputOFCPoolFileName               = "+InputOFCPoolFileName )
-if 'OFCLArCalibFolderTag' in dir() :
-   RampLog.info( " OFCLArCalibFolderTag               = "+OFCLArCalibFolderTag )
+if 'LArCaliOFCFolderTag' in dir() :
+   RampLog.info( " LArCaliOFCFolderTag               = "+LArCaliOFCFolderTag )
 RampLog.info( " OutputRampRootFullFileName         = "+OutputRampRootFileDir+"/"+OutputRampRootFileName )
 RampLog.info( " OutputRampPoolFullFileName         = "+OutputRampPoolFileDir+"/"+OutputRampPoolFileName )
 RampLog.info( " OutputObjectSpecRamp               = "+OutputObjectSpecRamp )
@@ -477,7 +477,7 @@ if CheckBadEvents:
 
    
 if SuperCells:
-   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>",className="AthenaAttributeList") 
 
 ## define the DB Gobal Tag :
 ServiceMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -513,7 +513,7 @@ ServiceMgr.PoolSvc.ReadCatalog += larCalibCatalogs
 
 if ( doLArCalibDataQuality  ) :
    ## The reference is the Oracle DB
-   conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/Ramp<key>LArRampRef</key>"+ChannelSelection)
+   conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/Ramp<key>LArRampRef</key>"+ChannelSelection,className="LArRampComplete")
 
 #if (CorrectBadChannels or StripsXtalkCorr):
 #   conddb.addFolder("LAR","/LAR/BadChannelsOfl/BadChannels")
@@ -529,9 +529,9 @@ if (isHEC):
    if ( ReadHECMapFromCOOL ):
       HECMapFolder  = "/LAR/ElecCalibOfl/HecPAMap"
       if "HECMapTagSpec" in dir():
-         conddb.addFolder("",HECMapFolder+"<tag>"+HECMapTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionHECMap+"</dbConnection>")
+         conddb.addFolder("",HECMapFolder+"<tag>"+HECMapTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionHECMap+"</dbConnection>",className="LArRinjComplete")
       else :
-         conddb.addFolder("",HECMapFolder+"<dbConnection>"+InputDBConnectionHECMap+"</dbConnection>")
+         conddb.addFolder("",HECMapFolder+"<dbConnection>"+InputDBConnectionHECMap+"</dbConnection>",className="LArRinjComplete")
 
    else:
       if 'InputHECMapPoolFileName' in dir():
@@ -557,6 +557,7 @@ if ( ReadPedFromCOOL ):
    if (CorrectBias or StripsXtalkCorr or PeakOF):
       PedestalFolder  = LArCalib_Flags.LArPedestalFolder
       PedestalTagSpec = LArCalibFolderTag(PedestalFolder,PedLArCalibFolderTag)
+      #RampLog.info("Ped. folder:",PedestalFolder," ",PedestalTagSpec," ",InputDBConnectionPed)
       conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+ChannelSelection,className="LArPedestalComplete")
       
 else:
@@ -571,7 +572,7 @@ if ( ReadOFCFromCOOL ):
    if PeakOF:
       if not 'CaliOFCTagSpec' in dir():
          CaliOFCTagSpec = LArCalibFolderTag(CaliOFCFolder,LArCaliOFCFolderTag)
-      conddb.addFolder("",CaliOFCFolder+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection)
+      conddb.addFolder("",CaliOFCFolder+"<tag>"+CaliOFCTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionOFC+"</dbConnection>"+ChannelSelection, className="LArOFCComplete")
 
 else:
    if 'InputOFCPoolFileName' in dir():

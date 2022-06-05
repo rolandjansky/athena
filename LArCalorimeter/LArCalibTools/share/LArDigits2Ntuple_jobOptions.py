@@ -32,6 +32,9 @@ if not 'FilePrefix' in dir():
    else :
       FilePrefix = "data*"
      
+if not 'NSamples' in dir():
+   NSamples=32
+
 if not 'InputDir' in dir():
    InputDir = "/castor/cern.ch/grid/atlas/DAQ/lar/ElecCalib/2014/"+RunNumberList[0]
 
@@ -67,12 +70,14 @@ if not 'WriteNtuple' in dir():
 if not 'SuperCells' in dir():   
    SuperCells=False
 
+if not 'WithAccDigits' in dir():
+   WithAccDigits=False
+
 if not 'GainList' in dir():
    if SuperCells:
       GainList = ["SC"]
    else:
       GainList = [ "HIGH", "MEDIUM", "LOW" ]
-
 
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 else: include("LArCalibProcessing/LArCalib_FlagsSC.py")

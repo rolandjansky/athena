@@ -17,7 +17,9 @@
 #include <map>
 
 #include "LArRawConditions/LArCaliWaveContainer.h"
+#include "LArRawConditions/LArCalibParams.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 
@@ -38,10 +40,12 @@ class LArCaliWaveBuilder : public AthAlgorithm
   
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibLineKey","LArCalibLineMap","SG Key of calib. line mapping object"};
+  SG::ReadCondHandleKey<ILArPedestal> m_pedKey{this,"PedestalKey","Pedestal","SG Key of pedestal object"};
 
   bool       m_useAccumulatedDigits;
-  StatusCode executeWithAccumulatedDigits();
-  StatusCode executeWithStandardDigits();
+  StatusCode executeWithAccumulatedDigits(const LArCalibParams* calibParams=nullptr, const LArCalibLineMapping* clcabling=nullptr );
+  StatusCode executeWithStandardDigits(const LArCalibParams* calibParams=nullptr, const LArCalibLineMapping* clcabling=nullptr);
   
   std::vector<std::string> m_keylist;
   std::vector<std::string> m_keylistproperty;
@@ -54,9 +58,7 @@ class LArCaliWaveBuilder : public AthAlgorithm
   WaveContainer m_waves;
 
   // Pedestal subtraction
-  const DataHandle<ILArPedestal> m_larPedestal;
   bool                m_pedSub;
-  //const ILArPedestal* m_larPedestal;
   unsigned            m_baseline;
 
   // Reco also unpulsed and saturated cells ?
@@ -84,7 +86,7 @@ class LArCaliWaveBuilder : public AthAlgorithm
   uint16_t m_fatalFebErrorPattern;
 
   int      m_usePatt;
-  unsigned m_numPatt; 
+  bool     m_useParams;
 };  
 
 #endif

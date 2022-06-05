@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 ###########################################################################
 #
 # LArCalib_Delay_OFC_2Ntuple_POOL_jobOptions.py dumps the conntet of a 
@@ -41,11 +43,9 @@ if not 'OFCRootFileName' in dir():
 	OFCRootFileName = "LArWaves2Ntuple_POOL.root"
 
 if not 'RunNumber' in dir():
-        RunNumber = 165983
+        RunNumber = 393960
 
 ###########################################################################
-
-#include("LArConditionsCommon/LArMinimalSetup.py")
 
 include("LArCalibProcessing/LArCalib_Flags.py")
 
@@ -65,8 +65,7 @@ include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 
 if not 'DBConnectionCOOL' in dir():
-        DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-        #DBConnectionCOOL = "COOLONL_LAR/COMP200"
+        DBConnectionCOOL = "COOLONL_LAR/CONDBR2"
 
 ## define the DB Global Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
@@ -76,9 +75,6 @@ svcMgr.IOVDbSvc.forceRunNumber=RunNumber
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-# Temperature folder
-#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-
 if 'InputBadChannelSQLiteFile' in dir():
    from string import *
    InputDBConnectionBadChannel = "sqlite://;schema="+InputBadChannelSQLiteFile+";dbname=CONDBR2"
@@ -87,18 +83,22 @@ else:
 
 if ( not 'InputBadChannelSQLiteFile' in dir()) and ("ONL" in DBConnectionCOOL):
    BadChannelsFolder="/LAR/BadChannels/BadChannels"
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
    MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="AthenaAttributeList")
 else:   
    BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
    MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="AthenaAttributeList")
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
 theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
 condSeq+=theLArBadChannelCondAlg
+
 theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
 condSeq+=theLArBadFebCondAlg
 

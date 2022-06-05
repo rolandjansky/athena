@@ -353,7 +353,7 @@ cat $summaryFile
 echo "Output sqlite files:"
 echo "$outputSqlite: Containing UPD1 and/or UPD4 and/or Bulk version of bad-channel list for OFFLINE DB. UPD4 valid as of run $runnumber"
 echo "Upload to OFFLINE oracle server:"
-echo "/afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py --flask ${outputSqlite} CONDBR2 ATONR_GPN ATLAS_COOLOFL_LAR_W <password>"
+echo "/afs/cern.ch/user/a/atlcond/utilsflask/AtlCoolMerge.py  --flask ${outputSqlite} CONDBR2 ATONR_COOLOFL_GPN ATLAS_COOLOFL_LAR_W <password>"
 if [ -f $outputSqliteOnl ];
 then
     echo "$outputSqliteOnl: Containing UPD1 version of bad-channel list for ONLINE DB."

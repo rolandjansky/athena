@@ -52,6 +52,8 @@ class LArCalibParams {
 
   unsigned getNumberConfig(const HWIdentifier calibModuleID) const;
 
+  unsigned getNumberPatterns(const HWIdentifier calibModuleID) const;
+
   //const CalibBoard& getCalibBoardParams(const HWIdentifier calibModuleID) const;
 
   class CalibBoard {
