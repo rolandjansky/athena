@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonSetup.py
@@ -23,11 +23,8 @@ else:
    import os
 
    ### Set up some common flags --------------------------------------------------
-
-   ### athenaCommonFlags
-   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-   athenaCommonFlags.isOnline.set_Value_and_Lock(True)
-   del athenaCommonFlags
+   from TrigPSC.PscDefaultFlags import defaultOnlineFlags
+   flags = defaultOnlineFlags()
 
    ### Athena configuration -----------------------------------------------------
    from GaudiPython import *                   # noqa: F401, F403
@@ -101,7 +98,7 @@ else:
 
    ### basic job configuration before user configuration ------------------------
    from TrigServices.TriggerUnixStandardSetup import setupCommonServices
-   setupCommonServices()
+   setupCommonServices(flags)
 
    ### run user jobOptions file -------------------------------------------------
    try:

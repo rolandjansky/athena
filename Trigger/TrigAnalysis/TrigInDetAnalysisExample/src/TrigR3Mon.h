@@ -105,7 +105,7 @@ protected:
   std::string              m_releaseMetaData;
 
   bool m_buildNtuple;
-  bool m_mcTruth;
+  bool m_mcTruthIn;
 
   std::string m_analysis_config;
   std::string m_outputFileName;

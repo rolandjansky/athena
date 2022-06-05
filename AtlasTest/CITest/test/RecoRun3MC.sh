@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Run-3 MC but with AODFULL so it can be used as input to the HLT DQ monitoring.
 # Once ATLASDQ-879 is fixed, this script can be deleted and the test defintion

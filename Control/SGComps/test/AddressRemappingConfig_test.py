@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 """Run tests on AddressRemappingConfig.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from SGComps.AddressRemappingConfig import AddressRemappingCfg, InputRenameCfg, InputOverwriteCfg
-
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 # Construct our accumulator to run
 acc = ComponentAccumulator()

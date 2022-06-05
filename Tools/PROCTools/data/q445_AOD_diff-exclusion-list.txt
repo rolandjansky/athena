@@ -1,0 +1,13 @@
+index_ref
+(.*)_mems(.*)
+(.*)_timings(.*)
+^HLT_(.*)
+^HLTNav_(.*)
+^L1_(.*)
+^LVL1(.*)
+BunchConfKey(.*)
+TrigConfKeys(.*)
+xTrigDecisionAux(.*)
+
+# temporarily excluded
+MuonSegmentsAux(.*)

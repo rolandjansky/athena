@@ -4,28 +4,34 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_JFEXLR_H
-#define TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_JFEXLR_H
+#ifndef TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
+#define TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
 
-#include "./ITrigJetMonitorTool.h"
+#include "TrigJetMonitoring/ITrigJetMonitorTool.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "xAODTrigger/jFexLRJetRoIContainer.h"
 
 #include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 
-class TrigL1FexJetMonitorTool_jFexLR : virtual public AthAlgTool,
+// Template paramter must provide a name T::JetContainer
+template<typename T>
+class TrigL1FexJetMonitorTool : virtual public AthAlgTool,
 				virtual public ITrigJetMonitorTool {
   
 public:
-  using JetContainer = xAOD::jFexLRJetRoIContainer;
+  
+  typedef typename T::JetContainer JetContainer;
     
-  TrigL1FexJetMonitorTool_jFexLR(const std::string&,
+  TrigL1FexJetMonitorTool(const std::string&,
 			  const std::string&,
 			  const IInterface*);
+
+  StatusCode
+  queryInterface( const InterfaceID& riid, void** ppvIf );
+
   
   virtual StatusCode initialize() override;
   

@@ -69,8 +69,6 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     log.setLevel(INFO)
 
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/22.0/v1/myESD.pool.root']

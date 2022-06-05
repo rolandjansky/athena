@@ -182,10 +182,17 @@ public:
 
 
   void initialise() { 
+
     if ( m_tnp_flag ) {
       if ( m_invmass==0 )     m_invmass     = new TIDA::Histogram<float>( monTool(), "invmass" );
       if ( m_invmass_obj==0 ) m_invmass_obj = new TIDA::Histogram<float>( monTool(), "invmass_obj" );
     }
+
+    m_offline_type = "InDetTrackParticles";
+      
+    if ( m_types.size()>1 ) m_provider->msg(MSG::WARNING) << "too many offline reference types: " << m_types.size() << endmsg;
+    else if ( m_types.size()==1 ) m_offline_type = m_types[0]; 
+
   }
 
 
@@ -204,6 +211,8 @@ public:
   void setMCTruthRef( bool b ) { m_mcTruth=b; }
 
   void setOfflineRef( bool b ) { m_doOffline=b; }
+
+  void setTypes( const std::vector<std::string>& t ) { m_types=t; }
 
   void set_monTool( ToolHandle<GenericMonitoringTool>* m ) { m_monTool=m; }
 
@@ -420,7 +429,7 @@ protected:
     m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
 
     if ( !this->select( vertices, "PrimaryVertices" ) ) { 
-      m_provider->msg(MSG::VERBOSE) << "could not retrieve vertex collection " "PrimaryVertices" << std::endl;
+      m_provider->msg(MSG::VERBOSE) << "could not retrieve the 'PrimaryVertices' vertex collection" << std::endl;
     }
 
     /// add the truth particles if needed
@@ -623,19 +632,18 @@ protected:
 	  
     }
 
-    // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
-	
     if ( m_doOffline && !m_mcTruth) {
-	  
-      if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
-	this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, "InDetTrackParticles" );
-	refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( "InDetTrackParticles" );
+
+      if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>( m_offline_type ) ) {
+	this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, m_offline_type );
+	refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( m_offline_type );
       }
       else if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
+	/// do we still want to support Rec::TrackParticles ? Would this even still work ?
 	this->template selectTracks<Rec::TrackParticleContainer>( pselectorRef, "TrackParticleCandidate" );
       }
-      else if ( m_provider->msg().level() <= MSG::WARNING ) {
-	m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
+      else { 
+	m_provider->msg(MSG::WARNING) << " Offline tracks not found: " << m_offline_type << " (nor TrackParticleCandidate)" << endmsg;
       }
 
     }
@@ -1207,6 +1215,9 @@ protected:
   bool m_doBjets;
   bool m_doTauThreeProng;
   bool m_tauEtCutOffline;
+
+  std::string              m_offline_type;
+  std::vector<std::string> m_types;
 
   std::string m_outputFileName;
 

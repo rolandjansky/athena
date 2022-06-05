@@ -24,10 +24,6 @@ def SetupMuonStandaloneArguments():
                                         default= ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root'])
     args = parser.parse_args()
     
-    # Setup for new config
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     return args
     
 def SetupMuonStandaloneConfigFlags(args):

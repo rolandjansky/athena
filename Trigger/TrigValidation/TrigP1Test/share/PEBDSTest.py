@@ -65,7 +65,7 @@ def myMenu():
 Dev_pp_run3_v1.setupMenu = myMenu
 
 # Override the pebInfoWriterTool function from EventBuildingSequences
-def myPebInfoWriterTool(name, eventBuildType):
+def myPebInfoWriterTool(flags, name, eventBuildType):
     log.debug('Executing myPebInfoWriterTool')
     tool = None
     if 'TestPEBOne' in eventBuildType:
@@ -89,7 +89,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool.EtaWidth = 0.1
         tool.PhiWidth = 0.1
         tool.MaxRoIs = 3
-        tool.addRegSelDets(['All'])
+        tool.addRegSelDets(flags, ['All'])
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
         tool.addHLTResultToROBList() # add the main (full) HLT result to the list
@@ -99,7 +99,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.EtaWidth = 0.5
         tool.PhiWidth = 0.5
-        tool.addRegSelDets(['MDT', 'CSC', 'RPC', 'TGC', 'MM', 'sTGC']) # all muon detectors
+        tool.addRegSelDets(flags, ['MDT', 'CSC', 'RPC', 'TGC', 'MM', 'sTGC']) # all muon detectors
         tool.ExtraROBs = []
     elif 'ElectronDSTest' in eventBuildType:
         # ElectronDSTest is an example of pure Data Scouting,
@@ -116,7 +116,7 @@ def myPebInfoWriterTool(name, eventBuildType):
         tool.addHLTResultToROBList(moduleId)
         tool.EtaWidth = 0.3
         tool.PhiWidth = 0.3
-        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
+        tool.addRegSelDets(flags, ['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.ExtraROBs = []
         tool.ExtraSubDets = []
 

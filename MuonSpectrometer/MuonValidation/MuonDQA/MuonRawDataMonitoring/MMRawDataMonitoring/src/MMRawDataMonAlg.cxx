@@ -423,6 +423,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	MMSummaryHistogramStruct sumPlots[2][16][2][2][4]; // side, phi, eta, multilayer, gas gap
 	MMOverviewHistogramStruct overviewPlots;
 	MMByPhiStruct occupancyPlots[16][2]; // sector, side
+	int ntrk=0;
 
 	for(const xAOD::TrackParticle* meTP : *muonContainer) {
 		
@@ -430,18 +431,20 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 
 		auto eta_trk = Monitored::Scalar<float>("eta_trk", meTP->eta());
 		auto phi_trk = Monitored::Scalar<float>("phi_trk", meTP->phi());
+		auto pt_trk = Monitored::Scalar<float>("pt_trk", meTP->pt()/1000.);
 
 		//retrieve the original track
 		const Trk::Track* meTrack = meTP->track();
 		if(!meTrack) continue;
 		// get the vector of measurements on track
 		const DataVector<const Trk::MeasurementBase>* meas = meTrack->measurementsOnTrack();
-
+		bool isMM=false;
 		for(const Trk::MeasurementBase* it : *meas) {
 			const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(it);
 			if(!rot) continue;
 			Identifier rot_id = rot->identify();
 			if(!m_idHelperSvc->isMM(rot_id)) continue;
+			isMM=true;
 			const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
 			if(!cluster) continue;
 
@@ -549,6 +552,10 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 			}//TrackStates
 
 		} // loop on meas
+		if(isMM) {
+		  ++ntrk;
+		  fill("mmMonitor", pt_trk);
+		}
 
 		for(int iside = 0; iside < 2; ++iside) {
 			std::string MM_sideGroup = "MM_sideGroup" + MM_Side[iside];
@@ -584,6 +591,9 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 			Vectors.y_ontrack.push_back(pos.y());
 		}
 	} // loop on muonContainer
+
+	auto ntrack = Monitored::Scalar<int>("ntrk",ntrk);
+	fill("mmMonitor", ntrack);
 
 	auto& vects = overviewPlots;
 	auto stationPhi_CSide_eta1_ontrack = Monitored::Collection("stationPhi_CSide_eta1_ontrack",vects.stationPhi_CSide_eta1_ontrack);
@@ -653,7 +663,8 @@ void MMRawDataMonAlg::MMEfficiency( const xAOD::TrackParticleContainer*  muonCon
 		if (!meTP) continue;
 		auto eta_trk = Monitored::Scalar<float>("eta_trk", meTP->eta());
 		auto phi_trk = Monitored::Scalar<float>("phi_trk", meTP->phi());
-		auto pt_trk = meTP->pt();
+
+		float pt_trk = meTP->pt();
 		if(pt_trk < m_cut_pt) continue;
 		// retrieve the original track
 		const Trk::Track* meTrack = meTP->track();
@@ -718,18 +729,21 @@ void MMRawDataMonAlg::clusterFromSegments(const Trk::SegmentCollection* segms, i
 	MMOverviewHistogramStruct overviewPlots;
   	MMByPhiStruct occupancyPlots[16][2];
   	MMSummaryHistogramStruct summaryPlots[2][16][2][2][4];
+	int nseg=0;
 
   	for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
   		const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
   		if (segment == nullptr) {
   			ATH_MSG_DEBUG("no pointer to segment!!!");
   			break;
-    	}
+		}
+		bool isMM=false;
     	for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++){
     		const Trk::RIO_OnTrack* rot = segment->rioOnTrack(irot);
     		if(!rot) continue;
     		Identifier rot_id = rot->identify();
     		if(!m_idHelperSvc->isMM(rot_id)) continue;
+		isMM=true;
     		const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
     		if(!cluster) continue;
 
@@ -794,8 +808,11 @@ void MMRawDataMonAlg::clusterFromSegments(const Trk::SegmentCollection* segms, i
 				vects.sector_ASide_eta2_onseg.push_back(get_bin_for_occ_ASide_pcb_eta2_hist(stEta,multi,gap,PCB));
       		}
     	} // loop on ROT container                                                                                                                                                                                                           
+	if (isMM==true) ++nseg;
 
-  	} // loop on segment collection                                                                                                                                                                                                
+  	} // loop on segment collection                                                                                                                                                                  
+	auto nsegs = Monitored::Scalar<int>("nseg",nseg);
+	fill("mmMonitor", nsegs);
 
   	auto& vects = overviewPlots;
   	auto stationPhi_CSide_eta1_onseg = Monitored::Collection("stationPhi_CSide_eta1_onseg",vects.stationPhi_CSide_eta1_onseg);
