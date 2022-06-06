@@ -3,15 +3,17 @@
 # Declare the package name:
 atlas_subdir( TrigJetMonitoring )
 
+# Declare all components in the package.
 atlas_add_library( TrigJetMonitoringLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigJetMonitoring
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-		   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel xAODTrigger AthenaMonitoringKernelLib AthenaMonitoringLib)
+   TrigJetMonitoring/*.h
+   INTERFACE
+   PUBLIC_HEADERS TrigJetMonitoring
+   LINK_LIBRARIES GaudiKernel )
 
-		   
 atlas_add_component( TrigJetMonitoring
-                     src/components/*.cxx
-		     LINK_LIBRARIES AthenaKernel GaudiKernel TrigJetMonitoringLib)
+   src/*.h src/*.cxx src/components/*.cxx
+   LINK_LIBRARIES AthenaBaseComps AsgDataHandlesLib xAODTrigger
+   AthenaMonitoringKernelLib AthenaMonitoringLib TrigJetMonitoringLib )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
