@@ -101,23 +101,24 @@ StatusCode MDTHitsTestTool::processEvent() {
 
   if (m_DoMDTTest) {
     const DataHandle<MDTSimHitCollection> p_collection;
-    CHECK(evtStore()->retrieve(p_collection,"MDT_Hits"));
-    for (MDTSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
-      // Check the Hits identifiers, access the functions that give:
-      // Station name, station eta, station phi, multilayer ID, layer ID, tube ID.
-      HitID mdthit= (*i_hit).MDTid();
-      Identifier offid= getIdentifier(mdthit);
-      CHECK(checkIdentifier(offid));
+    if (evtStore()->retrieve(p_collection,"MDT_Hits") == StatusCode::SUCCESS) {
+      for (MDTSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
+        // Check the Hits identifiers, access the functions that give:
+        // Station name, station eta, station phi, multilayer ID, layer ID, tube ID.
+        HitID mdthit= (*i_hit).MDTid();
+        Identifier offid= getIdentifier(mdthit);
+        CHECK(checkIdentifier(offid));
 
 
 
-      // Check Hits
-      // For every hit within the event, get the global position Amg::Vector3D u and then retrieve all releveant info
-      // either from the Amg::Vector3D or from the MC vector (direction)
-      GeoMDTHit ghit(*i_hit);
-      if (!ghit) continue;
-      Amg::Vector3D u = ghit.getGlobalPosition();
-      CHECK(executeFillHistos(u));
+        // Check Hits
+        // For every hit within the event, get the global position Amg::Vector3D u and then retrieve all releveant info
+        // either from the Amg::Vector3D or from the MC vector (direction)
+        GeoMDTHit ghit(*i_hit);
+        if (!ghit) continue;
+        Amg::Vector3D u = ghit.getGlobalPosition();
+        CHECK(executeFillHistos(u));
+      }
     }
   }
 
