@@ -1314,7 +1314,7 @@ HanConfigGroup: evens
 HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[02468]@1
   Algorithm Name = "AlgCheckMean"
   Algorithm Library = "libDataQualityInterfacesAlgs.so"
-  Algorithm Reference = "reference-000000101"
+  Algorithm Reference = "reference-000000102"
   Weight = 1
   Is a regular expression
   Algorithm Limits = {
@@ -1337,7 +1337,7 @@ HanConfigGroup: odds
 HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[13579]@1
   Algorithm Name = "AlgCheckMean"
   Algorithm Library = "libDataQualityInterfacesAlgs.so"
-  Algorithm Reference = "reference-000000103"
+  Algorithm Reference = "reference-000000104"
   Weight = 1
   Is a regular expression
   Algorithm Limits = {
@@ -1376,7 +1376,7 @@ HanConfigGroup: digit_${firstdigit}
 HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_(?P<firstdigit>\d).*@2
   Algorithm Name = "AlgCheckMean"
   Algorithm Library = "libDataQualityInterfacesAlgs.so"
-  Algorithm Reference = "reference-000000100"
+  Algorithm Reference = "reference-000000101"
   Weight = 1
   Is a regular expression
   Algorithm Limits = {
@@ -1399,7 +1399,7 @@ HanConfigGroup: evens
 HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[02468]@3
   Algorithm Name = "AlgCheckMean"
   Algorithm Library = "libDataQualityInterfacesAlgs.so"
-  Algorithm Reference = "reference-000000102"
+  Algorithm Reference = "reference-000000103"
   Weight = 1
   Is a regular expression
   Algorithm Limits = {
@@ -1412,6 +1412,23 @@ HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[02468]@3
 <<  END ASSESSMENTS of "evens"
 
 <<  END SUB REGIONS of "${dirgroup}"
+
+>>  BEGIN ASSESSMENTS of "${dirgroup}"
+
+HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_(?P<firstdigit>\d)(?P=firstdigit).*@4
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000009"
+  Weight = 1
+  Is a regular expression
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/(?P<dirgroup>G.*)/gaus_(?P<firstdigit>\d)(?P=firstdigit).*
+  }
+
+<<  END ASSESSMENTS of "${dirgroup}"
 
 <<  END SUB REGIONS of "splitByDigit"
 

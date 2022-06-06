@@ -639,7 +639,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
                     std::cerr << "same_name appears twice in a reference request???" << std::endl;
                   } else {
                     // change Python to Boost syntax for named captures
-                    boost::regex re(boost::replace_all_copy(absAlgRefName, "(?P", "(?"));
+                    std::string regexPattern = boost::regex_replace(absAlgRefName, boost::regex("\\(\\?P=([^)]*)\\)"), "\\\\k<\\1>", boost::format_all);
+                    boost::regex re(boost::replace_all_copy(regexPattern, "(?P", "(?"));
                     EnsureKeyCache(algRefFile);
                     for (const auto& iKey: m_keycache[algRefFile]) {
                       if (boost::regex_match(iKey, re)) {
