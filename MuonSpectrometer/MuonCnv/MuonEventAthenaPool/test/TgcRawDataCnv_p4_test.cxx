@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file MuonEventAthenaPool/test/TgcRawDataCnv_p3_test.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Nov, 2016
+ * @file MuonEventAthenaPool/test/TgcRawDataCnv_p4_test.cxx
+ * @author Toshi.Sumida@cern.ch
+ * @date May, 2022
  * @brief Regression tests.
  */
 
 #undef NDEBUG
-#include "../src/TgcRawDataCnv_p3.h"
+#include "../src/TgcRawDataCnv_p4.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -68,8 +68,8 @@ void compare (const TgcRawData& p1,
 void testit (const TgcRawData& trans1)
 {
   MsgStream log (nullptr, "test");
-  TgcRawDataCnv_p3 cnv;
-  TgcRawData_p3 pers;
+  TgcRawDataCnv_p4 cnv;
+  TgcRawData_p4 pers;
   cnv.transToPers (&trans1, &pers, log);
   TgcRawData trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -109,9 +109,20 @@ void test1()
   testit (trans5);
 
   // sector logic
-  TgcRawData trans6 (71, 72, 73, 74, 75, false, true, 76, 77, false,
+  TgcRawData trans6 (71, 72, 73, 74, 75, static_cast<bool>(false), static_cast<bool>(true), 76, 77, false,
                      78, true, false, 79);
   testit (trans6);
+
+  // new sector logic roi
+  TgcRawData trans7 (81, 82, 83, 84, 85, true, 86, 87, 88, false,
+                     89, 90);
+  testit (trans7);
+
+  // nsw
+  TgcRawData trans8 (91, 92, 93, 94, static_cast<uint16_t>(95), static_cast<bool>(true), static_cast<uint16_t>(96), 97,
+                     98, 99, 100, 101, 102, 103);
+  testit (trans8);
+
 }
 
 
