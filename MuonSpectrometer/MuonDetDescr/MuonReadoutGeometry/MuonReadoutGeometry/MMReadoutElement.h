@@ -286,7 +286,6 @@ namespace MuonGM {
         // Get the nearest strip number; not the time yet to check boundaries (in case of tolerance) 
         int stripNo = stripNumber(locpos, id);
         if (stripNo < 0) stripNo = (locpos.x()<0) ? 1 : design->totalStrips;
-        Identifier channelId = manager()->mmIdHelper()->channelID(id, m_ml, manager()->mmIdHelper()->gasGap(id), stripNo);
 
         // ** Horizontal passivation: mask entire strips
         //==============================================
