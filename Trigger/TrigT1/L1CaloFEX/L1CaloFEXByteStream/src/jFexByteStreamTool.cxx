@@ -34,7 +34,7 @@ struct color {
     std::string B_GRAY   ="\033[1;100m";
     std::string B_RED    ="\033[1;41m";
     std::string B_GREEN  ="\033[1;42m";
-} /*C*/;
+} const C;
 
 jFexByteStreamTool::jFexByteStreamTool(const std::string& type,
         const std::string& name,
@@ -66,6 +66,14 @@ StatusCode jFexByteStreamTool::initialize() {
     ATH_MSG_DEBUG((jTaumode==ConversionMode::Encoding ? "Encoding" : "Decoding") << " jTau ROB IDs: "
                   << MSG::hex << m_robIds.value() << MSG::dec);
 
+    // Conversion mode for jEM TOBs
+    ConversionMode jEMmode = getConversionMode(m_jEMReadKey, m_jEMWriteKey, msg());
+    ATH_CHECK(jEMmode!=ConversionMode::Undefined);
+    ATH_CHECK(m_jEMWriteKey.initialize(jEMmode==ConversionMode::Decoding));
+    ATH_CHECK(m_jEMReadKey.initialize(jEMmode==ConversionMode::Encoding));
+    ATH_MSG_DEBUG((jEMmode==ConversionMode::Encoding ? "Encoding" : "Decoding") << " jEM ROB IDs: "
+                  << MSG::hex << m_robIds.value() << MSG::dec);
+
     // Conversion mode for jTE TOBs
     ConversionMode jTEmode = getConversionMode(m_jTEReadKey, m_jTEWriteKey, msg());
     ATH_CHECK(jTEmode!=ConversionMode::Undefined);
@@ -83,7 +91,7 @@ StatusCode jFexByteStreamTool::initialize() {
                   << MSG::hex << m_robIds.value() << MSG::dec);
     
     //checking all Conversion modes.. avoid misconfigurations
-    const std::array<ConversionMode,4> modes{jLJmode,jTaumode,jTEmode,jXEmode};
+    const std::array<ConversionMode,5> modes{jLJmode,jTaumode,jEMmode,jTEmode,jXEmode};
     if (std::any_of(modes.begin(),modes.end(),[&jJmode](ConversionMode m) { return m!=jJmode;  } )) {
         ATH_MSG_ERROR("Inconsistent conversion modes");
         return StatusCode::FAILURE;
@@ -98,7 +106,6 @@ StatusCode jFexByteStreamTool::initialize() {
 StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vrobf, const EventContext& ctx) const {
     
     //std::cout<<C.RED<<"SERGI"<<C.END<<std::endl;
-    
     
     //WriteHandle for jFEX EDMs
     
@@ -116,6 +123,11 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
     SG::WriteHandle<xAOD::jFexTauRoIContainer> jTauContainer(m_jTauWriteKey, ctx);
     ATH_CHECK(jTauContainer.record(std::make_unique<xAOD::jFexTauRoIContainer>(), std::make_unique<xAOD::jFexTauRoIAuxContainer>()));
     ATH_MSG_DEBUG("Recorded jFexTauRoIContainer with key " << jTauContainer.key());      
+    
+    //---EM EDM
+    SG::WriteHandle<xAOD::jFexFwdElRoIContainer> jEMContainer(m_jEMWriteKey, ctx);
+    ATH_CHECK(jEMContainer.record(std::make_unique<xAOD::jFexFwdElRoIContainer>(), std::make_unique<xAOD::jFexFwdElRoIAuxContainer>()));
+    ATH_MSG_DEBUG("Recorded jFexFwdElRoIContainer with key " << jEMContainer.key());      
     
     //---SumET EDM
     SG::WriteHandle<xAOD::jFexSumETRoIContainer> jTEContainer(m_jTEWriteKey, ctx);
@@ -137,10 +149,16 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
         //ATH_MSG_DEBUG("Starting to decode " << ndata << " ROD words from ROB 0x" << std::hex << rob->rob_source_id() << std::dec);
         //std::cout<< "Starting to decode " << rob->rod_ndata() << " ROD words from ROB 0x" << std::hex << rob->rob_source_id() << std::dec << std::endl;
         
+        //There is no data to decode.. not even the ROD trailers
+        if(rob->rod_ndata() <= 0){
+            //printf("ERROR No ROD words read. rob->rod_ndata() =%3d  \n",rob->rod_ndata());
+            continue;
+        }
+        
         const auto dataArray = CxxUtils::span{rob->rod_data(), rob->rod_ndata()};
         std::vector<uint32_t> vec_words(dataArray.begin(),dataArray.end());
 
-/* for debug
+/*
         int aux = 1; //delete, for debug
         for (const uint32_t word : vec_words) {
 
@@ -163,8 +181,23 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
             const auto [n_xjJ, n_xjLJ, n_xjTau, n_xjEM]           = xTOBCounterTrailer( vec_words.at(trailers_pos-3) );    
             const auto [n_jJ, n_jLJ, n_jTau, n_jEM, n_jTE, n_jXE] = TOBCounterTrailer ( vec_words.at(trailers_pos-4) );
             //printf("----------> trailer_pos:%3d payload:%3d  fpga:%3d  jfex:%3d\n",trailers_pos,payload,fpga,jfex);
-            //printf("xTOBs:  xjJ:%3d  xjLJ:%3d  xjTau:%3d  xjEM:%3d\n",n_xjJ,n_xjLJ,n_xjTau,n_xjEM);
-            //printf(" TOBs:   jJ:%3d   jLJ:%3d   jTau:%3d   jEM:%3d   jTE:%3d   jXE:%3d\n",n_jJ,n_jLJ,n_jTau,n_jEM,n_jTE,n_jXE);    
+            //printf(" TOBs(0x%08x):   jJ:%3d   jLJ:%3d   jTau:%3d   jEM:%3d   jTE:%3d   jXE:%3d\n",vec_words.at(trailers_pos-4),n_jJ,n_jLJ,n_jTau,n_jEM,n_jTE,n_jXE);  
+            //printf("xTOBs(0x%08x):  xjJ:%3d  xjLJ:%3d  xjTau:%3d  xjEM:%3d\n",vec_words.at(trailers_pos-3),n_xjJ,n_xjLJ,n_xjTau,n_xjEM);
+            
+            if(jfex == 5 or jfex == 0){
+                trailers_pos -= (payload+2);
+                if(trailers_pos == 0) {
+                    READ_TOBS = false;
+                }
+                continue;
+            }  
+            
+            //The minimum number for the payload should be 2 (The TOB/xTOB counters). If lower send an error message
+            if(payload < jBits::TOB_TRAILERS){
+                //printf("ERROR Payload is lower than the TOB/xTOB trailers. (Payload = %3d < %3d = TOB Trailer) \n",payload,jBits::TOB_TRAILERS);
+                break;
+            }
+            
             
             //There can be a padding word, even number in the payload, but odd number of xTOB and TOB.. need to check and remove the extra word.
             unsigned int total_tobs = n_xjJ + n_xjLJ + n_xjTau + n_xjEM + n_jJ + n_jLJ + n_jTau + n_jEM + n_jTE + n_jXE;
@@ -181,10 +214,12 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
             /************************************************** DECODING xTOBS **************************************************/
             //saving xjEM into the EDM container
             //printf("**** %7s:  %3d  ****\n","n_xjEM",n_xjEM);
-/*            for(unsigned int i=tobIndex; i>tobIndex-n_xjEM; i--){
+            for(unsigned int i=tobIndex; i>tobIndex-n_xjEM; i--){
                 //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
+                jEMContainer->push_back( std::make_unique<xAOD::jFexFwdElRoI>() );
+                jEMContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,0 , 200, -99, -99);                
             }
-*/            //removing xjEM counter from TOBs
+            //removing xjEM counter from TOBs
             tobIndex -= n_xjEM;
             
             //saving xjTau into the EDM container
@@ -252,10 +287,12 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
             
             //saving jEM into the EDM container
             //printf("**** %7s:  %3d  ****\n","n_jEM",n_jEM);
-/*            for(unsigned int i=tobIndex; i>tobIndex-n_jEM; i--){
+            for(unsigned int i=tobIndex; i>tobIndex-n_jEM; i--){
                 //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
+                jEMContainer->push_back( std::make_unique<xAOD::jFexFwdElRoI>() );
+                jEMContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,0 , 200, -99, -99);          
             }
-*/            //removing jEM counter from TOBs
+            //removing jEM counter from TOBs
             tobIndex -= n_jEM;
             
             //saving jTau into the EDM container
