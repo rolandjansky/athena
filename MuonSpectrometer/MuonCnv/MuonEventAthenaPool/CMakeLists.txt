@@ -109,9 +109,11 @@ foreach( name
     TgcRawDataCnv_p1_test
     TgcRawDataCnv_p2_test
     TgcRawDataCnv_p3_test
+    TgcRawDataCnv_p4_test
     TgcRdoCnv_p1_test
     TgcRdoCnv_p2_test
-    TgcRdoCnv_p3_test )
+    TgcRdoCnv_p3_test
+    TgcRdoCnv_p4_test )
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
