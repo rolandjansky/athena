@@ -437,6 +437,11 @@ public:
   void associateLayer(const Layer& lay);
 
 protected:
+  /** Helper method to factorize in one place common operations
+  calculate inverse transofrm and multiply with position */
+  Amg::Transform3D inverseTransformHelper() const;
+  Amg::Vector3D inverseTransformMultHelper(const Amg::Vector3D& glopos) const;
+
   friend class ::SurfaceCnv_p1;
 
   //!< Unique Pointer to the Transforms struct*/
