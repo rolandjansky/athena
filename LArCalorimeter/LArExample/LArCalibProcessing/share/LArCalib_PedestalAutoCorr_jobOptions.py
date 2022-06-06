@@ -16,8 +16,10 @@ import subprocess
 
 if not "SuperCells" in dir():
    SuperCells=False
-#if not 'SC_SampleShift' in dir():
-#   SC_SampleShift=0
+
+if not "realGeometry" in dir():
+   realGeometry=False
+
 
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
@@ -370,6 +372,8 @@ else:
    theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
    theLArRawCalibDataReadingAlg.LArAccDigitKey=Gain
    theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+   #temporarily
+   theLArRawCalibDataReadingAlg.FailOnCorruption=False
 
    topSequence+=theLArRawCalibDataReadingAlg
 
@@ -695,6 +699,9 @@ if ( WriteNtuple ) :
       if SuperCells:
          LArPedestals2Ntuple.CablingKey = "LArOnOffIdMapSC"
          LArPedestals2Ntuple.CalibMapKey = "LArCalibIdMapSC"
+      if realGeometry:
+         LArPedestals2Ntuple.RealGeometry = True
+         LArPedestals2Ntuple.OffId = True
 
       topSequence += LArPedestals2Ntuple
 
@@ -710,6 +717,10 @@ if ( WriteNtuple ) :
       if SuperCells:
          LArAutoCorr2Ntuple.CablingKey = "LArOnOffIdMapSC"
          LArAutoCorr2Ntuple.CalibMapKey = "LArCalibIdMapSC"
+      if realGeometry:
+         LArAutoCorr2Ntuple.RealGeometry = True
+         LArAutoCorr2Ntuple.OffId = True
+
       topSequence += LArAutoCorr2Ntuple
 
    theApp.HistogramPersistency = "ROOT"

@@ -31,18 +31,6 @@ class LArOFPeakRecoTool: public AthAlgTool
 {
  public:
 
-  /*
-  struct Result{
-    Result(): valid(false),converged(false) {}  
-    bool  valid;
-    bool  converged;
-    float amplitude;  //in ADC counts	
-    float tau;        //in ns
-    float quality;  
-    float delay;      //in ns
-    unsigned peakSample;
-  } ; 
-  */
   typedef LArOFIterResults Result;
   // constructor
   LArOFPeakRecoTool(const std::string& type, 

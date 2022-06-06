@@ -166,7 +166,7 @@ StatusCode LArCalibDigitMaker::execute() {
    }
    if (!m_pulsedChids.empty()) m_pulsedChids.clear();
    //Iterate over LArDigitContainer and build LArCalibDigitContainer
-   LArCalibDigitContainer* calibDigitContainer=new LArCalibDigitContainer();
+   auto calibDigitContainer=std::make_unique<LArCalibDigitContainer>();
    calibDigitContainer->setDelayScale(m_delayScale);
    for (const LArDigit* digit : *larDigitCont) {
      HWIdentifier chid=digit->hardwareID();
@@ -194,6 +194,7 @@ StatusCode LArCalibDigitMaker::execute() {
      }
      uint16_t dac=ddac;
      uint16_t delay=calibParams->Delay(eventNb,*csl_it);
+
      bool ispulsed=false;
      for(; csl_it != calibChannelIDs.end(); ++csl_it) {
        if(calibParams->isPulsed(eventNb,*csl_it)){
@@ -203,14 +204,14 @@ StatusCode LArCalibDigitMaker::execute() {
      }
      //build LArCalibDigit:
      if ( ispulsed ){
-       ATH_MSG_DEBUG("HERE!! "<<chid<<" "<<gain<<" "<<dac<<" "<<delay<<" "<<ispulsed<<" event no "<<eventNb<<" "<<calibChannelIDs.size()<<" calib lines, first is "<<*csl_it);
+       ATH_MSG_VERBOSE("HERE!! "<<chid<<" "<<gain<<" "<<dac<<" "<<delay<<" "<<ispulsed<<" event no "<<eventNb<<" "<<calibChannelIDs.size()<<" calib lines, first is "<<*csl_it);
 
      }
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
    ATH_MSG_DEBUG("Trying to store with key "<<key);
-   ATH_CHECK( evtStore()->record(calibDigitContainer,key) );
+   ATH_CHECK( evtStore()->record(std::move(calibDigitContainer),key) );
    ATH_MSG_DEBUG ("LArCalibDigitContainer recorded to StoreGate. key=" << key );
  } //End loop key list
  return StatusCode::SUCCESS;

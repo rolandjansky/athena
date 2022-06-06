@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveBuilder.h"
@@ -41,7 +41,7 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  declareProperty("CheckEmptyPhases",       m_checkEmptyPhases=false);
  declareProperty("RecAllCells",            m_recAll=false);
  declareProperty("UsePattern",             m_usePatt=-1);
- declareProperty("NumPattern",             m_numPatt=16); // fix me - is it possible to get from outside ?
+ declareProperty("UseParams",              m_useParams=false); // Read LArCalibParams from DetStore ?
  declareProperty("isSC",                   m_isSC=false);
 
 
@@ -84,15 +84,8 @@ StatusCode LArCaliWaveBuilder::initialize()
   if (m_checkEmptyPhases)
     ATH_MSG_INFO( "Empty phases check selected." );  
 
-  //Get pedestal from DetStore
-  if (m_pedSub) {
-    ATH_MSG_INFO( "Pedestal subtraction selected." );  
-    sc=detStore()->regHandle(m_larPedestal,"Pedestal");
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot register data handle for LArPedestal object!" );
-      return sc;
-    }
-  }
+  //Get pedestal from CondStore
+  ATH_CHECK( m_pedKey.initialize(m_pedSub) );
   
   //Get Online helper from DetStore
   if ( m_isSC ) {
@@ -110,24 +103,49 @@ StatusCode LArCaliWaveBuilder::initialize()
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_cablingKeySC.initialize(m_isSC) );
 
+  if(m_usePatt >= 0 && !m_useParams) {
+     ATH_MSG_ERROR("Inconsistent configuration, for UsePattern > 0 the  UseParams must be true");
+     return StatusCode::FAILURE;
+  }
   
+  ATH_CHECK( m_calibMapKey.initialize(m_useParams) );
+
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArCaliWaveBuilder::execute() 
 {
- if(m_usePatt >= 0) { // we have to check in which event we are, reading only ones corresponding
+ // using EvtId
+ const EventContext& ctx = getContext();
+ m_event_counter=ctx.eventID().event_number();
+
+ const LArCalibParams* calibParams = nullptr;
+ const LArCalibLineMapping *clcabling=nullptr;
+ if(m_useParams) { // we have to check in which event we are, reading only ones corresponding
                       // to our pattern
-    if(static_cast<int>(m_event_counter % m_numPatt) != m_usePatt) {
-       m_event_counter++ ;
+    ATH_CHECK(detStore()->retrieve(calibParams,"LArCalibParams"));
+    unsigned numPatt=calibParams->getNumberPatterns(HWIdentifier(0));
+
+    int counter=m_event_counter;
+    if(m_useAccumulatedDigits) counter /= calibParams->NTrigger(HWIdentifier(1007091712));
+    if(m_usePatt >= 0 && static_cast<int>(counter % numPatt) != m_usePatt) {
        return StatusCode::SUCCESS;
     }
+    ATH_MSG_DEBUG("Good event "<<m_event_counter<<" for pattern " << m_usePatt << " out of " << numPatt << " patterns " << calibParams->NTrigger(HWIdentifier(1007091712)) <<" triggers ");
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey, ctx};
+    clcabling =*clHdl;
+    if(!clcabling) {
+       ATH_MSG_WARNING( "Do not have calib line mapping from key " << m_calibMapKey.key() );
+       return StatusCode::FAILURE;
+    }
+
  }
 
  if ( m_event_counter < 1000 || m_event_counter%100==0 ) 
     ATH_MSG_INFO( "Processing event " << m_event_counter );
- m_event_counter++ ;
  
  if (m_keylist.size()==0) {
    ATH_MSG_ERROR( "Key list is empty! No containers to process!" );
@@ -137,12 +155,12 @@ StatusCode LArCaliWaveBuilder::execute()
 
  // execute() method...
  if (m_useAccumulatedDigits)
-   return executeWithAccumulatedDigits();
+   return executeWithAccumulatedDigits(calibParams, clcabling);
  else
-   return executeWithStandardDigits();
+   return executeWithStandardDigits(calibParams, clcabling);
 }
 
-StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
+StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits(const LArCalibParams* calibParams, const LArCalibLineMapping* clcabling)
 {
  StatusCode sc;
 
@@ -174,7 +192,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      }
    }
    else
-     if (m_event_counter==1)
+     if (m_event_counter==0)
        ATH_MSG_WARNING( "No FebErrorSummaryObject found! Feb errors not checked!" );
  
    HWIdentifier  lastFailedFEB(0);
@@ -182,7 +200,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
    LArAccumulatedCalibDigitContainer::const_iterator it_end=larAccumulatedCalibDigitContainer->end();
 
    if (it == it_end) {
-     ATH_MSG_DEBUG("LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty ");
+      ATH_MSG_DEBUG("LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty ");
       continue; // at this event LArAccumulatedCalibDigitContainer is empty, do not even try to loop on it...
    }
    
@@ -191,14 +209,21 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 
    for (;it!=it_end; ++it) { // Loop over all cells
 
-     if ( (!m_recAll) && (!(*it)->isPulsed()) ) {
-        ATH_MSG_DEBUG( "Non pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) ); 
+     bool ispulsed=false;
+     if(m_useParams && calibParams) { // got LArCalibParams from DetStore
+        const std::vector<HWIdentifier>& calibLineLeg = clcabling->calibSlotLine((*it)->hardwareID());
+        for (const HWIdentifier &calibLineHWID : calibLineLeg) {// loop calib lines
+            ispulsed |= calibParams->isPulsed(m_event_counter,calibLineHWID);
+        }
+     } else {
+        ispulsed=(*it)->isPulsed();
+     }
+     if ( (!m_recAll) && !ispulsed ) {
+        ATH_MSG_DEBUG( "Non pulsed cell " << m_onlineID->channel_name((*it)->hardwareID())<<" in evt. "<<m_event_counter ); 
         continue; // Check if cell is pulsed
      }
      HWIdentifier chid=(*it)->hardwareID();
      HWIdentifier febid=m_onlineID->feb_Id(chid);
-     ATH_MSG_DEBUG( "Pulsed cell " << m_onlineID->channel_name(chid) ); 
-     ATH_MSG_DEBUG( "with " << (*it)->sampleSum().size() << " samples " << (*it)->DAC() << " DAC " << (*it)->delay() << " delay " << (*it)->isPulsed(1) << " line 1 pulsed " ); 
      if (febErrSum) {
        const uint16_t febErrs=febErrSum->feb_error(febid);
        if (febErrs & m_fatalFebErrorPattern) {
@@ -233,22 +258,48 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 
      WaveMap& waveMap = m_waves.get(chid,gain);
 
-     //make dac and Pulsed which has dac and four bits of is pulsed info
+     //make dacPulsed which has dac and four bits of is pulsed info
+     int dacPulsed;
+     float delay = (*it)->delay();
      int dac=(*it)->DAC();
-     int pulsed=0;
      int index;
-     for(int iLine=1;iLine<5;iLine++){
-       if((*it)->isPulsed(iLine)){
-	 ATH_MSG_DEBUG("GR: line pulsed true, line="<<iLine);
-	 pulsed=(pulsed | (0x1 << (15+iLine)));
-       }
+     int pulsed=0;
+     if(m_useParams && calibParams && clcabling) { // get LArCalibParams from DetStore
+        const std::vector<HWIdentifier>& calibLineLeg = clcabling->calibSlotLine((*it)->hardwareID());
+        if(calibLineLeg.size()==0) {
+           ATH_MSG_WARNING("Why do not have calib lines for "<<(*it)->hardwareID()<<" ?");
+           continue;
+        }      
+        dac=calibParams->DAC(m_event_counter,calibLineLeg[0]);
+        dacPulsed=dac;
+        delay = calibParams->Delay(m_event_counter,calibLineLeg[0]);
+        for (unsigned i=0; i<calibLineLeg.size(); ++i) {// loop calib lines
+           if(calibParams->isPulsed(m_event_counter,calibLineLeg[i])){
+	      ATH_MSG_DEBUG("GR: line pulsed true, line="<<i+1);
+	      dacPulsed=(dacPulsed | (0x1 << (15+i+1)));
+              pulsed=(pulsed | (0x1 << (15+i+1)));
+           }
+
+        }
+     } else {
+        dacPulsed=(*it)->DAC();
+        for(int iLine=1;iLine<5;iLine++){
+           if((*it)->isPulsed(iLine)){
+	      ATH_MSG_DEBUG("GR: line pulsed true, line="<<iLine);
+	      dacPulsed=(dacPulsed | (0x1 << (15+iLine)));
+              pulsed=(pulsed | (0x1 << (15+iLine)));
+           }
+        }
      }
+
      if(m_useDacAndIsPulsedIndex){//switch used to turn on the option to have indexs that are DAC and isPulsed info
-       index = (dac&0xFFFF) | (pulsed<<16);
-     }
-     else{
-       index = (*it)->DAC();
-     }
+       index = dacPulsed;
+     } else {
+       index = dac;
+     } 
+
+     ATH_MSG_DEBUG( "Pulsed cell " << m_onlineID->channel_name(chid) << " gain: "<<gain ); 
+     ATH_MSG_DEBUG( "with " << (*it)->sampleSum().size() << " samples " << index << " DAC " << delay << " delay " << dacPulsed << " dacPulsed " ); 
 
      WaveMap::iterator itm = waveMap.find(index);
      
@@ -258,7 +309,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
        itm = (waveMap.insert(WaveMap::value_type(index,wave))).first;
        ATH_MSG_DEBUG("index: "<<index<<" new wave inserted");
      }
-     (*itm).second.addAccumulatedEvent((int)roundf((*it)->delay()/deltaDelay), m_NStep, 
+     (*itm).second.addAccumulatedEvent(int(std::roundf(delay/deltaDelay)), m_NStep, 
 	                                samplesum, sample2sum, (*it)->nTriggers());
      
    } //End loop over all cells
@@ -268,7 +319,7 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
 }
 
 
-StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
+StatusCode LArCaliWaveBuilder::executeWithStandardDigits(const LArCalibParams* calibParams, const LArCalibLineMapping* clcabling)
 {
  StatusCode sc;
 
@@ -298,7 +349,20 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
    
    for (;it!=it_end; ++it) { // Loop over all cells
 
-     if ((!m_recAll) &&  !(*it)->isPulsed() ) continue ; // Check if cell is pulsed
+     bool pulsed=false;
+     int dac = (*it)->DAC();
+     float delay= (*it)->delay();
+     if(m_useParams && calibParams && clcabling) { // get LArCalibParams from DetStore
+        const std::vector<HWIdentifier>& calibLineLeg = clcabling->calibSlotLine((*it)->hardwareID());
+        dac=calibParams->DAC(m_event_counter,calibLineLeg[0]); // assuming all calib. boards configured equally
+        delay = calibParams->Delay(m_event_counter,calibLineLeg[0]);
+        for (const HWIdentifier &calibLineHWID : calibLineLeg) {// loop calib lines
+            pulsed |= calibParams->isPulsed(m_event_counter,calibLineHWID);
+        }
+     } else {
+        pulsed=(*it)->isPulsed();
+     }
+     if ((!m_recAll) &&  !pulsed ) continue ; // Check if cell is pulsed
         
      HWIdentifier chid=(*it)->hardwareID(); 
      CaloGain::CaloGain gain=(*it)->gain();
@@ -314,15 +378,15 @@ StatusCode LArCaliWaveBuilder::executeWithStandardDigits()
        samples.push_back((double)(sample));
 
      WaveMap& waveMap = m_waves.get(chid,gain);
-     WaveMap::iterator itm = waveMap.find((*it)->DAC());
+     WaveMap::iterator itm = waveMap.find(dac);
      
      if ( itm == waveMap.end() ) { // A new LArCaliWave is booked     
-       LArCaliWave wave(samples.size()*m_NStep, m_dt, (*it)->DAC(),0x1);
+       LArCaliWave wave(samples.size()*m_NStep, m_dt, dac,0x1);
        wave.setFlag( LArWave::meas );
-       itm = (waveMap.insert(WaveMap::value_type((*it)->DAC(),wave))).first;
+       itm = (waveMap.insert(WaveMap::value_type(dac,wave))).first;
      }
      
-     (*itm).second.addEvent((int)roundf((*it)->delay()/deltaDelay), m_NStep, samples);
+     (*itm).second.addEvent((int)roundf(delay/deltaDelay), m_NStep, samples);
      
    } //End loop over all cells
  } //End loop over all containers
@@ -350,9 +414,10 @@ StatusCode LArCaliWaveBuilder::stop()
       return sc;
     }
     
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     const LArOnOffIdMapping* cabling(0);
     if( m_isSC ){
-      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC, ctx};
       cabling = {*cablingHdl};
       if(!cabling) {
 	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
@@ -360,15 +425,19 @@ StatusCode LArCaliWaveBuilder::stop()
       }
       
     }else{
-      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
       cabling = {*cablingHdl};
       if(!cabling) {
 	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
 	return StatusCode::FAILURE;
       }
     }
-    
-
+    SG::ReadCondHandle<ILArPedestal> pedHdl{m_pedKey, ctx};
+    const ILArPedestal* larPedestal{*pedHdl};
+    if(m_pedSub && !larPedestal) {
+        ATH_MSG_DEBUG("No pedestal(s) found ");
+        ATH_MSG_INFO( "Using fake (baseline) pedestal subtraction..." );  
+    }
 
     LArWaveHelper wHelper;
     int NCaliWave=0;
@@ -437,8 +506,8 @@ StatusCode LArCaliWaveBuilder::stop()
 		float pedAve = 0.;
        
 		if ( m_pedSub ) {
-		    if ( m_larPedestal.isValid() ) {	      
-			float pedestal = m_larPedestal->pedestal(chid,gain);
+		    if ( larPedestal ) {	      
+			float pedestal = larPedestal->pedestal(chid,gain);
 			if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
 			  ATH_MSG_DEBUG("No pedestal(s) found for channel 0x" << MSG::hex << chid << MSG::dec);
 			  ATH_MSG_INFO( "Using fake (baseline) pedestal subtraction..." );  
@@ -447,8 +516,6 @@ StatusCode LArCaliWaveBuilder::stop()
 			    pedAve = pedestal;
 			}
 		    } else {
-		      ATH_MSG_DEBUG("No pedestal(s) found for channel 0x" << MSG::hex << chid << MSG::dec);
-		      ATH_MSG_INFO( "Using fake (baseline) pedestal subtraction..." );  
 		      pedAve = wHelper.getBaseline(thisWave,m_baseline) ;	
 		    }
 		    ATH_MSG_DEBUG("Pedestal for channel 0x" << MSG::hex << chid << MSG::dec << " is = " << pedAve << " ADC");

@@ -19,7 +19,10 @@ from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.Calo_setOn()  #Switched back  geometry
+if 'realGeometry' in dir() and realGeometry:
+   DetFlags.Calo_setOn()  
+else:
+   DetFlags.Calo_setOff()  #Switched off to avoid geometry
 DetFlags.ID_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()

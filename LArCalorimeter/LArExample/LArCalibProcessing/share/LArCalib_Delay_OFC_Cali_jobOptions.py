@@ -109,11 +109,11 @@ if not 'allCells' in dir():
 if not 'usePatt' in dir():
    usePatt = -1
 
-if not 'numPatt' in dir():
-   if 'EMB' in Partition:
-      numPatt = 16
-   else:
-      numPatt = 14
+if 'useParams' not in dir():
+   useParams = False
+
+if useParams and 'paramsFile' not in dir():
+   paramsFile = 'LArCalibProcessing/LArCalib_CalibrationPatterns.py'
 
 #######################################################
 #                Monitoring properties
@@ -393,6 +393,8 @@ DelayOFCLog.info( " ======================================================== " )
 include ("LArConditionsCommon/LArMinimalSetup.py")
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
 LArOnOffIdMapping()
+from LArCabling.LArCablingAccess import LArCalibIdMapping
+LArCalibIdMapping()
 if SuperCells:
   from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC,LArLATOMEMappingSC
   LArOnOffIdMappingSC()
@@ -599,7 +601,7 @@ if (SubtractPed):
          PedestalTagSpec = LArCalibFolderTag (PedestalFolder,PedLArCalibFolderTag)
          PedChannelSelection=ChannelSelection
          
-      conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+PedChannelSelection)
+      conddb.addFolder("",PedestalFolder+"<tag>"+PedestalTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPed+"</dbConnection>"+PedChannelSelection,className="LArPedestalComplete")
    else:
       if 'InputPedPoolFileName' in dir():
          DelayOFCLog.info( "Read Pedestal from POOL file") 
@@ -651,7 +653,9 @@ LArCaliWaveBuilder.UseDacAndIsPulsedIndex = False # should have an impact only f
 LArCaliWaveBuilder.RecAllCells      = RecAllCells
 LArCaliWaveBuilder.isSC       = SuperCells
 LArCaliWaveBuilder.UsePattern = usePatt
-LArCaliWaveBuilder.NumPattern = numPatt
+LArCaliWaveBuilder.UseParams  = useParams
+if useParams:
+   include(paramsFile) 
 
 if StripsXtalkCorr:
    LArCaliWaveBuilder.ADCsaturation = 0

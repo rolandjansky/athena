@@ -5,6 +5,8 @@
 #include "LArCalibTools/LArAverages2Ntuple.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
   LArCond2NtupleBase(name, pSvcLocator)
@@ -12,6 +14,8 @@ LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSv
   declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_Nsamples=50);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
+  declareProperty("KeepFT",m_keepFT);
+  declareProperty("isSC",m_isSC=false);
   m_ipass=0;
 }
 
@@ -22,6 +26,42 @@ LArAverages2Ntuple::~LArAverages2Ntuple()
 StatusCode LArAverages2Ntuple::initialize()
 {
   ATH_MSG_INFO ( "in initialize" );
+
+  const CaloCell_ID* idHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
+  m_emId = idHelper->em_idHelper();
+  if (!m_emId) {
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
+    return StatusCode::FAILURE;
+  }
+  
+  StatusCode sc;
+  if ( m_isSC ){
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = dynamic_cast<const LArOnlineID_Base*>(ll);
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = dynamic_cast<const LArOnlineID_Base*>(ll);
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+  }
+  ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK(m_calibMapKey.initialize());
+
   m_ntName = "AVERAGES";
   m_ntTitle="Averages";
   m_ntpath=std::string("/NTUPLES/FILE1/")+m_ntName+m_contKey;
@@ -50,6 +90,21 @@ StatusCode LArAverages2Ntuple::execute()
 {
   ATH_MSG_DEBUG ( "in execute" );
   
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "DO not have cabling from the key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey, ctx};
+  const LArCalibLineMapping *clcabling {*clHdl};
+  if(!clcabling) {
+     ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
+     return StatusCode::FAILURE;
+  }
+
   const LArAccumulatedCalibDigitContainer* accuDigitContainer = NULL;
   StatusCode sc=evtStore()->retrieve(accuDigitContainer,m_contKey);  
   if (sc!=StatusCode::SUCCESS) {
@@ -59,60 +114,87 @@ StatusCode LArAverages2Ntuple::execute()
     ATH_MSG_DEBUG ( "Got LArAccumulatedCalibDigitContainer with key " << m_contKey );
   
  
- if (accuDigitContainer) { 
+  if (accuDigitContainer) { 
    
-   LArAccumulatedCalibDigitContainer::const_iterator it=accuDigitContainer->begin();
-   LArAccumulatedCalibDigitContainer::const_iterator it_e=accuDigitContainer->end();
-
-    if(it == it_e) {
-      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
-      return StatusCode::SUCCESS;
-    }else{
-      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
-    }
-
-   unsigned cellCounter=0;
-   for (;it!=it_e;++it) {   
-     // Add protection - Modif from JF. Marchand
-     if ( !(*it) ) continue;
-
-     HWIdentifier chid=(*it)->channelID();
-     m_isPulsed = (long)(*it)->isPulsed();
-     if(m_keepPulsed && !(*it)->isPulsed()) continue;
-     m_DAC = (*it)->DAC();
-     m_Nsteps = (*it)->nSteps();
-     m_Ntrigger = (*it)->nTriggers();
-     m_delay = (*it)->delay();
-     m_StepIndex=(*it)->stepIndex();
-     unsigned int trueMaxSample = (*it)->nsamples();
-     m_ntNsamples = trueMaxSample;
-
-     if(trueMaxSample>m_Nsamples){
-       if(!m_ipass){
-	 ATH_MSG_WARNING ( "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
-	 m_ipass=1;
+     LArAccumulatedCalibDigitContainer::const_iterator it=accuDigitContainer->begin();
+     LArAccumulatedCalibDigitContainer::const_iterator it_e=accuDigitContainer->end();
+ 
+     if(it == it_e) {
+        ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
+        return StatusCode::SUCCESS;
+      }else{
+        ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" );
+      }
+ 
+     unsigned cellCounter=0;
+     for (;it!=it_e;++it) {   
+       // Add protection - Modif from JF. Marchand
+       if ( !(*it) ) continue;
+ 
+       HWIdentifier chid=(*it)->channelID();
+       m_isPulsed = (long)(*it)->isPulsed();
+       if(m_keepPulsed && !(*it)->isPulsed()) continue;
+       m_DAC = (*it)->DAC();
+       m_Nsteps = (*it)->nSteps();
+       m_Ntrigger = (*it)->nTriggers();
+       m_delay = (*it)->delay();
+       m_StepIndex=(*it)->stepIndex();
+       unsigned int trueMaxSample = (*it)->nsamples();
+       m_ntNsamples = trueMaxSample;
+ 
+       if(trueMaxSample>m_Nsamples){
+         if(!m_ipass){
+           ATH_MSG_WARNING ( "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
+           m_ipass=1;
+         }
+         trueMaxSample = m_Nsamples;
        }
-       trueMaxSample = m_Nsamples;
-     }
-   
-  
-     const std::vector<uint64_t>& sampleSum = (*it)->sampleSum();
-     const std::vector<uint64_t>& sampleSum2 = (*it)->sample2Sum();
-     const std::vector<float>& mean = (*it)->mean();
-     const std::vector<float>& RMSv = (*it)->RMS();
-
-     for(unsigned int j=0;j<trueMaxSample;j++){
-       m_Sum[j]   = sampleSum[j];
-       m_SumSq[j] = sampleSum2[j];
-       m_Mean[j]  = mean[j];
-       m_RMS[j]   = RMSv[j];
-     }
-
-     fillFromIdentifier(chid);       
-     ATH_CHECK( ntupleSvc()->writeRecord(m_nt) );
-     cellCounter++;
-   }//end loop over cells
- }//end if have accumulatedDigitContainer 
- ATH_MSG_DEBUG ( "LArAverages2Ntuple has finished." );
- return StatusCode::SUCCESS;
-}// end finalize-method.
+     
+       const std::vector<unsigned long>& sampleSum = (*it)->sampleSum();
+       const std::vector<unsigned long>& sampleSum2 = (*it)->sample2Sum();
+       const std::vector<float>& mean = (*it)->mean();
+       const std::vector<float>& RMSv = (*it)->RMS();
+ 
+       for(unsigned int j=0;j<trueMaxSample;j++){
+         m_Sum[j]   = sampleSum[j];
+         m_SumSq[j] = sampleSum2[j];
+         m_Mean[j]  = mean[j];
+         m_RMS[j]   = RMSv[j];
+       }
+ 
+       m_onlChanId = chid.get_identifier32().get_compact();
+       m_channel=m_onlineHelper->channel(chid);
+       m_slot=m_onlineHelper->slot(chid);
+       m_FT=m_onlineHelper->feedthrough(chid);
+       if(m_keepFT.size() > 0) {
+          if(std::find(std::begin(m_keepFT), std::end(m_keepFT), m_FT) == std::end(m_keepFT)) continue;
+       }
+       m_barrel_ec = m_onlineHelper->barrel_ec(chid);
+       m_pos_neg   = m_onlineHelper->pos_neg(chid);
+ 
+       bool isConnected = cabling->isOnlineConnected(chid);
+       if(isConnected){
+         Identifier id=cabling->cnvToIdentifier(chid);
+         const std::vector<HWIdentifier>& calibLineV=clcabling->calibSlotLine(chid);
+         std::vector<HWIdentifier>::const_iterator calibLineIt=calibLineV.begin();
+         m_calibLine = m_onlineHelper->channel(*calibLineIt);
+         m_eta=m_emId->eta(id); 
+         m_phi=m_emId->phi(id);
+         m_layer=m_emId->sampling(id);
+         m_region=m_emId->region(id);
+       } else {
+         m_calibLine=-999;
+         m_eta=-999;
+         m_phi=-999;
+         m_layer=-999;
+         m_region=-999;
+       }
+ 
+       fillFromIdentifier(chid);       
+       ATH_CHECK( ntupleSvc()->writeRecord(m_nt) );
+       cellCounter++;
+     }//end loop over cells
+  }//end if have accumulatedDigitContainer 
+  ATH_MSG_DEBUG ( "LArAverages2Ntuple has finished." );
+  return StatusCode::SUCCESS;
+}// end execute method.

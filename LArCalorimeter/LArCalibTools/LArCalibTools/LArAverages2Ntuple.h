@@ -15,6 +15,11 @@
 #define LARAVERAGES2NTUPLE_H
 #include "LArCalibTools/LArCond2NtupleBase.h"
 
+#include "CaloIdentifier/LArEM_ID.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+
 #include <fstream>
 #include <math.h>
 #include <string>
@@ -30,9 +35,17 @@ class LArAverages2Ntuple : public LArCond2NtupleBase
   StatusCode initialize();
   StatusCode execute() ;
   StatusCode finalize(){return StatusCode::SUCCESS;}
+
  private:
+  const LArEM_Base_ID* m_emId;
+  const LArOnlineID_Base* m_onlineHelper;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
+
   std::string m_ntName;
   std::string m_contKey;
+  std::vector<unsigned int> m_keepFT;
 
   unsigned int  m_Nsamples;
   bool m_keepPulsed;
