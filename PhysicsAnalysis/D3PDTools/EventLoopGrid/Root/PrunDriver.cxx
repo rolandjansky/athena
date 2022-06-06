@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Alexander Madsen
@@ -37,6 +37,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "pool.h"
 #include <mutex>
@@ -56,7 +57,7 @@ namespace {
 	if (what == name[i]) { return static_cast<Enum>(i); }
       }
       RCU_ASSERT0("Failed to parse job state string");
-      throw; //compiler dummy
+      throw std::runtime_error("PrunDriver.cxx: Failed to parse job state string"); //compiler dummy
     }
   }
 
@@ -81,7 +82,7 @@ namespace {
 
   struct TmpCd {
     const std::string origDir;
-    TmpCd(std::string dir)
+    TmpCd(const std::string & dir)
       : origDir(gSystem->pwd())
     {
       gSystem->cd(dir.c_str());
@@ -126,8 +127,8 @@ static JobState::Enum nextState(JobState::Enum state, Status::Enum status)
       return TABLE[i].toState;
     }
   }
-  RCU_ASSERT0("Missing state transtion rule");
-  throw; //compiler dummy 
+  RCU_ASSERT0("Missing state transition rule");
+  throw std::logic_error("PrunDriver.cxx: Missing state transition rule"); 
 }
 
 static SH::MetaObject defaultOpts()
@@ -361,7 +362,7 @@ static void processAllInState(const SH::SampleHandler& sh, JobState::Enum state,
 }
 
 static std::string formatOutputName(const SH::MetaObject& sampleMeta,
-				    const std::string pattern)
+				    const std::string & pattern)
 {
   const std::string sampleName = sampleMeta.castString("sample_name");
   RCU_REQUIRE(not pattern.empty());
