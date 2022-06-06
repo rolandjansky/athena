@@ -473,7 +473,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 						 rdo.l1Id(),
 						 rdo.bcId(),
 						 sl.cand2plus,
-						 sl.fwd,
+						 static_cast<bool>(sl.fwd),
 						 sl.sector,
 						 sl.cand,
 						 sl.sign,

@@ -175,9 +175,9 @@ def triggerSummaryCfg(flags, hypos):
     Returns: ca, algorithm
     """
     acc = ComponentAccumulator()
-    DecisionSummaryMakerAlg=CompFactory.DecisionSummaryMakerAlg
     from TrigEDMConfig.TriggerEDMRun3 import recordable
-    decisionSummaryAlg = DecisionSummaryMakerAlg()
+    from TrigOutputHandling.TrigOutputHandlingConfig import DecisionSummaryMakerAlgCfg
+    decisionSummaryAlg = DecisionSummaryMakerAlgCfg()
     chainToLastCollection = OrderedDict() # keys are chain names, values are lists of collections
 
 

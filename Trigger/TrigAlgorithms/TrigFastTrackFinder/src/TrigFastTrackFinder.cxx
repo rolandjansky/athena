@@ -382,7 +382,7 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
   ATH_CHECK(roiCollection.isValid());
 
   if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi: Using the first Roi ONLY" );
-  
+
   if ( roiCollection->size()==0) {
     ATH_MSG_ERROR("No Roi found for " << m_roiCollectionKey.key() );
     return StatusCode::FAILURE;
@@ -1642,7 +1642,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    std::vector<float>   v_seeds_eta;
    std::vector<float>   v_seeds_phi;
    std::vector<int16_t> v_seeds_type;
-   
+
    if( m_doHitDV_Seeding ) {
 
       // add L1 Jet seeds
@@ -1784,14 +1784,14 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
    unsigned int slotnr    = ctx.slot();
    unsigned int subSlotnr = ctx.subSlot();
 
-   sprintf(hname,"ftf_s%i_ss%i_ly6_h2_nsp",slotnr,subSlotnr);
+   sprintf(hname,"ftf_s%u_ss%u_ly6_h2_nsp",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly6_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   sprintf(hname,"ftf_s%i_ss%i_ly7_h2_nsp",slotnr,subSlotnr);
+   sprintf(hname,"ftf_s%u_ss%u_ly7_h2_nsp",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly7_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
-   sprintf(hname,"ftf_s%i_ss%i_ly6_h2_nsp_notrk",slotnr,subSlotnr);
+   sprintf(hname,"ftf_s%u_ss%u_ly6_h2_nsp_notrk",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly6_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   sprintf(hname,"ftf_s%i_ss%i_ly7_h2_nsp_notrk",slotnr,subSlotnr);
+   sprintf(hname,"ftf_s%u_ss%u_ly7_h2_nsp_notrk",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly7_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
    for(unsigned int iSeed=0; iSeed<v_sp_eta.size(); ++iSeed) {
@@ -2894,7 +2894,7 @@ bool TrigFastTrackFinder::isPreselPassDisTrackAfterRefit(Trk::Track* trk, Trk::T
 
    // sanity check
    if( trk == nullptr ) return false;
-   
+
    DisTrkCategory cat = getDisTrkCategory(trk);
    if( cat==DisTrkCategory::Pix4l_Sct1p || cat==DisTrkCategory::Pix3l_Sct1p ) { if( refitTrk == nullptr ) return false; }
 

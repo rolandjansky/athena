@@ -110,3 +110,18 @@ def TriggerBitsMakerToolCfg(name="TriggerBitsMakerTool"):
    # Extra configuration may come here
 
    return bitsmaker
+
+def DecisionSummaryMakerAlgCfg(name="DecisionSummaryMakerAlg"):
+   alg = CompFactory.DecisionSummaryMakerAlg(name)
+   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+   alg.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
+   alg.MonTool.defineHistogram('RoIsDEta', path='EXPERT', type='TH1F',
+                               title='Change of RoI eta position between initial and final RoI;delta eta;N final RoIs',
+                               xbins=51, xmin=-1.02, xmax=1.02)
+   alg.MonTool.defineHistogram('RoIsDPhi', path='EXPERT', type='TH1F',
+                               title='Change of RoI phi position between initial and final RoI;delta phi;N final RoIs',
+                               xbins=51, xmin=-1.02, xmax=1.02)
+   alg.MonTool.defineHistogram('RoIsDZed', path='EXPERT', type='TH1F',
+                               title='Change of RoI z position between initial and final RoI;delta z;N final RoIs',
+                               xbins=51, xmin=-204, xmax=204)
+   return alg

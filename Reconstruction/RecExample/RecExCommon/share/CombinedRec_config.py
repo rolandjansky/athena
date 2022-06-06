@@ -217,8 +217,10 @@ else:
 # Functionality: CaloRinger
 #
 pdr.flag_domain('caloringer')
-if rec.doCaloRinger:
-  include('CaloRingerAlgs/CaloRinger_jobOptions.py')
+if rec.doCaloRinger and rec.doESD():
+  from CaloRingerAlgs.CaloRingerAlgsConfig import CaloRingerAlgsCfg
+  CAtoGlobalWrapper(CaloRingerAlgsCfg, ConfigFlags)
+
 
 
 

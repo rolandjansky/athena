@@ -6,6 +6,7 @@ index_ref
 (.*)_L1_(.*)
 (.*)_LVL1(.*)
 (.*)_BunchConfKey(.*)
+(.*)_RoIBResult(.*)
 (.*)_TrigConfKeys(.*)
 (.*)_xTrigDecisionAux(.*)
 
