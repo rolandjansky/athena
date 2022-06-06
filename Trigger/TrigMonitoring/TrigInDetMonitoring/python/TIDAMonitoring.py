@@ -20,7 +20,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         log.info( "Creating  TIDA monitoring: " + name )
         log.info( "                  mcTruth: " + str(mcTruth) )
 
-        from TrigIDtrkMonitoring.TIDAChains import getchains
+        from TrigInDetMonitoring.TIDAChains import getchains
         
         key     = "Expert"
         toolkey = ""

@@ -52,8 +52,8 @@ if HLTMonFlags.doMonTier0:
     if HLTMonFlags.doMuon:
       log.warning("The HLT legacy muon monitoring is no longer supported")
 
-    # IDtrk HLTMonTool
-    if HLTMonFlags.doIDtrk:
+    # TrigInDet HLTMonTool
+    if HLTMonFlags.doInDet:
       try:
         from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
         HLTMonManager.AthenaMonTools += TrigIDtrkMonitoringTool()

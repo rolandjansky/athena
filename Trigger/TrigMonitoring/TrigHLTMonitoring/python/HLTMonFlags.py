@@ -85,12 +85,12 @@ class doMuon(JobProperty):
 	StoredValue=True
 list+=[doMuon]
 
-class doIDtrk(JobProperty):
+class doInDet(JobProperty):
 	""" ID track switch for monitoring """
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=True
-list+=[doIDtrk]
+list+=[doInDet]
 
 class doMET(JobProperty):
 	""" MET switch for monitoring """
