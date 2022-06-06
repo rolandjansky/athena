@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
-#include "xAODBTaggingEfficiency/TruthTagResults.h"
+#include "FTagAnalysisInterfaces/TruthTagResults.h"
 
 // xAOD jet
 #include "xAODJet/JetContainer.h"
