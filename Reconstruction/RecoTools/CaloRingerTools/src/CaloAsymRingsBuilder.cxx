@@ -46,9 +46,9 @@ CaloAsymRingsBuilder::CaloAsymRingsBuilder(const std::string& type,
   // declare interface
   declareInterface<ICaloRingsBuilder>(this);
 
-  declareProperty("DoEtaAxesDivision", m_doEtaAxesDivision = false,
+  declareProperty("doEtaAxesDivision", m_doEtaAxesDivision = false,
       "Eta Axes can be divide in two.");
-  declareProperty("DoPhiAxesDivision", m_doPhiAxesDivision = false,
+  declareProperty("doPhiAxesDivision", m_doPhiAxesDivision = false,
       "Phi Axes can be divide in two.");
 }
 
@@ -120,7 +120,9 @@ StatusCode CaloAsymRingsBuilder::initialize()
     xAOD::RingSetConf::print(m_rsRawConfCol, str);
     ATH_MSG_DEBUG(str.str());
   }
-
+  ATH_CHECK( m_crContName.initialize() );
+  ATH_CHECK( m_rsContName.initialize() );
+  ATH_CHECK( m_cellsContName.initialize() );
   ATH_CHECK( m_caloMgrKey.initialize() );
   return StatusCode::SUCCESS;
 }

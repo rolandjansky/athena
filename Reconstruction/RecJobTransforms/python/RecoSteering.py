@@ -164,6 +164,12 @@ def RecoSteering(flags):
         acc.merge(METCfg(flags))
         log.info("---------- Configured MET")
 
+    acc.flagPerfmonDomain('CaloRings')
+    if flags.Reco.EnableCaloRinger:
+        from CaloRingerAlgs.CaloRingerAlgsConfig import CaloRingerSteeringCfg
+        acc.merge(CaloRingerSteeringCfg(flags))
+        log.info("---------- Configured Calo Ringer")
+
     # HI
     acc.flagPerfmonDomain('HI')
     if flags.Reco.EnableHI:
