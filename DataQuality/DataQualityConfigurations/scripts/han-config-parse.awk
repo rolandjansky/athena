@@ -105,7 +105,7 @@ function check()				# check input, accept only well-formed lines
     }
 }
 
-/}$/ {						# block closing
+/^}$/ {						# block closing, must not be an end of a backreference
     if (leafLevel) --leafLevel;			# should be 0 or 1, anything greater indicates an error
     if (nodeLevel) --nodeLevel;			# must not become negative, print an error message instead
     else error("trying to close a block that is not open");
