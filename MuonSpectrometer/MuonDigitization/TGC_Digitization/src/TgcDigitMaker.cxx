@@ -645,19 +645,16 @@ StatusCode TgcDigitMaker::readFileOfCrossTalk() {
   // Indices to be used 
   int iStationName = -1;
   int stationEta = -1;
-  int stationPhi = -1;
   int gasGap = -1;
   int isStrip = -1;
   int iProb = -1;
 
   for(iStationName=0; iStationName<N_STATIONNAME; iStationName++) {
     for(stationEta=0; stationEta<N_STATIONETA; stationEta++) {
-      for(stationPhi=0; stationPhi<N_STATIONPHI; stationPhi++) {
-        for(gasGap=0; gasGap<N_GASGAP; gasGap++) {
-	  for(isStrip=0; isStrip<N_ISSTRIP; isStrip++) {
-	    for(iProb=0; iProb<N_CROSSTALK_PARAMETER; iProb++) {
-	      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][iProb] = 0.;
-	    }
+      for(gasGap=0; gasGap<N_GASGAP; gasGap++) {
+        for(isStrip=0; isStrip<N_ISSTRIP; isStrip++) {
+          for(iProb=0; iProb<N_CROSSTALK_PARAMETER; iProb++) {
+            m_crossTalk[iStationName][stationEta][gasGap][isStrip][iProb] = 0.;
           }
         }
       }
@@ -686,11 +683,10 @@ StatusCode TgcDigitMaker::readFileOfCrossTalk() {
   double crossTalk_21 = 0.; 
   // Read the TGC_Digitization_crossTalk.dat file
   while(ifs.good()) {
-    ifs >> iStationName >> stationEta >> /*stationPhi >>*/ gasGap >> isStrip >> crossTalk_10 >> crossTalk_11 >> crossTalk_20 >> crossTalk_21;
+    ifs >> iStationName >> stationEta >> gasGap >> isStrip >> crossTalk_10 >> crossTalk_11 >> crossTalk_20 >> crossTalk_21;
     ATH_MSG_DEBUG("TgcDigitMaker::readFileOfCrossTalk" 
 		      << " stationName= " << iStationName  
 		      << " stationEta= " << stationEta 
-	//		      << " stationPhi= " << stationPhi
 		      << " gasGap= " << gasGap 
 		      << " isStrip= " << isStrip
 		      << " prob(10) " << crossTalk_10
@@ -701,25 +697,19 @@ StatusCode TgcDigitMaker::readFileOfCrossTalk() {
     // Subtract offsets to use indices of crossTalk array
     iStationName -= OFFSET_STATIONNAME;
     stationEta   -= OFFSET_STATIONETA;
-    //    stationPhi   -= OFFSET_STATIONPHI;
     gasGap       -= OFFSET_GASGAP;
     isStrip      -= OFFSET_ISSTRIP;
 
     // Check the indices are valid 
     if(iStationName<0 || iStationName>=N_STATIONNAME) continue;
     if(stationEta  <0 || stationEta  >=N_STATIONETA ) continue;
-    //    if(stationPhi  <0 || stationPhi  >=N_STATIONPHI ) continue;
     if(gasGap      <0 || gasGap      >=N_GASGAP     ) continue;
     if(isStrip     <0 || isStrip     >=N_ISSTRIP    ) continue; 
 
-    // stationPhi dependence is now omitted. 
-    // The same energy threshold value is used. 
-    for(stationPhi=0; stationPhi<N_STATIONPHI; stationPhi++) {
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][0] = crossTalk_10;
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][1] = crossTalk_11;
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][2] = crossTalk_20;
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][3] = crossTalk_21;
-    }
+    m_crossTalk[iStationName][stationEta][gasGap][isStrip][0] = crossTalk_10;
+    m_crossTalk[iStationName][stationEta][gasGap][isStrip][1] = crossTalk_11;
+    m_crossTalk[iStationName][stationEta][gasGap][isStrip][2] = crossTalk_20;
+    m_crossTalk[iStationName][stationEta][gasGap][isStrip][3] = crossTalk_21;
 
     // If it is the end of the file, get out from while loop.   
     if(ifs.eof()) break;
@@ -986,7 +976,6 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
 {
   int stationName = m_idHelper->stationName(elemId) - OFFSET_STATIONNAME;
   int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
-  int stationPhi  = m_idHelper->stationPhi(elemId)  - OFFSET_STATIONPHI;
   int iGasGap     = gasGap                          - OFFSET_GASGAP; 
 
   double prob1CrossTalk  = 0.;
@@ -996,12 +985,11 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
 
   if((stationName>=0 && stationName<N_STATIONNAME) &&
      (stationEta >=0 && stationEta <N_STATIONETA ) &&
-     (stationPhi >=0 && stationPhi <N_STATIONPHI ) &&
      (iGasGap    >=0 && iGasGap    <N_GASGAP     )) {
-    prob1CrossTalk  = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][0];
-    prob11CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][1];
-    prob20CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][2];
-    prob21CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][3];
+    prob1CrossTalk  = m_crossTalk[stationName][stationEta][iGasGap][sensor][0];
+    prob11CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][1];
+    prob20CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][2];
+    prob21CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][3];
   }
 
   int nCrossTalks_neg = 0; 
