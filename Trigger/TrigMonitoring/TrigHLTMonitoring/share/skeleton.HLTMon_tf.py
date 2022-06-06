@@ -27,7 +27,7 @@ monDict = {
         'Egamma':False,
         'Calo':False,
         'Muon':False,
-        'IDtrk':False,
+        'InDet':False,
         'MET':False,
         'Tau':False,
         'Jet':False,

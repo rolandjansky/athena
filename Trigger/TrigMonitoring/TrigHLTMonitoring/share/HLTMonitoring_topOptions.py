@@ -20,7 +20,7 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doJet      = False
   HLTMonFlags.doEgamma   = False
   HLTMonFlags.doMuon     = False
-  HLTMonFlags.doIDtrk    = False
+  HLTMonFlags.doInDet    = False
   HLTMonFlags.doTau      = False
   HLTMonFlags.doMinBias  = False
   HLTMonFlags.doDump     = False

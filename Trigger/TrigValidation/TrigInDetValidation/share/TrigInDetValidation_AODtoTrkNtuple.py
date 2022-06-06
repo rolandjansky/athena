@@ -50,7 +50,7 @@ if 'doNewTIDATier0' in locals():
   doNewTier0Mon = doNewTIDATier0
 
 
-############ TrigIDtrkMonitoring part ################################
+############ TrigInDetMonitoring part ################################
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -75,7 +75,7 @@ if doTier0Mon and not doNewTier0Mon:
 if doNewTier0Mon :   
 
   # this is the new location ...
-  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  from TrigInDetMonitoring.TIDAMonitoring import TIDAMonitoring
   for git in TIDAMonitoring( None, "idtrigger" ):
     algseq += git
 
