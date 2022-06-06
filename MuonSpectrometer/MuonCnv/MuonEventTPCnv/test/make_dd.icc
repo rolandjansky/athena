@@ -238,8 +238,7 @@ MuonGM::MuonDetectorManager&  init_cs (GeoFullPhysVol& pvol)
 {
   EventContext ctx (1);
   ctx.setEventID (EventIDBase (1000, 1000,
-                               EventIDBase::UNDEFNUM,
-                               EventIDBase::UNDEFNUM,
+                               1650000000, 0,
                                1000));
   Atlas::setExtendedEventContext(ctx,
                                  Atlas::ExtendedEventContext (nullptr, 1000));
