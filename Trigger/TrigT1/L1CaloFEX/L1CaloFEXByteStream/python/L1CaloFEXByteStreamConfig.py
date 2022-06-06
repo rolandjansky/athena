@@ -14,6 +14,7 @@ def jFexByteStreamToolCfg(name, flags, writeBS=False):
     tool.jJRoIContainerReadKey   ="L1_jFexSRJetRoI"
     tool.jLJRoIContainerReadKey  ="L1_jFexLRJetRoI"
     tool.jTauRoIContainerReadKey ="L1_jFexTauRoI"
+    tool.jEMRoIContainerReadKey  ="L1_jFexFwdElRoI"
     tool.jTERoIContainerReadKey  ="L1_jFexSumETRoI"
     tool.jXERoIContainerReadKey  ="L1_jFexMETRoI"
     
@@ -21,6 +22,7 @@ def jFexByteStreamToolCfg(name, flags, writeBS=False):
     tool.jJRoIContainerWriteKey  =""
     tool.jLJRoIContainerWriteKey =""
     tool.jTauRoIContainerWriteKey=""
+    tool.jEMRoIContainerWriteKey =""
     tool.jTERoIContainerWriteKey =""
     tool.jXERoIContainerWriteKey =""
   else:
@@ -28,6 +30,7 @@ def jFexByteStreamToolCfg(name, flags, writeBS=False):
     tool.jJRoIContainerReadKey   =""
     tool.jLJRoIContainerReadKey  =""
     tool.jTauRoIContainerReadKey =""
+    tool.jEMRoIContainerReadKey  =""
     tool.jTERoIContainerReadKey  =""
     tool.jXERoIContainerReadKey  =""
     
@@ -35,6 +38,7 @@ def jFexByteStreamToolCfg(name, flags, writeBS=False):
     tool.jJRoIContainerWriteKey  ="L1_jFexSRJetRoI"
     tool.jLJRoIContainerWriteKey ="L1_jFexLRJetRoI"
     tool.jTauRoIContainerWriteKey="L1_jFexTauRoI"
+    tool.jEMRoIContainerWriteKey ="L1_jFexFwdElRoI"
     tool.jTERoIContainerWriteKey ="L1_jFexSumETRoI"
     tool.jXERoIContainerWriteKey ="L1_jFexMETRoI"
     
