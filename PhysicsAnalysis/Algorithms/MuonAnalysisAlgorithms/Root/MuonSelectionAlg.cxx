@@ -24,8 +24,6 @@ namespace CP
     , m_selectionTool ("", this)
   {
     declareProperty ("selectionTool", m_selectionTool, "the selection tool we apply");
-    declareProperty ("selectionDecoration", m_selectionDecoration, "the decoration for the quality selection");
-    declareProperty ("badMuonVetoDecoration", m_badMuonVetoDecoration, "the decoration for the bad muon veto");
   }
 
 
@@ -33,22 +31,12 @@ namespace CP
   StatusCode MuonSelectionAlgV2 ::
   initialize ()
   {
-    if (m_selectionDecoration.empty())
-    {
-      ANA_MSG_ERROR ("no selection decoration name set");
-      return StatusCode::FAILURE;
-    }
-    ANA_CHECK (makeSelectionWriteAccessor (m_selectionDecoration, m_selectionAccessor));
     ANA_CHECK (m_selectionTool.retrieve());
-
-    if (!m_badMuonVetoDecoration.empty())
-    {
-      ANA_CHECK (makeSelectionWriteAccessor (m_badMuonVetoDecoration, m_badMuonVetoAccessor));
-      ANA_CHECK (m_selectionTool.retrieve());
-    }
 
     ANA_CHECK (m_muonsHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_muonsHandle, SG::AllowEmpty));
+    ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_muonsHandle));
+    ANA_CHECK (m_badMuonVetoHandle.initialize (m_systematicsList, m_muonsHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
 
     auto *selectionTool = dynamic_cast<IAsgSelectionTool *>(&*m_selectionTool);
@@ -71,19 +59,19 @@ namespace CP
       {
         if (m_preselection.getBool (*muon, sys))
         {
-          m_selectionAccessor->setBits
-            (*muon, selectionFromAccept (m_selectionTool->accept (*muon)));
+          m_selectionHandle.setBits
+            (*muon, selectionFromAccept (m_selectionTool->accept (*muon)), sys);
           
-          if (m_badMuonVetoAccessor != nullptr)
+          if (m_badMuonVetoHandle)
           {
-            m_badMuonVetoAccessor->setBool (*muon, m_selectionTool->isBadMuon (*muon));
+            m_badMuonVetoHandle.setBool (*muon, m_selectionTool->isBadMuon (*muon), sys);
           }
         } else {
-          m_selectionAccessor->setBits (*muon, m_setOnFail);
+          m_selectionHandle.setBits (*muon, m_setOnFail, sys);
 
-          if (m_badMuonVetoAccessor != nullptr)
+          if (m_badMuonVetoHandle)
           {
-            m_badMuonVetoAccessor->setBool (*muon, false);
+            m_badMuonVetoHandle.setBool (*muon, false, sys);
           }
         }
       }

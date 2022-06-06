@@ -25,7 +25,6 @@ namespace CP
     , m_selectionTool ("", this)
   {
     declareProperty ("selectionTool", m_selectionTool, "the selection tool we apply");
-    declareProperty ("selectionDecoration", m_selectionDecoration, "the decoration for the asg selection");
   }
 
 
@@ -33,16 +32,11 @@ namespace CP
   StatusCode EgammaIsolationSelectionAlg ::
   initialize ()
   {
-    if (m_selectionDecoration.empty())
-    {
-      ANA_MSG_ERROR ("no selection decoration name set");
-      return StatusCode::FAILURE;
-    }
-    ANA_CHECK (makeSelectionWriteAccessor (m_selectionDecoration, m_selectionAccessor));
     ANA_CHECK (m_selectionTool.retrieve());
       
     ANA_CHECK (m_egammasHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_egammasHandle, SG::AllowEmpty));
+    ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_egammasHandle));
     ANA_CHECK (m_systematicsList.initialize());
 
     asg::AcceptData blankAccept {&m_selectionTool->getObjAcceptInfo()};
@@ -64,10 +58,10 @@ namespace CP
       {
         if (m_preselection.getBool (*egamma, sys))
         {
-          m_selectionAccessor->setBits
-            (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)));
+          m_selectionHandle.setBits
+            (*egamma, selectionFromAccept (m_selectionTool->accept (*egamma)), sys);
         } else {
-          m_selectionAccessor->setBits (*egamma, m_setOnFail);
+          m_selectionHandle.setBits (*egamma, m_setOnFail, sys);
         }
       }
     }

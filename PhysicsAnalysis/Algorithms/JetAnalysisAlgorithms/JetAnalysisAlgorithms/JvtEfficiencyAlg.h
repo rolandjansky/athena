@@ -10,9 +10,9 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
-#include <SelectionHelpers/ISelectionReadAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
+#include <SelectionHelpers/SysWriteSelectionHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -74,11 +74,8 @@ namespace CP
 
     /// \brief the decoration for the JVT selection
   private:
-    std::string m_selection;
-
-    /// \brief the accessor for \ref m_selection
-  private:
-    std::unique_ptr<ISelectionWriteAccessor> m_selectionAccessor;
+    SysWriteSelectionHandle m_selectionHandle {
+      this, "selection", "", "the decoration for the JVT selection"};
 
     /// \brief the decoration for the JVT scale factor
   private:

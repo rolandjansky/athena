@@ -27,7 +27,6 @@ namespace CP
     , m_selectionTool ("", this)
   {
     declareProperty ("selectionTool", m_selectionTool, "the selection tool we apply");
-    declareProperty ("selectionDecoration", m_selectionDecoration, "the decoration for the asg selection");
   }
 
 
@@ -35,13 +34,6 @@ namespace CP
   StatusCode AsgSelectionAlg ::
   initialize ()
   {
-    if (m_selectionDecoration.empty())
-    {
-      ANA_MSG_ERROR ("no selection decoration name set");
-      return StatusCode::FAILURE;
-    }
-    ANA_CHECK (makeSelectionWriteAccessor (m_selectionDecoration, m_selectionAccessor));
-
     ANA_CHECK (m_selectionTool.retrieve());
     m_systematicsTool = dynamic_cast<ISystematicsTool*>(&*m_selectionTool);
     if (m_systematicsTool)
@@ -49,6 +41,7 @@ namespace CP
       
     ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particlesHandle, SG::AllowEmpty));
+    ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_particlesHandle));
     ANA_CHECK (m_systematicsList.initialize());
 
     asg::AcceptData blankAccept (&m_selectionTool->getAcceptInfo());
@@ -76,12 +69,12 @@ namespace CP
       {
         if (m_preselection.getBool (*particle, sys))
         {
-          m_selectionAccessor->setBits
-            (*particle, selectionFromAccept (m_selectionTool->accept (particle)));
+          m_selectionHandle.setBits
+            (*particle, selectionFromAccept (m_selectionTool->accept (particle)), sys);
         }
         else
         {
-          m_selectionAccessor->setBits(*particle, m_setOnFail);
+          m_selectionHandle.setBits(*particle, m_setOnFail, sys);
         }
       }
     }

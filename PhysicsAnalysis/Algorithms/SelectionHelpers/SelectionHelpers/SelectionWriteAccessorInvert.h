@@ -39,6 +39,13 @@ namespace CP
   public:
     virtual std::string label () const override;
 
+  public:
+    virtual StatusCode
+    fillSystematics (const ISystematicsSvc& svc,
+                     const CP::SystematicSet& fullAffecting,
+                     const std::vector<CP::SystematicSet>& sysList,
+                     const std::string& objectName) override;
+
 
     //
     // private interface
