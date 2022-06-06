@@ -91,8 +91,6 @@ class ComponentAccumulator:
             if sequence == 'AthAlgSeq' :
                 kwargs.setdefault('ProcessDynamicDataDependencies',True)
                 kwargs.setdefault('ExtraDataForDynamicConsumers',[])
-                import traceback
-                traceback.print_stack
 
             # (Nested) default sequence of event processing algorithms per sequence + their private tools
             sequence = CompFactory.AthSequencer(sequence, **kwargs)

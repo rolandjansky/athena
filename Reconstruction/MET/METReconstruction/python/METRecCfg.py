@@ -57,13 +57,6 @@ def METCfg(inputFlags):
     if inputFlags.MET.WritetoAOD:
         result.merge(addToAOD(inputFlags, outputList))
 
-    # Check if we're being called from the old-style (Run 2) config and adjust accordingly
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in result._allSequences:
-            el.name = "TopAlg"
-
     return result
 
 
