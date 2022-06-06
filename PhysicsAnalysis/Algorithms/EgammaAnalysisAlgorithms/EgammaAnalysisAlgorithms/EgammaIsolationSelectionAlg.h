@@ -12,9 +12,9 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <IsolationSelection/IIsolationSelectionTool.h>
 #include <EgammaAnalysisAlgorithms/CopyHelpers.h>
-#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
+#include <SelectionHelpers/SysWriteSelectionHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 
@@ -58,11 +58,8 @@ namespace CP
 
     /// \brief the decoration for the asg selection
   private:
-    std::string m_selectionDecoration {"isolated"};
-
-    /// \brief the accessor for \ref m_selectionDecoration
-  private:
-    std::unique_ptr<ISelectionWriteAccessor> m_selectionAccessor;
+    SysWriteSelectionHandle m_selectionHandle {
+      this, "selectionDecoration", "isolated", "the decoration for the asg selection"};
 
     /// \brief the bits to set for an object failing the preselection
   private:

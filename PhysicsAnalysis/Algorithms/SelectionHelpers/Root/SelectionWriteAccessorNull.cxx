@@ -55,4 +55,15 @@ namespace CP
   {
     return "null";
   }
+
+
+
+  StatusCode SelectionWriteAccessorNull ::
+  fillSystematics (const ISystematicsSvc& /*svc*/,
+                   const CP::SystematicSet& /*fullAffecting*/,
+                   const std::vector<CP::SystematicSet>& /*sysList*/,
+                   const std::string& /*objectName*/)
+  {
+    return StatusCode::SUCCESS;
+  }
 }

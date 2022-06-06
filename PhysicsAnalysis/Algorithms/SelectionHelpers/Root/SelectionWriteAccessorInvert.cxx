@@ -51,4 +51,15 @@ namespace CP
   {
     return m_base->label() + ",invert";
   }
+
+
+
+  StatusCode SelectionWriteAccessorInvert ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const CP::SystematicSet& fullAffecting,
+                   const std::vector<CP::SystematicSet>& sysList,
+                   const std::string& objectName)
+  {
+    return m_base->fillSystematics (svc, fullAffecting, sysList, objectName);
+  }
 }

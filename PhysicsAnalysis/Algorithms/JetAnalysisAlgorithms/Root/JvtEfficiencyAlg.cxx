@@ -29,7 +29,6 @@ namespace CP
     declareProperty ("efficiencyTool", m_efficiencyTool, "the efficiency tool we apply");
     declareProperty ("dofJVT", m_dofJVT, "differenciate between JVT and fJVT");
     declareProperty ("fJVTStatus", m_fJVTStatus, "the decoration for the fJVT status");
-    declareProperty ("selection", m_selection, "the decoration for the JVT selection");
     declareProperty ("skipBadEfficiency", m_skipBadEfficiency, "whether to skip efficiency calculation if the selection failed");
     declareProperty ("truthJetCollection", m_truthJetsName, "the truth jet collection to use for truth tagging");
   }
@@ -48,6 +47,7 @@ namespace CP
     ANA_CHECK (m_efficiencyTool.retrieve());
     ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
+    ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyTool));
     ANA_CHECK (m_systematicsList.initialize());
@@ -55,9 +55,6 @@ namespace CP
 
     if (m_dofJVT && !m_fJVTStatus.empty())
       ANA_CHECK (makeSelectionReadAccessor (m_fJVTStatus, m_fJVTStatusAccessor));
-
-    if (!m_selection.empty())
-      ANA_CHECK (makeSelectionWriteAccessor (m_selection, m_selectionAccessor));
 
     return StatusCode::SUCCESS;
   }
@@ -84,11 +81,11 @@ namespace CP
         if (m_preselection.getBool (*jet, sys))
         {
           bool goodJet = true;
-          if (m_selectionAccessor || m_skipBadEfficiency)
+          if (m_selectionHandle || m_skipBadEfficiency)
           {
             goodJet = m_dofJVT ? m_fJVTStatusAccessor->getBool (*jet) : m_efficiencyTool->passesJvtCut (*jet);
-            if (m_selectionAccessor)
-              m_selectionAccessor->setBool (*jet, goodJet);
+            if (m_selectionHandle)
+              m_selectionHandle.setBool (*jet, goodJet, sys);
           }
           if (m_scaleFactorDecoration)
           {
@@ -101,8 +98,8 @@ namespace CP
             m_scaleFactorDecoration.set (*jet, sf, sys);
           }
         } else {
-          if (m_selectionAccessor)
-            m_selectionAccessor->setBool (*jet, false);
+          if (m_selectionHandle)
+            m_selectionHandle.setBool (*jet, false, sys);
 
           if (m_scaleFactorDecoration)
             m_scaleFactorDecoration.set (*jet, invalidScaleFactor(), sys);

@@ -14,6 +14,7 @@
 #include <SelectionHelpers/SelectionReadAccessorChar.h>
 #include <SelectionHelpers/SelectionWriteAccessorBits.h>
 #include <SelectionHelpers/SelectionWriteAccessorChar.h>
+#include <SelectionHelpers/SelectionWriteAccessorSys.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
 #include <SelectionHelpers/SelectionReadAccessorNull.h>
 #include <SelectionHelpers/SelectionAccessorReadSys.h>
@@ -174,7 +175,7 @@ namespace CP
 
     if (name.find ("%SYS%") != std::string::npos)
     {
-      ANA_MSG_ERROR ("systematics write accessors not currently supported");
+      accessor = std::make_unique<SelectionWriteAccessorSys>(name);
       return StatusCode::FAILURE;
     }
 
