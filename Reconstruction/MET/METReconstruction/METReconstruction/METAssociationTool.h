@@ -104,7 +104,6 @@ namespace met{
     SG::WriteHandleKey<xAOD::MissingETContainer> m_coreKey{this, "CoreOutputKey", "", ""};
     SG::WriteHandleKey<xAOD::MissingETAssociationMap> m_mapKey{this, "AssociationOutputKey", "", ""};
 
-    Gaudi::Property<bool> m_overwrite{this, "AllowOverwrite", false, ""};
     ToolHandleArray<IMETAssocToolBase> m_metAssociators{this, "METAssociators", {}, ""};
 
     // Monitor timing

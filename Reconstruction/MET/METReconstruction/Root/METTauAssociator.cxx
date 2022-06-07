@@ -58,7 +58,7 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_tauContKey.initialize());
 
-    if (m_useFETauLinks || m_useFELinks) {
+    if (m_useFELinks) {
       if (m_neutralFEReadDecorKey.key().empty()) {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_tauContKey.key() + "." + m_neutralFELinksKey));}
       if (m_chargedFEReadDecorKey.key().empty()) {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_tauContKey.key() + "." + m_chargedFELinksKey));}
       ATH_CHECK( m_neutralFEReadDecorKey.initialize());
@@ -196,12 +196,10 @@ namespace met {
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-    if (m_useFETauLinks) { 
+    if (m_useFELinks)
       ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
-    } 
-    else {
+    else
       ATH_CHECK( extractFEs(tau, felist, constits) );
-    }
 
     return StatusCode::SUCCESS;
   }
