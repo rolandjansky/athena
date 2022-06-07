@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addAlgorithm
+from AthenaCommon.CfgGetter import addAlgorithm, addTool
+
 
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getMdtRdoToMdtDigitAlg", "MdtRdoToMdtDigitAlg")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getRpcRdoToRpcDigitAlg", "RpcRdoToRpcDigitAlg")
@@ -18,6 +19,6 @@ addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSigMdtDigitTo
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSigRpcDigitToRpcRDO" , "SigRpcDigitToRpcRDO")
 addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSigTgcDigitToTgcRDO" , "SigTgcDigitToTgcRDO")
 
-addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getCscRdoDecoder", "CscRDO_Decoder")
-addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getsTgcRdoDecoder", "STGC_RDO_Decoder")
-addAlgorithm("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getMmRdoDecoder", "MM_RDO_Decoder")
+addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getCscRdoDecoder", "CscRDO_Decoder")
+addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getsTgcRdoDecoder", "STGC_RDO_Decoder")
+addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getMmRdoDecoder", "MM_RDO_Decoder")
