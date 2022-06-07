@@ -77,7 +77,7 @@ if (rec.doTrigger() == False and
    DQMonFlags.doLVL1CaloMon=False
    DQMonFlags.doCTPMon=False
    DQMonFlags.doHLTMon=False
-elif rec.doTrigger() == True and ConfigFlags.Trigger.EDMVersion < 3:
+elif rec.doTrigger() and ConfigFlags.Trigger.EDMVersion < 3 and not DQMonFlags.doNewMonitoring():
    # CTP/L1Calo monitoring currently not supported on old data (ATR-24262)
    DQMonFlags.doLVL1CaloMon=False
    DQMonFlags.doCTPMon=False
@@ -489,6 +489,7 @@ DQMonFlags.print_JobProperties()
 
 local_logger.info("DQ: setting up ConfigFlags")
 
+ConfigFlags.DQ.doMonitoring=DQMonFlags.doMonitoring()
 ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
 ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
 ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()

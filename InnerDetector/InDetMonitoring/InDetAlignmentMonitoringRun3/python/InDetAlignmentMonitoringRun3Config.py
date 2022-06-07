@@ -41,6 +41,9 @@ def InDetAlignmentMonitoringRun3Config(flags):
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.minPt                       = 5000
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.maxD0                       = 100000 
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.maxZ0SinTheta               = 150
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        inDetAlignMonGenericTracksAlg.TrackSelectionTool.Extrapolator                = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
+
         IDAlignMonGenericTracksAlgCfg(helper, inDetAlignMonGenericTracksAlg, **kwargsIDAlignMonGenericTracksAlg)
         
         ########### here ends InDetAlignMonGenericTracksAlg ###########
@@ -69,6 +72,8 @@ def InDetAlignmentMonitoringRun3Config(flags):
         inDetAlignMonResidualsAlg.TrackSelectionTool.minPt                       = 5000
         inDetAlignMonResidualsAlg.TrackSelectionTool.maxD0                       = 100000 
         inDetAlignMonResidualsAlg.TrackSelectionTool.maxZ0SinTheta               = 150 
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        inDetAlignMonResidualsAlg.TrackSelectionTool.Extrapolator                = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
     
         IDAlignMonResidualsAlgCfg(helper, inDetAlignMonResidualsAlg, **kwargsIDAlignMonResidualsAlg)
         

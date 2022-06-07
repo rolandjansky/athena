@@ -278,8 +278,8 @@ def _parsePostfix(postfix, triggers = [], perPartition = False, perSample = Fals
     return kwargs
 
 def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue = '', value = '',
-                             title = '', path = '', weight = '', xbins = 0, xmin = 0, xmax = 0,
-                             ybins = 0, ymin = 0, ymax = 0, type = 'TH2D', run = '', triggers = [],
+                             title = '', path = '', weight = '', xbins = 0, xmin = 0., xmax = 0.,
+                             ybins = 0, ymin = 0., ymax = 0., type = 'TH2D', run = '', triggers = [],
                              xlabels = (), ylabels = (), opt = '', subDirectory = False, perPartition = False,
                              perSample = False, perGain = False, allPartitions = False, separator = '_', merge = None ):
     '''
@@ -507,7 +507,7 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 
 
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
-                             weight = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
+                             weight = '', xbins = 0, xmin = 0., xmax = 0., type = 'TH1D', run = '', triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, opt = '',
                              perGain = False, xlabels = (), allPartitions = False, separator = '_', merge = None ):
     '''
@@ -644,7 +644,7 @@ def addTileTMDB_2DHistogramsArray(helper, algorithm, name = '', value = '',
                                 ybins = ybins, ymin = -0.5, ymax = ybins - 0.5)
 
 def addTileTMDB_1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '',
-                                  path = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '',
+                                  path = '', xbins = 0, xmin = 0., xmax = 0., type = 'TH1D', run = '',
                                   perModule = False, isCorr=False):
 
     for ros in range(1, Tile.MAX_ROS):
@@ -722,7 +722,7 @@ def addTileChannelHistogramsArray(helper, algorithm, name, title, path,
         for channel in range(0, int(Tile.MAX_CHAN)):
             channelName = f'0{channel}' if channel < 10 else str(channel)
             for gain in range(0, Tile.MAX_GAIN):
-                gainName = {0 : 'low', 1 : 'high'}.get(gain)
+                gainName = {0 : 'low', 1 : 'high'}[gain]
                 nameSuffix = aliasSuffix if aliasSuffix else xvalue
                 fullName = f'{xvalue}_{channel}_{gain}'
                 fullName += f',{yvalue}_{channel}_{gain}' if yvalue else ""
