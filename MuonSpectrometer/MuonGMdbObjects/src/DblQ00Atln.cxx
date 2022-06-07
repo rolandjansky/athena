@@ -9,43 +9,38 @@
 
 #include "MuonGMdbObjects/DblQ00Atln.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
+#include <string> 
 #include <iostream>
 #include <stdio.h>
 
 namespace MuonGM
 {
 
-DblQ00Atln::DblQ00Atln(std::unique_ptr<IRDBQuery>&& atln) :
+  DblQ00Atln::DblQ00Atln(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(atln) {
-    atln->execute();
+
+    IRDBRecordset_ptr atln = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(atln->size()>0) {
     m_nObj = atln->size();
     m_d = new ATLN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Atln banks in the MuonDD Database"<<std::endl;
 
-     unsigned fieldVers(1);
-     unsigned fieldI(2);
-     unsigned fieldIcovol(3);
-     unsigned fieldZpovol(4);
-     unsigned fieldWidvol(5);
-     unsigned fieldNamvol(6);
-     unsigned fieldJsta(7);
-
-    int i=0;
-    while(atln->next()) {
-        m_d[i].version     = atln->data<int>(fieldVers);    
-        m_d[i].i           = atln->data<int>(fieldI);          
-        m_d[i].icovol      = atln->data<int>(fieldIcovol);
-        m_d[i].zpovol      = atln->data<float>(fieldZpovol);
-        m_d[i].widvol      = atln->data<float>(fieldWidvol);
-        sprintf(m_d[i].namvol,"%s",atln->data<std::string>(fieldNamvol).c_str());
-        m_d[i].jsta        = atln->data<int>(fieldJsta);          
+    size_t i=0;
+    while(i<atln->size()) {
+        m_d[i].version     = (*atln)[i]->getInt("VERS");    
+        m_d[i].i           = (*atln)[i]->getInt("I");          
+        m_d[i].icovol      = (*atln)[i]->getInt("ICOVOL");
+        m_d[i].zpovol      = (*atln)[i]->getFloat("ZPOVOL");
+        m_d[i].widvol      = (*atln)[i]->getFloat("WIDVOL");
+        sprintf(m_d[i].namvol,"%s",(*atln)[i]->getString("NAMVOL").c_str());
+        m_d[i].jsta        = (*atln)[i]->getInt("JSTA");          
         i++;
     }
-    atln->finalize();
   }
   else {
     m_d = new ATLN[0];

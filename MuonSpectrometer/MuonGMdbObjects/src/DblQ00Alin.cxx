@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Alin.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,45 +19,32 @@
 namespace MuonGM
 {
 
-DblQ00Alin::DblQ00Alin(std::unique_ptr<IRDBQuery>&& alin) :
+  DblQ00Alin::DblQ00Alin(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(alin) {
-    alin->execute();
+
+    IRDBRecordset_ptr alin = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(alin->size()>0) {
     m_nObj = alin->size();
     m_d = new ALIN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Alin banks in the MuonDD Database"<<std::endl;
 
-    // field indexes
-    unsigned fieldVers(1);
-    unsigned fieldDx(2);
-    unsigned fieldDy(3);
-    unsigned fieldI(4);
-    unsigned fieldWidth_xs(5);
-    unsigned fieldWidth_xl(6);
-    unsigned fieldLength_y(7);
-    unsigned fieldExcent(8);
-    unsigned fieldDead1(9);
-    unsigned fieldJtyp(10);
-    unsigned fieldIndx(11);
-    unsigned fieldIcut(12);
-
-    int i=0;
-    while(alin->next()) {
-        m_d[i].version      = alin->data<int>(fieldVers);    
-        m_d[i].dx           = alin->data<float>(fieldDx);          
-        m_d[i].dy           = alin->data<float>(fieldDy);       
-        m_d[i].i            = alin->data<int>(fieldI);   
-        m_d[i].width_xs     = alin->data<float>(fieldWidth_xs);
-        m_d[i].width_xl     = alin->data<float>(fieldWidth_xl);  
-        m_d[i].length_y     = alin->data<float>(fieldLength_y);  
-        m_d[i].excent       = alin->data<float>(fieldExcent);    
-        m_d[i].dead1        = alin->data<float>(fieldDead1);     
-        m_d[i].jtyp         = alin->data<int>(fieldJtyp);      
-        m_d[i].indx         = alin->data<int>(fieldIndx);     
-        m_d[i].icut         = alin->data<int>(fieldIcut);      
+    size_t i=0;
+    while(i<alin->size()) {
+        m_d[i].version      = (*alin)[i]->getInt("VERS");    
+        m_d[i].dx           = (*alin)[i]->getFloat("DX");          
+        m_d[i].dy           = (*alin)[i]->getFloat("DY");       
+        m_d[i].i            = (*alin)[i]->getInt("I");   
+        m_d[i].width_xs     = (*alin)[i]->getFloat("WIDTH_XS");
+        m_d[i].width_xl     = (*alin)[i]->getFloat("WIDTH_XL");  
+        m_d[i].length_y     = (*alin)[i]->getFloat("LENGTH_Y");  
+        m_d[i].excent       = (*alin)[i]->getFloat("EXCENT");    
+        m_d[i].dead1        = (*alin)[i]->getFloat("DEAD1");     
+        m_d[i].jtyp         = (*alin)[i]->getInt("JTYP");      
+        m_d[i].indx         = (*alin)[i]->getInt("INDX");     
+        m_d[i].icut         = (*alin)[i]->getInt("ICUT");      
         i++;
     }
-    alin->finalize();
   }
   else {
     m_d = new ALIN[0];

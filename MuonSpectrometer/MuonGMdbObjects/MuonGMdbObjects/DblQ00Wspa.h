@@ -12,9 +12,9 @@
 
 #ifndef DBLQ00_WSPA_H
 #define DBLQ00_WSPA_H
+#include <string> 
 
-#include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -23,7 +23,7 @@ class DblQ00Wspa {
 public:
     DblQ00Wspa(){};
     ~DblQ00Wspa();
-    DblQ00Wspa(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wspa(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wspa(AmdcDb* wspa);
 
     // data members for DblQ00/WSPA fields

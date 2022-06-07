@@ -12,10 +12,10 @@
 
 #ifndef DBLQ00_ALIN_H
 #define DBLQ00_ALIN_H
+#include <string>
 
-#include "RDBAccessSvc/IRDBQuery.h"
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Alin {
 public:
     DblQ00Alin(){};
     ~DblQ00Alin();
-    DblQ00Alin(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Alin(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Alin(AmdcDb* alin);
 
     // data members for DblQ00/ALIN fields

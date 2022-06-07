@@ -12,43 +12,50 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace MuonGM
 {
 
-DblQ00Wlbi::DblQ00Wlbi(std::unique_ptr<IRDBQuery>&& wlbi) :
+  DblQ00Wlbi::DblQ00Wlbi(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wlbi) {
-    wlbi->execute();
+
+    IRDBRecordset_ptr wlbi = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wlbi->size()>0) {
     m_nObj = wlbi->size();
     m_d = new WLBI[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wlbi banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wlbi->next()) {
-        m_d[i].version     = wlbi->data<int>("WLBI_DATA.VERS");    
-        m_d[i].jsta        = wlbi->data<int>("WLBI_DATA.JSTA");
-        m_d[i].num         = wlbi->data<int>("WLBI_DATA.NUM");
-        m_d[i].height      = wlbi->data<float>("WLBI_DATA.HEIGHT");
-        m_d[i].thickness   = wlbi->data<float>("WLBI_DATA.THICKNESS");
-	if (!wlbi->isNull("WLBI_DATA.LOWERTHICK"))
+    size_t i=0;
+    while(i<wlbi->size()) {
+        m_d[i].version     = (*wlbi)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wlbi)[i]->getInt("JSTA");
+        m_d[i].num         = (*wlbi)[i]->getInt("NUM");
+        m_d[i].height      = (*wlbi)[i]->getFloat("HEIGHT");
+        m_d[i].thickness   = (*wlbi)[i]->getFloat("THICKNESS");
+	try
 	  {
-	    m_d[i].lowerThickness   = wlbi->data<float>("WLBI_DATA.LOWERTHICK");
+	    m_d[i].lowerThickness   = (*wlbi)[i]->getFloat("LOWERTHICK");
 	  }
-	else m_d[i].lowerThickness   = m_d[i].thickness ;
-	if (!wlbi->isNull("WLBI_DATA.SHIFTYSTATION"))
+	catch (std::runtime_error &) {
+	  m_d[i].lowerThickness   = m_d[i].thickness ;
+	}
+	try
 	  {
-	    m_d[i].yShift   = wlbi->data<float>("WLBI_DATA.SHIFTYSTATION");
+	    m_d[i].yShift   = (*wlbi)[i]->getFloat("SHIFTYSTATION");
 	  }
-	else m_d[i].yShift   = 0.;
+	catch(std::runtime_error &) {
+	  m_d[i].yShift   = 0.;
+	}
         i++;
     }
-    wlbi->finalize();
   }
   else {
     m_d = new WLBI[0];

@@ -8,6 +8,7 @@
  ***************************************************************************/
 
 #include "MuonGMdbObjects/DblQ00Wsup.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
@@ -18,34 +19,35 @@
 namespace MuonGM
 {
 
-DblQ00Wsup::DblQ00Wsup(std::unique_ptr<IRDBQuery>&& wsup) :
+  DblQ00Wsup::DblQ00Wsup(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wsup) {
-    wsup->execute();
+
+    IRDBRecordset_ptr wsup = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wsup->size()>0) {
     m_nObj = wsup->size();
     m_d = new WSUP[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wsup banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wsup->next()) {
-        m_d[i].version     = wsup->data<int>("WSUP_DATA.VERS");    
-        m_d[i].jsta        = wsup->data<int>("WSUP_DATA.JSTA");
-        m_d[i].nxxsup      = wsup->data<int>("WSUP_DATA.NXXSUP");
-        m_d[i].nzzsup      = wsup->data<int>("WSUP_DATA.NZZSUP");
-        m_d[i].x0          = wsup->data<float>("WSUP_DATA.X0");
-        m_d[i].thickn      = wsup->data<float>("WSUP_DATA.THICKN");
+    size_t i=0;
+    while(i<wsup->size()) {
+        m_d[i].version     = (*wsup)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wsup)[i]->getInt("JSTA");
+        m_d[i].nxxsup      = (*wsup)[i]->getInt("NXXSUP");
+        m_d[i].nzzsup      = (*wsup)[i]->getInt("NZZSUP");
+        m_d[i].x0          = (*wsup)[i]->getFloat("X0");
+        m_d[i].thickn      = (*wsup)[i]->getFloat("THICKN");
         for (unsigned int j=0; j<4; j++)
         {
             std::ostringstream tem;
             tem << j;
-            std::string tagx = "WSUP_DATA.XXSUP_"+tem.str();
-            std::string tagy = "WSUP_DATA.ZZSUP_"+tem.str();
-            m_d[i].xxsup[j]     = wsup->data<float>(tagx);        
-            m_d[i].zzsup[j]     = wsup->data<float>(tagy);        
+            std::string tagx = "XXSUP_"+tem.str();
+            std::string tagy = "ZZSUP_"+tem.str();
+            m_d[i].xxsup[j]     = (*wsup)[i]->getFloat(tagx);        
+            m_d[i].zzsup[j]     = (*wsup)[i]->getFloat(tagy);        
         }
         i++;
    }
-    wsup->finalize();
   }
   else {
     m_d = new WSUP[0];

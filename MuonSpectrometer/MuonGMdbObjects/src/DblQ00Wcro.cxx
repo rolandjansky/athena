@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Wcro.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,25 +19,26 @@
 namespace MuonGM
 {
 
-DblQ00Wcro::DblQ00Wcro(std::unique_ptr<IRDBQuery>&& wcro) :
+  DblQ00Wcro::DblQ00Wcro(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wcro) {
-    wcro->execute();
+
+    IRDBRecordset_ptr wcro = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wcro->size()>0) {
     m_nObj = wcro->size();
     m_d = new WCRO[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wcro banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wcro->next()) {
-        m_d[i].version     = wcro->data<int>("WCRO_DATA.VERS");    
-        m_d[i].jsta        = wcro->data<int>("WCRO_DATA.JSTA");
-        m_d[i].num         = wcro->data<int>("WCRO_DATA.NUM");
-        m_d[i].heightness     = wcro->data<float>("WCRO_DATA.HEIGHTNESS");
-        m_d[i].largeness      = wcro->data<float>("WCRO_DATA.LARGENESS");
-        m_d[i].thickness      = wcro->data<float>("WCRO_DATA.THICKNESS");
+    size_t i=0;
+    while(i<wcro->size()) {
+        m_d[i].version     = (*wcro)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wcro)[i]->getInt("JSTA");
+        m_d[i].num         = (*wcro)[i]->getInt("NUM");
+        m_d[i].heightness     = (*wcro)[i]->getFloat("HEIGHTNESS");
+        m_d[i].largeness      = (*wcro)[i]->getFloat("LARGENESS");
+        m_d[i].thickness      = (*wcro)[i]->getFloat("THICKNESS");
 	i++;
     }
-    wcro->finalize();
   }
   else {
     m_d = new WCRO[0];

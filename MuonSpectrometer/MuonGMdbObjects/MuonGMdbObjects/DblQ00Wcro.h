@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WCRO_H
 #define DBLQ00_WCRO_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wcro {
 public:
     DblQ00Wcro(){};
     ~DblQ00Wcro();
-    DblQ00Wcro(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcro(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wcro(AmdcDb* wcro);
     
     // data members for DblQ00/WCRO fields

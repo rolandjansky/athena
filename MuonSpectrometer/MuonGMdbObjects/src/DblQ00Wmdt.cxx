@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Wmdt.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -19,38 +20,39 @@
 namespace MuonGM
 {
 
-DblQ00Wmdt::DblQ00Wmdt(std::unique_ptr<IRDBQuery>&& wmdt) :
+  DblQ00Wmdt::DblQ00Wmdt(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wmdt) {
-    wmdt->execute();
+
+    IRDBRecordset_ptr wmdt = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wmdt->size()>0) {
     m_nObj = wmdt->size();
     m_d = new WMDT[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wmdt banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wmdt->next()) {
-        m_d[i].version     = wmdt->data<int>("WMDT_DATA.VERS");    
-        m_d[i].iw          = wmdt->data<int>("WMDT_DATA.IW");
-        m_d[i].laymdt      = wmdt->data<int>("WMDT_DATA.LAYMDT");
-        sprintf(m_d[i].typ,"%s",wmdt->data<std::string>("WMDT_DATA.TYP").c_str());
-        m_d[i].x0          = wmdt->data<float>("WMDT_DATA.X0");
-        m_d[i].tubpit          = wmdt->data<float>("WMDT_DATA.TUBPIT");
-        m_d[i].tubrad          = wmdt->data<float>("WMDT_DATA.TUBRAD");
-        m_d[i].tubsta          = wmdt->data<float>("WMDT_DATA.TUBSTA");
-        m_d[i].tubdea          = wmdt->data<float>("WMDT_DATA.TUBDEA");
-        m_d[i].tubwal          = wmdt->data<float>("WMDT_DATA.TUBWAL");
+    size_t i=0;
+    while(i<wmdt->size()) {
+        m_d[i].version     = (*wmdt)[i]->getInt("VERS");    
+        m_d[i].iw          = (*wmdt)[i]->getInt("IW");
+        m_d[i].laymdt      = (*wmdt)[i]->getInt("LAYMDT");
+        sprintf(m_d[i].typ,"%s",(*wmdt)[i]->getString("TYP").c_str());
+        m_d[i].x0          = (*wmdt)[i]->getFloat("X0");
+        m_d[i].tubpit          = (*wmdt)[i]->getFloat("TUBPIT");
+        m_d[i].tubrad          = (*wmdt)[i]->getFloat("TUBRAD");
+        m_d[i].tubsta          = (*wmdt)[i]->getFloat("TUBSTA");
+        m_d[i].tubdea          = (*wmdt)[i]->getFloat("TUBDEA");
+        m_d[i].tubwal          = (*wmdt)[i]->getFloat("TUBWAL");
         for (unsigned int j=0; j<4; j++)
         {
             std::ostringstream tem;
             tem << j;
-            std::string tagx = "WMDT_DATA.TUBXCO_"+tem.str();
-            std::string tagy = "WMDT_DATA.TUBYCO_"+tem.str();
-            m_d[i].tubxco[j]     = wmdt->data<float>(tagx);        
-            m_d[i].tubyco[j]     = wmdt->data<float>(tagy);        
+            std::string tagx = "TUBXCO_"+tem.str();
+            std::string tagy = "TUBYCO_"+tem.str();
+            m_d[i].tubxco[j]     = (*wmdt)[i]->getFloat(tagx);        
+            m_d[i].tubyco[j]     = (*wmdt)[i]->getFloat(tagy);        
         }
         i++;
     }
-    wmdt->finalize();
   }
   else {
     m_d = new WMDT[0];

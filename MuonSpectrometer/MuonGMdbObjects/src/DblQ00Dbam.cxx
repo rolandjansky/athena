@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Dbam.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -20,23 +21,25 @@
 namespace MuonGM
 {
 
-DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam) :
+  DblQ00Dbam::DblQ00Dbam(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(dbam) {
-    dbam->execute();
+
+    IRDBRecordset_ptr dbam = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(dbam->size()>0) {
     m_nObj = dbam->size();
     m_d = new DBAM[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Dbam banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(dbam->next()) {
-        m_d[i].version     = dbam->data<int>("DBAM_DATA.VERS");    
-        m_d[i].nvrs        = dbam->data<int>("DBAM_DATA.NVRS");
-        m_d[i].mtyp        = dbam->data<int>("DBAM_DATA.MTYP");
-        m_d[i].numbox      = dbam->data<int>("DBAM_DATA.NUMBOX");
-        sprintf(m_d[i].amdb,"%s",dbam->data<std::string>("DBAM_DATA.AMDB").c_str()); 
+    size_t i=0;
+    while(i<dbam->size()) {
+        m_d[i].version     = (*dbam)[i]->getInt("VERS");    
+        m_d[i].nvrs        = (*dbam)[i]->getInt("NVRS");
+        m_d[i].mtyp        = (*dbam)[i]->getInt("MTYP");
+        m_d[i].numbox      = (*dbam)[i]->getInt("NUMBOX");
+        sprintf(m_d[i].amdb,"%s",(*dbam)[i]->getString("AMDB").c_str()); 
         try {
-            sprintf(m_d[i].test,"%s",dbam->data<std::string>("DBAM_DATA.TEST").c_str());
+            sprintf(m_d[i].test,"%s",(*dbam)[i]->getString("TEST").c_str());
         }
         catch (const std::runtime_error&)
         {
@@ -47,9 +50,9 @@ DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam) :
         {
             std::ostringstream tem;
             tem << j;
-            std::string tag = "DBAM_DATA.NAME_"+tem.str();
+            std::string tag = "NAME_"+tem.str();
             try {
-                sprintf(m_d[i].name[j],"%s",dbam->data<std::string>(tag).c_str());
+                sprintf(m_d[i].name[j],"%s",(*dbam)[i]->getString(tag).c_str());
             }
             catch (const std::runtime_error&)
             {
@@ -58,7 +61,6 @@ DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam) :
         }
         i++;
     }
-    dbam->finalize();
   }
   else {
     m_d = new DBAM[0];

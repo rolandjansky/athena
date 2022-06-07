@@ -13,9 +13,9 @@
 #ifndef DBLQ00_ASZT_H
 #define DBLQ00_ASZT_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
 
-#include <memory>
+
+class IRDBAccessSvc;
 #include <string>
 
 class AmdcDb;
@@ -25,7 +25,7 @@ class DblQ00Aszt {
 public:
     DblQ00Aszt();
     ~DblQ00Aszt();
-    DblQ00Aszt(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Aszt(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Aszt(const std::string& asciiFileName);
     DblQ00Aszt(AmdcDb* aszt);
     

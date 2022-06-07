@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Wcsc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -19,45 +20,47 @@
 namespace MuonGM
 {
 
-DblQ00Wcsc::DblQ00Wcsc(std::unique_ptr<IRDBQuery>&& wcsc) :
+  DblQ00Wcsc::DblQ00Wcsc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wcsc) {
-    wcsc->execute();
+
+    IRDBRecordset_ptr wcsc = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wcsc->size()>0) {
     m_nObj = wcsc->size();
     m_d = new WCSC[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wcsc banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wcsc->next()) {
-        m_d[i].version     = wcsc->data<int>("WCSC_DATA.VERS");    
-        m_d[i].jsta        = wcsc->data<int>("WCSC_DATA.JSTA");    
-        m_d[i].laycsc      = wcsc->data<int>("WCSC_DATA.LAYCSC");
-        m_d[i].ttotal      = wcsc->data<float>("WCSC_DATA.TTOTAL");
-        m_d[i].tnomex      = wcsc->data<float>("WCSC_DATA.TNOMEX"); 
-        m_d[i].tlag10      = wcsc->data<float>("WCSC_DATA.TLAG10"); 
-        m_d[i].wispa       = wcsc->data<float>("WCSC_DATA.WISPA"); 
-        m_d[i].dancat      = wcsc->data<float>("WCSC_DATA.DANCAT"); 
-        m_d[i].pcatre      = wcsc->data<float>("WCSC_DATA.PCATRE"); 
-        m_d[i].gstrip      = wcsc->data<float>("WCSC_DATA.GSTRIP"); 
-        m_d[i].wrestr      = wcsc->data<float>("WCSC_DATA.WRESTR"); 
-        m_d[i].wflstr      = wcsc->data<float>("WCSC_DATA.WFLSTR"); 
-        m_d[i].trrwas      = wcsc->data<float>("WCSC_DATA.TRRWAS"); 
-        m_d[i].wroxa       = wcsc->data<float>("WCSC_DATA.WROXA"); 
-        m_d[i].groxwi      = wcsc->data<float>("WCSC_DATA.GROXWI"); 
-        m_d[i].wgasba      = wcsc->data<float>("WCSC_DATA.WGASBA"); 
-        m_d[i].tgasba      = wcsc->data<float>("WCSC_DATA.TGASBA"); 
-        m_d[i].wgascu      = wcsc->data<float>("WCSC_DATA.WGASCU"); 
-        m_d[i].tgascu      = wcsc->data<float>("WCSC_DATA.TGASCU"); 
-        m_d[i].wfixwi      = wcsc->data<float>("WCSC_DATA.WFIXWI"); 
-        m_d[i].tfixwi      = wcsc->data<float>("WCSC_DATA.TFIXWI"); 
-        m_d[i].pba1wi      = wcsc->data<float>("WCSC_DATA.PBA1WI"); 
-        m_d[i].pba2wi      = wcsc->data<float>("WCSC_DATA.PBA2WI"); 
-        m_d[i].pba3wi      = wcsc->data<float>("WCSC_DATA.PBA3WI"); 
-        m_d[i].psndco      = wcsc->data<float>("WCSC_DATA.PSNDCO");
+    size_t i=0;
+    while(i<wcsc->size()) {
+        m_d[i].version     = (*wcsc)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wcsc)[i]->getInt("JSTA");    
+        m_d[i].laycsc      = (*wcsc)[i]->getInt("LAYCSC");
+        m_d[i].ttotal      = (*wcsc)[i]->getFloat("TTOTAL");
+        m_d[i].tnomex      = (*wcsc)[i]->getFloat("TNOMEX"); 
+        m_d[i].tlag10      = (*wcsc)[i]->getFloat("TLAG10"); 
+        m_d[i].wispa       = (*wcsc)[i]->getFloat("WISPA"); 
+        m_d[i].dancat      = (*wcsc)[i]->getFloat("DANCAT"); 
+        m_d[i].pcatre      = (*wcsc)[i]->getFloat("PCATRE"); 
+        m_d[i].gstrip      = (*wcsc)[i]->getFloat("GSTRIP"); 
+        m_d[i].wrestr      = (*wcsc)[i]->getFloat("WRESTR"); 
+        m_d[i].wflstr      = (*wcsc)[i]->getFloat("WFLSTR"); 
+        m_d[i].trrwas      = (*wcsc)[i]->getFloat("TRRWAS"); 
+        m_d[i].wroxa       = (*wcsc)[i]->getFloat("WROXA"); 
+        m_d[i].groxwi      = (*wcsc)[i]->getFloat("GROXWI"); 
+        m_d[i].wgasba      = (*wcsc)[i]->getFloat("WGASBA"); 
+        m_d[i].tgasba      = (*wcsc)[i]->getFloat("TGASBA"); 
+        m_d[i].wgascu      = (*wcsc)[i]->getFloat("WGASCU"); 
+        m_d[i].tgascu      = (*wcsc)[i]->getFloat("TGASCU"); 
+        m_d[i].wfixwi      = (*wcsc)[i]->getFloat("WFIXWI"); 
+        m_d[i].tfixwi      = (*wcsc)[i]->getFloat("TFIXWI"); 
+        m_d[i].pba1wi      = (*wcsc)[i]->getFloat("PBA1WI"); 
+        m_d[i].pba2wi      = (*wcsc)[i]->getFloat("PBA2WI"); 
+        m_d[i].pba3wi      = (*wcsc)[i]->getFloat("PBA3WI"); 
+        m_d[i].psndco      = (*wcsc)[i]->getFloat("PSNDCO");
         m_d[i].azcat = 0.;
         float  azcat = 0.;
         try {
-            azcat = wcsc->data<float>("WCSC_DATA.AZCAT");
+            azcat = (*wcsc)[i]->getFloat("AZCAT");
             m_d[i].azcat =   azcat;
         }
         catch (const std::runtime_error&)
@@ -67,7 +70,6 @@ DblQ00Wcsc::DblQ00Wcsc(std::unique_ptr<IRDBQuery>&& wcsc) :
         }
        i++;
     }
-    wcsc->finalize();
   }
   else {
     m_d = new WCSC[0];

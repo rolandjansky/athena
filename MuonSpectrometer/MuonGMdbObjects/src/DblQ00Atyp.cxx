@@ -9,6 +9,8 @@
 
 #include "MuonGMdbObjects/DblQ00Atyp.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,23 +20,24 @@
 namespace MuonGM
 {
 
-DblQ00Atyp::DblQ00Atyp(std::unique_ptr<IRDBQuery>&& atyp) :
+  DblQ00Atyp::DblQ00Atyp(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode) :
     m_nObj(0) {
-  if(atyp) {
-    atyp->execute();
+
+  IRDBRecordset_ptr atyp = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+  if(atyp->size()!=0) {
     m_nObj = atyp->size();
     m_d = new ATYP[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Atyp banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(atyp->next()) {
-        m_d[i].version        = atyp->data<int>("ATYP_DATA.VERS");    
-        m_d[i].jtyp           = atyp->data<int>("ATYP_DATA.JTYP");          
-        m_d[i].nsta           = atyp->data<int>("ATYP_DATA.NSTA");          
-        sprintf(m_d[i].type,"%s",atyp->data<std::string>("ATYP_DATA.TYP").c_str());
+    size_t i=0;
+    while(i<atyp->size()) {
+        m_d[i].version        = (*atyp)[i]->getInt("VERS");    
+        m_d[i].jtyp           = (*atyp)[i]->getInt("JTYP");          
+        m_d[i].nsta           = (*atyp)[i]->getInt("NSTA");          
+        sprintf(m_d[i].type,"%s",(*atyp)[i]->getString("TYP").c_str());
         i++;
     }
-    atyp->finalize();
   }
   else {
     m_d = new ATYP[0];

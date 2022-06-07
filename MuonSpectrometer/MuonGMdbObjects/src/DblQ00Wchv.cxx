@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Wchv.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,25 +19,26 @@
 namespace MuonGM
 {
 
-DblQ00Wchv::DblQ00Wchv(std::unique_ptr<IRDBQuery>&& wchv) :
+  DblQ00Wchv::DblQ00Wchv(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wchv) {
-    wchv->execute();
+
+    IRDBRecordset_ptr wchv = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wchv->size()>0) {
     m_nObj = wchv->size();
     m_d = new WCHV[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wchv banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wchv->next()) {
-        m_d[i].version     = wchv->data<int>("WCHV_DATA.VERS");    
-        m_d[i].jsta        = wchv->data<int>("WCHV_DATA.JSTA");
-        m_d[i].num         = wchv->data<int>("WCHV_DATA.NUM");
-        m_d[i].heightness     = wchv->data<float>("WCHV_DATA.HEIGHTNESS");
-        m_d[i].largeness      = wchv->data<float>("WCHV_DATA.LARGENESS");
-        m_d[i].thickness      = wchv->data<float>("WCHV_DATA.THICKNESS");
+    size_t i=0;
+    while(i<wchv->size()) {
+        m_d[i].version     = (*wchv)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wchv)[i]->getInt("JSTA");
+        m_d[i].num         = (*wchv)[i]->getInt("NUM");
+        m_d[i].heightness     = (*wchv)[i]->getFloat("HEIGHTNESS");
+        m_d[i].largeness      = (*wchv)[i]->getFloat("LARGENESS");
+        m_d[i].thickness      = (*wchv)[i]->getFloat("THICKNESS");
         i++;
     }
-    wchv->finalize();
   }
   else {
     m_d = new WCHV[0];

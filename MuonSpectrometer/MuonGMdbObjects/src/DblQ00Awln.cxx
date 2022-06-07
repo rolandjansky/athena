@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Awln.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,31 +19,32 @@
 namespace MuonGM
 {
 
-DblQ00Awln::DblQ00Awln(std::unique_ptr<IRDBQuery>&& awln) :
+  DblQ00Awln::DblQ00Awln(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(awln) {
-    awln->execute();
+
+    IRDBRecordset_ptr awln = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(awln->size()>0) {
     m_nObj = awln->size();
     m_d = new AWLN[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Awln banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(awln->next()) {
-        m_d[i].version       = awln->data<int>("AWLN_DATA.VERS");    
-        m_d[i].jsta          = awln->data<int>("AWLN_DATA.JSTA");    
-        m_d[i].spitch        = awln->data<float>("AWLN_DATA.SPITCH");  
-        m_d[i].zpitch        = awln->data<float>("AWLN_DATA.ZPITCH");  
-        m_d[i].dedstr        = awln->data<float>("AWLN_DATA.DEDSTR");  
-        m_d[i].nsrest        = awln->data<int>("AWLN_DATA.NSREST");  
-        m_d[i].nzrest        = awln->data<int>("AWLN_DATA.NZREST");
-        m_d[i].sfirst        = awln->data<float>("AWLN_DATA.SFIRST");
-        m_d[i].zfirst        = awln->data<float>("AWLN_DATA.ZFIRST");
-        m_d[i].dedsep        = awln->data<float>("AWLN_DATA.DEDSEP");
-        m_d[i].nsrost        = awln->data<int>("AWLN_DATA.NSROST");  
-        m_d[i].nzrost        = awln->data<int>("AWLN_DATA.NZROST");
+    size_t i=0;
+    while(i<awln->size()) {
+        m_d[i].version       = (*awln)[i]->getInt("VERS");    
+        m_d[i].jsta          = (*awln)[i]->getInt("JSTA");    
+        m_d[i].spitch        = (*awln)[i]->getFloat("SPITCH");  
+        m_d[i].zpitch        = (*awln)[i]->getFloat("ZPITCH");  
+        m_d[i].dedstr        = (*awln)[i]->getFloat("DEDSTR");  
+        m_d[i].nsrest        = (*awln)[i]->getInt("NSREST");  
+        m_d[i].nzrest        = (*awln)[i]->getInt("NZREST");
+        m_d[i].sfirst        = (*awln)[i]->getFloat("SFIRST");
+        m_d[i].zfirst        = (*awln)[i]->getFloat("ZFIRST");
+        m_d[i].dedsep        = (*awln)[i]->getFloat("DEDSEP");
+        m_d[i].nsrost        = (*awln)[i]->getInt("NSROST");  
+        m_d[i].nzrost        = (*awln)[i]->getInt("NZROST");
         i++;
     }
-    awln->finalize();
   }
   else {
     m_d = new AWLN[0];

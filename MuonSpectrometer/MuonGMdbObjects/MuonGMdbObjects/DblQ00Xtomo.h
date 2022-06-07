@@ -13,9 +13,8 @@
 #ifndef DBLQ00_XTOMO_H
 #define DBLQ00_XTOMO_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+class IRDBAccessSvc;
 
-#include <memory>
 #include <string>
 
 class AmdcDb;
@@ -25,7 +24,7 @@ class DblQ00Xtomo {
 public:
     DblQ00Xtomo();
     ~DblQ00Xtomo();
-    DblQ00Xtomo(std::unique_ptr<IRDBQuery>&& xtomo);
+    DblQ00Xtomo(IRDBAccessSvc *pAccessSvc,const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Xtomo(AmdcDb* xtomo);
 
     // data members for DblQ00/XTOMO fields

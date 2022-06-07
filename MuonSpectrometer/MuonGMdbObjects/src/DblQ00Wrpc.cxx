@@ -8,6 +8,7 @@
  ***************************************************************************/
 
 #include "MuonGMdbObjects/DblQ00Wrpc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
@@ -18,39 +19,38 @@
 namespace MuonGM
 {
 
-DblQ00Wrpc::DblQ00Wrpc(std::unique_ptr<IRDBQuery>&& wrpc) :
+  DblQ00Wrpc::DblQ00Wrpc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode) :
     m_nObj(0) {
-  if(wrpc) {
-    wrpc->execute();
+  IRDBRecordset_ptr wrpc = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+  if(wrpc->size()>0) {
     m_nObj = wrpc->size();
     m_d = new WRPC[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wrpc banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wrpc->next()) {
-        m_d[i].version     = wrpc->data<int>("WRPC_DATA.VERS");    
-        m_d[i].nvrs        = wrpc->data<int>("WRPC_DATA.NVRS");
-        m_d[i].layrpc      = wrpc->data<int>("WRPC_DATA.LAYRPC");
-        m_d[i].tckrla      = wrpc->data<float>("WRPC_DATA.TCKRLA");
-        m_d[i].tottck      = wrpc->data<float>("WRPC_DATA.TOTTCK");
-        m_d[i].tckfsp      = wrpc->data<float>("WRPC_DATA.TCKFSP");
-        m_d[i].ackfsp      = wrpc->data<float>("WRPC_DATA.ACKFSP");
-        m_d[i].tlohcb      = wrpc->data<float>("WRPC_DATA.TLOHCB");
-        m_d[i].alohcb      = wrpc->data<float>("WRPC_DATA.ALOHCB");
-        m_d[i].tckbak      = wrpc->data<float>("WRPC_DATA.TCKBAK");
-        m_d[i].tckgas      = wrpc->data<float>("WRPC_DATA.TCKGAS");
-        m_d[i].tckssu      = wrpc->data<float>("WRPC_DATA.TCKSSU");
-        m_d[i].tckstr      = wrpc->data<float>("WRPC_DATA.TCKSTR");
-        m_d[i].sdedmi      = wrpc->data<float>("WRPC_DATA.SDEDMI");
-        m_d[i].zdedmi      = wrpc->data<float>("WRPC_DATA.ZDEDMI");
-        m_d[i].spdiam      = wrpc->data<float>("WRPC_DATA.SPDIAM");
-        m_d[i].sppitc      = wrpc->data<float>("WRPC_DATA.SPPITC");
-        m_d[i].stroff[0]   = wrpc->data<float>("WRPC_DATA.STROFF_0");
-        m_d[i].stroff[1]   = wrpc->data<float>("WRPC_DATA.STROFF_1");
-        m_d[i].stroff[2]   = wrpc->data<float>("WRPC_DATA.STROFF_2");
+    size_t i=0;
+    while(i<wrpc->size()) {
+        m_d[i].version     = (*wrpc)[i]->getInt("VERS");    
+        m_d[i].nvrs        = (*wrpc)[i]->getInt("NVRS");
+        m_d[i].layrpc      = (*wrpc)[i]->getInt("LAYRPC");
+        m_d[i].tckrla      = (*wrpc)[i]->getFloat("TCKRLA");
+        m_d[i].tottck      = (*wrpc)[i]->getFloat("TOTTCK");
+        m_d[i].tckfsp      = (*wrpc)[i]->getFloat("TCKFSP");
+        m_d[i].ackfsp      = (*wrpc)[i]->getFloat("ACKFSP");
+        m_d[i].tlohcb      = (*wrpc)[i]->getFloat("TLOHCB");
+        m_d[i].alohcb      = (*wrpc)[i]->getFloat("ALOHCB");
+        m_d[i].tckbak      = (*wrpc)[i]->getFloat("TCKBAK");
+        m_d[i].tckgas      = (*wrpc)[i]->getFloat("TCKGAS");
+        m_d[i].tckssu      = (*wrpc)[i]->getFloat("TCKSSU");
+        m_d[i].tckstr      = (*wrpc)[i]->getFloat("TCKSTR");
+        m_d[i].sdedmi      = (*wrpc)[i]->getFloat("SDEDMI");
+        m_d[i].zdedmi      = (*wrpc)[i]->getFloat("ZDEDMI");
+        m_d[i].spdiam      = (*wrpc)[i]->getFloat("SPDIAM");
+        m_d[i].sppitc      = (*wrpc)[i]->getFloat("SPPITC");
+        m_d[i].stroff[0]   = (*wrpc)[i]->getFloat("STROFF_0");
+        m_d[i].stroff[1]   = (*wrpc)[i]->getFloat("STROFF_1");
+        m_d[i].stroff[2]   = (*wrpc)[i]->getFloat("STROFF_2");
         i++;
     }
-    wrpc->finalize();
   }
   else {
     m_d = new WRPC[0];

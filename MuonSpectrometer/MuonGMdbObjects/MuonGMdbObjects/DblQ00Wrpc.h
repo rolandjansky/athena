@@ -12,10 +12,9 @@
 
 #ifndef DBLQ00_WRPC_H
 #define DBLQ00_WRPC_H
+#include <string>
 
-#include "RDBAccessSvc/IRDBQuery.h"
-
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +23,7 @@ class DblQ00Wrpc {
 public:
     DblQ00Wrpc(){};
     ~DblQ00Wrpc();
-    DblQ00Wrpc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wrpc(IRDBAccessSvc *pAccessSvc,const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wrpc(AmdcDb* wrpc);
     
     // data members for DblQ00/WRPC fields

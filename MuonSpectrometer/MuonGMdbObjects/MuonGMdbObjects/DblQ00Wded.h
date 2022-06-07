@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WDED_H
 #define DBLQ00_WDED_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wded {
 public:
     DblQ00Wded(){};
     ~DblQ00Wded();
-    DblQ00Wded(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wded(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wded(AmdcDb* wded);
 
     // data members for DblQ00/WDED fields

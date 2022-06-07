@@ -12,10 +12,10 @@
 
 #ifndef DBLQ00_ACUT_H
 #define DBLQ00_ACUT_H
+#include <string>
 
-#include "RDBAccessSvc/IRDBQuery.h"
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Acut {
 public:
     DblQ00Acut(){};
     ~DblQ00Acut();
-    DblQ00Acut(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Acut(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Acut(AmdcDb* acut);
 
     // data members for DblQ00/ACUT fields

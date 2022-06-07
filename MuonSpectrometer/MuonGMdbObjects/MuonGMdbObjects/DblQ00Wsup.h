@@ -12,10 +12,10 @@
 
 #ifndef DBLQ00_WSUP_H
 #define DBLQ00_WSUP_H
+#include <string>
 
-#include "RDBAccessSvc/IRDBQuery.h"
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wsup {
 public:
     DblQ00Wsup(){};
     ~DblQ00Wsup();
-    DblQ00Wsup(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wsup(IRDBAccessSvc *pAcccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wsup(AmdcDb* wsup);
 
     // data members for DblQ00/WSUP fields

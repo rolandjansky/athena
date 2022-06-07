@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Wspa.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,24 +19,25 @@
 namespace MuonGM
 {
 
-DblQ00Wspa::DblQ00Wspa(std::unique_ptr<IRDBQuery>&& wspa) :
+  DblQ00Wspa::DblQ00Wspa(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wspa) {
-    wspa->execute();
+
+    IRDBRecordset_ptr wspa = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wspa->size()>0) {
     m_nObj = wspa->size();
     m_d = new WSPA[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wspa banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wspa->next()) {
-        m_d[i].version     = wspa->data<int>("WSPA_DATA.VERS");    
-        m_d[i].jsta        = wspa->data<int>("WSPA_DATA.JSTA");
-        m_d[i].nb        = wspa->data<int>("WSPA_DATA.NB");
-        m_d[i].x0          = wspa->data<float>("WSPA_DATA.X0");
-        m_d[i].tckspa      = wspa->data<float>("WSPA_DATA.TCKSPA");
+    size_t i=0;
+    while(i<wspa->size()) {
+        m_d[i].version     = (*wspa)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wspa)[i]->getInt("JSTA");
+        m_d[i].nb        = (*wspa)[i]->getInt("NB");
+        m_d[i].x0          = (*wspa)[i]->getFloat("X0");
+        m_d[i].tckspa      = (*wspa)[i]->getFloat("TCKSPA");
         i++;
     }
-    wspa->finalize();
   }
   else {
     m_d = new WSPA[0];

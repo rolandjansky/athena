@@ -13,9 +13,9 @@
 #ifndef DBLQ00_IACSC_H
 #define DBLQ00_IACSC_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
 
-#include <memory>
+
+class IRDBAccessSvc;
 #include <string>
 
 class AmdcDb;
@@ -25,7 +25,7 @@ class DblQ00IAcsc {
 public:
     DblQ00IAcsc();
     ~DblQ00IAcsc();
-    DblQ00IAcsc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00IAcsc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00IAcsc(const std::string& asciiFileName);
     DblQ00IAcsc(AmdcDb* iacsc);
     

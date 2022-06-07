@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Wtgc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -20,30 +21,32 @@
 namespace MuonGM
 {
 
-DblQ00Wtgc::DblQ00Wtgc(std::unique_ptr<IRDBQuery>&& wtgc) :
+  DblQ00Wtgc::DblQ00Wtgc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wtgc) {
-    wtgc->execute();
+
+    IRDBRecordset_ptr wtgc = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wtgc->size()>0) {
     m_nObj = wtgc->size();
     m_d = new WTGC[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wtgc banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wtgc->next()) {
-        m_d[i].version     = wtgc->data<int>("WTGC_DATA.VERS");    
-        m_d[i].jsta        = wtgc->data<int>("WTGC_DATA.JSTA");
-        m_d[i].nbevol      = wtgc->data<int>("WTGC_DATA.NBEVOL");
-        m_d[i].x0          = wtgc->data<float>("WTGC_DATA.X0");
-        m_d[i].widchb      = wtgc->data<float>("WTGC_DATA.WIDCHB");
-        m_d[i].fwirch      = wtgc->data<float>("WTGC_DATA.FWIRCH");
-        m_d[i].fwixch      = wtgc->data<float>("WTGC_DATA.FWIXCH");
+    size_t i=0;
+    while(i<wtgc->size()) {
+        m_d[i].version     = (*wtgc)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wtgc)[i]->getInt("JSTA");
+        m_d[i].nbevol      = (*wtgc)[i]->getInt("NBEVOL");
+        m_d[i].x0          = (*wtgc)[i]->getFloat("X0");
+        m_d[i].widchb      = (*wtgc)[i]->getFloat("WIDCHB");
+        m_d[i].fwirch      = (*wtgc)[i]->getFloat("FWIRCH");
+        m_d[i].fwixch      = (*wtgc)[i]->getFloat("FWIXCH");
         for (unsigned int j=0; j<9; j++)
         {
             std::ostringstream tem;
             tem << j;
-            std::string tag = "WTGC_DATA.ALLNAME_"+tem.str();
+            std::string tag = "ALLNAME_"+tem.str();
             try {
-	      sprintf(m_d[i].allname[j],"%s",wtgc->data<std::string>(tag).c_str());
+	      sprintf(m_d[i].allname[j],"%s",(*wtgc)[i]->getString(tag).c_str());
             }
             catch (const std::runtime_error&)
             {
@@ -52,7 +55,6 @@ DblQ00Wtgc::DblQ00Wtgc(std::unique_ptr<IRDBQuery>&& wtgc) :
         }
         i++;
     }
-    wtgc->finalize();
   }
   else {
     m_d = new WTGC[0];
