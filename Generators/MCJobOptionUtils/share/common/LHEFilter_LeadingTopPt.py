@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # To use the LeadingTopPt filter in a joboption one would need to include the following lines
     #include('MCJobOptionUtils/LHEFilter_LeadingTopPt.py')
     #lheFilter = LHEFilter_LeadingTopPt()
