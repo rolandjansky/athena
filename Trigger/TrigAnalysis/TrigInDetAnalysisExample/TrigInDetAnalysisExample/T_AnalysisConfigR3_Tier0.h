@@ -188,10 +188,12 @@ public:
       if ( m_invmass_obj==0 ) m_invmass_obj = new TIDA::Histogram<float>( monTool(), "invmass_obj" );
     }
 
-    m_offline_type = "InDetTrackParticles";
-      
-    if ( m_types.size()>1 ) m_provider->msg(MSG::WARNING) << "too many offline reference types: " << m_types.size() << endmsg;
-    else if ( m_types.size()==1 ) m_offline_type = m_types[0]; 
+    for ( size_t it=0 ; it<m_types.size() ; it++ ) {
+      if ( m_types[it]=="" ) m_offline_types.push_back( "InDetTrackParticles" );
+      else                   m_offline_types.push_back( m_types[it] );      
+    }
+
+    if ( m_offline_types.empty() ) m_offline_types.push_back( "InDetTrackParticles" );
 
   }
 
@@ -634,16 +636,27 @@ protected:
 
     if ( m_doOffline && !m_mcTruth) {
 
-      if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>( m_offline_type ) ) {
-	this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, m_offline_type );
-	refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( m_offline_type );
+      bool found_offline = false;
+
+      for ( size_t it=0 ; it<m_offline_types.size() ; it++ ) {
+	if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>( m_offline_types[it] ) ) {
+	  this->template selectTracks<xAOD::TrackParticleContainer>( pselectorRef, m_offline_types[it] );
+	  refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( m_offline_types[it] );
+	  found_offline = true;
+	}
+	else { 
+	  m_provider->msg(MSG::WARNING) << "Offline tracks not found: " << m_offline_types[it] << endmsg;
+	}
       }
-      else if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
-	/// do we still want to support Rec::TrackParticles ? Would this even still work ?
-	this->template selectTracks<Rec::TrackParticleContainer>( pselectorRef, "TrackParticleCandidate" );
-      }
-      else { 
-	m_provider->msg(MSG::WARNING) << " Offline tracks not found: " << m_offline_type << " (nor TrackParticleCandidate)" << endmsg;
+      
+      if ( !found_offline ) { 
+	if (m_provider->evtStore()->template contains<Rec::TrackParticleContainer>("TrackParticleCandidate") ) {
+	  /// do we still want to support Rec::TrackParticles ? Would this even still work ?
+	  this->template selectTracks<Rec::TrackParticleContainer>( pselectorRef, "TrackParticleCandidate" );
+	}
+	else { 
+	  m_provider->msg(MSG::WARNING) << "Offline tracks not found: " << "TrackParticleCandidate" << endmsg;
+	}
       }
 
     }
@@ -1216,7 +1229,7 @@ protected:
   bool m_doTauThreeProng;
   bool m_tauEtCutOffline;
 
-  std::string              m_offline_type;
+  std::vector<std::string> m_offline_types;
   std::vector<std::string> m_types;
 
   std::string m_outputFileName;

@@ -398,14 +398,25 @@ StatusCode TrigR3Mon::bookHistograms() {
       if ( allcs.back().head().find("HLT_")==0 ) continue;
       if ( allcs.back().head()=="Offline" ) { 
 	m_mcTruth   = false;
-	if ( allcs.back().tail()!="" ) { 
-	  mtypes.push_back( allcs.back().tail() );
-	  ATH_MSG_INFO( "Offline reference collection: " << mtypes.back() );
+	if ( allcs.back().tail()!="" ) {
+	  if ( allcs.back().tail().find("+")==0 ) { 
+	    mtypes.push_back( allcs.back().tail().substr(1) );
+	    ATH_MSG_INFO( "Adding Offline reference collection: " << mtypes.back() );
+	  }
+	  else { 
+	    if ( mtypes.size()<1 ) ATH_MSG_WARNING( "Too Many reference collections : " << allcs.back().tail() );
+	    else { 
+	      mtypes.push_back( allcs.back().tail() );
+	      ATH_MSG_INFO( "Offline reference collection: " << mtypes.back() );
+	    }
+	  }
+	}
+	else { 
+	  mtypes.push_back( "" );
 	}
       }
     }
 
-    
     for ( size_t i=0 ; i<m_chainNames.size() ; i++ ) {
 
       ChainString probe = m_chainNames[i] ;
@@ -465,6 +476,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 	analysis->containTracks(m_containTracks);
 
 	analysis->set_monTool( monTools[i] );
+	if ( mtypes.size()>0 ) analysis->setTypes( mtypes );
+
 	analysis->initialise();
 
 	if ( m_mcTruth ) { 
@@ -475,8 +488,6 @@ StatusCode TrigR3Mon::bookHistograms() {
 	    analysis->setOfflineRef( false );
 	}
 
-	if ( mtypes.size()>0 ) analysis->setTypes( mtypes );
-	
 	m_sequences.push_back( analysis );
 
       	std::string highestPT_str = "";
