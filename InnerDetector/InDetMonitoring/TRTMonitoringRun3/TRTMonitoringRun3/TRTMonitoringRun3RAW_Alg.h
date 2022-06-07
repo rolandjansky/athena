@@ -137,9 +137,8 @@ private:
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};
     SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName",  "TRT_BCID",      "Name of TRT BCID collection"};
-    SG::ReadHandleKey<xAOD::EventInfo>     m_xAODEventInfoKey{this,      "xAODEventInfo",          "EventInfo",     "Name of EventInfo object"};
     SG::ReadHandleKey<TrackCollection>     m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
-    SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
+    SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "CombinedInDetTracks", "Name of tracks container"};
 
     SG::ReadHandleKey<TRT_BSErrContainer> m_bsErrContKey{this,"ByteStreamErrors","TRT_ByteStreamErrs","SG key of TRT ByteStream Error container"};
 

@@ -184,6 +184,15 @@ def RecoSteering(flags):
         acc.merge(AFPRecCfg(flags))
         log.info("---------- Configured AFP reconstruction")
 
+    # Monitoring
+    acc.flagPerfmonDomain('DQM')
+    if flags.DQ.doMonitoring:
+        from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg, AthenaMonitoringPostprocessingCfg
+        acc.merge(AthenaMonitoringCfg(flags))
+        if flags.DQ.doPostProcessing:
+           acc.merge(AthenaMonitoringPostprocessingCfg(flags))
+        log.info("---------- Configured DQ monitoring")
+
     # Setup the final post-processing
     acc.flagPerfmonDomain('PostProcessing')
     if flags.Reco.EnablePostProcessing:

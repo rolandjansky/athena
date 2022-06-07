@@ -135,7 +135,6 @@ StatusCode TRTMonitoringRun3RAW_Alg::initialize() {
 
     // Initialization of VarHandleKeys
     ATH_CHECK( m_rdoContainerKey.initialize() );
-    ATH_CHECK( m_xAODEventInfoKey.initialize() );
     ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
     ATH_CHECK( m_combTrackCollectionKey.initialize() );
     ATH_CHECK( m_trackCollectionKey.initialize() );
@@ -2717,7 +2716,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillHistograms( const EventContext& ctx ) c
     ATH_MSG_VERBOSE("Monitoring Histograms being filled");
 
     SG::ReadHandle<TRT_RDO_Container>   rdoContainer(m_rdoContainerKey, ctx);
-    SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo(m_xAODEventInfoKey, ctx);
+    SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo = GetEventInfo(ctx);
     SG::ReadHandle<InDetTimeCollection> trtBCIDCollection(m_TRT_BCIDCollectionKey, ctx);
     SG::ReadHandle<TrackCollection>     combTrackCollection(m_combTrackCollectionKey, ctx);
     SG::ReadHandle<TrackCollection>     trackCollection(m_trackCollectionKey, ctx);
