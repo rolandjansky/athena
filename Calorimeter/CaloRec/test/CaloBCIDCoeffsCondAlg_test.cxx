@@ -303,8 +303,8 @@ void test1 (ISvcLocator* svcloc,
   const EventIDRange range_mb (runlbn (10, 15), runlbn (10, 75));
   assert( cc_mb->insert (range_mb, std::move(mb), ctx).isSuccess() );
   assert( conditionStore->record (std::move (cc_mb), id_mb.key()) );
-
-  assert( alg.execute (ctx).isSuccess() );
+  Gaudi::Hive::setCurrentContext(ctx);
+  assert( alg.execute ().isSuccess() );
 
   CondCont<CaloBCIDCoeffs>* cc_coeffs = nullptr;
   assert( conditionStore->retrieve (cc_coeffs, "CaloBCIDCoeffs").isSuccess() );
