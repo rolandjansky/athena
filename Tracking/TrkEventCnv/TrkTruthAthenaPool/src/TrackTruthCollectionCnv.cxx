@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackTruthCollectionCnv.h"
@@ -19,11 +19,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // This is release 12 guid for TrackTruthVector.
-pool::Guid TrackTruthCollectionCnv::s_p0_guid("8BC86D69-DBC4-4B34-8273-513D9BE771D5");
-
-pool::Guid TrackTruthCollectionCnv::s_p1_guid("ED2B4B64-7CF6-48B3-8C40-29F8501A6090");
-
-pool::Guid TrackTruthCollectionCnv::s_p2_guid("44F35B21-838A-4C4E-B09B-971CEA0EB70A");
+const pool::Guid TrackTruthCollectionCnv::s_p0_guid("8BC86D69-DBC4-4B34-8273-513D9BE771D5");
+const pool::Guid TrackTruthCollectionCnv::s_p1_guid("ED2B4B64-7CF6-48B3-8C40-29F8501A6090");
+const pool::Guid TrackTruthCollectionCnv::s_p2_guid("44F35B21-838A-4C4E-B09B-971CEA0EB70A");
 
 
 //================================================================
