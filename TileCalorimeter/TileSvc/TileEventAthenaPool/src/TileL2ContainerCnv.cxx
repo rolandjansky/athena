@@ -39,9 +39,9 @@ TileL2Container* TileL2ContainerCnv::createTransient() {
 
   TileL2Container *transObj = 0;
 
-  static pool::Guid tr_guid("E9BB4497-FF43-4D70-8A64-B509081DAD88");
-  static pool::Guid p1_guid("FE877FF9-475D-42D9-8DC3-CABD220BFD27");
-  static pool::Guid p2_guid("3283BF32-0B18-408F-9B46-6A1B26B37D5C");
+  static const pool::Guid tr_guid("E9BB4497-FF43-4D70-8A64-B509081DAD88");
+  static const pool::Guid p1_guid("FE877FF9-475D-42D9-8DC3-CABD220BFD27");
+  static const pool::Guid p2_guid("3283BF32-0B18-408F-9B46-6A1B26B37D5C");
 
   if ( compareClassGuid(tr_guid) ) {
 

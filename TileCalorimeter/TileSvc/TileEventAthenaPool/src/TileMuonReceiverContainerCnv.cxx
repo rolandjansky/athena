@@ -38,8 +38,8 @@ TileMuonReceiverContainer* TileMuonReceiverContainerCnv::createTransient() {
 
   TileMuonReceiverContainer *transObj = 0;
 
-  static pool::Guid tr_guid("A01F819F-4F0B-4713-A275-7DA5F47F77E5");
-  static pool::Guid p1_guid("7F0DA5A3-7773-4852-AE55-A9920FEB31AB");
+  static const pool::Guid tr_guid("A01F819F-4F0B-4713-A275-7DA5F47F77E5");
+  static const pool::Guid p1_guid("7F0DA5A3-7773-4852-AE55-A9920FEB31AB");
 
   if ( compareClassGuid(tr_guid) ) {
 
