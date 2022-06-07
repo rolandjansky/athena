@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 
-#include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
+#include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
@@ -155,9 +155,9 @@ private:
   ToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{ this,
                                                      "PixelToTPIDTool",
                                                      "" };
-  ToolHandle<InDet::IInDetTestBLayerTool> m_testBLayerTool{ this,
-                                                            "TestBLayerTool",
-                                                            "" };
+  ToolHandle<InDet::IInDetTestPixelLayerTool> m_testPixelLayerTool{ this,
+                                                                    "TestPixelLayerTool",
+                                                                    "" };
   ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{
     this,
     "TRTStrawSummarySvc",

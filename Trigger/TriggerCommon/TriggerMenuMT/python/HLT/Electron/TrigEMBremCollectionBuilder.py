@@ -28,8 +28,10 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         import egammaRec.EMCommonRefitter
         # import TriggerMenuMT.HLT.Electron.TrigEMCommonRefitter as TrigEMCommonRefitter
-        # Extrapolator to be used for GSF (private)
+        # Extrapolator to be used for GSF (public)
         GSFBuildInDetExtrapolator = egammaExtrapolator()
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += GSFBuildInDetExtrapolator
 
         # GsfReffiter (private not in ToolSvc)
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
@@ -44,7 +46,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         #
         #  BLayer and Pixel Related Tools (private = True)
         #
-        GSFBuildTestBLayerTool = None
+        GSFBuildTestPixelLayerTool = None
         GSFBuildPixelToTPIDTool = None
         if DetFlags.haveRIO.pixel_on():
             GSFPixelConditionsSummaryTool = (
@@ -55,10 +57,11 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 GSFPixelConditionsSummaryTool.IsActiveStatus = [
                     'OK', 'WARNING', 'ERROR', 'FATAL']
 
-            GSFBuildTestBLayerTool = TrackingCommon.getInDetTrigRecTestBLayerTool(
-                name="GSFBuildTestBLayerTool",
+            GSFBuildTestPixelLayerTool = TrackingCommon.getInDetTrigTestPixelLayerToolInner(
+                name="GSFBuildTestPixelLayerTool",
                 PixelSummaryTool=GSFPixelConditionsSummaryTool,
                 Extrapolator=GSFBuildInDetExtrapolator,
+                CheckActiveAreas=False,
                 private=True)
 
             GSFBuildPixelToTPIDTool = TrackingCommon.getInDetPixelToTPIDTool(
@@ -96,7 +99,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             name="GSFBuildTrackSummaryHelperTool",
             AssoTool=None,
             HoleSearch=None,
-            TestBLayerTool=GSFBuildTestBLayerTool,
+            TestPixelLayerTool=GSFBuildTestPixelLayerTool,
             isHLT = True,
             DoSharedHits=False,
             private=True)

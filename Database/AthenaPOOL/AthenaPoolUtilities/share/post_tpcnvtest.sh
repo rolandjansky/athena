@@ -76,7 +76,6 @@ PP="$PP"'|^ +[a-zA-Z0-9]+ : +(--|ON)'
 PP="$PP"'|DeprecationWarning.* takes no parameters'
 PP="$PP"'|^ *newobj = object.__new__'
 PP="$PP"'|INFO MVFVxContainerCnv'
-PP="$PP"'|Private AlgTool InDet::InDetTestBLayerTool/InDetTestBLayer'
 PP="$PP"'|^ +BSOLREAD. reading file'
 PP="$PP"'|^\|( \|)*-.* = '
 PP="$PP"'|file found at'
@@ -111,9 +110,6 @@ PP="$PP"'|^objKeyStore:| CfgItemList/KeyStore| CfgKeyStore/KeyStore|^. . $|^. . 
 PP="$PP"'|/TrigSteering/TrigSteeringConfig.py'
 PP="$PP"'|Unable to locate catalogue|^ PoolSvc.* WARNING'
 
-
-# Remove this once InDetTestBLayer is fixed.
-PP="$PP"'|could not get pixel module design|^ ToolSvc.InDetRecTestBLayerTool.*WARNING'
 
 # These warnings went away as of InDetTruthAlgs-00-08-04.
 PP="$PP"'|No valid proxy for object TrackTruthCollection|^ StoreGateSvc.* WARNING'
