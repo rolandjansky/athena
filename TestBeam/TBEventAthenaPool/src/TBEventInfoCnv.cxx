@@ -13,8 +13,8 @@ TBEventInfo_PERS* TBEventInfoCnv::createPersistent(TBEventInfo* transCont) {
     
 TBEventInfo* TBEventInfoCnv::createTransient() {
    MsgStream log(msgSvc(), "TBEventInfoConverter" );
-   static pool::Guid   p1_guid("1E398439-74B3-457E-BC0B-DD69201AE463");  // GUID of the persistent object
-   static pool::Guid   p0_guid("1295BE02-D698-43A8-A2BB-76E5ADCBD228");  // GUID of the transient object
+   static const pool::Guid   p1_guid("1E398439-74B3-457E-BC0B-DD69201AE463");  // GUID of the persistent object
+   static const pool::Guid   p0_guid("1295BE02-D698-43A8-A2BB-76E5ADCBD228");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< TBEventInfo_p1 > col_vect( poolReadObject< TBEventInfo_p1 >() );

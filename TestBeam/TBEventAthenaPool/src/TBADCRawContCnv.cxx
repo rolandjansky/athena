@@ -13,8 +13,8 @@ TBADCRawCont_PERS* TBADCRawContCnv::createPersistent(TBADCRawCont* transCont) {
     
 TBADCRawCont* TBADCRawContCnv::createTransient() {
    MsgStream log(msgSvc(), "TBADCRawContConverter" );
-   static pool::Guid   p1_guid("4D0407FD-A534-4595-B5BD-4A8DB797A094");  // GUID of the persistent object
-   static pool::Guid   p0_guid("5D407302-FD4E-42BC-A6E5-F5C9ECCDCBF1");  // GUID of the transient object
+   static const pool::Guid   p1_guid("4D0407FD-A534-4595-B5BD-4A8DB797A094");  // GUID of the persistent object
+   static const pool::Guid   p0_guid("5D407302-FD4E-42BC-A6E5-F5C9ECCDCBF1");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< TBADCRawCont_p1 > col_vect( poolReadObject< TBADCRawCont_p1 >() );
