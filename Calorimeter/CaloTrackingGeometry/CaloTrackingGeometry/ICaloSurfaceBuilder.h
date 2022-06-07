@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -54,9 +54,6 @@ public:
   virtual void setCaloDepth(CaloDepthTool* mytool) = 0;
   virtual CaloDepthTool* getCaloDepth() = 0;
 
-  /** entrance of the sample, no eta dependence -> flat approximation */
-  virtual Trk::Surface* CreateDDSurface(const CaloCell_ID::CaloSample sample,
-                                        const int side) const = 0;
 
   /** overwrite DD radius/z by CaloDepth radius, and an offset can be added */
   virtual Trk::Surface* CreateUserSurface(
@@ -71,18 +68,6 @@ public:
     const double offset,
     const double etaCaloLocal,
     const CaloDetDescrManager* calo_dd) const = 0;
-
-  /** Creates a surface at the end of the girder (Tile Calorimeter Iron Support
-   * extructure) */
-  virtual Trk::Surface* CreateGirderSurface() const = 0;
-
-  /** simplified geometry */
-  virtual bool CreateDDLayers(
-    CaloSubdetNames::ALIGNVOL alvol,
-    std::vector<Trk::CylinderLayer*>* thelayer) const = 0;
-  virtual bool CreateDDECLayers(
-    CaloSubdetNames::ALIGNVOL alvol,
-    std::vector<Trk::DiscLayer*>* thelayer) const = 0;
 
   /** These methods provide the default parameters used by the
      CaloTrackingGeometry and Surface Builders, clients should not need to use
