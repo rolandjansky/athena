@@ -87,25 +87,26 @@ StatusCode TGCHitsTestTool::processEvent() {
   if (m_DoTGCTest) {
 
     const DataHandle<TGCSimHitCollection> p_collection;
-    CHECK(evtStore()->retrieve(p_collection, "TGC_Hits"));
-    for (TGCSimHitCollection::const_iterator i_hit=p_collection->begin(); i_hit!=p_collection->end(); ++i_hit) {
-      /** Check the Hits identifiers, access the functions that give:
-          Station name, station eta, station phi, doublet Z, doublet phi, doublet R, GasGap, Measures Phi.
-          The values of these variables are written out to the AANtuple (variable content and range explained in the code section where AANTuple variables are
-          registered)
-      */
-      HitID tgchit= (*i_hit).TGCid();
-      Identifier offid= getIdentifier(tgchit);
-      CHECK(checkIdentifier(offid));
+    if (evtStore()->retrieve(p_collection,"TGC_Hits") == StatusCode::SUCCESS) {
+      for (TGCSimHitCollection::const_iterator i_hit=p_collection->begin(); i_hit!=p_collection->end(); ++i_hit) {
+        /** Check the Hits identifiers, access the functions that give:
+            Station name, station eta, station phi, doublet Z, doublet phi, doublet R, GasGap, Measures Phi.
+            The values of these variables are written out to the AANtuple (variable content and range explained in the code section where AANTuple variables are
+            registered)
+        */
+        HitID tgchit= (*i_hit).TGCid();
+        Identifier offid= getIdentifier(tgchit);
+        CHECK(checkIdentifier(offid));
 
-       //Check Hits
-      /**For every hit within the event, get the global position Amg::Vector3D u and then retrieve all releveant info
-         either from the Amg::Vector3D or from the MC vector (direction)
-      */
-      GeoTGCHit ghit(*i_hit);
-      if (!ghit) continue;
-      Amg::Vector3D u = ghit.getGlobalPosition();
-      CHECK(executeFillHistos(u));
+         //Check Hits
+        /**For every hit within the event, get the global position Amg::Vector3D u and then retrieve all releveant info
+           either from the Amg::Vector3D or from the MC vector (direction)
+        */
+        GeoTGCHit ghit(*i_hit);
+        if (!ghit) continue;
+        Amg::Vector3D u = ghit.getGlobalPosition();
+        CHECK(executeFillHistos(u));
+      }
     }
   }
 
