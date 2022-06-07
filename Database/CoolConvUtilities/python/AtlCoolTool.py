@@ -9,6 +9,8 @@ import CoolConvUtilities.AtlCoolLib as AtlCoolLib
 
 from zlib import crc32
 
+from posixpath import normpath
+
 def expandConnectString( connectString ):
     """
     Expands a connect string.
@@ -190,14 +192,15 @@ class AtlCoolTool:
         return self.db.databaseId()
 
     def cd(self,node='/'):
-        if (node==".."):
-            node=self.curdir[:self.curdir.rfind('/')]
-            if (node==""): node="/"
+        if node.startswith("/"):
+            npath=normpath(node)
         else:
-          if not node.startswith('/'): node=self.curdir+'/'+node
-          if (node.startswith('//')): node=node[1:]
-        if self.db.existsFolder(node) or self.db.existsFolderSet(node):
-            self.curdir=node
+            npath=normpath(self.curdir+"/"+node)
+            #Clean out possible double-slash at the beginning 
+            if npath.startswith("//"): npath=npath[1:]
+        
+        if self.db.existsFolder(npath) or self.db.existsFolderSet(npath):
+            self.curdir=npath
         else:
             raise Exception('Node %s does not exist' % node)
 
