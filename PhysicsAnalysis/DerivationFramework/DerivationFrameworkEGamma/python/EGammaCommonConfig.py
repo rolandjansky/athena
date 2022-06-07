@@ -601,12 +601,10 @@ def EGammaCommonCfg(ConfigFlags):
     ))
 
     # =======================================
-    # ADD TOOLS
+    # ADD TOOLS : custom electron, photon and muon track isolation
     # =======================================
-    # TODO: needs to be understood how to make this work with CA
-    #import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-    #for alg in isoCones.GetUpdatedIsoTrackCones():
-    #    acc.addPublicTool(alg)
+    from IsolationAlgs.DerivationTrackIsoConfig import DerivationTrackIsoCfg
+    acc.merge(DerivationTrackIsoCfg(ConfigFlags, object_type = ('Electrons', 'Muons')))
 
     return acc
 
