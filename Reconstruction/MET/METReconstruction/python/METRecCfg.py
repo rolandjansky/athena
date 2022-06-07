@@ -21,7 +21,7 @@ def METCfg(inputFlags):
     result.merge(METTrack_Cfg(inputFlags))
     outputList.append("xAOD::MissingETContainer#MET_Track")
     outputList.append("xAOD::MissingETAuxContainer#MET_TrackAux.")
-    
+
     # Truth MET
     if inputFlags.Input.isMC:
         from METReconstruction.METTruth_Cfg import METTruth_Cfg
@@ -112,11 +112,11 @@ if __name__=="__main__":
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     cfg.merge(CaloTopoClusterCfg(ConfigFlags))
-    
-    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg    
-    cfg.merge(CaloNoiseCondAlgCfg(ConfigFlags,"totalNoise"))   
-    cfg.merge(CaloNoiseCondAlgCfg(ConfigFlags,"electronicNoise"))  
-     
+
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    cfg.merge(CaloNoiseCondAlgCfg(ConfigFlags,"totalNoise"))
+    cfg.merge(CaloNoiseCondAlgCfg(ConfigFlags,"electronicNoise"))
+
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
@@ -131,7 +131,7 @@ if __name__=="__main__":
     from AthenaConfiguration.ComponentFactory import CompFactory
     muWriter = CompFactory.LumiBlockMuWriter("LumiBlockMuWriter",LumiDataKey="LuminosityCondData")
     cfg.addEventAlgo(muWriter,"AthAlgSeq")
-    
+
     # Get Jet Inputs
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     from JetRecConfig import JetRecConfig

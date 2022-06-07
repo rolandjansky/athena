@@ -406,7 +406,8 @@ def addTruthEnergyDensity(kernel=None):
         dfcommontruthlog.warning("Attempt to add a duplicate DFCommonTruthEDKernel. Failing.")
         return
     # Truth energy density tools
-    from EventShapeTools.EventDensityConfig import configEventDensityTool,EventDensityAthAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
