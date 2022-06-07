@@ -32,7 +32,7 @@ def PixelMonitoringConfig(flags):
                              'doHeavyIonMon'   : flags.Reco.EnableHI,     #Setting up 1D histogram ranges and binnings for heavy ions
                              'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
                              'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
-                             'TrackName'       : InDetKeys.Tracks()          #'Tracks'
+                             'TrackName'       : InDetKeys.UnslimmedTracks()          #'Tracks'
         }
 
         kwargsErrMonAlg = { 'doOnline'        : isOnline,        #Histograms for online (GlobalMonitoring) running
@@ -42,8 +42,12 @@ def PixelMonitoringConfig(flags):
         kwargsMVAMonAlg = { 'calibFolder'     : '20220503',
                             'RDOName'         : InDetKeys.PixelRDOs(),      #'PixelRDOs'
                             'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
-                            'TrackName'       : InDetKeys.Tracks()          #'Tracks'
+                            'TrackName'       : InDetKeys.UnslimmedTracks()          #'Tracks'
         }
+
+        if doHitMonAlg or doClusterMonAlg or doErrorMonAlg:
+            from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgActiveOnlyCfg
+            acc.merge(PixelDetectorElementStatusAlgActiveOnlyCfg(flags))
 
         from AthenaMonitoring import AthMonitorCfgHelper
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
@@ -77,6 +81,7 @@ def PixelMonitoringConfig(flags):
                 pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
             pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+            pixelAthClusterMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
 
             PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
 
