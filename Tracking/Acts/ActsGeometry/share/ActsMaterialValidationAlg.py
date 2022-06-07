@@ -28,14 +28,11 @@ def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs
   return result
 
 if "__main__" == __name__:
-  from AthenaCommon.Configurable import Configurable
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import INFO
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   from ActsGeometry.ActsGeometryConfig import ActsMaterialTrackWriterSvcCfg
-
-  Configurable.configurableRun3Behavior = True
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True

@@ -1,19 +1,14 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
-
 Run geantino processing for material step creation
-
 """
 
 from argparse import ArgumentParser
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import log
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = ArgumentParser("RunGeantinoStepRecordingITk.py")
