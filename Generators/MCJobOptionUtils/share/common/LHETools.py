@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # This code is almost identical to ColourFlow_LHE.py by Fabian Wilk
 # It provides an interface to reading, writing, and possibly modify events in lhe files
 
@@ -157,14 +159,14 @@ class Event(object):
         return len(self.particles)
 
     def __getitem__(self, index):
-        if not isinstance(index, (int, long)):
+        if not isinstance(index, (int)):
             LHEToolsLog.error("Index must be integer")
             raise TypeError
 
         return self.particles[index]
 
     def __delitem__(self, index):
-        if not isinstance(index, (int, long)):
+        if not isinstance(index, (int)):
             LHEToolsLog.error("Index must be integer")
             raise TypeError
 

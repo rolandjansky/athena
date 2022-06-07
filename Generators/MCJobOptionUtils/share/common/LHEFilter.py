@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # Joboption fragment to filter on lhe files
 # The base class BaseLHEFilter holds the important functions - it doesn't do any filtering
 # The actual filters should derive from this base class, and have their pass_filter function defined together with relevant parameters
@@ -159,8 +161,8 @@ class LHEFilters(object):
         athMsgLog.info("Number of buggy events seen (and skipped) by the LHEFilter / total: {} / {}".format(self.buggy_events, self.buggy_events+self.total_events))
 
         # for the meta-data
-        print "MetaData: %s = %s" % ("lheFilterNames", sequence)
-        print "MetaData: %s = %e" % ("LHEFiltEff", self.accepted_weights / self.total_weights)
+        print("MetaData: %s = %s" % ("lheFilterNames", sequence))
+        print("MetaData: %s = %e" % ("LHEFiltEff", self.accepted_weights / self.total_weights))
 
         # if an outputTXTFile is specified, will use it for the name of the filtered lhe file
         if hasattr(runArgs, "outputTXTFile"):
@@ -168,7 +170,7 @@ class LHEFilters(object):
             for tarball_suffix in [x for x in [".tar.gz", ".tgz"] if x in runArgs.outputTXTFile]:
                 ## Name of output LHE file
                 untarredOutFile = runArgs.outputTXTFile.split(tarball_suffix)[0] + ".events"
-            if untarredOutFile is '':
+            if untarredOutFile == '':
                 athMsgLog.error("Impossible to use outputTXTFile lhe file {} which doesn't contain .tar.gz or .tgz".format(runArgs.outputTXTFile))
                 raise RuntimeError
             # check if the untarred outputTXTFile exists; if yes rename it
