@@ -123,7 +123,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 
   // CW for SL (ONLY available for Run-3 development phase)
   std::string ver_BW   = "v04";
-  std::string ver_EIFI = "v06";
+  std::string ver_EIFI = "v07";
   std::string ver_TILE = "v01";
   std::string ver_NSW  = "v01";
   std::string ver_BIS78  = "v01"; // OK?

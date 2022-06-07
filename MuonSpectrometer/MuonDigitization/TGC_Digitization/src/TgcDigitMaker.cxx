@@ -647,13 +647,12 @@ StatusCode TgcDigitMaker::readFileOfCrossTalk() {
   int stationEta = -1;
   int gasGap = -1;
   int isStrip = -1;
-  int iProb = -1;
 
   for(iStationName=0; iStationName<N_STATIONNAME; iStationName++) {
-    for(stationEta=0; stationEta<N_STATIONETA; stationEta++) {
+    for(stationEta=0; stationEta<N_ABSSTATIONETA; stationEta++) {
       for(gasGap=0; gasGap<N_GASGAP; gasGap++) {
         for(isStrip=0; isStrip<N_ISSTRIP; isStrip++) {
-          for(iProb=0; iProb<N_CROSSTALK_PARAMETER; iProb++) {
+          for (int iProb=0; iProb<N_CROSSTALK_PARAMETER; iProb++) {
             m_crossTalk[iStationName][stationEta][gasGap][isStrip][iProb] = 0.;
           }
         }
@@ -696,15 +695,15 @@ StatusCode TgcDigitMaker::readFileOfCrossTalk() {
 
     // Subtract offsets to use indices of crossTalk array
     iStationName -= OFFSET_STATIONNAME;
-    stationEta   -= OFFSET_STATIONETA;
+    stationEta   -= OFFSET_ABSSTATIONETA;
     gasGap       -= OFFSET_GASGAP;
     isStrip      -= OFFSET_ISSTRIP;
 
     // Check the indices are valid 
-    if(iStationName<0 || iStationName>=N_STATIONNAME) continue;
-    if(stationEta  <0 || stationEta  >=N_STATIONETA ) continue;
-    if(gasGap      <0 || gasGap      >=N_GASGAP     ) continue;
-    if(isStrip     <0 || isStrip     >=N_ISSTRIP    ) continue; 
+    if (iStationName < 0 || iStationName >= N_STATIONNAME  ) continue;
+    if (stationEta   < 0 || stationEta   >= N_ABSSTATIONETA) continue;
+    if (gasGap       < 0 || gasGap       >= N_GASGAP       ) continue;
+    if (isStrip      < 0 || isStrip      >= N_ISSTRIP      ) continue; 
 
     m_crossTalk[iStationName][stationEta][gasGap][isStrip][0] = crossTalk_10;
     m_crossTalk[iStationName][stationEta][gasGap][isStrip][1] = crossTalk_11;
@@ -974,18 +973,18 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     CLHEP::HepRandomEngine* rndmEngine,
                                     TgcDigitCollection* digits) const
 {
-  int stationName = m_idHelper->stationName(elemId) - OFFSET_STATIONNAME;
-  int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
-  int iGasGap     = gasGap                          - OFFSET_GASGAP; 
+  int stationName = m_idHelper->stationName(elemId)          - OFFSET_STATIONNAME;
+  int stationEta  = std::abs(m_idHelper->stationEta(elemId)) - OFFSET_ABSSTATIONETA;
+  int iGasGap     = gasGap                                   - OFFSET_GASGAP; 
 
   double prob1CrossTalk  = 0.;
   double prob11CrossTalk = 0.;
   double prob20CrossTalk = 0.;
   double prob21CrossTalk = 0.;
 
-  if((stationName>=0 && stationName<N_STATIONNAME) &&
-     (stationEta >=0 && stationEta <N_STATIONETA ) &&
-     (iGasGap    >=0 && iGasGap    <N_GASGAP     )) {
+  if((stationName >= 0 && stationName < N_STATIONNAME  ) &&
+     (stationEta  >= 0 && stationEta  < N_ABSSTATIONETA) &&
+     (iGasGap     >= 0 && iGasGap     < N_GASGAP       )) {
     prob1CrossTalk  = m_crossTalk[stationName][stationEta][iGasGap][sensor][0];
     prob11CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][1];
     prob20CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][2];

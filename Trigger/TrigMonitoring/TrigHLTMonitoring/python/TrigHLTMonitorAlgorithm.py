@@ -54,7 +54,7 @@ def TrigHLTMonTopConfig(inputFlags):
             result.merge(TrigGeneralMonConfig(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doInDet:
-            from TrigIDtrkMonitoring.TIDAMonitoring import TrigInDetMonConfig
+            from TrigInDetMonitoring.TIDAMonitoring import TrigInDetMonConfig
             result.merge(TrigInDetMonConfig(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doBjet:

@@ -286,8 +286,8 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    //Set constants for noise cut and rho+RMS and run the algorithms
-   std::vector<int> thr_A = {0};//To be retrieved from COOL database in the future
-   std::vector<int> thr_B = {0};//To be retrieved from COOL database in the future
+   std::vector<int> thr_A (12, 0);//To be retrieved from COOL database in the future
+   std::vector<int> thr_B (12, 0);//To be retrieved from COOL database in the future
 
    m_gFEXaltMetAlgoTool->setAlgoConstant(std::move(thr_A) , std::move(thr_B), 10000/200);
       

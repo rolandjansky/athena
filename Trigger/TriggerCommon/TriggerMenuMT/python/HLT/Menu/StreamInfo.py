@@ -77,6 +77,7 @@ _all_streams = [
     StreamInfo('PixelBeam', 'calibration', True, False),
     StreamInfo('VdM', 'calibration', True, False),
     StreamInfo('L1CaloCalib', 'calibration', False, False),
+    StreamInfo('NSWTriggerMonitor', 'calibration', False, True),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),

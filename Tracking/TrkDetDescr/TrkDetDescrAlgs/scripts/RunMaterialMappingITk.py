@@ -5,12 +5,9 @@ Run material mapping for tracking geometry.
 Uses as MaterialStepsCollections as input.
 
 """
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import log
 from argparse import ArgumentParser
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = ArgumentParser("RunMaterialMappingITk.py")

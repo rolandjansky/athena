@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -142,7 +142,9 @@ def CaloRingerElectronsInputReaderCfg(flags, name="CaloRingerElectronsReader", *
     return inputReaderTool, builderTool
 
 
-def CaloRingerPhotonsInputReaderCfg(flags, name="CaloRingerPhotonsReader", **kwargs):
+def CaloRingerPhotonsInputReaderCfg(flags,
+                                    name="CaloRingerPhotonsReader",
+                                    **kwargs):
 
     builderTool = CaloRingsPhotonBuilderCfg(flags)
     kwargs.setdefault('crBuilder', builderTool)
@@ -155,7 +157,7 @@ def CaloRingerPhotonsInputReaderCfg(flags, name="CaloRingerPhotonsReader", **kwa
 
 
 def CaloRingerOutputCfg(flags, name="CaloRingerOutput"):
-    """Configure the CaloRingeOutput."""
+    """Configure the CaloRingerOutput."""
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
     acc = ComponentAccumulator()
     # For now keep it like Run-2 Electron only

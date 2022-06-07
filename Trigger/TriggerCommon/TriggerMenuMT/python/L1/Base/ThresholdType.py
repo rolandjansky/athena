@@ -13,6 +13,8 @@ class ThrType( Enum ):
     # run 3 calo and muon thresholds
     # cTau is the combined taus computed in the L1Topo multiplicity board matching eTAU and jTAU
     eEM = 1; jEM = 2; eTAU = 3; jTAU = 4; cTAU=5; jJ = 6; jLJ = 7; gJ = 8; gLJ = 9; gXE = 10; gTE = 11; jXE = 12; jTE = 13; MU = 14 # noqa: E702
+    # Phase-I detector thresholds
+    LArSat=15; NSWMon=16 # noqa: E702
 
     # NIM thresholds
     BCM = 21; BCMCMB = 22; LUCID = 23; ZDC = 24; BPTX = 25; CALREQ = 26; MBTS = 27; MBTSSI = 28; NIM = 29 # noqa: E702

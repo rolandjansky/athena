@@ -452,7 +452,8 @@ def defineHistogram(varname, type='TH1F', path=None,
     settings.update(_options(opt))
 
     # some things need merging
-    if (settings['kAddBinsDynamically'] or settings['kRebinAxes'] or settings['kCanRebin']) and not _isOnline():
+    if ((settings['kAddBinsDynamically'] or settings['kRebinAxes'] or settings['kCanRebin'])
+        and (not _isOnline() and 'OFFLINE' in settings['convention'])):
         if merge is None:
             log.warning(f'Merge method for {alias} is not specified but needs to be "merge" due to histogram definition; overriding for your convenience')
             merge = 'merge'

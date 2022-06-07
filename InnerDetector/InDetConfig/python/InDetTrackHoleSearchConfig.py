@@ -44,6 +44,11 @@ def TrigHoleSearchToolCfg(flags, name="InDetTrigHoleSearchTool", **kwargs):
       result.addPublicTool(extrapolatorTool)
       kwargs.setdefault("Extrapolator", extrapolatorTool)
 
+  if 'BoundaryCheckTool' not in kwargs:
+    from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
+    BoundaryCheckTool = result.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+    kwargs.setdefault('BoundaryCheckTool', BoundaryCheckTool)
+
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
   result.setPrivateTools(indet_hole_search_tool)
   return result

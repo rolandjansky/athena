@@ -219,7 +219,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         << " with " << nLegDecisionObjects << " Decision Objects in leg " << legIndex << " of " << legId);
 
       // We extract unique passing features on the leg, if there are no features yet - then the L1 ROI is used as a fall-back feature
-      // A special behaviour is that if this fall-back triggers, and the full-scan ROI, then the leg is assumed valid. 
+      // A special behaviour is that if this fall-back activates, and the L1 ROI is a full-scan ROI, then the leg is assumed valid. 
       // This is regardless of whether or not other legs also use the same FS ROI. Regardless of if the leg's required multiplicity.
       // This keeps the leg alive until the actual FS reconstruction may occur. At which point, the following ComboHypo will begin
       // to cut on the actual reconstructed physics objects.
@@ -235,7 +235,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         uint16_t featureIndex = 0, roiIndex = 0; // The container index of the DecisionObject's most-recent feature, and its initial ROI
         bool roiIsFullscan = false; // Will be set to true if the DecisionObject's initial ROI is flagged as FullScan
         bool objectRequestsNoMultiplicityCheck = false; // Will be set to true if the object has been flagged as independently satisfying all requirements on a leg
-        ATH_CHECK( extractFeatureAndRoI(it->first, dEL, featureKey, featureIndex, roiKey, roiIndex, roiIsFullscan, objectRequestsNoMultiplicityCheck, priorFeaturesMap) );
+        ATH_CHECK( extractFeatureAndRoI(it->first, dEL, featureKey, featureIndex, roiKey, roiIndex, roiIsFullscan, objectRequestsNoMultiplicityCheck, priorFeaturesMap, context) );
         const bool theFeatureIsTheROI = (featureKey == roiKey and featureIndex == roiIndex); // The user explicitly set the feature === the RoI
         const bool thereIsNoFeatureYet = (featureKey == 0 and roiKey != 0); // The leg has not yet started to process
         if (objectRequestsNoMultiplicityCheck or (roiIsFullscan and (theFeatureIsTheROI or thereIsNoFeatureYet))) {
@@ -385,8 +385,8 @@ StatusCode ComboHypo::extractFeatureAndRoI(const HLT::Identifier& chainLegId,
   uint16_t& roiIndex,
   bool& roiIsFullscan,
   bool& objectRequestsNoMultiplicityCheck,
-  std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap
-  ) const 
+  std::map<uint32_t, std::set<uint32_t>>& priorFeaturesMap,
+  const EventContext& ctx) const 
 {
   // Return collections for the findLinks call. 
   // While we will be focusing on the most recent feature, for tag-and-probe we need to keep a record of the features from the prior steps too.
@@ -394,7 +394,7 @@ StatusCode ComboHypo::extractFeatureAndRoI(const HLT::Identifier& chainLegId,
   // Construct a sub-graph following just this leg back through the nav
   DecisionIDContainer chainLegIdSet = {chainLegId.numeric()};
   TrigCompositeUtils::NavGraph subGraph;
-  recursiveGetDecisions((*dEL), subGraph, chainLegIdSet, /*enforceDecisionOnStartNode =*/ true);
+  recursiveGetDecisions((*dEL), subGraph, ctx, chainLegIdSet, /*enforceDecisionOnStartNode =*/ true);
 
   if (subGraph.finalNodes().size() != 1) {
     ATH_MSG_ERROR("We are only expecting to search from a single navigation node in extractFeatureAndRoI");

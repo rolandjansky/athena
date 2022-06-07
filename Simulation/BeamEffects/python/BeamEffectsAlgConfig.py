@@ -162,7 +162,6 @@ def BeamSpotReweightingAlgCfg(flags, name="BeamSpotReweightingAlg", **kwargs):
 if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
@@ -171,9 +170,8 @@ if __name__ == "__main__":
     from SimulationFlags import ConfigFlagsSimulation
 
     ConfigFlags.join(ConfigFlagsSimulation)
-    # Set up logging and config behaviour
+    # Set up logging
     log.setLevel(DEBUG)
-    Configurable.configurableRun3Behavior = 1
 
     import os
     inputDir = os.environ.get ("ATLAS_REFERENCE_DATA",

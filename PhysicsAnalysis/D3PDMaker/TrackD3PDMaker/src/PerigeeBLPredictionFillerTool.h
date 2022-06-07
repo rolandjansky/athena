@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,7 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
-#include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
+#include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 
 class PixelID;
 
@@ -62,7 +62,7 @@ private:
   void clearData();
 
   /// Parameter: Tool to test if the track crosses a dead module on the B-Layer.
-  ToolHandle< InDet::IInDetTestBLayerTool > m_inDetTestBLayerTool;
+  ToolHandle< InDet::IInDetTestPixelLayerTool > m_inDetTestPixelLayerTool;
 
   const PixelID* m_pixId; 
 

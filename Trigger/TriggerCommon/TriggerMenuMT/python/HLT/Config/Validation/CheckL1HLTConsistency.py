@@ -11,7 +11,7 @@ def getL1TopoAlgToBoardMap(lvl1access):
     lvl1items_full   = lvl1access.items() 
 
     l1topo_alg_to_board = {}
-    connectors = ['Topo2El','Topo3El','LegacyTopo0']
+    connectors = ['Topo2El','Topo3El','LegacyTopoMerged']
 
     for l1item in lvl1items:
         l1item_def_list = re.split("[&|]+",str(lvl1items_full[l1item]['definition']))
@@ -125,27 +125,30 @@ def checkL1HLTConsistency(flags):
                 for it in items:
                     if any(substring in it for substring in ['e','c','j','g']): # find phase1 calo inputs in L1Topo decision triggers
                        noCaloItemL1 = False
-        
-            wrongLabelTopo = False
-            if l1topo_alg_to_item[item] in l1topo_alg_to_board:
-                if not any('Topo' in g for g in chain['groups']):
-                    log.debug("Chain has item %s but has no topo group",item)
-                    wrongLabelTopo = True
 
-            # Possibilities for wrong assignment:
-            # - Item comes from topo board but has no topo group
-            # - Chain has topo label but L1 item does not come from topo board
-            # - Chain has wrong topo label (Topo2 when it should be Topo3 for example)
-            for group in chain['groups']:
-                if 'Topo' in group:
-                    if l1topo_alg_to_item[item] in l1topo_alg_to_board:
-                        if group in l1topo_alg_to_board[l1topo_alg_to_item[item]]:
-                            log.debug("Chain correctly assigned topo board")
-                        else:
-                            wrongLabelTopo = True
-                    elif l1topo_alg_to_item[item] not in l1topo_alg_to_board:
-                        log.debug("Does not come from topo board but has Topo group")
+            # Don't check topo assignments for multi-seeded triggers
+            if len(l1item_vec)==1:
+                wrongLabelTopo = False
+                if l1topo_alg_to_item[item] in l1topo_alg_to_board:
+                    if not any('Topo' in g for g in chain['groups']):
+                        log.error(f"Chain {chain['chainName']} has item {item} ({l1topo_alg_to_board[l1topo_alg_to_item[item]]}) but has no topo group")
                         wrongLabelTopo = True
+
+                # Possibilities for wrong assignment:
+                # - Item comes from topo board but has no topo group
+                # - Chain has topo label but L1 item does not come from topo board
+                # - Chain has wrong topo label (Topo2 when it should be Topo3 for example)
+                for group in chain['groups']:
+                    if 'Topo' in group:
+                        if l1topo_alg_to_item[item] in l1topo_alg_to_board:
+                            if group in l1topo_alg_to_board[l1topo_alg_to_item[item]]:
+                                log.debug("Chain correctly assigned topo board")
+                            else:
+                                log.error(f"Chain {chain['chainName']} should be labelled with topo board {l1topo_alg_to_board[l1topo_alg_to_item[item]]}")
+                                wrongLabelTopo = True
+                        elif l1topo_alg_to_item[item] not in l1topo_alg_to_board:
+                            log.error(f"Chain {chain['chainName']} does not come from topo board but has Topo group {group}")
+                            wrongLabelTopo = True
 
 
         for th in l1thr_vec:

@@ -292,7 +292,7 @@ namespace MuonGM {
         //==============================================
         int pcb      = (stripNo-1)/1024 + 1; // starts from 1
         int pcbStrip = stripNo - 1024*(pcb - 1);
-        PCBPassivation pcbPassiv = m_passivData ? m_passivData->getPassivation(id) :s_dummy_passiv;
+        PCBPassivation pcbPassiv = m_passivData ? m_passivData->getPassivation(channelId) :s_dummy_passiv;
         // if(m_passivData && !pcbPassiv.valid) return false;
         // the passivated width is constant along the PCB edge (not along y for stereo strips)
         if(pcb != 1) pcbPassiv.bottom /= std::cos(design->sAngle);

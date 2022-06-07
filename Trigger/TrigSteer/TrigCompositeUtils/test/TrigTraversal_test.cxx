@@ -338,11 +338,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   NavGraph graph_HLT_em_chain;
   NavGraph graph_HLT_all;
 
-  recursiveGetDecisions(END, graph_HLT_mufast_chain, {HLT_mufast_chain}, true);
-  recursiveGetDecisions(END, graph_HLT_mu_chain, {HLT_mu_chain}, true);
-  recursiveGetDecisions(END, graph_HLT_mu_em_chain, {HLT_mu_em_chain}, true);
-  recursiveGetDecisions(END, graph_HLT_em_chain, {HLT_em_chain}, true);
-  recursiveGetDecisions(END, graph_HLT_all, {}, true);
+  recursiveGetDecisions(END, graph_HLT_mufast_chain, ctx, {HLT_mufast_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_mu_chain, ctx, {HLT_mu_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_mu_em_chain, ctx, {HLT_mu_em_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_em_chain, ctx, {HLT_em_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_all, ctx, {}, true);
 
 
   log << MSG::INFO << "HLT_mufast_chain" << endmsg;
@@ -389,19 +389,19 @@ int main ATLAS_NOT_THREAD_SAFE () {
   std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, decisionContainerKey.key(), {});
 
   for (const Decision* d : extraStart_HLT_mufast_chain) {
-    recursiveGetDecisions(d, graph_HLT_mufast_chain, {HLT_mufast_chain}, false);
+    recursiveGetDecisions(d, graph_HLT_mufast_chain, ctx, {HLT_mufast_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_mu_chain) {
-    recursiveGetDecisions(d, graph_HLT_mu_chain, {HLT_mu_chain}, false);
+    recursiveGetDecisions(d, graph_HLT_mu_chain, ctx, {HLT_mu_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_mu_em_chain) {
-    recursiveGetDecisions(d, graph_HLT_mu_em_chain, {HLT_mu_em_chain}, false);
+    recursiveGetDecisions(d, graph_HLT_mu_em_chain, ctx, {HLT_mu_em_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_em_chain) {
-    recursiveGetDecisions(d, graph_HLT_em_chain, {HLT_em_chain}, false);
+    recursiveGetDecisions(d, graph_HLT_em_chain, ctx, {HLT_em_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_all) {
-    recursiveGetDecisions(d, graph_HLT_all, {}, false);
+    recursiveGetDecisions(d, graph_HLT_all, ctx, {}, false);
   }
 
   log << MSG::INFO << "HLT_mufast_chain" << endmsg;

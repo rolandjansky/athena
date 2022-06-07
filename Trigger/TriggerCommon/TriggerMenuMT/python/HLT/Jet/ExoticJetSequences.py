@@ -13,10 +13,6 @@ def returnEJSequence(configflags, algo):
 
     return seqAND("EmergingJetsExoticSeq", [algo])
 
-def returnCRSequence(configflags, algo):
-
-    return seqAND("CalRatioExoticSeq", [algo])
-
 def jetEJsMenuSequence(flags, jetsin, name):
     
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetEJsHypoAlg
@@ -53,25 +49,27 @@ def jetCRMenuSequence(flags, jetsin, name):
 
     # Get track sequence name
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    from ..CommonSequences.FullScanDefs import fs_cells
+    from ..CommonSequences.FullScanDefs import fs_cells, trkFSRoI
     IDTrigConfig = getInDetTrigConfig( 'jet' )
     sequenceOut  = IDTrigConfig.tracks_FTF()
     cellsin=fs_cells
-    
+
+    from .JetRecoSequences import JetFSTrackingSequence
+    from .JetMenuSequences import getTrackingInputMaker
+    trkSeq, trkColls = RecoFragmentsPool.retrieve(
+        JetFSTrackingSequence, flags, trkopt='ftf', RoIs=trkFSRoI
+    )
+
+    IMAlg = getTrackingInputMaker('ftf')
+    sequence = seqAND( 'CalRatioExoticSeq', [IMAlg, trkSeq] )
+
     #Setup the hypothesis algorithm
     theCalRatioTriggerHypo           = TrigJetCRHypoAlg("L2CalRatio")
     theCalRatioTriggerHypo.Tracks    = sequenceOut
     theCalRatioTriggerHypo.Cells        = cellsin
 
-    DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_CalRatio_HypoOnlyStep" ) )
-    DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
-    DummyInputMakerAlg.mergeUsingFeature = True
-
-    sequence = RecoFragmentsPool.retrieve( returnCRSequence , flags, algo=DummyInputMakerAlg)
-
-
     return MenuSequence( Sequence    = sequence,
-                         Maker       = DummyInputMakerAlg,
+                         Maker       = IMAlg,
                          Hypo        = theCalRatioTriggerHypo,
                          HypoToolGen = trigJetCRHypoToolFromDict,
     )

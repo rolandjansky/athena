@@ -5,12 +5,9 @@ Run material validation to check material maps for tracking geometry.
 
 """
 
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import log
 from argparse import ArgumentParser
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = ArgumentParser("RunMaterialValidationITk.py")
