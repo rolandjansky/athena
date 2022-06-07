@@ -45,7 +45,7 @@ namespace met {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_muContKey.initialize());
-    if (m_useFEMuonLinks || m_useFELinks) {
+    if (m_useFELinks) {
       if (m_neutralFEReadDecorKey.empty()) {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_muContKey.key()+"."+m_neutralFELinksKey));}
       if (m_chargedFEReadDecorKey.empty()) {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_muContKey.key()+"."+m_chargedFELinksKey));}
       ATH_CHECK( m_neutralFEReadDecorKey.initialize());
@@ -211,12 +211,10 @@ namespace met {
   {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
 
-    if (m_useFEMuonLinks) { 
+    if (m_useFELinks)
       ATH_CHECK( extractFEsFromLinks(mu, felist,constits) );
-    } 
-    else {
+    else
       ATH_CHECK( extractFEs(mu, felist, constits) );
-    }
 
     return StatusCode::SUCCESS;
   }

@@ -89,7 +89,6 @@ namespace met{
     SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey{this, "InputCollection", "TauJets", "taus input key"};
     SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_neutralFEReadDecorKey{this,"NeutralFEReadDecorKey","", "Neutral FlowElement links key"};
     SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_chargedFEReadDecorKey{this,"ChargedFEReadDecorKey","", "Charged FlowElement links key"};
-    Gaudi::Property<bool> m_useFETauLinks{this, "UseFETauLinks", false, ""};
   }; 
 
 }
