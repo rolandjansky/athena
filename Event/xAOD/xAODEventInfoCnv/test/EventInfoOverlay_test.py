@@ -5,7 +5,6 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -13,9 +12,6 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, postprocessAndLockFlags, printAndRun
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
-
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = CommonTestArgumentParser("EventInfoOverlay_test.py")

@@ -41,16 +41,13 @@ if __name__ == "__main__":
     print('Running DumpEventDataToJSON on {} and outputting to {}. Prepend calib event is {}'.format(
         args.input, args.output, args.prependCalib))
 
-    from AthenaCommon.Configurable import Configurable
     from AthenaCommon.Logging import log
-    # from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
-    Configurable.configurableRun3Behavior = 1
-
     # Uncomment for debugging
+    # from AthenaCommon.Constants import DEBUG
     # log.setLevel(DEBUG)
 
     # To run on MC do e.g.
