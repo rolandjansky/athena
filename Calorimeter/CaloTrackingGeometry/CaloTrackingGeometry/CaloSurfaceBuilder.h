@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -74,10 +74,6 @@ public:
   virtual void setCaloDepth(CaloDepthTool* mytool) override final;
   virtual CaloDepthTool* getCaloDepth() override final;
 
-  /** entrance of the sample, no eta dependence -> flat approximation */
-  virtual Trk::Surface* CreateDDSurface(const CaloCell_ID::CaloSample sample,
-                                        const int side) const override final;
-
   /** overwrite DD radius/z by CaloDepth radius, and an offset can be added */
   virtual Trk::Surface* CreateUserSurface(
     const CaloCell_ID::CaloSample sample,
@@ -91,18 +87,6 @@ public:
     const double offset,
     const double etaCaloLocal,
     const CaloDetDescrManager* calo_dd) const override final;
-
-  /** Creates a surface at the end of the girder (Tile Calorimeter Iron Support
-   * extructure) */
-  virtual Trk::Surface* CreateGirderSurface() const override final;
-
-  /** simplified geometry */
-  virtual bool CreateDDLayers(
-    CaloSubdetNames::ALIGNVOL alvol,
-    std::vector<Trk::CylinderLayer*>* thelayer) const override final;
-  virtual bool CreateDDECLayers(
-    CaloSubdetNames::ALIGNVOL alvol,
-    std::vector<Trk::DiscLayer*>* thelayer) const override final;
 
   /** These methods provide the default parameters used by the
      CaloTrackingGeometry and Surface Builders, clients should not need to use
@@ -158,6 +142,8 @@ private:
 
   // cache the surfaces for TG builder
   // These are protected by calls to fill once
+  // The assumption is calo does not change during
+  // a ~ Run
   mutable std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
     m_layerEntries ATLAS_THREAD_SAFE;
   mutable std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
