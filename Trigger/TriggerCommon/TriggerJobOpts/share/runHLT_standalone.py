@@ -465,6 +465,14 @@ if ConfigFlags.Trigger.doMuon:
 # restore logger after above includes
 log = logging.getLogger('runHLT_standalone.py')
 
+# ---------------------------------------------------------------
+# Track Overlay
+# ---------------------------------------------------------------
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+if overlayFlags.doTrackOverlay():
+    from TrkEventCnvTools.TrkEventCnvToolsConfigCA import TrkEventCnvSuperToolCfg
+    CAtoGlobalWrapper(TrkEventCnvSuperToolCfg, ConfigFlags)
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
