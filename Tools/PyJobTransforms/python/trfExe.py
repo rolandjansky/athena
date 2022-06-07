@@ -1788,8 +1788,8 @@ class reductionFrameworkExecutor(athenaExecutor):
         self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
         if 'NTUP_PILEUP' not in output:
-            # New derivation framework transform uses "requiredDerivedFormats"
-            if 'reductionConf' not in self.conf.argdict and 'requiredDerivedFormats' not in self.conf.argdict:
+            # New derivation framework transform uses "formats"
+            if 'reductionConf' not in self.conf.argdict and 'formats' not in self.conf.argdict:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
                                                                 'No reduction configuration specified')
 
@@ -1799,7 +1799,7 @@ class reductionFrameworkExecutor(athenaExecutor):
 
             formatList = []
             if 'reductionConf' in self.conf.argdict: formatList = self.conf.argdict['reductionConf'].value
-            if 'requiredDerivedFormats' in self.conf.argdict: formatList = self.conf.argdict['requiredDerivedFormats'].value        
+            if 'formats' in self.conf.argdict: formatList = self.conf.argdict['formats'].value        
             for reduction in formatList:
                 if ('DAOD' in output):
                     dataType = 'DAOD_' + reduction
