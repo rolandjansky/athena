@@ -222,6 +222,15 @@ INFO:DataQualityInterfaces:Translating regexes...
     gaus_9@1                                  Green                    AlgCheckMean
   splitByDigit                                Green                   SimpleSummary
     Gaussian                                  Green                   SimpleSummary
+      gaus_11@4                               Green                    AlgCheckMean
+      gaus_22@4                               Green                    AlgCheckMean
+      gaus_33@4                               Green                    AlgCheckMean
+      gaus_44@4                               Green                    AlgCheckMean
+      gaus_55@4                               Green                    AlgCheckMean
+      gaus_66@4                               Green                    AlgCheckMean
+      gaus_77@4                               Green                    AlgCheckMean
+      gaus_88@4                               Green                    AlgCheckMean
+      gaus_99@4                               Green                    AlgCheckMean
       digit_0                                 Green                   SimpleSummary
         gaus_0@2                              Green                    AlgCheckMean
       digit_1                                 Green                   SimpleSummary
