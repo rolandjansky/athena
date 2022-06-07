@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@ EventBookkeeperCollection_PERS* EventBookkeeperCollectionCnv::createPersistent(E
 EventBookkeeperCollection* EventBookkeeperCollectionCnv::createTransient() {
   MsgStream log(msgSvc(), "EventBookkeeperCollectionConverter" );
   //p1_guid matches the number in EventBookkeeperTPCnv/selection.xtml and is generated with uuidgen | tr "[:lower:]" "[:upper:]"
-  static pool::Guid   p1_guid("461506EA-7376-448C-A4AF-640654D313C3");
-  static pool::Guid   p2_guid("4CB34AE0-ECE5-404B-8CB7-B2E20F509DBE");
+  static const pool::Guid   p1_guid("461506EA-7376-448C-A4AF-640654D313C3");
+  static const pool::Guid   p2_guid("4CB34AE0-ECE5-404B-8CB7-B2E20F509DBE");
   if( compareClassGuid(p1_guid) ) {
     // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< EventBookkeeperCollection_p1 > col_vect( poolReadObject< EventBookkeeperCollection_p1 >() );
