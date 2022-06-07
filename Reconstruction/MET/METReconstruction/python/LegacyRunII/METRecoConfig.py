@@ -243,23 +243,24 @@ class METConfig:
         if doRegions:
             self.setupRegions(buildconfigs)
         #
-        self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
-                                                              CutLevel="TightPrimary",
-                                                              maxZ0SinTheta=3,
-                                                              maxD0=2,
-                                                              minPt=500)
-        from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
-        self.trkvxtool=getTTVAToolForReco("TrackVertexAssociationTool_MET", WorkingPoint="Nonprompt_All_MaxWeight")
-        self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
-        self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-        CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
-        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
-                                                          saveOnlyRequestedCorrections=True,
-                                                          ParticleCaloExtensionTool = CaloExtensionTool,
-                                                          ParticleCaloCellAssociationTool = CaloCellAssocTool)
+        if self.suffix!='Truth':
+            self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
+                                                                  CutLevel="TightPrimary",
+                                                                  maxZ0SinTheta=3,
+                                                                  maxD0=2,
+                                                                  minPt=500)
+            from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+            self.trkvxtool=getTTVAToolForReco("TrackVertexAssociationTool_MET", WorkingPoint="Nonprompt_All_MaxWeight")
+            self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
+            self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
+            from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
+            from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+            CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+            CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
+            self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
+                                                              saveOnlyRequestedCorrections=True,
+                                                              ParticleCaloExtensionTool = CaloExtensionTool,
+                                                              ParticleCaloCellAssociationTool = CaloCellAssocTool)
 
         self.setupBuilders(buildconfigs)
         self.setupRefiners(refconfigs)

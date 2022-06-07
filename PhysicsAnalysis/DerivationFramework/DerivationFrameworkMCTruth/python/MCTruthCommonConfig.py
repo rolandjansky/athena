@@ -392,9 +392,9 @@ def AddLargeRJetD2Cfg():
 def AddTruthEnergyDensityCfg():
     """Truth energy density tools"""
     acc = ComponentAccumulator()
-    from EventShapeTools.EventDensityConfig import configEventDensityTool #,EventDensityAthAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool
+    from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
     from JetRecConfig.StandardJetConstits import stdConstitDic as cst
-    EventDensityAthAlg = CompFactory.EventDensityAthAlg 
     # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
     DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool",
                                                         cst.Truth,

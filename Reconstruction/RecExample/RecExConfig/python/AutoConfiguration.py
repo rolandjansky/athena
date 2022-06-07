@@ -801,8 +801,8 @@ def ConfigureInputType():
         rec.doAOD=False
         rec.doESD=False
         logAutoConfiguration.info ("setting all unlocked rec.readXXX and rec.doXXX to False")
-    elif ItemInListStartsWith ("StreamHITS", streamsName):
-        logAutoConfiguration.info("Input StreamEVGEN detected")
+    elif ItemInListStartsWith ("StreamHITS", streamsName) or ItemInListStartsWith ("OutputStreamHITS", streamsName):
+        logAutoConfiguration.info("Input HITS detected")
 
     elif metadata['file_type'] != 'BS':
         raise RuntimeError("ConfigureInputType cannot handle streamsName==%s"%streamsName)
