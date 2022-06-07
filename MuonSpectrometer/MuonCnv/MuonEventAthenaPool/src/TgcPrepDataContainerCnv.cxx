@@ -47,10 +47,10 @@ TgcPrepDataContainer_PERS*    TgcPrepDataContainerCnv::createPersistent (Muon::T
 
 Muon::TgcPrepDataContainer* TgcPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "TgcPrepDataContainerCnv" );
-    static pool::Guid   p0_guid("04E7158E-416B-8E31-D370-616631B8617E"); // before t/p split
-    static pool::Guid   p1_guid("8C563637-620B-43A0-9A5D-E0BC09496745"); // with TgcPrepData_tlp1
-    static pool::Guid   p2_guid("EBB4DCEC-CE23-4A30-BEF7-F3150E4060CB"); // with TgcPrepDataContainerCnv_p2
-    static pool::Guid   p3_guid("215726D6-15F4-41D2-B808-1B9E9FD84166"); // with TgcPrepDataContainerCnv_p3
+    static const pool::Guid   p0_guid("04E7158E-416B-8E31-D370-616631B8617E"); // before t/p split
+    static const pool::Guid   p1_guid("8C563637-620B-43A0-9A5D-E0BC09496745"); // with TgcPrepData_tlp1
+    static const pool::Guid   p2_guid("EBB4DCEC-CE23-4A30-BEF7-F3150E4060CB"); // with TgcPrepDataContainerCnv_p2
+    static const pool::Guid   p3_guid("215726D6-15F4-41D2-B808-1B9E9FD84166"); // with TgcPrepDataContainerCnv_p3
 
     
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;

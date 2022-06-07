@@ -48,10 +48,10 @@ RpcPrepDataContainer_PERS*    RpcPrepDataContainerCnv::createPersistent (Muon::R
 
 Muon::RpcPrepDataContainer* RpcPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "RpcPrepDataContainerCnv" );
-    static pool::Guid   p0_guid("CCD4055C-2A39-CAFF-3F82-5A9116ADAFCB"); // before t/p split
-    static pool::Guid   p1_guid("F29233F8-F488-4D6D-97F9-4BCA1976BD9F"); // with RpcPrepData_tlp1
-    // static pool::Guid   p2_guid("F29233F8-F488-4D6D-97F9-4BCA1976BD9F"); // with RpcPrepData_tlp2
-    static pool::Guid   p3_guid("65496D1F-E660-42A9-84C9-2002D39B87CB"); // with RpcPrepDataContainer_p3
+    static const pool::Guid   p0_guid("CCD4055C-2A39-CAFF-3F82-5A9116ADAFCB"); // before t/p split
+    static const pool::Guid   p1_guid("F29233F8-F488-4D6D-97F9-4BCA1976BD9F"); // with RpcPrepData_tlp1
+    // static const pool::Guid   p2_guid("F29233F8-F488-4D6D-97F9-4BCA1976BD9F"); // with RpcPrepData_tlp2
+    static const pool::Guid   p3_guid("65496D1F-E660-42A9-84C9-2002D39B87CB"); // with RpcPrepDataContainer_p3
     
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::RpcPrepDataContainer* p_collection(nullptr);

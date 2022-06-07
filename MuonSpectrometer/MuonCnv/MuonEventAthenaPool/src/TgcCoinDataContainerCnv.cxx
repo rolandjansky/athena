@@ -76,10 +76,10 @@ TgcCoinDataContainer_PERS*    TgcCoinDataContainerCnv::createPersistent (Muon::T
 
 Muon::TgcCoinDataContainer* TgcCoinDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "TgcCoinDataContainerCnv" );
-    static pool::Guid   p0_guid("F81C4564-B1C5-4053-A6F6-E0ED77907BE5"); // before t/p split
-    static pool::Guid   p1_guid("C312D3F5-60DB-41D5-895B-9FD4EF443E0B"); // with TgcCoinData_tlp1
-    static pool::Guid   p2_guid("524775D8-A66F-4AD3-912E-7D05389C1011"); // with TgcCoinData_tlp2
-    static pool::Guid   p3_guid("95BF89C7-1FFC-464F-A14D-742F9E874E56"); // with TgcCoinData_tlp3
+    static const pool::Guid   p0_guid("F81C4564-B1C5-4053-A6F6-E0ED77907BE5"); // before t/p split
+    static const pool::Guid   p1_guid("C312D3F5-60DB-41D5-895B-9FD4EF443E0B"); // with TgcCoinData_tlp1
+    static const pool::Guid   p2_guid("524775D8-A66F-4AD3-912E-7D05389C1011"); // with TgcCoinData_tlp2
+    static const pool::Guid   p3_guid("95BF89C7-1FFC-464F-A14D-742F9E874E56"); // with TgcCoinData_tlp3
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::TgcCoinDataContainer* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {

@@ -59,8 +59,8 @@ CscStripPrepDataContainer_PERS*    CscStripPrepDataContainerCnv::createPersisten
 
 Muon::CscStripPrepDataContainer* CscStripPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "CscStripPrepDataContainerCnv" );
-    static pool::Guid   p0_guid("A41C9D99-F977-43B5-8DFC-819F057A9136"); // before t/p split
-    static pool::Guid   p1_guid("6075244C-C6BB-4E24-B711-E7E4ED0F7462"); // with CscStripPrepData_tlp1
+    static const pool::Guid   p0_guid("A41C9D99-F977-43B5-8DFC-819F057A9136"); // before t/p split
+    static const pool::Guid   p1_guid("6075244C-C6BB-4E24-B711-E7E4ED0F7462"); // with CscStripPrepData_tlp1
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::CscStripPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {

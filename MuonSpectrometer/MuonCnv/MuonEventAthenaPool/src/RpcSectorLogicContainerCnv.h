@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTATHENAPOOL_RPCSECTORLOGICCNV_H
@@ -7,7 +7,7 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
-#include "MuonEventAthenaPool/RpcSectorLogicContainer_p1.h"
+#include "RpcSectorLogicContainerCnv_p1.h"
 
 // the latest persistent representation type of RpcSectorLogicContainer
 typedef  RpcSectorLogicContainer_p1  PERS;
@@ -21,6 +21,8 @@ public:
 protected:
   virtual PERS*   createPersistent (RpcSectorLogicContainer* transObj);
   virtual RpcSectorLogicContainer*  createTransient ();
+private:
+  RpcSectorLogicContainerCnv_p1 m_converter;
 };
 
 #endif

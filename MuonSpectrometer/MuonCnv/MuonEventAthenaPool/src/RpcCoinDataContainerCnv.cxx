@@ -44,7 +44,7 @@ Muon::RpcCoinDataContainerCnv_p1::PERS*    RpcCoinDataContainerCnv::createPersis
 
 Muon::RpcCoinDataContainer* RpcCoinDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "RpcCoinDataContainerCnv" );
-    static pool::Guid   p1_guid("AF0DB103-E825-45E5-9C29-9C32342756DD"); 
+    static const pool::Guid   p1_guid("AF0DB103-E825-45E5-9C29-9C32342756DD"); 
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::RpcCoinDataContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {
