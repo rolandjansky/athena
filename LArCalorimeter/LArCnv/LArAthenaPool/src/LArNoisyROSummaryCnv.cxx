@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROSummaryCnv.h"
@@ -33,11 +33,11 @@ LArNoisyROSummaryCnv::createTransient()
   LArNoisyROSummary         *trans = NULL;
   
   // GUID for persistent classes
-  static pool::Guid   guid_p1("4681BC21-3C00-4540-BED6-58E37700D9B9");
-  static pool::Guid   guid_p2("C33CED2C-2101-4B0C-9BCB-739B004639F4");
-  static pool::Guid   guid_p3("7801CF21-F2F2-4E87-9B87-744F31A37D1B");
-  static pool::Guid   guid_p4("8F9E9A44-699E-4056-96CC-555ADA1179D4");
-  static pool::Guid   guid_p5("4AE11DAE-F40C-4B90-B105-0A7BA5D29C1D");
+  static const pool::Guid   guid_p1("4681BC21-3C00-4540-BED6-58E37700D9B9");
+  static const pool::Guid   guid_p2("C33CED2C-2101-4B0C-9BCB-739B004639F4");
+  static const pool::Guid   guid_p3("7801CF21-F2F2-4E87-9B87-744F31A37D1B");
+  static const pool::Guid   guid_p4("8F9E9A44-699E-4056-96CC-555ADA1179D4");
+  static const pool::Guid   guid_p5("4AE11DAE-F40C-4B90-B105-0A7BA5D29C1D");
 
   if( compareClassGuid(guid_p5) ) {
      std::unique_ptr<LArNoisyROSummary_p5> col_vect( poolReadObject<LArNoisyROSummary_p5>() );
