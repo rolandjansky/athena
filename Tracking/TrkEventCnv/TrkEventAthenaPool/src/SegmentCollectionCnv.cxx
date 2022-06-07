@@ -79,11 +79,11 @@ SegmentCollectionCnv::createPersistent( Trk::SegmentCollection *transCont)
 Trk::SegmentCollection *SegmentCollectionCnv::createTransient()
 {
     m_log.setLevel( m_msgSvc->outputLevel() ); 
-    static pool::Guid tlp4_guid( "27FB33E0-3284-11E8-9390-0800271C02BC" );
-    static pool::Guid tlp3_guid( "1AA73E8A-AF6D-11E3-A8C8-6C3BE51AB9F1" );
-    static pool::Guid tlp2_guid( "61A4056D-4FDF-4798-93D7-1BAC351FE32E" );
-    static pool::Guid tlp1_guid( "03A83988-8E38-45E9-95A5-9CB17B98074C" );
-    static pool::Guid p0_guid( "AAE2BF35-4971-4368-B0B1-BE209CC81538" );
+    static const pool::Guid tlp4_guid( "27FB33E0-3284-11E8-9390-0800271C02BC" );
+    static const pool::Guid tlp3_guid( "1AA73E8A-AF6D-11E3-A8C8-6C3BE51AB9F1" );
+    static const pool::Guid tlp2_guid( "61A4056D-4FDF-4798-93D7-1BAC351FE32E" );
+    static const pool::Guid tlp1_guid( "03A83988-8E38-45E9-95A5-9CB17B98074C" );
+    static const pool::Guid p0_guid( "AAE2BF35-4971-4368-B0B1-BE209CC81538" );
 
     Trk::SegmentCollection *p_collection = nullptr;
 

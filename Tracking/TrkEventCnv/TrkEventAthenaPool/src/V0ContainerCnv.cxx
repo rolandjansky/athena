@@ -81,9 +81,9 @@ V0Container_PERS * V0ContainerCnv::createPersistent( V0Container *transCont)
 
 V0Container * V0ContainerCnv::createTransient()
 {
-    static pool::Guid p2_guid( "9BC2B917-940A-4121-8E8B-8C99E178D8C1" );
-    static pool::Guid p1_guid( "402A9BD1-4476-4E97-A5E4-EB4D742FBB38" );
-    static pool::Guid p0_guid( "0C363A21-1B86-4B39-8A84-A62161B13C7B" );
+    static const pool::Guid p2_guid( "9BC2B917-940A-4121-8E8B-8C99E178D8C1" );
+    static const pool::Guid p1_guid( "402A9BD1-4476-4E97-A5E4-EB4D742FBB38" );
+    static const pool::Guid p0_guid( "0C363A21-1B86-4B39-8A84-A62161B13C7B" );
 
   V0Container *p_collection = nullptr;
     if( compareClassGuid( p2_guid ) )     
