@@ -71,7 +71,6 @@ public:
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
 
-  virtual void setCaloDepth(CaloDepthTool* mytool) override final;
   virtual CaloDepthTool* getCaloDepth() override final;
 
   /** overwrite DD radius/z by CaloDepth radius, and an offset can be added */
