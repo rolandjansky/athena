@@ -29,6 +29,11 @@ namespace CP
     owner->declareProperty (propertyName, m_decorName, propertyDescription);
   }
 
+  template<typename T> template<typename T2> SysWriteDecorHandle<T> ::
+  SysWriteDecorHandle (const std::string& decorName, T2 *owner)
+    : AsgMessagingForward (owner), m_decorName(decorName)
+  {}
+
 
 
   template<typename T> bool SysWriteDecorHandle<T> ::
