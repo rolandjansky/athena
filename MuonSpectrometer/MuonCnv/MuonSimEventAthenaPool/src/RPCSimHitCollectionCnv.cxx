@@ -35,10 +35,10 @@ RPCSimHitCollection_PERS*    RPCSimHitCollectionCnv::createPersistent (RPCSimHit
 
 RPCSimHitCollection* RPCSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "RPCSimHitCollectionCnv" );
-    static pool::Guid   p0_guid("45EB013E-FC8E-4612-88B7-6E0CAF718F79"); // before t/p split
-    static pool::Guid   p1_guid("C4C57487-41DC-4706-9604-721D76F0AA52"); 
-    static pool::Guid   p2_guid("1B611C70-CC6F-42AE-9F6D-7DA6A9A22546");
-    static pool::Guid   p3_guid("B48E5E17-FB26-4BC0-A0E2-5324925EAE2F");
+    static const pool::Guid   p0_guid("45EB013E-FC8E-4612-88B7-6E0CAF718F79"); // before t/p split
+    static const pool::Guid   p1_guid("C4C57487-41DC-4706-9604-721D76F0AA52"); 
+    static const pool::Guid   p2_guid("1B611C70-CC6F-42AE-9F6D-7DA6A9A22546");
+    static const pool::Guid   p3_guid("B48E5E17-FB26-4BC0-A0E2-5324925EAE2F");
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     RPCSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {

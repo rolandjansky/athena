@@ -33,8 +33,8 @@ MMSimHitCollection_PERS*    MMSimHitCollectionCnv::createPersistent (MMSimHitCol
 
 MMSimHitCollection* MMSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "MMSimHitCollectionCnv" );
-    static pool::Guid   p1_guid("ac0b677c-fe08-11e8-b174-02163e018187");
-    static pool::Guid   p2_guid("b9bdd436-fe08-11e8-a40f-02163e018187");
+    static const pool::Guid   p1_guid("ac0b677c-fe08-11e8-b174-02163e018187");
+    static const pool::Guid   p2_guid("b9bdd436-fe08-11e8-a40f-02163e018187");
     ATH_MSG_DEBUG("createTransient(): main converter");
     MMSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p2_guid) ) {

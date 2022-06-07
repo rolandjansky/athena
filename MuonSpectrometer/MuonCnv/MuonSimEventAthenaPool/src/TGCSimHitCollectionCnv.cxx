@@ -33,11 +33,11 @@ TGCSimHitCollection_PERS*    TGCSimHitCollectionCnv::createPersistent (TGCSimHit
 
 TGCSimHitCollection* TGCSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "TGCSimHitCollectionCnv" );
-    static pool::Guid   p0_guid("D7C91818-4730-4717-A650-107F52C0221E"); // before t/p split
-    static pool::Guid   p1_guid("BD569381-2489-4402-BBD3-91EE8C009F26"); 
-    static pool::Guid   p2_guid("710241EE-D5F7-4CB6-A1D7-6E80D040E637"); 
-    static pool::Guid   p3_guid("BACD19A8-4737-4857-A22D-B9DF833A0A80");
-    static pool::Guid   p4_guid("F8F77562-BBD9-45DB-A276-6A21018EA7FA");
+    static const pool::Guid   p0_guid("D7C91818-4730-4717-A650-107F52C0221E"); // before t/p split
+    static const pool::Guid   p1_guid("BD569381-2489-4402-BBD3-91EE8C009F26"); 
+    static const pool::Guid   p2_guid("710241EE-D5F7-4CB6-A1D7-6E80D040E637"); 
+    static const pool::Guid   p3_guid("BACD19A8-4737-4857-A22D-B9DF833A0A80");
+    static const pool::Guid   p4_guid("F8F77562-BBD9-45DB-A276-6A21018EA7FA");
     log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     TGCSimHitCollection* p_collection(nullptr);
     if(compareClassGuid(p4_guid) ) {
