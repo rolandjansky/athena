@@ -27,7 +27,6 @@ namespace CP
     , m_isolationTool ("CP::IsolationSelectionTool", this)
   {
     declareProperty ("isolationTool", m_isolationTool, "the isolation tool we apply");
-    declareProperty ("isolationDecoration", m_isolationDecoration, "the decoration for the muon isolation");
   }
 
 
@@ -35,16 +34,11 @@ namespace CP
   StatusCode MuonIsolationAlg ::
   initialize ()
   {
-    if (m_isolationDecoration.empty())
-    {
-      ANA_MSG_ERROR ("no isolation decoration name set");
-      return StatusCode::FAILURE;
-    }
-    ANA_CHECK (makeSelectionWriteAccessor (m_isolationDecoration, m_isolationAccessor));
 
     ANA_CHECK (m_isolationTool.retrieve());
     ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_preselection, SG::AllowEmpty));
+    ANA_CHECK (m_isolationHandle.initialize (m_systematicsList, m_preselection));
     ANA_CHECK (m_systematicsList.initialize());
 
     asg::AcceptData blankAccept {&m_isolationTool->getObjAcceptInfo()};
@@ -66,10 +60,10 @@ namespace CP
       {
         if (m_preselection.getBool (*muon, sys))
         {
-          m_isolationAccessor->setBits
-            (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
+          m_isolationHandle.setBits
+            (*muon, selectionFromAccept (m_isolationTool->accept (*muon)), sys);
         } else {
-          m_isolationAccessor->setBits (*muon, m_setOnFail);
+          m_isolationHandle.setBits (*muon, m_setOnFail, sys);
         }
       }
     }

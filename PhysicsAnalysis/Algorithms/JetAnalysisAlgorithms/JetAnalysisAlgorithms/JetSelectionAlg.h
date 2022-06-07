@@ -10,8 +10,8 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetInterface/IJetSelector.h>
-#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
+#include <SelectionHelpers/SysWriteSelectionHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -56,11 +56,8 @@ namespace CP
 
     /// \brief the decoration for the jet selection
   private:
-    std::string m_selectionDecoration {"clean_jet"};
-
-    /// \brief the accessor for \ref m_selectionDecoration
-  private:
-    std::unique_ptr<ISelectionWriteAccessor> m_selectionAccessor;
+    SysWriteSelectionHandle m_selectionHandle {
+      this, "selectionDecoration", "clean_jet", "the decoration for the jet selection"};
   };
 }
 

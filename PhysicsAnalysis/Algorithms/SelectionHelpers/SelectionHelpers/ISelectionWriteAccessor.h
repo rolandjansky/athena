@@ -59,6 +59,15 @@ namespace CP
     /// \brief get the label of the accessor
   public:
     virtual std::string label () const = 0;
+
+
+    /// \brief fill the systematic variations
+  public:
+    virtual StatusCode
+    fillSystematics (const ISystematicsSvc& svc,
+                     const CP::SystematicSet& fullAffecting,
+                     const std::vector<CP::SystematicSet>& sysList,
+                     const std::string& objectName) = 0;
   };
 
 

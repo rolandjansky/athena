@@ -11,8 +11,8 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PATCore/IAsgSelectionTool.h>
-#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
+#include <SelectionHelpers/SysWriteSelectionHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 
@@ -83,11 +83,8 @@ namespace CP
 
     /// \brief the decoration for the asg selection
   private:
-    std::string m_selectionDecoration;
-
-    /// \brief the accessor for \ref m_selectionDecoration
-  private:
-    std::unique_ptr<ISelectionWriteAccessor> m_selectionAccessor;
+    SysWriteSelectionHandle m_selectionHandle {
+      this, "selectionDecoration", "", "the decoration for the asg selection"};
 
     /// \brief the bits to set for an object failing the preselection
   private:
