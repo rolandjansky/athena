@@ -191,16 +191,16 @@ def L1TriggerByteStreamEncoderCfg(flags):
 if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
   from AthenaCommon.Logging import logging
-  from AthenaCommon.Constants import DEBUG
+  from AthenaCommon.Constants import DEBUG,WARNING
   import sys
 
   log = logging.getLogger('TrigT1ResultByteStreamConfig')
   log.setLevel(DEBUG)
 
   if len(sys.argv) != 4:
-    log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file')
+    log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file nevents')
     sys.exit(1)
-  supportedSubsystems = ['jFex']
+  supportedSubsystems = ['jFex','eFex']
   subsystem = sys.argv[1]
   filename = sys.argv[2]
   events = int(sys.argv[3])
@@ -208,7 +208,7 @@ if __name__ == '__main__':
     log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
     sys.exit(1)
 
-  flags.Exec.OutputLevel = DEBUG
+  flags.Exec.OutputLevel = WARNING
   flags.Exec.MaxEvents = events
   flags.Input.Files = [filename]
   flags.Concurrency.NumThreads = 1
@@ -241,8 +241,21 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
 
+  if subsystem=='eFex':
+    from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg
+    eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
+    decoderTools += [eFexTool]
+    # TOB containers
+    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMTOBContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUTOBContainerWriteKey.Path)
+    # xTOB containers
+    outputEDM += addEDM('xAOD::eFexEMRoIContainer', eFexTool.eEMxTOBContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::eFexTauRoIContainer', eFexTool.eTAUxTOBContainerWriteKey.Path)
+
+
+
   decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
-                                                         DecoderTools=decoderTools)
+                                                         DecoderTools=decoderTools, OutputLevel=DEBUG)
   acc.addEventAlgo(decoderAlg, sequenceName='AthAlgSeq')
 
   from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

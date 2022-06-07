@@ -4,6 +4,37 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
+def eFexByteStreamToolCfg(name, flags, writeBS=False):
+  tool = CompFactory.eFexByteStreamTool(name)
+  efex_roi_moduleids = [0x1000,0x1100]
+  tool.ROBIDs = [int(SourceIdentifier(SubDetector.TDAQ_CALO_FEAT_EXTRACT_ROI, moduleid)) for moduleid in efex_roi_moduleids]
+  if writeBS:
+    # write BS == read xAOD
+    tool.eEMTOBContainerReadKey  ="L1_eFexEMTOB"
+    tool.eTAUTOBContainerReadKey ="L1_eFexTauRoI"
+    tool.eEMxTOBContainerReadKey="L1_eFexEMxRoI"
+    tool.eTAUxTOBContainerReadKey ="L1_eFexTauxRoI"
+
+
+    tool.eEMTOBContainerWriteKey  =""
+    tool.eTAUTOBContainerWriteKey =""
+    tool.eEMxTOBContainerWriteKey=""
+    tool.eTAUxTOBContainerWriteKey =""
+  else:
+    # read BS == write xAOD
+    tool.eEMTOBContainerReadKey  =""
+    tool.eTAUTOBContainerReadKey =""
+    tool.eEMxTOBContainerReadKey=""
+    tool.eTAUxTOBContainerReadKey =""
+
+
+    tool.eEMTOBContainerWriteKey  ="L1_eFexEMRoI"
+    tool.eTAUTOBContainerWriteKey ="L1_eFexTauRoI"
+    tool.eEMxTOBContainerWriteKey="L1_eFexEMxRoI"
+    tool.eTAUxTOBContainerWriteKey ="L1_eFexTauxRoI"
+
+  return tool
+
 
 def jFexByteStreamToolCfg(name, flags, writeBS=False):
   tool = CompFactory.jFexByteStreamTool(name)
