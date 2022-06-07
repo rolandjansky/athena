@@ -73,8 +73,8 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
                                   
         tidaegammalrt.AnalysisConfig = "Tier0"
 
-        chains = getchains( [ "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-                              "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" ], monlevel )
+        chains = getchains( [ "HLT_e.*idperf_loose_lrtloose.*:key=HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT",
+                              "HLT_e.*idperf_loose_lrtloose.*:key=HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT" ], monlevel )
         
         if len(chains)>0 : 
 
@@ -125,8 +125,8 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         tidamuonlrt.AnalysisConfig = "Tier0"
 
-        chains = getchains( [ "HLT_mu.*_LRT_idperf.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-                              "HLT_mu.*_LRT_idperf.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT"], monlevel )
+        chains = getchains( [ "HLT_mu.*_LRT_idperf.*:key=HLT_IDTrack_MuonLRT_FTF:roi=HLT_Roi_L2SAMuon_LRT",
+                              "HLT_mu.*_LRT_idperf.*:key=HLT_IDTrack_MuonLRT_IDTrig:roi=HLT_Roi_L2SAMuon_LRT"], monlevel )
 
         if len(chains)>0 :
 

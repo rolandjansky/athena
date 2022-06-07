@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSTEERINGEVENT_OnlineErrorCode_H
@@ -56,9 +56,26 @@ namespace HLT {
     }
   }
 
-inline std::ostream& operator<< (std::ostream& os, const HLT::OnlineErrorCode code) {
-  return os << HLT::OnlineErrorCodeToString(code);
-}
+  inline std::ostream& operator<< (std::ostream& os, const HLT::OnlineErrorCode code) {
+    return os << HLT::OnlineErrorCodeToString(code);
+  }
+
+  /**
+   * @return true if @c code corresponds to an issue with event data or in processing algorithms,
+   *         false if @c code corresponds to a failure of an online framework component
+   */
+  constexpr bool isEventProcessingErrorCode(const OnlineErrorCode code) {
+    switch (code) {
+      case OnlineErrorCode::PROCESSING_FAILURE:
+      case OnlineErrorCode::TIMEOUT:
+      case OnlineErrorCode::RESULT_TRUNCATION:
+      case OnlineErrorCode::MISSING_CTP_FRAGMENT:
+      case OnlineErrorCode::BAD_CTP_FRAGMENT:
+        return true;
+      default:
+        return false;
+    }
+  }
 
 } // namespace HLT
 

@@ -169,7 +169,7 @@ class TgcDigitMaker : public AthMessaging {
   /** Energy threshold value for each chamber */
   double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP]{};
   /** Cross talk probabilty for each chamber */
-  double m_crossTalk[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP][N_ISSTRIP][N_CROSSTALK_PARAMETER]{};
+  double m_crossTalk[N_STATIONNAME][N_STATIONETA][N_GASGAP][N_ISSTRIP][N_CROSSTALK_PARAMETER]{};
   /** Dead chamber flag for each chamber */
   bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP]{};
 
