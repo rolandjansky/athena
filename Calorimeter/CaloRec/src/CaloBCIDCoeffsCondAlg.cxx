@@ -46,8 +46,9 @@ StatusCode CaloBCIDCoeffsCondAlg::initialize()
  * @brief Execute the algorithm.
  * @param ctx Event context.
  */
-StatusCode CaloBCIDCoeffsCondAlg::execute (const EventContext& ctx) const
+StatusCode CaloBCIDCoeffsCondAlg::execute ()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::WriteCondHandle<CaloBCIDCoeffs> outputCoeffs (m_outputCoeffsKey, ctx);
   if (outputCoeffs.isValid()) {
     ATH_MSG_DEBUG ("Found valid write handle");
