@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv.cxx 
@@ -42,13 +42,13 @@ McEventCollection* McEventCollectionCnv::createTransient()
 
    McEventCollection *transObj = 0;
 
-   static pool::Guid tr_guid("6DE62B45-7C72-4539-92F2-3A8E739A4AC3");
-   static pool::Guid p1_guid("BF93438C-D1D3-4F1C-8850-EB690AB7C416");
-   static pool::Guid p2_guid("851BB1D2-1964-4B0A-B83A-6BD596CFB5E2");
-   static pool::Guid p3_guid("6FC41599-64D6-4DB9-973E-9493166F6291");
-   static pool::Guid p4_guid("C517102A-94DE-407C-B07F-09BD81F6172E");
-   static pool::Guid p5_guid("D52391A4-F951-46BF-A0D5-E407698D2917");
-   static pool::Guid p6_guid("6B78A751-B31A-4597-BFB6-DDCE62646CF9");
+   static const pool::Guid tr_guid("6DE62B45-7C72-4539-92F2-3A8E739A4AC3");
+   static const pool::Guid p1_guid("BF93438C-D1D3-4F1C-8850-EB690AB7C416");
+   static const pool::Guid p2_guid("851BB1D2-1964-4B0A-B83A-6BD596CFB5E2");
+   static const pool::Guid p3_guid("6FC41599-64D6-4DB9-973E-9493166F6291");
+   static const pool::Guid p4_guid("C517102A-94DE-407C-B07F-09BD81F6172E");
+   static const pool::Guid p5_guid("D52391A4-F951-46BF-A0D5-E407698D2917");
+   static const pool::Guid p6_guid("6B78A751-B31A-4597-BFB6-DDCE62646CF9");
 
    // Hook to disable datapool if we are doing pileup
    bool isPileup(false);
