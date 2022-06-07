@@ -62,21 +62,52 @@ StatusCode MuonSegContainerMergerAlg::execute(const EventContext& ctx) const {
         }
     }
     /// Next proceed with the segment candidates the Combined tags
+    std::vector<const MuonCombined::TagBase*> good_tags{};
     for (SG::ReadHandle<MuonCombined::InDetCandidateToTagMap>& tag_map : m_tagMaps.makeHandles(ctx)) {
         if (!tag_map.isValid()) {
             ATH_MSG_FATAL("Failed to retrieve combined tag map "<<tag_map.fullKey());
             return StatusCode::FAILURE;
         }
+        good_tags.reserve(tag_map->size() + good_tags.size());
         for (const auto& tag_pair : *tag_map) {
-            std::vector<const Muon::MuonSegment*> assoc_segs = tag_pair.second->associatedSegments();
-            if (assoc_segs.empty() && tag_pair.second->type() != xAOD::Muon::CaloTagged) {
-                ATH_MSG_WARNING("Combined candidate " << tag_pair.second->toString() << " does not have associated segments");
-            }
-            for (const Muon::MuonSegment* seg : assoc_segs) { 
-                persistency_link->persistify(seg, out_container.get()); 
-            }
+            good_tags.push_back(tag_pair.second.get());
         }
     }
+    std::stable_sort(good_tags.begin(),good_tags.end(),[](const MuonCombined::TagBase* a, const MuonCombined::TagBase* b){
+        if (a->isCommissioning() != b->isCommissioning()) return b->isCommissioning();
+        /// Sort according to the author
+        const int auth_a = MuonCombined::authorRank(a->author());
+        const int auth_b = MuonCombined::authorRank(b->author());
+        if (auth_a != auth_b) return auth_a < auth_b;
+        const Trk::Track* prim_a = a->primaryTrack();
+        const Trk::Track* prim_b = b->primaryTrack();
+        /// 2 times a combined muon track
+        if (prim_a && prim_b) {
+            const Trk::Perigee* per_a = prim_a->perigeeParameters();
+            const Trk::Perigee* per_b = prim_b->perigeeParameters();
+            return per_a->pT() > per_b->pT();        
+        }
+        /// One of them has a primary track
+        if (prim_a || prim_b) return prim_a != nullptr;
+        std::vector<const Muon::MuonSegment*> seg_a = a->associatedSegments();
+        std::vector<const Muon::MuonSegment*> seg_b = b->associatedSegments();
+        const size_t n_segs_a = seg_a.size();
+        const size_t n_segs_b = seg_b.size();        
+        if (n_segs_a != n_segs_b) return n_segs_a > n_segs_b;
+        if (!n_segs_a) return false;
+        return chi2(seg_a[0]) < chi2(seg_b[0]);        
+    });
+    
+    for (const MuonCombined::TagBase* cmb_tag : good_tags) {
+        std::vector<const Muon::MuonSegment*> assoc_segs = cmb_tag->associatedSegments();
+        if (assoc_segs.empty() && cmb_tag->type() != xAOD::Muon::CaloTagged) {
+            ATH_MSG_WARNING("Combined candidate " << cmb_tag->toString() << " does not have associated segments");
+        }
+        for (const Muon::MuonSegment* seg : assoc_segs) { 
+            persistency_link->persistify(seg, out_container.get()); 
+        }
+    }
+    
     /// Retrieve the list of associated segments
     std::set<const Trk::Segment*> assoc_segs = persistency_link->getPersistifiedSegments();
     /// Write the segment container & the map to the store gate
