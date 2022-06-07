@@ -15,6 +15,7 @@
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysHandleArray.h>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -35,12 +36,27 @@ namespace CP
     // public interface
     //
 
-    /// \brief standard constructor
+    /**
+     * @brief Standard constructor
+     * @tparam T2 The type of the owner
+     * @param owner Used to declare the property and for its messaging
+     * @param propertyName The name of the property to declare
+     * @param propertyValue The default value for the property
+     * @param propertyDescription The description of the property
+     *
+     * This version of the constructor declares a property on the parent object
+     * and should usually be preferred when the decoration to be read should be
+     * configurable
+     */
   public:
     template<typename T2>
     SysReadDecorHandle (T2 *owner, const std::string& propertyName,
                         const std::string& propertyValue,
                         const std::string& propertyDescription);
+
+    /// \brief Construct the handle directly without declaring a property
+    template<typename T2>
+    SysReadDecorHandle (const std::string& decorName, T2 *owner);
 
 
     /// \brief whether we have a name configured
@@ -114,6 +130,9 @@ namespace CP
     const auto&
     getData (const CP::SystematicSet& sys) const;
   };
+
+  template <typename T>
+  using SysReadDecorHandleArray = SysHandleArray<SysReadDecorHandle<T>>;
 }
 
 #include "SysReadDecorHandle.icc"

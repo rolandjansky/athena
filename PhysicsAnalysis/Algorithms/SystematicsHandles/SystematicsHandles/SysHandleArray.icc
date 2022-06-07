@@ -1,0 +1,150 @@
+namespace CP {
+  template <typename HANDLE> template <typename OWNER>
+  SysHandleArray<HANDLE>::SysHandleArray(
+      OWNER *owner, const std::vector<std::string> &values)
+    : asg::AsgMessagingForward(owner), m_decorNames(values)
+  {
+  }
+
+  template <typename HANDLE> template <typename OWNER>
+  SysHandleArray<HANDLE>::SysHandleArray(
+      OWNER *owner,
+      const std::string &propertyName,
+      const std::vector<std::string> &propertyValue,
+      const std::string &propertyDescription)
+    : asg::AsgMessagingForward(owner), m_decorNames(propertyValue)
+  {
+    owner->declareProperty(propertyName, m_decorNames, propertyDescription);
+  }
+
+  template <typename HANDLE> template <typename... Args>
+  StatusCode SysHandleArray<HANDLE>::initialize(Args &&...args)
+  {
+    // Build the list of handles separate to the data member so that it isn't
+    // partially initialized if there's a failure
+    std::vector<HANDLE> handles;
+    handles.reserve(m_decorNames.size());
+    for (const std::string &decor : m_decorNames)
+    {
+      // NB: This will fail if the templated class doesn't have the right
+      // constructor
+      handles.emplace_back(decor, this);
+      ATH_CHECK(handles.back().initialize(std::forward<Args>(args)...));
+    }
+    // If we get here then it all worked OK
+    m_handles = std::move(handles);
+    return StatusCode::SUCCESS;
+  }
+
+  template <typename HANDLE>
+  std::size_t SysHandleArray<HANDLE>::size() const noexcept { return m_decorNames.size(); }
+
+  template <typename HANDLE>
+  bool SysHandleArray<HANDLE>::empty() const noexcept { return size() == 0; }
+
+  template <typename HANDLE>
+  HANDLE &SysHandleArray<HANDLE>::at(std::size_t idx)
+  {
+    requireInitialized();
+    return m_handles.at(idx);
+  }
+
+  template <typename HANDLE>
+  const HANDLE &SysHandleArray<HANDLE>::at(std::size_t idx) const
+  {
+    requireInitialized();
+    return m_handles.at(idx);
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::iterator SysHandleArray<HANDLE>::begin()
+  {
+    requireInitialized();
+    return m_handles.begin();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::iterator SysHandleArray<HANDLE>::end()
+  {
+    requireInitialized();
+    return m_handles.end();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_iterator SysHandleArray<HANDLE>::begin() const
+  {
+    requireInitialized();
+    return m_handles.begin();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_iterator SysHandleArray<HANDLE>::end() const
+  {
+    requireInitialized();
+    return m_handles.end();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_iterator SysHandleArray<HANDLE>::cbegin() const
+  {
+    requireInitialized();
+    return m_handles.cbegin();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_iterator SysHandleArray<HANDLE>::cend() const
+  {
+    requireInitialized();
+    return m_handles.cend();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::reverse_iterator SysHandleArray<HANDLE>::rbegin()
+  {
+    requireInitialized();
+    return m_handles.rbegin();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::reverse_iterator SysHandleArray<HANDLE>::rend()
+  {
+    requireInitialized();
+    return m_handles.rend();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_reverse_iterator SysHandleArray<HANDLE>::rbegin() const
+  {
+    requireInitialized();
+    return m_handles.rbegin();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_reverse_iterator SysHandleArray<HANDLE>::rend() const
+  {
+    requireInitialized();
+    return m_handles.rend();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_reverse_iterator SysHandleArray<HANDLE>::crbegin() const
+  {
+    requireInitialized();
+    return m_handles.crbegin();
+  }
+
+  template <typename HANDLE>
+  typename SysHandleArray<HANDLE>::const_reverse_iterator SysHandleArray<HANDLE>::crend() const
+  {
+    requireInitialized();
+    return m_handles.crend();
+  }
+
+  template <typename HANDLE>
+  void SysHandleArray<HANDLE>::requireInitialized() const
+  {
+    if (m_handles.size() != m_decorNames.size())
+      throw std::logic_error("SysHandleArray not initialized!");
+  }
+
+} //> end namespace CP

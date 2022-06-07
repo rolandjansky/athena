@@ -12,6 +12,7 @@
 #include <AthContainers/AuxElement.h>
 #include <AsgMessaging/AsgMessagingForward.h>
 #include <SystematicsHandles/ISysHandleBase.h>
+#include <SystematicsHandles/SysHandleArray.h>
 #include <memory>
 
 class StatusCode;
@@ -33,12 +34,27 @@ namespace CP
     // public interface
     //
 
-    /// \brief standard constructor
+    /**
+     * @brief Standard constructor
+     * @tparam T2 The type of the owner
+     * @param owner Used to declare the property and for its messaging
+     * @param propertyName The name of the property to declare
+     * @param propertyValue The default value for the property
+     * @param propertyDescription The description of the property
+     *
+     * This version of the constructor declares a property on the parent object
+     * and should usually be preferred when the selection to be read should be
+     * configurable
+     */
   public:
     template<typename T2>
     SysReadSelectionHandle (T2 *owner, const std::string& propertyName,
                             const std::string& propertyValue,
                             const std::string& propertyDescription);
+
+    /// \brief Construct the handle directly without declaring a property
+    template<typename T2>
+    SysReadSelectionHandle (const std::string& selection, T2 *owner);
 
 
     /// \brief !empty()
@@ -90,6 +106,8 @@ namespace CP
   private:
     std::unique_ptr<ISelectionAccessor> m_accessor;
   };
+
+  using SysReadSelectionHandleArray = SysHandleArray<SysReadSelectionHandle>;
 }
 
 #include "SysReadSelectionHandle.icc"

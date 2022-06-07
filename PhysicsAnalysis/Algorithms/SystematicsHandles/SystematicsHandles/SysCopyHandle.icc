@@ -29,6 +29,12 @@ namespace CP
     owner->declareProperty (propertyName + "Out", m_outputName, "the (optional) name of the copy we create of " + propertyName);
   }
 
+  template<typename T> template<typename T2> SysCopyHandle<T> ::
+  SysCopyHandle (const std::string &inputName, const std::string &outputName, T2 *owner)
+    : AsgMessagingForward (owner), m_inputName(inputName), m_outputName(outputName)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {}
+
 
 
   template<typename T> bool SysCopyHandle<T> ::
