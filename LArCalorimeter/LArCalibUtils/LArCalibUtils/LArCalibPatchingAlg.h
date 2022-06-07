@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -26,6 +26,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 
 
@@ -90,7 +91,7 @@ private:
    * @return bool to tell if patching suceeded
    * This method is called for every channel with broken calibration line
    */
-  bool patch(const HWIdentifier chid, const int gain, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling); 
+  bool patch(const HWIdentifier chid, const int gain, const LArBadChannelCont* bcCont, const LArOnOffIdMapping* cabling, const LArCalibLineMapping *clCont); 
 
     
  /**
@@ -172,8 +173,10 @@ private:
 
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey {this, "BadChanKey", "LArBadChannel", "SG key for LArBadChan object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping>  m_CLKey{this, "CalibLineKey", "LArCalibLineMap", "SG calib line key"};
   LArBadChannelMask m_bcMask;
   Gaudi::Property<std::vector<std::string> > m_problemsToPatch{this,"ProblemsToPatch",{}, "Bad-Channel categories to patch"};
+  Gaudi::Property<std::vector<unsigned int> > m_doNotPatchCBs{this, "DoNotPatchCBs", {}, "Do not patch channels from this CalibBoard"};
 
   bool m_useCorrChannel;
   bool m_patchAllMissing;
