@@ -242,6 +242,9 @@ def defineMenu():
         # BPTX
         'L1_BPTX0_BGRP12','L1_BPTX1_BGRP12',
 
+        # NSW Monitoring
+        'L1_NSW_MONITOR',
+        
         # BCM
         'L1_BCM_Wide_BGRP12', 'L1_BCM_AC_CA_BGRP12', 'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
@@ -294,7 +297,7 @@ def defineMenu():
         #'L1_MBTSA0', 'L1_MBTSA1', 'L1_MBTSA2', 'L1_MBTSA3', 'L1_MBTSA4', 'L1_MBTSA5', 'L1_MBTSA6', 'L1_MBTSA7', 'L1_MBTSA8', 'L1_MBTSA9', 'L1_MBTSA10', 'L1_MBTSA11', 'L1_MBTSA12', 'L1_MBTSA13', 'L1_MBTSA14', 'L1_MBTSA15', 'L1_MBTSC0', 'L1_MBTSC1', 'L1_MBTSC2', 'L1_MBTSC3', 'L1_MBTSC4', 'L1_MBTSC5', 'L1_MBTSC6', 'L1_MBTSC7', 'L1_MBTSC8', 'L1_MBTSC9', 'L1_MBTSC10', 'L1_MBTSC11', 'L1_MBTSC12', 'L1_MBTSC13', 'L1_MBTSC14', 'L1_MBTSC15', 
 
          # ZB 
-        'L1_ZB',
+        'L1_ZB', 'L1_ZB_eEM18',
 
         #ATR-21371
         # TODO: to be removed for high-mu pp
@@ -427,6 +430,21 @@ def defineMenu():
     L1MenuFlags.CtpIdMap = {
         # to be used to hardcode CTP IDs for specific items
         # NB: 508 is reserved for the zero bias trigger, and 509-511 for the CALREQ triggers (at the moment, ATR-22654)
+
+        # High-frequency counters fixed to consecutive CTP IDs
+        # 8 items with the high frequency per-bunch monitoring counters (HF:111)
+        # should be in consecutive cpid, starting a ctpid number with ctpid%16 = 0
+        # ATR-23836
+        "L1_BCM_AC_UNPAIRED_ISO":480,
+        "L1_BCM_CA_UNPAIRED_ISO":481,
+        "L1_J12":482,
+        "L1_MBTS_1":483,
+        "L1_MBTS_2":484,
+        "L1_MBTS_1_1":485,
+        "L1_BCM_2A_UNPAIRED_ISO":486,
+        "L1_BCM_2C_UNPAIRED_ISO":487,
+        #
+        "L1_ZB_eEM": 508
     }
 
 

@@ -208,7 +208,7 @@ class ElectricalConnector(Connector):
                         # for topological triggerlines the names have to be prefixed as they are in the item definitions
                         tlname = currentTopoCategory.prefix + tl
                         startbit = bit+i
-                        flatindex = 32*fpga + 2*startbit + clock  
+                        flatindex = 32*fpga + 2*startbit + clock
                         self.addTriggerLine( TriggerLine( name = tlname, startbit = startbit, flatindex = flatindex, nbits = 1, fpga = fpga, clock = clock ), fpga, clock )
         elif self.cformat == CFormat.SIMPLE:
             for sigG in connDef["signalGroups"]:

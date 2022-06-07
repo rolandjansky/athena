@@ -312,7 +312,7 @@ def defineLegacyInputsMenu():
 
     L1MenuFlags.legacyBoards().update( legacyBoards )  # EM1/2, TAU1/2, JET1/2, EN1/2
 
-    L1MenuFlags.legacyBoards().update( legacyTopoBoards) # LegacyTopo0/1
-
     L1MenuFlags.legacyBoards().update( createMergerBoard( legacyTopoBoards["LegacyTopo0"], legacyTopoBoards["LegacyTopo1"] ) )
+
+    L1MenuFlags.legacyBoards().update( legacyTopoBoards) # LegacyTopo0/1
 
