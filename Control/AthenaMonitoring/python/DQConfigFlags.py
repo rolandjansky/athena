@@ -23,7 +23,7 @@ _lowLevelSteeringFlags = [ 'InDet.doGlobalMon', 'InDet.doAlignMon',
 
 def createDQConfigFlags():
     acf=AthConfigFlags()
-    acf.addFlag('DQ.doMonitoring', True)
+    acf.addFlag('DQ.doMonitoring', False)
     acf.addFlag('DQ.doStreamAwareMon', True)
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
     acf.addFlag('DQ.disableFilledBunchFilter', False)
@@ -41,6 +41,10 @@ def createDQConfigFlags():
     # computed
     acf.addFlag('DQ.Environment', getEnvironment )
     acf.addFlag('DQ.DataType', getDataType )
+
+    # for in-Athena histogram postprocessing
+    acf.addFlag('DQ.doPostProcessing', False)
+    acf.addFlag('DQ.postProcessingInterval', 100)
     
     # steering ...
     for flag in _steeringFlags + _lowLevelSteeringFlags:

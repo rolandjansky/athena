@@ -55,7 +55,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        
+        inDetGlobalTrackMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
+
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
         ########### here ends InDetGlobalTrackMonAlg ###########
 
@@ -86,7 +87,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalLRTMonAlg.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        
+        inDetGlobalLRTMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
+
         InDetGlobalLRTMonAlgCfg(helper, inDetGlobalLRTMonAlg, **kwargsInDetGlobalLRTMonAlg)
         ########### here ends InDetGlobalLRTMonAlg ###########
 

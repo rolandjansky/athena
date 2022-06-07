@@ -32,8 +32,8 @@ def SCTTracksMonAlgConfig(inputFlags):
 
     from AthenaConfiguration.Enums import BeamType
     if inputFlags.Beam.Type is BeamType.Collisions:
-        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
-        myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
+        from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
+        myMonAlg.FilterTools += [result.popToolsAndMerge(FilledBunchFilterToolCfg(inputFlags))]
 
     doTrigger = False
     if not inputFlags.Input.isMC:

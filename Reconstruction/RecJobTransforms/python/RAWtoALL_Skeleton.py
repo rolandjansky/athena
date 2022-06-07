@@ -18,6 +18,10 @@ def fromRunArgs(runArgs):
     import time
     timeStart = time.time()
 
+    log.info('**** executing ROOT6Setup')
+    from PyUtils.Helpers import ROOT6Setup
+    ROOT6Setup(batch=True)
+
     log.info('**** Setting-up configuration flags')
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     commonRunArgsToFlags(runArgs, ConfigFlags)
@@ -56,6 +60,16 @@ def fromRunArgs(runArgs):
         ConfigFlags.Output.AODFileName = runArgs.outputAODFile
         log.info("---------- Configured AOD output")
 
+    if hasattr(runArgs, 'outputHISTFile'):
+        ConfigFlags.Output.HISTFileName = runArgs.outputHISTFile
+        ConfigFlags.DQ.doMonitoring = True
+        log.info("---------- Configured HIST output")
+
+    if hasattr(runArgs, 'outputHIST_R2AFile'):
+        ConfigFlags.Output.HISTFileName = runArgs.outputHIST_R2AFile
+        ConfigFlags.DQ.doMonitoring = True
+        log.info("---------- Configured HIST_R2A output")
+
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep=ProductionStep.Reconstruction
 
@@ -63,7 +77,6 @@ def fromRunArgs(runArgs):
 
     # outputHIST_R2AFile
     # outputTAG_COMMFile
-    # outputHISTFile
     # outputTXT_FTKIPFile
     # outputNTUP_MUONCALIBFile
     # outputTXT_JIVEXMLTGZFile
