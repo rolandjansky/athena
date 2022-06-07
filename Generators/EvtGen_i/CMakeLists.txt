@@ -37,7 +37,7 @@ set(EvtGen_iLib_SOURCES
                    src/EvtPHOTOS.cxx
                    src/EvtPythia6CommandConverter.cxx
                    src/EvtTauolaEngine.cxx
-                   src/EvtExternalList.cxx
+                   src/EvtExternalGenList.cxx
                    src/EvtPhotosEngine.cxx
                    src/EvtPythiaEngine.cxx
                    src/EvtInclusiveDecay.cxx
@@ -64,7 +64,18 @@ set(EvtGen_iLib_SOURCES
 )
 #endif()
 # Component(s) in the package:
-atlas_add_library( EvtGen_iLib
+if (HEPMC3_USE)
+  atlas_add_library( EvtGen_iLib
+                   ${EvtGen_iLib_SOURCES}
+                   PUBLIC_HEADERS EvtGen_i
+                   DEFINITIONS -DEVTGEN_HEPMC3 -DEVTGEN_PYTHIA -DEVTGEN_PHOTOS -DEVTGEN_TAUOLA 
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${PHOTOSPP_INCLUDE_DIRS} ${TAUOLAPP_INCLUDE_DIRS}  ${EVTGEN_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${PYTHIA8_LIBRARIES} ${PHOTOSPP_LIBRARIES} ${TAUOLAPP_LIBRARIES} AtlasHepMCLib ${EVTGEN_LIBRARIES} GaudiKernel GeneratorObjects ${ROOT_LIBRARIES} StoreGateLib GeneratorModulesLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel PathResolver )
+else()
+  atlas_add_library( EvtGen_iLib
                    ${EvtGen_iLib_SOURCES}
                    PUBLIC_HEADERS EvtGen_i
                    DEFINITIONS -DEVTGEN_PYTHIA -DEVTGEN_PHOTOS -DEVTGEN_TAUOLA 
@@ -73,6 +84,7 @@ atlas_add_library( EvtGen_iLib
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${PYTHIA8_LIBRARIES} ${PHOTOSPP_LIBRARIES} ${TAUOLAPP_LIBRARIES} AtlasHepMCLib ${EVTGEN_LIBRARIES} GaudiKernel GeneratorObjects ${ROOT_LIBRARIES} StoreGateLib GeneratorModulesLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel PathResolver )
+endif()
 
 
 atlas_add_component( EvtGen_i
