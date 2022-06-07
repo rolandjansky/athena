@@ -6,14 +6,12 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-    from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    # Set up logging and new style config
+    # Set up logging
     log.setLevel(DEBUG)
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     # Provide MC input
     ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2

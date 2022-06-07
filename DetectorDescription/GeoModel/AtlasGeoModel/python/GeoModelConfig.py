@@ -3,7 +3,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon import Logging
 
 def GeoModelCfg(configFlags):
@@ -39,7 +38,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ConfigFlags.Input.Files = []
-    Configurable.configurableRun3Behavior=1
 
     acc = GeoModelCfg( ConfigFlags )
     acc.store( open( "test.pkl", "wb" ) )

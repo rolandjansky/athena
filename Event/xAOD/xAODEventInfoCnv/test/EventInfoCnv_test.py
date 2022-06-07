@@ -8,7 +8,6 @@ import sys
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Debugging import DbgStage
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -16,9 +15,8 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 
-# Set up logging and new style config
+# Set up logging
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 from argparse import ArgumentParser

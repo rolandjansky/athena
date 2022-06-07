@@ -9,7 +9,7 @@ produced file for xAOD::FileMetaData metadata items.
         python -m xAODMetaDataCnv.TestWriteFileMetaDataAOD |tee log
 """
 from AthenaConfiguration import AllConfigFlags, TestDefaults, MainServicesConfig
-from AthenaCommon import Configurable, Constants, Logging
+from AthenaCommon import Constants, Logging
 from OutputStreamAthenaPool import OutputStreamConfig
 from PyUtils import MetaReader
 from xAODEventInfoCnv import xAODEventInfoCnvConfig
@@ -43,7 +43,6 @@ def testMetaData(file_name):
 
 def main():
     """Run a job writing a file with FileMetaData"""
-    Configurable.Configurable.configurableRun3Behavior = True
     msg = Logging.logging.getLogger("TestFileMetaData")
 
     config_flags = AllConfigFlags.ConfigFlags
