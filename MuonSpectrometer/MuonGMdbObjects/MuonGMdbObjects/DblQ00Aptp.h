@@ -13,9 +13,9 @@
 #ifndef DBLQ00_APTP_H
 #define DBLQ00_APTP_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string> 
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Aptp {
 public:
     DblQ00Aptp(){};
     ~DblQ00Aptp();
-    DblQ00Aptp(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Aptp(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Aptp(AmdcDb* aptp);
 
     // data members for DblQ00/APTP fields

@@ -12,10 +12,10 @@
 
 #ifndef DBLQ00_AWLN_H
 #define DBLQ00_AWLN_H
+#include <string>
 
-#include "RDBAccessSvc/IRDBQuery.h"
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Awln {
 public:
     DblQ00Awln(){};
     ~DblQ00Awln();
-    DblQ00Awln(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Awln(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Awln(AmdcDb* awln);
     
     // data members for DblQ00/AWLN fields

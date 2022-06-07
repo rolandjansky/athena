@@ -9,34 +9,36 @@
 
 #include "MuonGMdbObjects/DblQ00Wcmi.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
 #include <iostream>
 #include <sstream>
-
+#include <string> 
 namespace MuonGM
 {
 
-DblQ00Wcmi::DblQ00Wcmi(std::unique_ptr<IRDBQuery>&& wcmi) :
+  DblQ00Wcmi::DblQ00Wcmi(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(wcmi) {
-    wcmi->execute();
+
+    IRDBRecordset_ptr wcmi = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(wcmi->size()>0) {
     m_nObj = wcmi->size();
     m_d = new WCMI[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Wcmi banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(wcmi->next()) {
-        m_d[i].version     = wcmi->data<int>("WCMI_DATA.VERS");    
-        m_d[i].jsta        = wcmi->data<int>("WCMI_DATA.JSTA");
-        m_d[i].num         = wcmi->data<int>("WCMI_DATA.NUM");
-        m_d[i].heightness     = wcmi->data<float>("WCMI_DATA.HEIGHTNESS");
-        m_d[i].largeness      = wcmi->data<float>("WCMI_DATA.LARGENESS");
-        m_d[i].thickness      = wcmi->data<float>("WCMI_DATA.THICKNESS");
+    size_t i=0;
+    while(i<wcmi->size()) {
+        m_d[i].version     = (*wcmi)[i]->getInt("VERS");    
+        m_d[i].jsta        = (*wcmi)[i]->getInt("JSTA");
+        m_d[i].num         = (*wcmi)[i]->getInt("NUM");
+        m_d[i].heightness     = (*wcmi)[i]->getFloat("HEIGHTNESS");
+        m_d[i].largeness      = (*wcmi)[i]->getFloat("LARGENESS");
+        m_d[i].thickness      = (*wcmi)[i]->getFloat("THICKNESS");
 	i++;
     }
-    wcmi->finalize();
   }
   else {
     m_d = new WCMI[0];

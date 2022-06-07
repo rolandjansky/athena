@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WTGC_H
 #define DBLQ00_WTGC_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wtgc {
 public:
     DblQ00Wtgc(){};
     ~DblQ00Wtgc();
-    DblQ00Wtgc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wtgc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wtgc(AmdcDb* wtgc);
 
     // data members for DblQ00/WTGC fields

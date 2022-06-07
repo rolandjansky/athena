@@ -13,9 +13,9 @@
 #ifndef DBLQ00_DBAM_H
 #define DBLQ00_DBAM_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Dbam {
 public:
     DblQ00Dbam(){};
     ~DblQ00Dbam();
-    DblQ00Dbam(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Dbam(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Dbam(AmdcDb* dbam);
 
     // data members for DblQ00/DBAM fields

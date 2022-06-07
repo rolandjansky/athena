@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WCHV_H
 #define DBLQ00_WCHV_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wchv {
 public:
     DblQ00Wchv(){};
     ~DblQ00Wchv();
-    DblQ00Wchv(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wchv(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wchv(AmdcDb* wchv);
     
     // data members for DblQ00/WCHV fields

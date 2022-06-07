@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Aszt.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -24,33 +25,34 @@ DblQ00Aszt::DblQ00Aszt() : m_d(nullptr)
     m_nObj = 0;
 }
     
-DblQ00Aszt::DblQ00Aszt(std::unique_ptr<IRDBQuery>&& aszt) :
+  DblQ00Aszt::DblQ00Aszt(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(aszt) {
-    aszt->execute();
+
+    IRDBRecordset_ptr aszt = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(aszt->size()>0) {
     m_nObj = aszt->size();
     m_d = new ASZT[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Aszt banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(aszt->next()) {
-        m_d[i].version        = aszt->data<int>("ASZT_DATA.VERS");    
-        m_d[i].line           = aszt->data<int>("ASZT_DATA.LINE");          
-        m_d[i].jff            = aszt->data<int>("ASZT_DATA.JFF");
-        m_d[i].jzz            = aszt->data<int>("ASZT_DATA.JZZ");
-        m_d[i].job            = aszt->data<int>("ASZT_DATA.JOB");
-        m_d[i].tras           = aszt->data<float>("ASZT_DATA.TRAS");
-        m_d[i].traz           = aszt->data<float>("ASZT_DATA.TRAZ");
-        m_d[i].trat           = aszt->data<float>("ASZT_DATA.TRAT");
-        m_d[i].rots           = aszt->data<float>("ASZT_DATA.ROTS");
-        m_d[i].rotz           = aszt->data<float>("ASZT_DATA.ROTZ");
-        m_d[i].rott           = aszt->data<float>("ASZT_DATA.ROTT");
-        m_d[i].i              = aszt->data<int>("ASZT_DATA.I");
-        sprintf(m_d[i].type,"%s",aszt->data<std::string>("ASZT_DATA.TYP").c_str());
+    size_t i=0;
+    while(i<aszt->size()) {
+        m_d[i].version        = (*aszt)[i]->getInt("VERS");    
+        m_d[i].line           = (*aszt)[i]->getInt("LINE");          
+        m_d[i].jff            = (*aszt)[i]->getInt("JFF");
+        m_d[i].jzz            = (*aszt)[i]->getInt("JZZ");
+        m_d[i].job            = (*aszt)[i]->getInt("JOB");
+        m_d[i].tras           = (*aszt)[i]->getFloat("TRAS");
+        m_d[i].traz           = (*aszt)[i]->getFloat("TRAZ");
+        m_d[i].trat           = (*aszt)[i]->getFloat("TRAT");
+        m_d[i].rots           = (*aszt)[i]->getFloat("ROTS");
+        m_d[i].rotz           = (*aszt)[i]->getFloat("ROTZ");
+        m_d[i].rott           = (*aszt)[i]->getFloat("ROTT");
+        m_d[i].i              = (*aszt)[i]->getInt("I");
+        sprintf(m_d[i].type,"%s",(*aszt)[i]->getString("TYP").c_str());
         //std::cerr<<" Aszt:: version, type, jtyp, nsta "<<m_d[i].version<<" "<<m_d[i].type<<" "<<m_d[i].jtyp<<" "<<m_d[i].nsta  <<std::endl;
         i++;
     }
-    aszt->finalize();
   }
   else {
     m_d = new ASZT[0];

@@ -13,7 +13,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "RDBAccessSvc/IRDBQuery.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
@@ -43,128 +42,112 @@ namespace MuonGM {
         if (theAmdcDb) {
             m_dhatyp = new DblQ00Atyp(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("ATYP", geoTag, geoNode);
-            m_dhatyp = new DblQ00Atyp(std::move(dbdata));
+            m_dhatyp = new DblQ00Atyp(m_pRDBAccess, geoTag, geoNode);
         }
         m_atyp = m_dhatyp->data();
 
         if (theAmdcDb) {
             m_dhasmp = new DblQ00Asmp(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("ASMP", geoTag, geoNode);
-            m_dhasmp = new DblQ00Asmp(std::move(dbdata));
+            m_dhasmp = new DblQ00Asmp(m_pRDBAccess, geoTag, geoNode);   
         }
         m_asmp = m_dhasmp->data();
 
         if (theAmdcDb) {
             m_dhalmn = new DblQ00Almn(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("ALMN", geoTag, geoNode);
-            m_dhalmn = new DblQ00Almn(std::move(dbdata));
+            m_dhalmn = new DblQ00Almn(m_pRDBAccess, geoTag, geoNode);   
         }
         m_almn = m_dhalmn->data();
 
         if (theAmdcDb) {
             m_dhaptp = new DblQ00Aptp(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("APTP", geoTag, geoNode);
-            m_dhaptp = new DblQ00Aptp(std::move(dbdata));
+            m_dhaptp = new DblQ00Aptp(m_pRDBAccess, geoTag, geoNode);   
         }
         m_aptp = m_dhaptp->data();
 
         if (theAmdcDb) {
             m_dhacut = new DblQ00Acut(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("ACUT", geoTag, geoNode);
-            m_dhacut = new DblQ00Acut(std::move(dbdata));
+            m_dhacut = new DblQ00Acut(m_pRDBAccess, geoTag, geoNode);   
         }
         m_acut = m_dhacut->data();
 
         if (theAmdcDb) {
             m_dhalin = new DblQ00Alin(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("ALIN", geoTag, geoNode);
-            m_dhalin = new DblQ00Alin(std::move(dbdata));
+            m_dhalin = new DblQ00Alin(m_pRDBAccess, geoTag, geoNode);   
         }
         m_alin = m_dhalin->data();
 
         if (theAmdcDb) {
             m_dhdbam = new DblQ00Dbam(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("DBAM", geoTag, geoNode);
-            m_dhdbam = new DblQ00Dbam(std::move(dbdata));
+            m_dhdbam = new DblQ00Dbam(m_pRDBAccess, geoTag, geoNode);   
         }
         m_dbam = m_dhdbam->data();
 
         if (theAmdcDb) {
             m_dhwrpc = new DblQ00Awln(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("AWLN", geoTag, geoNode);
-            m_dhwrpc = new DblQ00Awln(std::move(dbdata));
+            m_dhwrpc = new DblQ00Awln(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wrpc = m_dhwrpc->data();
 
         if (theAmdcDb) {
             m_dhwtgc = new DblQ00Atln(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("ATLN", geoTag, geoNode);
-            m_dhwtgc = new DblQ00Atln(std::move(dbdata));
+            m_dhwtgc = new DblQ00Atln(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wtgc = m_dhwtgc->data();
 
         if (theAmdcDb) {
             m_dhwmdt = new DblQ00Wmdt(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WMDT", geoTag, geoNode);
-            m_dhwmdt = new DblQ00Wmdt(std::move(dbdata));
+            m_dhwmdt = new DblQ00Wmdt(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wmdt = m_dhwmdt->data();
 
         if (theAmdcDb) {
             m_dhwcsc = new DblQ00Wcsc(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WCSC", geoTag, geoNode);
-            m_dhwcsc = new DblQ00Wcsc(std::move(dbdata));
+            m_dhwcsc = new DblQ00Wcsc(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wcsc = m_dhwcsc->data();
 
         if (theAmdcDb) {
             m_dhwrpcall = new DblQ00Wrpc(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WRPC", geoTag, geoNode);
-            m_dhwrpcall = new DblQ00Wrpc(std::move(dbdata));
+            m_dhwrpcall = new DblQ00Wrpc(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wrpcall = m_dhwrpcall->data();
 
         if (theAmdcDb) {
             m_dhwtgcall = new DblQ00Wtgc(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WTGC", geoTag, geoNode);
-            m_dhwtgcall = new DblQ00Wtgc(std::move(dbdata));
+            m_dhwtgcall = new DblQ00Wtgc(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wtgcall = m_dhwtgcall->data();
 
         if (theAmdcDb) {
             m_dhwspa = new DblQ00Wspa(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WSPA", geoTag, geoNode);
-            m_dhwspa = new DblQ00Wspa(std::move(dbdata));
+            m_dhwspa = new DblQ00Wspa(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wspa = m_dhwspa->data();
 
         if (theAmdcDb) {
             m_dhwded = new DblQ00Wded(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WDED", geoTag, geoNode);
-            m_dhwded = new DblQ00Wded(std::move(dbdata));
+            m_dhwded = new DblQ00Wded(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wded = m_dhwded->data();
 
         if (theAmdcDb) {
             m_dhwsup = new DblQ00Wsup(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WSUP", geoTag, geoNode);
-            m_dhwsup = new DblQ00Wsup(std::move(dbdata));
+            m_dhwsup = new DblQ00Wsup(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wsup = m_dhwsup->data();
 
@@ -172,16 +155,15 @@ namespace MuonGM {
         if (theAmdcDb) {
             log << MSG::INFO << "skipping XtomoData" << endmsg;
         } else {
-            std::unique_ptr<IRDBQuery> xtomoData;
-            if (!m_pRDBAccess->getChildTag("XtomoData", geoTag, geoNode).empty()) {
-                xtomoData = m_pRDBAccess->getQuery("XtomoData", geoTag, geoNode);
-                log << MSG::DEBUG << "After getQuery XtomoData" << endmsg;
-            }
-            m_dhxtomo = xtomoData ? new DblQ00Xtomo(std::move(xtomoData)) : new DblQ00Xtomo();
-            if (xtomoData)
-                log << MSG::INFO << "XtomoData table found in Oracle" << endmsg;
-            else
-                log << MSG::INFO << "No XtomoData table in Oracle" << endmsg;
+	  std::unique_ptr<IRDBQuery> xtomoData;
+  	    if (m_pRDBAccess->getRecordsetPtr("XtomoData", geoTag, geoNode)->size()!=0) {
+	        m_dhxtomo= new DblQ00Xtomo(pRDBAccess, geoTag, geoNode);
+	        log << MSG::INFO << "XtomoData table found in Oracle" << endmsg;  
+	    }
+	    else {
+	        m_dhxtomo= new DblQ00Xtomo();
+	        log << MSG::INFO << "No XtomoData table in Oracle" << endmsg;	    
+	     }
         }
         if (m_dhxtomo)
             m_xtomo = m_dhxtomo->data();
@@ -207,13 +189,12 @@ namespace MuonGM {
             if (theAmdcDb) {
                 m_dhaszt = new DblQ00Aszt(theAmdcDb);
             } else {
-                dbdata = m_pRDBAccess->getQuery("ASZT", geoTag, geoNode);
-                if (!dbdata) {
+  	        if (m_pRDBAccess->getRecordsetPtr("ASZT",geoTag,geoNode)->size()==0) {
                     m_dhaszt = new DblQ00Aszt();
                     log << MSG::INFO << "No ASZT table in Oracle" << endmsg;
                 } else {
                     log << MSG::INFO << "ASZT table found in Oracle" << endmsg;
-                    m_dhaszt = new DblQ00Aszt(std::move(dbdata));
+                    m_dhaszt = new DblQ00Aszt(m_pRDBAccess, geoTag, geoNode);   
                     log << MSG::INFO << "ASZT size is " << m_dhaszt->size() << endmsg;
                 }
             }
@@ -244,22 +225,16 @@ namespace MuonGM {
         }
         if (m_dhiacsc == nullptr || m_dhiacsc->size() == 0) {
             log << MSG::INFO << "No Ascii iacsc input found: looking for A-lines in ORACLE" << endmsg;
-            std::unique_ptr<IRDBQuery> isztData;
-            if (!m_pRDBAccess->getChildTag("ISZT", geoTag, geoNode).empty()) {
-                isztData = m_pRDBAccess->getQuery("ISZT", geoTag, geoNode);
-            }
-
             if (theAmdcDb) {
                 log << MSG::INFO << "skipping ISZT" << endmsg;
                 m_dhiacsc = nullptr;
             } else {
-                if (!isztData) {
+	      if (m_pRDBAccess->getRecordsetPtr("IZST", geoTag,geoNode)->size()==0) {
                     m_dhiacsc = new DblQ00IAcsc();
                     log << MSG::INFO << "No ISZT table in Oracle" << endmsg;
                 } else {
-                    log << MSG::INFO << "ISZT table found in Oracle" << endmsg;
-                    m_dhiacsc = new DblQ00IAcsc(std::move(isztData));
-                }
+		  log << MSG::INFO << "ISZT table found in Oracle" << endmsg;
+		  m_dhiacsc = new DblQ00IAcsc(m_pRDBAccess, geoTag, geoNode);                   }
             }
         } else {
             log << MSG::INFO << "ISZT table in Oracle, if any, will not be read" << endmsg;
@@ -276,32 +251,28 @@ namespace MuonGM {
         if (theAmdcDb) {
             m_dhwchv = new DblQ00Wchv(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WCHV", geoTag, geoNode);
-            m_dhwchv = new DblQ00Wchv(std::move(dbdata));
+            m_dhwchv = new DblQ00Wchv(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wchv = m_dhwchv->data();
 
         if (theAmdcDb) {
             m_dhwcro = new DblQ00Wcro(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WCRO", geoTag, geoNode);
-            m_dhwcro = new DblQ00Wcro(std::move(dbdata));
+            m_dhwcro = new DblQ00Wcro(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wcro = m_dhwcro->data();
 
         if (theAmdcDb) {
             m_dhwcmi = new DblQ00Wcmi(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WCMI", geoTag, geoNode);
-            m_dhwcmi = new DblQ00Wcmi(std::move(dbdata));
+            m_dhwcmi = new DblQ00Wcmi(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wcmi = m_dhwcmi->data();
 
         if (theAmdcDb) {
             m_dhwlbi = new DblQ00Wlbi(theAmdcDb);
         } else {
-            dbdata = m_pRDBAccess->getQuery("WLBI", geoTag, geoNode);
-            m_dhwlbi = new DblQ00Wlbi(std::move(dbdata));
+             m_dhwlbi = new DblQ00Wlbi(m_pRDBAccess, geoTag, geoNode);   
         }
         m_wlbi = m_dhwlbi->data();
 

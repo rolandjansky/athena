@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Asmp.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -17,23 +18,24 @@
 namespace MuonGM
 {
 
-DblQ00Asmp::DblQ00Asmp(std::unique_ptr<IRDBQuery>&& asmp) :
+  DblQ00Asmp::DblQ00Asmp(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(asmp) {
-    asmp->execute();
+
+    IRDBRecordset_ptr asmp = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(asmp->size()>0) {
     m_nObj = asmp->size();
     m_d = new ASMP[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Asmp banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(asmp->next()) {
-        m_d[i].version     = asmp->data<int>("ASMP_DATA.VERS");    
-        m_d[i].indx        = asmp->data<int>("ASMP_DATA.INDX");
-        m_d[i].n           = asmp->data<int>("ASMP_DATA.N");          
-        m_d[i].jtyp        = asmp->data<int>("ASMP_DATA.JTYP");       
+    size_t i=0;
+    while(i<asmp->size()) {
+        m_d[i].version     = (*asmp)[i]->getInt("VERS");    
+        m_d[i].indx        = (*asmp)[i]->getInt("INDX");
+        m_d[i].n           = (*asmp)[i]->getInt("N");          
+        m_d[i].jtyp        = (*asmp)[i]->getInt("JTYP");       
         i++;
     }
-    asmp->finalize();    
   }
   else {
     m_d = new ASMP[0];

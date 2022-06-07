@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00IAcsc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -25,34 +26,35 @@ DblQ00IAcsc::DblQ00IAcsc()
     m_d = nullptr;    
 }
 
-DblQ00IAcsc::DblQ00IAcsc(std::unique_ptr<IRDBQuery>&& iacsc) :
+  DblQ00IAcsc::DblQ00IAcsc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(iacsc) {
-    iacsc->execute();
+
+    IRDBRecordset_ptr iacsc = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(iacsc->size()>0) {
     
     m_nObj = iacsc->size();
     m_d = new IACSC[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO IAcsc banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(iacsc->next()) {
+    size_t i=0;
+    while(i<iacsc->size()) {
 	
-        m_d[i].version        = iacsc->data<int>("ISZT_DATA.VERS");    
+        m_d[i].version        = (*iacsc)[i]->getInt("VERS");    
         m_d[i].line           = i; 
-        m_d[i].jff            = iacsc->data<int>("ISZT_DATA.JFF");
-        m_d[i].jzz            = iacsc->data<int>("ISZT_DATA.JZZ");
-        m_d[i].job            = iacsc->data<int>("ISZT_DATA.JOB");
-        m_d[i].wireLayer      = iacsc->data<int>("ISZT_DATA.JLAY");
-        m_d[i].tras           = 10.*iacsc->data<float>("ISZT_DATA.TRAS"); // I lines in mm, but ISZT in cm
-        m_d[i].traz           = 10.*iacsc->data<float>("ISZT_DATA.TRAZ"); // I lines in mm, but ISZT in cm
-        m_d[i].trat           = 10.*iacsc->data<float>("ISZT_DATA.TRAT"); // I lines in mm, but ISZT in cm
-        m_d[i].rots           = iacsc->data<float>("ISZT_DATA.ROTS");
-        m_d[i].rotz           = iacsc->data<float>("ISZT_DATA.ROTZ");
-        m_d[i].rott           = iacsc->data<float>("ISZT_DATA.ROTT");
-        sprintf(m_d[i].type,"%s",iacsc->data<std::string>("ISZT_DATA.TYP").c_str());
+        m_d[i].jff            = (*iacsc)[i]->getInt("JFF");
+        m_d[i].jzz            = (*iacsc)[i]->getInt("JZZ");
+        m_d[i].job            = (*iacsc)[i]->getInt("JOB");
+        m_d[i].wireLayer      = (*iacsc)[i]->getInt("JLAY");
+        m_d[i].tras           = 10.*(*iacsc)[i]->getFloat("TRAS"); // I lines in mm, but ISZT in cm
+        m_d[i].traz           = 10.*(*iacsc)[i]->getFloat("TRAZ"); // I lines in mm, but ISZT in cm
+        m_d[i].trat           = 10.*(*iacsc)[i]->getFloat("TRAT"); // I lines in mm, but ISZT in cm
+        m_d[i].rots           = (*iacsc)[i]->getFloat("ROTS");
+        m_d[i].rotz           = (*iacsc)[i]->getFloat("ROTZ");
+        m_d[i].rott           = (*iacsc)[i]->getFloat("ROTT");
+        sprintf(m_d[i].type,"%s",(*iacsc)[i]->getString("TYP").c_str());
         i++;
     }
-    iacsc->finalize();
   }
   else {
     m_d = new IACSC[0];

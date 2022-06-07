@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WCSC_H
 #define DBLQ00_WCSC_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wcsc {
 public:
     DblQ00Wcsc(){};
     ~DblQ00Wcsc();
-    DblQ00Wcsc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcsc(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wcsc(AmdcDb* wcsc);
 
     // data members for DblQ00/WCSC fields

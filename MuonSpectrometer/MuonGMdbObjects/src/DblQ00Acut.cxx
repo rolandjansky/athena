@@ -9,6 +9,7 @@
 
 #include "MuonGMdbObjects/DblQ00Acut.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbRecord.h"
 
@@ -18,23 +19,24 @@
 namespace MuonGM
 {
 
-DblQ00Acut::DblQ00Acut(std::unique_ptr<IRDBQuery>&& acut) :
+  DblQ00Acut::DblQ00Acut(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag, const std::string & GeoNode):
     m_nObj(0) {
-  if(acut) {
-    acut->execute();
+
+    IRDBRecordset_ptr acut = pAccessSvc->getRecordsetPtr(getName(),GeoTag, GeoNode);
+
+    if(acut->size()>0) {
     m_nObj = acut->size();
     m_d = new ACUT[m_nObj];
     if (m_nObj == 0) std::cerr<<"NO Acut banks in the MuonDD Database"<<std::endl;
 
-    int i=0;
-    while(acut->next()) {
-	m_d[i].version = acut->data<int>("ACUT_DATA.VERS");
-	m_d[i].i       = acut->data<int>("ACUT_DATA.I");
-	m_d[i].icut    = acut->data<int>("ACUT_DATA.ICUT");
-	m_d[i].n       = acut->data<int>("ACUT_DATA.N");
+    size_t i=0;
+    while(i<acut->size()) {
+	m_d[i].version = (*acut)[i]->getInt("VERS");
+	m_d[i].i       = (*acut)[i]->getInt("I");
+	m_d[i].icut    = (*acut)[i]->getInt("ICUT");
+	m_d[i].n       = (*acut)[i]->getInt("N");
 	i++;
     }
-    acut->finalize();
   }
   else {
     m_d = new ACUT[0];

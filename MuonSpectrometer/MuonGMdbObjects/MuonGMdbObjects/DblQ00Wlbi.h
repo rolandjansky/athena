@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WLBI_H
 #define DBLQ00_WLBI_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wlbi {
 public:
     DblQ00Wlbi(){};
     ~DblQ00Wlbi();
-    DblQ00Wlbi(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wlbi(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wlbi(AmdcDb* wlbi);
 
     struct WLBI {

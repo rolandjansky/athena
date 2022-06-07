@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WCMI_H
 #define DBLQ00_WCMI_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wcmi {
 public:
     DblQ00Wcmi(){};
     ~DblQ00Wcmi();
-    DblQ00Wcmi(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcmi(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wcmi(AmdcDb* wcmi);
 
     // data members for DblQ00/WCMI fields

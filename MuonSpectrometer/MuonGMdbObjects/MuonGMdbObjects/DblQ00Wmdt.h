@@ -13,9 +13,9 @@
 #ifndef DBLQ00_WMDT_H
 #define DBLQ00_WMDT_H
 
-#include "RDBAccessSvc/IRDBQuery.h"
+#include <string>
 
-#include <memory>
+class IRDBAccessSvc;
 
 class AmdcDb;
 
@@ -24,7 +24,7 @@ class DblQ00Wmdt {
 public:
     DblQ00Wmdt(){};
     ~DblQ00Wmdt();
-    DblQ00Wmdt(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wmdt(IRDBAccessSvc *pAccessSvc, const std::string & GeoTag="", const std::string & GeoNode="");
     DblQ00Wmdt(AmdcDb* wmdt);
 
     // data members for DblQ00/WMDT fields
