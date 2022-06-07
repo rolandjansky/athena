@@ -141,6 +141,10 @@ if flags.Trigger.doLVL1:
 
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
+#track overlay needs this to ensure that the collections are copied correctly (due to the hardcoding of the name in the converters)
+if flags.Overlay.doTrackOverlay:
+    from TrkEventCnvTools.TrkEventCnvToolsConfigCA import TrkEventCnvSuperToolCfg
+    acc.merge(TrkEventCnvSuperToolCfg(flags))
 
 if log.getEffectiveLevel() <= logging.DEBUG:
     acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)

@@ -13,7 +13,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
-#include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
+#include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -39,7 +39,7 @@ namespace InDet
     , m_trackSumTool("Trk::TrackSummaryTool", this)
     , m_extrapolator("Trk::Extrapolator", this)
     , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool", this)
-    , m_inDetTestBLayerTool("", this)
+    , m_inDetTestPixelLayerTool("", this)
     , m_trackSumToolAvailable(true)
     , m_usePtDependentCuts(false)
 
@@ -106,7 +106,7 @@ namespace InDet
     declareProperty("TrackSummaryTool"   , m_trackSumTool);
     declareProperty("Extrapolator"       , m_extrapolator);
     declareProperty("TrtDCCutTool"       , m_trtDCTool);
-    declareProperty("InDetTestBLayerTool", m_inDetTestBLayerTool);
+    declareProperty("InDetTestPixelLayerTool", m_inDetTestPixelLayerTool);
     
    
     declareProperty("UsePtDependentCuts", m_usePtDependentCuts = false);  
@@ -512,11 +512,11 @@ namespace InDet
     
       if(nb == 0 && nb < m_nHitBLayer) {
         ATH_MSG_DEBUG("Track rejected because of nHitBLayer "<<nb<<" < "<<m_nHitBLayer);
-        if(m_inDetTestBLayerTool.empty()) {
-          ATH_MSG_DEBUG("and no blayer tool configured, so will not try to recover track");
+        if(m_inDetTestPixelLayerTool.empty()) {
+          ATH_MSG_DEBUG("and no pixel layer tool configured, so will not try to recover track");
           return false;
-        } else if (m_inDetTestBLayerTool->expectHitInBLayer(&perigee)) {
-          ATH_MSG_DEBUG("and track rejected because of Number of b-layer hits ACCOUNTING for those expected") ;
+        } else if (m_inDetTestPixelLayerTool->expectHitInInnermostPixelLayer(&perigee)) {
+          ATH_MSG_DEBUG("and track rejected because at least one hit is expected in the innermost pixel layer") ;
           return false;
         }else  ATH_MSG_DEBUG("recovered track as no b-layer expected") ;
       }//end of checking the b-layer
@@ -923,11 +923,11 @@ namespace InDet
     
     if(nb == 0 && nb < m_nHitBLayer) {
       ATH_MSG_DEBUG("Track rejected because of nHitBLayer "<<nb<<" < "<<m_nHitBLayer);
-      if(m_inDetTestBLayerTool.empty()) {
+      if(m_inDetTestPixelLayerTool.empty()) {
 	ATH_MSG_DEBUG("and no blayer tool configured, so will not try to recover track");
 	return false;
-      } else if (m_inDetTestBLayerTool->expectHitInBLayer(track)) {
-	ATH_MSG_DEBUG("and track rejected because of Number of b-layer hits ACCOUNTING for those expected") ;
+      } else if (m_inDetTestPixelLayerTool->expectHitInInnermostPixelLayer(track)) {
+	ATH_MSG_DEBUG("and track rejected because at least one hit is expected in the innermost pixel layer") ;
 	return false;
       }else  ATH_MSG_DEBUG("recovered track as no b-layer expected") ;
     }//end of checking the b-layer

@@ -41,18 +41,6 @@ def ExtrapolatorCfg(flags):
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
 
-def TestBlayerToolCfg(flags):
-  acc = ComponentAccumulator()
-  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-  tool = CompFactory.InDet.InDetTestBLayerTool("InDetTrigTestBLayerTool",
-                                                PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
-                                                Extrapolator    = acc.getPrimaryAndMerge( ExtrapolatorCfg( flags ) ),
-                                                CheckActiveAreas= True 
-                                                )
-  acc.setPrivateTools(tool)
-
-  return acc
-
 class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"

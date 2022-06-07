@@ -521,15 +521,12 @@ if InDetTrigFlags.loadSummaryTool():
   if (InDetTrigFlags.doPrintConfigurables()):
     print (     InDetTrigHoleSearchTool)
 
-  # Load BLayer tool
-  from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
-  InDetTrigTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetTrigTestBLayerTool",
-                                                       PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                       Extrapolator    = InDetTrigExtrapolator,
-                                                       CheckActiveAreas= True)
-  ToolSvc += InDetTrigTestBLayerTool
+  #Load inner Pixel layer tool
+  from InDetRecExample import TrackingCommon
+  InDetTrigTestPixelLayerToolInner = TrackingCommon.getInDetTrigTestPixelLayerToolInner()
+  ToolSvc += InDetTrigTestPixelLayerToolInner
   if (InDetTrigFlags.doPrintConfigurables()):
-    print ( InDetTrigTestBLayerTool)
+    print ( InDetTrigTestPixelLayerToolInner)
 
   #prevent loading of the pixel dE/dx tool  
   InDetTrigPixelToTPIDTool = None
@@ -547,7 +544,7 @@ if InDetTrigFlags.loadSummaryTool():
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
                                                                        HoleSearch    = InDetTrigHoleSearchTool,
                                                                        AssoTool      = InDetTrigPrdAssociationTool,
-                                                                       TestBLayerTool = None,
+                                                                       TestPixelLayerTool = None,
                                                                        DoSharedHits  = False,
                                                                        TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
@@ -561,7 +558,7 @@ if InDetTrigFlags.loadSummaryTool():
   InDetTrigTrackSummaryHelperToolSi = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelperSi",
                                                                          HoleSearch    = InDetTrigHoleSearchTool,
                                                                          AssoTool      = InDetTrigPrdAssociationTool,
-                                                                         TestBLayerTool = None,
+                                                                         TestPixelLayerTool = None,
                                                                          DoSharedHits  = False,
                                                                          TRTStrawSummarySvc=None,
                                                                          usePixel      = DetFlags.haveRIO.pixel_on(),
@@ -621,7 +618,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                                    AssoTool     = InDetTrigPrdAssociationTool,
                                                                                    DoSharedHits = InDetTrigFlags.doSharedHits(),
                                                                                    HoleSearch   = InDetTrigHoleSearchTool,
-                                                                                   TestBLayerTool=InDetTrigTestBLayerTool,
+                                                                                   TestPixelLayerTool=InDetTrigTestPixelLayerToolInner,
                                                                                    TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool)
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits

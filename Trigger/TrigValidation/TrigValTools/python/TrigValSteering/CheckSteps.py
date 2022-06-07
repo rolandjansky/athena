@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -158,8 +158,13 @@ class LogMergeStep(Step):
                         continue
                     with open(log_name, encoding='utf-8') as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
-                        for line in log_file:
-                            merged_file.write(line)
+                        # temporary workaround to ignore false positives in AOD->DAOD log parsing
+                        if log_name == 'log.AODtoDAOD':
+                            for line in log_file:
+                                merged_file.write(line.replace('Selected dynamic Aux', 'Selected Dynamic Aux'))
+                        else:
+                            for line in log_file:
+                                merged_file.write(line)
             return 0
         except OSError as e:
             self.log.error('%s merging failed due to OSError: %s',

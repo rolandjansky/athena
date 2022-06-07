@@ -126,34 +126,6 @@ def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
     acc.setPrivateTools(InDetPixelToTPIDTool)
     return acc
 
-def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
-    acc = ComponentAccumulator()
-
-    if flags.Detector.GeometryITk:
-        from InDetConfig.ITkTrackingCommonConfig import ITkRecTestBLayerToolCfg
-        return ITkRecTestBLayerToolCfg(flags, name, **kwargs)
-
-    if not flags.Detector.EnablePixel:
-        return None
-
-    if 'Extrapolator' not in kwargs:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
-
-    if 'PixelSummaryTool' not in kwargs:
-        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-        PixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
-        kwargs.setdefault( "PixelSummaryTool", PixelConditionsSummaryTool)
-
-    if "PixelDetElStatus" not in kwargs :
-        from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgCfg
-        acc.merge( PixelDetectorElementStatusAlgCfg(flags) )
-        kwargs.setdefault("PixelDetElStatus", "PixelDetectorElementStatus")
-
-    InDetTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name, **kwargs)
-    acc.setPrivateTools(InDetTestBLayerTool)
-    return acc
-
 def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", **kwargs):
     acc = ComponentAccumulator()
 

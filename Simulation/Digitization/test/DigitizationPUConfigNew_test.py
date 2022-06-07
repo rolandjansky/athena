@@ -6,15 +6,13 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import sys
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg, DigitizationTestingPostInclude
 from RunDependentSimComps.PileUpUtils import generateBackgroundInputCollections, setupPileUpFlags
 
-# Set up logging and new style config
+# Set up logging
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 
 ConfigFlags.Exec.MaxEvents = 4
 

@@ -71,6 +71,7 @@ NswCalibDbAlg::processTdoPdoData(const EventContext& ctx) const {
 		ATH_MSG_DEBUG("CondHandle " << wrHdl.fullKey() << " is already valid."
 			  << " In theory this should not be called, but may happen"
 			  << " if multiple concurrent events are being processed out of order.");
+		return StatusCode::SUCCESS;
 	}
 	ATH_MSG_DEBUG("Range of time/charge output is " << wrHdl.getRange());
 	std::unique_ptr<NswCalibDbTimeChargeData> wrCdo{std::make_unique<NswCalibDbTimeChargeData>(m_idHelperSvc->mmIdHelper(), m_idHelperSvc->stgcIdHelper())};
@@ -113,6 +114,7 @@ NswCalibDbAlg::processThrData(const EventContext& ctx) const {
 		ATH_MSG_DEBUG("CondHandle " << wrHdl.fullKey() << " is already valid."
 			  << " In theory this should not be called, but may happen"
 			  << " if multiple concurrent events are being processed out of order.");
+		return StatusCode::SUCCESS;
 	}
 	ATH_MSG_DEBUG("Range of threshold output is " << wrHdl.getRange());
 	std::unique_ptr<NswCalibDbThresholdData> wrCdo{std::make_unique<NswCalibDbThresholdData>(m_idHelperSvc->mmIdHelper(), m_idHelperSvc->stgcIdHelper())};
@@ -198,6 +200,8 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readK
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
 		++nObjs;
+		delete tree;
+		tree = nullptr;
 	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
 
@@ -279,6 +283,8 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
 		++nObjs;
+		delete tree;
+		tree = nullptr;
 	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
 

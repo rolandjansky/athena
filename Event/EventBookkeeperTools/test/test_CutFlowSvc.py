@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """Test CutFlowSvc
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from argparse import ArgumentParser
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -24,8 +23,6 @@ parser.add_argument('-t', '--threads', default=2, type=int,
                     help='The number of concurrent threads to run. 0 uses serial Athena.')
 args = parser.parse_args()
 
-# Setup configuration
-Configurable.configurableRun3Behavior = True
 if args.input:
     ConfigFlags.Input.Files = [args.input]
 else:

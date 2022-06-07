@@ -280,6 +280,8 @@ class ItemDef:
         MenuItem('L1_TE4_VTE200_EMPTY'   ).setLogic( d.TE4  & Not(d.TE200) & cosmiccond).setTriggerType( TT.calo )
         MenuItem('L1_TE5_VTE200_EMPTY'   ).setLogic( d.TE5  & Not(d.TE200) & cosmiccond).setTriggerType( TT.calo )
 
+        # NSW Monitoring
+        MenuItem('L1_NSW_MONITOR').setLogic(d.NSWMon & physcond ).setTriggerType(TT.muon)
 
         # MUON ctpid=[0x20;0x2f]
         # RUn3 thresholds
@@ -731,10 +733,18 @@ class ItemDef:
         MenuItem('L1_4J15p0ETA25' ).setLogic( d.J150ETA25.x(4) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_5J15p0ETA25' ).setLogic( d.J150ETA25.x(5) & physcond).setTriggerType(TT.calo)
 
+        # Legacy ZeroBias
         if ('Physics_HI_run3_v' in menuName or 'MC_HI_run3_v' in menuName):
             MenuItem('L1_ZB', ctpid=240).setLogic(d.ZB_J75  & physcond).setTriggerType(TT.zerobs)
         else:
             MenuItem('L1_ZB', ctpid=240).setLogic(d.ZB_EM15 & physcond).setTriggerType(TT.zerobs)
+
+        # Phase-I ZeroBias trigger for commissioning
+        # TODO: When established, replace legacy logic above with corresponding
+        # Phase-I seeds
+        # Unlike legacy ZeroBias, the delay logic is in the CTP firmware, so
+        # we provide the seed rather than a dedicated threshold
+        MenuItem('L1_ZB_eEM18', ctpid=508).setLogic(d.eEM18 & physcond).setTriggerType(TT.zerobs)
 
 
         # combined jet - xe
@@ -1317,7 +1327,6 @@ class ItemDef:
 
         # TGC
         MenuItem('L1_TGC_BURST').setLogic(d.NIMTGC & bgrp12cond ).setTriggerType(TT.nim)
-
 
         # LHCF
         MenuItem('L1_LHCF').setLogic( d.NIMLHCF & physcond).setTriggerType(TT.nim)

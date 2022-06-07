@@ -42,13 +42,10 @@ def ActsWriteTrackingGeometryCfg(configFlags, name="ActsWriteTrackingGeometry", 
   return result
 
 if "__main__" == __name__:
-  from AthenaCommon.Configurable import Configurable
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import VERBOSE
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-
-  Configurable.configurableRun3Behavior = True
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True
