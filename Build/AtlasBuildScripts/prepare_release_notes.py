@@ -1,6 +1,5 @@
-#!/bin/env python
-description = """
-Prepare ATLAS release notes with a list of merge requests
+#!/bin/env python3
+"""Prepare ATLAS release notes with a list of merge requests
 
 davide.gerbaudo@gmail.com
 Jul 2017
@@ -8,29 +7,26 @@ Jul 2017
 Modified by edward.moyse@cern.ch
 Dec 2020
 """
-usage = """
-%prog target_release nightly_tag
+usage = """%prog target_release nightly_tag
 
 where
-target_release is the release you are creating, e.g. release/21.1.6
-nightly_tag is the nightly tag the release will be based on, e.g. nightly/21.1/2017-06-07T2215
+  target_release is the release you are creating, e.g. release/21.1.6
+  nightly_tag is the nightly tag the release will be based on, e.g. nightly/21.1/2017-06-07T2215
 
 Example:
-git clone  ssh://git@gitlab.cern.ch:7999/atlas/athena.git
-cd athena
-%prog release/21.1.6 nightly/21.1/2017-06-07T2215
+  git clone ssh://git@gitlab.cern.ch:7999/atlas/athena.git
+  cd athena
+  %prog release/21.1.6 nightly/21.1/2017-06-07T2215
 """
 
 import optparse
 import os
 import re
-import string
 import subprocess
-import sys
 
 def main():
-    parser = optparse.OptionParser(description=description, usage=usage)
-    parser.add_option('-p', '--previous', help='previous release  wrt. which we diff')
+    parser = optparse.OptionParser(description=__doc__, usage=usage)
+    parser.add_option('-p', '--previous', help='previous release wrt. which we diff')
     parser.add_option('-o', '--output', default='release_notes.md', help='where the notes are written')
     parser.add_option('-r', '--relaxed', action='store_true', help='do not stop on dubious configurations')
     parser.add_option('-v', '--verbose', action='store_true', help='print more info')
@@ -88,7 +84,6 @@ def sanitize_args(target_release, nightly_tag, keep_going=False):
                raise RuntimeWarning('Create a tag for the correct branch')
 
 def guess_previous_and_check(target_release='release/xx.y.z'):
-    previous_release = None
     version_major_revision = target_release.split('.')
     revision = version_major_revision[-1] if len(version_major_revision)>2 else None
     missing_revision = revision is None or not str(revision).isdigit()
@@ -196,8 +191,7 @@ def fill_template(target_release, nightly_tag, previous_release,
     out_file = open(output_filename, 'w')
     out_file.write(filled_template)
     out_file.close()
-    if verbose:
-        print ("Please check the release notes generated in '%s'" % output_filename)
+    print ("Release notes generated in '%s'" % output_filename)
 
 if __name__=='__main__':
     main()
