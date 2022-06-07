@@ -44,7 +44,7 @@ class StoredMaterialManager
   virtual const GeoElement* getElement(unsigned int atomicNumber) const = 0;
 
   // Add new material
-  virtual void addMaterial(const std::string& space, GeoMaterial* material) const = 0;
+  virtual void addMaterial(const std::string& space, GeoMaterial* material) = 0;
 
   // Return iterators
   virtual MaterialMapIterator begin() const = 0;
