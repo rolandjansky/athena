@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests for FastCaloSimServices configuration
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 
@@ -73,12 +73,9 @@ if __name__ == '__main__':
     )
 
 
-    from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    # Set up new style config
-    Configurable.configurableRun3Behavior = True
     # Configure
     args = CommonTestArgumentParser().parse_args()
     defaultTestFlags(ConfigFlags, args)

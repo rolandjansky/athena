@@ -54,9 +54,6 @@ def setOverlayInputFiles(runArgs, configFlags, log):
 
 
 def fromRunArgs(runArgs):
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
-
     from AthenaCommon.Logging import logging
     logOverlay = logging.getLogger('Overlay')
     logOverlay.info('****************** STARTING OVERLAY *****************')
