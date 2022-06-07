@@ -30,6 +30,12 @@ namespace CP
   }
 
 
+  template<typename T> template<typename T2> SysReadDecorHandle<T> ::
+  SysReadDecorHandle (const std::string& decorName, T2 *owner)
+    : AsgMessagingForward (owner), m_decorName(decorName)
+  {}
+
+
 
   template<typename T> bool SysReadDecorHandle<T> ::
   empty () const noexcept

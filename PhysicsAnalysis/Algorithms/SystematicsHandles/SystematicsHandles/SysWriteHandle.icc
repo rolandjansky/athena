@@ -28,6 +28,14 @@ namespace CP
   }
 
 
+  template<typename T,typename Aux> template<typename T2> SysWriteHandle<T,Aux> ::
+  SysWriteHandle (const std::string &outputName, T2 *owner)
+    : AsgMessagingForward (owner), m_outputName (outputName)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+  }
+
+
 
   template<typename T,typename Aux> bool SysWriteHandle<T,Aux> ::
   empty () const noexcept
