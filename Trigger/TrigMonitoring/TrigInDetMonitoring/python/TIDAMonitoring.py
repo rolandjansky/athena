@@ -193,6 +193,54 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
                 tools += [ tidabjet ]
 
 
+        ####### minbias ####
+
+        if mcTruth:
+                tidaminbias = TrigR3Mon_builder( flags, name = "IDMinbiasTruth"+toolkey+"Tool", mcTruth=True )
+                tidaminbias.SliceTag = "HLT/TRIDT/MinbiasTruth/"+key
+        else:
+                tidaminbias = TrigR3Mon_builder( flags, name = "IDMinbias"+toolkey+"Tool" )
+                tidaminbias.SliceTag = "HLT/TRIDT/Minbias/"+key
+
+        tidaminbias.AnalysisConfig = "Tier0"
+        
+        chains = getchains( [ "HLT_mb_sptrk.*:key=HLT_IDTrack_MinBias_IDTrig" ] ,monlevel )
+
+
+
+        if len(chains)>0 : 
+                        
+                tidaminbias.ntupleChainNames += chains
+
+                tidaminbias.MonTools = createMonTools( flags,  tidaminbias.SliceTag, chains )
+                
+                tools += [ tidaminbias ]
+
+
+        #########  cosmic  ####
+
+        if mcTruth:
+                tidacosmic = TrigR3Mon_builder( flags, name = "CosmicTruth"+toolkey+"Tool", mcTruth=True )
+                tidacosmic.SliceTag = "HLT/TRIDT/CosmicTruth/"+key
+        else:
+                tidacosmic = TrigR3Mon_builder( flags, name = "IDCosmic"+toolkey+"Tool" )
+                tidacosmic.SliceTag = "HLT/TRIDT/Cosmic/"+key
+
+        tidacosmic.AnalysisConfig = "Tier0"
+        
+        chains = getchains( [ "HLT_.*cosmic.*:key=HLT_IDTrack_Cosmic_IDTrig" ], monlevel )
+
+
+
+        if len(chains)>0 : 
+                        
+                tidacosmic.ntupleChainNames += chains
+
+                tidacosmic.MonTools = createMonTools( flags,  tidacosmic.SliceTag, chains )
+                
+                tools += [ tidacosmic ]
+
+
         return tools
 
 
