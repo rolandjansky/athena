@@ -51,27 +51,27 @@ class ExtrapolationCache;
 /**
    @class STEP_Propagator
 
-   STEP (Simultaneous Track and Error Propagation ) 
+   STEP (Simultaneous Track and Error Propagation )
    is an algorithm for track parameters propagation through
    magnetic field.
 
    The algorithm can produce the Jacobian that transports the covariance matrix
-   from one set of track parameters at the initial surface to another set of 
-   track parameters at the destination surface. This is useful for Chi2 
+   from one set of track parameters at the initial surface to another set of
+   track parameters at the destination surface. This is useful for Chi2
    fitting.
 
-   One can choose to perform the transport of the parameters only and omit the transport 
+   One can choose to perform the transport of the parameters only and omit the transport
    of the associated covariances (propagateParameters).
 
    The implementation performs the propagation in global coordinates and uses
-   Jacobian matrices (see RungeKuttaUtils) for the transformations between the 
+   Jacobian matrices (see RungeKuttaUtils) for the transformations between the
    global frame and local surface-attached coordinate systems.
 
    The STEP_Propagator includes material effects in the
-   equation of motion and applies corrections to the covariance matrices 
-   continuously during the parameter transport.  It is designed for the 
-   propagation  of a particle going through a dense block of material 
-   (e.g a muon transversing the calorimeter). 
+   equation of motion and applies corrections to the covariance matrices
+   continuously during the parameter transport.  It is designed for the
+   propagation  of a particle going through a dense block of material
+   (e.g a muon transversing the calorimeter).
 
    1.The first step of the algorithm is track parameters transformation from
    local presentation for given start surface to global Runge Kutta coordinates.
@@ -163,7 +163,7 @@ class STEP_Propagator final
 public:
 
   using IPropagator::propagate;
-  
+
   STEP_Propagator(const std::string&, const std::string&, const IInterface*);
 
   virtual ~STEP_Propagator();
@@ -209,7 +209,7 @@ public:
     bool returnCurv = false,
     const Trk::TrackingVolume* tVol = nullptr) const override final;
 
-  /** Propagate parameters and covariance with search of closest surface 
+  /** Propagate parameters and covariance with search of closest surface
    * time included*/
   virtual std::unique_ptr<Trk::TrackParameters> propagateT(
     const EventContext& ctx,
@@ -516,9 +516,6 @@ private:
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void sampleBrem(Cache& cache, double mom) const;
 
-  void getField(Cache& cache, const double*, double*) const;
-  void getFieldGradient(Cache& cache, const double*, double*, double*) const;
-
   double m_tolerance; //!< Error tolerance. Low tolerance gives high accuracy
   bool m_materialEffects;    //!< Switch material effects on or off
   bool m_includeBgradients;  //!< Include B-gradients in the error propagation
@@ -554,32 +551,6 @@ private:
   };
   void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;
 };
-/////////////////////////////////////////////////////////////////////////////////
-// Inline methods for magnetic field information
-/////////////////////////////////////////////////////////////////////////////////
-
-inline void
-STEP_Propagator::getField(Cache& cache, const double* R, double* H) const
-{
-  if (cache.m_solenoid) {
-    cache.m_fieldCache.getFieldZR(R, H);
-  } else {
-    cache.m_fieldCache.getField(R, H);
-  }
-}
-
-inline void
-STEP_Propagator::getFieldGradient(Cache& cache,
-                                  const double* R,
-                                  double* H,
-                                  double* dH) const
-{
-  if (cache.m_solenoid) {
-    cache.m_fieldCache.getFieldZR(R, H, dH);
-  } else {
-    cache.m_fieldCache.getField(R, H, dH);
-  }
-}
 
 }//end of namespace Trk
 
