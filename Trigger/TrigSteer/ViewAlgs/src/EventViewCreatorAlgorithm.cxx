@@ -67,7 +67,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     // Even if the handle is configured, this precursor EventViewCreatorAlg may not have executed in a given event
     if (cachedRH.isValid()) {
       cachedViews = cachedRH.ptr();
-      ATH_CHECK(populateMatchingCacheWithCachedViews(cachedViews, matchingCache));
+      ATH_CHECK(populateMatchingCacheWithCachedViews(cachedViews, matchingCache, context));
     }
   }
 
@@ -101,7 +101,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
       
     // cachedIndex and useCached are to do with a)
     size_t cachedIndex = std::numeric_limits<std::size_t>::max();
-    const bool useCached = checkCache(cachedViews, outputDecision, cachedIndex, matchingCache);
+    const bool useCached = checkCache(cachedViews, outputDecision, cachedIndex, matchingCache, context);
 
     // roiIt is to do with b) and c)
     auto roiIt = find(RoIsFromDecision.begin(), RoIsFromDecision.end(), roiEL);
@@ -174,13 +174,13 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   return StatusCode::SUCCESS;
 }
 
-bool EventViewCreatorAlgorithm::checkCache(const DecisionContainer* cachedViews, const Decision* outputDecision, size_t& cachedIndex, MatchingCache& matchingCache) const {
+bool EventViewCreatorAlgorithm::checkCache(const DecisionContainer* cachedViews, const Decision* outputDecision, size_t& cachedIndex, MatchingCache& matchingCache, const EventContext& context) const {
   if (cachedViews == nullptr or m_cacheDisabled) {
     return false; // No cached input configured, which is fine.
   }
 
   bool usedROIMatchingFlag; // Sanity check
-  const bool result = matchInCollection(cachedViews, outputDecision, cachedIndex, usedROIMatchingFlag, matchingCache);
+  const bool result = matchInCollection(cachedViews, outputDecision, cachedIndex, usedROIMatchingFlag, matchingCache, context);
   if (usedROIMatchingFlag and m_mergeUsingFeature) {
     ATH_MSG_ERROR("Called matchInCollection in an EVCA configured with mergeUsingFeature=True, however ROI matching was used instead?! Should not be possible.");
   }
@@ -188,10 +188,10 @@ bool EventViewCreatorAlgorithm::checkCache(const DecisionContainer* cachedViews,
 }
 
 
-StatusCode EventViewCreatorAlgorithm::populateMatchingCacheWithCachedViews(const DecisionContainer* cachedViews, MatchingCache& matchingCache) const {
+StatusCode EventViewCreatorAlgorithm::populateMatchingCacheWithCachedViews(const DecisionContainer* cachedViews, MatchingCache& matchingCache, const EventContext& context) const {
   const std::string linkNameToMatch = m_mergeUsingFeature ? featureString() : m_roisLink.value();
   for (const Decision* cachedView : *cachedViews) {
-    const uint64_t matchingHash = getMatchingHashForDecision(cachedView, linkNameToMatch);
+    const uint64_t matchingHash = getMatchingHashForDecision(cachedView, linkNameToMatch, context);
     if (matchingHash == std::numeric_limits<std::size_t>::max()) {
       return StatusCode::FAILURE;
     }

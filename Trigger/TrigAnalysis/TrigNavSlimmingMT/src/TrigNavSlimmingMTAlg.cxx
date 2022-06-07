@@ -160,6 +160,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
   TrigCompositeUtils::recursiveGetDecisionsInternal(terminusNode, 
     nullptr, // 'Coming from' is nullptr for the first call of the recursive function
     transientNavGraph, 
+    ctx,
     fullyExploredFrom, 
     chainIDs, 
     /*enforce chainIDs on terminus node*/ true);
@@ -182,6 +183,7 @@ StatusCode TrigNavSlimmingMTAlg::execute(const EventContext& ctx) const {
       TrigCompositeUtils::recursiveGetDecisionsInternal(rejectedNode, 
         nullptr, // 'Coming from' is nullptr for the first call of the recursive function
         transientNavGraph, 
+        ctx,
         fullyExploredFrom, 
         chainIDs, 
         /*enforce chainIDs on terminus node*/ false);
