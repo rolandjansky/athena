@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 """Run tests for MC+MC or MC+data overlay
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
-from __future__ import print_function
-
 import sys
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
@@ -15,9 +12,6 @@ from OverlayConfiguration.OverlaySteering import OverlayMainCfg
 from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, OverlayJobOptsDumperCfg, \
     defaultTestFlags, postprocessAndLockFlags, printAndRun
-
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = CommonTestArgumentParser("OverlayTest.py")

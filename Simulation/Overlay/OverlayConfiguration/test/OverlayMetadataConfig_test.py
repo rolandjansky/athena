@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 """Run tests for overlay metadata
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -13,9 +12,6 @@ from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 from OverlayConfiguration.OverlayTestHelpers import defaultTestFlags, postprocessAndLockFlags, printAndRun, CommonTestArgumentParser
-
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
 
 # Argument parsing
 parser = CommonTestArgumentParser("OverlayMetadataConfig_test.py")
