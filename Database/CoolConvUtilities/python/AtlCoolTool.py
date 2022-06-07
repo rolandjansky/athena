@@ -371,7 +371,12 @@ class AtlCoolTool:
             i+= " ["+spec[idx].name() + " (" + typename + ") : "
             if (typename.startswith("Blob")):
                 blob=payload[idx]
-                i+= "size=%i,chk=%i" % (blob.size(),crc32(blob.read().encode()))
+                blobdata=blob.read()
+                if isinstance(blobdata,bytes):
+                    chksum=crc32(blobdata)
+                else:
+                    chksum=crc32(blobdata.encode())
+                i+= "size=%i,chk=%d" % (blob.size(),chksum)
             else:
                 i+= str(payload[idx])
             i+="]"
