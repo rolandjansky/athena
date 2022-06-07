@@ -140,14 +140,15 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     bool checkCache(const TrigCompositeUtils::DecisionContainer* cachedViews, 
       const TrigCompositeUtils::Decision* outputDecision, 
       size_t& cachedIndex,
-      MatchingCache& matchingCache) const;
+      MatchingCache& matchingCache,
+       const EventContext& context) const;
 
     /**
      * @brief We look for matching Decision Objects in a matchingCache.
      * When we are trying in a PROBE InputMaker to match against the Decision Objects created prior in a TAG InputMaker
      * then we need to pre-populate the cache with the data from the TAG InputMaker.
      **/
-    StatusCode populateMatchingCacheWithCachedViews(const TrigCompositeUtils::DecisionContainer* cachedViews, MatchingCache& matchingCache) const;
+    StatusCode populateMatchingCacheWithCachedViews(const TrigCompositeUtils::DecisionContainer* cachedViews, MatchingCache& matchingCache, const EventContext& context) const;
 
 
 };
