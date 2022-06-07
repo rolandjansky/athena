@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,7 +10,7 @@
 
 This package provides a set of examples demonstrating use of various
 functionality related to conditions data in Detector Description. The available
-example algorithms (so far ReadWriteCoolStrFile, ReadTopTrans, ReadAlignTrans and CoolHistExample) are described in more detail below.
+example algorithms (so far ReadWriteCoolStrFile, ReadAlignTrans and CoolHistExample) are described in more detail below.
 
 @section DetDescrCondExample_ReadWriteCoolStrFile 
 
@@ -68,16 +68,7 @@ The write example can be used with small modifications to actually upload
 data into the conditions database. The read example should be studied to
 see how to access the resulting data in your own algorithms.
 
-@section DetDescrCondExample_ReadTopTrans 
-
-This algorithm provides a simple way to read back DetCondKeyTrans objects, and
-demonstrates the various forms of callbacks that can be used.
-
-@section DetDescrCondExample_ReadTopTransJobOptions ReadTopTrans jobOptions
-
-@include ReadTopTrans.py
-
-@section DetDescrCondExample_ReadAlignTrans 
+@section DetDescrCondExample_ReadAlignTrans
 
 This algorithm provides an example of setting a callback which is called 
 whenever the inner detector alignment changes. This could be needed for

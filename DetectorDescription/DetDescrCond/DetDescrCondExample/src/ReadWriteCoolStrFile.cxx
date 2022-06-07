@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReadWriteCoolStrFile.cxx - simple example of algorithm demonstrating 
@@ -59,11 +59,7 @@ StatusCode ReadWriteCoolStrFile::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ReadWriteCoolStrFile::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-void ReadWriteCoolStrFile::writeData() {
+void ReadWriteCoolStrFile::writeData ATLAS_NOT_THREAD_SAFE() {
   ATH_MSG_INFO("Write data from file "+m_par_wfile+" to folder "+
 	       m_par_folder+" at channel " << m_par_chan);
 
@@ -72,7 +68,7 @@ void ReadWriteCoolStrFile::writeData() {
     ATH_MSG_ERROR("putFile failed");
 }
 
-void ReadWriteCoolStrFile::readData() {
+void ReadWriteCoolStrFile::readData ATLAS_NOT_THREAD_SAFE() {
   ATH_MSG_INFO("Read data from folder "+m_par_folder+" channel " << m_par_chan);
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {

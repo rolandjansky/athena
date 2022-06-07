@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDEXAMPLE_READWRITECOOLSTRFILE_H
@@ -11,17 +11,17 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 
 class ICoolStrFileSvc;
 
-class ReadWriteCoolStrFile: public AthAlgorithm
+class ATLAS_NOT_THREAD_SAFE ReadWriteCoolStrFile: public AthAlgorithm
 {
  public:
   ReadWriteCoolStrFile(const std::string& name, ISvcLocator* pSvcLocator);
-  ~ReadWriteCoolStrFile(void);
-  StatusCode initialize(void);
-  StatusCode execute(void);
-  StatusCode finalize(void);
+  ~ReadWriteCoolStrFile();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
   ICoolStrFileSvc* p_coolsvc;
@@ -37,8 +37,8 @@ class ReadWriteCoolStrFile: public AthAlgorithm
   std::string m_par_wfile;
 
   // methods
-  void writeData();
-  void readData();
+  void writeData ATLAS_NOT_THREAD_SAFE();
+  void readData ATLAS_NOT_THREAD_SAFE();
 };
 
 #endif // DETDESCRCONDEXAMPLE_READWRITECOOLSTRFILE_H
