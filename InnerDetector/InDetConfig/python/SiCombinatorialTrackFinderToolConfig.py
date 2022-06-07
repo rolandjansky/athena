@@ -149,6 +149,9 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
   from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
   sctCondSummaryTool = acc.popToolsAndMerge( SCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
 
+  from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
+  boundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+
   kwargs.setdefault("PropagatorTool", propagatorTool)
   kwargs.setdefault("UpdatorTool", patternUpdatorTool)
   kwargs.setdefault("RIOonTrackTool", rioOnTrackTool)
@@ -158,6 +161,7 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
   kwargs.setdefault("SCT_ClusterContainer", 'SCT_TrigClusters')
   kwargs.setdefault("PixelSummaryTool", pixelCondSummaryTool)
   kwargs.setdefault("SctSummaryTool", sctCondSummaryTool)
+  kwargs.setdefault("BoundaryCheckTool", boundaryCheckTool)
 
   SiCombinatorialTrackFinder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name, **kwargs)
   acc.setPrivateTools( SiCombinatorialTrackFinder )

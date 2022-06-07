@@ -47,11 +47,11 @@ def xAODTrackD3PDObject(_label='trkTrack',
                     levelName = 'trackParametersAtGlobalPerigeeLevelOfDetails')
 
     from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc, 'InDetRecTestBLayerTool'):
+    if hasattr(ToolSvc, 'InDetTestPixelLayerToolInner'):
         PerigeeAssoc.defineBlock (flagTestLOD('storeTrackPredictionAtBLayer', flags),
                                   _prefix+'BLayerInfo',
                                   TrackD3PDMaker.PerigeeBLPredictionFillerTool,
-                                  InDetTestBLayerTool = ToolSvc.InDetRecTestBLayerTool)
+                                  InDetTestPixelLayerTool = ToolSvc.InDetTestPixelLayerToolInner)
 
     # perigee at Primary Vertex
     PerigeeAtPVAssoc = PerigeeAssociation(object,  # noqa: F841

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************
@@ -104,7 +104,6 @@ private:
     ToolHandle< Analysis::TrackSelector > m_trackSelectorTool{this, "TrackSelectorTool", "Analysis::TrackSelector"};
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool{this, "TrackToVertexTool", "Reco::TrackToVertex"};
     PublicToolHandle< Trig::TrigDecisionTool > m_trigDecTool{this, "JTMTrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; // added by SARA
-    /* ToolHandle<InDet::IInDetTestBLayerTool> m_blayerTool; */
     bool m_histogramsCreated;
 
     /* const Trk::VxCandidate* m_priVtx; */
