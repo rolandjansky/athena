@@ -48,14 +48,12 @@ def ActsMaterialMappingCfg(configFlags, name = "ActsMaterialMapping", **kwargs):
   return result
 
 if "__main__" == __name__:
-  from AthenaCommon.Configurable import Configurable
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import INFO
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   from ActsGeometry.ActsGeometryConfig import ActsMaterialTrackWriterSvcCfg
-  Configurable.configurableRun3Behavior = True
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True

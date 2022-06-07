@@ -34,15 +34,12 @@ def ExtrapolatorComparisonTestCfg(configFlags, name = "ExtrapolatorComparisonTes
   return result
 
 if __name__=="__main__":
-    from AthenaCommon.Configurable import Configurable
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import VERBOSE
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
     
     #log.setLevel(VERBOSE)
-    
-    Configurable.configurableRun3Behavior = True
     
     ## Just enable ID for the moment.
     ConfigFlags.Input.isMC             = True
