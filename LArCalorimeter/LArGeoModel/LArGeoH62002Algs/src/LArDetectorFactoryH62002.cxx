@@ -141,7 +141,7 @@ void LArGeo::LArDetectorFactoryH62002::getSimulationParameters()
 void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 {
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   }

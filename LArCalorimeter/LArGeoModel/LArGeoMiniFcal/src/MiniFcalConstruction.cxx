@@ -99,7 +99,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
   const IRDBRecord* envParameters = (*recEnvelope)[0];
 
   //_________ Get materials from the Material Manager ___________________________
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   sc = detStore->retrieve(materialManager, std::string("MATERIALS"));
   if(sc!=StatusCode::SUCCESS) {
     log << MSG::ERROR << "Unable to retrieve the Stored Material Manager" << endmsg;

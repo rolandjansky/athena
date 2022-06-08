@@ -71,7 +71,7 @@ GeoVFullPhysVol* LArGeo::CryostatConstructionTBEC::GetEnvelope()
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
   
   const GeoMaterial *Air  = materialManager->getMaterial("std::Air");

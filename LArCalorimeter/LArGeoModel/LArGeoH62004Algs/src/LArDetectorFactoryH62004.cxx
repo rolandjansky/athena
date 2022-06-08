@@ -129,7 +129,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
 //   VDetectorParameters* parameters = (VDetectorParameters *) new  LArGeo::RAL();
 //   VDetectorParameters::SetInstance(parameters);
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   }

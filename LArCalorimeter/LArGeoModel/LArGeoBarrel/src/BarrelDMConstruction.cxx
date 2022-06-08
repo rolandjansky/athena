@@ -82,7 +82,7 @@ static const double DYc=2771.6*tan(Alfa/2);
 
 void
 createSectorEnvelopes2FromDB (GeoFullPhysVol* envelope,
-                              const StoredMaterialManager& materialManager,
+                              StoredMaterialManager& materialManager,
                               std::map<std::string, unsigned int>& trdMap,
                               IRDBRecordset& BarrelDMTrds,
                               std::map<std::string, unsigned int>& trapMap,
@@ -357,7 +357,7 @@ createBaseEnvelopesFromDB (GeoFullPhysVol* envelope,
 void createFromDB (GeoFullPhysVol* envelope,
                    IRDBAccessSvc* rdbAccess,
                    IGeoModelSvc* geoModel,
-                   const StoredMaterialManager& materialManager)
+                   StoredMaterialManager& materialManager)
 {
   // Use Geometry Database
   DecodeVersionKey keyLAr(geoModel,"LAr");
@@ -926,7 +926,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
   DecodeVersionKey larVersionKey(geoModel, "LAr");
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in BarrelDMConstruction, stored MaterialManager is not found.");
 

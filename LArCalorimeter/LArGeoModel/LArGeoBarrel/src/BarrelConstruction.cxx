@@ -208,7 +208,7 @@ void LArGeo::BarrelConstruction::MakeEnvelope()
   }
   
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in BarrelConstruction, stored MaterialManager is not found.");
   }

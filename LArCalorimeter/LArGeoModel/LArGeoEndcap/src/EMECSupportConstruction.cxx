@@ -103,7 +103,7 @@ EMECSupportConstruction::EMECSupportConstruction(
     if(svcLocator->service("DetectorStore", detStore, false) == StatusCode::FAILURE){
         throw std::runtime_error("Error in EMECSupportConstruction, cannot access DetectorStore");
     }
-    const StoredMaterialManager* materialManager = nullptr;
+    StoredMaterialManager* materialManager = nullptr;
     if (detStore->retrieve(materialManager, std::string("MATERIALS")).isFailure()) {
         throw std::runtime_error("Error in EMECSupportConstruction, cannot access MATERIALS");
     }
@@ -1744,7 +1744,7 @@ void EMECSupportConstruction::put_front_outer_extracyl(GeoPhysVol *motherPhysica
               if(svcLocator->service("DetectorStore", detStore, false) == StatusCode::FAILURE){
                 throw std::runtime_error("Error in EMECSupportConstruction/extracyl, cannot access DetectorStore");
               }
-              const StoredMaterialManager* materialManager = nullptr;
+              StoredMaterialManager* materialManager = nullptr;
               if (detStore->retrieve(materialManager, std::string("MATERIALS")).isFailure()) {
                 throw std::runtime_error("Error in EMECSupportConstruction: cannot find MATERIALS.");
               }

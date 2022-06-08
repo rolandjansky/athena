@@ -116,7 +116,7 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
     throw std::runtime_error("Error in FCALConstruction, cannot access DetectorStore");
   }
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return nullptr;
   
   const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");

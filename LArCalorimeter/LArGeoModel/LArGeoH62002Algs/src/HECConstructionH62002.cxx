@@ -97,7 +97,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   }
 
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return NULL; 
   } 

@@ -62,7 +62,7 @@ LArGeo::WarmTCConstructionH62004::~WarmTCConstructionH62004() {;}
 
 GeoVFullPhysVol* LArGeo::WarmTCConstructionH62004::GetEnvelope()
 {
-   const StoredMaterialManager* materialManager = nullptr;
+   StoredMaterialManager* materialManager = nullptr;
    if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
       throw std::runtime_error("Error in ModulesConstruction, cannot access Material manager");
    }

@@ -103,7 +103,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in LArDetectorConstructionH62003, cannot access DetectorStore");
   }
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   StatusCode sc;

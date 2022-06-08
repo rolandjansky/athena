@@ -158,7 +158,7 @@ GeoFullPhysVol* LArGeo::EMECConstruction::GetEnvelope(bool bPos)
            << endmsg;
   }
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if(StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   //////////////////////////////////////////////////////////////////

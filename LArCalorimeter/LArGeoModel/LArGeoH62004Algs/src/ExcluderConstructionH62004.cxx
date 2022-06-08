@@ -61,7 +61,7 @@ GeoVFullPhysVol*  LArGeo::ExcluderConstructionH62004::GetEnvelope() {
   if (svcLocator->service("DetectorStore", detectorStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in ModulesConstruction, cannot access DetectorStore");
   }
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return NULL;
   }

@@ -28,7 +28,7 @@ namespace LArGeo {
             ModulesConstructionH62004 & operator= (const ModulesConstructionH62004 &);
 
            int GetID(int side, int dir, int calo);
-           GeoLogVol* construct(const StoredMaterialManager* materialManager,
+           GeoLogVol* construct(StoredMaterialManager* materialManager,
                                 int side, int dir, int calo);
            GeoTrf::Transform3D position(int side, int dir, int calo);
                         //  side = 0 - left, 1 - right
