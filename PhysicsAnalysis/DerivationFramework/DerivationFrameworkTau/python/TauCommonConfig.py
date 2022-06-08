@@ -95,38 +95,8 @@ def AddDiTauLowPtCfg(ConfigFlags, **kwargs):
     AntiKt10EMPFlow = AntiKt10LCTopo.clone(inputdef = cst.GPFlow)
     acc.merge(JetRecCfg(ConfigFlags,AntiKt10EMPFlow))
 
-    from DiTauRec.DiTauToolsConfig import (SeedJetBuilderCfg,
-                                           ElMuFinderCfg,
-                                           SubjetBuilderCfg,
-                                           TVAToolCfg,
-                                           VertexFinderCfg,
-                                           DiTauTrackFinderCfg,
-                                           IDVarCalculatorCfg)
-
-    ditauTools = []
-    diTauPrefix = f"{prefix}DiTauRec"
-    ditauTools.append(acc.popToolsAndMerge(SeedJetBuilderCfg(ConfigFlags, 
-                                                             prefix = diTauPrefix, 
-                                                             JetCollection="AntiKt10EMPFlowJets")))
-    ditauTools.append(acc.popToolsAndMerge(ElMuFinderCfg(ConfigFlags, prefix = diTauPrefix)))
-    ditauTools.append(acc.popToolsAndMerge(SubjetBuilderCfg(ConfigFlags, prefix = diTauPrefix)))
-    acc.merge(TVAToolCfg(ConfigFlags, prefix = diTauPrefix))
-    ditauTools.append(acc.popToolsAndMerge(VertexFinderCfg(ConfigFlags, prefix = diTauPrefix)))
-    ditauTools.append(acc.popToolsAndMerge(DiTauTrackFinderCfg(ConfigFlags, prefix = diTauPrefix)))
-    ditauTools.append(acc.popToolsAndMerge(IDVarCalculatorCfg(ConfigFlags, prefix = diTauPrefix, useCells = False)))
-
-    for tool in ditauTools: acc.addPublicTool(tool)
-
-    DiTauBuilder = CompFactory.DiTauBuilder
-    acc.addEventAlgo(DiTauBuilder(name=f"{prefix}DiTauLowPtBuilder",
-                                  DiTauContainer="DiTauJetsLowPt",
-                                  SeedJetName="AntiKt10EMPFlowJets",
-                                  minPt=50000,
-                                  maxEta=2.5,
-                                  Rjet=1.0,
-                                  Rsubjet=0.2,
-                                  Rcore=0.1,
-                                  Tools=ditauTools))
+    from DiTauRec.DiTauBuilderConfig import DiTauBuilderLowPtCfg
+    acc.merge(DiTauBuilderLowPtCfg(ConfigFlags, name=f"{prefix}_DiTauLowPtBuilder"))
 
     return(acc)
 

@@ -213,6 +213,10 @@ def TauOutputCfg(flags):
     TauAODList += [ "xAOD::PFOContainer#TauHadronicParticleFlowObjects" ]
     TauAODList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 
+    if flags.Tau.doDiTauRec:
+        TauAODList += [ "xAOD::DiTauJetContainer#DiTauJets" ]
+        TauAODList += [ "xAOD::DiTauJetAuxContainer#DiTauJetsAux." ]
+
     # Set common to ESD too
     TauESDList = list(TauAODList)
 
@@ -249,6 +253,11 @@ def TauReconstructionCfg(flags):
 
     tauRunnerAlg = TauRunnerAlgCfg(flags)
     result.merge(tauRunnerAlg)
+
+    if flags.Tau.doDiTauRec:
+        from DiTauRec.DiTauBuilderConfig import DiTauBuilderCfg
+        diTauBuildAlg = DiTauBuilderCfg(flags)
+        result.merge(diTauBuildAlg)
 
     if (flags.Output.doWriteESD or flags.Output.doWriteAOD):
         tauOut = TauOutputCfg(flags)
