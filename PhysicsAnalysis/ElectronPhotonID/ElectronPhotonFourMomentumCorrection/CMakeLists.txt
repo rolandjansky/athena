@@ -92,7 +92,7 @@ endif()
 
 # Test(s) in the package:
 if( XAOD_STANDALONE )
-   atlas_add_test( ut_test SCRIPT test/ut_test.py )
+   atlas_add_test( ut_ElectronPhotonFourMomentumCorrection_maintest SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_maintest.py )
    atlas_add_test( ut_test_factory SCRIPT test/ut_test_factory.py )
    atlas_add_test( ut_test_resolution SCRIPT test/ut_test_resolution.py )
 endif()
