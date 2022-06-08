@@ -420,9 +420,8 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
   }();
 
   GeoMaterial* pmaterial;
-	
-  GeoMaterial* p_com_material;
-  GeoElement*  p_com_element;
+
+  const GeoElement*  p_com_element;
 	
   IRDBRecordset_ptr tmp_materials;
   IRDBRecordset_ptr tmp_matcomponents;
@@ -540,7 +539,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
   bool hasSubMaterial = false;
   bool calculateFraction = false;
   double totalFraction = 0.;
-  std::vector < GeoElement* > elementComponents;
+  std::vector <const GeoElement*> elementComponents;
   std::vector <double>        elementFractions;
 
   for(  com_ind = 0; com_ind <tmp_matcomponents->size(); com_ind++)
@@ -562,7 +561,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 
 	  if( CheckElement( component_name) == 1)
 	    {
-	      p_com_element = (GeoElement *)(getElement(component_name));
+	      p_com_element = getElement(component_name);
 
 	      if(calculateFraction)
 	      {
@@ -576,8 +575,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 	    }
 	  else{
 	    hasSubMaterial = true;
-	    p_com_material = (GeoMaterial  *)getMaterial(component_name);
-
+	    const GeoMaterial* p_com_material = getMaterial(component_name);
 	    pmaterial->add(p_com_material, component_fraction);
 			
 	  }		
