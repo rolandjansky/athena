@@ -149,10 +149,10 @@ InDet::SCT_ClusterOnTrackTool::correct
   Amg::Vector3D localstripdir(-sinAlpha, cosAlpha, 0.);
   Amg::Vector3D globalstripdir = trackPar.associatedSurface().transform().linear() * localstripdir;
   double distance = (trackPar.position() - SC->globalPosition()).mag();
-  const Trk::TrapezoidBounds *tbounds =
-    dynamic_cast<const Trk::TrapezoidBounds *>(&trackPar.associatedSurface().bounds());
-  const Trk::RectangleBounds *rbounds =
-    dynamic_cast<const Trk::RectangleBounds *>(&trackPar.associatedSurface().bounds());
+  const auto *boundsraw = &trackPar.associatedSurface().bounds();
+
+  const Trk::TrapezoidBounds *tbounds = boundsraw->type() == Trk::SurfaceBounds::Trapezoid ? static_cast<const Trk::TrapezoidBounds *>(boundsraw) : nullptr;
+  const Trk::RectangleBounds *rbounds = boundsraw->type() == Trk::SurfaceBounds::Rectangle ? static_cast<const Trk::RectangleBounds *>(boundsraw) : nullptr;
 
   if (!tbounds && !rbounds) {
     return nullptr;
@@ -219,7 +219,7 @@ InDet::SCT_ClusterOnTrackTool::correct
       mat(0, 1) = mat(1, 0);
       mat(1, 1) = (sn2 * v0 + cs2 * v1);
     }
-    oldcov = mat;
+    oldcov = std::move(mat);
   }
 
   Amg::MatrixX cov(oldcov);
@@ -273,7 +273,7 @@ InDet::SCT_ClusterOnTrackTool::correct
     locpar[Trk::locX] += correction;
   }
   bool isbroad = m_option_errorStrategy == 0;
-  return new InDet::SCT_ClusterOnTrack(SC, locpar, cov, iH, glob, isbroad);
+  return new InDet::SCT_ClusterOnTrack(SC, locpar, std::move(cov), iH, glob, isbroad);
 }
 
 double
