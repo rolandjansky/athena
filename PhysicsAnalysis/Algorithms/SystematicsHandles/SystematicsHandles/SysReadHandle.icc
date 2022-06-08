@@ -30,6 +30,11 @@ namespace CP
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
   }
 
+  template<typename T> template<typename T2> SysReadHandle<T> ::
+  SysReadHandle (const std::string &inputName, T2 *owner)
+    : AsgMessagingForward (owner), m_inputName(inputName)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {}
 
 
   template<typename T> bool SysReadHandle<T> ::

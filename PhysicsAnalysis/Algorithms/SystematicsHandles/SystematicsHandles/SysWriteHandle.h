@@ -33,12 +33,27 @@ namespace CP
     // public interface
     //
 
-    /// \brief standard constructor
+    /**
+     * @brief Standard constructor
+     * @tparam T2 The type of the owner
+     * @param owner Used to declare the property and for its messaging
+     * @param propertyName The name of the property to declare
+     * @param propertyValue The default value for the property
+     * @param propertyDescription The description of the property
+     *
+     * This version of the constructor declares a property on the parent object
+     * and should usually be preferred when the container to be written should
+     * be configurable
+     */
   public:
     template<typename T2>
     SysWriteHandle (T2 *owner, const std::string& propertyName,
                     const std::string& propertyValue,
                     const std::string& propertyDescription);
+
+    /// \brief Direct constructor which doesn't declare a property
+    template <typename T2>
+    SysWriteHandle (const std::string &outputName, T2 *owner);
 
 
     /// \brief whether we have a name configured
