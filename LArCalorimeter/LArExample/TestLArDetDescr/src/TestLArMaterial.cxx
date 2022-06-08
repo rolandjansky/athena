@@ -75,10 +75,8 @@ StatusCode TestLArMaterial::execute()
 
   // For checks : the surface builder 
   StatusCode sc = toolSvc()->retrieveTool("ICaloSurfaceBuilder",m_surfbuild);
-  if (sc.isFailure())
+  if (sc.isFailure()){
     ATH_MSG_WARNING("Could not find Tool CaloSurfaceBuilder" );
-  else {
-    m_surfbuild->setCaloDepth(0);
   }
 
   //print_elt( true, false, false, false);
