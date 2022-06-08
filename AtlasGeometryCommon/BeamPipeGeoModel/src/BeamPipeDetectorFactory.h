@@ -70,7 +70,7 @@ class BeamPipeDetectorFactory final : public GeoVDetectorFactory
   // The manager:
   BeamPipeDetectorManager     * m_detectorManager;
    
-  const StoredMaterialManager * m_materialManager;
+  StoredMaterialManager * m_materialManager;
 
   StoreGateSvc             * m_detectorStore;
   IRDBAccessSvc            * m_access;
