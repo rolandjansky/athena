@@ -207,8 +207,9 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     return FCSFatal;
   }
 
+  int cs = calosample();
   //Initialize hit energy only now, as init loop above might change the layer energy
-  const float Elayer=simulstate.E(calosample());
+  const float Elayer=simulstate.E(cs);
   if (Elayer == 0) {
     ATH_MSG_VERBOSE("Elayer=0, nothing to do");
     return FCSSuccess;
@@ -228,14 +229,13 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
 
   if (debug) {
     PropagateMSGLevel(old_level);
-    ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits~"<<nhit);
+    ATH_MSG_DEBUG("E("<<cs<<")="<<simulstate.E(cs)<<" #hits~"<<nhit);
   }
 
   //
   //simulate the hits in GPU
   //
 #ifdef USE_GPU
-  int cs = calosample();
   int ichn       = 0;
   bool our_chainA = false;
   if ( cs > 0 && cs < 8 && cs != 4 )
@@ -346,10 +346,10 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
 	++ihit;
 
 	if( ( (ihit==20*nhit) || (ihit==100*nhit) ) && ihit>=100 ) {
-	  ATH_MSG_DEBUG("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
+	  ATH_MSG_DEBUG("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<cs<<")="<<sumEhit<<" expected E="<<Elayer);
 	}                                                                                                                         
 	if(ihit>=1000*nhit && ihit>=1000) {
-	  ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer<<", caused by:");
+	  ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<cs<<")="<<sumEhit<<" expected E="<<Elayer<<", caused by:");
 	  Print();
 	  break;
 	}  

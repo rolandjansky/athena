@@ -63,7 +63,7 @@ namespace ISF {
 
     bool m_printParametrization{false};
     bool m_CompressMemory{true};
-    bool m_runOnGPU{true};
+    bool m_runOnGPU{false};
   };
 
 }
