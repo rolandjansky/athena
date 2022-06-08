@@ -19,7 +19,7 @@
 
 SCT_PixelAttachment::SCT_PixelAttachment(const std::string & name,
                                          InDetDD::SCT_DetectorManager* detectorManager,
-                                         const SCT_GeometryManager* geometryManager,
+                                         SCT_GeometryManager* geometryManager,
                                          SCT_MaterialManager* materials)
   : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials)
 {

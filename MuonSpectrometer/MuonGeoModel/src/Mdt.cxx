@@ -60,13 +60,13 @@ namespace MuonGM {
         layer = nullptr;
     }
 
-    GeoFullPhysVol *Mdt::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Mdt::build(StoredMaterialManager& matManager,
                                const MYSQL& mysql) {
         layer->cutoutNsteps = 1;
         return layer->build(matManager, mysql);
     }
 
-    GeoFullPhysVol *Mdt::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Mdt::build(StoredMaterialManager& matManager,
                                const MYSQL& mysql,
                                std::vector<Cutout *>& vcutdef) {
         MsgStream log(Athena::getMessageSvc(), "Mdt::build");

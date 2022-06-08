@@ -21,7 +21,7 @@ class SCT_FwdCoolingBlock: public SCT_SharedComponentFactory
 public:
   SCT_FwdCoolingBlock(const std::string & name, int hiLo, int mainOrSecondary,
                       InDetDD::SCT_DetectorManager* detectorManager,
-                      const SCT_GeometryManager* geometryManager,
+                      SCT_GeometryManager* geometryManager,
                       SCT_MaterialManager* materials);
 
   enum types {UPPER = 1,

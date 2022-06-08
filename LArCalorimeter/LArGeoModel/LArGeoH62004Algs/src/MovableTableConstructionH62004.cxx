@@ -87,7 +87,7 @@ GeoVPhysVol* LArGeo::MovableTableConstructionH62004::GetEnvelope()
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   sc=detStore->retrieve(materialManager, std::string("MATERIALS"));
   if (StatusCode::SUCCESS != sc) return NULL;
 

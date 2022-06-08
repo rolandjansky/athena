@@ -28,10 +28,10 @@ namespace MuonGM {
         int index;
 
         MMSpacer(const MYSQL& mysql, Component *s);
-        GeoPhysVol *build(const StoredMaterialManager& matManager,
+        GeoPhysVol *build(StoredMaterialManager& matManager,
                           const MYSQL& mysql,
                           int minimalgeo);
-        GeoPhysVol *build(const StoredMaterialManager& matManager,
+        GeoPhysVol *build(StoredMaterialManager& matManager,
                           const MYSQL& mysql,
                           int minimalgeo, int cutoutson,
                           const std::vector<Cutout *>&);

@@ -28,7 +28,7 @@ SCT_FwdCylinderServices::SCT_FwdCylinderServices(const std::string & name,
                                                  double rmax,
                                                  double length,
                                                  InDetDD::SCT_DetectorManager* detectorManager,
-                                                 const SCT_GeometryManager* geometryManager,
+                                                 SCT_GeometryManager* geometryManager,
                                                  SCT_MaterialManager* materials)
   : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
     m_innerRadius(rmin), m_outerRadius(rmax), m_length(length)

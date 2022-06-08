@@ -43,7 +43,7 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 { 
   m_detectorManager=new CavernInfraDetectorManager();
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   } 

@@ -19,7 +19,7 @@ public:
                  double innerRadius,
                  double length,
                  InDetDD::SCT_DetectorManager* detectorManager,
-                 const SCT_GeometryManager* geometryManager,
+                 SCT_GeometryManager* geometryManager,
                  SCT_MaterialManager* materials);
 
 public:

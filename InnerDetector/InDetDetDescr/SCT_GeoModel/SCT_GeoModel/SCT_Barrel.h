@@ -18,7 +18,7 @@ class SCT_Barrel : public SCT_UniqueComponentFactory
 public:
   SCT_Barrel(const std::string & name,
              InDetDD::SCT_DetectorManager* detectorManager,
-             const SCT_GeometryManager* geometryManager,
+             SCT_GeometryManager* geometryManager,
              SCT_MaterialManager* materials);
   virtual GeoVPhysVol * build(SCT_Identifier id);
 

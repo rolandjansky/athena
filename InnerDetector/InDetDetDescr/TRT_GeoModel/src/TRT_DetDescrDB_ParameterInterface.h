@@ -31,7 +31,7 @@ public:
   //
   virtual const GeoTrf::Transform3D & partTransform(const std::string & partName) const;
   virtual bool partPresent(const std::string & partName) const;
-  virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const;
+  virtual InDetDD::DistortedMaterialManager * distortedMatManager();
 
   const std::string& name() const { 
     static const std::string n("TRT_GeoModel::TRT_DetDescrDB_ParameterInterface"); 
@@ -49,7 +49,7 @@ private:
 
   InDetDD::AthenaComps * m_athenaComps;
 
-  const InDetDD::DistortedMaterialManager * m_distortedMatManager;
+  InDetDD::DistortedMaterialManager * m_distortedMatManager;
   TopLevelPlacements * m_placements;
   IRDBRecordset_ptr m_scalingTable;
 };

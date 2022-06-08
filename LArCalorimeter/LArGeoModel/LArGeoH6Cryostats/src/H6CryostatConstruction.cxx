@@ -63,7 +63,7 @@ GeoVFullPhysVol* LArGeo::H6CryostatConstruction::GetEnvelope()
   }
 
   // Material Manager
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   const GeoMaterial *Air  = materialManager->getMaterial("std::Air");

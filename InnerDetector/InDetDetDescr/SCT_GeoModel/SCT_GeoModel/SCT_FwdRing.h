@@ -28,7 +28,7 @@ public:
 	      int iRing,
 	      int ec,
               InDetDD::SCT_DetectorManager* detectorManager,
-              const SCT_GeometryManager* geometryManager,
+              SCT_GeometryManager* geometryManager,
               SCT_MaterialManager* materials);
 
   ~SCT_FwdRing();

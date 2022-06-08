@@ -109,7 +109,7 @@ namespace MuonGM {
         m_enableFineClashFixing = 0;
     }
 
-    GeoVPhysVol *MuonChamber::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *MuonChamber::build(StoredMaterialManager& matManager,
                                     const MYSQL& mysql,
                                     MuonDetectorManager *manager, int zi, int fi, bool is_mirrored, bool &isAssembly) {
         MsgStream log(m_msgSvc, "MuGM:MuonChamber");

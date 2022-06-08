@@ -49,7 +49,7 @@ namespace MuonGM {
         index = s->index;
     }
 
-    GeoFullPhysVol *sTGC::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *sTGC::build(StoredMaterialManager& matManager,
                                 int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
@@ -57,7 +57,7 @@ namespace MuonGM {
     }
 
     // Start building the physical volume of the quadruplet
-    GeoFullPhysVol *sTGC::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *sTGC::build(StoredMaterialManager& matManager,
                                 int minimalgeo, int,
                                 const std::vector<Cutout *>&) {
         sTGCDetectorHelper stgcHelper;

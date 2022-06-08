@@ -22,7 +22,7 @@ class SCT_FwdSubSpine : public SCT_SharedComponentFactory
 public:
   SCT_FwdSubSpine(const std::string & name, int ringType, int spineSide,
                   InDetDD::SCT_DetectorManager* detectorManager,
-                  const SCT_GeometryManager* geometryManager,
+                  SCT_GeometryManager* geometryManager,
                   SCT_MaterialManager* materials);
 
 public:

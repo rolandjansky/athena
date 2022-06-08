@@ -130,7 +130,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
 
   const GeoMaterial *Lead = materialManager->getMaterial("std::Lead");
@@ -1107,7 +1107,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 }
 
 GeoPhysVol* LArGeo::EndcapCryostatConstruction::buildMbtsTrd(const IRDBRecord* rec
-							     , const StoredMaterialManager* matmanager
+							     , StoredMaterialManager* matmanager
 							     , GeoPhysVol* parent)
 {
   // Construct the Trd

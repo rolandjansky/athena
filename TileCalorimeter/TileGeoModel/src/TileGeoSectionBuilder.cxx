@@ -50,7 +50,7 @@
 using namespace GeoGenfun;
 using namespace GeoXF;
   
-TileGeoSectionBuilder::TileGeoSectionBuilder(const StoredMaterialManager* matManager,
+TileGeoSectionBuilder::TileGeoSectionBuilder(StoredMaterialManager* matManager,
                          TileDddbManager * pDbManager,
                                              const TileSwitches & switches,
                                              MsgStream * log)

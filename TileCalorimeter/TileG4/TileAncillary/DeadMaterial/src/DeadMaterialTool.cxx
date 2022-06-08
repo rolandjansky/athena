@@ -9,7 +9,6 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
-#include "StoreGate/DataHandle.h"
 
 // Geant4 headers
 #include "G4Box.hh"
@@ -50,7 +49,7 @@ void DeadMaterialTool::BuildGeometry()
   G4Box *wall = new G4Box("DeadMaterial",dxdeadmaterial,dydeadmaterial,dzdeadmaterial);
 
   // Get the materials
-  const DataHandle<StoredMaterialManager> materialManager;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS")))
     {
       //FIXME should probably at least print an ERROR here...

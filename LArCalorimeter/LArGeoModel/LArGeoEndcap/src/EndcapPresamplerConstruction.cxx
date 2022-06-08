@@ -61,7 +61,7 @@ GeoFullPhysVol* EndcapPresamplerConstruction::Envelope()
     throw std::runtime_error("Error in EndcapCryostatConstruction, cannot access DetectorStore");
   }
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   const GeoMaterial *LAr  = materialManager->getMaterial("std::LiquidArgon");

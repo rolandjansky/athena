@@ -149,7 +149,7 @@ LArGeo::ModulesConstructionH62004::~ModulesConstructionH62004() {}
 
 GeoVFullPhysVol* LArGeo::ModulesConstructionH62004::GetEnvelope()
 {
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in ModulesConstruction, cannot access Material manager");
   }
@@ -560,7 +560,7 @@ int LArGeo::ModulesConstructionH62004::GetID(int side, int dir, int calo)
 
 
 GeoLogVol*
-LArGeo::ModulesConstructionH62004::construct(const StoredMaterialManager* materialManager,
+LArGeo::ModulesConstructionH62004::construct(StoredMaterialManager* materialManager,
                                              int side, int dir, int calo)
 {
 //--------- Material definition for leakage detectors ---------

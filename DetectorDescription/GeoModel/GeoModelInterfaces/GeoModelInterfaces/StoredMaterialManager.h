@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_STOREDMATERIALMANAGER_H
@@ -35,7 +35,7 @@ class StoredMaterialManager
   virtual ~StoredMaterialManager() {};
 
   // Query the material:
-  virtual const GeoMaterial* getMaterial(const std::string& name) const = 0;
+  virtual const GeoMaterial* getMaterial(const std::string& name) = 0;
 
   // Query the elements:
   virtual const GeoElement* getElement(const std::string& name) const = 0;

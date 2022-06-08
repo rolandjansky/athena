@@ -33,7 +33,7 @@
 #include <iostream>
 #include <assert.h>
 
-TileGeoCutBuilder::TileGeoCutBuilder(const StoredMaterialManager* /*matManager*/,
+TileGeoCutBuilder::TileGeoCutBuilder(StoredMaterialManager* /*matManager*/,
 				     TileDddbManager * /*pDbManager*/,
                                      MsgStream * log)
   : m_log(log)

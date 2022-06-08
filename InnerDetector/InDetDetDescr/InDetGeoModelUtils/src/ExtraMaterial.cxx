@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
@@ -26,12 +26,12 @@
 
 
 namespace InDetDD {
-  ExtraMaterial::ExtraMaterial(IRDBRecordset_ptr xMatTable, const StoredMaterialManager* matManager)
+  ExtraMaterial::ExtraMaterial(IRDBRecordset_ptr xMatTable, StoredMaterialManager* matManager)
     : m_xMatTable(std::move(xMatTable)),
     m_matManager(matManager)
   {}
 
-  ExtraMaterial::ExtraMaterial(const DistortedMaterialManager* manager)
+  ExtraMaterial::ExtraMaterial(DistortedMaterialManager* manager)
     : m_xMatTable(manager->extraMaterialTable()),
     m_matManager(manager->materialManager())
   {}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //class header
@@ -9,7 +9,6 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
-#include "StoreGate/DataHandle.h"
 
 // Geant4 headers
 #include "G4Box.hh"
@@ -43,7 +42,7 @@ void LArCrateTool::BuildGeometry()
   G4Box *emptybox = new G4Box("Crate",dxCrate,dyCrate,dzCrate);
 
   // Get the materials
-  const DataHandle<StoredMaterialManager> materialManager;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS")))
     {
       //FIXME should probably at least print an ERROR here...

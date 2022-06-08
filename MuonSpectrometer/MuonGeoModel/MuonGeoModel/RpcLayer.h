@@ -28,9 +28,9 @@ namespace MuonGM {
         Rpc *m;
 
         RpcLayer(const std::string& s, Rpc *t);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            const MYSQL& mysql);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            const MYSQL& mysql,
                            int cutoutson,
                            const std::vector<Cutout *>&);

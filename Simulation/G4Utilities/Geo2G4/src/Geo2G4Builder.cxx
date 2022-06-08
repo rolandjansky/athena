@@ -62,7 +62,7 @@ Geo2G4Builder::Geo2G4Builder(const std::string& detectorName)
 
     if(m_treeTops.size()>1) {
         // -------- -------- MATERIAL MANAGER -------- ----------
-        const StoredMaterialManager* theMaterialManager = m_pDetStore->tryConstRetrieve<StoredMaterialManager>("MATERIALS");
+        StoredMaterialManager* theMaterialManager = m_pDetStore->tryRetrieve<StoredMaterialManager>("MATERIALS");
 	if(theMaterialManager) {
           m_matAir = theMaterialManager->getMaterial("std::Air");
 	}

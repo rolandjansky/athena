@@ -152,7 +152,7 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 
 
 
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return NULL;
   
   const GeoMaterial *Copper  = materialManager->getMaterial("std::Copper");

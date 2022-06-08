@@ -17,7 +17,7 @@
 
 SCT_FSIFibreMask::SCT_FSIFibreMask(const std::string & name, int iLayer, double length,
                                    InDetDD::SCT_DetectorManager* detectorManager,
-                                   const SCT_GeometryManager* geometryManager,
+                                   SCT_GeometryManager* geometryManager,
                                    SCT_MaterialManager* materials)
   : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
     m_iLayer(iLayer), m_length(length)

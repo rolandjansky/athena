@@ -94,7 +94,7 @@ GeoPhysVol* LArGeo::HECClampConstruction::GetClampingBar(bool rail,bool left)
   
 
   // Get access to the material manager:
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in HECModuleConstruction(ClampBar), cannot access Material Manager");
   }  

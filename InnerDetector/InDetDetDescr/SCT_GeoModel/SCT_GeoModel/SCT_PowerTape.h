@@ -20,7 +20,7 @@ class SCT_PowerTape: public SCT_SharedComponentFactory
 public:
   SCT_PowerTape(const std::string & name, double length,
                 InDetDD::SCT_DetectorManager* detectorManager,
-                const SCT_GeometryManager* geometryManager,
+                SCT_GeometryManager* geometryManager,
                 SCT_MaterialManager* materials);
 
 public:

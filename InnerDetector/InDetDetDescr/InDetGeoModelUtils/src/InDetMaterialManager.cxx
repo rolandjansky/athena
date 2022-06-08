@@ -82,9 +82,9 @@ InDetMaterialManager::~InDetMaterialManager() {
   }
 }
 
-const StoredMaterialManager*
+StoredMaterialManager*
 InDetMaterialManager::retrieveManager(const StoreGateSvc* detStore) {
-  const StoredMaterialManager* theGeoMaterialManager = nullptr;
+  StoredMaterialManager* theGeoMaterialManager = nullptr;
 
   if (StatusCode::SUCCESS != detStore->retrieve(theGeoMaterialManager, "MATERIALS")) {
     ATH_MSG_FATAL("Cannot locate Materials");
@@ -109,7 +109,7 @@ InDetMaterialManager::hasMaterial(const std::string& materialName) const {
 }
 
 const GeoMaterial*
-InDetMaterialManager::getMaterialInternal(const std::string& materialName) const {
+InDetMaterialManager::getMaterialInternal(const std::string& materialName) {
   // First check local store of materials. If not found then get it from the GeoModel
   // manager.
   const GeoMaterial* material = getAdditionalMaterial(materialName);

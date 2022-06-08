@@ -91,7 +91,7 @@ GeoFullPhysVol* LArGeo::HECModuleConstruction::GetEnvelope()
   }
 
   
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in HECModuleConstruction, cannot access Material Manager");
   }

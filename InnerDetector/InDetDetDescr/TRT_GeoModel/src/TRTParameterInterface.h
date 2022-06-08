@@ -42,7 +42,7 @@ public:
   ///////////////////////////////////////////////////////////
   //                 Distorted Material                    //
   ///////////////////////////////////////////////////////////
-  virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const = 0;
+  virtual InDetDD::DistortedMaterialManager * distortedMatManager() = 0;
 
   ///////////////////////////////////////////////////////////
   //                    Special Flags                      //

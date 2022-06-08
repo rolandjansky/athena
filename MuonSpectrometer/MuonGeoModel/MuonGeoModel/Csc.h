@@ -36,10 +36,10 @@ namespace MuonGM {
         Csc(const MYSQL& mysql, Component *s);
         ~Csc();
         CscMultiLayer *layer;
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql,
                               int minimalgeo);
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql,
                               int minimalgeo, int cutoutson,
                               const std::vector<Cutout *>&);

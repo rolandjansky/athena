@@ -22,7 +22,7 @@ SCT_FwdPowerTape::SCT_FwdPowerTape(const std::string & name,
                                    double startPos, 
                                    double endPos,
                                    InDetDD::SCT_DetectorManager* detectorManager,
-                                   const SCT_GeometryManager* geometryManager,
+                                   SCT_GeometryManager* geometryManager,
                                    SCT_MaterialManager* materials)
   : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
     m_numModules(numModules), m_innerRadius(innerRadius)

@@ -54,7 +54,7 @@ class TRT_ServMatFactoryDC2 : public AthMessaging  {
   // private data
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
-  const StoredMaterialManager    *m_materialManager;
+  StoredMaterialManager          *m_materialManager;
 };
 
 #endif //  INDETSERVMATGEOMODEL_TRT_SERVMATFACTORYDC2_H

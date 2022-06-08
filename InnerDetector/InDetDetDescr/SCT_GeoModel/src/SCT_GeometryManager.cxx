@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <memory>
@@ -107,7 +107,7 @@ SCT_GeometryManager::generalParameters() const
   return m_generalParameters.get();
 }
 
-const InDetDD::DistortedMaterialManager * 
+InDetDD::DistortedMaterialManager *
 SCT_GeometryManager::distortedMatManager() const
 {    
   return m_distortedMatManager.get();

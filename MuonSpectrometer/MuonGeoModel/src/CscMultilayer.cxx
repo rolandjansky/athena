@@ -43,14 +43,14 @@ namespace MuonGM {
         thickness = cscthickness;
     }
 
-    GeoVPhysVol *CscMultiLayer::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *CscMultiLayer::build(StoredMaterialManager& matManager,
                                       const MYSQL& mysql) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
         return build(matManager, mysql, cutoutson, vcutdef);
     }
 
-    GeoVPhysVol *CscMultiLayer::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *CscMultiLayer::build(StoredMaterialManager& matManager,
                                       const MYSQL& mysql,
                                       int /*cutoutson*/,
                                       const std::vector<Cutout *>& /*vcutdef*/) {

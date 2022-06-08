@@ -1657,7 +1657,7 @@ OraclePixGeoManager::OraclePixGeoManager()
  //
  // Get the mat manager from the store:
  //
- const StoredMaterialManager* materialManager = nullptr;
+ StoredMaterialManager* materialManager = nullptr;
  if (StatusCode::SUCCESS == m_pDetStore->retrieve(materialManager, std::string("MATERIALS"))) {
    m_pMatMgr = materialManager;
  }
@@ -1669,7 +1669,7 @@ OraclePixGeoManager::OraclePixGeoManager()
  //cout << "Endcap Version " << this->PixelEndcapMajorVersion() << "." << this->PixelEndcapMinorVersion() << endl;
 }
 
-const StoredMaterialManager* OraclePixGeoManager::getMaterialManager()
+StoredMaterialManager* OraclePixGeoManager::getMaterialManager()
 {
   return m_pMatMgr;
 }

@@ -15,7 +15,7 @@ class SCT_FwdDiscPowerTape : public SCT_SharedComponentFactory
 public:
   SCT_FwdDiscPowerTape(const std::string & name, int iRing,
                        InDetDD::SCT_DetectorManager* detectorManager,
-                       const SCT_GeometryManager* geometryManager,
+                       SCT_GeometryManager* geometryManager,
                        SCT_MaterialManager* materials);
 
   //

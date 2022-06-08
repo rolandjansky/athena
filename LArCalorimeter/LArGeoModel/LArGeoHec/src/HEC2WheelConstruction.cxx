@@ -110,7 +110,7 @@ GeoFullPhysVol* LArGeo::HEC2WheelConstruction::GetEnvelope(bool fullGeo, bool po
     throw std::runtime_error("Error in HEC2WheelConstruction, cannot access DetectorStore");
   }
  
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in HEC2WheelConstruction, cannot access Material Manager");
   }

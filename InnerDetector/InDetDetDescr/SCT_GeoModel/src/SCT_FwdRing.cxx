@@ -39,7 +39,7 @@ SCT_FwdRing::SCT_FwdRing(const std::string & name,
                          int iRing,
                          int ec,
                          InDetDD::SCT_DetectorManager* detectorManager,
-                         const SCT_GeometryManager* geometryManager,
+                         SCT_GeometryManager* geometryManager,
                          SCT_MaterialManager* materials)
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iWheel(iWheel),

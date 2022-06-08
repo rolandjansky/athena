@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_COMPONENTFACTORY_H
@@ -22,7 +22,7 @@ class SCT_ComponentFactory
 public:
   SCT_ComponentFactory(const std::string & name,
                        InDetDD::SCT_DetectorManager* detectorManager,
-                       const SCT_GeometryManager* geometryManager,
+                       SCT_GeometryManager* geometryManager,
                        SCT_MaterialManager* materials);
 
   const std::string & getName() const {return m_name;}
@@ -32,7 +32,7 @@ public:
 
 protected: 
   InDetDD::SCT_DetectorManager* m_detectorManager;
-  const SCT_GeometryManager* m_geometryManager;
+  SCT_GeometryManager* m_geometryManager;
   SCT_MaterialManager* m_materials;
 
   double epsilon() const;
@@ -51,7 +51,7 @@ class SCT_SharedComponentFactory : public SCT_ComponentFactory
 public:
   SCT_SharedComponentFactory(const std::string & name,
                              InDetDD::SCT_DetectorManager* detectorManager,
-                             const SCT_GeometryManager* geometryManager,
+                             SCT_GeometryManager* geometryManager,
                              SCT_MaterialManager* materials=nullptr) :
     SCT_ComponentFactory(name, detectorManager, geometryManager, materials),
     m_physVolume(nullptr)
@@ -71,7 +71,7 @@ class SCT_UniqueComponentFactory : public SCT_ComponentFactory
 public:
   SCT_UniqueComponentFactory(const std::string & name,
                              InDetDD::SCT_DetectorManager* detectorManager,
-                             const SCT_GeometryManager* geometryManager,
+                             SCT_GeometryManager* geometryManager,
                              SCT_MaterialManager* materials=nullptr) :
     SCT_ComponentFactory(name, detectorManager, geometryManager, materials),
     m_logVolume{nullptr}

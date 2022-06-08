@@ -29,9 +29,9 @@ namespace MuonGM {
         int index;
 
         sTGC(Component *s);
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               int minimalgeo);
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               int minimalgeo, int cutoutson,
                               const std::vector<Cutout *>&);
         virtual void print() override;

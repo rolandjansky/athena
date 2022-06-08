@@ -69,7 +69,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
     throw std::runtime_error("Error in EndcapDMConstruction, cannot access RDBAccessSvc");
 
   DecodeVersionKey keyLAr(geoModel, "LAr");
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if(StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS")))
     throw std::runtime_error("Error in EndcapDMConstruction, stored MaterialManager is not found");
 

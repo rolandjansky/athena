@@ -18,7 +18,7 @@ public:
   SCT_Clamp(const std::string & name, int iLayer,
             double innerRadius,
             InDetDD::SCT_DetectorManager* detectorManager,
-            const SCT_GeometryManager* geometryManager,
+            SCT_GeometryManager* geometryManager,
             SCT_MaterialManager* materials);
 
 public:

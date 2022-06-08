@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDSENSOR_H
@@ -34,7 +34,7 @@ class SCT_FwdSensor : public SCT_UniqueComponentFactory
 public:
   SCT_FwdSensor(const std::string & name, int ringType,
                 InDetDD::SCT_DetectorManager* detectorManager,
-                const SCT_GeometryManager* geometryManager,
+                SCT_GeometryManager* geometryManager,
                 SCT_MaterialManager* materials);
   ~SCT_FwdSensor();
 

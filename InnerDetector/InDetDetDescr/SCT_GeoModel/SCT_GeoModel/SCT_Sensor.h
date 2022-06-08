@@ -19,7 +19,7 @@ class SCT_Sensor: public SCT_UniqueComponentFactory
 public:
   SCT_Sensor(const std::string & name,
              InDetDD::SCT_DetectorManager* detectorManager,
-             const SCT_GeometryManager* geometryManager,
+             SCT_GeometryManager* geometryManager,
              SCT_MaterialManager* materials);
 
 public:

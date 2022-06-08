@@ -34,9 +34,9 @@ namespace MuonGM {
         Mdt(const MYSQL& mysql, Component *s1, const std::string& s2);
         ~Mdt();
         MultiLayer *layer;
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql);
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql,
                               std::vector<Cutout *>&);
         virtual void print() override;

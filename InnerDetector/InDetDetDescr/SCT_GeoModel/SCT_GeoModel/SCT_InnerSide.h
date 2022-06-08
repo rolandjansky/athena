@@ -32,7 +32,7 @@ public:
 
   SCT_InnerSide(const std::string & name,
                 InDetDD::SCT_DetectorManager* detectorManager,
-                const SCT_GeometryManager* geometryManager,
+                SCT_GeometryManager* geometryManager,
                 SCT_MaterialManager* materials);
   
   //explicitly disallow copy, assign, to appease coverity

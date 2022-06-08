@@ -17,7 +17,7 @@
 
 SCT_FwdFSI::SCT_FwdFSI(const std::string & name, int type,
                        InDetDD::SCT_DetectorManager* detectorManager,
-                       const SCT_GeometryManager* geometryManager,
+                       SCT_GeometryManager* geometryManager,
                        SCT_MaterialManager* materials)
   : SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
     m_type(type)

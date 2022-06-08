@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OraclePixelGeoManager_H
@@ -133,7 +133,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
   // Distorted material manager. Access to tables for distorting
   // the material. Extra volumes, modified volumes, etc
-  const InDetDD::DistortedMaterialManager * m_distortedMatManager = nullptr;
+  InDetDD::DistortedMaterialManager * m_distortedMatManager = nullptr;
 
   // Legacy tables
   PixelLegacyManager * m_legacyManager;
@@ -187,7 +187,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   virtual InDetDD::PixelDetectorManager *GetPixelDDManager() override;
 
   // DistortedMaterialManager
-  virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const override;
+  virtual InDetDD::DistortedMaterialManager * distortedMatManager() override;
   
   // Access to legacy tables
   virtual PixelLegacyManager * legacyManager() override;

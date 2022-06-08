@@ -18,7 +18,7 @@ class SCT_FwdSpine : public SCT_SharedComponentFactory
 public:
   SCT_FwdSpine(const std::string & name, int ringType,
                InDetDD::SCT_DetectorManager* detectorManager,
-               const SCT_GeometryManager* geometryManager,
+               SCT_GeometryManager* geometryManager,
                SCT_MaterialManager* materials);
 
 public:

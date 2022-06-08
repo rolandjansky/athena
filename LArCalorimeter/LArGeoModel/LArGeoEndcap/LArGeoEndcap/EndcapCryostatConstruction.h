@@ -78,7 +78,7 @@ namespace LArGeo {
     friend class ::LArDetectorToolNV;
 
     GeoPhysVol* buildMbtsTrd(const IRDBRecord* rec
-			     , const StoredMaterialManager* matmanager
+			     , StoredMaterialManager* matmanager
 			     , GeoPhysVol* parent);
   };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_GeometryManager_H
@@ -48,7 +48,7 @@ public:
   const SCT_ForwardParameters         * forwardParameters() const;
   const SCT_ForwardModuleParameters   * forwardModuleParameters() const;
   const SCT_GeneralParameters         * generalParameters() const;
-  const InDetDD::DistortedMaterialManager  * distortedMatManager() const;
+  InDetDD::DistortedMaterialManager   * distortedMatManager() const;
 
   SCT_GeometryManager& operator=(const SCT_GeometryManager& right);
   SCT_GeometryManager(const SCT_GeometryManager& right);

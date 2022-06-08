@@ -20,7 +20,7 @@ class SCT_CoolingPipe: public SCT_SharedComponentFactory
 public:
   SCT_CoolingPipe(const std::string & name, double length,
                   InDetDD::SCT_DetectorManager* detectorManager,
-                  const SCT_GeometryManager* geometryManager,
+                  SCT_GeometryManager* geometryManager,
                   SCT_MaterialManager* materials);
 
 public:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_Wall.h"
@@ -21,7 +21,7 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick, const std:
   return bcmWallPhys;
 }
 
-GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double thick_two, const GeoMaterial* material_one, const GeoMaterial* material_two, const StoredMaterialManager* mat_mgr)
+GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double thick_two, const GeoMaterial* material_one, const GeoMaterial* material_two, StoredMaterialManager* mat_mgr)
 {
   double wallthick = thick_one + thick_two;
   
@@ -56,7 +56,7 @@ GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double
   return bcmWallPhys;
 }
 
-GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double thick_two, double thick_three, const GeoMaterial* material_one, const GeoMaterial* material_two, const GeoMaterial* material_three, const StoredMaterialManager* mat_mgr)
+GeoPhysVol* BCM_Wall::Build(double halfX, double halfY, double thick_one, double thick_two, double thick_three, const GeoMaterial* material_one, const GeoMaterial* material_two, const GeoMaterial* material_three, StoredMaterialManager* mat_mgr)
 {
   double wallthick = thick_one + thick_two + thick_three;
   

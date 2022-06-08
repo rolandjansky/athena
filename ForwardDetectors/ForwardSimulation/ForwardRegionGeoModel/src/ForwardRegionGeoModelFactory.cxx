@@ -99,7 +99,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
 {
     std::string matName;
 
-    const StoredMaterialManager* materialManager = nullptr;
+    StoredMaterialManager* materialManager = nullptr;
     if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
       return;
     }

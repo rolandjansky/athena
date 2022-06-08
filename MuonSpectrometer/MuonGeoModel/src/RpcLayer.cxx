@@ -37,14 +37,14 @@ namespace MuonGM {
 
     RpcLayer::RpcLayer(const std::string& s, Rpc *t) : DetectorElement(s), lwidth(0.), llength(0.), thickness(0.), llongWidth(0.) { m = t; }
 
-    GeoVPhysVol *RpcLayer::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *RpcLayer::build(StoredMaterialManager& matManager,
                                  const MYSQL& mysql) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
         return build(matManager, mysql, cutoutson, vcutdef);
     }
 
-    GeoVPhysVol *RpcLayer::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *RpcLayer::build(StoredMaterialManager& matManager,
                                  const MYSQL& mysql,
                                  int cutoutson,
                                  const std::vector<Cutout *>& vcutdef) {

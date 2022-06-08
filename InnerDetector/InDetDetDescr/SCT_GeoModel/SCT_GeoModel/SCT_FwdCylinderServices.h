@@ -16,7 +16,7 @@ public:
   
   SCT_FwdCylinderServices(const std::string & name, double rmin, double rmax, double length,
                           InDetDD::SCT_DetectorManager* detectorManager,
-                          const SCT_GeometryManager* geometryManager,
+                          SCT_GeometryManager* geometryManager,
                           SCT_MaterialManager* materials);
   ~SCT_FwdCylinderServices();
 

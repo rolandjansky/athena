@@ -29,7 +29,7 @@ namespace MuonGM {
         int nrOfSteps;    // for trapezoidal layers,
                        // nr of steps in the staircase
         MultiLayer(const MYSQL& mysql, const std::string& n);
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql);
         double yy[4]{};
         double xx[4]{};

@@ -37,7 +37,7 @@ namespace MuonGM {
         index = s->index;
     }
 
-    GeoPhysVol *MMSpacer::build(const StoredMaterialManager& matManager,
+    GeoPhysVol *MMSpacer::build(StoredMaterialManager& matManager,
                                 const MYSQL& mysql,
                                 int minimalgeo) {
         std::vector<Cutout *> vcutdef;
@@ -45,7 +45,7 @@ namespace MuonGM {
         return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoPhysVol *MMSpacer::build(const StoredMaterialManager& matManager,
+    GeoPhysVol *MMSpacer::build(StoredMaterialManager& matManager,
                                 const MYSQL& mysql,
                                 int minimalgeo, int,
                                 const std::vector<Cutout *>&) {

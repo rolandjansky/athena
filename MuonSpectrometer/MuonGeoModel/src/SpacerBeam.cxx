@@ -75,13 +75,13 @@ namespace MuonGM {
         }
     }
 
-    GeoVPhysVol *SpacerBeam::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *SpacerBeam::build(StoredMaterialManager& matManager,
                                    bool is_barrel) {
         int cutoutson = 0;
         return build(matManager, cutoutson, is_barrel);
     }
 
-    GeoVPhysVol *SpacerBeam::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *SpacerBeam::build(StoredMaterialManager& matManager,
                                    int /*cutoutson*/, bool is_barrel) {
         GeoPhysVol *pvol = nullptr;
         GeoLogVol *lvol = nullptr;

@@ -31,14 +31,14 @@ namespace MuonGM {
         m_component = s;
     }
 
-    GeoVPhysVol *Ded::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *Ded::build(StoredMaterialManager& matManager,
                             const MYSQL& mysql) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
         return build(matManager, mysql, cutoutson, vcutdef);
     }
 
-    GeoVPhysVol *Ded::build(const StoredMaterialManager& matManager,
+    GeoVPhysVol *Ded::build(StoredMaterialManager& matManager,
                             const MYSQL& mysql,
                             int cutoutson,
                             const std::vector<Cutout *>& vcutdef) {

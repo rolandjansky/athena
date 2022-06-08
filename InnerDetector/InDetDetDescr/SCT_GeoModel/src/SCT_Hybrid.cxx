@@ -17,7 +17,7 @@
 
 SCT_Hybrid::SCT_Hybrid(const std::string & name,
                        InDetDD::SCT_DetectorManager* detectorManager,
-                       const SCT_GeometryManager* geometryManage,
+                       SCT_GeometryManager* geometryManage,
                        SCT_MaterialManager* materials)
   : SCT_SharedComponentFactory(name, detectorManager, geometryManage, materials)
 {

@@ -37,7 +37,7 @@ class ForDetEnvelopeFactory final : public GeoVDetectorFactory
   // The manager:
   ForDetEnvelopeManager*   m_detectorManager;
    
-  const StoredMaterialManager* m_materialManager;
+  StoredMaterialManager* m_materialManager;
   StoreGateSvc*             m_detectorStore;
 };
 
