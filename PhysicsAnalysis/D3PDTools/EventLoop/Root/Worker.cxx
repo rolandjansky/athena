@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -34,6 +34,7 @@
 #include <EventLoop/OutputStreamData.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/StopwatchModule.h>
+#include <EventLoop/PostClosedOutputsModule.h>
 #include <EventLoop/TEventModule.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
@@ -320,7 +321,6 @@ namespace EL
   Worker ()
   {
     m_worker = this;
-
     RCU_NEW_INVARIANT (this);
   }
 
@@ -386,6 +386,7 @@ namespace EL
     m_modules.push_back (std::make_unique<Detail::FileExecutedModule> ());
     m_modules.push_back (std::make_unique<Detail::EventCountModule> ());
     m_modules.push_back (std::make_unique<Detail::AlgorithmStateModule> ());
+    m_modules.push_back (std::make_unique<Detail::PostClosedOutputsModule> ());
 
     if (m_outputs.find (Job::histogramStreamName) == m_outputs.end())
     {
@@ -393,6 +394,7 @@ namespace EL
         m_outputTarget + "/hist-" + m_segmentName + ".root", "RECREATE"};
       ANA_CHECK (addOutputStream (Job::histogramStreamName, std::move (data)));
     }
+
     RCU_ASSERT (m_outputs.find (Job::histogramStreamName) != m_outputs.end());
     m_histOutput = &m_outputs.at(Job::histogramStreamName);
 
@@ -455,6 +457,10 @@ namespace EL
       ANA_CHECK (module->onWorkerEnd (*this));
     m_histOutput->saveOutput ();
     m_histOutput->close ();
+
+    for (auto& module : m_modules){
+      ANA_CHECK (module->postFileClose(*this));
+    }
     ANA_MSG_INFO ("worker finished successfully");
     return ::StatusCode::SUCCESS;
   }
