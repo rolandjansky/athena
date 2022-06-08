@@ -89,6 +89,8 @@ def STGC_RdoToDigitCfg(flags, name="STGC_RdoToDigitAlg", **kwargs):
         kwargs.setdefault("sTgcRdoContainer", "sTGCRDO")
         kwargs.setdefault("sTgcDigitContainer", "sTGC_DIGITS")
 
+    kwargs.setdefault("sTgcRdoDecoderTool", acc.popToolsAndMerge(STgcRdoDecoderCfg(flags)))
+
     if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, [f'Muon::STGC_RawDataContainer#{kwargs["sTgcRdoContainer"]}']))
@@ -106,6 +108,8 @@ def MM_RdoToDigitCfg(flags, name="MM_RdoToDigitAlg", **kwargs):
     else:
         kwargs.setdefault("MmRdoContainer", "MMRDO")
         kwargs.setdefault("MmDigitContainer", "MM_DIGITS")
+
+    kwargs.setdefault("mmRdoDecoderTool", acc.popToolsAndMerge(MMRdoDecoderCfg(flags)))
 
     if flags.Common.ProductionStep == ProductionStep.Overlay and not flags.Overlay.DataOverlay:
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
