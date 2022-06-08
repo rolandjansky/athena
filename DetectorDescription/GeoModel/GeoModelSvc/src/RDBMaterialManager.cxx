@@ -600,7 +600,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 }
 
 
-const GeoElement *RDBMaterialManager::getElement(const std::string & name) const{
+const GeoElement *RDBMaterialManager::getElement(const std::string & name) {
 	
   unsigned int ind;
 
@@ -651,7 +651,7 @@ const GeoElement *RDBMaterialManager::getElement(const std::string & name) const
 }
 
 
-const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) const {
+const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
 
   unsigned int ind;
 

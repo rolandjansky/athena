@@ -38,10 +38,10 @@ class RDBMaterialManager final : public StoredMaterialManager {
   virtual const GeoMaterial *getMaterial(const std::string &name) override;
  
   // Query the elements:
-  virtual const GeoElement *getElement(const std::string & name) const override;
+  virtual const GeoElement *getElement(const std::string & name) override;
 
   // Query the elements (by atomic number):
-  virtual const GeoElement *getElement(unsigned int atomicNumber) const override;
+  virtual const GeoElement *getElement(unsigned int atomicNumber) override;
 
   // Add new material
   virtual void addMaterial(const std::string& space, GeoMaterial* material) override;
@@ -90,7 +90,7 @@ class RDBMaterialManager final : public StoredMaterialManager {
   IRDBRecordset_ptr m_toromaterials;
   IRDBRecordset_ptr m_toromatcomponents;
 
-  mutable std::vector < GeoElement *>        m_elementVector;
+  std::vector < GeoElement *>        m_elementVector;
   StoredMaterialManager::MaterialMap m_materialMap;
 };
 

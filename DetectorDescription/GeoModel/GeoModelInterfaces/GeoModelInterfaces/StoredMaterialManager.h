@@ -38,10 +38,10 @@ class StoredMaterialManager
   virtual const GeoMaterial* getMaterial(const std::string& name) = 0;
 
   // Query the elements:
-  virtual const GeoElement* getElement(const std::string& name) const = 0;
+  virtual const GeoElement* getElement(const std::string& name) = 0;
 
   // Query the elements (by atomic number):
-  virtual const GeoElement* getElement(unsigned int atomicNumber) const = 0;
+  virtual const GeoElement* getElement(unsigned int atomicNumber) = 0;
 
   // Add new material
   virtual void addMaterial(const std::string& space, GeoMaterial* material) = 0;

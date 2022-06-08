@@ -59,7 +59,7 @@ public:
   const GeoMaterial* getMaterial(const std::string & materialName);
 
   /// Get element from GeoModel material manager
-  const GeoElement* getElement(const std::string & elementName) const;
+  const GeoElement* getElement(const std::string & elementName);
 
   /// Create and get material with a specified density based on an existing material.
   /// If a newName is supplied it creates the new material even if the orginal material
