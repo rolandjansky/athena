@@ -16,9 +16,9 @@ namespace MuonGM {
     class SpacerBeam : public DetectorElement {
       public:
         SpacerBeam(const MYSQL& mysql, Component *s);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            bool);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            int cutoutson, bool);
         virtual void print() override;
 

@@ -39,7 +39,7 @@ namespace MuonGM {
         inline void setFineClashFixingFlag(int value);
 
         MuonChamber(const MYSQL& mysql, Station *s);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            const MYSQL& mysql,
                            MuonDetectorManager *manager, int ieta, int iphi, bool is_mirrored, bool &isAssembly);
         virtual void print() override;

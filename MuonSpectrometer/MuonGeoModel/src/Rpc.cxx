@@ -54,7 +54,7 @@ namespace MuonGM {
             m_nlayers = 3;
     }
 
-    GeoFullPhysVol *Rpc::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Rpc::build(StoredMaterialManager& matManager,
                                const MYSQL& mysql,
                                int minimalgeo) {
         std::vector<Cutout *> vcutdef;
@@ -62,7 +62,7 @@ namespace MuonGM {
         return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Rpc::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Rpc::build(StoredMaterialManager& matManager,
                                const MYSQL& mysql,
                                int minimalgeo, int cutoutson,
                                const std::vector<Cutout *>& vcutdef) {

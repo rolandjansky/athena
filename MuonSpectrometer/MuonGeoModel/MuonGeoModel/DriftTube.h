@@ -25,7 +25,7 @@ namespace MuonGM {
         double gasRadius;
         double plugLength;
 
-        GeoVPhysVol *build(const StoredMaterialManager& matManager);
+        GeoVPhysVol *build(StoredMaterialManager& matManager);
         virtual void print() override;
         DriftTube(const MYSQL& mysql, const std::string& s);
     };

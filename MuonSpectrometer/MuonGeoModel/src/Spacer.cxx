@@ -40,12 +40,12 @@ namespace MuonGM {
         m_component = *s;
     }
 
-    GeoVPhysVol *Spacer::build(const StoredMaterialManager& matManager) {
+    GeoVPhysVol *Spacer::build(StoredMaterialManager& matManager) {
         int cutoutson = 0;
         return build(matManager, cutoutson);
     }
 
-    GeoVPhysVol *Spacer::build(const StoredMaterialManager& matManager, int /*cutoutson*/) {
+    GeoVPhysVol *Spacer::build(StoredMaterialManager& matManager, int /*cutoutson*/) {
         if (name == "SPA06" || name == "SPA01") {
             double excent = m_component.excent;
             double maxwLength = m_component.maxwdy;

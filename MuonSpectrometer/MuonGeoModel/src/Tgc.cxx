@@ -42,7 +42,7 @@ namespace MuonGM {
         index = s->index;
     }
 
-    GeoFullPhysVol *Tgc::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Tgc::build(StoredMaterialManager& matManager,
                                const MYSQL& mysql,
                                int minimalgeo) {
         std::vector<Cutout *> vcutdef;
@@ -50,7 +50,7 @@ namespace MuonGM {
         return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Tgc::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Tgc::build(StoredMaterialManager& matManager,
                                const MYSQL& mysql,
                                int minimalgeo, int cutoutson,
                                const std::vector<Cutout *>& vcutdef) {

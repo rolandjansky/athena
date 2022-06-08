@@ -751,11 +751,11 @@ const GeoMaterial* AGDD2GeoModelBuilder::GetMMMaterial(const std::string& name) 
 }
 
 
-const StoredMaterialManager& AGDD2GeoModelBuilder::GetMaterialManager() const
+StoredMaterialManager& AGDD2GeoModelBuilder::GetMaterialManager() const
 {
-  static const StoredMaterialManager* const matManager = []() {
+  static StoredMaterialManager* const matManager = []() {
     ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "AGDD2GeoModelBuilder");
-    const StoredMaterialManager* mm = nullptr;
+    StoredMaterialManager* mm = nullptr;
     if (detStore->retrieve<StoredMaterialManager>(mm, "MATERIALS").isFailure()) {
       std::abort();
     }

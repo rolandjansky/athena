@@ -38,7 +38,7 @@ namespace MuonGM {
         plugLength = md->tubeEndPlugLength;
     }
 
-    GeoVPhysVol *DriftTube::build(const StoredMaterialManager& matManager) {
+    GeoVPhysVol *DriftTube::build(StoredMaterialManager& matManager) {
         const GeoTube *stube = new GeoTube(0.0, outerRadius, length / 2.0);
         const GeoMaterial *mtube = matManager.getMaterial(tubeMaterial);
         const GeoLogVol *ltube = new GeoLogVol("MDTDriftWall", stube, mtube);

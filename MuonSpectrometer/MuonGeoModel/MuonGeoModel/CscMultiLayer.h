@@ -34,9 +34,9 @@ namespace MuonGM {
 
       public: // methods
         CscMultiLayer(const MYSQL& mysql, const std::string& n);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            const MYSQL& mysql);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager,
+        GeoVPhysVol *build(StoredMaterialManager& matManager,
                            const MYSQL& mysql,
                            int cutoutson,
                            const std::vector<Cutout *>& vcutdef);

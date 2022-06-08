@@ -56,7 +56,7 @@ const GeoMaterial* AGDDMuonStation::GetMMMaterial(const std::string& name) const
 	StatusCode sc=svcLocator->service("DetectorStore",pDetStore);
 	if(sc.isSuccess())
 	{
-                const StoredMaterialManager* theMaterialManager = nullptr;
+                StoredMaterialManager* theMaterialManager = nullptr;
 		sc = pDetStore->retrieve(theMaterialManager, "MATERIALS");
 		if(sc.isSuccess())
         {

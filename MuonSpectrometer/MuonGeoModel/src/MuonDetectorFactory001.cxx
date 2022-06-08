@@ -321,7 +321,7 @@ namespace MuonGM {
         }
         */
 
-        const StoredMaterialManager *theMaterialManager;
+        StoredMaterialManager *theMaterialManager;
         if (StatusCode::SUCCESS != m_pDetStore->retrieve(theMaterialManager, "MATERIALS")) {
             return;
         } else {

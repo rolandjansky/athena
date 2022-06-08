@@ -82,7 +82,7 @@ namespace MuonGM {
         }
     }
 
-    GeoFullPhysVol *MultiLayer::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *MultiLayer::build(StoredMaterialManager& matManager,
                                       const MYSQL& mysql) {
         MsgStream log(Athena::getMessageSvc(), "MultiLayer::build");
 

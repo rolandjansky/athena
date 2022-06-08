@@ -44,14 +44,14 @@ namespace MuonGM {
         index = s->index;
     }
 
-    GeoFullPhysVol *Micromegas::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Micromegas::build(StoredMaterialManager& matManager,
                                       int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
         return build(matManager, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Micromegas::build(const StoredMaterialManager& matManager,
+    GeoFullPhysVol *Micromegas::build(StoredMaterialManager& matManager,
                                       int minimalgeo, int,
                                       const std::vector<Cutout *>&)
     {

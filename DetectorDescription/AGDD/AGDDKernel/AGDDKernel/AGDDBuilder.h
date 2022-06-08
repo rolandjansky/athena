@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDBuilder_H
@@ -61,7 +61,7 @@ public:
 	virtual void BuildFromSection(const std::string&) =0;
 	virtual void BuildFromVolume(const std::string&) =0;
 
-        virtual const StoredMaterialManager& GetMaterialManager() const = 0;
+    virtual StoredMaterialManager& GetMaterialManager() const = 0;
 };
 
 #endif

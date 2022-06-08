@@ -32,10 +32,10 @@ namespace MuonGM {
 
         Rpc(const MYSQL& mysql, Component *s);
         GeoVFullPhysVol *build();
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql,
                               int minimalgeo);
-        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+        GeoFullPhysVol *build(StoredMaterialManager& matManager,
                               const MYSQL& mysql,
                               int minimalgeo, int cutoutson,
                               const std::vector<Cutout *>&);

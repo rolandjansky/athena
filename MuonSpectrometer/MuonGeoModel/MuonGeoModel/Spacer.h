@@ -22,8 +22,8 @@ namespace MuonGM {
         double longWidth; // for trapezoidal layers
 
         Spacer(const MYSQL& mysql, Component *s);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager);
-        GeoVPhysVol *build(const StoredMaterialManager& matManager, int cutoutson);
+        GeoVPhysVol *build(StoredMaterialManager& matManager);
+        GeoVPhysVol *build(StoredMaterialManager& matManager, int cutoutson);
         virtual void print() override;
 
       private:

@@ -77,7 +77,7 @@ public:
 	virtual void BuildFromSection(const std::string&) override;
 	virtual void BuildFromVolume(const std::string&) override;
 
-        virtual const StoredMaterialManager& GetMaterialManager() const override;
+        virtual StoredMaterialManager& GetMaterialManager() const override;
 
 private:
 	GeoPhysVol *m_mother;
