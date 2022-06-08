@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file DataModelTestDataWrite/src/HLTResultWriter.cxx
  * @author snyder@bnl.gov
@@ -70,7 +69,7 @@ HLTResultWriter::HLTResultWriter (const std::string &name,
 /**
  * @brief Algorithm initialization; called at the beginning of the job.
  */
-StatusCode HLTResultWriter::initialize()
+StatusCode HLTResultWriter::initialize ATLAS_NOT_THREAD_SAFE()
 {
   ATH_CHECK( m_resultKey.initialize() );
   ATH_CHECK( m_nav.retrieve() );

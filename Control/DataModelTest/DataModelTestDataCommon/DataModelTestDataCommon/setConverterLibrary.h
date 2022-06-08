@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,7 +12,7 @@
  * @brief Helper to explicitly set library for a converter.
  */
 
-
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ClassID.h"
 #include <string>
 
@@ -24,11 +24,11 @@
 namespace DMTest {
 
 
-void setPluginLibrary (const std::string& name, const std::string& lib);
-void setConverterLibrary (CLID clid, const std::string& lib);
-void setConverterLibrary (const std::string& lib);
-void setTrigConverterLibrary (CLID clid, const std::string& lib);
-void setTrigConverterLibrary (const std::string& lib);
+void setPluginLibrary ATLAS_NOT_THREAD_SAFE (const std::string& name, const std::string& lib);
+void setConverterLibrary ATLAS_NOT_THREAD_SAFE (CLID clid, const std::string& lib);
+void setConverterLibrary ATLAS_NOT_THREAD_SAFE (const std::string& lib);
+void setTrigConverterLibrary ATLAS_NOT_THREAD_SAFE (CLID clid, const std::string& lib);
+void setTrigConverterLibrary ATLAS_NOT_THREAD_SAFE (const std::string& lib);
 
 
 } // namespace DMTest

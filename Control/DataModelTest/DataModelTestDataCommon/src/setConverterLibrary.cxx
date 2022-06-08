@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -22,7 +22,7 @@ using namespace Gaudi::PluginService;
 namespace DMTest {
 
 
-void setPluginLibrary (const std::string& name, const std::string& lib)
+void setPluginLibrary ATLAS_NOT_THREAD_SAFE (const std::string& name, const std::string& lib)
 {
   const Details::Registry& reg = Details::Registry::instance();
   Details::Registry::FactoryMap& map =
@@ -35,14 +35,14 @@ void setPluginLibrary (const std::string& name, const std::string& lib)
 }
 
 
-void setConverterLibrary (CLID clid, const std::string& lib)
+void setConverterLibrary ATLAS_NOT_THREAD_SAFE (CLID clid, const std::string& lib)
 {
   std::string name = "CNV_256_" + std::to_string (clid);
   setPluginLibrary (name, lib);
 }
 
 
-void setConverterLibrary (const std::string& lib)
+void setConverterLibrary ATLAS_NOT_THREAD_SAFE (const std::string& lib)
 {
   setConverterLibrary (9631, lib); // DMTest::BDer
   setConverterLibrary (9632, lib); // DMTest::DDer
@@ -69,14 +69,14 @@ void setConverterLibrary (const std::string& lib)
 }
 
 
-void setTrigConverterLibrary (CLID clid, const std::string& lib)
+void setTrigConverterLibrary ATLAS_NOT_THREAD_SAFE (CLID clid, const std::string& lib)
 {
   std::string name = "CNV_81_" + std::to_string (clid);
   setPluginLibrary (name, lib);
 }
 
 
-void setTrigConverterLibrary (const std::string& lib)
+void setTrigConverterLibrary ATLAS_NOT_THREAD_SAFE (const std::string& lib)
 {
   setTrigConverterLibrary (9781, lib); // DMTest::HVec
   setTrigConverterLibrary (9782, lib); // DMTest::HAuxContainer

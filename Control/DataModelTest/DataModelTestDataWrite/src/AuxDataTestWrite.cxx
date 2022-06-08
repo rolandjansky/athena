@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -67,16 +67,16 @@ StatusCode AuxDataTestWrite::execute()
   auto store = std::make_unique<SG::AuxStoreInternal>();
   vec->setStore (store.get());
 
-  static BAux::Accessor<int> anInt1 ("anInt1");
-  static BAux::Accessor<float> aFloat1 ("aFloat1");
-  static BAux::Accessor<ElementLink<BAuxVec> > anEL ("anEL");
-  static BAux::Accessor<DMTest::B> aB ("aB");
-  static BAux::Decorator<float> dFloat1 ("dFloat1");
+  static const BAux::Accessor<int> anInt1 ("anInt1");
+  static const BAux::Accessor<float> aFloat1 ("aFloat1");
+  static const BAux::Accessor<ElementLink<BAuxVec> > anEL ("anEL");
+  static const BAux::Accessor<DMTest::B> aB ("aB");
+  static const BAux::Decorator<float> dFloat1 ("dFloat1");
 
-  static BAux::Accessor<unsigned int> pint ("pint");
-  static BAux::Accessor<float> pfloat ("pfloat");
-  static BAux::Accessor<std::vector<int> > pvint ("pvint");
-  static BAux::Accessor<std::vector<float> > pvfloat ("pvfloat");
+  static const BAux::Accessor<unsigned int> pint ("pint");
+  static const BAux::Accessor<float> pfloat ("pfloat");
+  static const BAux::Accessor<std::vector<int> > pvint ("pvint");
+  static const BAux::Accessor<std::vector<float> > pvfloat ("pvfloat");
 
   CHECK_OPTION( vec->setOption ("pint", "nbits", 3) );
   CHECK_OPTION( vec->setOption ("pvfloat", SG::AuxDataOption ("nbits", 13)) );

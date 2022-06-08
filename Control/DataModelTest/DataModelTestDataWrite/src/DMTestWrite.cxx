@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DMTestWrite.cxx,v 1.8 2008-11-22 02:03:44 ssnyder Exp $
 /**
  * @file  src/DMTestWrite.cxx
  * @author snyder@bnl.gov
@@ -40,17 +39,8 @@ namespace DMTest {
  * @param svc The service locator.
  */
 DMTestWrite::DMTestWrite (const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm (name, pSvcLocator)
+  : AthReentrantAlgorithm (name, pSvcLocator)
 {
-}
-
-
-/**
- * @brief Algorithm initialization; called at the beginning of the job.
- */
-StatusCode DMTestWrite::initialize()
-{
-  return StatusCode::SUCCESS;
 }
 
 
@@ -156,28 +146,18 @@ StatusCode remap_test (StoreGateSvc* sg, int istart, MsgStream& log)
 /**
  * @brief Algorithm event processing.
  */
-StatusCode DMTestWrite::execute()
+StatusCode DMTestWrite::execute(const EventContext& ctx) const
 {
+  const unsigned int i = ctx.eventID().event_number();
   // Make one instance of each container.
-  MsgStream log(msgSvc(), name());
-  static int i = 0;
   StoreGateSvc* sg = &*evtStore();
   CHECK( make_vec<BVec> (sg, 10,   0+i, "bvec", name()) );
   CHECK( make_vec<BDer> (sg, 10, 100+i, "bder", name()) );
   CHECK( make_vec<DVec> (sg, 10, 200+i, "dvec", name()) );
   CHECK( make_vec<DDer> (sg, 10, 300+i, "dder", name()) );
   CHECK( make_elvec (sg, "elvec", name()) );
-  CHECK( remap_test (sg, i, log) );
-  ++i;
-  return StatusCode::SUCCESS;
-}
+  CHECK( remap_test (sg, i, msg()) );
 
-
-/**
- * @brief Algorithm finalization; called at the end of the job.
- */
-StatusCode DMTestWrite::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
