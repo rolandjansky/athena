@@ -128,7 +128,7 @@ StatusCode RCJetMC15::initialize() {
 
     // Setup a bunch of FastJet stuff
     //define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
-    m_jet_def_rebuild = std::make_unique<fastjet::JetDefinition>(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme,
+    m_jet_def_rebuild = std::make_unique<fastjet::JetDefinition>(fastjet::antikt_algorithm, 10.0, fastjet::E_scheme,
                                                                  fastjet::Best);
     //Substructure tool definitions
     m_nSub1_beta1 = std::make_unique<fastjet::contrib::Nsubjettiness>(1,
@@ -340,8 +340,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
 	  fastjet::PseudoJet correctedJet;
 	  correctedJet = my_pjets[0];
-	  //Sometimes fastjet splits the jet into two, so need to correct for that!!
-	  if (my_pjets.size() > 1) correctedJet += my_pjets[1];
+	  if (my_pjets.size() > 1)  ATH_MSG_WARNING("WARNING::the jet is split and the RC-jets substructure makes no sense");
 
 	  
 	  // Now finally we can calculate some substructure!
