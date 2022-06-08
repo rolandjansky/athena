@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_RDBMATERIALMANAGER_H
@@ -38,13 +38,13 @@ class RDBMaterialManager final : public StoredMaterialManager {
   virtual const GeoMaterial *getMaterial(const std::string &name) override;
  
   // Query the elements:
-  virtual const GeoElement *getElement(const std::string & name) const override;
+  virtual const GeoElement *getElement(const std::string & name) override;
 
   // Query the elements (by atomic number):
-  virtual const GeoElement *getElement(unsigned int atomicNumber) const override;
+  virtual const GeoElement *getElement(unsigned int atomicNumber) override;
 
   // Add new material
-  virtual void addMaterial(const std::string& space, GeoMaterial* material) const override;
+  virtual void addMaterial(const std::string& space, GeoMaterial* material) override;
 
   virtual StoredMaterialManager::MaterialMapIterator begin() const override;
   virtual StoredMaterialManager::MaterialMapIterator end() const override;
@@ -55,11 +55,10 @@ class RDBMaterialManager final : public StoredMaterialManager {
   virtual std::ostream & printAll(std::ostream & o=std::cout) const override;
 
  private:
-  static bool s_specialMaterials;
 
   StatusCode readMaterialsFromDB(ISvcLocator* pSvcLocator);
 
-  void buildSpecialMaterials() const;
+  void buildSpecialMaterials();
 
   GeoElement *searchElementVector (const std::string & name) const;
   GeoElement *searchElementVector (const unsigned int atomicNumber) const;
@@ -91,8 +90,8 @@ class RDBMaterialManager final : public StoredMaterialManager {
   IRDBRecordset_ptr m_toromaterials;
   IRDBRecordset_ptr m_toromatcomponents;
 
-  mutable std::vector < GeoElement *>        m_elementVector;
-  mutable StoredMaterialManager::MaterialMap m_materialMap;
+  std::vector < GeoElement *>        m_elementVector;
+  StoredMaterialManager::MaterialMap m_materialMap;
 };
 
 

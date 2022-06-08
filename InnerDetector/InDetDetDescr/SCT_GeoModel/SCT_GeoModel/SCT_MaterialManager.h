@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_MATERIALMANAGER_H
@@ -25,7 +25,7 @@ public:
   SCT_MaterialManager(SCT_DataBase* db);
 
   const GeoMaterial* getMaterial(const std::string & materialName);
-  const GeoElement* getElement(const std::string & elementName) const;
+  const GeoElement* getElement(const std::string & elementName);
 
   const GeoMaterial* getMaterial(const std::string & originalMaterial, 
 				 double density,  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RDBMaterialManager.h"
@@ -28,7 +28,6 @@
 #include <iostream>
 #include <stdexcept>
 
-bool RDBMaterialManager::s_specialMaterials = false;
 
 //---------------------------Help find elements in the list-----------------------//
 class NameEquals {                                                                //
@@ -415,17 +414,14 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 	
   std::string matcomponents_table;
 
-  if(!s_specialMaterials)
-  {
+  [[maybe_unused]] static const bool specialMaterialsDone = [this]() {
     buildSpecialMaterials();
-    s_specialMaterials = true;
-  }
+    return true;
+  }();
 
-	
   GeoMaterial* pmaterial;
-	
-  GeoMaterial* p_com_material;
-  GeoElement*  p_com_element;
+
+  const GeoElement*  p_com_element;
 	
   IRDBRecordset_ptr tmp_materials;
   IRDBRecordset_ptr tmp_matcomponents;
@@ -543,7 +539,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
   bool hasSubMaterial = false;
   bool calculateFraction = false;
   double totalFraction = 0.;
-  std::vector < GeoElement* > elementComponents;
+  std::vector <const GeoElement*> elementComponents;
   std::vector <double>        elementFractions;
 
   for(  com_ind = 0; com_ind <tmp_matcomponents->size(); com_ind++)
@@ -565,7 +561,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 
 	  if( CheckElement( component_name) == 1)
 	    {
-	      p_com_element = (GeoElement *)(getElement(component_name));
+	      p_com_element = getElement(component_name);
 
 	      if(calculateFraction)
 	      {
@@ -579,8 +575,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 	    }
 	  else{
 	    hasSubMaterial = true;
-	    p_com_material = (GeoMaterial  *)getMaterial(component_name);
-
+	    const GeoMaterial* p_com_material = getMaterial(component_name);
 	    pmaterial->add(p_com_material, component_fraction);
 			
 	  }		
@@ -596,14 +591,14 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
       pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA() * inv_totalFraction);
   }
 
-  // a table to keep the memory allocation, and easy for delete 
+  // a table to keep the memory allocation, and easy for delete
   addMaterial(detector,pmaterial);
 	
   return pmaterial;
 }
 
 
-const GeoElement *RDBMaterialManager::getElement(const std::string & name) const{
+const GeoElement *RDBMaterialManager::getElement(const std::string & name) {
 	
   unsigned int ind;
 
@@ -654,7 +649,7 @@ const GeoElement *RDBMaterialManager::getElement(const std::string & name) const
 }
 
 
-const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) const {
+const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
 
   unsigned int ind;
 
@@ -695,7 +690,7 @@ const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) cons
   return pelement;
 }
 
-void RDBMaterialManager::addMaterial(const std::string & /*space*/, GeoMaterial *material) const {
+void RDBMaterialManager::addMaterial(const std::string & /*space*/, GeoMaterial *material) {
 	
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
@@ -747,7 +742,7 @@ std::ostream &  RDBMaterialManager::printAll(std::ostream & o) const
   return o;
 }
 
-void RDBMaterialManager::buildSpecialMaterials() const
+void RDBMaterialManager::buildSpecialMaterials()
 {
   // Create special materials
   GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);

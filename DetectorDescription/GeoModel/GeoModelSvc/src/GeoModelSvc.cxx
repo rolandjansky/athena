@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoBox.h"
@@ -73,7 +73,8 @@ GeoModelSvc::~GeoModelSvc()
   delete m_sqliteReader;
 }
 
-StatusCode GeoModelSvc::initialize()
+StatusCode GeoModelSvc::initialize ATLAS_NOT_THREAD_SAFE()
+//                                 ^ due to IGeoModelTool::registerCallback
 {
   if(m_sqliteDb.empty() && m_supportedGeometry==0) {
     ATH_MSG_FATAL("The Supported Geometry flag was not set in Job Options! Exiting ...");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEOMODELSVC_H
@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
@@ -29,7 +30,7 @@ class GeoModelSvc : public AthService, virtual public IGeoModelSvc,
 {
 public:
 
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
     virtual StatusCode finalize() override;
 
     // Query the interfaces.

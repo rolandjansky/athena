@@ -94,7 +94,7 @@ InDetMaterialManager::retrieveManager(const StoreGateSvc* detStore) {
 }
 
 const GeoElement*
-InDetMaterialManager::getElement(const std::string& elementName) const {
+InDetMaterialManager::getElement(const std::string& elementName) {
   return m_materialManager->getElement(elementName);
 }
 
