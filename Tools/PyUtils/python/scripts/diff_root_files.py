@@ -234,7 +234,33 @@ def main(args):
             pass
         msg.info('comparing over [%s] entries...', itr_entries)
 
+        @cache
+        def skip_leaf(name_from_dump, skip_leaves):
+            """ Here decide if the current leaf should be skipped.
+            Previously the matching was done based on the full or partial
+            leaf name. E.g. foo.bar.zzz would be skipped if any of the
+            following were provided:
+                * foo
+                * foo.bar
+                * foo.bar.zzz
+                * Any of the foo, bar, or zzz
+            Now, we make a regex matching such that the user doesn't
+            need to provide full branch names.
+            """
+            for pattern in skip_leaves:
+                try:
+                    m = re.match(pattern, name_from_dump)
+                except TypeError:
+                    continue
+                if m:
+                    return True
+            else:
+                return False
+
+        skipset = frozenset(args.ignore_leaves)
         old_leaves = infos['old']['leaves'] - infos['new']['leaves']
+        old_leaves = set(
+            l for l in old_leaves if not skip_leaf(l, skipset))
         if old_leaves:
             old_leaves_list = list(old_leaves)
             old_leaves_list.sort()
@@ -247,6 +273,8 @@ def main(args):
                 for l in old_leaves_list:
                     msg.warning(' - [%s]', l)
         new_leaves = infos['new']['leaves'] - infos['old']['leaves']
+        new_leaves = set(
+            l for l in new_leaves if not skip_leaf(l, skipset))
         if new_leaves:
             new_leaves_list = list(new_leaves)
             new_leaves_list.sort()
@@ -355,29 +383,6 @@ def main(args):
                 return None
             else:
                 return [int(s) for s in entry[2] if s.isdigit()]
-
-        @cache
-        def skip_leaf(name_from_dump, skip_leaves):
-            """ Here decide if the current leaf should be skipped.
-            Previously the matching was done based on the full or partial
-            leaf name. E.g. foo.bar.zzz would be skipped if any of the
-            following were provided:
-                * foo
-                * foo.bar
-                * foo.bar.zzz
-                * Any of the foo, bar, or zzz
-            Now, we make a regex matching such that the user doesn't
-            need to provide full branch names.
-            """
-            for pattern in skip_leaves:
-                try:
-                    m = re.match(pattern, name_from_dump)
-                except TypeError:
-                    continue
-                if m:
-                    return True
-            else:
-                return False
 
         def reach_next(dump_iter, skip_leaves, leaves_prefix=None):
             keep_reading = True
