@@ -29,11 +29,9 @@ StatusCode TrigT1CTMonitoring::BSMonitoringAlgorithm::initialize() {
   ATH_CHECK( m_EventInfoKey.initialize() );
 
   //COOL access
-  ATH_CHECK( m_LBLBFolderInputKey.initialize() );
-  if (!m_isSim){
-    ATH_CHECK( m_FILLSTATEFolderInputKey.initialize() );
-    ATH_CHECK( m_DataTakingModeFolderInputKey.initialize() );
-  }
+  ATH_CHECK( m_LBLBFolderInputKey.initialize(!m_isSim) );
+  ATH_CHECK( m_FILLSTATEFolderInputKey.initialize(!m_isSim) );
+  ATH_CHECK( m_DataTakingModeFolderInputKey.initialize(!m_isSim) );
 
   ATH_MSG_INFO("Printing the BSMonitoringAlgorithm Configuration: ");
   ATH_MSG_INFO("InclusiveTriggerThresholds: " << m_inclusiveTriggerThresholds);
@@ -928,18 +926,20 @@ TrigT1CTMonitoring::BSMonitoringAlgorithm::doCtp(const CTP_RDO* theCTP_RDO,
   uint64_t lb_stime = 0;
   uint64_t lb_etime = 0;
   bool retrievedLumiBlockTimes = false;
-  SG::ReadCondHandle<AthenaAttributeList> lblb(m_LBLBFolderInputKey, ctx);
-  const AthenaAttributeList* lblbattrList{*lblb};
-  if (lblbattrList==nullptr) {
-    ATH_MSG_WARNING("Failed to retrieve /TRIGGER/LUMI/LBLB " << m_LBLBFolderInputKey.key() << " not found");
-  }
-  else {
-    retrievedLumiBlockTimes = true;
-    auto lb_stime_loc = (*lblbattrList)["StartTime"].data<cool::UInt63>();
-    auto lb_etime_loc = (*lblbattrList)["EndTime"].data<cool::UInt63>();
-    lb_stime = lb_stime_loc;
-    lb_etime = lb_etime_loc;
-    ATH_MSG_DEBUG("lb_stime: " << lb_stime << " lb_etime: " << lb_etime );
+  if (!m_isSim) {
+    SG::ReadCondHandle<AthenaAttributeList> lblb(m_LBLBFolderInputKey, ctx);
+    const AthenaAttributeList* lblbattrList{*lblb};
+    if (lblbattrList==nullptr) {
+      ATH_MSG_WARNING("Failed to retrieve /TRIGGER/LUMI/LBLB " << m_LBLBFolderInputKey.key() << " not found");
+    }
+    else {
+      retrievedLumiBlockTimes = true;
+      auto lb_stime_loc = (*lblbattrList)["StartTime"].data<cool::UInt63>();
+      auto lb_etime_loc = (*lblbattrList)["EndTime"].data<cool::UInt63>();
+      lb_stime = lb_stime_loc;
+      lb_etime = lb_etime_loc;
+      ATH_MSG_DEBUG("lb_stime: " << lb_stime << " lb_etime: " << lb_etime );
+    }
   }
 
   //currentBeamMode

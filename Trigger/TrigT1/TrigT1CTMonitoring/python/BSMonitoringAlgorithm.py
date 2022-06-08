@@ -21,10 +21,6 @@ def BSMonitoringConfig(inputFlags):
     # get any algorithms
     BSMonAlg = helper.addAlgorithm(CompFactory.TrigT1CTMonitoring.BSMonitoringAlgorithm,'BSMonAlg')
 
-    # add any steering
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    from RecExConfig.RecFlags import rec
-    from PyUtils.MetaReaderPeeker import metadata
 
     # default values:
     ProcessRoIBResult = True
@@ -34,17 +30,11 @@ def BSMonitoringConfig(inputFlags):
     RunOnESD = False
     CompareRerun = False
     ProcessCTPData = True
-    isSimulation = False
-
-    #info('In BSMonitoringConfig: eventTypes: %s ', metadata['eventTypes'] )
-    if 'IS_SIMULATION' in metadata['eventTypes']:
-        isSimulation = True
-    else:
-        isSimulation = False
+    isSimulation = inputFlags.Input.isMC
 
     info('In BSMonitoringConfig SIM or not?: %s', isSimulation)
     #-----------ONLINE CODE---------------------
-    if athenaCommonFlags.isOnline():
+    if inputFlags.Common.isOnline:
         #info('In BSMonitoringConfig: isOnline')
         ProcessRoIBResult = True
         InclusiveTriggerThresholds = True
@@ -79,8 +69,8 @@ def BSMonitoringConfig(inputFlags):
                 #CTPMonSeq += L1MuctpiPhase1_on_Data("MUCTPI_AthTool") # MUCTPI_AthAlgCfg(ConfigFlags) #L1MuctpiPhase1() #L1MuctpiPhase1_on_Data()
                 
         # check if global muons are on 
-        if not rec.doMuon:
-            if 'IS_SIMULATION' not in metadata['eventTypes']:
+        if not inputFlags.Reco.EnableCombinedMuon:
+            if isSimulation:
                 info('In BSMonitoringConfig: rec.doMuon=True & DATA')
                 ProcessRoIBResult = False
                 InclusiveTriggerThresholds = False
@@ -96,7 +86,7 @@ def BSMonitoringConfig(inputFlags):
                 RunOnESD = True
                 CompareRerun = False
         else:
-            if 'IS_SIMULATION' not in metadata['eventTypes']:
+            if isSimulation:
                 info('In BSMonitoringConfig: rec.doMuon=False & DATA')
                 ProcessRoIBResult = True
                 ProcessMuctpiData = True
