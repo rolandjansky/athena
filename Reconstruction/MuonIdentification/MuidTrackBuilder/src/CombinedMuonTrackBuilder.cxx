@@ -346,15 +346,15 @@ namespace Rec {
         }
 
         // no combined muon when failure to intersect calo
-        if (!muonTrack) return nullptr;              
+        if (!muonTrack) return nullptr;             
+        
         if (msgLevel(MSG::DEBUG)) countAEOTs(muonTrack.get(), " muonTrack track before fit ");
 
         // combined track fit
         std::unique_ptr<Trk::Track> combinedTrack{fit(ctx, indetTrack, *muonTrack, m_cleanCombined, Trk::muon)};
 
         // quit if fit failure or all MS measurements removed by fit or perigee outside indet
-        bool haveMS = false;
-        bool perigeeOutside = false;
+        bool haveMS {false}, perigeeOutside{false};
 
         if (combinedTrack) {
             if (msgLevel(MSG::DEBUG)) countAEOTs(combinedTrack.get(), " combinedTrack track after fit ");
@@ -396,8 +396,7 @@ namespace Rec {
         }
 
         // Get parameters at calo position
-        const Trk::TrackParameters* combinedEnergyParameters = nullptr;
-        const Trk::TrackParameters* muonEnergyParameters = nullptr;
+        const Trk::TrackParameters* combinedEnergyParameters{nullptr}, *muonEnergyParameters{nullptr};
         const CaloEnergy* caloEnergy {caloEnergyParameters(combinedTrack.get(), muonTrack.get(), combinedEnergyParameters, muonEnergyParameters)};
 
         if (!caloEnergy) {
@@ -1048,9 +1047,6 @@ namespace Rec {
             for (; s != prefit_tsos->end(); ++s) { spectrometerTSOS.emplace_back((*s)->clone()); }
         }
 
-        // update rot's (but not from trigger chambers) using TrackParameters
-        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultType;
-        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type = defaultType;
         if (m_redoRots) {
             // recalibration: correct rots
             for (std::unique_ptr<const Trk::TrackStateOnSurface>& t : spectrometerTSOS) {
@@ -1073,11 +1069,8 @@ namespace Rec {
                 }
 
                 if (updatedRot) {
-                    type = defaultType;
-                    type.set(Trk::TrackStateOnSurface::Measurement);
-                    if (t->type(Trk::TrackStateOnSurface::Outlier)) { type.set(Trk::TrackStateOnSurface::Outlier); }
-                    t = std::make_unique<Trk::TrackStateOnSurface>(std::move(updatedRot), t->trackParameters()->uniqueClone(), nullptr,
-                                                                   nullptr, type);
+                    t = Muon::MuonTSOSHelper::createMeasTSOS(std::move(updatedRot), t->trackParameters()->uniqueClone(), 
+                                                t->type(Trk::TrackStateOnSurface::Outlier) ? Trk::TrackStateOnSurface::Outlier: Trk::TrackStateOnSurface::Measurement);
                 }
             }
         }
@@ -1102,9 +1095,8 @@ namespace Rec {
                 Trk::TrackStates trackStateOnSurfaces{};
                 trackStateOnSurfaces.reserve(badfit->trackStateOnSurfaces()->size() + 1);
 
-                type = defaultType;
+                std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type{};
                 type.set(Trk::TrackStateOnSurface::Perigee);
-
                 std::unique_ptr<Trk::PseudoMeasurementOnTrack> vertexInFit =
                     vertexOnTrack(*badfit->perigeeParameters(), mvertex.get(), mbeamAxis.get());
 
@@ -1823,8 +1815,10 @@ namespace Rec {
 
         // quit if fit has failed
         if (!fittedTrack) return nullptr;
+         
 
-        if (!checkTrack("fitInterface1", fittedTrack.get(), fittedTrack.get())) { return nullptr; }
+        if (!checkTrack("fitInterface1", fittedTrack.get(), fittedTrack.get())) return nullptr; 
+        
 
         // eventually this whole tool will use unique_ptrs
         // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
@@ -1832,21 +1826,19 @@ namespace Rec {
         if (runOutlier) {
             // fit with optimized spectrometer errors
 
+            const double chi2BeforeOptimizer = normalizedChi2(*fittedTrack);
             if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) &&
                 optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
                 std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack, ctx);
-
-                if (optimizedTrack) {
-                    if (checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrack.get())) {
-                        fittedTrack.swap(optimizedTrack);
-                        if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " re fit scaled errors Track ");
-                    }
+                if (optimizedTrack && checkTrack("fitInterface1Opt", optimizedTrack.get(), fittedTrack.get()) && chi2BeforeOptimizer > normalizedChi2(*optimizedTrack)) {
+                    fittedTrack.swap(optimizedTrack);
+                    if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " re fit scaled errors Track ");                    
                 }
             }
 
             // chi2 before clean
-            double chi2Before = normalizedChi2(*fittedTrack);
+            const double chi2Before = normalizedChi2(*fittedTrack);
 
             // muon cleaner
             ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
@@ -1862,7 +1854,7 @@ namespace Rec {
 
             if (!cleanTrack) {
                 if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
-                    ATH_MSG_DEBUG(" cleaner veto A ");
+                    ATH_MSG_DEBUG(" cleaner veto A "<<chi2Before<<" "<<m_badFitChi2<<" "<<m_printer->printMeasurements(*fittedTrack) );
                     ++m_countStandaloneCleanerVeto;
                     fittedTrack.reset();
                 } else {
@@ -1885,8 +1877,6 @@ namespace Rec {
                                                                << m_printer->printStations(*fittedTrack));
             }
         }
-
-        // have to use release until the whole tool uses unique_ptr
         return fittedTrack;
     }
 
@@ -2041,11 +2031,7 @@ namespace Rec {
         
         std::unique_ptr<Trk::Track> fittedTrack(fitter->fit(ctx, indetTrack, extrapolatedTrack, false, particleHypothesis));
 
-        if (!fittedTrack) return nullptr;
-
-        // eventually this whole tool will use unique_ptrs
-        // in the meantime, this allows the MuonErrorOptimisationTool and MuonRefitTool to use them
-
+        if (!fittedTrack) return nullptr;        
         // track cleaning
         if (runOutlier) {
             // fit with optimized spectrometer errors
@@ -2054,14 +2040,15 @@ namespace Rec {
                 optimizeErrors(ctx, fittedTrack.get())) {
                 ATH_MSG_VERBOSE(" perform spectrometer error optimization after cleaning ");
                 std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack, ctx);
-                if (optimizedTrack) {
+                if (optimizedTrack && checkTrack("Error opt", optimizedTrack.get(),fittedTrack.get()) &&
+                    normalizedChi2(*optimizedTrack) < normalizedChi2(*fittedTrack)) {
                     fittedTrack.swap(optimizedTrack);
                     if (msgLevel(MSG::DEBUG)) countAEOTs(fittedTrack.get(), " cbfit scaled errors Track ");
                 }
             }
 
             // chi2 before clean
-            double chi2Before = normalizedChi2(*fittedTrack.get());
+            double chi2Before = normalizedChi2(*fittedTrack);
 
             // muon cleaner
             ATH_MSG_VERBOSE(" perform track cleaning... " << m_printer->print(*fittedTrack) << std::endl
@@ -2073,7 +2060,7 @@ namespace Rec {
 
             if (!cleanTrack) {
                 if (m_allowCleanerVeto && chi2Before > m_badFitChi2) {
-                    ATH_MSG_DEBUG(" cleaner veto C");
+                    ATH_MSG_DEBUG("cleaner veto C "<<chi2Before<<" Cut: "<<m_badFitChi2);
                     ++m_countCombinedCleanerVeto;
                     fittedTrack.reset();
                 } else {
@@ -3800,9 +3787,7 @@ namespace Rec {
             if (!par->covariance()) { continue; }
             if (!Amg::saneCovarianceDiagonal(*par->covariance())) {
                 ATH_MSG_DEBUG(Amg::toString(*par->covariance()));
-                ATH_MSG_DEBUG(
-                    "covariance matrix has negative diagonal element, "
-                    "killing track");
+                ATH_MSG_DEBUG("covariance matrix has negative diagonal element, killing track");
                 return false;
             }
         }
