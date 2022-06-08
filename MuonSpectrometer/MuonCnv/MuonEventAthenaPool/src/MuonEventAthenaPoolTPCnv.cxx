@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // generate the T/P converter entries
@@ -33,10 +33,12 @@
 #include "TgcRawDataCnv_p1.h"
 #include "TgcRawDataCnv_p2.h"
 #include "TgcRawDataCnv_p3.h"
+#include "TgcRawDataCnv_p4.h"
 
 #include "TgcRdoCnv_p1.h"
 #include "TgcRdoCnv_p2.h"
 #include "TgcRdoCnv_p3.h"
+#include "TgcRdoCnv_p4.h"
 
 #include "TgcL1RawDataCnv_p1.h"
 #include "TgcL1RdoCnv_p1.h"
@@ -44,6 +46,7 @@
 #include "TgcRdoContainerCnv_p1.h"
 #include "TgcRdoContainerCnv_p2.h"
 #include "TgcRdoContainerCnv_p3.h"
+#include "TgcRdoContainerCnv_p4.h"
 
 #include "TgcL1RdoContainerCnv_p1.h"
 
@@ -176,6 +179,11 @@ DECLARE_TPCNV_FACTORY(TgcRawDataCnv_p3,
                       TgcRawData_p3,
                       Athena::TPCnvVers::Current)
 
+DECLARE_TPCNV_FACTORY(TgcRawDataCnv_p4,
+                      TgcRawData,
+                      TgcRawData_p4,
+                      Athena::TPCnvVers::Old)
+
 
 DECLARE_TPCNV_FACTORY(TgcRdoCnv_p1,
                       TgcRdo,
@@ -191,6 +199,11 @@ DECLARE_TPCNV_FACTORY(TgcRdoCnv_p3,
                       TgcRdo,
                       TgcRdo_p3,
                       Athena::TPCnvVers::Current)
+
+DECLARE_TPCNV_FACTORY(TgcRdoCnv_p4,
+                      TgcRdo,
+                      TgcRdo_p4,
+                      Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(TgcL1RdoCnv_p1,
                       TgcL1Rdo,
@@ -211,6 +224,11 @@ DECLARE_TPCNV_FACTORY(TgcRdoContainerCnv_p3,
                       TgcRdoContainer,
                       TgcRdoContainer_p3,
                       Athena::TPCnvVers::Current)
+
+DECLARE_TPCNV_FACTORY(TgcRdoContainerCnv_p4,
+                      TgcRdoContainer,
+                      TgcRdoContainer_p4,
+                      Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(TgcL1RdoContainerCnv_p1,
                       TgcL1RdoContainer,
