@@ -47,7 +47,7 @@ class LUCID_DetectorFactory : public GeoVDetectorFactory {
   LUCID_DetectorFactory(const LUCID_DetectorFactory &right);
   
   LUCID_DetectorManager*       m_detectorManager;   
-  const StoredMaterialManager* m_materialManager;
+  StoredMaterialManager* m_materialManager;
   StoreGateSvc*                m_detectorStore;
   IRDBAccessSvc*               m_access;
   LUCID_RDBAccess*             m_lp;

@@ -106,7 +106,7 @@ class ALFA_DetectorFactory : public GeoVDetectorFactory
   
 	private:
 		void SaveGeometry();
-		void DefineMaterials (const StoredMaterialManager* pMaterialManager);
+		void DefineMaterials (StoredMaterialManager* pMaterialManager);
 		void ConstructUFiberCladdings(const eRPotName eRPName, GeoFullPhysVol* pMotherVolume, const HepGeom::Transform3D& MotherTransform, GeoAlignableTransform* pDetTransform);
 		void ConstructVFiberCladdings(const eRPotName eRPName, GeoFullPhysVol* pMotherVolume, const HepGeom::Transform3D& MotherTransform, GeoAlignableTransform* pDetTransform);
 		void ConstructODFiberCladdings(const eRPotName eRPName, GeoFullPhysVol* pPhysMotherVolume, const HepGeom::Transform3D& MotherTransform, GeoAlignableTransform* pDetTransform);

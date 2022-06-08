@@ -220,7 +220,7 @@ void ALFA_DetectorFactory::SaveGeometry()
 	}
 }
 
-void ALFA_DetectorFactory::DefineMaterials (const StoredMaterialManager* pMaterialManager)
+void ALFA_DetectorFactory::DefineMaterials (StoredMaterialManager* pMaterialManager)
 {
 	string MatName;
 	GeoMaterial* pMaterial;
@@ -700,7 +700,7 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	// Create ALFA_ Detector Manager
 	m_pDetectorManager= new ALFA_DetectorManager();
 	// Retrieve material manager
-        const StoredMaterialManager* pMaterialManager = nullptr;
+        StoredMaterialManager* pMaterialManager = nullptr;
 	if (m_pDetectorStore->retrieve(pMaterialManager, std::string("MATERIALS"))!=StatusCode::SUCCESS){
 		LogStream<<MSG::INFO<<"Could not load material manager"<<endmsg;
 		return;
