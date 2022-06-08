@@ -2023,6 +2023,8 @@ HLT_e9_lhvloose_nogsf_bBeeM6000_L1BPH-0DR3-EM7J15:
     4: 3
 HLT_fslrt0_L14J15:
   eventCount: 0
+HLT_fslrt0_L1All:
+  eventCount: 0
 HLT_fslrt0_L1J100:
   eventCount: 0
 HLT_fslrt0_L1XE50:
