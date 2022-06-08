@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,6 +18,7 @@
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigNavigation/Navigation.h"
@@ -48,7 +49,7 @@ public:
   /**
    * @brief Algorithm initialization; called at the beginning of the job.
    */
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
 
 
   /**

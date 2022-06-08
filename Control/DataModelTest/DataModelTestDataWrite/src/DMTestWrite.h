@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DMTestWrite.h,v 1.2 2007-01-31 03:06:38 ssnyder Exp $
 
 /**
  * @file  DataModelTestDataWrite/src/DMTestWrite.h
@@ -24,7 +23,7 @@
 #define DATAMODELTESTDATAWRITE_DMTESTWRITE_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 
 namespace DMTest {
@@ -34,7 +33,7 @@ namespace DMTest {
  * @brief Algorithm for creating test data.
  */
 class DMTestWrite
-  : public AthAlgorithm
+  : public AthReentrantAlgorithm
 {
 public:
   /**
@@ -43,24 +42,11 @@ public:
    * @param svc The service locator.
    */
   DMTestWrite (const std::string &name, ISvcLocator *pSvcLocator);
-  
-
-  /**
-   * @brief Algorithm initialization; called at the beginning of the job.
-   */
-  virtual StatusCode initialize();
-
 
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute(); 
-
-
-  /**
-   * @brief Algorithm finalization; called at the end of the job.
-   */
-  virtual StatusCode finalize();
+  virtual StatusCode execute(const EventContext& ctx) const override;
 };
 
 

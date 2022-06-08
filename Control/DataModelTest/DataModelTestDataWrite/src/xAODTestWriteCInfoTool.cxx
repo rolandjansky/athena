@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -63,8 +63,8 @@ StatusCode xAODTestWriteCInfoTool::doit (const EventContext& ctx) const
   auto info_store = std::make_unique<DMTest::CInfoAuxContainer>();
   cinfo->setStore (info_store.get());
 
-  static C::Accessor<int> anInt2 ("anInt2");
-  static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
+  static const C::Accessor<int> anInt2 ("anInt2");
+  static const C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
   cinfo->setAnInt (count * 1000);
   cinfo->setAFloat ((float)count * 0.1);

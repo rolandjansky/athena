@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -84,13 +84,13 @@ StatusCode xAODTestWrite::execute (const EventContext& ctx) const
   auto trig_store = std::make_unique<DMTest::CTrigAuxContainer>();
   trig_coll->setStore (trig_store.get());
 
-  static C::Accessor<int> anInt2 ("anInt2");
-  static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
+  static const C::Accessor<int> anInt2 ("anInt2");
+  static const C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
-  //static C::Decorator<SG::PackedElement<unsigned int> > dpInt1 ("dpInt1");
-  //static C::Decorator<SG::PackedElement<std::vector<float> > > dpvFloat ("dpvFloat");
-  static C::Decorator<unsigned int> dpInt1 ("dpInt1");
-  static C::Decorator<std::vector<float> > dpvFloat ("dpvFloat");
+  //static const C::Decorator<SG::PackedElement<unsigned int> > dpInt1 ("dpInt1");
+  //static const C::Decorator<SG::PackedElement<std::vector<float> > > dpvFloat ("dpvFloat");
+  static const C::Decorator<unsigned int> dpInt1 ("dpInt1");
+  static const C::Decorator<std::vector<float> > dpvFloat ("dpvFloat");
 
   for (int i=0; i < 8; i++) {
     trig_coll->push_back (new DMTest::C);

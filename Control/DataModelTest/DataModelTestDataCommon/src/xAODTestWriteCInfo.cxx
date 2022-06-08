@@ -63,8 +63,8 @@ StatusCode xAODTestWriteCInfo::execute (const EventContext& ctx) const
   auto info_store = std::make_unique<DMTest::CInfoAuxContainer>();
   cinfo->setStore (info_store.get());
 
-  static C::Accessor<int> anInt2 ("anInt2");
-  static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
+  static const C::Accessor<int> anInt2 ("anInt2");
+  static const C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
   cinfo->setAnInt (count * 1000 + m_offset);
   cinfo->setAFloat ((float)count * 0.1 + m_offset);

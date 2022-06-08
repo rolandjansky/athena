@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DMTestRead.cxx,v 1.6 2008-11-21 06:29:06 ssnyder Exp $
 /**
  * @file  src/DMTestRead.cxx
  * @author snyder@bnl.gov
@@ -30,6 +29,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -47,16 +47,6 @@ DMTestRead::DMTestRead (const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm (name, pSvcLocator)
 {
 }
-
-
-/**
- * @brief Algorithm initialization; called at the beginning of the job.
- */
-StatusCode DMTestRead::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
 
 namespace {
 
@@ -97,7 +87,7 @@ StatusCode print_elvec (MsgStream& log,
 {
   const ELVec* vec;
   CHECK_WITH_CONTEXT( sg->retrieve (vec, key), context );
-  ELVec* mvec = const_cast<ELVec*> (vec);
+  ELVec* mvec ATLAS_THREAD_SAFE = const_cast<ELVec*> (vec);  // not called in MT
   std::ostringstream ost;
   ost << key << ": ";
   for (size_t i = 0; i < vec->m_el.size(); i++) {
@@ -114,7 +104,7 @@ StatusCode remap_test (MsgStream& log, StoreGateSvc* sg)
 {
   const ELVec* vec;
   CHECK_WITH_CONTEXT( sg->retrieve (vec, "elv_remap"), "remap_test" );
-  ELVec* mvec = const_cast<ELVec*> (vec);
+  ELVec* mvec ATLAS_THREAD_SAFE = const_cast<ELVec*> (vec);  // not called in MT
 
   ElementLinkCnv_p3<ElementLink<BVec> > elcnv;
   mvec->m_el2.resize (mvec->m_el2_p.size());
@@ -182,15 +172,5 @@ StatusCode DMTestRead::execute()
 
   return StatusCode::SUCCESS;
 }
-
-
-/**
- * @brief Algorithm finalization; called at the end of the job.
- */
-StatusCode DMTestRead::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 
 } // namespace DMTest
