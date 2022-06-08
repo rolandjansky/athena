@@ -12,9 +12,8 @@ def CTPMonitoringConfig(flags):
     '''Function to call CTP DQ monitoring algorithms'''
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
-    from PyUtils.MetaReaderPeeker import metadata
     #get these for Data only
-    if 'IS_SIMULATION' not in metadata['eventTypes']:
+    if not flags.Input.isMC:
         info('CTPMonitoringConfig: attempting to add DATA COOL folders')
         #if flags.Common.isOnline:
         from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -49,8 +48,8 @@ def CTPMonitoringConfig(flags):
     #if isData and flags.DQ.Environment not in ('tier0Raw', 'AOD'):
 
     #info('before results_merge CTPMonitoringConfig')
-    ## do not run on AOD-only, derivations and 
-    if flags.DQ.Environment not in ( 'AOD', 'DAOD_PHYS'): #, 'tier0Raw' ): 
+    ## do not run on AOD-only, derivations and ESD (because CTP_RDO version number is missing)
+    if flags.DQ.Environment not in ( 'AOD', 'DAOD_PHYS', 'tier0ESD'): #, 'tier0Raw' ): 
         from TrigT1CTMonitoring.BSMonitoringAlgorithm import BSMonitoringConfig
         result.merge(BSMonitoringConfig(flags))
         info('CTPMonitoringConfig: requested: result.merge(BSMonitoringConfig(flags))')

@@ -22,6 +22,7 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_topoclusters_key.initialize() );
     ATH_CHECK( m_tracks_key.initialize() );
     ATH_CHECK( m_vertex_key.initialize() );
+    ATH_CHECK( m_offline_vertex_key.initialize() );
     ATH_CHECK( m_lvl1_roi_key.initialize() );
     ATH_CHECK( m_lvl1_jnc_key.initialize() );
     ATH_CHECK( m_lvl1_jrho_key.initialize() );
@@ -40,9 +41,11 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_em_met_key.initialize() );
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
+    ATH_CHECK( m_hlt_tcpufit_sig30_met_key.initialize() );
     ATH_CHECK( m_hlt_trkmht_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_met_key.initialize() );
     ATH_CHECK( m_hlt_pfopufit_met_key.initialize() );
+    ATH_CHECK( m_hlt_pfopufit_sig30_met_key.initialize() );
     ATH_CHECK( m_hlt_cvfpufit_met_key.initialize() );
     ATH_CHECK( m_hlt_mhtpufit_pf_met_key.initialize() );
     ATH_CHECK( m_hlt_mhtpufit_em_met_key.initialize() );
@@ -90,6 +93,11 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     SG::ReadHandle<xAOD::VertexContainer> hlt_vertex_cont(m_vertex_key, ctx);
     if (! hlt_vertex_cont.isValid() || hlt_vertex_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_vertex_key << " does not exist or is empty");
+    }
+    
+    SG::ReadHandle<xAOD::VertexContainer> offline_vertex_cont(m_offline_vertex_key, ctx);
+    if (! offline_vertex_cont.isValid() || offline_vertex_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_offline_vertex_key << " does not exist or is empty");
     }
 
     // access offline met containers
@@ -185,6 +193,11 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (! hlt_tcpufit_met_cont.isValid() || hlt_tcpufit_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_met_key << " does not exist or is empty");
     }
+    
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_sig30_met_cont(m_hlt_tcpufit_sig30_met_key, ctx);
+    if (! hlt_tcpufit_sig30_met_cont.isValid() || hlt_tcpufit_sig30_met_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_sig30_met_key << " does not exist or is empty");
+    }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_trkmht_met_cont(m_hlt_trkmht_met_key, ctx);
     if (! hlt_trkmht_met_cont.isValid() || hlt_trkmht_met_cont->size()==0 ) {
@@ -209,6 +222,11 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfopufit_met_cont(m_hlt_pfopufit_met_key, ctx);
     if (! hlt_pfopufit_met_cont.isValid() || hlt_pfopufit_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_met_key << " does not exist or is empty");
+    }
+    
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfopufit_sig30_met_cont(m_hlt_pfopufit_sig30_met_key, ctx);
+    if (! hlt_pfopufit_sig30_met_cont.isValid() || hlt_pfopufit_sig30_met_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_sig30_met_key << " does not exist or is empty");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cvfpufit_met_cont(m_hlt_cvfpufit_met_key, ctx);
@@ -242,8 +260,15 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto hlt_topoclusters_pt = Monitored::Scalar<float>("hlt_topoclusters_pt",0.0);
     auto hlt_tracks_mult = Monitored::Scalar<int>("hlt_tracks_mult",0.0);
     auto hlt_tracks_pt = Monitored::Scalar<float>("hlt_tracks_pt",0.0);
+    auto hlt_tracks_phi = Monitored::Scalar<float>("hlt_tracks_phi",0.0);
+    auto hlt_tracks_eta = Monitored::Scalar<float>("hlt_tracks_eta",0.0);
+    auto hlt_tracks_leading_pt = Monitored::Scalar<float>("hlt_tracks_leading_pt",0.0);
+    auto hlt_tracks_vec_sumPt = Monitored::Scalar<float>("hlt_tracks_vec_sumPt",0.0);
+    auto hlt_tracks_sca_sumPt = Monitored::Scalar<float>("hlt_tracks_sca_sumPt",0.0);
     auto hlt_vertex_mult = Monitored::Scalar<int>("hlt_vertex_mult",0.0);
+    auto hlt_vertex_mult_mu = Monitored::Scalar<int>("hlt_vertex_mult_mu",0.0);
     auto hlt_vertex_z = Monitored::Scalar<float>("hlt_vertex_z",0.0);
+    auto hlt_vertex_z_diff = Monitored::Scalar<float>("hlt_vertex_z_diff",0.0);
 
     auto offline_Ex = Monitored::Scalar<float>("offline_Ex",0.0);
     auto offline_Ey = Monitored::Scalar<float>("offline_Ey",0.0);
@@ -269,7 +294,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // access pileup <mu>
     act_IPBC = eventInfo->actualInteractionsPerCrossing();
-    fill(tool, act_IPBC);
 
     // access lepton values
     float leadingElectronPt = 0.0;
@@ -327,30 +351,76 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // access tracks container
     if( hlt_tracks_cont.isValid() && hlt_tracks_cont->size() > 0){
       hlt_tracks_mult = hlt_tracks_cont->size();
+      float scalarSumPt = 0.0;
+      float scalarSumPx = 0.0;
+      float scalarSumPy = 0.0;
       for(auto tracks : *hlt_tracks_cont){
-        hlt_tracks_pt = (tracks->pt())*0.001;
+        float i_track_pt = (tracks->pt())*0.001;
+        hlt_tracks_pt = i_track_pt;
+        scalarSumPt += i_track_pt;
+        scalarSumPx += (tracks->p4().Px());
+        scalarSumPy += (tracks->p4().Py());
+
+        if(hlt_tracks_pt > hlt_tracks_leading_pt){
+          hlt_tracks_leading_pt = i_track_pt;
+        }
+
         if(hlt_tracks_pt > 0){
           fill(tool, hlt_tracks_pt);
         }
-      }
 
-      if(hlt_tracks_mult > 0){
-        fill(tool, hlt_tracks_mult);
+        if(hlt_tracks_pt > 3){
+          hlt_tracks_eta = (tracks->eta());
+          hlt_tracks_phi = (tracks->phi());	  
+          fill(tool, hlt_tracks_eta, hlt_tracks_phi);
+        }
       }
+      
+      hlt_tracks_vec_sumPt = std::sqrt(scalarSumPx*scalarSumPx + scalarSumPy*scalarSumPy)*0.001;
+      hlt_tracks_sca_sumPt = scalarSumPt;
+
+      fill(tool, hlt_tracks_mult, hlt_tracks_leading_pt, hlt_tracks_vec_sumPt, hlt_tracks_sca_sumPt);
     }
 
     // access vertex container
     if(hlt_vertex_cont.isValid() && hlt_vertex_cont->size() > 0){
       hlt_vertex_mult = hlt_vertex_cont->size();
-
-      if(hlt_vertex_mult > 0){
-        auto hs_vertex = hlt_vertex_cont->at(0);
-        hlt_vertex_z = hs_vertex->z();
-
-        fill(tool, hlt_vertex_mult, hlt_vertex_z);
+      hlt_vertex_mult_mu = hlt_vertex_cont->size();
+      const xAOD::Vertex_v1* hlt_vertex = nullptr;
+      for(auto vertex : *hlt_vertex_cont){
+        if(vertex->vertexType() == xAOD::VxType::VertexType::PriVtx){
+          hlt_vertex = vertex; 
+          break;
+        } 
       }
+ 
+      if(hlt_vertex){
+        hlt_vertex_z = hlt_vertex->z();
+        fill(tool, hlt_vertex_z); 
+  
+        if(offline_vertex_cont.isValid() && offline_vertex_cont->size() > 0){
+          const xAOD::Vertex_v1* offline_vertex = nullptr;
+          for(auto vertex : *offline_vertex_cont){
+            if(vertex->vertexType() == xAOD::VxType::VertexType::PriVtx){
+              offline_vertex = vertex;
+              break;
+            } 
+          }
+ 
+          if(offline_vertex){
+            hlt_vertex_z_diff = hlt_vertex_z - offline_vertex->z();
+            fill(tool, hlt_vertex_z_diff);
+          }
+        }
+      }
+    }else{
+      hlt_vertex_mult = -1;
+      hlt_vertex_mult_mu = 1;
+      act_IPBC = -1.;
     }
-        
+    fill(tool, hlt_vertex_mult);
+    fill(tool, act_IPBC, hlt_vertex_mult_mu);
+
     // access offline MET values
     const xAOD::MissingET *offline_met = 0;
     if ( offline_met_cont.isValid() && offline_met_cont->size() > 0 ) {
@@ -538,7 +608,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       }
     }
 
-
     // get L1_roiMet_Et for pre-selection
     float L1_roiMet_Et = 0;
     if ( l1_roi_cont.isValid() ) {
@@ -561,6 +630,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         hlt_met = hlt_tc_em_met_cont->at(0);
       } else if (alg == "tcpufit" && hlt_tcpufit_met_cont.isValid() && hlt_tcpufit_met_cont->size() > 0) {
         hlt_met = hlt_tcpufit_met_cont->at(0);
+      } else if (alg == "tcpufit_sig30" && hlt_tcpufit_sig30_met_cont.isValid() && hlt_tcpufit_sig30_met_cont->size() > 0) {
+        hlt_met = hlt_tcpufit_sig30_met_cont->at(0);
       } else if (alg == "trkmht" && hlt_trkmht_met_cont.isValid() && hlt_trkmht_met_cont->size() > 0) {
         hlt_met = hlt_trkmht_met_cont->at(0);
       } else if (alg == "pfsum" && hlt_pfsum_met_cont.isValid() && hlt_pfsum_met_cont->size() > 0) {
@@ -571,6 +642,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         hlt_met = hlt_pfsum_vssk_met_cont->at(0);
       } else if (alg == "pfopufit" && hlt_pfopufit_met_cont.isValid() && hlt_pfopufit_met_cont->size() > 0) {
         hlt_met = hlt_pfopufit_met_cont->at(0);
+      } else if (alg == "pfopufit_sig30" && hlt_pfopufit_sig30_met_cont.isValid() && hlt_pfopufit_sig30_met_cont->size() > 0) {
+        hlt_met = hlt_pfopufit_sig30_met_cont->at(0);
       } else if (alg == "cvfpufit" && hlt_cvfpufit_met_cont.isValid() && hlt_cvfpufit_met_cont->size() > 0) {
         hlt_met = hlt_cvfpufit_met_cont->at(0);
       } else if (alg == "mhtpufit_pf" && hlt_mhtpufit_pf_met_cont.isValid() && hlt_mhtpufit_pf_met_cont->size() > 0) {
@@ -732,7 +805,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       }
     }
 
-
     // access HLT  MET Expert values
     for (const std::string& alg : m_algsHLTExpert) {
       if (alg == "cell" && hlt_cell_met_cont.isValid() && hlt_cell_met_cont->size() > 0) {
@@ -783,6 +855,52 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         }
       }
     }
+    
+    // Make 2D tcpufit MET distributions wrt track-based MET
+    const xAOD::TrigMissingET *hlt_tcpufit_met = 0;
+    for (const std::string& alg : m_algsMET2d_tcpufit) {
+      if (alg == "cell" && hlt_cell_met_cont.isValid() && hlt_cell_met_cont->size() > 0) {
+        hlt_met = hlt_cell_met_cont->at(0);
+      } else if (alg == "mht" && hlt_mht_met_cont.isValid() && hlt_mht_met_cont->size() > 0) {
+        hlt_met = hlt_mht_met_cont->at(0);
+      } else if (alg == "tc" && hlt_tc_met_cont.isValid() && hlt_tc_met_cont->size() > 0) {
+        hlt_met = hlt_tc_met_cont->at(0);
+      } else if (alg == "tc_em" && hlt_tc_em_met_cont.isValid() && hlt_tc_em_met_cont->size() > 0) {
+        hlt_met = hlt_tc_em_met_cont->at(0);
+      } else if (alg == "trkmht_pf" && hlt_trkmht_met_cont.isValid() && hlt_trkmht_met_cont->size() > 0) {
+        hlt_met = hlt_trkmht_met_cont->at(0);
+      } else if (alg == "pfsum" && hlt_pfsum_met_cont.isValid() && hlt_pfsum_met_cont->size() > 0) {
+        hlt_met = hlt_pfsum_met_cont->at(0);
+      } else if (alg == "pfsum_cssk" && hlt_pfsum_cssk_met_cont.isValid() && hlt_pfsum_cssk_met_cont->size() > 0) {
+        hlt_met = hlt_pfsum_cssk_met_cont->at(0);
+      } else if (alg == "pfsum_vssk" && hlt_pfsum_vssk_met_cont.isValid() && hlt_pfsum_vssk_met_cont->size() > 0) {
+        hlt_met = hlt_pfsum_vssk_met_cont->at(0);
+      } else if (alg == "pfopufit" && hlt_pfopufit_met_cont.isValid() && hlt_pfopufit_met_cont->size() > 0) {
+        hlt_met = hlt_pfopufit_met_cont->at(0);
+      } else if (alg == "cvfpufit" && hlt_cvfpufit_met_cont.isValid() && hlt_cvfpufit_met_cont->size() > 0) {
+        hlt_met = hlt_cvfpufit_met_cont->at(0);
+      } else if (alg == "mhtpufit_pf" && hlt_mhtpufit_pf_met_cont.isValid() && hlt_mhtpufit_pf_met_cont->size() > 0) {
+        hlt_met = hlt_mhtpufit_pf_met_cont->at(0);
+      } else if (alg == "mhtpufit_em" && hlt_mhtpufit_em_met_cont.isValid() && hlt_mhtpufit_em_met_cont->size() > 0) {
+        hlt_met = hlt_mhtpufit_em_met_cont->at(0);
+      } else {
+        hlt_met = 0;
+      }
+
+      if(hlt_met && hlt_tcpufit_met_cont.isValid() && hlt_tcpufit_met_cont->size() > 0){
+        hlt_tcpufit_met = hlt_tcpufit_met_cont->at(0); 
+        float hlt_Ex = (hlt_met->ex())/1000.;
+        float hlt_Ey = (hlt_met->ey())/1000.;
+        float hlt_Et = std::sqrt(hlt_Ex*hlt_Ex + hlt_Ey*hlt_Ey);
+        auto met_Et = Monitored::Scalar<float>(alg+"_2D_Et", static_cast<float>(hlt_Et));
+        
+        float hlt_tcpufit_Ex = (hlt_tcpufit_met->ex())/1000.;
+        float hlt_tcpufit_Ey = (hlt_tcpufit_met->ey())/1000.;
+        float hlt_tcpufit_Et = std::sqrt(hlt_tcpufit_Ex*hlt_tcpufit_Ex + hlt_tcpufit_Ey*hlt_tcpufit_Ey);
+        auto tcpufit_met_Et = Monitored::Scalar<float>("tcpufit_2D_Et", static_cast<float>(hlt_tcpufit_Et));
+        fill(tool, met_Et, tcpufit_met_Et);
+      }
+    } 
 
     // efficiency plots
     for (const std::string& chain : m_l1Chains) {

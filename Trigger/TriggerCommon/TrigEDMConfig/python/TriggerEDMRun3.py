@@ -268,6 +268,8 @@ TriggerHLTListRun3 = [
     #Run-3 L1
 
     ("CaloCellContainer#SCell",                                'ESD', 'L1'),
+    ('xAOD::TriggerTowerContainer#xAODTriggerTowers' ,         'ESD', 'L1'),
+    ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.' ,  'ESD', 'L1'),
 
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs',                          'BS ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
@@ -909,8 +911,8 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_bJets',                        'BS ESD AODFULL', 'Bjet', 'inViews:'+BTagViewsEMTopo),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_bJetsAux.'+BTagJetVars, 'BS ESD AODFULL', 'Bjet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_bJets',                        'BS ESD AODFULL', 'Bjet', 'inViews:'+BTagViewsEMPFlow),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_bJetsAux.'+BTagJetVars, 'BS ESD AODFULL', 'Bjet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_bJets',                        'BS ESD AODFULL AODSLIM', 'Bjet', 'inViews:'+BTagViewsEMPFlow),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_bJetsAux.'+BTagJetVars, 'BS ESD AODFULL AODSLIM', 'Bjet'),
 
     # secvertex for b-jets
     ('xAOD::VertexContainer#HLT_AntiKt4EMTopoJets_subresjesgscIS_ftf_BTaggingSecVtx',                          'BS ESD AODFULL', 'Bjet', 'inViews:'+BTagViewsEMTopo),

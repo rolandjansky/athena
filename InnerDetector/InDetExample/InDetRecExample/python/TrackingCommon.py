@@ -865,6 +865,10 @@ def getInDetTrigTestPixelLayerToolInner(name='InDetTrigTestPixelLayerToolInner',
     kwargs = setDefaults(kwargs,
                          CheckActiveAreas = True,
                          PixelDetElStatus = "")
+
+    if 'Extrapolator' not in kwargs :
+        kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
+
     return getInDetTestPixelLayerToolInner(name, **kwargs)
 
 # # set up the propagator for outside ID (A.S. needed as a fix for 14.5.0 )

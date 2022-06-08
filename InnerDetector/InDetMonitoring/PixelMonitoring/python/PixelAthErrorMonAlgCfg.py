@@ -105,7 +105,7 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
             histoGroupName = state[0]+"Map"
             define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
         histoGroupName = state[0]+"PerLumi"
-        title          = 'Average '+state[1]+" Errors per event per LB"
+        title          = 'Average '+state[1]+" Errors per module per event"
         yaxistext      = ';# errors/module/event'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile', onlylayers=fei3layers)
 
@@ -114,7 +114,7 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
         title          = state[1]+" Errors"
         define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
         histoGroupName = state[0]+"PerLumi"
-        title          = 'Average '+state[1]+" Errors per event per LB"
+        title          = 'Average '+state[1]+" Errors per module per event"
         yaxistext      = ';# errors/module/event'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile', onlylayers=fei4layers)
 

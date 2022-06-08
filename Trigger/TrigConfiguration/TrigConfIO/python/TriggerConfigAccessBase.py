@@ -204,8 +204,11 @@ class ConfigDBLoader(ConfigLoader):
         output = queryStr.split("SELECT")[1].split("FROM")[0]
         query.addToOutputList(output)
 
+        log.info("Conversion for Coral of query: {0}".format(queryStr))
+
         for table in queryStr.split("FROM")[1].split("WHERE")[0].split(","):
             tableSplit = list(filter(None, table.split(" ")))
+            # Schema name is stripped from TableList in Coral query
             query.addToTableList(tableSplit[0].split(".")[1], tableSplit[1])
 
         if "WHERE" in queryStr:
@@ -259,7 +262,10 @@ class ConfigDBLoader(ConfigLoader):
                 schemaVersion = ConfigDBLoader.readSchemaVersion(qdict, session)
                 qstr = self.getQueryDefinition(schemaVersion)
 
-                query = ConfigDBLoader.getCoralQuery(session, qstr.format(**qdict))
+                if "HLT_MONITORING_GROUPS" in qstr:
+                    query = ConfigDBLoader.readMonGroupKey(qstr, qdict, session)
+                else:
+                    query = ConfigDBLoader.getCoralQuery(session, qstr.format(**qdict))
 
                 cursor = query.execute()
 
@@ -285,22 +291,41 @@ class ConfigDBLoader(ConfigLoader):
     def readMaxTableKey(q, qdict, session):
         ''' Read highest available key in table, based on the query'''
         try:
+            # In the case of multiple queries (e.g. MonGroups) take only the former
+            q = q.split(";")[0]
             # Create query - remove last condition for the key value and add it in begining as "SELECT MAX"
             id_str = q.split("WHERE")[1].split("AND")[-1].split("=")[0]
 
             q_formatted = "SELECT MAX(" + id_str + ") FROM " + q.split("FROM")[1].split("WHERE")[0]
 
-            # If there are multiple "where" conditions add them back to the query
-            if "AND" in q.split("WHERE")[1]:
-                q_formatted += " WHERE " + q.split("WHERE")[1].rsplit('AND', 1)[0]
-
             query = ConfigDBLoader.getCoralQuery(session, q_formatted.format(**qdict))
             cursor = query.execute()
             cursor.next()
 
-            log.info("Highest available key is {0}".format(int(cursor.currentRow()[0].data())))
+            log.info("Highest available key in %s is %i", id_str, int(cursor.currentRow()[0].data()))
         except Exception as e:
             log.warning("Failed to read maximum available key: {0}".format(e))
+
+    @staticmethod
+    def readMonGroupKey(q, qdict1, session):
+        ''' Read highest available key in table, based on the query'''
+        try:
+            # First query is to find HLTMenuTableID
+            qStr1 = q.split(";")[0]
+            query1 = ConfigDBLoader.getCoralQuery(session, qStr1.format(**qdict1))
+            cursor1 = query1.execute()
+            cursor1.next()
+            dbkeyResult = int(cursor1.currentRow()[0].data())
+
+            # Second query is to use the found HLTMenuTableID and find the matching MonGroupKey
+            # The query is performed as part of load(), and is only built here
+            qdict2 = { "schema" : qdict1["schema"], "dbkeyResult" : dbkeyResult }
+            qStr2 = q.split(";")[1]
+            query2 = ConfigDBLoader.getCoralQuery(session, qStr2.format(**qdict2))
+            return query2
+
+        except Exception as e:
+            log.warning("Failed to read HLT menu to find MonGroup key: {0}".format(e))
 
 
     # proposed filename when writing config to file

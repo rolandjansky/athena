@@ -322,7 +322,7 @@ StatusCode TrigVrtSecInclusive::fillVtxContainer( xAODContainers& theXAODContain
     vertex->auxdata<float>("vsi_mass")   = wrkvrt.vertexMom.M();
     vertex->auxdata<float>("vsi_pT")     = wrkvrt.vertexMom.Perp();
     vertex->auxdata<float>("vsi_charge") = wrkvrt.charge;
-    vertex->auxdata<bool>("vsi_isFake")  = false;
+    vertex->auxdata<char>("vsi_isFake")  = 0;
 
     vertex->auxdata<float>("vsi_twoCirc_dr")                      = wrkvrt.param.twoCirc_dr;
     vertex->auxdata<float>("vsi_twoCirc_dphi")                    = wrkvrt.param.twoCirc_dphi;
@@ -338,15 +338,15 @@ StatusCode TrigVrtSecInclusive::fillVtxContainer( xAODContainers& theXAODContain
     vertex->auxdata<float>("vsi_vPosMomAngT")                     = wrkvrt.param.vPosMomAngT;
     vertex->auxdata<float>("vsi_dphi1")                           = wrkvrt.param.dphi1;
     vertex->auxdata<float>("vsi_dphi2")                           = wrkvrt.param.dphi2;
-    vertex->auxdata<bool>("vsi_isPassMMV")                        = wrkvrt.param.isPassMMV;
+    vertex->auxdata<char>("vsi_isPassMMV")                        = wrkvrt.param.isPassMMV ? 1 : 0;
 
-    vertex->auxdata<bool>("vsi_trkd0cut")                         = wrkvrt.cuts.trkd0cut;
-    vertex->auxdata<bool>("vsi_twoCircErrcut")                    = wrkvrt.cuts.twoCircErrcut;
-    vertex->auxdata<bool>("vsi_twoCircRcut")                      = wrkvrt.cuts.twoCircRcut;
-    vertex->auxdata<bool>("vsi_fastErrcut")                       = wrkvrt.cuts.fastErrcut;
-    vertex->auxdata<bool>("vsi_fastRcut")                         = wrkvrt.cuts.fastRcut;
-    vertex->auxdata<bool>("vsi_fitErrcut")                        = wrkvrt.cuts.fitErrcut;
-    vertex->auxdata<bool>("vsi_chi2cut")                          = wrkvrt.cuts.chi2cut;
+    vertex->auxdata<char>("vsi_trkd0cut")                         = wrkvrt.cuts.trkd0cut ?      1 : 0;
+    vertex->auxdata<char>("vsi_twoCircErrcut")                    = wrkvrt.cuts.twoCircErrcut ? 1 : 0;
+    vertex->auxdata<char>("vsi_twoCircRcut")                      = wrkvrt.cuts.twoCircRcut ?   1 : 0;
+    vertex->auxdata<char>("vsi_fastErrcut")                       = wrkvrt.cuts.fastErrcut ?    1 : 0;
+    vertex->auxdata<char>("vsi_fastRcut")                         = wrkvrt.cuts.fastRcut ?      1 : 0;
+    vertex->auxdata<char>("vsi_fitErrcut")                        = wrkvrt.cuts.fitErrcut ?     1 : 0;
+    vertex->auxdata<char>("vsi_chi2cut")                          = wrkvrt.cuts.chi2cut ?       1 : 0;
 
   }
   //

@@ -75,14 +75,14 @@ namespace LVL1 {
      
       // jFex to L1Topo conversion factors
       static const int m_Et_conversion;
-      static const float m_sumEt_conversion;
+      static const double m_sumEt_conversion;
       static const int m_phi_conversion;
       static const int m_eta_conversion;
 
-      static const float m_EtDouble_conversion;
-      static const float m_sumEtDouble_conversion;
-      static const float m_phiDouble_conversion;
-      static const float m_etaDouble_conversion;
+      static const double m_EtDouble_conversion;
+      static const double m_sumEtDouble_conversion;
+      static const double m_phiDouble_conversion;
+      static const double m_etaDouble_conversion;
 
   };
 }

@@ -32,13 +32,18 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     flags.Input.Files = defaultTestFiles.AOD
-    flags.Exec.MaxEvents = 20
+    flags.Exec.MaxEvents = -1
+    flags.Common.doExpressProcessing=True
     flags.fillFromArgs()
     flags.lock()
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(flags)
+
+    # if no flags.Input.isMC:
+    #     from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+    #     cfg.merge (LuminosityCondAlgCfg (flags))    
     cfg.merge(PoolReadCfg(flags))
     cfg.merge(TrigMinBias(flags))
 

@@ -63,6 +63,9 @@ def createTauConfigFlags():
     tau_cfg.addFlag("Tau.TauEleRNNWPConfig", ["taueveto_rnn_flat_1P_r22.root", "taueveto_rnn_flat_3P_r22.root"])
     tau_cfg.addFlag("Tau.DecayModeNNClassifierConfig", "NNDecayMode_R22_v1.json")
 
+    # DiTau config
+    tau_cfg.addFlag("Tau.doDiTauRec", True)
+
     return tau_cfg
 
 

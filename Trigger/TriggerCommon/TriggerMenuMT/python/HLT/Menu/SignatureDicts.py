@@ -25,7 +25,7 @@ SliceIDDict = {
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
     'EnhancedBias'  : 'eb',
-    'UnconventionalTracking'  : 'unconvtrk',
+    'UnconventionalTracking'  : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet'],
     'Test'          : 'TestChain',
 }
 
@@ -311,7 +311,7 @@ JetChainParts_Default = {
     'L1threshold'   : '',
     'threshold'     : '',
     'multiplicity'  : '',
-    'trigType'      :'j',
+    'trigType'      : '',
     'topo'          : [],
     'extra'         : '',
     'addInfo'       : [],
@@ -394,7 +394,7 @@ MuonChainParts_Default = {
     'alignmentGroup' : ['Muon'],
     'L1threshold'    : '',
     'multiplicity'   : '',
-    'trigType'       : ['mu'],
+    'trigType'       : '',
     'etaRange'       : '0eta250',
     'threshold'      : '',
     'tnpInfo'        : '',
@@ -487,14 +487,14 @@ TauChainParts_Default = {
     'threshold'     : '20',
     'preselection'  : '',
     'selection'     : '',
-    'multiplicity'  :  '',
-    'trigType'      : ['tau'],
+    'multiplicity'  : '',
+    'trigType'      : '',
     'trkInfo'       : [],
     'tnpInfo'       : '',
     'extra'         : '',
     'recoAlg'       : '',
     'calib'         : '',
-    'addInfo'       :  '',
+    'addInfo'       : '',
     'topo'          : [],
     'sigFolder'     : ['Tau'],
     'subSigs'       : ['Tau'],
@@ -535,7 +535,7 @@ METChainParts_Default = {
     'signature'      : ['MET'],
     'alignmentGroup' : ['MET'],
     'L1threshold'    : '',
-    'trigType'       : ['xe'],
+    'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
     'calib'          : 'lcw',
@@ -564,7 +564,7 @@ XSChainParts['trigType']  = ['xs']
 # ---- xs Dictionary of default Values ----
 XSChainParts_Default = METChainParts_Default
 XSChainParts_Default['signature'] = ['XS']
-XSChainParts_Default['trigType']  = ['xs']
+XSChainParts_Default['trigType']  = ''
 
 #==========================================================
 # TE
@@ -577,7 +577,7 @@ TEChainParts['trigType']  = ['te']
 # ---- te Dictionary of default Values ----
 TEChainParts_Default = METChainParts_Default
 TEChainParts_Default['signature'] = ['TE']
-TEChainParts_Default['trigType']  = ['te']
+TEChainParts_Default['trigType']  = ''
 
 #==========================================================
 # Electron Chains
@@ -736,7 +736,7 @@ MinBiasChainParts_Default = {
     'L1threshold'    : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
-    'trigType'       : ['mb'],
+    'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
     'IDinfo'         : '',
@@ -790,7 +790,7 @@ HeavyIonChainParts_Default = {
     'L1threshold'    : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
-    'trigType'       : ['hi'],
+    'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
     'IDinfo'         : '',
@@ -1073,7 +1073,7 @@ BeamspotChainParts_Default = {
     'threshold'      : '',
     'multiplicity'   : '',
     'location'       : 'vtx',
-    'trigType'       : 'beamspot',
+    'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Beamspot'],
@@ -1090,13 +1090,12 @@ UnconventionalTrackingChainParts = {
     'L1threshold'    : '',
     'chainPartName'  : [],
     'multiplicity'   : '',
-    'trigType'       : ['unconvtrk'],
+    'trigType'       : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet'],
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "fsvsi", "distrk", "dispj"],
-    'addInfo'        : [],
-    'dispjVariant'   : ['2jet','1jet', '2jetperf', '1jetperf'],
+    'extra'          : '',
+    'addInfo'        : ['perf'],
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': list(range(0,10))
@@ -1109,12 +1108,11 @@ UnconventionalTrackingChainParts_Default = {
     'chainPartName'  : [],
     'multiplicity'   : '',
     'IDinfo'         : '',
-    'trigType'       : ['unconvtrk'],
-    'isoInfo'        : '',
+    'trigType'       : '',
     'threshold'      : '',
+    'isoInfo'        : '',
     'extra'          : '',
     'addInfo'        : '',
-    'dispjVariant'   : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0
@@ -1143,7 +1141,7 @@ CombinedChainParts['topo'] = AllowedTopos_comb
 CombinedChainParts_Default = deepcopy(PhotonChainParts_Default)
 CombinedChainParts_Default['signature'] = ['Photon','Muon']
 CombinedChainParts_Default['chainParts'] = ['g','mu'],
-CombinedChainParts_Default['trigType'] =['g','mu']
+CombinedChainParts_Default['trigType'] = ''
 CombinedChainParts_Default['topo'] = []
 
 #==========================================================
@@ -1158,15 +1156,14 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_g + AllowedTopos_mu + AllowedTopos_
 def getSignatureNameFromToken(chainpart):
     import re
     theMatchingTokens = []
-    reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
+    reverseSliceIDDict = { subvalue: key for key, value in SliceIDDict.items() for subvalue in ([value] if not isinstance(value, list) else value) } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
-        if re.match(r'^\d*'+token+r'\d*\w*$', chainpart):
-            theMatchingTokens += [token]
-    if len(theMatchingTokens) == 1:
-        return reverseSliceIDDict[theMatchingTokens[0]]
-    elif len(theMatchingTokens)>1:
-        log.error('[getSignatureNameFromToken] There are several signatures tokens, %s, matching the chain part %s. I don\'t know which one to use!',
-                                  theMatchingTokens,chainpart)
+        token = token if isinstance(token, list) else [token]
+        for subtoken in token:
+            if re.match(r'^\d*'+subtoken+r'\d*\w*$', chainpart):
+                theMatchingTokens += [subtoken]
+    if len(theMatchingTokens) > 0:
+        return reverseSliceIDDict[sorted(theMatchingTokens, key=lambda x: len(x), reverse=True)[0]]
     else:
         log.error('No signature matching chain part %s was found.', chainpart)
     
@@ -1229,7 +1226,13 @@ def getSignatureInformation(signature):
 #==========================================================
 def getBasePattern():
     import re
-    allTrigTypes = SliceIDDict.values()
+    allTrigTypes = []
+    for v in SliceIDDict.values():
+        if isinstance(v, list):
+            allTrigTypes += v
+        else:
+            allTrigTypes.append(v)
+
     possibleTT = '|'.join(allTrigTypes)
     pattern = re.compile(r"(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT))
     return pattern
