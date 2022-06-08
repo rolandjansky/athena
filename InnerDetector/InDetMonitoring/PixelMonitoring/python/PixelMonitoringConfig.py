@@ -45,7 +45,7 @@ def PixelMonitoringConfig(flags):
                             'TrackName'       : InDetKeys.UnslimmedTracks()          #'Tracks'
         }
 
-        if doHitMonAlg or doClusterMonAlg or doErrorMonAlg:
+        if doHitMonAlg or doClusterMonAlg or doErrorMonAlg or doMVAMonAlg:
             from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgActiveOnlyCfg
             acc.merge(PixelDetectorElementStatusAlgActiveOnlyCfg(flags))
 
@@ -89,7 +89,6 @@ def PixelMonitoringConfig(flags):
             from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
             pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(CompFactory.PixelAthErrorMonAlg, 'PixelAthErrorMonAlg', addFilterTools = [FilledBunchFilterToolCfg(flags)])
             kwargsErrMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
-            kwargsErrMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             kwargsErrMonAlg.setdefault(  'PixelByteStreamErrs', 'PixelByteStreamErrs')
             kwargsErrMonAlg.setdefault(  'UseByteStreamFEI4', not flags.Input.isMC)
             kwargsErrMonAlg.setdefault(  'UseByteStreamFEI3', not flags.Input.isMC)
@@ -101,6 +100,8 @@ def PixelMonitoringConfig(flags):
         if doMVAMonAlg:
             from PixelMonitoring.PixelAthMVAMonAlgCfg import PixelAthMVAMonAlgCfg
             pixelAthMVAMonAlg = helper.addAlgorithm(CompFactory.PixelAthMVAMonAlg, 'PixelAthMVAMonAlg', addFilterTools = [FilledBunchFilterToolCfg(flags)])
+            kwargsMVAMonAlg.setdefault(  'PixelDetElStatus',           'PixelDetectorElementStatus' )
+            kwargsMVAMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsMVAMonAlg.items():
                 setattr(pixelAthMVAMonAlg, k, v)
             pixelAthMVAMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthMVAMonAlg_TrackSelectionTool')
