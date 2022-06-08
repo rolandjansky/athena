@@ -276,14 +276,12 @@ MuonInputProvider::createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
 
    ATH_MSG_DEBUG("Late Muon ROI (MuCTPiToTopo):bcid=1 thr pt = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << roi.getphi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
 
-   float phi = roi.getphi();
-   if(phi<-M_PI) phi+=2.0*M_PI;
-   if(phi> M_PI) phi-=2.0*M_PI;
-
    unsigned int LMEtTopo = roi.getptValue()*10;
    int LMetaTopo = topoIndex(roi.geteta(),40);
-   int LMphiTopo = topoIndex(phi,20);
-   
+   int LMphiTopo = topoIndex(roi.getphi(),20);
+  
+   if (LMphiTopo < 0){ LMphiTopo += 128; }
+ 
    TCS::LateMuonTOB muon( LMEtTopo, 0, LMetaTopo, static_cast<unsigned int>(LMphiTopo), roi.getRoiID() );
 
    muon.setEtDouble(static_cast<double>(LMEtTopo/10.));

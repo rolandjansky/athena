@@ -67,9 +67,9 @@ namespace LVL1 {
      SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "eFexTauRoIKey", "L1_eTauRoI", "eFEXTau EDM"};
 
      // eFex to L1Topo conversion factors
-     static const float m_EtDouble_conversion;
-     static const float m_phiDouble_conversion;
-     static const float m_etaDouble_conversion;
+     static const double m_EtDouble_conversion;
+     static const double m_phiDouble_conversion;
+     static const double m_etaDouble_conversion;
 
    };
 }
