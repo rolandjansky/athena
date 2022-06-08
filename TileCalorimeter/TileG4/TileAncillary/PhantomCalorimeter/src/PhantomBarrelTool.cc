@@ -9,7 +9,6 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
-#include "StoreGate/DataHandle.h"
 
 // Geant4 headers
 #include "G4Box.hh"
@@ -54,7 +53,7 @@ void PhantomBarrelTool::BuildGeometry() {
   G4Box *barrel = new G4Box("PhantomBarrel", dxBarrel, dyBarrelwithEnvelop, dzBarrelwithEnvelop);
 
   // Get the materials
-  const DataHandle<StoredMaterialManager> materialManager;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
     //FIXME should probably at least print an ERROR here...
     return ;

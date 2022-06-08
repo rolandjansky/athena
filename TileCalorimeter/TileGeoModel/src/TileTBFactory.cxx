@@ -67,7 +67,7 @@ void TileTBFactory::create(GeoPhysVol *world)
   (*m_log) << MSG::INFO <<" Entering TileTBFactory::create()" << endmsg;
 
   // -------- -------- MATERIAL MANAGER -------- ----------
-  const StoredMaterialManager* theMaterialManager = nullptr;
+  StoredMaterialManager* theMaterialManager = nullptr;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
     (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 

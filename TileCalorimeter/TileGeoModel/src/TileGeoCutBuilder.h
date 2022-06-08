@@ -27,7 +27,7 @@ class TileGeoCutBuilder
 {
  public:
   /** Constructor */
-  TileGeoCutBuilder(const StoredMaterialManager* matManager,
+  TileGeoCutBuilder(StoredMaterialManager* matManager,
                     TileDddbManager* pDbManager,
                     MsgStream * log);
 

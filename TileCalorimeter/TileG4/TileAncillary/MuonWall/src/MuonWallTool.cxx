@@ -71,7 +71,7 @@ void MuonWallTool::BuildGeometry() {
   G4Box *wall = new G4Box("MuonWall", dxmuonwall, dymuonwall, dzmuonwall);
 
   // Get the materials
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
     ATH_MSG_ERROR( "Could not find Material Manager MATERIALS" );
     return;
