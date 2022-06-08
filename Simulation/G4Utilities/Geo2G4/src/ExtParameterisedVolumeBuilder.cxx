@@ -266,7 +266,7 @@ void ExtParameterisedVolumeBuilder::getMatEther() const
     ATH_MSG_ERROR ( "ExtParameterisedVolumeBuilder: Unable to access Detector Store" );
   }
   else {
-    const StoredMaterialManager* theMaterialManager = pDetStore->tryConstRetrieve<StoredMaterialManager>("MATERIALS");
+    StoredMaterialManager* theMaterialManager = pDetStore->tryRetrieve<StoredMaterialManager>("MATERIALS");
     if(theMaterialManager) {
       m_matEther = theMaterialManager->getMaterial("special::Ether");
       m_matHypUr = theMaterialManager->getMaterial("special::HyperUranium");
