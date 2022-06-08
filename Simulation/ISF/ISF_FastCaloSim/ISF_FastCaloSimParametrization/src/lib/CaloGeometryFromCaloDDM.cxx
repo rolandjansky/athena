@@ -4,12 +4,11 @@
 
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-//#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
-using namespace std;
-
-CaloGeometryFromCaloDDM::CaloGeometryFromCaloDDM() : CaloGeometry()
+CaloGeometryFromCaloDDM::CaloGeometryFromCaloDDM()
+  : CaloGeometry()
+  , AthMessaging("CaloGeometryFromCaloDDM")
 {
 }
 
@@ -24,7 +23,7 @@ bool CaloGeometryFromCaloDDM::LoadGeometryFromCaloDDM(const CaloDetDescrManager*
     addcell(pcell);
   
     if(jentry%25000==0) {
-      cout<<jentry<<" : "<<pcell->getSampling()<<", "<<pcell->identify()<<endl;
+      ATH_MSG_DEBUG(jentry<<" : "<<pcell->getSampling()<<", "<<pcell->identify());
     }
     ++jentry;
   }

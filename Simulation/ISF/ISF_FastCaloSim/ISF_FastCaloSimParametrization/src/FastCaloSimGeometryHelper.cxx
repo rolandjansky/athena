@@ -4,17 +4,14 @@
 
 #include "FastCaloSimGeometryHelper.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-//#include "ISF_FastCaloSimParametrization/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 using namespace std;
 
 /** Constructor **/
-FastCaloSimGeometryHelper::FastCaloSimGeometryHelper(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p), CaloGeometry(), m_caloMgr(nullptr)
+FastCaloSimGeometryHelper::FastCaloSimGeometryHelper(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p), CaloGeometry()
 {
   declareInterface<IFastCaloSimGeometryHelper>(this);
-
-  //declareProperty("XXX"        , XXX     );
 }
 
 FastCaloSimGeometryHelper::~FastCaloSimGeometryHelper()
@@ -24,12 +21,7 @@ FastCaloSimGeometryHelper::~FastCaloSimGeometryHelper()
 StatusCode FastCaloSimGeometryHelper::initialize()
 {
   ATH_MSG_INFO("Initializing FastCaloSimGeometryHelper");
-  
-  if(detStore()->retrieve(m_caloMgr, "CaloMgr").isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve CaloDetDescrManager from DetectorStore");
-    return StatusCode::FAILURE;
-  }  
-
+  ATH_CHECK(detStore()->retrieve(m_caloMgr, "CaloMgr"));
   LoadGeometryFromCaloDDM();
   
   return StatusCode::SUCCESS;
