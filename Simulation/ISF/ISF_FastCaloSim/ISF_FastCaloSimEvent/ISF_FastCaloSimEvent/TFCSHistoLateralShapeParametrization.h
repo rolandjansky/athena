@@ -10,7 +10,7 @@
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #ifdef USE_GPU
 #include "ISF_FastCaloGpu/LoadGpuFuncHist.h"
-#include "ISF_FastCaloGpu/GeoLoadGpu.h"
+#include "ISF_FastCaloGpu/FH_structs.h"
 #endif
 
 class TH2;
