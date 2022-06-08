@@ -257,7 +257,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
 
         size_t pVmax =std::min(in_PV_max, goodPrimaryVertices.size());
         std::vector<const xAOD::Vertex*> refPVvertexes;
-        std::vector<const xAOD::Vertex*> refPVvertexes_toDelete;
+        std::vector<xAOD::Vertex*> refPVvertexes_toDelete;
         std::vector<int> exitCode;
         refPVvertexes.reserve(pVmax);
         refPVvertexes_toDelete.reserve(pVmax);
@@ -280,7 +280,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
                 const xAOD::Vertex* oldPV = goodPrimaryVertices.at(i);
                 //when set to false this will return nullptr when a new vertex is not required
                 int exit =0;
-                const xAOD::Vertex* refPV = pvRefitter->refitVertex(oldPV, vtx.vtx(), false, &exit);
+                xAOD::Vertex* refPV = pvRefitter->refitVertex(oldPV, vtx.vtx(), false, &exit);
                 exitCode.push_back(exit);
                 //I want positioning to match the goodPrimaryVertices
                 if(refPV == nullptr){
@@ -322,7 +322,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
                 const xAOD::VertexContainer* ParentContainer =
                     (refPVvertexes_toDelete.at(highPtindex)) ? refPvContainer : pvContainer; 
                 if(ParentContainer == refPvContainer) //if refitted add to refitted container
-                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(highPtindex))); // store the new vertex
+                    refPvContainer->push_back(refPVvertexes_toDelete.at(highPtindex)); // store the new vertex
               
                 FillBPhysHelper(vtx, refPVvertexes[highPtindex],
                      ParentContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, exitCode[highPtindex]);
@@ -333,7 +333,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
                 const xAOD::VertexContainer* ParentContainer = 
                      (refPVvertexes_toDelete.at(lowA0)) ? refPvContainer : pvContainer; 
                 if(ParentContainer == refPvContainer && highPtindex!=lowA0)
-                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(lowA0))); // store the new vertex
+                    refPvContainer->push_back(refPVvertexes_toDelete.at(lowA0)); // store the new vertex
                 
                 FillBPhysHelper(vtx, refPVvertexes[lowA0],
                       ParentContainer, xAOD::BPhysHelper::PV_MIN_A0, exitCode[lowA0]);
@@ -347,7 +347,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
                 const xAOD::VertexContainer* ParentContainer =
                     (refPVvertexes_toDelete.at(lowZ)) ? refPvContainer : pvContainer;
                 if(ParentContainer == refPvContainer && highPtindex!=lowZ && lowZ!=lowA0)
-                    refPvContainer->push_back(const_cast<xAOD::Vertex*>(refPVvertexes.at(lowZ))); // store the new vertex
+                    refPvContainer->push_back(refPVvertexes_toDelete.at(lowZ)); // store the new vertex
                 
                 FillBPhysHelper(vtx, refPVvertexes[lowZ], 
                       ParentContainer, xAOD::BPhysHelper::PV_MIN_Z0, exitCode[lowZ]);
@@ -363,8 +363,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
 		if (ParentContainer == refPvContainer && highPtindex!=lowZBA
 		    && lowZBA!=lowA0 && lowZBA != lowZ) {
 		  // store the new vertex
-		  refPvContainer->push_back(const_cast<xAOD::Vertex*>
-					    (refPVvertexes.at(lowZBA)));
+		  refPvContainer->push_back(refPVvertexes_toDelete.at(lowZBA));
 		}
 		FillBPhysHelper(vtx, refPVvertexes[lowZBA],
 				ParentContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA,
@@ -478,7 +477,7 @@ const Amg::Vector3D& DerivationFramework::BPhysPVTools::GetBeamSpot() const noex
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-size_t DerivationFramework::BPhysPVTools::FindLowZ0BAIndex(const xAOD::BPhysHelper &obj,
+size_t DerivationFramework::BPhysPVTools::FindLowZ0BAIndex(xAOD::BPhysHelper &obj,
 							   const std::vector<const xAOD::Vertex*> &PVlist,
 							   const size_t PV_minNTracks) const {
   
@@ -498,7 +497,7 @@ size_t DerivationFramework::BPhysPVTools::FindLowZ0BAIndex(const xAOD::BPhysHelp
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-double DerivationFramework::BPhysPVTools::DistInZtoDOCA(const xAOD::BPhysHelper &obj, const xAOD::Vertex* vertex) const {
+double DerivationFramework::BPhysPVTools::DistInZtoDOCA(xAOD::BPhysHelper &obj, const xAOD::Vertex* vertex) const {
 
   Amg::Vector3D pv    = vertex->position();
   Amg::Vector3D xDOCA = DocaExtrapToBeamSpot(obj);
@@ -508,10 +507,10 @@ double DerivationFramework::BPhysPVTools::DistInZtoDOCA(const xAOD::BPhysHelper 
 //-----------------------------------------------------------------------------
 // added by WW:
 //
-Amg::Vector3D DerivationFramework::BPhysPVTools::DocaExtrapToBeamSpot(const xAOD::BPhysHelper& obj) const {
+Amg::Vector3D DerivationFramework::BPhysPVTools::DocaExtrapToBeamSpot(xAOD::BPhysHelper& obj) const {
 
   Amg::Vector3D xDOCA(-99999., -99999., -99999.);
-  TVector3      totP(const_cast<xAOD::BPhysHelper&>(obj).totalP());
+  TVector3      totP(obj.totalP());
   Amg::Vector3D pSV(totP.X(), totP.Y(), totP.Z());
   Amg::Vector3D pT(pSV.x(), pSV.y(), 0.);
   if ( pT.mag2() > 0 ) {

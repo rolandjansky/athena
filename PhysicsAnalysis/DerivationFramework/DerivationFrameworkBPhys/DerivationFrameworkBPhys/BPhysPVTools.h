@@ -87,16 +87,16 @@ namespace DerivationFramework {
 
        /// Find the index for the PV with the lowest distance in z of
        /// the SV's DOCA point w.r.t. the beamline and the PV.
-       size_t FindLowZ0BAIndex(const xAOD::BPhysHelper &obj,
+       size_t FindLowZ0BAIndex(xAOD::BPhysHelper &obj,
 			       const std::vector<const xAOD::Vertex*> &PVlist,
 			       const size_t PV_minNTracks=0) const;
        /// Calculate the distance along z axis between the PV and
        ///  SV's DOCA point w.r.t. the beamline.
-       double DistInZtoDOCA(const xAOD::BPhysHelper &obj,
+       double DistInZtoDOCA(xAOD::BPhysHelper &obj,
 			    const xAOD::Vertex* vertex) const;
        /// Point of DOCA w.r.t. the beamline backward extrapolated
        /// along the B candidate's momentum direction. 
-       Amg::Vector3D DocaExtrapToBeamSpot(const xAOD::BPhysHelper &obj) const;
+       Amg::Vector3D DocaExtrapToBeamSpot(xAOD::BPhysHelper &obj) const;
 
        static void PrepareVertexLinks(xAOD::Vertex* theResult,
                const xAOD::TrackParticleContainer* importedTrackCollection);

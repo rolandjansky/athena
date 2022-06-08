@@ -350,7 +350,7 @@ namespace Trk
 
 ///// ANTHONY ADDITION
 
-const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const
+xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const
  {
   if(track)
   {
@@ -361,7 +361,7 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const xAOD::Tra
   //end of track particle validity check
  }
 
-const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const
+xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const
  {
    if (!track) {
      msg(MSG::INFO) << "Empty Trk::TrackParameter pointer passed. Returning zero " << endmsg;

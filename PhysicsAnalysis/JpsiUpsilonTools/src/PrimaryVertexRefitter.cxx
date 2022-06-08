@@ -37,7 +37,7 @@ AthAlgTool(t,n,p)
 PrimaryVertexRefitter::~PrimaryVertexRefitter() { }
 
 // -------------------------------------------------------------------------------------------------
-const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const xAOD::Vertex* excludeVertex, bool returnCopy, int* exitcode) const
+xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const xAOD::Vertex* excludeVertex, bool returnCopy, int* exitcode) const
 {
 
   if (vertex == 0) {
@@ -73,7 +73,7 @@ const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* verte
 }
 
 // -------------------------------------------------------------------------------------------------
-const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps, bool returnCopy, int* exitcode) const
+xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps, bool returnCopy, int* exitcode) const
 {
 
   if (vertex == 0) {
@@ -99,7 +99,7 @@ const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* verte
     return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
   }
 
-  const xAOD::Vertex* reducedVertex(0);
+  xAOD::Vertex* reducedVertex(0);
   const xAOD::Vertex* tmpVert = vertex;
   std::vector <const xAOD::TrackParticle*>::const_iterator pb = tps.begin();
   std::vector <const xAOD::TrackParticle*>::const_iterator pe = tps.end();

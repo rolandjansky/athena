@@ -66,8 +66,8 @@ namespace Trk
    virtual const  ImpactParametersAndSigma * estimate(const Trk::TrackParameters * track, const Trk::TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const = 0;
 
 
-   virtual const xAOD::Vertex *   getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const = 0;
-   virtual const xAOD::Vertex * getUnbiasedVertex(const Trk::TrackParameters * track, const xAOD::Vertex * vtx ) const =0;
+   virtual xAOD::Vertex *   getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const = 0;
+   virtual xAOD::Vertex * getUnbiasedVertex(const Trk::TrackParameters * track, const xAOD::Vertex * vtx ) const =0;
 
    virtual const ImpactParametersAndSigma  * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex* vtx)const =0;
    virtual const ImpactParametersAndSigma  * estimate(const Trk::TrackParameters * track, const xAOD::Vertex* vtx)const =0;
