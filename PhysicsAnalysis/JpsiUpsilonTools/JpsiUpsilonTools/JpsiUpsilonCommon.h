@@ -54,7 +54,7 @@ namespace Analysis {
 template< size_t N>
 bool JpsiUpsilonCommon::isContainedIn(const xAOD::TrackParticle* t, const std::array<const xAOD::TrackParticle*, N>& cont )
  {
-    return std::find(cont.begin(), cont.end(), t);
+    return std::find(cont.begin(), cont.end(), t) != cont.end();
  }
 }
 
