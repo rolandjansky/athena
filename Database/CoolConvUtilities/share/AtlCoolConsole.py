@@ -105,9 +105,10 @@ class AtlCoolConsole( HistoryConsole ):
 
     def parseLine( self, line ):
         for command in self.commands.keys():
-            res = re.search( '^' + command + '\s*(?P<remainder>.*)', line )
+            #res = re.search( '^' + command + '\s*(?P<remainder>.*)', line )
+            res=re.search( '^' + command + '($|\s+(?P<remainder>.*))', line )
             if res is not None:
-                return command, res.group('remainder')
+                return command, res.group('remainder') or ""
         return None, line
 
 
