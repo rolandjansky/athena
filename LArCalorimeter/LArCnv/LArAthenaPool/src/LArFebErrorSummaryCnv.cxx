@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFebErrorSummaryCnv.h"
@@ -30,7 +30,7 @@ LArFebErrorSummaryCnv::createTransient()
   LArFebErrorSummary         *trans = NULL;
   
   // GUID for persistent classes
-  static pool::Guid   guid_p1("9448FB64-AB7E-4995-A5FC-23E9A6C1AF80");
+  static const pool::Guid   guid_p1("9448FB64-AB7E-4995-A5FC-23E9A6C1AF80");
 
   if( compareClassGuid(guid_p1) ) {
       std::unique_ptr<LArFebErrorSummary_p1> col_vect( poolReadObject<LArFebErrorSummary_p1>() );

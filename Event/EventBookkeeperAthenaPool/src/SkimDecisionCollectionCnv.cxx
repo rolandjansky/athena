@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ SkimDecisionCollection_PERS* SkimDecisionCollectionCnv::createPersistent(SkimDec
 SkimDecisionCollection* SkimDecisionCollectionCnv::createTransient() {
   MsgStream log(msgSvc(), "SkimDecisionCollectionConverter" );
   //p1_guid matches the number in EventBookkeeperTPCnv/selection.xtml and is generated with uuidgen | tr "[:lower:]" "[:upper:]"
-  static pool::Guid   p1_guid("5705559E-F062-4F15-A220-78A8542EFBF3");
+  static const pool::Guid   p1_guid("5705559E-F062-4F15-A220-78A8542EFBF3");
   if( compareClassGuid(p1_guid) ) {
     // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< SkimDecisionCollection_p1 > col_vect( poolReadObject< SkimDecisionCollection_p1 >() );

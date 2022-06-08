@@ -34,11 +34,11 @@ CscRawDataContainer* CscRawDataContainerCnv::createTransient()
   
   CscRawDataContainer *            trans_cont = nullptr;
   
-  static pool::Guid p4_guid("F94905BF-D474-4453-B9D0-80ECB7BA4041");
-  static pool::Guid p3_guid("A77330FB-BD12-4E50-829C-DADFBF556119");
-  static pool::Guid p2_guid("19221A0D-4167-4A1C-BE2A-EE335D7C9D5F");
-  static pool::Guid p1_guid("3586FE6B-0504-4E78-BD9F-AF839C50F931");
-  static pool::Guid p0_guid("D7600810-31BC-4344-A3C6-9C59F47E5551");
+  static const pool::Guid p4_guid("F94905BF-D474-4453-B9D0-80ECB7BA4041");
+  static const pool::Guid p3_guid("A77330FB-BD12-4E50-829C-DADFBF556119");
+  static const pool::Guid p2_guid("19221A0D-4167-4A1C-BE2A-EE335D7C9D5F");
+  static const pool::Guid p1_guid("3586FE6B-0504-4E78-BD9F-AF839C50F931");
+  static const pool::Guid p0_guid("D7600810-31BC-4344-A3C6-9C59F47E5551");
 
   if( compareClassGuid(p4_guid) ) {
     // from this version onwards, the CSC identifier hashes are actually the position of the identifiers in the vector of identifiers

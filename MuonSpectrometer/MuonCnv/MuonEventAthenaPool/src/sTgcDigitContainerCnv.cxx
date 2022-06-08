@@ -46,7 +46,7 @@ STGC_DigitContainer_PERS*    sTgcDigitContainerCnv::createPersistent (sTgcDigitC
 
 sTgcDigitContainer* sTgcDigitContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "sTgcDigitContainerCnv" );
-    static pool::Guid   p1_guid("F3581998-EC4F-4F34-A153-9F3415C4087A"); 
+    static const pool::Guid   p1_guid("F3581998-EC4F-4F34-A153-9F3415C4087A"); 
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     sTgcDigitContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {

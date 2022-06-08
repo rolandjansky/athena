@@ -48,9 +48,9 @@ MdtPrepDataContainer_PERS*    MdtPrepDataContainerCnv::createPersistent (Muon::M
 
 Muon::MdtPrepDataContainer* MdtPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "MdtPrepDataContainerCnv" );
-    static pool::Guid   p0_guid("7479AE0B-3E99-4344-E6A5-3DDF78E1A363"); // before t/p split
-    static pool::Guid   p1_guid("7E3F92F5-FAFF-45C3-A8F5-386B3CD56A7B"); // with MdtPrepDataContainerCnv_tlp1
-    static pool::Guid   p2_guid("BBC02355-570A-4C28-81A6-65F23779509E"); // with MdtPrepDataContainerCnv_p2
+    static const pool::Guid   p0_guid("7479AE0B-3E99-4344-E6A5-3DDF78E1A363"); // before t/p split
+    static const pool::Guid   p1_guid("7E3F92F5-FAFF-45C3-A8F5-386B3CD56A7B"); // with MdtPrepDataContainerCnv_tlp1
+    static const pool::Guid   p2_guid("BBC02355-570A-4C28-81A6-65F23779509E"); // with MdtPrepDataContainerCnv_p2
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::MdtPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p2_guid) ) {

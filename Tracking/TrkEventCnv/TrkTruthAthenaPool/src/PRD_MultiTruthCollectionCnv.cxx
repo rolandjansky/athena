@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PRD_MultiTruthCollectionCnv.h"
@@ -11,10 +11,10 @@
 #include "TrkTruthTPCnv/PRD_MultiTruthCollectionCnv_p3.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
-pool::Guid PRD_MultiTruthCollectionCnv::s_p0_guid("30794FF9-F003-44A6-8553-ED61E2039882");
-pool::Guid PRD_MultiTruthCollectionCnv::s_p1_guid("6649A9D1-719F-4954-A385-D01BCA8E41EF");
-pool::Guid PRD_MultiTruthCollectionCnv::s_p2_guid("714F2E4A-419D-4BDB-8080-BEEB6CDBA0DA");
-pool::Guid PRD_MultiTruthCollectionCnv::s_p3_guid("68703476-9D09-4504-B492-E5E4DC933E71");
+const pool::Guid PRD_MultiTruthCollectionCnv::s_p0_guid("30794FF9-F003-44A6-8553-ED61E2039882");
+const pool::Guid PRD_MultiTruthCollectionCnv::s_p1_guid("6649A9D1-719F-4954-A385-D01BCA8E41EF");
+const pool::Guid PRD_MultiTruthCollectionCnv::s_p2_guid("714F2E4A-419D-4BDB-8080-BEEB6CDBA0DA");
+const pool::Guid PRD_MultiTruthCollectionCnv::s_p3_guid("68703476-9D09-4504-B492-E5E4DC933E71");
 
 //================================================================
 PRD_MultiTruthCollectionCnv::PRD_MultiTruthCollectionCnv(ISvcLocator* svcLoc) : 

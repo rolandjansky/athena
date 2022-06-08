@@ -38,8 +38,8 @@ TileMuContainer* TileMuContainerCnv::createTransient() {
 
   TileMuContainer *transObj = 0;
 
-  static pool::Guid tr_guid("FC0456E4-912B-425B-9AA2-4DDD0C6B2275");
-  static pool::Guid p1_guid("DE8904EB-25FD-495A-8DD5-E31B05E397C6");
+  static const pool::Guid tr_guid("FC0456E4-912B-425B-9AA2-4DDD0C6B2275");
+  static const pool::Guid p1_guid("DE8904EB-25FD-495A-8DD5-E31B05E397C6");
 
   if ( compareClassGuid(tr_guid) ) {
 

@@ -32,8 +32,8 @@ MdtCsmContainerCnv::createTransient()
     // using the correct persistent type pointer
     
     MdtCsmContainer *trans_cont = 0;
-    static pool::Guid	p1_guid("66D77835-5290-4C9A-842A-AF10F384FC93");
-    static pool::Guid	p0_guid("CFDA6FF6-557F-40CB-9C54-B5A7404A9175");
+    static const pool::Guid	p1_guid("66D77835-5290-4C9A-842A-AF10F384FC93");
+    static const pool::Guid	p0_guid("CFDA6FF6-557F-40CB-9C54-B5A7404A9175");
 
     if( compareClassGuid(p1_guid) ) {
         std::unique_ptr< MdtCsmContainer_p1 > col_vect( poolReadObject< MdtCsmContainer_p1 >() );

@@ -64,9 +64,9 @@ MM_RawDataContainerCnv::createTransient()
   MsgStream log(msgSvc(), "MM_RawDataContainerCnv" );
  
   MM_RawDataContainer *transCont = nullptr;
-  static pool::Guid	p1_guid("5F202045-CE2C-4AD4-96BA-7DA18053B90F");
-  static pool::Guid	p2_guid("A49EBDAC-A190-4198-95DF-BF75FBBB487F");
-  static pool::Guid	p3_guid("229DDB7E-59D3-4BE5-B3D5-B873EBC5C9AA");
+  static const pool::Guid	p1_guid("5F202045-CE2C-4AD4-96BA-7DA18053B90F");
+  static const pool::Guid	p2_guid("A49EBDAC-A190-4198-95DF-BF75FBBB487F");
+  static const pool::Guid	p3_guid("229DDB7E-59D3-4BE5-B3D5-B873EBC5C9AA");
 
   if( compareClassGuid(p1_guid) ) {
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<std::endl;

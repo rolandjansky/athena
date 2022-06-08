@@ -35,9 +35,9 @@ RpcPadContainerCnv::createTransient()
     // using the correct persistent type pointer
 
     RpcPadContainer *trans_cont = 0;
-    static pool::Guid	p2_guid("3B29433B-015F-4664-AB3F-A6B2FAA8C97F");
-    static pool::Guid	p1_guid("60A912DD-7920-4DCE-986E-6CD5644835BD");
-    static pool::Guid	p0_guid("85B897F6-E15D-4215-9DAC-EA2828BCEEC9");
+    static const pool::Guid	p2_guid("3B29433B-015F-4664-AB3F-A6B2FAA8C97F");
+    static const pool::Guid	p1_guid("60A912DD-7920-4DCE-986E-6CD5644835BD");
+    static const pool::Guid	p0_guid("85B897F6-E15D-4215-9DAC-EA2828BCEEC9");
     if( compareClassGuid(p2_guid) ) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** createTransient - p2 " << endmsg;
 

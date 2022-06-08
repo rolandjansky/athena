@@ -33,9 +33,9 @@ sTGCSimHitCollection_PERS*    sTGCSimHitCollectionCnv::createPersistent (sTGCSim
 
 sTGCSimHitCollection* sTGCSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "sTGCSimHitCollectionCnv" );
-    static pool::Guid   p1_guid("f8b975d2-8130-11e8-abf4-4b4a6a2b6ee5");
-    static pool::Guid   p2_guid("b9521cc6-6e3b-11e8-adbb-02163e01bddd");
-    static pool::Guid   p3_guid("8f3ffd1c-c9a0-4da7-b99e-a3828b6ac789");
+    static const pool::Guid   p1_guid("f8b975d2-8130-11e8-abf4-4b4a6a2b6ee5");
+    static const pool::Guid   p2_guid("b9521cc6-6e3b-11e8-adbb-02163e01bddd");
+    static const pool::Guid   p3_guid("8f3ffd1c-c9a0-4da7-b99e-a3828b6ac789");
 
     ATH_MSG_DEBUG("createTransient(): main converter");
     sTGCSimHitCollection* p_collection(nullptr);

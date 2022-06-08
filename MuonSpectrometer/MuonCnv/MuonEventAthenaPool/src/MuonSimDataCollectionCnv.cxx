@@ -31,9 +31,9 @@ MuonSimDataCollection_PERS*    MuonSimDataCollectionCnv::createPersistent (MuonS
 
 MuonSimDataCollection* MuonSimDataCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
-    static pool::Guid   p0_guid("5B50C32E-A036-4B49-AC97-716E53210BE2");
-    static pool::Guid   p1_guid("0605B4A3-3744-4486-B39D-F9C9E809D868");
-    static pool::Guid   p2_guid("E0AA3013-4EF7-45B6-BDB1-17B21BF60791");
+    static const pool::Guid   p0_guid("5B50C32E-A036-4B49-AC97-716E53210BE2");
+    static const pool::Guid   p1_guid("0605B4A3-3744-4486-B39D-F9C9E809D868");
+    static const pool::Guid   p2_guid("E0AA3013-4EF7-45B6-BDB1-17B21BF60791");
     ATH_MSG_DEBUG("createTransient(): main converter");
     MuonSimDataCollection* p_collection(nullptr);
     if( compareClassGuid(p2_guid) ) {

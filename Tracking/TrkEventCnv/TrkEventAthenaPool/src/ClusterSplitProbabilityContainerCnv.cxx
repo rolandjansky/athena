@@ -26,7 +26,7 @@ ClusterSplitProbabilityContainer_PERS * ClusterSplitProbabilityContainerCnv::cre
 Trk::ClusterSplitProbabilityContainer *ClusterSplitProbabilityContainerCnv::createTransient()
 {
     MsgStream log(msgSvc(), s_name );
-    static pool::Guid p1_guid( "33129502-20bc-44f9-acff-62e5c3670d46" );
+    static const pool::Guid p1_guid( "33129502-20bc-44f9-acff-62e5c3670d46" );
 
     Trk::ClusterSplitProbabilityContainer *p_collection = nullptr;
     if( compareClassGuid( p1_guid )){

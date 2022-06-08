@@ -35,10 +35,10 @@ CSCSimHitCollection_PERS*    CSCSimHitCollectionCnv::createPersistent (CSCSimHit
 
 CSCSimHitCollection* CSCSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "CSCSimHitCollectionCnv" );
-    static pool::Guid   p0_guid("DC744F9B-078A-4C61-B03F-D035D885B559"); // before t/p split
-    static pool::Guid   p1_guid("E45CD293-4599-41BE-8B65-945A18F41AB7"); 
-    static pool::Guid   p2_guid("7E5A120C-E64F-4519-A24B-B485A58724BF");
-    static pool::Guid   p3_guid("6BFFE81C-C99E-43D9-B06F-1A998C3B3E40");
+    static const pool::Guid   p0_guid("DC744F9B-078A-4C61-B03F-D035D885B559"); // before t/p split
+    static const pool::Guid   p1_guid("E45CD293-4599-41BE-8B65-945A18F41AB7"); 
+    static const pool::Guid   p2_guid("7E5A120C-E64F-4519-A24B-B485A58724BF");
+    static const pool::Guid   p3_guid("6BFFE81C-C99E-43D9-B06F-1A998C3B3E40");
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     CSCSimHitCollection* p_collection(nullptr);
     if( compareClassGuid(p3_guid) ) {

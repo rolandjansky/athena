@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawChannelContainerCnv.h"
@@ -32,11 +32,11 @@ LArRawChannelContainerCnv::createTransient()
   LArRawChannelContainer         *trans_cont = NULL;
   
   // GUID for new and old persistent classes
-  static pool::Guid   guid_p4("E3B70B7A-0D69-429A-AD43-B68941E879FB");
-  static pool::Guid   guid_p3("95401B94-3D69-49BD-B901-C7B71940D746");
-  static pool::Guid   guid_p2("AD521521-4043-472B-BF8B-FDFDC1870FD9");
-  static pool::Guid   guid_p1("1569AF5C-5F27-4C02-A87B-47FF192F1605");
-  static pool::Guid   guid_p0("9D624DCE-B943-4515-B33A-6F6928F8EB90");
+  static const pool::Guid   guid_p4("E3B70B7A-0D69-429A-AD43-B68941E879FB");
+  static const pool::Guid   guid_p3("95401B94-3D69-49BD-B901-C7B71940D746");
+  static const pool::Guid   guid_p2("AD521521-4043-472B-BF8B-FDFDC1870FD9");
+  static const pool::Guid   guid_p1("1569AF5C-5F27-4C02-A87B-47FF192F1605");
+  static const pool::Guid   guid_p0("9D624DCE-B943-4515-B33A-6F6928F8EB90");
  // even newer representation of LArRawChannelContainer
   if( compareClassGuid(guid_p4) ) {
       LArRawChannelContainerCnv_p4   converter;

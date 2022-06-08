@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DetailedTrackTruthCollectionCnv.h"
@@ -18,10 +18,10 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // This is release 12 guid for DetailedTrackTruthVector.
-pool::Guid DetailedTrackTruthCollectionCnv::s_p0_guid("8F573396-F26F-47FD-B05C-549E9D5C77E1");
-pool::Guid DetailedTrackTruthCollectionCnv::s_p1_guid("1BA26DEE-BACE-43D6-8F19-E9490CDE8BB8");
-pool::Guid DetailedTrackTruthCollectionCnv::s_p2_guid("B30AE3A0-F34E-45B6-A8A1-B9CB5E669EB2");
-pool::Guid DetailedTrackTruthCollectionCnv::s_p3_guid("F5A1DC75-C3FB-4575-8178-905223CF1277");
+const pool::Guid DetailedTrackTruthCollectionCnv::s_p0_guid("8F573396-F26F-47FD-B05C-549E9D5C77E1");
+const pool::Guid DetailedTrackTruthCollectionCnv::s_p1_guid("1BA26DEE-BACE-43D6-8F19-E9490CDE8BB8");
+const pool::Guid DetailedTrackTruthCollectionCnv::s_p2_guid("B30AE3A0-F34E-45B6-A8A1-B9CB5E669EB2");
+const pool::Guid DetailedTrackTruthCollectionCnv::s_p3_guid("F5A1DC75-C3FB-4575-8178-905223CF1277");
 
 //================================================================
 DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* svcLoc) : 
