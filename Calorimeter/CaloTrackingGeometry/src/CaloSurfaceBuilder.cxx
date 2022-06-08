@@ -387,12 +387,6 @@ CaloSurfaceBuilder::CreateLastSurface(const CaloCell_ID::CaloSample sample,
   return nullptr;
 }
 
-void
-CaloSurfaceBuilder::setCaloDepth(CaloDepthTool* /*mytool*/)
-{
-  ATH_MSG_WARNING("The client doesn't need to set CaloDepthTool anymore!!! ");
-}
-
 CaloDepthTool*
 CaloSurfaceBuilder::getCaloDepth()
 {

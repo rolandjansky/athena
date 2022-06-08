@@ -51,7 +51,6 @@ public:
   /** AlgTool and IAlgTool interface methods */
   static const InterfaceID& interfaceID() { return IID_ICaloSurfaceBuilder; }
 
-  virtual void setCaloDepth(CaloDepthTool* mytool) = 0;
   virtual CaloDepthTool* getCaloDepth() = 0;
 
 
