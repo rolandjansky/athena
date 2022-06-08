@@ -54,7 +54,9 @@ void RpcROD_Encoder::clear() {
 
 void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
 
-
+ if (m_vRpcPad.empty()){
+   return;
+ }
  std::vector<unsigned short int> v16;
 
  RPCRODStructure  rodReadout; 
@@ -67,12 +69,10 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
  typedef std::vector<const RpcPad*> receiver;
  std::map<int, receiver> mapReceiver; 
 
- std::vector<const RpcPad*>::const_iterator it     = m_vRpcPad.begin();
- std::vector<const RpcPad*>::const_iterator it_end = m_vRpcPad.end();
- for(; it!=it_end; ++it){
-   const  RpcPad* pad = (*it); 
-   int sector = pad->sector();
-   mapReceiver[sector].push_back(pad);
+
+ for(const auto & pPad: m_vRpcPad){
+   int sector = pPad->sector();
+   mapReceiver[sector].push_back(pPad);
  }
 
  std::map<int,receiver>::iterator re     = mapReceiver.begin(); 
@@ -83,12 +83,9 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
  v.push_back( rodReadout.getHeaderSize() );
  v.push_back( rodReadout.getFormatVersion() );
  uint16_t side   = ( (*re).first < 32 ) ? 0:1; 
- //uint16_t slogic = (*re).first % 32;
  uint16_t rodId  =  ( (*re).first % 32 ) / 2;
  assert (rodId <= 15);
 
- //uint32_t theROD = m_hid2re->getRodID( (*re).first );
- //uint32_t theROB = m_hid2re->getRobID(theROD);
 
  v.push_back( rodReadout.getSourceID(side,rodId) );
  v.push_back(0); // Level1ID
@@ -96,9 +93,7 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
  v.push_back(0); // Level1TriggerType
  v.push_back(0); // DetectorEventType
 
- //msg(MSG::DEBUG) << "The ROB and ROD IDs are " << theROB << " " << theROD << endmsg;
 
- //msg(MSG::DEBUG) << "The side and rodId are " << side << " " << rodId << endmsg;
 
  // make the body of the ROD
  for (; re!=re_end; ++re) {
@@ -110,8 +105,7 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
    rxHeader[2] = 0;
    
    uint16_t receiverHeader = rxReadout.makeHeader(rxHeader);
-   // msg(MSG::DEBUG) << "The receiver header word is " << hex 
-   //  << receiverHeader << dec << endmsg;
+
 
    v16.push_back(receiverHeader);
 
@@ -128,7 +122,6 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
      padHeader[1] = pad->onlineId();
      padHeader[2] = pad->status();
      v16.push_back(padReadout.makeHeader(padHeader));
-     //std::cout << "pad id = " << pad->onlineId() << std::endl;
      // make the pad body:: cma header, sub-header, body, and footer
      RpcPad::const_iterator it_cma = pad->begin(); 
      RpcPad::const_iterator it_cma_end = pad->end(); 
@@ -169,8 +162,7 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
      ubit16 errorCodes[6]={0,0,0,0,0,0};  
      v16.push_back(padReadout.makeFooter( errorCodes ));
 
-     // temp solution to use new methods in pad reaout structure
-     //v16.push_back(padReadout.makeFooter_new(errorCodes));
+
 
    }
    // make the receiver footer
@@ -190,16 +182,7 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
  v.push_back(0); // NumberOfDataElements
  v.push_back(0); // StatusBlockPosition
  
- /*
-   msg(MSG::DEBUG) << "**********Encoder dumping the words******** " << endmsg;
-   if (v.size() > 0 ) {
-   msg(MSG::DEBUG) << "The size of this ROD-write is " << v.size() << endmsg;
-   for (int i=0; (uint32_t)i < v.size(); i++)
-   msg(MSG::DEBUG) << "word " << i << " = " << std::hex << v[i] << dec 
-   << endmsg;
-   // msg(MSG::DEBUG) << "word " << i << " = " << v[i] << endmsg;
- }
-*/
+ 
  
  // clean up
 

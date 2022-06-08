@@ -5,7 +5,7 @@
 #ifndef MUONBYTESTREAM_RPCROD_ENCODER_H
 #define MUONBYTESTREAM_RPCROD_ENCODER_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "TrigT1RPChardware/MatrixReadOutStructure.h"
 
