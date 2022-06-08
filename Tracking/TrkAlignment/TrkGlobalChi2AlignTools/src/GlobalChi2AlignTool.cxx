@@ -245,8 +245,8 @@ namespace Trk {
     std::vector<Amg::VectorX*> allDerivativeErr;
     std::vector<double> allActualSecDeriv;
     int    WSize(weights.cols());
-    std::unique_ptr<Amg::MatrixX>  matrix_F( new Amg::MatrixX(3,WSize) );
-    matrix_F->setZero();
+    Amg::MatrixX  matrix_F(3,WSize );
+    matrix_F.setZero();
 
     // get all alignPars and all derivatives
     msg(MSG::DEBUG) << "accumulate: The derivative vector size is  " << derivatives.size() << endmsg;
@@ -286,7 +286,7 @@ namespace Trk {
       }
       for (int i=0;i<3;i++) {
         for (int j=0;j<WSize;j++) {
-          (*matrix_F)(i,j) += deriv_vec[nModPars+i][j];        // in the derivIT loop the complete F matrix is built
+          matrix_F(i,j) += deriv_vec[nModPars+i][j];        // in the derivIT loop the complete F matrix is built
         }
       }
 
@@ -406,7 +406,7 @@ namespace Trk {
 
       ATH_MSG_DEBUG( "accumulate: Contribution from the fullVTX will be added " );
      
-      Amg::MatrixX RHM = (*ptrCovariance) * (*matrix_F) * (weightsFirstDeriv * residuals);
+      Amg::MatrixX RHM = (*ptrCovariance) * (matrix_F) * (weightsFirstDeriv * residuals);
 
       std::vector<AlignPar*>         vtxAlignPars;
       std::vector<Amg::VectorX*>     vtxDerivatives;
