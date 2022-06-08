@@ -670,6 +670,7 @@ def setupMenu():
         ChainProp(name='HLT_fslrt0_L1J100', groups=SingleJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_fslrt0_L14J15', groups=MultiJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_fslrt0_L1XE50', groups=SingleMETGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_fslrt0_L1All', groups=SingleJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
 
         # TrigVSI
         ChainProp(name='HLT_fsvsi0_L1XE50', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
