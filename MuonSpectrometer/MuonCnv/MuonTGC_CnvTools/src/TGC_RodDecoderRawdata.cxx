@@ -399,7 +399,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 						 rdo.l1Id(),
 						 rdo.bcId(),
 						 sl.cand2plus,
-						 sl.fwd,
+						 static_cast<bool>(sl.fwd),
 						 sl.sector,
 						 sl.cand,
 						 sl.sign,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_TGCRAWDATA_H
@@ -25,6 +25,7 @@ public:
     friend class TgcRawDataCnv_p1;
     friend class TgcRawDataCnv_p2;
     friend class TgcRawDataCnv_p3;
+    friend class TgcRawDataCnv_p4;
 
     enum SlbType
     {
@@ -326,7 +327,7 @@ private:
     uint16_t m_l1Id;
     uint16_t m_bcId;
 
-    SlbType m_slbType;
+    SlbType m_slbType{SLB_TYPE_UNKNOWN};
 
     /********** Hit attributes
      */
