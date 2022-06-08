@@ -268,6 +268,8 @@ TriggerHLTListRun3 = [
     #Run-3 L1
 
     ("CaloCellContainer#SCell",                                'ESD', 'L1'),
+    ('xAOD::TriggerTowerContainer#xAODTriggerTowers' ,         'ESD', 'L1'),
+    ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.' ,  'ESD', 'L1'),
 
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs',                          'BS ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
