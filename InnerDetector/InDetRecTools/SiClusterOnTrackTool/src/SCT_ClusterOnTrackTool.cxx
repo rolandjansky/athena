@@ -115,12 +115,11 @@ InDet::SCT_ClusterOnTrackTool::finalize() {
 const InDet::SCT_ClusterOnTrack *
 InDet::SCT_ClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
-  const InDet::SCT_Cluster *SC = nullptr;
 
-  if (!(SC = dynamic_cast<const InDet::SCT_Cluster *> (&rio))) {
+  if (not rio.type(Trk::PrepRawDataType::SCT_Cluster)) {
     return nullptr;
   }
-
+  const InDet::SCT_Cluster * SC = static_cast<const InDet::SCT_Cluster *> (&rio);
   const InDet::SiWidth width = SC->width();
   const Amg::Vector2D &colRow = width.colRow();
 
