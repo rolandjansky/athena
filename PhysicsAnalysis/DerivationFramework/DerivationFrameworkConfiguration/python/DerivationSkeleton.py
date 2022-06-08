@@ -40,8 +40,8 @@ def fromRunArgs(runArgs):
     ConfigFlags.Input.Files = getattr(runArgs, f'input{allowedInputTypes[idx]}File')
 
     # Output formats
-    if hasattr(runArgs, 'requiredDerivedFormats'):
-        logDerivation.info('Will attempt to make the following derived formats: {0}'.format(runArgs.requiredDerivedFormats))
+    if hasattr(runArgs, 'formats'):
+        logDerivation.info('Will attempt to make the following derived formats: {0}'.format(runArgs.formats))
     else:
         logDerivation.error('Derivation job started, but with no output formats specified - aborting')
         raise ValueError('No derived formats specified')
@@ -70,8 +70,8 @@ def fromRunArgs(runArgs):
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(PoolWriteCfg(ConfigFlags))
 
-    if hasattr(runArgs, 'requiredDerivedFormats'):
-        for formatName in runArgs.requiredDerivedFormats:
+    if hasattr(runArgs, 'formats'):
+        for formatName in runArgs.formats:
             derivationConfig = getattr(DerivationConfigList, f'{formatName}Cfg')
             cfg.merge(derivationConfig(ConfigFlags))
     else:
