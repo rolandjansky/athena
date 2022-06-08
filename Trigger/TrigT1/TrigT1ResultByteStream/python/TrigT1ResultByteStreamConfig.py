@@ -207,9 +207,14 @@ if __name__ == '__main__':
   if subsystem not in supportedSubsystems:
     log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
     sys.exit(1)
+  
+  if "data22" in filename:
+    flags.Trigger.triggerConfig='DB'
 
   flags.Exec.OutputLevel = WARNING
-  flags.Exec.MaxEvents = events
+  if(events > 0):
+    flags.Exec.MaxEvents = events
+
   flags.Input.Files = [filename]
   flags.Concurrency.NumThreads = 1
   flags.Concurrency.NumConcurrentEvents = 1
@@ -221,6 +226,20 @@ if __name__ == '__main__':
 
   from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
   acc.merge(ByteStreamReadCfg(flags))
+  
+  # Generate run3 L1 menu
+  from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
+  acc.merge(L1ConfigSvcCfg(flags))
+
+  if "data22" not in filename:   
+    generateL1Menu(flags)
+  
+  # Produce xAOD L1 RoIs from RoIBResult
+  from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
+  xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
+  acc.merge(L1TriggerByteStreamDecoderCfg(flags))
+  acc.merge(xRoIBResultAcc)  
+  
 
   decoderTools = []
   outputEDM = []
@@ -229,6 +248,11 @@ if __name__ == '__main__':
     auxType = edmType.replace('Container','AuxContainer')
     return [f'{edmType}#{edmName}',
             f'{auxType}#{edmName}Aux.']
+            
+  outputEDM += addEDM('xAOD::JetEtRoI'         , 'LVL1JetEtRoI')
+  outputEDM += addEDM('xAOD::JetRoIContainer'  , 'LVL1JetRoIs')
+  outputEDM += addEDM('xAOD::EmTauRoIContainer', 'LVL1EmTauRoIs')
+  outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
 
   if subsystem=='jFex':
     from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexByteStreamToolCfg
