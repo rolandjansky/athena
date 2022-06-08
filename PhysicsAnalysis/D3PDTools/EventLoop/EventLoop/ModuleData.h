@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 class TFile;
 class TList;
@@ -100,6 +101,9 @@ namespace EL
 
       /// \brief the worker (to pass on to the algorithms)
       Worker *m_worker {nullptr};
+
+      /// \brief the list of output files
+      std::map<std::string,Detail::OutputStreamData> m_outputs;
 
 
       /// \brief add the given output object to the histogram output stream

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -138,6 +138,13 @@ namespace EL
       /// at or at least near the end of any log file.
     public:
       virtual ::StatusCode onWorkerEnd (ModuleData& data);
+
+      /// \brief action at of the worker job
+      ///
+      /// Executed just right before worker exit successfully
+      /// at this stage all outputs have been created 
+    public: 
+      virtual ::StatusCode postFileClose(ModuleData& data);
 
 
       /// \brief report that we failed to open our input file
