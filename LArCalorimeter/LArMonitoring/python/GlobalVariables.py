@@ -168,7 +168,7 @@ lArDQGlobals.N_DigitsSummary=4
 lArDQGlobals.DigitsSummary=["OutOfRange","Saturation","Null Digits","Mean Time"]
 
 #samples range
-lArDQGlobals.Samples_Bins=32
+lArDQGlobals.Samples_Bins=33
 lArDQGlobals.Samples_Min=-0.5
 lArDQGlobals.Samples_Max=lArDQGlobals.Samples_Bins-0.5
 
