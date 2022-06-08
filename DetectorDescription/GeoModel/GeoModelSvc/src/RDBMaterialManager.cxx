@@ -394,7 +394,7 @@ GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNum
   }
 }
 
-const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) const{
+const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) {
 
   unsigned int  ind, com_ind;
 	

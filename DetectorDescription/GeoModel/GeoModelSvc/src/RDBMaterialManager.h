@@ -35,7 +35,7 @@ class RDBMaterialManager final : public StoredMaterialManager {
   virtual ~RDBMaterialManager();
 
   // Query the material:
-  virtual const GeoMaterial *getMaterial(const std::string &name) const override;
+  virtual const GeoMaterial *getMaterial(const std::string &name) override;
  
   // Query the elements:
   virtual const GeoElement *getElement(const std::string & name) const override;

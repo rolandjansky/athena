@@ -64,7 +64,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   m_detectorManager=new ToyDetectorManager();
 
     #ifndef BUILDVP1LIGHT
-  	const StoredMaterialManager* materialManager = nullptr;
+  	StoredMaterialManager* materialManager = nullptr;
   	if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     	return; 
   	} 
