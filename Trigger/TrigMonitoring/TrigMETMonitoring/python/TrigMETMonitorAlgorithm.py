@@ -65,7 +65,6 @@ def TrigMETMonConfig(inputFlags):
     metChainsVal=moniAccess.monitoredChains(signatures="metMon",monLevels=["val"])
     metChainsT0=moniAccess.monitoredChains(signatures="metMon",monLevels=["t0"])
 
-
     ### container name selection
     if mt_chains: # these are temporary, needs to be changed
       TrigMETMonAlg.hlt_electron_key = 'HLT_egamma_Electrons'
@@ -158,9 +157,11 @@ def TrigMETMonConfig(inputFlags):
                  "gFexJwoj"]
     algsHLT = ["cell", 
                "tcpufit", 
+               "tcpufit_sig30", 
                "pfsum_cssk", 
                "pfsum_vssk", 
                "pfopufit", 
+               "pfopufit_sig30", 
                "mhtpufit_pf", 
                "mhtpufit_em",
                "met_nn"]
@@ -172,12 +173,17 @@ def TrigMETMonConfig(inputFlags):
                      "cvfpufit",
                      "pfsum",
                      "trkmht"]
+    algsMET2d_tcpufit = ["pfopufit", 
+                         "pfsum_cssk",
+                         "trkmht_pf"]
+
     ## pass algorithmss to TrigMETMonAlg
     TrigMETMonAlg.algsL1 = algsL1
     TrigMETMonAlg.algsL1Expert = algsL1Expert
     TrigMETMonAlg.algsHLT = algsHLT
     TrigMETMonAlg.algsHLT2d = algsHLT2d
     TrigMETMonAlg.algsHLTExpert = algsHLTExpert
+    TrigMETMonAlg.algsMET2d_tcpufit = algsMET2d_tcpufit
 
     ### cell component and status bit
     comp_names = ["PreSamplB", "EMB1", "EMB2", "EMB3", # LAr barrel
@@ -324,11 +330,29 @@ def TrigMETMonConfig(inputFlags):
                            path='Expert/Tracks',xbins=120,xmin=0,xmax=1200)
     metGroup.defineHistogram('hlt_tracks_pt',title='HLT Tracks p_{T};p_{T} [GeV];Events',
                            path='Expert/Tracks',xbins=50,xmin=0,xmax=20)
+    metGroup.defineHistogram('hlt_tracks_leading_pt',title='HLT Tracks Leading p_{T};p_{T} [GeV];Events',
+                           path='Expert/Tracks',xbins=50,xmin=0,xmax=20)
+    metGroup.defineHistogram('hlt_tracks_vec_sumPt',title='HLT Tracks Vector Sum p_{T};p_{T} [GeV];Events',
+                           path='Expert/Tracks',xbins=100,xmin=0,xmax=100)
+    metGroup.defineHistogram('hlt_tracks_sca_sumPt',title='HLT Tracks Scalar Sum p_{T};p_{T} [GeV];Events',
+                           path='Expert/Tracks',xbins=100,xmin=0,xmax=1000)
+    metGroup.defineHistogram('hlt_tracks_eta,hlt_tracks_phi;hlt_tracks_eta_phi', 
+                           type='TH2F', 
+                           title='HLT Tracks #eta - #phi (p_{T} > 3 GeV);#eta;#phi',
+                           path='Expert/Tracks',
+                           xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
     ## Vertices
     metGroup.defineHistogram('hlt_vertex_mult',title='HLT Vertex Multiplicity;Number of Vertexs;Events',
-                           path='Expert/Vertex',xbins=50,xmin=0,xmax=50)
+                           path='Expert/Vertex',xbins=55,xmin=-5,xmax=50)
     metGroup.defineHistogram('hlt_vertex_z',title='HLT Vertex Z;Vertex Z [mm];Events',
                            path='Expert/Vertex',xbins=100,xmin=-200,xmax=200)
+    metGroup.defineHistogram('hlt_vertex_z_diff',title='(HLT-Offline) Vertex Z Diff;Vertex Z [mm];Events',
+                           path='Expert/Vertex',xbins=100,xmin=-200,xmax=200)
+    metGroup.defineHistogram('hlt_vertex_mult_mu,act_IPBC;hlt_vertex_mult_mu',
+                             type='TProfile',
+                             title='Average Vertex Mult. per IPBC;Actual IPBC;Average Vertex Mult.',
+                             path='Expert/Vertex',
+                             xbins=55, xmin=-5, xmax=55)
     
     ## L1
     for alg in algsL1:
@@ -477,7 +501,6 @@ def TrigMETMonConfig(inputFlags):
                              title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
                              path='Shifter/preSel',
                              xbins=et_bins,xmin=et_min,xmax=et_max)
-    
     # for alg in signalLepAlgs:
     for alg in signalLepAlgs:
       metGroup.defineHistogram('{}_SigEl_Ex'.format(alg),
@@ -662,6 +685,13 @@ def TrigMETMonConfig(inputFlags):
                                title='{} sumE_{{T}};sumE_{{T}} [GeV];Events'.format(alg),
                                path='Expert/HLT_{}'.format(alg),
                                xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
+    #2D MET tcpufit vs pfopufit, pfsum_cssk, trkmht
+    for alg in algsMET2d_tcpufit:
+      metGroup.defineHistogram('{}_2D_Et,tcpufit_2D_Et;hlt_tcpufit_Et_{}_Et'.format(alg, alg), 
+                               type='TH2F', 
+                               title='HLT tcpufit Missing E_{{T}} vs. HLT {} Missing Et;{} E_{{T}} [GeV];tcpufit E_{{T}} [GeV]'.format(alg, alg),
+                               path='Expert/HLT_MET2D',
+                               xbins=40,xmin=et_min,xmax=et_max,ybins=40,ymin=et_min,ymax=et_max) 
     ## Chain specific
     metChain1Group.defineHistogram('cell_Ex',
                                   title='cell Missing E_{x};E_{x} [GeV];Events',

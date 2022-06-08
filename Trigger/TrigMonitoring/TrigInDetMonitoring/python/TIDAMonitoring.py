@@ -53,7 +53,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         if  len(chains)>0 : 
 
-                tidaegamma.ntupleChainNames = chains
+                tidaegamma.ntupleChainNames  = chains
 
                 tidaegamma.MonTools = createMonTools( flags, tidaegamma.SliceTag, chains )
 
@@ -78,7 +78,9 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
         
         if len(chains)>0 : 
 
-                tidaegammalrt.ntupleChainNames = chains
+                tidaegammalrt.ntupleChainNames  = chains
+                tidaegammalrt.ntupleChainNames += [ "Offline", "Offline:+InDetLargeD0TrackParticles" ]
+
 
                 tidaegammalrt.MonTools = createMonTools( flags, tidaegammalrt.SliceTag, chains )
         
@@ -106,7 +108,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         if len(chains)>0 : 
 
-                tidamuon.ntupleChainNames += chains
+                tidamuon.ntupleChainNames = chains
         
                 tidamuon.MonTools = createMonTools( flags,  tidamuon.SliceTag, chains )
         
@@ -130,8 +132,9 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         if len(chains)>0 :
 
-                tidamuonlrt.ntupleChainNames += chains
-                
+                tidamuonlrt.ntupleChainNames  = chains
+                tidamuonlrt.ntupleChainNames += [ "Offline", "Offline:+InDetLargeD0TrackParticles" ]
+
                 tidamuonlrt.MonTools = createMonTools( flags, tidamuonlrt.SliceTag, chains )
                 
                 tools += [ tidamuonlrt ]
@@ -159,7 +162,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         if len(chains)>0 : 
 
-                tidatau.ntupleChainNames += chains
+                tidatau.ntupleChainNames = chains
         
                 tidatau.MonTools = createMonTools( flags,  tidatau.SliceTag, chains )
                 

@@ -631,10 +631,10 @@ def setupMenu():
         ######################################################################################################################################################################################################################################################
 
         #ATR-23732 Displaced Jet Trigger
-        ChainProp(name='HLT_j180_unconvtrk0_dispj_2jet_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
-        ChainProp(name='HLT_j180_unconvtrk0_dispj_1jet_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
-        ChainProp(name='HLT_j180_unconvtrk0_dispj_2jetperf_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
-        ChainProp(name='HLT_j180_unconvtrk0_dispj_1jetperf_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_2dispjet50_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_dispjet140_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_2dispjet50_perf_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_dispjet140_perf_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
     ]
 
     chains['Beamspot'] += [
@@ -664,22 +664,16 @@ def setupMenu():
 
     chains['UnconventionalTracking'] += [
         #Isolated High Pt Trigger Test chain for optimisation studies
-        ChainProp(name='HLT_unconvtrk50_isohpttrack_L1XE50', groups=SingleMETGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_isotrk50_L1XE50', groups=SingleMETGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
 
 
-        ChainProp(name='HLT_unconvtrk0_fslrt_L1J100', groups=SingleJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk0_fslrt_L14J15', groups=MultiJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_fslrt0_L1J100', groups=SingleJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_fslrt0_L14J15', groups=MultiJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_fslrt0_L1XE50', groups=SingleMETGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_fslrt0_L1All', groups=SingleJetGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
 
         # TrigVSI
-        ChainProp(name='HLT_unconvtrk0_fsvsi_L1XE50', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
-
-        # disappearing track trigger
-        ChainProp(name='HLT_unconvtrk20_distrk_tight_L1XE50',               groups=SupportLegGroup+UnconvTrkGroup+['RATE:CPS_XE50'], l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk20_distrk_medium_L1XE50',              groups=SupportLegGroup+UnconvTrkGroup+['RATE:CPS_XE50'], l1SeedThresholds=['FSNOSEED']),
-        # Phase-I L1Calo
-        ChainProp(name='HLT_unconvtrk20_distrk_tight_L1jXE100',             groups=SupportPhIGroup+UnconvTrkGroup+['RATE:CPS_jXE100'], l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_unconvtrk20_distrk_medium_L1jXE100',            groups=SupportPhIGroup+UnconvTrkGroup+['RATE:CPS_jXE100'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_fsvsi0_L1XE50', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
     ]
 
     return chains

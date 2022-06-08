@@ -181,7 +181,7 @@ TCS::GenericTOB::GenericTOB(const LateMuonTOB & lateMuon) :
    BaseTOB(lateMuon.roiWord(), lateMuon.tobName())
    , m_Et(lateMuon.Et())
    , m_eta(lateMuon.eta())
-   , m_phi(lateMuon.phi())
+   , m_phi(static_cast<int>(lateMuon.phi()))
    , m_EtDouble(lateMuon.EtDouble())
    , m_etaDouble(lateMuon.EtaDouble())
    , m_phiDouble(lateMuon.PhiDouble())

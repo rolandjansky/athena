@@ -194,13 +194,13 @@ def MuonCaloEnergyToolCfg(flags,  name="MuonCaloEnergyTool", **kwargs):
     return result
 
 
-def MuonMaterialProviderToolCfg(flags,  name="MuonMaterialProviderTool", **kwargs):
+def MuonMaterialProviderToolCfg(flags,  name="MuonTrkMaterialProviderTool", **kwargs):
     # workaround as long as public tool is required
     result = AtlasExtrapolatorCfg(flags)
     atlas_extrapolator = result.popPrivateTools()
     kwargs.setdefault("Extrapolator", atlas_extrapolator)
 
-    muonCaloEnergyTool = result.popToolsAndMerge(MuonCaloEnergyToolCfg(flags))
+    muonCaloEnergyTool = result.popToolsAndMerge(MuonCaloEnergyToolCfg(flags, name = "MuonCaloEnergy"))
 
     useCaloEnergyMeas = True
     if flags.Muon.MuonTrigger:
@@ -685,8 +685,11 @@ def MuonTrackQueryCfg(flags, name="MuonTrackQuery", **kwargs ):
 def MuidSegmentRegionRecoveryToolCfg(flags, name='MuidSegmentRegionRecoveryTool', **kwargs):
     result = ComponentAccumulator()
     from MuonConfig.MuonTrackBuildingConfig import MuonSegmentRegionRecoveryToolCfg
+    from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
+
     kwargs.setdefault("Builder",  result.popToolsAndMerge(
-        CombinedMuonTrackBuilderFitCfg(flags)))
+        CombinedMuonTrackBuilderFitCfg(flags, MuonHoleRecovery="")))
+    kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonCombinedTrackSummaryToolCfg(flags, name="CombinedMuonTrackSummary"))) 
     tool = result.popToolsAndMerge(
         MuonSegmentRegionRecoveryToolCfg(flags, name, **kwargs))
     result.setPrivateTools(tool)
@@ -725,7 +728,7 @@ def EMEO_CombinedMuonTrackBuilderCfg(flags, name="MuonCombinedTrackBuilder_EMEO"
     return result
 
 
-def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationToolFit', **kwargs):
+def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationTool', **kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg, MuonRefitToolCfg
     result = ComponentAccumulator()
     kwargs.setdefault("TrackSummaryTool",  result.popToolsAndMerge(
@@ -882,11 +885,11 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MuonHoleRecovery", "")
     else:
-        # Should really be MuidSegmentRegionRecoveryToolCfg, but this includes CombinedMuonTrackBuilderCfg and so we have a circular dependency ATLASRECTS-6745
-        from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryToolCfg
-        acc = MuonChamberHoleRecoveryToolCfg(flags)
-        kwargs.setdefault("MuonHoleRecovery", acc.popPrivateTools())
-        result.merge(acc)
+        if "MuonHoleRecovery" not in kwargs:
+            # Meeded to resolve circular dependency since MuidSegmentRegionRecoveryToolCfg calls CombinedMuonTrackBuilderCfg (i.e. this)!
+            acc = MuidSegmentRegionRecoveryToolCfg(flags)
+            kwargs.setdefault("MuonHoleRecovery", acc.popPrivateTools())
+            result.merge(acc)
 
     if flags.Muon.doSegmentT0Fit:
         kwargs.setdefault("MdtRotCreator", "")
@@ -898,11 +901,14 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
 def CombinedMuonTrackBuilderFitCfg(flags, name='CombinedMuonTrackBuilderFit', **kwargs):
     # In the old configuration we had duplication between CombinedMuonTrackBuilder and CombinedMuonTrackBuilderFit
     # Here we just call the Combined
+    from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryToolCfg
     result = ComponentAccumulator()
     kwargs.setdefault("PerigeeAtSpectrometerEntrance", True)
     kwargs.setdefault("UseCaloTG", False)
     kwargs.setdefault("MuonErrorOptimizer",
                       result.popToolsAndMerge(MuidErrorOptimisationToolCfg(flags)))
+    kwargs.setdefault("MuonHoleRecovery", result.popToolsAndMerge(MuonChamberHoleRecoveryToolCfg(flags)) ) 
+
     tool = result.popToolsAndMerge(CombinedMuonTrackBuilderCfg(
         flags, name, **kwargs))  # Need to reset this to be the primary tool
     result.setPrivateTools(tool)

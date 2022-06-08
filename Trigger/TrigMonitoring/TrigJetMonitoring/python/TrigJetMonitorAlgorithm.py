@@ -175,6 +175,7 @@ JetCollections = dict()
 
 JetCollections['MT'] = {
   'HLT_AntiKt4EMTopoJets_subjesIS'                                : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # default small-R EM
+  'HLT_AntiKt4EMTopoJets_subjesIS_fastftag'                       : { 'MatchTo' : 'NONE'}, # small-R EM jets with RoI tracking & fast flavour tagging
   'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'                         : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 calo jet w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'                        : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 pflow w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'                     : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 pflow w/ residual + calo+track GSC
@@ -537,6 +538,18 @@ def getHTBinning(chain,binwidth):
   xbins = int((xmax-xmin)/binwidth)-1
   return xbins, xmin, xmax
 
+# Add fast flavour-tag monitoring.
+# Adds a 20 GeV jet pT cut to avoid FPE WARNINGS from jets below min jet pT for RoI track association
+def addFlavourTagVariables(conf, network_prefix):
+    cutname='pt20'
+    fastDipsSelectSpec = SelectSpec(cutname, '20<pt:GeV&|eta|<3.2', path='NoTriggerSelection/'+cutname, FillerTools=[])
+    for f in "cub":
+      xvar = f"{network_prefix}_p{f}"
+      varname = f"ftag_p{f}"
+      fastDipsHistSpec = HistoSpec(varname, xvar=xvar, bins=(70, -0.2, 1.2), title=f"{varname};{varname};;Entries")
+      fastDipsSelectSpec.appendHistos(fastDipsHistSpec)
+      conf.appendHistos(fastDipsSelectSpec)
+
 #########################################################
 # Schedule more histograms for dedicated jet collections
 #########################################################
@@ -781,7 +794,6 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 
   return Conf
 
-
 def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''
 
@@ -803,10 +815,10 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
          if 'PF' in jetcoll: # dedicated histograms for online PFlow jets
            conf.appendHistos("SumPtChargedPFOPt500[0]")
            conf.appendHistos("fCharged")
-       if jetcoll == "HLT_AntiKt4EMTopoJets_subjesIS": # only for presel calo jets
-         for f in "cub":
-           fastDipsHistSpec = HistoSpec(f"fastDips_p{f}", (70, -0.2, 1.2), title=f"fastDips_p{f};fastDips_p{f};Entries")
-           conf.appendHistos(fastDipsHistSpec)
+           if "subresjesgscIS" in jetcoll:
+               addFlavourTagVariables(conf,"fastDIPS20211215")
+       if 'fastftag' in jetcoll:
+         addFlavourTagVariables(conf,"fastDips")
      else:
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
      # Add matched jets plots

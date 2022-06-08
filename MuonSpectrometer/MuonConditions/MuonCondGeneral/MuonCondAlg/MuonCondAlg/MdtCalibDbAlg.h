@@ -62,7 +62,7 @@ private:
     const MuonGM::MuonDetectorManager* m_detMgr{nullptr};  
     /// only needed to retrieve information on number of tubes etc. (no alignment needed)
 
-    Gaudi::Property<bool> m_checkTubes{this, "checkTubes", false,"If true the number of tubes must agree between the conditions DB & geometry"};
+    Gaudi::Property<bool> m_checkTubes{this, "checkTubes", true,"If true the number of tubes must agree between the conditions DB & geometry"};
     // new conditions format 2020
     Gaudi::Property<bool> m_newFormat2020{this, "NewFormat2020", false, "Use the new calibration data format "};
 

@@ -339,7 +339,7 @@ def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
         from TrkConfig.TrkExSTEP_PropagatorConfig import (
             AtlasSTEP_PropagatorCfg)
         muon_prop = result.popToolsAndMerge(
-            AtlasSTEP_PropagatorCfg(flags, name="MuonSTEP_Propagator"))
+            AtlasSTEP_PropagatorCfg(flags, name="MuonPropagator"))
         kwargs.setdefault("Propagators", [muon_prop])
 
     kwargs.setdefault("ResolveMuonStation", True)
