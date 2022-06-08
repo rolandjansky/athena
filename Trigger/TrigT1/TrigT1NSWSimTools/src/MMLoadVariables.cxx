@@ -44,14 +44,13 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
           const HepMC::GenParticle *particle = pit;
 #endif
           const HepMC::FourVector momentum = particle->momentum();
-          int k=(trackRecordCollection!=nullptr)?trackRecordCollection->size():0; //number of mu
           if(HepMC::barcode(particle) < 1e06 && std::abs(particle->pdg_id())==13){
             thePart.SetCoordinates(momentum.perp(),momentum.eta(),momentum.phi(),momentum.e());
             if(trackRecordCollection!=nullptr){
             for(const auto & mit : *trackRecordCollection ) {
               const CLHEP::Hep3Vector mumomentum = mit.GetMomentum();
               const CLHEP::Hep3Vector muposition = mit.GetPosition();
-              if(k>0 && j<k && HepMC::barcode(particle)==mit.GetBarCode()) {
+              if(!trackRecordCollection->empty() && HepMC::barcode(particle)==mit.GetBarCode()) {
                 pdg_tmp         = HepMC::barcode(particle);
                 phiEntry_tmp    = mumomentum.getPhi();
                 etaEntry_tmp    = mumomentum.getEta();
