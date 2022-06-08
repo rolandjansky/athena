@@ -315,6 +315,9 @@ def createTriggerRecoFlags():
     # enables or disables the addition of VR track jet reconstruction sequence
     flags.addFlag("Trigger.Jet.doVRJets", False)
 
+    # use online-derived calibration for HLT PFlow jets
+    flags.addFlag("Trigger.Jet.useTriggerCalib", False)
+
     def __httFlags():
         """Additional function delays import"""
         from TrigHTTConfTools.HTTConfigFlags import createHTTConfigFlags
