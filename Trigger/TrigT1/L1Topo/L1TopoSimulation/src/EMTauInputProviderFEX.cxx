@@ -21,9 +21,9 @@ using namespace LVL1;
 
 
 // eFex to L1Topo conversion factors
-const float EMTauInputProviderFEX::m_EtDouble_conversion = 10.;    // 100 MeV to GeV
-const float EMTauInputProviderFEX::m_phiDouble_conversion = 20.;   // 20 x phi to phi
-const float EMTauInputProviderFEX::m_etaDouble_conversion = 40.;   // 40 x eta to eta
+const double EMTauInputProviderFEX::m_EtDouble_conversion = 0.1;      // 100 MeV to GeV
+const double EMTauInputProviderFEX::m_phiDouble_conversion = 0.05;    // 20 x phi to phi
+const double EMTauInputProviderFEX::m_etaDouble_conversion = 0.025;   // 40 x eta to eta
 
 
 EMTauInputProviderFEX::EMTauInputProviderFEX(const std::string& type, const std::string& name, 
@@ -64,11 +64,11 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
    auto hEmEt = std::make_unique<TH1I>( "eEmTOBEt", "eEm TOB Et", 200, 0, 400);
    hEmEt->SetXTitle("E_{T} [GeV]");
-   auto hEmREta = std::make_unique<TH1I>( "eEmTOBREta", "eEm TOB rEta isolation", 3, 0, 3);
+   auto hEmREta = std::make_unique<TH1I>( "eEmTOBREta", "eEm TOB rEta isolation", 4, 0, 4);
    hEmREta->SetXTitle("rEta isolation");
-   auto hEmRHad = std::make_unique<TH1I>( "eEmTOBRHad", "eEm TOB rHad isolation", 3, 0, 3);
+   auto hEmRHad = std::make_unique<TH1I>( "eEmTOBRHad", "eEm TOB rHad isolation", 4, 0, 4);
    hEmRHad->SetXTitle("rHad isolation");
-   auto hEmWsTot = std::make_unique<TH1I>( "eEmTOBWsTot", "eEm TOB WsTot isolation", 3, 0, 3);
+   auto hEmWsTot = std::make_unique<TH1I>( "eEmTOBWsTot", "eEm TOB WsTot isolation", 4, 0, 4);
    hEmWsTot->SetXTitle("WsTot isolation");
    auto hEmPhiEta = std::make_unique<TH2I>( "eEmTOBPhiEta", "eEm TOB Location", 200, -200, 200, 128, 0, 128);
    hEmPhiEta->SetXTitle("#eta#times40");
@@ -79,21 +79,21 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    auto hEmEtPhi = std::make_unique<TH2I>( "eEmTOBEtPhi", "eEm TOB Et vs phi", 128, 0, 128, 200, 0, 400);
    hEmEtPhi->SetXTitle("#phi#times20");
    hEmEtPhi->SetYTitle("E_{t} [GeV]");
-   auto hEmEtREta = std::make_unique<TH2I>( "eEmTOBEtREta", "eEm TOB Et vs rEta isolation", 3, 0, 3, 200, 0, 400);
+   auto hEmEtREta = std::make_unique<TH2I>( "eEmTOBEtREta", "eEm TOB Et vs rEta isolation", 4, 0, 4, 200, 0, 400);
    hEmEtREta->SetXTitle("rEta isolation");
    hEmEtREta->SetYTitle("E_{t} [GeV]");
-   auto hEmEtRHad = std::make_unique<TH2I>( "eEmTOBEtRHad", "eEm TOB Et vs rHad isolation", 3, 0, 3, 200, 0, 400);
+   auto hEmEtRHad = std::make_unique<TH2I>( "eEmTOBEtRHad", "eEm TOB Et vs rHad isolation", 4, 0, 4, 200, 0, 400);
    hEmEtRHad->SetXTitle("rHad isolation");
    hEmEtRHad->SetYTitle("E_{t} [GeV]");
-   auto hEmEtWsTot = std::make_unique<TH2I>( "eEmTOBEtWsTot", "eEm TOB Et vs WsTot isolation", 3, 0, 3, 200, 0, 400);
+   auto hEmEtWsTot = std::make_unique<TH2I>( "eEmTOBEtWsTot", "eEm TOB Et vs WsTot isolation", 4, 0, 4, 200, 0, 400);
    hEmEtWsTot->SetXTitle("WsTot isolation");
    hEmEtWsTot->SetYTitle("E_{t} [GeV]");
 
    auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 400);
    hTauEt->SetXTitle("E_{T} [GeV]");
-   auto hTauRCore = std::make_unique<TH1I>( "eTauTOBRCore", "eTau TOB rCore isolation", 3, 0, 3);
+   auto hTauRCore = std::make_unique<TH1I>( "eTauTOBRCore", "eTau TOB rCore isolation", 4, 0, 4);
    hTauRCore->SetXTitle("rCore isolation");
-   auto hTauRHad = std::make_unique<TH1I>( "eTauTOBRHad", "eTau TOB rHad isolation", 3, 0, 3);
+   auto hTauRHad = std::make_unique<TH1I>( "eTauTOBRHad", "eTau TOB rHad isolation", 4, 0, 4);
    hTauRHad->SetXTitle("rHad isolation");
    auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 200, -200, 200, 128, 0, 128);
    hTauPhiEta->SetXTitle("#eta#times40");
@@ -104,10 +104,10 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 128, 0, 128, 200, 0, 400);
    hTauEtPhi->SetXTitle("#phi#times20");
    hTauEtPhi->SetYTitle("E_{t} [GeV]");
-   auto hTauEtRCore = std::make_unique<TH2I>( "eTauTOBEtRCore", "eTau TOB Et vs rCore isolation", 3, 0, 3, 200, 0, 400);
+   auto hTauEtRCore = std::make_unique<TH2I>( "eTauTOBEtRCore", "eTau TOB Et vs rCore isolation", 4, 0, 4, 200, 0, 400);
    hTauEtRCore->SetXTitle("rCore isolation");
    hTauEtRCore->SetYTitle("E_{t} [GeV]");
-   auto hTauEtRHad = std::make_unique<TH2I>( "eTauTOBEtRHad", "eTau TOB Et vs rHad isolation", 3, 0, 3, 200, 0, 400);
+   auto hTauEtRHad = std::make_unique<TH2I>( "eTauTOBEtRHad", "eTau TOB Et vs rHad isolation", 4, 0, 4, 200, 0, 400);
    hTauEtRHad->SetXTitle("rHad isolation");
    hTauEtRHad->SetYTitle("E_{t} [GeV]");
 
@@ -267,9 +267,9 @@ EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
 
     //Em TOB
     TCS::eEmTOB eem( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
-    eem.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
-    eem.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
-    eem.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
+    eem.setEtDouble( static_cast<double>(EtTopo*m_EtDouble_conversion) );
+    eem.setEtaDouble( static_cast<double>(etaTopo*m_etaDouble_conversion) );
+    eem.setPhiDouble( static_cast<double>(phiTopo*m_phiDouble_conversion) );
     eem.setReta( reta );
     eem.setRhad( rhad );
     eem.setWstot( wstot );
@@ -334,9 +334,9 @@ EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 
     //Tau TOB
     TCS::eTauTOB etau( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
-    etau.setEtDouble(  static_cast<double>(EtTopo/m_EtDouble_conversion) );
-    etau.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
-    etau.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
+    etau.setEtDouble(  static_cast<double>(EtTopo*m_EtDouble_conversion) );
+    etau.setEtaDouble( static_cast<double>(etaTopo*m_etaDouble_conversion) );
+    etau.setPhiDouble( static_cast<double>(phiTopo*m_phiDouble_conversion) );
 
     etau.setRCore( rCore );
     etau.setRHad( rHad );

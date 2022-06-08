@@ -23,7 +23,7 @@ namespace TCS {
       LateMuonTOB(uint32_t roiWord = 0, const std::string& tobName = "LateMuonTOB");
       
       // constructor with individual values
-      LateMuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, const std::string& tobName = "LateMuonTOB");
+      LateMuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord = 0, const std::string& tobName = "LateMuonTOB");
 
       // constructor with initial values
       LateMuonTOB(const LateMuonTOB & latemuon);
@@ -35,7 +35,7 @@ namespace TCS {
       unsigned int Et() const { return m_Et; }
       unsigned int isolation() const { return m_isolation; }
       int eta() const { return m_eta; }
-      int phi() const { return m_phi; }
+      unsigned int phi() const { return m_phi; }
 
       double EtDouble() const { return m_EtDouble; }
       double EtaDouble() const { return m_etaDouble; }
@@ -45,7 +45,7 @@ namespace TCS {
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
       void setIsolation(unsigned int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
-      void setPhi(int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
+      void setPhi(unsigned int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
@@ -69,7 +69,7 @@ namespace TCS {
       unsigned int m_Et {0};
       unsigned int m_isolation {0};
       int m_eta {0};
-      int m_phi {0};
+      unsigned int m_phi {0};
 
       double m_EtDouble {0};
       double m_etaDouble {0};

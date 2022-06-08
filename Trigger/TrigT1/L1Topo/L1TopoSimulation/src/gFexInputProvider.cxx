@@ -19,15 +19,15 @@ using namespace LVL1;
 
 
 // gFex to L1Topo conversion factors
-const int gFexInputProvider::m_EtJet_conversion = 2;           // 200 MeV to 100 MeV for gJet, gLJet
-const float gFexInputProvider::m_EtGlobal_conversion = 0.01;   // 1 MeV to 100 MeV for gXE, gTE
-const int gFexInputProvider::m_phi_conversion = 1;             // 20 x phi to 20 x phi
-const int gFexInputProvider::m_eta_conversion = 40;            // eta to 40 x eta
+const int gFexInputProvider::m_EtJet_conversion = 2;            // 200 MeV to 100 MeV for gJet, gLJet
+const double gFexInputProvider::m_EtGlobal_conversion = 0.01;   // 1 MeV to 100 MeV for gXE, gTE
+const int gFexInputProvider::m_phi_conversion = 1;              // 20 x phi to 20 x phi
+const int gFexInputProvider::m_eta_conversion = 40;             // eta to 40 x eta
 
-const float gFexInputProvider::m_EtDoubleJet_conversion = 10.;      // 100 MeV to GeV for gJet, gLJet
-const float gFexInputProvider::m_EtDoubleGlobal_conversion = 10.;   // 100 MeV to GeV for gXE, gTE
-const float gFexInputProvider::m_phiDouble_conversion = 20.;        // 20 x phi to phi
-const float gFexInputProvider::m_etaDouble_conversion = 40.;        // 40 x eta to eta
+const double gFexInputProvider::m_EtDoubleJet_conversion = 0.1;       // 100 MeV to GeV for gJet, gLJet
+const double gFexInputProvider::m_EtDoubleGlobal_conversion = 0.1;    // 100 MeV to GeV for gXE, gTE
+const double gFexInputProvider::m_phiDouble_conversion = 0.05;        // 20 x phi to phi
+const double gFexInputProvider::m_etaDouble_conversion = 0.025;       // 40 x eta to eta
 
 
 gFexInputProvider::gFexInputProvider(const std::string& type, const std::string& name, 
@@ -51,8 +51,12 @@ gFexInputProvider::initialize() {
   
   ATH_CHECK(m_gJet_EDMKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_gLJet_EDMKey.initialize(SG::AllowEmpty));
+
   ATH_CHECK(m_gXEJWOJ_EDMKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_gMHT_EDMKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_gXENC_EDMKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_gXERHO_EDMKey.initialize(SG::AllowEmpty));
+
   ATH_CHECK(m_gTE_EDMKey.initialize(SG::AllowEmpty));
 
   return StatusCode::SUCCESS;
@@ -145,6 +149,28 @@ gFexInputProvider::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register gMHTTOB Phi histogram for gFexInputProvider");
    }
 
+   // gXENC
+   auto h_gXENC_Pt = std::make_unique<TH1I>("gXENCTOBPt", "gXENC TOB Pt", 200, 0, 2000);
+   h_gXENC_Pt->SetXTitle("p_{T} [GeV]");
+
+   if (m_histSvc->regShared( histPath + "gXENCTOBPt", std::move(h_gXENC_Pt), m_h_gXENC_Pt ).isSuccess()){
+     ATH_MSG_DEBUG("gXENCTOB Pt histogram has been registered successfully for gFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register gXENCTOB Pt histogram for gFexInputProvider");
+   }
+
+   // gXERHO
+   auto h_gXERHO_Pt = std::make_unique<TH1I>("gXERHOTOBPt", "gXERHO TOB Pt", 200, 0, 2000);
+   h_gXERHO_Pt->SetXTitle("p_{T} [GeV]");
+
+   if (m_histSvc->regShared( histPath + "gXERHOTOBPt", std::move(h_gXERHO_Pt), m_h_gXERHO_Pt ).isSuccess()){
+     ATH_MSG_DEBUG("gXERHOTOB Pt histogram has been registered successfully for gFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register gXERHOTOB Pt histogram for gFexInputProvider");
+   }
+
    // gTE
    auto h_gTE_sumEt = std::make_unique<TH1I>("gTETOBsumEt", "gTE TOB sumEt", 400, 0, 4000);
    h_gTE_sumEt->SetXTitle("p_{T} [GeV]");
@@ -195,9 +221,9 @@ gFexInputProvider::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
 
    TCS::gJetTOB gJet( EtTopo, etaTopo, phiTopo );
  
-   gJet.setEtDouble( static_cast<double>(EtTopo/m_EtDoubleJet_conversion) );
-   gJet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
-   gJet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
+   gJet.setEtDouble( static_cast<double>(EtTopo*m_EtDoubleJet_conversion) );
+   gJet.setEtaDouble( static_cast<double>(etaTopo*m_etaDouble_conversion) );
+   gJet.setPhiDouble( static_cast<double>(phiTopo*m_phiDouble_conversion) );
  
    inputEvent.addgJet( gJet );
    m_h_gJet_Pt->Fill( gJet.EtDouble() );
@@ -246,9 +272,9 @@ gFexInputProvider::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
 
    TCS::gLJetTOB gJet( EtTopo, etaTopo, phiTopo );
  
-   gJet.setEtDouble( static_cast<double>(EtTopo/m_EtDoubleJet_conversion) );
-   gJet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
-   gJet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
+   gJet.setEtDouble( static_cast<double>(EtTopo*m_EtDoubleJet_conversion) );
+   gJet.setEtaDouble( static_cast<double>(etaTopo*m_etaDouble_conversion) );
+   gJet.setPhiDouble( static_cast<double>(phiTopo*m_phiDouble_conversion) );
  
    inputEvent.addgLJet( gJet );
    m_h_gLJet_Pt->Fill( gJet.EtDouble() );
@@ -292,9 +318,9 @@ gFexInputProvider::fillXEJWOJ(TCS::TopoInputEvent& inputEvent) const {
  
    TCS::gXETOB gxe( -ExTopo, -EyTopo, EtTopo, TCS::GXEJWOJ );
  
-   gxe.setExDouble( static_cast<double>(ExTopo/m_EtDoubleGlobal_conversion) );
-   gxe.setEyDouble( static_cast<double>(EyTopo/m_EtDoubleGlobal_conversion) );
-   gxe.setEtDouble( static_cast<double>(EtTopo/m_EtDoubleGlobal_conversion) );
+   gxe.setExDouble( static_cast<double>(ExTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEyDouble( static_cast<double>(EyTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEtDouble( static_cast<double>(EtTopo*m_EtDoubleGlobal_conversion) );
    gxe.setEt2( Et2Topo );
  
    inputEvent.setgXEJWOJ( gxe );
@@ -339,14 +365,100 @@ gFexInputProvider::fillMHT(TCS::TopoInputEvent& inputEvent) const {
  
    TCS::gXETOB gxe( -ExTopo, -EyTopo, EtTopo, TCS::GMHT );
  
-   gxe.setExDouble( static_cast<double>(ExTopo/m_EtDoubleGlobal_conversion) );
-   gxe.setEyDouble( static_cast<double>(EyTopo/m_EtDoubleGlobal_conversion) );
-   gxe.setEtDouble( static_cast<double>(EtTopo/m_EtDoubleGlobal_conversion) );
+   gxe.setExDouble( static_cast<double>(ExTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEyDouble( static_cast<double>(EyTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEtDouble( static_cast<double>(EtTopo*m_EtDoubleGlobal_conversion) );
    gxe.setEt2( Et2Topo );
  
    inputEvent.setgMHT( gxe );
    m_h_gMHT_Pt->Fill( gxe.EtDouble() );
    m_h_gMHT_Phi->Fill( atan2(gxe.Ey(), gxe.Ex()) );
+
+   }
+
+   return StatusCode::SUCCESS;
+
+}
+
+
+StatusCode
+gFexInputProvider::fillXENC(TCS::TopoInputEvent& inputEvent) const {
+
+  if (m_gXENC_EDMKey.empty()) {
+    ATH_MSG_DEBUG("gFex XENC input disabled, skip filling");
+    return StatusCode::SUCCESS;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gXENC_EDM(m_gXENC_EDMKey);
+  ATH_CHECK(gXENC_EDM.isValid());
+
+  for(const xAOD::gFexGlobalRoI* gFexRoI : * gXENC_EDM) {
+
+    ATH_MSG_DEBUG( "EDM gFex XENC type: "
+                   << gFexRoI->globalType()
+                   << " Ex: " 
+                   << gFexRoI->METquantityOne() // returns the Ex component in MeV
+                   << " Ey: " 
+		   << gFexRoI->METquantityTwo() // returns the Ey component in MeV
+		   );
+    
+   int ExTopo = gFexRoI->METquantityOne()*m_EtGlobal_conversion;
+   int EyTopo = gFexRoI->METquantityTwo()*m_EtGlobal_conversion;
+   unsigned int Et2Topo = ExTopo*ExTopo + EyTopo*EyTopo;
+   unsigned int EtTopo  = std::sqrt(Et2Topo);
+ 
+   TCS::gXETOB gxe( -ExTopo, -EyTopo, EtTopo, TCS::GXENC );
+ 
+   gxe.setExDouble( static_cast<double>(ExTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEyDouble( static_cast<double>(EyTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEtDouble( static_cast<double>(EtTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEt2( Et2Topo );
+ 
+   inputEvent.setgXENC( gxe );
+   m_h_gXENC_Pt->Fill( gxe.EtDouble() );
+
+   }
+
+   return StatusCode::SUCCESS;
+
+}
+
+
+StatusCode
+gFexInputProvider::fillXERHO(TCS::TopoInputEvent& inputEvent) const {
+
+  if (m_gXERHO_EDMKey.empty()) {
+    ATH_MSG_DEBUG("gFex XENC input disabled, skip filling");
+    return StatusCode::SUCCESS;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gXERHO_EDM(m_gXERHO_EDMKey);
+  ATH_CHECK(gXERHO_EDM.isValid());
+
+  for(const xAOD::gFexGlobalRoI* gFexRoI : * gXERHO_EDM) {
+
+    ATH_MSG_DEBUG( "EDM gFex XERHO type: "
+                   << gFexRoI->globalType()
+                   << " Ex: " 
+                   << gFexRoI->METquantityOne() // returns the Ex component in MeV
+                   << " Ey: " 
+		   << gFexRoI->METquantityTwo() // returns the Ey component in MeV
+		   );
+    
+   int ExTopo = gFexRoI->METquantityOne()*m_EtGlobal_conversion;
+   int EyTopo = gFexRoI->METquantityTwo()*m_EtGlobal_conversion;
+   unsigned int Et2Topo = ExTopo*ExTopo + EyTopo*EyTopo;
+   unsigned int EtTopo  = std::sqrt(Et2Topo);
+ 
+   TCS::gXETOB gxe( -ExTopo, -EyTopo, EtTopo, TCS::GXERHO );
+ 
+   gxe.setExDouble( static_cast<double>(ExTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEyDouble( static_cast<double>(EyTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEtDouble( static_cast<double>(EtTopo*m_EtDoubleGlobal_conversion) );
+   gxe.setEt2( Et2Topo );
+ 
+   inputEvent.setgXERHO( gxe );
+   m_h_gXERHO_Pt->Fill( gxe.EtDouble() );
 
    }
 
@@ -381,7 +493,7 @@ gFexInputProvider::fillTE(TCS::TopoInputEvent& inputEvent) const {
 
    TCS::gTETOB gte( sumEtTopo, TCS::GTE );
  
-   gte.setSumEtDouble( static_cast<double>(sumEtTopo/m_EtDoubleGlobal_conversion) );
+   gte.setSumEtDouble( static_cast<double>(sumEtTopo*m_EtDoubleGlobal_conversion) );
  
    inputEvent.setgTE( gte );
    m_h_gTE_sumEt->Fill( gte.sumEtDouble() );
@@ -397,8 +509,12 @@ StatusCode
 gFexInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   ATH_CHECK(fillSRJet(inputEvent));
   ATH_CHECK(fillLRJet(inputEvent));
+
   ATH_CHECK(fillXEJWOJ(inputEvent));
   ATH_CHECK(fillMHT(inputEvent));
+  ATH_CHECK(fillXENC(inputEvent));
+  ATH_CHECK(fillXERHO(inputEvent));
+
   ATH_CHECK(fillTE(inputEvent));
   return StatusCode::SUCCESS;
 }
