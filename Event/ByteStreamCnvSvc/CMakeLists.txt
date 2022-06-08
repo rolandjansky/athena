@@ -78,7 +78,7 @@ atlas_add_test( AtlCopyBSEvent6
 
 atlas_add_test( ByteStreamConfigTest
    SCRIPT "python -m ByteStreamCnvSvc.ByteStreamConfig"
-   POST_EXEC_SCRIPT nopost.sh )
+   POST_EXEC_SCRIPT noerror.sh )
 
 atlas_add_test( ByteStreamMetadataToolTest
   SOURCES test/ByteStreamMetadataTool_test.cxx
@@ -89,7 +89,7 @@ atlas_add_test( ByteStreamMetadataToolTest
     GaudiKernel
     GoogleTestTools
     TestTools
-  POST_EXEC_SCRIPT nopost.sh )
+  POST_EXEC_SCRIPT noerror.sh )
 
 
 # Install files from the package:
