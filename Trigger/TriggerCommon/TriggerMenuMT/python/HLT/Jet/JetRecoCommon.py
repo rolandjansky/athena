@@ -199,6 +199,10 @@ def getTrackMods(trkopt):
 # the calibration config helper
 def getCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
+    ## Importing temporay validation flag for testing new online derived calibration
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    calibKey = "Trigger" if ConfigFlags.Trigger.Jet.useTriggerCalib else "TrigLS2"
+
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     config = getInDetTrigConfig( 'jet' )
@@ -218,12 +222,12 @@ def getCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
         if jetRecoDict["constitType"] == "tc":
             calibContext,calibSeq = {
-                ("a4","subjes"):         ("TrigLS2","JetArea_EtaJES_GSC"),          # Calo GSC only ( + insitu in data)
-                ("a4","subjesIS"):       ("TrigLS2","JetArea_EtaJES_GSC"),          # Calo GSC only (no insitu)
-                ("a4","subjesgscIS"):    ("TrigLS2","JetArea_EtaJES_GSC"),          # Calo+Trk GSC ( + insitu in data)
-                ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC ( + insitu in data)
-                ("a4","subjesgsc"):      ("TrigLS2","JetArea_EtaJES_GSC"),          # Calo+Trk GSC (no insitu)
-                ("a4","subresjesgsc"):   ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC (no insitu)
+                ("a4","subjes"):         (calibKey,"JetArea_EtaJES_GSC"),          # Calo GSC only ( + insitu in data)
+                ("a4","subjesIS"):       (calibKey,"JetArea_EtaJES_GSC"),          # Calo GSC only (no insitu)
+                ("a4","subjesgscIS"):    (calibKey,"JetArea_EtaJES_GSC"),          # Calo+Trk GSC ( + insitu in data)
+                ("a4","subresjesgscIS"): (calibKey,"JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC ( + insitu in data)
+                ("a4","subjesgsc"):      (calibKey,"JetArea_EtaJES_GSC"),          # Calo+Trk GSC (no insitu)
+                ("a4","subresjesgsc"):   (calibKey,"JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC (no insitu)
                 ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
                 ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
                 }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
@@ -241,10 +245,10 @@ def getCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                 calibSeq = "EtaJES_JMS"
             else:
                 calibContext,calibSeq = {
-                  ("a4","subjesgsc"):    ("TrigLS2","JetArea_EtaJES_GSC"),            # w/o pu residual  + calo+trk GSC
-                  ("a4","subresjesgsc"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"),   # pu residual + calo+trk GSC
-                  ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
-                  ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
+                  ("a4","subjesgsc"):    (calibKey,"JetArea_EtaJES_GSC"),            # w/o pu residual  + calo+trk GSC
+                  ("a4","subresjesgsc"): (calibKey,"JetArea_Residual_EtaJES_GSC"),   # pu residual + calo+trk GSC
+                  ("a4","subjesgscIS"): (calibKey,"JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
+                  ("a4","subresjesgscIS"): (calibKey,"JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
                   }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
             pvname = config.vertex_jet
 
