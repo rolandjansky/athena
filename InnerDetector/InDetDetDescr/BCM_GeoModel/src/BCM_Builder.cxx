@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_Builder.h"
@@ -101,7 +101,7 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
 
 //  ATH_MSG_INFO("BCMBuilder building...");  //commented out by D.Dobos on request by M.Elsing
   
-  const StoredMaterialManager * materialManager;
+  StoredMaterialManager * materialManager;
   if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
     ATH_MSG_ERROR("Failed to retrieve Material Manager");
     return StatusCode::FAILURE;

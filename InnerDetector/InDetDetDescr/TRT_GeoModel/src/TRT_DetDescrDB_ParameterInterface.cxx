@@ -493,8 +493,8 @@ void TRT_DetDescrDB_ParameterInterface::SetValues() {
 
   }
 }
-const InDetDD::DistortedMaterialManager * 
-TRT_DetDescrDB_ParameterInterface::distortedMatManager() const
+InDetDD::DistortedMaterialManager *
+TRT_DetDescrDB_ParameterInterface::distortedMatManager()
 {
   return m_distortedMatManager;
 }

@@ -111,7 +111,7 @@ void TRTTransitionRadiation::Initialize() {
     ATH_MSG_FATAL ( "Can not access Detector Store " );
     return;
   };
-  const StoredMaterialManager* materialManager = nullptr;
+  StoredMaterialManager* materialManager = nullptr;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     ATH_MSG_FATAL ( "Could not retrieve material manager from Detector Store" );
     return;

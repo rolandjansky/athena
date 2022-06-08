@@ -37,7 +37,7 @@ namespace InDetDD {
 
     m_xMatTable = rdbSvc->getRecordsetPtr("InDetExtraMaterial", detectorKey, detectorNode);
 
-    const StoredMaterialManager* theGeoMaterialManager = nullptr;
+    StoredMaterialManager* theGeoMaterialManager = nullptr;
     sc = detStore->retrieve(theGeoMaterialManager, "MATERIALS");
     if (sc.isFailure()) log << MSG::FATAL << "Could not locate GeoModel Material manager" << endmsg;
     m_materialManager = theGeoMaterialManager;

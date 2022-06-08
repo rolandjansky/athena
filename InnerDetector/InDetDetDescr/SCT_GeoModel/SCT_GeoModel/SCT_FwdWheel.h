@@ -31,7 +31,7 @@ public:
 	       const std::vector<SCT_FwdModule *> & modules,
 	       int ec,
                InDetDD::SCT_DetectorManager* detectorManager,
-               const SCT_GeometryManager* geometryManager,
+               SCT_GeometryManager* geometryManager,
                SCT_MaterialManager* materials);
   ~SCT_FwdWheel();
   //Explicitly disallow copy and assignment to appease coverity

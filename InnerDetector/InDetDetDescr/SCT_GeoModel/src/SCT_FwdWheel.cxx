@@ -52,7 +52,7 @@ SCT_FwdWheel::SCT_FwdWheel(const std::string & name,
                            const std::vector<SCT_FwdModule *> & modules,
                            int ec,
                            InDetDD::SCT_DetectorManager* detectorManager,
-                           const SCT_GeometryManager* geometryManager,
+                           SCT_GeometryManager* geometryManager,
                            SCT_MaterialManager* materials)
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iWheel(iWheel), 

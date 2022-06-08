@@ -63,7 +63,7 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
 
   // Get the material manager:
   
-  const StoredMaterialManager* materialManager;
+  StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
   if (sc.isFailure()) ATH_MSG_FATAL("Could not locate Material Manager");
   

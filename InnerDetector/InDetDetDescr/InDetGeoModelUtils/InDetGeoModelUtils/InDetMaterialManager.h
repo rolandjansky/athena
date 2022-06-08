@@ -177,13 +177,13 @@ private:
   };
   
   
-  const StoredMaterialManager * retrieveManager(const StoreGateSvc* detStore);
+  StoredMaterialManager * retrieveManager(const StoreGateSvc* detStore);
   const GeoMaterial* getAdditionalMaterial(const std::string & materialName) const; 
   bool compareDensity(double d1, double d2) const;
   void addWeightTableOld(const IRDBRecordset_ptr& weightTable, const std::string & space);
 
   // Internal versions. The public versions allow materials to be have extra scaling.
-  const GeoMaterial* getMaterialInternal(const std::string & materialName) const;
+  const GeoMaterial* getMaterialInternal(const std::string & materialName);
   const GeoMaterial* getMaterialInternal(const std::string & origMaterialName, 
 					 double density, 
 					 const std::string & newName = "");
@@ -208,7 +208,7 @@ private:
   void createMaterial(const MaterialDef & material);
   double getExtraScaleFactor(const std::string & materialName);
 
-  const StoredMaterialManager *m_materialManager;
+  StoredMaterialManager *m_materialManager;
   std::string m_managerName;
 
   typedef std::map<std::string, const GeoMaterial *> MaterialStore;

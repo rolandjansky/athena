@@ -17,7 +17,7 @@ class SCT_SupportCyl : public SCT_SharedComponentFactory
 public:
   SCT_SupportCyl(const std::string & name, int iLayer, double length,
                  InDetDD::SCT_DetectorManager* detectorManager,
-                 const SCT_GeometryManager* geometryManager,
+                 SCT_GeometryManager* geometryManager,
                  SCT_MaterialManager* materials);
 
 public:

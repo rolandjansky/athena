@@ -24,7 +24,7 @@ class StoredMaterialManager;
 class BLM_Module
 {
  public:
-  GeoPhysVol* Build(const StoredMaterialManager* mat_mgr, const BLM_ModuleParameters* parameters, MsgStream* msg);
+  GeoPhysVol* Build(StoredMaterialManager* mat_mgr, const BLM_ModuleParameters* parameters, MsgStream* msg);
 
 };
 

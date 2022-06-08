@@ -26,7 +26,7 @@ using namespace InDetDD;
 
 SCT_Sensor::SCT_Sensor(const std::string & name,
                        InDetDD::SCT_DetectorManager* detectorManager,
-                       const SCT_GeometryManager* geometryManager,
+                       SCT_GeometryManager* geometryManager,
                        SCT_MaterialManager* materials)
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_noElementWarning{true}

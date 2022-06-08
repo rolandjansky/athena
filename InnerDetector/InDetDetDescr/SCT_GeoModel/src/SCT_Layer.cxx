@@ -51,7 +51,7 @@ SCT_Layer::SCT_Layer(const std::string & name,
                      int iLayer,
                      SCT_Module * module,
                      InDetDD::SCT_DetectorManager* detectorManager,
-                     const SCT_GeometryManager* geometryManager,
+                     SCT_GeometryManager* geometryManager,
                      SCT_MaterialManager* materials)
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iLayer(iLayer), 

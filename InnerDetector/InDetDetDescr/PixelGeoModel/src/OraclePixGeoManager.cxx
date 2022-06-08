@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "OraclePixGeoManager.h"
@@ -421,8 +421,8 @@ PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
 }  
 
 
-const InDetDD::DistortedMaterialManager *
-OraclePixGeoManager::distortedMatManager() const{
+InDetDD::DistortedMaterialManager *
+OraclePixGeoManager::distortedMatManager() {
   return m_distortedMatManager;
 }  
 

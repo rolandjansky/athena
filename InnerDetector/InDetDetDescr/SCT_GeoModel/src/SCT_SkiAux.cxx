@@ -46,7 +46,7 @@ SCT_SkiAux::SCT_SkiAux(const std::string & name,
                        double powerTapePhiOffset,
                        double divisionAngle,
                        InDetDD::SCT_DetectorManager* detectorManager,
-                       const SCT_GeometryManager* geometryManager,
+                       SCT_GeometryManager* geometryManager,
                        SCT_MaterialManager* materials) :
   SCT_SharedComponentFactory(name, detectorManager, geometryManager, materials),
   m_innerRadius(innerRadius), 

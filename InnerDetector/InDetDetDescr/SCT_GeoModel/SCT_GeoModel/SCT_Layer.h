@@ -40,7 +40,7 @@ public:
 	    int iLayer,
             SCT_Module * module,
             InDetDD::SCT_DetectorManager* detectorManager,
-            const SCT_GeometryManager* geometryManager,
+            SCT_GeometryManager* geometryManager,
             SCT_MaterialManager* materials);
 
   virtual ~SCT_Layer();

@@ -51,7 +51,7 @@ class GeoVPixelFactory {
      
  protected:
   PixelGeometryManager* m_gmt_mgr{};
-  const StoredMaterialManager* m_mat_mgr{};
+  StoredMaterialManager* m_mat_mgr{};
   InDetDD::PixelDetectorManager* m_DDmgr{};
   const double m_epsilon{};
 
@@ -388,7 +388,7 @@ class PixelGeometryManager : public AthMessaging {
   // -------------------------------------
 
   // Get the material manager:
-  virtual const StoredMaterialManager* getMaterialManager()=0;
+  virtual StoredMaterialManager* getMaterialManager()=0;
 
   // PixelDetectorManager
   virtual InDetDD::PixelDetectorManager *GetPixelDDManager()=0;
@@ -672,7 +672,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   InDetDD::PixelDetectorManager *m_pDDmgr;
 
   //the material manager
-  const StoredMaterialManager* m_pMatMgr;
+  StoredMaterialManager* m_pMatMgr;
 
   // The Transient Detector Store Service
   StoreGateSvc* m_pDetStore = nullptr;   
@@ -703,7 +703,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   // -------------------------------------
 
   // Get the material manager:
-  virtual const StoredMaterialManager* getMaterialManager() override;
+  virtual StoredMaterialManager* getMaterialManager() override;
 
   // PixelDetectorManager
   virtual InDetDD::PixelDetectorManager *GetPixelDDManager() override;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETGEOMODELUTILS_DISTORTEDMATERIALMANAGER_H
@@ -15,10 +15,10 @@ class DistortedMaterialManager
 public:
   DistortedMaterialManager();  
   IRDBRecordset_ptr  extraMaterialTable() const {return  m_xMatTable;}
-  const StoredMaterialManager * materialManager() const {return  m_materialManager;}
+  StoredMaterialManager * materialManager() {return  m_materialManager;}
 
 private:
-  const StoredMaterialManager * m_materialManager;
+  StoredMaterialManager * m_materialManager;
   IRDBRecordset_ptr  m_xMatTable;
 };
 
