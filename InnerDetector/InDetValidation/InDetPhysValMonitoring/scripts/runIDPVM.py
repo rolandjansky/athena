@@ -52,7 +52,9 @@ ConfigFlags.IDPVM.ancestorIDs = MyArgs.ancestorIDList
 ConfigFlags.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
 ConfigFlags.IDPVM.truthMinPt = MyArgs.truthMinPt
 
-ConfigFlags.Input.Files = glob(MyArgs.filesInput)
+ConfigFlags.Input.Files = []
+for path in MyArgs.filesInput.split(','):
+    ConfigFlags.Input.Files += glob(path)
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 acc = MainServicesCfg(ConfigFlags)
