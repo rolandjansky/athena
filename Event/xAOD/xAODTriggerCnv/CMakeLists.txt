@@ -61,7 +61,7 @@ else()
       LINK_LIBRARIES xAODTriggerCnvLib AsgTools xAODTrigger GaudiKernel AthenaBaseComps
       AthenaKernel StoreGateLib EventInfo AnalysisTriggerEvent
       TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigConfInterfaces TrigDecisionInterface TrigAnalysisInterfaces
-      TrigOutputHandlingLib )
+      TrigOutputHandlingLib TrigDecisionToolLib )
 
 endif()
 
