@@ -348,8 +348,12 @@ Muon::NSWCalibTool::tdoToTime(const EventContext& ctx, const bool inCounts, cons
   if (!tdoPdoData) return false;  
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
   if (!calib.is_valid) return false;
-  const double peakTime  = m_idHelperSvc->isMM(chnlId) ? mmPeakTime() +25. : stgcPeakTime(); 
-  time = relBCID*25. - (tdo-calib.intercept)/calib.slope + peakTime;
+  //this shift is necessary to align the time of the signal with the way the VMM determines the time
+  //(relBCID 0 corresponds to -37.5 ns to - 12.5 ns)
+  //Eventually it should go into the conditions db since it is probably not the same for MC and Data
+  //but for now it is kept like it is. pscholer 8th of June 2022
+  const double latencyOffset  = m_idHelperSvc->isMM(chnlId) ? 25. : 0; 
+  time = relBCID*25. - (tdo-calib.intercept)/calib.slope + latencyOffset;
   return true;
 }
 

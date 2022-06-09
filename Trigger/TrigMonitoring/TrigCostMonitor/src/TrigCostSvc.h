@@ -102,6 +102,13 @@ class TrigCostSvc : public extends <AthService, ITrigCostSvc> {
    */
   virtual StatusCode generateTimeoutReport(const EventContext& context, std::string& report) override;
 
+
+  /**
+   * @brief Discard a cost monitored event
+   * @param[in] context The event context
+   */
+  virtual StatusCode discardEvent(const EventContext& context) override;
+
   private: 
 
   /**

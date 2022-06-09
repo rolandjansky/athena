@@ -1,51 +1,49 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 import re
 
-# Function to define map between L1 algorithm name and board (Topo2, Topo3 or LegacyTopo, items coming from other boards will not be listed in the map)
-def getL1TopoAlgToBoardMap(lvl1access):
+
+def getL1TopoAlgMaps(lvl1access):
+    """
+    Returns tuple of L1Topo algorithm to board and item map: (alg_to_board, alg_to_item)
+
+    alg_to_board: Map between L1 algorithm name and board (Topo2, Topo3 or LegacyTopo,
+                  items coming from other boards will not be listed in the map)
+    alg_to_item:  Map between L1 item name and topo algorithm
+    """
 
     lvl1items   = lvl1access.items(includeKeys=["name"])
     lvl1items_full   = lvl1access.items() 
 
     l1topo_alg_to_board = {}
+    l1topo_alg_to_item = {}
     connectors = ['Topo2El','Topo3El','LegacyTopoMerged']
 
     for l1item in lvl1items:
-        l1item_def_list = re.split("[&|]+",str(lvl1items_full[l1item]['definition']))
+        # Split string of AND/OR-ed items
+        # e.g. ((AFP_NSA[x1] & AFP_FSA[x1]) | (AFP_NSC[x1] & AFP_FSC[x1])) & EM7[x1]
+        l1item_def_list = re.split("[&|]+", lvl1items_full[l1item]['definition'])
         for l1item_def_aux in l1item_def_list:
-            l1item_def = re.sub("[[((()))]]+","",re.split("[[]+",re.sub("[()]+","",l1item_def_aux))[0]).strip()
+            # Strip brackets/whitespace and take name before multiplicity
+            l1item_def = l1item_def_aux.strip('() ').split('[')[0]
+
+            # fill alg_to_board
             for connect in connectors:
                 for v in lvl1access.connector(connect)['triggerlines']:
-                    v_name = v['name']
-                    if l1item_def==v_name:
+                    if l1item_def==v['name']:
                         l1topo_alg_to_board[l1item_def] = connect
-                   
+
+            # fill alg_to_item (we stop once we found 'TOPO' item)
+            if 'TOPO' not in l1topo_alg_to_item.get(l1item,''):
+                l1topo_alg_to_item[l1item] = l1item_def
+
     log.debug("L1Topo alg to board map: %s",l1topo_alg_to_board)
-    return l1topo_alg_to_board
-
-def getL1TopoAlgToItemMap(lvl1access):
-
-    lvl1items   = lvl1access.items(includeKeys=["name"])
-    lvl1items_full   = lvl1access.items() 
-
-    l1topo_alg_to_item = {}
-
-    for l1item in lvl1items:
-        l1item_def_list = re.split("[&|]+",str(lvl1items_full[l1item]['definition']))
-        for l1item_def_aux in l1item_def_list:
-            l1item_def = re.sub("[[((()))]]+","",re.split("[[]+",re.sub("[()]+","",l1item_def_aux))[0]).strip()
-            if 'TOPO' in l1item_def:
-                l1topo_alg_to_item[l1item] = l1item_def
-                break
-            else:
-                l1topo_alg_to_item[l1item] = l1item_def
-
     log.debug("L1Topo alg to item map: %s",l1topo_alg_to_item)
-    return l1topo_alg_to_item
-    
+    return (l1topo_alg_to_board, l1topo_alg_to_item)
+
+
 #this function checks each threshold within each chain to make sure that it is defined in the L1Menu
 def checkL1HLTConsistency(flags):
     from TrigConfIO.L1TriggerConfigAccess   import L1MenuAccess
@@ -61,14 +59,13 @@ def checkL1HLTConsistency(flags):
     allUnusedItems = []
     chainsWithWrongLabel = {}
 
+    l1topo_alg_to_board, l1topo_alg_to_item = getL1TopoAlgMaps(lvl1access)
+
     for chain in HLTMenuConfig.dictsList():
         log.debug('[checkL1HLTConsistency] Checking the l1thresholds in the chain %s', chain["chainName"])
 #        #don't check the noalg chains (they don't do anything in the HLT anyway)
 #        if 'HLT_noalg_' in chain["chainName"]:
 #            continue
-
-        l1topo_alg_to_board = getL1TopoAlgToBoardMap(lvl1access)
-        l1topo_alg_to_item = getL1TopoAlgToItemMap(lvl1access)
 
         l1item_vec = chain['L1item'].split(',')
         for l1item in l1item_vec:

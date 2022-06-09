@@ -64,6 +64,11 @@ public:
    * @brief To be used to generate timeout report
    */
   virtual StatusCode generateTimeoutReport(const EventContext& context, std::string& report) = 0;
+
+  /**
+   * @brief Discard the monitored event
+   */
+  virtual StatusCode discardEvent(const EventContext& context) = 0;
 };
 
 #endif // TRIGCOSTMONITOR_ITRIGCOSTSVC_H

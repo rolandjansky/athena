@@ -384,6 +384,18 @@ HLT_2mu14_l2io_L12MU8F:
   eventCount: 0
 HLT_2mu15_L12MU8F:
   eventCount: 0
+HLT_2mu3_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+HLT_2mu3_L12MU3VF:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu4_11invmAA60_L1DY-BOX-2MU3V:
   eventCount: 0
   stepCounts:

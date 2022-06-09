@@ -174,13 +174,11 @@ def MuonAlignmentCondAlgCfg(flags):
 
 def MuonDetectorCondAlgCfg(flags):
     acc = MuonAlignmentCondAlgCfg(flags)
-    from AthenaConfiguration.Enums import LHCPeriod
-    applyPassivation = flags.GeoModel.Run>=LHCPeriod.Run3 and not flags.Common.isOnline
-    if applyPassivation:
+    if flags.Muon.applyMMPassivation:
         from MuonConfig.MuonCondAlgConfig import NswPassivationDbAlgCfg
         acc.merge(NswPassivationDbAlgCfg(flags))
     MuonDetectorManagerCond = CompFactory.MuonDetectorCondAlg()
-    MuonDetectorManagerCond.applyMmPassivation = applyPassivation
+    MuonDetectorManagerCond.applyMmPassivation = flags.Muon.applyMMPassivation
     
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     MuonDetectorManagerCond.MuonDetectorTool = detTool
