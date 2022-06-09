@@ -322,10 +322,10 @@ def HIGG1D1Cfg(ConfigFlags):
     if ConfigFlags.Trigger.EDMVersion == 2:
         from DerivationFrameworkPhys.TriggerMatchingCommonConfig import AddRun2TriggerMatchingToSlimmingHelper
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = HIGG1D1SlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonTau", 
+                                         OutputContainerPrefix = "TrigMatch_", 
                                          TriggerList = HIGG1D1TriggerListsHelper.Run2TriggerNamesTau)
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = HIGG1D1SlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonNoTau",
+                                         OutputContainerPrefix = "TrigMatch_",
                                          TriggerList = HIGG1D1TriggerListsHelper.Run2TriggerNamesNoTau)
     # Run 3
     if ConfigFlags.Trigger.EDMVersion == 3:
@@ -334,10 +334,10 @@ def HIGG1D1Cfg(ConfigFlags):
         # Run 2 is added here temporarily to allow testing/comparison/debugging
         from DerivationFrameworkPhys.TriggerMatchingCommonConfig import AddRun2TriggerMatchingToSlimmingHelper
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = HIGG1D1SlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonTau", 
+                                         OutputContainerPrefix = "TrigMatch_", 
                                          TriggerList = HIGG1D1TriggerListsHelper.Run3TriggerNamesTau)
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = HIGG1D1SlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonNoTau",
+                                         OutputContainerPrefix = "TrigMatch_",
                                          TriggerList = HIGG1D1TriggerListsHelper.Run3TriggerNamesNoTau)
     
     # Output stream    
