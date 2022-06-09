@@ -138,8 +138,8 @@ class TrigInDetReco(ExecStep):
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
         AVERSION = ""
-        # temporary hack until we get to the bottom of why the tests are really failing
-        self.release = 'latest'
+        ### # temporary hack until we get to the bottom of why the tests are really failing
+        ### self.release = 'latest'
         if (self.release != 'current'):
             # get the current atlas base release, and the previous base release
             import os
