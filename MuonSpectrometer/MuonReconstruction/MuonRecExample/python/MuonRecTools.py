@@ -38,7 +38,7 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
 def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
-    kwargs.setdefault("NSWCalibTool", getPublicTool("NSWCalibTool"))
+    kwargs.setdefault("NSWCalibTool", "NSWCalibTool")
     return  CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs) 
 
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
