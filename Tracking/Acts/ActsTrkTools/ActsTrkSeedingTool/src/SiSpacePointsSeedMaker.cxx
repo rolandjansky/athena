@@ -131,7 +131,7 @@ namespace ActsTrk {
     else
       stripInform(data, sp, r);
 
-    data.l_ITkSpacePointForSeed.emplace_back(ITk::SiSpacePointForSeed(sp, r));
+    data.l_ITkSpacePointForSeed.emplace_back(sp, r);
     data.ns++;
   }
 
@@ -352,6 +352,40 @@ namespace ActsTrk {
     data.zbeam[1] = static_cast<float>(sinTheta * cosPhi);
     data.zbeam[2] = static_cast<float>(sinTheta * sinPhi);
     data.zbeam[3] = static_cast<float>(cosTheta);
+
+    // Acts Seed Tool requires both MagneticFieldContext and BeamSpotData
+    // we need to retrieve them both from StoreGate
+    // Read the b-field information
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle { m_fieldCondObjInputKey, ctx };
+    if ( not readHandle.isValid() ) {
+      throw std::runtime_error("Error while retrieving Atlas Field Cache Cond DB");
+    }
+    const AtlasFieldCacheCondObj* fieldCondObj{ *readHandle };
+    if (fieldCondObj == nullptr) {
+      throw std::runtime_error("Failed to retrieve AtlasFieldCacheCondObj with key " + m_fieldCondObjInputKey.key());
+    }
+
+    // Get the magnetic field
+    // Using ACTS classes in order to be sure we are consistent
+    Acts::MagneticFieldContext magFieldContext(fieldCondObj);
+
+    // Beam Spot Position
+    Acts::Vector3 beamPos( data.xbeam[0] * Acts::UnitConstants::mm,
+                           data.ybeam[0] * Acts::UnitConstants::mm,
+                           0. );
+
+    // Magnetic Field
+    ATLASMagneticFieldWrapper magneticField;
+    Acts::MagneticFieldProvider::Cache magFieldCache = magneticField.makeCache( magFieldContext );
+    Acts::Vector3 bField = *magneticField.getField( beamPos,
+                                                    magFieldCache );
+
+    data.bField[0] = bField[0];
+    data.bField[1] = bField[1];
+    data.bField[2] = bField[2];
+
+    data.K = 2. * s_toTesla / (300. * bField[2]);
+
   }
 
 
@@ -372,7 +406,9 @@ namespace ActsTrk {
     // At the beginning of each iteration
     // clearing list of space points to be used for seeding
     data.l_ITkSpacePointForSeed.clear();
+    data.i_ITkSpacePointForSeed = data.l_ITkSpacePointForSeed.begin();
     data.v_ActsSpacePointForSeed.clear();
+
 
     // clearing list of produced seeds
     data.i_ITkSeeds.clear();
@@ -447,55 +483,17 @@ namespace ActsTrk {
     if (not m_doSpacePointConversion and data.v_ActsSpacePointForSeed.empty() )
       return;
 
-    // Acts Seed Tool requires both MagneticFieldContext and BeamSpotData
-    // we need to retrieve them both from StoreGate
-
-    // Read the Beam Spot information
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-    if ( not beamSpotHandle.isValid() ) {
-      ATH_MSG_ERROR( "Error while retrieving beam spot" );
-      return;
-    }
-    if (beamSpotHandle.cptr() == nullptr) {
-      ATH_MSG_ERROR("Retrieved Beam Spot Handle contains a nullptr");
-      return;
-    }
-    auto beamSpotData = beamSpotHandle.cptr();
-    
-    // Read the b-field information
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle { m_fieldCondObjInputKey, ctx };
-    if ( not readHandle.isValid() ) {
-      ATH_MSG_ERROR( "Error while retrieving Atlas Field Cache Cond DB" );
-      return;
-    }
-    const AtlasFieldCacheCondObj* fieldCondObj{ *readHandle };
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return;
-    }
-    
-    // Get the magnetic field
-    // Using ACTS classes in order to be sure we are consistent
-    Acts::MagneticFieldContext magFieldContext(fieldCondObj);
-
-
-    // Beam Spot Position
-    Acts::Vector2 beamPos( beamSpotData->beamPos()[ Amg::x ] * Acts::UnitConstants::mm,
-			   beamSpotData->beamPos()[ Amg::y ] * Acts::UnitConstants::mm );
-    
-    // Magnetic Field
-    ATLASMagneticFieldWrapper magneticField;
-    Acts::MagneticFieldProvider::Cache magFieldCache = magneticField.makeCache( magFieldContext );
-    Acts::Vector3 bField = *magneticField.getField( Acts::Vector3(beamPos.x(), beamPos.y(), 0),
-						    magFieldCache );
-
-
     // Now we get care of the input space points!
     // Need to convert these space points to Acts EDM
     std::unique_ptr<ActsTrk::SpacePointContainer> actsSpContainer =
       std::make_unique<ActsTrk::SpacePointContainer>();
     std::unique_ptr<ActsTrk::SpacePointData> actsSpData =
       std::make_unique<ActsTrk::SpacePointData>();
+    std::unique_ptr<ActsTrk::SpacePointMeasurementDetails> actsSpDetails =
+      std::make_unique<ActsTrk::SpacePointMeasurementDetails>();
+
+    // select the ACTS seeding tool to call, if for PPP or SSS
+    bool isPixel = (m_fastTracking or data.iteration == 1) and m_pixel;
 
     // this is use for a fast retrieval of the space points later
     std::vector<ITk::SiSpacePointForSeed*> sp_storage;
@@ -504,11 +502,11 @@ namespace ActsTrk {
 
       actsSpContainer->reserve(data.l_ITkSpacePointForSeed.size());
       actsSpData->reserve(data.l_ITkSpacePointForSeed.size());
+      actsSpDetails->reserve(data.l_ITkSpacePointForSeed.size());
       sp_storage.reserve(data.l_ITkSpacePointForSeed.size());
 
       std::size_t el_index = 0;
       for (auto& sp : data.l_ITkSpacePointForSeed) {
-
         // add to storage
         sp_storage.push_back(&sp);
 
@@ -520,38 +518,74 @@ namespace ActsTrk {
         // the input_space_points collection (data.l_ITkSpacePointForSeed)
         // (used later for storing the seed into data)
         boost::container::static_vector<std::size_t, 2> indexes( {el_index++} );
-        std::unique_ptr<ActsTrk::SpacePoint> toAdd =
-        std::make_unique<ActsTrk::SpacePoint>( position,
-                                               covariance,
-                                               *actsSpData.get(),
-                                               indexes);
-        actsSpContainer->push_back( std::move(toAdd) );
-        data.v_ActsSpacePointForSeed.emplace_back( actsSpContainer->back() );
+        if (isPixel) {
+          std::unique_ptr<ActsTrk::SpacePoint> toAdd =
+          std::make_unique<ActsTrk::SpacePoint>( position,
+                                                 covariance,
+                                                 *actsSpData.get(),
+                                                 indexes);
+          actsSpContainer->push_back( std::move(toAdd) );
+          data.v_ActsSpacePointForSeed.emplace_back( actsSpContainer->back() );
+        } else {
+          // defining additional quantities needed for measurement details:
+          Amg::Vector3D topStrip = {sp.b0()[0],sp.b0()[1],sp.b0()[2]};
+          float topHalfStripLength = topStrip.norm();
+          Eigen::Matrix<double, 3, 1> topStripDirection = topStrip/topHalfStripLength;
+          Eigen::Matrix<double, 3, 1> topStripCenter = {sp.r0()[0],sp.r0()[1],sp.r0()[2]};
+
+          Amg::Vector3D bottomStrip = {sp.b1()[0],sp.b1()[1],sp.b1()[2]};
+          float bottomHalfStripLength = bottomStrip.norm();
+          Eigen::Matrix<double, 3, 1> bottomStripDirection = bottomStrip/bottomHalfStripLength;
+          Eigen::Matrix<double, 3, 1> stripCenterDistance = {sp.dr()[0],sp.dr()[1],sp.dr()[2]};
+
+          std::unique_ptr<ActsTrk::SpacePoint> toAdd =
+            std::make_unique<ActsTrk::SpacePoint>( position,
+                                                   covariance,
+                                                   // add stuff here
+                                                   topHalfStripLength,
+                                                   topStripDirection,
+                                                   bottomHalfStripLength,
+                                                   bottomStripDirection,
+                                                   stripCenterDistance,
+                                                   topStripCenter,
+                                                   *actsSpData.get(),
+                                                   *actsSpDetails.get(),
+                                                   indexes);
+          actsSpContainer->push_back( std::move(toAdd) );
+          data.v_ActsSpacePointForSeed.emplace_back( actsSpContainer->back() );
+
+        }
       }
     }
 
     // We can now run the Acts Seeding
     std::unique_ptr< ActsTrk::SeedContainer > seedPtrs = std::make_unique< ActsTrk::SeedContainer >();
 
-    // select the ACTS seeding tool to call, if for PPP or SSS
-    bool isPixel = (m_fastTracking or data.iteration == 1) and m_pixel;
     std::string combinationType = isPixel ? "PPP" : "SSS";
     ATH_MSG_DEBUG("Running Seed Finding (" << combinationType << ") ...");
+
+    // Beam Spot Position
+    Acts::Vector3 beamPos( data.xbeam[0] * Acts::UnitConstants::mm,
+                           data.ybeam[0] * Acts::UnitConstants::mm,
+                           data.zbeam[0] * Acts::UnitConstants::mm);
+
+    Acts::Vector3 bField( data.bField[0], data.bField[1], data.bField[2] );
 
     StatusCode sc;
 
     if (isPixel)
       sc = m_seedsToolPixel->createSeeds( ctx,
                                           data.v_ActsSpacePointForSeed,
-                                          *beamSpotData,
-                                          magFieldContext,
+                                          beamPos,
+                                          bField,
                                           *seedPtrs.get() );
-    else
+    else {
       sc = m_seedsToolStrip->createSeeds( ctx,
                                           data.v_ActsSpacePointForSeed,
-                                          *beamSpotData,
-                                          magFieldContext,
+                                          beamPos,
+                                          bField,
                                           *seedPtrs.get() );
+    }
 
     if (sc == StatusCode::FAILURE) {
       ATH_MSG_ERROR("Error during seed production (" << combinationType << ")");
@@ -571,20 +605,16 @@ namespace ActsTrk {
         std::size_t top_idx = seed->sp()[2]->measurementIndexes()[0];
 
         // Get the space point from storaga and not from std::list
-        ITk::SiSpacePointForSeed *bottom_sp = new ITk::SiSpacePointForSeed(*sp_storage.at(bottom_idx));
-        ITk::SiSpacePointForSeed *medium_sp = new ITk::SiSpacePointForSeed(*sp_storage.at(medium_idx));
-        ITk::SiSpacePointForSeed *top_sp    = new ITk::SiSpacePointForSeed(*sp_storage.at(top_idx));
+        ITk::SiSpacePointForSeed *bottom_sp = sp_storage.at(bottom_idx);
+        bottom_sp->setQuality(-seed->seedQuality());
+        ITk::SiSpacePointForSeed *medium_sp = sp_storage.at(medium_idx);
+        medium_sp->setQuality(-seed->seedQuality());
+        ITk::SiSpacePointForSeed *top_sp    = sp_storage.at(top_idx);
+        top_sp->setQuality(-seed->seedQuality());
 
-        // Estimate parameters and attach values to SPs
-        estimateParameters(isPixel ? SeedStrategy::PPP : SeedStrategy::SSS,
-                           data,
-                           bottom_sp, medium_sp, top_sp,
-                           300. * bField[2] / 1000.);
-
-        data.i_ITkSeeds.emplace_back(ITk::SiSpacePointsProSeed(bottom_sp,
-                                                               medium_sp,
-                                                               top_sp,
-                                                               seed->z()));
+        data.i_ITkSeeds.emplace_back(bottom_sp, medium_sp,
+                                     top_sp, seed->z());
+        data.i_ITkSeeds.back().setQuality(-seed->seedQuality());
       }
     } else {
 
@@ -596,7 +626,12 @@ namespace ActsTrk {
         }
         const xAOD::PixelClusterContainer inputContainer = *inputClusterContainer.cptr();
 
+        std::vector< InDet::PixelSpacePoint* > pixelSpacePoints(inputContainer.size(), nullptr);
+        std::vector< ITk::SiSpacePointForSeed* > pixelSpacePointsForSeed(inputContainer.size(), nullptr);
+
+
         for (const ActsTrk::Seed* seed : *seedPtrs.get()) {
+
           // creating ITk::SiSpacePointForSeed for bottom, middle and top sps
           // first we need the space points
           std::size_t bottom_idx = seed->sp()[0]->measurementIndexes()[0];
@@ -621,42 +656,35 @@ namespace ActsTrk {
             return;
           }
 
-          std::array<InDet::PixelSpacePoint*, 3> spacePoints { new InDet::PixelSpacePoint(pixel_cluster[0]->identifierHash(),
-                                                                                          *(pixelLinkAcc(*pixel_cluster[0]))),
-                                                               new InDet::PixelSpacePoint(pixel_cluster[1]->identifierHash(),
-                                                                                          *(pixelLinkAcc(*pixel_cluster[1]))),
-                                                               new InDet::PixelSpacePoint(pixel_cluster[2]->identifierHash(),
-                                                                                          *(pixelLinkAcc(*pixel_cluster[2])))};
+          if (pixelSpacePoints.at(bottom_idx) == nullptr)
+            pixelSpacePoints.at(bottom_idx) = new InDet::PixelSpacePoint(pixel_cluster[0]->identifierHash(),
+                                                                         *(pixelLinkAcc(*pixel_cluster[0])));
+          if (pixelSpacePoints.at(medium_idx) == nullptr)
+            pixelSpacePoints.at(medium_idx) = new InDet::PixelSpacePoint(pixel_cluster[1]->identifierHash(),
+                                                                         *(pixelLinkAcc(*pixel_cluster[1])));
+          if (pixelSpacePoints.at(top_idx) == nullptr)
+            pixelSpacePoints.at(top_idx) = new InDet::PixelSpacePoint(pixel_cluster[2]->identifierHash(),
+                                                                      *(pixelLinkAcc(*pixel_cluster[2])));
 
-          float r[15];
-          r[0] = seed->sp()[0]->x();
-          r[1] = seed->sp()[0]->y();
-          r[2] = seed->sp()[0]->z();
-          pixInform(spacePoints[0], r);
-          ITk::SiSpacePointForSeed *bottom_sp = new ITk::SiSpacePointForSeed(spacePoints[0], &(r[0]));
+          std::array<InDet::PixelSpacePoint*, 3> spacePoints { pixelSpacePoints.at(bottom_idx),
+                                                               pixelSpacePoints.at(medium_idx),
+                                                               pixelSpacePoints.at(top_idx)};
+          for (unsigned int index = 0; index<3; index++) {
+            size_t sp_idx = seed->sp()[index]->measurementIndexes()[0];
+            if (pixelSpacePointsForSeed.at(sp_idx) == nullptr) {
+              float r[15];
+              r[0] = seed->sp()[index]->x();
+              r[1] = seed->sp()[index]->y();
+              r[2] = seed->sp()[index]->z();
+              pixInform(spacePoints[index], r);
+              pixelSpacePointsForSeed[sp_idx] = new ITk::SiSpacePointForSeed(spacePoints[index], r);
+            }
+            pixelSpacePointsForSeed[sp_idx]->setQuality(-seed->seedQuality());
+          }
 
-          r[0] = seed->sp()[1]->x();
-          r[1] = seed->sp()[1]->y();
-          r[2] = seed->sp()[1]->z();
-          pixInform(spacePoints[1], r);
-          ITk::SiSpacePointForSeed *medium_sp = new ITk::SiSpacePointForSeed(spacePoints[1], &(r[0]));
-
-          r[0] = seed->sp()[2]->x();
-          r[1] = seed->sp()[2]->y();
-          r[2] = seed->sp()[2]->z();
-          pixInform(spacePoints[2], r);
-          ITk::SiSpacePointForSeed *top_sp    = new ITk::SiSpacePointForSeed(spacePoints[2], &(r[0]));
-
-          // Estimate parameters and attach values to SPs
-          estimateParameters(SeedStrategy::PPP,
-                             data,
-                             bottom_sp, medium_sp, top_sp,
-                             300. * bField[2] / 1000.);
-
-          data.i_ITkSeeds.emplace_back(ITk::SiSpacePointsProSeed(bottom_sp,
-                                                                 medium_sp,
-                                                                 top_sp,
-                                                                 seed->z()));
+          data.i_ITkSeeds.emplace_back(pixelSpacePointsForSeed.at(bottom_idx), pixelSpacePointsForSeed.at(medium_idx),
+                                       pixelSpacePointsForSeed.at(top_idx), seed->z());
+          data.i_ITkSeeds.back().setQuality(-seed->seedQuality());
         }
       } else {
         SG::ReadHandle<xAOD::StripClusterContainer> inputClusterContainer( m_stripClusterContainerKey, ctx );
@@ -665,6 +693,9 @@ namespace ActsTrk {
           return;
         }
         const xAOD::StripClusterContainer inputContainer = *inputClusterContainer.cptr();
+
+        std::map< std::pair<size_t, size_t>, InDet::SCT_SpacePoint* > stripSpacePoints;
+        std::map< std::pair<size_t, size_t>, ITk::SiSpacePointForSeed* > stripSpacePointsForSeed;
 
         for (const ActsTrk::Seed* seed : *seedPtrs.get()) {
           // creating ITk::SiSpacePointForSeed for bottom, middle and top sps
@@ -691,45 +722,49 @@ namespace ActsTrk {
             return;
           }
 
-          std::array<InDet::SCT_SpacePoint*, 3> spacePoints { new InDet::SCT_SpacePoint({strip_cluster[0]->identifierHash(), strip_cluster[1]->identifierHash()},
-                                                                                        Amg::Vector3D(seed->sp()[0]->x(), seed->sp()[0]->y(), seed->sp()[0]->z()),
-                                                                                        {*(stripLinkAcc(*strip_cluster[0])), *(stripLinkAcc(*strip_cluster[1]))}),
-                                                              new InDet::SCT_SpacePoint({strip_cluster[2]->identifierHash(), strip_cluster[3]->identifierHash()},
-                                                                                        Amg::Vector3D(seed->sp()[1]->x(), seed->sp()[1]->y(), seed->sp()[1]->z()),
-                                                                                        {*(stripLinkAcc(*strip_cluster[2])), *(stripLinkAcc(*strip_cluster[3]))}),
-                                                              new InDet::SCT_SpacePoint({strip_cluster[4]->identifierHash(), strip_cluster[5]->identifierHash()},
-                                                                                        Amg::Vector3D(seed->sp()[2]->x(), seed->sp()[2]->y(), seed->sp()[2]->z()),
-                                                                                        {*(stripLinkAcc(*strip_cluster[4])), *(stripLinkAcc(*strip_cluster[5]))})};
+          std::pair<size_t, size_t> bottom_indices = {bottom_idx[0], bottom_idx[1]};
+          std::pair<size_t, size_t> middle_indices = {medium_idx[0], medium_idx[1]};
+          std::pair<size_t, size_t> top_indices    = {top_idx[0], top_idx[1]};
 
-          float r[15];
-          r[0] = seed->sp()[0]->x();
-          r[1] = seed->sp()[0]->y();
-          r[2] = seed->sp()[0]->z();
-          stripInform(data, spacePoints[0], r);
-          ITk::SiSpacePointForSeed *bottom_sp = new ITk::SiSpacePointForSeed(spacePoints[0], &(r[0]));
+          if (stripSpacePoints.find(bottom_indices) == stripSpacePoints.end())
+            stripSpacePoints[bottom_indices] = new InDet::SCT_SpacePoint(
+              {strip_cluster[0]->identifierHash(), strip_cluster[1]->identifierHash()},
+              Amg::Vector3D(seed->sp()[0]->x(), seed->sp()[0]->y(), seed->sp()[0]->z()),
+              {*(stripLinkAcc(*strip_cluster[0])), *(stripLinkAcc(*strip_cluster[1]))});
 
-          r[0] = seed->sp()[1]->x();
-          r[1] = seed->sp()[1]->y();
-          r[2] = seed->sp()[1]->z();
-          stripInform(data, spacePoints[1], r);
-          ITk::SiSpacePointForSeed *medium_sp = new ITk::SiSpacePointForSeed(spacePoints[1], &(r[0]));
+          if (stripSpacePoints.find(middle_indices) == stripSpacePoints.end())
+            stripSpacePoints[middle_indices] = new InDet::SCT_SpacePoint(
+              {strip_cluster[2]->identifierHash(), strip_cluster[3]->identifierHash()},
+              Amg::Vector3D(seed->sp()[1]->x(), seed->sp()[1]->y(), seed->sp()[1]->z()),
+              {*(stripLinkAcc(*strip_cluster[2])), *(stripLinkAcc(*strip_cluster[3]))});
 
-          r[0] = seed->sp()[2]->x();
-          r[1] = seed->sp()[2]->y();
-          r[2] = seed->sp()[2]->z();
-          stripInform(data, spacePoints[2], r);
-          ITk::SiSpacePointForSeed *top_sp    = new ITk::SiSpacePointForSeed(spacePoints[2], &(r[0]));
+          if (stripSpacePoints.find(top_indices) == stripSpacePoints.end())
+            stripSpacePoints[top_indices] = new InDet::SCT_SpacePoint(
+              {strip_cluster[4]->identifierHash(), strip_cluster[5]->identifierHash()},
+              Amg::Vector3D(seed->sp()[2]->x(), seed->sp()[2]->y(), seed->sp()[2]->z()),
+              {*(stripLinkAcc(*strip_cluster[4])), *(stripLinkAcc(*strip_cluster[5]))});
 
-          // Estimate parameters and attach values to SPs
-          estimateParameters(SeedStrategy::SSS,
-                             data,
-                             bottom_sp, medium_sp, top_sp,
-                             300. * bField[2] / 1000.);
+          std::array<InDet::SCT_SpacePoint*, 3> spacePoints {stripSpacePoints[bottom_indices],
+                                                             stripSpacePoints[middle_indices],
+                                                             stripSpacePoints[top_indices]};
 
-          data.i_ITkSeeds.emplace_back(ITk::SiSpacePointsProSeed(bottom_sp,
-                                                                 medium_sp,
-                                                                 top_sp,
-                                                                 seed->z()));
+           for (unsigned int index = 0; index<3; index++) {
+            std::pair<size_t, size_t> sp_indices = {seed->sp()[index]->measurementIndexes()[0], seed->sp()[index]->measurementIndexes()[1]};
+            if (stripSpacePointsForSeed.find(sp_indices) == stripSpacePointsForSeed.end()) {
+              float r[15];
+              r[0] = seed->sp()[index]->x();
+              r[1] = seed->sp()[index]->y();
+              r[2] = seed->sp()[index]->z();
+              stripInform(data, spacePoints[index], r);
+
+              stripSpacePointsForSeed[sp_indices] = new ITk::SiSpacePointForSeed(spacePoints[index], r);
+            }
+            stripSpacePointsForSeed[sp_indices]->setQuality(-seed->seedQuality());
+          }
+
+          data.i_ITkSeeds.emplace_back(stripSpacePointsForSeed[bottom_indices], stripSpacePointsForSeed[middle_indices],
+                                       stripSpacePointsForSeed[top_indices], seed->z());
+          data.i_ITkSeeds.back().setQuality(-seed->seedQuality());
         }
       }
     }
@@ -742,11 +777,18 @@ namespace ActsTrk {
   const InDet::SiSpacePointsSeed*
   SiSpacePointsSeedMaker::next(const EventContext& /*ctx*/,
 				   InDet::SiSpacePointsSeedMakerEventData& data) const
-  { 
+  {
 
-    if (data.i_ITkSeed == data.i_ITkSeeds.end()) return nullptr;
-    // InDet::SiSpacePointsSeed seedOutput;
-    return getSeed(*(data.i_ITkSeed++));
+    do {
+      if (data.i_ITkSeed == data.i_ITkSeeds.end())
+        return nullptr;
+
+    // iterate until we find a valid seed satisfying certain quality cuts in set3
+    } while (!(*data.i_ITkSeed++).set3(data.seedOutput, 1./(1000. * data.K)));
+
+    /// then return this next seed candidate
+    return &data.seedOutput;
+
   }
 
   void
@@ -807,137 +849,6 @@ namespace ActsTrk {
     return dumpConditions(data, out);
   }
 
-
-  void SiSpacePointsSeedMaker::estimateParameters(const SeedStrategy /*seed_strategy*/,
-						      InDet::SiSpacePointsSeedMakerEventData& /*data*/,
-						      ITk::SiSpacePointForSeed*& bottom,
-						      ITk::SiSpacePointForSeed*& medium,
-						      ITk::SiSpacePointForSeed*& top,
-						      float pTPerHelixRadius) const
-  {
-    // ACTS has these functions in Core, we may want to switch to those
-    // The following is mostly taken from ACTS
-
-    auto extractCoordinates = 
-      [] (const ITk::SiSpacePointForSeed* sp) -> std::array<float,4>
-      {
-	std::array<float, 4> coordinates {sp->x(), sp->y(), sp->z(), sp->radius()};
-	return coordinates;
-      };
-
-    auto extractQuantities = 
-      [] (const std::array<float, 4>& sp,
-	  const std::array<float, 4>& spM,
-	  bool isBottom) -> std::array<float, 5>
-      {
-	auto& [xM, yM, zM, rM] = spM;
-	auto& [xO, yO, zO, rO] = sp;
-
-	float cosPhiM = xM / rM;
-	float sinPhiM = yM / rM;
-	float deltaX = xO - xM;
-	float deltaY = yO - yM;
-	float deltaZ = zO - zM;
-	float x = deltaX * cosPhiM + deltaY * sinPhiM;
-	float y = deltaY * cosPhiM - deltaX * sinPhiM;
-	float iDeltaR2 = 1. / (deltaX * deltaX + deltaY * deltaY);
-	float iDeltaR = std::sqrt(iDeltaR2);
-	int bottomFactor = 1 * (int(not isBottom)) - 1 * (int(isBottom));
-	float cot_theta = deltaZ * iDeltaR * bottomFactor;
-
-	// cotTheta, Zo, iDeltaR, U, V
-	std::array<float, 5> params =
-	{ 
-	  cot_theta, 
-	  zM - rM * cot_theta,
-	  iDeltaR,
-	  x * iDeltaR2,
-	  y * iDeltaR2
-	};
-
-	return params;	
-      };
-
-    auto coo_b = extractCoordinates(bottom);
-    auto coo_m = extractCoordinates(medium);
-    auto coo_t = extractCoordinates(top);
-
-    // Compute the variables we need
-    auto [cotThetaB, Zob, iDeltaRB, Ub, Vb] = extractQuantities(coo_b, coo_m, true);
-    auto [cotThetaT, Zot, iDeltaRT, Ut, Vt] = extractQuantities(coo_t, coo_m, false);
-
-    float squarediDeltaR2B = iDeltaRB*iDeltaRB;
-    float squarediDeltaR2T = iDeltaRB*iDeltaRT;
-    float squarediDeltaR = std::min(squarediDeltaR2B, squarediDeltaR2T);
-
-    auto& [xB, yB, zB, rB] = coo_b;
-    auto& [xM, yM, zM, rM] = coo_m;
-    auto& [xT, yT, zT, rT] = coo_t;
-
-    float ax = xM / rM;
-    float ay = yM/ rM;
-
-    float dxb = xM - xB;
-    float dyb = yM - yB;
-    float dzb = zM - zB;
-    float xb = dxb * ax + dyb *ay;
-    float yb = dyb * ax - dxb * ay; 
-    float dxyb = xb * xb + yb * yb;                                                                                                                                                                                                                                            
-    float drb = std::sqrt( xb*xb + yb*yb + dzb*dzb );
-
-    float dxt = xT - xM;
-    float dyt = yT - yM;
-    float dzt = zT - zM;
-    float xt = dxt * ax + dyt *ay;
-    float yt = dyt * ax - dxt * ay;
-    float dxyt = xt * xt + yt * yt;
-    float drt = std::sqrt( xt*xt + yt*yt + dzt*dzt );
-
-    float tzb = dzb * std::sqrt( 1./dxyb );
-    float tzt = dzt * std::sqrt( 1./dxyt );
-
-    float sTzb2 = std::sqrt(1 + tzb*tzb);
-
-    float dU = Ut - Ub;
-    if (dU == 0.) {
-      return;
-    }
-
-    float A = (Vt - Vb) / dU;
-    float S2 = 1. + A * A;
-    float B = Vb - A * Ub;
-    float B2 = B * B;
-
-    // dzdr
-    float dzdr_b = (zM - zB) / (rM - rB);
-    float dzdr_t = (zT - zM) / (rT - rM);    
-
-    // eta
-    float theta = std::atan(1. / std::sqrt(cotThetaB * cotThetaT));
-    float eta = -std::log(std::tan(0.5 * theta));
-
-    // pt
-    float pt = pTPerHelixRadius * std::sqrt(S2 / B2) / 2.;
-
-    // d0
-    float d0 = std::abs((A - B * rM) * rM);
-
-    // curvature 
-    // not used in current version of the code. We may want to use it later
-    //    float curvature = B / std::sqrt(S2);
-
-    // Attach variables to SPs
-    top->setDR(drt);
-    top->setDZDR(dzdr_t);
-    top->setScorePenalty( std::abs((tzb - tzt) / (squarediDeltaR * sTzb2)) );
-    top->setParam(d0);
-    top->setEta(eta);
-    top->setPt(pt);
-
-    bottom->setDR(drb);
-    bottom->setDZDR(dzdr_b);
-  }
-  
 
   ///////////////////////////////////////////////////////////////////
   // Dumps conditions information into the MsgStream
@@ -1032,31 +943,4 @@ namespace ActsTrk {
 
   }
 
-  const InDet::SiSpacePointsSeed* SiSpacePointsSeedMaker::getSeed(ITk::SiSpacePointsProSeed& proSeed) const {
-
-    InDet::SiSpacePointsSeed* seed = new InDet::SiSpacePointsSeed(proSeed.spacepoint0()->spacepoint,
-                                                                  proSeed.spacepoint1()->spacepoint,
-                                                                  proSeed.spacepoint2()->spacepoint,
-                                                                  double(proSeed.z()));
-    seed->setD0(proSeed.spacepoint2()->param());
-    seed->setEta(proSeed.spacepoint2()->eta());
-    seed->setX1(proSeed.spacepoint0()->x());
-    seed->setX2(proSeed.spacepoint1()->x());
-    seed->setX3(proSeed.spacepoint2()->x());
-    seed->setY1(proSeed.spacepoint0()->y());
-    seed->setY2(proSeed.spacepoint1()->y());
-    seed->setY3(proSeed.spacepoint2()->y());
-    seed->setZ1(proSeed.spacepoint0()->z());
-    seed->setZ2(proSeed.spacepoint1()->z());
-    seed->setZ3(proSeed.spacepoint2()->z());
-    seed->setR1(proSeed.spacepoint0()->radius());
-    seed->setR2(proSeed.spacepoint1()->radius());
-    seed->setR3(proSeed.spacepoint2()->radius());
-    seed->setDZDR_B(proSeed.spacepoint0()->dzdr());
-    seed->setDZDR_T(proSeed.spacepoint2()->dzdr());
-    seed->setPt(proSeed.spacepoint2()->pt());
-
-    return seed;
-  }
-  
 }

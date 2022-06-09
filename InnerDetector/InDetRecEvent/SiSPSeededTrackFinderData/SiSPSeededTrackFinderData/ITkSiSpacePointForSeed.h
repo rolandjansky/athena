@@ -72,6 +72,10 @@ namespace ITk
     const float&         dR() const {return m_dR;} /// distance between top and central SP
     const Trk::Surface* sur() const {return m_su;}
     const Trk::Surface* sun() const {return m_sn;}
+    const float*  b0() const {return m_b0;}
+    const float*  b1() const {return m_b1;}
+    const float*  dr() const {return m_dr;}
+    const float*  r0() const {return m_r0;}
 
     bool coordinates(const float*,float*);
 

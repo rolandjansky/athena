@@ -109,7 +109,7 @@ namespace InDet {
     float RTmax{0.}; 
 
     /**
-     * @name Beam geometry
+     * @name Beam geometry and magnetic field
      * Updated only in buildBeamFrameWork,
      * which is called by newEvent and newRegion
      */
@@ -117,6 +117,7 @@ namespace InDet {
     float xbeam[4]{0., 1., 0., 0.}; ///< x,ax,ay,az - center and x-axis direction
     float ybeam[4]{0., 0., 1., 0.}; ///< y,ax,ay,az - center and y-axis direction
     float zbeam[4]{0., 0., 0., 1.}; ///< z,ax,ay,az - center and z-axis direction
+    float bField[3]{0., 0., 0.};
     //@}
 
     std::vector<int> r_index;
