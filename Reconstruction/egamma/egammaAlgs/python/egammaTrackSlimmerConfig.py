@@ -26,13 +26,6 @@ def egammaTrackSlimmerCfg(
 
     acc.addEventAlgo(CompFactory.egammaTrackSlimmer(name, **kwargs))
 
-    # To use egamma CA within standard config
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in acc._allSequences:
-            el.name = "TopAlg"
-
     return acc
 
 
