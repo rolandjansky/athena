@@ -185,10 +185,9 @@ namespace dqutils
     HanOutputFile::
     getAllGroupDirs_V2(DirStrMap_t& dirstrmap, TObject* obj, std::string objName)
   {
-    TDirectory* dir;
+    if (obj == nullptr) return;
+    TDirectory* dir{};
     TString obj_type = obj->ClassName();
-    if (obj == 0)
-      return;
 
     if (objName != "")
     { // Not a file
@@ -367,6 +366,10 @@ namespace dqutils
       }
       // Extract JSON object
       TObjString* JSON_obj = dynamic_cast<TObjString*>(gDirectory->GetKey(JSON_name.c_str())->ReadObj());
+      if (not JSON_obj){
+        std::cerr<<"HanOutputFile::getStringName : dynamic cast failed\n";
+        return "Null";
+      }
       std::string JSON_str = (JSON_obj->GetName());
       nlohmann::json j = nlohmann::json::parse(JSON_str);
       nlohmann::json::json_pointer JSON_ptr(path_inJSON);
@@ -628,6 +631,10 @@ namespace dqutils
       }
       // Extract JSON object
       TObjString* JSON_obj = dynamic_cast<TObjString*>(gDirectory->GetKey(JSON_name.c_str())->ReadObj());
+      if (not JSON_obj){
+        std::cerr<<"HanOutputFile::getInfo : dynamic cast failed\n";
+        return "Null";
+      }
       std::string JSON_str = (JSON_obj->GetName());
       nlohmann::ordered_json j = nlohmann::ordered_json::parse(JSON_str);
       nlohmann::ordered_json json_in_j;
@@ -804,6 +811,10 @@ namespace dqutils
         {
           std::cout << "name: " << idirName << ", path: " << path_to_file << idirName << "\n";
           TObjString* strobj = dynamic_cast<TObjString*>(idir->second);
+          if (not strobj){
+            std::cerr << "HanOutputFile::printAllGroupDirs(): dynamic cast failed\n";
+            continue;
+          }
           std::string content = strobj->GetName();           // In ATLAS DQM root files GetName() actually returns the
                                                              // content rather than the name of a string
           nlohmann::json j = nlohmann::json::parse(content); // Get JSON object from TObjString
