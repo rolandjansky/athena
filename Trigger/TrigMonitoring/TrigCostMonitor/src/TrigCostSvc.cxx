@@ -472,6 +472,28 @@ StatusCode TrigCostSvc::generateTimeoutReport(const EventContext& context, std::
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+StatusCode TrigCostSvc::discardEvent(const EventContext& context) {
+  
+  if (m_monitorAllEvents) {
+    ATH_MSG_DEBUG("All events are monitored - event will not be discarded");
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_DEBUG("Cost Event will be discarded");
+  ATH_CHECK(checkSlot(context));
+  {
+    std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
+
+    // Reset eventMonitored flags
+    m_eventMonitored[ context.slot() ] = false;
+
+    // tables are cleared at the start of the event
+  }
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 StatusCode TrigCostSvc::checkSlot(const EventContext& context) const {
   if (context.slot() >= m_eventSlots) {
     ATH_MSG_FATAL("Job is using event slot #" << context.slot() << ", but we only reserved space for: " << m_eventSlots);

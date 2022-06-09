@@ -15,7 +15,7 @@ atlas_add_library( TrigCostMonitorLib
                    PRIVATE_LINK_LIBRARIES AthViews AthenaKernel )
 
 atlas_add_component( TrigCostMonitor
-                     src/*.cxx
+                     src/*.h src/*.cxx
                      src/components/*.cxx 
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TBB_LIBRARIES} AthContainers AthViews GaudiKernel TrigConfHLTUtilsLib TrigCostMonitorLib TrigSteeringEvent TrigTimeAlgsLib )

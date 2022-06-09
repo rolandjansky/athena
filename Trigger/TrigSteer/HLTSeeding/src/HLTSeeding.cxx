@@ -118,8 +118,9 @@ StatusCode HLTSeeding::execute (const EventContext& ctx) const {
   if (m_doCostMonitoring) {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);
     const auto activeCostMonIt = std::find(activeChains.begin(), activeChains.end(), costMonitorChain);
-    const bool doCostMonitoring = (activeCostMonIt != activeChains.end());
-    ATH_CHECK(m_trigCostSvcHandle->startEvent(ctx, doCostMonitoring));
+    if (activeCostMonIt == activeChains.end()){
+      ATH_CHECK(m_trigCostSvcHandle->discardEvent(ctx));
+    }
   }
 
   ATH_MSG_DEBUG( "Unpacking RoIs" );
