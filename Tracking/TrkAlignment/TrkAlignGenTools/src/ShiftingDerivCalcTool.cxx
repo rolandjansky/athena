@@ -880,16 +880,13 @@ double ShiftingDerivCalcTool::shiftSize(const AlignPar* alignPar) const {
 //________________________________________________________________________
 bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
 {
-  Amg::MatrixX* pW = new Amg::MatrixX(alignTrack->nAlignTSOSMeas(),alignTrack->nAlignTSOSMeas());
-  //AmgSymMatrix* pW = new AmgSymMatrix(alignTrack->nAlignTSOSMeas());
-  Amg::MatrixX& W = *pW;
+  Amg::MatrixX W(alignTrack->nAlignTSOSMeas(),alignTrack->nAlignTSOSMeas());
 
   if (alignTrack->localErrorMatrixInv()) {
     ATH_MSG_ERROR("Need to assign this matrix correctly: ShiftingDerivCalcTool.cxx:888");
     W = *(alignTrack->localErrorMatrixInv());
     //W.assign(*(alignTrack->localErrorMatrixInv()));
   } else{
-    delete pW;
     return false;
   }
   ATH_MSG_DEBUG("W: "<<W);
@@ -913,11 +910,9 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
   }
 
   if (Wisvalid)
-  alignTrack->setWeightMatrix(pW);
+  alignTrack->setWeightMatrix(new Amg::MatrixX(W));
 
-  Amg::MatrixX* pWfirst=new Amg::MatrixX(*pW);
-  alignTrack->setWeightMatrixFirstDeriv(pWfirst);
-  delete pW;
+  alignTrack->setWeightMatrixFirstDeriv(new Amg::MatrixX(std::move(W)));
 
   return true;
 }
