@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -441,6 +441,12 @@ def main():
 
    if args.loop_files and args.number_of_events<0:
       log.warning("Looping over files without specifying number of events will run forever!")
+
+   # We have to instantiate the COOL database already here. If it is being
+   # done later, we somehow end up with leftover threads before forking (ATR-21890).
+   from PyCool import cool
+   dbSvc = cool.DatabaseSvcFactory.databaseService()
+   del dbSvc
 
    # Update args and set athena flags
    update_run_params(args)
