@@ -47,25 +47,25 @@ namespace Muon {
             for (unsigned int i = 0; i < options.size(); ++i) setOption(options[i], true);
         }
 
-        void setOption(const Option, bool value);
-        void setOption(const std::string, bool value);
+        void setOption(Option, bool value);
+        void setOption(const std::string&, bool value);
         bool option(Option) const;
         std::bitset<Last> allOptions() const { return m_bits; }
 
         // Set methods
-        void setCh(const std::vector<MuonStationIndex::ChIndex> val, const unsigned int layer);
-        void setCh(const std::vector<std::vector<MuonStationIndex::ChIndex> > val) { m_path = val; }
+        void setCh(const std::vector<MuonStationIndex::ChIndex>& val, const unsigned int layer);
+        void setCh(const std::vector<std::vector<MuonStationIndex::ChIndex> >& val) { m_path = val; }
 
         // Get methods
         const std::vector<std::vector<MuonStationIndex::ChIndex> >& getAll() const { return m_path; }
-        std::vector<MuonStationIndex::ChIndex> getCh(const unsigned int) const;
+        const std::vector<MuonStationIndex::ChIndex>& getCh(const unsigned int) const;
 
         // for the name
         const std::string getName() const { return m_name; }
-        void setName(const std::string name) { m_name = name; }
+        void setName(const std::string& name) { m_name = name; }
 
         const std::vector<unsigned int>& seeds() const { return m_seeds; }
-        void setSeeds(const std::vector<unsigned int> val) { m_seeds = val; }
+        void setSeeds(const std::vector<unsigned int>& val) { m_seeds = val; }
 
     private:
         std::string m_name;
@@ -75,7 +75,7 @@ namespace Muon {
     };
 }  // namespace Muon
 
-inline void Muon::MuonTrackSteeringStrategy::setOption(const std::string opt, bool value) {
+inline void Muon::MuonTrackSteeringStrategy::setOption(const std::string& opt, bool value) {
     if (opt == "CutSeedsOnTracks")
         setOption(CutSeedsOnTracks, value);
     else if (opt == "CombineSegInStation")
@@ -112,7 +112,7 @@ inline void Muon::MuonTrackSteeringStrategy::setOption(const Option opt, bool va
     m_bits[opt] = value;
 }
 
-inline void Muon::MuonTrackSteeringStrategy::setCh(const std::vector<MuonStationIndex::ChIndex> val, const unsigned int layer) {
+inline void Muon::MuonTrackSteeringStrategy::setCh(const std::vector<MuonStationIndex::ChIndex>& val, const unsigned int layer) {
     if (layer < m_path.size())
         m_path[layer] = val;
     else {  // assume the user knows what he or she is doing
@@ -121,10 +121,11 @@ inline void Muon::MuonTrackSteeringStrategy::setCh(const std::vector<MuonStation
     }
 }
 
-inline std::vector<Muon::MuonStationIndex::ChIndex> Muon::MuonTrackSteeringStrategy::getCh(const unsigned int layer = 0) const {
-    if (layer < m_path.size()) return m_path[layer];
-    std::vector<Muon::MuonStationIndex::ChIndex> val(1);
-    return val;
+inline const std::vector<Muon::MuonStationIndex::ChIndex>& Muon::MuonTrackSteeringStrategy::getCh(const unsigned int layer = 0) const {
+    if (layer >= m_path.size()) {
+        throw std::range_error("MuonTrackSteering a path beyond the possible paths is chosen");
+    }
+    return m_path[layer];
 }
 
 inline bool Muon::MuonTrackSteeringStrategy::option(Muon::MuonTrackSteeringStrategy::Option op) const {
