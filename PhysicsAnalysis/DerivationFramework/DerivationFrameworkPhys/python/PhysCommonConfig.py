@@ -82,32 +82,31 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
 
     # Trigger matching
     if ConfigFlags.Reco.EnableTrigger or ConfigFlags.Trigger.InputContainsConfigMetadata:
-
         from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
         from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun3Cfg
         # requires some wrangling due to the difference between run 2 and 3
         triggerListsHelper = kwargs['TriggerListsHelper']
         if ConfigFlags.Trigger.EDMVersion == 2:
-            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags,
-                                                   name = "PhysCommonTrigMatchNoTau",
-                                                   OutputContainerPrefix = "PhysCommonNoTau",
+            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                                   name = "PhysCommonTrigMatchNoTau", 
+                                                   OutputContainerPrefix = "TrigMatch_", 
                                                    TriggerList = triggerListsHelper.Run2TriggerNamesNoTau))
-            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags,
-                                                   name = "PhysCommonTrigMatchTau",
-                                                   OutputContainerPrefix = "PhysCommonTau",
-                                                   TriggerList = triggerListsHelper.Run2TriggerNamesTau,
+            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                                   name = "PhysCommonTrigMatchTau", 
+                                                   OutputContainerPrefix = "TrigMatch_", 
+                                                   TriggerList = triggerListsHelper.Run2TriggerNamesTau, 
                                                    DRThreshold = 0.2))
         if ConfigFlags.Trigger.EDMVersion == 3:
             acc.merge(TriggerMatchingCommonRun3Cfg(ConfigFlags, TriggerList = triggerListsHelper.Run3TriggerNames))
             # This is here temporarily for testing/comparison/debugging purposes
-            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags,
-                                                   name = "PhysCommonTrigMatchNoTau",
-                                                   OutputContainerPrefix = "PhysCommonNoTau",
+            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                                   name = "PhysCommonTrigMatchNoTau", 
+                                                   OutputContainerPrefix = "TrigMatch_", 
                                                    TriggerList = triggerListsHelper.Run3TriggerNamesNoTau))
-            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags,
-                                                   name = "PhysCommonTrigMatchTau",
-                                                   OutputContainerPrefix = "PhysCommonTau",
-                                                   TriggerList = triggerListsHelper.Run3TriggerNamesTau,
+            acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                                   name = "PhysCommonTrigMatchTau", 
+                                                   OutputContainerPrefix = "TrigMatch_", 
+                                                   TriggerList = triggerListsHelper.Run3TriggerNamesTau, 
                                                    DRThreshold = 0.2))
 
 

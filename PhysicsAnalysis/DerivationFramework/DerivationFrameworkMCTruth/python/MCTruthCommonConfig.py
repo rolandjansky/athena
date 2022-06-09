@@ -95,9 +95,8 @@ def AddTruthMETCfg(ConfigFlags):
     # Only do this if the truth MET is not present
     # This should handle EVNT correctly without an explicit check
     if ( "MissingETContainer#MET_Truth") not in ConfigFlags.Input.TypedCollections:
-        from METReconstruction.METRecoCfg import getMETRecoAlg
-        metAlg = getMETRecoAlg('METReconstruction')
-        acc.addEventAlgo(metAlg)
+        from METReconstruction.METTruth_Cfg import METTruth_Cfg
+        acc.merge(METTruth_Cfg(ConfigFlags))
 
     return acc
 

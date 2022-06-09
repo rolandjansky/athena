@@ -197,10 +197,10 @@ def PHYSVALCfg(ConfigFlags):
     if ConfigFlags.Trigger.EDMVersion == 2:
         from DerivationFrameworkPhys.TriggerMatchingCommonConfig import AddRun2TriggerMatchingToSlimmingHelper
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSVALSlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonTau", 
+                                         OutputContainerPrefix = "TrigMatch_", 
                                          TriggerList = PHYSVALTriggerListsHelper.Run2TriggerNamesTau)
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSVALSlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonNoTau",
+                                         OutputContainerPrefix = "TrigMatch_",
                                          TriggerList = PHYSVALTriggerListsHelper.Run2TriggerNamesNoTau)
     # Run 3
     if ConfigFlags.Trigger.EDMVersion == 3:
@@ -209,10 +209,10 @@ def PHYSVALCfg(ConfigFlags):
         # Run 2 is added here temporarily to allow testing/comparison/debugging
         from DerivationFrameworkPhys.TriggerMatchingCommonConfig import AddRun2TriggerMatchingToSlimmingHelper
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSVALSlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonTau", 
+                                         OutputContainerPrefix = "TrigMatch_", 
                                          TriggerList = PHYSVALTriggerListsHelper.Run3TriggerNamesTau)
         AddRun2TriggerMatchingToSlimmingHelper(SlimmingHelper = PHYSVALSlimmingHelper, 
-                                         OutputContainerPrefix = "PhysCommonNoTau",
+                                         OutputContainerPrefix = "TrigMatch_",
                                          TriggerList = PHYSVALTriggerListsHelper.Run3TriggerNamesNoTau)
 
 
