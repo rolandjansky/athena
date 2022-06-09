@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FastCaloSimGeometryHelper_h
-#define FastCaloSimGeometryHelper_h
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_FASTCALOSIMGEOMETRYHELPER_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_FASTCALOSIMGEOMETRYHELPER_H
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -14,22 +14,22 @@
 class CaloDetDescrManager;
 
 class FastCaloSimGeometryHelper:public AthAlgTool, public CaloGeometry, virtual public IFastCaloSimGeometryHelper {
-  public :
-    /** Constructor with parameters */
-    FastCaloSimGeometryHelper( const std::string& t, const std::string& n, const IInterface* p );
+ public :
+  /** Constructor with parameters */
+  FastCaloSimGeometryHelper( const std::string& t, const std::string& n, const IInterface* p );
 
-    /** Destructor */
+  /** Destructor */
   virtual ~FastCaloSimGeometryHelper();
 
-    // Athena algtool's Hooks
+  // Athena algtool's Hooks
   virtual StatusCode  initialize() override final;
   virtual StatusCode  finalize() override final;
 
-  private:  
-    /// DetDescr mgr for access to the calo helper
-    const CaloDetDescrManager* m_caloMgr;  
+ private:
+  /// DetDescr mgr for access to the calo helper
+  const CaloDetDescrManager* m_caloMgr{nullptr};
     
-    virtual bool LoadGeometryFromCaloDDM();
+  bool LoadGeometryFromCaloDDM();
 };
 
 #endif
