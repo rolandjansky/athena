@@ -60,7 +60,8 @@ def CaloCellMakerCfg(configFlags):
                                         "TileCellContainer#MBTSContainer",
                                         "TileCellContainer#E4prContainer"]))
     result.merge(addToAOD(configFlags,
-                          ["TileCellContainer#MBTSContainer",
+                          ["CaloCellContainer#AllCalo",
+                           "TileCellContainer#MBTSContainer",
                            "TileCellContainer#E4prContainer"]))
 
     return result

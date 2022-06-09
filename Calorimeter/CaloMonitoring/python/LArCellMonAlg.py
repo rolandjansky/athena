@@ -365,7 +365,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerS
                            xbins=lArCellBinningScheme.timescale, ybins=lArCellBinningScheme.energyscale)
 
          cellMonGroup.defineHistogram('cellTime_'+part+';CellEnergyVsTime_'+part+'_'+str(int(eCutForTiming[idx//2])),
-                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(int(eCutForTiming[idx//2]))+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
+                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(int(eCutForTiming[idx//2]))+' [MeV]);Cell Time [ns]; NEvents',
                            weight='cellEnergy_'+part,
                            cutmask='enGreaterThanCut_'+part,
                            type='TH1F', path=energyvstime_hist_path,

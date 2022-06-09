@@ -447,6 +447,14 @@ from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
+
+#-------------------------------------------------------------
+# Cost Monitoring
+#-------------------------------------------------------------
+from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
+CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags, seqName="HLTBeginSeq")
+
+
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
     CAtoGlobalWrapper(trigCaloDataAccessSvcCfg, ConfigFlags)
@@ -658,15 +666,6 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
-# Cost Monitoring
-#-------------------------------------------------------------
-
-from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg, TrigCostMonitorPostSetup
-CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags)
-# TODO - how can TrigCostMonitorPostSetup be component-accumulator-ised?
-TrigCostMonitorPostSetup()
-
-#-------------------------------------------------------------
 # Debugging for view cross-dependencies
 #-------------------------------------------------------------
 if opt.reverseViews or opt.filterViews:
@@ -679,6 +678,12 @@ if opt.reverseViews or opt.filterViews:
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter
+
+#-------------------------------------------------------------
+# Cost Monitoring Post Setup
+#-------------------------------------------------------------
+from TrigCostMonitor.TrigCostMonitorConfig import  TrigCostMonitorPostSetup
+TrigCostMonitorPostSetup()
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

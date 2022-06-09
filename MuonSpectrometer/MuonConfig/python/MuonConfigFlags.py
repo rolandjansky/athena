@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import BeamType, ProductionStep
+from AthenaConfiguration.Enums import BeamType, ProductionStep, LHCPeriod
+    
 import re
 
 # Some comments from Ed about existing flags
@@ -76,6 +77,8 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.useTrackSegmentMatching", True )
     mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Detector.EnableMM or prevFlags.Detector.EnablesTGC) \
                                                                  and prevFlags.Beam.Type is BeamType.Collisions) )
+    
+    mcf.addFlag("Muon.applyMMPassivation", lambda prevFlags: prevFlags.GeoModel.Run>=LHCPeriod.Run3 and not prevFlags.Common.isOnline )
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders
     mcf.addFlag("Muon.Calib.correctMdtRtForBField", lambda prevFlags : (prevFlags.Input.isMC is False and prevFlags.Beam.Type is BeamType.Collisions)) # Apply B-field correction to drift times only for collision data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)

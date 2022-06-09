@@ -209,7 +209,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
 
        # 1D plots of noisy events of various type
        darray.defineHistogram('LBStd;NoisyEvent',type='TH1I', path=hist_path,
-                                 title='Yield of events flagged as RNB-Standard - {0} ; Luminosity Block', 
+                                 title='Yield of events flagged as RNB-Standard - {0} ; Luminosity Block; Number of events', 
                                  xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
 
        darray.defineHistogram('LBSat;SaturatedNoisyEvent',type='TH1I', path=hist_path,

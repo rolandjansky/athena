@@ -71,9 +71,6 @@ def TauLinkerConfig(inputFlags, **kwargs):
 
 
 if __name__=="__main__":
-    #the "standard" main loop for Athena R22
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
     from AthenaConfiguration.Enums import Format
     

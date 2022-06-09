@@ -28,10 +28,16 @@ BTaggingStandardAux = \
     , "DL1dv00_pu" #“recommended r22 tagger” which is DL1dLoose20210824r22 named DL1dv00
     , "DL1dv00_pc"
     , "DL1dv00_pb"
+    , "DL1dv01_pu" # new recommended r22 tagger named DL1dv01 which is DL1dLoose20220509
+    , "DL1dv01_pc"
+    , "DL1dv01_pb"
 
     , "dipsLoose20210729_pu"
     , "dipsLoose20210729_pc"
     , "dipsLoose20210729_pb"
+    , "dipsLoose20220314v2_pu"
+    , "dipsLoose20220314v2_pc"
+    , "dipsLoose20220314v2_pb"
 
     , "SV1_NGTinSvx"
     , "SV1_masssvx"
@@ -106,16 +112,13 @@ BTaggingHighLevelAux = [
     , "DL1r20210824r22_pc"
     , "DL1r20210824r22_pb"
 
-    , "dipsLoose20210517_pu"
-    , "dipsLoose20210517_pc"
-    , "dipsLoose20210517_pb"
     , "dipsLoose20210729_pu"
     , "dipsLoose20210729_pc"
     , "dipsLoose20210729_pb"
+    , "dipsLoose20220314v2_pu"
+    , "dipsLoose20220314v2_pc"
+    , "dipsLoose20220314v2_pb"
 
-    , "dips20210517_pu"
-    , "dips20210517_pc"
-    , "dips20210517_pb"
     , "dips20210729_pu"
     , "dips20210729_pc"
     , "dips20210729_pb"
@@ -123,10 +126,10 @@ BTaggingHighLevelAux = [
     , "DL1dv00_pu" #“recommended r22 tagger” which is DL1dLoose20210824r22 named DL1dv00
     , "DL1dv00_pc"
     , "DL1dv00_pb"
+    , "DL1dv01_pu" # new recommended r22 tagger named DL1dv01 which is DL1dLoose20220509
+    , "DL1dv01_pc"
+    , "DL1dv01_pb"
 
-    , "DL1d20210528r22_pu"
-    , "DL1d20210528r22_pc"
-    , "DL1d20210528r22_pb"
     , "DL1d20210824r22_pu"
     , "DL1d20210824r22_pc"
     , "DL1d20210824r22_pb"

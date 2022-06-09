@@ -38,12 +38,12 @@ namespace Muon {
         };
 
         struct Info {
-            Info() : id(), measuresPhi(false), type(UnknownType), selection(UnknownSelection), status(UnknownStatus) {}
-            Identifier id;
-            bool measuresPhi;
-            Type type;
-            HitSelection selection;
-            Status status;
+            Info() = default;
+            Identifier id{};
+            bool measuresPhi{true};
+            Type type{Pseudo};
+            HitSelection selection{UnknownSelection};
+            Status status{OnTrack};
         };
 
         /** @brief construction taking all members as argument, ownership is taken only of the broadMeas.
