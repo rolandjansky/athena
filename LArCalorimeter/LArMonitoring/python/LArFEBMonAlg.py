@@ -121,6 +121,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   title='# of readout FEB/DSP header;Num. FEBs;Partition',
                                   type='TH2I',
                                   path=summary_hist_path,
+                                  opt='kAlwaysCreate',
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   ylabels=lArDQGlobals.Partitions
