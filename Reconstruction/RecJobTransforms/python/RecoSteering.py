@@ -164,11 +164,12 @@ def RecoSteering(flags):
         acc.merge(METCfg(flags))
         log.info("---------- Configured MET")
 
+    # Calo Rings
     acc.flagPerfmonDomain('CaloRings')
     if flags.Reco.EnableCaloRinger:
         from CaloRingerAlgs.CaloRingerAlgsConfig import CaloRingerSteeringCfg
         acc.merge(CaloRingerSteeringCfg(flags))
-        log.info("---------- Configured Calo Ringer")
+        log.info("---------- Configured Calo Rings")
 
     # HI
     acc.flagPerfmonDomain('HI')
@@ -187,10 +188,11 @@ def RecoSteering(flags):
     # Monitoring
     acc.flagPerfmonDomain('DQM')
     if flags.DQ.doMonitoring:
-        from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg, AthenaMonitoringPostprocessingCfg
+        from AthenaMonitoring.AthenaMonitoringCfg import (
+            AthenaMonitoringCfg, AthenaMonitoringPostprocessingCfg)
         acc.merge(AthenaMonitoringCfg(flags))
         if flags.DQ.doPostProcessing:
-           acc.merge(AthenaMonitoringPostprocessingCfg(flags))
+            acc.merge(AthenaMonitoringPostprocessingCfg(flags))
         log.info("---------- Configured DQ monitoring")
 
     # Setup the final post-processing
