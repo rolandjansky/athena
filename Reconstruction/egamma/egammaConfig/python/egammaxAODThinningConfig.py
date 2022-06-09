@@ -52,7 +52,6 @@ def egammaxAODThinningCfg(flags, name="EGammaxAODThinning"):
                 streamName="StreamAOD",
                 clusters=clus,
                 samplings=samplings,
-                addLinksToAOD=False,
             ))
 
     mlog.info("EGamma xAOD Thinning configured")
