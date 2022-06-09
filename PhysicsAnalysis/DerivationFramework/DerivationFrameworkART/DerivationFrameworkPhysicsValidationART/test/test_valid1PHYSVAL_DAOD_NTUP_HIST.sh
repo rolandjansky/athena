@@ -69,10 +69,10 @@ case $ArtProcess in
                  
 	VALIDFLAGS="doExample,doMET,doEgamma,doInDet,doTau,doJet,doBtag,doMuon,doZee,doTopoCluster,doPFlow_FlowElements"
 
-	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile part1.pool.root
+	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile DAOD_PHYSVAL.part1.pool.root
 	echo  "art-result: $? daod_part1"
 
-	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part1.pool.root --outputNTUP_PHYSVALFile PHYSVAL.part1.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
+	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part1.pool.root --outputNTUP_PHYSVALFile NTUP_PHYSVAL.part1.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
 	echo  "art-result: $? physval_part1"
 	
         if [ -f ../DAOD_PHYSVAL.part1.*.pool.root ]
@@ -91,10 +91,10 @@ case $ArtProcess in
         fi
 
 
-	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile part2.pool.root --skipEvents 5000
+	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile DAOD_PHYSVAL.part2.pool.root --skipEvents 5000
 	echo  "art-result: $? daod_part2"
 	
-	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part2.pool.root --outputNTUP_PHYSVALFile PHYSVAL.part2.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
+	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part2.pool.root --outputNTUP_PHYSVALFile NTUP_PHYSVAL.part2.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
 	echo  "art-result: $? physval_part2"
 
 	ls -lR
