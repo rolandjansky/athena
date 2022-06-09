@@ -26,6 +26,7 @@ an RDO
 #include "TH1I.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include <algorithm>//for min_Element, max_element
 
 namespace MuonCalib{
   /** 
@@ -71,21 +72,8 @@ namespace MuonCalib{
       StatusCode hashToChamberName(IdentifierHash,std::string);		
       StatusCode fillBitHist(TH1I * bitHist, const uint16_t & val, TH2F* bitProds);
       template <typename dataType> dataType GetMinMax(std::vector<dataType> & vec) {
-
-        typename std::vector<dataType>::const_iterator itr = vec.begin();
-        typename std::vector<dataType>::const_iterator end = vec.end();
-        if(itr == end)
-          return 0;
-        dataType max =*itr;
-        dataType min =*itr;
-        itr++;
-        for(; itr != end ; ++itr) {
-          if(*itr < min)
-            min = *itr;
-          if(*itr > max)
-            max = *itr;
-        }
-        return max - min;
+        const auto [pMin, pMax] = std::minmax_element(vec.begin(), vec.end());
+        return *pMax - *pMin;
       }
   
       void onlineToOfflineHashId(const unsigned int & onlineId, unsigned int &hashId) const;

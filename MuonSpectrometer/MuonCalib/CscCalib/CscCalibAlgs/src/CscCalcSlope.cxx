@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscCalcSlope.h"
@@ -154,21 +154,21 @@ namespace MuonCalib {
     if(m_doBitHists) m_bitHists = new DataVector<TH1I>(SG::VIEW_ELEMENTS);
     //Loop through ids to find out what hash range we're working on, and to 
     //initialize histograms.
-    std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-    std::vector<Identifier>::const_iterator chamItr = ids.begin();
-    std::vector<Identifier>::const_iterator chamEnd = ids.end();
+    const std::vector<Identifier> & ids = m_idHelperSvc->cscIdHelper().idVector();
+
+
     m_maxStripHash = 0;
-    for(; chamItr != chamEnd; chamItr++)
+    for(const auto & thisChamberId:ids)
     {
       std::vector<Identifier> stripVect;
-      m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
+      m_idHelperSvc->cscIdHelper().idChannels(thisChamberId,stripVect);
 
-      std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
-      std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
-      for(;stripItr != stripEnd; stripItr++)
+      
+      
+      for(const auto & thisStripId:stripVect)
       {
         IdentifierHash stripHash;
-        m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+        m_idHelperSvc->cscIdHelper().get_channel_hash(thisStripId,stripHash);
 
         if(m_maxStripHash < (unsigned int)stripHash)
           m_maxStripHash = (unsigned int)stripHash; 
@@ -226,6 +226,7 @@ namespace MuonCalib {
         in >> stripHash >> buff >> buff >> ped >> noise;
         ATH_MSG_INFO(stripHash << "\t" << ped << "\t" << noise);
         if( stripHash < 0 || (unsigned int) stripHash > m_maxStripHash ) {
+          //cppcheck-suppress shiftNegative
           ATH_MSG_FATAL("The hash "<< (int) stripHash << " is out of range for the Ped-Vector - Crashing!");
           return StatusCode::FAILURE;
         }
@@ -341,12 +342,11 @@ namespace MuonCalib {
        
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
-    CscRawDataContainer::const_iterator rodItr = fullRDO->begin();
-    CscRawDataContainer::const_iterator rodEnd = fullRDO->end();
-    for(;rodItr != rodEnd; rodItr++)
+    
+    
+    for(const auto & rod:*fullRDO)
     {
-      const CscRawDataCollection * rod = (*rodItr); 	//Removing another "pointer layer" to make
-      if(rod->size() >0) 
+      if(not rod->empty()) 
       {
 
         uint16_t pulsedWireLayer = rod->calLayer();
@@ -387,11 +387,11 @@ namespace MuonCalib {
 
 
         //Loop over strips in rod
-        CscRawDataCollection::const_iterator clusItr = rod->begin();
-        CscRawDataCollection::const_iterator clusEnd = rod->end();
-        for(; clusItr!=clusEnd ; clusItr++)
+       
+       
+        for(const auto cluster: *rod)
         {
-          const CscRawData * cluster = (*clusItr); //Note: For a pulser or ped run, the "cluster" 
+          //Note: For a pulser or ped run, the "cluster" 
           //is the size of an entire layer
           int numStrips = cluster->width();
           int samplesPerStrip = (cluster->samples()).size()/numStrips;
@@ -429,8 +429,8 @@ namespace MuonCalib {
               std::vector<uint16_t> samples;
               cluster->samples(stripItr,samplesPerStrip,samples); //Retrieve samples for a single strip
 
-              float ped;
-              float noise;
+              float ped = 0;
+              float noise = 0;
               if(m_pedFile)
               {
                 ped = m_peds[stripHash];
@@ -460,19 +460,17 @@ namespace MuonCalib {
 
               }
 
-              double peakAmp, peakTime;
-              int success;
+              double peakAmp{}, peakTime{};
+              int success{};
               if(!m_doBipolarFit)
               {
                 //Need to convert vector from ints to floats to pass to findCharge 
                 std::vector<float> floatSamples; 
-                std::vector<uint16_t>::const_iterator sampItr = samples.begin();
-                std::vector<uint16_t>::const_iterator sampEnd = samples.end();
-                for(;sampItr != sampEnd; sampItr++){
+                for(const auto & thisSample:samples){
 
-                  floatSamples.push_back((*sampItr)-ped);
+                  floatSamples.push_back(thisSample-ped);
                   if(m_bitHists){
-                    if(!fillBitHist((*m_bitHists)[stripHash],*sampItr)){
+                    if(!fillBitHist((*m_bitHists)[stripHash],thisSample)){
                       ATH_MSG_WARNING("Failed recording bits for strip " << stripHash);
                     }
 
@@ -625,27 +623,25 @@ namespace MuonCalib {
       //for this strip 
       ATH_MSG_DEBUG("Number of ampProfs " << m_ampProfs->size());
       int calPointItr = 0;
-      std::map<int, TProfile*>::const_iterator ampProfItr = m_ampProfs->begin();
-      std::map<int, TProfile*>::const_iterator ampProfEnd = m_ampProfs->end();
-      for(; ampProfItr != ampProfEnd; ampProfItr++)
+      for(const auto & [pulserLevel, pAmplitudeProfile] : *m_ampProfs)
       {
-        if(!ampProfItr->second){
+        if(!pAmplitudeProfile){
           ATH_MSG_FATAL("Failed at accessing ampProf!");
           return StatusCode::FAILURE;
         }
         ATH_MSG_DEBUG("\tLooking for data for pulser level "
-           << ampProfItr->first);
+           << pulserLevel);
 
-        if(ampProfItr->second->GetBinEntries(stripHash+1))
+        if(pAmplitudeProfile->GetBinEntries(stripHash+1))
         {
 
           ATH_MSG_VERBOSE("\nHave data for strip " << stripHash);
 
           isGoodStrip = true;
 
-          int pulserLevel = ampProfItr->first; 
-          float adcValue = ampProfItr->second->GetBinContent(stripHash+1); 
-          float adcError = ampProfItr->second->GetBinError(stripHash+1); 
+         
+          float adcValue = pAmplitudeProfile->GetBinContent(stripHash+1); 
+          float adcError = pAmplitudeProfile->GetBinError(stripHash+1); 
           if(m_doCrossTalkFix)
           {
             ATH_MSG_VERBOSE("\tCrosstalk fix " << m_crossTalkFix[crossTalkCnt]);
@@ -825,7 +821,7 @@ namespace MuonCalib {
       peaktItr = m_peakTimes->begin();
       peaktEnd = m_peakTimes->end();
     }        
-    for(; slopeItr != slopeEnd; slopeItr++)
+    for(; slopeItr != slopeEnd; ++slopeItr)
     {
       if(m_findPeakTime && (peaktItr == peaktEnd) )
       {
@@ -955,7 +951,7 @@ namespace MuonCalib {
 
     CscCalibResultCollection::const_iterator resItr = results.begin();
     CscCalibResultCollection::const_iterator resEnd = results.end();
-    for(; resItr != resEnd; resItr++){
+    for(; resItr != resEnd; ++resItr){
       unsigned int hashId = (*resItr)->hashId();
       double value = (*resItr)->value();
       std::string idString;
