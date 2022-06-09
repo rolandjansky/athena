@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file PFOMonitorAlgorithm.py
@@ -159,10 +159,6 @@ def PFOMonitoringConfig(inputFlags):
     # return result
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

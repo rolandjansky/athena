@@ -5,10 +5,6 @@
 # Author: TJ Khoo
 # Date: 21.01.2020
 
-# Setting temporarily needed for Run 3 code
-from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior=True
-
 # Config flags steer the job at various levels
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.Input.isMC  = True
