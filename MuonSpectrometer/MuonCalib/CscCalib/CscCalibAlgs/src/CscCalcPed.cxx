@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscCalcPed.h"
@@ -96,22 +96,22 @@ namespace MuonCalib {
 
     //Loop through ids to find out what hash range we're working on (in case we're using some 
     //unusual geometry)
-    std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-    std::vector<Identifier>::const_iterator chamItr = ids.begin();
-    std::vector<Identifier>::const_iterator chamEnd = ids.end();
+    const std::vector<Identifier> &ids = m_idHelperSvc->cscIdHelper().idVector();
+   
+   
     m_maxStripHash = 0;
 
-    for(; chamItr != chamEnd; chamItr++)
+    for(const auto &thisChamberId: ids)
     {
       std::vector<Identifier> stripVect;
-      m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
+      m_idHelperSvc->cscIdHelper().idChannels(thisChamberId,stripVect);
 
-      std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
-      std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
-      for(;stripItr != stripEnd; stripItr++)
+     
+     
+      for(const auto & thisStrip: stripVect)
       {
         IdentifierHash stripHash;
-        m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+        m_idHelperSvc->cscIdHelper().get_channel_hash(thisStrip,stripHash);
         if((unsigned int)stripHash > m_maxStripHash)
           m_maxStripHash = (int)stripHash;
       }//End strip loop
@@ -352,8 +352,8 @@ namespace MuonCalib {
     m_eventCnt++;
     ATH_MSG_DEBUG("Collecting event info for event " << m_eventCnt);
     //Below might need to be changed depending on how we get data
-    const CscRawDataContainer* rawDataContainter;
-    StatusCode sc_read = evtStore()->retrieve(rawDataContainter, "CSCRDO"); 
+    const CscRawDataContainer* rawDataContainer;
+    StatusCode sc_read = evtStore()->retrieve(rawDataContainer, "CSCRDO"); 
     if (sc_read != StatusCode::SUCCESS)
     {
       ATH_MSG_FATAL("Could not find event");
@@ -362,39 +362,33 @@ namespace MuonCalib {
 
     ATH_MSG_VERBOSE("Retrieved RDO from storegate ");
 
-    if(rawDataContainter->size() == 0)
+    if(rawDataContainer->size() == 0)
     {
       ATH_MSG_FATAL("no rods in RDO!");
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_VERBOSE("There are " << rawDataContainter->size() << " rods in the RDO");
+    ATH_MSG_VERBOSE("There are " << rawDataContainer->size() << " rods in the RDO");
 
     IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
 
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
-    CscRawDataContainer::const_iterator rodItr = rawDataContainter->begin();
-    CscRawDataContainer::const_iterator rodEnd = rawDataContainter->end();
-    ATH_MSG_VERBOSE("does rodItr == rodEnd? " << (rodItr == rodEnd));
-    for(;rodItr != rodEnd; rodItr++)
+
+    for(const auto & rod : *rawDataContainer)
     {
       Chrono chronoRod(m_chronoSvc,"RodItr");
       ATH_MSG_VERBOSE("Examining a ROD");
-      const CscRawDataCollection * rod = (*rodItr); 	//Removing another "pointer layer" to make
-      //                                                syntax simpler
 
       ATH_MSG_VERBOSE("There are " << rod->size() << " clusters in the ROD");
       if(rod->size() >0) 
       {
         //Loop over strips in rod
-        CscRawDataCollection::const_iterator clusItr = rod->begin();
-        CscRawDataCollection::const_iterator clusEnd = rod->end();
-        for(; clusItr!=clusEnd ; clusItr++)
+
+
+        for(const auto & cluster: *rod)
         {
           Chrono chronoClus(m_chronoSvc,"ClusterItr");
-          const CscRawData * cluster = (*clusItr); //Note: For a ped run, the "cluster" 
-          //                                               is the size of an entire layer. 
           int numStrips = cluster->width();
           int samplesPerStrip = (cluster->samples()).size()/numStrips;
 
@@ -461,28 +455,28 @@ namespace MuonCalib {
 
             //Test for threshold breach... 
             size_t sampCnt = 0;
-            std::vector<uint16_t>::const_iterator sampItr = samples.begin();
-            std::vector<uint16_t>::const_iterator sampEnd = samples.end();
-            for(;sampItr != sampEnd; sampItr++)
+           
+           
+            for(const auto & thisSample: samples)
             {
-              (*m_ampHists)[stripHash]->Fill(*sampItr);
+              (*m_ampHists)[stripHash]->Fill(thisSample);
               if(m_doSampleHists)
-                (*((*m_sampHists)[stripHash]))[sampCnt]->Fill(*sampItr);
+                (*((*m_sampHists)[stripHash]))[sampCnt]->Fill(thisSample);
               if(m_bitHists && sampCnt==1)
               {
                 TH2F* prodHist = nullptr;
                 if(m_bitProds)
                   prodHist = (*m_bitProds)[stripHash];
-                if(!fillBitHist((*m_bitHists)[stripHash],*sampItr, prodHist).isSuccess())
+                if(!fillBitHist((*m_bitHists)[stripHash],thisSample, prodHist).isSuccess())
                   ATH_MSG_WARNING("Failed recording bits for strip " << stripHash);
               }//end if(m_bitHists)
 
               if(m_doOnlineDbFile){//m_doF001){
                 //test if any samples are obvoe the online threshold
-                if (*sampItr > m_onlineThresholds[stripHash] ){
+                if (thisSample > m_onlineThresholds[stripHash] ){
                   m_onlineThresholdFailureCount[stripHash]++;
                   ATH_MSG_VERBOSE("StripHash: " << stripHash  << 
-                    " has online threshold breach. Sample: " << *sampItr << " Thold: " 
+                    " has online threshold breach. Sample: " << thisSample << " Thold: " 
                       << m_onlineThresholds[stripHash]);
                 }
               }
@@ -631,7 +625,7 @@ namespace MuonCalib {
       CscCalibResultCollection::iterator pedEnd = m_peds->end();
       CscCalibResultCollection::iterator noiseItr = m_noises->begin(); 
       CscCalibResultCollection::iterator rmsItr = m_rmses->begin(); 
-      for(;pedItr!= pedEnd;pedItr++,noiseItr++, rmsItr++)//,tholdItr++)
+      for(;pedItr!= pedEnd;++pedItr,++noiseItr, ++rmsItr)//,tholdItr++)
       {
         int hashId = (*pedItr)->hashId();
         double ped = (*pedItr)->value();
@@ -695,7 +689,7 @@ namespace MuonCalib {
       CscCalibResultCollection::iterator noiseItr = m_noises->begin(); 
       CscCalibResultCollection::iterator rmsItr = m_rmses->begin(); 
       CscCalibResultCollection::iterator f001Itr = m_f001s->begin();
-      for(;pedItr!= pedEnd;pedItr++,noiseItr++, rmsItr++, f001Itr++)//,tholdItr++)
+      for(;pedItr!= pedEnd;++pedItr,++noiseItr, ++rmsItr, ++f001Itr)//,tholdItr++)
       {
         int hashId = (*pedItr)->hashId();
         double ped = (*pedItr)->value();
@@ -784,7 +778,7 @@ namespace MuonCalib {
 
       CscCalibResultCollection::const_iterator resItr = results.begin();
       CscCalibResultCollection::const_iterator resEnd = results.end();
-      for(; resItr != resEnd; resItr++){
+      for(; resItr != resEnd; ++resItr){
         unsigned int hashId = (*resItr)->hashId();
         double value = (*resItr)->value();
         std::string idString;
