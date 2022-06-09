@@ -18,6 +18,54 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
 from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
 
+# this is where you add the new trainings!
+def GetTaggerTrainingMap(jet_collection_list):
+    derivationTrainingMap = {
+        "AntiKt4EMPFlow": [
+            "BTagging/201903/rnnip/antikt4empflow/network.json",
+            "BTagging/201903/dl1r/antikt4empflow/network.json",
+            "BTagging/20210519r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20210729/dipsLoose/antikt4empflow/network.json",  # old r22 trainings
+            "BTagging/20210729/dips/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json",  # “recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+            "BTagging/20210824r22/dl1d/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
+            "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+        ],
+        "AntiKt4EMPFlowCustomVtx": [
+            "BTagging/201903/rnnip/antikt4empflow/network.json",
+            "BTagging/201903/dl1r/antikt4empflow/network.json",
+        ],
+        "AntiKt4EMTopo": [
+            "BTagging/201903/rnnip/antikt4empflow/network.json",
+            "BTagging/201903/dl1r/antikt4empflow/network.json",
+            "BTagging/20210519r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20210729/dipsLoose/antikt4empflow/network.json",  # old r22 trainings
+            "BTagging/20210729/dips/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json",  # “recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+            "BTagging/20210824r22/dl1d/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
+            "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+        ],
+        "AntiKtVR30Rmax4Rmin02Track": [
+            "BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json",
+            "BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json",
+            "BTagging/20210519r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20210729/dipsLoose/antikt4empflow/network.json",  # old r22 trainings
+            "BTagging/20210729/dips/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json",  # “recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+            "BTagging/20210824r22/dl1d/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
+            "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+        ],
+    }
+
+    return derivationTrainingMap[jet_collection_list]
+
+
 def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetTrackParticles'):
     acc=ComponentAccumulator()
     # Delete BTagging container read from input ESD
@@ -58,27 +106,6 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
 
     result.merge(JetTagCalibCfg(inputFlags))
 
-    recoTaggerList={
-        'AntiKt4EMPFlow': [
-           'BTagging/201903/rnnip/antikt4empflow/network.json',
-           'BTagging/201903/dl1r/antikt4empflow/network.json',
-           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-           'BTagging/20210729/dips/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-        ],
-        'AntiKt4EMTopo': [
-           'BTagging/201903/rnnip/antikt4empflow/network.json',
-           'BTagging/201903/dl1r/antikt4empflow/network.json',
-           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-           'BTagging/20210729/dips/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-        ]
-    }
-
     #Track Augmenter
     result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
 
@@ -87,7 +114,7 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
             BTagAlgsCfg(
                 inputFlags,
                 JetCollection=jc,
-                nnList=recoTaggerList[jc],
+                nnList=GetTaggerTrainingMap(jc),
                 muons='', # muon augmentation isn't thread safe, disable
             )
         )
