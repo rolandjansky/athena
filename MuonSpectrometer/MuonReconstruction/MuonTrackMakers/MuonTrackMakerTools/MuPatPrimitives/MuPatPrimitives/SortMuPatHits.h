@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SORTMUPATHITS_H
@@ -42,54 +42,50 @@ namespace Muon {
     public:
       bool operator()(const MuPatHit* hit1, const MuPatHit* hit2, const IMuonIdHelperSvc* idh) const {
 	    //first, check if both hits are in the same chamber, and at least one is an RPC
-	    //if so, do some ID-based sorting
-	    if(idh->chamberIndex(hit1->info().id) == idh->chamberIndex(hit2->info().id) && (hit1->info().type==1 || hit2->info().type==1)){
-	        if(hit1->info().type==0){
-		    if (idh->rpcIdHelper().doubletR(hit2->info().id) == 1) {
-		        if (idh->stationIndex(hit1->info().id) == MuonStationIndex::StIndex::BM || idh->isSmallChamber(hit1->info().id))
-		            return true;
-		        else return false;
-		    } 
-		    else return false;
-                }
-		else if(hit2->info().type==0){
-		    if (idh->rpcIdHelper().doubletR(hit1->info().id) == 1) {
-		        if (idh->stationIndex(hit2->info().id) == MuonStationIndex::StIndex::BM || idh->isSmallChamber(hit2->info().id))
-			    return false;
-			else return true;
-		    }
-		    else return true;
-		}
-		else{ //both hits are RPC
-		    Identifier id1=hit1->info().id;
-		    Identifier id2=hit2->info().id;
-		    if (idh->rpcIdHelper().doubletR(id1) != idh->rpcIdHelper().doubletR(id2)) {
-		        return idh->rpcIdHelper().doubletR(id1) > idh->rpcIdHelper().doubletR(id2);
-		    } else if (idh->rpcIdHelper().doubletZ(id1) != idh->rpcIdHelper().doubletZ(id2)) {
-		        return idh->rpcIdHelper().doubletZ(id1) > idh->rpcIdHelper().doubletZ(id2);
-		    } else if (idh->rpcIdHelper().doubletPhi(id1) != idh->rpcIdHelper().doubletPhi(id2)) {
-		        return idh->rpcIdHelper().doubletPhi(id1) > idh->rpcIdHelper().doubletPhi(id2);
-		    } //last case can be handled below
-		}
-	    }
-            double dist = distanceCalculator(hit1->parameters(), hit2->parameters());
-            if (dist < -0.01)
-                return true;
-            else if (dist > 0.01)
+   
+        const MuPatHit::Info& info1 = hit1->info();
+        const MuPatHit::Info& info2 = hit2->info();
+        const Identifier& id1 = info1.id;
+        const Identifier& id2 = info2.id;
+
+        if (idh->chamberIndex(id1) == idh->chamberIndex(id2) && (info1.type == MuPatHit::RPC || info2.type == MuPatHit::RPC)) {
+            const RpcIdHelper& rpcHelper = idh->rpcIdHelper();
+            if (info1.type == MuPatHit::MDT) {
+                if (rpcHelper.doubletR(id2) == 1) 
+                    return (idh->stationIndex(id1) == MuonStationIndex::StIndex::BM || idh->isSmallChamber(id1));
                 return false;
-
-            // most likely on same surface
-            const MuPatHit::Info& info1 = hit1->info();
-            const MuPatHit::Info& info2 = hit2->info();
-
-            // for MDT's compare IDs
-            if (info1.type == MuPatHit::MDT) return info1.id < info2.id;
-            // for cluster type measurements compare types and eta/phi
-            if (info1.type != info2.type || info1.measuresPhi == info2.measuresPhi) return info1.id < info2.id;
-            // phi measurements larger than eta measurements
-            if (info1.measuresPhi) return true;
-            return false;
+            } else if (info2.type == MuPatHit::MDT) {
+                if (rpcHelper.doubletR(id1) == 1)
+                     return !(idh->stationIndex(id2) == MuonStationIndex::StIndex::BM || idh->isSmallChamber(id2));
+                return true;
+            }
+            else { // both hits are RPC
+                const int doubletR1 = rpcHelper.doubletR(id1);
+                const int doubletR2 = rpcHelper.doubletR(id2);                
+                if (doubletR1 !=doubletR2) return doubletR1 > doubletR2;
+               
+                const int doubletZ1 = rpcHelper.doubletZ(id1);
+                const int doubletZ2 = rpcHelper.doubletZ(id2);                
+                if (doubletZ1!= doubletZ2) return doubletZ1 > doubletZ2;
+                
+                const int doubletPhi1 = rpcHelper.doubletPhi(id1);
+                const int doubletPHi2 = rpcHelper.doubletPhi(id2); 
+                if (doubletPhi1 != doubletPHi2) return doubletPhi1 > doubletPHi2;
+                 // last case can be handled below
+            }
         }
+        const double dist = distanceCalculator(hit1->parameters(), hit2->parameters());
+        if (std::abs(dist)> 0.01) return dist < 0.;
+
+        // for MDT's compare IDs
+        if (info1.type == MuPatHit::MDT)
+            return id1 < id2;
+        // for cluster type measurements compare types and eta/phi
+        if (info1.type != info2.type || info1.measuresPhi == info2.measuresPhi)
+            return id1 < id2;
+        // phi measurements larger than eta measurements
+        return info1.measuresPhi;
+      }
 
         DistanceAlongParameters distanceCalculator;
     };
