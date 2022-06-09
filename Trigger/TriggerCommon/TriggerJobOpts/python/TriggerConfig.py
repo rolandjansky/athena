@@ -606,6 +606,9 @@ def triggerRunCfg( flags, menu=None ):
     # in newJO realm the seqName will be removed as a comp fragment shoudl be unaware of where it will be attached
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
 
+    from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
+    acc.merge( TrigCostMonitorCfg( flags ), sequenceName="HLTBeginSeq" )
+
     from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
     hltSeedingAcc = HLTSeedingCfg( flags )
     # TODO, once moved to newJO the algorithm can be added to hltSeedingAcc and merging will be sufficient here
@@ -635,9 +638,6 @@ def triggerRunCfg( flags, menu=None ):
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, hltSeedingAlg )
     acc.merge( monitoringAcc, sequenceName="HLTEndSeq" )
     acc.addEventAlgo( monitoringAlg, sequenceName="HLTEndSeq" )
-
-    from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
-    acc.merge( TrigCostMonitorCfg( flags ) )
 
     decObj = collectDecisionObjects( hypos, filters, hltSeedingAlg, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
