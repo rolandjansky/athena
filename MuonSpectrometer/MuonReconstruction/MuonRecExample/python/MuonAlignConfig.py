@@ -115,8 +115,8 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 
     conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS",className='CondAttrListCollection')
     condSequence += MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg")
-applyPassivation = not conddb.isOnline and CommonGeometryFlags.Run not in ["RUN1","RUN2"]
-if applyPassivation and not hasattr(condSequence, "NswPassivationDbAlg"):
+
+if muonAlignFlags.applyMMPassivation() and not hasattr(condSequence, "NswPassivationDbAlg"):
     from MuonCondAlg.MuonTopCondAlgConfigRUN2 import NswPassivationDbAlg
     NswPassAlg = NswPassivationDbAlg("NswPassivationDbAlg")
     condSequence += NswPassAlg
@@ -124,7 +124,7 @@ if applyPassivation and not hasattr(condSequence, "NswPassivationDbAlg"):
 if not hasattr(condSequence, "MuonDetectorCondAlg"):
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
     MuonDetectorManagerCond = MuonDetectorCondAlg("MuonDetectorCondAlg")
-    MuonDetectorManagerCond.applyMmPassivation = applyPassivation
+    MuonDetectorManagerCond.applyMmPassivation = muonAlignFlags.applyMMPassivation()
     MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
     MuonDetectorManagerCond.MuonDetectorTool.FillCacheInitTime = 1 # CondAlg cannot update itself later - not threadsafe
 
