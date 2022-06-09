@@ -60,29 +60,31 @@ class TriggerListsHelper:
         trigger_names_tau = []
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
-        if ConfigFlags.Trigger.EDMVersion == 3:
-            r_tau = re.compile("HLT_.*tau.*")
-            r_notau = re.compile("HLT_[1-9]*(e|mu|g).*")
-            for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
-                result_tau = r_tau.match(chain_name)
-                result_notau = r_notau.match(chain_name)
-                if result_tau is not None: trigger_names_tau.append(chain_name)
-                if result_notau is not None: trigger_names_notau.append(chain_name)
-            trigger_names_all = set.union(set(trigger_names_notau), set(trigger_names_tau))
-            trigger_names_all = list(trigger_names_all)
-            trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
-            trigger_names_notau = list(trigger_names_notau)
-            self.Run3TriggerNames = trigger_names_all
-            self.Run3TriggerNamesNoTau = trigger_names_notau
-            self.Run3TriggerNamesTau = trigger_names_tau
-        else:
-        # Note: ['TriggerMenu']['HLTChains'] python access is maintained for compatibility with Run 2 MC
-        # POOL inputs (containing xAOD::TriggerMenu).
-            for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
-                if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
-                if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name)
-            self.Run2TriggerNamesNoTau = trigger_names_notau
-            self.Run2TriggerNamesTau = trigger_names_tau
+        if ConfigFlags.Reco.EnableTrigger or ConfigFlags.Trigger.InputContainsConfigMetadata:
+
+            if ConfigFlags.Trigger.EDMVersion == 3:
+                r_tau = re.compile("HLT_.*tau.*")
+                r_notau = re.compile("HLT_[1-9]*(e|mu|g).*")
+                for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
+                    result_tau = r_tau.match(chain_name)
+                    result_notau = r_notau.match(chain_name)
+                    if result_tau is not None: trigger_names_tau.append(chain_name)
+                    if result_notau is not None: trigger_names_notau.append(chain_name)
+                trigger_names_all = set.union(set(trigger_names_notau), set(trigger_names_tau))
+                trigger_names_all = list(trigger_names_all)
+                trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
+                trigger_names_notau = list(trigger_names_notau)
+                self.Run3TriggerNames = trigger_names_all
+                self.Run3TriggerNamesNoTau = trigger_names_notau
+                self.Run3TriggerNamesTau = trigger_names_tau
+            else:
+            # Note: ['TriggerMenu']['HLTChains'] python access is maintained for compatibility with Run 2 MC
+            # POOL inputs (containing xAOD::TriggerMenu).
+                for chain_name in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains']:
+                    if chain_name in trigger_names_full_notau: trigger_names_notau.append(chain_name)
+                    if chain_name in trigger_names_full_tau:   trigger_names_tau.append(chain_name)
+                self.Run2TriggerNamesNoTau = trigger_names_notau
+                self.Run2TriggerNamesTau = trigger_names_tau
 
         return
 
