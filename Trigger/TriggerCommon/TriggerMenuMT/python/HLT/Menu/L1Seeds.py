@@ -10,7 +10,6 @@ from TriggerMenuMT.L1.Config.TriggerTypeDef import TT
 rpcout_type = TT.muon | TT.phys
 rpcin_type  = TT.muon | TT.phys
 cl_type     = TT.calo | TT.phys
-mb_type     = TT.minb | TT.phys
 
 
 calo_exceptions = set([])
@@ -155,14 +154,6 @@ def getL1BSSeed(menul1items):
             
     l1_seeds = ','.join(l1items)
     return l1_seeds
-
-##############################
-def getL1MinBiasSeed(l1seed, l1object):
-    if ('EMPTY' in l1seed):
-        l1minbias_seeds = ','.join([ x for x in Lvl1ItemByTriggerType(l1object, mb_type, mb_type)])
-    else:
-        l1minbias_seeds = ','.join([ x for x in Lvl1ItemByTriggerType(l1object, mb_type, mb_type)])
-    return l1minbias_seeds
 
 def getL1JetBS():
     return 'L1_J15,L1_3J15,L1_3J10,L1_4J10'
@@ -482,9 +473,6 @@ def getSpecificL1Seeds(l1seedname, l1itemobject, menu_name):
     elif (l1seedname == 'L1_BS'):
         L1Seed = getL1BSSeed(l1items)
         
-    elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
-        L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)
-
 #    elif (l1seedname == 'L1_ALFA_Phys'):
 #        L1Seed = getL1_ALFA_Phys(l1items)
 #
