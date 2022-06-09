@@ -92,14 +92,6 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
             )
         )
 
-    # the following is needed to reliably determine whether we're really being steered from an old-style job option
-    # assume we're running CPython
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in result._allSequences:
-            el.name = "TopAlg"
-
     # By default, in Run3 we don't write out BTagging containers in AOD or ESD
     # following allows to write them out when using Reco_tf.py --CA run 3 style configuration
     
