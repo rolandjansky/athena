@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -50,8 +50,6 @@ def HIGlobalRecCfg(flags):
     return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
@@ -69,7 +67,6 @@ if __name__ == "__main__":
     acc.merge(HIGlobalRecCfg(flags))
     from AthenaCommon.Constants import DEBUG
     acc.getEventAlgo("HIEventShapeMaker").OutputLevel=DEBUG
-    status = acc.run()
-    if status.isFailure():
-        import sys
-        sys.exit(-1)
+
+    import sys
+    sys.exit(acc.run().isFailure())

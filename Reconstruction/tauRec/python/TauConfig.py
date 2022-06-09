@@ -262,11 +262,6 @@ def TauReconstructionCfg(flags):
 
 if __name__=="__main__":
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-    
-    # from AthenaCommon.Logging import log
-    # from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     from AthenaCommon.AlgSequence import AlgSequence

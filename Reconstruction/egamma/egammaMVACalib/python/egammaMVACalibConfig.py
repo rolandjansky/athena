@@ -60,11 +60,8 @@ def egammaMVASvcCfg(flags, name="egammaMVASvc", **kwargs):
 if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-
-    Configurable.configurableRun3Behavior = True
 
     ConfigFlags.Input.Files = defaultTestFiles.RDO_RUN2
     ConfigFlags.fillFromArgs()

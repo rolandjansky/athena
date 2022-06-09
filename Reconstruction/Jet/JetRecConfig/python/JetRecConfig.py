@@ -19,7 +19,7 @@ from ROOT import xAODType
 xAODType.ObjectType
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory, isRun3Cfg
 
 
 from JetRecConfig.JetDefinition import JetDefinition, JetInputConstitSeq, JetInputConstit, JetInputExternal
@@ -795,8 +795,7 @@ def registerAsInputConstit( jetdef ):
 
     # define a function to generate the CA for this jetdef
     def jetBuilder(largejetdef,spec):
-        from AthenaCommon.Configurable import Configurable
-        if Configurable.configurableRun3Behavior :
+        if isRun3Cfg():
             return JetRecCfg(largejetdef._cflags, jetdef)
         else:
             # Compatibility with runII style : we can't use ComponentAccumulator and must return the list of algs.
@@ -815,11 +814,6 @@ def removeFromList(l, o):
 
     
 if __name__=="__main__":
-
-    # Setting needed for the ComponentAccumulator to do its thing
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-    
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]
