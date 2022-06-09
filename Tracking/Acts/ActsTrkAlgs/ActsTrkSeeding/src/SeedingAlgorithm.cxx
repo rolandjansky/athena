@@ -54,6 +54,10 @@ namespace ActsTrk {
       return StatusCode::FAILURE;
     }
     auto beamSpotData = beamSpotHandle.cptr();
+    // Beam Spot Position
+    Acts::Vector3 beamPos( beamSpotData->beamPos().x() * Acts::UnitConstants::mm,
+                           beamSpotData->beamPos().y() * Acts::UnitConstants::mm,
+                           beamSpotData->beamPos().z() * Acts::UnitConstants::mm);
     
     // Read the b-field information
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle { m_fieldCondObjInputKey, ctx };
@@ -68,6 +72,11 @@ namespace ActsTrk {
     // Get the magnetic field
     // Using ACTS classes in order to be sure we are consistent
     Acts::MagneticFieldContext magFieldContext(fieldCondObj);
+    ATLASMagneticFieldWrapper magneticField;
+    Acts::MagneticFieldProvider::Cache magFieldCache = magneticField.makeCache( magFieldContext );
+    Acts::Vector3 bField = *magneticField.getField( Acts::Vector3(beamPos.x(), beamPos.y(), 0),
+                                                    magFieldCache );
+
     
     // ================================================== //
     // ===================== INPUTS ===================== // 
@@ -115,8 +124,8 @@ namespace ActsTrk {
     ATH_MSG_DEBUG("Running Seed Finding ...");    
     ATH_CHECK( m_seedsTool->createSeeds( ctx, 
 					 selectedSpacePoints,
-					 *beamSpotData, 
-					 magFieldContext,
+					 beamPos,
+					 bField,
 					 *seedPtrs.get() ) );
     ATH_MSG_DEBUG("    \\__ Created " << seedPtrs->size() << " seeds");
     

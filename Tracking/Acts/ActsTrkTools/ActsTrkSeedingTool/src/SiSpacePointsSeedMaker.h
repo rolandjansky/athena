@@ -34,6 +34,8 @@
 
 namespace ActsTrk {
 
+  static constexpr float s_toTesla = 0.299785832;
+
   class SiSpacePointsSeedMaker :
     public extends<AthAlgTool, InDet::ISiSpacePointsSeedMaker> {
   private:
@@ -151,8 +153,6 @@ namespace ActsTrk {
     static void stripInform(InDet::SiSpacePointsSeedMakerEventData& data,
 			    const Trk::SpacePoint* const& sp,
 			    float* r) ;
-
-    const InDet::SiSpacePointsSeed* getSeed(ITk::SiSpacePointsProSeed& proSeed) const;
     
     // Retrieve
     StatusCode retrievePixel(const EventContext& ctx,
@@ -167,15 +167,6 @@ namespace ActsTrk {
 
     // Validation
     StatusCode InitTree();
-
-    void estimateParameters
-      (const SeedStrategy seed_strategy,
-       InDet::SiSpacePointsSeedMakerEventData& data,
-       ITk::SiSpacePointForSeed*& bottom,
-       ITk::SiSpacePointForSeed*& medium,
-       ITk::SiSpacePointForSeed*& top,
-       float) const;
-    
 
   private:
     bool isUsed(const Trk::SpacePoint*, 

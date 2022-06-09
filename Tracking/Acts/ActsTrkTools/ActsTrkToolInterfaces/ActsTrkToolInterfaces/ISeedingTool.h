@@ -26,8 +26,8 @@ namespace ActsTrk {
       StatusCode
       createSeeds(const EventContext& ctx,
                   const std::vector<const ActsTrk::SpacePoint*>& spContainer,
-                  const InDet::BeamSpotData& beamSpotData,
-                  const Acts::MagneticFieldContext& magFieldContext,
+                  const Acts::Vector3& beamSpotPos,
+                  const Acts::Vector3& bField,
                   ActsTrk::SeedContainer& seedContainer ) const = 0;
   };
   

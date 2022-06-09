@@ -12,14 +12,12 @@ atlas_add_component( ActsTrkSeedingTool
                      src/components/*.cxx
                      LINK_LIBRARIES
                      GaudiKernel
-                     BeamSpotConditionsData
                      ActsCore
                      ActsTrkEvent
                      ActsTrkToolInterfacesLib
                      ActsInteropLib
                      CxxUtils
                      InDetRecToolInterfaces
-                     MagFieldConditions
                      SiSpacePoint
                      xAODInDetMeasurement
                      )
