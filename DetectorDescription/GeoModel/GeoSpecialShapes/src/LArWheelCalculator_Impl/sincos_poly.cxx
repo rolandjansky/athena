@@ -102,8 +102,8 @@ namespace {
 
   /// Helper struct to return sine/cosine values from functions
   struct sincos_params {
-    std::array<double, nBasisFunctions> sin;
-    std::array<double, nBasisFunctions> cos;
+    std::array<double, nBasisFunctions> sin{};
+    std::array<double, nBasisFunctions> cos{};
   };
 
   /// Calculate polynomial approximations for given wheel radii
@@ -199,8 +199,8 @@ namespace {
   const Int_t nIter=10000;
   std::cout << "Perfomance test started, " << nIter << " iterations" << std::endl;
 
-  double y_testsin[dataLen];
-  double y_testcos[dataLen];
+  double y_testsin[dataLen] ={};
+  double y_testcos[dataLen] ={};
   struct timeval tvsincos_start, tvsincos_stop;
   gettimeofday(&tvsincos_start, 0);
   for(Int_t iIter=0;iIter<nIter;iIter++) {
