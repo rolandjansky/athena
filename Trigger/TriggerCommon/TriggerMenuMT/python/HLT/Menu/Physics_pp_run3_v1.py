@@ -149,6 +149,10 @@ def setupMenu():
         # ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_jJ90', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryPhIGroup),
         # ChainProp(name='HLT_mu10_lateMu_L1LATE-MU8F_jXE70', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+PrimaryPhIGroup),
 
+        # Bell measurement at low-mu run (ATR-23494)
+        ChainProp(name='HLT_2mu3_L12MU3V',  groups=MultiMuonGroup+SupportGroup),
+        ChainProp(name='HLT_2mu3_L12MU3VF', groups=MultiMuonGroup+SupportGroup),
+
         # Late stream for LLP
         ChainProp(name='HLT_3mu6_msonly_L1MU5VF_EMPTY', l1SeedThresholds=['MU5VF'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),
         ChainProp(name='HLT_3mu6_msonly_L1MU3V_UNPAIRED_ISO', l1SeedThresholds=['MU3V'], stream=['Late'], groups=PrimaryL1MuGroup+MultiMuonGroup),

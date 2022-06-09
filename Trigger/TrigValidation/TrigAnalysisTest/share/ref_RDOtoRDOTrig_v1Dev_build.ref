@@ -1115,6 +1115,30 @@ HLT_2mu15_L12MU8F:
     1: 2
     2: 2
     3: 2
+HLT_2mu3_L12MU3V:
+  eventCount: 2
+  stepCounts:
+    0: 5
+    1: 4
+    2: 3
+    3: 2
+  stepFeatures:
+    0: 12
+    1: 9
+    2: 8
+    3: 5
+HLT_2mu3_L12MU3VF:
+  eventCount: 2
+  stepCounts:
+    0: 4
+    1: 4
+    2: 3
+    3: 2
+  stepFeatures:
+    0: 9
+    1: 9
+    2: 8
+    3: 5
 HLT_2mu4_11invmAA60_L1DY-BOX-2MU3V:
   eventCount: 2
   stepCounts:
