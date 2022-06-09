@@ -40,7 +40,7 @@ def defineMenu():
         'L1_EM8VH':'', 
         'L1_EM18VHI':'',
         'L1_EM20VHI':'',
-        'L1_2EM7':'',
+        #'L1_2EM7':'',
         'L1_EM20VHI':'',
 
         # non-primary eEM
@@ -68,7 +68,7 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_XE35':'',
 
         # non-primary MU 
-        'L1_MU8VF':'',
+        #'L1_MU8VF':'',
         'L1_MU14FCHR':'',
         'L1_MU3VF':'',
         'L1_MU8FC':'', 
@@ -85,7 +85,7 @@ def defineMenu():
         'L1_MU12FCH':'',
         'L1_MU14EOF':'',
         'L1_MU15VFCHR':'',
-        'L1_MU18VFCH':'',
+        #'L1_MU18VFCH':'',
         'L1_MU20VFC':'',
 
         # non-primary J
