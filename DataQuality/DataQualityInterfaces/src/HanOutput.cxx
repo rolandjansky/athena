@@ -446,8 +446,8 @@ namespace dqi
   static void WriteListToDirectory(TDirectory* dir, TSeqCollection* list, TFile* file, int level, int HanOutput_FileVersion)
   {
     TIter nextElem(list);
-    TObject* obj;
-    TSeqCollection* tmpList;
+    TObject* obj{};
+    TSeqCollection* tmpList{};
 
     while ((obj = nextElem()) != 0)
     {
@@ -459,7 +459,11 @@ namespace dqi
         if (!obj)
           continue;
         delete_when_done = true;
-        setNameGeneral(obj, hhl->GetName());
+        if(not setNameGeneral(obj, hhl->GetName())){
+          std::cerr<<"HanOutput.cxx, WriteListToDirectory : setNameGeneral failed\n";
+          delete obj;
+          continue;
+        };
       }
       if (strncmp(obj->GetName(), "Reference", 9) == 0 ||
         strncmp(obj->GetName(), "ResultObject", 12) == 0)
