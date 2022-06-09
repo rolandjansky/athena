@@ -311,7 +311,7 @@ Muon::NSWCalibTool::timeToTdoMM(const NswCalibDbTimeChargeData* tdoPdoData, cons
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
   if (!calib.is_valid) return false;
   double tdoTime = -999.9;
-  const double lowerBound = Muon::MM_RawData::s_lowerTimeBound;
+  constexpr double lowerBound = Muon::MM_RawData::s_lowerTimeBound;
   for(int i_relBCID=0; i_relBCID<Muon::MM_RawData::s_BCWindow; i_relBCID++){
     if(t >= lowerBound+i_relBCID*25 && t < (lowerBound+25)+i_relBCID*25){
       tdoTime = i_relBCID*25 - t;
@@ -329,7 +329,7 @@ Muon::NSWCalibTool::timeToTdoSTGC(const NswCalibDbTimeChargeData* tdoPdoData, co
   const double t   = time - m_stgcPeakTime; // subtract peaking time first!
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
   double tdoTime = -999.9;
-  const double lowerBound = Muon::STGC_RawData::s_lowerTimeBound;
+  constexpr double lowerBound = Muon::STGC_RawData::s_lowerTimeBound;
   for(int i_relBCID=0; i_relBCID<Muon::STGC_RawData::s_BCWindow; ++i_relBCID){
     if(t >= lowerBound+i_relBCID*25 && t < (lowerBound+25)+i_relBCID*25){
       tdoTime = i_relBCID*25 - t;

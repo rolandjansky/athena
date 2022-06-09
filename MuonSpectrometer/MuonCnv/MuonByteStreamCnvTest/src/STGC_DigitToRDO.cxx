@@ -51,8 +51,8 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
         continue;
       }
 
-      const double lowerTimeBound = Muon::STGC_RawData::s_lowerTimeBound;
-      const int BCWindow = Muon::STGC_RawData::s_BCWindow;
+      constexpr double lowerTimeBound = Muon::STGC_RawData::s_lowerTimeBound;
+      constexpr int BCWindow = Muon::STGC_RawData::s_BCWindow;
       for (const sTgcDigit* digit : *digitColl ) {
         // Set proper data time window in simulated sTGC RDOs
         // BC0 has t = [-12.5, +12.5]
