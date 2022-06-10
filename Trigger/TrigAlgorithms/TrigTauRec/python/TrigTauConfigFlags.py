@@ -6,9 +6,13 @@ from tauRec.TauConfigFlags import createTauConfigFlags
 def createTrigTauConfigFlags():
     flags = AthConfigFlags()
     flags.join(createTauConfigFlags(), prefix='Trigger.Offline')
-    flags.Trigger.Offline.Tau.CalibrateLCConfig = 'TES2016_LC_online_inc.root'
-    flags.Trigger.Offline.Tau.MvaTESConfig = 'OnlineMvaTES_BRT_v2.weights.root'
+
     flags.Trigger.Offline.Tau.tauRecToolsCVMFSPath = 'TrigTauRec/00-11-02'
+
+    # deprecated and should be phased out
+    flags.Trigger.Offline.Tau.CalibrateLCConfig = 'TES2016_LC_online_inc.root'
+
+    flags.Trigger.Offline.Tau.MvaTESConfig = 'OnlineMvaTES_BRT_v2.weights.root'
 
     flags.Trigger.Offline.Tau.TauJetRNNConfig = ['rnnid_config_0p_v3.json',
                                                  'rnnid_config_1p_v3.json',
@@ -21,6 +25,11 @@ def createTrigTauConfigFlags():
     # these flags only exists in the trigger, but 'cloneAndReplace' in 'addFlagsCategory'
     # assumes a 'Trigger.Offline.Tau' structure
     flags.addFlag("Trigger.Offline.Tau.FTFTauCoreBDTConfig", 'FTF_tauCore_BDT_v1.root')
+
+    flags.addFlag("Trigger.Offline.Tau.TauJetRNNTargetEff", [ [0.98,  0.90, 0.65,  0.50],    # 0p WPs: VL, L, M, T
+                                                              [0.992, 0.99, 0.965, 0.94],    # 1p WPs: VL, L, M, T
+                                                              [0.99,  0.98, 0.865, 0.80] ] ) # mp WPs: VL, L, M, T
+
     flags.addFlag("Trigger.Offline.Tau.TauJetRNNConfigLLP", ['llpdev/net_experimental_llz_0p.json',
                                                              'llpdev/net_experimental_llz_1p.json',
                                                              'llpdev/net_experimental_llz_mp.json'])
@@ -28,6 +37,11 @@ def createTrigTauConfigFlags():
     flags.addFlag("Trigger.Offline.Tau.TauJetRNNWPConfigLLP", ['llpdev/rnnid_flat_llp_llz0p_050621-v1.root',
                                                                'llpdev/rnnid_flat_llp_llz1p_050621-v1.root',
                                                                'llpdev/rnnid_flat_llp_llzmp_050621-v1.root'])
+
+    flags.addFlag("Trigger.Offline.Tau.TauJetRNNLLPTargetEff", [ [0.98,  0.90, 0.65,  0.50],    # 0p WPs: VL, L, M, T
+                                                                 [0.992, 0.99, 0.965, 0.94],    # 1p WPs: VL, L, M, T
+                                                                 [0.99,  0.98, 0.865, 0.80] ] ) # mp WPs: VL, L, M, T
+
 
     return flags
 
