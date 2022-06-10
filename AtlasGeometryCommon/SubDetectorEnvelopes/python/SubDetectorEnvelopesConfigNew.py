@@ -8,8 +8,10 @@ Elmar Ritsch, 27/09/2013
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 
+@AccumulatorCache
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     result = ComponentAccumulator()
 
@@ -149,7 +151,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     #set the GeoModelSvc
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg(ConfigFlags)
-    kwargs.setdefault("GeoModelSvc", acc.getService("GeoModelSvc"))
+    kwargs.setdefault("GeoModelSvc", acc.getService("GeoModelSvc").name)
     result.merge(acc)
 
     result.addService(CompFactory.DetDescrDBEnvelopeSvc(name, **kwargs),primary=True)
