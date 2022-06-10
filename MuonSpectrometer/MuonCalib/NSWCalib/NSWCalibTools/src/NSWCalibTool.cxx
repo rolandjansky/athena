@@ -180,7 +180,9 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   pdoToCharge(ctx, mmRawData->timeAndChargeInCounts(), mmRawData->charge(), rdoId, charge                      );
 
   calibStrip.charge     = charge;
-  calibStrip.time       = time - globalPos.norm() * reciprocalSpeedOfLight;
+  // historically the peak time is included in the time determined by the MM digitization and therefore added back in the tdoToTime function
+  // for data this is wrong. Therefore a temporary fix is applied here. A long term fix of the time determined in the digi will come at some point.
+  calibStrip.time       = time - globalPos.norm() * reciprocalSpeedOfLight - (!m_isData? mmPeakTime():0);
   calibStrip.identifier = rdoId;
 
   //get stripWidth
@@ -348,12 +350,12 @@ Muon::NSWCalibTool::tdoToTime(const EventContext& ctx, const bool inCounts, cons
   if (!tdoPdoData) return false;  
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
   if (!calib.is_valid) return false;
-  //this shift is necessary to align the time of the signal with the way the VMM determines the time
+  //this shift of 25ns is necessary to align the time of the signal with the way the VMM determines the time
   //(relBCID 0 corresponds to -37.5 ns to - 12.5 ns)
   //Eventually it should go into the conditions db since it is probably not the same for MC and Data
   //but for now it is kept like it is. pscholer 8th of June 2022
-  const double latencyOffset  = m_idHelperSvc->isMM(chnlId) ? 25. : 0; 
-  time = relBCID*25. - (tdo-calib.intercept)/calib.slope + latencyOffset;
+  const double peakTime  = m_idHelperSvc->isMM(chnlId) ? mmPeakTime() +25. : stgcPeakTime(); 
+  time = relBCID*25. - (tdo-calib.intercept)/calib.slope + peakTime;
   return true;
 }
 
