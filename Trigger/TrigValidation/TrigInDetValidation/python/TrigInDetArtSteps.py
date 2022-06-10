@@ -37,7 +37,7 @@ class TrigInDetReco(ExecStep):
         self.preexec_trig = ' '
         self.postinclude_trig = postinclude_file
         self.preinclude_trig  = preinclude_file
-        self.release = 'latest'
+        self.release = 'current'
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
