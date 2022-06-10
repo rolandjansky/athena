@@ -29,9 +29,9 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
-      
+
   public:
-      
+
     ///////////////////////////////////////////////////////////////////
     // Standard tool methods
     ///////////////////////////////////////////////////////////////////
@@ -40,13 +40,12 @@ namespace InDet {
     virtual ~TRT_DetElementsRoadCondAlg_xk() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    /** Make this algorithm clonable. */
-    virtual bool isClonable() const override { return true; };
+    virtual bool isReEntrant() const override final { return false; }
 
     void printStraw(const InDetDD::TRT_BaseElement * elementCS, unsigned int strawNum) const;
 
   private:
-      
+
     ///////////////////////////////////////////////////////////////////
     // Private Data
     ///////////////////////////////////////////////////////////////////
