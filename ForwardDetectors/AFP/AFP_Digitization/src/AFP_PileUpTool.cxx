@@ -579,14 +579,14 @@ StatusCode AFP_PileUpTool::StoreTDDigi(const EventContext& /*ctx*/, std::unique_
           const double TDC = getTDC( hSignal );
           const double ADC = getADC( hSignal, 0.5*peakVal );
           
-          auto * tddigi = new AFP_TDDigi();
-          tddigi->m_nStationID=i;
-          tddigi->m_nDetectorID=10*(j+1)+k+1; // restoring original numeration of bars and trains
-          tddigi->m_nSensitiveElementID=-1; // this variable is currently redundant
-          tddigi->m_fADC=ADC;
-          tddigi->m_fTDC=TDC;
+          AFP_TDDigi tddigi;
+          tddigi.m_nStationID=i;
+          tddigi.m_nDetectorID=10*(j+1)+k+1; // restoring original numeration of bars and trains
+          tddigi.m_nSensitiveElementID=-1; // this variable is currently redundant
+          tddigi.m_fADC=ADC;
+          tddigi.m_fTDC=TDC;
           
-          digitCollection->push_back(std::move(*tddigi));
+          digitCollection->push_back(tddigi);
         }
       }
     }
@@ -671,16 +671,16 @@ StatusCode AFP_PileUpTool::StoreSiDigi(const EventContext& ctx, std::unique_ptr<
       
       ATH_MSG_DEBUG ( " reversed mapping, station " << station << ", detector " << detector << ", pixel_col " << column << ", pixel_row " << row ); 
       
-      auto * sidigi = new AFP_SiDigi();
+      AFP_SiDigi sidigi;
 
-      sidigi->m_nStationID = station;
-      sidigi->m_nDetectorID = detector;
-      sidigi->m_nPixelCol = column;
-      sidigi->m_nPixelRow = row;
-      sidigi->m_fADC = tot2charge(tot);
-      sidigi->m_fTDC = 0.;
+      sidigi.m_nStationID = station;
+      sidigi.m_nDetectorID = detector;
+      sidigi.m_nPixelCol = column;
+      sidigi.m_nPixelRow = row;
+      sidigi.m_fADC = tot2charge(tot);
+      sidigi.m_fTDC = 0.;
       
-      siDigiCollection->push_back(std::move(*sidigi));
+      siDigiCollection->push_back(sidigi);
     }
     
     index++;

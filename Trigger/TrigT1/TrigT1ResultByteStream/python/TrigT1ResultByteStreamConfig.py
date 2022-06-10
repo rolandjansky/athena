@@ -200,7 +200,7 @@ if __name__ == '__main__':
   if len(sys.argv) != 4:
     log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file nevents')
     sys.exit(1)
-  supportedSubsystems = ['jFex','eFex']
+  supportedSubsystems = ['jFex','eFex', 'allFex']
   subsystem = sys.argv[1]
   filename = sys.argv[2]
   events = int(sys.argv[3])
@@ -254,7 +254,7 @@ if __name__ == '__main__':
   outputEDM += addEDM('xAOD::EmTauRoIContainer', 'LVL1EmTauRoIs')
   outputEDM += addEDM('xAOD::EnergySumRoI'     , 'LVL1EnergySumRoI')
 
-  if subsystem=='jFex':
+  if subsystem in ['jFex','allFex'] :
     from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexByteStreamToolCfg
     jFexTool = jFexByteStreamToolCfg('jFexBSDecoder', flags)
     decoderTools += [jFexTool]
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
     outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
 
-  if subsystem=='eFex':
+  if subsystem in ['eFex','allFex'] :
     from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import eFexByteStreamToolCfg
     eFexTool = eFexByteStreamToolCfg('eFexBSDecoder', flags)
     decoderTools += [eFexTool]

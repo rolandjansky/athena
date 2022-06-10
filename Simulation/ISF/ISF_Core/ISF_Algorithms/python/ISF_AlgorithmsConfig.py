@@ -49,9 +49,9 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "OutputRPCHits",             hardscatterSG+"RPC_Hits"            )
     kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"TGC_Hits"            )
     if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on():
-        kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"sTGC_Hits"           )
+        kwargs.setdefault( "OutputsTGCHits",             hardscatterSG+"sTGC_Hits"           )
     if MuonGeometryFlags.hasMM() and DetFlags.simulate.MM_on():
-        kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"MM_Hits"             )
+        kwargs.setdefault( "OutputMMHits",             hardscatterSG+"MM_Hits"             )
     return CfgMgr.ISF__CollectionMerger(name, **kwargs)
 
 def getSimHitTreeCreator(name="ISF_SimHitTreeCreator", **kwargs):

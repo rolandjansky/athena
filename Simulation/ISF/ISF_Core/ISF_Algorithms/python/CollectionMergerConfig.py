@@ -43,7 +43,8 @@ def ISFCollectionMergerCfg(flags,name="ISF_CollectionMerger", **kwargs):
                  .format(err))
         # FIXME: Digitization is not the AthSimulation project;
         # support for FastChain may need to be added in the future.
-    if flags.Detector.EnableBCM:
+    from G4AtlasApps.SimEnums import SimulationFlavour
+    if flags.Detector.EnableBCM and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIF_G4MS, SimulationFlavour.ATLFASTIIFMT, SimulationFlavour.ATLFAST3F_G4MS]:
         kwargs.setdefault( "OutputBCMHits",             hardscatterSG+"BCMHits"             )
         kwargs.setdefault( "OutputBLMHits",             hardscatterSG+"BLMHits"             )
     if flags.Detector.EnablePixel:

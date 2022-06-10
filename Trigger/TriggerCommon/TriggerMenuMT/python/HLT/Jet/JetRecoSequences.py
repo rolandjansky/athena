@@ -218,10 +218,13 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
 
     if JetRecoCommon.doFSTracking(jetRecoDict):
         jetDef.modifiers.append("JVT")
+   
+    if jetRecoDict['recoAlg']=='a4':
+        jetDef.modifiers.append("CaloQuality")
+
     #Configuring jet cleaning mods now
     if not JetRecoCommon.isPFlow(jetRecoDict) and jetRecoDict['recoAlg']=='a4': #Add jet cleaning decorations only to small-R non-PFlow jets for now
         from TriggerMenuMT.HLT.Jet.JetRecoCommon import cleaningDict
-        jetDef.modifiers.append("CaloQuality")
         for key,cleanWP in cleaningDict.items(): jetDef.modifiers.append(f"Cleaning:{cleanWP}")
 
     # Get online monitoring tool

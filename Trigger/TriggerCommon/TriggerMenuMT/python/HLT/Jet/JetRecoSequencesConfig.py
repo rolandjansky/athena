@@ -205,8 +205,10 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
     if use_FS_tracking:
         jetDef.modifiers += [f"JVT:{jetRecoDict['trkopt']}"]
 
-    if not is_pflow and jetRecoDict["recoAlg"] == "a4":
+    if jetRecoDict["recoAlg"] == "a4":
         jetDef.modifiers += ["CaloQuality"]
+        
+    if not is_pflow and jetRecoDict["recoAlg"] == "a4":
         from TriggerMenuMT.HLT.Jet.JetRecoCommon import cleaningDict
         jetDef.modifiers += [f'Cleaning:{clean_wp}' for _,clean_wp in cleaningDict.items()]
 

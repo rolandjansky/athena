@@ -29,8 +29,7 @@
 namespace {
   std::string fmterror(int code) {
     char buf[256];
-    strerror_r(code, buf, sizeof(buf));
-    return std::string(buf);
+    return std::string(strerror_r(code, buf, sizeof(buf)));
   }
 }
 
@@ -335,16 +334,20 @@ namespace JiveXML {
     // Search the entry in the map
     EventStreamMap::const_iterator MapItr = m_eventStreamMap.find(EventStreamID(StreamName));
 
+    //Initialize with an invalid event stream identifier
+    EventStreamID streamID = EventStreamID("");
+
+    //If the element is found, get a copy of the found event stream identifier
+    if ( MapItr != m_eventStreamMap.end()){
+      streamID = EventStreamID((*MapItr).first);
+    }
+
     //Release the lock
     retVal = pthread_mutex_unlock(&m_accessLock);
     if ( retVal != 0 )
       ERS_ERROR("Unable to release access lock after getting stream ID: " << fmterror(retVal));
 
-    //If the element was not found return an invalid ID
-    if ( MapItr == m_eventStreamMap.end()) return EventStreamID("");
-
-    //Return the found event stream identifier
-    return (*MapItr).first;
+    return streamID;
  
   }
 
@@ -360,19 +363,24 @@ namespace JiveXML {
       return std::string("");
     }
 
+
     // Search the entry in the map
     EventStreamMap::const_iterator MapItr = m_eventStreamMap.find(evtStreamID);
+
+    //Initialize with an empty event stream
+    std::string event;
+
+    //If the element is found, get a copy of the found event string
+    if ( MapItr != m_eventStreamMap.end()){
+      event = std::string((*MapItr).second);
+    }
 
     //Release the lock
     retVal = pthread_mutex_unlock(&m_accessLock);
     if ( retVal != 0 )
       ERS_ERROR("Unable to release access lock after getting stream event: " << fmterror(retVal));
 
-    //If the element was not found return an empty string
-    if ( MapItr == m_eventStreamMap.end()) return std::string("");
-
-    //Return a copy of the found event string
-    return std::string((*MapItr).second);
+    return event;
   }
 
   /** 

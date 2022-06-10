@@ -37,7 +37,7 @@ class TrigInDetReco(ExecStep):
         self.preexec_trig = ' '
         self.postinclude_trig = postinclude_file
         self.preinclude_trig  = preinclude_file
-        self.release = 'latest'
+        self.release = 'current'
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
@@ -84,7 +84,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mu24_idperf_L1MU14FCH',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
-                chains += "'HLT_unconvtrk0_fslrt_L1J100',"
+                chains += "'HLT_fslrt0_L1J100',"
                 flags  += 'doUnconventionalTrackingSlice=True;'
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU5VF',"
@@ -138,8 +138,8 @@ class TrigInDetReco(ExecStep):
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
         AVERSION = ""
-        # temporary hack until we get to the bottom of why the tests are really failing
-        self.release = 'latest'
+        ### # temporary hack until we get to the bottom of why the tests are really failing
+        ### self.release = 'latest'
         if (self.release != 'current'):
             # get the current atlas base release, and the previous base release
             import os
