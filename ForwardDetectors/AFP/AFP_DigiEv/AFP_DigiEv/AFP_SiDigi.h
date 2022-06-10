@@ -9,7 +9,7 @@ class AFP_SiDigi
 {
  public:
 	AFP_SiDigi();
-	virtual ~AFP_SiDigi();
+	~AFP_SiDigi()=default;
 
 public:
 	float m_fADC;                          // amplitude of the signal for given pixel

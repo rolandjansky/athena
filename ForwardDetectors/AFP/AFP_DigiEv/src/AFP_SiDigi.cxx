@@ -14,7 +14,4 @@ AFP_SiDigi::AFP_SiDigi( )
 	m_nPixelCol = -1;
 }
 
-AFP_SiDigi::~AFP_SiDigi()
-{
 
-}
