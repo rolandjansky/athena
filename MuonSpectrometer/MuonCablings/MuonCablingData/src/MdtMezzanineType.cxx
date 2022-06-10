@@ -8,8 +8,6 @@ MdtMezzanineType::MdtMezzanineType(uint8_t typeId, uint8_t nOfLayers) : m_type(t
 
 MdtMezzanineType::MdtMezzanineType(uint8_t typeId) : m_type(typeId) {}
 
-/** Destructor */
-MdtMezzanineType::~MdtMezzanineType() = default;
 
 /** add a layer to the mezzanine type */
 bool MdtMezzanineType::addLayer(uint8_t layerNumber, MdtLayer layer, MsgStream &log) {

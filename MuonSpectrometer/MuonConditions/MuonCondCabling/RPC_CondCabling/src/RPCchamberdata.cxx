@@ -20,7 +20,7 @@ RPCchamberdata::RPCchamberdata(DBline& data, int type) : BaseObject(Logic, "RPC 
     if (!(data("made of") >> chams >> "chamber. Strips in connectors:")) return;
     if (!(data("eta") >> stripsInEtaCon)) return;
     if (!(data("phi") >> stripsInPhiCon)) return;
-
+    assert(stripsInEtaCon !=0);
     (++data)("{");
     do {
         RPCchamber::chamberParameters params{};
