@@ -122,8 +122,10 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     tools.append(CompFactory.TauVertexedClusterDecorator(SeedJet = flags.Trigger.Offline.Tau.SeedJetCollection))
 
     # Calibrate to TES
+    # non-MVA TES calibration is deprecated and should be phased out
     tools.append(CompFactory.TauCalibrateLC(calibrationFile = flags.Trigger.Offline.Tau.CalibrateLCConfig,
                                             Key_vertexInputContainer = ""))
+
     # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
     from AthenaCommon.SystemOfUnits import GeV
     tools.append(CompFactory.TauCellVariables(StripEthreshold = 0.2*GeV,
