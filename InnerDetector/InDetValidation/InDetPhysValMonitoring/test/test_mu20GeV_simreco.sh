@@ -4,6 +4,7 @@
 # art-input: user.keli:user.keli.mc16_13TeV.422035.ParticleGun_single_mu_Pt20.merge.EVNT.e7967_e5984_tid20255021_00
 # art-input-nfiles: 1
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: physval*.root
 # art-output: SiHitValid*.root
 # art-output: *Analysis*.root
@@ -54,6 +55,10 @@ lastref_dir=last_results
     --randomSeed      24304 \
     --physicsList     FTFP_BERT_ATL_VALIDATION \
     --simulator       FullG4 \
+    --runNumber       410470 \
+    --firstEvent      24303001 \
+    --DataRunNumber   284500 \
+    --truthStrategy   MC15aPlus \
     --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01_VALIDATION' \
     --preExec         EVNTtoHITS:'simFlags.SimBarcodeOffset.set_Value_and_Lock(200000)' \
@@ -96,6 +101,7 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
    --maxEvents       -1 \
    --valid           True \
    --validationFlags doInDet \
+   --postExec 'condSeq.TileSamplingFractionCondAlg.G4Version = -1' \
    --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; \
    InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); \
    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; \
