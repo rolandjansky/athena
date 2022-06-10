@@ -372,7 +372,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElecLRT_FTFAux.', 'BS ESD AODCOMM', 'Egamma'),
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackingViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_IDTrigAux.eProbabilityNN',        'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_IDTrigAux.',        'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::TrackParticleContainer#HLT_IDTrack_ElecLRT_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackingViews_LRT'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElecLRT_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
