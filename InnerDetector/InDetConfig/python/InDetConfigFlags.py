@@ -1,8 +1,12 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import BeamType, LHCPeriod
+from AthenaConfiguration.Enums import BeamType, LHCPeriod, FlagEnum
 
+class TrackFitterType(FlagEnum):
+    DistributedKalmanFilter = 'DistributedKalmanFilter'
+    GlobalChi2Fitter = 'GlobalChi2Fitter'
+    GaussianSumFilter = 'GaussianSumFilter'
 
 def createInDetConfigFlags():
     icf = AthConfigFlags()
@@ -49,7 +53,7 @@ def createInDetConfigFlags():
     icf.addFlag("InDet.Tracking.doDigitalROTCreation", False)
     icf.addFlag("InDet.Tracking.holeSearchInGX2Fit", True)
     # control which fitter to be used: ('DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter')
-    icf.addFlag("InDet.Tracking.trackFitterType", "GlobalChi2Fitter")
+    icf.addFlag("InDet.Tracking.trackFitterType", TrackFitterType.GlobalChi2Fitter)
     # control which measurement updator to load as InDetUpdator
     # ("None"/"fast"/"smatrix"/"weight"/"amg")
     # "None" loads the default KalmanUpdator

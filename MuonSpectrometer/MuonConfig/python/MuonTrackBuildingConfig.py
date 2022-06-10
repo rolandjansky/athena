@@ -2,7 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterToolCfg
+from TrkConfig.TrkGlobalChi2FitterConfig import MCTBFitterCfg
+from MuonConfig.MuonRecToolsConfig import MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterToolCfg
 from AthenaConfiguration.Enums import BeamType
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 

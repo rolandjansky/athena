@@ -41,10 +41,10 @@ def SimpleAmbiguityProcessorToolCfg(flags,
             InDetAmbiScoringToolSiCfg(flags))
 
     if flags.InDet.Tracking.ActivePass.isLowPt:
-        from InDetConfig.TrackingCommonConfig import InDetTrackFitterLowPt
-        InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterLowPt(flags))
+        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterLowPtCfg
+        InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterLowPtCfg(flags))
     else:
-        from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg
+        from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags))
 
     from InDetConfig.InDetAssociationToolsConfig import (
@@ -105,7 +105,7 @@ def SimpleAmbiguityProcessorTool_TRT_Cfg(
     #
     # --- load Ambiguity Processor
     #
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterBTCfg
+    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterBTCfg
     InDetTrackFitterBT = acc.popToolsAndMerge(InDetTrackFitterBTCfg(flags))
     from InDetConfig.InDetAssociationToolsConfig import (
         InDetPRDtoTrackMapToolGangedPixelsCfg)
@@ -182,9 +182,12 @@ def SimpleAmbiguityProcessorTool_Trig_Cfg(
     kwargs.setdefault("pTminBrem", 5*Units.GeV)
     kwargs.setdefault("MatEffects", 3)
 
-    from TrigInDetConfig.TrigInDetConfig import (FitterToolCfg,
-                                                 ambiguityScoringToolCfg)
-    kwargs.setdefault("Fitter", acc.getPrimaryAndMerge(FitterToolCfg(flags)))
+    from TrkConfig.TrkGlobalChi2FitterConfig import (
+        InDetTrigGlobalChi2FitterCfg)
+    kwargs.setdefault("Fitter", acc.popToolsAndMerge(
+        InDetTrigGlobalChi2FitterCfg(flags)))
+    from TrigInDetConfig.TrigInDetConfig import (
+        ambiguityScoringToolCfg)
     kwargs.setdefault("ScoringTool", acc.getPrimaryAndMerge(
         ambiguityScoringToolCfg(flags)))
     from TrkConfig.TrkTrackSummaryToolConfig import (
@@ -365,7 +368,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(
     fitter_list = []
 
     if flags.InDet.Tracking.ActivePass.isLowPt:
-        from InDetConfig.TrackingCommonConfig import (
+        from TrkConfig.CommonTrackFitterConfig import (
             InDetTrackFitterLowPtAmbiCfg)
         InDetTrackFitterLowPt = acc.popToolsAndMerge(
             InDetTrackFitterLowPtAmbiCfg(
@@ -374,7 +377,8 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(
                 **fitter_args))
         fitter_list.append(InDetTrackFitterLowPt)
     else:
-        from InDetConfig.TrackingCommonConfig import InDetTrackFitterAmbiCfg
+        from TrkConfig.CommonTrackFitterConfig import  (
+            InDetTrackFitterAmbiCfg)
         InDetTrackFitterAmbi = acc.popToolsAndMerge(
             InDetTrackFitterAmbiCfg(
                 flags,
@@ -452,7 +456,8 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
     fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
 
-    from InDetConfig.ITkTrackingCommonConfig import ITkTrackFitterAmbiCfg
+    from TrkConfig.CommonTrackFitterConfig import (
+        ITkTrackFitterAmbiCfg)
     fitter_list = []
     ITkTrackFitterAmbi = acc.popToolsAndMerge(
         ITkTrackFitterAmbiCfg(

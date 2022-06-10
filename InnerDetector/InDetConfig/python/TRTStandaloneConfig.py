@@ -46,7 +46,8 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     else:
         asso_tool = None
 
-    InDetTrackFitterTRT = acc.popToolsAndMerge(TC.InDetTrackFitterTRTCfg(flags))
+    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterTRTCfg
+    InDetTrackFitterTRT = acc.popToolsAndMerge(InDetTrackFitterTRTCfg(flags))
     acc.addPublicTool(InDetTrackFitterTRT)
 
     from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
@@ -111,7 +112,8 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     #
     # --- cosmics segment to track conversion for Barrel
     #
-    InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags))
+    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
+    InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags))
 
     from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolSharedHitsCfg
     InDetTrackSummaryToolTRTTracks = acc.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))

@@ -460,13 +460,14 @@ def TRTExtensionProcessorCfg(flags):
   acc = ComponentAccumulator()
 
   from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+  from TrkConfig.TrkGlobalChi2FitterConfig import InDetTrigGlobalChi2FitterCfg
 
   extensionProcessor = CompFactory.InDet.InDetExtensionProcessor (name         = f"{prefix}ExtensionProcessor_{flags.InDet.Tracking.ActivePass.name}",
                                                             TrackName          = _tracksPostAmbi(flags),
                                                             #Cosmics           = InDetFlags.doCosmics(),
                                                             ExtensionMap       = 'ExtendedTrackMap',
                                                             NewTrackName       = flags.InDet.Tracking.ActivePass.trkTracks_IDTrig,
-                                                            TrackFitter        = acc.getPrimaryAndMerge(FitterToolCfg(flags)),
+                                                            TrackFitter        = acc.getPrimaryAndMerge(InDetTrigGlobalChi2FitterCfg(flags)),
                                                             TrackSummaryTool   = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
                                                             ScoringTool        = acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)),
                                                             suppressHoleSearch = False,
@@ -519,59 +520,6 @@ def ambiguityScoringToolCfg(flags):
   )
   
   acc.addPublicTool(tool, primary=True)
-  return acc
-
-def FitterToolCfg(flags):
-  acc = ComponentAccumulator()
-  from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
-  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-  from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
-      TrackingGeometryCondAlgCfg)
-  from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
-  from TrkConfig.TrkRIO_OnTrackCreatorConfig import TrigRotCreatorCfg
-  cond_alg = TrackingGeometryCondAlgCfg(flags)
-  geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
-  acc.merge(cond_alg)
-
-  from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
-  updator = acc.popToolsAndMerge(KalmanUpdatorCfg(flags, name="InDetTrigUpdator"))
-
-  fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
-                                            ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                            NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
-                                            PropagatorTool        = acc.popToolsAndMerge( RungeKuttaPropagatorCfg( flags, name="InDetTrigRKPropagator" ) ),
-                                            RotCreatorTool        = acc.popToolsAndMerge(TrigRotCreatorCfg(flags)),
-                                            BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
-                                            EnergyLossTool        = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)),
-                                            MeasurementUpdateTool = updator,
-                                            MaterialUpdateTool    = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetTrigMaterialEffectsUpdator"),
-                                            StraightLine          = not flags.BField.solenoidOn,
-                                            OutlierCut            = 4,
-                                            SignedDriftRadius     = True,
-                                            TrackChi2PerNDFCut    = 9,
-                                            TRTExtensionCuts      = True,
-                                            MaxIterations         = 40,
-                                            Acceleration          = True,
-                                            Momentum=0.,
-                                            TrackingGeometryReadKey=geom_cond_key
-                                                 )
-  acc.addPublicTool(fitter, primary=True)
-  #TODO come back to these settings                                                 
-    # if InDetTrigFlags.useBroadClusterErrors():
-    #   InDetTrigTrackFitter.RecalibrateSilicon = False
-
-    # if InDetTrigFlags.doRefit():
-    #   InDetTrigTrackFitter.BroadRotCreatorTool = None
-    #   InDetTrigTrackFitter.RecalibrateSilicon = False
-    #   InDetTrigTrackFitter.RecalibrateTRT     = False
-    #   InDetTrigTrackFitter.ReintegrateOutliers= False
-
-
-    # if InDetTrigFlags.doRobustReco():
-    #   InDetTrigTrackFitter.OutlierCut         = 10.0
-    #   InDetTrigTrackFitter.TrackChi2PerNDFCut = 20
-    #   InDetTrigTrackFitter.MaxOutliers        = 99
-    #   #only switch off for cosmics InDetTrigTrackFitter.Acceleration       = False
   return acc
 
 def ambiguitySolverAlgCfg(flags):

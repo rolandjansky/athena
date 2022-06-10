@@ -188,7 +188,7 @@ def TrackParticleCnvAlgNoPIDCfg(flags, name, TrackContainerName, OutputTrackPart
 def ReFitTrackAlgCfg(flags, name="InDetRefitTrack", InputTrackCollection="CombinedInDetTracks", OutputTrackCollection="RefittedTracks", **kwargs):
     result = ComponentAccumulator()
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg, InDetTrackFitterTRTCfg
+    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg, InDetTrackFitterTRTCfg
     InDetTrackFitter = result.popToolsAndMerge(InDetTrackFitterCfg(flags))
     InDetTrackFitterTRT = result.popToolsAndMerge(InDetTrackFitterTRTCfg(flags))
     from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolSharedHitsCfg
