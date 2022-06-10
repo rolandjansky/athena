@@ -20,6 +20,7 @@
 #include "AFP_SiClusterTools/AFPSiRowColToLocalCSTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "AFP_Geometry/AFP_constants.h"
 
 AFPSiRowColToLocalCSTool::AFPSiRowColToLocalCSTool(const std::string &type,
                                              const std::string &name,
@@ -96,18 +97,18 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
 
   // if there were problems with job options scaling or none was defined use default values
   if (useDefualtTransformation) {
-    const ROOT::Math::Transform3D rotationA(ROOT::Math::RotationY(m_afpconstants.SiT_Plate_rot_xz)); // rotate by +14 degrees
-    const ROOT::Math::Transform3D rotationC(ROOT::Math::RotationY(-1.*m_afpconstants.SiT_Plate_rot_xz)); // rotate by -14 degrees
+    const ROOT::Math::Transform3D rotationA(ROOT::Math::RotationY(AFP_CONSTANTS::SiT_Plate_rot_xz)); // rotate by +14 degrees
+    const ROOT::Math::Transform3D rotationC(ROOT::Math::RotationY(-1.*AFP_CONSTANTS::SiT_Plate_rot_xz)); // rotate by -14 degrees
     
     const ROOT::Math::Translation3D translationA0(0, 0, 0.);
-    const ROOT::Math::Translation3D translationA1(0, 0, 1.*m_afpconstants.SiT_Plate_zsep);
-    const ROOT::Math::Translation3D translationA2(0, 0, 2.*m_afpconstants.SiT_Plate_zsep);
-    const ROOT::Math::Translation3D translationA3(0, 0, 3.*m_afpconstants.SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationA1(0, 0, 1.*AFP_CONSTANTS::SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationA2(0, 0, 2.*AFP_CONSTANTS::SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationA3(0, 0, 3.*AFP_CONSTANTS::SiT_Plate_zsep);
     
     const ROOT::Math::Translation3D translationC0(0, 0, 0.);
-    const ROOT::Math::Translation3D translationC1(0, 0,-1.*m_afpconstants.SiT_Plate_zsep);
-    const ROOT::Math::Translation3D translationC2(0, 0,-2.*m_afpconstants.SiT_Plate_zsep);
-    const ROOT::Math::Translation3D translationC3(0, 0,-3.*m_afpconstants.SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationC1(0, 0,-1.*AFP_CONSTANTS::SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationC2(0, 0,-2.*AFP_CONSTANTS::SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationC3(0, 0,-3.*AFP_CONSTANTS::SiT_Plate_zsep);
     
     // station 0
     m_transformationsErr[0][0] = rotationA;
@@ -198,7 +199,7 @@ xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int statio
 {
   float flipAC = (stationID<2 ? -1. : +1.);
   
-  ROOT::Math::XYZPoint horizVertID ((cluster.horizID()-m_afpconstants.SiT_Pixel_amount_x)*m_pixelHorizSize, flipAC*cluster.vertID()*m_pixelVertSize, 0);
+  ROOT::Math::XYZPoint horizVertID ((cluster.horizID()-AFP_CONSTANTS::SiT_Pixel_amount_x)*m_pixelHorizSize, flipAC*cluster.vertID()*m_pixelVertSize, 0);
   ROOT::Math::XYZPoint horizVertIDErr (cluster.horizIDErr()*m_pixelHorizSize, cluster.vertIDErr()*m_pixelVertSize, 0);
 
   try {
