@@ -6,6 +6,7 @@
 # art-cores: 4
 # art-memory: 4096
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: physval*.root
 # art-output: *.xml 
 # art-output: art_core_0
@@ -79,6 +80,7 @@ case $ArtProcess in
       --valid           True \
       --validationFlags doInDet \
       --autoConfiguration everything \
+      --postExec 'condSeq.TileSamplingFractionCondAlg.G4Version = -1' \
       --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; \
       InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); \
       from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; \
@@ -87,7 +89,7 @@ case $ArtProcess in
       InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(True); \
       InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
       rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
-      rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \
+      rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
       rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \
       rec.doSemiDetailedPerfMon=True; rec.doTau=True; rec.doTile=True; \
       from ParticleBuilderOptions.AODFlags import AODFlags; \
