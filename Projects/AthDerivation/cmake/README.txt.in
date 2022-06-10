@@ -1,0 +1,5 @@
+
+  AthDerivation - @CMAKE_PROJECT_VERSION@
+
+This package provides version @CMAKE_PROJECT_VERSION@ of the ATLAS
+derivation software.
