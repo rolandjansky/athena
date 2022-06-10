@@ -17,6 +17,7 @@
 Muon::nsw::NSWElink::NSWElink (const uint32_t *bs, const uint32_t remaining)
   : m_wordCount (0)
 {
+  m_rocId=0;//Fix coverity warning
   // Felix header (2 words)
   // Packet length includes Felix header
 

@@ -31,7 +31,7 @@ public:
     /** constructor only with typeId */
     MdtMezzanineType(uint8_t typeId);
 
-    ~MdtMezzanineType();
+    ~MdtMezzanineType() = default;
 
     /** add a layer type */
     bool addLayer(uint8_t layerNumber, MdtLayer layer, MsgStream& log);

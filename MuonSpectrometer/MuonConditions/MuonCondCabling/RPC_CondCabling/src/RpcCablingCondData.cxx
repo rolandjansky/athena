@@ -241,6 +241,7 @@ unsigned int RpcCablingCondData::computeZIndexInCablingStation(const std::string
     unsigned int zIndexInCablingStation = 999;
     int cablingStation = -1;
     int sectType = m_SectorMap[logicSector];
+    assert(m_MaxType != -999999);
     if (sectType < 1 || sectType > m_MaxType + 1) { return 99999; }
     const RPC_CondCabling::SectorLogicSetup& sec = m_SectorType[sectType - 1];
 

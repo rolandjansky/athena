@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 #include "Identifier/Identifier.h"
 
 class MsgStream;

@@ -348,7 +348,7 @@ class TgcL1RawData
   uint16_t m_l1Id = 0U;
   uint16_t m_bcId = 0U;
 
-  SlbType m_slbType;
+  SlbType m_slbType = SLB_TYPE_UNKNOWN;
 
   /********** Hit attributes
    */
@@ -365,7 +365,7 @@ class TgcL1RawData
    */
 
   //  Coincidence type (L-Pt, H-Pt, SL)
-  DataType m_type;
+  DataType m_type = TYPE_UNKNOWN;
   bool m_forward = false;
 
   // Coincidence index

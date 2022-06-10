@@ -160,7 +160,7 @@ private:
     PRD_ROB_Map m_PRD_ROB_map;
     ROB_RDO_Map m_ROB_RDO_map;
 
-    int m_MaxType;
+    int m_MaxType =-999999;
 
     // list of RPCPadParameters
     // max PADId was 8 in Run2, increased to 10 for Run3 to allow BIS78
