@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Configurable.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -47,8 +47,12 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
       are its derived ConfigurableAlgorithm, ConfigurableService, and
       ConfigurableAlgTool."""
 
- ## for detecting the default name
+   # for detecting the default name
    class DefaultName:
+      pass
+
+   # for collecting default values
+   class DefaultCollector:
       pass
 
    propertyNoValue = '<no value>'
@@ -550,11 +554,9 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
 
    @classmethod
    def getDefaultProperties( cls ):
-      class collector:
-         pass
 
     # user provided defaults
-      c = collector()
+      c = Configurable.DefaultCollector()
       cls.setDefaults( c )
 
     # defaults from C++
@@ -566,11 +568,9 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
 
    @classmethod
    def getDefaultProperty( cls, name ):
-      class collector:
-         pass
 
     # user provided defaults
-      c = collector()
+      c = Configurable.DefaultCollector()
       cls.setDefaults( c )
 
       if name in c.__dict__:

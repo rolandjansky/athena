@@ -4,6 +4,7 @@ from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSeque
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from TrigGenericAlgs.TrigGenericAlgsConfig import TrigEventInfoRecorderAlgCfg
 
 #from GaudiKernel.Constants import (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 
@@ -16,7 +17,16 @@ def TLAJetSequence (flags, jetsIn):
     tlaJetInputMakerAlg.RoITool = CompFactory.ViewCreatorPreviousROITool()
     tlaJetInputMakerAlg.mergeUsingFeature = True
     
-    tlaJetAthSequence = seqAND( "TLAJetAthSequence_"+jetsIn, [tlaJetInputMakerAlg] )
+    # configure an instance of TrigEventInfoRecorderAlg
+    
+    eventInfoRecorderAlgCfg = TrigEventInfoRecorderAlgCfg("TrigEventInfoRecorderAlg_TLA")
+    eventInfoRecorderAlgCfg.decorateTLA = True
+    eventInfoRecorderAlgCfg.trigEventInfoKey = recordable("HLT_TCEventInfo_TLA")
+    eventInfoRecorderAlgCfg.primaryVertexInputName = "HLT_IDVertex_FS"
+
+
+
+    tlaJetAthSequence = seqAND( "TLAJetAthSequence_"+jetsIn, [tlaJetInputMakerAlg, eventInfoRecorderAlgCfg] )
     jetsOut = recordable(jetsIn+"_TLA")
     return (tlaJetAthSequence, tlaJetInputMakerAlg, jetsOut)
 

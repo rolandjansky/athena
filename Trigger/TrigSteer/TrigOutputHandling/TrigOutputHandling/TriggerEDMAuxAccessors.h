@@ -43,7 +43,7 @@ auto intAccessors = initAccessors<int>(
   "hitDV_seed_type","hitDV_n_track_qual",
   "dEdxTrk_id","dEdxTrk_dedx_n_usedhits",
   "dEdxTrk_n_hits_innermost","dEdxTrk_n_hits_inner","dEdxTrk_n_hits_pix","dEdxTrk_n_hits_sct",
-  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer");
+  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer","NumPV");
 
 auto int16Accessors = initAccessors<int16_t>("view",
   "HPtdEdxTrk_n_hdedx_hits_1p45","HPtdEdxTrk_n_hdedx_hits_1p50","HPtdEdxTrk_n_hdedx_hits_1p55","HPtdEdxTrk_n_hdedx_hits_1p60",
@@ -78,6 +78,8 @@ auto floatAccessors = initAccessors<float>(
   "JetFitter_energyFraction", "JetFitter_mass", "JetFitter_massUncorr", "JetFitter_significance3d",
   "SV1_L3d", "SV1_Lxy", "SV1_deltaR", "SV1_dstToMatLay", "SV1_efracsvx", "SV1_energyTrkInJet",
   "SV1_masssvx", "SV1_normdist", "SV1_significance3d",
+  "AvgMu",
+  "N90Constituents",
   "DL1d20210519r22_pb",
   "DL1d20210519r22_pc",
   "DL1d20210519r22_pu",
@@ -148,7 +150,8 @@ auto floatAccessors = initAccessors<float>(
   "trk_d0","cl_eta2","cl_phi2"
   );
 
-auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
+auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03", "JetDensityEMPFlow",
+  "JetDensityEMTopo");
 
 auto vboolAccessors = initAccessors<std::vector<bool>>("IP2D_flagFromV0ofTracks", "IP3D_flagFromV0ofTracks");
 

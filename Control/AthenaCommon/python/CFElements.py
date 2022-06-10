@@ -50,7 +50,7 @@ def hasProp(comp, propname):
     
 def getProp(comp, propname):
     if hasattr(comp, "getProperties"): # old/legacy component
-        return comp.getValuedProperties()[propname] if propname in  comp.getValuedProperties() else comp.getDefaultProperty(propname)
+        return comp.getValuedProperties().get(propname, comp.getDefaultProperty(propname))
     else:
         return getattr(comp, propname)
 

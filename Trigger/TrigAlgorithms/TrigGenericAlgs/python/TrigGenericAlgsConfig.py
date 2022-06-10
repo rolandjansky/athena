@@ -27,3 +27,6 @@ def EndOfEventROIConfirmerAlgCfg(name):
 
 def EndOfEventPrescaleCheckAlgCfg(name, chainName):
     return CompFactory.EndOfEventPrescaleCheckAlg(name, ChainName=chainName)
+
+def TrigEventInfoRecorderAlgCfg(name):
+    return CompFactory.TrigEventInfoRecorderAlg(name)

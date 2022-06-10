@@ -9,7 +9,7 @@ class AFP_TDDigi
 {
  public:
 	AFP_TDDigi();
-	virtual ~AFP_TDDigi();
+	~AFP_TDDigi()=default;
 
 public:
 	float m_fADC;                          // amplitude of the signal

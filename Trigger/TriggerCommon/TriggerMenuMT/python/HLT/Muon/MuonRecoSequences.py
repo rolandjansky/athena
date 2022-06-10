@@ -427,7 +427,8 @@ def muEFSARecoSequence( RoIs, name ):
       # if NSW is excluded from reconstruction (during commissioning)
       if muonRecFlags.runCommissioningChain():
         theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name,SegmentCollectionName="TrackMuonSegments_withNSW") 
-        theSegmentFilterAlg = MuonSegmentFilterAlg("TrigMuonSegmentFilter_"+name,SegmentCollectionName="TrackMuonSegments_withNSW",FilteredCollectionName="TrackMuonSegments") 
+        theSegmentFilterAlg = MuonSegmentFilterAlg("TrigMuonSegmentFilter_"+name,SegmentCollectionName="TrackMuonSegments_withNSW",
+                                                   FilteredCollectionName="TrackMuonSegments", TrashUnFiltered=False, ThinStations={}) 
       else:
         theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
@@ -685,7 +686,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
         # if NSW is excluded from reconstruction (during commissioning)
         if muonRecFlags.runCommissioningChain():
           theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name,SegmentCollectionName="TrackMuonSegments_withNSW")
-          theSegmentFilterAlg = MuonSegmentFilterAlg("TrigMuonSegmentFilter_"+name,SegmentCollectionName="TrackMuonSegments_withNSW",FilteredCollectionName="TrackMuonSegments")
+          theSegmentFilterAlg = MuonSegmentFilterAlg("TrigMuonSegmentFilter_"+name,SegmentCollectionName="TrackMuonSegments_withNSW",
+                                                     FilteredCollectionName="TrackMuonSegments", TrashUnFiltered=False, ThinStations={})
         else:
           theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
 
