@@ -29,7 +29,7 @@ echo "art-result: $rc simCA"
 
 rc2=-9999
 if [ $rc -eq 0 ]; then
-  art.py compare grid --entries 10 "${1}" "${2}" --mode=semi-detailed --file="$Output"
+  art.py compare grid --entries 1 "${1}" "${2}" --mode=semi-detailed --file="$Output"
   rc2=$?
   status=$rc2
 fi
