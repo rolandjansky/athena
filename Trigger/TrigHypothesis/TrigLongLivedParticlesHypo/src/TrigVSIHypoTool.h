@@ -41,8 +41,8 @@ class TrigVSIHypoTool : virtual public ::AthAlgTool
       Gaudi::Property<float>  m_minPt    {this, "minPt",    1000.,   "Accept vertices with momentum higher than this limit"};
       Gaudi::Property<float>  m_maxPt    {this, "maxPt",    1.4e7,   "Accept vertices with momentum smaller than this limit"};
       Gaudi::Property<float>  m_maxChi2  {this, "maxChi2",  10.,     "Accept vertices with chi2 less than this limit"};
-      Gaudi::Property<float>  m_minMass  {this, "m_minMass", 1000.,  "Accept events with a vertex with the mass larger than this limit"};
-      Gaudi::Property<float>  m_maxMass  {this, "m_maxMass", 1.4e7,  "Accept events with a vertex with the mass larger than this limit"};
+      Gaudi::Property<float>  m_minMass  {this, "minMass", 1000.,  "Accept events with a vertex with the mass larger than this limit"};
+      Gaudi::Property<float>  m_maxMass  {this, "maxMass", 1.4e7,  "Accept events with a vertex with the mass larger than this limit"};
       Gaudi::Property<bool>   m_logicAnd {this, "TriggerTypeAnd", true, "And/Or Logic for nTrkCut, RCut, pTCut, chi2Cut, massCut"};
 };
 

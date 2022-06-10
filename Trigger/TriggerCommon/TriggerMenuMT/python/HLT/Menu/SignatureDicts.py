@@ -25,7 +25,7 @@ SliceIDDict = {
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
     'EnhancedBias'  : 'eb',
-    'UnconventionalTracking'  : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet'],
+    'UnconventionalTracking'  : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet', 'dispvtx'],
     'Test'          : 'TestChain',
 }
 
@@ -248,7 +248,7 @@ JetChainParts = {
                       'DJMASS1000j50', # alias
                       'DJMASS1000j50dphi240', # alias
                       'DJMASS1000j50dphi200x400deta', # alias
-                      
+
                       'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # needed for hypoToolTests.py
                       'DIJET80j12etXX0j12eta240XX700djmass', # needed for hypoToolTests.py
 
@@ -264,8 +264,8 @@ JetChainParts = {
                       'HT50XX10etXX0eta320'  # needed for hypoToolTests.py
                       ],
 
-    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
-                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4', 
+    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2',
+                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4',
                   'tracklessdR1p2',      'tracklessdR0p4',
                   'calratio','calratiormbib' # Exotics CalRatio jets (trackless and low-EMF, with option to clean out BIB)
               ],
@@ -283,7 +283,7 @@ JetChainParts = {
        ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
     'timing'        : # delayed jets
     ['2timing'],
-    
+
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
     ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
@@ -423,8 +423,8 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
-    
+    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20',
+
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
@@ -632,7 +632,7 @@ ElectronChainParts_Default = {
     'reccalibInfo'   : '',
     'idperfInfo'     : '',
     'gsfInfo'        : '',
-    'lrtInfo'        : '', 
+    'lrtInfo'        : '',
     'caloInfo'       : '',
     'lhInfo'         : '',
     'L2IDAlg'        : '',
@@ -911,7 +911,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'tilelarcalib',
                                 'larnoiseburst','ibllumi',
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP', 'larpsallem', 'larpsall', 
+                                'calibAFP', 'larpsallem', 'larpsall',
                                 'acceptedevts',
                                 ]
 
@@ -1095,7 +1095,7 @@ UnconventionalTrackingChainParts = {
     'L1threshold'    : '',
     'chainPartName'  : [],
     'multiplicity'   : '',
-    'trigType'       : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet'],
+    'trigType'       : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet', 'dispvtx'],
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
@@ -1171,9 +1171,9 @@ def getSignatureNameFromToken(chainpart):
         return reverseSliceIDDict[sorted(theMatchingTokens, key=lambda x: len(x), reverse=True)[0]]
     else:
         log.error('No signature matching chain part %s was found.', chainpart)
-    
+
     raise Exception('[getSignatureNameFromToken] Cannot find signature from chain name, exiting.')
-    
+
     return False
 
 

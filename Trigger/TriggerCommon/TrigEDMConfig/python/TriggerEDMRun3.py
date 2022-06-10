@@ -768,12 +768,26 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FSLRT_IDTrig',                  'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FSLRT_IDTrigAux.',          'BS ESD AODFULL', 'Jet'),
 
-    #TrigVSI
-    ('xAOD::VertexContainer#HLT_TrigVSIVertex',                'BS ESD AODFULL', 'Jet'),
-    ('xAOD::VertexAuxContainer#HLT_TrigVSIVertexAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
+    #DisVtx
+    # - LRT
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_DVLRT_FTF',          'BS ESD', 'Jet', 'inViews:DVRoIViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_DVLRT_FTFAux.',   'BS ESD', 'Jet'),
+    ('TrigRoiDescriptorCollection#HLT_Roi_DV',                      'BS ESD', 'Jet'),
+    # - Vertex
+    ('xAOD::VertexContainer#HLT_TrigDV_VSIVertex',                 'BS ESD AODFULL', 'Jet', 'inViews:DVRoIViews'),
+    ('xAOD::VertexAuxContainer#HLT_TrigDV_VSIVertexAux.'+VSIVars,  'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexContainer#HLT_TrigDV_VSITrkPair',                'BS ESD AODFULL', 'Jet', 'inViews:DVRoIViews'),
+    ('xAOD::VertexAuxContainer#HLT_TrigDV_VSITrkPairAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
+    # - Hypo
+    ('xAOD::TrigCompositeContainer#HLT_TrigDV_VtxCount',           'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigDV_VtxCountAux.vsiHypo_nVtx.vsiHypo_pTcut.vsiHypo_rCut.vsiHypo_nTrkCut.vsiHypo_counts',  'BS ESD AODFULL', 'Jet'),
+
+    #Fullscan TrigVSI
+    ('xAOD::VertexContainer#HLT_TrigVSIVertex',                 'BS ESD AODFULL', 'Jet'),
+    ('xAOD::VertexAuxContainer#HLT_TrigVSIVertexAux.'+VSIVars,  'BS ESD AODFULL', 'Jet'),
     ('xAOD::VertexContainer#HLT_TrigVSITrkPair',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::VertexAuxContainer#HLT_TrigVSITrkPairAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
-    ('xAOD::TrigCompositeContainer#HLT_TrigVSI_VtxCount',                                               'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrigCompositeContainer#HLT_TrigVSI_VtxCount',       'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrigCompositeAuxContainer#HLT_TrigVSI_VtxCountAux.vsiHypo_nVtx.vsiHypo_pTcut.vsiHypo_rCut.vsiHypo_nTrkCut.vsiHypo_counts',  'BS ESD AODFULL', 'Jet'),
 
     # HI event shape
