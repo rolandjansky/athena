@@ -180,7 +180,11 @@ StatusCode TrigCostSvc::monitorROS(const EventContext& /*context*/, robmonitor::
   AlgorithmIdentifier theAlg;
   {
     tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare>::const_accessor acc;
-    ATH_CHECK( m_threadToAlgMap.find(acc, std::this_thread::get_id()) );
+    bool result = m_threadToAlgMap.find(acc, std::this_thread::get_id());
+    if (!result){
+      ATH_MSG_WARNING( "Cannot find algorithm on this thread (id=" << std::this_thread::get_id() << "). Request "<< payload <<" won't be monitored");
+    }
+
     theAlg = acc->second;
   }
 
