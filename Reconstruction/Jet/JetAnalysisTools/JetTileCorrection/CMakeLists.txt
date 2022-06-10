@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTileCorrection )
@@ -12,13 +12,19 @@ atlas_add_root_dictionary( JetTileCorrectionLib JetTileCorrectionDictSource
    ROOT_HEADERS JetTileCorrection/JetTileCorrectionTool.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
+# Extra library/libraries when not in a standalone build.
+set( extra_libs )
+if( NOT XAOD_STANDALONE )
+   set( extra_libs AthAnalysisBaseCompsLib )
+endif()
+
 atlas_add_library( JetTileCorrectionLib
    JetTileCorrection/*.h Root/*.cxx ${JetTileCorrectionDictSource}
    PUBLIC_HEADERS JetTileCorrection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools JetCPInterfaces
    xAODJet
-   PRIVATE_LINK_LIBRARIES PATInterfaces PathResolver xAODEventInfo )
+   PRIVATE_LINK_LIBRARIES PATInterfaces PathResolver xAODEventInfo ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetTileCorrection
