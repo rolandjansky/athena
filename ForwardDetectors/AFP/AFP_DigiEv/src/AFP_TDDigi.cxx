@@ -14,8 +14,4 @@ AFP_TDDigi::AFP_TDDigi( )
 	m_nSensitiveElementID=0;
 }
 
-AFP_TDDigi::~AFP_TDDigi()
-{
-
-}
 
