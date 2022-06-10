@@ -232,8 +232,13 @@ namespace Trk {
     sl << " *    momentum  (px, py, pz) = (" << momentum().x() << ", "
        << momentum().y() << ", " << momentum().z() << ")" << nl;
     sl << std::setprecision(-1);
-    sl << "associated surface:" << nl;
-    sl << associatedSurface() << std::endl;
+    if (hasSurface()){
+      sl << "associated surface:" << nl;
+      sl << associatedSurface() << std::endl;
+    } else {
+      sl<< "no associated surface"<< std::endl;
+    }
+    
     return sl;
   }
 
