@@ -172,9 +172,9 @@ if ( True ) :
     # "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
     "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
 
-    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
-    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
-    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_IDTrig;DTE",
+    "HLT_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
+    "HLT_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
+    "HLT_fslrt.*:HLT_IDTrack_FSLRT_IDTrig;DTE",
 
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",

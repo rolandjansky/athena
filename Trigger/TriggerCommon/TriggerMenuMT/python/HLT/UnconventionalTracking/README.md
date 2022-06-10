@@ -6,32 +6,43 @@ Modules in this directory
 
 * [UnconventionalTrackingChainConfiguration](UnconventionalTrackingChainConfiguration.py)
   * Defines the ChainConfiguration object that interprets the chain dict and builds the chain
-  * Makes use of respective chain sequence configurator, depending on the type of unconventional trigger triggers specified in the `extra` field.
+  * Makes use of respective chain sequence configurator, depending on the type of unconventional triggers.
 
-     |extra field|description|
+     |trigger type|description|
      |:---|:---|
-     | *isohpttrack* | Isolated high-pt track trigger, sequence given by `IsoHPtTrackTriggerHypoSequence` |
-     | *fslrt* | Full-scan LRT trigger, sequence given by `FullScanLRTTriggerMenuSequence` |
+     | *isotrk* | Isolated high-pt track trigger, sequence given by `IsoHPtTrackTriggerHypoSequence` |
      | *distrk* | Disappearing track trigger, sequence given by `DisTrkTriggerHypoSequence` |
-     | *hitdv* | Hit-based displaced vertex trigger, sequence given by `HitDVHypoSequence` |
-     | *dedx* | Large-dE/dx trigger, sequence given by `dEdxTriggerHypoSequence` |
+     | *dedxtrk* | Large-dE/dx trigger, sequence given by `dEdxTriggerHypoSequence` |
+     | *hitdvjet* | Hit-based displaced vertex trigger, sequence given by `HitDVHypoSequence` |
+     | *dispjet* | Displaced jet trigger, sequence given by `DJPromptStep`, `DJDispStep`, `DJEDStep` |
+     | *fslrt* | Full-scan LRT trigger, sequence given by `FullScanLRTTriggerMenuSequence` |
+     | *fsvsi* | Displaced vertex trigger, sequence given by `VrtSecInclusiveMenuSequence` |
+
      
-     
-  * The further fields (`IDinfo`, `isoinfo`) of the chain dictionary are used when configuring hypo alg/tool in the confugrators located under `Trigger/TrigHypothesis/TrigLongLivedParticlesHypo/python`.
+  * The further fields (`IDinfo`, `isoinfo`, `addInfo`) of the chain dictionary are used when configuring hypo alg/tool in the confugrators located under `Trigger/TrigHypothesis/TrigLongLivedParticlesHypo/python`.
 
 * [IsoHPtTrackTriggerHypoSequence](IsoHighPtTrackTriggerConfiguration.py)
-  * Privides isolated high-pt track trigger hypo chain sequence
-
-* [FullScanLRTTriggerMenuSequence](FullScanLRTTrackingConfiguration.py)
-  * Privides full-scan large-radius-tracking (LRT) track trigger chain sequence
+  * Provides isolated high-pt track trigger hypo chain sequence
 
 * [DisTrkTriggerHypoSequence](DisTrkTriggerConfiguration.py)
-  * Privides disappearing track trigger hypo chain sequence
-
-* [HitDVHypoSequence](HitDVConfiguration.py)
-  * Privides hit-based displaced vertex trigger hypo chain sequence
+  * Provides disappearing track trigger hypo chain sequence
 
 * [dEdxTriggerHypoSequence](dEdxTriggerConfiguration.py)
-  * Privides large-dE/dx track trigger hypo chain sequence
+  * Provides large-dE/dx track trigger hypo chain sequence
+
+* [HitDVHypoSequence](HitDVConfiguration.py)
+  * Provides hit-based displaced vertex trigger hypo chain sequence
+
+* [Displaced jet sequences](DJTriggerConfiguration.py)
+  * Provides displaced jet trigger hypo chain sequence
+
+* [FullScanLRTTriggerMenuSequence](FullScanLRTTrackingConfiguration.py)
+  * Provides full-scan large-radius-tracking (LRT) track trigger chain sequence
+
+* [VrtSecInclusiveMenuSequence](VrtSecInclusiveConfiguration.py)
+  * Provides secondary vertexing (VSI) trigger chain sequence
+
+
+
 
 
