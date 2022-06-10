@@ -663,12 +663,36 @@ def getFatrasSimHitCreatorMS(name="ISF_FatrasSimHitCreatorMS", **kwargs):
                                                                   mergeable_collection_suffix,
                                                                   tgc_merger_input_property,
                                                                   region)
-    csc_bare_collection_name = "CSC_Hits"
-    csc_merger_input_property = "CSCHits"
-    csc_hits_collection_name = generate_mergeable_collection_name(csc_bare_collection_name,
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on():
+        csc_bare_collection_name = "CSC_Hits"
+        csc_merger_input_property = "CSCHits"
+        csc_hits_collection_name = generate_mergeable_collection_name(csc_bare_collection_name,
+                                                                      mergeable_collection_suffix,
+                                                                      csc_merger_input_property,
+                                                                      region)
+    else:
+        csc_hits_collection_name = "CSC_Hits_Fatras"
+
+    if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on():
+        stgc_bare_collection_name = "sTGC_Hits"
+        stgc_merger_input_property = "sTGCHits"
+        stgc_hits_collection_name = generate_mergeable_collection_name(stgc_bare_collection_name,
                                                                   mergeable_collection_suffix,
-                                                                  csc_merger_input_property,
+                                                                  stgc_merger_input_property,
                                                                   region)
+    else:
+        stgc_hits_collection_name = "sTGC_Hits_Fatras"
+
+    if MuonGeometryFlags.hasMM() and DetFlags.simulate.MM_on():
+        mm_bare_collection_name = "MM_Hits"
+        mm_merger_input_property = "MMHits"
+        mm_hits_collection_name = generate_mergeable_collection_name(mm_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  mm_merger_input_property,
+                                                                  region)
+    else:
+        mm_hits_collection_name = "MM_Hits_Fatras"
 
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
@@ -678,6 +702,8 @@ def getFatrasSimHitCreatorMS(name="ISF_FatrasSimHitCreatorMS", **kwargs):
     kwargs.setdefault("RPCCollectionName", rpc_hits_collection_name)
     kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
     kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
+    kwargs.setdefault("sTGCCollectionName", stgc_hits_collection_name)
+    kwargs.setdefault("MMCollectionName", mm_hits_collection_name)
 
     from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonTGMeasurementTool
     MuonTGMeasurementTool = Muon__MuonTGMeasurementTool(  name = 'MuonTGMeasurementTool', 

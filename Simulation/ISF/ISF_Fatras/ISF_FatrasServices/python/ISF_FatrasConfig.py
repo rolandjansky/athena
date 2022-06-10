@@ -225,7 +225,28 @@ def fatrasSimHitCreatorMSCfg(flags, name="ISF_FatrasSimHitCreatorMS", **kwargs):
                                                                mergeable_collection_suffix,
                                                                csc_merger_input_property,
                                                                region)
-    result.merge(csc_result)
+    if flags.Detector.EnableCSC:
+        result.merge(csc_result)
+
+    stgc_bare_collection_name="sTGC_Hits"
+    stgc_merger_input_property="sTGCHits"
+    stgc_result, stgc_hits_collection_name = CollectionMergerCfg(flags,
+                                                                 stgc_bare_collection_name,
+                                                                 mergeable_collection_suffix,
+                                                                 stgc_merger_input_property,
+                                                                 region)
+    if flags.Detector.EnablesTGC:
+        result.merge(stgc_result)
+
+    mm_bare_collection_name="MM_Hits"
+    mm_merger_input_property="MMHits"
+    mm_result, mm_hits_collection_name = CollectionMergerCfg(flags,
+                                                             mm_bare_collection_name,
+                                                             mergeable_collection_suffix,
+                                                             mm_merger_input_property,
+                                                             region)
+    if flags.Detector.EnableMM:
+        result.merge(mm_result)
 
     kwargs.setdefault("RandomNumberService", result.getPrimaryAndMerge(FatrasRndSvcCfg(flags)).name)
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
@@ -238,6 +259,8 @@ def fatrasSimHitCreatorMSCfg(flags, name="ISF_FatrasSimHitCreatorMS", **kwargs):
     kwargs.setdefault("RPCCollectionName", rpc_hits_collection_name)
     kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
     kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
+    kwargs.setdefault("sTGCCollectionName", stgc_hits_collection_name)
+    kwargs.setdefault("MMCollectionName", mm_hits_collection_name)
 
     Muon__MuonTGMeasurementTool = CompFactory.Muon.MuonTGMeasurementTool
     muon_tgmeasurement_tool = Muon__MuonTGMeasurementTool(name='MuonTGMeasurementTool',
