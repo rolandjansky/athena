@@ -37,7 +37,7 @@ class checkFileTrigSize:
             from Logger import Logger
             self.logger    = Logger()
         except Exception:
-           print("can't import logger in test mode")
+           print("Can't import logger in test mode")
           
         self.success   =  0
         self.error     = -1
@@ -999,16 +999,23 @@ class checkFileTrigSize:
 
         # when running from command line, it expects the output of running checkFile on an AOD. 
         # if this isn't passed, it strips the .checkFile of the name from the file and runs checkFile on it
-        print("file:",self.checkFile)
-        try:
-            file = open(self.checkFile,'r')
-        except Exception:
-            parentFile = self.checkFile.replace(".checkFile","")
-            print("WARNING: generating %s from %s", self.checkFile, parentFile)
-            os.system("checkFile.py " + parentFile + " >"+self.checkFile+"0")
+        print("file:", self.checkFile)
+        if '.checkFile' in self.checkFile:
+            try:
+                file = open(self.checkFile,'r')
+            except Exception:
+                parentFile = self.checkFile.replace(".checkFile","")
+                print("WARNING: generating %s from %s", self.checkFile, parentFile)
+                os.system("checkFile.py " + parentFile + " >"+self.checkFile+"0")
+                file = open(self.checkFile+"0",'r')
+                if file == 0:
+                    return self.error
+        else:
+            print("Passed a root file, running check file on it")
+            os.system("checkFile.py " + self.checkFile + " >"+self.checkFile+"0")
+            print("Finished running checkFile, now opening output and analysing the TrigSize")
             file = open(self.checkFile+"0",'r')
-            if file == 0:
-                return self.error
+                            
 
         self.total = 0
         doublesList = {} #if an entry in the checkFile output matches >=2 Counter items
@@ -1165,8 +1172,7 @@ class checkFileTrigSize:
         ## ================================
         ## Calculating total sizes without AODCOMM
 
-        totalAlgSizeNoAODCOMM = float(self.totalAlgSize)-float(self.triggerAlgSizeCOMM['AODCOMM_Total'])
-
+        totalAlgSizeNoAODCOMM = float(self.triggerAlgSize['Total'])-float(self.triggerAlgSizeCOMM['AODCOMM_Total'])
 
         ## ================================
         ## Printing to file and do some computations 
