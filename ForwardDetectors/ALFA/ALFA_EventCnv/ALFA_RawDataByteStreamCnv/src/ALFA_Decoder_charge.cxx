@@ -282,7 +282,6 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endmsg;
 	        							
 	       		msg(MSG::DEBUG)<<"  Decoding data from Slot Id number : " <<  slotIdNum << endmsg;
 						
-			ALFA_RawData_charge* rawData_charge; 
 
 			// Loop on the TDC data words and create the corresponding RDO's
 	        				
@@ -349,7 +348,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endmsg;
 			ChannelIdNum = m_ALFA_RawDataReadOut_charge->ChannelNumId();
 			PMFIdNum = m_ALFA_RawDataReadOut_charge->PMFId();
 					
-			rawData_charge = new ALFA_RawData_charge(PMFIdNum);
+			auto rawData_charge = std::make_unique< ALFA_RawData_charge >(PMFIdNum);
 																
 			rawData_charge->SetChannelNum_PMF(ChannelIdNum);
 			rawData_charge->SetPMFId_PMF(PMFIdNum);	
@@ -366,7 +365,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endmsg;
 			rawData_charge->addData(vint[wordPos]); 
 			rawData_charge->PushBack_PMF(ChargeNum); 
 						
-			if(collection) collection->push_back(rawData_charge);
+			if(collection) collection->push_back(rawData_charge.release());
 					
 					
 		} // PMFIdNum >0 && <24

@@ -56,25 +56,16 @@ void AFP_SIDCONFIGURATION::clear()
     fZDistanceInRPot=AfpConstants.SiT_ZDistanceInRPot;
     bAddVacuumSensors=false;
 
-    vecXStaggering.resize(AfpConstants.SiT_Plate_amount);
-    vecYStaggering.resize(AfpConstants.SiT_Plate_amount);
-    vecChipXPos.resize(AfpConstants.SiT_Plate_amount);
-    vecChipYPos.resize(AfpConstants.SiT_Plate_amount);
-    vecChipRotAngle.resize(AfpConstants.SiT_Plate_amount);
-    vecChipXLength.resize(AfpConstants.SiT_Plate_amount);
-    vecChipYLength.resize(AfpConstants.SiT_Plate_amount);
-    vecSensorXPos.resize(AfpConstants.SiT_Plate_amount);
-    vecSensorYPos.resize(AfpConstants.SiT_Plate_amount);
+    vecXStaggering.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_DistanceToFloor);
+    vecYStaggering.assign(AfpConstants.SiT_Plate_amount, 0.0*CLHEP::mm);
+    vecChipXPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_x);
+    vecChipYPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_y);
+    vecChipRotAngle.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_rot);
+    vecChipXLength.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_length_x);
+    vecChipYLength.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Chip_length_y);
+    vecSensorXPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Pixel_x);
+    vecSensorYPos.assign(AfpConstants.SiT_Plate_amount, AfpConstants.SiT_Pixel_y);
 
-    std::fill_n(vecXStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_DistanceToFloor);
-    std::fill_n(vecYStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
-    std::fill_n(vecChipXPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_x);
-    std::fill_n(vecChipYPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_y);
-    std::fill_n(vecChipRotAngle.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_rot);
-    std::fill_n(vecChipXLength.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_length_x);
-    std::fill_n(vecChipYLength.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_length_y);
-    std::fill_n(vecSensorXPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Pixel_x);
-    std::fill_n(vecSensorYPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Pixel_y);
 
     TransInStation=HepGeom::Transform3D();
 }

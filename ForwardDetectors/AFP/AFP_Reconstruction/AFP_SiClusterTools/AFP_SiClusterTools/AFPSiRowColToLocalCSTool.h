@@ -20,7 +20,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
-#include "AFP_Geometry/AFP_constants.h"
 #include "AFP_DBTools/SiLocAlignData.h"
 #include "AFP_DBTools/SiGlobAlignData.h"
 
@@ -123,8 +122,6 @@ private:
   /// This value is used to multiply pixel vertical ID in order to
   /// obtain position.
   Gaudi::Property<double>  m_pixelVertSize {this, "pixelVertSize", 0.25, "Size of the pixel in vertical direction when mounted (default = 0.25 mm)"};
-  
-  const AFP_CONSTANTS m_afpconstants;
 
   /// The method initialises matrices to have the size defined in layersInStations
   void initTransformationMatricesSize (std::list<std::vector< std::vector<ROOT::Math::Transform3D> >* >& matrices, const std::vector<int>& layersInStations);

@@ -107,11 +107,11 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
 
     (*theROD).push_back(0); // add status word
   
-    LUCID_RawData* lrd = new LUCID_RawData(*theROD);
+    LUCID_RawData lrd(*theROD);
     
-    lrd->encodeLumatMapping();
+    lrd.encodeLumatMapping();
     
-    *theROD = lrd->getDataBlock();
+    *theROD = lrd.getDataBlock();
   }
   
   m_fea.fill(re, msg(MSG::INFO)); 
