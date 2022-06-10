@@ -144,6 +144,10 @@ public:
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;
+  
+    /**Dumps relevant information about the track parameters into the ostream.*/
+  virtual MsgStream& dump(MsgStream& out) const override final;
+  virtual std::ostream& dump(std::ostream& out) const override final;
 
 private:
   /* Helper to factor in update of parameters*/
