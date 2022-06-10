@@ -284,7 +284,7 @@ def getDecorList(jetRecoDict):
     decorlist += [ 'AlgorithmType', 'InputType',
                   'ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m',
                   'ActiveArea4vec_phi', 'ActiveArea4vec_pt',
-                  'EMFrac','HECFrac','EnergyPerSampling']
+                  'EMFrac','HECFrac','EnergyPerSampling','N90Constituents','constit','Tile0Frac']
 
     if doFSTracking(jetRecoDict):
         decorlist += ["GhostTrack_ftf",
