@@ -61,6 +61,44 @@ def EMGSFTrackFitterCfg(flags, name="EMGSFTrackFitter", **kwargs):
 
     return acc
 
+def GaussianSumFitterCfg(flags, name="GaussianSumFitter", **kwargs):
+    acc = ComponentAccumulator()
+
+    if "ToolForROTCreation" not in kwargs:
+        from TrkConfig.TrkRIO_OnTrackCreatorConfig import InDetRotCreatorCfg
+        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
+        kwargs.setdefault("ToolForROTCreation", InDetRotCreator)
+
+    kwargs.setdefault("MakePerigee", True)
+    kwargs.setdefault("RefitOnMeasurementBase", True)
+    kwargs.setdefault("DoHitSorting", True)
+
+    GaussianSumFitter = acc.popToolsAndMerge(
+        EMGSFTrackFitterCfg(flags, name, **kwargs)
+    )
+
+    acc.setPrivateTools(GaussianSumFitter)
+    return acc
+
+def ITkGaussianSumFitterCfg(flags, name="ITkGaussianSumFitter", **kwargs):
+    acc = ComponentAccumulator()
+
+    if "ToolForROTCreation" not in kwargs:
+        from TrkConfig.TrkRIO_OnTrackCreatorConfig import ITkRotCreatorCfg
+        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags))
+        kwargs.setdefault("ToolForROTCreation", ITkRotCreator )
+
+    kwargs.setdefault("MakePerigee", True)
+    kwargs.setdefault("RefitOnMeasurementBase", True)
+    kwargs.setdefault("DoHitSorting", True)
+
+    GaussianSumFitter = acc.popToolsAndMerge(
+        EMGSFTrackFitterCfg(flags, name=name, **kwargs)
+    )
+
+    acc.setPrivateTools(GaussianSumFitter)
+    return acc
+
 
 if __name__ == "__main__":
 

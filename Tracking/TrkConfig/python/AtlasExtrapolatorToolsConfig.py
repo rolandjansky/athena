@@ -1,29 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-
 # Configuration of tools needed by the Extrapolator
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-
-# Navigator used in order to  handle the
-# navigation inside the Tracking Geometry
-# i.e search for the next TrackingVolume
-def AtlasNavigatorCfg(flags,
-                      name='AtlasNavigator',
-                      **kwargs):
-    # get the correct TrackingGeometry setup
-    result = ComponentAccumulator()
-    if 'TrackingGeometryKey' not in kwargs:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
-            TrackingGeometryCondAlgCfg)
-        acc = TrackingGeometryCondAlgCfg(flags)
-        geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
-        result.merge(acc)
-        kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
-    result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
-    return result
-
 
 # Configured Energy Loss  uses the TrkUtils parametrization for
 # energy loss due to ionization and radiation
@@ -82,3 +60,60 @@ def ITkMaterialEffectsUpdatorCfg(flags,
                                  name="ITkMaterialEffectsUpdator",
                                  **kwargs):
     return InDetMaterialEffectsUpdatorCfg(flags, name, **kwargs)
+
+
+# Navigator used in order to  handle the
+# navigation inside the Tracking Geometry
+# i.e search for the next TrackingVolume
+def AtlasNavigatorCfg(flags,
+                      name='AtlasNavigator',
+                      **kwargs):
+    # get the correct TrackingGeometry setup
+    result = ComponentAccumulator()
+    if 'TrackingGeometryKey' not in kwargs:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+            TrackingGeometryCondAlgCfg)
+        acc = TrackingGeometryCondAlgCfg(flags)
+        geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+        result.merge(acc)
+        kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
+    result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
+    return result
+
+# Temporary until condition algorithm for tracking geometry can be used also for FastSim
+def FastSimNavigatorCfg(flags, name="AtlasNavigator", **kwargs):
+    if flags.Sim.ISF.UseTrackingGeometryCond:
+        return AtlasNavigatorCfg(flags, name, **kwargs)
+
+    result = ComponentAccumulator()
+    if 'TrackingGeometrySvc' not in kwargs:
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        acc = TrackingGeometrySvcCfg(flags)
+        kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary().name)
+        kwargs.setdefault("TrackingGeometryKey", '')
+        result.merge(acc)
+
+    result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
+    return result
+
+def MultipleScatteringUpdatorCfg(flags, name = "MultipleScatteringUpdator", **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault( "UseTrkUtils", False)
+    acc.setPrivateTools(CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
+    return acc
+
+def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
+    result = ComponentAccumulator()
+
+    from ISF_FatrasServices.ISF_FatrasConfig import TrkExRndSvcCfg
+    kwargs.setdefault("RandomNumberService", result.getPrimaryAndMerge(TrkExRndSvcCfg(flags)).name)
+    kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.TrkExRandomStreamName)
+    kwargs.setdefault("GaussianMixtureModel", flags.Sim.Fatras.GaussianMixtureModel)
+
+    result.setPrivateTools(CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
+    return result
+
+def NIMatEffUpdatorCfg(flags, name="NIMatEffUpdator", **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(CompFactory.Trk.NIMatEffUpdator(name, **kwargs))
+    return result

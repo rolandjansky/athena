@@ -339,32 +339,6 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
 # Extrapolator
 ################################################################################
 # the definition of an extrapolator (to be cleaned up)
-def fatrasNavigatorCfg(flags, name="ISF_FatrasNavigator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
-    result = ComponentAccumulator()
-    if not flags.Sim.ISF.UseTrackingGeometryCond:
-        if 'TrackingGeometrySvc' not in kwargs:
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc = TrackingGeometrySvcCfg(flags)
-            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
-            kwargs.setdefault("TrackingGeometryKey", '')
-            result.merge(acc)
-    else:
-        if 'TrackingGeometryKey' not in kwargs:
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc = TrackingGeometryCondAlgCfg(flags)
-            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
-            result.merge(acc)
-            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
-
-    Trk__Navigator = CompFactory.Trk.Navigator
-    navigator = Trk__Navigator(name=name, **kwargs)
-
-    result.setPrivateTools(navigator)
-    return result
-
 
 def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwargs):
     mlog = logging.getLogger(name)
@@ -383,21 +357,6 @@ def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwar
 
     iFatras__McEnergyLossUpdator = CompFactory.iFatras.McEnergyLossUpdator
     result.setPrivateTools(iFatras__McEnergyLossUpdator(name=name, **kwargs))
-    return result
-
-
-def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
-    result = ComponentAccumulator()
-
-    kwargs.setdefault("RandomNumberService", result.getPrimaryAndMerge(TrkExRndSvcCfg(flags)).name)
-    kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.TrkExRandomStreamName)
-    kwargs.setdefault("GaussianMixtureModel", flags.Sim.Fatras.GaussianMixtureModel)
-
-    Trk__MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator
-    result.setPrivateTools(Trk__MultipleScatteringUpdator(name=name, **kwargs))
     return result
 
 
@@ -445,6 +404,7 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
 
     # mutiple scattering
     kwargs.setdefault("MultipleScattering", True)
+    from TrkConfig.AtlasExtrapolatorToolsConfig import fatrasMultipleScatteringUpdatorCfg
     multi_scattering_updator = result.popToolsAndMerge(fatrasMultipleScatteringUpdatorCfg(flags))
     result.addPublicTool(multi_scattering_updator)
     kwargs.setdefault("MultipleScatteringUpdator", result.getPublicTool(multi_scattering_updator.name))
@@ -489,7 +449,8 @@ def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
 
     # Charged Transport Tool
     # assign the tools
-    navigator = result.popToolsAndMerge(fatrasNavigatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorToolsConfig import FastSimNavigatorCfg
+    navigator = result.popToolsAndMerge(FastSimNavigatorCfg(flags))
     result.addPublicTool(navigator)
     kwargs.setdefault("Navigator", result.getPublicTool(navigator.name))
 
