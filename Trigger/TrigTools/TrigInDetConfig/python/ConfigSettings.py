@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __author__ = "Mark Sutton, Matous Vozak"
 __doc__    = "ConfigSettings"
@@ -79,7 +79,7 @@ class _ConfigSettings_tau( _ConfigSettingsBase ):
       self._etaHalfWidth    = 0.4
       self._phiHalfWidth    = 0.4
       self._doTRT           = True
-      self._electronPID         = True
+      self._electronPID     = False
       # potential change coming up ...
       # self._minNSiHits_vtx = 6
 
@@ -105,7 +105,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       self._actsVertex     = True
       self._addSingleTrackVertices = True
       self._vertex         = "HLT_IDVertex_Tau"
-      self._electronPID         = True
+      self._electronPID    = False
       # potential change coming up ...
       # self._minNSiHits_vtx = 6
 
