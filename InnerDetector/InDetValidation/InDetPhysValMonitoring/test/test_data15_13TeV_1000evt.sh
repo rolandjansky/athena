@@ -2,6 +2,7 @@
 # art-description: Standard test for 2015 data
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: physval*.root
 # art-output: *.xml
 # art-output: dcube*

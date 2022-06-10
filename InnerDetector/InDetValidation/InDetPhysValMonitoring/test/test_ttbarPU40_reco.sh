@@ -4,6 +4,7 @@
 # art-input-nfiles: 10
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-output: physval*.root
 # art-output: *.xml
 # art-output: dcube*
@@ -30,6 +31,7 @@ run Reco_tf.py \
   --maxEvents       100 \
   --valid           True \
   --validationFlags doInDet \
+  --postExec 'condSeq.TileSamplingFractionCondAlg.G4Version = -1' \
   --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; \
   InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); \
   from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; \
