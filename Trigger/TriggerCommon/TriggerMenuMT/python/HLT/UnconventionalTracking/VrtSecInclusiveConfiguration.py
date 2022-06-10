@@ -43,6 +43,7 @@ def VrtSecInclusiveMenuSequence():
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     theHypoAlg.verticesKey = recordable(sequenceOut)
+    theHypoAlg.isViewBased = False
 
     log.info("Building the Step dictinary for TrigVSI!")
     return MenuSequence( Sequence    = TrkSeq,
