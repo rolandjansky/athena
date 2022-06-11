@@ -18,6 +18,7 @@ class ITrackClassifier : virtual public asg::IAsgTool
 
   public:
   virtual double compute_HF_Score(const xAOD::TrackParticle *track, const xAOD::Jet *jet) const = 0;
+  virtual bool selectTrack(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const = 0;
 
 };
 
