@@ -221,7 +221,7 @@ def createTriggerFlags(doTriggerRecoFlags):
     flags.addFlag('Trigger.triggerConfig', lambda flags: 'INFILE' if flags.Trigger.InputContainsConfigMetadata else 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'Dev_pp_run3_v1_BulkMCProd_prescale')
+    flags.addFlag('Trigger.triggerMenuSetup', 'MC_pp_run3_v1_BulkMCProd_prescale')
 
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
     flags.addFlag('Trigger.triggerMenuModifier', ['all'])

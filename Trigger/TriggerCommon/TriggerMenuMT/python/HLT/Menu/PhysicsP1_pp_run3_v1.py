@@ -16,7 +16,6 @@ import TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 as physics_menu
 
 from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (
     SingleMuonGroup,
-    SingleMETGroup,
     SinglePhotonGroup,
     SingleJetGroup,
     JetStreamersGroup,
@@ -147,8 +146,8 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_AFPPEB_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['AFPCalib'], groups=['PS:Online']+SupportGroup),
 
         # IDCalib Chains
-        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1J100', stream=['IDCalib'], groups=SingleJetGroup+SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']), 
-        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1XE50', stream=['IDCalib'], groups=SingleMETGroup+SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1J100', stream=['IDCalib'], groups=SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']), 
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1XE50', stream=['IDCalib'], groups=SupportLegGroup+['PS:Online','RATE:Calibration','BW:Detector'], l1SeedThresholds=['FSNOSEED']),
 
         #ATR-25327 Test the definition for the 'PixelBeam' and 'VdM' streams
         ChainProp(name='HLT_noalg_LumiPEB_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['PixelBeam'], groups=['PS:Online']+SupportGroup),
