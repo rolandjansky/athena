@@ -24,8 +24,7 @@
 #include "MuonRDO/TgcRdoContainer.h"
 
 
-//typedef MuonRdoContainerTPCnv<TgcRdoContainer, TgcRdoContainer_p4, TgcRdoContainerCnv_p4 >
-typedef MuonRdoContainerTPCnv<TgcRdoContainer, TgcRdoContainer_p3, TgcRdoContainerCnv_p3 >
+typedef MuonRdoContainerTPCnv<TgcRdoContainer, TgcRdoContainer_p4, TgcRdoContainerCnv_p4 >
 TgcRdoContainerCnv;
 
 
@@ -50,12 +49,12 @@ TgcRdoContainerCnv::createTransient()
 
    if( compareClassGuid(p4_guid) ) {
       std::unique_ptr< TgcRdoContainer_p4 >  col_vect( this->poolReadObject<TgcRdoContainer_p4>() );
-      TgcRdoContainerCnv_p4 cnv;
-      trans_cont =  cnv.createTransient( col_vect.get(), log );
+      trans_cont =  m_TPconverter.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p3_guid) ) {
       std::unique_ptr< TgcRdoContainer_p3 >  col_vect( this->poolReadObject<TgcRdoContainer_p3>() );
-      trans_cont =  m_TPconverter.createTransient( col_vect.get(), log );
+      TgcRdoContainerCnv_p3 cnv;
+      trans_cont =  cnv.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p2_guid) ) {
       std::unique_ptr< TgcRdoContainer_p2 >  col_vect( this->poolReadObject<TgcRdoContainer_p2>() );
