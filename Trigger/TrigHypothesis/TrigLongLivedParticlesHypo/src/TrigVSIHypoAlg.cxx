@@ -99,7 +99,7 @@ StatusCode TrigVSIHypoAlg::execute(const EventContext& context) const
 
       //ATH_CHECK( vtxHandle.isValid() );
       if ( ! vtxHandle.isValid() ) {
-         ATH_MSG_INFO ( "Couldn't find " << m_verticesKey << "..." );
+         ATH_MSG_DEBUG ( "Couldn't find " << m_verticesKey << "..." );
          continue;
       }
 
@@ -168,12 +168,12 @@ StatusCode TrigVSIHypoAlg::execute(const EventContext& context) const
 
    DecisionContainer::iterator it = decisions->begin();
    while(it != decisions->end()) {
-      ATH_MSG_INFO( "+++++ outputDecision: " << *it << " +++++" );
+      ATH_MSG_DEBUG( "+++++ outputDecision: " << *it << " +++++" );
       if ( allFailed( *it ) ) {
-         ATH_MSG_INFO( "---> all failed, erasing" );
+         ATH_MSG_DEBUG( "---> all failed, erasing" );
          it = decisions->erase(it);
       } else {
-         ATH_MSG_INFO( "---> not all failed" );
+         ATH_MSG_DEBUG( "---> not all failed" );
 
          // Link hitDV object
          auto     decision = *it;
@@ -184,7 +184,7 @@ StatusCode TrigVSIHypoAlg::execute(const EventContext& context) const
 
          ATH_CHECK( decision->setObjectLink<xAOD::TrigCompositeContainer>( featureString(), dvEL ) );
 
-         ATH_MSG_INFO(*decision);
+         ATH_MSG_DEBUG(*decision);
          ++it;
       }
    }

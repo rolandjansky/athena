@@ -44,7 +44,7 @@ StatusCode ViewCreatorDVROITool::attachROILinks( TrigCompositeUtils::DecisionCon
 
       ATH_MSG_DEBUG("Loop over decisions");
 
-      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TrigCompositeContainer> > dvSeedLinks = TrigCompositeUtils::findLinks< xAOD::TrigCompositeContainer >(outputDecision, m_featureLinkName, TrigDefs::lastFeatureOfType);
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TrigCompositeContainer> > dvSeedLinks = TrigCompositeUtils::findLinks< xAOD::TrigCompositeContainer >(outputDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
 
       if (dvSeedLinks.size() != 1) {
          ATH_MSG_DEBUG("Did not find exactly one most-recent " << m_featureLinkName << " for Decision object index "
@@ -58,13 +58,13 @@ StatusCode ViewCreatorDVROITool::attachROILinks( TrigCompositeUtils::DecisionCon
          superRoI->manageConstituents(false);
 
          if(!dvLink.link.isValid()) {
-            ATH_MSG_INFO("Received invalid hitDV link from decision object! " << m_featureLinkName << " : " << dvLink.link);
+            ATH_MSG_DEBUG("Received invalid hitDV link from decision object! " << m_featureLinkName << " : " << dvLink.link);
             continue;
          }
 
-         ATH_MSG_INFO(" --- Find Link");
+         ATH_MSG_DEBUG(" --- Find Link");
          const xAOD::TrigCompositeContainer* dvCont = static_cast<const xAOD::TrigCompositeContainer*> ( (*dvLink.link)->container() );
-         ATH_MSG_INFO(" --- Found " << dvCont->size() << " presel DV seeds linked from decision object.");
+         ATH_MSG_DEBUG(" --- Found " << dvCont->size() << " presel DV seeds linked from decision object.");
          ATH_MSG_DEBUG("     ");
 
          for(const xAOD::TrigComposite* dv : *dvCont) {
