@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/SystemOfUnits.h"
 #include <FlavorTagDiscriminants/TrackClassifier.h>
 #include <numeric>
 
@@ -99,7 +98,8 @@ std::map<std::string, double> TrackClassifier::ComputeScore(const std::unique_pt
 
 bool TrackClassifier::pass_cut(const double score, const xAOD::Jet* jet) const
 {
-    double pt=jet->pt()*Gaudi::Units::GeV/Gaudi::Units::MeV; //GeV
+    static constexpr float const& GeVtoMeV = 1e+3;
+    double pt=jet->pt()*GeVtoMeV;
     bool pass=false;
 
     if(pt>=std::prev(m_WPcuts.end())->first){
