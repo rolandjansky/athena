@@ -26,6 +26,7 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import ( SingleElectronGroup,
                                                         SupportPhIGroup,
                                                         SupportLegGroup,
                                                         SingleBjetGroup,
+                                                        MultiBjetGroup,
                                                         SingleJetGroup,
                                                         SingleMuonGroup,
                                                         MultiMuonGroup,
@@ -81,6 +82,8 @@ def addMCSignatures(chains):
         # low threshold single jet support chains with JVT
         ChainProp(name='HLT_j45_020jvt_pf_ftf_preselj20_L1J15', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup),
 
+        ChainProp(name="HLT_j20_roiftf_preselj20_L1RD0_FILLED", l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportGroup+['RATE:CPS_RD0_FILLED']),
+
         # Low-threshold calibration Large-R jets
         # Non-commissioning L1 thresholds
         ChainProp(name='HLT_j85_a10sd_cssk_pf_nojcalib_ftf_preselj50_L1jLJ60', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ60']),
@@ -122,6 +125,15 @@ def addMCSignatures(chains):
         # B-tagger training
         ChainProp(name='HLT_j20_0eta290_020jvt_boffperf_pf_ftf_L1J15', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+SupportLegGroup),
         ChainProp(name='HLT_j20_0eta290_020jvt_boffperf_pf_ftf_L1jJ40', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+SupportPhIGroup),
+        # HH4b
+        # Muon seeded candidates
+        ChainProp(name='HLT_j80c_020jvt_j55c_020jvt_j28c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d82_pf_ftf_presel2c20XX2c20b85_L1MU8F_2J15_J20', l1SeedThresholds=['FSNOSEED']*5, groups=PrimaryLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j80c_020jvt_j55c_020jvt_j28c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85bb82_pf_ftf_presel2c20XX2c20b85_L1MU8F_2J15_J20', l1SeedThresholds=['FSNOSEED']*5, groups=PrimaryLegGroup+MultiBjetGroup),
+        # Background studies
+        ChainProp(name='HLT_j60c_020jvt_j40c_020jvt_j25c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85bb82_pf_ftf_presel2c20XX2c20b85_L1MU8F_2J15_J20', l1SeedThresholds=['FSNOSEED']*5, groups=SupportLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j60c_020jvt_j40c_020jvt_j25c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85bb82_pf_ftf_presel2c20XX2c20b85_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, groups=SupportLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j60c_020jvt_j40c_020jvt_j25c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85bb77_pf_ftf_presel2c20XX2c20b85_L1MU8F_2J15_J20', l1SeedThresholds=['FSNOSEED']*5, groups=SupportLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j60c_020jvt_j40c_020jvt_j25c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85bb77_pf_ftf_presel2c20XX2c20b85_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, groups=SupportLegGroup+MultiBjetGroup),
     ]
 
     chainsMC['Egamma'] = [
@@ -137,6 +149,8 @@ def addMCSignatures(chains):
         ChainProp(name='HLT_e60_etcut_L1eEM26M', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1eEM5', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_noringer_L1eEM5', groups=SingleElectronGroup),
 
         #------------ dnn chains
         ChainProp(name='HLT_e5_dnnloose_L1EM3', groups=SingleElectronGroup),

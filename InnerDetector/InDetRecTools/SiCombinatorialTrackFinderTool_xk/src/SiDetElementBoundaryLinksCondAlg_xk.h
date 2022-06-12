@@ -33,8 +33,7 @@ namespace InDet {
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
-    /** Make this algorithm clonable. */
-    virtual bool isClonable() const override { return true; };
+    virtual bool isReEntrant() const override final { return false; }
 
   private:
     /** Input condition object, detector elements of Pixel or SCT in condition store. */

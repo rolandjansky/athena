@@ -75,7 +75,7 @@ def egammaTrkRefitterToolCfg(flags,
                              **kwargs):
     acc = ComponentAccumulator()
     if "FitterTool" not in kwargs:
-        from egammaTrackTools.GSFTrackFitterConfig import EMGSFTrackFitterCfg
+        from TrkConfig.TrkGaussianSumFilterConfig import EMGSFTrackFitterCfg
         kwargs["FitterTool"] = acc.popToolsAndMerge(
             EMGSFTrackFitterCfg(flags, name="GSFTrackFitter"), **kwargs)
     kwargs.setdefault("useBeamSpot", False)

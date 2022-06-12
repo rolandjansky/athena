@@ -24,8 +24,9 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
         from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg
         acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterBTCfg, InDetTRT_ExtensionToolCfg
+    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterBTCfg
     InDetTrackFitterBT = acc.popToolsAndMerge(InDetTrackFitterBTCfg(flags))
+    from InDetConfig.TrackingCommonConfig import InDetTRT_ExtensionToolCfg
     InDetTRTExtensionTool = acc.popToolsAndMerge(InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
 

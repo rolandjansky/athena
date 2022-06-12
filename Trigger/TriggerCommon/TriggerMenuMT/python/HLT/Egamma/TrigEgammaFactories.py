@@ -24,9 +24,10 @@ from CaloTools.CaloToolsConf import CaloAffectedTool
 from egammaCaloTools.egammaCaloToolsFactories import egammaShowerShape, egammaIso
 from CaloIdentifier import SUBCALO 
 
+from TriggerMenuMT.HLT.Egamma.TrigEgammaMVACalibFactories import trigPrecCaloEgammaMVASvc
 
 # Egamma imports
-from egammaRec.Factories import ToolFactory, AlgFactory, ServiceFactory
+from egammaRec.Factories import ToolFactory, AlgFactory
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 from egammaTools.egammaToolsFactories import (
     egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, egammaSwSuperClusterTool)
@@ -37,48 +38,12 @@ from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesIn
 from AthenaCommon import CfgMgr
 from egammaAlgs import egammaAlgsConf
 
-# calib svc
-from egammaMVACalib import egammaMVACalibConf
-from xAODEgamma.xAODEgammaParameters import xAOD
 
 TrigEgammaKeys = getTrigEgammaKeys()
 TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT')
 TrigEgammaKeys_GSF = getTrigEgammaKeys('_GSF')
 TrigEgammaKeys_LRTGSF = getTrigEgammaKeys('_LRTGSF') 
 TrigEgammaKeys_HI = getTrigEgammaKeys(ion=True) 
-
-
-
-
-
-def TrigEgammaMVASvcCfg( ConfigFilePath ):
-
-    trigElectronMVATool = ToolFactory(
-        egammaMVACalibConf.egammaMVACalibTool,
-        name="TrigElectronMVATool",
-        ParticleType=xAOD.EgammaParameters.electron,
-        folder=ConfigFilePath )
-    trigUnconvPhotonMVATool = ToolFactory(
-        egammaMVACalibConf.egammaMVACalibTool,
-        name="TrigUnconvPhotonMVATool",
-        ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
-        folder=ConfigFilePath )
-    trigConvertedPhotonMVATool = ToolFactory(
-        egammaMVACalibConf.egammaMVACalibTool,
-        name="TrigConvertePhotonMVATool",
-        ParticleType=xAOD.EgammaParameters.convertedPhoton,
-        folder=ConfigFilePath)
-    trigEgammaMVASvc = ServiceFactory(
-        egammaMVACalibConf.egammaMVASvc,
-        name = "TrigEgammaMVASvc",
-        ElectronTool=trigElectronMVATool,
-        ConvertedPhotonTool=trigConvertedPhotonMVATool,
-        UnconvertedPhotonTool=trigUnconvPhotonMVATool)
-    return trigEgammaMVASvc
-
-""" Configuring trigger precision MVA Svc """
-TrigEgammaMVASvc = TrigEgammaMVASvcCfg( ConfigFlags.Trigger.egamma.calibMVAVersion )
-
 
 """Configuring egammaRecBuilder """
 TrigEgammaRec   = AlgFactory( egammaAlgsConf.egammaRecBuilder,
@@ -99,7 +64,7 @@ TrigEgammaSuperClusterBuilder = AlgFactory( egammaAlgsConf.egammaSuperClusterBui
         InputEgammaRecContainerName = TrigEgammaKeys.precisionCaloEgammaRecCollection,
         SuperClusterCollectionName  = TrigEgammaKeys.precisionElectronCaloClusterContainer,
         ClusterCorrectionTool       = egammaSwSuperClusterTool,   
-        MVACalibSvc                 = TrigEgammaMVASvc,
+        MVACalibSvc                 = trigPrecCaloEgammaMVASvc,
         CalibrationType             = 'electron',
         EtThresholdCut              = 1000,
         doAdd                       = False,

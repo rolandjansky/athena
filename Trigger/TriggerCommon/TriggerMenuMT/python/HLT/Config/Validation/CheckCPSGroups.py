@@ -46,7 +46,7 @@ def checkCPSGroups(chainDicts):
 
       # Verify L1 item matches CPS group
       if CPS_item != hlt['L1item'][3:]:
-        log.error("CPS group %s does not match L1 item %s", CPS_group, hlt['L1item'])
+        log.error("CPS group %s for HLT chain %s does not match L1 item %s", CPS_group, hlt['chainName'], hlt['L1item'])
         CPS_OK = False
       # Passing this check also implies that there is exactly 1 L1 for the CPS group
 
