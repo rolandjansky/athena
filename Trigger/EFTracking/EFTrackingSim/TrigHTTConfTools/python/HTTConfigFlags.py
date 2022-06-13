@@ -7,6 +7,7 @@ def createHTTConfigFlags():
 
     # common
     cf.addFlag('name', '')
+    cf.addFlag('wrapperFileName', 'HTTWrapper.root')
 
     # input
     cf.addFlag('firstInputToolN', 1)
