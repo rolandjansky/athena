@@ -338,6 +338,8 @@ class TileCoolMgr(object):
             self.addSource('onlTmdbTmfCis', '/TILE/ONL01/TMDB/TMF/CIS', defConnStr, "", '/TILE/ONL01/TMDB/TMF/CIS', 'SplitMC')
             
             self.addSource('onlTmdbCalibPhy', '/TILE/ONL01/TMDB/CALIB/PHY', defConnStr, "", '/TILE/ONL01/TMDB/CALIB/PHY', 'SplitMC')
+            self.addSource('onlTmdbCalibLas', '/TILE/ONL01/TMDB/CALIB/LAS', defConnStr, "", '/TILE/ONL01/TMDB/CALIB/LAS', 'SplitMC')
+            self.addSource('onlTmdbCalibCis', '/TILE/ONL01/TMDB/CALIB/CIS', defConnStr, "", '/TILE/ONL01/TMDB/CALIB/CIS', 'SplitMC')
 
             #--- noise
             self.addSource('oflDspThreshold', '/TILE/ONL01/DSP/THRESHOLD', defConnStr, "", '/TILE/OFL02/DSP/THRESHOLD', 'SplitOnline')
