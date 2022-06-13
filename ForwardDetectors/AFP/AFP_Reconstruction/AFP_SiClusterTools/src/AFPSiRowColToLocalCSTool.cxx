@@ -97,7 +97,8 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
 
   // if there were problems with job options scaling or none was defined use default values
   if (useDefualtTransformation) {
-    const ROOT::Math::Transform3D rotationA(ROOT::Math::RotationY(AFP_CONSTANTS::SiT_Plate_rot_xz)); // rotate by +14 degrees
+    //---->Extra brackets are for vexing parse issues under clang14<---
+    const ROOT::Math::Transform3D rotationA((ROOT::Math::RotationY(AFP_CONSTANTS::SiT_Plate_rot_xz))); // rotate by +14 degrees
     const ROOT::Math::Transform3D rotationC(ROOT::Math::RotationY(-1.*AFP_CONSTANTS::SiT_Plate_rot_xz)); // rotate by -14 degrees
     
     const ROOT::Math::Translation3D translationA0(0, 0, 0.);
