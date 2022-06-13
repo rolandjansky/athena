@@ -23,7 +23,7 @@ def TrigHTTSGInputCfg(flags):
     acc.addPublicTool(HTTSGInputTool)
 
     wrapperAlg = CompFactory.TrigHTTRawHitsWrapperAlg(
-        InputTool=HTTSGInputTool, OutFileName="HTTWrapper.root"
+        InputTool=HTTSGInputTool, OutFileName=flags.Trigger.HTT.wrapperFileName
     )
     acc.addEventAlgo(wrapperAlg)
 
