@@ -33,23 +33,28 @@ case $ArtProcess in
         # merge the outputs
         merge_ntup_file=physval_g4ms_validation_merge.root
         NTUPMerge_tf.py --inputNTUP_PHYSVALFile=art_core_*/physval_g4ms_* --outputNTUP_PHYSVAL_MRGFile=${merge_ntup_file}
-        echo  "art-result: $? ntup-merge"
+        rc=$?
+        echo  "art-result: $rc ntup-merge"
 
         dcubeXmlNTUP="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}/physval-validation.xml"
         dcubeRefNTUP="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_g4ms_validation/${merge_ntup_file}"
         dcubeRefAF2NTUP="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_af2_validation/physval_af2_validation_merge.root"
 
-        # Histogram comparison of G4MS with AF2 DCube
-         $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-         -p -x dcube-physval \
-         -c ${dcubeXmlNTUP} -r ${dcubeRefNTUP} ./${merge_ntup_file}
-         echo  "art-result: $? dcube-physval"
+        if [ ${rc} -eq 0 ]
+        then
 
-         # Histogram comparison of G4MS with AF2 DCube
-         $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-         -p -x dcube-g4msVsaf2 \
-         -c ${dcubeXmlNTUP} -r ${dcubeRefAF2NTUP} ./${merge_ntup_file}
-         echo  "art-result: $? dcube-g4msVsaf2"
+           # Histogram comparison of G4MS with AF2 DCube
+            $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+            -p -x dcube-physval \
+            -c ${dcubeXmlNTUP} -r ${dcubeRefNTUP} ./${merge_ntup_file}
+            echo  "art-result: $? dcube-physval"
+
+            # Histogram comparison of G4MS with AF2 DCube
+            $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+            -p -x dcube-g4msVsaf2 \
+            -c ${dcubeXmlNTUP} -r ${dcubeRefAF2NTUP} ./${merge_ntup_file}
+            echo  "art-result: $? dcube-g4msVsaf2"
+        fi
 
 	;;
 
@@ -83,6 +88,7 @@ case $ArtProcess in
                   --postInclude 'default:PyJobTransforms/UseFrontier.py' 'EVNTtoHITS:G4AtlasTests/postInclude.DCubeTest.py' \
                   --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
                   --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+                  --postExec 'from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05")' \
                   --DataRunNumber '284500' --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
                   --inputEVNTFile=${x} \
                   --outputHITSFile=${hits_file} \
