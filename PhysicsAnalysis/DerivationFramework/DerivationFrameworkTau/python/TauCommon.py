@@ -248,6 +248,7 @@ def addTauWPDecoration(Seq=None, evetoFixTag=None):
 #=======================================
 def addMuonRemovalTauReReco(Seq=None):
     from tauRec.tauRecFlags import tauFlags
+    tauFlags.inAOD.set_Value(True)
     if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
         logging.error("Muon removal TauJets re-reconstruction will not be scheduled")
         return
@@ -293,9 +294,9 @@ def addMuonRemovalTauReReco(Seq=None):
     MuonRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "MuonRemovalTauReReco_"+Seq.name(), 
                                                 Key_tauOutputContainer          = "TauJets_MuonRM",
                                                 Key_pi0OutputContainer          = "TauFinalPi0s_MuonRM",
-                                                Key_neutralPFOOutputContainer   = "TauNeutralPFOs_MuonRM",
-                                                Key_chargedPFOOutputContainer   = "TauChargedPFOs_MuonRM",
-                                                Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_MuonRM",
+                                                Key_neutralPFOOutputContainer   = "TauNeutralParticleFlowObjects_MuonRM",
+                                                Key_chargedPFOOutputContainer   = "TauChargedParticleFlowObjects_MuonRM",
+                                                Key_hadronicPFOOutputContainer  = "TauHadronicParticleFlowObjects_MuonRM",
                                                 Key_tauTrackOutputContainer     = "TauTracks_MuonRM",
                                                 Key_vertexOutputContainer       = "TauSecondaryVertices_MuonRM",
                                                 modificationTools               = tools_mod,

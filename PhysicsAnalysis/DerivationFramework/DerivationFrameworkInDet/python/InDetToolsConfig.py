@@ -151,3 +151,10 @@ def DiTauTrackParticleThinningCfg(ConfigFlags, name, **kwargs):
     acc.addPublicTool(DiTauTrackParticleThinning(name, **kwargs),
                       primary = True)
     return acc
+
+def TauJetLepRMParticleThinningCfg(ConfigFlags, name, **kwargs):
+    """Configure the DiTauTrackParticleThinning tool"""
+    acc = ComponentAccumulator()
+    TauJetLepRMParticleThinningTool = CompFactory.DerivationFramework.TauJets_LepRMParticleThinning
+    acc.addPublicTool(TauJetLepRMParticleThinningTool(name, **kwargs), primary = True)
+    return acc

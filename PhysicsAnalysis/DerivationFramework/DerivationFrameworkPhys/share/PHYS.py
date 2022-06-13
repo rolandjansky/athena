@@ -71,13 +71,14 @@ thinningTools.append(PHYSMuonTPThinningTool)
 # TauJets thinning
 # Disabled for 1st production in 2021, to allow use by tau CP group
 #tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-#PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
-#                                                                     StreamName      = PHYSStream.Name,
-#                                                                     ContainerName   = "TauJets",
-#                                                                     SelectionString = tau_thinning_expression)
-#ToolSvc += PHYSTauJetsThinningTool
-#thinningTools.append(PHYSTauJetsThinningTool)
+tau_thinning_expression = "(TauJets.ptFinalCalib >= 0)"
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
+                                                                    StreamName      = PHYSStream.Name,
+                                                                    ContainerName   = "TauJets",
+                                                                    SelectionString = tau_thinning_expression)
+ToolSvc += PHYSTauJetsThinningTool
+thinningTools.append(PHYSTauJetsThinningTool)
 
 # Only keep tau tracks (and associated ID tracks) classified as charged tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
@@ -85,11 +86,24 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       StreamName             = PHYSStream.Name,
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-#                                                                      SelectionString        = tau_thinning_expression,
+                                                                      SelectionString        = tau_thinning_expression,
                                                                       DoTauTracksThinning    = True,
                                                                       TauTracksKey           = "TauTracks")
 ToolSvc += PHYSTauTPThinningTool
 thinningTools.append(PHYSTauTPThinningTool)
+
+# TauJets_muonRM thinning
+tau_murm_thinning_expression = tau_thinning_expression.replace('TauJets', 'TauJets_MuonRM') #essnetially disable the thinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauJets_LepRMParticleThinning
+PHYSTauJets_MuonRMThinningTool = DerivationFramework__TauJets_LepRMParticleThinning(name                   = "PHYSTauJets_MuonRMThinningTool",
+                                                                                    StreamName             = PHYSStream.Name,
+                                                                                    originalTauKey         = "TauJets",
+                                                                                    LepRMTauKey            = "TauJets_MuonRM",
+                                                                                    InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                                    TauTracksKey           = "TauTracks_MuonRM",
+                                                                                    SelectionString        = tau_murm_thinning_expression)
+ToolSvc += PHYSTauJets_MuonRMThinningTool
+thinningTools.append(PHYSTauJets_MuonRMThinningTool)
 
 # ID tracks associated with high-pt di-tau
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
@@ -148,6 +162,7 @@ PHYSSlimmingHelper.SmartCollections = ["EventInfo",
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
+                                       "TauJets_MuonRM",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                       ]

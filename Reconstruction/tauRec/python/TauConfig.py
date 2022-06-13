@@ -269,6 +269,14 @@ def TauReconstructionCfg(flags):
 
     return result
 
+# This is an example config for scheduling TauJet_MuonRM in AOD
+# Please follow the import to find the implementation
+def TauAODrunnerAlgCfg(flags):
+    from DerivationFrameworkTau.TauCommonConfig import AddMuonRemovalTauAODReRecoAlgCfg
+    result = AddMuonRemovalTauAODReRecoAlgCfg(flags, prefix='')
+    return result
+
+
 if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

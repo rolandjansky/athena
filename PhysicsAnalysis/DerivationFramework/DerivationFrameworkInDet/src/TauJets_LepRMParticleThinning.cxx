@@ -153,7 +153,7 @@ StatusCode DerivationFramework::TauJets_LepRMParticleThinning::doThinning() cons
     m_npass_taus    += std::accumulate(tau_mask.begin(), tau_mask.end(),0);
     m_npass_trks    += std::accumulate(tau_track_mask.begin(), tau_track_mask.end(),0);
     m_npass_ID_trks += std::accumulate(id_track_mask.begin(), id_track_mask.end(),0);
-    ATH_MSG_INFO(std::accumulate(tau_mask.begin(), tau_mask.end(),0) << " / " << OriTaus->size() << " taus were retained");
+    ATH_MSG_DEBUG(std::accumulate(tau_mask.begin(), tau_mask.end(),0) << " / " << OriTaus->size() << " taus were retained");
 
     return StatusCode::SUCCESS;
 
