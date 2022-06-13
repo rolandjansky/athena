@@ -3,12 +3,16 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) :
+
+def DistributedKalmanFilterCfg(flags,
+                               name="DistributedKalmanFilter",
+                               **kwargs):
     acc = ComponentAccumulator()
 
     if 'ExtrapolatorTool' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        kwargs.setdefault('ExtrapolatorTool', acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
+        kwargs.setdefault('ExtrapolatorTool',
+                          acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'ROTcreator' not in kwargs:
         from TrkConfig.TrkRIO_OnTrackCreatorConfig import InDetRotCreatorCfg
@@ -19,12 +23,16 @@ def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) 
     acc.setPrivateTools(DistributedKalmanFilter)
     return acc
 
-def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kwargs) :
+
+def ITkDistributedKalmanFilterCfg(flags,
+                                  name="ITkDistributedKalmanFilter",
+                                  **kwargs):
     acc = ComponentAccumulator()
 
     if 'ExtrapolatorTool' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-        kwargs.setdefault('ExtrapolatorTool', acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
+        kwargs.setdefault('ExtrapolatorTool',
+                          acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
     if 'ROTcreator' not in kwargs:
         from TrkConfig.TrkRIO_OnTrackCreatorConfig import ITkRotCreatorCfg
