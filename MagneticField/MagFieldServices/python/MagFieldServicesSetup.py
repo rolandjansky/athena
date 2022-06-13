@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JobOption fragment to set up the magnetic field services and algorithms 
 # Valerio Ippolito - Harvard University
@@ -26,9 +26,8 @@ def AtlasFieldCacheCondAlg(name="AtlasFieldCacheCondAlg",**kwargs):
 
 def AtlasFieldMapCondAlg(name="AtlasFieldMapCondAlg",**kwargs):
   if athenaCommonFlags.isOnline():
-    # online has the map loaded at start and does not use DCS
+    # online does not use DCS
     kwargs.setdefault( "UseMapsFromCOOL", False )
-    kwargs.setdefault( "LoadMapOnStart", True )
 
   return CfgMgr.MagField__AtlasFieldMapCondAlg(name,**kwargs)
 
