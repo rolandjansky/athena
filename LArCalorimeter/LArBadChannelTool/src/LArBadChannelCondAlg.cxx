@@ -19,9 +19,9 @@ StatusCode LArBadChannelCondAlg::initialize() {
 }
 
 
-StatusCode LArBadChannelCondAlg::execute() {
+StatusCode LArBadChannelCondAlg::execute(const EventContext& ctx) const{
     
-  SG::WriteCondHandle<LArBadChannelCont> writeHandle{m_BCOutputKey};  
+  SG::WriteCondHandle<LArBadChannelCont> writeHandle{m_BCOutputKey,ctx};  
   if (writeHandle.isValid()) {
     msg(MSG::DEBUG) << "Found valid write handle" << endmsg;
     return StatusCode::SUCCESS;
@@ -29,14 +29,14 @@ StatusCode LArBadChannelCondAlg::execute() {
 
   std::unique_ptr<LArBadChannelCont> badChannelCont=std::make_unique<LArBadChannelCont>();
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey,ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
  
   writeHandle.addDependency(cablingHdl);
 
 
   if(!m_BCInputKey.key().empty()) {
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_BCInputKey};
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_BCInputKey,ctx};
     const CondAttrListCollection* attrListColl{*readHandle}; 
     if (attrListColl==nullptr) {
       msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;
@@ -77,8 +77,8 @@ StatusCode LArBadChannelCondAlg::execute() {
      }
      else {//regular readout
         const LArOnlineID* onlID = nullptr;
-	ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
-	onlineID=onlID;
+        ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
+        onlineID=onlID;
      }
      LArBadChannelDecoder decoder(&(*onlineID));
      std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = decoder.readASCII(m_inputFileName,LArBadChannelState::MAXCOOLCHAN, msg());
