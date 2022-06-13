@@ -35,10 +35,11 @@ namespace top {
     ATH_MSG_INFO(" top::PhotonScaleFactorCalculator initialize");
     top::check(m_photonEffSF.retrieve(),
                "Failed to retrieve photon efficiency SF calculator");
-    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    MsgStream& msgInfo = msg(MSG::Level::INFO);
     msgInfo << "------>Systematics:\n";
     for (auto sys:m_photonEffSF->recommendedSystematics())
       msgInfo << "---> " << sys << "\n";
+    msgInfo.doOutput();
 
     // remove "FixedCut" if present
     std::string s = "FixedCut";

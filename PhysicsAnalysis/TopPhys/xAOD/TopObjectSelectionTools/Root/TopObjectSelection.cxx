@@ -1168,7 +1168,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
     asg::AsgTool::print();
   }
 
-  void TopObjectSelection::print(std::ostream& os) const {
+  void TopObjectSelection::print(MsgStream& os) const {
     os << "TopObjectSelection configuration\n";
 
     os << "\n";
@@ -1275,5 +1275,6 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
     else os << *m_overlapRemovalToolPostSelection;
 
     os << "\n\n";
+    os.doOutput();
   }
 }

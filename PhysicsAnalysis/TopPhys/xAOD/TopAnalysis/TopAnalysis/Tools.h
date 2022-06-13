@@ -12,6 +12,7 @@
 
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
+#include "xAODMetaData/FileMetaData.h"
 
 #include "TopConfiguration/TopConfig.h"
 
@@ -162,6 +163,14 @@ namespace top {
  */
 
   bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config);
+
+  /**
+   * @brief Retrieve metadata from xAOD::FileMetaData object, to be stored in the TopConfig instance.
+   *
+   * @param FMD pointer to xAOD::FileMetaData (for example during initialize via inputMetaStore())
+   * @param config Pass in the config, before it is fixed, so that we can add info
+  */
+  void readMetaData(const xAOD::FileMetaData* FMD, std::shared_ptr<top::TopConfig> config);
 }
 
 #endif

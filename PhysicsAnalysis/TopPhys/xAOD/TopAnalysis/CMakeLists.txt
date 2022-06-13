@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the name of this package:
 atlas_subdir( TopAnalysis )
@@ -19,6 +19,7 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                    PUBLIC_HEADERS TopAnalysis
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                  AnaAlgorithmLib
                                   AsgMessagingLib
                                   AsgTools
                                   AthContainers
@@ -26,24 +27,32 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   TopCorrections
                                   TopEventSelectionTools
                                   xAODCutFlow
+                                  xAODMetaData
                                   xAODRootAccess
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES}
+                                          EventLoop
                                           PATInterfaces
+                                          TopCPTools
                                           TopEvent
                                           TopObjectSelectionTools
                                           TopParticleLevel
                                           TopPartons
+                                          TopDataPreparation
                                           xAODBTagging
                                           xAODCore
                                           xAODEgamma
                                           xAODJet
-                                          xAODMetaData
                                           xAODMissingET
                                           xAODMuon
                                           xAODTau
                                           xAODTracking
                                           xAODTruth )
+
+atlas_add_dictionary( TopAnalysisDict
+                      TopAnalysis/TopAnalysisDict.h
+                      TopAnalysis/selection.xml
+                      LINK_LIBRARIES TopAnalysis )
 
 # Install data files from the package:
 atlas_install_data( share/* )
@@ -56,6 +65,27 @@ atlas_add_executable( top-xaod
                       util/top-xaod.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                     PathResolver
+                                     TopAnalysis
+                                     TopCPTools
+                                     TopConfiguration
+                                     TopCorrections
+                                     TopDataPreparation
+                                     TopEvent
+                                     TopObjectSelectionTools
+                                     TopParticleLevel
+                                     TopPartons
+                                     TopSystematicObjectMaker
+                                     xAODCore
+                                     xAODCutFlow
+                                     xAODRootAccess )
+
+
+atlas_add_executable( top-el
+                      util/top-el.cxx
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                     EventLoop
                                      PathResolver
                                      TopAnalysis
                                      TopCPTools

@@ -401,7 +401,7 @@ namespace top {
 
   void EventSelection::finalise() const {
     //2dp, neater output for numbers
-    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    MsgStream& msgInfo = msg(MSG::Level::INFO);
     msgInfo << std::right;
     if (m_isMC) msgInfo << std::fixed << std::setprecision(2);
 
@@ -500,6 +500,7 @@ namespace top {
       }
     }
     msgInfo << "\n";
+    msgInfo.doOutput();
   }
 
   const std::string EventSelection::name() const {
@@ -520,7 +521,7 @@ namespace top {
   }
 
   void EventSelection::printCuts() {
-    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    MsgStream& msgInfo = msg(MSG::Level::INFO);
     msgInfo << "\n - " << m_name << ":\n";
     if (m_config->doTightEvents()) {
       for (int i = 1; i <= m_cutflow->GetNbinsX(); ++i) {
@@ -536,5 +537,6 @@ namespace top {
       }
     }
     msgInfo << std::endl;
+    msgInfo.doOutput();
   }
 }

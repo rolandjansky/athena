@@ -105,7 +105,7 @@ namespace top {
     std::vector<double> etaBinning;
     formatBinning(m_ptBins, ptBinning);
     formatBinning(m_etaBins, etaBinning);
-    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    MsgStream& msgInfo = msg(MSG::Level::INFO);
     msgInfo << "Here is the binning used for JETFLAVORPLOTS in selection " << name << ":\n";
     msgInfo << "pt: ";
     for (auto pt:ptBinning) msgInfo << pt << " ";
@@ -113,6 +113,7 @@ namespace top {
     msgInfo << "abseta: ";
     for (auto eta:etaBinning) msgInfo << eta << " ";
     msgInfo << std::endl;
+    msgInfo.doOutput();
 
     if (m_config->doTightEvents()) {
       if (m_doNominal) BookHistograms(m_hists, ptBinning, etaBinning);

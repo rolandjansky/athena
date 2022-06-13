@@ -245,12 +245,19 @@ int main(int argc, char** argv) {
   std::unique_ptr<TFile> metadataInitFile(TFile::Open(filenames[0].c_str()));
   top::check(xaodEvent.readFrom(metadataInitFile.get()), "xAOD::TEvent readFrom failed");
 
-
   // Setup all asg::AsgTools
   top::TopToolStore topTools("top::TopToolStore");
   top::check(topTools.setProperty("config", topConfig),
              "Failed to setProperty of topTools");
   top::check(topTools.initialize(), "Failed to initialize topTools");
+
+  // retrieve PMGTruthWeightTool
+  ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
+  if (topConfig->isMC() && !m_pmg_weightTool.retrieve()) {
+    ATH_MSG_ERROR("Cannot retrieve PMGTruthWeightTool.");
+    return 1;
+  }
+
   // EventCleaningSelection
   // Decorates EventInfo with GRL decision (always true for MC)
   // Evaluates all triggers requested from all selections
@@ -510,15 +517,6 @@ int main(int argc, char** argv) {
       if (topConfig->isMC()) {
 
         // here we attempt to name the CutBookkeepers based on the MC weight names
-        // but we might end up in a situation where we don't have PMGTruthWeightTool
-        // e.g. if TruthMetaData container is broken in derivation
-        // we continue without names of the MC weights, only indices will be available
-        ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
-        if (!m_pmg_weightTool.retrieve()) {
-          ATH_MSG_ERROR("Cannot retrieve PMGTruthWeightTool for determining CutBookkeeper weight names.");   
-          return 1;
-        }
-
         const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
         // try to retrieve CutBookKeepers for LHE3Weights first
         top::parseCutBookkeepers(xaodEvent, weight_names.size(), LHE3_names_file, LHE3_sumW_file);
@@ -570,9 +568,11 @@ int main(int argc, char** argv) {
       }
       if (!names_LHE3.empty()) {
         ATH_MSG_INFO("The sum of weights for the following LHE3 weights were retrieved from the input file:");
+	MsgStream &msgInfo = msg(MSG::Level::INFO);
         for (std::string s : names_LHE3)
-          msg(MSG::Level::INFO) << s << " ";
-        msg(MSG::Level::INFO) << std::endl;
+          msgInfo << s << " ";
+        msgInfo << std::endl;
+	msgInfo.doOutput();
       } else {
         ATH_MSG_INFO("No sum of LHE3 weights could be found in meta-data. Will try to recompute these sums.\n"
             "This only works on un-skimmed derivations, and the names of these weights may be unknown (but we'll try to read them from the PMG tool");
@@ -718,22 +718,16 @@ int main(int argc, char** argv) {
                 totalEventsWeighted_LHE3_temp.at(i_LHE3) = ei->mcEventWeights().at(i_LHE3);
               }
               names_LHE3.resize(weightsSize);
-              
-              ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
-              if (m_pmg_weightTool.retrieve()) {
-                const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
-                if(weight_names.size() != weightsSize)
-                {
-                  ATH_MSG_INFO("In top-xaod, while calculating mc weights sums on the fly, names from PMG tools have different size wrt weight vector, we'll not retrieve weight names");
-                  std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
-                }
-                else{
-                  for(unsigned int i_wgt=0; i_wgt<weight_names.size(); i_wgt++) names_LHE3[i_wgt]=weight_names[i_wgt];
-                }
-              }
-              else{
-                std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
-              }
+
+	    const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+	    if(weight_names.size() != weightsSize)
+	    {
+	      ATH_MSG_INFO("In top-xaod, while calculating mc weights sums on the fly, names from PMG tools have different size wrt weight vector, we'll not retrieve weight names");
+	      std::fill(names_LHE3.begin(), names_LHE3.end(), "?");
+	    }
+	    else{
+	      for(unsigned int i_wgt=0; i_wgt<weight_names.size(); i_wgt++) names_LHE3[i_wgt]=weight_names[i_wgt];
+	    }
             } else {
               for (unsigned int i_LHE3 = 0; i_LHE3 < weightsSize; i_LHE3++) {
                 totalEventsWeighted_LHE3_temp.at(i_LHE3) = totalEventsWeighted_LHE3_temp.at(i_LHE3) +

@@ -22,6 +22,7 @@ namespace top {
   ConfigurationSettings* ConfigurationSettings::m_instance = 0;
 
   ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
+    setMsgLevel(MSG::Level::INFO);
     registerParameter("ElectronCollectionName", "Name of the Electron container");
     registerParameter("FwdElectronCollectionName", "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
     registerParameter("MuonCollectionName", "Name of the Muon container");
@@ -688,8 +689,11 @@ namespace top {
     registerParameter("RedefineMCMCMap", "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".", " ");
   }
 
-  ConfigurationSettings* ConfigurationSettings::get() {
-    if (!m_instance) m_instance = new ConfigurationSettings();
+  ConfigurationSettings* ConfigurationSettings::get(bool reset) {
+    if (!m_instance || reset) {
+      delete m_instance;
+      m_instance = new ConfigurationSettings();
+    }
 
     return m_instance;
   }
