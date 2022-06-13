@@ -22,7 +22,7 @@ StatusCode TrackClassifier :: initialize ()
     m_lwtnn_network.reset(new lwt::LightweightGraph(config));
     inFileNN.close();
 
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
 
 int TrackClassifier :: get(const xAOD::TrackParticle* track, xAOD::SummaryType info) const {
@@ -94,4 +94,38 @@ std::map<std::string, double> TrackClassifier::ComputeScore(const std::unique_pt
 
   return track_outputs;
 }
+
+
+bool TrackClassifier::pass_cut(const double score, const xAOD::Jet* jet) const
+{
+    static constexpr float const& GeVtoMeV = 1e+3;
+    double pt=jet->pt()*GeVtoMeV;
+    bool pass=false;
+
+    if(pt>=std::prev(m_WPcuts.end())->first){
+      if(score > std::prev(m_WPcuts.end())->second)
+        pass=true;
+    }
+    else{
+      for(auto it = m_WPcuts.begin(); it != std::prev(m_WPcuts.end()); ++it){
+        auto nit = std::next(it);
+	if(pt>=it->first && pt<nit->first){
+          if(score > nit->second){
+            pass=true;
+            break;
+          }
+        }
+      }
+    }
+
+    return pass;
+}
+
+
+bool TrackClassifier::selectTrack(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const
+{
+    double HF_nnScore = compute_HF_Score( track, jet );
+    return pass_cut(HF_nnScore, jet);
+}
+
 }

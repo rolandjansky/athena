@@ -9,7 +9,7 @@ from AthenaConfiguration.Enums import BeamType
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterToolCfg
-from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
+from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasEnergyLossUpdatorCfg
 
 # FIXME
 GeV = 1000
@@ -949,50 +949,6 @@ def MuidMuonRecoveryCfg(flags, name='MuidMuonRecovery', **kwargs):
     kwargs.setdefault("TrackBuilder", acc.popPrivateTools())
     result.merge(acc)
     tool = CompFactory.Rec.MuidMuonRecovery(name, **kwargs)
-    result.setPrivateTools(tool)
-    return result
-
-def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs ):
-    from TrkConfig.TrkRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
-    from TrkConfig.TrkExRungeKuttaPropagatorConfig import MuonCombinedPropagatorCfg
-    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
-
-    result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("ExtrapolationTool", result.popPrivateTools())
-    kwargs.setdefault("NavigatorTool", result.popToolsAndMerge(
-        AtlasNavigatorCfg(flags)))
-    kwargs.setdefault("PropagatorTool", result.popToolsAndMerge(
-        MuonCombinedPropagatorCfg(flags)))
-    kwargs.setdefault("RotCreatorTool", result.popToolsAndMerge(
-        MuonRotCreatorCfg(flags)))
-    kwargs.setdefault("EnergyLossTool", result.popToolsAndMerge(
-        AtlasEnergyLossUpdatorCfg(flags)))
-    kwargs.setdefault("MeasurementUpdateTool",
-                      result.popToolsAndMerge(KalmanUpdatorCfg(flags, name="MuonMeasUpdator")))
-
-    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-    result.merge(TrackingGeometryCondAlgCfg(flags))
-    kwargs.setdefault("TrackingGeometryReadKey", "AtlasTrackingGeometry")
-
-    kwargs.setdefault("ExtrapolatorMaterial", True)
-    acc = MuidMaterialEffectsOnTrackProviderCfg(flags)
-    kwargs.setdefault("MuidTool", acc.popPrivateTools())
-    result.merge(acc)
-    kwargs.setdefault("MuidToolParam", None)
-    if flags.Beam.Type is BeamType.Cosmics:
-        acc = MuidMaterialEffectsOnTrackProviderParamCfg(flags)
-        kwargs.setdefault("MuidToolParam", acc.popPrivateTools())
-        result.merge(acc)
-    kwargs.setdefault("MuidMat", True)
-    kwargs.setdefault("StraightLine", flags.Beam.Type is BeamType.Cosmics)
-    # ^ Was: not jobproperties.BField.solenoidOn() and not jobproperties.BField.allToroidOn()
-    kwargs.setdefault("MaxIterations", 50)
-    kwargs.setdefault("GetMaterialFromTrack",
-                      flags.Beam.Type is not BeamType.Cosmics)
-    # ^ Was: jobproperties.BField.solenoidOn() and jobproperties.BField.allToroidOn()
-    kwargs.setdefault("RecalculateDerivatives", False)
-    kwargs.setdefault("UseCaloTG", True)
-    tool = CompFactory.Trk.GlobalChi2Fitter(name, **kwargs)
     result.setPrivateTools(tool)
     return result
 

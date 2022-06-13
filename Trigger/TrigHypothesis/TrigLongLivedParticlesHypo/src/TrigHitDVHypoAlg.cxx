@@ -275,7 +275,7 @@ StatusCode TrigHitDVHypoAlg::execute( const EventContext& context ) const
          ElementLink<xAOD::TrigCompositeContainer> dvEL = ElementLink<xAOD::TrigCompositeContainer>(*hitDVHandle, idx, context);
          ATH_CHECK( dvEL.isValid() );
 
-         ATH_CHECK( decision->setObjectLink<xAOD::TrigCompositeContainer>(m_hitDVLinkName, dvEL) );
+         ATH_CHECK( decision->setObjectLink<xAOD::TrigCompositeContainer>(featureString(), dvEL) );
 
          ATH_MSG_DEBUG(*decision);
          ++it;
