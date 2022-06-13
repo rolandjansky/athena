@@ -1,0 +1,5 @@
+index_ref
+(.*)_mems(.*)
+(.*)_timings(.*)
+(.*)HLTNav_Summary_AODSlimmedAux(.*)
+(.*)TrigCompositeAuxContainer_v2_HLTNav_Summary_ESDSlimmedAux(.*)
