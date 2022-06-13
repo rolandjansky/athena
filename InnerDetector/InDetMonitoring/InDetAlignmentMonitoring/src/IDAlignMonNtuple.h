@@ -66,18 +66,18 @@ private:
   SG::ReadHandleKey<TrackTruthCollection> m_tracksTruthName {
     this, "tracksTruthName", "ExtendedTracksTruthCollection"
   };
-  int m_checkrate;
-  bool m_unbiasedSCT;
-  bool m_usePRD;  //if desired we can use PrepRawData hits information i.e. before insitu calibration of hits
-  bool m_doPulls;
+  int m_checkrate{};
+  bool m_unbiasedSCT{};
+  bool m_usePRD{};  //if desired we can use PrepRawData hits information i.e. before insitu calibration of hits
+  bool m_doPulls{};
   SG::ReadHandleKey<VxContainer> m_VxPrimContainerName {
     this, "VxPrimContainerName", ""
   };
 
   //tools
-  const AtlasDetectorID* m_idHelper;
-  const PixelID* m_pixelID;
-  const SCT_ID* m_sctID;
+  const AtlasDetectorID* m_idHelper{};
+  const PixelID* m_pixelID{};
+  const SCT_ID* m_sctID{};
   PublicToolHandle<Trk::IUpdator>             m_iUpdator
   {
     this, "KalmanUpdator", "Trk::KalmanUpdator", ""
