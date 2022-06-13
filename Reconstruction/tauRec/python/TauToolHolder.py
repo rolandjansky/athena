@@ -29,11 +29,6 @@ _DefaultLargeD0TrackContainer = "InDetLargeD0TrackParticles"
 def setPrefix(prefix): 
     global sPrefix 
     sPrefix = prefix 
-    
-######################################################################## 
-def setAODmode(mode): 
-    global bAODmode 
-    bAODmode = mode
 
 ########################################################################
 # JetSeedBuilder
@@ -1056,3 +1051,33 @@ def TauCombinedTESCfg(flags):
     result.setPrivateTools(myTauCombinedTES)
     return result
 
+########################################################################
+# muon removal tool
+def TauAODMuonRemovalCfg(flags):
+    result = ComponentAccumulator()   
+    _name = sPrefix + 'MuonRemoval'
+    TauAODLeptonRemovalTool = CompFactory.getComp("TauAODLeptonRemovalTool")
+    myMuonRemoval = TauAODLeptonRemovalTool(    name                   = _name,
+                                                Key_MuonInputContainer = 'Muons',
+                                                doMuonTrkRm            = True,
+                                                doMuonClsRm            = True,
+                                                muonIDWP               = 'Medium'
+    )
+    result.setPrivateTools(myMuonRemoval)
+    return result
+
+########################################################################
+# elec removal tool
+def TauAODElectronRemovalCfg(flags):
+    result = ComponentAccumulator()  
+    _name = sPrefix + 'ElecRemoval'
+    TauAODLeptonRemovalTool = CompFactory.getComp("TauAODLeptonRemovalTool")
+    myElecRemoval = TauAODLeptonRemovalTool(    name                   = _name,
+                                                Key_ElecInputContainer = 'Electrons',
+                                                doElecTrkRm            = True,
+                                                doElecClsRm            = True,
+                                                elecIDWP               = 'Medium'
+    )
+    result.setPrivateTools(myElecRemoval)
+    return result
+########################################################################

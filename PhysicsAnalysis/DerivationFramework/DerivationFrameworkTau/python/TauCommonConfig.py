@@ -136,3 +136,56 @@ def AddTauWPDecorationCfg(ConfigFlags, **kwargs):
 
     return(acc)      
 
+# TauJets_MuonRM steering
+def AddMuonRemovalTauAODReRecoAlgCfg(flags, **kwargs):
+    """Configure the MuonRM AOD tau building"""
+
+    prefix = kwargs['prefix']
+    result=ComponentAccumulator()
+
+    # get tools from holder
+    import tauRec.TauToolHolder as tauTools
+    tools_mod = []
+    tools_mod.append( result.popToolsAndMerge(tauTools.TauAODMuonRemovalCfg(flags)) )
+    tools_after = []
+    tools_after.append( result.popToolsAndMerge(tauTools.TauVertexedClusterDecoratorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauTrackRNNClassifierCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.EnergyCalibrationLCCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauCommonCalcVarsCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauSubstructureCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.Pi0ClusterCreatorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.Pi0ClusterScalerCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.Pi0ScoreCalculatorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.Pi0SelectorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauVertexVariablesCfg(flags)) )
+    import PanTauAlgs.JobOptions_Main_PanTau_New as pantau
+    tools_after.append( result.popToolsAndMerge(pantau.PanTauCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauCombinedTESCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.MvaTESVariableDecoratorCfg(flags)) )
+    tools_after[-1].EventShapeKey = ''
+    tools_after.append( result.popToolsAndMerge(tauTools.MvaTESEvaluatorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauIDVarCalculatorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauJetRNNEvaluatorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauWPDecoratorJetRNNCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauEleRNNEvaluatorCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauWPDecoratorEleRNNCfg(flags)) )
+    tools_after.append( result.popToolsAndMerge(tauTools.TauDecayModeNNClassifierCfg(flags)) )
+    TauAODRunnerAlg=CompFactory.getComp("TauAODRunnerAlg")
+    for tool in tools_mod:
+        tool.inAOD = True
+    for tool in tools_after:
+        tool.inAOD = True
+    myTauAODRunnerAlg = TauAODRunnerAlg(  
+        name                           = prefix + "MuonRemovalTauAODReRecoAlg", 
+        Key_tauOutputContainer         = "TauJets_MuonRM",
+        Key_pi0OutputContainer         = "TauFinalPi0s_MuonRM",
+        Key_neutralPFOOutputContainer  = "TauNeutralParticleFlowObjects_MuonRM",
+        Key_chargedPFOOutputContainer  = "TauChargedParticleFlowObjects_MuonRM",
+        Key_hadronicPFOOutputContainer = "TauHadronicParticleFlowObjects_MuonRM",
+        Key_tauTrackOutputContainer    = "TauTracks_MuonRM",
+        Key_vertexOutputContainer      = "TauSecondaryVertices_MuonRM",
+        modificationTools              = tools_mod,
+        officialTools                  = tools_after
+    )
+    result.addEventAlgo(myTauAODRunnerAlg)
+    return result

@@ -60,11 +60,18 @@ StatusCode TauAODRunnerAlg::execute() {
     SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutContainer);
     ATH_CHECK(outputTauHandle.record(std::make_unique<xAOD::TauJetContainer>(), std::make_unique<xAOD::TauJetAuxContainer>()));
     xAOD::TauJetContainer *newTauCon = outputTauHandle.ptr();
+
+    static const SG::AuxElement::Accessor<ElementLink<xAOD::TauJetContainer>> acc_ori_tau_link("originalTauJet");
     for (const xAOD::TauJet *tau : *pTauContainer) {
         // deep copy the tau container
         xAOD::TauJet *newTau = new xAOD::TauJet();
         newTauCon->push_back(newTau);
         *newTau = *tau;
+        //link the original tau to the deepcopy
+        ElementLink<xAOD::TauJetContainer> link_to_ori_tau;
+        link_to_ori_tau.toContainedElement(*pTauContainer, tau);
+        acc_ori_tau_link(*newTau) = link_to_ori_tau;
+        //clear the tautrack links to allow relinking.
         newTau->clearTauTrackLinks();
         for (auto tauTrk : tau->allTracks()) {
             xAOD::TauTrack *newTauTrk = new xAOD::TauTrack();

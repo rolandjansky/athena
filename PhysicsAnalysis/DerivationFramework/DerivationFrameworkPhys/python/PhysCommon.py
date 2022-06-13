@@ -99,6 +99,10 @@ addDiTauLowPt(Seq=DerivationFrameworkJob)
 from DerivationFrameworkTau.TauCommon import addTauWPDecoration
 addTauWPDecoration(Seq=DerivationFrameworkJob, evetoFixTag="v1")
 
+# Add Muon RM tau reconstruction
+from DerivationFrameworkTau.TauCommon import addMuonRemovalTauReReco
+addMuonRemovalTauReReco(Seq=DerivationFrameworkJob) 
+
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================

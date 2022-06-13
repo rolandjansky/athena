@@ -71,11 +71,11 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     # Jets, di-taus, tau decorations, flavour tagging, MET association
     from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
     from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollectionsCfg
-    from DerivationFrameworkTau.TauCommonConfig import AddDiTauLowPtCfg
-    from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg
+    from DerivationFrameworkTau.TauCommonConfig import (AddDiTauLowPtCfg, AddTauWPDecorationCfg, AddMuonRemovalTauAODReRecoAlgCfg)
     from DerivationFrameworkJetEtMiss.METCommonConfig import METCommonCfg 
     acc.merge(JetCommonCfg(ConfigFlags))
     acc.merge(AddDiTauLowPtCfg(ConfigFlags, prefix = 'PhysCommon'))
+    acc.merge(AddMuonRemovalTauAODReRecoAlgCfg(ConfigFlags, prefix = 'PhysCommon'))
     acc.merge(AddTauWPDecorationCfg(ConfigFlags, prefix = 'PhysCommon', evetoFixTag="v1"))
     acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
     acc.merge(METCommonCfg(ConfigFlags))

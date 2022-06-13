@@ -21,7 +21,7 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
     acc.merge(PhysCommonAugmentationsCfg(ConfigFlags, TriggerListsHelper = kwargs['TriggerListsHelper']))
 
     # Thinning tools...
-    from DerivationFrameworkInDet.InDetToolsConfig import TrackParticleThinningCfg, MuonTrackParticleThinningCfg, TauTrackParticleThinningCfg, DiTauTrackParticleThinningCfg 
+    from DerivationFrameworkInDet.InDetToolsConfig import TrackParticleThinningCfg, MuonTrackParticleThinningCfg, TauTrackParticleThinningCfg, DiTauTrackParticleThinningCfg, TauJetLepRMParticleThinningCfg
     from DerivationFrameworkTools.DerivationFrameworkToolsConfig import GenericObjectThinningCfg
 
     # Inner detector group recommendations for indet tracks in analysis
@@ -41,7 +41,15 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
         StreamName              = kwargs['StreamName'],
         MuonKey                 = "Muons",
         InDetTrackParticlesKey  = "InDetTrackParticles"))
-
+    
+    # disable tau thinning for now
+    tau_thinning_expression = "(TauJets.ptFinalCalib >= 0)"
+    PHYSTauJetsThinningTool = acc.getPrimaryAndMerge(GenericObjectThinningCfg(ConfigFlags,
+        name            = "PHYSTauJetThinningTool",
+        StreamName      = kwargs['StreamName'],
+        ContainerName   = "TauJets",
+        SelectionString = tau_thinning_expression))
+    
     # Only keep tau tracks (and associated ID tracks) classified as charged tracks
     PHYSTauTPThinningTool = acc.getPrimaryAndMerge(TauTrackParticleThinningCfg(
         ConfigFlags,
@@ -51,6 +59,17 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
         InDetTrackParticlesKey = "InDetTrackParticles",
         DoTauTracksThinning    = True,
         TauTracksKey           = "TauTracks"))
+    
+    tau_murm_thinning_expression = tau_thinning_expression.replace('TauJets', 'TauJets_MuonRM')
+    PHYSTauJetMuonRMParticleThinningTool = acc.getPrimaryAndMerge(TauJetLepRMParticleThinningCfg(
+        ConfigFlags,
+        name                   = "PHYSTauJets_MuonRMThinningTool",
+        StreamName             = kwargs['StreamName'],
+        originalTauKey         = "TauJets",
+        LepRMTauKey            = "TauJets_MuonRM",
+        InDetTrackParticlesKey = "InDetTrackParticles",
+        TauTracksKey           = "TauTracks_MuonRM",
+        SelectionString        = tau_murm_thinning_expression))
 
     # ID tracks associated with high-pt di-tau
     PHYSDiTauTPThinningTool = acc.getPrimaryAndMerge(DiTauTrackParticleThinningCfg(
@@ -78,7 +97,9 @@ def PHYSKernelCfg(ConfigFlags, name='PHYSKernel', **kwargs):
     # Finally the kernel itself
     thinningTools = [PHYSTrackParticleThinningTool,
                      PHYSMuonTPThinningTool,
+                     PHYSTauJetsThinningTool,
                      PHYSTauTPThinningTool,
+                     PHYSTauJetMuonRMParticleThinningTool,
                      PHYSDiTauTPThinningTool,
                      PHYSDiTauLowPtThinningTool,
                      PHYSDiTauLowPtTPThinningTool ]
@@ -121,6 +142,7 @@ def PHYSCfg(ConfigFlags):
                                            "MET_Baseline_AntiKt4EMTopo",
                                            "MET_Baseline_AntiKt4EMPFlow",
                                            "TauJets",
+                                           "TauJets_MuonRM",
                                            "DiTauJets",
                                            "DiTauJetsLowPt",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
@@ -176,6 +198,7 @@ def PHYSCfg(ConfigFlags):
                                               "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.numberOfTRTHits.numberOfTRTOutliers",
                                               "EventInfo.hardScatterVertexLink.timeStampNSOffset",
                                               "TauJets.dRmax.etOverPtLeadTrk",
+                                              "TauJets_MuonRM.dRmax.etOverPtLeadTrk",
                                               "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET.ex.ey",
                                               "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 

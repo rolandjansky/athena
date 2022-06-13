@@ -11,6 +11,7 @@ FullListOfSmartContainers = [
    "TauMVATESJets",
    "DiTauJets",
    "DiTauJetsLowPt",
+   "TauJets_MuonRM",
    "MET_Baseline_AntiKt4EMTopo",
    "MET_Baseline_AntiKt4EMPFlow",
    "AntiKt2TruthJets",
