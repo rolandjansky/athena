@@ -229,7 +229,7 @@ InDet::InDetTestPixelLayerTool::expectHitInPixelLayer(
 
   std::vector<std::unique_ptr<const Trk::TrackParameters>> pixelLayerParam;
   if (!this->getPixelLayerParameters(ctx, trackpar, pixelLayerParam)) {
-    ATH_MSG_WARNING("Failed to get pixel layer parameters!");
+    ATH_MSG_DEBUG("Failed to get pixel layer parameters!");
     return false;
   }
 
