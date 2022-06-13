@@ -374,6 +374,8 @@ def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs
 def FastCaloSimV2ParamSvcCfg(flags, name="ISF_FastCaloSimV2ParamSvc", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("ParamsInputFilename", flags.Sim.FastCalo.ParamsInputFilename)
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+    kwargs.setdefault("RunOnGPU", ISF_FastCaloSimFlags.RunOnGPU())
     kwargs.setdefault("ParamsInputObject", "SelPDGID")
     acc.addService(CompFactory.ISF.FastCaloSimV2ParamSvc(name, **kwargs), primary = True)
     return acc
