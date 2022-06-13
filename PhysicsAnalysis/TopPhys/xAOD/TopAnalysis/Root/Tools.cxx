@@ -11,7 +11,6 @@
 #include "TopEvent/EventTools.h"
 
 #include "TopEventSelectionTools/ToolLoaderBase.h"
-#include "xAODMetaData/FileMetaData.h"
 
 #include <iostream>
 #include <fstream>
@@ -333,15 +332,8 @@ namespace top {
     top::check(xaodEvent.readFrom(inputFile), "Cannot load inputFile");
     xaodEvent.getEntry(0);
 
-    int mcChannelNumber = -1;
-    std::string dataType="?", simFlavour="?";
-    float mcProcID = -1;
-    bool isDataOverlay = false;
-    bool isMC = false;
-
     // Magical metadata tool to access FileMetaData object
     asg::AsgMetadataTool ATMetaData("OurNewMetaDataObject");
-    bool readFMD=false;
 
     // Check it exists, and if it does we will work with it
     if (ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
@@ -352,41 +344,61 @@ namespace top {
       const xAOD::FileMetaData* FMD = 0;
       top::check(ATMetaData.inputMetaStore()->retrieve(FMD, "FileMetaData"),
                  "Failed to retrieve metadata from AsgMetadataTool");
-      // Let's get all the info we can...
-      // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
-      /// Data type that's in the file [string]
-      FMD->value(xAOD::FileMetaData::dataType, dataType);
-      // If this is data overlay or not
-      FMD->value(xAOD::FileMetaData::isDataOverlay, isDataOverlay);
-      config->setIsDataOverlay(isDataOverlay);
-      /// Same as mc_channel_number [float]
-      FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
-      mcChannelNumber = mcProcID;
-      config->setDSID(mcChannelNumber);
-      isMC = (mcChannelNumber > 0);
-      config->setIsMC(isMC);
-      /// Fast or Full sim [string]
-      FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
-      if (isMC) {
-        if (simFlavour == "FullG4") {
-          config->setIsAFII(false);
-        } else if (simFlavour == "FullG4_QS") {
-          config->setIsAFII(false);
-        } else if (simFlavour == "ATLFASTII") {
-          config->setIsAFII(true);
-        } else if (simFlavour == "ATLFAST3_QS") {
-          config->setIsAFII(false);
-        } else {
-          ATH_MSG_ERROR("Unsupported simFlavour detected in xAOD::FileMetaData: " << simFlavour);
-          throw std::runtime_error("Unsupported simFlavour detected, exiting");
-        }
-      }
-      readFMD=true;
-    }
+      readMetaData(FMD, config);
 
-    if (!readFMD) {
+    } else {
       ATH_MSG_ERROR("Could not read FileMetaData inside MetaData tree.");
       return false;
+    }
+
+    return true;
+  }
+
+  void readMetaData(const xAOD::FileMetaData* FMD, std::shared_ptr<top::TopConfig> config) {
+    int mcChannelNumber = -1;
+    std::string dataType="?", simFlavour="?";
+    float mcProcID = -1;
+    bool isDataOverlay = false;
+    bool isMC = false;
+
+    // get dataType and parse the derivation stream
+    FMD->value(xAOD::FileMetaData::dataType, dataType);
+    if (dataType.find("StreamDAOD") != std::string::npos) {
+      auto cursor = dataType.find("_"); // split DAOD_BLALBA
+      std::string stream = dataType.substr(cursor + 1);
+      config->setDerivationStream(stream);
+      config->setIsTruthDxAOD((stream == "TRUTH"));
+    } else {
+      ATH_MSG_WARNING("DataType: " << dataType
+          << " does not appear to be a StreamDAOD_*, so we cannot determine derivation type.");
+    }
+
+    // If this is data overlay or not
+    FMD->value(xAOD::FileMetaData::isDataOverlay, isDataOverlay);
+    config->setIsDataOverlay(isDataOverlay);
+
+    /// Same as mc_channel_number [float]
+    FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
+    mcChannelNumber = mcProcID;
+    config->setDSID(mcChannelNumber);
+    isMC = (mcChannelNumber > 0);
+    config->setIsMC(isMC);
+
+    /// Fast or Full sim [string]
+    FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
+    if (isMC) {
+      if (simFlavour == "FullG4") {
+        config->setIsAFII(false);
+      } else if (simFlavour == "FullG4_QS") {
+        config->setIsAFII(false);
+      } else if (simFlavour == "ATLFASTII") {
+        config->setIsAFII(true);
+      } else if (simFlavour == "ATLFAST3_QS") {
+        config->setIsAFII(false);
+      } else {
+        ATH_MSG_ERROR("Unsupported simFlavour detected in xAOD::FileMetaData: " << simFlavour);
+        throw std::runtime_error("Unsupported simFlavour detected, exiting");
+      }
     }
 
     /// Print out this information as a cross-check
@@ -396,7 +408,5 @@ namespace top {
         << "isMC               -> " << isMC << "\n"
         << "simFlavour         -> " << simFlavour << "\n"
         << "isDataOverlay      -> " << isDataOverlay);
-
-    return true;
   }
 }

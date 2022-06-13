@@ -492,6 +492,7 @@ namespace top {
     m_badBatmanCleaningMax(311481),
     m_useEventLevelJetCleaningTool(false),
     m_year("UNKNOWN") {
+
     m_allSelectionNames = std::shared_ptr<std::vector<std::string> > (new std::vector<std::string> );
 
     m_systHashPhotons = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );

@@ -23,7 +23,7 @@ namespace top {
     /**
      * @brief Design patterns 101.  A singleton getter function.
      */
-    static ConfigurationSettings* get();
+    static ConfigurationSettings* get(bool reset=false);
 
     /**
      * @brief The user wants to know the value for the specified key

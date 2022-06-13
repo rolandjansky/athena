@@ -108,7 +108,7 @@ namespace top {
     m_objectSelector_Tau.reset(new ParticleLevelTauObjectSelector(optTau));
 
 
-    std::ostream &msgInfo = msg(MSG::Level::INFO);
+    MsgStream &msgInfo = msg(MSG::Level::INFO);
     if (m_active) {
       msgInfo << "Particle level reconstruction is enabled; telling you how I am configured:" << '\n';
       msgInfo << "   " << std::setw(20) << "UseElectrons? " << std::setw(5) << std::boolalpha <<
@@ -216,6 +216,7 @@ namespace top {
     } else {
       msgInfo << "Particle level reconstruction is disabled." << '\n';
     }
+    msgInfo.doOutput();
   }
 
   ParticleLevelLoader::~ParticleLevelLoader() { /* Deliberately Empty */}

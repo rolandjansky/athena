@@ -232,7 +232,7 @@ namespace top {
      *
      * @param os Where you would like the output printing to, e.g. msg stream.
      */
-    virtual void print(std::ostream& os) const;
+    virtual void print(MsgStream& os) const;
 
     /**
      * @brief or prehaps you'd like the AsgTool print function

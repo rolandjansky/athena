@@ -113,7 +113,7 @@ namespace top {
           "Failed to retrieve loose electron SF Tool for correlation model");
       }
     }
-    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    MsgStream& msgInfo = msg(MSG::Level::INFO);
     // ChargeID efficiency and Charge mis-identification scale factors: to apply when enabling Electron Charge ID
     // Selector
     if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool> ("AsgElectronEfficiencyCorrectionTool_ChargeID"))
@@ -149,6 +149,7 @@ namespace top {
       for (auto sys:m_electronEffSFChargeMisIDLoose->recommendedSystematics())
         msgInfo << "---> " << sys << "\n";
     }
+    msgInfo.doOutput();
 
     // If the isolation SF doesn't exist then check why...
     // it is possible to continue if explicitly SFs are disabled via ElectronIsolationSF
