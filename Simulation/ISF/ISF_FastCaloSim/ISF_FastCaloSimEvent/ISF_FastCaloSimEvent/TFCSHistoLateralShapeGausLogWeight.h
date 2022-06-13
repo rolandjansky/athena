@@ -8,6 +8,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
 #ifdef USE_GPU
 #include "ISF_FastCaloGpu/LoadGpuHist.h"
+#include "ISF_FastCaloGpu/FH_structs.h"
 #endif
 
 class TH1;
