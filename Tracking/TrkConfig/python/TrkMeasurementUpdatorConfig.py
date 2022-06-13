@@ -3,17 +3,20 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+
 def KalmanUpdator_xkCfg(flags, name='KalmanUpdator_xk', **kwargs):
     result = ComponentAccumulator()
     result.setPrivateTools(CompFactory.Trk.KalmanUpdator_xk(name, **kwargs))
     return result
 
-def KalmanUpdatorCfg(flags, name='KalmanUpdator', **kwargs):
-  acc = ComponentAccumulator()
-  acc.setPrivateTools(CompFactory.Trk.KalmanUpdator(name, **kwargs))
-  return acc
 
-def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
+def KalmanUpdatorCfg(flags, name='KalmanUpdator', **kwargs):
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.Trk.KalmanUpdator(name, **kwargs))
+    return acc
+
+
+def InDetUpdatorCfg(flags, name='InDetUpdator', **kwargs):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
         return ITkUpdatorCfg(flags, name, **kwargs)
@@ -21,15 +24,15 @@ def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
     acc = ComponentAccumulator()
 
     tool = None
-    if flags.InDet.Tracking.kalmanUpdator == "fast" :
+    if flags.InDet.Tracking.kalmanUpdator == "fast":
         tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
-    elif flags.InDet.Tracking.kalmanUpdator == "weight" :
+    elif flags.InDet.Tracking.kalmanUpdator == "weight":
         tool = CompFactory.Trk.KalmanWeightUpdator(name, **kwargs)
-    elif flags.InDet.Tracking.kalmanUpdator == "smatrix" :
+    elif flags.InDet.Tracking.kalmanUpdator == "smatrix":
         tool = CompFactory.Trk.KalmanUpdatorSMatrix(name, **kwargs)
-    elif flags.InDet.Tracking.kalmanUpdator == "amg" :
+    elif flags.InDet.Tracking.kalmanUpdator == "amg":
         tool = CompFactory.Trk.KalmanUpdatorAmg(name, **kwargs)
-    else :
+    else:
         tool = CompFactory.Trk.KalmanUpdator(name, **kwargs)
 
     acc.setPrivateTools(tool)
@@ -37,20 +40,22 @@ def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
 
 # Needed as long as flags.InDet.Tracking vs flags.ITk.Tracking are used
 # To remove ultimately after Tracking flags are unified
-def ITkUpdatorCfg(flags, name = 'ITkUpdator', **kwargs):
+
+
+def ITkUpdatorCfg(flags, name='ITkUpdator', **kwargs):
     result = ComponentAccumulator()
 
     tool = None
-    if flags.ITk.Tracking.kalmanUpdator == "fast" :
+    if flags.ITk.Tracking.kalmanUpdator == "fast":
         tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
-    elif flags.ITk.Tracking.kalmanUpdator == "weight" :
+    elif flags.ITk.Tracking.kalmanUpdator == "weight":
         tool = CompFactory.Trk.KalmanWeightUpdator(name, **kwargs)
-    elif flags.ITk.Tracking.kalmanUpdator == "smatrix" :
+    elif flags.ITk.Tracking.kalmanUpdator == "smatrix":
         tool = CompFactory.Trk.KalmanUpdatorSMatrix(name, **kwargs)
-    elif flags.ITk.Tracking.kalmanUpdator == "amg" :
+    elif flags.ITk.Tracking.kalmanUpdator == "amg":
         tool = CompFactory.Trk.KalmanUpdatorAmg(name, **kwargs)
-    else :
+    else:
         tool = CompFactory.Trk.KalmanUpdator(name, **kwargs)
 
-    result.setPrivateTools( tool )
+    result.setPrivateTools(tool)
     return result

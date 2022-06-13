@@ -3,6 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+
 # Configured Energy Loss  uses the TrkUtils parametrization for
 # energy loss due to ionization and radiation
 def AtlasEnergyLossUpdatorCfg(flags,
@@ -80,14 +81,19 @@ def AtlasNavigatorCfg(flags,
     result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
     return result
 
-# Temporary until condition algorithm for tracking geometry can be used also for FastSim
-def FastSimNavigatorCfg(flags, name="AtlasNavigator", **kwargs):
+
+# Temporary until condition algorithm for tracking geometry
+# can be used also for FastSim
+def FastSimNavigatorCfg(flags,
+                        name="AtlasNavigator",
+                        **kwargs):
     if flags.Sim.ISF.UseTrackingGeometryCond:
         return AtlasNavigatorCfg(flags, name, **kwargs)
 
     result = ComponentAccumulator()
     if 'TrackingGeometrySvc' not in kwargs:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+        from TrkConfig.AtlasTrackingGeometrySvcConfig import (
+            TrackingGeometrySvcCfg)
         acc = TrackingGeometrySvcCfg(flags)
         kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary().name)
         kwargs.setdefault("TrackingGeometryKey", '')
@@ -96,22 +102,34 @@ def FastSimNavigatorCfg(flags, name="AtlasNavigator", **kwargs):
     result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
     return result
 
-def MultipleScatteringUpdatorCfg(flags, name = "MultipleScatteringUpdator", **kwargs):
+
+def MultipleScatteringUpdatorCfg(flags,
+                                 name="MultipleScatteringUpdator",
+                                 **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault( "UseTrkUtils", False)
-    acc.setPrivateTools(CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
+    kwargs.setdefault("UseTrkUtils", False)
+    acc.setPrivateTools(
+        CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
     return acc
 
-def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
+
+def fatrasMultipleScatteringUpdatorCfg(flags,
+                                       name="ISF_FatrasMultipleScatteringUpdator",
+                                       **kwargs):
     result = ComponentAccumulator()
 
     from ISF_FatrasServices.ISF_FatrasConfig import TrkExRndSvcCfg
-    kwargs.setdefault("RandomNumberService", result.getPrimaryAndMerge(TrkExRndSvcCfg(flags)).name)
-    kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.TrkExRandomStreamName)
-    kwargs.setdefault("GaussianMixtureModel", flags.Sim.Fatras.GaussianMixtureModel)
+    kwargs.setdefault("RandomNumberService",
+                      result.getPrimaryAndMerge(TrkExRndSvcCfg(flags)).name)
+    kwargs.setdefault("RandomStreamName",
+                      flags.Sim.Fatras.TrkExRandomStreamName)
+    kwargs.setdefault("GaussianMixtureModel",
+                      flags.Sim.Fatras.GaussianMixtureModel)
 
-    result.setPrivateTools(CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
+    result.setPrivateTools(
+        CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
     return result
+
 
 def NIMatEffUpdatorCfg(flags, name="NIMatEffUpdator", **kwargs):
     result = ComponentAccumulator()
