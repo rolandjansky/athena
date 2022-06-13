@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * NAME : CaloNoiseSigmaDiffCondAlg.h
@@ -30,14 +30,12 @@ public:
    * @brief Gaudi initialize method.
    */
   virtual StatusCode initialize() override;
-
-
   /**
    * @brief Execute the algorithm.
    * @param ctx Event context.
    */
   virtual StatusCode execute (const EventContext& ctx) const override;
-
+  virtual bool isReEntrant() const override final { return false; }
 private:
   /// Property: CaloNoise (conditions input).
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};

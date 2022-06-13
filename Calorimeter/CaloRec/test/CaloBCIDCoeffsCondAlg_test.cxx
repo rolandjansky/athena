@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/test/CaloBCIDCoeffsCondAlg_test.cxx
@@ -304,7 +304,7 @@ void test1 (ISvcLocator* svcloc,
   assert( cc_mb->insert (range_mb, std::move(mb), ctx).isSuccess() );
   assert( conditionStore->record (std::move (cc_mb), id_mb.key()) );
   Gaudi::Hive::setCurrentContext(ctx);
-  assert( alg.execute ().isSuccess() );
+  assert( alg.execute (ctx).isSuccess() );
 
   CondCont<CaloBCIDCoeffs>* cc_coeffs = nullptr;
   assert( conditionStore->retrieve (cc_coeffs, "CaloBCIDCoeffs").isSuccess() );

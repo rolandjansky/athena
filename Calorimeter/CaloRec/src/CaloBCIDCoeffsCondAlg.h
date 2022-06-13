@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/src/CaloBCIDCoeffsCondAlg.h
@@ -20,7 +20,7 @@
 #include "LArElecCalib/ILArMinBiasAverage.h"
 #include "LArRawConditions/LArMCSym.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -36,20 +36,18 @@
  * luminosities.  There are two distinct conditions objects because
  * the luminosity changes much faster than then calibrations.
  */
-class CaloBCIDCoeffsCondAlg : public AthAlgorithm
+class CaloBCIDCoeffsCondAlg : public AthReentrantAlgorithm
 {
 public:
-  using AthAlgorithm::AthAlgorithm;
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
 
   /**
    * @brief Gaudi initialize method.
    */
-  virtual StatusCode initialize() override;
-
-
-  virtual StatusCode execute () override;
-
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute (const EventContext& ctx) const override final;
+  virtual bool isReEntrant() const override final { return false; }
 
 private:
   /// Property: Symmetrization helper (conditions input).
