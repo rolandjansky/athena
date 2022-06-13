@@ -25,8 +25,9 @@ class PixelDeadMapCondAlg : public AthReentrantAlgorithm {
   public:
     PixelDeadMapCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode initialize() override final;
+    virtual StatusCode execute(const EventContext& ctx) const override final;
+    virtual bool isReEntrant() const override final { return false; }
 
   private:
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
