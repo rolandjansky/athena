@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOMPOSITEUTILS_IPARTCOMBITR_H
@@ -142,7 +142,7 @@ namespace TrigCompositeUtils
 
   private:
     std::function<bool(const VecLInfo_t &)> m_filter;
-    std::vector<std::pair<KFromNItr, const LInfoItr_t>> m_itrs;
+    std::vector<std::pair<KFromNItr, LInfoItr_t>> m_itrs;
     VecLInfo_t m_current;
 
   }; //> end class IPartCombItr
