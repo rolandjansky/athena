@@ -10,13 +10,12 @@ find_package( ROOT COMPONENTS Core Tree MathCore MathMore Hist RIO Matrix Physic
 find_package( lwtnn REQUIRED )
 find_package( LibXml2 )
 
+if(CMAKE_CUDA_COMPILER)
+  add_definitions( -DUSE_GPU)
+endif()
+
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
-
-# enalbe the FastCaloSim-GPU by default, disable it if no cuda found
-if(CMAKE_CUDA_COMPILER)
-add_definitions( -DUSE_GPU)
-endif()
 
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
@@ -87,8 +86,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
 			   ISF_FastCaloSimEvent/LinkDef.h
 			   EXTERNAL_PACKAGES HepPDT)
 
+			 #			 set( USE_GPU FALSE CACHE BOOL "Flag specifying that this is a simulation release build" )
 if(CMAKE_CUDA_COMPILER)
-  #link with ISF_FastCaloGpuLib if cuda found
   message("compiling ISF_FastCaoSimEvent using cuda")
   atlas_add_library( ISF_FastCaloSimEvent
     ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx

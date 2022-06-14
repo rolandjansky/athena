@@ -8,6 +8,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 def EMGSFExtrapolatorToolCfg(flags, **kwargs):
+    '''dedicated Multi Component Extrapolator
+    '''
 
     acc = ComponentAccumulator()
 
@@ -34,13 +36,21 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
     return acc
 
 
+# default for refits with electron hypothesis
+# for example see
+# https://cds.cern.ch/record/1449796/files/ATLAS-CONF-2012-047.pdf
 def EMGSFTrackFitterCfg(flags, name="EMGSFTrackFitter", **kwargs):
+    ''' GSF Track Fitter Config
+    '''
 
     acc = ComponentAccumulator()
 
     if "RefitOnMeasurementBase" not in kwargs:
         kwargs["RefitOnMeasurementBase"] = True
 
+    # Note that the ROT tool for calibration
+    # has an effect if we fit on PrepRawData.
+    # i.e not refitting Measurements
     kwargs["ToolForROTCreation"] = None
     if not kwargs["RefitOnMeasurementBase"]:
         from InDetConfig.TrackingCommonConfig import InDetRotCreatorCfg
@@ -61,6 +71,7 @@ def EMGSFTrackFitterCfg(flags, name="EMGSFTrackFitter", **kwargs):
 
     return acc
 
+
 def GaussianSumFitterCfg(flags, name="GaussianSumFitter", **kwargs):
     acc = ComponentAccumulator()
 
@@ -80,13 +91,14 @@ def GaussianSumFitterCfg(flags, name="GaussianSumFitter", **kwargs):
     acc.setPrivateTools(GaussianSumFitter)
     return acc
 
+
 def ITkGaussianSumFitterCfg(flags, name="ITkGaussianSumFitter", **kwargs):
     acc = ComponentAccumulator()
 
     if "ToolForROTCreation" not in kwargs:
         from TrkConfig.TrkRIO_OnTrackCreatorConfig import ITkRotCreatorCfg
         ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags))
-        kwargs.setdefault("ToolForROTCreation", ITkRotCreator )
+        kwargs.setdefault("ToolForROTCreation", ITkRotCreator)
 
     kwargs.setdefault("MakePerigee", True)
     kwargs.setdefault("RefitOnMeasurementBase", True)

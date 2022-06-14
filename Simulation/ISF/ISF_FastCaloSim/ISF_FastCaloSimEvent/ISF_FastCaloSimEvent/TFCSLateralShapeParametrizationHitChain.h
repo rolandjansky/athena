@@ -70,6 +70,7 @@ protected:
 private:
 
 #ifdef USE_GPU
+  //the FCS-GPU will use this geometry to get the correct cell
   ICaloGeometry* m_geo;
 #endif
 

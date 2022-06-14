@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from enum import Enum
@@ -42,7 +42,7 @@ def getTrackingInputMaker(trkopt):
 
         IDTrigConfig = getInDetTrigConfig( 'jet' )
 
-        log.info( "jet FS tracking: useDynamicRoiZWidth: %s", str(IDTrigConfig.useDynamicRoiZWidth) )
+        log.debug( "jet FS tracking: useDynamicRoiZWidth: %s", IDTrigConfig.useDynamicRoiZWidth )
         
         roiUpdater = None
         if IDTrigConfig.useDynamicRoiZWidth:

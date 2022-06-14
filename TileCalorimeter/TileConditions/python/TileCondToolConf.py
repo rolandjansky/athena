@@ -703,7 +703,7 @@ def getTileCondToolTMDB(source = 'FILE', runType = 'PHY', name = 'TileCondToolTM
         TMDBThresholdProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbThreshold' + run, 'TileCondProxyCool_TMDBThreshold' + run)
         TMDBDelayProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbDelay' + run, 'TileCondProxyCool_TMDBDelay' + run)
         TMDBTMFProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbTmf' + run, 'TileCondProxyCool_TMDBTmf' + run)
-        TMDBCalibProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbCalibPhy', 'TileCondProxyCool_TMDBCalibPhy')
+        TMDBCalibProxy = getTileCondProxy('COOL', 'Flt', 'onlTmdbCalib' + run, 'TileCondProxyCool_TMDBCalib' + run)
 
     else:
         #========================================================

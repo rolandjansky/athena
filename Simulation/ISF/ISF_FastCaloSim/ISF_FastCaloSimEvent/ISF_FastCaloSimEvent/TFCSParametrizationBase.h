@@ -165,7 +165,7 @@ public:
   void RemoveNameTitle();
 
 #ifdef USE_GPU
-  void Copy2GPU();
+  void Copy2GPU(); // copy all the paramterization files to GPU
 #endif
 
 protected:
