@@ -39,6 +39,7 @@ namespace EL
   const std::string Job::optSkipEvents = "nc_EventLoop_SkipEvents";
   const std::string Job::optFilesPerWorker = "nc_EventLoop_FilesPerWorker";
   const std::string Job::optEventsPerWorker = "nc_EventLoop_EventsPerWorker";
+  const std::string Job::optWorkerPostClosedOutputsExecutable = "nc_EventLoop_WorkerPostClosedOutputsExecutable";
   const std::string Job::optSubmitFlags = "nc_EventLoop_SubmitFlags";
   const std::string Job::optCondorConf = "nc_EventLoop_CondorConf";
   const std::string Job::optCacheLearnEntries = "nc_EventLoop_CacheLearnEntries";

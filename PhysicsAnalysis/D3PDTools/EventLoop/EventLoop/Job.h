@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_LOOP_JOB_HH
@@ -239,6 +239,18 @@ namespace EL
     ///   the workload more evenly.
   public:
     static const std::string optEventsPerWorker;
+
+  public: 
+    /// Optionnal executable to be provided by the user
+    /// that will be called, by the worker, for every output stream.
+    /// It enables to perform action on output files once they are all closed.
+    /// For every output stream the executable will be provided 2 arguments:
+    ///     - the output stream name
+    ///     - the output file path
+    /// You can for instance implement an executable to check that
+    /// the output files produced by your job are not corrupted.
+    /// Or perform other type of actions if you want.
+    static const std::string optWorkerPostClosedOutputsExecutable;
 
 
     /// description: the name of the option for supplying extra submit
