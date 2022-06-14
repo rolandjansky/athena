@@ -29,7 +29,7 @@ private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{"Muon::MuonIdHelperSvc/MuonIdHelperSvc", name()};
     VectorBranch<std::string>& m_stationName{parent().newVector<std::string>(name() + "_stationName")};
     VectorBranch<uint8_t>& m_stationIndex{parent().newVector<uint8_t>(name() + "_stationIndex")};
-    VectorBranch<uint8_t>& m_stationEta{parent().newVector<uint8_t>(name() + "_stationEta")};
+    VectorBranch<int8_t>& m_stationEta{parent().newVector<int8_t>(name() + "_stationEta")};
     VectorBranch<uint8_t>& m_stationPhi{parent().newVector<uint8_t>(name() + "_stationPhi")};
 };
 
