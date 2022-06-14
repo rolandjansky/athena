@@ -13,7 +13,7 @@ if isRun3Cfg():
 else:
     from TriggerMenuMT.HLT.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
     from TriggerMenuMT.HLT.MinBias.ALFAMenuSequences import ALFAPerfSequence
-    from TriggerMenuMT.HLT.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
+    from TriggerMenuMT.HLT.MinBias.AFPMenuSequence import AFPTrkSequenceCfg, AFPGlobalSequenceCfg
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
@@ -35,12 +35,6 @@ def MinBiasMbtsEmptySequenceCfg(flags):
 
 def MinBiasZFindEmptySequenceCfg(flags):
     return EmptyMenuSequence("EmptyZFind")
-
-def AFPrecoSequenceCfg(flags):
-    return AFPTrkRecoSequence()
-
-def AFPrecoHypoSequenceCfg(flags):
-    return AFPTrkRecoHypoSequence()
 
 def TrigAFPDijetComboHypoToolCfg(chainDict):
     from TrigAFPHypo.TrigAFPHypoConf import TrigAFPDijetComboHypoTool
@@ -103,9 +97,12 @@ class MinBiasChainConfig(ChainConfigurationBase):
         if "mbts" == self.chainPart['recoAlg'][0] or "mbts" in self.chainName:
             steps.append(self.getMinBiasMbtsStep())
         elif "afprec" == self.chainPart['recoAlg'][0]:
-            steps.append(self.getAFPRecoStep())
+            steps.append(self.getAFPTrkStep())
         else:
             steps.append(self.getMinBiasEmptyMbtsStep())
+
+        if "afptof" in self.chainPart['recoAlg']:
+            steps.append(self.getAFPGlobalStep())
 
         if self.chainPart['recoAlg'][0] in ['sp', 'sptrk', 'hmt', 'excl']:
             steps.append(self.getMinBiasSpStep())
@@ -137,11 +134,11 @@ class MinBiasChainConfig(ChainConfigurationBase):
     def getMinBiasTrkStep(self):
         return self.getStep(4,'TrkCount',[MinBiasTrkSequenceCfg])
 
-    def getAFPRecoStep(self):
-         return self.getStep(1,'AFPReco',[AFPrecoSequenceCfg])
+    def getAFPTrkStep(self):
+         return self.getStep(1,'AFPTrk',[AFPTrkSequenceCfg])
 
-    def getAFPRecoHypoStep(self):
-         return self.getStep(1,'AFPRecoHypo',[AFPrecoHypoSequenceCfg])
+    def getAFPGlobalStep(self):
+         return self.getStep(1,'AFPGlobal',[AFPGlobalSequenceCfg])
 
     def getALFAPerfStep(self):
         return self.getStep(1,'ALFAPerf',[ALFAPerfSequenceCfg])
