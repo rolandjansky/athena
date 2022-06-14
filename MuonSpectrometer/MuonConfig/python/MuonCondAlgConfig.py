@@ -200,8 +200,8 @@ def NswCalibDbAlgCfg(flags, **kwargs):
         #result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
 
         # use specific folder tags for now
-        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-0p27"))
-        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-3p73"))
+        result.merge( addFolders(flags, [ "/TGC/Onl/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-3p73"))
         result.merge( addFolders(flags, [ "/TGC/Onl/NSW/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideA-Const-0p78"))
         result.merge( addFolders(flags, [ "/TGC/Onl/NSW/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideC-Const-0p78"))
 
@@ -234,8 +234,8 @@ def NswCalibDbAlgCfg(flags, **kwargs):
         #result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
 
         # use specific folder tags for now
-        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-0p27"))
-        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-3p73"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-3p73"))
         result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideA-Const-0p78"))
         result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideC-Const-0p78"))
         result.merge( addFolders(flags, [ "/TGC/NSW/THR/SIDEA"   ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcThrSideA-Const-52p7"))
@@ -264,8 +264,8 @@ def NswCalibDbAlgCfg(flags, **kwargs):
         #result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
 
         # use specific folder tags for now
-        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-0p27"))
-        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-0p27"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEA"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideA-Const-3p73"))
+        result.merge( addFolders(flags, [ "/TGC/NSW/TIME/SIDEC"  ], detDb=scheme, className='CondAttrListCollection' , tag="sTgcTdoSideC-Const-3p73"))
         result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEA"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideA-Const-0p78"))
         result.merge( addFolders(flags, [ "/TGC/NSW/CHARGE/SIDEC"], detDb=scheme, className='CondAttrListCollection' , tag="sTgcPdoSideC-Const-0p78"))
     
