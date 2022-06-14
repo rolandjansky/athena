@@ -82,10 +82,58 @@ if SkipTriggerRequirement:
 skimmingTools = []
 
 ##
+## Mandatory condition for data: pass GRL
+## This will be put in AND with the tools in skimmingTools
+##
+cmvfsGRLsLocation = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/'
+listOfGRLs = [
+    '%s/data18_13TeV/20190318/data18_13TeV.periodAllYear_DetStatus-v102-pro22-04_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml' % cmvfsGRLsLocation,
+    '%s/data17_13TeV/20180619/data17_13TeV.periodAllYear_DetStatus-v99-pro22-01_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml' % cmvfsGRLsLocation,
+    '%s/data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml' % cmvfsGRLsLocation,
+    '%s/data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml' % cmvfsGRLsLocation
+]
+
+print "==============================="
+print "Applying the GRL to data events"
+print "==============================="
+
+print "First: decorate EventInfo with passDFGRL"
+def applyGRL (Prefix):
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__GoodRunsListFilterAlgorithm
+    from AthenaCommon.AppMgr import ToolSvc
+
+    AugmentationTool = DerivationFramework__GoodRunsListFilterAlgorithm (
+        name = Prefix+"_GRLAugmentationAlg",
+        GoodRunsListVec = listOfGRLs,
+    )
+    ToolSvc += AugmentationTool
+    return AugmentationTool, 'EventInfo.passDFGRL'
+
+
+GRLAugTool, GRLVar = applyGRL ('EXOT15')
+#=========================================
+# Adding the GRL tool
+# - The GRLTool augments the content with GRLVar: 1 = pass GRL, 0 = not pass GRL
+# - Selection based on the string selection: GRLVar>0
+#=========================================
+exot15Seq += GRLAugTool
+
+expression_grl = GRLVar + ">0"
+
+# Event selection tool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+GRLSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "GRLSkimmingTool",
+                                                              expression = expression_grl)
+ToolSvc += GRLSkimmingTool
+
+##
 ## Expression-based skimming.
 ## In case of MC: (at least one EMTopo jet within eta <2.8 with pT > 20 GeV) OR (at least on MS vertex)
 ## In case of data: (at least on MS vertex)
+## Since (>=1MS vtx condition) is not used: adding "remove_the_ge1msvtx" flag to switch this stream of events off
 ##
+remove_the_ge1msvtx =True
+
 if SkipTriggerRequirement: 
     topology_selection = "( (count (abs(AntiKt4EMTopoJets.eta) < 2.8 && AntiKt4EMTopoJets.pt > 20) > 0) || (count (abs(MSDisplacedVertex.z) >= 0) > 0) )"
 else: 
@@ -97,10 +145,9 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EXOT15SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT15SkimmingTool", expression = expression)
 
 ToolSvc += EXOT15SkimmingTool
-if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias': # add topology selection only to data. Keep all events in MC
+if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias' and not remove_the_ge1msvtx: # add topology selection only to data. Keep all events in MC
     skimmingTools.append(EXOT15SkimmingTool)
-
-
+ 
 ##
 ## Trigger skimming: applied only on data.
 ## In case of ZeroBias is specified as trigger stream, the zerobias trigger is required
@@ -196,6 +243,7 @@ else:
     ##
     ## SkimmingToolEXOT15: skimming tool to reduce the impact of the lepton triggers
     ## It aims at the selection of events with a lepton assocaited with potential CalRatio or MSvtx
+    ## - UPDATE [09/06/2022]: trackless jet pT > 40 GeV
     ##
     print "=============================================================="
     print "Skimming the lepton triggers contribution (SkimmingToolEXOT15)"
@@ -208,7 +256,7 @@ else:
         JetContainer        = 'AntiKt4EMTopoJets',
         TrackContainer      = 'InDetTrackParticles',
         minTrackPt          = 2,
-        minJetPt            = 30,
+        minJetPt            = 40,
         jetEtaCut           = 2.5,
         minDeltaR           = 0.2,
         cleanLLP            = True,
@@ -243,37 +291,88 @@ else:
 
     EXOT15J400TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT15J400TriggerSkimmingTool",
                                                                             TriggerListAND = [],
-                                                                            TriggerListOR  = ['HLT_j420', 'HLT_j400'
-                                                                                              ])
+                                                                             TriggerListOR  = [
+                                                                                 'HLT_j420','HLT_j400' 
+                                                                             ])
     ToolSvc += EXOT15J400TriggerSkimmingTool
     print "List of triggers in EXOT15J400TriggerSkimmingTool:"
     print ", ".join (list (EXOT15J400TriggerSkimmingTool.TriggerListOR))
     
     ##
-    ## EXOT15PSSkimmingTool: skimming tool to reduce the impact of the J400 trigger with a prescale
+    ## EXOT15J400PSSkimmingTool: skimming tool to reduce the impact of the J400 trigger with a prescale
     ## It aims at the selection of events with a high pT jet, without any specific object for MSvtx or CR jet
     ##
     print "====================================================="
     print "Skimming the J400 triggers contribution with PreScale"
     print "====================================================="
     
+    PS = 8
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
-    EXOT15PSSkimmingTool = DerivationFramework__PrescaleTool(   name                    = "EXOT15PSSkimmingTool",
-                                                                Prescale                = 8)
-    ToolSvc += EXOT15PSSkimmingTool
-    print "Applied Prescale = {0}".format (str (EXOT15PSSkimmingTool.Prescale))
+    EXOT15J400PSSkimmingTool = DerivationFramework__PrescaleTool(   name                    = "EXOT15J400PSSkimmingTool",
+                                                                    Prescale                = PS)
+    ToolSvc += EXOT15J400PSSkimmingTool
+    print "Applied Prescale = {0}".format (str (EXOT15J400PSSkimmingTool.Prescale))
 
     print "==================================================="
     print "EXOT25J400ANDSkimmingTool: skimming of J400 trigger"
     print "==================================================="
 
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
-    EXOT15J400ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT15J400ANDSkimmingTool", FilterList = [EXOT15J400TriggerSkimmingTool, EXOT15PSSkimmingTool] )
+    EXOT15J400ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT15J400ANDSkimmingTool", FilterList = [EXOT15J400TriggerSkimmingTool, EXOT15J400PSSkimmingTool] )
 
     ToolSvc += EXOT15J400ANDSkimmingTool
     skimmingTools.append (EXOT15J400ANDSkimmingTool)
     print "List of tools in EXOT15J400ANDSkimmingTool:"
-    print "[EXOT15J400TriggerSkimmingTool, EXOT15PSSkimmingTool] "
+    print "[EXOT15J400TriggerSkimmingTool, EXOT15J400PSSkimmingTool] "
+
+
+    ##
+    ## EXOT15J25TriggerSkimmingTool: inclusion of lower-pT jet trigger
+    ## It aims at the selection of events with a high pT jets, useful for systematics studies in MS and CR analyses
+    ##
+    print "=============================================================="
+    print "Trigger enabled: lower pT jet (J25) trigger"
+    print "=============================================================="
+
+    EXOT15J25TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT15J25TriggerSkimmingTool",
+                                                                            TriggerListAND = [],
+                                                                            TriggerListOR  = [ 'HLT_j25',
+                                                                                               'HLT_j35',
+                                                                                               'HLT_j45',
+                                                                                               'HLT_j60',
+                                                                                               'HLT_j110'])
+    ToolSvc += EXOT15J25TriggerSkimmingTool
+    print "List of triggers in EXOT15J25TriggerSkimmingTool:"
+    print ", ".join (list (EXOT15J25TriggerSkimmingTool.TriggerListOR))
+    
+    ##
+    ## EXOT15J25PSSkimmingTool: skimming tool to reduce the impact of the J25 trigger with a prescale
+    ## It aims at the selection of events with a lower pT jet, without any specific object for MSvtx or CR jet
+    ## - PS keep separated (despite are both PS=8 for high/low pT jet trigger) to let different pre-scale in future for size adjustment.
+    ##
+    print "====================================================="
+    print "Skimming the low-pT jet triggers contribution with PreScale"
+    print "====================================================="
+    
+    PS = 8
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
+    EXOT15J25PSSkimmingTool = DerivationFramework__PrescaleTool(   name                    = "EXOT15J25PSSkimmingTool",
+                                                                   Prescale                = PS)
+    ToolSvc += EXOT15J25PSSkimmingTool
+    print "Applied Prescale = {0}".format (str (EXOT15J25PSSkimmingTool.Prescale))
+
+    print "==================================================="
+    print "EXOT25J25ANDSkimmingTool: skimming of low-pT jet trigger"
+    print "==================================================="
+
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+    EXOT15J25ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT15J25ANDSkimmingTool", FilterList = [EXOT15J25TriggerSkimmingTool, EXOT15J25PSSkimmingTool] )
+
+    ToolSvc += EXOT15J25ANDSkimmingTool
+    skimmingTools.append (EXOT15J25ANDSkimmingTool)
+    print "List of tools in EXOT15J25ANDSkimmingTool:"
+    print "[EXOT15J25TriggerSkimmingTool, EXOT15J25PSSkimmingTool] "
+
 
 if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias':
 
@@ -293,7 +392,28 @@ if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias':
     ToolSvc += EXOT15ORSkimmingTool
 
     print "List of tools in EXOT15RSkimmingTool:"
-    print "[EXOT15SkimmingTool, EXOT15DJTriggerSkimmingTool, EXOT15LepANDSkimmingTool, EXOT15J400ANDSkimmingTool]"
+    print "[EXOT15SkimmingTool, EXOT15DJTriggerSkimmingTool, EXOT15LepANDSkimmingTool, EXOT15J400ANDSkimmingTool, EXOT15J25ANDSkimmingTool]"
+
+    ##
+    ## EXOT15GRLandSkimmingTool: logical AND of GRL and the final OR of the previous tools
+    ## It aims at select all the categories of event above IF they pass the GRL:
+    ## - Events passing MSvtx and CR triggers (or with at least one MSvtx, in case the flag is switched off)
+    ## - Events passing leptonic trigger && trackless jet conditions
+    ## - Events passing prescaled J400 trigger
+    ## - Events passing prescaled J25+ trigger
+    ##
+    print "========================================================================"
+    print "Final skimming tool: logical AND of GRL and the OR of all previous ones!"
+    print "========================================================================"
+
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+    EXOT15GrlANDFinalSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT15GrlANDFinalSkimmingTool", 
+                                                                              FilterList = [EXOT15ORSkimmingTool, GRLSkimmingTool] )
+    ToolSvc += EXOT15GrlANDFinalSkimmingTool
+
+    print "List of tools in EXOT15GrlANDFinalSkimmingTool:"
+    print "[EXOT15ORSkimmingTool,GRLSkimmingTool]"
+
 
 #=======================================
 # JETS
@@ -326,7 +446,8 @@ if SkipTriggerRequirement:
 elif rec.triggerStream() == 'ZeroBias':
     exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", SkimmingTools = [EXOT15TriggerSkimmingTool])    
 else:
-    exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", SkimmingTools = [EXOT15ORSkimmingTool])
+    exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", 
+                                                              SkimmingTools = [EXOT15GrlANDFinalSkimmingTool])
 
 #====================================================================
 # PromptLeptonVeto decorations
@@ -366,6 +487,7 @@ EXOT15SlimmingHelper.AllVariables = EXOT15AllVariablesContent
 EXOT15SlimmingHelper.ExtraVariables += ['HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac','Electrons.LHMedium','PrimaryVertices.x.y','Muons.allAuthors.rpcHitTime.rpcHitIdentifier.rpcHitPositionX.rpcHitPositionY.rpcHitPositionZ', "AntiKt10LCTopoJets.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_LooseBadLLP.DFCommonJets_jetClean_SuperLooseBadLLP.DFCommonJets_jetClean_VeryLooseBadLLP.DFCommonJets_passJvt"]
 EXOT15SlimmingHelper.ExtraVariables += PLVConfig.GetExtraPromptVariablesForDxAOD()
 EXOT15SlimmingHelper.ExtraVariables += PLIVConfig.GetExtraImprovedPromptVariablesForDxAOD()
+EXOT15SlimmingHelper.ExtraVariables += [GRLVar]
 EXOT15SlimmingHelper.IncludeJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeBJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeTauTriggerContent = True

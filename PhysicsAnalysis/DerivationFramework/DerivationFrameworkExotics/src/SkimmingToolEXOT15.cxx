@@ -19,6 +19,10 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 #include "TLorentzVector.h"
 
 namespace {
@@ -114,11 +118,30 @@ StatusCode DerivationFramework::SkimmingToolEXOT15::finalize()
  *  - pass_cr || pass_ms_roi, if only cutNMSVtx is set to false.
  *  - pass_cr || pass_ms_vtx, if only cutNMSRoIs is set to false.
  *  - pass_cr || pass_ms_roi || pass_ms_vtx, otherwise.
+ *
+ * UPDATE [09/06/22]: change in trackless definition: only tracks from PV considered for trackless jet definition. Flag "only_pv_tracks_for_trkless_jets" inserted for this condition.
  */
 
 bool DerivationFramework::SkimmingToolEXOT15::eventPassesFilter() const
 {
   m_ntot++;
+
+  /*
+   * Retrieving the primary vtx
+   */
+
+  const xAOD::VertexContainer* privxs = nullptr;
+  ATH_CHECK( evtStore()->retrieve(privxs, "PrimaryVertices") );
+
+  const xAOD::Vertex* primary_vertex = nullptr;
+  bool hasGoodPV = false;
+
+  for( const xAOD::Vertex* aVertex : *privxs ) { 
+    if( aVertex->vertexType() != xAOD::VxType::PriVtx ) continue;
+    hasGoodPV = true;
+    primary_vertex = aVertex;
+    break;
+  }
 
   /*
    * Calculating pass_cr
@@ -128,18 +151,33 @@ bool DerivationFramework::SkimmingToolEXOT15::eventPassesFilter() const
   ATH_CHECK(evtStore()->retrieve(jets, m_jetContainer));
   const xAOD::TrackParticleContainer* tracks = nullptr;
   ATH_CHECK(evtStore()->retrieve(tracks, m_trkContainer));
-  
+  bool only_pv_tracks_for_trkless_jets = true;
+
   int nj_trackless = 0;
   
   for ( auto j : *jets){
     int nt_in_dR = 0;
     if (j->p4().Pt() < m_minJetPt*GeVtoMeV) continue;
     if ( std::abs (j->p4().Eta()) > m_jetEtaCut) continue;
-    for (auto t : *tracks){
-      if (t->p4().Pt() < m_minTrackPt*GeVtoMeV) continue;
-      float deltaR =  j->p4().DeltaR (t->p4());
-      if (deltaR < m_minDeltaR) nt_in_dR ++;
+
+    if (only_pv_tracks_for_trkless_jets) { // only veto against tracks from PV
+      if (!hasGoodPV) continue;
+      int ntrks =  primary_vertex->nTrackParticles();
+      for(int itrk=0; itrk<ntrks; ++itrk){
+	const xAOD::TrackParticle* t = primary_vertex->trackParticle(itrk);
+	if (t->p4().Pt() < m_minTrackPt*GeVtoMeV) continue;
+	float deltaR =  j->p4().DeltaR (t->p4());
+	if (deltaR < m_minDeltaR) nt_in_dR ++;
+      }
     }
+    else { // checking all tracks
+      for (auto t : *tracks){
+	if (t->p4().Pt() < m_minTrackPt*GeVtoMeV) continue;
+	float deltaR =  j->p4().DeltaR (t->p4());
+	if (deltaR < m_minDeltaR) nt_in_dR ++;
+      }
+    }
+    
 
     /*
      * In case m_cleanLLP = true: the trackless jet is counted  is passes (!largeFMax && !poorQuality && !negE)
