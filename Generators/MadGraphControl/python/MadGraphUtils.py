@@ -64,6 +64,10 @@ def setup_path_protection():
         if 'Generators/madgraph/models' not in os.environ['PYTHONPATH']:
             os.environ['PYTHONPATH'] += ':/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest'
             MADGRAPH_COMMAND_STACK += ['export PYTHONPATH=${PYTHONPATH}:/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest']
+            # add shutil_patch in first place so that the patched version of shutil.py is picked up by MG instead of original version
+            # the patched version does not throw the no-space-left-on-device error that has made running MG impossible on some file systems
+            os.environ['PYTHONPATH'] = '/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch:'+os.environ['PYTHONPATH']
+            MADGRAPH_COMMAND_STACK += ['export PYTHONPATH=/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest/shutil_patch:${PYTHONPATH}']
     # Make sure that gfortran doesn't write to somewhere it shouldn't
     if 'GFORTRAN_TMPDIR' in os.environ:
         return
