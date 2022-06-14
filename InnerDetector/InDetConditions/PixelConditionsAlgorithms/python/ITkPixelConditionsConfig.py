@@ -195,11 +195,22 @@ def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **
     """Return a ComponentAccumulator with configured ITkPixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
 
-    CoolDataBaseFolder = '/PIXEL/ITkClusterError'
-    DetDescrVersion = flags.GeoModel.AtlasVersion
-    ctag = 'PixelITkError_v4_' + DetDescrVersion
-    cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-    acc.merge( addFoldersSplitOnline(flags,'PIXEL',[cfoldertag],[cfoldertag],splitMC=True,className="CondAttrListCollection") )
+    folderName = ""
+    if flags.ITk.Conditions.PixelOfflineCalibTag:
+        folderName = '/PIXEL/ITkClusterError'
+        DetDescrVersion = flags.GeoModel.AtlasVersion
+        splitGeo        = DetDescrVersion.split('-')
+        CalibTag = flags.ITk.Conditions.PixelOfflineCalibTag + '_' + splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2] + '-' + splitGeo[3] # PixelITkError_v5_ATLAS-RUN4-P2-XX
+
+        if flags.ITk.Conditions.PixelOfflineCalibFile:
+            acc.merge(addFolders(flags, folderName, flags.ITk.Conditions.PixelOfflineCalibFile, tag=CalibTag, db="OFLP200", className="CondAttrListCollection"))
+        else:
+            acc.merge(addFolders(flags, folderName, "PIXEL_OFL", tag=CalibTag, db="OFLP200", className="CondAttrListCollection"))
+
+
+    # TODO: enable once in the DB
+    # else:
+    #    acc.merge(addFolders(flags, "/PIXEL/ITkClusterError", "PIXEL_OFL", db="OFLP200", className="CondAttrListCollection"))
 
     kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
     kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")

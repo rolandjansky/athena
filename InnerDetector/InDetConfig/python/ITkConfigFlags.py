@@ -30,6 +30,8 @@ def createITkConfigFlags():
 
   itkcf.addFlag("ITk.Conditions.PixelChargeCalibTag", "ChargeCalib-MC21-01")
   itkcf.addFlag("ITk.Conditions.PixelChargeCalibFile", "")
+  itkcf.addFlag("ITk.Conditions.PixelOfflineCalibTag", "PixelITkError_v5")
+  itkcf.addFlag("ITk.Conditions.PixelOfflineCalibFile", "")
 
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.checkDeadPixelsOnTrack", True) # Enable check for dead modules and FEs
