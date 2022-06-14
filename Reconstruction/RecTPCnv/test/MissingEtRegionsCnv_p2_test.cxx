@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file RecTPCnv/test/MissingEtRegionsCnv_p2_test.cxx
@@ -12,6 +12,7 @@
 #include "RecTPCnv/MissingEtRegionsCnv_p2.h"
 #include "MissingETEvent/MissingEtRegions.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CxxUtils/checker_macros.h"
 #include <cassert>
@@ -38,7 +39,7 @@ void testit (const MissingEtRegions& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
