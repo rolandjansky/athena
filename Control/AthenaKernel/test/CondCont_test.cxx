@@ -415,7 +415,7 @@ void test1 (TestRCUSvc& rcusvc)
                      std::make_unique<B> (60));
   assert (sc.isSuccess());
   assert (CondContBase::Category::isExtended (sc));
-  assert (dump_cc(cc_ts) == "{[0,0,t:100] - [t:300]} [50]\n");
+  assert (dump_cc(cc_ts) == "{[t:100] - [t:300]} [50]\n");
 
   //*** Test errors from find().
   const B* b = nullptr;
@@ -514,7 +514,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n");
   assert (cc_ts.insert (EventIDRange (timestamp (10), timestamp (20)),
                         std::make_unique<B>(1), ctx_ts).isSuccess());
-  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n");
+  assert (dump_cc(cc_ts) == "{[t:10] - [t:20]} [1]\n");
 
   //=============
 
@@ -523,7 +523,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n{[1,l:50] - [1,l:60]} [2]\n");
   assert (cc_ts.insert (EventIDRange (timestamp (50), timestamp (60)),
                         std::make_unique<B>(2),  ctx_ts).isSuccess());
-  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:50] - [t:60]} [2]\n");
+  assert (dump_cc(cc_ts) == "{[t:10] - [t:20]} [1]\n{[t:50] - [t:60]} [2]\n");
 
   //=============
 
@@ -541,7 +541,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (sc.isSuccess()); 
   assert (CondContBase::Category::isDuplicate (sc));
   assert (!CondContBase::Category::isOverlap (sc));
-  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:50] - [t:60]} [2]\n");
+  assert (dump_cc(cc_ts) == "{[t:10] - [t:20]} [1]\n{[t:50] - [t:60]} [2]\n");
 
   //=============
 
@@ -557,7 +557,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (sc.isSuccess()); 
   assert (!CondContBase::Category::isDuplicate (sc));
   assert (CondContBase::Category::isOverlap (sc));
-  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:50] - [t:60]} [2]\n");
+  assert (dump_cc(cc_ts) == "{[t:10] - [t:20]} [1]\n{[t:20] - [t:30]} [4]\n{[t:50] - [t:60]} [2]\n");
 
   //=============
 
@@ -573,7 +573,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (sc.isSuccess()); 
   assert (!CondContBase::Category::isDuplicate (sc));
   assert (CondContBase::Category::isOverlap (sc));
-  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:30,l:0] - [t:40]} [5]\n{[0,0,t:50] - [t:60]} [2]\n");
+  assert (dump_cc(cc_ts) == "{[t:10] - [t:20]} [1]\n{[t:20] - [t:30]} [4]\n{[t:30] - [t:40]} [5]\n{[t:50] - [t:60]} [2]\n");
 
   //=============
 
@@ -589,7 +589,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (sc.isSuccess()); 
   assert (!CondContBase::Category::isDuplicate (sc));
   assert (CondContBase::Category::isOverlap (sc));
-  assert (dump_cc(cc_ts) == "{[0,0,t:6] - [t:10]} [6]\n{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:30,l:0] - [t:40]} [5]\n{[0,0,t:50] - [t:60]} [2]\n");
+  assert (dump_cc(cc_ts) == "{[t:6] - [t:10]} [6]\n{[t:10] - [t:20]} [1]\n{[t:20] - [t:30]} [4]\n{[t:30] - [t:40]} [5]\n{[t:50] - [t:60]} [2]\n");
 
   //=============
 
@@ -605,7 +605,7 @@ void test4 (TestRCUSvc& rcusvc)
   assert (sc.isSuccess()); 
   assert (!CondContBase::Category::isDuplicate (sc));
   assert (CondContBase::Category::isOverlap (sc));
-  assert (dump_cc(cc_ts) == "{[0,0,t:6] - [t:10]} [6]\n{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:30,l:0] - [t:40]} [5]\n{[0,0,t:40,l:0] - [t:45]} [9]\n{[0,0,t:50] - [t:60]} [2]\n");
+  assert (dump_cc(cc_ts) == "{[t:6] - [t:10]} [6]\n{[t:10] - [t:20]} [1]\n{[t:20] - [t:30]} [4]\n{[t:30] - [t:40]} [5]\n{[t:40] - [t:45]} [9]\n{[t:50] - [t:60]} [2]\n");
 }
 
 
