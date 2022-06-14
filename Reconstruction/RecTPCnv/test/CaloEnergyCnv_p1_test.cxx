@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file RecTPCnv/test/CaloEnergyCnv_p1_test.cxx
@@ -76,7 +76,7 @@ void testit (const CaloEnergy& trans1, const CaloEnergy_p1& pers)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
