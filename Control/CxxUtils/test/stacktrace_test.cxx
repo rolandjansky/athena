@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -141,7 +141,7 @@ void dumptrace (FILE* fp)
   while (fgets (buf, sizeof (buf), fp)) {
     if (strstr (buf, "libasan") != nullptr)
       continue;
-    if (strstr (buf, " _start") != nullptr)
+    if (strstr (buf, "_start") != nullptr)
       continue;
     if (strstr (buf, "$x") != nullptr)
       continue;
@@ -328,6 +328,14 @@ std::string accumtrace (FILE* fp)
       continue;
     if (strstr (buf, " _start") != nullptr)
       continue;
+    if (strstr (buf, "call_init inlined") != nullptr)
+      continue;
+    if (strstr (buf, "__libc_start_call_main") != nullptr)
+      continue;
+    if (strstr (buf, "__libc_start_main") != nullptr)
+      continue;
+    if (strstr (buf, "backtraceByUnwind") != nullptr)
+      continue;
     filter (buf);
     s += std::string (buf);
   }
@@ -362,13 +370,11 @@ void testhandle(int)
   resethooks();
   std::string s = accumtrace (test_fp);
 
-  const char* exp = " 0xX CxxUtils::backtraceByUnwind(void (*)(int, unsigned long), int) + 0xX [/libCxxUtils.so D[0xX]]\n\
- 0xX testhandle(int) + 0xX [/stacktrace_test.exe D[0xX]]\n\
+  const char* exp = " 0xX testhandle(int) + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX <unknown function>\n\
  0xX crashMe(Foo const*) + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX testbad + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX main + 0xX [/stacktrace_test.exe D[0xX]]\n\
- 0xX __libc_start_main + 0xX [/libc.so.6 D[0xX]]\n\
 ";
   if (s != exp) {
     puts ("Comparison fails!\n");
