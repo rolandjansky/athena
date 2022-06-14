@@ -6,7 +6,7 @@ atlas_subdir( TrigBjetMonitoring )
 # Component(s) in the package:
 atlas_add_component( TrigBjetMonitoring
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES AthenaMonitoringKernelLib AthenaMonitoringLib EventPrimitives GeoPrimitives JetEvent Particle TrigParticle muonEvent xAODBTagging xAODMuon xAODTracking )
+                     LINK_LIBRARIES AthenaMonitoringKernelLib AthenaMonitoringLib EventPrimitives xAODBTagging xAODMuon xAODJet xAODTracking )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

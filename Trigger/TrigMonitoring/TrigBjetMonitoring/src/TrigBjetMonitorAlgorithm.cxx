@@ -4,31 +4,9 @@
 
 #include "TrigBjetMonitorAlgorithm.h"
 
-/*#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolTest.h"
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"   //EN
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/VertexContainer.h"
-
-#include "xAODBTagging/BTaggingAuxContainer.h"
-#include "xAODBTagging/BTaggingContainer.h"
-#include "xAODBTagging/BTagging.h"
-
-#include "Particle/TrackParticleContainer.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-
-#include "TrigParticle/TrigEFBjet.h"
-#include "TrigParticle/TrigEFBjetContainer.h"
-
-#include "JetEvent/JetCollection.h"
-#include "muonEvent/Muon.h"
-#include "muonEvent/MuonContainer.h"
-
-// Calculates the track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-*/
-
+#include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
