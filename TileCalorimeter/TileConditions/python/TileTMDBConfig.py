@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to construct configured Tile TMDB conditions tool and algorithm"""
 
@@ -47,7 +47,7 @@ def TileTMDBCondAlgCfg(flags, **kwargs):
 
         actualRunType = {'PHY' : 'PHY', 'PED' : 'PHY',
                          'LAS' : 'LAS', 'BILAS' : 'LAS',
-                         'CIS' : 'CIS', 'MONICIS' : 'CIS'}
+                         'CIS' : 'CIS', 'MONOCIS' : 'CIS'}
 
         run = actualRunType.get(runType, runType)
 
@@ -55,7 +55,7 @@ def TileTMDBCondAlgCfg(flags, **kwargs):
             thrFolder = folders.addSplitMC('/TILE/ONL01/TMDB/THRESHOLD/' + run, '/TILE/ONL01/TMDB/THRESHOLD/' + run)
             delayFolder = folders.addSplitMC('/TILE/ONL01/TMDB/DELAY/' + run, '/TILE/ONL01/TMDB/DELAY/' + run)
             tmfFolder = folders.addSplitMC('/TILE/ONL01/TMDB/TMF/' + run, '/TILE/ONL01/TMDB/TMF/' + run)
-            calibFolder = folders.addSplitMC('/TILE/ONL01/TMDB/CALIB/PHY', '/TILE/ONL01/TMDB/CALIB/PHY')
+            calibFolder = folders.addSplitMC('/TILE/ONL01/TMDB/CALIB/' + run, '/TILE/ONL01/TMDB/CALIB/' + run)
         else:
             raise(Exception("No Tile TMDB folders in %s" % flags.IOVDb.DatabaseInstancea))
 

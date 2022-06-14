@@ -735,14 +735,14 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const EventContext& ctx, const xAOD::T
    unsigned int slotnr    = ctx.slot();
    unsigned int subSlotnr = ctx.subSlot();
 
-   sprintf(hname,"hitdv_s%i_ss%i_ly6_h2_nsp",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly6_h2_nsp",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly6_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   sprintf(hname,"hitdv_s%i_ss%i_ly7_h2_nsp",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly7_h2_nsp",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly7_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
-   sprintf(hname,"hitdv_s%i_ss%i_ly6_h2_nsp_notrk",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly6_h2_nsp_notrk",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly6_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   sprintf(hname,"hitdv_s%i_ss%i_ly7_h2_nsp_notrk",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly7_h2_nsp_notrk",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly7_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
    for ( auto spData : *spsContainer ) {

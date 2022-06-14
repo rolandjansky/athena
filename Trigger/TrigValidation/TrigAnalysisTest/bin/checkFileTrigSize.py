@@ -1176,8 +1176,14 @@ class checkFileTrigSize:
 
         ## ================================
         ## Printing to file and do some computations 
+        
+        fileNameAddition = ""
+        if "checkFile" in self.checkFile:
+            fileNameAddition = "trigSize.txt"
+        else: 
+            fileNameAddition = "checkFiletrigSize.txt"
 
-        fout =open(self.checkFile+"trigSize.txt",'w')            
+        fout =open(self.checkFile+fileNameAddition,'w')            
         print()
         print("Summary of categories:")
         fout.write( "\n Summary of categories:\n")

@@ -10,6 +10,7 @@ find_package( CLHEP )
 find_package(lwtnn)
 
 if(CMAKE_CUDA_COMPILER)
+# add an option switch on the GPU
   add_definitions(-DUSE_GPU)
   message("compiling the ISF_FastCaloSimServices with cuda")
   # Component(s) in the package:

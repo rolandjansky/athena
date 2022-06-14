@@ -107,15 +107,9 @@ class AlgNode(Node):
         Node.addOutput(self, name)
 
     def readOutputList(self):
-        outputs = []
         cval = self.getPar(self.outputProp)
-        if cval == '':
-            return outputs
-        if isinstance(cval, MutableSequence):
-            outputs.extend(cval)
-        else:
-            outputs.append(str(cval))
-        return outputs
+        return (cval if isinstance(cval, MutableSequence) else
+                ([str(cval)] if cval else []))
 
     def addInput(self, name):
         inputs = self.readInputList()        
@@ -130,15 +124,9 @@ class AlgNode(Node):
         return len(self.readInputList())
 
     def readInputList(self):
-        inputs = []
         cval = self.getPar(self.inputProp)
-        if cval =='':
-            return inputs
-        if isinstance(cval, MutableSequence):
-            inputs.extend(cval)
-        else:
-            inputs.append(str(cval))
-        return inputs
+        return (cval if isinstance(cval, MutableSequence) else
+                ([str(cval)] if cval else []))
 
     def __repr__(self):
         return "Alg::%s  [%s] -> [%s]"%(self.Alg.getName(), ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))

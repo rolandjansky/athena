@@ -422,10 +422,9 @@ def createDataFlow(chains, allDicts):
             else:
                 filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
        
-            (foundFilter, foundCFSeq) = findCFSequences(filterName, CFseqList[nstep])
-            log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)        
-             # add error if more than one
-            if not foundFilter:
+            foundCFSeq = findCFSequences(filterName, CFseqList[nstep])
+            log.debug("Found %d CF sequences with filter name %s", len(foundCFSeq), filterName)
+            if not foundCFSeq:
                 sequenceFilter = buildFilter(filterName, filterInput, chainStep.isEmpty)
                 CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sequenceFilter)
                 CFseq.connect(filterOutput)
@@ -434,7 +433,7 @@ def createDataFlow(chains, allDicts):
                 lastCFseq=CFseq
             else:
                 if len(foundCFSeq) > 1:
-                    log.error("Found more than one seuqences containig this filter %s", filterName)
+                    log.error("Found more than one sequence containing filter %s", filterName)
                 lastCFseq=foundCFSeq[0]
                 sequenceFilter=lastCFseq.filter
                 [ sequenceFilter.addInput(inputName) for inputName in filterInput ]
@@ -516,21 +515,13 @@ def createControlFlow(flags, HLTNode, CFseqList):
     return
 
 
-
-
 def findCFSequences(filter_name, cfseqList):
       """
       Searches for a filter, with given name, in the CF sequence list of this step
       """
-      log.debug( "findCFSequences: filter base name %s", filter_name )
-
       foundFilters = [cfseq for cfseq in cfseqList if filter_name == cfseq.filter.Alg.name()]
-      log.debug("found %d filters with base name %s", len( foundFilters ), filter_name)
 
-      found=len(foundFilters)
-      if found:
-          return (found, foundFilters)
-      return (found, None)
+      return foundFilters
 
 
 def buildFilter(filter_name,  filter_input, empty):
