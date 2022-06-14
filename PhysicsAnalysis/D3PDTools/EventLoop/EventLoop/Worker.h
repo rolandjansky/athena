@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_LOOP_WORKER_HH
@@ -419,11 +419,6 @@ namespace EL
     typedef std::map<std::pair<std::string,std::string>,TTree*>::const_iterator
        OutputTreeMapIter;
     std::map<std::pair<std::string,std::string>,TTree*> m_outputTreeMap;
-
-
-    /// description: the list of output files
-  private:
-    std::map<std::string,Detail::OutputStreamData> m_outputs;
 
 
     /// description: whether we are skipping the event

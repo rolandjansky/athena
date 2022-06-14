@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -55,6 +55,7 @@ namespace EL
         {
           if (m_file == nullptr)
             throw std::runtime_error ("encountered null pointer for output file");
+          m_path = m_file->GetName();
         }
 
         ~MyWriter ()
@@ -65,7 +66,7 @@ namespace EL
 
         std::string getPath () const
         {
-          return "";
+          return m_path;
         }
 
         TFile *getFile ()
@@ -81,6 +82,9 @@ namespace EL
           m_file->Close ();
           m_file = 0;
         }
+        /// \brief the path being used
+        private:
+          std::string m_path;
       };
 
 

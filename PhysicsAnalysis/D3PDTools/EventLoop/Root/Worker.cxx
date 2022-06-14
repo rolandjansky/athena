@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -34,6 +34,7 @@
 #include <EventLoop/OutputStreamData.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/StopwatchModule.h>
+#include <EventLoop/PostClosedOutputsModule.h>
 #include <EventLoop/TEventModule.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
@@ -386,6 +387,7 @@ namespace EL
     m_modules.push_back (std::make_unique<Detail::FileExecutedModule> ());
     m_modules.push_back (std::make_unique<Detail::EventCountModule> ());
     m_modules.push_back (std::make_unique<Detail::AlgorithmStateModule> ());
+    m_modules.push_back (std::make_unique<Detail::PostClosedOutputsModule> ());
 
     if (m_outputs.find (Job::histogramStreamName) == m_outputs.end())
     {
@@ -455,6 +457,10 @@ namespace EL
       ANA_CHECK (module->onWorkerEnd (*this));
     m_histOutput->saveOutput ();
     m_histOutput->close ();
+
+    for (auto& module : m_modules){
+      ANA_CHECK (module->postFileClose(*this));
+    }
     ANA_MSG_INFO ("worker finished successfully");
     return ::StatusCode::SUCCESS;
   }
