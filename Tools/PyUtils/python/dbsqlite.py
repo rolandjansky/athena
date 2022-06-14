@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/dbsqlite.py
 # reaped off: http://svn.python.org/view/sandbox/trunk/dbm_sqlite
@@ -19,7 +19,7 @@ __all__ = ['error', 'open']
 
 import sqlite3
 import pickle
-from collections import MutableMapping
+from collections.abc import MutableMapping
 from operator import itemgetter
 import shelve
 

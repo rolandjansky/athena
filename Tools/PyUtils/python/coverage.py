@@ -39,7 +39,7 @@
 # adding '#pragma: NO COVER' to the end of the line.
 #
 # Original permission notice:
-# Copyright 1999, 2020, Bioreason, Inc., all rights reserved.
+# Copyright 1999, Bioreason, Inc., all rights reserved.
 # Author: Andrew Dalke
 #
 # Copyright 1995-1997, Automatrix, Inc., all rights reserved.
@@ -136,11 +136,9 @@ def find_executable_linenos(filename):
     the byte code for 'SET_LINENO' terms (so this won't work one -O files).
 
     """
-    import parser
 
     prog = open(filename).read()
-    ast = parser.suite(prog)
-    code = parser.compilest(ast, filename)
+    code = compile (prog, filename, 'exec')
 
     # The only way I know to find line numbers is to look for the
     # SET_LINENO instructions.  Isn't there some way to get it from
