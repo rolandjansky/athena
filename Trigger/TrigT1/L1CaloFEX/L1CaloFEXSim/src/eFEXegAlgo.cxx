@@ -324,6 +324,7 @@ void LVL1::eFEXegAlgo::getWindowET(int layer, int jPhi, int SCID, unsigned int &
 void eFEXegAlgo::setSeed() {
 
   m_hasSeed = false;
+  m_seed_UnD = false;
   unsigned int tmpID = 999;
   unsigned int maxET = 0;
   
