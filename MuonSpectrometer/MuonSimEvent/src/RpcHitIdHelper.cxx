@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
 #include <iomanip>
 #include <array>
-
-RpcHitIdHelper* RpcHitIdHelper::m_help = nullptr;
 
 namespace {
     const static std::array<char, 4> v1 = {'B','E','T','C'};
@@ -16,28 +14,16 @@ namespace {
 }
 
 //private constructor
-RpcHitIdHelper::RpcHitIdHelper() : HitIdHelper()
-{
-  InitializeStationName();
-  Initialize();
-}
-
 RpcHitIdHelper::RpcHitIdHelper(unsigned int nGasGaps) : HitIdHelper()
 {
   InitializeStationName();
   Initialize(nGasGaps);
 }
 
-RpcHitIdHelper* RpcHitIdHelper::GetHelper()
+const RpcHitIdHelper* RpcHitIdHelper::GetHelper(unsigned int nGasGaps)
 {
-  if (!m_help) m_help = new RpcHitIdHelper();
-  return m_help;
-}
-
-RpcHitIdHelper* RpcHitIdHelper::GetHelper(unsigned int nGasGaps)
-{
-  if (!m_help) m_help = new RpcHitIdHelper(nGasGaps);
-  return m_help;
+  static const RpcHitIdHelper helper(nGasGaps);
+  return &helper;
 }
 
 void RpcHitIdHelper::Initialize(unsigned int nGasGaps)
@@ -59,7 +45,7 @@ void RpcHitIdHelper::InitializeStationName()
   InitializeField("Station[3]",0,sizeof(v3));
 }
 
-void RpcHitIdHelper::SetStationName(std::string name, int& hid) const
+void RpcHitIdHelper::SetStationName(const std::string& name, int& hid) const
 {
   for (unsigned int i=0;i<sizeof(v1);i++)
     if (v1[i]==name[0]) SetFieldValue("Station[1]",i,hid);

@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/CscHitIdHelper.h"
 
 #include <iomanip>
 #include <array>
-
-CscHitIdHelper* CscHitIdHelper::m_help = nullptr;
 
 namespace {
     const static std::array<char, 4> v1 = {'B','E','T','C'};
@@ -22,10 +20,10 @@ CscHitIdHelper::CscHitIdHelper() : HitIdHelper()
   Initialize();
 }
 
-CscHitIdHelper* CscHitIdHelper::GetHelper()
+const CscHitIdHelper* CscHitIdHelper::GetHelper()
 {
-  if (!m_help) m_help = new CscHitIdHelper();
-  return m_help;
+  static const CscHitIdHelper helper;
+  return &helper;
 }
 
 void CscHitIdHelper::Initialize()
@@ -44,7 +42,7 @@ void CscHitIdHelper::InitializeStationName()
   InitializeField("Station[3]",0,sizeof(v3));
 }
 
-void CscHitIdHelper::SetStationName(std::string name, int &hid) const
+void CscHitIdHelper::SetStationName(const std::string& name, int &hid) const
 {
   for (unsigned int i=0;i<sizeof(v1);i++)
     if (v1[i]==name[0]) SetFieldValue("Station[1]",i,hid);

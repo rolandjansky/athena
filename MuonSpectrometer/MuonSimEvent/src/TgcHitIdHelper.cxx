@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/TgcHitIdHelper.h"
 
 #include <iomanip>
 #include <array>
-
-TgcHitIdHelper* TgcHitIdHelper::m_help = nullptr;
 
 namespace {
     const static std::array<char, 4> v1 = {'B','E','T','C'};
@@ -22,10 +20,10 @@ TgcHitIdHelper::TgcHitIdHelper() : HitIdHelper()
   Initialize();
 }
 
-TgcHitIdHelper* TgcHitIdHelper::GetHelper()
+const TgcHitIdHelper* TgcHitIdHelper::GetHelper()
 {
-  if (!m_help) m_help = new TgcHitIdHelper();
-  return m_help;
+  static const TgcHitIdHelper helper;
+  return &helper;
 }
 
 void TgcHitIdHelper::Initialize()
@@ -42,7 +40,7 @@ void TgcHitIdHelper::InitializeStationName()
   InitializeField("Station[3]",0,sizeof(v3));
 }
 
-void TgcHitIdHelper::SetStationName(std::string name, int& hid) const
+void TgcHitIdHelper::SetStationName(const std::string& name, int& hid) const
 {
   for (unsigned int i=0;i<sizeof(v1);i++)
     if (v1[i]==name[0]) SetFieldValue("Station[1]",i,hid);

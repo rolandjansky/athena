@@ -22,7 +22,7 @@ namespace MuonPRDTest {
             return false;
         }
         // Get the MDT Id hit helper
-        MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(idHelperSvc()->mdtIdHelper().tubeMax());
+        const MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(idHelperSvc()->mdtIdHelper().tubeMax());
 
         unsigned int numHits{0};
         for (const MDTSimHit& hit : *mdtContainer) {
