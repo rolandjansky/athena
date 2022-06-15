@@ -35,6 +35,8 @@ StatusCode CpmSimMonitorAlgorithm::initialize() {
   ATH_CHECK(m_cmxCpTobLocation.initialize());
   ATH_CHECK(m_cmxCpHitsLocation.initialize());
 
+  ATH_CHECK(m_errorLocation.initialize());
+  
   ATH_CHECK( m_L1MenuKey.initialize() );
   renounce(m_L1MenuKey); // Detector Store data - hide this Data Dependency from the MT Scheduler
 
@@ -354,12 +356,11 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   //
   // Save error vector for global summary
   {
-    std::lock_guard<std::mutex> lock(m_mutex);  
-    ErrorVector *save = new ErrorVector(crateErr);
-    StatusCode sc = evtStore()->record(save, m_errorLocation);
-    if (sc != StatusCode::SUCCESS) {
+    auto save = std::make_unique<ErrorVector>(crateErr);
+    auto* result = SG::makeHandle(m_errorLocation, ctx).put(std::move(save));
+    if (!result) {
       ATH_MSG_ERROR("Error recording CPM mismatch vector in TES");
-      return sc;
+      return StatusCode::FAILURE;
     }
   }
 
