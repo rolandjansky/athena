@@ -39,7 +39,7 @@ run "Simulation" \
     --outputHITSFile HITS.root \
     --maxEvents -1 \
     --imf False \
-    --detectors ITkStrip ITkPixel Bpipe
+    --detectors ITkStrip ITkPixel Bpipe HGTD
 
 run "Digitization"\
     Digi_tf.py \
@@ -53,7 +53,7 @@ run "Digitization"\
     --outputRDOFile RDO.root \
     --preInclude 'HITtoRDO:Campaigns.PhaseIINoPileUp' \
     --postInclude 'PyJobTransforms.UseFrontier' \
-    --detectors ITkStrip ITkPixel Bpipe
+    --detectors ITkStrip ITkPixel Bpipe HGTD
 
 run "Reconstruction" \
     Reco_tf.py --CA \
