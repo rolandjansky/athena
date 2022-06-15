@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // CallGraphBuilderSvc.cxx 
@@ -120,6 +120,8 @@ CallGraphBuilderSvc::queryInterface( const InterfaceID& riid,
 
 void CallGraphBuilderSvc::openNode( const std::string& nodeName )
 {
+  std::scoped_lock lock(m_mutex);
+
   if ( m_nameToId.find( nodeName ) == m_nameToId.end() ) {
     m_nameToId[nodeName] = ++m_uuid;
     m_idToName[m_uuid  ] = nodeName;
@@ -140,6 +142,8 @@ void CallGraphBuilderSvc::openNode( const std::string& nodeName )
 
 void CallGraphBuilderSvc::closeNode( const std::string& nodeName )
 {
+  std::scoped_lock lock(m_mutex);
+
   const NodeId_t nodeId = m_nameToId[nodeName];
   //boost::add_edge( nodeId, 1, m_graph);
   msg() << MSG::VERBOSE

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonSvc.cxx
@@ -434,8 +434,10 @@ PerfMonSvc::io_reinit()
                   O_WRONLY | O_CREAT,
                   S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (m_stream < 0) {
+    char errbuf[256];
+    strerror_r(errno, errbuf, sizeof(errbuf));
     ATH_MSG_ERROR("could not reopen [" << stream_name << "]: "
-                  << strerror(errno));
+                  << errbuf);
     close (old_stream);
     return StatusCode::FAILURE;
   }
@@ -468,8 +470,10 @@ PerfMonSvc::io_finalize()
   fflush(NULL); //> flushes all output streams...
   int close_sc = close(m_stream);
   if (close_sc < 0) {
+    char errbuf[256];
+    strerror_r(errno, errbuf, sizeof(errbuf));
     ATH_MSG_ERROR("could not close previously open fd [" << m_stream << "]: "
-                  << strerror(errno));
+                  << errbuf);
     return StatusCode::FAILURE;
   }
   m_stream = -1; // reset the fd
@@ -1131,9 +1135,7 @@ void PerfMonSvc::startAud( const std::string& stepName,
 {
   // Performing performance-monitoring for BeginEvent
   if ( compName == m_compBeginEvent && stepName == "evt" ) {
-    static bool s_firstEvt = true;
-    if ( s_firstEvt ) {
-      s_firstEvt = false;
+    [[maybe_unused]] static const bool firstEvt = [&]() {
       stopAud( "ini", "PerfMonSlice" );
       // capture the number of algorithms - here
       ServiceHandle<IAlgManager> mgr("ApplicationMgr", this->name());
@@ -1141,7 +1143,8 @@ void PerfMonSvc::startAud( const std::string& stepName,
       m_ntuple.comp["ini"].clear();
       m_ntuple.comp["cbk"].clear();
       m_ntuple.comp["preLoadProxies"].clear();
-    }
+      return false;
+    }();
     startAud( "evt", "PerfMonSlice" );
     return;
   }
@@ -1512,7 +1515,7 @@ namespace {
     // capture mem data
     PerfMon::Mem& mem = c.mem;
     athena_statm s = read_athena_statm();
-    static long  pg_size = sysconf(_SC_PAGESIZE);
+    static const long  pg_size = sysconf(_SC_PAGESIZE);
     mem.vmem[idx] = static_cast<float>(s.vm_pages * pg_size / (float)Units::kb);
     mem.rss[idx]  = static_cast<float>(s.rss_pages* pg_size / (float)Units::kb);
     mem.mall[idx] = static_cast<float>(PerfMon::MemStats::nbytes()/Units::kb);

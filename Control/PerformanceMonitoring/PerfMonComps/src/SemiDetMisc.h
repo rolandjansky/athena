@@ -451,11 +451,11 @@ inline void PMonSD::get_vmem_rss_kb(double&vmem,double&rss,bool vmemonly) {
   //It would be a lot faster without this open call...
   int fd = open("/proc/self/statm", O_RDONLY);
   if (fd<0) return;
-  static char data[32];
+  char data[32];
   int l = read(fd, data, sizeof(data));
   close(fd);
   if (l<4) return;//Failure or suspiciously short
-  static float pg_size_in_kb = sysconf(_SC_PAGESIZE)/1024.0;
+  static const float pg_size_in_kb = sysconf(_SC_PAGESIZE)/1024.0;
   //Assume that the first field is vmem and the second is rss.
   vmem=atoi(data)*pg_size_in_kb;
   if (vmemonly)
@@ -618,10 +618,11 @@ inline void PMonSD::setUTCTimeString(std::string&s,double offset_ms)
   time_t t = time(NULL);//unixtime in seconds
   if (offset_ms)
     t+=static_cast<time_t>(0.5+0.001*offset_ms);
-  tm *ptm = gmtime(&t);
+  struct tm ptm;
+  gmtime_r(&t, &ptm);
   s.clear();
   s.resize(26);
-  size_t r = strftime(&(s[0]),25,"%Y-%m-%dT%H:%M:%S+0000",ptm);
+  size_t r = strftime(&(s[0]),25,"%Y-%m-%dT%H:%M:%S+0000",&ptm);
   if (r>0&&r<25) s.resize(r);
   else s="0000-00-00T00:00:00+0000";
 }
@@ -632,9 +633,9 @@ inline double PMonSD::get_wall_ms()
   //(ignore daylight savings issues...). Like clock() it returns 0.0
   //on first call in a process.
   double t=get_absolute_wall_ms();
-  static double offset = -1;
-  if (offset==-1)
-    offset=t;
+  static const double offset = [&]() {
+    return t;
+  }();
   return t-offset;
 }
 

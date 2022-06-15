@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // StorePayloadMon.h 
@@ -19,13 +19,15 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IClassIDSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 namespace PerfMon {
 
-class StorePayloadMon
+class ATLAS_NOT_THREAD_SAFE StorePayloadMon
+//    ^ direct StoreGate access
   : public ::AthAlgorithm
 { 
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // StorePayloadMon.cxx 
@@ -179,7 +179,6 @@ StatusCode StorePayloadMon::execute()
   const std::size_t n = proxies.size();
   DpLoads_t data(n);
   
-  static std::size_t ievt = 0;
   PerfMon::MallocStats::return_type b0 = pmon_get_mem();
   for (std::size_t i = 0; i!=n; ++i) {
     SG::DataProxy* proxy = const_cast<SG::DataProxy*>(proxies[i]); // Blech!
@@ -198,17 +197,7 @@ StatusCode StorePayloadMon::execute()
     m_store->clearProxyPayload(proxy);
     mon.b1 = pmon_get_mem();
 
-    // if ( mon.b1 > mon.b0 ) {
-    //   std::cerr << "=========[" << mon.proxy->name() << "]=======\n"
-    //             << "evt: " << ievt << "\n"
-    //             << diff_minfos(mi0, mi1)
-    //             << "\n";
-    // }
   }
-  // {
-  //   const bool forceRemove = true;
-  //   m_store->clearStore(forceRemove).ignore();
-  // }
   PerfMon::MallocStats::return_type b1 = pmon_get_mem();
 
   if (m_displayMallinfos) {
@@ -256,7 +245,6 @@ StatusCode StorePayloadMon::execute()
   ATH_MSG_INFO("flush-store: " << b0 << " -> " << b1 << " -- delta= "
                << b1 -b0);
 
-  ++ievt;
   return StatusCode::SUCCESS;
 }
 
