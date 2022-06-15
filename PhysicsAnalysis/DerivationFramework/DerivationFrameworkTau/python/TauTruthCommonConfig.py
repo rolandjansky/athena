@@ -55,7 +55,7 @@ def TauTruthToolsCfg(ConfigFlags):
 
     # Matching
     # Only do if working with AOD
-    if "TauJetContainer#TauJets" in ConfigFlags.Input.TypedCollections:    
+    if "xAOD::TauJetContainer#TauJets" in ConfigFlags.Input.TypedCollections:    
         DFCommonTauTruthMatchingTool = acc.getPrimaryAndMerge(TauTruthMatchingToolCfg(
             ConfigFlags, 
             name                            = "DFCommonTauTruthMatchingTool",

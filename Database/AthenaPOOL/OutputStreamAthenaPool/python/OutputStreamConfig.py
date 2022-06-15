@@ -29,11 +29,19 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    writingTool = CompFactory.AthenaOutputStreamTool(f"Stream{streamName}Tool",
                                                     DataHeaderKey=outputStreamName)
 
+   # In DAOD production the EventInfo is prepared specially by the SlimmingHelper to ensure it is written in AuxDyn form
+   # So for derivations the ItemList from the SlimmingHelper alone is used without the extra EventInfo items
+   finalItemList = []
+   if ("DAOD_" or "D2AOD_") in streamName:
+      finalItemList = ItemList
+   else:
+      finalItemList = [f"xAOD::EventInfo#{eventInfoKey}", f"xAOD::EventAuxInfo#{eventInfoKey}Aux."] + ItemList 
+
    outputStream = CompFactory.AthenaOutputStream(
       f"OutputStream{streamName}",
       StreamName=outputStreamName,
       WritingTool=writingTool,
-      ItemList=[f"xAOD::EventInfo#{eventInfoKey}", f"xAOD::EventAuxInfo#{eventInfoKey}Aux."] + ItemList,
+      ItemList = finalItemList,
       MetadataItemList = MetadataItemList,
       OutputFile=fileName,
    )
