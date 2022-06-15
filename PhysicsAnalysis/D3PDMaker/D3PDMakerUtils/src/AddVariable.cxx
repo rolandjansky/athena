@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file D3PDMakerUtils/src/AddVariable.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,7 +18,7 @@ namespace D3PD {
 
 
 /// Used to provide a default value for @a blockName.
-std::string AddVariable::s_emptyString;
+const std::string AddVariable::s_emptyString;
 
 
 /**

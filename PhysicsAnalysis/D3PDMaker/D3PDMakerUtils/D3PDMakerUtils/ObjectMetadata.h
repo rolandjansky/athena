@@ -1,20 +1,23 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectMetadata.h 781603 2016-11-01 15:48:18Z ssnyder $
 #ifndef D3PDMAKERUTILS_OBJECTMETADATA_H
 #define D3PDMAKERUTILS_OBJECTMETADATA_H
 
 // STL include(s):
+#include <atomic>
 #include <string>
 #include <set>
 #include <unordered_map>
 
 // D3PD include(s):
 #include "D3PDMakerInterfaces/IAddVariable.h"
+
+// Gaudi/Athena include(s):
+#include "CxxUtils/checker_macros.h"
 
 namespace D3PD {
 
@@ -29,8 +32,6 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 781603 $
-    * $Date: 2016-11-01 16:48:18 +0100 (Tue, 01 Nov 2016) $
     */
    class ObjectMetadata : public IAddVariable {
 
@@ -77,7 +78,7 @@ namespace D3PD {
       void setName( const std::string& name );
 
       /// Get the name for the metadata object that should be created
-      std::string metadataName() const;
+      std::string metadataName ATLAS_NOT_THREAD_SAFE () const;
       /// Get the D3PDObject's name from the name of the metadata object
       static std::string objectName( const std::string& metaName );
 
@@ -107,7 +108,7 @@ namespace D3PD {
       /// Length of the random string appended to the object name
       static const size_t RANDOM_NAME_POSTFIX_LENGTH;
       /// Character separating parts of the object's metadata
-      static const char* STRING_SEPARATOR;
+      static const char* const STRING_SEPARATOR;
       /// "Version number" of the serialized information
       /**
        * While I don't plan to change this class any time soon, we should
@@ -126,9 +127,6 @@ namespace D3PD {
        *         about the D3PDObject-s that produced a D3PD.
        *
        * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-       *
-       * $Revision: 781603 $
-       * $Date: 2016-11-01 16:48:18 +0100 (Tue, 01 Nov 2016) $
        */
       class Variable {
       public:
@@ -159,7 +157,7 @@ namespace D3PD {
          /// Operator needed to use such objects in STL containers
          bool operator< ( const Variable& var ) const;
          /// Character separating parts of the variable's metadata
-         static const char* STRING_SEPARATOR;
+         static const char* const STRING_SEPARATOR;
       private:
          std::string m_type; ///< Full type name of the variable
          std::string m_name; ///< Name of the variable without its prefix
@@ -176,11 +174,6 @@ namespace D3PD {
       std::string m_prefix; ///< Prefix used by the D3PDObject
       bool m_container; ///< The D3PDObject describes a container
 
-      static int m_objectCounter; ///< Variable used to give names to unnamed D3PDObject-s
-      /// Count of the number of times a given name was used, 
-      /// in order to assign them a unique suffix.
-      static std::unordered_map<std::string, size_t> m_namecount;
-
    private:
      /**
       * @brief Generate a unique suffix for a metadata object name.
@@ -193,7 +186,7 @@ namespace D3PD {
       * Instead, we generate the suffix based on a count of the number of times
       * we've seen a particular name.
       */
-     static std::string genSuffix (const std::string& name, size_t length);
+     static std::string genSuffix ATLAS_NOT_THREAD_SAFE (const std::string& name, size_t length);
 
    }; // class ObjectMetadata
 
