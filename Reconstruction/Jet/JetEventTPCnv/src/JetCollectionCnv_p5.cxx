@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCollectionCnv_p5.cxx
@@ -44,23 +44,32 @@ JetCollectionCnv_p5::persToTrans( const JetCollection_p5* pers,
   JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
   // link the JetKeyDescriptorInstance to the store:
   if( trans->m_keyStore.isValid() ){
-    trans->keyDesc()->m_Stores  = trans->m_keyStore.getDataNonConstPtr();
+    trans->keyDesc()->m_Stores  = nullptr;
+    trans->keyDesc()->m_ConstStores  = trans->m_keyStore.cptr();
     // make sure the global instance is pointing to this jetkey store
-    JetKeyDescriptorInstance::instance()->m_Stores =  trans->keyDesc()->m_Stores;
+    JetKeyDescriptorInstance::instance()->m_Stores =  nullptr;
+    JetKeyDescriptorInstance::instance()->m_ConstStores =  trans->keyDesc()->m_ConstStores;
   }
   else if (trans->m_keyStore.isDefault()) {
     DataLink<JetKeyDescriptor> dl ("JetKeyMap");
     if (dl.isValid()) {
-      trans->keyDesc()->m_Stores  = dl.getDataNonConstPtr();
+      trans->keyDesc()->m_Stores  = nullptr;
+      trans->keyDesc()->m_ConstStores  = dl.cptr();
       // make sure the global instance is pointing to this jetkey store
-      JetKeyDescriptorInstance::instance()->m_Stores =  trans->keyDesc()->m_Stores;
+      JetKeyDescriptorInstance::instance()->m_Stores =  nullptr;
+      JetKeyDescriptorInstance::instance()->m_ConstStores =  trans->keyDesc()->m_ConstStores;
     }
-    else
+    else {
       trans->keyDesc()->m_Stores  =
         JetKeyDescriptorInstance::instance()->m_Stores;
+      trans->keyDesc()->m_ConstStores  =
+        JetKeyDescriptorInstance::instance()->m_ConstStores;
+    }
   }
-  else 
+  else {
     trans->keyDesc()->m_Stores  = JetKeyDescriptorInstance::instance()->m_Stores;
+    trans->keyDesc()->m_ConstStores  = JetKeyDescriptorInstance::instance()->m_ConstStores;
+  }
 
   msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endmsg;
   

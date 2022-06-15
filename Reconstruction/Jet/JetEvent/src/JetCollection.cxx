@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,8 +17,9 @@ JetCollection::JetCollection( SG::OwnershipPolicy own)  :
 {
   // by default the keyDescInstance points to the global s_instance's stores .
   // The JetCollection cnv replaces that by the store read from file.
-  if( ! JetKeyDescriptorInstance::s_instance.m_Stores ) JetKeyDescriptorInstance::s_instance.createKeyStore(); // this may happen inside Trigger navigation system
+  if( ! JetKeyDescriptorInstance::s_instance.m_ConstStores ) JetKeyDescriptorInstance::s_instance.createKeyStore(); // this may happen inside Trigger navigation system
   m_keyDescInstance.m_Stores = JetKeyDescriptorInstance::s_instance.m_Stores;
+  m_keyDescInstance.m_ConstStores = JetKeyDescriptorInstance::s_instance.m_ConstStores;
 }
 JetCollection::~JetCollection(){
 
