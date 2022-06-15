@@ -218,7 +218,7 @@ ASCIICondDbSvc::parse(IOVEntryT<IASCIICondDbSvc::dbData_t>& ie, const std::strin
   // end.set_lumi_block(m_lbn);
 
   // set lumi and Timestamp
-  EventIDBase start(EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,
+  EventIDBase start(0, EventIDBase::UNDEFEVT,
                     std::stoi(m[2]));
   EventIDBase   end(EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,
                     std::stoi(m[4]));

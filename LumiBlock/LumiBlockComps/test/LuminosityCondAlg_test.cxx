@@ -468,7 +468,7 @@ void test4 ATLAS_NOT_REENTRANT (ISvcLocator* svcloc)
   const LuminosityCondData* data = nullptr;
   const EventIDRange* rangeout = nullptr;
   assert (ccout->find (eid, data, &rangeout));
-  assert (rangeout->start().time_stamp() == 0);
+  assert (rangeout->start().time_stamp() == EventIDBase::UNDEFNUM);
   assert (rangeout->start().run_number() == 1);
   assert (rangeout->start().lumi_block() == 10);
   assert (rangeout->stop().time_stamp() == EventIDBase::UNDEFNUM);

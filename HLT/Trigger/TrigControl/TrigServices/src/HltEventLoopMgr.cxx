@@ -272,7 +272,7 @@ StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
     ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
   }
 
-  // Set our "run context" (invalid event/slot)
+  // Set our "run context"
   m_currentRunCtx.setEventID( m_sorHelper->eventID() );
   m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
                                                            m_currentRunCtx.eventID().run_number()));

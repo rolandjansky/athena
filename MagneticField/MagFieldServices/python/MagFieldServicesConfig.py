@@ -25,8 +25,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       "name": "AtlasFieldMapCondAlg",
     }
     if flags.Common.isOnline:
-      # online has the map loaded at start and does not use DCS
-      afmArgs.update( LoadMapOnStart = True )
+      # online does not use DCS
       afmArgs.update( UseMapsFromCOOL = False )
     else:
       # UseMapsFromCOOL is default for standard running
