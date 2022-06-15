@@ -72,6 +72,9 @@ def JetTagMonitorConfig(inputFlags):
         jetTagMonAlg.SkipJetFilter = False
         jetTagMonAlg.JetsCollection = "AntiKt4EMPFlowJets" #Standard jet collection
 
+    #Early runs (Low number of bunchs): Temporary skipping 1 isolated lepton requirement
+    jetTagMonAlg.SkipPreSelection = True
+
     #Additional low-level taggers and extra plots (i.e. pu, pb, pc)
     jetTagMonAlg.DoExtraTaggerHistos = True
 
@@ -184,7 +187,7 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('PV_y',title='Primary vertices Y position;Y;Events',path='Expert',xbins=40,xmin=-2.0,xmax=2.0)
     GeneralGroup.defineHistogram('PV_z',title='Primary vertices Z position;Z;Events',path='Expert',xbins=100,xmin=-250,xmax=250.0)
 
-    GeneralGroup.defineHistogram('PV_n',title='Primary vertices;PV;Events',path='Shifter',xbins=100,xmin=0,xmax=100.0)
+    GeneralGroup.defineHistogram('PV_n',title='Primary vertices;PV;Events',path='Shifter',xbins=100,xmin=0,xmax=100)
     GeneralGroup.defineHistogram('PV_tracks_n',title='Number of tracks in PV;Tracks in PV;Number of tracks',path='Shifter',xbins=100,xmin=0,xmax=200)
 
     GeneralGroup.defineHistogram('Tracks_n',title='Track multiplicity;Tracks per event;Number of events',path='Shifter',xbins=150,xmin=0,xmax=1500)
@@ -194,6 +197,10 @@ def JetTagMonitorConfig(inputFlags):
     GeneralGroup.defineHistogram('Hits_Si',title='Number of PIX+SCT hits;Hits on track;Number of PIX+SCT hits on track',path='Shifter',xbins=25,xmin=0,xmax=25)
     GeneralGroup.defineHistogram('Hits_TRT',title='Number of TRT hits;Hits on track;Number of TRT hits on track',path='Shifter',xbins=100,xmin=0,xmax=100)
     GeneralGroup.defineHistogram('Hits_ID',title='Number of ID hits;Hits on track;Number of ID hits on track',path='Shifter',xbins=150,xmin=0,xmax=150)
+
+    GeneralGroup.defineHistogram('PV_n_on_mu',title='Primary vertices / <mu>;PV / <mu>;Events',path='Expert',xbins=100,xmin=0,xmax=10)
+    GeneralGroup.defineHistogram('PV_tracks_n_on_mu',title='Number of tracks in PV / <mu>;Tracks in PV / <mu>;Number of tracks',path='Expert',xbins=100,xmin=0,xmax=20)
+    GeneralGroup.defineHistogram('Tracks_n_on_mu',title='Track multiplicity / <mu>;Tracks per event / <mu>;Number of events',path='Expert',xbins=100,xmin=0,xmax=100)
 
     #Jet tracks hits and impact parameters (loose tracks)
     GeneralGroup.defineHistogram('JetTracks_eta_loose_IBL,JetTracks_phi_loose_IBL;JetTracks_MAP_loose_IBL',title='2D MAP of loose tracks from jets with IBL hit;Track #eta;Track #phi',type='TH2F',path='JetTracks',xbins=50,xmin=-2.5,xmax=2.5,ybins=100,ymin=-1*math.pi,ymax=math.pi)
@@ -452,7 +459,7 @@ if __name__=='__main__':
     
     #Data r22 ART input working:
     #ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_ORD22/run/DQ_ARTs/myESD.data15HI.15Mar.root"] #ESD from ART test, 15 Mar 22, data15_heavy_ion
-    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_MAY22/run/DQ_ARTs/myESD.data18.26May.root"] #ESD from 22.0 ART, 25 May 22, data18_13TeV
+    ConfigFlags.Input.Files = ["/afs/cern.ch/work/a/alaperto/dq_test/dq_r22_JUN22/run/DQ_ARTs/myESD.data18.26May.root"] #ESD from 22.0 ART, 25 May 22, data18_13TeV
     #ConfigFlags.Input.Files = ["/eos/user/m/mtanasin/DQ/dq_devel/run/AOD_folder/AOD.27639508._001258.pool.root.1"] #AOD, data18_13TeV
     ConfigFlags.Input.isMC = False
 
@@ -480,4 +487,4 @@ if __name__=='__main__':
     #Select how many events to run on 
     #use cfg.run() empty for all events
     #use cfg.run(300) to only run on first 300 events
-    cfg.run(10)
+    cfg.run(300)
