@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,7 +31,8 @@ void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj,
   transObj->m_keyStore.clear();
   transObj->m_catStore.clear();
   // if(bool( instance->m_Stores ) ) delete instance->m_Stores; // to avoid memory link
-  instance->m_Stores = transObj; // global instance points to the store being read. 
+  instance->m_Stores = transObj; // global instance points to the store being read.
+  instance->m_ConstStores = transObj;
 
   
   unsigned int index(0);
@@ -54,6 +55,14 @@ void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj,
           index++;
         }
     }
+
+  // These have to exist, because some of the Jet converters try to set them.
+  // But they weren't there for some old files --- so make sure here that
+  // we know about these.
+  instance->getIndex ("JetShapes", "Timing", true);
+  instance->getIndex ("JetShapes", "LArQuality", true);
+  instance->getIndex ("JetInfo", "TrigJetRec", true);
+
   msg << MSG::DEBUG << "JetKeyDescriptorCnv persToTrans End" << endmsg;
 }
 

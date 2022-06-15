@@ -879,7 +879,7 @@ void Jet::setTagInfo(const mkey_t& key,
   //
   if ( ! bool(m_tagInfoStore) )
     {
-      // checkKey autoamtically build new store !!!
+      // checkKey automatically build new store !!!
       m_tagInfoStore = new tagstore_t();
     }
   if ( this->checkKeyStore(JetKeyConstants::TagCat,key,m_tagInfoStore,aInd, true) )

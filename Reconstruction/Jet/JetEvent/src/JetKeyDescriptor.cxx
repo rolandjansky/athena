@@ -21,7 +21,9 @@ const std::string                                     JetKeyDescriptorInstance::
 const std::vector<JetKeyDescriptorInstance::key_t>    JetKeyDescriptorInstance::m_invalidKeys;
 const bool                                            JetKeyDescriptorInstance::m_persistified = false;
 
-JetKeyDescriptorInstance::JetKeyDescriptorInstance(bool create) : m_Stores(0)
+JetKeyDescriptorInstance::JetKeyDescriptorInstance(bool create) :
+  m_Stores(nullptr),
+  m_ConstStores(nullptr)
 {
   // create a JetKeyDescriptorInstance :
   if (create) createKeyStore();
@@ -32,7 +34,11 @@ JetKeyDescriptorInstance::~JetKeyDescriptorInstance()
 }
 
 void JetKeyDescriptorInstance::createKeyStore() const {
+   if (m_ConstStores) {
+     throw std::runtime_error ("Attempt to modify const JetKeyDescriptor");
+   }
    m_Stores = new JetKeyDescriptor();
+   m_ConstStores = m_Stores;
 }  
 
 JetKeyDescriptor* JetKeyDescriptorInstance::getKeyStore(){
@@ -45,7 +51,7 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
 					  bool createIfMissing)
 {
   //std::cout <<" getIndex cat="<<cat<<"  key="<<key<<"   has store ="<< m_Stores << "  if missing="<< createIfMissing << std::endl;
-  if ( ! bool(m_Stores) ) {
+  if ( ! bool(m_ConstStores) ) {
     if ( createIfMissing )
       createKeyStore();
     else
@@ -54,11 +60,14 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
 
   //  std::cout <<& m_Stores->m_catStore << " Cat store size="<< m_Stores->m_catStore.size() << std::endl;
   // first find category
-  catlist_t::iterator
-    fCat(std::find(m_Stores->m_catStore.begin(),m_Stores->m_catStore.end(),cat));
-  if (  fCat == m_Stores->m_catStore.end() )
+  catlist_t::const_iterator
+    fCat(std::find(m_ConstStores->m_catStore.begin(),m_ConstStores->m_catStore.end(),cat));
+  if (  fCat == m_ConstStores->m_catStore.end() ) {
     if ( createIfMissing )
       {
+        if (!m_Stores) {
+          createKeyStore();
+        }
 	m_Stores->m_catStore.push_back(cat);
 	keystore_t kStore; kStore.push_back(key);
 	m_Stores->m_keyStore.push_back(kStore);
@@ -66,18 +75,22 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
       }
     else
       return m_invalid;
+  }
   else
     {
-      size_t iCat = fCat - m_Stores->m_catStore.begin();
+      size_t iCat = fCat - m_ConstStores->m_catStore.begin();
 
-      if ( iCat < m_Stores->m_keyStore.size() )  // really impossible!
+      if ( iCat < m_ConstStores->m_keyStore.size() )  // really impossible!
 	{
-	  keystore_t::iterator fKey(std::find((m_Stores->m_keyStore[iCat]).begin(),
-					      (m_Stores->m_keyStore[iCat]).end(),
-					      key));
-	  if ( fKey == (m_Stores->m_keyStore[iCat]).end() )
+	  keystore_t::const_iterator fKey(std::find((m_ConstStores->m_keyStore[iCat]).begin(),
+                                                    (m_ConstStores->m_keyStore[iCat]).end(),
+                                                    key));
+	  if ( fKey == (m_ConstStores->m_keyStore[iCat]).end() )
 	    if ( createIfMissing )
 	      {
+                if (!m_Stores) {
+                  createKeyStore();
+                }
 		(m_Stores->m_keyStore[iCat]).push_back(key);
 		return (m_Stores->m_keyStore[iCat]).size()-1;
 	      }
@@ -85,7 +98,40 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
 	      return m_invalid;
 	  else
 	    {
-	      return fKey - (m_Stores->m_keyStore[iCat]).begin();
+	      return fKey - (m_ConstStores->m_keyStore[iCat]).begin();
+	    }
+	}
+      // should never be reached!
+      return m_invalid;
+    }
+}
+
+size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
+					  const key_t&      key) const
+{
+  if ( ! bool(m_ConstStores) ) {
+    return m_invalid;
+  }
+
+  // first find category
+  catlist_t::const_iterator
+    fCat(std::find(m_ConstStores->m_catStore.begin(),m_ConstStores->m_catStore.end(),cat));
+  if (  fCat == m_ConstStores->m_catStore.end() )
+    return m_invalid;
+  else
+    {
+      size_t iCat = fCat - m_ConstStores->m_catStore.begin();
+
+      if ( iCat < m_ConstStores->m_keyStore.size() )  // really impossible!
+	{
+	  keystore_t::const_iterator fKey(std::find((m_ConstStores->m_keyStore[iCat]).begin(),
+                                                    (m_ConstStores->m_keyStore[iCat]).end(),
+                                                    key));
+	  if ( fKey == (m_ConstStores->m_keyStore[iCat]).end() )
+	      return m_invalid;
+	  else
+	    {
+	      return fKey - (m_ConstStores->m_keyStore[iCat]).begin();
 	    }
 	}
       // should never be reached!
@@ -95,16 +141,16 @@ size_t JetKeyDescriptorInstance::getIndex(const category_t& cat,
 
 void JetKeyDescriptorInstance::printOut(MsgStream& msgStream) const
 {
-  if ( ! bool(m_Stores) ) return;
+  if ( ! bool(m_ConstStores) ) return;
 
-  msgStream << "Number of categories: " << m_Stores->m_catStore.size() << endmsg;
-  for ( size_t i=0;i<m_Stores->m_catStore.size();i++ )
+  msgStream << "Number of categories: " << m_ConstStores->m_catStore.size() << endmsg;
+  for ( size_t i=0;i<m_ConstStores->m_catStore.size();i++ )
     {
-      msgStream << m_Stores->m_catStore[i] << " Number of keys: "
-        	<< (m_Stores->m_keyStore[i]).size() << endmsg;
-      for ( size_t j=0;j<(m_Stores->m_keyStore[i]).size();j++ )
+      msgStream << m_ConstStores->m_catStore[i] << " Number of keys: "
+        	<< (m_ConstStores->m_keyStore[i]).size() << endmsg;
+      for ( size_t j=0;j<(m_ConstStores->m_keyStore[i]).size();j++ )
         {
-          msgStream << "    index: " << j << " key <" << (m_Stores->m_keyStore[i])[j]
+          msgStream << "    index: " << j << " key <" << (m_ConstStores->m_keyStore[i])[j]
         	    << ">" << endmsg;
         } 	      
     }
@@ -113,31 +159,31 @@ void JetKeyDescriptorInstance::printOut(MsgStream& msgStream) const
 const JetKeyDescriptorInstance::key_t& JetKeyDescriptorInstance::getKey(const category_t& cat,
 									size_t index) const
 {
-  if ( ! bool(m_Stores) ) createKeyStore();
+  if ( ! bool(m_ConstStores) ) createKeyStore();
   // find category
-  catlist_t::const_iterator fCat(std::find(m_Stores->m_catStore.begin(),
-					   m_Stores->m_catStore.end(),
+  catlist_t::const_iterator fCat(std::find(m_ConstStores->m_catStore.begin(),
+					   m_ConstStores->m_catStore.end(),
 					   cat));
-  if ( fCat == m_Stores->m_catStore.end() ) return m_notFound;
+  if ( fCat == m_ConstStores->m_catStore.end() ) return m_notFound;
   // find key
-  size_t iCat(fCat-m_Stores->m_catStore.begin());
-  return index < (m_Stores->m_keyStore[iCat]).size()
-    ? (m_Stores->m_keyStore[iCat])[index]
+  size_t iCat(fCat-m_ConstStores->m_catStore.begin());
+  return index < (m_ConstStores->m_keyStore[iCat]).size()
+    ? (m_ConstStores->m_keyStore[iCat])[index]
     : m_notFound;
 }
 
 const std::vector<JetKeyDescriptorInstance::key_t>& 
 JetKeyDescriptorInstance::getKeys(const category_t& cat) const
 {
-  if ( ! bool(m_Stores) )
+  if ( ! bool(m_ConstStores) )
     return m_invalidKeys;
-  catlist_t::const_iterator fCat(std::find(m_Stores->m_catStore.begin(),
-					   m_Stores->m_catStore.end(),
+  catlist_t::const_iterator fCat(std::find(m_ConstStores->m_catStore.begin(),
+					   m_ConstStores->m_catStore.end(),
 					   cat));
-  if ( fCat != m_Stores->m_catStore.end() )
+  if ( fCat != m_ConstStores->m_catStore.end() )
     {
-      size_t aInd(fCat-m_Stores->m_catStore.begin());
-      return m_Stores->m_keyStore[aInd];
+      size_t aInd(fCat-m_ConstStores->m_catStore.begin());
+      return m_ConstStores->m_keyStore[aInd];
     }
   else
     {
@@ -154,6 +200,7 @@ JetKeyDescriptor::JetKeyDescriptor()
   // Set the first Author entry to be NoAuthor
   JetKeyDescriptorInstance descInst(false);
   descInst.m_Stores = this; // connect to this store
+  descInst.m_ConstStores = this; // connect to this store
   descInst.getIndex(JetKeyConstants::InfoCat,"NoAuthor",true);
 
   // notes about the above lines :
@@ -170,5 +217,7 @@ JetKeyDescriptor::~JetKeyDescriptor()
   // here, now delete the pointer to the data of the  instance...
   if ( (JetKeyDescriptorInstance::instance())->m_Stores == this ) 
     (JetKeyDescriptorInstance::instance())->m_Stores = NULL;
+  if ( (JetKeyDescriptorInstance::instance())->m_ConstStores == this ) 
+    (JetKeyDescriptorInstance::instance())->m_ConstStores = NULL;
 }
 
