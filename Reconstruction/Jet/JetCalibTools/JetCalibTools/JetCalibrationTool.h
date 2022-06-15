@@ -34,6 +34,7 @@
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
 #include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
+#include "JetCalibTools/CalibrationMethods/MC2MCCorrection.h"
 #include "JetCalibTools/CalibrationMethods/GenericHistScaleCorrection.h"
 
 class JetPileupCorrection;
@@ -45,6 +46,7 @@ class GlobalNNCalibration;
 class InsituDataCorrection;
 class JMSCorrection;
 class JetSmearingCorrection;
+class MC2MCCorrection;
 class GenericHistScaleCorrection;
 
 class JetCalibrationTool
@@ -105,6 +107,7 @@ private:
   std::string m_calibSeq;
   std::string m_calibAreaTag;
   std::string m_originScale;
+  std::string m_shower;
   bool m_devMode;
   bool m_isData;
   bool m_timeDependentCalib;
@@ -139,6 +142,7 @@ private:
   bool m_doResidual;
   bool m_doOrigin;
   bool m_doGSC;
+  bool m_doMC2MC;
 
   // vector with pTmax of each in situ correction
   VecD m_relInsituPtMax, m_absInsituPtMax;
@@ -154,6 +158,7 @@ private:
   std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
   JMSCorrection * m_jetMassCorr;
   JetSmearingCorrection* m_jetSmearCorr;
+  MC2MCCorrection* m_jetMC2MCCorr;
   JMSCorrection *InsituCombMassCorr;
   std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
   GenericHistScaleCorrection* m_genericScaleCorr;
