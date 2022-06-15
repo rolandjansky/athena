@@ -14,12 +14,13 @@ StatusCode OverviewMonitorAlgorithm::initialize() {
   ATH_MSG_DEBUG("OverviewMonitorAlgorith::initialize");
   ATH_MSG_DEBUG("Package Name "<< m_packageName);
   
+  ATH_CHECK(m_cpmErrorLocation.initialize());
+  ATH_CHECK(m_cpmMismatchLocation.initialize());
+
   return AthMonitorAlgorithm::initialize();
 }
 
 StatusCode OverviewMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
-
-  (void)ctx; // ctx not used in the overview algorithm 
 
   ATH_MSG_DEBUG("OverviewMonitorAlgorithm::fillHistograms");
 
@@ -36,19 +37,11 @@ StatusCode OverviewMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   int err_per_LB=0;
 
-  StatusCode sc;
-  const ErrorVector *errTES = 0;
-
   // CPM and CPM CMX Error data
   {
-    std::lock_guard<std::mutex> lock(m_mutex);  
-    errTES = 0;
-    if (evtStore()->contains<ErrorVector>(m_cpmErrorLocation)) {
-      sc = evtStore()->retrieve(errTES, m_cpmErrorLocation);
-    } else
-      sc = StatusCode::FAILURE;
+    const auto* errTES = SG::get(m_cpmErrorLocation, ctx);
 
-    if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
+    if (!errTES || errTES->size() != size_t(cpmCrates)) {
       ATH_MSG_INFO("No CPM error vector of expected size");
     } else {
       for (int crate = 0; crate < cpmCrates; ++crate) {
@@ -98,15 +91,10 @@ StatusCode OverviewMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   } 
 
   // CPM and CMX Simulation Mismatch data
-  {
-    std::lock_guard<std::mutex> lock(m_mutex);  
-    if (evtStore()->contains<ErrorVector>(m_cpmMismatchLocation)) {
-      errTES = 0;
-      sc = evtStore()->retrieve(errTES, m_cpmMismatchLocation);     
-    } else {
-      sc = StatusCode::FAILURE;
-    }
-    if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
+  { 
+	const auto* errTES = SG::get(m_cpmMismatchLocation, ctx);
+
+    if (!errTES || errTES->size() != size_t(cpmCrates)) {
       ATH_MSG_INFO("No CPM mismatch vector of expected size");
     } else {
       for (int crate = 0; crate < cpmCrates; ++crate) {
@@ -149,9 +137,9 @@ StatusCode OverviewMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   // errors per lumiblock and events processed
   auto lb = GetEventInfo(ctx)->lumiBlock();
 
-  auto n_processed  = Monitored::Scalar<int>("n_processed",0);
-  auto lb_errors  = Monitored::Scalar<int>("lb_errors",lb);
-  auto n_lb_errors  = Monitored::Scalar<int>("n_lb_errors",err_per_LB);
+  auto n_processed  = Monitored::Scalar("n_processed",0);
+  auto lb_errors  = Monitored::Scalar("lb_errors",lb);
+  auto n_lb_errors  = Monitored::Scalar("n_lb_errors",err_per_LB);
 
   variables.push_back(n_processed);
   if (err_per_LB>0) {
