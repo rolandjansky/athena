@@ -39,6 +39,7 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                           TopParticleLevel
                                           TopPartons
                                           TopDataPreparation
+                                          FakeBkgToolsLib
                                           xAODBTagging
                                           xAODCore
                                           xAODEgamma
@@ -76,6 +77,7 @@ atlas_add_executable( top-xaod
                                      TopParticleLevel
                                      TopPartons
                                      TopSystematicObjectMaker
+                                     FakeBkgToolsLib
                                      xAODCore
                                      xAODCutFlow
                                      xAODRootAccess )

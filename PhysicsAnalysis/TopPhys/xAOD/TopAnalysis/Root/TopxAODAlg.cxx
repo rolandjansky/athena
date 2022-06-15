@@ -94,7 +94,7 @@ StatusCode TopxAODAlg::initialize() {
   top::check(m_topTools->setProperty("config", m_config), "Failed to setProperty of topTools");
   top::check(m_topTools->initialize(), "Failed to initialize topTools");
 
-  if (!m_pmg_weightTool.retrieve()) {
+  if (m_config->isMC() && !m_pmg_weightTool.retrieve()) {
     ATH_MSG_ERROR("Cannot retrieve PMGTruthWeightTool");
     return StatusCode::FAILURE;
   }

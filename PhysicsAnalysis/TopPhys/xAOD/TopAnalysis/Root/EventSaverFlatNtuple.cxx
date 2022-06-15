@@ -23,7 +23,7 @@
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
-//#include "FakeBkgTools/AsymptMatrixTool.h"
+#include "FakeBkgTools/AsymptMatrixTool.h"
 
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
@@ -121,10 +121,8 @@ namespace top {
     m_weight_trigger_PH_UNCERT_UP(0.),
     m_weight_trigger_PH_UNCERT_DOWN(0.),
 
-    m_ASMsize(0.),
+    m_ASMdecorName("ASM_weight"),
     m_ASMweights(),
-    m_ASMweights_Syst(),
-    m_ASMweights_Systname(),
 
     m_eventNumber(0),
     m_runNumber(0),
@@ -760,23 +758,7 @@ namespace top {
 
       ///-- weights for matrix-method fakes estimate by IFF --///
       if (!m_config->isMC() && systematicTree->name() == nominalLooseTTreeName && m_config->doFakesMMWeightsIFF()) {
-       // std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
-       // while (asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (m_ASMsize))) {
-       //   fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (m_ASMsize)));
-       //   ++m_ASMsize;
-       // }
-       // std::string ASMweights_branch_name = "ASM_weight";
-       // std::string ASMweights_Syst_branch_name = "ASM_weight_Syst";
-       // std::string ASMweights_Systname_branch_name = "ASM_weight_Systname";
-       // systematicTree->makeOutputVariable(m_ASMweights, ASMweights_branch_name);
-       // m_ASMweights_Syst.resize(m_ASMsize);
-       // m_ASMweights_Systname.resize(m_ASMsize);
-       // for (int mmi = 0; mmi < m_ASMsize; ++mmi) {
-       //   systematicTree->makeOutputVariable(m_ASMweights_Syst[mmi],
-       //                                      ASMweights_Syst_branch_name + "_" + std::to_string(mmi));
-       //   systematicTree->makeOutputVariable(m_ASMweights_Systname[mmi], ASMweights_Systname_branch_name + "_" + std::to_string(
-       //                                        mmi));
-       // }
+       systematicTree->makeOutputVariable(m_ASMweights, m_ASMdecorName);
       }
 
       /// Bootstrapping poisson weights
@@ -2053,19 +2035,9 @@ namespace top {
 
     ///-- weights for matrix-method fakes estimate by IFF --///
     if (event.m_hashValue == m_config->nominalHashValue() && !m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
-      //std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
-      //for (int mmi = 0; mmi < m_ASMsize; ++mmi) {
-      //  fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (mmi)));
-      //}
-      //std::string ASMweights_branch_name = "ASMWeight";
-      //std::string decorName = "ASMWeight";
-      //if (event.m_info->isAvailable<std::vector<float> >(decorName.c_str())) {
-      //  m_ASMweights = event.m_info->auxdataConst<std::vector<float> >(decorName.c_str());
-      //  if (event.m_info->isAvailable<std::vector<std::vector<float> > >((decorName + "_Syst").c_str())) {
-      //    m_ASMweights_Syst = event.m_info->auxdataConst<std::vector<std::vector<float> > >((decorName + "_Syst").c_str());
-      //    m_ASMweights_Systname = event.m_info->auxdataConst<std::vector<std::vector<std::string> > >((decorName + "_Systname").c_str());
-      //  }
-      //}
+      if (event.m_info->isAvailable<std::vector<float> >(m_ASMdecorName.c_str())) {
+       m_ASMweights = event.m_info->auxdataConst<std::vector<float> >(m_ASMdecorName.c_str());
+      }
     }
 
     //event info
