@@ -11,6 +11,7 @@ find_package( Eigen )
 atlas_add_library( ActsTrkEvent
                    Root/*.cxx
                    PUBLIC_HEADERS ActsTrkEvent
+                   INCLUDE_DIRS ${Acts_INCLUDE_DIR}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
 		   AthenaBaseComps GaudiKernel AtlasDetDescr CxxUtils 
 		   xAODCore ActsCore ActsFatras ActsGeometryLib BeamSpotConditionsData
