@@ -21,7 +21,7 @@
 #include <TH2D.h>
 
 Identifier TGCHitsTestTool::getIdentifier(HitID tgchit) {
-  TgcHitIdHelper* tgchelper = TgcHitIdHelper::GetHelper();
+  const TgcHitIdHelper* tgchelper = TgcHitIdHelper::GetHelper();
   std::string tgc_stname = tgchelper->GetStationName(tgchit);
   int         tgc_steta  = tgchelper->GetStationEta(tgchit);
   int         tgc_stphi  = tgchelper->GetStationPhi(tgchit);

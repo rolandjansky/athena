@@ -22,7 +22,7 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         unsigned int n_hits{0};
         // Get the sTGC Id hit helper
-        sTgcHitIdHelper* stgchhelper = sTgcHitIdHelper::GetHelper(); 
+        const sTgcHitIdHelper* stgchhelper = sTgcHitIdHelper::GetHelper();
 
         if (!stgcContainer->size()) ATH_MSG_DEBUG("sTGC Sim container is empty");
         for (const sTGCSimHit& hit : *stgcContainer) {

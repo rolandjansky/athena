@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscHitIdHelper_H
@@ -13,9 +13,9 @@
 class CscHitIdHelper: public HitIdHelper {
 public:
 
-  static CscHitIdHelper* GetHelper();
+  static const CscHitIdHelper* GetHelper();
   std::string GetStationName(const int& hid) const;
-  void SetStationName(std::string name, int& hid) const;
+  void SetStationName(const std::string& name, int& hid) const;
   int GetPhiSector(const int& hid) const;
   int GetZSector(const int& hid) const;
   int GetChamberLayer(const int& hid) const;
@@ -28,8 +28,6 @@ private:
   CscHitIdHelper();
   void Initialize();
   void InitializeStationName();
-  static CscHitIdHelper* m_help;
-
 };
 
 #endif

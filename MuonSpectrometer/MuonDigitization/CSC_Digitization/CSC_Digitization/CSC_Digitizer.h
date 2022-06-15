@@ -37,7 +37,7 @@ public:
 class CSC_Digitizer {
 public:
     // full constructor
-    CSC_Digitizer(CscHitIdHelper* cscHitHelper, const MuonGM::MuonDetectorManager* muonMgr, ICscCalibTool* pcalib);
+    CSC_Digitizer(const CscHitIdHelper* cscHitHelper, const MuonGM::MuonDetectorManager* muonMgr, ICscCalibTool* pcalib);
 
     // Destructor
     ~CSC_Digitizer() = default;
@@ -90,7 +90,7 @@ private:
     Identifier to_identifier(const CSCSimHit* cscHit) const;
 
     // private data members
-    CscHitIdHelper* m_cscHitHelper{nullptr};
+    const CscHitIdHelper* m_cscHitHelper{nullptr};
     const MuonGM::MuonDetectorManager* m_muonMgr{nullptr};  // cannot use ReadCondHandleKey since no athena component
     const CscIdHelper* m_cscIdHelper{nullptr};
     ICscCalibTool* m_pcalib{nullptr};

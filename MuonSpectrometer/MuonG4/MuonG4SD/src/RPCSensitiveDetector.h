@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class RPCSensitiveDetector
@@ -109,7 +109,7 @@ public:
 private:
     /** member data */
     SG::WriteHandle<RPCSimHitCollection> m_myRPCHitColl;
-    RpcHitIdHelper* m_muonHelper;
+    const RpcHitIdHelper* m_muonHelper;
     bool m_isGeoModel;
 };
 

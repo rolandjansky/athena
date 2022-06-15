@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
@@ -21,7 +21,7 @@
 using namespace MuonGM;
 
 // Constructors
-CSC_Digitizer::CSC_Digitizer(CscHitIdHelper* cscHitHelper, const MuonDetectorManager* muonMgr, ICscCalibTool* pcalib) :
+CSC_Digitizer::CSC_Digitizer(const CscHitIdHelper* cscHitHelper, const MuonDetectorManager* muonMgr, ICscCalibTool* pcalib) :
     m_cscHitHelper{cscHitHelper}, m_muonMgr{muonMgr}, m_cscIdHelper{m_muonMgr->cscIdHelper()}, m_pcalib{pcalib} {
     /// CSL / CSS
     m_stationDict['S'] = m_cscIdHelper->stationNameIndex("CSS");

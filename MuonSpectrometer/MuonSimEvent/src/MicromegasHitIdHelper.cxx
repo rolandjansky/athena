@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
@@ -7,8 +7,6 @@
 #include <iostream>
 #include <iomanip>
 #include <array>
-
-MicromegasHitIdHelper* MicromegasHitIdHelper::m_help = nullptr;
 
 namespace {
     const static std::array<char, 1> v1 = {'M'};
@@ -24,10 +22,10 @@ MicromegasHitIdHelper::MicromegasHitIdHelper() : HitIdHelper()
   Initialize();
 }
 
-MicromegasHitIdHelper* MicromegasHitIdHelper::GetHelper()
+const MicromegasHitIdHelper* MicromegasHitIdHelper::GetHelper()
 {
-  if (!m_help) m_help = new MicromegasHitIdHelper();
-  return m_help;
+  static const MicromegasHitIdHelper helper;
+  return &helper;
 }
 
 void MicromegasHitIdHelper::Initialize()
@@ -48,7 +46,7 @@ void MicromegasHitIdHelper::InitializeStationName()
   InitializeField("Station[4]",0,sizeof(v4));
 }
 
-void MicromegasHitIdHelper::SetStationName(std::string name, int& hid) const
+void MicromegasHitIdHelper::SetStationName(const std::string& name, int& hid) const
 {
   for (unsigned int i=0;i<sizeof(v1);i++)
     if (v1[i]==name[0]) SetFieldValue("Station[1]",i,hid);
