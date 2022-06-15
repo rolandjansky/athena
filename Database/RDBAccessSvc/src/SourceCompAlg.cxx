@@ -80,8 +80,8 @@ std::vector<std::string> SourceCompAlg::getGlobalTags(RDBAccessSvc* rdbAccessSvc
 {
   std::vector<std::string> tagdiff, taglist1, taglist2;
   std::vector<char> leftright;
-  taglist1 = rdbAccessSvc->getLockedSupportedTags(m_connNames[0]);
-  taglist2 = rdbAccessSvc->getLockedSupportedTags(m_connNames[1]);
+  taglist1 = rdbAccessSvc->getLockedSupportedTags(m_supportedGeometry,m_connNames[0]);
+  taglist2 = rdbAccessSvc->getLockedSupportedTags(m_supportedGeometry,m_connNames[1]);
   tagdiff.resize(taglist1.size()+taglist2.size());
   auto it1 = taglist1.begin();
   auto it1last = taglist1.end();
