@@ -18,6 +18,10 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_BeamGas
     else:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_ATLxk
+        if flags.InDet.Tracking.writeSeedValNtuple:
+            kwargs.setdefault("WriteNtuple", True)
+            HistService = CompFactory.THistSvc(Output = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"])
+            acc.addService(HistService)
 
     kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minPT )
     kwargs.setdefault("maxdImpact", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )

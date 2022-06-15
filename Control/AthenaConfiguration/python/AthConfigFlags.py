@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from copy import deepcopy
+from copy import copy, deepcopy
 from AthenaCommon.Logging import logging
 _msg = logging.getLogger('AthConfigFlags')
 
@@ -309,9 +309,10 @@ class AthConfigFlags(object):
             self._hash = None
 
     def clone(self):
-        #return an unlocked copy of self
+        """Return an unlocked copy of self (dynamic flags are not loaded)"""
         cln = AthConfigFlags()
         cln._flagdict = deepcopy(self._flagdict)
+        cln._dynaflags = copy(self._dynaflags)
         return cln
 
 

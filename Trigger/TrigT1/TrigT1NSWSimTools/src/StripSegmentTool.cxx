@@ -251,7 +251,7 @@ namespace NSWL1 {
       //inf momentum track 
       theta_inf=v3_centr1.Theta();
       eta_inf=v3_centr1.Eta();
-      dtheta=(theta_inf-theta)*1000;//In Milliradian
+      dtheta=(theta-theta_inf)*1000;//In Milliradian
 
       ATH_MSG_DEBUG("StripSegmentTool: phi:" << phi << " theta:" << theta << " eta: " << eta << " theta_inf: " << theta_inf << " eta_inf: " << eta_inf << " dtheta: " << dtheta);
 
@@ -299,7 +299,7 @@ namespace NSWL1 {
       }
 
       //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
-      if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
+      if(std::abs(dtheta)>15) continue;
       auto rdo_segment= std::make_unique<Muon::NSW_TrigRawDataSegment>( dtheta_int,  (uint8_t)phiId, (rIndex), lowRes,  phiRes);
       trgRawData->push_back(std::move(rdo_segment));
       trgContainer->push_back(std::move(trgRawData));

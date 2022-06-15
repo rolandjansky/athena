@@ -60,6 +60,8 @@ InDetPerfPlot_Hits::initializePlots() {
   book(m_nSCTHits_vs_etaphi, "nSCTHits_vs_etaphi");
   book(m_nSCTHoles_vs_etaphi, "nSCTHoles_vs_etaphi");
 
+  book(m_pixeldEdx, "pixeldEdx");
+
   if (m_iDetailLevel >= 100){
     book(m_nInnerMostPixelOutliers, "nInnerMostPixelOutliers");
     book(m_nInnerMostPixelSplitHits, "nInnerMostPixelSplitHits");
@@ -151,6 +153,7 @@ InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track, float mu, float weigh
 
   float eta = track.eta();
   float phi = track.phi();
+  float pixeldEdx = 0;
 
   uint8_t iInnerMostPixelHits(0), iNextToInnerMostPixelHits(0), iPixHits(0), iSctHits(0), iTrtHits(0);
   uint8_t iPixHoles(0), iSCTHoles(0), iTrtHTHits(0);
@@ -227,6 +230,9 @@ InDetPerfPlot_Hits::fill(const xAOD::TrackParticle& track, float mu, float weigh
     fillHisto(m_nSCTSharedHits_vs_eta, eta, iSCTShared, weight);
     fillHisto(m_nSCTSharedHits_vs_phi, phi, iSCTShared, weight);
     if (m_iDetailLevel >= 100) fillHisto(m_nSCTSharedHits_vs_mu, mu, iSCTShared, weight);
+  }
+  if (track.summaryValue(pixeldEdx, xAOD::pixeldEdx)) {
+    fillHisto(m_pixeldEdx, pixeldEdx, weight);
   }
 
   // expert plots

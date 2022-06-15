@@ -63,8 +63,7 @@ then
   echo "Running art.py command"
   art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool \
   --ignore-leave 'Token' --ignore-leave 'index_ref' --ignore-leave '(.*)_timings\.(.*)' --ignore-leave '(.*)_mems\.(.*)' \
-  --ignore-leave '(.*)TrigCostContainer(.*)' --ignore-leave '(.*)HLTNav_Summary_OnlineSlimmed(.*)' \
-  --ignore-leave '(.*)HLTNav_Summary_AODSlimmedAux(.*)' # ATR-25521
+  --ignore-leave '(.*)TrigCostContainer(.*)' --ignore-leave '(.*)HLTNav_Summary_OnlineSlimmed(.*)'
   rc2=$?
 fi
 echo  "art-result: ${rc2} Diff"
