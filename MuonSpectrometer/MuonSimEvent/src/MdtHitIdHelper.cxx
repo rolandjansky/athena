@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/MdtHitIdHelper.h"
@@ -8,8 +8,6 @@
 #include <iomanip>
 #include <array>
 
-MdtHitIdHelper* MdtHitIdHelper::m_help = nullptr;
-
 namespace {
     const static std::array<char, 4> v1 = {'B','E','T','C'};
     const static std::array<char, 9> v2 = {'I','M','O','E','1','2','3','4','S'};
@@ -17,28 +15,16 @@ namespace {
 }
 
 //private constructor
-MdtHitIdHelper::MdtHitIdHelper() : HitIdHelper()
-{
-  InitializeStationName();
-  Initialize();
-}
-
 MdtHitIdHelper::MdtHitIdHelper(const unsigned int nTubes) : HitIdHelper()
 {
   InitializeStationName();
   Initialize(nTubes);
 }
 
-MdtHitIdHelper* MdtHitIdHelper::GetHelper()
+const MdtHitIdHelper* MdtHitIdHelper::GetHelper(const unsigned int nTubes)
 {
-  if (!m_help) m_help = new MdtHitIdHelper();
-  return m_help;
-}
-
-MdtHitIdHelper* MdtHitIdHelper::GetHelper(const unsigned int nTubes)
-{
-  if (!m_help) m_help = new MdtHitIdHelper(nTubes);
-  return m_help;
+  static const MdtHitIdHelper helper(nTubes);
+  return &helper;
 }
 
 void MdtHitIdHelper::Initialize(const unsigned int nTubes)
@@ -57,7 +43,7 @@ void MdtHitIdHelper::InitializeStationName()
   InitializeField("Station[3]",0,sizeof(v3));
 }
 
-void MdtHitIdHelper::SetStationName(std::string name, int& hid) const
+void MdtHitIdHelper::SetStationName(const std::string& name, int& hid) const
 {
   for (unsigned int i=0;i<sizeof(v1);i++)
     if (v1[i]==name[0]) SetFieldValue("Station[1]",i,hid);

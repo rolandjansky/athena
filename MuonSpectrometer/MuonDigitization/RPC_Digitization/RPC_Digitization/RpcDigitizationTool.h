@@ -158,7 +158,7 @@ private:
 
     const MuonGM::MuonDetectorManager* m_GMmgr{};
     const RpcIdHelper* m_idHelper{};
-    RpcHitIdHelper* m_muonHelper{};
+    const RpcHitIdHelper* m_muonHelper{};
     std::vector<std::unique_ptr<RPCSimHitCollection>> m_RPCHitCollList;
     std::unique_ptr<TimedHitCollection<RPCSimHit>> m_thpcRPC{};
     SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};

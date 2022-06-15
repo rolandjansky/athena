@@ -20,7 +20,7 @@
 
 
 Identifier CSCHitsTestTool::getIdentifier(HitID cschit) {
-  CscHitIdHelper* cschelper = CscHitIdHelper::GetHelper();
+  const CscHitIdHelper* cschelper = CscHitIdHelper::GetHelper();
   
   const std::string & csc_stname = cschelper->GetStationName(cschit);
   int csc_steta  = cschelper->GetZSector(cschit);

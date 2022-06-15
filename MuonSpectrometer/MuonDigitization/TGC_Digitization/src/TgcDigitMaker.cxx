@@ -28,7 +28,7 @@
 //---------------------------------------------------
 
 //----- Constructor
-TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
+TgcDigitMaker::TgcDigitMaker(const TgcHitIdHelper* hitIdHelper,
 			     const MuonGM::MuonDetectorManager* mdManager,
 			     unsigned int                       runperiod)
   : AthMessaging ("TgcDigitMaker")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMHITTOPRD_H
@@ -54,7 +54,7 @@ private:
 
     const MuonGM::MuonDetectorManager *m_muonMgr{nullptr};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    RpcHitIdHelper *m_muonHelper{nullptr};  // simulation id helper
+    const RpcHitIdHelper *m_muonHelper{nullptr};  // simulation id helper
 
     Gaudi::Property<bool> m_doMCtruth{this, "doMCtruth", true};
     Gaudi::Property<bool> m_doRPCSimHit{this, "doRPCSimHit", true};

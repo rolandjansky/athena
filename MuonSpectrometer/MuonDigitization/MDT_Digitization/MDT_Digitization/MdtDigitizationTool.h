@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class MdtDigitizationTool
@@ -143,7 +143,7 @@ private:
     MDT_SortedHitVector m_hits;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    MdtHitIdHelper* m_muonHelper{};
+    const MdtHitIdHelper* m_muonHelper{};
 
     MDTSimHit applyDeformations(const MDTSimHit&, const MuonGM::MdtReadoutElement*, const Identifier&);
 

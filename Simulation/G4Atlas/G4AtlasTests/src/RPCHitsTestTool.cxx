@@ -23,7 +23,7 @@
 #include "TTree.h"
 
 Identifier RPCHitsTestTool::getIdentifier(HitID rpchit) {
-  RpcHitIdHelper* rpchelper = RpcHitIdHelper::GetHelper(m_pRpcIdHelper->gasGapMax());
+  const RpcHitIdHelper* rpchelper = RpcHitIdHelper::GetHelper(m_pRpcIdHelper->gasGapMax());
   std::string rpc_stname = rpchelper->GetStationName(rpchit);
   int         rpc_steta  = rpchelper->GetZSector(rpchit);
   int         rpc_stphi  = rpchelper->GetPhiSector(rpchit);

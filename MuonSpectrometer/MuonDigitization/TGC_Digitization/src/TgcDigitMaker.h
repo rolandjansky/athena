@@ -38,7 +38,7 @@ class TGCSimHit;
 //--- class description
 class TgcDigitMaker : public AthMessaging {
  public:
-  TgcDigitMaker(TgcHitIdHelper*                     hitIdHelper, 
+  TgcDigitMaker(const TgcHitIdHelper* hitIdHelper,
 		const MuonGM::MuonDetectorManager * mdManager,
 		unsigned int                        runperiod);
 
@@ -187,7 +187,7 @@ class TgcDigitMaker : public AthMessaging {
 
   std::vector<std::vector<float> > m_vecAngle_Time;
 
-  TgcHitIdHelper* m_hitIdHelper;
+  const TgcHitIdHelper* m_hitIdHelper;
   unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager; // cannot use ReadCondHandleKey since no athena component
   const TgcIdHelper* m_idHelper;

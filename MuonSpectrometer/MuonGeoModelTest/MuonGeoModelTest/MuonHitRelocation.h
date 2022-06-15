@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_HIT_RELOCATION_H
@@ -38,12 +38,12 @@ private:
 
     class Clockwork;
     Clockwork* m_c;
-    RpcHitIdHelper* m_rmuonHelper;
-    MdtHitIdHelper* m_mmuonHelper;
-    TgcHitIdHelper* m_tmuonHelper;
-    CscHitIdHelper* m_cmuonHelper;
-    sTgcHitIdHelper* m_stmuonHelper;
-    MicromegasHitIdHelper* m_mmmuonHelper;
+    const RpcHitIdHelper* m_rmuonHelper;
+    const MdtHitIdHelper* m_mmuonHelper;
+    const TgcHitIdHelper* m_tmuonHelper;
+    const CscHitIdHelper* m_cmuonHelper;
+    const sTgcHitIdHelper* m_stmuonHelper;
+    const MicromegasHitIdHelper* m_mmmuonHelper;
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 

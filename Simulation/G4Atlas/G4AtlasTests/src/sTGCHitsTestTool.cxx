@@ -47,7 +47,7 @@ StatusCode sTGCHitsTestTool::processEvent() {
       CHECK(executeFillHistos(u));
       
       
-      sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();	
+      const sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
       int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
 

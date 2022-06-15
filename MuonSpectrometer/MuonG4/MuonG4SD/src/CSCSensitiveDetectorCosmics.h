@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class CSCSensitiveDetectorCosmics
@@ -85,7 +85,7 @@ private:
 
     /** member data */
     SG::WriteHandle<CSCSimHitCollection>  m_myCSCHitColl;
-    CscHitIdHelper* m_muonHelper;
+    const CscHitIdHelper* m_muonHelper;
 };
 
 #endif

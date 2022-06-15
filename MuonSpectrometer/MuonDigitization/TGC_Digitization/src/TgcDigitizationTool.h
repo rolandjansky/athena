@@ -83,7 +83,7 @@ protected:
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
 private:
-  TgcHitIdHelper*                    m_hitIdHelper{};
+  const TgcHitIdHelper*              m_hitIdHelper{};
   const TgcIdHelper*                 m_idHelper{};
   const MuonGM::MuonDetectorManager* m_mdManager{};
   TgcDigitMaker*                     m_digitizer{};
