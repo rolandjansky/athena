@@ -1,4 +1,3 @@
-
 #include "src/SiSpacePointsSeedMaker.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -8,18 +7,24 @@
 
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 
-#include "ActsTrkEvent/SpacePoint.h"
 #include "ActsTrkEvent/Seed.h"
 #include "SiSpacePoint/SCT_SpacePoint.h"
 #include "SiSpacePoint/PixelSpacePoint.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-
+#include "MagFieldElements/AtlasFieldCache.h"
 //for validation
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
+
+#include "ActsTrkEvent/SpacePoint.h"
+#include "TTree.h"
+
 
 
 namespace ActsTrk {
@@ -560,7 +565,7 @@ namespace ActsTrk {
 
     // We can now run the Acts Seeding
     std::unique_ptr< ActsTrk::SeedContainer > seedPtrs = std::make_unique< ActsTrk::SeedContainer >();
-
+    //cppcheck-suppress unreadVariable
     std::string combinationType = isPixel ? "PPP" : "SSS";
     ATH_MSG_DEBUG("Running Seed Finding (" << combinationType << ") ...");
 
@@ -726,23 +731,30 @@ namespace ActsTrk {
           std::pair<size_t, size_t> middle_indices = {medium_idx[0], medium_idx[1]};
           std::pair<size_t, size_t> top_indices    = {top_idx[0], top_idx[1]};
 
-          if (stripSpacePoints.find(bottom_indices) == stripSpacePoints.end())
-            stripSpacePoints[bottom_indices] = new InDet::SCT_SpacePoint(
-              {strip_cluster[0]->identifierHash(), strip_cluster[1]->identifierHash()},
-              Amg::Vector3D(seed->sp()[0]->x(), seed->sp()[0]->y(), seed->sp()[0]->z()),
-              {*(stripLinkAcc(*strip_cluster[0])), *(stripLinkAcc(*strip_cluster[1]))});
+          if (auto & pBottomPoint = stripSpacePoints[bottom_indices];!pBottomPoint){
+            pBottomPoint = new InDet::SCT_SpacePoint(
+             {strip_cluster[0]->identifierHash(), strip_cluster[1]->identifierHash()},
+             Amg::Vector3D(seed->sp()[0]->x(), seed->sp()[0]->y(), seed->sp()[0]->z()),
+             {*(stripLinkAcc(*strip_cluster[0])), *(stripLinkAcc(*strip_cluster[1]))});
+            stripSpacePoints[bottom_indices] = pBottomPoint;
+          }
 
-          if (stripSpacePoints.find(middle_indices) == stripSpacePoints.end())
-            stripSpacePoints[middle_indices] = new InDet::SCT_SpacePoint(
-              {strip_cluster[2]->identifierHash(), strip_cluster[3]->identifierHash()},
-              Amg::Vector3D(seed->sp()[1]->x(), seed->sp()[1]->y(), seed->sp()[1]->z()),
-              {*(stripLinkAcc(*strip_cluster[2])), *(stripLinkAcc(*strip_cluster[3]))});
+          if (auto & pMiddlePoint = stripSpacePoints[middle_indices];!pMiddlePoint){
+            pMiddlePoint = new InDet::SCT_SpacePoint(
+             {strip_cluster[2]->identifierHash(), strip_cluster[3]->identifierHash()},
+             Amg::Vector3D(seed->sp()[1]->x(), seed->sp()[1]->y(), seed->sp()[1]->z()),
+             {*(stripLinkAcc(*strip_cluster[2])), *(stripLinkAcc(*strip_cluster[3]))});
+            stripSpacePoints[middle_indices] = pMiddlePoint;
+          }
+          
+          if (auto & pTopPoint = stripSpacePoints[top_indices];!pTopPoint){
+            pTopPoint = new InDet::SCT_SpacePoint(
+             {strip_cluster[4]->identifierHash(), strip_cluster[5]->identifierHash()},
+             Amg::Vector3D(seed->sp()[2]->x(), seed->sp()[2]->y(), seed->sp()[2]->z()),
+             {*(stripLinkAcc(*strip_cluster[4])), *(stripLinkAcc(*strip_cluster[5]))});
+            stripSpacePoints[top_indices] = pTopPoint;
+          }
 
-          if (stripSpacePoints.find(top_indices) == stripSpacePoints.end())
-            stripSpacePoints[top_indices] = new InDet::SCT_SpacePoint(
-              {strip_cluster[4]->identifierHash(), strip_cluster[5]->identifierHash()},
-              Amg::Vector3D(seed->sp()[2]->x(), seed->sp()[2]->y(), seed->sp()[2]->z()),
-              {*(stripLinkAcc(*strip_cluster[4])), *(stripLinkAcc(*strip_cluster[5]))});
 
           std::array<InDet::SCT_SpacePoint*, 3> spacePoints {stripSpacePoints[bottom_indices],
                                                              stripSpacePoints[middle_indices],
