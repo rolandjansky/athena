@@ -7,6 +7,7 @@
 #include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
 #include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
+#include "JetCalibTools/CalibrationMethods/MC2MCCorrection.h"
 
 DECLARE_TOOL_FACTORY( JetCalibrationTool )
 DECLARE_TOOL_FACTORY( JetPileupCorrection )
@@ -14,6 +15,7 @@ DECLARE_TOOL_FACTORY( ResidualOffsetCorrection )
 DECLARE_TOOL_FACTORY( BcidOffsetCorrection )
 DECLARE_TOOL_FACTORY( EtaJESCorrection )
 DECLARE_TOOL_FACTORY( InsituDataCorrection )
+DECLARE_TOOL_FACTORY( MC2MCCorrection )
 
 DECLARE_FACTORY_ENTRIES( JetCalibTools )
 {
@@ -23,4 +25,5 @@ DECLARE_FACTORY_ENTRIES( JetCalibTools )
   DECLARE_TOOL( BcidOffsetCorrection );
   DECLARE_TOOL( EtaJESCorrection );
   DECLARE_TOOL( InsituDataCorrection );
+  DECLARE_TOOL( MC2MCCorrection );
 }

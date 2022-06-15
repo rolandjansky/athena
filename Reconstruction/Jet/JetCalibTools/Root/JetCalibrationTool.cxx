@@ -19,9 +19,9 @@
 
 JetCalibrationTool::JetCalibrationTool(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(nullptr),
-    m_doBcid(true), m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true),
-    m_bcidCorr(nullptr), m_jetPileupCorr(nullptr), m_etaJESCorr(nullptr), m_globalSequentialCorr(nullptr), m_insituDataCorr(nullptr), m_jetMassCorr(nullptr), m_jetSmearCorr(nullptr), InsituCombMassCorr(nullptr), m_insituCombMassCorr(), m_genericScaleCorr(nullptr)
+    m_jetAlgo(""), m_config(""), m_calibSeq(""), m_calibAreaTag(""), m_originScale(""), m_shower(""), m_devMode(false), m_isData(true), m_timeDependentCalib(false), m_rhoKey("auto"), m_dir(""), m_eInfoName(""), m_globalConfig(nullptr),
+    m_doBcid(true), m_doJetArea(true), m_doResidual(true), m_doOrigin(true), m_doGSC(true), m_doMC2MC(true),
+    m_bcidCorr(nullptr), m_jetPileupCorr(nullptr), m_etaJESCorr(nullptr), m_globalSequentialCorr(nullptr), m_insituDataCorr(nullptr), m_jetMassCorr(nullptr), m_jetSmearCorr(nullptr), m_jetMC2MCCorr(nullptr), InsituCombMassCorr(nullptr), m_insituCombMassCorr(), m_genericScaleCorr(nullptr)
 { 
 
   declareProperty( "JetCollection", m_jetAlgo = "AntiKt4LCTopo" );
@@ -34,6 +34,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "DEVmode", m_devMode = false);
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
+  declareProperty( "ShowerModel", m_shower = "Py8" );
 
 }
 
@@ -50,6 +51,7 @@ JetCalibrationTool::~JetCalibrationTool() {
   if (m_insituDataCorr) delete m_insituDataCorr;
   if (m_jetMassCorr) delete m_jetMassCorr;
   if (m_jetSmearCorr) delete m_jetSmearCorr;
+  if (m_jetMC2MCCorr) delete m_jetMC2MCCorr;
   if (m_timeDependentCalib) delete InsituCombMassCorr;
   if (m_genericScaleCorr) delete m_genericScaleCorr;
 }
@@ -169,6 +171,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   if ( !calibSeq.Contains("Bcid") ) m_doBcid = false;
 
+  if ( !calibSeq.Contains("MC2MC")) m_doMC2MC = false;
+
   //Protect against the in-situ calibration being requested when isData is false
   if ( calibSeq.Contains("Insitu") && !m_isData ) {
     ATH_MSG_FATAL("JetCalibrationTool::initializeTool : calibSeq string contains Insitu with isData set to false. Can't apply in-situ correction to MC!!");
@@ -237,6 +241,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 //Method for initializing the requested calibration derived classes
 StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString calibration) {
   TString jetAlgo = m_jetAlgo;
+  TString shower = m_shower;
   const TString calibPath = "CalibArea-" + m_calibAreaTag + "/";
   std::string suffix = "";
   //ATH_MSG_INFO("Initializing sub tools.");
@@ -379,6 +384,24 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
 	  m_absInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getAbsHistoPtMax());
         }
       }
+      return StatusCode::SUCCESS; 
+    }
+  } else if ( calibration.EqualTo("MC2MC") ) {
+    if (m_isData)
+    {
+      ATH_MSG_FATAL("Asked for MC2MC of data, which is not supported.  Aborting.");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_INFO("Initializing MC2MC correction.");
+    suffix="_MC2MC";
+    m_jetMC2MCCorr = new MC2MCCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,shower,m_devMode);
+    m_jetMC2MCCorr->msg().setLevel(this->msg().level());
+    if ( m_jetMC2MCCorr->initializeTool(name+suffix).isFailure() ) {
+      ATH_MSG_FATAL("Couldn't initialize the MC2MC correction. Aborting"); 
+      return StatusCode::FAILURE; 
+    } else { 
+      m_calibClasses.push_back(m_jetMC2MCCorr);
       return StatusCode::SUCCESS; 
     }
   } else if ( calibration.EqualTo("Smear") ) {
@@ -531,7 +554,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   }
 
   // Retrieve EventInfo object, which now has multiple uses
-  if ( m_doResidual || m_doGSC || m_doBcid) {
+  if ( m_doResidual || m_doGSC || m_doBcid || m_doMC2MC) {
     const xAOD::EventInfo * eventObj = 0;
     static unsigned int eventInfoWarnings = 0;
     if ( evtStore()->retrieve(eventObj,m_eInfoName).isFailure() || !eventObj ) {
@@ -559,6 +582,11 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       else
         jetEventInfo.setPVIndex(0);
       
+    }
+
+    if (m_doMC2MC)
+    {
+      jetEventInfo.setChannelNumber( eventObj->mcChannelNumber() );
     }
 
     // Extract the BCID information for the BCID correction
