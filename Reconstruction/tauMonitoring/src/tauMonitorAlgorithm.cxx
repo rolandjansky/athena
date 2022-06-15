@@ -87,6 +87,12 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
   auto tauPhiRNNMedium = Monitored::Scalar<float>("tauPhiRNNMedium", 0.0);
   auto NumTracksRNNMedium = Monitored::Scalar<float>("NumTracksRNNMedium", 0.0);
 
+  auto tauEtRNNTight = Monitored::Scalar<float>("tauEtRNNTight", 0.0);
+  auto tauEtaRNNTight = Monitored::Scalar<float>("tauEtaRNNTight", 0.0);
+  auto tauPhiRNNTight = Monitored::Scalar<float>("tauPhiRNNTight", 0.0);
+  auto NumTracksRNNTight = Monitored::Scalar<float>("NumTracksRNNTight", 0.0);
+
+
   auto LB = Monitored::Scalar<int>("LB", 0.0);
 
   auto EMRadius = Monitored::Scalar<float>("EMRadius", 0.0);
@@ -106,7 +112,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
 
   auto tauRNNLoose = Monitored::Scalar<float>("tauRNNLoose", 0.0);
   auto tauRNNMedium = Monitored::Scalar<float>("tauRNNMedium", 0.0);
-  auto tauRNNTight = Monitored::Scalar<float>("tauRNNight", 0.0);
+  auto tauRNNTight = Monitored::Scalar<float>("tauRNNTight", 0.0);
 
   auto PSSFrac = Monitored::Scalar<float>("PSSFrac", 0.0);
   auto EMFrac = Monitored::Scalar<float>("EMFrac", 0.0);
@@ -333,6 +339,17 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
         fill(tool, tauPhiRNNMedium, tauEtaRNNMedium, NumTracksRNNMedium,
              tauEtRNNMedium);
       }
+
+      if (m_kinGroupName != "tauMonKinGroupGlobal" && tauRNNTight) {
+        tauPhiRNNTight = tau->phi();
+        tauEtaRNNTight = tau->eta();
+        tauEtRNNTight = tau->pt() / GeV;
+        NumTracksRNNTight = tau->nTracks();
+
+        fill(tool, tauPhiRNNTight, tauEtaRNNTight, NumTracksRNNTight,
+             tauEtRNNTight);
+      }
+
 
       // tracks - old
       if (tau->nTracks() != 0) {
