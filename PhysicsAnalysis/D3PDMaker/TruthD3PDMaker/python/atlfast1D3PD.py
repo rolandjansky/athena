@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file TruthD3PDMaker/python/atlfast1D3PD.py
@@ -16,8 +16,6 @@ from TruthD3PDMaker.Atlfast1PhotonD3PDObject         import Atlfast1PhotonD3PDOb
 from MuonD3PDMaker.MuonD3PDObject                    import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject                      import JetD3PDObject
 from TruthD3PDMaker.TruthJetD3PDObject               import TruthJetD3PDObject
-from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import Atlfast1MissingETD3PDObject
-from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import TruthMETD3PDObject
 
 from TruthD3PDMaker.GenEventD3PDObject               import GenEventD3PDObject
 from TruthD3PDAnalysis.truthParticleConfig           import truthParticleConfig
@@ -54,14 +52,12 @@ def atlfast1D3PD (file,
     alg += Atlfast1PhotonD3PDObject (10)
     alg += MuonD3PDObject (0)
     alg += JetD3PDObject (0)
-    alg += Atlfast1MissingETD3PDObject (0)
 
     #alg += TauD3PDObject (0)
 
     if rec.doTruth():
         alg += GenEventD3PDObject (1)
         alg += TruthParticleD3PDObject (1)
-        alg += TruthMETD3PDObject (level=10)
         alg += TruthJetD3PDObject (level=10, sgkey='AntiKt4TruthJets', prefix='AntiKt4TruthJets_')
         alg += TruthJetD3PDObject (level=10, sgkey='AntiKt4TruthPartonJets', prefix='AntiKt4TruthPartonJets_')
 

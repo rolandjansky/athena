@@ -151,9 +151,6 @@ from TruthD3PDMaker.TruthParticleD3PDObject import TruthParticleD3PDObject
 alg += TruthParticleD3PDObject (1, 'TruthParticle')
 alg.TruthParticle.BlockFillers[1].WriteE=True # Turn on the writing of the Energy branch
 
-from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import TruthMETD3PDObject
-alg += TruthMETD3PDObject (level=10)
-
 # Add the necessary input containers for the objects
 from TruthD3PDMaker.TruthParticleFakerObject import simpleParticleConfig
 simpleParticleConfig(topSequence,sgkey='SimpleElectronContainer',pdg_id=11,min_pt=1*GeV)
