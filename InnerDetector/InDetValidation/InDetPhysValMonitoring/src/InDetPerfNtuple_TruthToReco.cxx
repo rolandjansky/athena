@@ -85,6 +85,7 @@ InDetPerfNtuple_TruthToReco::InDetPerfNtuple_TruthToReco(InDetPlotBase* pParent,
     m_numberOfTRTTubeHits("numberOfTRTTubeHits",m_undefinedValue,*this),
     m_numberOfTRTXenonHits("numberOfTRTXenonHits",m_undefinedValue,*this),
     m_numberOfTRTSharedHits("numberOfTRTSharedHits",m_undefinedValue,*this),
+    m_pixeldEdx("pixeldEdx",m_undefinedValue,*this),
     m_hasTruth("hasTruth",0,*this),
     m_hasTrack("hasTrack",0,*this),
     m_passedTruthSelection("passedTruthSelection",0,*this),
@@ -174,6 +175,7 @@ void InDetPerfNtuple_TruthToReco::fillTrack(const xAOD::TrackParticle& track, co
 
 void InDetPerfNtuple_TruthToReco::fillTrackSummaryInfo(const xAOD::TrackParticle& track) {
     uint8_t value = 0;
+    float fvalue = 0.;
     if (track.summaryValue(value, xAOD::numberOfContribPixelLayers)) {
         m_numberOfContribPixelLayers = value;
     }
@@ -302,6 +304,10 @@ void InDetPerfNtuple_TruthToReco::fillTrackSummaryInfo(const xAOD::TrackParticle
     }
     if (track.summaryValue(value, xAOD::numberOfTRTSharedHits)) {
         m_numberOfTRTSharedHits = value;
+    }
+
+    if (track.summaryValue(fvalue, xAOD::pixeldEdx)) {
+        m_pixeldEdx = fvalue;
     }
 }
 
