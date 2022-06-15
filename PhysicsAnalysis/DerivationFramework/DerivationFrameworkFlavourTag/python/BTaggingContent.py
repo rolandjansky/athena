@@ -41,9 +41,23 @@ BTaggingStandardAux = \
 
     , "SV1_NGTinSvx"
     , "SV1_masssvx"
-    , "dipsLoose20210729flip_pu"
-    , "dipsLoose20210729flip_pc"
-    , "dipsLoose20210729flip_pb"
+       
+    , "DL1dv00Flip_pu"
+    , "DL1dv00Flip_pc"
+    , "DL1dv00Flip_pb"
+
+    , "DL1r20210824r22Flip_pu"
+    , "DL1r20210824r22Flip_pc"
+    , "DL1r20210824r22Flip_pb"
+    
+    , "DL1dv01Flip_pu"
+    , "DL1dv01Flip_pc"
+    , "DL1dv01Flip_pb"
+    
+    , "dipsLoose20220314v2flip_pu"
+    , "dipsLoose20220314v2flip_pc"
+    , "dipsLoose20220314v2flip_pb"
+    
     ]
 
 # These are the inputs to DL1rmu + SMT
@@ -132,17 +146,8 @@ BTaggingHighLevelAux = [
 
     , "DL1d20210824r22_pu"
     , "DL1d20210824r22_pc"
-    , "DL1d20210824r22_pb"
-    
-    , "DL1dv00Flip_pu"
-    , "DL1dv00Flip_pc"
-    , "DL1dv00Flip_pb"
+    , "DL1d20210824r22_pb"    
 
-    , "DL1r20210824r22Flip_pu"
-    , "DL1r20210824r22Flip_pc"
-    , "DL1r20210824r22Flip_pb"
-
-    
     
     
 ]
