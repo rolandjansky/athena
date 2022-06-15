@@ -22,7 +22,7 @@
 #include "Acts/Seeding/Seedfinder.hpp"
 #include "Acts/Seeding/Seed.hpp"
 
-#include <math.h>
+#include <cmath> //for M_PI
 
 namespace ActsTrk {
   

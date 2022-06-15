@@ -11,14 +11,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "ActsTrkToolInterfaces/ISeedingTool.h"
 
-#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
-#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
-
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
-#include "MagFieldElements/AtlasFieldCache.h"
 
-#include "ActsTrkEvent/SpacePoint.h"
+
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
@@ -26,13 +22,19 @@
 #include "xAODInDetMeasurement/StripClusterContainer.h"
 
 #include "TrkEventUtils/PRDtoTrackMap.h"
-
+#include "TrkSpacePoint/SpacePoint.h" //used in an inline function in the header
 //for validation
-#include "GaudiKernel/ITHistSvc.h"
-#include "TFile.h"
-#include "TTree.h"
+
+
+class TTree;
+class ITHistSvc;
+
+namespace InDet{
+  class SiSpacePointsSeedMakerEventData;
+}
 
 namespace ActsTrk {
+  class SpacePoint;
 
   static constexpr float s_toTesla = 0.299785832;
 
@@ -169,8 +171,7 @@ namespace ActsTrk {
     StatusCode InitTree();
 
   private:
-    bool isUsed(const Trk::SpacePoint*, 
-		const Trk::PRDtoTrackMap &prd_to_track_map) const;
+    bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
 
   private:
