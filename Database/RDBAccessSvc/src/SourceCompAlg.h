@@ -28,6 +28,11 @@ class SourceCompAlg : public AthAlgorithm
       , ""
       , "Global geometry tag. If empty, all locked and supported tags will be compared"};
 
+  Gaudi::Property<std::string> m_supportedGeometry {this
+      , "SupportedGeometry"
+      , ""
+      , "Supported Geometry flag to be set from jobOptions"};
+
   std::vector<std::string> m_connNames{"Session1","Session2"};
 
   std::vector<std::string> getGlobalTags(RDBAccessSvc* rdbAccessSvc
