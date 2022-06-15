@@ -55,6 +55,7 @@ private:
   TH1* m_nTRTHighThresholdOutliers{nullptr};
   TH1* m_nPixelDeadSensors{nullptr};
   TH1* m_nSCTDeadSensors{nullptr};
+  TH1* m_pixeldEdx{nullptr};
   //
   //TProfiles versus eta
   //
