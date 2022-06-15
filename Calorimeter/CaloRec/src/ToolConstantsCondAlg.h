@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/ToolConstantsCondAlg.h
@@ -51,7 +51,7 @@ public:
 
   /// Gaudi execute method.
   StatusCode execute (const EventContext& ctx) const override;
-
+  virtual bool isReEntrant() const override final { return false; }
 
 private:
   ToolHandle<Blob2ToolConstants> m_blobTool

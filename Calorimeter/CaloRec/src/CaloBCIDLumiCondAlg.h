@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/src/CaloBCIDLumiCondAlg.h
@@ -50,9 +50,8 @@ public:
    * @brief Execute the algorithm.
    * @param ctx Event context.
    */
-  virtual StatusCode execute (const EventContext& ctx) const override;
-
-
+  virtual StatusCode execute (const EventContext& ctx) const override final;
+  virtual bool isReEntrant() const override final { return false; }
 private:
   /// Property: Coefficients object (conditions input).
   SG::ReadCondHandleKey<CaloBCIDCoeffs> m_coeffsKey
