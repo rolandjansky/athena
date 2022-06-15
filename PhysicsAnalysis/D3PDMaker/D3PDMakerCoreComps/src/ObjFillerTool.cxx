@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjFillerTool.cxx 631247 2014-11-26 16:25:26Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/ObjFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,6 +11,7 @@
 
 
 #include "ObjFillerTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/System.h"
 #include "D3PDMakerInterfaces/ID3PD.h"
 #include "GaudiKernel/Incident.h"
@@ -172,7 +172,9 @@ void ObjFillerTool::handle( const Incident& inc )
   if( inc.type() == "EndEvtLoop" ) {
     if( m_tree && m_metadata.variables().size() && m_saveMetadata ) {
       const std::string metadata = m_metadata.toString();
-      if( m_tree->addMetadata( m_metadata.metadataName(),
+      // safe because this incident handler is only called serially
+      const std::string metadataName ATLAS_THREAD_SAFE = m_metadata.metadataName();
+      if( m_tree->addMetadata( metadataName,
                                &metadata ).isFailure() ) {
         REPORT_MESSAGE( MSG::ERROR )
            << "Couldn't add object metadata information to the output!";

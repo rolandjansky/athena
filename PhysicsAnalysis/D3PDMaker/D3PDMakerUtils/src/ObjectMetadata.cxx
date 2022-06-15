@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectMetadata.cxx 781603 2016-11-01 15:48:18Z ssnyder $
 
 // Boost include(s):
 #include <boost/tokenizer.hpp>
@@ -56,14 +55,9 @@ namespace D3PD {
 
    // Set the value of the constant(s):
    const size_t          ObjectMetadata::RANDOM_NAME_POSTFIX_LENGTH = 6;
-   const char*           ObjectMetadata::STRING_SEPARATOR           = "@";
+   const char* const     ObjectMetadata::STRING_SEPARATOR           = "@";
    const unsigned int    ObjectMetadata::SERIALIZER_VERSION         = 1;
-   const char* ObjectMetadata::Variable::STRING_SEPARATOR           = "$";
-
-   // Initialize the static variable(s):
-   int ObjectMetadata::m_objectCounter = 0;
-
-   std::unordered_map<std::string, size_t> ObjectMetadata::m_namecount;
+   const char* const     ObjectMetadata::Variable::STRING_SEPARATOR = "$";
 
    ObjectMetadata::ObjectMetadata()
       : m_variables(), m_name( "" ), m_prefix( "" ),
@@ -194,12 +188,14 @@ namespace D3PD {
     *
     * @returns A unique name, containing the D3PDObject's name
     */
-   std::string ObjectMetadata::metadataName() const {
+   std::string ObjectMetadata::metadataName ATLAS_NOT_THREAD_SAFE () const {
 
+      // Variable used to give names to unnamed D3PDObject-s
+      static size_t objectCounter = 0;
       std::string name = m_name;
       if (name.empty()) {
-        ++m_objectCounter;
-        name = "D3PDObject" + boost::lexical_cast< std::string >( m_objectCounter );
+        ++objectCounter;
+        name = "D3PDObject" + boost::lexical_cast< std::string >( objectCounter );
       }
       return name + "_" + genSuffix (name, RANDOM_NAME_POSTFIX_LENGTH);
    }
@@ -407,10 +403,15 @@ namespace D3PD {
     * Instead, we generate the suffix based on a count of the number of times
     * we've seen a particular name.
     */
-   std::string ObjectMetadata::genSuffix (const std::string& name,
-                                          size_t length)
+   std::string ObjectMetadata::genSuffix ATLAS_NOT_THREAD_SAFE (const std::string& name,
+                                                                size_t length)
    {
-     size_t count = ++m_namecount[name];
+
+     // Count of the number of times a given name was used,
+     // in order to assign them a unique suffix.
+     static std::unordered_map<std::string, size_t> namecount;
+
+     const size_t count = ++namecount[name];
      std::ostringstream os;
      os << std::setw(length) << std::setprecision(length) << std::setfill('0')
         << count;

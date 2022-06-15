@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DummyInitAlg.h 486128 2012-03-02 08:54:20Z krasznaa $
 /**
  * @file D3PDMakerCoreComps/src/DummyInitAlg.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +18,7 @@
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -49,11 +49,11 @@ public:
 
 
   /// Standard Gaudi @c initialize method.
-  virtual StatusCode initialize();
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
 
 
   /// Standard Gaudi @c execute method.
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
 
 private:

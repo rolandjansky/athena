@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SGDataVectorGetterTool.cxx 790090 2016-12-16 05:31:29Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/SGDataVectorGetterTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +12,7 @@
 
 #include "SGDataVectorGetterTool.h"
 #include "AthContainers/tools/DVLInfo.h"
+#include "CxxUtils/checker_macros.h"
 #include "TROOT.h"
 #include "TMethodCall.h"
 
@@ -139,8 +139,9 @@ StatusCode SGDataVectorGetterTool::reset (bool allowMissing /*= false*/)
   }
   const void* p = m_converter.convertUntyped (p0);
   if (p) {
-    SG::AuxVectorBase* auxbase =
-      m_info->base (const_cast<void*> (p));
+    // need non-const pointer to call `base`
+    void* nonconst_p ATLAS_THREAD_SAFE = const_cast<void*> (p);
+    SG::AuxVectorBase* auxbase = m_info->base (nonconst_p);
     if (auxbase && auxbase->trackIndices() && !auxbase->getConstStore()) {
       // Try to retrieve a corresponding aux store.
       const SG::IConstAuxStore* store =
@@ -183,9 +184,10 @@ const void* SGDataVectorGetterTool::nextUntyped()
  */
 size_t SGDataVectorGetterTool::sizeHint (bool allowMissing /*= false*/)
 {
-  const void* p = m_converter.convertUntyped (getUntyped (allowMissing));
+  // need non-const pointer to call `size`
+  void* p ATLAS_THREAD_SAFE = const_cast<void*>(m_converter.convertUntyped (getUntyped (allowMissing)));
   if (!p) return 0;
-  return m_info->size (const_cast<void*> (p));
+  return m_info->size (p);
 }
 
 

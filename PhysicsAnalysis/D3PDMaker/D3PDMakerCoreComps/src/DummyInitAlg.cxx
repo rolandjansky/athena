@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DummyInitAlg.cxx 486128 2012-03-02 08:54:20Z krasznaa $
 /**
  * @file D3PDMakerCoreComps/src/DummyInitAlg.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -21,7 +20,7 @@
 namespace {
 
 
-class DirectoryRestore
+class ATLAS_NOT_THREAD_SAFE DirectoryRestore
   : public TDirectory::TContext
 {
 public:
@@ -67,7 +66,7 @@ DummyInitAlg::DummyInitAlg (const std::string& name,
 /**
  * @brief Standard Gaudi @c initialize method.
  */
-StatusCode DummyInitAlg::initialize()
+StatusCode DummyInitAlg::initialize ATLAS_NOT_THREAD_SAFE()
 {
   CHECK( AthAlgorithm::initialize() );
 

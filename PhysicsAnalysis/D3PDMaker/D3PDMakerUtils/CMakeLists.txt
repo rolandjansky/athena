@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( D3PDMakerUtils )
@@ -13,5 +13,5 @@ atlas_add_library( D3PDMakerUtils
                    PUBLIC_HEADERS D3PDMakerUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks GaudiKernel StoreGateLib D3PDMakerInterfaces
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks CxxUtils GaudiKernel StoreGateLib D3PDMakerInterfaces
                    PRIVATE_LINK_LIBRARIES AthContainersInterfaces ${ROOT_LIBRARIES} SGTools )

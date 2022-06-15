@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -119,12 +119,16 @@ const void* TypeConverter::convertUntyped (const void* p) const
   case IDENTICAL:
     return p;
 
-  case SRC_BASE:
-    return m_srcBIB->cast (const_cast<void*> (p), *m_dstTypeinfo);
-
-  case DST_BASE:
-    return m_dstBIB->castTo (const_cast<void*> (p), *m_srcTypeinfo);
-
+  case SRC_BASE: {
+    // need non-const pointer
+    void* nonconst_p ATLAS_THREAD_SAFE = const_cast<void*> (p);
+    return m_srcBIB->cast (nonconst_p, *m_dstTypeinfo);
+  }
+  case DST_BASE: {
+    // need non-const pointer
+    void* nonconst_p ATLAS_THREAD_SAFE = const_cast<void*> (p);
+    return m_dstBIB->castTo (nonconst_p, *m_srcTypeinfo);
+  }
   default:
     std::abort();
   }
