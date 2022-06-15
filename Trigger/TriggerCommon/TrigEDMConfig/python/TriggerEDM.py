@@ -9,7 +9,7 @@
 
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 from TrigEDMConfig.TriggerEDMRun2 import TriggerResultsList,TriggerLvl1List,TriggerIDTruth,TriggerHLTList,EDMDetails,EDMLibraries,TriggerL2EvolutionList,TriggerEFEvolutionList
-from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, AllowedOutputFormats,addExtraCollectionsToEDMList
+from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3,AllowedOutputFormats,addExtraCollectionsToEDMList,varToRemoveFromAODSLIM
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerEDM')
@@ -49,7 +49,12 @@ def getTriggerEDMList(key, runVersion):
             # this keeps only the dynamic variables that have been specificied in TriggerEDMRun3
             Run3TrigEDM = {}
             Run3TrigEDMCOMM = {}
-            if "AODFULL" in key: #introduction of AODCOMM for Run3 to keep track of containers only needed for commissioning
+            Run3TrigEDMSLIM = {}
+
+
+            if "AODFULL" in key: 
+                #Containers marked with AODCOMM to be added to AODFULL
+
                 Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
 
                 Run3TrigEDMCOMM.update(getRun3TrigEDMSlimList("AODCOMM"))
@@ -58,6 +63,37 @@ def getTriggerEDMList(key, runVersion):
                         Run3TrigEDM[kcomm].extend(vcomm)
                     else:
                         Run3TrigEDM[kcomm] = vcomm
+
+            elif "AODSLIM" in key:
+                # remove the variables that are defined in TriggerEDMRun3.varToRemoveFromAODSLIM from the containers
+                
+                # get all containers from list that are marked with AODSLIM
+                Run3TrigEDMSLIM.update(getRun3TrigEDMSlimList(key))
+
+                # go through all container values and remove the variables to remove
+                for cont, values in Run3TrigEDMSLIM.items():
+                    if (isinstance(values, list)):
+
+                        newValues = []
+                        for value in values:
+                            
+                            newValue = ''
+                            for var in varToRemoveFromAODSLIM:
+                                if var in value:
+                                    removeVar =  "."+var
+                                    newValue = value.replace(removeVar, "")
+                                    newValues.append(newValue)
+                                else:
+                                    newValues.append(value)
+
+                        # filling the actual Run3TrigEDM for AODSLIM
+                        if cont in Run3TrigEDM:
+                            Run3TrigEDM[cont].extend(newValue)
+                        else:
+                            Run3TrigEDM[cont] = newValues
+
+                    else: 
+                        raise RuntimeError("Value in Run3TrigEDM dictionary is not a list")
 
             else:
                 Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
