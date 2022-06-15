@@ -207,6 +207,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         tidaminbias.AnalysisConfig = "Tier0"
         tidaminbias.z0CutOffline = 120
+        tidaminbias.pTCutOffline = 200
 
         chains = getchains( [ "HLT_mb_sptrk.*:key=HLT_IDTrack_MinBias_IDTrig" ] ,monlevel )
 
