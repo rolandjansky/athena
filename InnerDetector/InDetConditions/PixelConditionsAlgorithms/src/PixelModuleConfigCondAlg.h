@@ -1,6 +1,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-*/ 
+*/
 
 #ifndef PIXELMODULECONFIGCONDALG
 #define PIXELMODULECONFIGCONDALG
@@ -22,8 +22,9 @@ class PixelModuleConfigCondAlg : public AthReentrantAlgorithm {
   public:
     PixelModuleConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode initialize() override final;
+    virtual StatusCode execute(const EventContext& ctx) const override final;
+    virtual bool isReEntrant() const override final { return false; }
 
   private:
     // Key for basic pixel parameters
@@ -124,8 +125,8 @@ class PixelModuleConfigCondAlg : public AthReentrantAlgorithm {
                                      "Barrel3D fluence map for radiation damage"};
 
     //====================================================================================
-    // The following parameters are default values which will be overwritten by the one 
-    // from the conditions DB. Otherwise the DB is not retrieved nor available, these 
+    // The following parameters are default values which will be overwritten by the one
+    // from the conditions DB. Otherwise the DB is not retrieved nor available, these
     // values are used.
     //====================================================================================
     Gaudi::Property<std::vector<int>> m_BarrelAnalogThreshold
@@ -258,16 +259,16 @@ class PixelModuleConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<double> m_distortionR1
     {this, "DistortionR1", 0.1/CLHEP::meter, "Fixed distortion parameters: radius of curvature"}; //corresponding to a sagitta of 50 um
-    
+
     Gaudi::Property<double> m_distortionR2
     {this, "DistortionR2", 0.1/CLHEP::meter, "Fixed distortion parameters: radius of curvature"}; //corresponding to a sagitta of 50 um
 
     Gaudi::Property<double> m_distortionTwist
-    {this, "DistortionTwist", 0.0005,"Fixed distortion parameters: twist angle (tan(theta))"}; 
+    {this, "DistortionTwist", 0.0005,"Fixed distortion parameters: twist angle (tan(theta))"};
 
     Gaudi::Property<double> m_distortionMeanR
     {this, "DistortionMean_R", 0.12/CLHEP::meter, "Random distortion parameters: Mean of radius of curvature"}; //Mean value from Survey
-    
+
     Gaudi::Property<double> m_distortionRMSR
     {this, "DistortionRMS_R", 0.08/CLHEP::meter, "Random distortion parameters: RMS of curvature radius"}; //RMS value from Survey
 
@@ -278,7 +279,7 @@ class PixelModuleConfigCondAlg : public AthReentrantAlgorithm {
     {this, "DistortionRMS_twist", 0.0008,"Random distortion parameters: RMS of twist angle"}; //RMS value from Survey
 
     Gaudi::Property<bool> m_distortionWriteToFile
-    {this, "DistortionWriteToFile", false, "Record data in storegate"}; 
+    {this, "DistortionWriteToFile", false, "Record data in storegate"};
 
     Gaudi::Property<std::string> m_distortionFileName
     {this, "DistortionFileName", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/TrackingCP/PixelDistortions/PixelDistortionsData_v2_BB.txt","Read distortions from this file"};
