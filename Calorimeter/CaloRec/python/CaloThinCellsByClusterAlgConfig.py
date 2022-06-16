@@ -26,7 +26,6 @@ def CaloThinCellsByClusterAlgCfg(flags, streamName, clusters,
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloThinCellsByClusterAlg_myclusters',
             ]

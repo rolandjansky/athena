@@ -42,7 +42,6 @@ def LArADC2MeVCondAlgCfg(configFlags):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- data')
     flags1 = ConfigFlags.clone()

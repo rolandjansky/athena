@@ -143,7 +143,6 @@ if __name__ == "__main__":
     ConfigFlags.Concurrency.NumThreads=numThreads
     ConfigFlags.Concurrency.NumConcurrentEvents=numThreads
 
-    ConfigFlags.loadAllDynamicFlags()
 
     ConfigFlags.lock()
     ConfigFlags.dump()
