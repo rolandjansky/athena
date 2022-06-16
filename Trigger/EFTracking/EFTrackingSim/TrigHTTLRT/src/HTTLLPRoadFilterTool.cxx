@@ -1,6 +1,6 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#include "HTTLLPRoadFilterTool.h"
+#include "TrigHTTLRT/HTTLLPRoadFilterTool.h"
 
 HTTLLPRoadFilterTool::HTTLLPRoadFilterTool (const std::string& algname, const std::string& name, const IInterface* ifc) 
   : AthAlgTool(algname, name, ifc) {}
