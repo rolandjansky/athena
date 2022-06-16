@@ -127,6 +127,21 @@ def TgcPrepDataAllBCto3BCCfg(flags, name="TgcPrepDataAllTo3Replicator", **kwargs
     acc.addEventAlgo(CompFactory.Muon.TgcPrepDataReplicationAlg(name, **kwargs))
     return acc
 
+
+def StgcRdoToPrepDataToolCfg(flags, name="StgcRdoToPrepDataTool", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("PrdCacheKey" , MuonPrdCacheNames.sTgcCache if flags.Muon.MuonTrigger else "")
+
+    from MuonConfig.MuonRecToolsConfig import SimpleSTgcClusterBuilderToolCfg
+    kwargs.setdefault("ClusterBuilderTool",result.popToolsAndMerge(SimpleSTgcClusterBuilderToolCfg(flags)))
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    kwargs.setdefault("NSWCalibTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))    
+    the_tool = CompFactory.Muon.StgcRdoToPrepDataToolMT(name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result
+
+
+
 def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc = ComponentAccumulator()
 
@@ -135,7 +150,7 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool", PrdCacheKey = MuonPrdCacheNames.sTgcCache if flags.Muon.MuonTrigger else ""))
+    kwargs.setdefault("DecodingTool", acc.popToolsAndMerge(StgcRdoToPrepDataToolCfg(flags)))
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     # kwargs.setdefault("RegSel_STGC", acc.popToolsAndMerge(regSelTool_STGC_Cfg(flags)))
@@ -143,6 +158,7 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     # Add the RDO -> PRD alorithm
     acc.addEventAlgo(CompFactory.StgcRdoToStgcPrepData(name, **kwargs))
     return acc
+
 
 
 
@@ -157,6 +173,7 @@ def MMRdoToPrepDataToolCfg(flags, name="MmRdoToPrepDataTool", **kwargs):
     the_tool = CompFactory.Muon.MmRdoToPrepDataToolMT(name, **kwargs)
     result.setPrivateTools(the_tool)
     return result
+
 def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
     acc = ComponentAccumulator()
 
