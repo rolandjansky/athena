@@ -137,8 +137,8 @@ using Trk::distDepth;
 
   Amg::Vector2D
   SolidStateDetectorElementBase::hitLocalToLocal(double xEta, double xPhi) const  // Will change order to phi, eta
-  {
-    if (!m_axisDir.isValid()) updateCache();
+  {                                                                               // due to whether module is centred on
+    if (!m_axisDir.isValid()) updateCache();                                      // z or y axes
     const AxisDir& dir = *m_axisDir.ptr();
 
     if (!dir.m_etaDirection) xEta = -xEta;
@@ -146,12 +146,12 @@ using Trk::distDepth;
     auto result = Amg::Vector2D(xPhi, xEta);
 
     if (m_design->shape() == InDetDD::PolarAnnulus) { // Do conversion to polar co-ords as well
-      double x = result.x();
-      double y = result.y();
+      double y = result.x(); // Co-ordinate flip from cartesian needs to be temporarily un-done to
+      double x = result.y(); // allow atan2 to work in conversion
 
       double r = std::hypot(x,y);
       double phi = std::atan2(y,x);
-      result = Amg::Vector2D(phi,r);
+      result = Amg::Vector2D(phi,r); // now flip again
     }
 
     return result;
