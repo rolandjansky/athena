@@ -80,6 +80,14 @@ StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
 
     ~StripStereoAnnulusDesign() = default;
 
+    SiLocalPosition beamToStrip(const SiLocalPosition &pos) const;
+    SiLocalPosition beamToStripPC(const SiLocalPosition &pos) const;
+    SiLocalPosition beamToStripPCpolar(const SiLocalPosition &pos) const;
+    
+    SiLocalPosition stripToBeam(const SiLocalPosition &pos) const;
+    SiLocalPosition stripToBeamPC(const SiLocalPosition &pos) const;
+    SiLocalPosition stripToBeamPCpolar(const SiLocalPosition &pos) const;
+
     Amg::Vector3D sensorCenter() const;
 
     // Copy constructor and assignment:
@@ -259,7 +267,7 @@ inline double StripStereoAnnulusDesign::phiPitch(const SiLocalPosition &pos) con
 // Return pitch in mm for the strip at this position, at this point's distance along the strip.
     const SiCellId cellId = cellIdOfPosition(pos);
     const int row = cellId.etaIndex();
-    const double radius = sqrt(pos.xEta() * pos.xEta() + pos.xPhi() * pos.xPhi());
+    const double radius = (m_usePC) ? pos.xEta() : std::hypot(pos.xEta(), pos.xPhi());
     return m_pitch[row] * radius;
 }
 
