@@ -123,7 +123,9 @@ namespace JetVar {
 
     // use only if the index is valid
     virtual float value(const xAOD::Jet & j) const {
-      if ( m_acc.isAvailable( j ) ) return m_acc(j)[m_index]*m_scale;
+      if ( m_acc.isAvailable( j ) && m_index >= 0 && m_acc(j).size() > (unsigned) m_index ) {
+        return m_acc(j)[m_index]*m_scale;
+      }
       else return -999.;
     }
 

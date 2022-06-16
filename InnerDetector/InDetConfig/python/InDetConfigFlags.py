@@ -190,6 +190,7 @@ def createInDetConfigFlags():
     icf.addFlag("InDet.Tracking.doVtxBeamSpot", False)
     # Special configuration for low-mu runs
     icf.addFlag("InDet.Tracking.doLowMu", False)
+    icf.addFlag("InDet.Tracking.writeSeedValNtuple", False) # Turn writing of seed validation ntuple on and off
     icf.addFlag("InDet.Tracking.writeExtendedPRDInfo", False)
     # Special pass using truth information for pattern recognition, runs in parallel to/instead of the first pass
     icf.addFlag("InDet.Tracking.doPseudoTracking", False)

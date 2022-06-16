@@ -451,7 +451,8 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list
   disconnect(connName);
 }
 
-std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string& connName)
+std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string& supportedFlag
+							      , const std::string& connName)
 {
   std::vector<std::string> taglist;
   if(!connect(connName)) {
@@ -466,7 +467,8 @@ std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string&
       queryTag2Node->addToOutputList("TAG_NAME");
       queryTag2Node->setMemoryCacheSize(1);
       coral::AttributeList empty ATLAS_THREAD_SAFE;
-      queryTag2Node->setCondition("NODE_ID=0 AND LOCKED=1 AND SUPPORTED=22",empty);
+      std::string condString = std::string("NODE_ID=0 AND LOCKED=1 AND SUPPORTED>=")+supportedFlag;
+      queryTag2Node->setCondition(condString,empty);
       queryTag2Node->addToOrderList("TAG_NAME");
 
       coral::ICursor& cursorTagName = queryTag2Node->execute();

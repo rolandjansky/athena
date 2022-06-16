@@ -115,6 +115,7 @@ private:
     InDetPerfNtupleBranch<int> m_numberOfTRTTubeHits;
     InDetPerfNtupleBranch<int> m_numberOfTRTXenonHits;
     InDetPerfNtupleBranch<int> m_numberOfTRTSharedHits;
+    InDetPerfNtupleBranch<float> m_pixeldEdx;
 
     //Flags
     InDetPerfNtupleBranch<int> m_hasTruth; 

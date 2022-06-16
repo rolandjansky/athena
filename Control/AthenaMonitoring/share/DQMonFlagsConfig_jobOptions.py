@@ -489,46 +489,47 @@ DQMonFlags.print_JobProperties()
 
 local_logger.info("DQ: setting up ConfigFlags")
 
-ConfigFlags.DQ.doMonitoring=DQMonFlags.doMonitoring()
-ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
-ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
-ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
-ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
-ConfigFlags.DQ.isReallyOldStyle=False
+if DQMonFlags.configureFromOldStyleFlags():
+   ConfigFlags.DQ.doMonitoring=DQMonFlags.doMonitoring()
+   ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
+   ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
+   ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
+   ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
 
-from AthenaConfiguration import ComponentAccumulator
-from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
-from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
-from AthenaMonitoring import AthenaMonitoringConf
+   Steering = ConfigFlags.DQ.Steering
+   Steering.doDataFlowMon=DQMonFlags.doDataFlowMon()
+   Steering.doGlobalMon=DQMonFlags.doGlobalMon()
+   # do not enable new trigger monitoring in mixed mode if we are not in Run 3 EDM
+   mixedModeFlag = (DQMonFlags.triggerMixedMode() and ConfigFlags.Trigger.EDMVersion == 2)
+   Steering.doHLTMon=DQMonFlags.doHLTMon() and not mixedModeFlag
+   Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon() and not mixedModeFlag
+   Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
+   Steering.doPixelMon=DQMonFlags.doPixelMon()
+   Steering.doSCTMon=DQMonFlags.doSCTMon()
+   Steering.doTRTMon=DQMonFlags.doTRTMon()
+   Steering.InDet.doGlobalMon=DQMonFlags.doInDetGlobalMon()
+   Steering.InDet.doAlignMon=DQMonFlags.doInDetAlignMon()
+   Steering.doInDetMon = Steering.InDet.doGlobalMon or Steering.InDet.doAlignMon
+   Steering.doLArMon=DQMonFlags.doLArMon()
+   Steering.doTileMon=DQMonFlags.doTileMon()
+   Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()
+   Steering.Muon.doRawMon=DQMonFlags.doMuonRawMon()
+   Steering.Muon.doTrackMon=DQMonFlags.doMuonTrackMon()
+   Steering.doMuonMon=(Steering.Muon.doRawMon or Steering.Muon.doTrackMon)
+   Steering.doLucidMon=DQMonFlags.doLucidMon()
+   Steering.doAFPMon=DQMonFlags.doAFPMon()
+   Steering.doHIMon=DQMonFlags.doHIMon()
+   Steering.doEgammaMon=DQMonFlags.doEgammaMon()
+   Steering.doJetMon=DQMonFlags.doJetMon()
+   Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
+   Steering.doTauMon=DQMonFlags.doTauMon()
+   Steering.doJetTagMon=DQMonFlags.doJetTagMon()
+   Steering.doJetInputsMon=DQMonFlags.doJetInputsMon()
+else:
+   mixedModeFlag = False
 
-Steering = ConfigFlags.DQ.Steering
-Steering.doDataFlowMon=DQMonFlags.doDataFlowMon()
-Steering.doGlobalMon=DQMonFlags.doGlobalMon()
-# do not enable new trigger monitoring in mixed mode if we are not in Run 3 EDM
-mixedModeFlag = (DQMonFlags.triggerMixedMode() and ConfigFlags.Trigger.EDMVersion == 2)
-Steering.doHLTMon=DQMonFlags.doHLTMon() and not mixedModeFlag
-Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon() and not mixedModeFlag
-Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
-Steering.doPixelMon=DQMonFlags.doPixelMon()
-Steering.doSCTMon=DQMonFlags.doSCTMon()
-Steering.doTRTMon=DQMonFlags.doTRTMon()
-Steering.InDet.doGlobalMon=DQMonFlags.doInDetGlobalMon()
-Steering.InDet.doAlignMon=DQMonFlags.doInDetAlignMon()
-Steering.doInDetMon = Steering.InDet.doGlobalMon or Steering.InDet.doAlignMon
-Steering.doLArMon=DQMonFlags.doLArMon()
-Steering.doTileMon=DQMonFlags.doTileMon()
-Steering.doCaloGlobalMon=DQMonFlags.doCaloMon()
-Steering.Muon.doRawMon=DQMonFlags.doMuonRawMon()
-Steering.Muon.doTrackMon=DQMonFlags.doMuonTrackMon()
-Steering.doMuonMon=(Steering.Muon.doRawMon or Steering.Muon.doTrackMon)
-Steering.doLucidMon=DQMonFlags.doLucidMon()
-Steering.doAFPMon=DQMonFlags.doAFPMon()
-Steering.doHIMon=DQMonFlags.doHIMon()
-Steering.doEgammaMon=DQMonFlags.doEgammaMon()
-Steering.doJetMon=DQMonFlags.doJetMon()
-Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
-Steering.doTauMon=DQMonFlags.doTauMon()
-Steering.doJetTagMon=DQMonFlags.doJetTagMon()
-Steering.doJetInputsMon=DQMonFlags.doJetInputsMon()
+if DQMonFlags.doNewMonitoring():
+   ConfigFlags.DQ.isReallyOldStyle = False
+   ConfigFlags.DQ.Environment = DQMonFlags.monManEnvironment()  # unfortunately cannot break this dependency
 
 del local_logger

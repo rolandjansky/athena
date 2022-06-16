@@ -125,7 +125,8 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
   void getAllLeafNodes(std::vector<std::string>& list
 		       , const std::string& connName = "ATLASDD");
 
-  std::vector<std::string> getLockedSupportedTags(const std::string& connName = "ATLASDD");
+  std::vector<std::string> getLockedSupportedTags(const std::string& supportedFlag
+						  , const std::string& connName = "ATLASDD");
 
   coral::ISessionProxy* getSession(const std::string& connName = "ATLASDD");
 

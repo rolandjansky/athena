@@ -28,9 +28,7 @@ if [ ${rc1} -eq 0 ]
 then
   ArtPackage=$1
   ArtJobName=$2
-  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool \
-  --ignore-leave '(.*)TrigCompositeAuxContainer_v2_HLTNav_Summary_ESDSlimmedAux(.*)' \
-  --ignore-leave '(.*)HLTNav_Summary_AODSlimmedAux(.*)' # ATR-25521
+  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
   rc2=$?
 fi
 echo  "art-result: ${rc2} (against previous nightly)"
@@ -38,10 +36,10 @@ echo  "art-result: ${rc2} (against previous nightly)"
 rc3=-9999
 if [ ${rc1} -eq 0 ]
 then
-  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3-22.0_references_for_comparison/test_bulkProcessing_900collisions_SB \
-  --entries 100 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool \
-  --ignore-leave '(.*)TrigCompositeAuxContainer_v2_HLTNav_Summary_ESDSlimmedAux(.*)' \
-  --ignore-leave '(.*)HLTNav_Summary_AODSlimmedAux(.*)' # ATR-25521
+  ArtRef=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3-22.0_references_for_comparison/test_bulkProcessing_900collisions_SB
+  cat $ArtRef/version.txt
+  art.py compare ref . $ArtRef \
+  --entries 100 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
   rc3=$?
 fi
 echo  "art-result: ${rc3} (against reference)"

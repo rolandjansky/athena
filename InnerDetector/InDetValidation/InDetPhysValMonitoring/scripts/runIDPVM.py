@@ -10,7 +10,6 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--filesInput")
     IDPVMparser.add_argument("--doLargeD0Tracks", help='also run LRT plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doMergedLargeD0Tracks", help='also run merged STD+LRT plots', action='store_true', default=False)
-    IDPVMparser.add_argument("--doLowPtTracks", help='also run LowPT plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTightPrimary", help='also run tight-primary plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInJets", help='also run tracks in jets', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInBJets", help='also run tracks in jets', action='store_true', default=False)
