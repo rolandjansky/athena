@@ -148,10 +148,10 @@ def DigitizationMainContentCfg(flags):
         acc.merge(RPC_DigitizationDigitToRDOCfg(flags))
     if flags.Detector.EnableCSC:
         acc.merge(CSC_DigitizationDigitToRDOCfg(flags))
-    if flags.Detector.EnableMM:
-        acc.merge(MM_DigitizationDigitToRDOCfg(flags))
     if flags.Detector.EnablesTGC:
         acc.merge(sTGC_DigitizationDigitToRDOCfg(flags))
+    if flags.Detector.EnableMM:
+        acc.merge(MM_DigitizationDigitToRDOCfg(flags))
 
     # AFP
     if flags.Detector.EnableAFP:

@@ -33,9 +33,10 @@ class TTrainedNetworkCondAlg : public AthReentrantAlgorithm {
   TTrainedNetworkCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
   ~TTrainedNetworkCondAlg() = default;
 
-  StatusCode initialize();
-  StatusCode execute(const EventContext& ctx) const;
-  StatusCode finalize();
+  StatusCode initialize() override final;
+  StatusCode execute(const EventContext& ctx) const override final;
+  StatusCode finalize() override final;
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   TTrainedNetwork* retrieveNetwork(TFile &input_file, const std::string& folder) const;

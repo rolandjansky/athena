@@ -28,7 +28,6 @@ def CaloBCIDAvgAlgCfg (flags):
 
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloBCIDAvgAlg',
             'CaloBCIDCoeffsCondAlg',

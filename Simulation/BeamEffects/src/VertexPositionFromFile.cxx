@@ -159,7 +159,7 @@ namespace Simulation
   }
 
   /** modifies (displaces) the given GenEvent */
-  CLHEP::HepLorentzVector *VertexPositionFromFile::generate() const
+  CLHEP::HepLorentzVector *VertexPositionFromFile::generate(const EventContext& ctx) const
   {
     unsigned int runNumber(0), eventNumber(0);
     // override the run/event number from file
@@ -172,7 +172,7 @@ namespace Simulation
     // use run/event numbers from EventInfo class in storegate
     else {
       ATH_MSG_DEBUG("Retrieving event info from SG");
-      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey,Gaudi::Hive::currentContext());
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
       if (eventInfo.isValid()) {
         // read out run/event number
         runNumber   = eventInfo->runNumber();

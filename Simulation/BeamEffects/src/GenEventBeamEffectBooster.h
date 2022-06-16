@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_HEPMC_GENEVENTBEAMEFFECTBOOSTER_H
@@ -48,10 +48,10 @@ namespace Simulation {
     StatusCode initializeAthenaEvent();// override final;
 
     /** modifies the given GenEvent */
-    StatusCode manipulate(HepMC::GenEvent& ge) const override final;
+    StatusCode manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const override final;
   private:
     /** calculate the transformations that we want to apply to the particles in the current GenEvent */
-    StatusCode initializeGenEvent(CLHEP::HepLorentzRotation& transform) const;
+    StatusCode initializeGenEvent(CLHEP::HepLorentzRotation& transform, const EventContext& ctx) const;
     /** apply boost to individual GenParticles */
     void boostParticle(HepMC::GenParticlePtr p, const CLHEP::HepLorentzRotation& transform) const;
 

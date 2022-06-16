@@ -1079,7 +1079,6 @@ if __name__ == "__main__":
   l = logging.getLogger('AthConfigFlags')
   from AthenaCommon.Constants import WARNING
   l.setLevel(WARNING)
-  ConfigFlags.loadAllDynamicFlags()
 
   ConfigFlags = ConfigFlags.cloneAndReplace("InDet.Tracking.ActivePass","InDet.Tracking.MainPass")
 

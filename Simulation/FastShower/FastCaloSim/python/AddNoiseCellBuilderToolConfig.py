@@ -38,7 +38,6 @@ def AddNoiseCellBuilderToolCfg (configFlags):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()
     flags1.Input.Files = defaultTestFiles.HITS_RUN2
