@@ -618,7 +618,19 @@ HLT_2mu4_bDimu_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu4_bDimu_L12MU3VF:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu4_bJpsimumu_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+HLT_2mu4_bJpsimumu_L12MU3VF:
   eventCount: 0
   stepCounts:
     0: 1
@@ -641,6 +653,12 @@ HLT_2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU3V:
 HLT_2mu4_bJpsimumu_Lxy0_L1BPH-2M9-0DR15-2MU3VF:
   eventCount: 0
 HLT_2mu4_bUpsimumu_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+HLT_2mu4_bUpsimumu_L12MU3VF:
   eventCount: 0
   stepCounts:
     0: 1
