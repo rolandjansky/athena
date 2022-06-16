@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_GENEVENTVERTEXPOSITIONER_H
@@ -37,7 +37,7 @@ namespace Simulation {
       StatusCode  finalize() override final;
 
       /** modifies (displaces) the given GenEvent */
-      StatusCode  manipulate(HepMC::GenEvent& ge) const override final;
+      StatusCode  manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const override final;
 
     private:
       /** Vertex Shifters applied in the given order */

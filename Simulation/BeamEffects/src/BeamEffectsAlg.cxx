@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -59,7 +59,7 @@ namespace Simulation
       // manipulate the GenEvent if needed : validating, filtering, smearing, dispersion, ...
       for (const auto& manipulator : m_genEventManipulators) {
         // call manipulate(..) in the current GenEventManipulator
-        ATH_CHECK(manipulator->manipulate(*currentGenEvent));
+        ATH_CHECK(manipulator->manipulate(*currentGenEvent, ctx));
       }
     }
 

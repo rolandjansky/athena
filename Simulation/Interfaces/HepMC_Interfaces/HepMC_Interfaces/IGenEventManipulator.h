@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// IGenEventManipulator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef HEPMC_INTERFACES_IGENEVENTMANIPULATOR_H
 #define HEPMC_INTERFACES_IGENEVENTMANIPULATOR_H 1
@@ -13,6 +9,8 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "AtlasHepMC/GenEvent_fwd.h"
+
+class EventContext;
 
 namespace Simulation {
 
@@ -36,7 +34,7 @@ namespace Simulation {
        DeclareInterfaceID(IGenEventManipulator, 1, 0);
 
        /** Applies any required transformations to the GenEvent */
-       virtual StatusCode manipulate(HepMC::GenEvent& ge) const = 0;
+    virtual StatusCode manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const = 0;
 
   };
 

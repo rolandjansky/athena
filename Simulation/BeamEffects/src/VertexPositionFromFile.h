@@ -46,7 +46,7 @@ namespace Simulation {
       StatusCode  finalize() override final;
 
       /** returns current shift */
-      CLHEP::HepLorentzVector *generate() const override final;
+      CLHEP::HepLorentzVector *generate(const EventContext& ctx) const override final;
 
     private:
 

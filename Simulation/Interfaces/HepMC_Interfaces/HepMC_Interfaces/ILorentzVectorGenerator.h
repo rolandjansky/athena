@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// ILorentzVectorGenerator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef HEPMC_INTERFACES_ILORENTZVECTORGENERATOR_H
 #define HEPMC_INTERFACES_ILORENTZVECTORGENERATOR_H 1
@@ -16,6 +12,8 @@
 namespace CLHEP {
   class HepLorentzVector;
 }
+
+class EventContext;
 
 namespace Simulation {
 
@@ -36,7 +34,7 @@ namespace Simulation {
        DeclareInterfaceID(ILorentzVectorGenerator, 1, 0);
 
        /** Returns a HepLorentzVector */
-       virtual CLHEP::HepLorentzVector* generate() const = 0;
+       virtual CLHEP::HepLorentzVector* generate(const EventContext& ctx) const = 0;
   };
 
 } // end of namespace
