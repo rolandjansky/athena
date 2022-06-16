@@ -70,6 +70,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // -------------------------------------
     // Compute trigger decision
     bool pass = true;
+    std::string stage = "pass";
 
     int bits = bTagInfo.beamSpot->beamStatus();
     // beamspot is converged if first and second bit are set
@@ -86,10 +87,12 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       ATH_MSG_DEBUG( "Beamspot has problems" );
       ATH_MSG_DEBUG( "Trigger decision is FALSE" );
       pass = false;
+      stage = "no beamspot";
     } else if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
       ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
       ATH_MSG_DEBUG( "Trigger decision is FALSE" );
       pass = false;
+      stage = "no primary vertex";
     } else {
       const xAOD::BTagging *btagging = *(bTagInfo.btaggingEL);
 
@@ -105,10 +108,13 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       for (const auto& check: m_checks) {
         if (!check->passThreshold(*btagging)) {
           pass = false;
+          stage = "fail";
           break;
         }
       }
     }
+
+    Monitored::Group(m_monTool, Monitored::Scalar("stage", stage));
 
 
     // -------------------------------------
