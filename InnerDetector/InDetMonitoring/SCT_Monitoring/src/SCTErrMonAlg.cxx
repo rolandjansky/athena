@@ -107,9 +107,24 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
     SCT_ID::const_id_iterator waferEnd{m_pSCTHelper->wafer_end()};
     for (; waferIterator not_eq waferEnd; ++waferIterator) {
       Identifier waferId{*waferIterator};
+      int layer{m_pSCTHelper->layer_disk(waferId)};
+      int side{m_pSCTHelper->side(waferId)};
+      int eta{m_pSCTHelper->eta_module(waferId)};
+      int phi{m_pSCTHelper->phi_module(waferId)};
+      int barrel_ec{m_pSCTHelper->barrel_ec(waferId)};
+
+      int reg{BARREL_INDEX};
+      if (barrel_ec == ENDCAP_A) reg = ENDCAP_A_INDEX;
+      if (barrel_ec == ENDCAP_C) reg = ENDCAP_C_INDEX;
+
+      int IN{m_configurationTool->isGood(waferId, InDetConditions::SCT_SIDE) ? 0 : 1};
       if (m_pSCTHelper->side(waferId) == 0) { // Use only side 0 to check module level
-        if (not m_configurationTool->isGood(waferId, ctx, InDetConditions::SCT_SIDE)) {
+        if (IN == 1) {
           moduleOut++;
+          auto mEtaAcc{Monitored::Scalar<int>("eta_out", eta)};
+          auto mPhiAcc{Monitored::Scalar<int>("phi_out", phi)};
+          auto mOutAcc{Monitored::Scalar<int>(std::string("modulemap")+subDetNameShort[reg].Data()+std::to_string(layer)+"_"+std::to_string(side), IN)};
+          fill("SCTErrMonitor", mEtaAcc, mPhiAcc, mOutAcc);
         }
       }
     }
