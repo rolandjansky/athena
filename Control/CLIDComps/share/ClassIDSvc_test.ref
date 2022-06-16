@@ -21,7 +21,7 @@ ApplicationMgr Ready
 *** ClassIDSvc basic test starts ***
 ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-12
 ClassIDSvc          DEBUG Service base class initialized successfully
-ClassIDSvc        WARNING Could not resolve clid DB path "notthere.db" using DATAPATH. Skipping it.
+ClassIDSvc          DEBUG Could not resolve clid DB path "notthere.db" using DATAPATH. Skipping it.
 ClassIDSvc           INFO  getRegistryEntries: read 49 CLIDRegistry entries for module ALL
 Now we expect to see an error message:
 ----Error Message Starts--->>

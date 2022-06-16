@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -300,8 +300,8 @@ ClassIDSvc::fillDB() {
     } else {
       std::list<DirSearchPath::path> paths(m_clidDBPath.find_all(clidDB));
       if (paths.empty()) {
-        ATH_MSG_WARNING( "Could not resolve clid DB path " << clidDB
-                         << " using DATAPATH. Skipping it." );
+        ATH_MSG_DEBUG( "Could not resolve clid DB path " << clidDB
+                       << " using DATAPATH. Skipping it." );
       } else {
         for (const auto& p : paths) {
           allOK &= processCLIDDB(p.string());
