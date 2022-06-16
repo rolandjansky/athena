@@ -1,6 +1,6 @@
 #include "../HTTEtaPatternFilterTool.h"
 #include "../HTTHough1DShiftTool.h"
-#include "../HTTHoughRootOutputTool.h"
+#include "TrigHTTHough/HTTHoughRootOutputTool.h"
 #include "../HTTHoughTransformTool.h"
 #include "../HTTPhiRoadFilterTool.h"
 #include "../HTTRoadUnionTool.h"
