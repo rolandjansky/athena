@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestMallocAlg.h 
@@ -66,6 +66,9 @@ class MallocAlg : public AthAlgorithm
 
   /// event number at which to actually do stuff
   unsigned int m_evtNbr;
+
+  /// current event number
+  unsigned int m_currentEvtNbr{0};
 
   /// switch between using a C-array and a std::vector
   bool m_useStdVector;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestManyLeaksAlg.cxx 
@@ -20,7 +20,7 @@
 
 using namespace PerfMonTest;
 
-long** ManyLeaksAlg::m_pointers = NULL;
+long** ManyLeaksAlg::m_pointers ATLAS_THREAD_SAFE = NULL;
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
