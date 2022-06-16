@@ -122,7 +122,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   tgcArgs()->set_USE_CONDDB(false);
 
   // CW for SL (ONLY available for Run-3 development phase)
-  std::string ver_BW   = "v04";
+  std::string ver_BW   = "v05";
   std::string ver_EIFI = "v07";
   std::string ver_TILE = "v01";
   std::string ver_NSW  = "v01";
