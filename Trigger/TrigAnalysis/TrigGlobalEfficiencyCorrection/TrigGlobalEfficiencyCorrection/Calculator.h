@@ -10,6 +10,7 @@
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
 #include "TrigGlobalEfficiencyCorrection/ImportData.h"
 #include "TrigGlobalEfficiencyCorrection/Efficiencies.h"
+#include "AsgMessaging/AsgMessaging.h"
 
 #include <map>
 #include <algorithm>
