@@ -29,6 +29,7 @@
 #include "GaudiKernel/StatEntity.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonSvc.h"
@@ -59,10 +60,10 @@ namespace PerfMon {
 
 namespace PMonSD { class SemiDetHelper; }
 
-class PerfMonSvc : virtual public IPerfMonSvc,
-                   virtual public IIncidentListener,
-                   virtual public IIoComponent,
-		           public AthService
+class ATLAS_NOT_THREAD_SAFE PerfMonSvc : virtual public IPerfMonSvc,
+                                         virtual public IIncidentListener,
+                                         virtual public IIoComponent,
+                                         public AthService
 { 
 
 protected:

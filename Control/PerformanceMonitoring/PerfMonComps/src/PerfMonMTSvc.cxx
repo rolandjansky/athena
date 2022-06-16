@@ -8,7 +8,6 @@
 
 // Thread-safety-checker
 #include "CxxUtils/checker_macros.h"
-ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 // Framework includes
 #include "GaudiKernel/IIncidentSvc.h"
@@ -278,7 +277,12 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
 
   // Capture and store
   PMonMT::ComponentMeasurement meas;
-  meas.capture(doMem);
+  meas.capture(); // No memory in the event-loop
+  if (doMem) {
+    // we made sure this is only run outside event loop or single-threaded
+    [[maybe_unused]] bool dummy ATLAS_THREAD_SAFE = meas.capture_memory();
+  }
+
   compLevelDataMap[currentState]->addPointStart(meas, doMem);
 
   // Debug
@@ -306,7 +310,11 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
 
   // Capture
   PMonMT::ComponentMeasurement meas;
-  meas.capture(doMem); // No memory in the event-loop
+  meas.capture(); // No memory in the event-loop
+  if (doMem) {
+    // we made sure this is only run outside event loop or single-threaded
+    [[maybe_unused]] bool dummy ATLAS_THREAD_SAFE = meas.capture_memory();
+  }
 
   // Generate State
   PMonMT::StepComp currentState = generate_state(stepName, compName);

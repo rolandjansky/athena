@@ -11,7 +11,6 @@
 
 // Thread-safety-checker
 #include "CxxUtils/checker_macros.h"
-ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 // PerfMon includes
 #include "SemiDetMisc.h"   // borrow from existing code
@@ -72,19 +71,20 @@ namespace PMonMT {
     double vmem, malloc; // Memory: Vmem, Malloc
 
     // Capture component-level measurements
-    void capture(const bool doMem = false) {
+    void capture() {
 
       // Timing
       cpu_time = get_thread_cpu_time();
       wall_time = get_wall_time();
+    }
 
-      // Memory if only necessary
-      if (!doMem) return;
+    // Capture component-level memory measurements
+    bool capture_memory ATLAS_NOT_THREAD_SAFE() {
 
       // Memory
       malloc = PMonSD::get_malloc_kb();
       vmem = get_vmem();
-
+      return true;  // dummy return value for use with thread-checker macros
     }
 
     // Constructor
