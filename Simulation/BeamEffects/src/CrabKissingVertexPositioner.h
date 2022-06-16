@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_CRABKISSINGVERTEXPOSITIONER_H
@@ -54,7 +54,7 @@ namespace Simulation
       StatusCode  finalize() override final;
 
       /** computes the vertex displacement */
-      CLHEP::HepLorentzVector  *generate() const override final;
+      CLHEP::HepLorentzVector  *generate(const EventContext& ctx) const override final;
 
     private:
 
