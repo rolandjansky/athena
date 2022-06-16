@@ -99,7 +99,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     auto MSTy = Monitored::Scalar<float>("gFexMSTy",0.0);
 
     const xAOD::gFexJetRoI* gFexLRJetRoI=0;
-    for(const auto& it :  *gFexLRJetContainer){
+    for(const auto it :  *gFexLRJetContainer){
       gFexLRJetRoI = it;
       gFexLRJeteT=gFexLRJetRoI->gFexTobEt();
       gFexLRJeteta=gFexLRJetRoI->eta();
@@ -109,7 +109,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     }
 
     const xAOD::gFexJetRoI* gFexSRJetRoI=0;
-    for(const auto& it :  *gFexSRJetContainer){
+    for(const auto it :  *gFexSRJetContainer){
       gFexSRJetRoI = it;
       gFexSRJeteT=gFexLRJetRoI->gFexTobEt();
       gFexSRJeteta=gFexLRJetRoI->eta();
@@ -119,7 +119,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     }
 
     const xAOD::gFexJetRoI* gFexRhoRoI=0;
-    for(const auto& it :  *gFexRhoContainer){
+    for(const auto it :  *gFexRhoContainer){
       gFexRhoRoI = it;
       gFexRhoeT=gFexRhoRoI->gFexTobEt();
       gtype=gFexRhoRoI->gFexType();
@@ -127,7 +127,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     }
 
     const xAOD::gFexGlobalRoI* gScalarEJwoj=0;
-    for(const auto& it :  *gScalarEJwojContainer){
+    for(const auto it :  *gScalarEJwojContainer){
       gScalarEJwoj = it; 
       gFexSumEt=gScalarEJwoj->METquantityTwo();
       gFexMet=gScalarEJwoj->METquantityOne();      
@@ -135,7 +135,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     }
 
     const xAOD::gFexGlobalRoI* gMETComponentsJwoj=0;
-    for (const auto& it  :  *gMETComponentsJwojContainer) {
+    for (const auto it  :  *gMETComponentsJwojContainer) {
       gMETComponentsJwoj = it;
       METx=gMETComponentsJwoj->METquantityOne();
       METy=gMETComponentsJwoj->METquantityTwo();
@@ -144,7 +144,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     }
 
     const xAOD::gFexGlobalRoI* gMHTComponentsJwoj=0;
-    for (const auto& it  :  *gMHTComponentsJwojContainer) {
+    for (const auto it  :  *gMHTComponentsJwojContainer) {
       gMHTComponentsJwoj = it;
       MHTx=gMHTComponentsJwoj->METquantityOne();
       MHTy=gMHTComponentsJwoj->METquantityTwo();
@@ -152,7 +152,7 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     }
 
     const xAOD::gFexGlobalRoI* gMSTComponentsJwoj=0;
-    for ( const auto& it  :  *gMSTComponentsJwojContainer) {
+    for ( const auto it  :  *gMSTComponentsJwojContainer) {
       gMSTComponentsJwoj=it;
       MSTx=gMSTComponentsJwoj->METquantityOne();
       MSTy=gMSTComponentsJwoj->METquantityTwo();
