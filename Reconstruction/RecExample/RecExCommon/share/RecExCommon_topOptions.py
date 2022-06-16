@@ -1061,6 +1061,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD(egammaKeys.outputEgammaLargeFWDClustersKey())
                 if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
                     addClusterToCaloCellAOD('LRT'+egammaKeys.outputClusterKey())
+                from PyUtils.MetaReaderPeeker import metadata
                 if "itemList" in metadata:
                     if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
                         # check first for priority if both keys are in metadata
@@ -1090,6 +1091,7 @@ if rec.doFileMetaData() or rec.OutputFileNameForRecoStep() == 'EVNTtoDAOD':
     # Add the needed stuff for cut-flow bookkeeping.
     # Only the configurables that are not already present will be created
     hasBookkeepers = False
+    from PyUtils.MetaReaderPeeker import metadata
     if 'metadata_items' in metadata:
         metadata_items = metadata['metadata_items']
         if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
