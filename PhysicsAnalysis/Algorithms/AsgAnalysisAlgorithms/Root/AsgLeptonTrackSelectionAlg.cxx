@@ -50,7 +50,7 @@ namespace CP
       ANA_MSG_ERROR ("no selection decoration name set");
       return StatusCode::FAILURE;
     }
-    ANA_CHECK (makeSelectionAccessor (m_selectionDecoration, m_selectionAccessor));
+    ANA_CHECK (makeSelectionWriteAccessor (m_selectionDecoration, m_selectionAccessor));
 
     if (m_maxD0Significance < 0 || !std::isfinite (m_maxD0Significance))
     {

@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <xAODBase/IParticleContainer.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -79,7 +79,7 @@ namespace CP
 
     /// the list of accessors and cut ignore list
   private:
-    std::vector<std::pair<std::unique_ptr<ISelectionAccessor>,SelectionType> > m_accessors;
+    std::vector<std::pair<std::unique_ptr<ISelectionReadAccessor>,SelectionType> > m_accessors;
 
     /// \brief the templated version of execute for a single systematic
   private:

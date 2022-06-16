@@ -9,7 +9,7 @@
 
 #include <AsgTools/AsgTool.h>
 #include <PATCore/IAsgSelectionTool.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 #include <xAODBase/IParticle.h>
 #include <string>
 #include <vector>
@@ -62,7 +62,7 @@ namespace CP
 
         std::string m_selFlag;
         std::vector<int> m_acceptedValues;
-        std::vector<std::unique_ptr<ISelectionAccessor>> m_acc_selFlag;
+        std::vector<std::unique_ptr<ISelectionReadAccessor>> m_acc_selFlag;
         std::unique_ptr<const SG::AuxElement::Accessor<int>> m_selFlagAccessor{};
 
         /// \}

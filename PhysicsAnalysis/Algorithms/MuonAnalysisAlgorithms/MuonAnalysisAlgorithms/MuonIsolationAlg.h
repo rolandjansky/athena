@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <IsolationSelection/IIsolationSelectionTool.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -61,7 +61,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_isolationDecoration
   private:
-    std::unique_ptr<ISelectionAccessor> m_isolationAccessor;
+    std::unique_ptr<ISelectionWriteAccessor> m_isolationAccessor;
 
     /// \brief the bits to set for an object failing the preselection
   private:

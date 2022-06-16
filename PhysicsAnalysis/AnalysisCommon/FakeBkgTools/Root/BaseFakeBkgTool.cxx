@@ -8,7 +8,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
-#include "SelectionHelpers/ISelectionAccessor.h"
+#include "SelectionHelpers/ISelectionReadAccessor.h"
 
 #ifndef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
     #define declareProperty(n, p, h) declareProperty(n, &BaseFakeBkgTool::p, h)
@@ -78,8 +78,8 @@ StatusCode BaseFakeBkgTool::initialize()
         return StatusCode::FAILURE;
     }
     
-    std::unique_ptr<CP::ISelectionAccessor> tightAccessor;
-    ATH_CHECK(CP::makeSelectionAccessor(m_tightDecoNameAndType, tightAccessor));
+    std::unique_ptr<CP::ISelectionReadAccessor> tightAccessor;
+    ATH_CHECK(CP::makeSelectionReadAccessor(m_tightDecoNameAndType, tightAccessor));
     m_tightAccessor = tightAccessor.release();
     
     if(!m_useDB)

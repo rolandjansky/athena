@@ -19,7 +19,7 @@ class StatusCode;
 
 namespace CP
 {
-  class ISelectionAccessor;
+  class ISelectionReadAccessor;
   class SysListHandle;
   class SystematicSet;
 
@@ -104,7 +104,7 @@ namespace CP
 
     /// \brief the accessor we use
   private:
-    std::unique_ptr<ISelectionAccessor> m_accessor;
+    std::unique_ptr<ISelectionReadAccessor> m_accessor;
   };
 
   using SysReadSelectionHandleArray = SysHandleArray<SysReadSelectionHandle>;

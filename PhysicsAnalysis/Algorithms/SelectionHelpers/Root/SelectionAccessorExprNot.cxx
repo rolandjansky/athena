@@ -9,7 +9,7 @@
 namespace CP {
 
 SelectionAccessorExprNot::SelectionAccessorExprNot(
-    std::unique_ptr<ISelectionAccessor> child)
+    std::unique_ptr<ISelectionReadAccessor> child)
     : m_child(std::move(child)) {}
 
 bool SelectionAccessorExprNot::getBool(const SG::AuxElement& element,

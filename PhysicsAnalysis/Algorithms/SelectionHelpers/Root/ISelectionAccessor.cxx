@@ -9,16 +9,17 @@
 // includes
 //
 
-#include <SelectionHelpers/ISelectionAccessor.h>
-
-#include <AsgTools/StatusCode.h>
-#include <SelectionHelpers/SelectionAccessorBits.h>
-#include <SelectionHelpers/SelectionAccessorChar.h>
-#include <SelectionHelpers/SelectionAccessorInvert.h>
+#include <AsgMessaging/StatusCode.h>
+#include <SelectionHelpers/SelectionReadAccessorBits.h>
+#include <SelectionHelpers/SelectionReadAccessorChar.h>
+#include <SelectionHelpers/SelectionWriteAccessorBits.h>
+#include <SelectionHelpers/SelectionWriteAccessorChar.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
-#include <SelectionHelpers/SelectionAccessorNull.h>
+#include <SelectionHelpers/SelectionReadAccessorNull.h>
 #include <SelectionHelpers/SelectionAccessorReadSys.h>
 #include <SelectionHelpers/SelectionExprParser.h>
+#include <SelectionHelpers/SelectionReadAccessorInvert.h>
+#include <SelectionHelpers/SelectionWriteAccessorInvert.h>
 #include <exception>
 #include <unordered_map>
 
@@ -49,15 +50,15 @@ namespace CP
 
 
   StatusCode 
-  makeSelectionAccessor(const std::string& expr, 
-                        std::unique_ptr<ISelectionAccessor>& accessor,
-                        bool defaultToChar)
+  makeSelectionReadAccessor(const std::string& expr,
+                            std::unique_ptr<ISelectionReadAccessor>& accessor,
+                            bool defaultToChar)
   {
     using namespace msgSelectionHelpers;
 
     if (expr.empty())
     {
-      accessor = std::make_unique<SelectionAccessorNull> (true);
+      accessor = std::make_unique<SelectionReadAccessorNull> (true);
       return StatusCode::SUCCESS;
     }
 
@@ -73,10 +74,70 @@ namespace CP
   }
 
 
+  namespace
+  {
+    struct SplitData final
+    {
+      std::string var;
+      bool asChar = false;
+      bool asBits = false;
+      bool invert = false;
+
+      StatusCode fill (const std::string& name, bool defaultToChar)
+      {
+        using namespace msgSelectionHelpers;
+
+        for (const std::string& option : splitString (name, ","))
+        {
+          if (var.empty())
+          {
+            // this is a bit of a hack, it will pick up the first
+            // component as the decoration name
+            var = option;
+          } else if (option == "as_char")
+          {
+            // using ",as_char" as a postfix to indicate char decorations
+            // (and ",as_bits" as a postfix to indicate bitset
+            // decorations).  I chose that suffix as it should make it
+            // easier to read in configuration files and allows for future
+            // extensions if needed.
+            asChar = true;
+          } else if (option == "as_bits")
+          {
+            asBits = true;
+          } else if (option == "invert")
+          {
+            invert = true;
+          } else
+          {
+            ANA_MSG_ERROR ("invalid option " << option << "for selection decoration");
+            return StatusCode::FAILURE;
+          }
+        }
+
+        if (asChar && asBits)
+        {
+          ANA_MSG_ERROR ("can't specify both 'as_bits' and 'as_char' for the same selection decoration, pick one!!!");
+          return StatusCode::FAILURE;
+        }
+
+        if (!asChar && !asBits)
+        {
+          if (defaultToChar)
+            asChar = true;
+          else
+            asBits = true;
+        }
+        return StatusCode::SUCCESS;
+      }
+    };
+  }
+
+
   StatusCode
-  makeSelectionAccessorVar (const std::string& name,
-                            std::unique_ptr<ISelectionAccessor>& accessor,
-                            bool defaultToChar)
+  makeSelectionReadAccessorVar (const std::string& name,
+                                std::unique_ptr<ISelectionReadAccessor>& accessor,
+                                bool defaultToChar)
   {
     using namespace msgSelectionHelpers;
 
@@ -86,61 +147,48 @@ namespace CP
       return StatusCode::SUCCESS;
     }
 
-    std::string var;
-    bool asChar = false;
-    bool asBits = false;
-    bool invert = false;
+    SplitData splitData;
+    ANA_CHECK (splitData.fill (name, defaultToChar));
 
-    for (const std::string& option : splitString (name, ","))
+    if (splitData.asChar)
+      accessor = std::make_unique<SelectionReadAccessorChar> (splitData.var);
+    else
+      accessor = std::make_unique<SelectionReadAccessorBits> (splitData.var);
+
+    if (splitData.invert)
     {
-      if (var.empty())
-      {
-        // this is a bit of a hack, it will pick up the first
-        // component as the decoration name
-        var = option;
-      } else if (option == "as_char")
-      {
-        // using ",as_char" as a postfix to indicate char decorations
-        // (and ",as_bits" as a postfix to indicate bitset
-        // decorations).  I chose that suffix as it should make it
-        // easier to read in configuration files and allows for future
-        // extensions if needed.
-        asChar = true;
-      } else if (option == "as_bits")
-      {
-        asBits = true;
-      } else if (option == "invert")
-      {
-        invert = true;
-      } else
-      {
-        ANA_MSG_ERROR ("invalid option " << option << "for selection decoration");
-        return StatusCode::FAILURE;
-      }
+      accessor = std::make_unique<SelectionReadAccessorInvert>
+        (std::move (accessor));
     }
 
-    if (asChar && asBits)
+    return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode
+  makeSelectionWriteAccessor (const std::string& name,
+                                 std::unique_ptr<ISelectionWriteAccessor>& accessor,
+                                 bool defaultToChar)
+  {
+    using namespace msgSelectionHelpers;
+
+    if (name.find ("%SYS%") != std::string::npos)
     {
-      ANA_MSG_ERROR ("can't specify both 'as_bits' and 'as_char' for the same selection decoration, pick one!!!");
+      ANA_MSG_ERROR ("systematics write accessors not currently supported");
       return StatusCode::FAILURE;
     }
 
-    if (!asChar && !asBits)
-    {
-      if (defaultToChar)
-        asChar = true;
-      else
-        asBits = true;
-    }
+    SplitData splitData;
+    ANA_CHECK (splitData.fill (name, defaultToChar));
 
-    if (asChar)
-      accessor = std::make_unique<SelectionAccessorChar> (var);
+    if (splitData.asChar)
+      accessor = std::make_unique<SelectionWriteAccessorChar> (splitData.var);
     else
-      accessor = std::make_unique<SelectionAccessorBits> (var);
+      accessor = std::make_unique<SelectionWriteAccessorBits> (splitData.var);
 
-    if (invert)
+    if (splitData.invert)
     {
-      accessor = std::make_unique<SelectionAccessorInvert>
+      accessor = std::make_unique<SelectionWriteAccessorInvert>
         (std::move (accessor));
     }
 

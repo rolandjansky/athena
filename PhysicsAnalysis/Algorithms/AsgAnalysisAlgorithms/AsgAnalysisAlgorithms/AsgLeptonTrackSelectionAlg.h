@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <PATCore/IAsgSelectionTool.h>
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionWriteAccessor.h>
 #include <SelectionHelpers/SysReadSelectionHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
@@ -80,7 +80,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_selectionDecoration
   private:
-    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
+    std::unique_ptr<ISelectionWriteAccessor> m_selectionAccessor;
 
 
     /// \brief the \ref TAccept we are using

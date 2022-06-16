@@ -5,24 +5,24 @@
 /// @author Nils Krumnack
 
 
-#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_BITS_H
-#define SELECTION_HELPERS__SELECTION_ACCESSOR_BITS_H
+#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_READ_BITS_H
+#define SELECTION_HELPERS__SELECTION_ACCESSOR_READ_BITS_H
 
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 
 namespace CP
 {
   /// \brief the \ref SelectionAccesor for standard CP algorithm
   /// selection decorations encoded as bits
 
-  class SelectionAccessorBits final : public ISelectionAccessor
+  class SelectionReadAccessorBits final : public ISelectionReadAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorBits (const std::string& name);
+    SelectionReadAccessorBits (const std::string& name);
 
   public:
     virtual SelectionType
@@ -30,19 +30,9 @@ namespace CP
              const CP::SystematicSet *sys) const override;
 
   public:
-    virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection,
-                          const CP::SystematicSet *sys) const override;
-
-  public:
     virtual bool
     getBool (const SG::AuxElement& element,
              const CP::SystematicSet *sys) const override;
-
-  public:
-    virtual void setBool (const SG::AuxElement& element,
-                          bool selection,
-                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual std::string label () const override;
@@ -62,10 +52,6 @@ namespace CP
     //
     // private interface
     //
-
-    /// \brief the underlying accessor
-  private:
-    SG::AuxElement::Decorator<SelectionType> m_accessor;
 
     /// \brief the underlying accessor
   private:

@@ -5,24 +5,24 @@
 /// @author Nils Krumnack
 
 
-#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_OR_H
-#define SELECTION_HELPERS__SELECTION_ACCESSOR_OR_H
+#ifndef SELECTION_HELPERS__SELECTION_READ_ACCESSOR_OR_H
+#define SELECTION_HELPERS__SELECTION_READ_ACCESSOR_OR_H
 
-#include <SelectionHelpers/ISelectionAccessor.h>
+#include <SelectionHelpers/ISelectionReadAccessor.h>
 
 namespace CP
 {
   /// \brief the \ref SelectionAccesor for OR tool selection
   /// decorations
 
-  class SelectionAccessorChar final : public ISelectionAccessor
+  class SelectionReadAccessorChar final : public ISelectionReadAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorChar (const std::string& name);
+    SelectionReadAccessorChar (const std::string& name);
 
   public:
     virtual SelectionType
@@ -30,19 +30,9 @@ namespace CP
              const CP::SystematicSet *sys) const override;
 
   public:
-    virtual void setBits (const SG::AuxElement& element,
-                          SelectionType selection,
-                          const CP::SystematicSet *sys) const override;
-
-  public:
     virtual bool
     getBool (const SG::AuxElement& element,
              const CP::SystematicSet *sys) const override;
-
-  public:
-    virtual void setBool (const SG::AuxElement& element,
-                          bool selection,
-                          const CP::SystematicSet *sys) const override;
 
   public:
     virtual std::string label () const override;
@@ -63,11 +53,7 @@ namespace CP
     // private interface
     //
 
-    /// \brief th underlying accessor
-  private:
-    SG::AuxElement::Decorator<char> m_accessor;
-
-    /// \brief th underlying accessor
+    /// \brief the underlying accessor
   private:
     SG::AuxElement::ConstAccessor<char> m_constAccessor;
 

@@ -13,7 +13,7 @@
 
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/StatusCode.h>
-#include <SelectionHelpers/SelectionAccessorNull.h>
+#include <SelectionHelpers/SelectionReadAccessorNull.h>
 #include <SystematicsHandles/SysListHandle.h>
 
 //
@@ -44,7 +44,7 @@ namespace CP
       return StatusCode::FAILURE;
     }
     m_objectHandle = &objectHandle;
-    ANA_CHECK (makeSelectionAccessor (m_selection, m_accessor));
+    ANA_CHECK (makeSelectionReadAccessor (m_selection, m_accessor));
     return sysListHandle.addHandle (*this);
   }
 
@@ -57,7 +57,7 @@ namespace CP
       return initialize (sysListHandle, objectHandle);
     else
     {
-      m_accessor = std::make_unique<SelectionAccessorNull>(true);
+      m_accessor = std::make_unique<SelectionReadAccessorNull>(true);
       return StatusCode::SUCCESS;
     }
   }

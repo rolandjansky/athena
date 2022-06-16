@@ -33,8 +33,8 @@ StatusCode CP::EventFlagSelectionAlg::initialize()
       // Only done in the case that m_invert was empty
       if (m_invertFlags.size() < index + 1) { m_invertFlags.push_back(false); }
 
-      std::unique_ptr<ISelectionAccessor> accessor;
-      ANA_CHECK (makeSelectionAccessor (m_selFlags[index], accessor));
+      std::unique_ptr<ISelectionReadAccessor> accessor;
+      ANA_CHECK (makeSelectionReadAccessor (m_selFlags[index], accessor));
       m_accessors.push_back(std::move(accessor));
     }
   }

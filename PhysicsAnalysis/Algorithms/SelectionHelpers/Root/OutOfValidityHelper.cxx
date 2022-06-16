@@ -26,7 +26,7 @@ namespace CP
   {
     if (!m_decorationName.empty())
     {
-      ANA_CHECK (makeSelectionAccessor (m_decorationName, m_accessor));
+      ANA_CHECK (makeSelectionWriteAccessor (m_decorationName, m_accessor));
     }
       
     m_isInitialized = true;
