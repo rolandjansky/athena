@@ -47,11 +47,6 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
         # Re-point links on reco objects
         acc.merge(AddMiniTruthCollectionLinksCfg(ConfigFlags))
         acc.merge(AddPVCollectionCfg(ConfigFlags))
-        # TODO: not at all clear what is supposed to be achieved by the next line or how to do it in the CA 
-        # Set appropriate truth jet collection for tau truth matching
-        # ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
-
-
 
     # InDet, Muon, Egamma common augmentations
     from DerivationFrameworkInDet.InDetCommonConfig import InDetCommonCfg
