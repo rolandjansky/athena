@@ -41,7 +41,6 @@ if __name__ == "__main__":
     flags.Concurrency.NumThreads=numThreads
     flags.Concurrency.NumConcurrentEvents=numThreads
 
-    flags.loadAllDynamicFlags()
     flags = flags.cloneAndReplace("InDet.Tracking.ActivePass","InDet.Tracking.MainPass")
 
     flags.lock()

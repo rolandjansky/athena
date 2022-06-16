@@ -21,7 +21,6 @@ def SolenoidalIntersectorCfg(flags, name='SolenoidalIntersector', **kwargs):
 
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()
     acc1 = SolenoidalIntersectorCfg (flags1)

@@ -30,7 +30,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.Enums import LHCPeriod
     ConfigFlags.Input.Files = []
     ConfigFlags.GeoModel.Run = LHCPeriod.Run2  # flags validation workaround
-    ConfigFlags.loadAllDynamicFlags()
 
     flags1 = ConfigFlags.clone()
     flags1.lock()

@@ -23,10 +23,9 @@ class HGTD_DetectorElementCondAlg : public AthReentrantAlgorithm
   HGTD_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~HGTD_DetectorElementCondAlg() override = default;
 
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
-  /** Make this algorithm clonable. */
-  virtual bool isClonable() const override { return true; };
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   SG::WriteCondHandleKey<InDetDD::HGTD_DetectorElementCollection> m_writeKey

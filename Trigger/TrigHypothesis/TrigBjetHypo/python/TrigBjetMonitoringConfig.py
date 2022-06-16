@@ -21,6 +21,14 @@ def TrigBjetOnlineMonitoring(name="TrigBjetOnlineMonitoring"):
     montool = GenericMonitoringTool(name, HistPath = name)
     default_bin_count = 100
 
+    # hypo stage histogram
+    montool.defineHistogram(
+        'stage',
+        title="BJet hypothisis result",
+        xbins=4,
+        path='EXPERT',
+    )
+
         # Event Histograms
     montool.defineHistogram('track_count', title="Number of Tracks per Trigger Decision", xbins = 100, xmin=0, xmax=100, path='EXPERT', type='TH1I')
     montool.defineHistogram('jet_count', title="Number of Jets Considered for B-Tagging", xbins = 20, xmin=0, xmax=20, path='EXPERT', type='TH1I')

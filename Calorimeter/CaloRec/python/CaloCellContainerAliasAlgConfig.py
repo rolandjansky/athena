@@ -23,7 +23,6 @@ def CaloCellContainerAliasAlgCfg (flags, alias, cells = 'AllCalo'):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloCellContainerAliasAlg_myalias',
             ]
