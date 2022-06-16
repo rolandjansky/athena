@@ -22,7 +22,7 @@ from TrigCompositeUtils.TrigCompositeUtils import legName
 from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
 
-from collections import MutableSequence
+from collections.abc import MutableSequence
 import collections.abc
 import re
 
