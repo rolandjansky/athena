@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonDefs.h 
@@ -41,7 +41,7 @@ namespace PerfMon {
     };
   };
   typedef boost::array<std::string, State::Size> Steps_t;
-  static Steps_t Steps = { {
+  static const Steps_t Steps = { {
     "ini", 
     //"run", 
     "evt", 

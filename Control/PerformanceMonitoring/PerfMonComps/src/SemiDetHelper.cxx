@@ -176,18 +176,17 @@ void PMonSD::SemiDetHelper::startAudStd(const std::string& compName, int stepidx
     data=&(d->data_evt);
   } else {
     if (stepidx==CompDataStdSteps::index_fin) {
-      static bool first=true;
-      if (first) {
-	first=false;
-	//Magic sequence of malloc calls+specific string to tell any
-	//spylib (if present, rather harmless otherwise) that now
-	//would be a good time to produce a report from collected data:
-	{ std::string dummy("libstringspy_trigger_report"); }
-	{ delete[] new char[13];delete[] new char[117];delete[] new char[17]; }
-      }
+      [[maybe_unused]] static const bool first = [&]() {
+        //Magic sequence of malloc calls+specific string to tell any
+        //spylib (if present, rather harmless otherwise) that now
+        //would be a good time to produce a report from collected data:
+        { std::string dummy("libstringspy_trigger_report"); }
+        { delete[] new char[13];delete[] new char[117];delete[] new char[17]; }
+        return false;
+      }();
       m_meas_post_lastevt.captureIfUnused();
       if (m_overhead_cpu_snapshot_post_lastevt<0)
-	m_overhead_cpu_snapshot_post_lastevt=m_overhead_cpu_total;
+        m_overhead_cpu_snapshot_post_lastevt=m_overhead_cpu_total;
     } else if (stepidx==CompDataStdSteps::index_1st) {
       m_meas_post_ini.captureIfUnused();
     }

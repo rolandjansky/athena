@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // CallGraphBuilderSvc.h 
@@ -12,6 +12,7 @@
 #define PERFMONCOMPS_CALLGRAPHBUILDERSVC_H 
 
 // STL includes
+#include <mutex>
 #include <string>
 #include <stack>
 
@@ -23,6 +24,7 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/HashMap.h"
 
@@ -94,20 +96,23 @@ protected:
   /// Default constructor: 
   CallGraphBuilderSvc();
 
+  /// Mutex protecting the following members
+  std::recursive_mutex m_mutex;
+
   /// a "unique identifier" for node names
-  static NodeId_t m_uuid;
+  static NodeId_t m_uuid ATLAS_THREAD_SAFE;
 
   /// Method-name-to-UUID
-  GaudiUtils::HashMap<std::string, NodeId_t> m_nameToId;
+  GaudiUtils::HashMap<std::string, NodeId_t> m_nameToId ATLAS_THREAD_SAFE;
   /// UUID-to-Method-name
-  GaudiUtils::HashMap<NodeId_t, std::string> m_idToName;
+  GaudiUtils::HashMap<NodeId_t, std::string> m_idToName ATLAS_THREAD_SAFE;
 
   /// stack of method names (in fact their uuid)
-  std::stack<NodeId_t> m_stack;
+  std::stack<NodeId_t> m_stack ATLAS_THREAD_SAFE;
 
   typedef boost::adjacency_list<> CallGraph_t;
   /// the callgraph
-  CallGraph_t m_graph;
+  CallGraph_t m_graph ATLAS_THREAD_SAFE;
 
 }; 
 
