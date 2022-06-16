@@ -201,6 +201,15 @@ def pebInfoWriterTool(flags, name, eventBuildType):
                          SubDetector.TDAQ_CALO_JET_PROC_ROI,
                          SubDetector.TDAQ_CTP
         ])
+    elif 'JetPEBPhysicsTLA' == eventBuildType:
+        tool = RoIPEBInfoWriterToolCfg(name)
+        # Add subdetectors within a ROI for PEB
+        tool.addRegSelDets(flags,['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD', 'TILE'])
+        tool.EtaWidth = 0.6 # half-width (the RoI is between etaJet-EtaWidth and etaJet+EtaWidth) 
+        tool.PhiWidth = 0.6
+        tool.MaxRoIs = 3                                                                                              
+        moduleId = DataScoutingInfo.getDataScoutingResultID(eventBuildType)
+        tool.addHLTResultToROBList(moduleId)
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
