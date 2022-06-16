@@ -20,7 +20,6 @@ import string
 #
 def makeFlags():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.loadAllDynamicFlags()
     flags = ConfigFlags.clone()
 
     from CaloClusterCorrection.CaloClusterCorrectionFlags \

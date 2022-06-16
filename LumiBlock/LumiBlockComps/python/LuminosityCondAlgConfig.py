@@ -194,7 +194,6 @@ def luminosityCondAlgOnlineCfg (configFlags, name, result):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- run2')
     flags1 = ConfigFlags.clone()

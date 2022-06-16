@@ -77,7 +77,6 @@ in the input file."""
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- Reference aliased object by base name.')
     flags1 = ConfigFlags.clone()
