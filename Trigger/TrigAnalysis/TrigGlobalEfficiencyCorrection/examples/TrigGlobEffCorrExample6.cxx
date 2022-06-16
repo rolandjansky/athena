@@ -36,6 +36,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "PATCore/PATCoreEnums.h"
+#include "AthContainers/AuxElement.h"
 
 // stdlib include(s):
 #include <random>
@@ -89,7 +90,6 @@ int main(int argc, char* argv[])
     if(fast) entries = std::min(entries, 1000LL);
 
     /* ********************************************************************** */
-    
     asg::AnaToolHandle<TrigConf::ITrigConfigTool> trigConfTool("TrigConf::xAODConfigTool/TrigConfig");
     if(trigConfTool.initialize() != StatusCode::SUCCESS)
     {
@@ -146,6 +146,9 @@ int main(int argc, char* argv[])
     std::uniform_int_distribution<unsigned> uniformPdf(0,
             sizeof(periodRuns)/sizeof(*periodRuns) - 1);
     std::default_random_engine randomEngine;
+	
+    SG::AuxElement::ConstAccessor<int> truthType("truthType");
+    SG::AuxElement::ConstAccessor<int> truthOrigin("truthOrigin");
     
     /* ********************************************************************** */
     
@@ -170,12 +173,13 @@ int main(int argc, char* argv[])
             float eta = fabs(electron->caloCluster()->etaBE(2));
             float pt = electron->pt();
             if(pt<10e3f || eta>=2.47) continue;
-            int t = electron->auxdata<int>("truthType");
-            int o = electron->auxdata<int>("truthOrigin");
+            if(!truthType.isAvailable(*electron)) continue;
+            if(!truthOrigin.isAvailable(*electron)) continue;
+            int t = truthType(*electron), o = truthOrigin(*electron);
             if(t!=2 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
             myTriggeringElectrons.push_back(electron);
         }
-
+		
         vector<const xAOD::Muon*> myTriggeringMuons;
         const xAOD::MuonContainer* muons = nullptr;
         event.retrieve(muons,"Muons").ignore();
@@ -185,12 +189,13 @@ int main(int argc, char* argv[])
             if(pt<10e3f || fabs(muon->eta())>=2.5) continue;
             auto mt = muon->muonType();
             if(mt!=xAOD::Muon::Combined && mt!=xAOD::Muon::MuonStandAlone) continue;
-            int t = muon->primaryTrackParticle()->auxdata<int>("truthType");
-            int o = muon->primaryTrackParticle()->auxdata<int>("truthOrigin");
+            auto& mtp = *(muon->primaryTrackParticle());
+            if(!truthType.isAvailable(mtp)) continue;
+            if(!truthOrigin.isAvailable(mtp)) continue;
+            int t = truthType(mtp), o = truthOrigin(mtp);
             if(t!=6 || !(o==10 || (o>=12 && o<=22) || o==43)) continue;
             myTriggeringMuons.push_back(muon);
         }
-
         /// Events must contain at least one lepton above trigger threshold
         if(myTriggeringElectrons.size()+myTriggeringMuons.size() < 1) continue;
         nSuitableEvents += 1;

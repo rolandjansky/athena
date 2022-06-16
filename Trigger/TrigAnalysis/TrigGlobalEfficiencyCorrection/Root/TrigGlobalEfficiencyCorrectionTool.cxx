@@ -42,10 +42,11 @@ TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std
 	declareProperty("MuonTools", m_suppliedMuonTools, "muon efficiency/scale factor tool (one per year)");
 	declareProperty("ListOfLegsPerTool", m_legsPerTool, "comma-separated list of trigger legs supported by each electron or photon tool");
 	declareProperty("TriggerCombination", m_triggerCb, "map of trigger combination per period and/or range of runs");
-	declareProperty("TriggerCombination2015", m_triggerCbPerYear["2015"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
-	declareProperty("TriggerCombination2016", m_triggerCbPerYear["2016"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
-	declareProperty("TriggerCombination2017", m_triggerCbPerYear["2017"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
-	declareProperty("TriggerCombination2018", m_triggerCbPerYear["2018"] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
+	for(int y : {15, 16, 17, 18, 22, 23, 24, 25})
+	{
+		std::string year = std::to_string(2000 + y);
+		declareProperty("TriggerCombination" + year, m_triggerCbPerYear[year] = "", "trigger combination \"trigger1 || trigger2 || ...\"");
+	}
 	declareProperty("LeptonTagDecorations", m_leptonTagDecorations = "", 
 		"comma-separated list of decorations for the lepton selection tags, ordered by increasing tightness. "
 		"If a name ends with =, the tag is the decorated value, otherwise it is the decoration name");
@@ -135,7 +136,7 @@ StatusCode TrigGlobalEfficiencyCorrectionTool::initialize()
 	if(!loadTagDecorators(collectedElectronTags, collectedMuonTags, collectedPhotonTags)) return StatusCode::FAILURE;
 
 	ATH_MSG_DEBUG("Loading list of legs allowed for each tag"); 
-	if(!loadListOfLegsPerTag(collectedElectronTags, collectedMuonTags, collectedPhotonTags)) return StatusCode::FAILURE;
+	if(!loadListOfLegsPerTag()) return StatusCode::FAILURE;
 	
 	ATH_MSG_DEBUG("Advanced checks");
 	if(!checks.advancedConfigChecks()) return StatusCode::FAILURE;
@@ -149,7 +150,7 @@ bool TrigGlobalEfficiencyCorrectionTool::processDeprecatedProperties()
 {
 	if(m_electronLegsPerTag.size())
 	{
-		ATH_MSG_WARNING("The property 'ElectronLegsPerTag' is deprecated, please eventually use 'ListOfLegsPerTag' instead");
+		ATH_MSG_WARNING("The property 'ElectronLegsPerTag' is deprecated, please use 'ListOfLegsPerTag' instead");
 		for(auto& kv : m_electronLegsPerTag)
 		{
 			auto insert = m_legsPerTag.insert(kv);
@@ -158,7 +159,7 @@ bool TrigGlobalEfficiencyCorrectionTool::processDeprecatedProperties()
 	}
 	if(m_muonLegsPerTag.size())
 	{
-		ATH_MSG_WARNING("The property 'MuonLegsPerTag' is deprecated, please eventually use 'ListOfLegsPerTag' instead");
+		ATH_MSG_WARNING("The property 'MuonLegsPerTag' is deprecated, please use 'ListOfLegsPerTag' instead");
 		for(auto& kv : m_muonLegsPerTag)
 		{
 			auto insert = m_legsPerTag.insert(kv);
@@ -325,7 +326,7 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTriggerCombination(ImportData& data
 		m_triggerCb.insert(kv);
 	}
 	
-	m_calculator = std::unique_ptr<Calculator>(new Calculator(*this, m_triggerCb.size()));
+	m_calculator = std::make_unique<Calculator>(*this, m_triggerCb.size());
 	std::set<std::size_t> allUniqueElectronLegs, allUniquePhotonLegs;
 	for(auto& kv : m_triggerCb)
 	{
@@ -472,23 +473,9 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTagDecorators(const flat_set<std::s
 	return success;
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::loadListOfLegsPerTag(const flat_set<std::size_t>& /*collectedElectronTags*/, const flat_set<std::size_t>& /*collectedMuonTags*/, const flat_set<std::size_t>& /*collectedPhotonTags*/)
+bool TrigGlobalEfficiencyCorrectionTool::loadListOfLegsPerTag()
 {
 	bool success = true;
-	
-	/// For safety...
-	/*
-	if(!m_muonLegsPerTag.size() && m_leptonTagDecorators.size())
-	{
-		ATH_MSG_INFO("Lepton selection tag decorators have been configured, but the property 'MuonLegsPerTag' is empty. "
-			"Muons will be considered suitable for any trigger leg regardless of their tag.");
-	}
-	if(!m_electronLegsPerTag.size() && m_leptonTagDecorators.size())
-	{
-		ATH_MSG_INFO("Lepton selection tag decorators have been configured, but the property 'ElectronLegsPerTag' is empty. "
-			"Electrons will be considered suitable for any trigger leg that has an associated SF tool for that tag.");
-	}
-	*/
 	
 	/// Create the hash list of legs allowed for each tag; check that a CP tool is available for each combination
 	for(auto& kv : m_legsPerTag)
@@ -928,7 +915,7 @@ auto TrigGlobalEfficiencyCorrectionTool::rankTriggerLegs(float pt, const Contain
 	CachedRanking r;
 	r.ranking = std::numeric_limits<decltype(r.ranking)>::max();
 	r.minPt = 0.f;
-	r.maxPt = 1e12f;
+	r.maxPt = std::numeric_limits<float>::max();
 	if(nLegs >= 2*sizeof(r.ranking))
 	{
 		ATH_MSG_ERROR("Implementation currently doesn't support ranking of more than " << 2*sizeof(r.ranking) << " trigger legs");

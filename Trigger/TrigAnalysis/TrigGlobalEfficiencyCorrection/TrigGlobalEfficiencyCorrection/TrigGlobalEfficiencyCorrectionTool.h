@@ -150,7 +150,7 @@ private:
 	bool parseTagString(const std::string& tagstring, flat_set<std::size_t>& tags);
 	bool loadTriggerCombination(TrigGlobEffCorr::ImportData& data, bool useDefaultElectronTools, bool useDefaultPhotonTools);
 	bool loadTagDecorators(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags);
-	bool loadListOfLegsPerTag(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags);
+	bool loadListOfLegsPerTag();
 	bool processDeprecatedProperties();
 	
 	/// Internal methods (II) -- core task
