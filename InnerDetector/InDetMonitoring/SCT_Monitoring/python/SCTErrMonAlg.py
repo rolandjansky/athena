@@ -200,6 +200,24 @@ def SCTErrMonAlgConfig(inputFlags):
                                xmax = sctMon.NBINS_LBs+0.5,
                                opt='kAlwaysCreate')
 
+    # Module maps
+    for region in range(sctMon.N_REGIONS):
+        for layer in range(sctMon.n_layers[region]*2):
+            myMonGroup.defineHistogram(varname = "eta_out, phi_out, modulemap"+sctMon.subDetNameShort[region].Data()+str(layer//2)+"_"+str(layer%2)+";modulemap"+sctMon.subDetNameShort[region].Data()+str(layer//2)+"_"+str(layer%2),
+                               type = "TProfile2D",
+                               title = "Module out of configuration: "+sctMon.layerName[region].Data()+str(layer//2)+" side "+str(layer%2) + ";Index in the direction of #eta;Index in the direction of #phi",
+                               path = "SCT"+sctMon.subDetNameShort[region].Data()+"/Conf/",
+                               xbins = sctMon.N_ETA_BINS if region==sctMon.BARREL_INDEX else sctMon.N_ETA_BINS_EC,
+                               xmin = (sctMon.FIRST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_ETA_BIN_EC)-0.5,
+                               xmax = (sctMon.LAST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_ETA_BIN_EC)+0.5,
+                               ybins = sctMon.N_PHI_BINS if region==sctMon.BARREL_INDEX else sctMon.N_PHI_BINS_EC,
+                               ymin = (sctMon.FIRST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_PHI_BIN_EC)-0.5,
+                               ymax = (sctMon.LAST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_PHI_BIN_EC)+0.5,
+                               duration = "lb",
+                               opt='kAlwaysCreate')
+
+
+
     # Filled in fillByteStreamErrorsHelper
     xlabels = [SCT_ByteStreamErrors.ErrorTypeDescription[i] for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES)]
     for reg in range(sctMon.N_REGIONS):
