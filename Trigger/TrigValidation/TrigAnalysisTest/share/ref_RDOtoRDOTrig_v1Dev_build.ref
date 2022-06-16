@@ -9782,6 +9782,16 @@ HLT_j20_0eta290_boffperf_pf_ftf_preselj180_PhysicsTLA_L1J100:
     2: 11
     3: 11
     4: 1
+HLT_j20_JetPEBPhysicsTLA_L1HT190-J15s5pETA21:
+  eventCount: 4
+  stepCounts:
+    0: 4
+    1: 4
+    2: 4
+  stepFeatures:
+    0: 32
+    1: 32
+    2: 32
 HLT_j20_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 4
   stepCounts:
@@ -9878,6 +9888,18 @@ HLT_j20_pf_ftf_presel6j40_PhysicsTLA_L14J15:
     1: 20
     2: 20
     3: 2
+HLT_j20_pf_ftf_preselcHT450_JetPEBPhysicsTLA_L1HT190-J15s5pETA21:
+  eventCount: 1
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
+  stepFeatures:
+    0: 1
+    1: 11
+    2: 11
+    3: 11
 HLT_j20_pf_ftf_preselcHT450_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 1
   stepCounts:
@@ -17058,6 +17080,30 @@ HLT_mu8_L1MU5VF:
     1: 12
     2: 10
     3: 9
+HLT_noalg_AFPPEB_L12MU5VF:
+  eventCount: 3
+  stepCounts:
+    0: 3
+  stepFeatures:
+    0: 3
+HLT_noalg_AFPPEB_L1EM22VHI:
+  eventCount: 10
+  stepCounts:
+    0: 10
+  stepFeatures:
+    0: 10
+HLT_noalg_AFPPEB_L1J100:
+  eventCount: 3
+  stepCounts:
+    0: 3
+  stepFeatures:
+    0: 3
+HLT_noalg_AFPPEB_L1MU14FCH:
+  eventCount: 5
+  stepCounts:
+    0: 5
+  stepFeatures:
+    0: 5
 HLT_noalg_CostMonDS_L1All:
   eventCount: 20
   stepCounts:

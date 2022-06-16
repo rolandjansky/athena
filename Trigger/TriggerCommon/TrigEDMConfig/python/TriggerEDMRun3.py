@@ -782,25 +782,26 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4HIJets',                      'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4HIJetsAux.'+HIJetVars,       'BS ESD AODFULL', 'Jet'),
 
-    # TLA jets
+    # TLA jets + PEB jets
+    ('TrigRoiDescriptorCollection#HLT_Roi_JetPEBPhysicsTLA',             'BS ESD JetPEBPhysicsTLA',  'Jet'),
 
-    ('xAOD::TrigCompositeContainer#HLT_TCEventInfo_TLA',                                 'BS PhysicsTLA ESD', 'Jet' ),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TCEventInfo_TLAAux.JetDensityEMPFlow.JetDensityEMTopo.AvgMu.NumPV',         'BS PhysicsTLA ESD', 'Jet'    ),
+    ('xAOD::TrigCompositeContainer#HLT_TCEventInfo_TLA',                                 'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet' ),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TCEventInfo_TLAAux.JetDensityEMPFlow.JetDensityEMTopo.AvgMu.NumPV',         'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'    ),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+TLAJetVars,       'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+TLAJetVars,       'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+TLAJetVars,       'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA',                      'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+TLAJetVars,       'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
 
 
     # TLA Photons
-    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA ESD', 'Egamma'),
-    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA ESD', 'Egamma'),
+    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Egamma'),
+    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Egamma'),
 
     # TLA Muons
-    ('xAOD::MuonContainer#HLT_MuonsCB_RoI_TLA',                                       'BS PhysicsTLA ESD', 'Muon'),
-    ('xAOD::MuonAuxContainer#HLT_MuonsCB_RoI_TLAAux.',                                'BS PhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonContainer#HLT_MuonsCB_RoI_TLA',                                       'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonsCB_RoI_TLAAux.',                                'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Muon'),
 
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
