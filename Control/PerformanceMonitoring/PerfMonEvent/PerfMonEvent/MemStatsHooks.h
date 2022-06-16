@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // MemStatsHooks.h 
@@ -10,8 +10,11 @@
 #ifndef PERFMONEVENT_PERFMONMEMSTATSHOOKS_H 
 #define PERFMONEVENT_PERFMONMEMSTATSHOOKS_H 1
 
+#include "CxxUtils/checker_macros.h"
+
 #include <stddef.h>
 #include <stdlib.h>
+#include <atomic>
 #ifndef __APPLE__
 #include <malloc.h>
 #endif
@@ -29,16 +32,16 @@ namespace PerfMon {
 struct MemStats
 {
   /// flag disabling or enabling the global malloc hooks
-  static bool m_enabled;
+  static std::atomic<bool> m_enabled;
 
   /// number of bytes allocated so far
-  static unsigned long long m_nbytes;
+  static unsigned long long m_nbytes ATLAS_THREAD_SAFE;
 
   /// number of times malloc has been called so far
-  static unsigned long long m_nmallocs;
+  static unsigned long long m_nmallocs ATLAS_THREAD_SAFE;
 
   /// number of times free has been called so far
-  static unsigned long long m_nfrees;
+  static unsigned long long m_nfrees ATLAS_THREAD_SAFE;
 
   /// switch to enable or disable the global malloc hooks
   /// @returns the old value of the flag
@@ -66,13 +69,6 @@ struct MemStats
   static unsigned long long nmallocs() { return m_nmallocs; }
   /// return the number of times free has been called so far
   static unsigned long long nfrees() { return m_nfrees; }
-  /// reset the number of so far allocated bytes to 0
-  static void reset() 
-  { 
-    m_nbytes =  0;
-    m_nmallocs= 0;
-    m_nfrees =  0;
-  }
 
   /// initialize library
   static void start();
