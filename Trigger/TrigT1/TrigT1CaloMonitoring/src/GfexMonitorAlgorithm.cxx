@@ -111,9 +111,9 @@ StatusCode GfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
     const xAOD::gFexJetRoI* gFexSRJetRoI=0;
     for(const auto& it :  *gFexSRJetContainer){
       gFexSRJetRoI = it;
-      gFexSRJeteT=gFexLRJetRoI->gFexTobEt();
-      gFexSRJeteta=gFexLRJetRoI->eta();
-      gFexSRJetphi=gFexLRJetRoI->phi();
+      gFexSRJeteT=gFexSRJetRoI->gFexTobEt();
+      gFexSRJeteta=gFexSRJetRoI->eta();
+      gFexSRJetphi=gFexSRJetRoI->phi();
       gtype=gFexSRJetRoI->gFexType();
       fill(m_packageName,gFexSRJeteta,gFexSRJetphi,gFexSRJeteT,gtype);
     }
