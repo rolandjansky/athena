@@ -38,8 +38,6 @@ class LArOFPhaseFill : public AthAlgorithm
   // Services 
   const LArOnlineID_Base*        m_lar_on_id;
 
-  LArOFCBinComplete*   m_OFCbin;
-
   StringProperty m_InputFile {this,"InputFile", "", "Which file to read"}; 
   StringProperty m_keyOFCbin {this,"keyOFCBin","LArOFCBin","Output key of LArOFCBinComlete object"};
   StringProperty m_groupingName {this, "GroupingType", "Unknown", "Which grouping type to use"};
