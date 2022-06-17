@@ -35,7 +35,6 @@ namespace CP
     declareProperty ("nMaxPixelHits", m_nMaxPixelHits, "minimum number of required Pixel hits (or -1 for no cut)");
     declareProperty ("nMinSCTHits", m_nMinSCTHits, "minimum number of required SCT hits (or -1 for no cut)");
     declareProperty ("nMaxSCTHits", m_nMaxSCTHits, "minimum number of required SCT hits (or -1 for no cut)");
-    declareProperty ("selectionDecoration", m_selectionDecoration, "the decoration for the asg selection");
     declareProperty ("eventInfo", m_eventInfo, "the name of the EventInfo object to retrieve");
     declareProperty ("primaryVertices", m_primaryVertices, "the name of the PrimaryVertex container to retrieve");
   }
@@ -45,12 +44,6 @@ namespace CP
   StatusCode AsgLeptonTrackSelectionAlg ::
   initialize ()
   {
-    if (m_selectionDecoration.empty())
-    {
-      ANA_MSG_ERROR ("no selection decoration name set");
-      return StatusCode::FAILURE;
-    }
-    ANA_CHECK (makeSelectionWriteAccessor (m_selectionDecoration, m_selectionAccessor));
 
     if (m_maxD0Significance < 0 || !std::isfinite (m_maxD0Significance))
     {
@@ -75,6 +68,7 @@ namespace CP
 
     ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particlesHandle, SG::AllowEmpty));
+    ANA_CHECK (m_selectionHandle.initialize (m_systematicsList, m_particlesHandle));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
@@ -186,8 +180,8 @@ namespace CP
           }
         }
 
-        m_selectionAccessor->setBits
-          (*particle, selectionFromAccept (m_accept));
+        m_selectionHandle.setBits
+          (*particle, selectionFromAccept (m_accept), sys);
       }
     }
     return StatusCode::SUCCESS;
