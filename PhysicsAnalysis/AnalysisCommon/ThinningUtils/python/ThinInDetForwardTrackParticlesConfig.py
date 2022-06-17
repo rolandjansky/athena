@@ -24,9 +24,6 @@ def ThinInDetForwardTrackParticlesCfg(flags, name="ThinInDetForwardTrackParticle
     return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties

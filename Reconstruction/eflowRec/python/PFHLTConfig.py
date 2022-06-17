@@ -50,14 +50,12 @@ def PFTrackExtensionCfg(flags, tracktype, tracksin):
     pretracks_name = f"HLTPFPreselTracks_{tracktype}"
     cache_name = f"HLTPFtrackExtensionCache_{tracktype}"
 
+    from InDetConfig.InDetTrackSelectionToolConfig import PFTrackSelectionToolCfg
     result.addEventAlgo(CompFactory.PFTrackPreselAlg(
         f"HLTPFTrackPresel_{tracktype}",
         InputTracks=tracksin,
         OutputTracks=pretracks_name,
-        TrackSelTool=CompFactory.InDet.InDetTrackSelectionTool(
-            CutLevel="TightPrimary",
-            minPt=500.0,
-        )
+        TrackSelTool=result.popToolsAndMerge(PFTrackSelectionToolCfg(flags))
     ))
     result.addEventAlgo(CompFactory.Trk.PreselCaloExtensionBuilderAlg(
         f"HLTPFTrackExtension_{tracktype}",
@@ -167,6 +165,7 @@ def HLTPFTrackSelectorCfg(inputFlags,tracktype,tracksin,verticesin,clustersin,ce
             raise ValueError(f"Invalid muon removal mode '{muon_mode}'")
         result.merge(tag_acc)
 
+    from InDetConfig.InDetTrackSelectionToolConfig import PFTrackSelectionToolCfg
     result.addEventAlgo(
         CompFactory.PFTrackSelector(
             f"PFTrackSelector_{tracktype}",
@@ -175,10 +174,7 @@ def HLTPFTrackSelectorCfg(inputFlags,tracktype,tracksin,verticesin,clustersin,ce
                 TrackCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(inputFlags)),
                 PFParticleCache = extension_cache,
             ),
-            trackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool(
-                CutLevel="TightPrimary",
-                minPt = 500.0,
-            ),
+            trackSelectionTool = result.popToolsAndMerge(PFTrackSelectionToolCfg(inputFlags)),
             electronsName="",
             muonsName="",
             tracksName=tracksin,

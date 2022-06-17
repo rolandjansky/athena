@@ -12,7 +12,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaConfiguration.Enums import ProductionStep
-from AthenaCommon.SystemOfUnits import GeV, MeV, mm, deg
+from AthenaCommon.SystemOfUnits import GeV, MeV, deg
 from tauRec.tauRecFlags import tauFlags
 
 cached_instances = {}
@@ -44,25 +44,6 @@ def JetSeedBuilderCfg(flags):
     return result
 
 #########################################################################
-def InDetTrackSelectionToolForTJVACfg(flags):
-    result = ComponentAccumulator()
-    _name = sPrefix + 'InDetTrackSelectionToolForTJVA'
-
-    # Configures tau track selector tool (should eventually check whether an existing one is available)
-    InDet__InDetTrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool
-    InDetTrackSelectionToolForTJVA = InDet__InDetTrackSelectionTool(name = _name,
-                                                                    minPt                = 1000.,
-                                                                    maxD0                = 9999.*mm,
-                                                                    maxZ0                = 9999.*mm,
-                                                                    minNPixelHits        = 2,  # PixelHits + PixelDeadSensors
-                                                                    minNSctHits          = 0,  # SCTHits + SCTDeadSensors
-                                                                    minNSiHits           = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-                                                                    minNTrtHits          = 0)
-
-    result.setPrivateTools(InDetTrackSelectionToolForTJVA)
-    return result
-
-#########################################################################
 def TVAToolCfg(flags):
     _name = sPrefix + "TVATool"
 
@@ -79,6 +60,8 @@ def TauVertexFinderCfg(flags):
     result = ComponentAccumulator()
     _name = sPrefix + 'TauVertexFinder'
 
+    from InDetConfig.InDetTrackSelectionToolConfig import Tau_InDetTrackSelectionToolForTJVACfg
+
     # Algorithm that overwrites numTrack() and charge() of tauJets in container
     # from tauRecTools.tauRecToolsConf import TauVertexFinder
     TauVertexFinder = CompFactory.getComp("TauVertexFinder")
@@ -86,7 +69,7 @@ def TauVertexFinderCfg(flags):
                                       UseTJVA                 = flags.Tau.doTJVA,
                                       UseTJVA_Tiebreak        = flags.Tau.doTJVATiebreak,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      InDetTrackSelectionToolForTJVA = result.popToolsAndMerge(InDetTrackSelectionToolForTJVACfg(flags)),
+                                      InDetTrackSelectionToolForTJVA = result.popToolsAndMerge(Tau_InDetTrackSelectionToolForTJVACfg(flags)),
                                       Key_trackPartInputContainer= flags.Tau.TrackCollection,
                                       Key_vertexInputContainer = flags.Tau.VertexCollection,
                                       TVATool = result.popToolsAndMerge(TVAToolCfg(flags)) )
