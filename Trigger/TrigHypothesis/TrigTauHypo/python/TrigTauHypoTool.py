@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -10,7 +10,7 @@ from collections import namedtuple
 # Here we need a large repository of configuration values
 # The meaning of the configuration values is as follows:
 # ('Id working point', 'pt threshold': ['Maximum number of tracks[0]', 'etmincalib[1]', 'Id level[2]'])
-TauCuts = namedtuple('TauCuts','numTrackMax numTrackWideTrackMax EtCalibMin level')
+TauCuts = namedtuple('TauCuts','numTrackMax numWideTrackMax EtCalibMin level')
 thresholdsEF = {
     ('looseRNN', 20): TauCuts(3, 1, 20000.0, 1),
     ('looseRNN', 25): TauCuts(3, 1, 25000.0, 1),
@@ -111,7 +111,7 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         # setup the Hypo parameter
         theThresh = thresholdsEF[(criteria, int(threshold))]
         currentHypo.numTrackMax = theThresh.numTrackMax
-        currentHypo.numTrackWideTrackMax = theThresh.numTrackWideTrackMax
+        currentHypo.numWideTrackMax = theThresh.numWideTrackMax
         currentHypo.EtCalibMin  = theThresh.EtCalibMin
         currentHypo.level       = theThresh.level
         currentHypo.method      = 1   
