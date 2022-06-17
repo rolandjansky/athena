@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef IDAlignMonResiduals_H
@@ -23,10 +23,9 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CommissionEvent/ComTime.h"
-#include "TFile.h"
 
 
-
+class TFile;
 class TH1F;
 class TH1F_LW;
 class TH2F;
