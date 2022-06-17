@@ -22,7 +22,7 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
 
         from TrigInDetMonitoring.TIDAChains import getchains
         
-        key     = "Expert"
+        key     = "All"
         toolkey = ""
 
         if monlevel is not None:
@@ -30,6 +30,11 @@ def TIDAMonitoring( flags=None, name=None, monlevel=None, mcTruth=False ) :
                 if "shifter" in monlevel:
                         key     = "Shifter"
                         toolkey = "Shifter"
+                if "t0" in monlevel:
+                        key     = "Expert"
+                        toolkey = "Expert"
+
+
 
         if mcTruth: 
                 tidaegamma = TrigR3Mon_builder( flags, name = "IDEgammaTruth"+toolkey+"Tool", mcTruth=True, pdgID=11 )
@@ -311,7 +316,8 @@ def TIDAMonitoringCA( flags, monlevels=None ):
         from AthenaMonitoring import AthMonitorCfgHelper
         monConfig = AthMonitorCfgHelper(flags, "TrigIDMon")
 
-        algs = TIDAMonitoring(flags, "Tier0", monlevel="idMon:t0" )
+        algs = TIDAMonitoring(flags, "All" )
+        algs += TIDAMonitoring(flags, "Tier0", monlevel="idMon:t0" )
         algs += TIDAMonitoring(flags, "Shifter", monlevel="idMon:shifter", mcTruth=False ) 
       
         if flags.Input.isMC:    
