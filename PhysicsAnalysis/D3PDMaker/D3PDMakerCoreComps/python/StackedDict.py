@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file D3PDMakerCoreComps/python/StackedDict.py
@@ -8,10 +8,10 @@
 #
 
 
-import collections
+import collections.abc
 
 
-class StackedDict (collections.Mapping):
+class StackedDict (collections.abc.Mapping):
     """Allow lookups in multiple dictionaries while writing to one.
 
     A StackedDict references a list of other dictionaries.
