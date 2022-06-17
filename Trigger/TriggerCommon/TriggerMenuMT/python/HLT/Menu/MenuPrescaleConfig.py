@@ -88,7 +88,7 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale, ignoreUnknownChains=False
                 log.error('Attempt to set prescales for nonexisting chain: %s', item)
                 continue
         hltchain = triggerPythonConfig.dicts()[item]
-        hltchain['prescale'] = str(prescale)
+        hltchain['prescale'] = prescale
         log.info('Applied HLTPS to the item %s: PS %s', item, hltchain['prescale'])
        
 class PrescaleClass(object):
