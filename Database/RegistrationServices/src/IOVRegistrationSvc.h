@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,7 +11,6 @@
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  * @author Antoine Pérus <perus@lal.in2p3.fr>
  * 
- * $Id: IOVRegistrationSvc.h,v 1.19 2009-01-29 16:38:27 hawkings Exp $
  */
 
 #ifndef REGISTRATIONSERVICES_IOVREGISTRATIONSVC_H
@@ -212,9 +211,9 @@ private:
     std::vector<std::string> m_overrideName;
     std::vector<std::string> m_overrideType;
 
-    mutable ServiceHandle<IIOVCondDbSvc> m_iov_db;
+    ServiceHandle<IIOVCondDbSvc> m_iov_db;
     ServiceHandle<StoreGateSvc>    m_detStore;
-    mutable ServiceHandle<IAddressCreator> m_persSvc;   
+    ServiceHandle<IAddressCreator> m_persSvc;
     ServiceHandle<IClassIDSvc>     m_clidSvc;   
     
 };
