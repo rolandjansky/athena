@@ -1039,8 +1039,7 @@ else:
           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
                                                        InDetKeys.UnslimmedDetailedTracksTruth(),
-                                                       InDetKeys.UnslimmedTracksTruth(),
-                                                       overlayFlags.doTrackOverlay())
+                                                       InDetKeys.UnslimmedTracksTruth())
           #
           # add final output for statistics
           #
@@ -1074,8 +1073,7 @@ else:
           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DisappearingTracks(),
                                                        InDetKeys.DisappearingDetailedTracksTruth(),
-                                                       InDetKeys.DisappearingTracksTruth(),
-                                                       overlayFlags.doTrackOverlay())
+                                                       InDetKeys.DisappearingTracksTruth())
 
         if (InDetFlags.doPrintConfigurables()):
           printfunc (TrkTrackCollectionMerger_pix)
