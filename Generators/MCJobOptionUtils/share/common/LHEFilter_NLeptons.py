@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # To use the NLeptons filter in a joboption one would need to include the following lines
     #include('MCJobOptionUtils/LHEFilter_NLeptons.py')
     #lheFilter = LHEFilter_NLeptons()

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # This code is almost identical to ColourFlow_LHE.py by Fabian Wilk
 # It provides an interface to reading, writing, and possibly modify events in lhe files
 
