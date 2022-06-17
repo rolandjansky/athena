@@ -11,14 +11,6 @@ trackContainers=['CombinedInDetTracks','DisappearingTracks','ResolvedForwardTrac
 for container in trackContainers:
     job += CfgGetter.getAlgorithmClone('CopyTrackCollection'+container, 'CopyTrackCollection', collectionName=container)
 
-truthContainers=['DisappearingTracksDetailedTruth','ResolvedForwardTracksDetailedTruth','CombinedInDetTracksDetailedTruth','ResolvedLargeD0TracksDetailedTruth']
-for container in truthContainers:
-    job += CfgGetter.getAlgorithmClone('CopyDetailedTrackTruthCollection'+container, 'CopyDetailedTrackTruthCollection', collectionName=container)
-
-prdTruthContainers=['PRD_MultiTruthTRT','PRD_MultiTruthPixel','PRD_MultiTruthSCT']
-for container in prdTruthContainers:
-    job += CfgGetter.getAlgorithmClone('CopyPRD_MultiTruthCollection'+container, 'CopyPRD_MultiTruthCollection', collectionName=container)
-
 from TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
 TrkEventCnvSuperTool = Trk__EventCnvSuperTool(name="EventCnvSuperTool")
 TrkEventCnvSuperTool.DoTrackOverlay=True

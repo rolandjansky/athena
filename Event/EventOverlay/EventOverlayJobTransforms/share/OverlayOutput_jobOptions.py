@@ -154,14 +154,6 @@ if overlayFlags.doTrackOverlay():
     outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#'+overlayFlags.bkgPrefix()+'TRT_DriftCircles' ]
     outStream.ItemList += [ 'InDet::PixelClusterContainer#'+overlayFlags.bkgPrefix()+'PixelClusters' ]
     outStream.ItemList += [ 'InDet::SCT_ClusterContainer#'+overlayFlags.bkgPrefix()+'SCT_Clusters' ]
-    if DetFlags.overlay.Truth_on():
-        outStream.ItemList += [ 'PRD_MultiTruthCollection#'+overlayFlags.bkgPrefix()+'PRD_MultiTruthTRT' ]
-        outStream.ItemList += [ 'PRD_MultiTruthCollection#'+overlayFlags.bkgPrefix()+'PRD_MultiTruthPixel' ]
-        outStream.ItemList += [ 'PRD_MultiTruthCollection#'+overlayFlags.bkgPrefix()+'PRD_MultiTruthSCT' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#'+overlayFlags.bkgPrefix()+'DisappearingTracksDetailedTruth' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#'+overlayFlags.bkgPrefix()+'ResolvedForwardTracksDetailedTruth' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#'+overlayFlags.bkgPrefix()+'ResolvedLargeD0TracksDetailedTruth' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#'+overlayFlags.bkgPrefix()+'CombinedInDetTracksDetailedTruth' ]
 
 # Temporary to ensure the output is stored
 outStream.TransientItems = outStream.ItemList
