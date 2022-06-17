@@ -20,6 +20,8 @@
 #include "TMath.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TFile.h"
+
 #include <cmath>
 #include <sstream>
 
@@ -2858,22 +2860,16 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 
 //__________________________________________________________________________
 const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(const Trk::Track* trkPnt, const Trk::TrackStateOnSurface* tsos) {
-  const Trk::TrackParameters* TrackParams;
-  const Trk::TrackParameters* UnbiasedTrackParams(nullptr);
-  const Trk::TrackParameters* PropagatedTrackParams(nullptr);
-  const Trk::TrackParameters* OtherSideUnbiasedTrackParams(nullptr);
+  const Trk::TrackParameters* trackParams;
+  std::unique_ptr<const Trk::TrackParameters> propagatedTrackParams{};
+  std::unique_ptr<const Trk::TrackParameters> otherSideUnbiasedTrackParams{};
 
   //controls if the SCT residuals will be 'truly' unbiased - removing also the opposite side hit.
   bool trueUnbiased = true;
 
   Identifier surfaceID;
 
-
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "original track parameters: " << *(tsos->trackParameters()) << endmsg;
-  ATH_MSG_VERBOSE(" ** getUnbiasedTrackParameters ** original track parameters: " << *(tsos->trackParameters()));
-
-
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Trying to unbias track parameters." << endmsg;
+  ATH_MSG_VERBOSE( "original track parameters: " << *(tsos->trackParameters()) );
 
   const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
 
@@ -2883,121 +2879,107 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
   // if SCT Hit and TrueUnbiased then remove other side hit first
   if (surfaceID.is_valid() && trueUnbiased && m_idHelper->is_sct(surfaceID)) {  //there's no TrueUnbiased for non-SCT
                                                                                 // (pixel) hits)
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
+    ATH_MSG_VERBOSE( "Entering True Unbiased loop.");
     // check if other module side was also hit and try to remove other hit as well
-    const Trk::TrackStateOnSurface* OtherModuleSideHit(nullptr);
+    const Trk::TrackStateOnSurface* otherModuleSideHit(nullptr);
     const Identifier waferID = m_sctID->wafer_id(surfaceID);
     const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
     IdentifierHash otherSideHash;
     m_sctID->get_other_side(waferHash, otherSideHash);
-    const Identifier OtherModuleSideID = m_sctID->wafer_id(otherSideHash);
+    const Identifier otherModuleSideID = m_sctID->wafer_id(otherSideHash);
 
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
       const Trk::RIO_OnTrack* TempHitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
       if (TempHitOnTrack != nullptr) {
         //const Identifier& trkID = TempHitOnTrack->identify();
         //if (m_sctID->wafer_id(trkID) == OtherModuleSideID) {
-        if (m_sctID->wafer_id(TempHitOnTrack->identify()) == OtherModuleSideID) {
-          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(OtherModuleSideID, nullptr, '/') << endmsg;
-          OtherModuleSideHit = TempTsos;
+        if (m_sctID->wafer_id(TempHitOnTrack->identify()) == otherModuleSideID) {
+          ATH_MSG_VERBOSE( "True unbiased residual. Removing OtherModuleSide Hit " << m_idHelper->show_to_string(otherModuleSideID, nullptr, '/') );
+          otherModuleSideHit = TempTsos;
         }
       }
     }
 
-    if (OtherModuleSideHit) {
-      const Trk::TrackParameters* OMSHmeasuredTrackParameter = OtherModuleSideHit->trackParameters();
+    if (otherModuleSideHit) {
+      const Trk::TrackParameters* OMSHmeasuredTrackParameter = otherModuleSideHit->trackParameters();
       const AmgSymMatrix(5) * OMSHmeasuredTrackParameterCov = OMSHmeasuredTrackParameter ? OMSHmeasuredTrackParameter->covariance() : nullptr;
-
       // check that the hit on the other module side has measuredtrackparameters, otherwise it cannot be removed from
       // the track
       if (OMSHmeasuredTrackParameterCov) {
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "OtherSideTrackParameters: " << *(OtherModuleSideHit->trackParameters()) << endmsg;
-        OtherSideUnbiasedTrackParams = m_iUpdator->removeFromState(*(OtherModuleSideHit->trackParameters()),
-                                                                   OtherModuleSideHit->measurementOnTrack()->localParameters(),
-                                                                   OtherModuleSideHit->measurementOnTrack()->localCovariance()).release();
+        ATH_MSG_VERBOSE( "OtherSideTrackParameters: " << *(otherModuleSideHit->trackParameters()) );
+        otherSideUnbiasedTrackParams = m_iUpdator->removeFromState(*(otherModuleSideHit->trackParameters()),
+                                                                   otherModuleSideHit->measurementOnTrack()->localParameters(),
+                                                                   otherModuleSideHit->measurementOnTrack()->localCovariance());
 
-        if (OtherSideUnbiasedTrackParams) {
-          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased OtherSideTrackParameters: " << *OtherSideUnbiasedTrackParams << endmsg;
+        if (otherSideUnbiasedTrackParams) {
+          ATH_MSG_VERBOSE( "Unbiased OtherSideTrackParameters: " << *otherSideUnbiasedTrackParams );
 
-
-          const Trk::Surface* TempSurface = &(OtherModuleSideHit->measurementOnTrack()->associatedSurface());
+          const Trk::Surface* TempSurface = &(otherModuleSideHit->measurementOnTrack()->associatedSurface());
 
           const Trk::MagneticFieldProperties* TempField = nullptr;
           if (TempSurface) {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After OtherSide surface call. Surface exists" << endmsg;
+             ATH_MSG_VERBOSE( "After OtherSide surface call. Surface exists" );
             if (TempSurface->associatedLayer()) {
-              if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer() exists" << endmsg;
+              ATH_MSG_VERBOSE( "TempSurface->associatedLayer() exists" );
               if (TempSurface->associatedLayer()->enclosingTrackingVolume()) {
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume exists" << endmsg;
-
+                ATH_MSG_VERBOSE( "TempSurface->associatedLayer()->enclosingTrackingVolume exists" );
                 TempField = dynamic_cast <const Trk::MagneticFieldProperties*>(TempSurface->associatedLayer()->enclosingTrackingVolume());
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After MagneticFieldProperties cast" << endmsg;
-
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before other side unbiased propagation" << endmsg;
-                if (TempSurface->associatedLayer() && TempField) PropagatedTrackParams = m_propagator->propagate(
+                ATH_MSG_VERBOSE( "After MagneticFieldProperties cast" );
+                ATH_MSG_VERBOSE( "Before other side unbiased propagation" );
+                if (TempSurface->associatedLayer() && TempField) propagatedTrackParams = m_propagator->propagate(
                   Gaudi::Hive::currentContext(),
-                  *OtherSideUnbiasedTrackParams,
+                  *otherSideUnbiasedTrackParams,
                   tsos->measurementOnTrack()->associatedSurface(),
                   Trk::anyDirection, false,
                   *TempField,
-                  Trk::nonInteracting).release();
+                  Trk::nonInteracting);
               } else {
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer()->enclosingTrackingVolume does not exist" << endmsg;
+               ATH_MSG_VERBOSE( "TempSurface->associatedLayer()->enclosingTrackingVolume does not exist" );              
               }
             } else {
-              if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TempSurface->associatedLayer() does not exist" << endmsg;
+              ATH_MSG_VERBOSE( "TempSurface->associatedLayer() does not exist" );
             }
           } else {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After OtherSide surface call. Surface does not exist" << endmsg;
+            ATH_MSG_VERBOSE( "After OtherSide surface call. Surface does not exist" );
           }
-
-
-
-          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After other side unbiased propagation" << endmsg;
-          delete OtherSideUnbiasedTrackParams;
-          if (PropagatedTrackParams) {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Propagated Track Parameters: " << *PropagatedTrackParams << endmsg;
+          ATH_MSG_VERBOSE( "After other side unbiased propagation" );
+          if (propagatedTrackParams) {
+            ATH_MSG_VERBOSE("Propagated Track Parameters: " << *propagatedTrackParams );
           } else {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagation of unbiased OtherSideParameters failed" << endmsg;
+            ATH_MSG_DEBUG( "Propagation of unbiased OtherSideParameters failed" );
           }
         } else {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RemoveFromState did not work for OtherSideParameters" << endmsg;
+          ATH_MSG_DEBUG( "RemoveFromState did not work for OtherSideParameters" );
         }
       } else {
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No OtherModuleSideHit Measured Track Parameters found" << endmsg;
+        ATH_MSG_VERBOSE( "No otherModuleSideHit Measured Track Parameters found" );
       }
     } else {
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No OtherModuleSideHit found" << endmsg;
+      ATH_MSG_VERBOSE( "No otherModuleSideHit found" );
     }
   }
 
   // if propagation failed or no TrueUnbiased or no SCT then use original TrackParams
-  if (!PropagatedTrackParams) {
-    PropagatedTrackParams = tsos->trackParameters()->clone();
+  if (!propagatedTrackParams) {
+    propagatedTrackParams = tsos->trackParameters()->uniqueClone();
   }
-
-  UnbiasedTrackParams =
-    m_iUpdator
-     ->removeFromState(*PropagatedTrackParams,
+  std::unique_ptr<const Trk::TrackParameters> unbiasedTrackParams =
+    m_iUpdator ->removeFromState(*propagatedTrackParams,
                        tsos->measurementOnTrack()->localParameters(),
-                       tsos->measurementOnTrack()->localCovariance())
-     .release();
+                       tsos->measurementOnTrack()->localCovariance());
 
-  delete PropagatedTrackParams;
 
-  if (UnbiasedTrackParams) {
+  if (unbiasedTrackParams) {
     if (msgLvl(MSG::VERBOSE) && surfaceID.is_valid()) msg(MSG::VERBOSE) << "Unbiased residual. Removing original Hit " << m_idHelper->show_to_string(surfaceID, nullptr, '/') << endmsg;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Unbiased Trackparameters: " << *UnbiasedTrackParams << endmsg;
-
-    TrackParams = UnbiasedTrackParams->clone();
+    ATH_MSG_VERBOSE( "Unbiased TrackParameters: " << *unbiasedTrackParams );
+    trackParams = unbiasedTrackParams->clone();
   } else { // Unbiasing went awry.
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "RemoveFromState did not work, using original TrackParameters" << endmsg;
-    TrackParams = tsos->trackParameters()->clone();
+    ATH_MSG_WARNING( "RemoveFromState did not work, using original TrackParameters" );
+    trackParams = tsos->trackParameters()->clone();
   }
 
 
-  delete UnbiasedTrackParams;
-  return TrackParams;
+  return trackParams;
 }
 
 //---------------------------------------------------------------------------------------
