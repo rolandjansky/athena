@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKPRIM_TRACKEXTENSION_H
@@ -23,12 +23,10 @@ class TrackExtensionMap : public std::map<const Trk::Track*, std::vector<const T
 
 // this is a hack, inline the destructor
 inline TrackExtensionMap::~TrackExtensionMap() {
-  TrackExtensionMap::iterator it    = this->begin();
-  TrackExtensionMap::iterator itend = this->end();
-  for (;it != itend; it++){
-    std::vector<const Trk::MeasurementBase*>::iterator itvec    = it->second.begin();
-    std::vector<const Trk::MeasurementBase*>::iterator itvecend = it->second.end();
-    for (;itvec < itvecend; itvec++) delete (*itvec);
+  for (auto& p : *this) {
+    for (const Trk::MeasurementBase* m : p.second) {
+      delete m;
+    }
   }
 }
 
