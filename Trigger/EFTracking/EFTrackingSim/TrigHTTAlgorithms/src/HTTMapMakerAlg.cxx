@@ -3,7 +3,6 @@
 #include "TrigHTTAlgorithms/HTTMapMakerAlg.h"
 
 #include "TrigHTTInput/IHTTEventInputHeaderTool.h"
-#include "TrigHTTObjects/HTTEventInputHeader.h"
 #include "TH2.h"
 
 #include "GaudiKernel/IEventProcessor.h"
@@ -38,7 +37,6 @@ StatusCode HTTMapMakerAlg::initialize()
     ATH_CHECK(m_hitInputTool.retrieve());
 
     ATH_MSG_DEBUG("initialize() Instantiating root objects");
-    m_eventHeader            = new HTTEventInputHeader();
     ATH_MSG_DEBUG("initialize() Finished");
 
     return StatusCode::SUCCESS;
@@ -65,7 +63,7 @@ StatusCode HTTMapMakerAlg::execute()
     }
 
     // Reset data pointers
-    m_eventHeader->reset();
+    m_eventHeader.reset();
 
     return StatusCode::SUCCESS;
 }
@@ -78,21 +76,18 @@ StatusCode HTTMapMakerAlg::execute()
 
 StatusCode HTTMapMakerAlg::readInputs(bool & done)
 {
-    static HTTEventInputHeader h_first;
     // Read primary input
-    ATH_CHECK(m_hitInputTool->readData(&h_first, done));
+    ATH_CHECK(m_hitInputTool->readData(&m_eventHeader, done));
     if (done)
     {
         ATH_MSG_INFO("Cannot read more events from file, returning");
         return StatusCode::SUCCESS; // end of loop over events
     }
  
-    *m_eventHeader = h_first;
-
-    HTTEventInfo eventinfo = m_eventHeader->event();
+    HTTEventInfo eventinfo = m_eventHeader.event();
     ATH_MSG_DEBUG ("Getting Event " << eventinfo);
 
-    for (auto hit: m_eventHeader->hits()) // fill track to modules map and hit vectors
+    for (auto hit: m_eventHeader.hits()) // fill track to modules map and hit vectors
     { 
         // barcode cut: these hits are not associated with our single muon tracks
         if (hit.getBarcodePt() == 0) continue;
@@ -555,7 +550,6 @@ StatusCode HTTMapMakerAlg::finalize()
     ATH_CHECK(writeEtaPatterns());
     ATH_CHECK(writeRadiiFile(m_allHits));
     ATH_CHECK(writeMedianZFile(m_allHits));
-    if (m_eventHeader) delete m_eventHeader;
     return StatusCode::SUCCESS;
 }
 
