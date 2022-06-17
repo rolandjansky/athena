@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,9 +14,6 @@
 
 #ifndef ATHENAPOOLTESTDATA_ATHENAPOOLTESTMAPDATALINK_H
 # define ATHENAPOOLTESTDATA_ATHENAPOOLTESTMAPDATALINK_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 /**
  * @class AthenaPoolTestMapDataLink 
@@ -64,7 +61,7 @@ public:
 	unsigned short m_evtIndex;
     };
 private:
-    mutable MyDummyClass* m_particle; /* transient */
+    MyDummyClass* m_particle; /* transient */
     ExtendedBarCode m_extBarcode;
 };
 
