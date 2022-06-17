@@ -164,18 +164,15 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readK
 			return StatusCode::FAILURE;
 		}
 		coral::Blob blob = atr["data"].data<coral::Blob>();
-		TTree* tree = nullptr;
+		std::unique_ptr<TTree> tree;
 		if(!CoralUtilities::readBlobAsTTree(blob, tree)) {
 			ATH_MSG_FATAL( "Cannot retrieve data from coral blob!" );
 			return StatusCode::FAILURE;
 		}
 
 		// parse tree
-		unsigned int elinkId;
-		unsigned int vmm; 
-		unsigned int channel;
-		float threshold;
-
+		unsigned int elinkId{0}, vmm{0}, channel{0}; 
+		float threshold{0.};
 		tree->SetBranchAddress("vmm"           , &vmm           );
 		tree->SetBranchAddress("channel"       , &channel       );
 		tree->SetBranchAddress("elinkId"       , &elinkId       );
@@ -199,9 +196,7 @@ NswCalibDbAlg::loadThresholdData(const EventContext& ctx, const readKey_t& readK
 			++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
-		++nObjs;
-		delete tree;
-		tree = nullptr;
+		++nObjs;		
 	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
 
@@ -237,12 +232,11 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 			return StatusCode::FAILURE;
 		}
 		coral::Blob blob = atr["data"].data<coral::Blob>();
-		TTree* tree = nullptr;
+		std::unique_ptr<TTree> tree;
 		if(!CoralUtilities::readBlobAsTTree(blob, tree)) {
 			ATH_MSG_FATAL( "Cannot retrieve data from coral blob!" );
 			return StatusCode::FAILURE;
 		}
-
 		// parse tree
 		unsigned int elinkId{0}, vmm{0}, channel{0};
 		float slope{0}, slopeError{0}, intercept{0},interceptError{0};	
@@ -272,7 +266,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 			calib_data.intercept = intercept;
 			calib_data.interceptError = interceptError;
 			
-			if(channelId.get_compact()==0){
+			if(!channelId.get_compact()){
 				writeCdo->setZero(type, tech, std::move(calib_data));
 				++nChns;
 				continue;
@@ -282,9 +276,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 			++nChns;
 		}
 		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
-		++nObjs;
-		delete tree;
-		tree = nullptr;
+		++nObjs;		
 	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
 
@@ -303,8 +295,8 @@ NswCalibDbAlg::buildChannelId(Identifier& channelId, unsigned int elinkId, unsig
 	}
 
 	// build NSWOfflineHelper
-	Muon::nsw::NSWResourceId* resId = new Muon::nsw::NSWResourceId((uint32_t) elinkId);
-	Muon::nsw::helper::NSWOfflineHelper helper(resId, vmm, channel);
+	std::unique_ptr<Muon::nsw::NSWResourceId> resId = std::make_unique<Muon::nsw::NSWResourceId>((uint32_t) elinkId);
+	Muon::nsw::helper::NSWOfflineHelper helper(resId.get(), vmm, channel);
 	
 	std::string stationName;
 	if(resId->detId () < eformat::MUON_STGC_ENDCAP_C_SIDE)
@@ -320,15 +312,14 @@ NswCalibDbAlg::buildChannelId(Identifier& channelId, unsigned int elinkId, unsig
 	uint8_t  channelType   = helper.channel_type  ();
 	uint16_t channelNumber = helper.channel_number();
 
-	/* keep for debugging
-	std::cout << "Station name="    << stationName 
+	ATH_MSG_VERBOSE("Station name="    << stationName 
 	          << " Station eta="    << static_cast <int>          (stationEta)
 	          << " Station phi="    << static_cast <unsigned int> (stationPhi)
 	          << " Multilayer="     << static_cast <unsigned int> (multiLayer) 
 	          << " Gas gap="        << static_cast <unsigned int> (gasGap)
 	          << " Channel type="   << static_cast <unsigned int> (channelType)
-	          << " Channel Number=" << channelNumber << std::endl;
-	*/
+	          << " Channel Number=" << channelNumber );
+
 
 	// MM
 	if(resId->detId () < eformat::MUON_STGC_ENDCAP_C_SIDE){
