@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEtIsolVisitor.h 
@@ -89,10 +89,10 @@ class McEtIsolVisitor : public ITruthParticleVisitor
   /////////////////////////////////////////////////////////////////// 
  private: 
 
-  mutable MsgStream* m_msg;
+  MsgStream* m_msg;
   const TruthParticleContainer_pX& m_persObj;
 
-  mutable TruthEtIsolations* m_etIsols;
+  TruthEtIsolations* m_etIsols;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
