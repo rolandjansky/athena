@@ -89,7 +89,7 @@ const void* RpcPrepDataCollectionGetterTool::nextUntyped()
     if(m_contItr==m_contEnd){
       return 0;
     }
-    m_contItr++;
+    ++m_contItr;
     if(m_contItr==m_contEnd){
       return 0;
     }
@@ -102,7 +102,7 @@ const void* RpcPrepDataCollectionGetterTool::nextUntyped()
 
   const Muon::RpcPrepData *clus = *m_collItr;
   
-  m_collItr++;
+  ++m_collItr;
 
   return clus;
 }

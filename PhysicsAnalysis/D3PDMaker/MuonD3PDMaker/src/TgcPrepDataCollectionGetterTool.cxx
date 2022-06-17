@@ -89,7 +89,7 @@ const void* TgcPrepDataCollectionGetterTool::nextUntyped()
     if(m_contItr==m_contEnd){
       return 0;
     }
-    m_contItr++;
+    ++m_contItr;
     if(m_contItr==m_contEnd){
       return 0;
     }
@@ -102,7 +102,7 @@ const void* TgcPrepDataCollectionGetterTool::nextUntyped()
 
   const Muon::TgcPrepData *clus = *m_collItr;
   
-  m_collItr++;
+  ++m_collItr;
 
   return clus;
 }

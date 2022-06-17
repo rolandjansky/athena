@@ -29,7 +29,7 @@ MuonNumberOfSegmentsFillerTool::MuonNumberOfSegmentsFillerTool (const std::strin
                                                                 const IInterface* parent)
   : BlockFillerTool<xAOD::Muon> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  MuonNumberOfSegmentsFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 

@@ -34,7 +34,7 @@ namespace D3PD {
     declareProperty("DetailedMuonPatternTruthTool", m_truthTool);
     declareProperty("MuonPatternCombinationCollection", m_patternKey = "MuonRoadPatternCombinations");
 
-    book().ignore(); // Avoid coverity warnings.
+    MuonPatternCombinationFillerTool::book().ignore(); // Avoid coverity warnings.
   }
   
   

@@ -22,7 +22,7 @@ namespace D3PD {
        m_OnlyMuon(false),
        m_EnergyThreshold(1.*GeV)
    {
-     book().ignore();  // Avoid coverity warnings.
+     TrackRecordFillerTool::book().ignore();  // Avoid coverity warnings.
    }
 
    StatusCode TrackRecordFillerTool::book() {

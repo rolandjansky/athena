@@ -39,7 +39,7 @@ MuonSpShowerFillerTool::MuonSpShowerFillerTool
   m_doPosition = true;
   m_doHits = true;
   m_doSegments = true;
-  book().ignore(); // Avoid coverity warnings.
+  MuonSpShowerFillerTool::book().ignore(); // Avoid coverity warnings.
 
   declareProperty("WritePosition",    m_doPosition    = false);
   declareProperty("WriteHits", m_doHits = false);

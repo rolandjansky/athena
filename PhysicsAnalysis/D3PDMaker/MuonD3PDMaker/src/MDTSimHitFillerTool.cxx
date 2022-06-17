@@ -17,7 +17,7 @@ namespace D3PD {
                                              const IInterface* parent )
       : BlockFillerTool< MDTSimHit >( type, name, parent )
    {
-     book().ignore(); // Avoid coverity warnings.
+     MDTSimHitFillerTool::book().ignore(); // Avoid coverity warnings.
    }
 
    StatusCode MDTSimHitFillerTool::book() {

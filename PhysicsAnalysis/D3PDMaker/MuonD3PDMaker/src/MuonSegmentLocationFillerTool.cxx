@@ -18,7 +18,7 @@ MuonSegmentLocationFillerTool::MuonSegmentLocationFillerTool (const std::string&
     m_slPropagator("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
     m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
 {
-  book().ignore(); // Avoid coverity warnings.
+  MuonSegmentLocationFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 
@@ -122,7 +122,7 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
     *m_stationEta = m_idHelperSvc->stationEta(chid);
     *m_isEndcap = m_idHelperSvc->isEndcap(chid);
   }
-
+  //we own these pars, but the createTrackParameters returns a plain pointer
   const Trk::AtaPlane* pars = m_edmHelperSvc->createTrackParameters( mSeg );
   if( !pars ) return StatusCode::SUCCESS;
   
@@ -169,28 +169,30 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
     *m_npadHits = npadHits;
     *m_npseudoHits = npseudoHits;
 
-    const Trk::TrackParameters* exPars = m_slPropagator->propagate(Gaudi::Hive::currentContext(),
-      *pars,meas.associatedSurface(),Trk::anyDirection,false,*m_magFieldProperties).release();
+    std::unique_ptr<const Trk::TrackParameters> exPars = m_slPropagator->propagate(Gaudi::Hive::currentContext(),
+      *pars,meas.associatedSurface(),Trk::anyDirection,false,*m_magFieldProperties);
     if( !exPars && meas.associatedSurface().isOnSurface(pars->position()) ){
-      exPars = pars->clone();
+      exPars = pars->uniqueClone();
     }
     float res = -99999;
     float pullub = -99999;
     float pullb  = -99999;
     if( exPars ){
-      const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( &meas, exPars, Trk::ResidualPull::Biased );
+      //residualPull just needs some numbers from the params, it never owns them
+      const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( &meas, exPars.get(), Trk::ResidualPull::Biased );
       if( resPull ) {
 	res = resPull->residual().front();
 	pullub = resPull->pull().front();
 	delete resPull;
       }else ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperSvc->toString(id) );
 
-      resPull = m_pullCalculator->residualPull( &meas, exPars, Trk::ResidualPull::Unbiased );
+      resPull = m_pullCalculator->residualPull( &meas, exPars.get(), Trk::ResidualPull::Unbiased );
       if( resPull ) {
 	pullb = resPull->pull().front();
 	delete resPull;
-      }else ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperSvc->toString(id) );
-      delete exPars;
+      } else {
+        ATH_MSG_WARNING("Failed to calculate biased residual for " << m_idHelperSvc->toString(id) );
+      }
     }else{
       ATH_MSG_WARNING("Failed to obtain track parameters for " << m_idHelperSvc->toString(id) );
     }

@@ -23,7 +23,7 @@ MuonTruthClassificationFillerTool::MuonTruthClassificationFillerTool (const std:
 {
   declareProperty ("Classifier", m_classifier, "Classifier tool instance.");
 
-  book().ignore(); // Avoid coverity warnings.
+  MuonTruthClassificationFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 StatusCode MuonTruthClassificationFillerTool::initialize() {

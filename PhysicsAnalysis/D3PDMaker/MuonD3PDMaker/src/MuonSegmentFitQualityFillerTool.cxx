@@ -23,7 +23,7 @@ MuonSegmentFitQualityFillerTool::MuonSegmentFitQualityFillerTool (const std::str
                                             const IInterface* parent)
   : BlockFillerTool<Trk::Segment> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  MuonSegmentFitQualityFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 
