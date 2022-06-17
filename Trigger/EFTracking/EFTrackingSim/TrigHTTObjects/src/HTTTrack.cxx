@@ -5,12 +5,10 @@
 #include <iostream>
 #include <iomanip>
 #include <TMath.h>
-#include <AsgMessaging/MessageCheck.h>
 
 #include "TrigHTTObjects/HTTTrack.h"
 #include "TrigHTTObjects/HTTConstants.h"
 
-using namespace asg::msgUserCode;
 using namespace std;
 
 ClassImp(HTTTrack)
@@ -159,8 +157,6 @@ void HTTTrack::setPhi(float phi, bool ForceRange) {
     // when phi is ridiculously large, there is no point in adjusting it
     if (std::abs(phi) > 100) {
       if (m_chi2 < 100) { // this is a BAD track, so fail it if chi2 hasn't done so already
-        ANA_MSG_INFO("HTTTrack warning: fitted phi = " << phi << ", but chi2 = " << m_chi2
-          << ". Adjusting to chi2+=100!");
         m_chi2 += 100; // we want to fail this event anyway
       }
     }
@@ -260,11 +256,6 @@ ostream& operator<<(ostream& out, const HTTTrack& track)
   return out;
 }
 
-
-void HTTTrack::Print(Option_t*) const
-{
-  ANA_MSG_INFO(*this);
-}
 
 void HTTTrack::calculateTruth()
 {

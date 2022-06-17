@@ -1,14 +1,16 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#include "TrackFitter.h"
-#include "TrigHTTObjects/HTTMultiTruth.h"
-#include <TSystem.h>
-
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <cmath>
+
+#include "TrigHTTObjects/HTTMultiTruth.h"
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
+
+#include "TrackFitter.h"
 
 
 std::vector<HTTTrack>::const_iterator getBestChi2(std::vector<HTTTrack> const & tracks);

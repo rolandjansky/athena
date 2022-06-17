@@ -37,13 +37,14 @@ public:
   // filling functions
   void push_backHitList(const HTTHit& input) { m_hitlist.push_back(input); }
 
-  virtual void Print(Option_t* opts = "") const;
-
 private:
   hitVector m_hitlist; // list of hits that make the cluster, the seed of the cluster will be the first entry in this list.
   HTTHit m_clusterEquiv; // This is the cluster
 
   ClassDef(HTTCluster, 3);
 };
+
+std::ostream& operator<<(std::ostream& o, const HTTCluster& cluster);
+
 
 #endif // HTTCLUSTER_H

@@ -103,8 +103,6 @@ public:
   unsigned int passedOR() const { return m_ORcode; }
   void setPassedOR(unsigned int);
 
-  virtual void Print(Option_t* opts = "") const;
-
   friend std::ostream& operator<<(std::ostream&, const HTTTrack&);
 
 private:

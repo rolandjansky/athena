@@ -4,7 +4,7 @@
 atlas_subdir( TrigHTTObjects )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core MathCore )
+find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( TrigHTTObjectsLib
@@ -18,7 +18,6 @@ atlas_add_library( TrigHTTObjectsLib
    PUBLIC_HEADERS          TrigHTTObjects
    INCLUDE_DIRS            ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES          ${ROOT_LIBRARIES}
-   PRIVATE_LINK_LIBRARIES  AsgMessagingLib
 )
 
 # Tests in the package:

@@ -78,7 +78,6 @@ public:
   void maximize(const HTTMultiTruth& rval);
 
   void assign_equal_normalization();
-  void display() const; // write contents of this object to std::cout
 
   inline unsigned multiplicity() const { return m_truth.size(); }
 
@@ -124,5 +123,7 @@ private:
 
   ClassDef(HTTMultiTruth, 2) // this is a TObject to be stored in the TrigHTTSim ROOT output streams
 };
+std::ostream& operator<<(std::ostream& o, const HTTMultiTruth& mt);
+
 
 #endif // TRIGHTTOBJECTS_MULTITRUTH_H
