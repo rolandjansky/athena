@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __author__ =   "Tomas Bold"
 
@@ -48,18 +48,15 @@ def iterativeVertexFinderCfg(flags, signature):
     """ Configure the iterative vertex finder """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+
+    from InDetConfig.InDetTrackSelectionToolConfig import TrigVtxInDetTrackSelectionCfg
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
 
     acc = ComponentAccumulator()
     vtx_cuts = ConfiguredTrigVtxCuts()
-    # TODO - should this have isHLT = True? This isn't set in the non-CA version
-    summary_tool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
-    extrapolator_acc = InDetExtrapolatorCfg(flags)
-    extrapolator = extrapolator_acc.getPrimary()
+    extrapolator = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
     acc.addPublicTool(extrapolator)
-    acc.merge(extrapolator_acc)
     linear_track_factory = CompFactory.Trk.FullLinearizedTrackFactory(
         f"FullLinearizedTrackFactory{signature}",
         Extrapolator=extrapolator,
@@ -73,7 +70,7 @@ def iterativeVertexFinderCfg(flags, signature):
                 Extrapolator=extrapolator,
             ),
             TrackSelector=acc.popToolsAndMerge(
-                trackSelectorToolCfg(flags, signature, summary_tool, extrapolator),
+                TrigVtxInDetTrackSelectionCfg(flags, signature = signature)
             ),
             SeedFinder=CompFactory.Trk.TrackDensitySeedFinder(
                 f"TrigGaussianDensitySeed{signature}",
@@ -102,17 +99,14 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
     """ Configure the adaptive multi-vertex finder """
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+
+    from InDetConfig.InDetTrackSelectionToolConfig import TrigVtxInDetTrackSelectionCfg
     from InDetConfig.TrackingCommonConfig import TrackToVertexIPEstimatorCfg
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     acc = ComponentAccumulator()
-    # TODO - should this have isHLT = True? This isn't set in the non-CA version
-    summary_tool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
-    extrapolator_acc = InDetExtrapolatorCfg(flags)
-    extrapolator = extrapolator_acc.getPrimary()
-    acc.merge(extrapolator_acc)
+    extrapolator = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
     config = getInDetTrigConfig(signature)
 
     # AdaptiveMultiVertexFitter (below) has all of its tools public
@@ -153,7 +147,7 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
                 DoSmoothing=True,
             ),
             TrackSelector=acc.popToolsAndMerge(
-                trackSelectorToolCfg(flags, signature, summary_tool, extrapolator),
+                TrigVtxInDetTrackSelectionCfg(flags, signature = signature)
             ),
             IPEstimator=acc.popToolsAndMerge(TrackToVertexIPEstimatorCfg(flags, Extrapolator = extrapolator)),
             useBeamConstraint=True,
@@ -164,46 +158,3 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
         )
     )
     return acc
-
-
-def trackSelectorToolCfg(flags, signature, summaryTool, extrapolator):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts
-
-    acc = ComponentAccumulator()
-    cuts = ConfiguredTrigVtxCuts()
-    cuts.printInfo()
-
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-
-    config = getInDetTrigConfig(signature)
-
-    minNSiHits_vtx = (
-        config.minNSiHits_vtx if config.minNSiHits_vtx is not None else cuts.nHitSi()
-    )
-
-    acc.setPrivateTools(
-        CompFactory.InDet.InDetTrackSelectionTool(
-        f"InDetTrigDetailedTrackSelectionTool{signature}",
-        Extrapolator=extrapolator,
-        TrackSummaryTool=summaryTool,
-        CutLevel=cuts.TrackCutLevel(),
-        minPt=cuts.minPT(),
-        maxD0=cuts.IPd0Max(),
-        maxZ0=cuts.z0Max(),
-        maxZ0SinTheta=cuts.IPz0Max(),
-        maxSigmaD0=cuts.sigIPd0Max(),
-        maxSigmaZ0SinTheta=cuts.sigIPz0Max(),
-        maxChiSqperNdf=cuts.fitChi2OnNdfMax(),
-        maxAbsEta=cuts.etaMax(),
-        minNInnermostLayerHits=cuts.nHitInnermostLayer(),
-        minNPixelHits=cuts.nHitPix(),
-        maxNPixelHoles=cuts.nHolesPix(),
-        minNSctHits=cuts.nHitSct(),
-        minNTrtHits=cuts.nHitTrt(),
-        minNSiHits=minNSiHits_vtx,
-        )
-    )
-    return acc
-
