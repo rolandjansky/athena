@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # Joboption fragment to filter on lhe files
 # The base class BaseLHEFilter holds the important functions - it doesn't do any filtering
 # The actual filters should derive from this base class, and have their pass_filter function defined together with relevant parameters

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 # To use the Nquarks filter in a joboption one would need to include the following lines
     #include('MCJobOptionUtils/LHEFilter_NFinalQuarks.py')
     #lheFilter_2HF = LHEFilter_NFinalQuarks()
@@ -35,8 +37,6 @@ class LHEFilter_NFinalQuarks(BaseLHEFilter):
                 continue
             # apply condition on parents if requested
             if len(self.pdg_ID_parents) is not 0:
-                #if p.mother0 is 0 or p.mother1 is 0:
-                    #continue
                 if abs(Evt[p.mother0-1].pdg_id) not in [abs(par) for par in self.pdg_ID_parents]:
                     continue
                 if abs(Evt[p.mother1-1].pdg_id) not in [abs(par) for par in self.pdg_ID_parents]:
