@@ -646,6 +646,9 @@ def setupMenu():
         # TrigVSI
         ChainProp(name='HLT_fsvsi0_L1XE50',         groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_dispvtx0_loose_L1XE50', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+
+        # TrigVSI, ATR-25722                                                                               
+        ChainProp(name='HLT_fsvsi0_L1All', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
     ]
 
     return chains

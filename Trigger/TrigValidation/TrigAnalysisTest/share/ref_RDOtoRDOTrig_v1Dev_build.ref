@@ -7032,6 +7032,8 @@ HLT_fslrt0_L1J100:
   eventCount: 0
 HLT_fslrt0_L1XE50:
   eventCount: 0
+HLT_fsvsi0_L1All:
+  eventCount: 0
 HLT_fsvsi0_L1XE50:
   eventCount: 0
 HLT_g0_hiptrt_L1EM22VHI:
