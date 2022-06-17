@@ -15,7 +15,7 @@ TgcPrepDataFillerTool::TgcPrepDataFillerTool (const std::string& type,
                                               const IInterface* parent)
   : BlockFillerTool<Muon::TgcPrepData> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  TgcPrepDataFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 

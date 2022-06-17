@@ -17,7 +17,7 @@ MuonSegmentT0FillerTool::MuonSegmentT0FillerTool (const std::string& type,
   : BlockFillerTool<Trk::Segment> (type, name, parent) {
   declareProperty("doMuonBoyCSCTiming", m_doMuonBoyCSCTiming=false);
 
-  book().ignore(); // Avoid coverity warnings.
+  MuonSegmentT0FillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 StatusCode MuonSegmentT0FillerTool::initialize()

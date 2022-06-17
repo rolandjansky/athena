@@ -36,7 +36,7 @@ namespace D3PD {
       m_truthTool("Trk::DetailedMuonPatternTruthBuilder/DetailedMuonPatternTruthBuilder") {
 
     declareProperty("DetailedMuonPatternTruthTool", m_truthTool);
-    book().ignore(); // Avoid coverity warnings.
+    MuonSegmentTruthFillerTool::book().ignore(); // Avoid coverity warnings.
   }
   
   StatusCode MuonSegmentTruthFillerTool::book() {

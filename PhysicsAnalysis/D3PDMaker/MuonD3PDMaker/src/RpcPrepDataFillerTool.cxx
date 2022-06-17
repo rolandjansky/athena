@@ -15,7 +15,7 @@ RpcPrepDataFillerTool::RpcPrepDataFillerTool (const std::string& type,
                                               const IInterface* parent)
   : BlockFillerTool<Muon::RpcPrepData> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  RpcPrepDataFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 

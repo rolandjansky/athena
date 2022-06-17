@@ -15,7 +15,7 @@ MdtPrepDataFillerTool::MdtPrepDataFillerTool (const std::string& type,
                                               const IInterface* parent)
   : BlockFillerTool<Muon::MdtPrepData> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  MdtPrepDataFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 

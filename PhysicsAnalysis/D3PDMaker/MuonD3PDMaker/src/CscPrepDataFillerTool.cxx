@@ -15,7 +15,7 @@ CscPrepDataFillerTool::CscPrepDataFillerTool (const std::string& type,
                                               const IInterface* parent)
   : BlockFillerTool<Muon::CscPrepData> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  CscPrepDataFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 

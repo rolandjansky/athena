@@ -21,7 +21,7 @@ MuonSegmentAuthorFillerTool::MuonSegmentAuthorFillerTool (const std::string& typ
                                             const IInterface* parent)
   : BlockFillerTool<Trk::Segment> (type, name, parent)
 {
-  book().ignore(); // Avoid coverity warnings.
+  MuonSegmentAuthorFillerTool::book().ignore(); // Avoid coverity warnings.
 }
 
 
