@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -12,6 +12,7 @@
 
 #include <AsgMessaging/MsgHelpers.h>
 #include <AsgMessaging/MessageCheckLocal.h>
+#include <CxxUtils/checker_macros.h>
 
 #include <cassert>
 #include <mutex>
@@ -20,6 +21,7 @@
 #ifndef XAOD_STANDALONE
 #include <GaudiKernel/Bootstrap.h>
 #include <GaudiKernel/ISvcLocator.h>
+#include <AthenaKernel/getMessageSvc.h>
 #endif
 
 //
@@ -44,7 +46,8 @@ namespace asg
     /// configure, but it is better than nothing.
     std::unordered_map<std::string,MsgStream>& packageMsgStreamMap ()
     {
-      static std::unordered_map<std::string,MsgStream> result;
+      // access is protected through packageMsgMutex()
+      static std::unordered_map<std::string,MsgStream> result ATLAS_THREAD_SAFE;
       return result;
     }
 
@@ -62,22 +65,7 @@ namespace asg
       static std::recursive_mutex result;
       return result;
     }
-
-
-
-#ifndef XAOD_STANDALONE
-    /// Get the Athena message service
-    /// TODO: Look into using AthenaKernel/MsgStreamMember.h
-    IMessageSvc* getMessageSvcAthena()
-    {
-      static IMessageSvc* msgSvc
-	= Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc");
-      return msgSvc;
-    }
-#endif
   }
-
-
 
   MsgStream& MsgHelpers ::
   pkgMsgStream (const std::string& package)
@@ -86,6 +74,7 @@ namespace asg
     auto iter = packageMsgStreamMap().find (package);
     if (iter != packageMsgStreamMap().end())
       return iter->second;
+
     const std::string fullName {"Package." + package};
 #ifdef XAOD_STANDALONE
     auto result = packageMsgStreamMap().emplace (package, fullName);
@@ -93,7 +82,7 @@ namespace asg
     auto result = packageMsgStreamMap().emplace
       (std::piecewise_construct,
        std::forward_as_tuple (package),
-       std::forward_as_tuple (getMessageSvcAthena(), fullName));
+       std::forward_as_tuple (Athena::getMessageSvc(), fullName));
 #endif
     assert (result.second);
     return result.first->second;
@@ -104,6 +93,7 @@ namespace asg
   void MsgHelpers ::
   setPkgMsgLevel (const std::string& package, MSG::Level level)
   {
+    std::lock_guard<std::recursive_mutex> lock {packageMsgMutex()};
     pkgMsgStream (package).setLevel (level);
   }
 
