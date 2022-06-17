@@ -61,14 +61,10 @@ def METCfg(inputFlags):
 
 
 if __name__=="__main__":
-    # Setting needed for the ComponentAccumulator to do its thing
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-
     # Set message levels
-    msgLvl = "DEBUG"
     from AthenaCommon.Logging import log
-    log.setLevel(msgLvl)
+    from AthenaCommon.Constants import DEBUG
+    log.setLevel(DEBUG)
 
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
