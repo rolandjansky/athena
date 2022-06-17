@@ -53,6 +53,25 @@ def HardScatterSelectionToolCfg(flags, **kwargs):
     acc.setPrivateTools(tool)
     return acc
 
+def GoodRunsListSelectionToolCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    cvmfs = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/'
+    grldict = {
+        '2015': cvmfs + 'data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml',
+        '2016': cvmfs + 'data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml',
+        '2017': cvmfs + 'data17_13TeV/20180619/data17_13TeV.periodAllYear_DetStatus-v99-pro22-01_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml',
+        '2018': cvmfs + 'data18_13TeV/20190318/data18_13TeV.periodAllYear_DetStatus-v102-pro22-04_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml',
+    }
+
+    tool = CompFactory.GoodRunsListSelectionTool(
+        name="GoodRunsListSelectionTool",
+        GoodRunsListVec=[grldict[p] for p in flags.IDPVM.GRL],
+        **kwargs
+    )
+    acc.setPrivateTools(tool)
+    return acc
+
 def InDetVertexTruthMatchToolCfg(flags, **kwargs):
     acc  = ComponentAccumulator()
     tool = CompFactory.InDetVertexTruthMatchTool(**kwargs)
@@ -73,6 +92,10 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         from InDetPhysValMonitoring.addRecoJetsConfig import AddRecoJetsIfNotExistingCfg
         acc.merge(AddRecoJetsIfNotExistingCfg(flags, jets_name_for_HardScatter))
 
+    if flags.IDPVM.GRL:
+        grlTool = acc.popToolsAndMerge(GoodRunsListSelectionToolCfg(flags))
+        kwargs.setdefault("useGRL", True)
+        kwargs.setdefault('GoodRunsListSelectionTool', grlTool)
 
     if flags.Input.isMC:
         kwargs.setdefault("TruthParticleContainerName", "TruthParticles")

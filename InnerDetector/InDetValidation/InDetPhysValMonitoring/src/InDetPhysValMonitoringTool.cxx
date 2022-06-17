@@ -131,6 +131,7 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
   ATH_CHECK(m_trackTruthOriginTool.retrieve( EnableTool {m_doTruthOriginPlots} ));
   ATH_CHECK(m_hardScatterSelectionTool.retrieve());
+  ATH_CHECK(m_grlTool.retrieve());
 
   ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
@@ -290,6 +291,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
 
   SG::ReadHandle<xAOD::EventInfo> pie = SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
+
+  if (m_useGRL and !pie->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+      if (!m_grlTool->passRunLB(*pie)) {
+	  ATH_MSG_VERBOSE("GRL veto");
+	  return StatusCode::SUCCESS;
+      }
+  }
  
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
 

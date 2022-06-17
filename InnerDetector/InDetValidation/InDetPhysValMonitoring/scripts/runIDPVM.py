@@ -26,6 +26,7 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     IDPVMparser.add_argument("--HSFlag", help='Hard-scatter flag - decides what is used for truth matching', choices=['HardScatter', 'All', 'PileUp'],default="HardScatter")
     IDPVMparser.add_argument("--ancestorIDList", help='List of ancestor truth IDs to match.', default = [], nargs='+', type=int)
+    IDPVMparser.add_argument("--GRL", help='Which GRL(s) to use, if any, when running on data', choices=['2015', '2016', '2017', '2018'], nargs='+', default=[])
     return IDPVMparser.parse_args()
 
 # Parse the arguments 
@@ -50,6 +51,7 @@ ConfigFlags.IDPVM.runDecoration = not MyArgs.disableDecoration
 ConfigFlags.IDPVM.ancestorIDs = MyArgs.ancestorIDList
 ConfigFlags.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
 ConfigFlags.IDPVM.truthMinPt = MyArgs.truthMinPt
+ConfigFlags.IDPVM.GRL = MyArgs.GRL
 
 ConfigFlags.Input.Files = []
 for path in MyArgs.filesInput.split(','):
