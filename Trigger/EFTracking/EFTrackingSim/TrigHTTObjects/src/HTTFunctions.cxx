@@ -3,7 +3,6 @@
 */
 
 #include "TrigHTTObjects/HTTFunctions.h"
-#include "TH1.h"
 
 
 /**

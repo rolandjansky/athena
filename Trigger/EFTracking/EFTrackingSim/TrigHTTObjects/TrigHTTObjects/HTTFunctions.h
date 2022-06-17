@@ -11,11 +11,10 @@
 #ifndef HTTFUNCTIONS_H
 #define HTTFUNCTIONS_H
 
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include <TString.h>
 #include <TObjArray.h>
+#include <TH1.h>
 #include <TObjString.h>
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>

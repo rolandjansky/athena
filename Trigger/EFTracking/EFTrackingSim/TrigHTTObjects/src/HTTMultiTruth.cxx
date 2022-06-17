@@ -1,11 +1,9 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
+#include <iostream>
+#include <algorithm>
 #include "TrigHTTObjects/HTTMultiTruth.h"
-#include <AsgMessaging/MessageCheck.h>
-
-using namespace asg::msgUserCode;
 
 ClassImp(HTTMultiTruth)
 
@@ -74,22 +72,24 @@ void HTTMultiTruth::assign_equal_normalization()
   for ( auto& truth : m_truth) truth.second = 1. / m_truth.size();
 }
 
-void HTTMultiTruth::display() const
+std::ostream& operator<<(std::ostream& o, const HTTMultiTruth& mt)
 {
-  ANA_MSG_INFO("HTTMultiTruth (event index,barcode) <=> weight, entries: " << m_truth.size());
+  size_t count = std::count_if(mt.begin(), mt.end(), [](auto){return true;});
+  o << "HTTMultiTruth (event index,barcode) <=> weight, entries: " << count  << "\n";
 
-  if (m_truth.empty()) return;
+  if (count == 0) return o;
 
-  for ( auto& truth : m_truth)
-    ANA_MSG_INFO("   " << (truth.first).first << "," << (truth.first).second << " <=> " << truth.second);
+  for ( auto& truth : mt)
+    o << "   " << (truth.first).first << "," << (truth.first).second << " <=> " << truth.second << "\n";
 
-  ANA_MSG_INFO("      best: ");
+  o << "      best: \n";
 
-  Barcode code;
-  Weight weight(0);
+  HTTMultiTruth::Barcode code;
+  HTTMultiTruth::Weight weight(0);
 
-  if (!best(code, weight)) ANA_MSG_INFO("N/A");
-  else ANA_MSG_INFO(code.first << "," << code.second << " " << weight);
+  if (!mt.best(code, weight)) o << "N/A\n";
+  else o << code.first << "," << code.second << " " << weight << "\n";
+  return o;
 
 }
 
