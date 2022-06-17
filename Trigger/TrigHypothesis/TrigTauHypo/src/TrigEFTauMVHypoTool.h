@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEFTAUMVHYPOTOOL_H
@@ -10,11 +10,6 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEFTauMVHypoTool.h"
 
-class StoreGateSvc;
-
-namespace HLT {
-  class TriggerElement;
-}
 
 class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
  public:
@@ -36,7 +31,7 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
 
   Gaudi::Property<int>  m_numTrackMin{ this, "numTrackMin", 0, "Minimum number of tracks" };
   Gaudi::Property<int>  m_numTrackMax{ this, "numTrackMax", 5, "Maximum number of tracks" };
-  Gaudi::Property<float>  m_numWideTrackMax{ this, "numTrackWideTrackMax",999, "Maximum number of wide tracks" };
+  Gaudi::Property<float>  m_numWideTrackMax{ this, "numWideTrackMax",999, "Maximum number of wide tracks" };
 
   Gaudi::Property<double>  m_EtCalibMin{ this, "EtCalibMin", -10000., "pT Minimum cut" };
   Gaudi::Property<int>  m_level{ this, "level", -1, "Select ID Working point" };
@@ -46,10 +41,6 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
   Gaudi::Property<double>  m_highptidthr{ this, "highptidthr", 280000., "pT threshold for loosening ID level cut" };
   Gaudi::Property<double>  m_highptjetthr{ this, "highptjetthr", 440000., "pT threshold for disabling ID level cut" };
 
-  Gaudi::Property<bool>  m_applyIDon0p{ this, "applyIDon0p", true, "Apply Id on 0-prong taus" };
-  Gaudi::Property<int>  m_numTrack{ this, "numTrack", -100, "Tau number of tracks" };
-  Gaudi::Property<int>  m_numWideTrack{ this, "numWideTrack", 1, "Tau number of wide tracks" };
-
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
 
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
@@ -57,4 +48,3 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
 
 };
 #endif
-
