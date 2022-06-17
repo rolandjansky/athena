@@ -40,4 +40,3 @@ def OnlyTrackingPreInclude(flags):
     flags.Detector.GeometryAFP=False
     flags.Detector.GeometryFwdRegion=False
     flags.Detector.GeometryForward=False
-    flags.Detector.GeometryForward=False
