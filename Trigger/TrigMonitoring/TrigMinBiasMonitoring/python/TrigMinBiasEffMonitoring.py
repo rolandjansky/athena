@@ -16,9 +16,8 @@ def _TrigEff(flags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
     alg = monConfig.addAlgorithm(
         CompFactory.HLTMinBiasEffMonitoringAlg, algname)
 
-    trkSel = CompFactory.InDet.InDetTrackSelectionTool(
-        "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
-    )
+    from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_LoosePrimary_Cfg
+    trkSel = monConfig.resobj.popToolsAndMerge(InDetTrackSelectionTool_LoosePrimary_Cfg(flags))
     alg.TrackSelectionTool = trkSel
 
     alg.triggerList = [ el["chain"] for el in  triggerAndRef ]

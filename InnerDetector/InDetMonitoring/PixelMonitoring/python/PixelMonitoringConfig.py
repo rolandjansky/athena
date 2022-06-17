@@ -53,7 +53,6 @@ def PixelMonitoringConfig(flags):
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
 
         from AthenaConfiguration.ComponentFactory import CompFactory
-        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
         from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
 
         if doHitMonAlg:
@@ -72,15 +71,16 @@ def PixelMonitoringConfig(flags):
             kwargsClusMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsClusMonAlg.items():
                 setattr(pixelAthClusterMonAlg, k, v)
-            pixelAthClusterMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthClusterMonAlg_TrackSelectionTool')
-            pixelAthClusterMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-            pixelAthClusterMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
-            pixelAthClusterMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
+
+            from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
+            TrackSelectionTool = acc.popToolsAndMerge(
+                InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags,
+                                                                    maxNPixelHoles = 1)) # Default for TightPrimary is 0
             if flags.Beam.Type is not BeamType.Cosmics:
-                pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
-                pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
-            pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
-            pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+                TrackSelectionTool.maxD0            = 2
+                TrackSelectionTool.maxZ0            = 150
+
+            pixelAthClusterMonAlg.TrackSelectionTool = TrackSelectionTool
             pixelAthClusterMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
 
             PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
@@ -104,16 +104,17 @@ def PixelMonitoringConfig(flags):
             kwargsMVAMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsMVAMonAlg.items():
                 setattr(pixelAthMVAMonAlg, k, v)
-            pixelAthMVAMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthMVAMonAlg_TrackSelectionTool')
-            pixelAthMVAMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-            pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
-            pixelAthMVAMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-            if flags.Beam.Type is not BeamType.Cosmics:
-                pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
-                pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
 
-            pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
-            pixelAthMVAMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+            from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
+            TrackSelectionTool = acc.popToolsAndMerge(
+                InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags,
+                                                                    maxNPixelHoles
+= 1)) # Default for TightPrimary is 0
+            if flags.Beam.Type is not BeamType.Cosmics:
+                TrackSelectionTool.maxD0            = 2
+                TrackSelectionTool.maxZ0            = 150
+
+            pixelAthMVAMonAlg.TrackSelectionTool = TrackSelectionTool
             pixelAthMVAMonAlg.Extrapolator                        = acc.getPublicTool("InDetExtrapolator")
             PixelAthMVAMonAlgCfg(helper, pixelAthMVAMonAlg, **kwargsMVAMonAlg)
 
