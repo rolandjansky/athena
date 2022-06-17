@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestBasicAlg.cxx 
@@ -134,16 +134,6 @@ StatusCode BasicAlg::execute()
     ATH_MSG_WARNING ( "Could not setConst data at ["
                       << m_dataOutputName << "] !!" ) ;
   }  
-
-  // testing scoped-monitoring
-  {
-    PerfMon::ScopedMonitor mon(*this, "filling_data");
-    // filling data...
-    data->m_data.reserve( m_dataSize );
-    for ( std::size_t i = 0; i != static_cast<std::size_t>(m_dataSize); ++i ) {
-      data->m_data.push_back( i );
-    }
-  }
 
   m_my_bool  = !m_my_bool;
   m_my_int  += 10;

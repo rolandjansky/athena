@@ -11,7 +11,6 @@
 
 // Thread-safety-checker
 #include "CxxUtils/checker_macros.h"
-ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"

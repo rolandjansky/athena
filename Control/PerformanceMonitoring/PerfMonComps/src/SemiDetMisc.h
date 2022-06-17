@@ -16,6 +16,7 @@
 #define PERFMONCOMPS_SEMIDETMISC_H
 
 #include "PerfMonEvent/mallinfo.h"
+#include "CxxUtils/checker_macros.h"
 #include <sys/time.h>
 #include <fcntl.h>
 #include <ctime>
@@ -26,6 +27,7 @@
 #include <sstream>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <cmath>//fabs
 #include <cstdlib>//for getenv
 #include <dlfcn.h>
@@ -43,7 +45,7 @@ namespace PMonSD {
 
   //base functions for collecting data:
   void get_vmem_rss_kb(double&vmem,double&rss,bool vmemonly=false);//~4microsecs
-  double get_malloc_kb();//~0.2microsecs (stdcmalloc) or ~4microsecs (tcmalloc)
+  double get_malloc_kb ATLAS_NOT_THREAD_SAFE ();//~0.2microsecs (stdcmalloc) or ~4microsecs (tcmalloc)
   double get_vmem_kb();//~4microsecs
   double get_rss_kb();//~4microsecs
   double get_cpu_ms();//~0.3microsecs
@@ -56,7 +58,7 @@ namespace PMonSD {
     double cpu;
     double wall;
     bool hasWallTime() const { return wall>-950; }
-    void capture(bool cpufirst=true)
+    void capture ATLAS_NOT_THREAD_SAFE (bool cpufirst=true)
     {
       m_unused=false;
 
@@ -91,7 +93,7 @@ namespace PMonSD {
       m_offset_wall+=pwall;
     }
     bool unused() const { return m_unused; }
-    void captureIfUnused() { if (unused()) capture(); }
+    void captureIfUnused ATLAS_NOT_THREAD_SAFE () { if (unused()) capture(); }
     double last_cpu_raw_ms() { return cpu+m_offset_cpu; }//for internal overhead monitoring
     bool mallocDisabled() const { return m_mallocDisabled; }
     void disableMalloc() { m_mallocDisabled=true; m_offset_malloc=malloc=0; }
@@ -469,7 +471,7 @@ inline void PMonSD::get_vmem_rss_kb(double&vmem,double&rss,bool vmemonly) {
 }
 inline double PMonSD::get_vmem_kb() { double v,r;get_vmem_rss_kb(v,r,true); return v; }
 inline double PMonSD::get_rss_kb() { double v,r;get_vmem_rss_kb(v,r); return r; }
-inline double PMonSD::get_malloc_kb() {
+inline double PMonSD::get_malloc_kb ATLAS_NOT_THREAD_SAFE () {
 #ifndef __linux
   return 0.0;
 #else
@@ -596,18 +598,19 @@ inline double PMonSD::CompDataExtended::maxDeltaMalloc() const { return m_max_dm
 inline unsigned PMonSD::CompDataExtended::maxDeltaMalloc_iEntry() const { return m_max_dmal_ientry; }
 inline int PMonSD::CompDataStdSteps::index(const std::string& stepName)
 {
-  static std::string last="";
-  static int lastval=index_other;
-  if (stepName==last)
-    return lastval;
-  if (stepName=="evt") lastval=index_evt;
-  else if (stepName=="ini") lastval=index_ini;
-  else if (stepName=="fin") lastval=index_fin;
-  else if (stepName=="cbk") lastval=index_cbk;
-  else if (stepName=="1st") lastval=index_1st;
-  else lastval=index_other;
-  last=stepName;
-  return lastval;
+  static const std::unordered_map<std::string, int> steps = {
+    {"evt", index_evt},
+    {"ini", index_ini},
+    {"fin", index_fin},
+    {"cbk", index_cbk},
+    {"1st", index_1st}
+  };
+
+  try {
+    return steps.at(stepName);
+  } catch (const std::out_of_range& e) {
+    return index_other;
+  }
 }
 
 inline void PMonSD::setUTCTimeString(std::string&s,double offset_ms)

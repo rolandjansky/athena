@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -44,8 +44,10 @@
 #include "LinFitSglPass.h"
 #include "boost/io/ios_state.hpp"
 
+#include "CxxUtils/checker_macros.h"
+
 namespace PMonSD {
-  class SemiDetHelper {
+  class ATLAS_NOT_THREAD_SAFE SemiDetHelper {
   public:
 
     //Only constructor/destructor + methods needed in PerfMon:

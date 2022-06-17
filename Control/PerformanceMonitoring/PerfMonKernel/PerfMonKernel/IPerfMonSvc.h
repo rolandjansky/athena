@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // IPerfMonSvc.h 
@@ -31,15 +31,12 @@
 
 // forward declaration
 namespace AIDA { class IBaseHistogram; }
-namespace PerfMon { class ScopedMonitor; }
 namespace PerfMon { struct Component; }
 namespace PerfMon { struct IoContainer; }
 
 class IPerfMonSvc : virtual public IMonitorSvc
 { 
-  friend class PerfMon::ScopedMonitor;
-
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
@@ -183,9 +180,6 @@ class IPerfMonSvc : virtual public IMonitorSvc
   /////////////////////////////////////////////////////////////////// 
  protected: 
 
-  /// helper method to retrieve the current performance monitoring service
-  static IPerfMonSvc* instance();
-
   /// set the current state of the Gaudi's FSM
   void setMonState( PerfMon::State::Type step )
   { m_monState = step; }
@@ -210,34 +204,5 @@ inline const InterfaceID& IPerfMonSvc::interfaceID()
   static const InterfaceID IID_IPerfMonSvc("IPerfMonSvc", 1, 0);
   return IID_IPerfMonSvc; 
 }
-
-namespace PerfMon {
-/// simple helper class using RAII to start/stop monitoring
-class ScopedMonitor
-{
-  /// the label of this monitor helper: requester_name+'_@@_'+item_from_user
-  std::string m_label;
-  /// the pointer to the performance monitoring service
-  IPerfMonSvc* m_monSvc;
-  
-  ScopedMonitor();// not implemented
-  inline 
-  static const std::string& label() 
-  { static const std::string s_label = "usr"; return s_label; }
-
- public:
-  ScopedMonitor( const INamedInterface& requester,
-		 const std::string& item ) :
-    m_label    ( requester.name() +"_@@_"+ item ),
-    m_monSvc   ( IPerfMonSvc::instance() )
-  {
-    if (m_monSvc) m_monSvc->startAud (label(), m_label);
-  }
-  ~ScopedMonitor()
-  {
-    if (m_monSvc) m_monSvc->stopAud  (label(), m_label);
-  }
-};
-} //> namespace PerfMon
 
 #endif //> PERFMONKERNEL_IPERFMONSVC_H

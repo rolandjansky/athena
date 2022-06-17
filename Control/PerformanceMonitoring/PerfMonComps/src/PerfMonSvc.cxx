@@ -46,6 +46,7 @@
 #include "GaudiKernel/IIoComponentMgr.h"
 
 #include "CxxUtils/AthDsoCbk.h"
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/read_athena_statm.h"
 
 #include "RootUtils/PyAthenaGILStateEnsure.h"
@@ -162,7 +163,7 @@ namespace {
   void    capture(int idx, PerfMon::Component& c);
 
   extern "C"
-  int pmon_dso_cbk(const struct ath_dso_event *evt, void *userdata);
+  int pmon_dso_cbk ATLAS_NOT_THREAD_SAFE (const struct ath_dso_event *evt, void *userdata);
 
 }
 
@@ -1135,7 +1136,7 @@ void PerfMonSvc::startAud( const std::string& stepName,
 {
   // Performing performance-monitoring for BeginEvent
   if ( compName == m_compBeginEvent && stepName == "evt" ) {
-    [[maybe_unused]] static const bool firstEvt = [&]() {
+    [[maybe_unused]] static const bool firstEvt = [&] ATLAS_NOT_THREAD_SAFE () {
       stopAud( "ini", "PerfMonSlice" );
       // capture the number of algorithms - here
       ServiceHandle<IAlgManager> mgr("ApplicationMgr", this->name());
@@ -1524,7 +1525,7 @@ namespace {
   }
 
   int
-  pmon_dso_cbk(const struct ath_dso_event *evt, void *userdata)
+  pmon_dso_cbk ATLAS_NOT_THREAD_SAFE (const struct ath_dso_event *evt, void *userdata)
   {
     if (userdata) {
       PerfMonSvc *svc = (PerfMonSvc*)userdata;

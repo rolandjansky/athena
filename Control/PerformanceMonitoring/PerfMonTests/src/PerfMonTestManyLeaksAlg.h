@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestManyLeaksAlg.h 
@@ -19,6 +19,7 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace PerfMonTest {
 
@@ -97,7 +98,7 @@ class ManyLeaksAlg : public AthAlgorithm
   
   // we still need to reference some pointers,
   // otherwise vagrind labels everything definitely lost
-  static long **m_pointers;
+  static long **m_pointers ATLAS_THREAD_SAFE;
 }; 
   
 // I/O operators

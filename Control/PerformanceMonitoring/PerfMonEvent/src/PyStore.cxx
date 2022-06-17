@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyStore.cxx 
@@ -15,30 +15,15 @@
 // STL includes
 #include <iostream>
 
-// Python includes
-#include "patchlevel.h"
-
 namespace {
-  std::size_t defaultBufferSize = 10;
-  std::string s_uri = "://";
+  const std::size_t defaultBufferSize = 10;
+  const std::string s_uri = "://";
 }
 
 namespace Py {
 
 std::string repr( PyObject* o )
 {
-#if PY_MAJOR_VERSION < 3
-  // PyObject_Repr returns a new ref.
-  PyObject* py_repr = PyObject_Repr( o );
-  if ( !py_repr || !PyString_Check(py_repr) ) {
-    Py_XDECREF( py_repr );
-    return "";
-  }
-
-  std::string cpp_repr = PyString_AsString(py_repr);
-  Py_DECREF( py_repr );
-  return cpp_repr;
-#else
   // PyObject_Repr returns a new ref.
   PyObject* py_repr = PyObject_Repr( o );
   if ( !py_repr || !PyUnicode_Check(py_repr) ) {
@@ -49,7 +34,6 @@ std::string repr( PyObject* o )
   std::string cpp_repr = PyUnicode_AsUTF8(py_repr);
   Py_DECREF( py_repr );
   return cpp_repr;
-#endif
 }
 
 /////////////////////////////////////////////////////////////////// 

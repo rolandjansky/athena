@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestMallocAlg.cxx 
@@ -76,13 +76,12 @@ StatusCode MallocAlg::execute()
 {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
 
-  static unsigned int evtnbr = 0;
-  evtnbr += 1;
+  m_currentEvtNbr++;
 
   //typedef int ElemType;
   typedef float ElemType;
 
-  if ( evtnbr >= m_evtNbr ) {
+  if ( m_currentEvtNbr >= m_evtNbr ) {
     const std::size_t nmax = 1024*1024;
 
     if (m_useStdVector) {
@@ -91,7 +90,7 @@ StatusCode MallocAlg::execute()
         c1_array[i] =  i;
       }
       
-      if ( evtnbr >= 2*m_evtNbr ) {
+      if ( m_currentEvtNbr >= 2*m_evtNbr ) {
         std::vector<ElemType> c2_array(nmax);
         for ( std::size_t i = 0; i!=nmax; ++i ) {
           c2_array[i] =  -1*static_cast<int>(i);
@@ -105,7 +104,7 @@ StatusCode MallocAlg::execute()
       }
       isUsed (&c1_array);
 
-      if ( evtnbr >= 2*m_evtNbr ) {
+      if ( m_currentEvtNbr >= 2*m_evtNbr ) {
         ElemType c2_array[nmax];
         for ( std::size_t i = 0; i!=nmax; ++i ) {
           c2_array[i] =  -1*static_cast<int>(i);
