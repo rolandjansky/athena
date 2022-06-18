@@ -130,33 +130,25 @@ namespace CP {
         asg::AcceptInfo m_acceptInfo;
 
         Gaudi::Property<double> m_maxEta{this, "MaxEta", 2.7, "Maximum eta range to select the muons"};
-        Gaudi::Property<int> m_quality{this, "MuQuality", 1,
-                                       "Quality to select. Values correspond to 0, 1, 2, 3, 4=HighPt, 5=LowPtEfficiency"};
-
+        Gaudi::Property<int> m_quality{this, "MuQuality", 1,"Quality to select. Values correspond to 0=Tight, 1=Medium, 2=Loose, 3=VeryLoose (only for debug, not supported), 4=HighPt, 5=LowPtEfficiency"};
         Gaudi::Property<bool> m_toroidOff{this, "ToroidOff", false, "Run the tool in Toroid off setup"};
+        Gaudi::Property<bool> m_isRun3{this, "IsRun3Geo", false, "Switch to toggle the run 2 & run 3 geometry cuts. The tool will throw an exception if the run number does not match the expectations later"}; 
+        Gaudi::Property<bool> m_excludeNSWFromPrecisionLayers{this, "ExcludeNSWFromPrecisionLayers", true, "If true, cut on the number of precision layers will ignore the NSW"};
 
         // Expert development options
         Gaudi::Property<bool> m_TurnOffMomCorr{this, "TurnOffMomCorr", false};
         Gaudi::Property<bool> m_disablePtCuts{this, "DisablePtCuts", false};
-
         Gaudi::Property<bool> m_developMode{this, "ExpertDevelopMode", false};
         Gaudi::Property<bool> m_TrtCutOff{this, "TrtCutOff", true};
         Gaudi::Property<bool> m_SctCutOff{this, "SctCutOff", false};
         Gaudi::Property<bool> m_PixCutOff{this, "PixCutOff", false};
         Gaudi::Property<bool> m_SiHolesCutOff{this, "SiHolesCutOff", false};
         Gaudi::Property<bool> m_useAllAuthors{this, "UseAllAuthors", true};
-
-        Gaudi::Property<bool> m_use2stationMuonsHighPt{
-            this, "Use2stationMuonsHighPt", true, "for users of high-pT working point to choose whether to include 'safe' 2-station muons"};
-
-        Gaudi::Property<bool> m_useMVALowPt{
-            this, "UseMVALowPt", false,
-            "for users of low-pT working point to choose whether to use MVA and whether to include MuTagIMO muons"};
-
+        Gaudi::Property<bool> m_use2stationMuonsHighPt{this, "Use2stationMuonsHighPt", true, "for users of high-pT working point to choose whether to include 'safe' 2-station muons"};
+        Gaudi::Property<bool> m_useMVALowPt{this, "UseMVALowPt", false, "for users of low-pT working point to choose whether to use MVA and whether to include MuTagIMO muons"};
         Gaudi::Property<bool> m_useSegmentTaggedLowPt{this, "UseSegmentTaggedLowPt", false, "Use MVA low-pt WP. In development phase"};
-
-        Gaudi::Property<bool> m_useCaloScore{this, "UseCaloScore", false,
-                                             "Switch to use CaloScore for calo-tags in the Loose working point - In development phase"};
+        Gaudi::Property<bool> m_useCaloScore{this, "UseCaloScore", false,"Switch to use CaloScore for calo-tags in the Loose working point - In development phase"};
+        Gaudi::Property<bool> m_geoOnTheFly{this, "AllowSettingGeometryOnTheFly", false,"avoids crash if run2/run3 geo is wrongly set"};
 
         // switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the
         // high-pT selection
@@ -262,7 +254,13 @@ namespace CP {
         inline float rhoPrime(const xAOD::Muon& muon) const;
 
         inline void IdMsPt(const xAOD::Muon& muon, float& idPt, float& msPt) const;
-
+        
+        bool isRun3() const
+        {
+          if(!m_geoOnTheFly) return m_isRun3;
+          int rn=getRunNumber(true);
+          return rn>=399999;
+        }
     };  // class MuonSelectionTool
 
 }  // namespace CP
