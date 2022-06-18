@@ -76,7 +76,7 @@ JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'Active
                  'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                  'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
                  'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtChargedPFOPt500', 'SumPtTrkPt500', 
-                 'SumPtTrkPt1000','Timing','TrackWidthPt1000', 'GhostTrack_ftf', 'N90Constituents',
+                 'SumPtTrkPt1000','Timing','TrackWidthPt1000', 'N90Constituents',
              ]
 JetVars = '.'.join(JetVarsToKeep)
 
@@ -245,9 +245,13 @@ TauTrackVars = '.'.join(TauTrackToKeep)
 
 
 # ------------------------------------------------------------
-# List of variables to be removed from collections for AODSLIM
+# List of tuples with variables [0] and associated collections 
+# to be removed from collections for AODSLIM
+# Format: ('decoration', 'Container1Aux', 'Container2Aux',...)
+# e.g. ('GhostTrack_ftf', 'HLT_AntiKt4EMTopoJets_nojcalib_ftfAux', 'HLT_AntiKt4EMTopoJets_nojcalibAux'),
 # ------------------------------------------------------------
-varToRemoveFromAODSLIM = [] # tested with 'GhostTrack_ftf'
+varToRemoveFromAODSLIM = []
+
 
 
 # ------------------------------------------------------------
