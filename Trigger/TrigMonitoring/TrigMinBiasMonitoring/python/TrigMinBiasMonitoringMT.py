@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     flags.Input.Files = defaultTestFiles.AOD
     flags.Exec.MaxEvents = -1
-    flags.Common.doExpressProcessing=True
+    # flags.Common.doExpressProcessing=True # enable for express stream data processing
     flags.fillFromArgs()
     flags.lock()
 
@@ -41,9 +41,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(flags)
 
-    # if no flags.Input.isMC:
-    #     from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
-    #     cfg.merge (LuminosityCondAlgCfg (flags))    
     cfg.merge(PoolReadCfg(flags))
     cfg.merge(TrigMinBias(flags))
 

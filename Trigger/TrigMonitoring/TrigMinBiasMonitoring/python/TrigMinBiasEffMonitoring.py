@@ -57,7 +57,7 @@ def _TrigEff(flags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
         if '_pusup' in chain or '_hmt_' in chain:
             whichcounter = 'nTrkOfflineVtx'
         effGroup.defineHistogram(f'EffPassed,{whichcounter};{chain}_ref_{refchain}', type='TEfficiency',
-                                    title=chain+f';Offline Good nTrk {whichcounter};Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
+                                    title=f'{chain} ref: {refchain} ;Offline Good nTrk {whichcounter};Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
 
 
 
@@ -125,6 +125,7 @@ def TrigMinBiasEff(flags):
     # monitor exclusivity cut
     triggerAndRef += [  _c(chain, 'HLT_mb_sptrk_L1RD0_FILLED') for chain in excl ]
 
+    triggerAndRef += [ _c("L1_TE{}".format(i), 'HLT_mb_sptrk_L1RD0_FILLED', xmin=0, xmax=100) for i in [3,5,10,40]]
 
     # add here all the special cases
     return _TrigEff(flags, triggerAndRef)
