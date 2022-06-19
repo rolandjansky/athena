@@ -224,7 +224,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   tdoToTime  (ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->time  (), rdoId, time  , sTGCRawData->bcTag()); 
   pdoToCharge(ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->charge(), rdoId, charge                      );
   
-  calibStrip.charge     = charge;
+  calibStrip.charge     = charge * sTGC_pCPerfC;
   calibStrip.time       = time - stgcPeakTime();
   calibStrip.identifier = rdoId;
   calibStrip.locPos = locPos;
