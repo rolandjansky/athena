@@ -15,8 +15,8 @@ def TrigExcl(configFlags):
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     alg = monConfig.addAlgorithm(CompFactory.ExclMinBiasTrkMonAlg, "HLTExclMonAlg")
-    trkSel = CompFactory.InDet.InDetTrackSelectionTool("InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary")
-
+    from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_LoosePrimary_Cfg
+    trkSel = monConfig.resobj.popToolsAndMerge(InDetTrackSelectionTool_LoosePrimary_Cfg(configFlags))
     alg.TrackSelectionTool = trkSel
 
     alg.triggerList = [c for c in getHLTMenuAccess(configFlags) if '_excl_' in c]

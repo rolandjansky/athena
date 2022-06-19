@@ -16,11 +16,11 @@ def TrigSPTRK(configFlags, highGranularity=False):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     alg = monConfig.addAlgorithm(CompFactory.HLTMinBiasTrkMonAlg, "HLTMBSPTRKMonAlg")
-    trkSel = CompFactory.InDet.InDetTrackSelectionTool(
-        "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
-    )
 
+    from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_LoosePrimary_Cfg
+    trkSel = monConfig.resobj.popToolsAndMerge(InDetTrackSelectionTool_LoosePrimary_Cfg(configFlags))
     alg.TrackSelectionTool = trkSel
+
     ZFinderCollection = 'HLT_vtx_z'
     if ZFinderCollection in configFlags.Input.Collections:
         print("Enabled z finder data reading")

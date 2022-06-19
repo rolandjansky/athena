@@ -18,13 +18,8 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
 
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    InDet__InDetTrackSelectionToolFactory=CompFactory.InDet.InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionToolFactory("PFTrackSelectionTool")
-
-    TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0
-
-    PFTrackSelector.trackSelectionTool = TrackSelectionTool
+    from InDetConfig.InDetTrackSelectionToolConfig import PFTrackSelectionToolCfg
+    PFTrackSelector.trackSelectionTool = result.popToolsAndMerge(PFTrackSelectionToolCfg(inputFlags))
 
     # P->T conversion extra dependencies
     if inputFlags.Detector.GeometryITk:

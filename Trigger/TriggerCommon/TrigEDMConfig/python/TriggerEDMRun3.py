@@ -558,7 +558,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigBphysContainer#HLT_Bmumux',                                 'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_BmumuxAux.',                          'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bmumux_FTF',                 'BS ESD', 'Bphys', 'inViews:BmumuxViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_FTFAux.',          'BS ESD AODFULL', 'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_FTFAux.',          'BS ESD', 'Bphys'),
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bmumux_IDTrig',              'BS ESD AODFULL AODSLIM', 'Bphys', 'inViews:BmumuxViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_IDTrigAux.',       'BS ESD AODFULL AODSLIM', 'Bphys'),
     ('TrigRoiDescriptorCollection#HLT_Roi_Bmumux',                          'BS ESD', 'Bphys'),

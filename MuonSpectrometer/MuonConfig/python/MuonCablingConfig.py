@@ -52,11 +52,39 @@ def RPCCablingConfigCfg(flags):
 
     return acc
 
+
+def TGCCablingDbToolCfg(flags):
+    acc = ComponentAccumulator()
+
+    filename = 'ASD2PP_diff_12_OFL.db' if flags.Input.isMC else 'ASD2PP_diff_12_ONL.db'
+    acc.setPrivateTools(CompFactory.TGCCablingDbTool(name = "TGCCablingDbTool",
+                                                     filename_ASD2PP_DIFF_12 = filename))
+
+    return acc
+
+
+def MuonTGC_CablingSvcCfg(flags):
+    acc = ComponentAccumulator()
+
+    svc = CompFactory.MuonTGC_CablingSvc()
+    tool = acc.popToolsAndMerge(TGCCablingDbToolCfg(flags))
+    # The same tool is used as a public tool by TGCCableASDToPP and a
+    # private tool by MuonTGC_CablingSvc - not great...
+    acc.addPublicTool(tool)
+    svc.TGCCablingDbTool = tool
+    acc.addService(svc, primary = True)
+
+    return acc
+
+
 def TGCCablingConfigCfg(flags):
     acc = ComponentAccumulator()
-    
+
+    # No ServiceHandle in TGCcablingServerSvc
+    acc.merge(MuonTGC_CablingSvcCfg(flags))
+
     TGCcablingServerSvc=CompFactory.TGCcablingServerSvc
-    TGCCablingSvc = TGCcablingServerSvc() 
+    TGCCablingSvc = TGCcablingServerSvc()
     acc.addService( TGCCablingSvc, primary=True )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders

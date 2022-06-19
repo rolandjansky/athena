@@ -16,7 +16,9 @@ def DerivationTrackIsoCfg(flags,**jwarg):
     acc = ComponentAccumulator()
 
     from IsolationAlgs.IsoToolsConfig import (
-        isoTTVAToolCfg, isoTrackSelectionToolCfg, TrackIsolationToolCfg )
+        isoTTVAToolCfg, TrackIsolationToolCfg )
+    from InDetConfig.InDetTrackSelectionToolConfig import (
+        isoTrackSelectionToolCfg )
     from xAODPrimitives.xAODIso import xAODIso as isoPar
     # dR in decreasing order
     ptcone_list = [ [ isoPar.ptcone40, isoPar.ptcone30, isoPar.ptcone20 ] ]
@@ -84,10 +86,8 @@ def DerivationTrackIsoCfg(flags,**jwarg):
             if 'WP' in jwarg:
                 toolkwargs['TTVATool'] = ttvaCA
             # and a track selection tool
-            tselkwargs = {}
-            tselkwargs['minPt'] = track_pt
             toolkwargs['TrackSelectionTool'] = acc.popToolsAndMerge(
-                isoTrackSelectionToolCfg(flags,**tselkwargs))
+                isoTrackSelectionToolCfg(flags, minPt = track_pt))
             #
             if loose_cone:
                 toolkwargs['CoreTrackEtaRange'] = 0.01
@@ -114,8 +114,6 @@ def iso_vars(WP = "Nonprompt_All_MaxWeight"):
     return iso_vars
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.TestDefaults import defaultTestFiles

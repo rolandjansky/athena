@@ -3,7 +3,6 @@
 __doc__ = """Tool configuration to instantiate all
  isolationTools with default configuration"""
 
-from AthenaCommon.SystemOfUnits import GeV
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.Enums import BeamType
@@ -15,21 +14,11 @@ def isoTTVAToolCfg(flags,**kwargs):
     kwargs.setdefault('WorkingPoint','Nonprompt_All_MaxWeight')
     return TTVAToolCfg(flags,**kwargs)
 
-def isoTrackSelectionToolCfg(flags, **kwargs):
-    acc = ComponentAccumulator()
-    
-    kwargs.setdefault('name', 'isoTrackSelectionTool')
-    kwargs.setdefault('CutLevel','Loose')
-    kwargs.setdefault('minPt',1*GeV)
-
-    acc.setPrivateTools(
-        CompFactory.InDet.InDetTrackSelectionTool(**kwargs))
-    return acc
-
 def TrackIsolationToolCfg(flags, **kwargs):
     acc = ComponentAccumulator()
         
     if 'TrackSelectionTool' not in kwargs:
+        from InDetConfig.InDetTrackSelectionToolConfig import isoTrackSelectionToolCfg
         kwargs['TrackSelectionTool'] = acc.popToolsAndMerge(isoTrackSelectionToolCfg(flags))
     if 'TTVATool' not in kwargs:
         kwargs['TTVATool'] = acc.popToolsAndMerge(isoTTVAToolCfg(flags))

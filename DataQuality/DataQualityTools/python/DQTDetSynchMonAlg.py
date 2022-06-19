@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 def DQTDetSynchMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -150,10 +150,6 @@ def _DQTDetSynchMonAlgConfigCore(helper, algConfObj, isOnline=False, run2Compat=
 
 
 if __name__ == '__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

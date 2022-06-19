@@ -87,8 +87,8 @@ def JetTagMonitorConfig(inputFlags):
     jetTagMonAlg.SoftMuonPtMax = 25.0
 
     #Track selection Tool, Loose WP: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TrackingCPRecsEarly2018#Track_Selection
-    jetTagMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('jetTagMonAlg_TrackSelectionTool')
-    jetTagMonAlg.TrackSelectionTool.CutLevel = "Loose"
+    from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_Loose_Cfg
+    jetTagMonAlg.TrackSelectionTool = result.popToolsAndMerge(InDetTrackSelectionTool_Loose_Cfg(inputFlags))
 
     #Additional track selection for jet quality assessment
     jetTagMonAlg.MinGoodTrackCut = 1
@@ -443,10 +443,6 @@ def JetTagMonitorConfig(inputFlags):
     # return result, seq
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO
