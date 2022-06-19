@@ -715,8 +715,7 @@ class  ConfiguredNewTrackingSiPattern:
            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.ObservedTracks(),
                                                         InDetKeys.ObservedDetailedTracksTruth(),
-                                                        InDetKeys.ObservedTracksTruth(),
-                                                        doTrackOverlay)
+                                                        InDetKeys.ObservedTracksTruth())
            include ("InDetRecExample/ConfiguredxAODTrackParticleCreation.py")
            InDetxAOD = ConfiguredxAODTrackParticleCreation(InDetKeys.ObservedTracks(),
                                                            InDetKeys.ObservedTracksTruth(),

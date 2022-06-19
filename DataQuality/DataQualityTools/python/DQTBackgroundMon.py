@@ -174,4 +174,11 @@ def DQTBackgroundMonAlgConfig(flags, isOld=False):
     group.defineHistogram('nVertex;nVertex_unpairNonIso', title=pVertexT+unpairNonIsoT,
                           weight='unpairNonIso', xbins=50, xmin=0, xmax=50)
 
-    return helper.result()
+    acc = helper.result()
+
+    # need background objects
+    if not isOld:
+        from RecBackgroundAlgs.BackgroundAlgsConfig import BackgroundAlgsCfg
+        acc.merge(BackgroundAlgsCfg(flags))
+
+    return acc

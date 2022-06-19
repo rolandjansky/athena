@@ -51,7 +51,6 @@ def getTriggerEDMList(key, runVersion):
             Run3TrigEDMCOMM = {}
             Run3TrigEDMSLIM = {}
 
-
             if "AODFULL" in key: 
                 #Containers marked with AODCOMM to be added to AODFULL
 
@@ -68,36 +67,46 @@ def getTriggerEDMList(key, runVersion):
                 # remove the variables that are defined in TriggerEDMRun3.varToRemoveFromAODSLIM from the containers
                 
                 # get all containers from list that are marked with AODSLIM
-                Run3TrigEDMSLIM.update(getRun3TrigEDMSlimList(key))
-
-                # go through all container values and remove the variables to remove
-                for cont, values in Run3TrigEDMSLIM.items():
-                    if (isinstance(values, list)):
-
-                        newValues = []
-                        for value in values:
-                            
-                            newValue = ''
-                            for var in varToRemoveFromAODSLIM:
-                                if var in value:
-                                    removeVar =  "."+var
-                                    newValue = value.replace(removeVar, "")
-                                    newValues.append(newValue)
-                                else:
+                if len(varToRemoveFromAODSLIM) == 0:
+                    Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
+                    log.info("No decorations are listed to be removed from AODSLIM")
+                else:
+                    Run3TrigEDMSLIM.update(getRun3TrigEDMSlimList(key))
+                    log.info("The following decorations are going to be removed from the listed collections in AODSLIM {}".format(varToRemoveFromAODSLIM))
+                    # Go through all container values and remove the variables to remove
+                    # Format of Run3TrigEDMSLIM is {'xAOD::Cont': ['coll1.varA.varB', 'coll2.varD',...],...} 
+                    for cont, values in Run3TrigEDMSLIM.items():
+                        if (isinstance(values, list)):
+                            newValues = []
+                            for value in values:                       
+                                newValue = ''
+                                coll = value.split(".")[0]
+                                
+                                varRemovedFlag = False
+                                for myTuple in varToRemoveFromAODSLIM:
+                                    var = myTuple[0]
+                                    
+                                    if var in value and coll in myTuple:
+                                        varRemovedFlag = True
+                                        removeVar =  "."+var
+                                        newValue = value.replace(removeVar, "")
+                                        
+                                if varRemovedFlag is False: 
                                     newValues.append(value)
+                                elif newValue != '':
+                                    newValues.append(newValue)                                        
+                                else:
+                                    raise RuntimeError("Decoration removed but no new Value was available, not sure what to do...")
 
-                        # filling the actual Run3TrigEDM for AODSLIM
-                        if cont in Run3TrigEDM:
-                            Run3TrigEDM[cont].extend(newValue)
-                        else:
+                            # Filling the Run3TrigEDM dictionary with the new set of values for each cont
                             Run3TrigEDM[cont] = newValues
-
-                    else: 
-                        raise RuntimeError("Value in Run3TrigEDM dictionary is not a list")
+                        else:
+                            raise RuntimeError("Value in Run3TrigEDM dictionary is not a list")
 
             else:
                 Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
 
+            log.debug('TriggerEDM for EDM set {} contains the following collections: {}'.format(key, Run3TrigEDM) )    
             return Run3TrigEDM
 
         else:

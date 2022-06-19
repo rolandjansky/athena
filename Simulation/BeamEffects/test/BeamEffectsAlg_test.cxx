@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,6 +27,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // Athena headers
+#include "CxxUtils/checker_macros.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // Tested AthAlgorithm
@@ -36,7 +37,7 @@
 namespace SimTesting {
 
   // needed every time an AthAlgorithm, AthAlgTool or AthService is instantiated
-  ISvcLocator* g_svcLoc = nullptr;
+  ISvcLocator* g_svcLoc ATLAS_THREAD_SAFE = nullptr;
 
   // global test environment takes care of setting up Gaudi
   class GaudiEnvironment : public ::testing::Environment {
