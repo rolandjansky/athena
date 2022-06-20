@@ -55,7 +55,7 @@ namespace po = boost::program_options;
 #define CHECK_RETRIEVE( container , name ) { \
     if (!event.retrieve( container , name ).isSuccess()){ \
       Error( APP_NAME , "Could not load event %s from the file!" , name ); \
-      throw; \
+      throw std::runtime_error("Container retrieval failed"); \
     } \
   }
 
@@ -231,13 +231,13 @@ int main(int argc, char **argv) {
 
     if (!event.retrieveMetaInput( truthMeta , "TruthMetaData" ).isSuccess()){
       Error( APP_NAME , "Could not load event TruthMetaData from the file!" );
-      throw;
+      throw std::runtime_error("Could not load event TruthMetaData from the file!");
     }
 
     // Metadata check
     if (truthMeta->size()>1){
       Error( APP_NAME , "Truth metadata size: %lu . No one will look past item 0!" , truthMeta->size() );
-      throw;
+      throw std::runtime_error("Truth metadata size >1");
     }
     if (channelNumber==0){
       channelNumber = (*truthMeta)[0]->mcChannelNumber();
@@ -246,7 +246,7 @@ int main(int argc, char **argv) {
     }
     if (channelNumber != (*truthMeta)[0]->mcChannelNumber()){
       Error( APP_NAME , "Channel number changed mid-file! Was: %u now: %u " , channelNumber , (*truthMeta)[0]->mcChannelNumber() );
-      throw;
+      throw std::runtime_error("Channel number changed mid-file!");
     }
     if (weightNames != (*truthMeta)[0]->weightNames() ){
       Error( APP_NAME , "Weights have changed!" );
@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
         else                                         std::cerr << "- ";
         std::cerr << std::endl;
       }
-      throw;
+      throw std::runtime_error("Weights have changed!");
     }
     // Event weight handling
     if (h_weights.size()==0){
