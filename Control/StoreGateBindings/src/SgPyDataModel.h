@@ -21,7 +21,7 @@
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/BaseInfo.h"
 
-extern CLID PyCLID;
+extern const CLID PyCLID;
 
 // ROOT includes
 #include "TClass.h"
@@ -36,6 +36,10 @@ extern CLID PyCLID;
 #include "CPyCppyy/PyException.h"
 
 #include <unordered_map>
+
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 // fwd declares
 namespace SG { struct PyProxyMgr; }
@@ -172,13 +176,6 @@ namespace SG {
     /// pointer to the @c SG::BaseInfoBase structure holding the converter
     /// functions for objects held by StoreGate
     const SG::BaseInfoBase* m_bib;
-
-    /// Pointer to the @ IClassIDSvc to be able to cast objects based on
-    /// the @a clid.
-    static IClassIDSvc* s_clidSvc;
-
-    /// Access (and initialize) the pointer to the @c IClassIDSvc
-    static IClassIDSvc* clidSvc();
   };
 
   /**

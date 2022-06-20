@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGateBindings/StoreGatePyExt.h"
@@ -37,16 +37,20 @@
 #include <vector>
 #include <algorithm> // for stable_partition
 
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 namespace {
-  static CLID bool_clid = ClassID_traits<bool>::ID();
-  static CLID char_clid = ClassID_traits<char>::ID();
-  static CLID int_clid =  ClassID_traits<int>::ID();
-  static CLID uint_clid = ClassID_traits<unsigned int>::ID();
-  static CLID long_clid = ClassID_traits<long>::ID();
-  static CLID ulong_clid= ClassID_traits<unsigned long>::ID();
-  static CLID longlong_clid= ClassID_traits<long long>::ID();
-  static CLID float_clid= ClassID_traits<float>::ID();
-  static CLID double_clid=ClassID_traits<double>::ID();
+  static const CLID bool_clid = ClassID_traits<bool>::ID();
+  static const CLID char_clid = ClassID_traits<char>::ID();
+  static const CLID int_clid =  ClassID_traits<int>::ID();
+  static const CLID uint_clid = ClassID_traits<unsigned int>::ID();
+  static const CLID long_clid = ClassID_traits<long>::ID();
+  static const CLID ulong_clid= ClassID_traits<unsigned long>::ID();
+  static const CLID longlong_clid= ClassID_traits<long long>::ID();
+  static const CLID float_clid= ClassID_traits<float>::ID();
+  static const CLID double_clid=ClassID_traits<double>::ID();
 
 
 /// Given a type object TP, return the name of the type as a python string.
@@ -166,18 +170,14 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
                   "no py-proxies for (clid=%lu, type=%s, key=%s)", 
                   PyLong_AsUnsignedLong(pyclid),
                   namestr.c_str(),
-                  (char*)( (pykey == Py_None) 
-                           ? "<None>" 
-                           : keystr.c_str() )
+                  (pykey == Py_None) ? "<None>" : keystr.c_str()
                   );
     return 0;
   }
 
   _SGPY_MSG("retrieved py-proxy [clid=" << PyLong_AsUnsignedLong(pyclid)
             << ", type=" << namestr.c_str()
-            << ", key=" << (char*)( (pykey == Py_None) 
-                                    ? "<None>" 
-                                    : keystr.c_str() )
+            << ", key=" << (pykey == Py_None) ? "<None>" : keystr.c_str()
             << "]");
 
   SG::DataProxy* proxy = (SG::DataProxy*)CPPInstance_ASVOIDPTR(pyproxy);
@@ -187,9 +187,7 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
                   "no proxies for (clid=%lu, type=%s, key=%s)", 
                   PyLong_AsUnsignedLong(pyclid),
                   namestr.c_str(),
-                  (char*)( (pykey == Py_None) 
-                           ? "<None>" 
-                           : keystr.c_str() )
+                  (pykey == Py_None) ? "<None>" : keystr.c_str()
                   );
     return 0;
   }
@@ -339,10 +337,10 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
         return 0;
       }
       
-      const RootType& fromType = RootType::ByName(realName);
+      const RootType& fromType = RootType::ByNameNoQuiet(realName);
       
       if ( (bool)fromType ) {
-        const RootType& toType = RootType::ByName( namestr );
+        const RootType& toType = RootType::ByNameNoQuiet( namestr );
         res = dbb->object();
         if (fromType.Class() && toType.Class())
           res = fromType.Class()->DynamicCast (toType.Class(), res);

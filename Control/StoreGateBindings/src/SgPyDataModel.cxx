@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,7 +7,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "RootUtils/PyAthenaGILStateEnsure.h"
 
-CLID PyCLID = 72785480;
+// Called from python, so only excuted single-threaded (GIL).
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+const CLID PyCLID = 72785480;
 
 namespace {
 
@@ -33,15 +37,6 @@ TClass* objectIsA (PyObject* obj)
 }
 
 namespace SG {
-  IClassIDSvc* PyDataBucket::s_clidSvc = 0;
-  IClassIDSvc* PyDataBucket::clidSvc()
-  {
-    if ( 0 == s_clidSvc ) {
-      Gaudi::svcLocator()->getService ("ClassIDSvc", 
-				       *pp_cast<IService>(&s_clidSvc)).ignore();
-    }
-    return s_clidSvc;
-  }
 
   PyDataBucket::PyDataBucket( PyObject* pyObj,
 			      CLID clid ) :
