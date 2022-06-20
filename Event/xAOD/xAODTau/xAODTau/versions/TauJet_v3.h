@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJet_v3.h 725228 2016-02-19 22:59:42Z griffith $
@@ -264,11 +264,6 @@ namespace xAOD {
     std::vector<const TauTrack*> tracksWithMask(unsigned int mask ) const;
     /// Get the v<const pointer> to all tracks associated with this tau, regardless of classification
     std::vector<const TauTrack*> allTracks() const;
-#ifndef XAOD_STANDALONE
-    /// Get the v<pointer> to all tracks associated with this tau, regardless of classification
-    //see TauxAODHelpers for a solution in XAOD_STANDALONE
-    std::vector<TauTrack*> allTracks() ;
-#endif
     //number of tracks with a given classification
     size_t nTracks(TauJetParameters::TauTrackFlag flag=TauJetParameters::TauTrackFlag::classifiedCharged) const;
     //number of tracks classified as classifiedCharged
