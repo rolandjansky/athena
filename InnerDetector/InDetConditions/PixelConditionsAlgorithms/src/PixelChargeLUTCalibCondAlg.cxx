@@ -182,6 +182,10 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
                 analogThresholdSigmaGanged.push_back(0); // TODO: avoid this in clients
                 analogThresholdNoiseGanged.push_back(calibArray[3].get<int>());
 
+                totA.push_back(0.0);
+                totE.push_back(0.0);
+                totC.push_back(0.0);
+
                 totRes1.push_back(0.0); // TODO: avoid this in clients
                 totRes2.push_back(0.0); // TODO: avoid this in clients
               }
