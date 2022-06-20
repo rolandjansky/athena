@@ -68,6 +68,10 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojMETComponents_key{this, "l1_gFexJwojMETComponents_key", "L1_gMETComponentsJwoj", "L1 gFex JWOJ Ex and Ey container name"};
   SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojMHTComponents_key{this, "l1_gFexJwojMHTComponents_key", "L1_gMHTComponentsJwoj", "L1 gFex JWOJ Hard Term Ex and Ey container name"};
   SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexJwojMSTComponents_key{this, "l1_gFexJwojMSTComponents_key", "L1_gMSTComponentsJwoj", "L1 gFex JWOJ Soft Term Ex and Ey container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexNCMETScalar_key{this, "l1_gFexNCMETScalar_key", "L1_gScalarENoiseCut", "L1 gFex NC Et and sumEt container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexNCMETComponents_key{this, "l1_gFexNCMETComponents_key", "L1_gMETComponentsNoiseCut", "L1 gFex NC Ex and Ey container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexRhoMETScalar_key{this, "l1_gFexRhoMETScalar_key", "L1_gScalarERms", "L1 gFex Rho Et and sumEt container name"};
+  SG::ReadHandleKey<xAOD::gFexGlobalRoIContainer> m_l1_gFexRhoMETComponents_key{this, "l1_gFexRhoMETComponents_key", "L1_gMETComponentsRms", "L1 gFex Rho Ex and Ey container name"};
 
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_cell_met_key{this, "hlt_cell_key", "HLT_MET_cell", "HLT Cell MET container name"};
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mht_met_key{this, "hlt_mht_key", "HLT_MET_mht", "HLT MHT MET container name"};
