@@ -28,7 +28,6 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
-#include "TrigT2CaloCommon/T2Calibration.h"
 #include "TrigT2CaloCommon/IT2GeometryTool.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
@@ -53,25 +52,6 @@ public:
                              const EventContext& context) const = 0;
 
 protected:
-#ifndef NDEBUG
-  /** Very useful function to check about the Cluster structure.
-  It prints out a grid of cells eta and phi positions and energies.
-  Only exist in DEBUG versions of the code. */
-  void PrintCluster(const double /*energyFromAlg*/, const int /*nCaloType*/, const int /*nCaloSamp*/,
-                    const CaloSampling::CaloSample, const CaloSampling::CaloSample) const
-  {}
-#endif
-
-  /** Objects will need T2Calibration. So far, a given tool will
-  not need more than one of such objects. */
-  std::unique_ptr<T2Calibration> m_calib;
-
-  /** Input objects to calibration. This will be changed in such
-  a way the the calibration tool will have to know alone about
-  such properties. */
-  std::vector<float> m_limit;
-  std::vector<int> m_dimension;
-  std::vector<float> m_correction;
 
   /** Calorimeter Id Manager for calorimeter part determination (Barrel versus EndCap) */
   const CaloIdManager* m_larMgr = nullptr;
