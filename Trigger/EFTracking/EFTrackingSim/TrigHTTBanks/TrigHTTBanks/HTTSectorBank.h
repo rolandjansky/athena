@@ -47,7 +47,7 @@ class HTTSectorBank
 
     private:
 
-        size_t m_nLayers;
+        size_t m_nLayers = 0UL;
         std::vector<std::vector<module_t>> m_s2mMap; // sector to module map. index by (sector, layer)
         std::vector<std::multimap<module_t, sector_t>> m_m2sMap; // module to sector map. index by (layer, module).
 

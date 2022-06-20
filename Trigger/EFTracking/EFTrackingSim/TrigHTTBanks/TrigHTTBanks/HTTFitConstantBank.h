@@ -63,7 +63,7 @@ class HTTFitConstantBank : public AthMessaging
   
   int m_bankID; // ID of the related pattern bank
   int m_nsectors; // number of sectors in this bank
-  int m_npars; // numbers of parameters
+  int m_npars = 0; // numbers of parameters
   int m_ncoords; // number of coordinates used in the linear fit
   int m_nconstr; // number of constraints: m_ncoords-m_npars
   int m_npixcy; // number of 2d coordinates

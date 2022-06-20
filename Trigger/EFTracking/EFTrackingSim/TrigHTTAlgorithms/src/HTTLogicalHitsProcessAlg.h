@@ -107,10 +107,9 @@ class HTTLogicalHitsProcessAlg : public AthAlgorithm
         // ROOT pointers 
         HTTEventInputHeader          m_eventHeader;
         HTTEventInputHeader          m_firstInputHeader;
-        HTTLogicalEventInputHeader*  m_logicEventHeader_1st;
-        HTTLogicalEventInputHeader*  m_logicEventHeader_2nd;
-        HTTLogicalEventOutputHeader* m_logicEventOutputHeader;
-
+        HTTLogicalEventInputHeader*  m_logicEventHeader_1st = nullptr;
+        HTTLogicalEventInputHeader*  m_logicEventHeader_2nd = nullptr;
+        HTTLogicalEventOutputHeader* m_logicEventOutputHeader = nullptr;
 
         // Event storage
         std::vector<HTTCluster> m_clusters_1st, m_clusters_1st_original, m_clusters_2nd;

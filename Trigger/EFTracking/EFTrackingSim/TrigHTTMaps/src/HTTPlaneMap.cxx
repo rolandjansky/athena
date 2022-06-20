@@ -11,9 +11,10 @@
 
 #include "TrigHTTMaps/HTTPlaneMap.h"
 
-#include <sstream>
-#include <numeric>
 #include <AsgMessaging/MessageCheck.h>
+#include <numeric>
+#include <sstream>
+#include <utility>
 
 using namespace asg::msgUserCode;
 using namespace std;
@@ -27,7 +28,7 @@ HTTPlaneMap::HTTPlaneMap(const std::string & filepath, unsigned region, unsigned
     m_map(static_cast<int>(SiliconTech::nTechs),
           vector<vector<LayerSection>>(static_cast<int>(DetectorZone::nZones))
     ),
-    m_layerOverrides(layerOverrides)
+    m_layerOverrides(std::move(layerOverrides))
 {
     ANA_MSG_INFO("Reading " << filepath);
     ifstream fin(filepath);

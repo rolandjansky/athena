@@ -77,7 +77,7 @@ class HTTDataFlowTool: public AthAlgTool
         std::string m_dir;
 
         size_t m_nEvents = 0;
-        unsigned m_nLayers_1st; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
+        unsigned m_nLayers_1st = 0U; // alias to m_HTTMapping->PlaneMap1stStage()->getNLogiLayers();
 
         // constants used for data flow table
         unsigned const m_nSigDigits = 2;

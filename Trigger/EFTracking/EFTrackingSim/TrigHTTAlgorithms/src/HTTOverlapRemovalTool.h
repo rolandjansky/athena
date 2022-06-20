@@ -47,7 +47,7 @@ public:
   bool getDoSecondStage() const { return m_do2ndStage; }
   ORAlgo getAlgorithm() const {return m_algo;}
   //  Find the one track from the duplicate group with the minium Chi2 and maximum # of hits
-  void findMinChi2MaxHit(std::vector<int> duplicates, std::vector<HTTTrack>& tracks);
+  void findMinChi2MaxHit(const std::vector<int>& duplicates, std::vector<HTTTrack>& tracks);
   //  Find number of common hits between two tracks
   int findNCommonHits(const HTTTrack&, const HTTTrack&);
   int findNonOverlapHits(const HTTTrack&, const HTTTrack&);

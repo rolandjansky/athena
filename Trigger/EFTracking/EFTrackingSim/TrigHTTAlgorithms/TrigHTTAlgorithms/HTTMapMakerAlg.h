@@ -146,7 +146,7 @@ class HTTMapMakerAlg : public AthAlgorithm
         std::map <std::string, SiliconTech> m_det2tech = { {"pixel",SiliconTech::pixel},  {"strip",SiliconTech::strip} }; // for parsing KeyString
         std::map <std::string, DetectorZone> m_bec2zone = { {"barrel",DetectorZone::barrel},  {"posEndcap",DetectorZone::posEndcap}, {"negEndcap",DetectorZone::negEndcap} }; 
         bool isOnKeyLayer(int keynum, SiliconTech det, DetectorZone bec, int lyr); // returns if hit is on a key layer or not. keynum is either 1 or 2 for the first or second keylayer (if using 2D slicing)
-        int findPlane(const std::vector<std::vector<std::string>>& planes, std::string test);  
+        int findPlane(const std::vector<std::vector<std::string>>& planes, const std::string& test);  
         std::string makeRmapLines(std::vector<HTTHit> const & hits, SiliconTech det, DetectorZone bec, int max);
         std::string makeSubrmapLines(std::vector<Module> const & allmods, SiliconTech det, DetectorZone bec, int max);
         void parseKeyString(); // sets m_keylayer and m_keylayer2 based on the Keystring and Keystring2 run args

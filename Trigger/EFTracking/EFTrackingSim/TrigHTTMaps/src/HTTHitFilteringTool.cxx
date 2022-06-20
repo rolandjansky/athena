@@ -19,7 +19,7 @@
 
 using namespace asg::msgUserCode;
 
-void fill_nearby_hits(HTTHit, std::vector<std::pair<HTTHit,unsigned>> &, std::vector<std::pair<HTTHit,unsigned>> &);
+void fill_nearby_hits(const HTTHit&, std::vector<std::pair<HTTHit,unsigned>> &, std::vector<std::pair<HTTHit,unsigned>> &);
 int  countHitsFromHeader(HTTLogicalEventInputHeader &);
 void printHitsFromHeader(HTTLogicalEventInputHeader &);
 
@@ -389,7 +389,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
 }
 
 
-void HTTHitFilteringTool::fill_cut_values(HTTHit hit, float &cut_m, float &cut_p)
+void HTTHitFilteringTool::fill_cut_values(const HTTHit& hit, float &cut_m, float &cut_p)
 {
   // if we're doing this globally, then no need to use map
   // but probably best to for consistency
@@ -436,7 +436,7 @@ void HTTHitFilteringTool::fill_cut_values(HTTHit hit, float &cut_m, float &cut_p
 }
 
 
-bool HTTHitFilteringTool::check_hit_stub(HTTHit innerHit, HTTHit outerHit, float cut_m, float cut_p)
+bool HTTHitFilteringTool::check_hit_stub(const HTTHit& innerHit, const HTTHit& outerHit, float cut_m, float cut_p)
 {
 
   float val;
@@ -464,7 +464,7 @@ bool HTTHitFilteringTool::check_hit_stub(HTTHit innerHit, HTTHit outerHit, float
 
 
 
-void fill_nearby_hits(HTTHit innerHit, std::vector< std::pair<HTTHit,unsigned> > & outerHits, std::vector< std::pair<HTTHit,unsigned> > & nearby_outer_hits)
+void fill_nearby_hits(const HTTHit& innerHit, std::vector< std::pair<HTTHit,unsigned> > & outerHits, std::vector< std::pair<HTTHit,unsigned> > & nearby_outer_hits)
 {
   for (const auto& outerHit : outerHits) {
     // layer needs to be inner hit physLayer + 1

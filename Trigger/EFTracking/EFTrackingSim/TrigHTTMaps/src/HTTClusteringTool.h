@@ -39,7 +39,7 @@ public:
  private:
 
   //HTT pixel clustering using the HTTSim objects
-  void SortedClustering(std::vector<std::vector<HTTHit> > sorted_hits, std::vector<HTTCluster> &) const;
+  void SortedClustering(const std::vector<std::vector<HTTHit> >& sorted_hits, std::vector<HTTCluster> &) const;
   void Clustering(std::vector<HTTHit>, std::vector<HTTCluster> &) const ;
 
   // Other helper functions

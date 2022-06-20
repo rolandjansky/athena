@@ -170,7 +170,7 @@ class HTTHough1DShiftTool : public extends<AthAlgTool, IHTTRoadFinderTool>
         float getPtFromShiftDiff(int shift) const;
         void readShifts(std::string const & filepath);
         std::vector<boost::dynamic_bitset<>> makeHitMasks(const std::vector<const HTTHit*> & hits);
-        HTTRoad_Hough makeRoad(std::vector<const HTTHit*> hits, int bin_track, std::vector<int> const & shifts);
+        HTTRoad_Hough makeRoad(const std::vector<const HTTHit*>& hits, int bin_track, std::vector<int> const & shifts);
         void printHitMasks(std::vector<boost::dynamic_bitset<>> const & hitMasks) const;
         void drawHitMasks(std::vector<boost::dynamic_bitset<>> const & hitMasks, std::string const & name);
         void drawHitMasks(std::vector<boost::dynamic_bitset<>> const & hitMasks, std::string const & name, std::vector<int> const & shifts);

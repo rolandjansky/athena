@@ -599,7 +599,7 @@ bool HTTMapMakerAlg::isOnKeyLayer(int keynum, SiliconTech t_det, DetectorZone t_
     return false;
 }
 
-int HTTMapMakerAlg::findPlane(const std::vector<std::vector<std::string>>& planes, std::string test) // find what plane a layer is assigned to. 
+int HTTMapMakerAlg::findPlane(const std::vector<std::vector<std::string>>& planes, const std::string& test) // find what plane a layer is assigned to. 
 {
     int pcounter = 0;
     for (auto& plane : planes) {

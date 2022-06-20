@@ -347,7 +347,7 @@ std::vector<boost::dynamic_bitset<>> HTTHough1DShiftTool::makeHitMasks(const std
 }
 
 
-HTTRoad_Hough HTTHough1DShiftTool::makeRoad(std::vector<const HTTHit*> hits, int bin_track, std::vector<int> const & shifts)
+HTTRoad_Hough HTTHough1DShiftTool::makeRoad(const std::vector<const HTTHit*>& hits, int bin_track, std::vector<int> const & shifts)
 {
   std::vector<const HTTHit*> road_hits;
   layer_bitmask_t hitLayers = 0;

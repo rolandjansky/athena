@@ -22,7 +22,7 @@ bool hasGoodFit(std::vector<HTTTrack> const & track_cands, float minchi2);
 ///////////////////////////////////////////////////////////////////////////////
 
 TrackFitter::TrackFitter(const HTTFitConstantBank *nominalbank,
-			 std::vector<const HTTFitConstantBank*> droppedLayerbanks, bool guessingHits) :
+			 const std::vector<const HTTFitConstantBank*>& droppedLayerbanks, bool guessingHits) :
   AthMessaging (Athena::getMessageSvc(), "HTTTrackFitter") 
 {
   m_guessinghits = guessingHits;
