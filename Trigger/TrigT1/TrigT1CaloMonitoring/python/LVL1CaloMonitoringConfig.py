@@ -40,9 +40,11 @@ def LVL1CaloMonitoringConfig(flags):
             # L1 menu available in the POOL file
             from TrigT1CaloMonitoring.CpmMonitorAlgorithm import CpmMonitoringConfig
             from TrigT1CaloMonitoring.CpmSimMonitorAlgorithm import CpmSimMonitoringConfig
+            from TrigT1CaloMonitoring.JepCmxMonitorAlgorithm import JepCmxMonitoringConfig
             from TrigT1CaloMonitoring.OverviewMonitorAlgorithm import OverviewMonitoringConfig
             result.merge(CpmMonitoringConfig(flags))
             result.merge(CpmSimMonitoringConfig(flags))
+            result.merge(JepCmxMonitoringConfig(flags))
             result.merge(OverviewMonitoringConfig(flags))
 
         result.merge(PprMonitoringConfig(flags))
