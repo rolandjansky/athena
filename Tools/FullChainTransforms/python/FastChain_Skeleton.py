@@ -80,6 +80,7 @@ def fromRunArgs(runArgs):
     # Setup common digitization flags
     from Digitization.DigitizationConfigFlags import setupDigitizationFlags
     setupDigitizationFlags(runArgs, ConfigFlags)
+    ConfigFlags.Digitization.TruthOutput = True
     log.info('Running with pile-up: %s', ConfigFlags.Digitization.PileUp)
     # ConfigFlags.dump()
 
