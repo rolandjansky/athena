@@ -8,3 +8,6 @@ index_ref
 BunchConfKey(.*)
 TrigConfKeys(.*)
 xTrigDecisionAux(.*)
+
+# temporarily excluded
+MuonSegmentsAux(.*)
