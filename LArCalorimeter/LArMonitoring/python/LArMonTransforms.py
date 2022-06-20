@@ -38,6 +38,14 @@ void takemax(int sc, const TH2I* inhist, TH2I* outhist) {
 }
 """)
 
+cppyy.cppdef("""
+void clearhist(TH2I* hist) {
+    for (int i = 0; i < hist->GetSize(); ++i) {
+       hist->SetBinContent(i,0);
+       hist->SetBinError(i,0);
+    }
+}
+""")
 # @profile
 def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
     """ For each bin, fill the output with the max filled error code. All histograms should have the same bin content"""
@@ -80,6 +88,7 @@ def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
 
         #fill with max 
         cl.Clear()
+        cppyy.gbl.clearhist(cl)
         for i in inputs:
             statusCode=int(i[0]['sc'])
             h = i[1][0]
