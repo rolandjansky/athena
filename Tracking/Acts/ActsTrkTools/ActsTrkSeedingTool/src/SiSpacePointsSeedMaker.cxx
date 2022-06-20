@@ -736,7 +736,6 @@ namespace ActsTrk {
              {strip_cluster[0]->identifierHash(), strip_cluster[1]->identifierHash()},
              Amg::Vector3D(seed->sp()[0]->x(), seed->sp()[0]->y(), seed->sp()[0]->z()),
              {*(stripLinkAcc(*strip_cluster[0])), *(stripLinkAcc(*strip_cluster[1]))});
-            stripSpacePoints[bottom_indices] = pBottomPoint;
           }
 
           if (auto & pMiddlePoint = stripSpacePoints[middle_indices];!pMiddlePoint){
@@ -744,7 +743,6 @@ namespace ActsTrk {
              {strip_cluster[2]->identifierHash(), strip_cluster[3]->identifierHash()},
              Amg::Vector3D(seed->sp()[1]->x(), seed->sp()[1]->y(), seed->sp()[1]->z()),
              {*(stripLinkAcc(*strip_cluster[2])), *(stripLinkAcc(*strip_cluster[3]))});
-            stripSpacePoints[middle_indices] = pMiddlePoint;
           }
           
           if (auto & pTopPoint = stripSpacePoints[top_indices];!pTopPoint){
@@ -752,7 +750,6 @@ namespace ActsTrk {
              {strip_cluster[4]->identifierHash(), strip_cluster[5]->identifierHash()},
              Amg::Vector3D(seed->sp()[2]->x(), seed->sp()[2]->y(), seed->sp()[2]->z()),
              {*(stripLinkAcc(*strip_cluster[4])), *(stripLinkAcc(*strip_cluster[5]))});
-            stripSpacePoints[top_indices] = pTopPoint;
           }
 
 
