@@ -87,10 +87,10 @@ class TileOFCorrelation
 
   float* getCorrelationSumm(bool deltaCorrelation, int ros, int drawer, int channel, int gain, int dignum);
 
-  double w_a[201][9];
-  double w_b[201][9];
-  double w_c[201][9];
-  double g[201][9];
+  double w_a[201][9]={};
+  double w_b[201][9]={};
+  double w_c[201][9]={};
+  double g[201][9]={};
   
   
  private:

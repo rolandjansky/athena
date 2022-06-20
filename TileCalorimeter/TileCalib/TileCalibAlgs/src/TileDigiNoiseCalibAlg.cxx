@@ -296,7 +296,18 @@ StatusCode TileDigiNoiseCalibAlg::finalize() {
 
 /// StoreRunInfo is called only during the first event
 void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
-
+  if (not dqStatus){
+    m_time = 0;
+    m_year = 0;
+    m_month = 0;
+    m_day = 0;
+    m_yday = 0;
+    m_hour = 0;
+    m_min = 0;
+    m_trigType = 0;
+    ATH_MSG_WARNING( "TileDigiNoiseCalibAlg::StoreRunInfo : dqStatus pointer is null" );
+    return;
+  }
   if (dqStatus->calibMode() == 1 && m_beamElemContainer.length() > 0) {// Bigain can use cispar
     if (m_beamCnv) {
       //    std::cout << "LUCA m_time= "<< m_time << "   bc_time_seconds= "<<  m_beamCnv->eventFragment()->bc_time_seconds() <<
@@ -309,7 +320,7 @@ void TileDigiNoiseCalibAlg::StoreRunInfo (const TileDQstatus* dqStatus) {
     } else
       m_run = 0;
 
-    if (dqStatus && m_cispar) {
+    if (m_cispar) {
       m_time = m_cispar[10]; //time in sc from 1970
       m_trigType = m_cispar[12];
     } else {
@@ -386,8 +397,8 @@ StatusCode TileDigiNoiseCalibAlg::fillDigits (const TileDQstatus* theDQstatus) {
       int drawer = m_tileHWID->drawer(adc_id);
       // IMPORTANT! Drawers are from 0 to 63!
 
-      double mean_tmp[48][16][2];
-      memset(mean_tmp, 0, sizeof(mean_tmp));
+      double mean_tmp[48][16][2] = {};
+
 
       for (; digitsItr != lastDigits; ++digitsItr) { // loop over all channels in the drawer
 
@@ -501,8 +512,8 @@ void TileDigiNoiseCalibAlg::finalDigits() {
     m_tileOFCorrelation->CalcCorrelation(msg(), m_nSamples, false, m_doRobustCov);
 
   // Needed to store autoCorrelation matrix
-  float tmpCorr[9][9];
-  memset(tmpCorr, 0, sizeof(tmpCorr));
+  float tmpCorr[9][9] = {};
+
 
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {

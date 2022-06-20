@@ -36,7 +36,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 
 class TileHWID;
 class TileBeamElemContByteStreamCnv;
