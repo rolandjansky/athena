@@ -183,7 +183,7 @@ StatusCode HTTOverlapRemovalTool::runOverlapRemoval(std::vector<HTTTrack>& track
   return StatusCode::SUCCESS;
 }
 
-void HTTOverlapRemovalTool::findMinChi2MaxHit(std::vector<int> duplicates, std::vector<HTTTrack>& RMtracks)
+void HTTOverlapRemovalTool::findMinChi2MaxHit(const std::vector<int>& duplicates, std::vector<HTTTrack>& RMtracks)
 {
   //  Hardcode the CHI2MAX for now, should change it later
   float minChi2=100000.;

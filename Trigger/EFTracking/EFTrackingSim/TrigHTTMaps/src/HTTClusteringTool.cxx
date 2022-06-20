@@ -64,7 +64,7 @@ StatusCode HTTClusteringTool::DoClustering(HTTLogicalEventInputHeader &header, s
 }
 
 //Attempt to implement clustering using HTTSim objects.
-void HTTClusteringTool::SortedClustering(std::vector<std::vector<HTTHit> > sorted_hits, std::vector<HTTCluster> &clusters) const {
+void HTTClusteringTool::SortedClustering(const std::vector<std::vector<HTTHit> >& sorted_hits, std::vector<HTTCluster> &clusters) const {
   std::vector<HTTCluster> moduleClusters;
   //Loop over the sorted modules that we have
   for( auto& moduleHits:sorted_hits){

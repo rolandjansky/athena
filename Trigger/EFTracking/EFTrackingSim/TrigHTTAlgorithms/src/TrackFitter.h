@@ -37,7 +37,7 @@ class TrackFitter
         ///////////////////////////////////////////////////////////////////////
         // Constructor and Initialization
 
-        TrackFitter(const HTTFitConstantBank *nominalbank, std::vector<const HTTFitConstantBank*> droppedLayerbanks, bool guessingHits);
+        TrackFitter(const HTTFitConstantBank *nominalbank, const std::vector<const HTTFitConstantBank*>& droppedLayerbanks, bool guessingHits);
 
         ///////////////////////////////////////////////////////////////////////
         // Simple getters and setters

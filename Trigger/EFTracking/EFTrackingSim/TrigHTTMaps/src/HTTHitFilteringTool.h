@@ -44,8 +44,8 @@ class HTTHitFilteringTool : public extends<AthAlgTool, IHTTHitFilteringTool> {
  private:
     void FilterHits(std::vector<HTTHit> &, std::vector<int> &, std::vector<int> &, std::vector<HTTHit> &);
 
-    bool check_hit_stub(HTTHit, HTTHit, float, float);
-    void fill_cut_values(HTTHit, float &, float &);
+    bool check_hit_stub(const HTTHit&, const HTTHit&, float, float);
+    void fill_cut_values(const HTTHit&, float &, float &);
 
     // configuration
     Gaudi::Property<bool> m_doRandomRemoval {this, "doRandomRemoval", false, "remove hits/clusters at random"};

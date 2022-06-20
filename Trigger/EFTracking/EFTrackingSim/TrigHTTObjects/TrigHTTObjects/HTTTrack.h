@@ -117,10 +117,10 @@ private:
   int m_secondSectorID; // Sector identifier in thesecond stage tracking
   int m_trackID; // Unique track ID in this bank
 
-  int m_IdealGeoCorr; // 
+  int m_IdealGeoCorr = 0; // 
 
-  float m_houghX; // phi0 from HTTRoad_Hough
-  float m_houghY; // QOverPt from HTTRoad_Hough
+  float m_houghX = 0.0F; // phi0 from HTTRoad_Hough
+  float m_houghY = 0.0F; // QOverPt from HTTRoad_Hough
   float m_qoverpt; // charge over pT
   float m_d0; // impact paramter in the ATLAS reference system
   float m_phi; // phi of the track
