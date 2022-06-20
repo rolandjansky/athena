@@ -1044,9 +1044,7 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
   if (r.start().isTimeStamp() ) {
     start_key = keyFromTimestamp (r.start());
   }
-  else {
-    std::cout << "WLDEBUG: no TimeStamp in r.start(), assume inifinte range" << std::endl;
-  }
+
   key_type stop_key  = keyFromTimestamp (r.stop());
 
   StatusCode sc = StatusCode::SUCCESS;
