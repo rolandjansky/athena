@@ -347,13 +347,12 @@ DetFlags.writeRIOPool.all_setOff()
 
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
-if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
+if hasattr(runArgs, 'simulator') and (runArgs.simulator.find('ATLFASTIIF')>=0 or runArgs.simulator.find('ATLFAST3F')>=0):
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.TRT_BuildStrawLayers=True
-    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF or ATLFAST3F')
     # BCM should be off for FATRAS simulators
-    DetFlags.simulate.BCM_setOff()
-    DetFlags.digitize.BCM_setOff()
+    DetFlags.BCM_setOff()
 
 
 DetFlags.Print()
