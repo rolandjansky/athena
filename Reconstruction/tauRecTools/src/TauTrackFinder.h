@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -66,7 +66,8 @@ private:
     //-------------------------------------------------------------
     //! Extrapolate track eta and phi to the calorimeter middle surface
     //-------------------------------------------------------------
-    StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau) const;
+    StatusCode extrapolateToCaloSurface(xAOD::TauJet& pTau,
+                                        xAOD::TauTrackContainer& tauTrackCon) const;
 
     TauTrackType tauTrackType( const xAOD::TauJet& tauJet,
 			       const xAOD::TrackParticle& trackParticle,

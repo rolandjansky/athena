@@ -522,21 +522,6 @@ namespace xAOD {
     return tracksWithMask( mask );
   }
 
-#ifndef XAOD_STANDALONE
-  /// Get the v<pointer> to all tracks associated with this tau, regardless of classification
-  std::vector<TauTrack*> TauJet_v3::allTracks() {
-    std::vector<TauTrack*> trks;
-    for(ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
-      const TauTrack* c_trk = *link;
-      xAOD::TauTrackContainer* tauTrackContainer = link.getDataNonConstPtr();
-      TauTrack* trk=tauTrackContainer->at(link.index());
-      if(trk!=c_trk) std::cout << "Did not properly retrieve non-const tauTrack" << std::endl;
-      trks.push_back(trk);
-    }
-    return trks;
-  }
-#endif
-
   //number of tracks with a given classification
   size_t TauJet_v3::nTracks(TauJetParameters::TauTrackFlag flag/*=TauJetParameters::TauTrackFlag::classifiedCharged*/) const{
     TauTrack::TrackFlagType mask=1<<flag;
