@@ -83,11 +83,11 @@ namespace Muon {
 
     // these values should go into the conditions database, but introduce them as properties for now
     // they describe the shift of the time to get it into the VMM time window
-    Gaudi::Property<int> m_mmLatencyMC{this,"mmLatencyMC",25};
-    Gaudi::Property<int> m_mmLatencyData{this,"mmLatencyData",75}; //this is temporary, need to align with what we find in data
+    Gaudi::Property<double> m_mmLatencyMC{this,"mmLatencyMC",25};
+    Gaudi::Property<double> m_mmLatencyData{this,"mmLatencyData",75}; //this is temporary, need to align with what we find in data
     
-    Gaudi::Property<int> m_stgcLatencyMC{this,"stgcLatencyMC",-50};
-    Gaudi::Property<int> m_stgcLatencyData{this,"stgcLatencyData",-50}; //this is temporary, need to align with what we find in data
+    Gaudi::Property<double> m_stgcLatencyMC{this,"stgcLatencyMC",-50};
+    Gaudi::Property<double> m_stgcLatencyData{this,"stgcLatencyData",-50}; //this is temporary, need to align with what we find in data
 
     double m_interactionDensitySigma{0.0F};
     double m_interactionDensityMean{0.0F};

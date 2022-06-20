@@ -175,7 +175,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   detEl->stripGlobalPosition(rdoId,globalPos);
 
   // RDO has values in counts for both simulation and data
-  double time{0.}, charge{0.};
+  double time{-DBL_MAX}, charge{-DBL_MAX};
   tdoToTime  (ctx, mmRawData->timeAndChargeInCounts(), mmRawData->time  (), rdoId, time  , mmRawData->relBcid()); 
   pdoToCharge(ctx, mmRawData->timeAndChargeInCounts(), mmRawData->charge(), rdoId, charge                      );
 
@@ -220,7 +220,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   }
 
   // RDO has values in counts for both simulation and data
-  double time{0.}, charge{0.};
+  double time{-DBL_MAX}, charge{-DBL_MAX};
   tdoToTime  (ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->time  (), rdoId, time  , sTGCRawData->bcTag()); 
   pdoToCharge(ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->charge(), rdoId, charge                      );
   
@@ -356,8 +356,8 @@ Muon::NSWCalibTool::tdoToTime(const EventContext& ctx, const bool inCounts, cons
   //(relBCID 0 corresponds to -37.5 ns to - 12.5 ns)
   //Eventually it should go into the conditions db since it is probably not the same for MC and Data
   //but for now it is kept like it is. pscholer 8th of June 2022
-  int mmLatency = (m_isData? m_mmLatencyData : m_mmLatencyMC);
-  int stgcLatency = (m_isData? m_stgcLatencyData : m_stgcLatencyMC);
+  double mmLatency = (m_isData? m_mmLatencyData : m_mmLatencyMC);
+  double stgcLatency = (m_isData? m_stgcLatencyData : m_stgcLatencyMC);
 
   const double peakTime  = m_idHelperSvc->isMM(chnlId) ? mmPeakTime() + mmLatency : stgcPeakTime() + stgcLatency; 
   time = relBCID*25. - (tdo-calib.intercept)/calib.slope + peakTime;
