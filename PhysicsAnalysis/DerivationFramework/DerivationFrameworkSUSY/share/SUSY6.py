@@ -42,7 +42,7 @@ DerivationFrameworkJob += SeqSUSY6
 isDAOD_RPVLL = False
 if 'tag_info' in inputFileSummary:
   if 'AMITag' in inputFileSummary['tag_info']:
-    AllowedTags = ['r11571','r11784','r12205','r12206','r11620']
+    AllowedTags = ['r11571','r11784','r12205','r12206','r11620','r13564']
     AMITag      = inputFileSummary['tag_info']['AMITag']
     for tag in AllowedTags:
       if tag in AMITag:
