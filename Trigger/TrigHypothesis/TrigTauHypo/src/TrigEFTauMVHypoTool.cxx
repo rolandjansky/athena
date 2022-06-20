@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <list>
@@ -7,7 +7,6 @@
 #include <sstream>
 //
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ListItem.h"
 
 #include "xAODTau/TauJetContainer.h"
 
@@ -36,16 +35,15 @@ StatusCode TrigEFTauMVHypoTool::initialize()
   
   ATH_MSG_INFO( "in initialize()" );
   
-  ATH_MSG_INFO( " REGTEST: TrigEFTauMVHypoTool will cut on ");
-  ATH_MSG_INFO( " REGTEST: param NTrackMin " << m_numTrackMin );
-  ATH_MSG_INFO( " REGTEST: param NTrackMax " << m_numTrackMax );
-  ATH_MSG_INFO( " REGTEST: param NWideTrackMax " << m_numWideTrackMax );
-  ATH_MSG_INFO( " REGTEST: param EtCalib " << m_EtCalibMin );
-  ATH_MSG_INFO( " REGTEST: param Level " << m_level );
-  ATH_MSG_INFO( " REGTEST: param Method " << m_method );
-  ATH_MSG_INFO( " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr );
-  ATH_MSG_INFO( " REGTEST: param ApplyIDon0p " << m_applyIDon0p );
-  ATH_MSG_INFO( " REGTEST: ------ ");
+  ATH_MSG_INFO( "TrigEFTauMVHypoTool will cut on ");
+  ATH_MSG_INFO( "param NTrackMin " << m_numTrackMin );
+  ATH_MSG_INFO( "param NTrackMax " << m_numTrackMax );
+  ATH_MSG_INFO( "param NWideTrackMax " << m_numWideTrackMax );
+  ATH_MSG_INFO( "param EtCalib " << m_EtCalibMin );
+  ATH_MSG_INFO( "param Level " << m_level );
+  ATH_MSG_INFO( "param Method " << m_method );
+  ATH_MSG_INFO( "param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr );
+  ATH_MSG_INFO( "------ ");
 
   if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
   {
@@ -64,8 +62,6 @@ StatusCode TrigEFTauMVHypoTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO( "Initialization of EFTauMVHypo completed successfully." );
-
   return StatusCode::SUCCESS;
 }
 
@@ -73,7 +69,7 @@ StatusCode TrigEFTauMVHypoTool::initialize()
 bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input ) const
 {
 
-  ATH_MSG_DEBUG("REGTEST:"<< name() << ": in execute()" );
+  ATH_MSG_DEBUG(name() << ": in execute()" );
   // general reset
   bool pass=false;
 
@@ -123,20 +119,16 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
 
-    ATH_MSG_DEBUG( " REGTEST: Et Calib "<<EFet );
+    ATH_MSG_DEBUG( "Et Calib "<<EFet );
 
     PassedCuts++;
     ptAccepted = EFet;
 
-    int numTrack     = -100;
-    int numWideTrack = -100;
-
-    numTrack = Tau->nTracks();
-    numWideTrack = Tau->nTracksIsolation();
-
+    int numTrack = Tau->nTracks();
+    int numWideTrack = Tau->nTracksIsolation();
     
-    ATH_MSG_DEBUG( " REGTEST: Track size "<<numTrack );	
-    ATH_MSG_DEBUG( " REGTEST: Wide Track size "<<numWideTrack );
+    ATH_MSG_DEBUG( "Track size "<<numTrack );	
+    ATH_MSG_DEBUG( "Wide Track size "<<numWideTrack );
 
     // turn off track selection at highpt
     bool applyTrkSel(true);
@@ -144,10 +136,14 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     if(m_highpt && (EFet > m_highpttrkthr*1e-3) ) applyTrkSel = false;
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) applyMaxTrkSel = false;
 
-    if(applyMaxTrkSel && !m_acceptAll) if( !(numTrack <= m_numTrackMax) ) continue;
-    if(applyTrkSel && !m_acceptAll)    if( !(numTrack >= m_numTrackMin) ) continue;
-    if(applyTrkSel && !m_acceptAll)    if( !(numWideTrack <= m_numWideTrackMax)  ) continue;
-   
+    if(applyMaxTrkSel && !m_acceptAll) {
+      if( !(numTrack <= m_numTrackMax) ) continue;
+    }
+    if(applyTrkSel && !m_acceptAll) {
+      if( !(numTrack >= m_numTrackMin) ) continue;
+      if( !(numWideTrack <= m_numWideTrackMax)  ) continue;
+    }
+
     PassedCuts++;
     nTrackAccepted = numTrack;
     nWideTrackAccepted = numWideTrack;  
@@ -156,9 +152,8 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     //loosen and turn off ID cut at highpt
     if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; 
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
-    if(!m_applyIDon0p && numTrack==0) local_level = -1111;
 
-    ATH_MSG_DEBUG( " REGTEST: Local level " << local_level );
+    ATH_MSG_DEBUG( "Local level " << local_level );
  
     //No tau ID
     if(m_method == 0)
@@ -182,7 +177,7 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
       if(!Tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans))
       ATH_MSG_WARNING( "RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run for RNN!" );
     
-      ATH_MSG_DEBUG( "REGTEST: RNNJetScoreSigTrans "<< Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) );
+      ATH_MSG_DEBUG( "RNNJetScoreSigTrans "<< Tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) );
     
       if(local_level == -1111)
       {  //noCut, accept this TE
@@ -224,33 +219,25 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
     
     pass=true;
     
-    ATH_MSG_DEBUG( " REGTEST: pass taurec is "<<pass);
+    ATH_MSG_DEBUG( "pass hypo tool: "<<pass);
     
   } // end of loop in tau objects.
   
-  if(pass)
-  {
-    ATH_MSG_DEBUG( " REGTEST: TE accepted !! ");
-    // activate Trigger Element.
-  }
-  else
-  {
-    ATH_MSG_DEBUG( " REGTEST: No good tau found !! TE rejected ");
-  }
   
   return pass;
   
 }
 
-StatusCode TrigEFTauMVHypoTool::decide(  std::vector<TauJetInfo>& input )  const {
+StatusCode TrigEFTauMVHypoTool::decide( std::vector<TauJetInfo>& input )  const {
 
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-   addDecisionID( m_decisionId, i.decision );
+	addDecisionID( m_decisionId, i.decision );
       }
     }
   }
+
   return StatusCode::SUCCESS;
 }
 

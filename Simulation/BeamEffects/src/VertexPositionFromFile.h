@@ -67,7 +67,6 @@ namespace Simulation {
       /** run and event number overrides according to file
           (to be used optionally in combination with 'set vertex by file') */
       Gaudi::Property<std::string>                     m_runEventNumbersFile{this, "RunAndEventNumbersFile", ""};       //!< Name of file containing event info overrides for pos overrides
-      mutable unsigned int            m_runEventNumbersIndex{0};      //!< current index in EventNum/RunNum vectors
       std::vector<int>                m_vertexPositionRunNum{};      //!< run number override vector
       std::vector<int>                m_vertexPositionEventNum{};    //!< event number override vector
       SG::ReadHandleKey<xAOD::EventInfo>    m_eventInfoKey{this, "EventInfoKey", "EventInfo"};              //!< Name of the EventInfo object in StoreGate

@@ -122,7 +122,6 @@ namespace Simulation
       ATH_MSG_ERROR("Could not open vertex positioning run/event number file: "<< m_runEventNumbersFile);
       return StatusCode::FAILURE;
     }
-    m_runEventNumbersIndex=0;
     ATH_MSG_VERBOSE("Opened vertex positioning run/event number file: " << m_runEventNumbersFile);
     //svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=167776, evt_nbr=22, time_stamp=1299948350, lbk_nbr=130, nevts=1)
     int verun(0);     // run number
@@ -164,10 +163,12 @@ namespace Simulation
     unsigned int runNumber(0), eventNumber(0);
     // override the run/event number from file
     if (!m_runEventNumbersFile.empty()) {
-      ATH_MSG_DEBUG("Retrieving event info from event file, position " << m_runEventNumbersIndex);
-      runNumber   = m_vertexPositionRunNum[m_runEventNumbersIndex];
-      eventNumber = m_vertexPositionEventNum[m_runEventNumbersIndex];
-      ++m_runEventNumbersIndex; //FIXME Need to find a way of not needing to make this mutable!!
+      // This works because we iterate over the file exactly once
+      static std::atomic<size_t> runEventNumbersIndex(0);
+      ATH_MSG_DEBUG("Retrieving event info from event file, position " << runEventNumbersIndex);
+      runNumber   = m_vertexPositionRunNum[runEventNumbersIndex];
+      eventNumber = m_vertexPositionEventNum[runEventNumbersIndex];
+      ++runEventNumbersIndex;
     }
     // use run/event numbers from EventInfo class in storegate
     else {
