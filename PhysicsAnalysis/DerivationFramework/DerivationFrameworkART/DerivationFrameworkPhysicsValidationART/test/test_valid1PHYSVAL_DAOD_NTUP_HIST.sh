@@ -69,7 +69,7 @@ case $ArtProcess in
                  
 	VALIDFLAGS="doExample,doMET,doEgamma,doInDet,doTau,doJet,doBtag,doMuon,doZee,doTopoCluster,doPFlow_FlowElements"
 
-	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile DAOD_PHYSVAL.part1.pool.root
+	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile part1.pool.root
 	echo  "art-result: $? daod_part1"
 
 	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part1.pool.root --outputNTUP_PHYSVALFile NTUP_PHYSVAL.part1.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
@@ -77,13 +77,13 @@ case $ArtProcess in
 	
         if [ -f ../DAOD_PHYSVAL.part1.*.pool.root ]
         then
-                echo "DAOD found in top directory, removing $(pwd)/DAOD_PHYSVAL part_1"
+                echo "DAOD found in top directory, removing $(pwd)/DAOD_PHYSVAL.part_1"
 		ls -lR
 		rm -f DAOD_PHYSVAL.part1.pool.root
 		echo "Removed DAOD part 1"
 		ls -lR
         else
-                echo "DAOD not found, moving the $(pwd)/DAOD_PHYSVAL part_1 file to top directory"
+                echo "DAOD not found, moving the $(pwd)/DAOD_PHYSVAL.part_1 file to top directory"
 		ls -lR
                 mv ./DAOD_PHYSVAL.part1.pool.root ../DAOD_PHYSVAL.part1.${ArtProcess}.pool.root
 		echo "Moved DAOD part 1"
@@ -91,7 +91,7 @@ case $ArtProcess in
         fi
 
 
-	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile DAOD_PHYSVAL.part2.pool.root --skipEvents 5000
+	Reco_tf.py --inputAODFile=$x --maxEvents=5000 --reductionConf PHYSVAL --preExec "$DAOD_PE" --outputDAODFile part2.pool.root --skipEvents 5000
 	echo  "art-result: $? daod_part2"
 	
 	Reco_tf.py $NTUP_ARGS --inputAODFile=./DAOD_PHYSVAL.part2.pool.root --outputNTUP_PHYSVALFile NTUP_PHYSVAL.part2.root --preExec "$NTUP_PE" --valid=True --validationFlags $VALIDFLAGS
