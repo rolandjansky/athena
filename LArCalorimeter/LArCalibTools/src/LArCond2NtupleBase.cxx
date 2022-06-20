@@ -287,7 +287,7 @@ StatusCode LArCond2NtupleBase::initialize() {
 
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
- ATH_MSG_DEBUG("Starting fillFromIdentifier");
+ ATH_MSG_VERBOSE("Starting fillFromIdentifier");
  const LArBadChannelCont *bcCont = nullptr;
  if ( m_addBC ) {
    SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};

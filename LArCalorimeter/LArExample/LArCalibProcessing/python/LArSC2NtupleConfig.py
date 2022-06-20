@@ -17,6 +17,12 @@ def LArSC2NtupleCfg(flags, **kwargs):
        cfg.merge(LArCalibIdMappingSCCfg(flags))
        cfg.merge(LArLATOMEMappingCfg(flags))
 
+       if flags.LArSCDump.doRawChan:
+          from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
+          cfg.merge(LArRawDataReadingCfg(flags))
+          from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
+          cfg.merge(LArOnOffIdMappingCfg(flags))
+          
        alg=CompFactory.LArSC2Ntuple('LArSC2Ntuple',**kwargs)
        # if debug is needed, uncomment:
        #from AthenaCommon.Constants import DEBUG

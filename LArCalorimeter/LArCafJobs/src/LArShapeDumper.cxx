@@ -301,7 +301,11 @@ StatusCode LArShapeDumper::execute()
   
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
-    ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
+    if (evtStore()->contains<LArOFIterResultsContainer> ("LArOFIterResult")) {
+       ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
+    } else {
+       ATH_MSG_WARNING("Do not have LArOFIterResult in this event");
+    }
   }
 
   const LArFebErrorSummary* larFebErrorSummary = 0;
@@ -338,15 +342,15 @@ StatusCode LArShapeDumper::execute()
   }
 
   std::map<HWIdentifier, LArOFIterResultsContainer::const_iterator> ofcResultPosition;
-  if (m_doOFCIter) 
+  if (m_doOFCIter && ofIterResult) { 
     for (LArOFIterResultsContainer::const_iterator ofResult = ofIterResult->begin();
          ofResult != ofIterResult->end(); ++ofResult) 
       ofcResultPosition[ofResult->getChannelID()] = ofResult;
   
-  ATH_MSG_INFO ( "njpbSizes : " << larDigitContainer->size()
+    ATH_MSG_INFO ( "njpbSizes : " << larDigitContainer->size()
                  << " " << (ofIterResult ? ofIterResult->size() : 0) << " " 
                  << rawChannelContainer->size() << " " << channelsToKeep.size() );
-
+  }
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
   const CaloNoise* noiseCDO=*noiseHdl;
   
