@@ -100,8 +100,8 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 if not hasattr(runArgs,"conditionsTag") or runArgs.conditionsTag=="CURRENT":
     printfunc ("Resolving 'CURRENT' express conditions tag ...")
-    sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-    from AtlCoolBKLib import resolveAlias
+    sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/')
+    from CondUtilsLib.AtlCoolBKLib import resolveAlias
     resolver=resolveAlias()
     currentGlobalES=resolver.getCurrentES().replace("*","ST")
     printfunc ("Found ",currentGlobalES)
