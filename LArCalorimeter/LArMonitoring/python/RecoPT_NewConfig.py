@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def LArMonitoringConfig(ConfigFlags,CONFIG,STREAM):
+def LArMonitoringConfig(ConfigFlags,CONFIG,STREAM,RunType=1):
     
     acc=ComponentAccumulator()
     
@@ -57,8 +57,27 @@ def LArMonitoringConfig(ConfigFlags,CONFIG,STREAM):
 
         if 'Main' == STREAM or 'express' == STREAM or 'L1Topo' == STREAM or 'HardProbes' == STREAM or 'MinBias' == STREAM or 'NONE' == STREAM:
 
-           # include collision time, 
            # and cluster collision time, but need to run the clustering
+           from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
+           acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
+           from LArCellRec.LArCellBuilderConfig import LArCellBuilderCfg,LArCellCorrectorCfg
+           larCellBuilder     = acc.popToolsAndMerge(LArCellBuilderCfg(ConfigFlags))
+           larCellCorrectors  = acc.popToolsAndMerge(LArCellCorrectorCfg(ConfigFlags))
+           cellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
+           cellMakerTools=[larCellBuilder,cellFinalizer]+larCellCorrectors
+           cellAlgo=CompFactory.CaloCellMaker(CaloCellMakerToolNames=cellMakerTools,
+                                        CaloCellsOutputName="AllCalo")
+           acc.addEventAlgo(cellAlgo,primary=True)
+
+           from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
+           acc.merge(CaloTopoClusterCfg(ConfigFlags,clustersname="CaloTopoClusters"))
+           egammaTopoClusterCopier = CompFactory.egammaTopoClusterCopier(
+                                                 name='egammaLArCopier',InputTopoCollection="CaloTopoClusters",
+                                                 OutputTopoCollection="egammaClusters",
+                                                 OutputTopoCollectionShallow="tmp_egammaClusters",
+                                                 )
+           acc.addEventAlgo(egammaTopoClusterCopier)
+           # include collision time, 
            from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfig
            acc.merge(LArCollisionTimeMonConfig(ConfigFlags))
 
@@ -89,8 +108,9 @@ def LArMonitoringConfig(ConfigFlags,CONFIG,STREAM):
         from LArMonitoring.LArFEBMonAlg import LArFEBMonConfig
         acc.merge(LArFEBMonConfig(ConfigFlags))
 
-        from LArMonitoring.LArRODMonAlg import LArRODMonConfig
-        acc.merge(LArRODMonConfig(ConfigFlags))
+        if RunType != 0:
+           from LArMonitoring.LArRODMonAlg import LArRODMonConfig
+           acc.merge(LArRODMonConfig(ConfigFlags))
 
         return acc
 
@@ -116,5 +136,33 @@ def LArMonitoringConfig(ConfigFlags,CONFIG,STREAM):
 
         from CaloMonitoring.LArCellMonAlg import LArCellMonConfig
         acc.merge(LArCellMonConfig(ConfigFlags))
+
+        # and clustering
+        from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
+        acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
+        from LArCellRec.LArCellBuilderConfig import LArCellBuilderCfg,LArCellCorrectorCfg
+        larCellBuilder     = acc.popToolsAndMerge(LArCellBuilderCfg(ConfigFlags))
+        larCellCorrectors  = acc.popToolsAndMerge(LArCellCorrectorCfg(ConfigFlags))
+        cellFinalizer  = CompFactory.CaloCellContainerFinalizerTool()
+        cellMakerTools=[larCellBuilder,cellFinalizer]+larCellCorrectors
+        cellAlgo=CompFactory.CaloCellMaker(CaloCellMakerToolNames=cellMakerTools,
+                                     CaloCellsOutputName="AllCalo")
+        acc.addEventAlgo(cellAlgo,primary=True)
+
+        from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
+        acc.merge(CaloTopoClusterCfg(ConfigFlags,clustersname="CaloTopoClusters"))
+        egammaTopoClusterCopier = CompFactory.egammaTopoClusterCopier(
+                                              name='egammaLArCopier',InputTopoCollection="CaloTopoClusters",
+                                              OutputTopoCollection="egammaClusters",
+                                              OutputTopoCollectionShallow="tmp_egammaClusters",
+                                              )
+        acc.addEventAlgo(egammaTopoClusterCopier)
+        # include clusters monitoring 
+        from JetInputsMonitoring.ClusterMonitorAlgorithm import ClusterMonitoringConfig
+        acc.merge(ClusterMonitoringConfig(ConfigFlags))
+        from AthenaCommon.CFElements import findAlgorithm
+        mons=acc.getSequence("AthMonSeq_ClusterAthMonitorCfg")
+        a=findAlgorithm(mons,"ClusterMonAlg")
+        a.CaloTopoClusterContainer="CaloTopoClusters"
 
         return acc

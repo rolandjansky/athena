@@ -56,12 +56,13 @@ if __name__=='__main__':
       sys.exit(1)
    
    ### ATLAS partition: Read Global Run Parameters to configure the jobs
+   from AthenaConfiguration.Enums import BeamType
    if partition == "ATLAS":
        try:
            y = ISObject(p, 'RunParams.SOR_RunParams', 'RunParams')
        except:
            print("Could not find Run Parameters in IS - Set default beam type to 'cosmics'")
-           BeamType='cosmics'
+           beamType=BeamType.Cosmics
        else:
            y.checkout()
            beamtype = y.beam_type
@@ -71,13 +72,13 @@ if __name__=='__main__':
            print("RUN CONFIGURATION: beam type %i, beam energy %i, run number %i, project tag %s"%(beamtype,beamenergy,runnumber,project))    
            # define beam type based on project tag name
            if project[7:10]=="cos":
-               BeamType='cosmics'
+               beamType=BeamType.Cosmics
            else:
-               BeamType='collisions'
+               beamType=BeamType.Collisions
                
    ### LAr TEST partition
    else:
-       BeamType='collisions'
+       beamType=BeamType.Collisions
    
    ### Read LAr Parameters
    try:
@@ -88,6 +89,15 @@ if __name__=='__main__':
       FirstSample = 3
       NSamples = 4
       LArFormat = 1
+      RunType = 2
+      runnumber = 423433
+      #for splash test
+      #ReadDigits = True
+      #FirstSample = 6
+      #NSamples = 32
+      #LArFormat = 0
+      #RunType = 0
+      #runnumber = 418554
    else:
       try:
          x.checkout()
@@ -97,11 +107,21 @@ if __name__=='__main__':
          FirstSample = 3
          NSamples = 4
          LArFormat = 1
+         RunType = 2
+         runnumber = 423433
+         #for splash test
+         #ReadDigits = True
+         #FirstSample = 6
+         #NSamples = 32
+         #LArFormat = 0
+         #RunType = 0
+         #runnumber = 418554
       else:
          RunType = x.runType
          LArFormat = x.format
          FirstSample = x.firstSample
          NSamples = x.nbOfSamples   
+         RunType = x.runType
          print("RUN CONFIGURATION: format %i,run type %i"%(RunType,LArFormat))
          # Decide how to get cell energy: DSP or digits
          if LArFormat==0:
@@ -118,7 +138,7 @@ if __name__=='__main__':
    allSteeringFlagsOff()
 
    ### Set Beam Type
-   ConfigFlags.Beam.Type=BeamType 
+   ConfigFlags.Beam.Type=beamType 
    ConfigFlags.Beam.BunchSpacing=25
    print("RUN CONFIGURATION: Beamtype =",ConfigFlags.Beam.Type)
    
@@ -129,13 +149,17 @@ if __name__=='__main__':
    ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
    ConfigFlags.IOVDb.GlobalTag="CONDBR2-ES1PA-2016-03"
 
-   ConfigFlags.GeoModel.Layout="alas"
+   ConfigFlags.GeoModel.Layout="atlas"
    ConfigFlags.GeoModel.AtlasVersion="ATLAS-R2-2015-04-00-00"
 
    ConfigFlags.Exec.MaxEvents=-1
 
    from AthenaConfiguration.AutoConfigOnlineRecoFlags import setDefaultOnlineRecoFlags
    setDefaultOnlineRecoFlags(ConfigFlags)
+   #overwrite the run number 
+   ConfigFlags.Input.RunNumber=[runnumber]
+   # overwrite LB number for playback partition if needed....
+   #ConfigFlags.Input.LumiBlockNumber=[0]
 
    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
    setupDetectorsFromList(ConfigFlags, ['LAr'], toggle_geometry=True)
@@ -144,21 +168,35 @@ if __name__=='__main__':
    ConfigFlags.Trigger.doMuon=False
    ConfigFlags.Trigger.L1.doMuon=False
    ConfigFlags.Trigger.L1.doTopo=False
-   ConfigFlags.Trigger.triggerConfig='COOL'
+   ConfigFlags.Trigger.doHLT=True
+   ConfigFlags.Trigger.Online.isPartition=True
+   ConfigFlags.Trigger.triggerConfig='DB'
+   ConfigFlags.Trigger.triggerMenuSetup='Cosmic_run3_v1'
 
    ConfigFlags.DQ.doMonitoring=True
    ConfigFlags.DQ.disableAtlasReadyFilter=True
-   ConfigFlags.DQ.enableLumiAccess=False
    ConfigFlags.DQ.useTrigger=True
    ConfigFlags.DQ.FileKey=''
    
    ConfigFlags.LAr.doAlign=False
    ConfigFlags.LAr.doHVCorr=False
 
-   if 'CaloMon' in CONFIG: # needs Lumi access
-      ConfigFlags.DQ.enableLumiAccess=True
+   ConfigFlags.Calo.TopoCluster.doTopoClusterLocalCalib=False
+
+   def __monflags():
+      from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
+      return createLArMonConfigFlags()
+
+   ConfigFlags.addFlagsCategory("LArMon", __monflags)
+
+   if STREAM=="CosmicCalo":
+      ConfigFlags.LArMon.doLArRawMonitorSignal=True
+
+   ConfigFlags.DQ.enableLumiAccess=False
 
    ConfigFlags.lock()
+
+   ConfigFlags.dump()
 
    # taken from future EmonByteStreamConfig
    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -331,20 +369,48 @@ if __name__=='__main__':
 
    acc.merge(SGInputLoaderCfg(ConfigFlags, FailIfNoProxy=True))
 
-   from RecoPT_NewConfig import LArMonitoringConfig
+   # trial to setup trigger properly
+   #from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+   #acc.merge(L1ConfigSvcCfg(ConfigFlags))
+
+   from LArMonitoring.RecoPT_NewConfig import LArMonitoringConfig
    print('CONFIG ',CONFIG)
    print('STREAM ',STREAM)
-   acc.merge(LArMonitoringConfig(ConfigFlags,CONFIG,STREAM))
+   acc.merge(LArMonitoringConfig(ConfigFlags,CONFIG,STREAM,RunType))
    
+   # fixes for splashes
+   if RunType == 0:
+      acc.getEventAlgo("LArRawDataReadingAlg").LArRawChannelKey="" 
+
+   #example for blocking the folder not filled during cosmics
+   #cil=acc.getCondAlgo('CondInputLoader')
+   #iovdbsvc=acc.getService('IOVDbSvc') 
+   #folder='/TRIGGER/LUMI/LBLB'
+   #for i in range(0,len(iovdbsvc.Folders)):
+   #         if (iovdbsvc.Folders[i].find(folder)>=0):
+   #             del iovdbsvc.Folders[i]
+   #             break
+   #for i in range(0, len(cil.Load)):
+   #         if (cil.Load[i][-1] == folder):
+   #             del cil.Load[i]
+   #             break
+
+
    # somehow needs to add postprocessing
+   from AthenaCommon.Constants import WARNING,DEBUG
    from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
    ppa = DQPostProcessingAlg("DQPostProcessingAlg")
    ppa.ExtraInputs = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-   ppa.Interval = 100
+   ppa.Interval = 200
+   ppa.OutputLevel = WARNING
    if ConfigFlags.Common.isOnline:
       ppa.FileKey = ((ConfigFlags.DQ.FileKey + '/') if not ConfigFlags.DQ.FileKey.endswith('/') 
                      else ConfigFlags.DQ.FileKey) 
 
    acc.addEventAlgo(ppa, sequenceName='AthEndSeq')
+
+   # example how to dump the store:
+   #acc.getService("StoreGateSvc").Dump=True
+   #acc.getService("StoreGateSvc").OutputLevel=DEBUG
 
    acc.run()
