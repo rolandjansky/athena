@@ -47,7 +47,6 @@ if "__main__" == __name__:
   ConfigFlags.Detector.GeometryTRT   = True
   ConfigFlags.Acts.TrackingGeometry.MaterialSource = "material-maps.json"
   # ConfigFlags.Acts.TrackingGeometry.MaterialSource = "/eos/project-a/acts/public/MaterialMaps/ATLAS/material-maps.json"
-  ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors = True
 
   ConfigFlags.Concurrency.NumThreads = 10
   ConfigFlags.Concurrency.NumConcurrentEvents = 10

@@ -9,7 +9,6 @@ def createActsConfigFlags():
     
     # Geometry Flags
     actscf.addFlag('Acts.TrackingGeometry.MaterialSource', 'None') # Input, a path to a JSON file or None
-    actscf.addFlag('Acts.TrackingGeometry.buildAllAvailableSubDetectors', False) # Build SCT, TRT and Calo if they are available
 
     # Track Finding Flags - TO BE ADDED
     actscf.addFlag('Acts.TrackFinding.useSiSpacePointSeedMaker', False)
