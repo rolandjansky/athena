@@ -56,11 +56,11 @@ def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
 
-    from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg, TgcDigitTimeOffsetCondAlgCfg
-    acc.merge(TgcDigitASDposCondAlgCfg(flags))
+    from MuonConfig.MuonCondAlgConfig import TgcDigitCondAlgCfg
+    acc.merge(TgcDigitCondAlgCfg(flags))
     kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
-    acc.merge(TgcDigitTimeOffsetCondAlgCfg(flags))
     kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
+    kwargs.setdefault("TGCDigitCrosstalkKey", "TGCDigitCrosstalkData")
 
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
@@ -77,11 +77,11 @@ def TGC_OverlayDigitizationToolCfg(flags, name="Tgc_OverlayDigitizationTool", **
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TGC_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TGC_SDO")
 
-    from MuonConfig.MuonCondAlgConfig import TgcDigitASDposCondAlgCfg, TgcDigitTimeOffsetCondAlgCfg
-    acc.merge(TgcDigitASDposCondAlgCfg(flags))
+    from MuonConfig.MuonCondAlgConfig import TgcDigitCondAlgCfg
+    acc.merge(TgcDigitCondAlgCfg(flags))
     kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
-    acc.merge(TgcDigitTimeOffsetCondAlgCfg(flags))
     kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
+    kwargs.setdefault("TGCDigitCrosstalkKey", "TGCDigitCrosstalkData")
 
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
