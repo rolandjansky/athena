@@ -30,9 +30,6 @@ namespace InDet {
    private:
       ToolHandle <IDetectorElementStatusTool> m_condSummaryTool
          {this, "ConditionsSummaryTool", "", "Tool to retrieve e.g. Pixel or SCT Conditions summary"};
-      SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_readKey
-         {this, "ReadKey", "", "Optional key of an input SiDetectorElementStatus to be anded with the summary information from the tool "};
-
       SG::WriteCondHandleKey<InDet::SiDetectorElementStatus> m_writeKey
          {this, "WriteKey", "", "Key of output SiDetectorElementStatus data"};
       Gaudi::Property< bool> m_activeOnly
