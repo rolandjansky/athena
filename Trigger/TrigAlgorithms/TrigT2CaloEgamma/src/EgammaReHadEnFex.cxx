@@ -56,9 +56,9 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
       double energyCell = larcell->energy();
 
       // find position of current cell w.r.t. seed
-      deta = fabs(etaCell - energyEta);
-      dphi = fabs(phiCell - energyPhi);
-      if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+      deta = std::abs(etaCell - energyEta);
+      dphi = std::abs(phiCell - energyPhi);
+      if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
       // hadronic measurements: energy sum in 0.1*0.1
       if (deta <= 0.12 && dphi <= 0.12) {
         // samp = CaloSampling::getSampling(*larcell);
@@ -73,18 +73,6 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     } // end of loop over cells
 
   } // End sampling loop
-#if 0 // Can't call EtaPhiRange from a const method!
-  if (msgLvl(MSG::DEBUG)) {
-    for (int sampling = 0; sampling < 3; sampling++) {
-      if (m_geometryTool->EtaPhiRange(1, sampling, energyEta, energyPhi)) {
-        ATH_MSG_ERROR("problems with EtaPhiRange");
-      }
-    }
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC0), 1, 0, CaloSampling::HEC0, CaloSampling::HEC0);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC1), 1, 1, CaloSampling::HEC1, CaloSampling::HEC1);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::HEC2), 1, 2, CaloSampling::HEC2, CaloSampling::HEC2);
-  }
-#endif
 
   // Next TILECAL
 
@@ -99,9 +87,9 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     double energyCell = tilecell->energy();
 
     // find position of current cell w.r.t. seed
-    deta = fabs(etaCell - energyEta);
-    dphi = fabs(phiCell - energyPhi);
-    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+    deta = std::abs(etaCell - energyEta);
+    dphi = std::abs(phiCell - energyPhi);
+    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
     // hadronic measurements: energy sum in 0.1*0.1
     if (deta <= 0.12 && dphi <= 0.12) {
       // samp = CaloSampling::getSampling(*tilecell);
@@ -117,17 +105,6 @@ StatusCode EgammaReHadEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   } // end of loop over cells
 
   rtrigEmCluster.setNCells(ncells + rtrigEmCluster.nCells());
-
-#ifndef NDEBUG
-  if (msgLvl(MSG::DEBUG)) {
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar0) + rtrigEmCluster.energy(CaloSampling::TileExt0),
-                 1, 0, CaloSampling::TileBar0, CaloSampling::TileExt0);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar1) + rtrigEmCluster.energy(CaloSampling::TileExt1),
-                 1, 1, CaloSampling::TileBar1, CaloSampling::TileExt1);
-    PrintCluster(rtrigEmCluster.energy(CaloSampling::TileBar2) + rtrigEmCluster.energy(CaloSampling::TileExt2),
-                 1, 2, CaloSampling::TileBar2, CaloSampling::TileExt2);
-  }
-#endif
 
   return StatusCode::SUCCESS;
 }
