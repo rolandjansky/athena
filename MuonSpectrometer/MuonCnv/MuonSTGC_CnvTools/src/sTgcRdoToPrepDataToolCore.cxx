@@ -120,8 +120,6 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
         // to be fixed: for now do not set the resolution, it will be added in the next update    
         const int     gasGap = m_idHelperSvc->stgcIdHelper().gasGap(rdoId);
         const int    channel = m_idHelperSvc->stgcIdHelper().channel(rdoId);
-        //const int     charge = (int) rdo->charge();
-        //const int    rdoTime = (int) rdo->time();
         const uint16_t bcTag = rdo->bcTag();
 
         NSWCalib::CalibratedStrip calibStrip;

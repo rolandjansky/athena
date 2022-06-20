@@ -136,7 +136,7 @@ def StgcRdoToPrepDataToolCfg(flags, name="StgcRdoToPrepDataTool", **kwargs):
     kwargs.setdefault("ClusterBuilderTool",result.popToolsAndMerge(SimpleSTgcClusterBuilderToolCfg(flags)))
     from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
     kwargs.setdefault("NSWCalibTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))    
-    the_tool = CompFactory.Muon.StgcRdoToPrepDataToolMT(name, **kwargs)
+    the_tool = CompFactory.Muon.sTgcRdoToPrepDataToolMT(name, **kwargs)
     result.setPrivateTools(the_tool)
     return result
 
