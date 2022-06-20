@@ -7,7 +7,6 @@
 #include "TrigHTTObjects/HTTDataFlowInfo.h"
 #include "TrigHTTObjects/HTTRoad.h"
 #include "TrigHTTObjects/HTTTrack.h"
-#include "TrigHTTObjects/HTTEventInputHeader.h"
 #include "TrigHTTObjects/HTTLogicalEventOutputHeader.h"
 #include "TrigHTTObjects/HTTLogicalEventInputHeader.h"
 
@@ -87,7 +86,6 @@ StatusCode HTTLogicalHitsProcessAlg::initialize()
     ATH_CHECK(m_evtSel.retrieve());
 
     ATH_MSG_DEBUG("initialize() Instantiating root objects");
-    m_eventHeader            = new HTTEventInputHeader();
     m_logicEventHeader_1st   = m_writeOutputTool->getLogicalEventInputHeader_1st();
     m_logicEventOutputHeader = m_writeOutputTool->getLogicalEventOutputHeader();
     if (m_runSecondStage) m_logicEventHeader_2nd = m_writeOutputTool->getLogicalEventInputHeader_2nd();
@@ -130,7 +128,7 @@ StatusCode HTTLogicalHitsProcessAlg::execute()
     }
 
     // Apply truth track cuts
-    if (!m_evtSel->selectEvent(m_eventHeader))
+    if (!m_evtSel->selectEvent(&m_eventHeader))
     {
         ATH_MSG_DEBUG("Event skipped by HTTEventSelectionSvc");
         return StatusCode::SUCCESS;
@@ -304,7 +302,7 @@ StatusCode HTTLogicalHitsProcessAlg::execute()
     }
 
     // Reset data pointers
-    m_eventHeader->reset();
+    m_eventHeader.reset();
     m_logicEventHeader_1st->reset();
     m_logicEventOutputHeader->reset();
     if (m_runSecondStage) m_logicEventHeader_2nd->reset();
@@ -321,12 +319,10 @@ StatusCode HTTLogicalHitsProcessAlg::execute()
 
 StatusCode HTTLogicalHitsProcessAlg::readInputs(bool & done)
 {
-    static HTTEventInputHeader h_first;
-
     if (m_ev % m_firstInputToolN == 0)
     {
         // Read primary input
-        ATH_CHECK(m_hitInputTool->readData(&h_first, done));
+        ATH_CHECK(m_hitInputTool->readData(&m_firstInputHeader, done));
         if (done)
         {
             ATH_MSG_INFO("Cannot read more events from file, returning");
@@ -334,12 +330,12 @@ StatusCode HTTLogicalHitsProcessAlg::readInputs(bool & done)
         }
     }
 
-    *m_eventHeader = h_first;
+    m_eventHeader = m_firstInputHeader;
 
     // Read secondary input
     for (int i = 0; i < m_secondInputToolN; i++)
     {
-        ATH_CHECK(m_hitInputTool2->readData(m_eventHeader, done, false));
+        ATH_CHECK(m_hitInputTool2->readData(&m_eventHeader, done, false));
         if (done)
         {
             ATH_MSG_INFO("Cannot read more events from file, returning");
@@ -362,8 +358,8 @@ StatusCode HTTLogicalHitsProcessAlg::processInputs()
 
     // Map hits
     m_logicEventHeader_1st->reset();
-    ATH_CHECK(m_hitMapTool->convert(1, *m_eventHeader, *m_logicEventHeader_1st));
-    if (!m_runSecondStage) m_eventHeader->clearHits();
+    ATH_CHECK(m_hitMapTool->convert(1, m_eventHeader, *m_logicEventHeader_1st));
+    if (!m_runSecondStage) m_eventHeader.clearHits();
 
     // Random removal of hits
     if (m_doHitFiltering) {
@@ -406,8 +402,8 @@ StatusCode HTTLogicalHitsProcessAlg::secondStageProcessing(std::vector<HTTTrack>
 
     // Map hits
     m_logicEventHeader_2nd->reset();
-    ATH_CHECK(m_hitMapTool->convert(2, *m_eventHeader, *m_logicEventHeader_2nd));
-    m_eventHeader->clearHits();
+    ATH_CHECK(m_hitMapTool->convert(2, m_eventHeader, *m_logicEventHeader_2nd));
+    m_eventHeader.clearHits();
 
     if (m_clustering) ATH_CHECK(m_clusteringTool->DoClustering(*m_logicEventHeader_2nd, m_clusters_2nd));
 

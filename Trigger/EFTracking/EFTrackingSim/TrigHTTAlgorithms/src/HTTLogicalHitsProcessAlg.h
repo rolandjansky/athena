@@ -23,6 +23,7 @@
 #include "TrigHTTInput/HTTReadRawRandomHitsTool.h"
 #include "TrigHTTHough/HTTHoughRootOutputTool.h"
 #include "TrigHTTLRT/HTTLLPRoadFilterTool.h"
+#include "TrigHTTObjects/HTTEventInputHeader.h"
 
 #include <fstream>
 
@@ -35,7 +36,6 @@ class HTTTrackFitterTool;
 class HTTEtaPatternFilterTool;
 
 class HTTCluster;
-class HTTEventInputHeader;
 class HTTHit;
 class HTTLogicalEventInputHeader;
 class HTTLogicalEventOutputHeader;
@@ -50,9 +50,9 @@ class HTTLogicalHitsProcessAlg : public AthAlgorithm
         HTTLogicalHitsProcessAlg(const std::string& name, ISvcLocator* pSvcLocator);
 	virtual ~HTTLogicalHitsProcessAlg() = default;
 
-        StatusCode initialize() override;
-        StatusCode execute() override;
-        StatusCode finalize() override;
+        virtual StatusCode initialize() override;
+        virtual StatusCode execute() override;
+        virtual StatusCode finalize() override;
 
     private:
 
@@ -105,7 +105,8 @@ class HTTLogicalHitsProcessAlg : public AthAlgorithm
         std::ofstream m_outputHitTxtStream;
 
         // ROOT pointers 
-        HTTEventInputHeader*         m_eventHeader;
+        HTTEventInputHeader          m_eventHeader;
+        HTTEventInputHeader          m_firstInputHeader;
         HTTLogicalEventInputHeader*  m_logicEventHeader_1st;
         HTTLogicalEventInputHeader*  m_logicEventHeader_2nd;
         HTTLogicalEventOutputHeader* m_logicEventOutputHeader;

@@ -9,12 +9,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrigHTTObjects/HTTEventInputHeader.h"
 #include "TrigHTTObjects/HTTTypes.h"
 #include "TFile.h"
 #include <fstream>
 
 class IHTTEventInputHeaderTool;
-class HTTEventInputHeader;
 class HTTHit;
 
 class HTTMapMakerAlg : public AthAlgorithm
@@ -23,9 +23,9 @@ class HTTMapMakerAlg : public AthAlgorithm
         HTTMapMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
         virtual ~HTTMapMakerAlg() = default;
 
-        StatusCode initialize() override;
-        StatusCode execute() override;
-        StatusCode finalize() override;
+        virtual StatusCode initialize() override;
+        virtual StatusCode execute() override;
+        virtual StatusCode finalize() override;
 
     private:
         int m_histoPrintDetail = 0; // must be int type for gaudi
@@ -33,7 +33,7 @@ class HTTMapMakerAlg : public AthAlgorithm
         // Handles
         ToolHandle<IHTTEventInputHeaderTool>    m_hitInputTool{this, "InputTool", "HTTSGToRawHitsTool/HTTSGToRawHitsTool"};
 
-        HTTEventInputHeader*         m_eventHeader;
+        HTTEventInputHeader         m_eventHeader;
 	Gaudi::Property<std::string> m_description { this, "description", "", "tag description"};
 	Gaudi::Property<std::string> m_outFileName { this, "OutFileName", "MMAlg_slices", "naming conventsion for maps"};
 	Gaudi::Property<int> m_region { this, "region", 0, "Region"};
