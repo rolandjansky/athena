@@ -102,17 +102,6 @@ StatusCode TrigT1CTMonitoring::BSMonitoringAlgorithm::fillHistograms( const Even
 	ATH_MSG_WARNING( "Could not find TGC container in StoreGate");
 	validTGCContainer = false;
       }
-      /*
-      if (m_processMuctpiRIO && !m_runOnESD) {
-	ATH_MSG_DEBUG( "CTPMON fillHistograms() m_processMuctpiRIO");
-	theMuCTPI_RIO = SG::get(m_MuCTPI_RIOKey, ctx);
-	if (!theMuCTPI_RIO) {
-	  ATH_MSG_WARNING( "Could not find \"" << m_MuCTPI_RIOKey.key() << "\" in StoreGate");
-	  validMuCTPI_RIO = false;
-	  ++numberOfInvalidFragments;
-	}
-      }
-      */
     }
     
     if (m_processCTP) {
@@ -188,9 +177,6 @@ StatusCode TrigT1CTMonitoring::BSMonitoringAlgorithm::fillHistograms( const Even
 	}
       }
 
-      //patrick temp hack
-      validCTP_RIO = false;
-      //patrick temp hack
       if ( validCTP_RIO ) {
 	if ( !m_runOnESD && (theCTP_RIO->getDetectorEventType() & 0xffff) == 0 ) {//LB == 0 only if RIO is empty
 	  ATH_MSG_WARNING( "CTP_RIO is not valid, ignoring CTP");
@@ -895,7 +881,6 @@ TrigT1CTMonitoring::BSMonitoringAlgorithm::doCtp(const CTP_RDO* theCTP_RDO,
 						 const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "CTPMON begin doCtp()");
-
   //ERROR histos
   auto errorSummaryX = Monitored::Scalar<int>("errorSummaryX",0);
   auto errorSummaryY = Monitored::Scalar<int>("errorSummaryY",0);
