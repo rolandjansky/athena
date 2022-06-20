@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EVENTSAVERFLATNTUPLE_H_
@@ -538,10 +538,7 @@ namespace top {
                                           std::vector<float> > > m_perjet_weight_trackjet_bTagSF_named_down;
 
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
-    int m_ASMsize;
     std::vector<float> m_ASMweights;
-    std::vector<std::vector<float> > m_ASMweights_Syst;
-    std::vector<std::vector<std::string> > m_ASMweights_Systname;
 
     /// Weights for bootstrapping
     std::vector<int> m_weight_poisson;
