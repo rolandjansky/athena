@@ -111,11 +111,11 @@ const std::vector<uint32_t>& L1TopoByteStreamTool::sourceIDs() {
         continue;  // skip ROI ROBs
       }
       for (unsigned int module :
-           {0, 1}) {  // could be upgraded to 3 modules eventually?
+	     {0, 1}) {  // could be upgraded to 3 modules eventually?
         const uint32_t moduleId =
             L1Topo::ModuleID(slink, module, roiOrDaq).id();
-        eformat::helper::SourceIdentifier sourceId(eformat::TDAQ_CALO_TOPO_PROC,
-                                                   moduleId);
+        eformat::helper::SourceIdentifier sourceId(eformat::TDAQ_CALO_TOPO_PROC, moduleId);
+	
         m_sourceIDs.push_back(sourceId.code());
       }
     }

@@ -28,10 +28,5 @@ StatusCode IReAlgToolCalo::initialize()
   if (!m_dataSvc.empty()) ATH_CHECK(m_dataSvc.retrieve());
   ATH_CHECK(m_geometryTool.retrieve());
 
-  // Calibration object initialization
-  if (m_limit.size() != 0) {
-    m_calib->initialize(m_limit, m_dimension, m_correction);
-  }
-
   return StatusCode::SUCCESS;
 }

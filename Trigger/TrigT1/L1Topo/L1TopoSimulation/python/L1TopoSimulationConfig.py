@@ -47,7 +47,8 @@ def L1LegacyTopoSimulationCfg(flags):
 def L1TopoSimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    
+    from AthenaConfiguration.Enums import Format
+
     acc = ComponentAccumulator()
 
     #Configure the MuonInputProvider
@@ -87,10 +88,12 @@ def L1TopoSimulationCfg(flags):
                                                     EnergyInputProvider = energyProvider,
                                                     IsLegacyTopo = False,
                                                     EnableInputDump = flags.Trigger.enableL1TopoDump,
-                                                    UseBitwise = flags.Trigger.enableL1TopoBWSimulation
+                                                    UseBitwise = flags.Trigger.enableL1TopoBWSimulation,
+                                                    FillHistoBasedOnHardware = (flags.Input.Format is Format.BS)
                                                     )
 
     acc.addEventAlgo(topoSimAlg)
+    
     from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
     acc.addEventAlgo(TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags))
     

@@ -19,6 +19,9 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
 
+// simple function that gives the distance to the closest point in the grid
+// defined with the position of the cells (basically a snap to the shortest distance
+// tool)
 inline double proxim(double b, double a)
 {
   return b + 2. * M_PI * round((a - b) * (1. / (2. * M_PI)));
@@ -58,13 +61,14 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   // begin SRA mod: set regions via LAr way
 
   // Fix for 3x7 cluster size
-  double z_etamin = energyEta - (0.075 / 2.);
-  double z_etamax = energyEta + (0.075 / 2.);
-  double z_phimin = energyPhi - (7.0 * 0.09817477 / 4.0) / 2.0;
+  double z_etamin = energyEta - (0.075 / 2.); // 3 middle layer cells (cell size 0.025) half distance (hence /2)
+  double z_etamax = energyEta + (0.075 / 2.); // 
+  // in phi, the cluster size uses 7 cells of size {2*pi/64=(0.09817477)}/4 (middle layer cell size)
+  double z_phimin = energyPhi - (7.0 * 0.09817477 / 4.0) / 2.0; 
   double z_phimax = energyPhi + (7.0 * 0.09817477 / 4.0) / 2.0;
   // Fix for 5x5 clusters
   if (!cluster_in_barrel) {
-    z_etamin = energyEta - (0.125 / 2.);
+    z_etamin = energyEta - (0.125 / 2.); // see comments above, endcap cluster is 5x5
     z_etamax = energyEta + (0.125 / 2.);
     z_phimin = energyPhi - (5.0 * 0.09817477 / 4.0) / 2.0;
     z_phimax = energyPhi + (5.0 * 0.09817477 / 4.0) / 2.0;
@@ -86,7 +90,8 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   bool signals = false;
   if ((z_etamin < 0) && (z_etamax > 0)) signals = true;
 
-  // identify region
+  // identify region in which the detector change granularity for this layer
+  // and we have to compensate. This is documented in LAr TDR
   double etareg[6] = {-2.4, -2.0, -1.8, 1.8, 2.0, 2.4};
   double etagra[5] = {0.025 / 4, 0.025 / 6, 0.025 / 8, 0.025 / 6, 0.025 / 4};
   int imax = -9;
@@ -95,7 +100,7 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   // find the region, and check if the eta range cross region.
   for (int ir = 0; ir < 5; ir++) {
     // make sure you're not outside acceptance of 2.4
-    if (fabs(z_eta) < 2.4 && z_eta >= etareg[ir] && z_eta <= etareg[ir + 1]) {
+    if (std::abs(z_eta) < 2.4 && z_eta >= etareg[ir] && z_eta <= etareg[ir + 1]) {
       dgra = etagra[ir];
       imax = ir;
       if (z_etamin >= etareg[ir] && z_etamax <= etareg[ir + 1]) icrk = 0;
@@ -103,12 +108,10 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
   }
   const double inv_dgra = dgra != 0 ? 1. / dgra : 1;
 
-  // end SRA modification
-
   // begin SRA mod: pick the eta around which to scan
   int strip_border;
   double etanew;
-  double aeta = fabs(z_eta);
+  double aeta = std::abs(z_eta);
   if (aeta <= 1.4) {
     strip_border = (int)rint(aeta * inv_dgra);
     // this is -0.5 in atrecon: qgcshap.F ..   Makes more sense to be +0.5
@@ -170,12 +173,10 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
 
   double z_enecell[40]; // SRA
   double z_etacell[40]; // SRA
-  // double z_phicell[40];  //SRA
 
   for (int iii = 0; iii < 40; iii++) {
     z_enecell[iii] = 0.;
     z_etacell[iii] = 0.;
-    // z_phicell[iii]=0.;
   }
 
   int ncells = 0;
@@ -186,7 +187,7 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     double phiCell = larcell->phi();
     double energyCell = larcell->energy();
 
-    if (fabs(etanew) != 99.) {
+    if (std::abs(etanew) != 99.) {
 
       double eta_cell = etaCell; // SRA
       // double eta_cell = larcell->eta(); //SRA
@@ -223,7 +224,6 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
           if (ieta >= 1 && ieta <= 40) {
             z_enecell[ieta - 1] += z_e;
             z_etacell[ieta - 1] = eta_cell;
-            // z_phicell[ieta-1]  =phi_cell0 ;
           }
         } // phi range
       }   // eta range
@@ -231,9 +231,9 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     }     // endif for veto of clusters in crack outside acceptance
 
     // Find the standard em cluster energy (3*7 cell, now sampling 1)
-    double deta = fabs(etaCell - energyEta);
-    double dphi = fabs(phiCell - energyPhi);
-    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap 0 -> 6.28
+    double deta = std::abs(etaCell - energyEta);
+    double dphi = std::abs(phiCell - energyPhi);
+    if (dphi > M_PI) dphi = 2. * M_PI - dphi; // wrap (pi - 2pi)->(-pi - 0)
 
     bool condition37 = cluster_in_barrel && (deta <= 0.0375 && dphi <= 0.0875);
     bool condition55 = (!cluster_in_barrel) && (deta <= 0.0625 && dphi <= 0.0625);
@@ -353,14 +353,6 @@ StatusCode EgammaReSamp1Fex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const 
     rtrigEmCluster.setEta1(99.0);
   rtrigEmCluster.setRawEnergy(rtrigEmCluster.rawEnergy() + totalEnergy);
 
-#if 0 // Can't call EtaPhiRange from a const method!
-  if (msgLvl(MSG::DEBUG)) {
-    if (m_geometryTool->EtaPhiRange(0, 1, energyEta, energyPhi)) {
-      ATH_MSG_ERROR("problems with EtaPhiRange");
-    }
-    PrintCluster(totalEnergy, 0, 1, CaloSampling::EMB1, CaloSampling::EME1);
-  }
-#endif
 
   return StatusCode::SUCCESS;
 }
