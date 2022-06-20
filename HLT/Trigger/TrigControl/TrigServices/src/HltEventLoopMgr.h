@@ -324,8 +324,8 @@ private:
    */
   std::tuple<numt, numt, numt, numt> m_detector_mask{0xffffffff, 0xffffffff, 0, 0};
 
-  /// "Event" context of current run (invalid event/slot)
-  EventContext m_currentRunCtx;
+  /// "Event" context of current run with dummy event/slot number
+  EventContext m_currentRunCtx{0,0};
   /// Event counter used for local bookkeeping; incremental per instance of HltEventLoopMgr, unrelated to global_id
   std::atomic<size_t> m_localEventNumber{0};
   /// Event selector context

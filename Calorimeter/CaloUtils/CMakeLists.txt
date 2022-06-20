@@ -53,7 +53,7 @@ atlas_add_test( CaloTowerStore_test
 atlas_add_test( CaloTowerBuilderTool_test
    SCRIPT athena.py CaloUtils/CaloTowerBuilderTool_test.py
    LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|MetaReader|AutoConfiguration|IOVDbSvc +INFO|INFO Initializing"
-   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-18"
+   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-19"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( ToolWithConstants_test

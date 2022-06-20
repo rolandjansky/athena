@@ -113,7 +113,7 @@ def setupCommonServices(flags):
 
 
 def setupCommonServicesEnd():
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr    
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr, athCondSeq
     from AthenaCommon.Logging import logging
     from AthenaCommon.AlgSequence import AlgSequence
 
@@ -167,5 +167,8 @@ def setupCommonServicesEnd():
         svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)
         svcMgr.IOVDbSvc.CacheRun = 0
         svcMgr.IOVDbSvc.CacheTime = 0
+
+    if hasattr(athCondSeq, 'AtlasFieldMapCondAlg'):
+        athCondSeq.AtlasFieldMapCondAlg.LoadMapOnStart = True
 
     return
