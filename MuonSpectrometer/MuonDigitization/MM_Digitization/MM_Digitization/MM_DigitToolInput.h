@@ -39,8 +39,7 @@ class MM_DigitToolInput {
   { }
 
 
-  ~MM_DigitToolInput() {}
-
+  ~MM_DigitToolInput() = default;
       int    stripIDLocal()        const { return m_stripIDLocal; }
       double positionWithinStrip() const { return m_xpos; }
       double incomingAngleXZ()       const { return m_incomingAngleXZ; }
@@ -53,16 +52,16 @@ class MM_DigitToolInput {
       float  eventTime()           const { return m_eventTime; }
 
  private:
-      int    m_stripIDLocal;
-      double m_xpos;
-      double m_incomingAngleXZ;
-      double m_incomingAngleYZ;
-      Amg::Vector3D m_magneticField;
-      int    m_stripMinId;
-      int    m_stripMaxId;
-      int    m_gasgap;
-      Identifier m_hitID;
-      float m_eventTime;
+      int    m_stripIDLocal{0};
+      double m_xpos{0.};
+      double m_incomingAngleXZ{0.};
+      double m_incomingAngleYZ{0.};
+      Amg::Vector3D m_magneticField{0.,0.,0.};
+      int    m_stripMinId{0};
+      int    m_stripMaxId{0};
+      int    m_gasgap{0};
+      Identifier m_hitID{0};
+      float m_eventTime{0.f};
 };
 /*******************************************************************************/
 #endif

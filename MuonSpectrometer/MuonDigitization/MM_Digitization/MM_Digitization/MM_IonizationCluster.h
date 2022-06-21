@@ -22,7 +22,7 @@ class MM_IonizationCluster {
 
  public:
 
-  MM_IonizationCluster ();
+  MM_IonizationCluster () = default;
   MM_IonizationCluster (float HitX, float IonizationX, float IonizationY);
   void createElectrons(int nElectrons);
   void propagateElectrons(float lorentzAngle, float driftVel);
@@ -34,8 +34,8 @@ class MM_IonizationCluster {
 
   // Members supplied by user
   std::vector<std::unique_ptr<MM_Electron>> m_Electrons;
-  float m_HitX = 0.0F;
-  TVector2 m_IonizationStart;
+  float m_HitX {0.0F};
+  TVector2 m_IonizationStart{0.,0.};
 
 };
 

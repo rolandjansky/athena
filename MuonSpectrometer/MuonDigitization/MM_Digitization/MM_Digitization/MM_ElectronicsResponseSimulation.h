@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
@@ -49,10 +49,8 @@ class MM_ElectronicsResponseSimulation {
 
 public :
 
-  MM_ElectronicsResponseSimulation();
-  MM_ElectronicsResponseSimulation(const MM_ElectronicsResponseSimulation&);
-  MM_ElectronicsResponseSimulation & operator=(const MM_ElectronicsResponseSimulation &right);
-  virtual ~MM_ElectronicsResponseSimulation();
+  MM_ElectronicsResponseSimulation() = default;
+   ~MM_ElectronicsResponseSimulation() = default;
 
   void initialize();
 
@@ -91,28 +89,28 @@ public :
   float getARTdeadtime() const { return m_artDeadTime;};
 
 
-  std::vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
-  std::vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
-  std::vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
+  const std::vector <float>&  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
+  const std::vector <float>&  getQStripElectronics      () const { return m_qStripElectronics;};
+  const std::vector <int>  &  getNStripElectronics      () const { return m_nStripElectronics;};
 
 private:
 
   /** power of responce function */
-  float m_peakTime;
-  float m_timeWindowLowerOffset;
-  float m_timeWindowUpperOffset;
-  float m_stripDeadTime;
-  float m_artDeadTime;
-  float m_vmmDeadtime;
-  float m_vmmUpperGrazeWindow;
-  bool  m_useNeighborLogic;
+  float m_peakTime{0.};
+  float m_timeWindowLowerOffset{0.};
+  float m_timeWindowUpperOffset{0.};
+  float m_stripDeadTime{0.};
+  float m_artDeadTime{0.};
+  float m_vmmDeadtime{0.};
+  float m_vmmUpperGrazeWindow{0.};
+  bool  m_useNeighborLogic{false};
 
 
-  std::vector <float> m_tStripElectronicsAbThr;
-  std::vector <float> m_qStripElectronics;
-  std::vector <int>   m_nStripElectronics;
+  std::vector <float> m_tStripElectronicsAbThr{};
+  std::vector <float> m_qStripElectronics{};
+  std::vector <int>   m_nStripElectronics{};
 
-  std::unique_ptr<VMM_Shaper> m_vmmShaper;
+  std::unique_ptr<VMM_Shaper> m_vmmShaper{};
 
 };
 
