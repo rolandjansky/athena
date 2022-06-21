@@ -126,10 +126,10 @@ namespace PMonSD {
     double sortValMalloc() const { return fabs(m_sum_dmal); }
     double sortValMemory() const { return fabs(m_sum_dmal)+fabs(m_sum_dmem); }
      //
-    static const unsigned nvals=3;
-    static const unsigned ival_cpu=0;
-    static const unsigned ival_vmem=1;
-    static const unsigned ival_malloc=2;
+    static constexpr unsigned nvals=3;
+    static constexpr unsigned ival_cpu=0;
+    static constexpr unsigned ival_vmem=1;
+    static constexpr unsigned ival_malloc=2;
     float getVal(unsigned i) const
     {
       if (i==ival_cpu) return m_sum_dcpu;
@@ -178,12 +178,12 @@ namespace PMonSD {
     CompDataBasic data[4];//ini/1st/fin/cbk (not dso since compNames there are libs)
 
     //Helper method for proper classification:
-    static const int index_other=-2;
-    static const int index_evt=-1;
-    static const int index_1st=0;
-    static const int index_ini=1;
-    static const int index_fin=2;
-    static const int index_cbk=3;
+    static constexpr int index_other=-2;
+    static constexpr int index_evt=-1;
+    static constexpr int index_1st=0;
+    static constexpr int index_ini=1;
+    static constexpr int index_fin=2;
+    static constexpr int index_cbk=3;
     static int index(const std::string& stepName);//index in data array (if >=0)
   };
 
