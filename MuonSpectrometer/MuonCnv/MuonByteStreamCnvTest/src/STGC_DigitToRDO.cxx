@@ -51,13 +51,15 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
         continue;
       }
 
+      constexpr double lowerTimeBound = Muon::STGC_RawData::s_lowerTimeBound;
+      constexpr int BCWindow = Muon::STGC_RawData::s_BCWindow;
       for (const sTgcDigit* digit : *digitColl ) {
         // Set proper data time window in simulated sTGC RDOs
         // BC0 has t = [-12.5, +12.5]
         // and data will use BC = [-3,+4]
         // totaling digits within t = [-87.5, 112.5]
         float digitTime = digit->time();
-        if (digitTime < -87.5 || digitTime > 112.5) continue;
+        if (digitTime < lowerTimeBound || digitTime >= lowerTimeBound+BCWindow*25) continue;
         Identifier id = digit->identify();
         bool isDead = digit->isDead();
         int tdo     = 0;

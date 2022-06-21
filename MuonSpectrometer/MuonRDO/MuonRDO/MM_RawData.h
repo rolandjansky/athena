@@ -64,6 +64,16 @@ class MM_RawData {
   int charge() const { return m_charge; }
   bool timeAndChargeInCounts() const {return m_timeAndChargeInCounts;}
 
+
+  // Lower time bound of digits selected at the end of digitization, excluding the peaktime.
+  // As of June 2022, the main event is assigned to relative_BCID=1, which is set to correspond
+  // to the time interval [-12.5ns, +12.5ns]. The digits within the BC window [0, +7] are kept. 
+  // Therefore the lower time bound is -37.5 ns.
+  static constexpr double s_lowerTimeBound{-37.5};
+
+  // BC window
+  static constexpr int s_BCWindow{8};
+
 };
 }
 
