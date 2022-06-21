@@ -60,7 +60,7 @@ void TgcRawData::clear(uint16_t bcTag,
   m_bitpos = 0;
   m_tracklet = 0;
   m_adjacent = false;
-  m_type = TYPE_INNER;
+  m_type = TYPE_UNKNOWN;
   m_forward = false;
   m_index = 0;
   m_pos = 0;
@@ -285,7 +285,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        uint16_t nswid)
 {
   clear(bcTag, subDetectorId, rodId, l1Id, bcId);
-  m_type = TYPE_INNER;
+  m_type = TYPE_INNER_NSW;
   m_forward = forward;
   m_sector = sector;
   m_nsweta = nsweta;
@@ -312,7 +312,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        uint16_t rpcdphi)
 {
   clear(bcTag, subDetectorId, rodId, l1Id, bcId);
-  m_type = TYPE_INNER;
+  m_type = TYPE_INNER_BIS;
   m_forward = forward;
   m_sector = sector;
   m_rpceta   = rpceta;
@@ -335,7 +335,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        uint16_t cid)
 {
   clear(bcTag, subDetectorId, rodId, l1Id, bcId);
-  m_type = TYPE_INNER;
+  m_type = TYPE_INNER_EIFI;
   m_forward = forward;
   m_sector = sector;
   m_ei = ei;
@@ -355,7 +355,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        uint16_t bcid)
 {
   clear(bcTag, subDetectorId, rodId, l1Id, bcId);
-  m_type = TYPE_INNER;
+  m_type = TYPE_INNER_TMDB;
   m_forward = forward;
   m_sector = sector;
   m_tmdbmod = mod;
@@ -374,6 +374,10 @@ void TgcRawData::setType(uint16_t type)
     case 3: m_type = TYPE_HIPT; break;
     case 4: m_type = TYPE_SL; break;
     case 5: m_type = TYPE_INNER; break;
+    case 6: m_type = TYPE_INNER_NSW; break;
+    case 7: m_type = TYPE_INNER_BIS; break;
+    case 8: m_type = TYPE_INNER_EIFI; break;
+    case 9: m_type = TYPE_INNER_TMDB; break;
     case 10: m_type = TYPE_HIT; break;
     default: m_type = TYPE_UNKNOWN; break;
     }

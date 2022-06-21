@@ -1,6 +1,6 @@
 #
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-# Cpm
+#
 def BSMonitoringConfig(inputFlags):
     '''Function to configure LVL1 BSMonitoring algorithm in the monitoring system.'''
 
@@ -38,8 +38,8 @@ def BSMonitoringConfig(inputFlags):
         #info('In BSMonitoringConfig: isOnline')
         ProcessRoIBResult = True
         InclusiveTriggerThresholds = True
-        ProcessMuctpiData = True
-        ProcessMuctpiDataRIO = True
+        ProcessMuctpiData = False #True
+        ProcessMuctpiDataRIO = False #True
         RunOnESD = False
         CompareRerun = False
     #-----------OFFLINE CODE---------------------
@@ -71,34 +71,34 @@ def BSMonitoringConfig(inputFlags):
         # check if global muons are on 
         if not inputFlags.Reco.EnableCombinedMuon:
             if isSimulation:
-                info('In BSMonitoringConfig: rec.doMuon=True & DATA')
-                ProcessRoIBResult = False
-                InclusiveTriggerThresholds = False
-                ProcessMuctpiData = False
-                ProcessMuctpiDataRIO = False
-                CompareRerun = False #True
-            else:
                 info('In BSMonitoringConfig: rec.doMuon=True & SIM')
                 ProcessRoIBResult = False
                 InclusiveTriggerThresholds = False
                 ProcessMuctpiData = False
                 ProcessMuctpiDataRIO = False
-                RunOnESD = True
+                CompareRerun = False #True
+            else:
+                info('In BSMonitoringConfig: rec.doMuon=True & DATA')
+                ProcessRoIBResult = False
+                InclusiveTriggerThresholds = False
+                ProcessMuctpiData = False
+                ProcessMuctpiDataRIO = False
+                RunOnESD = False
                 CompareRerun = False
         else:
             if isSimulation:
-                info('In BSMonitoringConfig: rec.doMuon=False & DATA')
+                info('In BSMonitoringConfig: rec.doMuon=False & SIM')
                 ProcessRoIBResult = True
-                ProcessMuctpiData = True
+                ProcessMuctpiData = False #True
                 ProcessMuctpiDataRIO = False #True
                 RunOnESD = True
                 CompareRerun = False #True
             else:
-                info('In BSMonitoringConfig: rec.doMuon=False & SIM')
+                info('In BSMonitoringConfig: rec.doMuon=False & DATA')
                 ProcessRoIBResult = True
-                ProcessMuctpiData = True
+                ProcessMuctpiData = False #True
                 ProcessMuctpiDataRIO = False
-                RunOnESD = True
+                RunOnESD = False #True
                 CompareRerun = False
 
     BSMonAlg.isSimulation = isSimulation
@@ -164,7 +164,7 @@ def BSMonitoringConfig(inputFlags):
     # ERRORS
     # TProfile or TEfficiency? I guess both work as we only casre about he value not correct errors
     # CHECK( registerTProfile("errorSummary", "CTP and MuCTPI errors; ; Error rate", 20, 0.5, 20.5, -1, 2) );
-    myGroup.defineHistogram('errorSummaryX,errorSummaryY;errorSummary',title='CTP and MuCTPI errors; ; Error rate',
+    myGroup.defineHistogram('errorSummaryX,errorSummaryY;errorSummary',title='CTP and MuCTPI errors; ; Error ratio',
                             type='TProfile', path="", xbins=20, xmin=0.5, xmax=20.5, ymin=-1., ymax=2., xlabels=errorSummaryBinLabels, opt='kAlwaysCreate')
     # 2D
     # CHECK( registerTH2("errorSummaryPerLumiBlock", "Errors per lumi block; LB number; Errors", 2000, 0.5, 2000.5, 20, 0.5, 20.5) );

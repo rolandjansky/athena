@@ -218,7 +218,12 @@ private:
   Resplot* rnsct_eta = 0;
   Resplot* rntrt_eta = 0;
   Resplot* rnsihit_eta = 0;
+
   Resplot* rnpix_lb = 0;
+  Resplot* rnsct_lb = 0;
+
+  Resplot* rnpix_lb_rec = 0;
+  Resplot* rnsct_lb_rec = 0;
 
   Resplot* rnpix_phi = 0;
   Resplot* rnsct_phi = 0;
@@ -284,6 +289,9 @@ private:
   std::vector<Resplot*> rDz0res;
 
   Resplot* rzedreslb;
+
+  Resplot* rzedlb;
+  Resplot* rzedlb_rec;
 
   //  std::vector<Resplot*> rd0res_95;
   //  std::vector<Resplot*> rd0res_rms;

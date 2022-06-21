@@ -39,6 +39,8 @@ public:
 
   /// Algorithm execute method.
   virtual StatusCode execute (const EventContext& ctx) const override;
+  virtual bool isReEntrant() const override final { return false; }
+
 
 
 private:

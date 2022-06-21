@@ -10,7 +10,6 @@ settings taken from LArMonTools/LArRawChannelMonTool_joboptions.py
 """
 
 from LArMonitoring.GlobalVariables import lArDQGlobals
-from LArMonTools.LArMonFlags import LArMonFlags
 from GaudiKernel.SystemOfUnits import MeV, GeV
 
 _USE_LEGACY_BINNING_IN_ENDCAPS = True
@@ -23,10 +22,12 @@ def LArRawChannelMonConfigOld(inputFlags):
     from LArMonitoring.LArMonitoringConf import LArRawChannelMonAlg
     cosmics = jobproperties.Beam.beamType() == 'cosmics'
     stream = _get_stream(DQMonFlags)
+    from LArMonTools.LarMonFlags import LArMonFlags
+    signal = LArMonFlags.doLArRawMonitorSignal()
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArRawChannelMonAlgOldCfg')
     alg = LArRawChannelMonConfigCore(
         helper, instance=LArRawChannelMonAlg, inputFlags=inputFlags,
-        cosmics=cosmics, stream=stream)
+        cosmics=cosmics, stream=stream, doSignal=signal)
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if not athenaCommonFlags.isOnline():
        from AthenaCommon.AlgSequence import AthSequencer
@@ -48,10 +49,11 @@ def LArRawChannelMonConfig(inputFlags):
     from AthenaConfiguration.Enums import BeamType
     cosmics = (inputFlags.Beam.Type is BeamType.Cosmics)
     stream = _get_stream(inputFlags.DQ)
+    signal = inputFlags.LArMon.doLArRawMonitorSignal
     helper = AthMonitorCfgHelper(inputFlags, 'LArRawChannelMonAlgCfg')
     alg = LArRawChannelMonConfigCore(
         helper, instance=CompFactory.LArRawChannelMonAlg,
-        inputFlags=inputFlags, cosmics=cosmics, stream=stream)
+        inputFlags=inputFlags, cosmics=cosmics, stream=stream, doSignal=signal)
     noise_alg = CaloNoiseCondAlgCfg(inputFlags, noisetype=alg.NoiseKey.Path)
     accumulator = ComponentAccumulator()
     accumulator.merge(noise_alg)
@@ -61,7 +63,7 @@ def LArRawChannelMonConfig(inputFlags):
     return accumulator
 
 
-def LArRawChannelMonConfigCore(helper, instance, inputFlags, cosmics, stream):
+def LArRawChannelMonConfigCore(helper, instance, inputFlags, cosmics, stream, doSignal):
     alg = helper.addAlgorithm(instance, 'LArRawChannelMonAlg')
     alg.occupancy_thresholds = [
         100 * MeV,  # EMBA
@@ -100,11 +102,11 @@ def LArRawChannelMonConfigCore(helper, instance, inputFlags, cosmics, stream):
         alg.monitor_negative_noise = True
     else:
         alg.NoiseKey = 'totalNoise'
-        alg.monitor_signal = LArMonFlags.doLArRawMonitorSignal()
-        alg.monitor_positive_noise = LArMonFlags.doLArRawMonitorSignal()
-        alg.monitor_negative_noise = LArMonFlags.doLArRawMonitorSignal()
+        alg.monitor_signal = doSignal
+        alg.monitor_positive_noise = doSignal
+        alg.monitor_negative_noise = doSignal
     alg.monitor_time = False
-    alg.monitor_quality = LArMonFlags.doLArRawMonitorSignal()
+    alg.monitor_quality = doSignal
     alg.monitor_burst = True
     if stream in ('express', 'RNDM'):
         alg.noise_streams = ['RNDM']

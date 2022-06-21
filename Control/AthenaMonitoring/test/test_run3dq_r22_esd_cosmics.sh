@@ -3,9 +3,10 @@
 # art-type: grid
 # art-memory: 3072
 # art-include: master/Athena
-# art-include: 22.0-mc20/Athena
+# art-include: 22.0/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
+# art-athena-mt: 2
 
 art.py download Tier0ChainTests test_q220.sh
 ESDFILE=(./ref-*/myESD.pool.root)
@@ -18,5 +19,5 @@ ArtPackage=$1
 ArtJobName=$2
 art.py download ${ArtPackage} ${ArtJobName}
 REFFILE=(./ref-*/ExampleMonitorOutput.root)
-hist_diff.sh ExampleMonitorOutput.root $REFFILE -x TIME_execute -i > log.HIST_Diff 2>&1
+hist_diff.sh ExampleMonitorOutput.root $REFFILE -x "(TIME_execute|TotalEnergyVsEtaPhi.*_CSCveto)" -i > log.HIST_Diff 2>&1
 echo "art-result: $? HIST_Diff"

@@ -246,13 +246,7 @@ namespace MuonGM {
     }
 
     inline double MMReadoutElement::stripActiveLength(const Identifier& id) const {
-        const PCBPassivation& passiv = m_passivData ? m_passivData->getPassivation(id) : s_dummy_passiv;
-        // Let's keep it for the moment as we have to think about proper treatmeant of the non-passivated stuff
-        // if (m_passivData && !passiv.valid) return -1;
-
-        double l = stripLength(id);
-        if (l < 0) return -1;
-        return std::max(0., l - passiv.left - passiv.right);
+        return stripActiveLengthLeft(id) + stripActiveLengthRight(id); 
     }
 
     inline double MMReadoutElement::stripActiveLengthLeft(const Identifier& id) const {
@@ -265,9 +259,9 @@ namespace MuonGM {
 
         double l = design->channelHalfLength(manager()->mmIdHelper()->channel(id), true);
         if (l < 0) return -1;
-        return std::max(0., l - passiv.left);
+        return std::max(0., l - passiv.left/std::cos(design->sideAngle - design->sAngle));
     }
-
+        
     inline double MMReadoutElement::stripActiveLengthRight(const Identifier& id) const {
         const MuonChannelDesign* design = getDesign(id);
         if (!design) return -1;
@@ -275,9 +269,10 @@ namespace MuonGM {
         const PCBPassivation& passiv = m_passivData ? m_passivData->getPassivation(id) : s_dummy_passiv;
         // Let's keep it for the moment as we have to think about proper treatmeant of the non-passivated stuff
         // if (m_passivData && !passiv.valid) return -1;
+
         double l = design->channelHalfLength(manager()->mmIdHelper()->channel(id), false);
         if (l < 0) return -1;
-        return std::max(0., l - passiv.right);
+        return std::max(0., l - passiv.right/std::cos(design->sideAngle + design->sAngle));
     }
 
     inline bool MMReadoutElement::insideActiveBounds(const Identifier& id, const Amg::Vector2D& locpos, double tol1, double tol2) const {
@@ -292,7 +287,7 @@ namespace MuonGM {
         //==============================================
         int pcb      = (stripNo-1)/1024 + 1; // starts from 1
         int pcbStrip = stripNo - 1024*(pcb - 1);
-        PCBPassivation pcbPassiv = m_passivData ? m_passivData->getPassivation(channelId) :s_dummy_passiv;
+        PCBPassivation pcbPassiv = m_passivData ? m_passivData->getPassivation(channelId) : s_dummy_passiv;
         // if(m_passivData && !pcbPassiv.valid) return false;
         // the passivated width is constant along the PCB edge (not along y for stereo strips)
         if(pcb != 1) pcbPassiv.bottom /= std::cos(design->sAngle);
@@ -305,7 +300,7 @@ namespace MuonGM {
         // ** Vertical passivation: cut strips from left and right
         //=======================================
         const double& passivW = (locpos[1]<0) ? pcbPassiv.left : pcbPassiv.right;
-        return bounds(id).inside(locpos, tol1, tol2 - passivW);
+        return bounds(id).inside(locpos, tol1, tol2 - passivW/std::cos(design->sideAngle));
     }
 
     inline bool MMReadoutElement::stripGlobalPosition(const Identifier& id, Amg::Vector3D& gpos) const {

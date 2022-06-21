@@ -52,10 +52,10 @@ namespace InDet {
             expected = m_maxSize;
          } while (total_size > expected && !m_maxSize.compare_exchange_weak(expected, total_size,std::memory_order_release,std::memory_order_relaxed));
       }
-      ATH_MSG_DEBUG( "SiDetectorElementStatus " << writeHandle.key() << " : " << range );
       if (writeHandle.record( range, std::move(detector_element_status) ).isFailure()) {
          ATH_MSG_FATAL("Could record " << writeHandle.key()  );
       }
+      ATH_MSG_INFO( "SiDetectorElementStatus Recorded " << writeHandle.key() << " with Range : " << range );
       return StatusCode::SUCCESS;
    }
 

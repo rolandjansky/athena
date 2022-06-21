@@ -238,6 +238,7 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 
   // set maximum number of error events per lumiblock(per type) to avoid histograms with many x-bins
   const int maxErrorsPerLB=10;
+  bool error_tt{false}, error_roi{false}, error_tob{false}, error_thresh{false};
   auto lb = GetEventInfo(ctx)->lumiBlock();
   //
   ErrorVector crateErr(m_crates);
@@ -264,7 +265,10 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	    // scope for mutable error event per lumi block tt counter
 	    {
 	      std::lock_guard<std::mutex> lock(m_mutex);
-	      m_errorLB_tt_counter[lb]+=1;
+	      if (!error_tt) {
+	        m_errorLB_tt_counter[lb]+=1;
+	        error_tt = true;
+	      }
 	      if (m_errorLB_tt_counter[lb]<=maxErrorsPerLB) {
 		if (err==0) {
 		  auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
@@ -280,8 +284,11 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	  } else if (err==2 || err==3) {
 	    // scope for mutable error event per lumi block roi counter
 	    {
-	      std::lock_guard<std::mutex> lock(m_mutex);
-	      m_errorLB_roi_counter[lb]+=1;
+	      std::lock_guard<std::mutex> lock(m_mutex);	
+	      if (!error_roi) {
+	        m_errorLB_roi_counter[lb]+=1;
+	        error_roi = true;
+	      }
 	      if (m_errorLB_roi_counter[lb]<=maxErrorsPerLB) {
 		if (err==2) {
 		  auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
@@ -298,7 +305,10 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	    // scope for mutable error event per lumi block tob counter
 	    {
 	      std::lock_guard<std::mutex> lock(m_mutex);
-	      m_errorLB_tob_counter[lb]+=1;
+	      if (!error_tob) {
+	        m_errorLB_tob_counter[lb]+=1;
+	        error_tob = true;
+	      }
 	      if(m_errorLB_tob_counter[lb]<=maxErrorsPerLB) {
 		if (err==4) {
 		  auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
@@ -337,7 +347,10 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	  // scope for mutable error event per lumi block threshold counter
 	  {
 	    std::lock_guard<std::mutex> lock(m_mutex);
-	    m_errorLB_thresh_counter[lb]+=1;
+	    if (!error_thresh) {
+		    m_errorLB_thresh_counter[lb]+=1;
+	      error_thresh = true;
+	    }
 	    if(m_errorLB_thresh_counter[lb]<=maxErrorsPerLB) {
 	      auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
 	      cmx_thresh_y=loc+offset;
