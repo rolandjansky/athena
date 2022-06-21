@@ -33,6 +33,7 @@ class LArADC2MeVCondAlg: public AthReentrantAlgorithm {
   StatusCode initialize() override;
   StatusCode execute(const EventContext& ctx) const override;
   StatusCode finalize() override {return StatusCode::SUCCESS;}
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey{this,"LArOnOffIdMappingKey","LArOnOffIdMap","SG key of LArOnOffIdMapping object"};

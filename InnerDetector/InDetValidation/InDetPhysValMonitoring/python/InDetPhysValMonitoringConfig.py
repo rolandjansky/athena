@@ -153,27 +153,12 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
     acc.setPrivateTools(tool)
     return acc
 
-def InDetTrackSelectionToolLooseCfg(flags, name="InDetTrackSelectionToolLoose",
-                                    **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("CutLevel", "Loose")
-    tool = CompFactory.InDet.InDetTrackSelectionTool(name, **kwargs)
-    acc.setPrivateTools(tool)
-    return acc
-
-def InDetTrackSelectionToolTightPrimaryCfg(flags, name="InDetTrackSelectionToolTightPrimary",
-                                           **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("CutLevel", "TightPrimary")
-    tool = CompFactory.InDet.InDetTrackSelectionTool(name, **kwargs)
-    acc.setPrivateTools(tool)
-    return acc
-
 def InDetPhysValMonitoringToolLooseCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     if 'TrackSelectionTool' not in kwargs:
-        TrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectionToolLooseCfg(flags))
+        from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_Loose_Cfg
+        TrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectionTool_Loose_Cfg(flags))
         kwargs.setdefault("TrackSelectionTool", TrackSelectionTool)
 
     kwargs.setdefault("SubFolder", 'Loose/')
@@ -185,7 +170,8 @@ def InDetPhysValMonitoringToolTightPrimaryCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     if 'TrackSelectionTool' not in kwargs:
-        TrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectionToolTightPrimaryCfg(flags))
+        from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_Cfg
+        TrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectionTool_TightPrimary_Cfg(flags))
         kwargs.setdefault("TrackSelectionTool", TrackSelectionTool)
 
     kwargs.setdefault("SubFolder", 'TightPrimary/')

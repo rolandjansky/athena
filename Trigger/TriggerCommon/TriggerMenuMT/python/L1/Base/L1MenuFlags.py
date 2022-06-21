@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__="Level 1 specific configuration for L1 Run 3"
 
 from .Limits import Limits
-from collections import Iterable, OrderedDict
+from collections import OrderedDict
+from collections.abc import Iterable
 
 
 class FlagWrapper:

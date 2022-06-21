@@ -38,7 +38,6 @@ def CaloBCIDLumiCondAlgCfg (flags):
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloBCIDCoeffsCondAlg',
             'CaloBCIDLumiCondAlg',

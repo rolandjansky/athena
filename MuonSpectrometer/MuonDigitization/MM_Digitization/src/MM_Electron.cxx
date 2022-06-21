@@ -1,18 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_Electron.h"
 
-MM_Electron::MM_Electron() : m_time(-99999), m_charge(-99999) {}
 
-MM_Electron::MM_Electron(float x, float y) : m_initialPosition(x,y), m_time(-99999), m_charge(-99999) {
 
-}
+MM_Electron::MM_Electron(float x, float y) : m_initialPosition(x,y) {}
 
-MM_Electron::MM_Electron(const MM_Electron& /* MM_Electron */) : m_time(-99999), m_charge(-99999) {
 
-}
 
 void MM_Electron::setOffsetPosition(float x, float y) { m_offsetPosition.Set(x, y);}
 

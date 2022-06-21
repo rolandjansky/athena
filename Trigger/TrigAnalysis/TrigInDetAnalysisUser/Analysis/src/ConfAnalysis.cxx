@@ -289,6 +289,11 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rnblh_d0 = new Resplot( "nblh_d0", 39, d0bins,  5, -0.5, 4.5 ) );
 
 
+  mres.push_back( rnsct_lb  = new Resplot( "nsct_lb", 250, 0, 2500,  22, -0.5, 21.5 ) );
+
+  mres.push_back( rnpix_lb_rec  = new Resplot( "npix_lb_rec", 250, 0, 2500,  22, -0.5, 21.5 ) );
+  mres.push_back( rnsct_lb_rec  = new Resplot( "nsct_lb_rec", 250, 0, 2500,  22, -0.5, 21.5 ) );
+
 
   //  int Nptbins = 7;
   //  double _ptlims[8] = { 0, 500, 1000, 1500, 2000, 5000, 8000, 12000 };
@@ -300,7 +305,7 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram(  new TH1F(  "pT",   "pT",     ptnbins,   ptbinlims ) );
   addHistogram(  new TH1F( "eta",  "eta",     etaBins,  -tmp_maxEta, tmp_maxEta ) );
   addHistogram(  new TH1F( "phi",  "phi",     phiBins,  -tmp_maxPhi, tmp_maxPhi ) );
-  addHistogram(  new TH1F(  "z0",   "z0",     2*zBins,      -8*zMax,     8*zMax ) );
+  addHistogram(  new TH1F(  "z0",   "z0",       zBins,        -zMax,       zMax ) );
   addHistogram(  new TH1F(  "d0",   "d0",      d0Bins,       -d0Max,      d0Max ) );
   addHistogram(  new TH1F(  "a0",   "a0",      a0Bins,       -a0Max,      a0Max ) );
 
@@ -383,7 +388,7 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram(    new TH1F(  "pT_rec",   "pT_rec",   ptnbins,    ptbinlims ) );
   addHistogram(    new TH1F( "eta_rec",  "eta_rec",   etaBins,  -tmp_maxEta, tmp_maxEta ) );
   addHistogram(    new TH1F( "phi_rec",  "phi_rec",   phiBins,  -tmp_maxPhi, tmp_maxPhi ) );
-  addHistogram(    new TH1F(  "z0_rec",   "z0_rec",     zBins,        -zMax,       zMax ) );
+  addHistogram(    new TH1F(  "z0_rec",   "z0_rec",      zBins,      -zMax,       zMax ) );
   addHistogram(    new TH1F(  "d0_rec",   "d0_rec",     d0Bins,       -d0Max,      d0Max ) );
   addHistogram(    new TH1F(  "a0_rec",   "a0_rec",     a0Bins,       -a0Max,      a0Max ) );
 
@@ -662,6 +667,9 @@ void ConfAnalysis::initialiseInternal() {
   rd0resPull.push_back( new Resplot("rd0Pull_vs_ABS_pt", ptnbins, ptbinlims, factor*8*a0resBins,   -5,5));//-wfactor*a0resMax,  wfactor*a0resMax  ) ); 
 
   rzedreslb = new Resplot("rzed_vs_lb", 301, -0.5, 3009.5, 8*zfactor*zresBins, -2*zfactor*zresMax,     2*zfactor*zresMax  );
+
+  rzedlb     = new Resplot("zed_vs_lb",     301, -0.5, 3009.5, 100, -300, 300 );
+  rzedlb_rec = new Resplot("zed_vs_lb_rec", 301, -0.5, 3009.5, 100, -300, 300 );
   
 
   rd0_vs_phi     = new Resplot( "d0_vs_phi",     20, -M_PI, M_PI, 200, -10, 10 ); 
@@ -992,6 +1000,7 @@ void ConfAnalysis::finalise() {
     for ( int ir=0 ; ir<5 ; ir++ ) if ( mres[i]->Name().find(spstr[ir])!=std::string::npos ) { resfit = Resplot::FitNull; break; }
     mres[i]->Finalise( resfit ); 
     mres[i]->Write();
+    delete mres[i];
   }
 
   mdeltaR_v_eta->Finalise();   mdeltaR_v_eta->Write(); 
@@ -1094,6 +1103,9 @@ void ConfAnalysis::finalise() {
 
   rzedreslb->Finalise(Resplot::FitNull95);
 
+  rzedlb->Finalise(Resplot::FitNull95);
+  rzedlb_rec->Finalise(Resplot::FitNull95);
+
 
   for ( unsigned i=rphires.size()-2 ; i-- ; ) { 
 
@@ -1120,6 +1132,14 @@ void ConfAnalysis::finalise() {
 
   rzedreslb->Write();
   delete rzedreslb;
+
+  rzedlb->Write();
+  delete rzedlb;
+
+  rzedlb_rec->Write();
+  delete rzedlb_rec;
+
+
 
   //  td->cd();
 
@@ -1174,15 +1194,15 @@ double wrapphi( double phi ) {
 } 
 
 
-void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
-			   const std::vector<TIDA::Track*>& testtracks,
-			   TrackAssociator* matcher, 
-			   TrigObjectMatcher* objects ) { 
+void ConfAnalysis::execute( const std::vector<TIDA::Track*>& reftracks,
+			    const std::vector<TIDA::Track*>& testtracks,
+			    TrackAssociator* matcher, 
+			    TrigObjectMatcher* objects ) { 
 
   //  leave this commented code in for debug purposes ...
   //  if ( objects ) std::cout << "TrigObjectMatcher: " << objects << std::endl;
 
-    if ( !m_initialised ) initialiseInternal();
+  if ( !m_initialised ) initialiseInternal();
       
   if ( m_print ) { 
     std::cout << "ConfAnalysis::execute() \t " << name() 
@@ -1259,7 +1279,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     double d0t  = reftracks[i]->a0() - std::sin(phit)*m_xBeamReference + std::cos(phit)*m_yBeamReference;  
     double a0t  = reftracks[i]->a0();
 
-    if ( m_xBeamReference!=0 && m_yBeamReference!=0 ) { 
+    if ( m_xBeamReference!=0 || m_yBeamReference!=0 ) { 
       /// this is such a mess - why, why, why, why, why oh why, can't we just have one convention 
       /// and stick to it.
       z0t = reftracks[i]->z0()+((std::cos(phit)*m_xBeamReference + std::sin(phit)*m_yBeamReference)/std::tan(thetat));    
@@ -1410,6 +1430,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     rnscth_pt->Fill( std::fabs(pTt), nsctht );
 
     rnpix_lb->Fill( gevent->lumi_block(), npixt*1.0 );
+    rnsct_lb->Fill( gevent->lumi_block(), nsctt*1.0 );
 
 
     m_rnsct_vs_npix->Fill( npixt, nsctt );
@@ -1494,7 +1515,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       a0r  = matchedreco->a0();
       z0r  = matchedreco->z0();
 
-      if ( m_xBeamTest!=0 && m_yBeamTest!=0 ) {
+      if ( m_xBeamTest!=0 || m_yBeamTest!=0 ) {
 	d0r  = matchedreco->a0(); 
 	a0r  = matchedreco->a0() + sin(phir)*m_xBeamTest - cos(phir)*m_yBeamTest; // this will be changed when we know the beam spot position
 	z0r  = matchedreco->z0()+((std::cos(phir)*m_xBeamTest + std::sin(phir)*m_yBeamTest)/std::tan(thetar));    
@@ -1520,6 +1541,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       
       double nscthr = matchedreco->sctHoles(); 
       double npixhr = matchedreco->pixelHoles(); 
+
+
+      rnpix_lb_rec->Fill( gevent->lumi_block(), npixr*1.0 );
+      rnsct_lb_rec->Fill( gevent->lumi_block(), nsctr*1.0 );
 
 
       //double ntrtr   = matchedreco->trHits(); 
@@ -1569,6 +1594,8 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       double lb = gevent->lumi_block();
 
       rzedreslb->Fill( lb,  z0r-z0t );
+      rzedlb->Fill( lb,  z0t );
+      rzedlb_rec->Fill( lb,  z0r );
 
       for ( int irfill=0 ; irfill<6 ; irfill++ ) { 
         rphiresPull[irfill]->Fill( resfiller[irfill], (phir - phit) / sqrt( (dphit*dphit) + (dphir*dphir) ) );

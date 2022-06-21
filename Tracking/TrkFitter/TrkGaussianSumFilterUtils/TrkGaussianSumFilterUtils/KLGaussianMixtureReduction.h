@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-20222 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,63 +11,6 @@
  * @brief Utilities to facilitate the calculation of the
  * KL divergence/distance between components of the mixture
  * and the merging of similar componets together.
- *
- *
- * For a summary  of available methods look
- * https://arxiv.org/pdf/2001.00727.pdf
- * Here we opt for formula 10.
- * For an 1D Normal distributions this becomes:
- * (variance1/variance2) * (variance2/variance1) +
- * (mean1-mean2) * ((1/variance1)+(1/variance2))(mean1-mean2)
- *
- * We use doubles for the intermediate calculations
- * but we store the final distances in an array
- * of floats.
- *
- * We need to store/calculate/compare pairwise distances: <br>
- *
- * Assuming N total elements 0... N-1,
- * the pairwise distance matrix
- * can be represented in a triangular array: <br>
- * [ (1,0) ] <br>
- * [ (2,0), (2,1) ] <br>
- * [ (3,0), (3,1), (3,2)] <br>
- * [ (4,0), (4,1), (4,2) , (4,3) <br>
- * [.............................] <br>
- * [(N-1,0),(N-1,1),(N-1,2),(N-1,3) ... (N-1,N-2)]<br>
- *
- * With size 1+2+3+ .... (N-1) = N*(N-1)/2
- *
- * The lexicographical storage allocation function is
- * Loc(i,j) = i*(i-1)/2 + j <br>
- * e.g : <br>
- * (1,0) => 1 *(1-1)/2 + 0 => 0 <br>
- * (2,0) => 2 *(2-1)/2 + 0 => 1 <br>
- * (2,1) => 2 *(2-1)/2 + 1 => 2 <br>
- * (3,0) => 3 * (3-1)/2 +0 => 3 <br>
- *
- * Leading to <br>
- * [(1,0),(2,0),(2,1),(3,0),(3,1),(3,2).... (N-1,N-2)]
- *
- *
- * The N-1 Rows  map to the value K of the 1st element in the pair
- * 1,2,3,..,N-1. <br>
- * Each Row has size K  and starts at array positions K*(K-1)/2 <br>
- * e.g <br>
- * The row for element 1 starts at array position 0. <br>
- * The row for element 2 starts at array position 1. <br>
- * The row for element N-1  starts at array positon (N-1)*(N-2)/2 <br>
- *
- * The N-1 Columns map to the value K of the second  element in the pair <br>
- * K= 0,1,2 .., N-2 <br>
- * The array positions follows (i-1)*i/2+K <br>
- * where i : K+1 .... N-1 [for(i=K+1;i<N;++i) <br>
- * e.g <br>
- * 0 appears as 2nd element in the pair at array positions [0,1,3,6...] <br>
- * 1 appears as 2nd element in the pair at array positions [2,4,7...] <br>
- * 2 appears as 2nd element in the pair at array positions [5,8,12....] <br>
- * N-2 appears as 2nd element once at position [N(N-1)/2-1] <br>
- *
  */
 
 #ifndef KLGaussianMixReductionUtils_H
@@ -75,12 +18,8 @@
 
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 //
-#include "CxxUtils/features.h"
-//
 #include <array>
 #include <cstdint>
-#include <utility>
-#include <vector>
 
 namespace GSFUtils {
 
@@ -94,7 +33,6 @@ struct Component1D
   double invCov = 1e10;
   double weight = 0.;
 };
-
 /**
  * @brief struct representing an array of 1D component.
  * with the maximum size we can have after convolution
@@ -107,7 +45,6 @@ struct Component1DArray
                GSFConstants::maxComponentsAfterConvolution> components{};
   int32_t numComponents = 0;
 };
-
 /**
  * @brief struct representing an array or the merges.
  * The merge is from the element in positon 'From'
@@ -126,7 +63,7 @@ struct MergeArray
 
 /**
  * @brief Find the order in which the components need to
- * be merged. Returns a merged array with the merges
+ * be merged. Returns an MergeArray  with the merges
  * (To,From).
  * The index of the merged From is always smaller than
  * the To (RHS is smaller than LHS)
@@ -135,8 +72,8 @@ struct MergeArray
  * used to calculate the merge order using q/p. Its size
  * can not exceed GSFConstants::maxComponentsAfterConvolution
  *
- * @c reducedSize  The size we want to reduce the mixture to
- * needs to be smaller than the size() of the componentsIn
+ * @c reducedSize  The size we want to reduce the mixture to.
+ * Needs to be smaller than the numComponents of the componentsIn
  * array
  */
 MergeArray

@@ -29,18 +29,26 @@ def LVL1CaloMonitoringConfig(flags):
     # do not run on MC or  RAW->ESD(tier0), or AOD-only
     if not validation and isData and flags.DQ.Environment not in ('tier0Raw', 'AOD'):
 
-        from TrigT1CaloMonitoring.CpmMonitorAlgorithm import CpmMonitoringConfig
-        from TrigT1CaloMonitoring.CpmSimMonitorAlgorithm import CpmSimMonitoringConfig
         from TrigT1CaloMonitoring.PprMonitorAlgorithm import PprMonitoringConfig
         from TrigT1CaloMonitoring.JepJemMonitorAlgorithm import JepJemMonitoringConfig
-        from TrigT1CaloMonitoring.OverviewMonitorAlgorithm import OverviewMonitoringConfig
 
+        # Use metadata to check Run3 compatible trigger info is available  
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        md = GetFileMD(flags.Input.Files)
+        inputContainsRun3FormatConfigMetadata = ("metadata_items" in md and any(('TriggerMenuJson' in key) for key in md["metadata_items"].keys()))
+        if flags.Input.Format is not Format.POOL or inputContainsRun3FormatConfigMetadata:
+            # L1 menu available in the POOL file
+            from TrigT1CaloMonitoring.CpmMonitorAlgorithm import CpmMonitoringConfig
+            from TrigT1CaloMonitoring.CpmSimMonitorAlgorithm import CpmSimMonitoringConfig
+            from TrigT1CaloMonitoring.JepCmxMonitorAlgorithm import JepCmxMonitoringConfig
+            from TrigT1CaloMonitoring.OverviewMonitorAlgorithm import OverviewMonitoringConfig
+            result.merge(CpmMonitoringConfig(flags))
+            result.merge(CpmSimMonitoringConfig(flags))
+            result.merge(JepCmxMonitoringConfig(flags))
+            result.merge(OverviewMonitoringConfig(flags))
 
-        result.merge(CpmMonitoringConfig(flags))
-        result.merge(CpmSimMonitoringConfig(flags))
         result.merge(PprMonitoringConfig(flags))
         result.merge(JepJemMonitoringConfig(flags))
-        result.merge(OverviewMonitoringConfig(flags))
 
         # For running on bytestream data
         if flags.Input.Format is Format.BS:

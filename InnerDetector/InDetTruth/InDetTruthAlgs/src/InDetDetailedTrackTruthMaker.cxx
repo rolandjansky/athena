@@ -19,8 +19,7 @@ InDetDetailedTrackTruthMaker::InDetDetailedTrackTruthMaker(const std::string &na
   m_PRDTruthNameTRT("PRD_MultiTruthTRT"),
   m_trackCollectionName("Tracks"),
   m_detailedTrackTruthName("DetailedTrackTruth"),
-  m_truthTool("Trk::DetailedTrackTruthBuilder"),
-  m_trackOverlayDetailedName("")
+  m_truthTool("Trk::DetailedTrackTruthBuilder")
 {
   declareProperty("TruthNamePixel",          m_PRDTruthNamePixel);
   declareProperty("TruthNameSCT",            m_PRDTruthNameSCT);
@@ -28,7 +27,6 @@ InDetDetailedTrackTruthMaker::InDetDetailedTrackTruthMaker(const std::string &na
   declareProperty("TrackCollectionName",     m_trackCollectionName);
   declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName);
   declareProperty("TruthTool",               m_truthTool);
-  declareProperty("TrackOverlayDetailedName",m_trackOverlayDetailedName);
 }
 
 // Initialize method
@@ -53,14 +51,6 @@ StatusCode InDetDetailedTrackTruthMaker::initialize()
   ATH_CHECK(m_PRDTruthNameTRT.initialize(not m_PRDTruthNameTRT.key().empty()));
 
   ATH_CHECK(m_detailedTrackTruthName.initialize());
-  ATH_CHECK(m_trackOverlayDetailedName.initialize(!m_trackOverlayDetailedName.key().empty()));
-  std::string prefix="";
-  if(!m_trackOverlayDetailedName.key().empty()){
-    int index=m_trackOverlayDetailedName.key().find("_");
-    prefix=m_trackOverlayDetailedName.key().substr(0,index+1);
-  }
-  m_bkgTrackCollection=prefix+m_trackCollectionName.key();
-  ATH_CHECK(m_bkgTrackCollection.initialize(!m_trackOverlayDetailedName.key().empty()));
 
   //----------------
   return StatusCode::SUCCESS;
@@ -136,24 +126,7 @@ StatusCode InDetDetailedTrackTruthMaker::execute(const EventContext &ctx) const
   }
   else {
     ATH_MSG_DEBUG ("DetailedTrackTruthCollection '" << m_detailedTrackTruthName.key()	<< "' is registered in StoreGate, size="<<dttc->size());
-    int maxTracks=-1;
-    if(!m_trackOverlayDetailedName.key().empty()){ //track overlay is on, so the end of the collection is bkg tracks that shouldn't be processed
-      SG::ReadHandle<TrackCollection> bkgTracks(m_bkgTrackCollection,ctx);
-      if(!bkgTracks.isValid()) ATH_MSG_WARNING("track overlay set but no bkg tracks available, doing nothing");
-      else maxTracks=tracks->size()-bkgTracks->size();
-    }
-    m_truthTool->buildDetailedTrackTruth(&(*dttc), *tracks, prdCollectionVector,maxTracks);
-    if(!m_trackOverlayDetailedName.key().empty()){ //track overlay is on, so load in the corresponding background detailed truth and copy it into the collection
-      SG::ReadHandle<DetailedTrackTruthCollection> overlayTruth(m_trackOverlayDetailedName,ctx);
-      if(!overlayTruth.isValid()) ATH_MSG_WARNING("track overlay set but no bkg truth collection is available, doing nothing");
-      else{
-	for(auto& bkgDetTruth : *overlayTruth){
-	  //new index is index in background collection+number of non-background tracks, calculated above
-	  Trk::TrackTruthKey newKey(bkgDetTruth.first.index()+maxTracks);	  
-	  dttc->insert(std::make_pair(newKey,bkgDetTruth.second));
-	}
-      }
-    }
+    m_truthTool->buildDetailedTrackTruth(&(*dttc), *tracks, prdCollectionVector);
     return StatusCode::SUCCESS;
   }
 

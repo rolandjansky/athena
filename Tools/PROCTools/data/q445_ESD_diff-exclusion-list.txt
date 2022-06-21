@@ -10,9 +10,8 @@ index_ref
 (.*)_TrigConfKeys(.*)
 (.*)_xTrigDecisionAux(.*)
 
-# temporarily excluded
-(.*)MuonSegmentAuxContainer_v1_MuonSegmentsAux(.*)
-
 # Ignore most b-tagging outside the reference tagger, DL1dv00
 xAOD::BTagging(?!.*PFlow.*DL1dv00_p.*)
 
+# Ignoring agreed at the RIG meeting on 17.6.2022 (https://its.cern.ch/jira/browse/ATLASRECTS-7101)
+Muon::MuonPRD_Container_p2<Muon::MMPrepData_p1>_MM_Measurements.m_prds.m_stripNumbers

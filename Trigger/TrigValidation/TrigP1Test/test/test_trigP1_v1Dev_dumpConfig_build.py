@@ -12,7 +12,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = ''  # No input file needed to generate config
-ex.args = '-c "setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\';doL1Sim=True;rewriteLVL1=True;"'
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1_HLTReprocessing_prescale\';doL1Sim=True;rewriteLVL1=True;"'
 ex.args += ' -M --dump-config-exit'
 ex.perfmon = False  # Don't want PerfMon in SMK for HLT reprocessing
 ex.fpe_auditor = False  # Don't want FPEAuditor in SMK for HLT reprocessing

@@ -480,7 +480,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
   //iterate over hits and fill id-keyed drift time map
   TimedHitCollection< MMSimHit >::const_iterator i, e;
   
-  std::map<Identifier,int> hitsPerChannel;
   int nhits = 0;
   
   // nextDetectorElement-->sets an iterator range with the hits of current detector element , returns a bool when done
@@ -1063,9 +1062,9 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       std::vector<float> stripTimeSmeared;
       Identifier digitId = stripDigitOutputAllHits.digitID();
       for ( unsigned int i = 0 ; i<electronicsOutputForReadout->stripTime().size() ; ++i ) {
-	int   pos  = electronicsOutputForReadout->stripPos()[i];
-	float time = electronicsOutputForReadout->stripTime()[i];
-	float charge = electronicsOutputForReadout->stripCharge()[i];
+	int   pos  = electronicsOutputForReadout->stripPos().at(i);
+	float time = electronicsOutputForReadout->stripTime().at(i);
+	float charge = electronicsOutputForReadout->stripCharge().at(i);
 	bool acceptStrip = true;
 
 	/// use the smearing tool to update time and charge 
@@ -1115,19 +1114,17 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     }
     m_idHelperSvc->mmIdHelper().get_module_hash( elemId, moduleHash );
     
-    MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
     MmDigitCollection* coll = nullptr;
     ATH_CHECK(digitContainer->naughtyRetrieve(moduleHash,coll ));
-    if (coll == nullptr) {
-      digitCollection = new MmDigitCollection( elemId, moduleHash );
-      digitCollection->push_back(std::move(newDigit));
-      ATH_CHECK(digitContainer->addCollection(digitCollection, moduleHash ) );
+    if (!coll) {
+      coll = new MmDigitCollection( elemId, moduleHash );
+      coll->push_back(std::move(newDigit));
+      ATH_CHECK(digitContainer->addCollection(coll, moduleHash ) );
     }
     else {
-      digitCollection = coll;
-      digitCollection->push_back(std::move(newDigit));
+      coll->push_back(std::move(newDigit));
     }
     
     //
@@ -1168,14 +1165,9 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 	std::vector < std::vector <float> > v_timeStripResponseAllHits;
 	std::vector < std::vector <float> > v_qStripResponseAllHits;
 	std::vector<float> v_stripThresholdResponseAllHits;
-	v_stripStripResponseAllHits.clear();
-	v_timeStripResponseAllHits.clear();
-	v_qStripResponseAllHits.clear();
-	v_stripThresholdResponseAllHits.clear();
-	v_stripThresholdResponseAllHits.clear();
 
 
-	Identifier digitID = v_stripDigitOutput[0].digitID();
+	Identifier digitID = v_stripDigitOutput.at(0).digitID();
 	float max_kineticEnergy = 0.0;
 
 	// Loop over strip digit output elements
@@ -1188,22 +1180,22 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 		}
 		//---
 		for(size_t i = 0; i<i_stripDigitOutput.NumberOfStripsPos().size(); ++i){
-			int strip_id = i_stripDigitOutput.NumberOfStripsPos()[i];
+			int strip_id = i_stripDigitOutput.NumberOfStripsPos().at(i);
 			bool found = false;
 
 			for(size_t ii = 0; ii<v_stripStripResponseAllHits.size(); ++ii){
-				if(v_stripStripResponseAllHits[ii]==strip_id){
-					for(size_t iii = 0; iii<(i_stripDigitOutput.chipTime()[i]).size(); ++iii){
-						v_timeStripResponseAllHits[ii].push_back(i_stripDigitOutput.chipTime()[i].at(iii));
-						v_qStripResponseAllHits[ii].push_back(i_stripDigitOutput.chipCharge()[i].at(iii));
+				if(v_stripStripResponseAllHits.at(ii)==strip_id){
+					for(size_t iii = 0; iii<i_stripDigitOutput.chipTime().at(i).size(); ++iii){
+						v_timeStripResponseAllHits.at(ii).push_back(i_stripDigitOutput.chipTime().at(i).at(iii));
+						v_qStripResponseAllHits.at(ii).push_back(i_stripDigitOutput.chipCharge().at(i).at(iii));
 					}
 					found=true;
 				}
 			}
 			if(!found){ // strip id not in vector, add new entry
 				v_stripStripResponseAllHits.push_back(strip_id);
-				v_timeStripResponseAllHits.push_back(i_stripDigitOutput.chipTime()[i]);
-				v_qStripResponseAllHits.push_back(i_stripDigitOutput.chipCharge()[i]);
+				v_timeStripResponseAllHits.push_back(i_stripDigitOutput.chipTime().at(i));
+				v_qStripResponseAllHits.push_back(i_stripDigitOutput.chipCharge().at(i));
 				if(m_useCondThresholds){
 					const Identifier id = m_idHelperSvc->mmIdHelper().channelID(digitID, m_idHelperSvc->mmIdHelper().multilayer(digitID), m_idHelperSvc->mmIdHelper().gasGap(digitID), strip_id);
 					double threshold = 0;

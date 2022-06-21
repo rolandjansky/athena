@@ -44,6 +44,7 @@ public:
 
   /// Algorithm execute method.
   virtual StatusCode execute (const EventContext& ctx) const override;
+  virtual bool isReEntrant() const override final { return false; }
 
 
 private:
@@ -76,8 +77,8 @@ private:
    *                          Null for Run 1.
    * @param preferredChannel Preferred luminosity channel to use.
    * @param calibChannel Calibration luminosity channel to use.
-   * @param range Validity range of the conditions data being filled.
-   *              Updated if needed.
+   * @param wHdl WriteCondHandle conditions data being filled.
+   *              Range is updated if needed.
    * @param lumi Output luminosity data being filled.
    */
   StatusCode
@@ -85,7 +86,7 @@ private:
                       const coral::Blob* bunchInstLumiBlob,
                       unsigned int preferredChannel,
                       unsigned int calibChannel,
-                      EventIDRange& range,
+                      SG::WriteCondHandle<LuminosityCondData>& wHdl,
                       LuminosityCondData& lumi) const;
 
 
@@ -93,15 +94,15 @@ private:
    * @brief Fill in mu-to-lumi calibration.
    * @param ctx Event context.
    * @param calibChannel Calibration luminosity channel to use.
-   * @param range Validity range of the conditions data being filled.
-   *              Updated if needed.
+   * @param wHdl WriteCondHandle of the conditions data being filled.
+   *              Range is updated if needed.
    * @param lumi Output luminosity data being filled.
    * @param isValid Set to false if data are not valid.
    */
   StatusCode
   updateMuToLumi (const EventContext& ctx,
                   unsigned int calibChannel,
-                  EventIDRange& range,
+                  SG::WriteCondHandle<LuminosityCondData>& wHdl,
                   LuminosityCondData& lumi,
                   bool& isValid) const;
 
@@ -121,14 +122,14 @@ private:
   /**
    * @brief Fill in per-bunch luminosity data, run 1.
    * @param preferredChannel Preferred luminosity channel to use.
-   * @param range Validity range of the conditions data being filled.
-   *              Updated if needed.
+   * @param wHdl WriteHandle of the conditions data being filled.
+   *              Range is updated if needed.
    * @param lumi Output luminosity data being filled.
    */
   StatusCode
   updatePerBunchLumiRun1 (const EventContext& ctx,
                           unsigned int preferredChannel,
-                          EventIDRange& range,
+                          SG::WriteCondHandle<LuminosityCondData>& wHdl,
                           LuminosityCondData& lumi) const;
 
 

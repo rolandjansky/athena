@@ -25,6 +25,7 @@ namespace MuonGM {
         int nch{-1};             // total #of active strips
         int febSide{0};
         double sAngle{0.};       // stereo angle
+        double sideAngle{0.};    // trapezoid leg angle w.r.t. to the radial axis (used for MM)
         double inputPitch{0.};   // we use this param to define the pitch for MM
         double inputWidth{0.};
         double inputLength{0.};
@@ -313,9 +314,9 @@ namespace MuonGM {
             if (sAngle == 0.) return 0.5*etaLength;
  
             // the length of MM stereo strips is uneven on the two sides of the x axis.
-            double phiAngle = std::atan( (maxYSize - minYSize)/(2.*xSize) ); // angle of the trapezoid sides
-            return left ? 0.5*etaLength*(std::cos(sAngle) + std::sin(sAngle)*std::tan(sAngle - phiAngle))
-                        : 0.5*etaLength*(std::cos(sAngle) + std::sin(sAngle)*std::tan(sAngle + phiAngle));
+            double sideAngle = std::atan( (maxYSize - minYSize)/(2.*xSize) );
+            return left ? 0.5*etaLength*(std::cos(sAngle) + std::sin(sAngle)*std::tan(sAngle - sideAngle))
+                        : 0.5*etaLength*(std::cos(sAngle) + std::sin(sAngle)*std::tan(sAngle + sideAngle));
         }
         
         // default case:

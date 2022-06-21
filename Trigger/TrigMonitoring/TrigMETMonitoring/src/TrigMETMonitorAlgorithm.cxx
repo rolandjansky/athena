@@ -36,6 +36,10 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_l1_gFexJwojMETComponents_key.initialize() );
     ATH_CHECK( m_l1_gFexJwojMHTComponents_key.initialize() );
     ATH_CHECK( m_l1_gFexJwojMSTComponents_key.initialize() );
+    ATH_CHECK( m_l1_gFexNCMETScalar_key.initialize() );
+    ATH_CHECK( m_l1_gFexNCMETComponents_key.initialize() );
+    ATH_CHECK( m_l1_gFexRhoMETScalar_key.initialize() );
+    ATH_CHECK( m_l1_gFexRhoMETComponents_key.initialize() );
     ATH_CHECK( m_hlt_cell_met_key.initialize() );
     ATH_CHECK( m_hlt_mht_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
@@ -166,6 +170,22 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMSTComponents_cont(m_l1_gFexJwojMSTComponents_key, ctx);
     if (! l1_gFexJwojMSTComponents_cont.isValid() ) {
         ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMSTComponents_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexNCMETScalar_cont(m_l1_gFexNCMETScalar_key, ctx);
+    if (! l1_gFexNCMETScalar_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexNCMETScalar_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexNCMETComponents_cont(m_l1_gFexNCMETComponents_key, ctx);
+    if (! l1_gFexNCMETComponents_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexNCMETComponents_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexRhoMETScalar_cont(m_l1_gFexRhoMETScalar_key, ctx);
+    if (! l1_gFexRhoMETScalar_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexRhoMETScalar_key << " does not exist or is empty");
+    }
+    SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexRhoMETComponents_cont(m_l1_gFexRhoMETComponents_key, ctx);
+    if (! l1_gFexRhoMETComponents_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexRhoMETComponents_key << " does not exist or is empty");
     }
 
     // access HLT met containers
@@ -482,7 +502,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (l1_jFexMet_cont.isValid()) {
       float L1_met_Ex = 0;
       float L1_met_Ey = 0;
-      for (const auto &l1_jmet: *l1_jFexMet_cont) {
+      for (const auto l1_jmet: *l1_jFexMet_cont) {
         L1_met_Ex += l1_jmet->Ex()*0.001;
         L1_met_Ey += l1_jmet->Ey()*0.001;
       }
@@ -500,7 +520,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
     if (l1_jFexSumEt_cont.isValid()) {
       float L1_met_sumEt = 0;
-      for (const auto &l1_jsumEt: *l1_jFexSumEt_cont) {
+      for (const auto l1_jsumEt: *l1_jFexSumEt_cont) {
         L1_met_sumEt += l1_jsumEt->Et_lower()*0.001 + l1_jsumEt->Et_upper()*0.001;
       }
       float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
@@ -564,6 +584,58 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       auto L1_ST_Ex_log = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ex_log", static_cast<float>(L1_met_ST_Ex_log));
       auto L1_ST_Ey_log = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ey_log", static_cast<float>(L1_met_ST_Ey_log));
       fill(tool, L1_ST_Ex, L1_ST_Ey, L1_ST_Ex_log, L1_ST_Ey_log);
+    }
+    
+    if (l1_gFexNCMETScalar_cont.isValid()) {
+      l1_gmet = l1_gFexNCMETScalar_cont->at(0);
+      float L1_met_Et = l1_gmet->METquantityOne()*0.001;
+      float L1_met_sumEt = l1_gmet->METquantityTwo()*0.001;
+      float L1_met_Et_log = signed_log(L1_met_Et, epsilon);
+      float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
+      auto L1_Et = Monitored::Scalar<float>("L1_gFexNC_Et", static_cast<float>(L1_met_Et));
+      auto L1_Et_log = Monitored::Scalar<float>("L1_gFexNC_Et_log", static_cast<float>(L1_met_Et_log));
+      auto L1_sumEt = Monitored::Scalar<float>("L1_gFexNC_sumEt", static_cast<float>(L1_met_sumEt));
+      auto L1_sumEt_log = Monitored::Scalar<float>("L1_gFexNC_sumEt_log", static_cast<float>(L1_met_sumEt_log));
+      fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
+    }
+    
+    if (l1_gFexNCMETComponents_cont.isValid()) {
+      l1_gmet = l1_gFexNCMETComponents_cont->at(0);
+      float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_Ex_log = signed_log(L1_met_Ex, epsilon);
+      float L1_met_Ey = l1_gmet->METquantityTwo()*0.001;
+      float L1_met_Ey_log = signed_log(L1_met_Ey, epsilon);
+      auto L1_Ex = Monitored::Scalar<float>("L1_gFexNC_Ex", static_cast<float>(L1_met_Ex));
+      auto L1_Ey = Monitored::Scalar<float>("L1_gFexNC_Ey", static_cast<float>(L1_met_Ey));
+      auto L1_Ex_log = Monitored::Scalar<float>("L1_gFexNC_Ex_log", static_cast<float>(L1_met_Ex_log));
+      auto L1_Ey_log = Monitored::Scalar<float>("L1_gFexNC_Ey_log", static_cast<float>(L1_met_Ey_log));
+      fill(tool, L1_Ex, L1_Ey, L1_Ex_log, L1_Ey_log);
+    }
+	
+    if (l1_gFexRhoMETScalar_cont.isValid()) {
+      l1_gmet = l1_gFexRhoMETScalar_cont->at(0);
+      float L1_met_Et = l1_gmet->METquantityOne()*0.001;
+      float L1_met_sumEt = l1_gmet->METquantityTwo()*0.001;
+      float L1_met_Et_log = signed_log(L1_met_Et, epsilon);
+      float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
+      auto L1_Et = Monitored::Scalar<float>("L1_gFexRho_Et", static_cast<float>(L1_met_Et));
+      auto L1_Et_log = Monitored::Scalar<float>("L1_gFexRho_Et_log", static_cast<float>(L1_met_Et_log));
+      auto L1_sumEt = Monitored::Scalar<float>("L1_gFexRho_sumEt", static_cast<float>(L1_met_sumEt));
+      auto L1_sumEt_log = Monitored::Scalar<float>("L1_gFexRho_sumEt_log", static_cast<float>(L1_met_sumEt_log));
+      fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
+    }
+    
+    if (l1_gFexRhoMETComponents_cont.isValid()) {
+      l1_gmet = l1_gFexRhoMETComponents_cont->at(0);
+      float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_Ex_log = signed_log(L1_met_Ex, epsilon);
+      float L1_met_Ey = l1_gmet->METquantityTwo()*0.001;
+      float L1_met_Ey_log = signed_log(L1_met_Ey, epsilon);
+      auto L1_Ex = Monitored::Scalar<float>("L1_gFexRho_Ex", static_cast<float>(L1_met_Ex));
+      auto L1_Ey = Monitored::Scalar<float>("L1_gFexRho_Ey", static_cast<float>(L1_met_Ey));
+      auto L1_Ex_log = Monitored::Scalar<float>("L1_gFexRho_Ex_log", static_cast<float>(L1_met_Ex_log));
+      auto L1_Ey_log = Monitored::Scalar<float>("L1_gFexRho_Ey_log", static_cast<float>(L1_met_Ey_log));
+      fill(tool, L1_Ex, L1_Ey, L1_Ex_log, L1_Ey_log);
     }
     
     // define TrigMissingET object

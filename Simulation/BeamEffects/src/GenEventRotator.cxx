@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -45,7 +45,7 @@ namespace Simulation
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GenEventRotator::initializeGenEvent(CLHEP::HepLorentzRotation& transform) const
+  StatusCode GenEventRotator::initializeGenEvent(CLHEP::HepLorentzRotation& transform, const EventContext&) const
   {
     // Reset the transformation
     transform = CLHEP::HepLorentzRotation(); //TODO drop this
@@ -67,11 +67,11 @@ namespace Simulation
   }
 
   /** modifies (displaces) the given GenEvent */
-  StatusCode GenEventRotator::manipulate(HepMC::GenEvent& ge) const
+  StatusCode GenEventRotator::manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const
   {
     // Obtain the transformation
     CLHEP::HepLorentzRotation transform = CLHEP::HepLorentzRotation();
-    ATH_CHECK( initializeGenEvent(transform) );
+    ATH_CHECK( initializeGenEvent(transform, ctx) );
 
     for(auto particleIter:  ge) {
       rotateParticle(particleIter, transform);

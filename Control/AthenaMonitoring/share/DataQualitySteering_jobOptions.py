@@ -377,10 +377,14 @@ if DQMonFlags.doMonitoring():
          doOldStylePostSetup(addlSequences)
 
       ConfigFlags.dump()
+
+      from AthenaConfiguration import ComponentAccumulator
+      from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
       ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringCfg, ConfigFlags)
 
       if len([_ for _ in AthSequencer("AthCondSeq") if _.getName()=="PixelDetectorElementCondAlg"]) > 0:
          local_logger.info("DQ: force ID conditions loading")
+         from AthenaMonitoring import AthenaMonitoringConf
          asq = AthSequencer("AthBeginSeq")
          asq += AthenaMonitoringConf.ForceIDConditionsAlg("ForceIDConditionsAlg")
 

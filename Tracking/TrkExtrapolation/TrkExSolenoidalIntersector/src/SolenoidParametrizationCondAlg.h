@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef _SolenoidParametrizationCondAlg_H_
@@ -23,9 +23,10 @@ class SolenoidParametrizationCondAlg : public AthReentrantAlgorithm
  public:
   SolenoidParametrizationCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SolenoidParametrizationCondAlg() = default;
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext &ctx) const override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute(const EventContext &ctx) const override final;
+  virtual StatusCode finalize() override final;
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey

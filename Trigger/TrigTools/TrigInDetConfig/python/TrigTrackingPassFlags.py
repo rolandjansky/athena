@@ -78,7 +78,6 @@ class FlagsCopiedTest(unittest.TestCase):
         flags.Trigger.doID
         flags.Trigger.InDetTracking.Muon
         flags.Trigger.InDetTracking.Electron.minPT = 2.0 * Units.GeV
-        flags.loadAllDynamicFlags()
         self.newflags = flags.cloneAndReplace('InDet.Tracking.ActivePass', 'Trigger.InDetTracking.Electron')
 
         self.newflags.dump(".*InDet")

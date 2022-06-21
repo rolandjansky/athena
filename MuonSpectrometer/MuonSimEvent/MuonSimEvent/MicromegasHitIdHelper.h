@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MicromegasHitIdHelper_H
@@ -13,9 +13,9 @@
 class MicromegasHitIdHelper: public HitIdHelper {
 public:
 
-  static MicromegasHitIdHelper* GetHelper();
+  static const MicromegasHitIdHelper* GetHelper();
   std::string GetStationName(const int& hid) const;
-  void SetStationName(std::string name, int& hid) const;
+  void SetStationName(const std::string& name, int& hid) const;
   int GetPhiSector(const int& hid) const;
   int GetZSector(const int& hid) const;
   int GetMultiLayer(const int& hid) const;
@@ -29,8 +29,6 @@ private:
   MicromegasHitIdHelper();
   void Initialize();
   void InitializeStationName();
-  static MicromegasHitIdHelper* m_help;
-
 };
 
 #endif

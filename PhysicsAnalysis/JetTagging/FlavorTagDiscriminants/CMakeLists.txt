@@ -48,7 +48,6 @@ atlas_add_library( FlavorTagDiscriminants
     AsgTools
     AthContainers
     AthLinks
-    GaudiKernel
     JetInterface
     xAODBTagging
     xAODEventInfo

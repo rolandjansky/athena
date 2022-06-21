@@ -381,6 +381,18 @@ void zero( TH2* h ) {
   }
 }
 
+
+/// zero the contents of a 2d histogram 
+void normy( TH2* h ) { 
+  int Nx = h->GetNbinsX();
+  int Ny = h->GetNbinsY();
+  for ( int i=1 ; i<=Nx ; i++ ) { 
+    double n = 0;
+    for ( int j=1 ; j<=Ny ; j++ ) n += h->GetBinContent(i,j);
+    if ( n>0 ) for ( int j=1 ; j<=Ny ; j++ ) h->SetBinContent( i, j, h->GetBinContent(i,j)/n );
+  }
+}
+
 double chi2( TH1* h0, TH1* h1 ) { 
   double c2 = 0;
 
@@ -1577,6 +1589,12 @@ int main(int argc, char** argv) {
 	    h2test->GetYaxis()->SetRangeUser( yinfo.lo(), yinfo.hi() );
 	  }
 
+	  if ( yinfo.normset() ) normy( h2test );
+
+	  if ( xinfo.rangeset() ) { 
+	    h2test->GetXaxis()->SetRangeUser( xinfo.lo(), xinfo.hi() );
+	  }
+
 	  h2test->DrawCopy("colz");
 	  
 	  if ( histo.detail().find("logz")!=std::string::npos ) gPad->SetLogz(true);
@@ -1758,24 +1776,26 @@ int main(int argc, char** argv) {
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
 
-	  std::string hname = histo.name();
+	  std::string hname  = histo.name();
+	  std::string detail = histo.detail();
 
 	  double rebin = 1;
 
-	  if ( contains( hname, "+Rebin" ) ) { 
-	    rebin = std::atof( hname.substr( hname.find("+Rebin")+6, hname.size() ).c_str() ); 
-	    hname = hname.substr( 0, hname.find("+Rebin") ); 
+	  if ( contains( detail, "+Rebin" ) ) { 
+	    rebin = std::atof( detail.substr( detail.find("+Rebin")+6, detail.size() ).c_str() ); 
 	  } 
 
-	  if ( contains( hname, "+rebin" ) ) { 
-	    rebin = std::atof( hname.substr( hname.find("+rebin")+6, hname.size() ).c_str() ); 
-	    hname = hname.substr( 0, hname.find("+rebin") ); 
+	  if ( contains( detail, "+rebin" ) ) { 
+	    rebin = std::atof( detail.substr( detail.find("+rebin")+6, detail.size() ).c_str() ); 
 	  } 
-	      
-	  if ( rebin!=1 ) { 
-	    htest->Rebin(rebin);
-	    if ( href ) href->Rebin(rebin);
+
+	  if ( rebin!=1 ) {
+	    std::cout << "rebin: " << hname << "\t" << rebin << std::endl;
+	    if ( htest ) htest->Rebin(rebin);
+	    if ( href  ) href->Rebin(rebin);
+	    for ( int ip=0 ; ip<10 ; ip++ ) std::cout << std::endl; 
 	  }
+
 #if 0
 	  /// skip this for the time being - but leave the code in place
 	  if ( !contains( histo.name(), "rdz_vs_zed" ) && contains( histo.name(), "1d") ) {

@@ -37,6 +37,6 @@ private:
 CLASS_DEF(InDet::SiliconPropertiesVector, 10146683 , 1)
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF(InDet::SiliconPropertiesVector, 246562685);
+CONDCONT_MIXED_DEF(InDet::SiliconPropertiesVector, 246562685);
 
 #endif // SIPROPERTIESTOOL_SILICONPROPERTIESVECTOR_H

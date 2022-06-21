@@ -4,6 +4,8 @@
 
 #include "PFOMonitorAlgorithm.h"
 #include "xAODPFlow/FEHelpers.h"
+#include "AthenaKernel/Units.h"
+using Athena::Units::GeV;
 
 PFOMonitorAlgorithm::PFOMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
@@ -118,11 +120,11 @@ StatusCode PFOMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     const static SG::AuxElement::ConstAccessor<float> acc_tracksExpectedEnergyDeposit("TracksExpectedEnergyDeposit");
 
     for (const auto& pfo : *chpfos) {
-      pT  = pfo->pt();
+      pT  = pfo->pt()/GeV;
       eta = pfo->eta();
       phi = pfo->phi();
-      mass= pfo->m();
-      E   = pfo->e();     
+      mass= pfo->m()/GeV;
+      E   = pfo->e()/GeV;     
       y   = pfo->rapidity();
       //float score = bdtPi0Score();
 
@@ -136,10 +138,11 @@ StatusCode PFOMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       if(acc_tracksExpectedEnergyDeposit.isAvailable(*pfo)) {expectedEnergy = acc_tracksExpectedEnergyDeposit(*pfo);}
       else {ATH_MSG_DEBUG("This charged PFO did not have TracksExpectedEnergyDeposit set");}
 
-      ChpT  = pfo->pt();
+      ChpT  = pfo->pt()/GeV;
       Cheta = pfo->eta();
       Chphi = pfo->phi();
-      ChE   = pfo->e();
+      Chmass= pfo->m()/GeV;
+      ChE   = pfo->e()/GeV;
       Chy   = pfo->rapidity();
       ChDenseEnv = denseEnv;
       ChExpE= expectedEnergy;
@@ -152,21 +155,21 @@ StatusCode PFOMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     }
 
     for (const auto& pfo : *nupfos) {
-      E   = pfo->e();
+      E   = pfo->e()/GeV;
       //some neutral particle flow FlowELement can have their energy set to exactly zero. Will get FPE if
       //try to calculate rapidity, so skip these.
       if (0 == E) continue;
-      pT  = pfo->pt();
+      pT  = pfo->pt()/GeV;
       eta = pfo->eta();
       phi = pfo->phi();
-      mass= pfo->m();      
+      mass= pfo->m()/GeV;      
       y   = pfo->rapidity();
       
-      NupT  = pfo->pt();
+      NupT  = pfo->pt()/GeV;
       Nueta = pfo->eta();
       Nuphi = pfo->phi();
-      Numass= pfo->m();
-      NuE   = pfo->e();
+      Numass= pfo->m()/GeV;
+      NuE   = pfo->e()/GeV;
       Nuy   = pfo->rapidity();
 
       if (acc_ISOLATION.isAvailable(*pfo)) {NuIso = acc_ISOLATION(*pfo);}

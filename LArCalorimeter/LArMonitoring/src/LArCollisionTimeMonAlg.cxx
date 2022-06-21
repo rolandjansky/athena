@@ -119,11 +119,11 @@ LArCollisionTimeMonAlg::fillHistograms( const EventContext& ctx ) const
 
       //check timeWindow
       lumi_block_timeWindow=lumi_block;
-      if ( fabs(ecTimeDiff) < 10*Gaudi::Units::nanosecond/m_timeUnit) fill(m_MonGroupName,lumi_block_timeWindow,weight);
+      if ( fabs(ecTimeDiff) < 10*Gaudi::Units::nanosecond/m_timeUnit) fill(m_MonGroupName,lumi_block_timeWindow);
    
       //check singleBeam-timeWindow
       lumi_block_singleBeam_timeWindow=lumi_block;
-      if ( fabs(ecTimeDiff) > 20*Gaudi::Units::nanosecond/m_timeUnit && fabs(ecTimeDiff) < 30*Gaudi::Units::nanosecond/m_timeUnit ) fill(m_MonGroupName,lumi_block_singleBeam_timeWindow,weight); 
+      if ( fabs(ecTimeDiff) > 20*Gaudi::Units::nanosecond/m_timeUnit && fabs(ecTimeDiff) < 30*Gaudi::Units::nanosecond/m_timeUnit ) fill(m_MonGroupName,lumi_block_singleBeam_timeWindow); 
 
       //check in-train (online only)
       if(m_IsOnline && bcid_distance > m_distance) { // fill histos inside the train

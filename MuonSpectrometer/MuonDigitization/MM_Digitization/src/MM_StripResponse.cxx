@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_StripResponse.h"
 
-MM_StripResponse::MM_StripResponse() {}
 
 MM_StripResponse::MM_StripResponse(std::vector<std::unique_ptr<MM_IonizationCluster>>& IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_minstripID(minstripID), m_maxstripID(maxstripID) {
 
@@ -54,7 +53,7 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 		// Only add the strips that are either read out, or can cross talk to the read out strips
     if (stripVal < m_minstripID-2 || stripVal > m_maxstripID+1) stripVal = -1;
     if (stripVal > 0)
-      (m_stripCharges[timeBin])[stripVal] += Electron->getCharge();
+      m_stripCharges[timeBin][stripVal] += Electron->getCharge();
 
 	}
 }
@@ -86,17 +85,17 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
         float chargeScaleFactor = 1.0/ (1. + ( (stripVal-1 > 0) + (stripVal+1 < m_maxstripID) ) * crossTalk1  + ( (stripVal-2 > 0) + (stripVal+2 < m_maxstripID) ) * crossTalk2);
         stripChargeVal *= chargeScaleFactor;
         
-        (m_stripCharges[timeBin])[stripVal] += stripChargeVal;
+        m_stripCharges[timeBin][stripVal] += stripChargeVal;
 
 
         // Allow crosstalk between strips that exist.
         // Will check for read out strips in calculateSummaries function
-				if (stripVal-1 > 0) (m_stripCharges[timeBin])[stripVal-1] += stripChargeVal * crossTalk1;
-				if (stripVal+1 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+1] += stripChargeVal * crossTalk1;
+				if (stripVal-1 > 0) m_stripCharges[timeBin][stripVal-1] += stripChargeVal * crossTalk1;
+				if (stripVal+1 < m_maxstripID) m_stripCharges[timeBin][stripVal+1] += stripChargeVal * crossTalk1;
 
 				if (crossTalk2 > 0.){
-					if (stripVal-2 > 0) (m_stripCharges[timeBin])[stripVal-2] += stripChargeVal * crossTalk2;
-					if (stripVal+2 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+2] += stripChargeVal * crossTalk2;
+					if (stripVal-2 > 0) m_stripCharges[timeBin][stripVal-2] += stripChargeVal * crossTalk2;
+					if (stripVal+2 < m_maxstripID) m_stripCharges[timeBin][stripVal+2] += stripChargeVal * crossTalk2;
 				}
 			}
 		}
@@ -122,9 +121,9 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 			
 			bool found=false;
 			for(size_t ii = 0; ii<m_v_strip.size(); ii++ ){
-				if(m_v_strip[ii]==stripVal){
-					m_v_stripTimeThreshold[ii].push_back(timeBin*m_timeResolution);
-					m_v_stripTotalCharge[ii].push_back(stripChargeVal);
+				if(m_v_strip.at(ii)==stripVal){
+					m_v_stripTimeThreshold.at(ii).push_back(timeBin*m_timeResolution);
+					m_v_stripTotalCharge.at(ii).push_back(stripChargeVal);
 					found=true;
 					break;
 				}
@@ -144,13 +143,12 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 
 
 // accessors
-std::map<int, int> MM_StripResponse::getTimeThreshold() const { return m_stripTimeThreshold; }
-std::map<int, float> MM_StripResponse::getTotalCharge() const { return m_stripTotalCharge; }
-std::map<int, float> MM_StripResponse::getMaxCharge() const { return m_stripMaxCharge; }
-std::map<int, int> MM_StripResponse::getTimeMaxCharge() const { return m_stripTimeMaxCharge; }
-
-std::vector<int> MM_StripResponse::getStripVec() const { return m_v_strip; }
-std::vector< std::vector < float > > MM_StripResponse::getTimeThresholdVec() const { return m_v_stripTimeThreshold; }
-std::vector< std::vector < float > >  MM_StripResponse::getTotalChargeVec() const { return m_v_stripTotalCharge; }
-std::vector<float> MM_StripResponse::getMaxChargeVec() const { return m_v_stripMaxCharge; }
-std::vector<float> MM_StripResponse::getTimeMaxChargeVec() const { return m_v_stripTimeMaxCharge; }
+const std::map<int, int>& MM_StripResponse::getTimeThreshold() const { return m_stripTimeThreshold; }
+const std::map<int, float>& MM_StripResponse::getTotalCharge() const { return m_stripTotalCharge; }
+const std::map<int, float>& MM_StripResponse::getMaxCharge() const { return m_stripMaxCharge; }
+const std::map<int, int>& MM_StripResponse::getTimeMaxCharge() const { return m_stripTimeMaxCharge; }
+const std::vector<int>& MM_StripResponse::getStripVec() const { return m_v_strip; }
+const std::vector< std::vector < float > >& MM_StripResponse::getTimeThresholdVec() const { return m_v_stripTimeThreshold; }
+const std::vector< std::vector < float > >&  MM_StripResponse::getTotalChargeVec() const { return m_v_stripTotalCharge; }
+const std::vector<float>& MM_StripResponse::getMaxChargeVec() const { return m_v_stripMaxCharge; }
+const std::vector<float>& MM_StripResponse::getTimeMaxChargeVec() const { return m_v_stripTimeMaxCharge; }

@@ -22,20 +22,20 @@ class MM_ElectronicsToolTriggerOutput {
     m_VMMid(VMMid),
     m_MMFEVMMid(MMFEVMMid) {}
 
-  ~ MM_ElectronicsToolTriggerOutput() {}
+   ~MM_ElectronicsToolTriggerOutput()  = default;
 
-  std::vector<int> NumberOfStripsPos() const { return m_NumberOfStripsPos; }
-  std::vector<float> chipCharge() const { return m_chipCharge; }
-  std::vector<float> chipTime() const { return m_chipTime; }
-  std::vector<int> VMMid() const { return m_VMMid; }
-  std::vector<int> MMFEVMMid() const { return m_MMFEVMMid; }
+  const std::vector<int>& NumberOfStripsPos() const { return m_NumberOfStripsPos; }
+  const std::vector<float>& chipCharge() const { return m_chipCharge; }
+  const std::vector<float>& chipTime() const { return m_chipTime; }
+  const std::vector<int>& VMMid() const { return m_VMMid; }
+  const std::vector<int>& MMFEVMMid() const { return m_MMFEVMMid; }
 
  private:
-  std::vector<float> m_chipCharge;
-  std::vector<float> m_chipTime;
-  std::vector<int> m_NumberOfStripsPos;
-  std::vector<int> m_VMMid;
-  std::vector<int> m_MMFEVMMid;
+  std::vector<float> m_chipCharge{};
+  std::vector<float> m_chipTime{};
+  std::vector<int> m_NumberOfStripsPos{};
+  std::vector<int> m_VMMid{};
+  std::vector<int> m_MMFEVMMid{};
 };
 /*******************************************************************************/
 #endif

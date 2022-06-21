@@ -4,6 +4,7 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence,algorithmCAToGlobalWrapper
 from AthenaCommon.CFElements import parOR, seqAND
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
@@ -30,51 +31,32 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     AFP_SiCl= algorithmCAToGlobalWrapper(AFP_SiClusterTools_HLT,ConfigFlags)
     
     # tracks reconstruction
-    from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_HLT, AFP_LocReco_TD_HLT
+    from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_HLT
     AFP_SID = algorithmCAToGlobalWrapper(AFP_LocReco_SiD_HLT,ConfigFlags)
-    AFP_TD  = algorithmCAToGlobalWrapper( AFP_LocReco_TD_HLT,ConfigFlags)
-
-    
-    # protons reconstruction
-    from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_HLT
-    AFP_Pr= algorithmCAToGlobalWrapper(AFP_GlobReco_HLT,ConfigFlags)
-  
-    # vertex reconstruction
-    from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_HLT
-    AFP_Vtx=algorithmCAToGlobalWrapper(AFP_VertexReco_HLT,ConfigFlags)
     
     if globalflags.InputFormat.is_bytestream():
-        AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])
+        AFPRecoSeq = parOR("AFPTrkRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID])
     else:
-        AFPRecoSeq = parOR("AFPRecoSeq", [AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])
+        AFPRecoSeq = parOR("AFPTrkRecoSeq", [AFP_SiCl, AFP_SID])
     
     return (AFPRecoSeq, AFPInputMaker)
 
 
-def AFPTrkRecoSequence():
+def AFPTrkSequenceCfg(flags):
 
     # Retrieve input maker and reco seq
-    (AFPPassThroughRecoSeq, AFPPassThroughInputMaker) = RecoFragmentsPool.retrieve(AFPTrkRecoBaseSequence,ConfigFlags)
-    AFPPassThroughSequence = seqAND("AFPPassThroughSequence", [AFPPassThroughInputMaker, AFPPassThroughRecoSeq])
+    (recoSeq, inputMaker) = RecoFragmentsPool.retrieve(AFPTrkRecoBaseSequence, flags)
+    AFPPassThroughSequence = seqAND("AFPPassThroughSequence", [inputMaker, recoSeq])
 
-    # Edit pass-through hypo to use new ToF hypo
+    hypoAlg = conf2toConfigurable(CompFactory.TrigStreamerHypoAlg("AFPPassThroughHypo"))
+
     def trigStreamerAFPHypoTool(chain_dict):
-        from TrigAFPHypo.TrigAFPHypoConf import TrigAFPToFHypoTool
-        hypoTool = TrigAFPToFHypoTool(chain_dict["chainName"])
-        return hypoTool
-
-    # HypoAlg
-    from TrigAFPHypo.TrigAFPHypoConf import TrigAFPToFHypoAlg
-    hypoAlg = TrigAFPToFHypoAlg("TrigAFPToFHypoAlg",
-                                      AFPVertexContainer = 'HLT_AFPVertexContainer',
-                                      VertexContainer = 'HLT_IDVertex_FS')
-        
-    trigHypoToolGen = trigStreamerAFPHypoTool
+        return conf2toConfigurable(CompFactory.TrigStreamerHypoTool(chain_dict["chainName"]))
 
     return MenuSequence(Sequence = AFPPassThroughSequence,
-                        Maker    = AFPPassThroughInputMaker,
+                        Maker    = inputMaker,
                         Hypo     = hypoAlg,
-                        HypoToolGen = trigHypoToolGen)
+                        HypoToolGen = trigStreamerAFPHypoTool)
 
 def TestTrigAFPDijetHypoToolGen(chainDict):
     from TrigAFPHypo.TrigAFPHypoConf import TestTrigAFPDijetHypoTool
@@ -131,3 +113,45 @@ def AFPTrkRecoHypoSequence():
                         Maker    = AFPInputMakerHypo,
                         Hypo     = hypoAlg,
                         HypoToolGen = TestTrigAFPDijetHypoToolGen)
+
+def AFPGlobalRecoSequence(flags):
+
+    # Create inputs using input maker
+    AFPInputMaker = InputMakerForRoI("IM_AFPGlobalFS")
+    AFPInputMaker.RoITool = ViewCreatorInitialROITool()
+    AFPInputMaker.RoIs = "AFPGlobalRoIs"
+    from AFP_LocReco.AFP_LocReco import AFP_LocReco_TD_HLT
+    AFP_TD  = algorithmCAToGlobalWrapper( AFP_LocReco_TD_HLT, flags)
+
+    # protons reconstruction
+    from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_HLT
+    AFP_Pr= algorithmCAToGlobalWrapper(AFP_GlobReco_HLT, flags)
+  
+    # vertex reconstruction
+    from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_HLT
+    AFP_Vtx=algorithmCAToGlobalWrapper(AFP_VertexReco_HLT, flags)
+    AFPRecoSeq = parOR("AFPGlobalRecoSeq", [AFP_TD, AFP_Pr, AFP_Vtx])
+
+    return (AFPRecoSeq, AFPInputMaker)
+
+
+def AFPGlobalSequenceCfg(flags):
+    recoSeq, inputMaker = RecoFragmentsPool.retrieve(AFPGlobalRecoSequence,flags)
+
+    seq = seqAND("AFPGlobalSequence", [inputMaker, recoSeq])
+
+    def AFPTOFHypoToolGen(chain_dict):
+        from TrigAFPHypo.TrigAFPHypoConf import TrigAFPToFHypoTool
+        hypoTool = TrigAFPToFHypoTool(chain_dict["chainName"])
+        return hypoTool
+
+    # HypoAlg
+    from TrigAFPHypo.TrigAFPHypoConf import TrigAFPToFHypoAlg
+    hypoAlg = TrigAFPToFHypoAlg("TrigAFPToFHypoAlg",
+                                      AFPVertexContainer = 'HLT_AFPVertexContainer',
+                                      VertexContainer = 'HLT_IDVertex_FS')
+        
+    return MenuSequence(Sequence = seq,
+                        Maker    = inputMaker,
+                        Hypo     = hypoAlg,
+                        HypoToolGen = AFPTOFHypoToolGen)

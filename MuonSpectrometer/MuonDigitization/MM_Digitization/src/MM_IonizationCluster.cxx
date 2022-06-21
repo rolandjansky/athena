@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_IonizationCluster.h"
 
-
-MM_IonizationCluster::MM_IonizationCluster () {}
 
 MM_IonizationCluster::MM_IonizationCluster (float HitX, float IonizationX, float IonizationY) : m_HitX(HitX), m_IonizationStart(IonizationX, IonizationY) {}
 

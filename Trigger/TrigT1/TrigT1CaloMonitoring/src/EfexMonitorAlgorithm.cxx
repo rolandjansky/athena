@@ -47,7 +47,7 @@ StatusCode EfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
 
   const xAOD::eFexEMRoI* efexEmRoI = 0;
 
-  for(const auto& it :  *eFexContainer){
+  for(const auto it :  *eFexContainer){
     efexEmRoI = it;
 
     TOBeT=efexEmRoI->et();
@@ -89,7 +89,7 @@ StatusCode EfexMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const
 
   const xAOD::eFexTauRoI* efexTauRoI = 0;
 
-  for(const auto& it :  *eFexTauContainer){
+  for(const auto it :  *eFexTauContainer){
     efexTauRoI = it;
 
     tauTOBeT=efexTauRoI->et();

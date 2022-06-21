@@ -16,11 +16,11 @@ def TrigSPTRK(configFlags, highGranularity=False):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
     alg = monConfig.addAlgorithm(CompFactory.HLTMinBiasTrkMonAlg, "HLTMBSPTRKMonAlg")
-    trkSel = CompFactory.InDet.InDetTrackSelectionTool(
-        "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
-    )
 
+    from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_LoosePrimary_Cfg
+    trkSel = monConfig.resobj.popToolsAndMerge(InDetTrackSelectionTool_LoosePrimary_Cfg(configFlags))
     alg.TrackSelectionTool = trkSel
+
     ZFinderCollection = 'HLT_vtx_z'
     if ZFinderCollection in configFlags.Input.Collections:
         print("Enabled z finder data reading")
@@ -34,7 +34,6 @@ def TrigSPTRK(configFlags, highGranularity=False):
     alg.triggerListSpacePointsMon = detailed
 
     for chain in alg.triggerListTrackingMon:
-        print("CONFIGURING FOR CHAIN", chain)
         mbEffGroup = monConfig.addGroup(
             alg, chain + "_Tracking", topPath="HLT/MinBiasMon/Tracking/" + chain + "/"
         )
@@ -51,8 +50,10 @@ def TrigSPTRK(configFlags, highGranularity=False):
             mbEffGroup.defineHistogram( "nTrkOnline,zFinderWeight", type="TH2F", title=";N online tracks;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "nTrkOffline,zFinderWeight", type="TH2F", title=";N online tracks;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "nTrkOfflineVtx,zFinderWeight", type="TH2F", title=";N offline tracks with Vtx cut;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
-            mbEffGroup.defineHistogram( "offlineVtxZ,zFinderVtxZ", type="TH2F", title=";offline pri vertex z[mm];ZFinder vertex z[mm]", xbins=nbins, xmin=-200, xmax=200, ybins=nbins, ymin=-200, ymax=200 )
+            mbEffGroup.defineHistogram( "nTrkOfflineVtx,zFinderWeight", type="TH2F", title=";N offline tracks with Vtx cut;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
+            mbEffGroup.defineHistogram( "nTrkOfflineVtx,nTrkOnlineVtx", type="TH2F", title=";N offline tracks with Vtx cut;N online tracks with Vtx cut;", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "onlineOfflineVtxDelta", title=";(offline - online) vertex z[mm]", xbins=200, xmin=-200, xmax=200 )
+
 
             mbEffGroup.defineHistogram( "nTrkOnline", title="Number of tracks reconstructed online;track counts", xbins=200, xmin=-1, xmax=400 )
             mbEffGroup.defineHistogram( "nTrkRatio", title="Number of tracks reconstructed online/offline;track counts online/offline", xbins=200, xmin=-1, xmax=4 ) 
@@ -61,15 +62,18 @@ def TrigSPTRK(configFlags, highGranularity=False):
 
             nbins = 400 if highGranularity else 50
             mbEffGroup.defineHistogram( "SctTot,nTrkOffline", type="TH2F", title=";Number of SP in whole SCT detector for all events;N offline tracks", xbins=nbins, xmin=0, xmax=4000, ybins=nbins, ymin=0, ymax=400 )
+            mbEffGroup.defineHistogram( "SctTot,nTrkOfflineVtx", type="TH2F", title=";Number of SP in whole SCT detector for all events;N offline tracks wiht Vtx cut", xbins=nbins, xmin=0, xmax=4000, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "SctTot,nTrkOnline", type="TH2F",  title=";Number of SP in whole SCT detector for all events;N online tracks", xbins=nbins, xmin=0, xmax=4000, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "PixelCL,nTrkOffline", type="TH2F",  title=";Number of SP in whole Pixels detector for all events;N offline tracks", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "PixelCL,nTrkOnline", type="TH2F",  title=";Number of SP in whole Pixels detector for all events;N online tracks", xbins=100, xmin=0, xmax=4000, ybins=100, ymin=0, ymax=400 )
 
-            mbEffGroup.defineHistogram( "L1sumEt", title=";L1 Total ET [GeV] ;Events", xbins=52, xmin=-2, xmax=50 ) 
+            mbEffGroup.defineHistogram( "L1sumEt", title=";L1 Total ET [GeV] ;Events", xbins=52, xmin=-2, xmax=50 )
             mbEffGroup.defineHistogram( "nTrkOffline,L1sumEt", type="TH2F", title=";Offline Ntrk;L1 Total ET [GeV]", xbins=100, xmin=-1, xmax=200, ybins=52, ymin=-2, ymax=50   ) 
             mbEffGroup.defineHistogram( "nTrkOnline,L1sumEt", type="TH2F", title=";Online Ntrk;L1 Total ET [GeV]",   xbins=100, xmin=-1, xmax=200, ybins=52, ymin=-2, ymax=50   ) 
             mbEffGroup.defineHistogram( "SctTot,L1sumEt", type="TH2F", title=";Number of SP in whole SCT detector for all events;L1 Total ET [GeV]", xbins=100, xmin=0, xmax=4000, ybins=52, ymin=-2, ymax=50   ) 
             mbEffGroup.defineHistogram( "PixelCL,L1sumEt", type="TH2F", title=";Number of SP in whole Pixels detector for all events;L1 Total ET [GeV]", xbins=100, xmin=0, xmax=4000, ybins=52, ymin=-2, ymax=50   ) 
+
+            mbEffGroup.defineHistogram( "countsOnlineNames,countsOnline;onlineCounters", type="TProfile", title=";cuts;counts/evt", xbins=10, xmin=0, xmax=10, ybins=10, ymin=0, ymax=10)
 
         mbEffGroup.defineHistogram( "trkPt", cutmask="trkMask", title="Offline selected tracks pt;p_{T} [GeV]", xbins=100, xmin=0, xmax=5)
         mbEffGroup.defineHistogram( "trkEta", cutmask="trkMask", title="Offline selected tracks eta;#eta", xbins=50, xmin=-2.5, xmax=2.5)

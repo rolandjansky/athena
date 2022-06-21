@@ -74,11 +74,11 @@ for par in ["HEC","FCal"]:
     lArDQGlobals.HVphi_HECFcal[par+"C"]=lArDQGlobals.HVphi_HECFcal[par+"A"]
 #Lumi block ranges
 lArDQGlobals.LB_Bins=3000
-lArDQGlobals.LB_Min=0
+lArDQGlobals.LB_Min=-0.5
 lArDQGlobals.LB_Max=lArDQGlobals.LB_Bins+lArDQGlobals.LB_Min
 #bunch crossing id ranges
 lArDQGlobals.BCID_Bins=3564
-lArDQGlobals.BCID_Min=0.5
+lArDQGlobals.BCID_Min=-0.5
 lArDQGlobals.BCID_Max=lArDQGlobals.BCID_Min+lArDQGlobals.BCID_Bins
 #LArCollisionTime (A-C) ranges
 lArDQGlobals.colTime_BinWidth = 0.25*Units.nanosecond

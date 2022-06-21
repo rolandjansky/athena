@@ -55,7 +55,7 @@ CLASS_DEF( SCT_DCSFloatCondData , 234553277 , 1 )
 
 // Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( SCT_DCSFloatCondData, 257878639 );
+CONDCONT_MIXED_DEF( SCT_DCSFloatCondData, 257878639 );
 
 
 #endif // SCT_DCSFLOATCONDDATA_H

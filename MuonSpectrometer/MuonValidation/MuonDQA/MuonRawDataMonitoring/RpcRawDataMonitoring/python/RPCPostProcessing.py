@@ -137,6 +137,7 @@ def make_hit_rate(inputs):
   timeTag   = "All"
 
   # -----------------------------------------------------------------------
+  dic_hists             = {}
   list_hist_all         = []
   list_hist_layer       = []
   list_hist_subDetector = []
@@ -173,9 +174,11 @@ def make_hit_rate(inputs):
 
       list_hist_subDetector += list_summary_eachSectorsAndLayers
 
-  list_hist = list_hist_all + list_hist_layer + list_hist_subDetector
+  getHistNames(list_hist_all, "Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/HitRate_vs_InstLumi", dic_hists)
+  getHistNames(list_hist_layer, "Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/HitRate_vs_InstLumi/Layers", dic_hists)
+  getHistNames(list_hist_subDetector, "Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/HitRate_vs_InstLumi/SubDetector", dic_hists)
 
-  return list_hist
+  return dic_hists
 
 #############################################################################
 def make_hitMulti(inputs):
@@ -231,36 +234,41 @@ def make_detection_eff(inputs):
   h_name  = "Panel_Efficiency"
 
   # -----------------------------------------------------------------------
-  variable = "detEff"
-  config = [h_name, variable]
+  variable   = "detEff"
+  config     = [h_name, variable]
+  dic_histos = {}
+
   ###
   ### "Summary_layer[1-8]_detEff", 
   ###
   list_summary_allSectorsAndLayers = draw_eff.GetSummary_allSectorsAndLayers(config)
+  getHistNames(list_summary_allSectorsAndLayers, "Muon/MuonRawDataMonitoring/RPC/TrackMatch/MuonDetectionEff", dic_histos)
 
   ###
   ### "Summary_Sector[-16...-1, 1...16]_Layer[1...8]_dbPhi[1,2]_measPhi[0,1]_detEff",
   ###
   list_summary_eachSectorsAndLayers= draw_eff.GetSummary_eachSectorsAndLayers(config)
+  getHistNames(list_summary_eachSectorsAndLayers, "Muon/MuonRawDataMonitoring/RPC/TrackMatch/MuonDetectionEff/SubDetector", dic_histos)
 
   ###
   ### "detEff_layer[1-6]_measPhi[01]",
   ###
   list_hist2d_EtaPhi_allLayer      = draw_eff.GetHist2D_EtaPhi_allLayer(config)
+  getHistNames(list_hist2d_EtaPhi_allLayer, "Muon/MuonRawDataMonitoring/RPC/TrackMatch/MuonDetectionEff", dic_histos)
 
   ###
   ### "detEff_per_sectors_per_layers_(eta|phi|etaAndPhi)Panels",
   ###
   list_hist1D_secLayer             = draw_eff.GetHist1D_ySectorsAndLayers(config)
+  getHistNames(list_hist1D_secLayer, "Muon/MuonRawDataMonitoring/RPC/TrackMatch/MuonDetectionEff", dic_histos)
 
   ###
   ### "detEff_per_panel_(eta|phi|etaAndPhi)View",
   ###
   list_hist1D_panels               = draw_eff.GetHist1D_yPanels(config)
+  getHistNames(list_hist1D_panels, "Muon/MuonRawDataMonitoring/RPC/TrackMatch/MuonDetectionEff", dic_histos)
 
-  list_histos = list_hist1D_secLayer + list_hist1D_panels + list_summary_allSectorsAndLayers + list_hist2d_EtaPhi_allLayer + list_summary_eachSectorsAndLayers
-
-  return list_histos
+  return dic_histos
 
 #############################################################################
 def make_hitFrac(inputs):
@@ -310,6 +318,13 @@ def make_hitFrac(inputs):
   list_hist1D_panels_hitFracOnTrack   = draw_histFrac_onTrack.GetHist1D_yPanels(config)
 
   return list_hist1D_secLayer_hitFrac+list_hist1D_panels_hitFrac+list_hist1D_secLayer_hitFracOnTrack+list_hist1D_panels_hitFracOnTrack
+
+
+#############################################################################
+def getHistNames(hist_list, prefix, dic_hist):
+    for i_hist in hist_list:
+        i_name = "%s/%s" %(prefix, i_hist.GetName())
+        dic_hist[i_name] = i_hist
 
 #############################################################################
 def printHistNames():

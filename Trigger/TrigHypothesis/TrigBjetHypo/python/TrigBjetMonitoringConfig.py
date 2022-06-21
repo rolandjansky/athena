@@ -7,6 +7,15 @@ def TrigBjetBtagHypoToolMonitoring(histPath):
     montool.defineHistogram('btag_pc', title=': Probability jets are Charm-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
     montool.defineHistogram('btag_pu', title=': Probability jets are Light-jets', xbins=100, xmin=0, xmax=1, path='EXPERT', type='TH1F' )
     montool.defineHistogram('btag_llr', title=': Log(P_{b}/P_{light}), Likelihood Ratio between the B-jet and Light-flavour Jet Hypotheses', xbins=100, xmin=-10, xmax=50, path='EXPERT', type='TH1F' )
+    # hypo stage histogram
+    montool.defineHistogram(
+        'stage',
+        title="Bjet hypothesis result",
+        xbins=4,
+        xlabels=['no beamspot', 'no primary vertex', 'fail', 'pass'],
+        path='EXPERT',
+    )
+
     return montool
 
 

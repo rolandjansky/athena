@@ -191,7 +191,7 @@ StatusCode sTgcFastDigitizer::execute() {
   ATH_CHECK(evtStore()->retrieve( collGMSH, "sTGC_Hits"));  // TODO: move to data handles
 
   ATH_MSG_DEBUG( "Retrieved " <<  collGMSH->size() << " sTgc hits!");
-  sTgcHitIdHelper* hitHelper=sTgcHitIdHelper::GetHelper();
+  const sTgcHitIdHelper* hitHelper=sTgcHitIdHelper::GetHelper();
   sTgcSimIdToOfflineId simToOffline(&m_idHelperSvc->stgcIdHelper());
 
 

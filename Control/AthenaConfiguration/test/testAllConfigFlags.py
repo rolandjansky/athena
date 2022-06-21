@@ -22,6 +22,13 @@ acf.addFlag("domain2.flag1","geh")
 acf.addFlag("domain2.flag2","xyz")
 #acf.addFlag("domain2.flagxxx","will fail")
 
+def _createDomain3():
+   f = AthConfigFlags()
+   f.addFlag("domain3.flag1", "")
+   return f
+
+acf.addFlagsCategory("domain3", _createDomain3)
+
 acf.lock()
 
 print("Initial flag container")
@@ -29,6 +36,7 @@ acf.dump()
 
 acfPrime=acf.clone()
 acfPrime.x.flag3 = 42
+acfPrime.domain3.flag1 = "bar"  # check if dynamic flags are cloned
 
 print("Cloned flag container")
 acfPrime.dump()

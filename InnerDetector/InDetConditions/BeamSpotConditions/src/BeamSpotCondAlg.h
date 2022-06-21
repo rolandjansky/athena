@@ -14,21 +14,21 @@
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
-class BeamSpotCondAlg : public AthReentrantAlgorithm 
-{ 
- public: 
+class BeamSpotCondAlg : public AthReentrantAlgorithm
+{
+ public:
   BeamSpotCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~BeamSpotCondAlg(); 
+  virtual ~BeamSpotCondAlg();
 
-                                        //IS EXECUTED:
-  virtual StatusCode  initialize() override;     //once, before any input is loaded
-  virtual StatusCode execute(const EventContext& ctx) const override;     //per event
-  
+  //IS EXECUTED:
+  virtual StatusCode  initialize() override final; //once, before any input is loaded
+  virtual StatusCode execute(const EventContext& ctx) const override final;//per event
+  virtual bool isReEntrant() const override final { return false; }
   static const EventIDRange alwaysValid;
 
- private: 
+ private:
 
-  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey { this, "BeamSpotFolder", "/Indet/Beampos", 
+  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey { this, "BeamSpotFolder", "/Indet/Beampos",
                                                          "DB folder from which to read raw beam spot data" };
 
   SG::WriteCondHandleKey<InDet::BeamSpotData> m_writeKey { this, "BeamSpotDataKey", "BeamSpotData",
@@ -46,6 +46,6 @@ class BeamSpotCondAlg : public AthReentrantAlgorithm
   Gaudi::Property<float> m_tiltY   { this, "tiltY",   0.0f,  "default Y tilt" };
   Gaudi::Property<float> m_sigmaXY { this, "sigmaXY", 0.0f,  "default XY width" };
 
-}; 
+};
 
 #endif //> !BEAMSPOT_CONDITIONSALGS_BEAMSPOTCONDALG_H

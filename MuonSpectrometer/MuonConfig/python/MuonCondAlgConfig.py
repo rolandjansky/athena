@@ -149,23 +149,21 @@ def CscCondDbAlgCfg(flags, **kwargs):
 ###    return result
 
 
-def TgcDigitASDposCondAlgCfg(flags):
+def TgcDigitCondAlgCfg(flags):
     result  = ComponentAccumulator()
     result.addCondAlgo(CompFactory.TgcDigitASDposCondAlg())
-    if flags.Digitization.UseUpdatedTGCConditions:
-        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], detDb="TGC_OFL", className="CondAttrListCollection"))
-    else:  # Since the folder new and not defined at the presented global tag, it needs an explicit tag
-        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], tag='TgcDigitAsdPos-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
-    return result
-
-def TgcDigitTimeOffsetCondAlgCfg(flags):
-    result = ComponentAccumulator()
     result.addCondAlgo(CompFactory.TgcDigitTimeOffsetCondAlg())
+    result.addCondAlgo(CompFactory.TgcDigitCrosstalkCondAlg())
 
     if flags.Digitization.UseUpdatedTGCConditions:
-        result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))   # TODO The explicit tag will be removed, once this is available in the global tag.
-    else:  # Since the folder new and not defined at the presented global tag, it needs an explicit tag
+        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+        # TODO: Below the explicit tag will be removed, once this is available in the global tag.
         result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+        result.merge(addFolders(flags, ["/TGC/DIGIT/XTALK"], tag='TgcDigitXTalk-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+    else:  # need explicit tags, since the folder new and not defined at the presented global tag. It can be removed if the folder is available in all global tags.
+        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], tag='TgcDigitAsdPos-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+        result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+        result.merge(addFolders(flags, ["/TGC/DIGIT/XTALK"], tag='TgcDigitXTalk-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
     return result
 
 def NswCalibDbAlgCfg(flags, **kwargs):

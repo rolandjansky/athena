@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class MDTSensitiveDetector
@@ -100,7 +100,7 @@ private:
                  
     /** member data */
     SG::WriteHandle<MDTSimHitCollection> m_MDTHitColl;
-    MdtHitIdHelper*            m_muonHelper;
+    const MdtHitIdHelper*      m_muonHelper;
 
     double                     m_driftRadius;
     double                     m_globalTime;

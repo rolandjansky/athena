@@ -153,7 +153,6 @@ def setupMenu():
 
         # Test chains to determine rate after calo-only preselection for tracking
         ChainProp(name='HLT_xe60_cell_L1XE50', l1SeedThresholds=['FSNOSEED'], groups=METGroup+DevGroup),
-        ChainProp(name='HLT_xe55_cell_xe70_tcpufit_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=METGroup+DevGroup),
 
         # ATR-25509 Triggers needed to test nSigma=3
         ChainProp(name='HLT_xe30_pfopufit_sig30_L1XE30', l1SeedThresholds=['FSNOSEED'], groups=METGroup+DevGroup),
@@ -163,7 +162,7 @@ def setupMenu():
 
     chains['Jet'] += [
 
-        
+
         # candidate jet TLA chains ATR-20395
         ChainProp(name='HLT_4j25_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=DevGroup+MultiJetGroup), # adding for study of EMTopo TLA fast b-tagging.
         ChainProp(name='HLT_j20_pf_ftf_presel4j85_PhysicsTLA_L13J50', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=MultiJetGroup+DevGroup),
@@ -171,6 +170,10 @@ def setupMenu():
         ChainProp(name='HLT_j20_pf_ftf_presel6j40_PhysicsTLA_L14J15', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=MultiJetGroup+DevGroup),
         ## with calo fast-tag presel - so actually btag TLA ATR-23002
         ChainProp(name='HLT_2j20_2j20_pf_ftf_presel2j25XX2j25b85_PhysicsTLA_L14J15p0ETA25', l1SeedThresholds=['FSNOSEED']*2, stream=['TLA'], groups=MultiJetGroup+DevGroup),
+
+        #TLA+PEB test for jets ATR-21596, matching "multijet+PFlow" TLA chain in physics menu for cross-check of event size
+        ChainProp(name='HLT_j20_pf_ftf_preselcHT450_JetPEBPhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLAJetPEB'], groups=DevGroup+MultiJetGroup+LegacyTopoGroup),
+        ChainProp(name='HLT_j20_JetPEBPhysicsTLA_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], stream=['TLAJetPEB'], groups=DevGroup+MultiJetGroup+LegacyTopoGroup),
 
         #
         ChainProp(name='HLT_6j25c_L14J15', l1SeedThresholds=['FSNOSEED'],            groups=MultiJetGroup+DevGroup),
@@ -358,7 +361,7 @@ def setupMenu():
         #HH4b chains with b-jet preselections
         ChainProp(name='HLT_j80c_020jvt_j55c_020jvt_j28c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85_pf_ftf_presel2c20XX2c20b90_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=[PhysicsStream], groups=DevGroup+MultiBjetGroup),
         ChainProp(name='HLT_j80c_020jvt_j55c_020jvt_j28c_020jvt_j20c_020jvt_SHARED_2j20c_020jvt_bdl1d77_pf_ftf_presel2c20XX2c20b90_L1J45p0ETA21_3J15p0ETA25',l1SeedThresholds=['FSNOSEED']*5, stream=['VBFDelayed'], groups=DevGroup+MultiBjetGroup),
-        # Muon+jet legacy seeded, backup for L1Topo muon-in-jet        
+        # Muon+jet legacy seeded, backup for L1Topo muon-in-jet
         ChainProp(name='HLT_j80c_020jvt_j55c_020jvt_j28c_020jvt_j20c_020jvt_SHARED_2j20c_020jvt_bdl1d77_pf_ftf_presel2c20XX2c20b90_L1MU8F_2J15_J20', l1SeedThresholds=['FSNOSEED']*5, stream=['VBFDelayed'], groups=DevGroup+MultiBjetGroup),
 
 
@@ -473,7 +476,7 @@ def setupMenu():
         ChainProp(name='HLT_j200_0eta290_020jvt_pf_ftf_boffperf_preselj140_L1J100', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=DevGroup+SingleBjetGroup, monGroups=['bJetMon:shifter']),
         ChainProp(name='HLT_j200_0eta290_020jvt_pf_ftf_boffperf_preselj140_L1jJ160', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=DevGroup+SingleBjetGroup, monGroups=['bJetMon:shifter']),
 
-        
+
     ]
 
     chains['Tau'] += [
@@ -514,12 +517,6 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_BsmumuPhi_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
         ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_LbPqKm_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
 
-
-        #ATR-20603; B-trigger monitoring, ART tests; should not be moved to Physics
-        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup, monGroups=['bphysMon:online','bphysMon:val']),
-        ChainProp(name='HLT_2mu4_bUpsimumu_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
-        #ATR-20839; validation and ART; should not be moved to Physics
-        ChainProp(name='HLT_2mu4_bDimu_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup, monGroups=['bphysMon:online','bphysMon:val']),
     ]
 
     chains['Combined'] += [
@@ -560,6 +557,13 @@ def setupMenu():
 
         # high-mu AFP
         ChainProp(name='HLT_2j20_mb_afprec_afpdijet_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],groups=['PS:Online']+MinBiasGroup+SupportLegGroup),
+
+        # Test PEB chains for AFP (single/di-lepton-seeded, can be prescaled)
+        # ATR-23946
+        ChainProp(name='HLT_noalg_AFPPEB_L1EM22VHI', l1SeedThresholds=['FSNOSEED'], stream=['AFPPEB'], groups=MinBiasGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1MU14FCH', l1SeedThresholds=['FSNOSEED'], stream=['AFPPEB'], groups=MinBiasGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L12MU5VF', l1SeedThresholds=['FSNOSEED'], stream=['AFPPEB'], groups=MinBiasGroup),
+        ChainProp(name='HLT_noalg_AFPPEB_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['AFPPEB'], groups=MinBiasGroup),
 
         #ATR-23156 will be superseeded by ATR-24698
         ChainProp(name='HLT_mu4_j20_0eta290_boffperf_pf_ftf_dRAB03_L1MU3V', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup),
@@ -642,6 +646,9 @@ def setupMenu():
         # TrigVSI
         ChainProp(name='HLT_fsvsi0_L1XE50',         groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_dispvtx0_loose_L1XE50', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+
+        # TrigVSI, ATR-25722
+        ChainProp(name='HLT_fsvsi0_L1All', groups=PrimaryLegGroup+UnconvTrkGroup+DevGroup+['PS:NoHLTRepro'], l1SeedThresholds=['FSNOSEED']),
     ]
 
     return chains

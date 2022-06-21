@@ -18,20 +18,20 @@ public:OverviewMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocat
 
 private:
 
+  typedef std::vector<int> ErrorVector;
+
   StringProperty m_packageName{this,"PackageName","OverviewMonitor","group name for histograming"};
   
   // Error vector StoreGate key
   StringProperty m_ppmErrorLocation{this,"PPMErrorLocation","L1CaloPPMErrorVector","PPM Error Vector"};
   StringProperty m_ppmSpareErrorLocation{this,"PPMSpareErrorLocation","L1CaloPPMSpareErrorVector","PPM Spare Error Vector"};
-  StringProperty m_cpmErrorLocation{this,"CPMErrorLocation","L1CaloCPMErrorVector","CPM Error Vector"};
+  SG::ReadHandleKey<ErrorVector> m_cpmErrorLocation{this,"CPMErrorLocation","L1CaloCPMErrorVector","CPM Error Vector"};
   StringProperty m_jemErrorLocation{this,"JEMErrorLocation","L1CaloJEMErrorVector","JEM Error Vector"};
   StringProperty m_jemCmxErrorLocation{this,"JEMCMXErrorLocation","L1CaloJEMCMXErrorVector","JEM-CMX Error Vector"};
   StringProperty m_rodErrorLocation{this,"RODErrorLocation","L1CaloRODErrorVector","ROD Error Vector"};
   StringProperty m_ppmMismatchLocation{this,"PPMMismatchLocation","L1CaloPPMMismatchVector","PPM Mismatch Error Vector"};
-  StringProperty m_cpmMismatchLocation{this,"CPMMismatchLocation","L1CaloCPMMismatchVector","CPM Mismatch Error Vector"};
+  SG::ReadHandleKey<ErrorVector> m_cpmMismatchLocation{this,"CPMMismatchLocation","L1CaloCPMMismatchVector","CPM Mismatch Error Vector"};
   StringProperty m_jemMismatchLocation{this,"JEMMismatchLocation","L1CaloJEMMismatchVector","JEM Mismatch Error Vector"};
-
-  typedef std::vector<int> ErrorVector;
 
   // Enums for global summary plot
 
@@ -135,8 +135,6 @@ private:
     Unpacking,
     NumberOfGlobalErrors
   };
-
-  mutable std::mutex m_mutex{};
 
 };
 #endif

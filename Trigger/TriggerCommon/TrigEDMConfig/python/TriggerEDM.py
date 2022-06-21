@@ -9,7 +9,7 @@
 
 from TrigEDMConfig.TriggerEDMRun1 import TriggerL2List,TriggerEFList,TriggerResultsRun1List
 from TrigEDMConfig.TriggerEDMRun2 import TriggerResultsList,TriggerLvl1List,TriggerIDTruth,TriggerHLTList,EDMDetails,EDMLibraries,TriggerL2EvolutionList,TriggerEFEvolutionList
-from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, AllowedOutputFormats,addExtraCollectionsToEDMList
+from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3,AllowedOutputFormats,addExtraCollectionsToEDMList,varToRemoveFromAODSLIM
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerEDM')
@@ -49,7 +49,11 @@ def getTriggerEDMList(key, runVersion):
             # this keeps only the dynamic variables that have been specificied in TriggerEDMRun3
             Run3TrigEDM = {}
             Run3TrigEDMCOMM = {}
-            if "AODFULL" in key: #introduction of AODCOMM for Run3 to keep track of containers only needed for commissioning
+            Run3TrigEDMSLIM = {}
+
+            if "AODFULL" in key: 
+                #Containers marked with AODCOMM to be added to AODFULL
+
                 Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
 
                 Run3TrigEDMCOMM.update(getRun3TrigEDMSlimList("AODCOMM"))
@@ -59,9 +63,50 @@ def getTriggerEDMList(key, runVersion):
                     else:
                         Run3TrigEDM[kcomm] = vcomm
 
+            elif "AODSLIM" in key:
+                # remove the variables that are defined in TriggerEDMRun3.varToRemoveFromAODSLIM from the containers
+                
+                # get all containers from list that are marked with AODSLIM
+                if len(varToRemoveFromAODSLIM) == 0:
+                    Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
+                    log.info("No decorations are listed to be removed from AODSLIM")
+                else:
+                    Run3TrigEDMSLIM.update(getRun3TrigEDMSlimList(key))
+                    log.info("The following decorations are going to be removed from the listed collections in AODSLIM {}".format(varToRemoveFromAODSLIM))
+                    # Go through all container values and remove the variables to remove
+                    # Format of Run3TrigEDMSLIM is {'xAOD::Cont': ['coll1.varA.varB', 'coll2.varD',...],...} 
+                    for cont, values in Run3TrigEDMSLIM.items():
+                        if (isinstance(values, list)):
+                            newValues = []
+                            for value in values:                       
+                                newValue = ''
+                                coll = value.split(".")[0]
+                                
+                                varRemovedFlag = False
+                                for myTuple in varToRemoveFromAODSLIM:
+                                    var = myTuple[0]
+                                    
+                                    if var in value and coll in myTuple:
+                                        varRemovedFlag = True
+                                        removeVar =  "."+var
+                                        newValue = value.replace(removeVar, "")
+                                        
+                                if varRemovedFlag is False: 
+                                    newValues.append(value)
+                                elif newValue != '':
+                                    newValues.append(newValue)                                        
+                                else:
+                                    raise RuntimeError("Decoration removed but no new Value was available, not sure what to do...")
+
+                            # Filling the Run3TrigEDM dictionary with the new set of values for each cont
+                            Run3TrigEDM[cont] = newValues
+                        else:
+                            raise RuntimeError("Value in Run3TrigEDM dictionary is not a list")
+
             else:
                 Run3TrigEDM.update(getRun3TrigEDMSlimList(key))
 
+            log.debug('TriggerEDM for EDM set {} contains the following collections: {}'.format(key, Run3TrigEDM) )    
             return Run3TrigEDM
 
         else:

@@ -169,7 +169,7 @@ TrigL1FexJetMonitorTool<T>::getData(const EventContext& ctx,
   }
   
   // find variables associated with jets in the input container.
-  for(const auto& jet : *jets){
+  for(const auto jet : *jets){
     /*
       Ensure that the the et is above a hardware threshold:
       From Sergi Rodriguez 23/02/2022
@@ -261,7 +261,7 @@ TrigL1FexJetMonitorTool<T>::getMatchData(const EventContext& ctx,
     return StatusCode::SUCCESS;
   }
   
-  for(const auto& jet : *jets){
+  for(const auto jet : *jets){
     bool matched = (*matchedHandle)(*jet);
     
     if(matched){

@@ -29,6 +29,9 @@ void compareGenParticle(HepMC::ConstGenParticlePtr p1,
 {
   assert (HepMC::barcode(p1) == HepMC::barcode(p2));
   assert (p1->status() == p2->status());
+#ifdef HEPMC3
+  assert (p1->id() == p2->id());
+#endif
   assert (p1->pdg_id() == p2->pdg_id());
   assert ((p1->momentum().px()) == (p2->momentum().px()));
   assert ((p1->momentum().py()) == (p2->momentum().py()));
@@ -50,6 +53,7 @@ void compareGenVertex(HepMC::ConstGenVertexPtr v1,
   assert (HepMC::particles_out_size(v1) == HepMC::particles_out_size(v2));
 
 #ifdef HEPMC3
+  assert (v1->id() == v2->id());
   std::vector<HepMC::ConstGenParticlePtr>::const_iterator originalPartInIter(v1->particles_in().begin());
   const std::vector<HepMC::ConstGenParticlePtr>::const_iterator endOfOriginalListOfParticlesIn(v1->particles_in().end());
   std::vector<HepMC::ConstGenParticlePtr>::const_iterator resetPartInIter(v2->particles_in().begin());

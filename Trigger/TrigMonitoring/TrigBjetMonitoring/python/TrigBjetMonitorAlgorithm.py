@@ -209,6 +209,24 @@ def TrigBjetMonConfig(inputFlags):
                 BjetMonGroup.defineHistogram(HistName,type='TH2F',title='RelPt vs DL1d weight;DL1d weight;RelPt',
                                              path='Shifter/'+chain[2:],xbins=20,xmin=-20.0,xmax=+20.0,ybins=20,ymin=0.,ymax=20.)
 
+            HistName = 'DeltaR_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DeltaR(muon,jet);Delta R;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.,xmax=6.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DeltaR(muon,jet);Delta R;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.,xmax=6.0)
+
+            HistName = 'DeltaZ_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DeltaZ(muon,jet);Delta Z;Events',
+                                             path='Expert/'+chain[2:],xbins=100,xmin=0.,xmax=10.0)
+
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DeltaZ(muon,jet);Delta Z;Events',
+                                             path='Shifter/'+chain[2:],xbins=100,xmin=0.,xmax=10.0)
+
 
 
             continue

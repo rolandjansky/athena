@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/sTgcHitIdHelper.h"
@@ -7,8 +7,6 @@
 #include <iostream>
 #include <iomanip>
 #include <array>
-
-sTgcHitIdHelper* sTgcHitIdHelper::m_help = nullptr;
 
 namespace {
     const static std::array<char, 1> v1 = {'Q'};
@@ -23,9 +21,9 @@ sTgcHitIdHelper::sTgcHitIdHelper() : HitIdHelper(){
   Initialize();
 }
 
-sTgcHitIdHelper* sTgcHitIdHelper::GetHelper(){
-  if (!m_help) m_help = new sTgcHitIdHelper();
-  return m_help;
+const sTgcHitIdHelper* sTgcHitIdHelper::GetHelper(){
+  static const sTgcHitIdHelper helper;
+  return &helper;
 }
 
 void sTgcHitIdHelper::Initialize(){
@@ -44,7 +42,7 @@ void sTgcHitIdHelper::InitializeStationName()
   InitializeField("Station[3]",0,sizeof(v3));
   InitializeField("Station[4]",0,sizeof(v4));
 }
-void sTgcHitIdHelper::SetStationName(std::string name, int& hid) const
+void sTgcHitIdHelper::SetStationName(const std::string& name, int& hid) const
 {
   for (unsigned int i=0;i<sizeof(v1);i++)
     if (v1[i]==name[0]) SetFieldValue("Station[1]",i,hid);

@@ -8,4 +8,4 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
 test1
-CaloBCIDCoeffsC...   INFO recorded new CaloBCIDCoeffs with range {[10,t:0,l:20] - [10,l:75]}
+CaloBCIDCoeffsC...   INFO recorded new CaloBCIDCoeffs with range {[10,l:20] - [10,l:75]}

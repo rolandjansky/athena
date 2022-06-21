@@ -435,6 +435,12 @@
   <y title="# SCT DeadSensors" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
 </h>
 
+<h id="pixeldEdx" type="TH1F" title="pixel dE/dx [MeV cm^{2}g^{-1}]">
+  <x title="pixel dE/dx [MeV cm^{2}g^{-1}]" n="25" lo="0" hi="5"/>
+  <y title="Number of Entries"/>
+</h>
+
+
 <!--
    =======================================================
    end of hit plots

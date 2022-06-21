@@ -44,7 +44,6 @@
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 
 /// Example of how to run the MuonSelectorTools package to obtain information from muons
-
 int main(int argc, char* argv[]) {
     // The application's name:
     const char* APP_NAME = argv[0];
@@ -91,42 +90,10 @@ int main(int argc, char* argv[]) {
     }
 
 
-    // Create a set of selector tools configured for each of the available working points
-
-    std::vector<std::unique_ptr<CP::MuonSelectionTool> > selectorTools;
-    selectorTools.clear();
-
     const int Nwp = 7;  // number of working points (tool instances)
-
     std::vector<std::string> WPnames = {"Tight", "Medium", "Loose", "VeryLoose", "HighPt", "LowPt", "LowPtMVA"};
 
-    for (int wp = 0; wp < Nwp; wp++) {
-        Info(APP_NAME, "Creating selector tool for working point: %s ...", WPnames[wp].c_str());
 
-        CP::MuonSelectionTool* muonSelection = new CP::MuonSelectionTool("MuonSelection_" + WPnames[wp]);
-        muonSelection->msg().setLevel(MSG::INFO);
-
-	bool failed = false;
-
-        failed = failed || muonSelection->setProperty("MaxEta", 2.7).isFailure();
-
-	if (WPnames[wp] == "LowPtMVA") {
-	  failed = failed || muonSelection->setProperty( "MuQuality", 5).isFailure();
-	  failed = failed || muonSelection->setProperty( "UseMVALowPt", true).isFailure();
-	}
-	else
-	  failed = failed || muonSelection->setProperty("MuQuality", wp).isFailure();
-
-        failed = failed || muonSelection->setProperty("TurnOffMomCorr", true).isFailure();
-        failed = failed || muonSelection->initialize().isFailure();
-
-	if (failed) {
-	  Error( APP_NAME, "Failed to set up MuonSelectorTool for working point: %s !", WPnames[wp].c_str() );
-	  return 1;
-	}
-
-        selectorTools.emplace_back(muonSelection);
-    }
 
     // done setting up selector tools
 
@@ -278,6 +245,9 @@ int main(int argc, char* argv[]) {
 
     //To determine whether to print truth classification table
     bool isMC = false;
+    
+    std::vector<std::unique_ptr<CP::MuonSelectionTool> > selectorTools;
+    selectorTools.clear();
 
     // Loop over the events:
     for (Long64_t entry = 0; entry < entries; ++entry) {
@@ -293,10 +263,48 @@ int main(int argc, char* argv[]) {
 
         // Print some event information for fun:
         const xAOD::EventInfo* ei = 0;
-	if ( event.retrieve( ei, "EventInfo" ).isFailure() ) {
-	  Error( APP_NAME, "Failed to read EventInfo!" );
-	  return 1;
-	}
+        if ( event.retrieve( ei, "EventInfo" ).isFailure() ) {
+          Error( APP_NAME, "Failed to read EventInfo!" );
+          return 1;
+        }
+        
+        if(entry==0)
+        {
+          bool isRun3=false;
+          if(!ei->eventType(xAOD::EventInfo::IS_SIMULATION) && ei->runNumber()>=400000) isRun3=true; //in data we expect to be in run3 for datasets with runnumber>=400000
+          if(ei->eventType(xAOD::EventInfo::IS_SIMULATION) && ei->runNumber()>=330000) isRun3=true; //in MC run numbers >= 330000 should correspond to mc21
+          
+          if(isRun3) Info(APP_NAME, "setting up muon selection tools for Run3 geometry");
+          else Info(APP_NAME, "setting up muon selection tools for Run2 geometry");
+          
+          for (int wp = 0; wp < Nwp; wp++) {
+              Info(APP_NAME, "Creating selector tool for working point: %s ...", WPnames[wp].c_str());
+
+              CP::MuonSelectionTool* muonSelection = new CP::MuonSelectionTool("MuonSelection_" + WPnames[wp]);
+              muonSelection->msg().setLevel(MSG::INFO);
+              
+              bool failed = false;
+              failed = failed || muonSelection->setProperty("IsRun3Geo",isRun3).isFailure();
+              failed = failed || muonSelection->setProperty("MaxEta", 2.7).isFailure();
+              if (WPnames[wp] == "LowPtMVA") {
+                failed = failed || muonSelection->setProperty( "MuQuality", 5).isFailure();
+                failed = failed || muonSelection->setProperty( "UseMVALowPt", true).isFailure();
+              }
+              else
+                failed = failed || muonSelection->setProperty("MuQuality", wp).isFailure();
+              
+              failed = failed || muonSelection->setProperty("TurnOffMomCorr", true).isFailure();
+              failed = failed || muonSelection->initialize().isFailure();
+              
+              if (failed) {
+                Error( APP_NAME, "Failed to set up MuonSelectorTool for working point: %s !", WPnames[wp].c_str() );
+                return 1;
+              }
+
+              selectorTools.emplace_back(muonSelection);
+          }
+        }
+        
         Info(APP_NAME,
              "===>>>  start processing event #%i, "
              "run #%i %i events processed so far  <<<===",
@@ -304,10 +312,10 @@ int main(int argc, char* argv[]) {
 
         // Get the Muons from the event:
         const xAOD::MuonContainer* muons = 0;
-	if ( event.retrieve( muons, "Muons" ).isFailure() ) {
-	  Error( APP_NAME, "Failed to read Muons container!" );
-	  return 1;
-	}
+        if ( event.retrieve( muons, "Muons" ).isFailure() ) {
+          Error( APP_NAME, "Failed to read Muons container!" );
+          return 1;
+        }
         Info(APP_NAME, "Number of muons: %i", static_cast<int>(muons->size()));
 
         xAOD::Muon::Quality my_quality;
@@ -337,7 +345,7 @@ int main(int argc, char* argv[]) {
 
             // Check truth origin
             isMC = ei->eventType(xAOD::EventInfo::IS_SIMULATION);
-	    int truthClass = isMC ? (*mu_itr)->auxdata<int>("truthType") : -999;
+            int truthClass = isMC ? (*mu_itr)->auxdata<int>("truthType") : -999;
 
             int truthType;
             if (truthClass == MCTruthPartClassifier::IsoMuon)
@@ -487,38 +495,38 @@ int main(int argc, char* argv[]) {
         std::string line = "";
         if (l == 0) {  // line with author names
             line += "               ";
-	    for (int author = 0; author < Nauthor; author++) {
+            for (int author = 0; author < Nauthor; author++) {
 
-	      //Do not print unrepresented authors, since the table can be quite wide
-	      if (allMuonsAuthor[author] == 0) continue;
+              //Do not print unrepresented authors, since the table can be quite wide
+              if (allMuonsAuthor[author] == 0) continue;
 
-	      std::stringstream ss;
-	      ss << std::left << std::setw(16);
-	      ss << authorNames[author];
-	      line += ss.str();
+              std::stringstream ss;
+              ss << std::left << std::setw(16);
+              ss << authorNames[author];
+              line += ss.str();
             }
         } else if (l == 1) {  // line for all muons inclusive
             line += "All muons:      ";
             for (int author = 0; author < Nauthor; author++) {
 
-	      if (allMuonsAuthor[author] == 0) continue;
+              if (allMuonsAuthor[author] == 0) continue;
 
-	      std::stringstream ss;
-	      ss << std::left << std::setw(16);
-	      ss << std::to_string(allMuonsAuthor[author]);
-	      line += ss.str();
+              std::stringstream ss;
+              ss << std::left << std::setw(16);
+              ss << std::to_string(allMuonsAuthor[author]);
+              line += ss.str();
             }
         } else {  // lines for each of the working points
             int wp = l - 2;
             line += WPnames[wp] + ":" + padding[wp] + "     ";
             for (int author = 0; author < Nauthor; author++) {
 
-	      if (allMuonsAuthor[author] == 0) continue;
+              if (allMuonsAuthor[author] == 0) continue;
 
-	      std::stringstream ss;
-	      ss << std::left << std::setw(16);
-	      ss << (std::to_string(selectedMuonsAuthor[author][wp]) + " (" + std::to_string(selectedMuonsAuthorNotBad[author][wp]) + ")");
-	      line += ss.str();
+              std::stringstream ss;
+              ss << std::left << std::setw(16);
+              ss << (std::to_string(selectedMuonsAuthor[author][wp]) + " (" + std::to_string(selectedMuonsAuthorNotBad[author][wp]) + ")");
+              line += ss.str();
             }
         }
 
