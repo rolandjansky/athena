@@ -926,7 +926,7 @@ CalibChainParts = {
     'purpose'        : AllowedCalibChainIdentifiers,
     'location'       : ['central', 'fwd'],
     'addInfo'        : ['loose','noise','beam'],
-    'hypo'           : ['trk9', 'trk16', 'trk29', 'conej40', 'conej165', 'conej75_320eta490', 'conej140_320eta490','satu20em'],
+    'hypo'           : ['trk4','trk9', 'trk16', 'trk29', 'conej40', 'conej165', 'conej75_320eta490', 'conej140_320eta490','satu20em'],
     'streamingInfo'  : ['vdm',],
     'threshold'      : '',
     'multiplicity'   : '',
