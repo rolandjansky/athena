@@ -198,15 +198,6 @@ def CaloRingerAlgsCfg(flags, name="CaloRingerAlgorithm", **kwargs):
     CaloRingerAlgorithm = CompFactory.Ringer.CaloRingerAlgorithm(
         name, **kwargs)
     acc.addEventAlgo(CaloRingerAlgorithm)
-    # To use within standard config
-    # Should be removed when
-    # MR !53956 is in
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in acc._allSequences:
-            el.name = "TopAlg"
-
     return acc
 
 
