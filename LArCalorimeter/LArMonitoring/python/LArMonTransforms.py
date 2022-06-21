@@ -223,7 +223,7 @@ def normToEntriesAndSetMin(inputs,minVal=0,maxVal=0,useMax=False,clone=True,titl
 
     Nen = inputs[0][1][1].GetEntries()
     if Nen!=0:
-        cl.Scale(1./Nen)
+        cl.Scale(100./Nen)
         pass
 
     cl.SetMinimum(minVal)

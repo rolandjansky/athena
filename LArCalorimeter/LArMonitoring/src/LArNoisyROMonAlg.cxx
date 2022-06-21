@@ -6,7 +6,6 @@
 
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -25,6 +24,7 @@ StatusCode LArNoisyROMonAlg::initialize()
   ATH_CHECK(m_inputKey.initialize());
   ATH_CHECK(m_badFebKey.initialize());
   ATH_CHECK(m_MNBFebKey.initialize());
+  ATH_CHECK( m_eventInfoKey.initialize() );
   
   m_histoGroups.reserve(m_SubDetNames.size());
   for (unsigned i=0; i<m_SubDetNames.size(); ++i) {

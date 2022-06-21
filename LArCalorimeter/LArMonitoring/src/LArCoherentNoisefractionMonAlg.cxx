@@ -78,9 +78,6 @@ LArCoherentNoisefractionMonAlg::initialize()
   ATH_CHECK(m_keyPedestal.initialize());
   ATH_CHECK(m_LArDigitContainerKey.initialize());
   
-  /** Configure event info */
-  ATH_CHECK(m_eventInfoKey.initialize());
-
   // initialize superclass
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
 
@@ -135,13 +132,6 @@ LArCoherentNoisefractionMonAlg::fillHistograms(const EventContext& ctx) const
   bool passTrig = m_isCalibrationRun;
   if(!m_isCalibrationRun) { 
     ATH_MSG_DEBUG( "Parsing trigger chain list" ); 
-     /**EventID is a part of EventInfo, search event informations:*/
-    SG::ReadHandle<xAOD::EventInfo> thisEvent{m_eventInfoKey,ctx};
-     if (!thisEvent.isValid()) {
-       ATH_MSG_ERROR("xAOD::EventInfo retrieval failed");
-       return StatusCode::FAILURE;
-     }
-  
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
 
      bool passBCID;
@@ -150,7 +140,7 @@ LArCoherentNoisefractionMonAlg::fillHistograms(const EventContext& ctx) const
        const int ABORT_GAP_START = 3446;
        const int ABORT_GAP_END   = 3563;
        for(auto trig_chain : m_vTrigChainNames) {
-	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END):true);
+	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(ctx.eventID().bunch_crossing_id() >= ABORT_GAP_START && ctx.eventID().bunch_crossing_id() <= ABORT_GAP_END):true);
 	passTrig=(passTrig || (passBCID && trigTool->isPassed(trig_chain)));
        }
      }
