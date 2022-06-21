@@ -3,6 +3,22 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+def InDetTrackSelectionTool_TrackTools_Cfg(flags, name="InDetTrackSelectionTool", **kwargs):
+    acc = ComponentAccumulator()
+
+    if "Extrapolator" not in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        kwargs.setdefault("Extrapolator", acc.popToolsAndMerge(InDetExtrapolatorCfg(flags)))
+
+    if "TrackSummaryTool" not in kwargs:
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+        kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags)))
+
+    kwargs.setdefault("UseTrkTrackTools", True)
+
+    acc.setPrivateTools(CompFactory.InDet.InDetTrackSelectionTool(name, **kwargs))
+    return acc
+
 #############################################
 #####  Configs based on CutLevel Loose  #####
 #############################################
@@ -38,21 +54,8 @@ def InDetTrackSelectionTool_TightPrimary_Cfg(flags, name="InDetTrackSelectionToo
     return acc
 
 def InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags, name="InDetTrackSelectionTool_TightPrimary", **kwargs):
-    acc = ComponentAccumulator()
-    
-    if "Extrapolator" not in kwargs:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        kwargs.setdefault("Extrapolator", acc.popToolsAndMerge(InDetExtrapolatorCfg(flags)))
-
-    if "TrackSummaryTool" not in kwargs:
-        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
-        kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags)))
-
-    kwargs.setdefault("UseTrkTrackTools", True)
-
-    InDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectionTool_TightPrimary_Cfg(flags, name, **kwargs))
-    acc.setPrivateTools(InDetTrackSelectionTool)
-    return acc
+    kwargs.setdefault("CutLevel", "TightPrimary")
+    return InDetTrackSelectionTool_TrackTools_Cfg(flags, name, **kwargs)
 
 def PFTrackSelectionToolCfg(flags, name="PFTrackSelectionTool", **kwargs):
     kwargs.setdefault('minPt', 500.0)
@@ -138,3 +141,8 @@ def Tau_InDetTrackSelectionToolForTJVACfg(flags, name="tauRec_InDetTrackSelectio
     kwargs.setdefault("minNSiHits", 7)
     acc.setPrivateTools(CompFactory.InDet.InDetTrackSelectionTool(name, **kwargs))
     return acc
+
+def InDetGlobalLRTMonAlg_TrackSelectionToolCfg(flags, name="InDetGlobalLRTMonAlg_TrackSelectionTool", **kwargs):
+    kwargs.setdefault("minPt", 1000.)
+    kwargs.setdefault("maxNPixelHoles", 1)
+    return InDetTrackSelectionTool_TrackTools_Cfg(flags, name, **kwargs)
