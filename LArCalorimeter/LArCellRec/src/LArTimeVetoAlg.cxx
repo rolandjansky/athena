@@ -7,6 +7,7 @@
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "Gaudi/Property.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 //__________________________________________________________________________
 StatusCode LArTimeVetoAlg::initialize() 
@@ -46,7 +47,7 @@ StatusCode LArTimeVetoAlg::execute( const EventContext& ctx ) const
     m_nevtMasked++;
 
     // retrieve EventInfo
-    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+    SG::WriteDecorHandle<xAOD::EventInfo,uint32_t> eventInfo (m_eventInfoKey, ctx);
     if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
       ATH_MSG_WARNING( " cannot set error state for LAr "  );
     }

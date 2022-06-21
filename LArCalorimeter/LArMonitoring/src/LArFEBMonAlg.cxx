@@ -11,6 +11,7 @@
 #include "LArFEBMonAlg.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 #include "LArRawConditions/LArDSPThresholdsComplete.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -68,6 +69,7 @@ StatusCode LArFEBMonAlg::initialize() {
 
   ATH_CHECK( m_run1DSPThresholdsKey.initialize (SG::AllowEmpty) );
   ATH_CHECK( m_run2DSPThresholdsKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -84,8 +86,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   // Retrieve event info to get event time,trigger type...
   // Retrieved at beg of method now to get the LVL1 type
   // to check consistency with DSP trigger type
-
-  SG::ReadHandle<xAOD::EventInfo> thisEvent = GetEventInfo(ctx);
+  SG::ReadDecorHandle<xAOD::EventInfo,uint32_t> thisEvent(m_eventInfoKey, ctx);
 
   unsigned int l1Trig = thisEvent->level1TriggerType();
   auto l1 = Monitored::Scalar<int>("LVL1Trig",l1Trig);

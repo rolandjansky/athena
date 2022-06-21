@@ -10,6 +10,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <atomic>
 
@@ -29,6 +30,6 @@ class LArTimeVetoAlg : public AthReentrantAlgorithm {
     mutable std::atomic<unsigned> m_nevtMasked{0};
 
     SG::ReadCondHandleKey<AthenaAttributeList> m_eventVetoKey{this, "folderName", "/LAR/BadChannelsOfl/EventVeto", "Folder name for DB access"};
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+    SG::WriteDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
 };
 #endif
