@@ -110,6 +110,13 @@ def MuonPrintingTool(name="MuonPrintingTool",**kwargs ):
     kwargs.setdefault("MuonStationPrinter", getPublicTool("MuonEDMPrinterTool"))
     return CfgMgr.Rec__MuonPrintingTool(name,**kwargs)
 
+def MuonSelectionTool(name="MuonRecoSelTool", **kwargs):
+   from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+   kwargs.setdefault("IsRun3Geo", CommonGeometryFlags.Run not in ["RUN1","RUN2"] )
+   kwargs.setdefault("DisablePtCuts", True)
+   kwargs.setdefault("TurnOffMomCorr", True)
+   return CfgMgr.Rec__MuonSelectionTool(name,**kwargs)
+
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonTrkMaterialProviderTool"))
     kwargs.setdefault("AmbiguityProcessor", getPublicTool("MuonAmbiProcessor"))
@@ -120,6 +127,7 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     else:
         kwargs.setdefault("MomentumBalanceTool", getPublicTool("MuonMomentumBalanceSignificanceTool"))
         kwargs.setdefault("ScatteringAngleTool", getPublicTool("MuonScatteringAngleSignificanceTool"))
+        kwargs.setdefault("MuonSelectionTool", "MuonRecoSelTool")
     
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     from AthenaCommon.AppMgr import ToolSvc
