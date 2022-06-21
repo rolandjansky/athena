@@ -16,8 +16,6 @@
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "TrigDecisionTool/TrigDecisionTool.h"
-
 #include <string>
 #include <vector>
 #include <bitset>

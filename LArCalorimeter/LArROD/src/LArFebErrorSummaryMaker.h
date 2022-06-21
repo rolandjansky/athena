@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARROD_LARFEBERRORSUMMARYMAKER
@@ -20,6 +20,9 @@ NAME:     LArFebSummaryMaker
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -67,8 +70,15 @@ class LArFebErrorSummaryMaker : public AthReentrantAlgorithm
   Gaudi::Property<std::vector<unsigned int> > m_knownSCACStatus{ this, "MaskFebScacStatus", {}, "ignore these FEBs for ScacStatus" };
   Gaudi::Property<std::vector<unsigned int> > m_knownZeroSample{ this, "MaskFebZeroSample", {}, "ignore these FEBs for ZeroSample" };
 
+  /**  Minimum number of FEBs in error to trigger EventInfo::LArError 
+       Defined as 1 by default/bulk, 4 in online/express in CaloCellGetter (CaloRec package)
+  */
+  Gaudi::Property<int> m_minFebsInError{this,"minFebInError",1,
+        "Minimum number of FEBs in error to trigger EventInfo::LArError (1 by default/bulk, 4 in online/express"}; 
+
   SG::ReadCondHandleKey<LArBadFebCont> m_bfKey{this,"BFKey","LArBadFeb","Key of the BadFebContainer in the conditions store"};
   SG::ReadHandleKey<LArFebHeaderContainer> m_readKey{this,"ReadKey","LArFebHeader"};
+  SG::WriteDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo.larFlag"};
   SG::WriteHandleKey<LArFebErrorSummary> m_writeKey{this,"WriteKey","LArFebErrorSummary"};
 
   // methods:
