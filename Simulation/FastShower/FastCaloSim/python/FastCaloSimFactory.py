@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 
@@ -10,11 +10,6 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
 
     from AthenaCommon.AppMgr import ToolSvc
 
-    #########################################################################################################
-
-    #from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
-    # theFastShowerCellBuilderTool=FastShowerCellBuilderTool()
-
     mlog.info("now configure the non-interacting propagator...")
     from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
     niPropagator = Trk__STEP_Propagator()
@@ -24,9 +19,11 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
     navigator = None
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
     if ISF_Flags.UseTrackingGeometryCond:
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, 'AtlasTrackingGeometryCondAlg'):
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import (
                 ConfiguredTrackingGeometryCondAlg)
@@ -49,21 +46,19 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
     timedExtrapolator.Navigator = navigator
     timedExtrapolator.ApplyMaterialEffects = False
     ToolSvc += timedExtrapolator
-    # theFastShowerCellBuilderTool.Extrapolator=timedExtrapolator
     mlog.info("configure TimedExtrapolator finished")
 
+    if not hasattr(condSeq, 'CellInfoContainerCondAlg'):
+        from FastCaloSim.FastCaloSimConf import CellInfoContainerCondAlg
+        condSeq += CellInfoContainerCondAlg("CellInfoContainerCondAlg")
+
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-    #theFastShowerCellBuilderTool.CaloEntrance = TrkDetFlags.InDetContainerName()
 
     kwargs.setdefault("CaloEntrance", TrkDetFlags.InDetContainerName())
     kwargs.setdefault("Extrapolator", timedExtrapolator)
 
     from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
     theFastShowerCellBuilderTool = FastShowerCellBuilderTool(name, **kwargs)
-
-    #######################################################################
-    #theFastShowerCellBuilderTool.Invisibles=[12, 14, 16, 1000022]
-    ########################################################################
 
     try:
         ParticleParametrizationFileName = theFastShowerCellBuilderTool.ParticleParametrizationFileName

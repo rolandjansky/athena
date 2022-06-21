@@ -131,5 +131,9 @@ def FastShowerCellBuilderToolBaseCfg(flags, name="ISF_FastShowerCellBuilderTool"
     # kwargs.setdefault("Invisibles", [12, 14, 16, 1000022])
     #########################################################################################################
 
+    # Cond algorithm for building CellInfoContainer
+    from FastCaloSim.CellInfoContainerCondAlgConfig import CellInfoContainerCondAlgCfg
+    acc.merge(CellInfoContainerCondAlgCfg(flags))
+
     acc.setPrivateTools(CompFactory.FastShowerCellBuilderTool(name, **kwargs))
     return acc

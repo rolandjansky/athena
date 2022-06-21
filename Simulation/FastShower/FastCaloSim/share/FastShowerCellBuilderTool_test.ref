@@ -498,56 +498,56 @@ RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
-ToolSvc.tool1        INFO ========================= Init EM map =============================
-ToolSvc.tool1        INFO ========================= Init EM fine map ========================
-ToolSvc.tool1        INFO ========================= Init HAD map ============================
-ToolSvc.tool1        INFO ========================= Init EM celllist map =============================
-ToolSvc.tool1        INFO ========================= Init celllist maps sample 0 ... 23
-ToolSvc.tool1        INFO Building all maps
-ToolSvc.tool1        INFO Building all maps finished : n(total)=187652 n(volume>0)=179842 n(used)=177540
-ToolSvc.tool1        INFO ========================= Init volume all maps =========================
-ToolSvc.tool1     WARNING empty map cell EM: eta=-4.85 phi=-2.21405
-ToolSvc.tool1     WARNING empty map cell EM: eta=-4.85 phi=-1.82135
-ToolSvc.tool1     WARNING empty map cell EM: eta=-4.85 phi=-1.33048
-ToolSvc.tool1     WARNING empty map cell EM: eta=4.85 phi=-2.21405
-ToolSvc.tool1     WARNING empty map cell EM: eta=4.85 phi=-1.82135
-ToolSvc.tool1     WARNING empty map cell EM: eta=4.85 phi=-1.33048
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-3.13444
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-3.03627
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.93809
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.83992
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.74174
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.64357
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.54539
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.44722
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.34904
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.25087
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=-2.15269
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=2.65787
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=2.75605
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=2.85422
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=2.95239
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.7125 phi=3.05057
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-3.13444
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-3.03627
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.93809
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.83992
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.74174
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.64357
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.54539
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.44722
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.34904
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=-2.25087
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=2.65787
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=2.75605
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=2.85422
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=2.95239
-ToolSvc.tool1     WARNING empty map cell EM fine: eta=-2.6125 phi=3.05057
-ToolSvc.tool1     WARNING empty map cell HAD: eta=-4.85 phi=-1.81623
-ToolSvc.tool1     WARNING empty map cell HAD: eta=-4.85 phi=-1.32536
-ToolSvc.tool1     WARNING empty map cell HAD: eta=4.85 phi=-1.81623
-ToolSvc.tool1     WARNING empty map cell HAD: eta=4.85 phi=-1.32536
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+CellInfoContain...   INFO ========================= Init EM map =============================
+CellInfoContain...   INFO ========================= Init EM fine map ========================
+CellInfoContain...   INFO ========================= Init HAD map ============================
+CellInfoContain...   INFO ========================= Init EM celllist map =============================
+CellInfoContain...   INFO ========================= Init celllist maps sample 0 ... 23
+CellInfoContain...   INFO Building all maps
+CellInfoContain...   INFO Building all maps finished : n(total)=187652 n(volume>0)=179842 n(used)=177540
+CellInfoContain...   INFO ========================= Init volume all maps =========================
+CellInfoContain...WARNING empty map cell EM: eta=-4.85 phi=-2.21405
+CellInfoContain...WARNING empty map cell EM: eta=-4.85 phi=-1.82135
+CellInfoContain...WARNING empty map cell EM: eta=-4.85 phi=-1.33048
+CellInfoContain...WARNING empty map cell EM: eta=4.85 phi=-2.21405
+CellInfoContain...WARNING empty map cell EM: eta=4.85 phi=-1.82135
+CellInfoContain...WARNING empty map cell EM: eta=4.85 phi=-1.33048
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-3.13444
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-3.03627
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.93809
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.83992
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.74174
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.64357
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.54539
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.44722
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.34904
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.25087
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=-2.15269
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=2.65787
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=2.75605
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=2.85422
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=2.95239
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.7125 phi=3.05057
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-3.13444
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-3.03627
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.93809
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.83992
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.74174
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.64357
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.54539
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.44722
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.34904
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=-2.25087
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=2.65787
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=2.75605
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=2.85422
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=2.95239
+CellInfoContain...WARNING empty map cell EM fine: eta=-2.6125 phi=3.05057
+CellInfoContain...WARNING empty map cell HAD: eta=-4.85 phi=-1.81623
+CellInfoContain...WARNING empty map cell HAD: eta=-4.85 phi=-1.32536
+CellInfoContain...WARNING empty map cell HAD: eta=4.85 phi=-1.81623
+CellInfoContain...WARNING empty map cell HAD: eta=4.85 phi=-1.32536
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_DCS/OFLP200
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to ExtDCSMagnetsSensorData-001 for folder /EXT/DCS/MAGNETS/SENSORDATA
 IOVDbSvc             INFO Disconnecting from COOLOFL_DCS/OFLP200

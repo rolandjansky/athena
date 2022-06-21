@@ -4,16 +4,17 @@
 
 #ifndef FASTSHOWER_CELLBUILDERTOOL_H
 #define FASTSHOWER_CELLBUILDERTOOL_H
-//
-// CellBuilderTool.cxx
-//     Building Cells objects from Atlfast
-//
-// Michael Duehrssen
+
+/**
+ * @file   CellBuilderTool.cxx
+ * @brief  Building Cells objects from Atlfast
+ * @author Michael Duehrssen
+ */
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "FastCaloSim/BasicCellBuilderTool.h"
-//#include "TruthHelper/GenAccessIO.h"
+#include "FastCaloSim/CellInfoContainer.h"
 #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkExInterfaces/ITimedExtrapolator.h"
@@ -21,14 +22,12 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "FastCaloSimAthenaPool/FastShowerInfoContainer.h"
 
-
-
 #include "AtlasHepMC/GenParticle_fwd.h"
 #include "AtlasHepMC/GenVertex_fwd.h"
-
 
 namespace Trk {
   class TrackingVolume;
@@ -45,9 +44,10 @@ class ICoolHistSvc;
 class FastShowerInfoContainer;
 class TLateralShapeCorrectionBase;
 class TRandom3;
+class CellInfoContainer;
 
 #include "TrkParameters/TrackParameters.h"
-//#include "TrkParameters/Perigee.h"
+
 
 class FastShowerCellBuilderTool: public BasicCellBuilderTool
 {
@@ -87,10 +87,10 @@ public:
                               FastShowerInfoContainer* fastShowerInfoContainer,
                               TRandom3& rndm,
                               Stats& stats,
-                              const EventContext& ctx) const;
+                              const EventContext& ctx,
+			      const CellInfoContainer* cont = nullptr) const;
 
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
-  StatusCode caloAligned( IOVSVC_CALLBACK_ARGS );
 
   typedef std::map<int,int> MCdo_simul_state;
   typedef std::vector<HepMC::ConstGenParticlePtr> MCparticleCollection ;
@@ -111,27 +111,23 @@ private:
 
   SG::ReadHandleKey<BarcodeEnergyDepositMap> m_MuonEnergyInCaloContainerKey
   { this, "MuonEnergyInCaloContainerName", "FatrasDepositedMuonEnergyInCalo"};
+
+  SG::ReadCondHandleKey<CellInfoContainer> m_cellInfoContKey { this
+      , "CellInfoContainer"
+      , "CellInfoContainer"
+      , "SG Key for CellInfoContainer in the Condition Store" };
+
   bool                           m_simul_ID_only{true};
   bool                           m_simul_ID_v14_truth_cuts{false};
   bool                           m_simul_EM_geant_only{false};
   bool                           m_simul_heavy_ions{false};
 
   ServiceHandle<ICoolHistSvc>    m_coolhistsvc;
-  //  const std::string              m_histfolder; // COOL folder to access
 
-  //  HepMC_helper::IMCselector*     m_mcSelector; //selects input particles
-  /*
-    FastShower::LateralShape*      m_latshape;
-    FastShower::LateralShape*      m_latshape_pion;
-    FastShower::LongitudinalShape* m_longshape;
-  */
   ServiceHandle<IPartPropSvc>    m_partPropSvc;
   ServiceHandle<IAthRNGSvc>      m_rndmSvc;
   ATHRNG::RNGWrapper*            m_randomEngine = nullptr;
   std::string                    m_randomEngineName{"FastCaloSimRnd"};         //!< Name of the random number stream
-
-  //CaloDepthTool*                 m_calodepth;
-  //CaloDepthTool*                 m_calodepthEntrance;
 
   /** The Extrapolator setup */
   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator; //public tool
@@ -152,8 +148,6 @@ private:
   HepPDT::ParticleDataTable*     m_particleDataTable{};
 
   std::vector< int >             m_invisibles;
-
-  //  TGraphErrors*                  geometry[CaloCell_ID_FCS::MaxSample][3];
 
   ParticleEnergyParametrization* findElower(int id,double E,double eta) const;
   ParticleEnergyParametrization* findEupper(int id,double E,double eta) const;
@@ -176,8 +170,6 @@ public:
   };
 
 private:
-  //std::vector< double > m_spline_reweight_x;
-  //std::vector< double > m_spline_reweight_y;
 
   void init_shape_correction();
   typedef std::vector< TLateralShapeCorrectionBase* > t_shape_correction;
@@ -202,7 +194,6 @@ private:
   t_map_PEP_ID m_map_ParticleEnergyParametrizationMap;
 
   //ID              Energy             Eta                Dist
-  //  typedef std::map< double , TShape_Result* > t_map_PSP_Eta;
   typedef std::vector< TShape_Result* > t_map_PSP_DistEta;
   typedef std::map< double , t_map_PSP_DistEta > t_map_PSP_Energy;
   typedef std::map< int    , t_map_PSP_Energy > t_map_PSP_calosample;
@@ -219,12 +210,14 @@ public:
                        double letaCalo[CaloCell_ID_FCS::MaxSample],
                        double lphiCalo[CaloCell_ID_FCS::MaxSample],
                        double dCalo[CaloCell_ID_FCS::MaxSample],
-                       double distetaCaloBorder[CaloCell_ID_FCS::MaxSample]) const;
+                       double distetaCaloBorder[CaloCell_ID_FCS::MaxSample],
+		       const CellInfoContainer* cont) const;
 
   bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector,
                         double& eta_calo_surf,
                         double& phi_calo_surf,
-                        double& d_calo_surf) const;
+                        double& d_calo_surf,
+			const CellInfoContainer* cont) const;
 
 private:
   SG::WriteHandleKey<FastShowerInfoContainer>  m_FastShowerInfoContainerKey
