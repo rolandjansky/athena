@@ -33,12 +33,12 @@ public:
 
 
   /// Gaudi initialize method.
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override final;
 
 
   /// Algorithm execute method.
-  virtual StatusCode execute (const EventContext& ctx) const override;
-
+  virtual StatusCode execute (const EventContext& ctx) const override final;
+  virtual bool isReEntrant() const override final { return false; }
 
 private:
   /// Input conditions object.
