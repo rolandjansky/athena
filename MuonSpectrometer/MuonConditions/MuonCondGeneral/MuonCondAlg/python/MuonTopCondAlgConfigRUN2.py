@@ -180,8 +180,8 @@ class NswCalibDbAlg(CfgMgr.NswCalibDbAlg):
             addFolderWithTag(self, "MDT_ONL", "/MDT/Onl/MM/TIME/SIDEC"   , "MmTdoSideC-Const-3p73"  )
             addFolderWithTag(self, "MDT_ONL", "/MDT/Onl/MM/CHARGE/SIDEA" , "MmPdoSideA-Const-9p0"   )
             addFolderWithTag(self, "MDT_ONL", "/MDT/Onl/MM/CHARGE/SIDEC" , "MmPdoSideC-Const-9p0"   )
-            addFolderWithTag(self, "TGC_ONL", "/TGC/Onl/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Const-0p27")
-            addFolderWithTag(self, "TGC_ONL", "/TGC/Onl/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Const-0p27")
+            addFolderWithTag(self, "TGC_ONL", "/TGC/Onl/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Const-3p73")
+            addFolderWithTag(self, "TGC_ONL", "/TGC/Onl/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Const-3p73")
             addFolderWithTag(self, "TGC_ONL", "/TGC/Onl/NSW/CHARGE/SIDEA", "sTgcPdoSideA-Const-0p78")
             addFolderWithTag(self, "TGC_ONL", "/TGC/Onl/NSW/CHARGE/SIDEC", "sTgcPdoSideC-Const-0p78")
             return
@@ -190,8 +190,8 @@ class NswCalibDbAlg(CfgMgr.NswCalibDbAlg):
         addFolderWithTag(self, "MDT_OFL", "/MDT/MM/TIME/SIDEC"   , "MmTdoSideC-Const-3p73"  )
         addFolderWithTag(self, "MDT_OFL", "/MDT/MM/CHARGE/SIDEA" , "MmPdoSideA-Const-9p0"   )
         addFolderWithTag(self, "MDT_OFL", "/MDT/MM/CHARGE/SIDEC" , "MmPdoSideC-Const-9p0"   )
-        addFolderWithTag(self, "TGC_OFL", "/TGC/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Const-0p27")
-        addFolderWithTag(self, "TGC_OFL", "/TGC/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Const-0p27")
+        addFolderWithTag(self, "TGC_OFL", "/TGC/NSW/TIME/SIDEA"  , "sTgcTdoSideA-Const-3p73")
+        addFolderWithTag(self, "TGC_OFL", "/TGC/NSW/TIME/SIDEC"  , "sTgcTdoSideC-Const-3p73")
         addFolderWithTag(self, "TGC_OFL", "/TGC/NSW/CHARGE/SIDEA", "sTgcPdoSideA-Const-0p78")
         addFolderWithTag(self, "TGC_OFL", "/TGC/NSW/CHARGE/SIDEC", "sTgcPdoSideC-Const-0p78")
         if not kwargs['isData']: ## MC

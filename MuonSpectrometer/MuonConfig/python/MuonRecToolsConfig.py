@@ -250,3 +250,8 @@ def  SimpleMMClusterBuilderToolCfg(flags, name = "SimpleMMClusterBuilderTool", *
     result.setPrivateTools(the_tool)   
     return result
   
+def SimpleSTgcClusterBuilderToolCfg(flags, name = "SimpleSTgcClusterBuilderTool", **kwargs):
+    result = ComponentAccumulator()
+    the_tool = CompFactory.Muon.SimpleSTgcClusterBuilderTool(name,**kwargs)
+    result.setPrivateTools(the_tool) 
+    return result
