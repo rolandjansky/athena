@@ -74,13 +74,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         for k, v in kwargsInDetGlobalLRTMonAlg.items():
             setattr(inDetGlobalLRTMonAlg, k, v)
 
-        from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
-        TrackSelectionTool = acc.popToolsAndMerge(
-            InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags,
-                                                                maxNPixelHoles = 1, # Default for TightPrimary is 0
-                                                                minPt = 1000))
-        inDetGlobalLRTMonAlg.TrackSelectionTool = TrackSelectionTool
-
+        from InDetConfig.InDetTrackSelectionToolConfig import InDetGlobalLRTMonAlg_TrackSelectionToolCfg
+        inDetGlobalLRTMonAlg.TrackSelectionTool = acc.popToolsAndMerge(InDetGlobalLRTMonAlg_TrackSelectionToolCfg(flags))
 
         from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
         InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
