@@ -35,7 +35,7 @@ struct OAttr {
   /**
    * Constructor
    */
-  OAttr(std::string n, const T & v): name(n), val(v) {}
+  OAttr(const std::string & n, const T & v): name(n), val(v) {}
 
   /**
    * The name of the attribute being printed.
@@ -125,7 +125,7 @@ struct XMLTag {
    * Find an attribute named \a n and set the double variable \a v to
    * the corresponding value. @return false if no attribute was found.
    */
-  bool getattr(std::string n, double & v) const {
+  bool getattr(const std::string & n, double & v) const {
     AttributeMap::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     v = std::atof(it->second.c_str());
@@ -137,7 +137,7 @@ struct XMLTag {
    * true if the corresponding value is "yes". @return false if no
    * attribute was found.
    */
-  bool getattr(std::string n, bool & v) const {
+  bool getattr(const std::string & n, bool & v) const {
     AttributeMap::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     if ( it->second == "yes" ) v = true;
@@ -148,7 +148,7 @@ struct XMLTag {
    * Find an attribute named \a n and set the long variable \a v to
    * the corresponding value. @return false if no attribute was found.
    */
-  bool getattr(std::string n, long & v) const {
+  bool getattr(const std::string & n, long & v) const {
     AttributeMap::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     v = std::atoi(it->second.c_str());
@@ -159,7 +159,7 @@ struct XMLTag {
    * Find an attribute named \a n and set the long variable \a v to
    * the corresponding value. @return false if no attribute was found.
    */
-  bool getattr(std::string n, int & v) const {
+  bool getattr(const std::string & n, int & v) const {
     AttributeMap::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     v = int(std::atoi(it->second.c_str()));
@@ -170,7 +170,7 @@ struct XMLTag {
    * Find an attribute named \a n and set the string variable \a v to
    * the corresponding value. @return false if no attribute was found.
    */
-  bool getattr(std::string n, std::string & v) const {
+  bool getattr(const std::string &n, std::string & v) const {
     AttributeMap::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     v = it->second;
@@ -345,7 +345,7 @@ struct TagBase {
   /**
    * Main constructor stores the attributes and contents of a tag.
    */
-  TagBase(const AttributeMap & attr, std::string conts = std::string())
+  TagBase(const AttributeMap & attr, const std::string &conts = std::string())
     : attributes(attr), contents(conts) {}
  
   /**
@@ -354,7 +354,7 @@ struct TagBase {
    * the list if found and \a erase is true. @return false if no
    * attribute was found.
    */
-  bool getattr(std::string n, double & v, bool erase = true) {
+  bool getattr(const std::string & n, double & v, bool erase = true) {
     AttributeMap::iterator it = attributes.find(n);
     if ( it == attributes.end() ) return false;
     v = std::atof(it->second.c_str());
@@ -368,7 +368,7 @@ struct TagBase {
    * attribute from the list if found and \a erase is true. @return
    * false if no attribute was found.
    */
-  bool getattr(std::string n, bool & v, bool erase = true) {
+  bool getattr(const std::string & n, bool & v, bool erase = true) {
     AttributeMap::iterator it = attributes.find(n);
     if ( it == attributes.end() ) return false;
     if ( it->second == "yes" ) v = true;
@@ -382,7 +382,7 @@ struct TagBase {
    * the list if found and \a erase is true. @return false if no
    * attribute was found.
    */
-  bool getattr(std::string n, long & v, bool erase = true) {
+  bool getattr(const std::string & n, long & v, bool erase = true) {
     AttributeMap::iterator it = attributes.find(n);
     if ( it == attributes.end() ) return false;
     v = std::atoi(it->second.c_str());
@@ -396,7 +396,7 @@ struct TagBase {
    * the list if found and \a erase is true. @return false if no
    * attribute was found.
    */
-  bool getattr(std::string n, int & v, bool erase = true) {
+  bool getattr(const std::string & n, int & v, bool erase = true) {
     AttributeMap::iterator it = attributes.find(n);
     if ( it == attributes.end() ) return false;
     v = int(std::atoi(it->second.c_str()));
@@ -410,7 +410,7 @@ struct TagBase {
    * the list if found and \a erase is true. @return false if no
    * attribute was found.
    */
-  bool getattr(std::string n, std::string & v, bool erase = true) {
+  bool getattr(const std::string & n, std::string & v, bool erase = true) {
     AttributeMap::iterator it = attributes.find(n);
     if ( it == attributes.end() ) return false;
     v = it->second;
@@ -431,7 +431,7 @@ struct TagBase {
    * Print out end of tag marker. Print contents if not empty else
    * print simple close tag.
    */
-  void closetag(std::ostream & file, std::string tag) const {
+  void closetag(std::ostream & file, const std::string & tag) const {
     if ( contents.empty() )
       file << "/>\n";
     else if ( contents.find('\n') != std::string::npos )
@@ -1191,28 +1191,28 @@ struct Clus : public TagBase {
   /**
    * The first particle entry that has been clustered.
    */
-  int p1;
+  int p1{};
 
   /**
    * The second particle entry that has been clustered.
    */
-  int p2;
+  int p2{};
 
   /**
    * The particle entry corresponding to the clustered particles.
    */
-  int p0;
+  int p0{};
 
   /**
    * The scale in GeV associated with the clustering.
    */
-  double scale;
+  double scale{};
 
   /**
    * The alpha_s used in the corresponding vertex, if this was used in
    * the cross section.
    */
-  double alphas;
+  double alphas{};
 
 };
 
@@ -1629,7 +1629,7 @@ public:
   /**
    * @return the index of the weight with the given \a name
    */
-  int weightIndex(std::string name) const {
+  int weightIndex(const std::string & name) const {
     std::map<std::string, int>::const_iterator it = weightmap.find(name);
     if ( it != weightmap.end() ) return it->second;
     return 0;
@@ -2140,7 +2140,7 @@ public:
    * Return the total weight for this event (including all sub
    * evenets) for the given weight name.
    */
-  double totalWeight(std::string name) const {
+  double totalWeight(const std::string & name) const {
     return totalWeight(heprup->weightIndex(name));
   }
 
@@ -2154,7 +2154,7 @@ public:
   /**
    * Return the weight for the given weight name.
    */
-  double weight(std::string name) const {
+  double weight(const std::string & name) const {
     return weight(heprup->weightIndex(name));
   }
 
@@ -2167,7 +2167,7 @@ public:
   /**
    * Set the weight with the given name.
    */
-  bool setWeight(std::string name, double w) {
+  bool setWeight(const std::string & name, double w) {
     int i = heprup->weightIndex(name);
     if ( i >= int(weights.size()) ) return false;
     setWeight(i, w);
@@ -2475,7 +2475,7 @@ public:
    *
    * @param filename the name of the file to read from.
    */
-  Reader(std::string filename)
+  Reader(const std::string & filename)
     : m_intstream(filename.c_str()), m_file(m_intstream) {
     init();
   }
@@ -2626,7 +2626,7 @@ protected:
   /**
    * @return true if the current line contains the given string.
    */
-  bool currentFind(std::string str) const {
+  bool currentFind(const std::string & str) const {
     return m_currentLine.find(str) != std::string::npos;
   }
 
@@ -2742,7 +2742,7 @@ public:
    * Create a Writer object giving a filename to write to.
    * @param filename the name of the event file to be written.
    */
-  Writer(std::string filename)
+  Writer(const std::string & filename)
     : m_intstream(filename.c_str()), m_file(m_intstream) {}
 
   /**
