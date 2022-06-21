@@ -62,14 +62,15 @@ def L1TopoSimulationCfg(flags):
     muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = True)
     muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = True)
 
-    emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
-    jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
+    emtauProvider = CompFactory.LVL1.eFexInputProvider("eFexInputProvider")
+    jetProvider = CompFactory.LVL1.jFexInputProvider("jFexInputProvider")
     energyProvider = CompFactory.LVL1.gFexInputProvider("gFexInputProvider")
     if not flags.Trigger.enableL1CaloPhase1:
         emtauProvider.eFexEMRoIKey = ""
         emtauProvider.eFexTauRoIKey = ""
         jetProvider.jFexSRJetRoIKey = ""
         jetProvider.jFexLRJetRoIKey = ""
+        jetProvider.jFexEMRoIKey = ""
         jetProvider.jFexTauRoIKey = ""
         jetProvider.jFexXERoIKey = ""
         jetProvider.jFexTERoIKey = ""
@@ -111,9 +112,9 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
 
     # Calo inputs
     if flags.Trigger.enableL1CaloPhase1 and not isLegacy:
-        topoSimSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
+        topoSimSeq.EMTAUInputProvider = 'LVL1::eFexInputProvider/eFexInputProvider'
         # Need further test from inputs.
-        topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        topoSimSeq.JetInputProvider = 'LVL1::jFexInputProvider/jFexInputProvider'
         # Need further test from inputs. Reverting back to Run 2 MET 
         topoSimSeq.EnergyInputProvider = 'LVL1::gFexInputProvider/gFexInputProvider'
 

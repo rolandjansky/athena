@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "JetInputProviderFEX.h"
+#include "jFexInputProvider.h"
 #include "TrigT1CaloEvent/JetROI_ClassDEF.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "TrigT1CaloEvent/EnergyRoI_ClassDEF.h"
@@ -19,18 +19,18 @@ using namespace LVL1;
 
 
 // jFex to L1Topo conversion factors
-const int JetInputProviderFEX::m_Et_conversion = 2;            // 200 MeV to 100 MeV
-const double JetInputProviderFEX::m_sumEt_conversion = 0.01;   // 1 MeV to 100 MeV
-const int JetInputProviderFEX::m_phi_conversion = 2;           // 10 x phi to 20 x phi
-const int JetInputProviderFEX::m_eta_conversion = 4;           // 10 x eta to 40 x eta
+const int jFexInputProvider::m_Et_conversion = 2;            // 200 MeV to 100 MeV
+const double jFexInputProvider::m_sumEt_conversion = 0.01;   // 1 MeV to 100 MeV
+const int jFexInputProvider::m_phi_conversion = 2;           // 10 x phi to 20 x phi
+const int jFexInputProvider::m_eta_conversion = 4;           // 10 x eta to 40 x eta
 
-const double JetInputProviderFEX::m_EtDouble_conversion = 0.1;       // 100 MeV to GeV
-const double JetInputProviderFEX::m_sumEtDouble_conversion = 0.1;    // 100 MeV to GeV
-const double JetInputProviderFEX::m_phiDouble_conversion = 0.05;     // 20 x phi to phi
-const double JetInputProviderFEX::m_etaDouble_conversion = 0.025;    // 40 x eta to eta
+const double jFexInputProvider::m_EtDouble_conversion = 0.1;       // 100 MeV to GeV
+const double jFexInputProvider::m_sumEtDouble_conversion = 0.1;    // 100 MeV to GeV
+const double jFexInputProvider::m_phiDouble_conversion = 0.05;     // 20 x phi to phi
+const double jFexInputProvider::m_etaDouble_conversion = 0.025;    // 40 x eta to eta
 
 
-JetInputProviderFEX::JetInputProviderFEX(const std::string& type, const std::string& name, 
+jFexInputProvider::jFexInputProvider(const std::string& type, const std::string& name, 
                                    const IInterface* parent) :
    base_class(type, name, parent),
    m_histSvc("THistSvc", name)
@@ -38,21 +38,22 @@ JetInputProviderFEX::JetInputProviderFEX(const std::string& type, const std::str
    declareInterface<LVL1::IInputTOBConverter>( this );
 }
 
-JetInputProviderFEX::~JetInputProviderFEX()
+jFexInputProvider::~jFexInputProvider()
 {}
 
 StatusCode
-JetInputProviderFEX::initialize() {
+jFexInputProvider::initialize() {
 
    CHECK(m_histSvc.retrieve());
 
-   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "JetInputProviderFEX");
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "jFexInputProvider");
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
 
    CHECK(m_jJet_EDMKey.initialize(SG::AllowEmpty));
    CHECK(m_jLJet_EDMKey.initialize(SG::AllowEmpty));
+   CHECK(m_jEM_EDMKey.initialize(SG::AllowEmpty));
    CHECK(m_jTau_EDMKey.initialize(SG::AllowEmpty));
    CHECK(m_jXE_EDMKey.initialize(SG::AllowEmpty));
    CHECK(m_jTE_EDMKey.initialize(SG::AllowEmpty));
@@ -62,7 +63,7 @@ JetInputProviderFEX::initialize() {
 
 
 void
-JetInputProviderFEX::handle(const Incident& incident) {
+jFexInputProvider::handle(const Incident& incident) {
    if (incident.type()!="BeginRun") return;
    ATH_MSG_DEBUG( "In BeginRun incident");
 
@@ -159,9 +160,30 @@ JetInputProviderFEX::handle(const Incident& incident) {
    auto h_jEmPt = std::make_unique<TH1I>( "jEmTOBPt", "jEm TOB Pt", 200, 0, 400);
    h_jEmPt->SetXTitle("p_{T} [GeV]");
 
+   auto h_jEmIsolation = std::make_unique<TH1I>( "jEmTOBIsolation", "jEm TOB Isolation", 4, 0, 4);
+   h_jEmIsolation->SetXTitle("Isolation");
+
+   auto h_jEmFrac1 = std::make_unique<TH1I>( "jEmTOBFrac1", "jEm TOB Frac1", 4, 0, 4);
+   h_jEmFrac1->SetXTitle("Frac1");
+
+   auto h_jEmFrac2 = std::make_unique<TH1I>( "jEmTOBFrac2", "jEm TOB Frac2", 4, 0, 4);
+   h_jEmFrac2->SetXTitle("Frac2");
+
    auto h_jEmPhiEta = std::make_unique<TH2I>( "jEmTOBPhiEta", "jEm TOB Location", 200, -200, 200, 128, 0, 128);
    h_jEmPhiEta->SetXTitle("#eta#times40");
    h_jEmPhiEta->SetYTitle("#phi#times20");
+
+   auto h_jEmIsolationEta = std::make_unique<TH2I>( "jEmTOBIsolationEta", "jEm TOB Isolation vs eta", 200, -200, 200, 4, 0, 4);
+   h_jEmIsolationEta->SetXTitle("#eta#times40");
+   h_jEmIsolationEta->SetYTitle("Isolation");
+
+   auto h_jEmFrac1Eta = std::make_unique<TH2I>( "jEmTOBFrac1Eta", "jEm TOB Frac1 vs eta", 200, -200, 200, 4, 0, 4);
+   h_jEmFrac1Eta->SetXTitle("#eta#times40");
+   h_jEmFrac1Eta->SetYTitle("Frac1");
+
+   auto h_jEmFrac2Eta = std::make_unique<TH2I>( "jEmTOBFrac2Eta", "jEm TOB Frac2 vs eta", 200, -200, 200, 4, 0, 4);
+   h_jEmFrac2Eta->SetXTitle("#eta#times40");
+   h_jEmFrac2Eta->SetYTitle("Frac2");
 
    if (m_histSvc->regShared( histPath + "jEmTOBPt", std::move(h_jEmPt), m_h_jEmPt ).isSuccess()){
      ATH_MSG_DEBUG("jEmTOB Pt histogram has been registered successfully from jFexInputProvider.");
@@ -169,11 +191,47 @@ JetInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register jEmTOB Pt histogram from jFexInputProvider");
    }
+   if (m_histSvc->regShared( histPath + "jEmTOBIsolation", std::move(h_jEmIsolation), m_h_jEmIsolation ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Isolation histogram has been registered successfully from jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Isolation histogram from jFexInputProvider");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBFrac1", std::move(h_jEmFrac1), m_h_jEmFrac1 ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Frac1 histogram has been registered successfully from jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Frac1 histogram from jFexInputProvider");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBFrac2", std::move(h_jEmFrac2), m_h_jEmFrac2 ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Frac2 histogram has been registered successfully from jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Frac2 histogram from jFexInputProvider");
+   }
    if (m_histSvc->regShared( histPath + "jEmTOBPhiEta", std::move(h_jEmPhiEta), m_h_jEmPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("jEmTOB PhiEta histogram has been registered successfully from jFexInputProvider.");
    }
    else{
      ATH_MSG_WARNING("Could not register jEmTOB PhiEta histogram from jFexInputProvider");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBIsolationEta", std::move(h_jEmIsolationEta), m_h_jEmIsolationEta ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB IsolationEta histogram has been registered successfully from jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB IsolationEta histogram from jFexInputProvider");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBFrac1Eta", std::move(h_jEmFrac1Eta), m_h_jEmFrac1Eta ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Frac1Eta histogram has been registered successfully from jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Frac1Eta histogram from jFexInputProvider");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBFrac2Eta", std::move(h_jEmFrac2Eta), m_h_jEmFrac2Eta ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Frac2Eta histogram has been registered successfully from jFexInputProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Frac2Eta histogram from jFexInputProvider");
    }
 
    // jXE
@@ -211,7 +269,70 @@ JetInputProviderFEX::handle(const Incident& incident) {
 
 
 StatusCode
-JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
+jFexInputProvider::fillEM(TCS::TopoInputEvent& inputEvent) const {
+  if (m_jEM_EDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex EM input disabled, skip filling");
+    return StatusCode::SUCCESS;
+  }
+  SG::ReadHandle<xAOD::jFexFwdElRoIContainer> jEM_EDM(m_jEM_EDMKey);
+  ATH_CHECK(jEM_EDM.isValid());
+
+  for(const xAOD::jFexFwdElRoI* jFexRoI : * jEM_EDM) {
+
+    ATH_MSG_DEBUG( "EDM jFex Em Number: " 
+           << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
+           << " et: " 
+           << jFexRoI->et() // returns the et value of the jet in MeV unit
+           << " tobEt: " 
+           << jFexRoI->tobEt() // returns the et value of the jet in units of 200 MeV
+           << " globalEta: "
+           << jFexRoI->globalEta() // returns global eta in units of 0.1
+           << " globalPhi: "
+           << jFexRoI->globalPhi() // returns global phi in units of 0.1
+           << " tobEMIso: "
+           << +jFexRoI->tobEMIso() // returns isolation bits
+           << " tobEMf1: "
+           << +jFexRoI->tobEMf1() // returns isolation bits
+           << " tobEMf2: "
+           << +jFexRoI->tobEMf2() // returns isolation bits
+           );
+       
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
+    unsigned int isolation = jFexRoI->tobEMIso();
+    unsigned int frac1 = jFexRoI->tobEMf2();
+    unsigned int frac2 = jFexRoI->tobEMf1();
+   
+    // Avoid the events with 0 Et (events below threshold)
+    if (EtTopo==0) continue;
+
+    TCS::jEmTOB jem( EtTopo, etaTopo, phiTopo );
+    jem.setEtDouble( static_cast<double>(EtTopo*m_EtDouble_conversion) );
+    jem.setEtaDouble( static_cast<double>(etaTopo*m_etaDouble_conversion) );
+    jem.setPhiDouble( static_cast<double>(phiTopo*m_phiDouble_conversion) );
+    jem.setIsolation( isolation );
+    jem.setFrac1( frac1 );
+    jem.setFrac2( frac2 );
+
+    inputEvent.addjEm( jem );
+
+    m_h_jEmPt->Fill(jem.EtDouble());
+    m_h_jEmIsolation->Fill(jem.isolation());
+    m_h_jEmFrac1->Fill(jem.frac1());
+    m_h_jEmFrac2->Fill(jem.frac2());
+    m_h_jEmPhiEta->Fill(jem.eta(),jem.phi()); 
+    m_h_jEmIsolationEta->Fill(jem.eta(),jem.isolation()); 
+    m_h_jEmFrac1Eta->Fill(jem.eta(),jem.frac1()); 
+    m_h_jEmFrac2Eta->Fill(jem.eta(),jem.frac2()); 
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+jFexInputProvider::fillTau(TCS::TopoInputEvent& inputEvent) const {
   if (m_jTau_EDMKey.empty()) {
     ATH_MSG_DEBUG("jFex Tau input disabled, skip filling");
     return StatusCode::SUCCESS;
@@ -221,7 +342,7 @@ JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 
   for(const xAOD::jFexTauRoI* jFexRoI : * jTau_EDM) {
 
-    ATH_MSG_DEBUG( "EDM jFEX jTau Number: " 
+    ATH_MSG_DEBUG( "EDM jFex Tau Number: " 
 		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in MeV unit
@@ -229,10 +350,10 @@ JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->tobEt() // returns the et value of the jet in units of 200 MeV
 		   << " globalEta: "
 		   << jFexRoI->globalEta() // returns global eta in units of 0.1
-		   << " isolation: "
-		   << jFexRoI->tobIso() // returns isolation value in units of 200 MeV
 		   << " globalPhi: "
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
+		   << " isolation: "
+		   << jFexRoI->tobIso() // returns isolation value in units of 200 MeV
 		   );
        
     unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
@@ -263,7 +384,7 @@ JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
-JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
+jFexInputProvider::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
   if (m_jLJet_EDMKey.empty()) {
     ATH_MSG_DEBUG("jFex LJet input disabled, skip filling");
     return StatusCode::SUCCESS;
@@ -273,7 +394,7 @@ JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
   
   for(const xAOD::jFexLRJetRoI* jFexRoI : * jLJet_EDM) {
 
-    ATH_MSG_DEBUG( "EDM jFex jJet Number: " 
+    ATH_MSG_DEBUG( "EDM jFex LJet Number: " 
 		   << jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number
 	           << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in MeV
@@ -308,7 +429,7 @@ JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
-JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
+jFexInputProvider::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
   if (m_jJet_EDMKey.empty()) {
     ATH_MSG_DEBUG("jFex Jet input disabled, skip filling");
     return StatusCode::SUCCESS;
@@ -318,7 +439,7 @@ JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
   
   for(const xAOD::jFexSRJetRoI* jFexRoI : * jJet_EDM){
 
-    ATH_MSG_DEBUG( "EDM jFex jJet Number: " 
+    ATH_MSG_DEBUG( "EDM jFex Jet Number: " 
 		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
 		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in MeV
@@ -354,7 +475,7 @@ JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
-JetInputProviderFEX::fillXE(TCS::TopoInputEvent& inputEvent) const {
+jFexInputProvider::fillXE(TCS::TopoInputEvent& inputEvent) const {
   
   if (m_jXE_EDMKey.empty()) {
     ATH_MSG_DEBUG("jFex XE input disabled, skip filling");
@@ -412,7 +533,7 @@ JetInputProviderFEX::fillXE(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
-JetInputProviderFEX::fillTE(TCS::TopoInputEvent& inputEvent) const {
+jFexInputProvider::fillTE(TCS::TopoInputEvent& inputEvent) const {
   
   if (m_jTE_EDMKey.empty()) {
     ATH_MSG_DEBUG("jFex TE input disabled, skip filling");
@@ -462,7 +583,8 @@ JetInputProviderFEX::fillTE(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
-JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+jFexInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+  ATH_CHECK(fillEM(inputEvent));
   ATH_CHECK(fillTau(inputEvent));
   ATH_CHECK(fillSRJet(inputEvent));
   ATH_CHECK(fillLRJet(inputEvent));
