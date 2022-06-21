@@ -30,6 +30,9 @@ namespace TCS {
    private:
    
       parType_t      m_numberOfjEms = { 0 };
+      parType_t      m_iso = { 0 };
+      parType_t      m_frac1 = { 0 };
+      parType_t      m_frac2 = { 0 };
        
    };
 
