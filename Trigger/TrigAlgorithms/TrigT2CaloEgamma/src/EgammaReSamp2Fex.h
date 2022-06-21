@@ -51,13 +51,13 @@ class EgammaReSamp2Fex: public IReAlgToolCalo {
 inline double EgammaReSamp2Fex::etaSizeLArEMSamp2(double cellEta, int calo) const{
   double sizeEta;
   if( calo == Calorimeter::EMBAR ){
-      if ( fabs(cellEta) < 1.4 ){
+      if ( std::abs(cellEta) < 1.4 ){
         sizeEta = 0.025;
       }else{
         sizeEta = 0.075;
       }
   } else {
-      if ( fabs(cellEta) < 2.5 ){
+      if ( std::abs(cellEta) < 2.5 ){
         sizeEta = 0.025;
       } else{
         sizeEta = 0.1;
@@ -71,7 +71,7 @@ inline double EgammaReSamp2Fex::phiSizeLArEMSamp2(double cellEta, int calo) cons
   if( calo == Calorimeter::EMBAR ){
     sizePhi = 0.025;
   } else {
-      if ( fabs(cellEta) < 2.5 ){
+      if ( std::abs(cellEta) < 2.5 ){
         sizePhi = 0.025;
       } else {
         sizePhi = 0.1;

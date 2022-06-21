@@ -24,6 +24,7 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonCondData/TgcDigitASDposData.h"
 #include "MuonCondData/TgcDigitTimeOffsetData.h"
+#include "MuonCondData/TgcDigitCrosstalkData.h"
 
 class PileUpMergeSvc;
 class TgcDigitMaker;
@@ -95,6 +96,7 @@ private:
   std::string m_inputHitCollectionName{""};
   SG::ReadCondHandleKey<TgcDigitASDposData> m_readCondKey_ASDpos{this,"TGCDigitASDposKey","","ReadCondHandleKey for TGCDigitASDposData"};
   SG::ReadCondHandleKey<TgcDigitTimeOffsetData> m_readCondKey_TimeOffset{this,"TGCDigitTimeOffsetKey","","ReadCondHandleKey for TGCDigitTimeOffsetData"};
+  SG::ReadCondHandleKey<TgcDigitCrosstalkData> m_readCondKey_Crosstalk{this,"TGCDigitCrosstalkKey","","ReadCondHandleKey for TGCDigitCrosstalkData"};
   SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 

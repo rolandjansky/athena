@@ -68,9 +68,6 @@ StatusCode TgcDigitMaker::initialize()
   // Read share/TGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold. 
   ATH_CHECK(readFileOfEnergyThreshold());
 
-  // Read share/TGC_Digitization_crossTalk.dat file and store values in m_crossTalk.
-  ATH_CHECK(readFileOfCrossTalk());
-
   // Read share/TGC_Digitization_deadChamber.dat file and store values in m_isDeadChamber. 
   ATH_CHECK(readFileOfDeadChamber());
 
@@ -90,6 +87,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
                                                const double globalHitTime,
                                                const TgcDigitASDposData* ASDpos,
                                                const TgcDigitTimeOffsetData* TOffset,
+                                               const TgcDigitCrosstalkData* Crosstalk,
                                                CLHEP::HepRandomEngine* rndmEngine)
 {
   // timing constant parameters
@@ -265,7 +263,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId, bctag, digits.get());
 
 	  if(iwg==iWG[0]) {
-            randomCrossTalk(elemId, ilyr, kWIRE, iwg, posInWG[0], digit_time, wire_timeOffset, rndmEngine, digits.get());
+            randomCrossTalk(Crosstalk, elemId, ilyr, kWIRE, iwg, posInWG[0], digit_time, wire_timeOffset, rndmEngine, digits.get());
 	  }	 
 
 	  ATH_MSG_DEBUG("WireGroup: newid breakdown digitTime x/y/z direcos height_gang bctag: "
@@ -404,7 +402,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId, bctag, digits.get());
 
 	  if(istr==iStr[0]) {
-	    randomCrossTalk(elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, strip_timeOffset, rndmEngine, digits.get());
+	    randomCrossTalk(Crosstalk, elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, strip_timeOffset, rndmEngine, digits.get());
 	  }
 
 	  ATH_MSG_DEBUG("Strip: newid breakdown digitTime x/y/z direcos r_center bctag: "
@@ -641,84 +639,6 @@ StatusCode TgcDigitMaker::readFileOfEnergyThreshold() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitMaker::readFileOfCrossTalk() {
-  // Indices to be used 
-  int iStationName = -1;
-  int stationEta = -1;
-  int gasGap = -1;
-  int isStrip = -1;
-
-  for(iStationName=0; iStationName<N_STATIONNAME; iStationName++) {
-    for(stationEta=0; stationEta<N_ABSSTATIONETA; stationEta++) {
-      for(gasGap=0; gasGap<N_GASGAP; gasGap++) {
-        for(isStrip=0; isStrip<N_ISSTRIP; isStrip++) {
-          for (int iProb=0; iProb<N_CROSSTALK_PARAMETER; iProb++) {
-            m_crossTalk[iStationName][stationEta][gasGap][isStrip][iProb] = 0.;
-          }
-        }
-      }
-    }
-  }
-
-  // Find path to the TGC_Digitization_crossTalk.dat file 
-  const std::string fileName = "TGC_Digitization_crossTalk.dat";
-  std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath.empty()) {
-    ATH_MSG_FATAL("readFileOfCrossTalk(): Could not find file " << fileName);
-    return StatusCode::FAILURE;
-  }
-
-  // Open the TGC_Digitization_crossTalk.dat file 
-  std::ifstream ifs;
-  ifs.open(fileWithPath.c_str(), std::ios::in);
-  if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfCrossTalk(): Could not open file " << fileName);
-    return StatusCode::FAILURE;
-  }
-    
-  double crossTalk_10 = 0.; 
-  double crossTalk_11 = 0.; 
-  double crossTalk_20 = 0.; 
-  double crossTalk_21 = 0.; 
-  // Read the TGC_Digitization_crossTalk.dat file
-  while(ifs.good()) {
-    ifs >> iStationName >> stationEta >> gasGap >> isStrip >> crossTalk_10 >> crossTalk_11 >> crossTalk_20 >> crossTalk_21;
-    ATH_MSG_DEBUG("TgcDigitMaker::readFileOfCrossTalk" 
-		      << " stationName= " << iStationName  
-		      << " stationEta= " << stationEta 
-		      << " gasGap= " << gasGap 
-		      << " isStrip= " << isStrip
-		      << " prob(10) " << crossTalk_10
-		      << " prob(11) " << crossTalk_11
-		      << " prob(20) " << crossTalk_20
-		      << " prob(21) " << crossTalk_21);
-
-    // Subtract offsets to use indices of crossTalk array
-    iStationName -= OFFSET_STATIONNAME;
-    stationEta   -= OFFSET_ABSSTATIONETA;
-    gasGap       -= OFFSET_GASGAP;
-    isStrip      -= OFFSET_ISSTRIP;
-
-    // Check the indices are valid 
-    if (iStationName < 0 || iStationName >= N_STATIONNAME  ) continue;
-    if (stationEta   < 0 || stationEta   >= N_ABSSTATIONETA) continue;
-    if (gasGap       < 0 || gasGap       >= N_GASGAP       ) continue;
-    if (isStrip      < 0 || isStrip      >= N_ISSTRIP      ) continue; 
-
-    m_crossTalk[iStationName][stationEta][gasGap][isStrip][0] = crossTalk_10;
-    m_crossTalk[iStationName][stationEta][gasGap][isStrip][1] = crossTalk_11;
-    m_crossTalk[iStationName][stationEta][gasGap][isStrip][2] = crossTalk_20;
-    m_crossTalk[iStationName][stationEta][gasGap][isStrip][3] = crossTalk_21;
-
-    // If it is the end of the file, get out from while loop.   
-    if(ifs.eof()) break;
-  }
-
-  // Close the TGC_Digitization_crossTalk.dat file 
-  ifs.close();
-
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TgcDigitMaker::readFileOfDeadChamber() {
   // Indices to be used 
@@ -963,7 +883,8 @@ double TgcDigitMaker::getEnergyThreshold(const std::string& stationName, int sta
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
+void TgcDigitMaker::randomCrossTalk(const TgcDigitCrosstalkData* crosstalk,
+                                    const Identifier elemId,
                                     const int gasGap,
                                     const TgcSensor sensor,
                                     const int channel,
@@ -973,23 +894,22 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     CLHEP::HepRandomEngine* rndmEngine,
                                     TgcDigitCollection* digits) const
 {
-  int stationName = m_idHelper->stationName(elemId)          - OFFSET_STATIONNAME;
-  int stationEta  = std::abs(m_idHelper->stationEta(elemId)) - OFFSET_ABSSTATIONETA;
-  int iGasGap     = gasGap                                   - OFFSET_GASGAP; 
+  uint16_t station_number = m_idHelper->stationName(elemId);
+  uint16_t station_eta  = std::abs(m_idHelper->stationEta(elemId));
+  uint16_t layer = gasGap;
+  uint16_t layer_id = (station_number << 5) + (station_eta << 2) + layer;
 
-  double prob1CrossTalk  = 0.;
-  double prob11CrossTalk = 0.;
-  double prob20CrossTalk = 0.;
-  double prob21CrossTalk = 0.;
-
-  if((stationName >= 0 && stationName < N_STATIONNAME  ) &&
-     (stationEta  >= 0 && stationEta  < N_ABSSTATIONETA) &&
-     (iGasGap     >= 0 && iGasGap     < N_GASGAP       )) {
-    prob1CrossTalk  = m_crossTalk[stationName][stationEta][iGasGap][sensor][0];
-    prob11CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][1];
-    prob20CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][2];
-    prob21CrossTalk = m_crossTalk[stationName][stationEta][iGasGap][sensor][3];
+  if (station_number < OFFSET_STATIONNAME || station_number >= OFFSET_STATIONNAME + N_STATIONNAME ||
+      station_eta <= 0 || station_eta > N_ABSSTATIONETA ||
+      layer <= 0 || layer > N_GASGAP) {
+    ATH_MSG_ERROR("Unexpected indices are provided!");
+    return;
   }
+
+  float prob1CrossTalk  = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 0);
+  float prob11CrossTalk = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 1);
+  float prob20CrossTalk = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 2);
+  float prob21CrossTalk = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 3);
 
   int nCrossTalks_neg = 0; 
   int nCrossTalks_pos = 0; 
@@ -1017,7 +937,7 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
 
   // No time structure is implemented yet. 
   float dt = digitTime; 
-  TgcStation station = (stationName > 46) ? kINNER : kOUTER;
+  TgcStation station = (station_number > 46) ? kINNER : kOUTER;
   uint16_t bctag = bcTagging(dt, m_gateTimeWindow[station][sensor], time_offset);
   // obtain max channel number
   Identifier thisId = m_idHelper->channelID(elemId, gasGap, (int)sensor, channel);
@@ -1182,3 +1102,10 @@ float TgcDigitMaker::getTimeOffset(const TgcDigitTimeOffsetData* readCdo,
   return ((sensor == TgcSensor::kSTRIP) ? readCdo->stripOffset.find(chamberId)->second : readCdo->wireOffset.find(chamberId)->second);
 }
 
+float TgcDigitMaker::getCrosstalkProbability(const TgcDigitCrosstalkData* readCdo,
+                                             const uint16_t layer_id,
+                                             const TgcSensor sensor,
+                                             const unsigned int index_prob) const {
+  if (readCdo == nullptr) return 0.;  // no crosstalk
+  return ((sensor == TgcSensor::kSTRIP) ? readCdo->getStripProbability(layer_id, index_prob) : readCdo->getWireProbability(layer_id, index_prob));
+}

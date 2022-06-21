@@ -85,7 +85,6 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
       double energyCell = tilecell->energy();
       totalEnergy += energyCell;
-      //samp = CaloSampling::getSampling(*tilecell);
       samp = tilecell->caloDDE()->getSampling();
       rtrigEmCluster.setEnergy(samp,rtrigEmCluster.energy(samp) + energyCell);
       rtrigEmCluster.setRawEnergy(samp,rtrigEmCluster.rawEnergy(samp) + energyCell);
