@@ -82,7 +82,6 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     BooleanProperty  m_plotPRD{this, "plotPRD", false, "switch to plot histograms for Prepare Data objects"};
     BooleanProperty  m_useAODParticle{this, "useAODParticle", false, "use AOD Particle"};
 
-    DoubleProperty   m_avrLumiThr{this, "avrLumiThr", 10., "Thrshold of average luminosity per Luminosity block"};
     DoubleProperty   m_lbDuraThr{this,  "lbDuraThr",  10.,   "Thrshold of luminosity block deruation"};
     StringProperty   m_packageName{this,"PackageName", "RpcTrackAnaAlg","group name for histograming"};
 
