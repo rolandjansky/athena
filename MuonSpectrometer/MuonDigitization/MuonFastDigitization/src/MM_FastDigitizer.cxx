@@ -288,7 +288,7 @@ StatusCode MM_FastDigitizer::execute() {
     
     ////// fill first part of ntuple
     Amg::Vector3D repos = detEl->globalPosition();
-    MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
+    const MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
 
     std::string stName = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layid));
     int isSmall = stName[2] == 'S';

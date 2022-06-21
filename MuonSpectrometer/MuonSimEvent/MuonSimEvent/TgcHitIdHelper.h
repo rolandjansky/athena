@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TgcHitIdHelper_H
@@ -13,9 +13,9 @@
 class TgcHitIdHelper: public HitIdHelper {
 public:
 
-  static TgcHitIdHelper* GetHelper();
+  static const TgcHitIdHelper* GetHelper();
   std::string GetStationName(const int& hid) const;
-  void SetStationName(std::string name, int& hid) const;
+  void SetStationName(const std::string& name, int& hid) const;
   int GetStationPhi(const int& hid) const;
   int GetStationEta(const int& hid) const;
   int GetGasGap(const int& hid) const;
@@ -26,8 +26,6 @@ private:
   TgcHitIdHelper();
   void Initialize();
   void InitializeStationName();
-  static TgcHitIdHelper* m_help;
-
 };
 
 #endif

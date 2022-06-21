@@ -23,7 +23,7 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         unsigned int n_hits{0};
         // Get the MM Id hit helper
-        MicromegasHitIdHelper* mmhhelper = MicromegasHitIdHelper::GetHelper();
+        const MicromegasHitIdHelper* mmhhelper = MicromegasHitIdHelper::GetHelper();
         if (!mmContainer->size()) ATH_MSG_DEBUG("MM Sim container is empty");
         for (const MMSimHit& hit : *mmContainer) {
             int simId = hit.MMId();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -58,7 +58,7 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->MDTid();
     const MdtIdHelper* mdtID = mgr()->mdtIdHelper();
-    MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(mdtID->tubeMax());
+    const MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper(mdtID->tubeMax());
 
     std::string stname = mdthhelper->GetStationName(hitid);
     int         steta  = mdthhelper->GetZSector(hitid);
@@ -101,7 +101,7 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->RPCid();
     const RpcIdHelper* rpcID = mgr()->rpcIdHelper();
-    RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper(rpcID->gasGapMax());
+    const RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper(rpcID->gasGapMax());
     std::string stname = rpchhelper->GetStationName(hitid);
     int         steta  = rpchhelper->GetZSector(hitid);
     int         stphi  = rpchhelper->GetPhiSector(hitid);
@@ -144,7 +144,7 @@ inline GeoTGCHit::GeoTGCHit (const TGCSimHit & h) {
 inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->TGCid();
-    TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
+    const TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
     std::string stname = tgchhelper->GetStationName(hitid);
     int         steta  = tgchhelper->GetStationEta(hitid);
     int         stphi  = tgchhelper->GetStationPhi(hitid);
@@ -184,7 +184,7 @@ inline GeoCSCHit::GeoCSCHit (const CSCSimHit & h) {
 inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
 
     HitID hitid = m_hit->CSCid();
-    CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
+    const CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
 
     std::string stname = cschhelper->GetStationName(hitid);
     int         steta  = cschhelper->GetZSector(hitid);

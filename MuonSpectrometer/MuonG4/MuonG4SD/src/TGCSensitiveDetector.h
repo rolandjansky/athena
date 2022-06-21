@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class TGCSensitiveDetector
@@ -84,7 +84,7 @@ FRIEND_TEST( TGCSensitiveDetectortest, ProcessHits );
  private:
   /** member data */
   SG::WriteHandle<TGCSimHitCollection>  m_myTGCHitColl;
-  TgcHitIdHelper* m_muonHelper;
+  const TgcHitIdHelper* m_muonHelper;
 };
 
 #endif
