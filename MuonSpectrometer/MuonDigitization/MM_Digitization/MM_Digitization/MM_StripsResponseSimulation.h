@@ -133,39 +133,36 @@ private:
   float m_interactionDensityMean{0.};
   float m_interactionDensitySigma{0.};
 
-  std::vector <int>   m_finalNumberofStrip;
-  std::vector <int>   m_nStripElectronics;
-  std::vector < std::vector <float> > m_finalqStrip;
-  std::vector < std::vector <float> > m_finaltStrip;
-  std::vector <float> m_finaltStripNoSlewing;
-  std::vector <float> m_tStripElectronicsAbThr;
-  std::vector <float> m_qStripElectronics;
+  std::vector <int>   m_finalNumberofStrip{};
+  std::vector <int>   m_nStripElectronics{};
+  std::vector < std::vector <float> > m_finalqStrip{};
+  std::vector < std::vector <float> > m_finaltStrip{};
+  std::vector <float> m_finaltStripNoSlewing{};
+  std::vector <float> m_tStripElectronicsAbThr{};
+  std::vector <float> m_qStripElectronics{};
 
-  std::vector <int> m_stripNumber;
-  std::vector <int> m_firstq;
-  std::vector <float> m_qstrip;
-  std::vector <float> m_cntTimes;
-  std::vector <float> m_tStrip;
-  std::vector <float> m_qStrip;
-  std::vector <float> m_time;  //Drift velocity [mm/ns]
-  std::vector <int> m_numberofStrip;
+  std::vector <int> m_stripNumber{};
+  std::vector <int> m_firstq{};
+  std::vector <float> m_qstrip{};
+  std::vector <float> m_cntTimes{};
+  std::vector <float> m_tStrip{};
+  std::vector <float> m_qStrip{};
+  std::vector <float> m_time{};  //Drift velocity [mm/ns]
+  std::vector <int> m_numberofStrip{};
 
-  std::vector <float> m_clusterelectrons;
-  std::vector <float> m_l;
+  std::vector <float> m_clusterelectrons{};
+  std::vector <float> m_l{};
 
   /// ToDo: random number from custom functions
   const TF1 *m_lorentzAngleFunction{nullptr};
 
-  MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
-  MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
+  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters{};
 
-  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters;
+  std::map<TString, TH1F* > m_mapOfHistograms{};
+  std::map<TString, TH2F* > m_mapOf2DHistograms{};
 
-  std::map<TString, TH1F* > m_mapOfHistograms;
-  std::map<TString, TH2F* > m_mapOf2DHistograms;
-
-  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons;
-  int m_NelectronPropBins = 0;
+  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons{};
+  int m_NelectronPropBins{0};
 
   bool m_writeOutputFile{false};
   bool m_writeEventDisplays{false};
