@@ -264,8 +264,8 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
 
     result->tags_["00-Number_of_found_peaks"] = peak.size();
     for(i=0;i<peak.size();i++){
-      if(i<10) snprintf(numb_n_r,sizeof(numb_n_r),"0%d",(i+1));
-      if(i>=10) snprintf(numb_n_r,sizeof(numb_n_r),"%d",(i+1));
+      if(i<10) snprintf(numb_n_r,sizeof(numb_n_r),"0%u",(i+1));
+      if(i>=10) snprintf(numb_n_r,sizeof(numb_n_r),"%u",(i+1));
       tag_n_r=(std::string)numb_n_r+peak_tag;
       result->tags_[tag_n_r] = peak[i];
     };
@@ -306,15 +306,15 @@ MDTMultiplicity::execute( const std::string& name, const TObject& object, const 
     result->tags_["b-00-Number_of_found_peaks_ref"] = peak_ref.size();
 
     for(i=0;i<peak.size();i++){
-      if(i<10) snprintf(numb,sizeof(numb),"0%d",(i+1));
-      if(i>=10) snprintf(numb,sizeof(numb),"%d",(i+1));
+      if(i<10) snprintf(numb,sizeof(numb),"0%u",(i+1));
+      if(i>=10) snprintf(numb,sizeof(numb),"%u",(i+1));
       tag=run_tag+(std::string)numb+multi;
       result->tags_[tag] = peak[i];
     };
     i=0;
     for(i=0;i<peak_ref.size();i++){
-      if(i<10) snprintf(numb,sizeof(numb),"0%d",(i+1));
-      if(i>=10) snprintf(numb,sizeof(numb),"%d",(i+1));
+      if(i<10) snprintf(numb,sizeof(numb),"0%u",(i+1));
+      if(i>=10) snprintf(numb,sizeof(numb),"%u",(i+1));
       tag=ref_tag+(std::string)numb+multi;
       result->tags_[tag] = peak_ref[i];
     };
