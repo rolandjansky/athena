@@ -115,7 +115,7 @@ def MuonSelectionTool(name="MuonRecoSelTool", **kwargs):
    kwargs.setdefault("IsRun3Geo", CommonGeometryFlags.Run not in ["RUN1","RUN2"] )
    kwargs.setdefault("DisablePtCuts", True)
    kwargs.setdefault("TurnOffMomCorr", True)
-   return CfgMgr.Rec__MuonSelectionTool(name,**kwargs)
+   return CfgMgr.CP__MuonSelectionTool(name,**kwargs)
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonTrkMaterialProviderTool"))
