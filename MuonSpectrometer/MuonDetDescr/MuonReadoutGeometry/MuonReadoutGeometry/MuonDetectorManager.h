@@ -502,8 +502,8 @@ namespace MuonGM {
 namespace MuonGM {
     class MuonDetectorManager;
 }
-CLASS_DEF(MuonGM::MuonDetectorManager, 4500, 1)
-CLASS_DEF(CondCont<MuonGM::MuonDetectorManager>, 205781622, 0)
+CLASS_DEF(MuonGM::MuonDetectorManager, 4500, 1);
+CONDCONT_MIXED_DEF(MuonGM::MuonDetectorManager, 205781622);
 #endif
 
 #endif
