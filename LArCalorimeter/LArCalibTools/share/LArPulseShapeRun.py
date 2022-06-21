@@ -71,10 +71,17 @@ theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/FREE"   ]
 # trigger configuration
 from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
 ConfigFlags = getNewConfigFlags()
+ConfigFlags.Trigger.readBS = True
 ConfigFlags.Trigger.doID = False
 
-from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
-trig = TriggerRecoGetter()
+from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+cfg = TriggerConfigGetter()
+
+from TriggerJobOpts.Lvl1ResultBuilderGetter import Lvl1ResultBuilderGetter
+lvl1 = Lvl1ResultBuilderGetter()
+
+from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
+bsu=ByteStreamUnpackGetter()
 
 # TDT
 from AthenaCommon.AppMgr import ToolSvc
