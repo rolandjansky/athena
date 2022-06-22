@@ -1044,7 +1044,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         // Check if this is High Luminosity LHC layout
 	//should just use std::string::contains once that is available... (C++23)
 	std::string versionString = m_indet_dict->m_version;
-        m_isHighLuminosityLHC = (versionString.find("ITk") != std::string::npos);
+        m_isHighLuminosityLHC = (versionString.find("ITk") != std::string::npos || versionString.find("P2-RUN4") != std::string::npos);
 
         // Get InDet subdets
 
@@ -1155,7 +1155,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
         }
         if(m_isHighLuminosityLHC) {
-            if(versionString.find("PLR") != std::string::npos) { // do not look for this unless using ITKHGTDPLR dictionary which contains "LuminosityDetectors"
+            if(versionString.find("PLR") != std::string::npos || versionString.find("P2-RUN4") != std::string::npos) { // do not look for this unless using ITKHGTDPLR dictionary which contains "LuminosityDetectors"
                 label = field->find_label("LuminosityDetectors");
                 if (label) {
                     if (label->m_valued) {

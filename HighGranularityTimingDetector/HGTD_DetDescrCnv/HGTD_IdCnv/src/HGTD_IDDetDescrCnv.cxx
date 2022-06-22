@@ -41,7 +41,7 @@ HGTD_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     ATH_MSG_INFO( "in createObj: creating a HGTD_ID helper object in the detector store" );
 
     // Create a new HGTD_ID
-
+    
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
@@ -98,13 +98,10 @@ HGTD_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 
     // File to be read for InDet ids
     std::string   inDetIDFileName = dict->file_name();
-
     // Tag of RDB record for InDet ids
     std::string   inDetIdDictTag  = dict->dict_tag();
 
-
     if (m_hgtdId) {
-
         // HGTD id helper already exists - second pass. Check for a
         // change
         if (inDetIDTag != m_inDetIDTag) {
@@ -133,7 +130,10 @@ HGTD_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
         m_hgtdId = std::make_unique<HGTD_ID>();
         initHelper = true;
         // add in message service for printout
-        m_hgtdId->setMessageSvc(msgSvc());
+        m_hgtdId->setMessageSvc(msgSvc());        
+        if(dict->m_version == "P2-RUN4"){
+            m_hgtdId->set_useNewIdentifierScheme(true); 
+        }
     }
 
     if (initHelper) {
