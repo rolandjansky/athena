@@ -16,6 +16,7 @@
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "NSWCalibTools/INSWCalibTool.h"
 
 #include <string>
 #include <vector>
@@ -78,6 +79,7 @@ namespace Muon
       Gaudi::Property<bool> m_merge{this, "Merge", true}; // merge Prds
 
       ToolHandle<ISTgcClusterBuilderTool> m_clusterBuilderTool{this,"ClusterBuilderTool","Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool"};
+      ToolHandle<INSWCalibTool> m_calibTool{this,"NSWCalibTool", ""};
 
    }; 
 } // end of namespace

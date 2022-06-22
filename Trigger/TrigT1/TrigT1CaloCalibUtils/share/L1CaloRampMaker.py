@@ -25,7 +25,7 @@ def main():
     parser.add_option("-i","--InputFiles",        dest="InputFiles",                      help="Input raw data (default: %default)")
     parser.add_option("-l","--doLAr",            dest="doLAr",    action="store_true",  help="Do L1Calo+LAr calibration(default: %default)")
     parser.add_option("-t","--doTile",           dest="doTile",   action="store_true",  help="Do L1Calo+Tile calibration(default: %default)")
-    parser.set_defaults(InputFiles="/eos/atlas/atlastier0/rucio/data22_calib/calibration_L1CaloEnergyScan/00419051/data22_calib.00419051.calibration_L1CaloEnergyScan.daq.RAW/data22_calib.00419051.calibration_L1CaloEnergyScan.daq.RAW._lb0000._SFO-1._0001.data", doLAr=True, doTile=False)
+    parser.set_defaults(InputFiles="/eos/atlas/atlastier0/rucio/data22_calib/calibration_L1CaloEnergyScan/00419051/data22_calib.00419051.calibration_L1CaloEnergyScan.daq.RAW/data22_calib.00419051.calibration_L1CaloEnergyScan.daq.RAW._lb0000._SFO-1._0001.data", doLAr=False, doTile=False)
     (options,args) = parser.parse_args()
     
 
@@ -105,7 +105,7 @@ def main():
     acc.addEventAlgo(decorator, 'AthAlgSeq')
     
     RampMaker = CompFactory.L1CaloRampMaker()
-    RampMaker.L1TriggerTowerTool = CompFactory.LVL1.L1TriggerTowerTool()
+    RampMaker.L1TriggerTowerToolRun3 = CompFactory.LVL1.L1TriggerTowerToolRun3()
     RampMaker.DoTile = options.doTile
     RampMaker.DoLAr = options.doLAr 
     RampMaker.EventsPerEnergyStep = 200

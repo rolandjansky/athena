@@ -19,6 +19,8 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 
 class LArRawChannel;
@@ -150,6 +152,9 @@ private:
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
 
+  //To get the data-dependency right ... 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
+
   //declaration variables used in joboptions
   Gaudi::Property<std::string> m_MonGroupName  {this, "MonGroup", "RODMon"};
   Gaudi::Property<std::vector<std::string> > m_SubDetNames  {this, "LArRODSubDetNames", {} };
@@ -161,7 +166,6 @@ private:
   Gaudi::Property<std::string>  m_EnergyFileName{this,"EnergyFileName","energy.txt"," Energies dump output filename"};
   Gaudi::Property<std::string>  m_AiFileName{this,"AiFileName","Calib_ai.dat","dump output filename"};
   Gaudi::Property<std::string>  m_DumpCellsFileName{this,"DumpCellsFileName","dumpCells.txt","Cells dump output filename"};
-
 
   Gaudi::Property<bool> m_doDspTestDump{this, "DoDspTestDump", false, "dsp dump switch"};
   Gaudi::Property<bool> m_doCellsDump{this, "DoCellsDump", false, "cell dump switch"};

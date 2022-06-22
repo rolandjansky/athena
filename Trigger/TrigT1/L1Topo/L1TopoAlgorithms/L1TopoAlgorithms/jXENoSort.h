@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-// jMETNoSort.h
+// jXENoSort.h
 // TopoCore
 
-#ifndef L1TOPOALGORITHMS_JMETNOSORT_H
-#define L1TOPOALGORITHMS_JMETNOSORT_H
+#ifndef L1TOPOALGORITHMS_JXENOSORT_H
+#define L1TOPOALGORITHMS_JXENOSORT_H
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
@@ -15,20 +15,18 @@
 
 namespace TCS {
    
-   class jMETNoSort : public SortingAlg {
+   class jXENoSort : public SortingAlg {
    public:
       
       // constructor
-      jMETNoSort(const std::string & name);
+      jXENoSort(const std::string & name);
 
       // destructor
-      virtual ~jMETNoSort();
+      virtual ~jXENoSort();
 
       virtual StatusCode initialize();
       
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
-
-
 
    };
 

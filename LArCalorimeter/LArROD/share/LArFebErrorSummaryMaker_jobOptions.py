@@ -9,6 +9,10 @@ else:
    febSummaryMaker.MaskFebEvtId      = [0x38080000]
 febSummaryMaker.WriteKey="StoreGateSvc+LArFebErrorSummary"
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+if rec.doExpressProcessing() or athenaCommonFlags.isOnline(): # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
+   febSummaryMaker.minFebInError = 4
+
 # needed only if it is not in DB.
 #febSummaryMaker.MaskFebZeroSample = [0x39618000,0x39930000,0x3b1b0000,0x38db0000,0x38f60000,0x39ae8000,0x3bb90000]
 

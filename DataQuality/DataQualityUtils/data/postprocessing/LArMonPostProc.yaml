@@ -41,8 +41,8 @@ Description: LAr_Coverage_HW_FillWithMax
 
 #FEB mon
 ---
-Input: [ 'LAr/FEBMon/(?P<fold>\S+)/RAW_EventsRejectedLB' ]
-Output: [ 'LAr/FEBMon/{fold}/EventsRejectedLB' ]
+Input: [ 'LAr/FEBMon/(?P<fold>\S+)/RAW_EventsRejectedLB(?P<end>\S*)' ]
+Output: [ 'LAr/FEBMon/{fold}/EventsRejectedLB{end}' ]
 Function: LArMonitoring.LArMonTransforms.setMaxMin
 Parameters: { maxVal : 100, minVal : 0}
 Description: LAr_FEBmon_EventsRejectedLB_SetMinMax

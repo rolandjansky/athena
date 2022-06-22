@@ -17,7 +17,7 @@
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloEvent/CaloCell.h"
 
-#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
+#include "TrigT1CaloToolInterfaces/IL1TriggerTowerToolRun3.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloxAODOfflineTriggerTowerTools.h"
 
@@ -56,7 +56,7 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     m_nSteps(9),
     m_fadcSaturationCut(963),
     m_tileSaturationCut(150.),
-    m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
+    m_ttTool("LVL1::L1TriggerTowerToolRun3/L1TriggerTowerToolRun3"),
     m_xAODTTTools("LVL1::L1CaloxAODOfflineTriggerTowerTools/L1CaloxAODOfflineTriggerTowerTools", this),
     m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools", this),
     m_nEvent(1),
@@ -80,7 +80,7 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     declareProperty("NumberOfEnergySteps", m_nSteps);
     declareProperty("FADCSaturationCut", m_fadcSaturationCut);
     declareProperty("TileSaturationCut", m_tileSaturationCut);
-    declareProperty("L1TriggerTowerTool", m_ttTool);
+    declareProperty("L1TriggerTowerToolRun3", m_ttTool);
     declareProperty("SpecialChannelRange", m_specialChannelRange);
 }
 
@@ -245,8 +245,10 @@ StatusCode L1CaloRampMaker::execute()
         if(*max >= m_fadcSaturationCut) continue;
 
 
-	// skip disabled channels         
-	if( pprDisabledChannel->pprDisabledChannel(tt->coolId())) continue;
+	
+	// skip disabled channels
+        if(m_ttTool->disabledChannel(tt->coolId())) continue;
+
 
 	
         bool isTile = m_xAODTTTools->isTile(*tt);

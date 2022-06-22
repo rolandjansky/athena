@@ -87,9 +87,9 @@ StatusCode LArSuperCellMonAlg::fillHistograms(const EventContext& ctx) const{
 
   //get LB
   auto lumiBlock = Monitored::Scalar<unsigned int>("lumiBlock",0);
-  lumiBlock = GetEventInfo(ctx)->lumiBlock();
+  lumiBlock = ctx.eventID().lumi_block();
   auto bcid = Monitored::Scalar<unsigned int>("bcid",0);
-  bcid = GetEventInfo(ctx)->bcid();
+  bcid = ctx.eventID().bunch_crossing_id();
   int bcidFFB = bccd->distanceFromFront(bcid,BunchCrossingCondData::BunchCrossings);
 
 

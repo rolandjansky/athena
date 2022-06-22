@@ -175,7 +175,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   detEl->stripGlobalPosition(rdoId,globalPos);
 
   // RDO has values in counts for both simulation and data
-  double time{0.}, charge{0.};
+  double time{-DBL_MAX}, charge{-DBL_MAX};
   tdoToTime  (ctx, mmRawData->timeAndChargeInCounts(), mmRawData->time  (), rdoId, time  , mmRawData->relBcid()); 
   pdoToCharge(ctx, mmRawData->timeAndChargeInCounts(), mmRawData->charge(), rdoId, charge                      );
 
@@ -220,11 +220,11 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   }
 
   // RDO has values in counts for both simulation and data
-  double time{0.}, charge{0.};
+  double time{-DBL_MAX}, charge{-DBL_MAX};
   tdoToTime  (ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->time  (), rdoId, time  , sTGCRawData->bcTag()); 
   pdoToCharge(ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->charge(), rdoId, charge                      );
   
-  calibStrip.charge     = charge;
+  calibStrip.charge     = charge * sTGC_pCPerfC;
   calibStrip.time       = time - stgcPeakTime();
   calibStrip.identifier = rdoId;
   calibStrip.locPos = locPos;
@@ -307,7 +307,7 @@ Muon::NSWCalibTool::timeToTdo(const EventContext& ctx, const double time, const 
 
 bool 
 Muon::NSWCalibTool::timeToTdoMM(const NswCalibDbTimeChargeData* tdoPdoData, const double time, const Identifier& chnlId, int& tdo, int& relBCID) const {
-  const double t   = time - m_mmPeakTime - 25.; // subtract peaking time first!
+  const double t   = time - m_mmPeakTime - m_mmLatencyMC; // subtract peaking time first! This is not supossed to run on data ever only needed for the RDO->Digit step
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
   if (!calib.is_valid) return false;
   double tdoTime = -999.9;
@@ -326,10 +326,10 @@ Muon::NSWCalibTool::timeToTdoMM(const NswCalibDbTimeChargeData* tdoPdoData, cons
 
 bool 
 Muon::NSWCalibTool::timeToTdoSTGC(const NswCalibDbTimeChargeData* tdoPdoData, const double time, const Identifier& chnlId, int& tdo, int& relBCID) const {
-  const double t   = time - m_stgcPeakTime; // subtract peaking time first!
+  const double t   = time - m_stgcPeakTime - m_stgcLatencyMC; // subtract peaking time and latency first! This is not supossed to run on data ever only needed for the RDO->Digit step
   const TimeCalibConst& calib = tdoPdoData->getCalibForChannel(TimeCalibType::TDO, chnlId);
   double tdoTime = -999.9;
-  constexpr double lowerBound = Muon::STGC_RawData::s_lowerTimeBound;
+  const double lowerBound = Muon::STGC_RawData::s_lowerTimeBound - m_stgcLatencyMC; // this is not supossed to run on data ever, only needed for the RDO->Digit step
   for(int i_relBCID=0; i_relBCID<Muon::STGC_RawData::s_BCWindow; ++i_relBCID){
     if(t >= lowerBound+i_relBCID*25 && t < (lowerBound+25)+i_relBCID*25){
       tdoTime = i_relBCID*25 - t;
@@ -356,7 +356,10 @@ Muon::NSWCalibTool::tdoToTime(const EventContext& ctx, const bool inCounts, cons
   //(relBCID 0 corresponds to -37.5 ns to - 12.5 ns)
   //Eventually it should go into the conditions db since it is probably not the same for MC and Data
   //but for now it is kept like it is. pscholer 8th of June 2022
-  const double peakTime  = m_idHelperSvc->isMM(chnlId) ? mmPeakTime() +25. : stgcPeakTime(); 
+  double mmLatency = (m_isData? m_mmLatencyData : m_mmLatencyMC);
+  double stgcLatency = (m_isData? m_stgcLatencyData : m_stgcLatencyMC);
+
+  const double peakTime  = m_idHelperSvc->isMM(chnlId) ? mmPeakTime() + mmLatency : stgcPeakTime() + stgcLatency; 
   time = relBCID*25. - (tdo-calib.intercept)/calib.slope + peakTime;
   return true;
 }

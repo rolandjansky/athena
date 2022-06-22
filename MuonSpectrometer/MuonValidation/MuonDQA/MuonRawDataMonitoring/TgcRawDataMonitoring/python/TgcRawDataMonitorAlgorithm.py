@@ -34,6 +34,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
     muonSelectionTool.DisablePtCuts = True # won't use pT-balance cuts
     muonSelectionTool.TurnOffMomCorr= True   
     muonSelectionTool.AllowSettingGeometryOnTheFly=True
+    from AthenaConfiguration.Enums import LHCPeriod
+    muonSelectionTool.IsRun3Geo = (inputFlags.GeoModel.Run == LHCPeriod.Run3)
+
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
                                            TgcRawDataMonitorTool = tgcRawDataMonitorTool,
@@ -48,9 +51,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.FillGapByGapHistograms = (doGapByGapHitOcc or doGapByGapEffMap or doHitResiduals)
 
-    tgcRawDataMonAlg.UseOnlyCombinedMuons = False
-    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = False
-    tgcRawDataMonAlg.UseMuonSelectorTool = True
+    tgcRawDataMonAlg.UseOnlyCombinedMuons = True
+    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = True
+    tgcRawDataMonAlg.UseMuonSelectorTool = False
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 

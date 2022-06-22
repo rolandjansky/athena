@@ -53,7 +53,6 @@ class EgammaHitsCalibration  :
         Constant<bool> m_preserve_offset    { this, "preserve_offset" };
         Constant<bool> m_fix_v6_pathologies { this, "fix_v6_pathologies" };
 
-        //EgammaHitsShowerDepth m_showerDepth;
 };
 
 #endif

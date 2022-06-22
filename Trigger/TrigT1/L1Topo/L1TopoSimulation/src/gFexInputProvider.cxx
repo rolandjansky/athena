@@ -201,7 +201,7 @@ gFexInputProvider::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
     auto jetType = gFexRoI->gFexType();
     if ( jetType != 1 and jetType != 2 ) { continue; } // 1 = gFEX gBlockLead, 2 = gFEX gBlockSub (L1Topo gJet)
 
-    ATH_MSG_DEBUG( "EDM gFex jet type: "
+    ATH_MSG_DEBUG( "EDM gFex Jet type: "
                    << gFexRoI->gFexType() 
                    << " Et: " 
 		   << gFexRoI->et() // returns the et value of the jet in units of MeV
@@ -252,7 +252,7 @@ gFexInputProvider::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
     auto jetType = gFexRoI->gFexType();
     if ( jetType != 3 ) { continue; } // 3 = gFEX gJet (L1Topo gLJet)
 
-    ATH_MSG_DEBUG( "EDM gFex jet type: "
+    ATH_MSG_DEBUG( "EDM gFex LJet type: "
                    << gFexRoI->gFexType() 
                    << " Et: " 
 		   << gFexRoI->et() // returns the et value of the jet in units of MeV

@@ -27,11 +27,16 @@ def MuonsCommonCfg(ConfigFlags):
     ### IDHits
     # turn of the momentum correction which is not needed for IDHits cut and Preselection
     from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import LHCPeriod
+    isRun3 = False
+    if ConfigFlags.GeoModel.Run == LHCPeriod.Run3: isRun3 = True
     DFCommonMuonsSelector = acc.popToolsAndMerge(MuonSelectionToolCfg(
         ConfigFlags,
         name            = "DFCommonMuonsSelector",
         MaxEta          = 3.,
         MuQuality       = 3,
+        IsRun3Geo       = isRun3,
         TurnOffMomCorr  = True)) 
     acc.addPublicTool(DFCommonMuonsSelector)
     if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
