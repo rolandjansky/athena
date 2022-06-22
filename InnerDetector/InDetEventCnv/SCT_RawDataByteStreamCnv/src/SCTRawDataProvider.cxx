@@ -153,11 +153,14 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   }
 
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(vecROBFrags,
-                             *(rdoContainer.ptr()),
-			     *bsIDCErrContainer,ctx).isFailure()) {
+  StatusCode statConv = m_rawDataTool->convert(vecROBFrags,
+					       *(rdoContainer.ptr()),
+					       *bsIDCErrContainer,ctx);
+  if (statConv.isFailure() && statConv != StatusCode::RECOVERABLE) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
+    return statConv;
+  } else {
+    return StatusCode::SUCCESS;
   }
 
-  return StatusCode::SUCCESS;
 }
