@@ -123,9 +123,6 @@ class METAssocConfig:
                                            caloisotool=self.caloisotool,
                                            modConstKey=self.modConstKey,
                                            modClusColls=self.modClusColls)
-                if config.objType == 'Soft' and configFlags.MET.DecorateSoftConst:
-                    metlog.verbose("activate soft term decoration")
-                    associator.DecorateSoftConst = True
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
                 metlog.info("{} Added {} tool named {}".format(prefix,config.objType,associator.name))
