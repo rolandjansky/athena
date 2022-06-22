@@ -67,8 +67,8 @@ namespace InDet {
     StatusCode firstCall();
 
     /// Get smearing widths to add to IPs
-    float GetSmearD0Sigma(const xAOD::TrackParticle&);
-    float GetSmearZ0Sigma(const xAOD::TrackParticle&);
+    float GetSmearD0Sigma(const xAOD::TrackParticle&) const;
+    float GetSmearZ0Sigma(const xAOD::TrackParticle&) const;
 
     int m_seed = 0;
     std::unique_ptr<TRandom3> m_rnd; //!

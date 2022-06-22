@@ -111,9 +111,8 @@ namespace InDet {
     // filename is configurable in each tool and should include the path starting from the package name
     // but defaults to recommendation for current release
     std::string filenameWithFullPath = PathResolverFindCalibFile(filename);
-    std::unique_ptr<TFile> file = std::unique_ptr<TFile>(TFile::Open(filenameWithFullPath.data(), "READ"));
 
-    return file;
+    return std::unique_ptr<TFile>(TFile::Open(filenameWithFullPath.data(), "READ"));;
   }
 
 }
