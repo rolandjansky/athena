@@ -37,7 +37,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr,
     }
     else {
 	// Check if this is High Luminosity LHC layout
-    if (dict->m_version=="ITkHGTD" || dict->m_version=="ITkHGTDPLR") {
+    if (dict->m_version=="ITkHGTD" || dict->m_version=="ITkHGTDPLR" || dict->m_version=="P2-RUN4") {
       m_isHighLuminosityLHC = true;
     }
 

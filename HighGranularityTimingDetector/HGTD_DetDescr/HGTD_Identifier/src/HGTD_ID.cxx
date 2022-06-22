@@ -222,7 +222,7 @@ HGTD_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if(AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
 
     // Register version of InnerDetector dictionary 
-    if (register_dict_tag(dict_mgr, "InnerDetector")) return(1);
+    if (register_dict_tag(dict_mgr, "InnerDetector")) return(1); 
 
     m_dict = dict_mgr.find_dictionary ("InnerDetector"); 
     if(!m_dict) {
@@ -282,7 +282,7 @@ HGTD_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     region_id.add(inDetField);
     region_id.add(hgtdField);
     Range prefix;
-    m_full_wafer_range = m_dict->build_multirange(region_id, prefix, "hgtd_eta_module");
+    m_full_wafer_range = m_dict->build_multirange(region_id, prefix, m_moduleInRow);
     m_full_pixel_range = m_dict->build_multirange(region_id, prefix);
 
     // Setup the hash tables
@@ -585,6 +585,17 @@ HGTD_ID::init_neighbors(void)
     return (0);
 }
 
+
+void HGTD_ID::set_useNewIdentifierScheme(bool switchIntoNewIdentifier)
+{
+    m_useNewIdentifierScheme = switchIntoNewIdentifier;
+}
+
+bool HGTD_ID::get_useNewIdentifierScheme() const
+{
+    return m_useNewIdentifierScheme;
+}
+
 int
 HGTD_ID::initLevelsFromDict(void)
 {
@@ -620,7 +631,17 @@ HGTD_ID::initLevelsFromDict(void)
                        << std::endl;
         return (1);
     }
-
+    // Choose the name of the identification scheme based on the dictionary name, 
+    // this information is gotten from HGTD_IDDetDescrCnv 
+    
+    if (m_useNewIdentifierScheme){
+        m_endcap_ID               = "endcap";
+        m_layer_ID                = "layer";
+        m_moduleInLayer_Or_Row    = "moduleInLayer";
+        m_moduleInRow             = "dummyVariable";
+        m_padInModuleRow          = "padInModuleRow";
+        m_padInModuleColumn       = "padInModuleColumn";
+    }
     // Get levels
     IdDictField* field = m_dict->find_field("subdet");
     if (field) {
@@ -643,35 +664,35 @@ HGTD_ID::initLevelsFromDict(void)
         else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'part' field " << std::endl;     
         return (1);
     }
-
-    field = m_dict->find_field("hgtd_endcap");
+ 
+    field = m_dict->find_field(m_endcap_ID);
     if (field) {
         m_ENDCAP_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_endcap' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_endcap' field "  << std::endl;   
-        return (1);
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'endcap' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'endcap' field "  << std::endl;   
+            return (1);
     }
-    field = m_dict->find_field("hgtd_layer");
+    field = m_dict->find_field(m_layer_ID);
     if (field) {
         m_LAYER_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_layer' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_layer' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'layer' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'layer' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("hgtd_phi_module");
+    field = m_dict->find_field(m_moduleInLayer_Or_Row);
     if (field) {
         m_PHI_MODULE_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_module' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_module' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'moduleInLayer' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'moduleInLayer' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("hgtd_eta_module");
+    field = m_dict->find_field(m_moduleInRow);
     if (field) {
         m_ETA_MODULE_INDEX = field->m_index;
     }
@@ -680,7 +701,7 @@ HGTD_ID::initLevelsFromDict(void)
         else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_eta_module' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("hgtd_phi_index");
+    field = m_dict->find_field(m_padInModuleRow);
     if (field) {
         m_PHI_INDEX_INDEX = field->m_index;
     }
@@ -689,7 +710,7 @@ HGTD_ID::initLevelsFromDict(void)
         else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_index' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("hgtd_eta_index");
+    field = m_dict->find_field(m_padInModuleColumn);
     if (field) {
         m_ETA_INDEX_INDEX = field->m_index;
     }
@@ -698,7 +719,6 @@ HGTD_ID::initLevelsFromDict(void)
         else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_eta_index' field "  << std::endl;   
         return (1);
     }
-
     // Set the field implementations
 
     const IdDictRegion& region = *m_dict->m_regions[m_hgtd_region_index];

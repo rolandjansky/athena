@@ -41,6 +41,7 @@ private:
     std::map<std::string, const InDetDD::HGTD_ModuleDesign *> m_geometryMap;
     HGTD_DetectorManager* m_detectorManager{};
     InDetDD::SiCommonItems* m_commonItems{};
+
 };
 
 #endif // HGTD_GeoModelXml_HGTD_GMXINTERFACE_H

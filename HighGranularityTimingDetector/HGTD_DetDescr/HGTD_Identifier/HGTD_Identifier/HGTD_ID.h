@@ -200,10 +200,20 @@ public:
 
     /// Tests of packing
     void        test_wafer_packing      (void) const;
+
+    // switch between identification schemes
+    bool m_useNewIdentifierScheme = false;
+    void set_useNewIdentifierScheme(bool switchIntoNewIdentifier);
+    bool get_useNewIdentifierScheme() const;
+    std::string m_endcap_ID               = "hgtd_endcap";
+    std::string m_layer_ID                = "hgtd_layer";
+    std::string m_moduleInLayer_Or_Row    = "hgtd_phi_module";
+    std::string m_moduleInRow             = "hgtd_eta_module";
+    std::string m_padInModuleRow          = "hgtd_phi_index";
+    std::string m_padInModuleColumn       = "hgtd_eta_index";
     //@}
 
 private:
-
     enum {NOT_VALID_HASH        = 64000,
           MAX_BIT               = Identifier::MAX_BIT,
           BITS32                = Identifier::ALL_BITS };

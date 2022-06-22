@@ -34,8 +34,10 @@ void SiHitIdHelper::Initialize() {
   bool isITkHGTD = (pix !=nullptr &&  pix->dictionaryVersion() == "ITkHGTD");
   // we might include PLR as well, then we have to increase endcap range to +/- 4
   bool isITkHGTDPLR = (pix !=nullptr &&  pix->dictionaryVersion() == "ITkHGTDPLR");
+  // new identification scheme for HGTD (endcap-layer-moduleinlayer)
+  bool isITk_HGTD_NewID_PLR = (pix !=nullptr &&  pix->dictionaryVersion() == "P2-RUN4");
   // cache the HL-LHC decision
-  m_isITkHGTD = isITkHGTD || isITkHGTDPLR;
+  m_isITkHGTD = isITkHGTD || isITkHGTDPLR || isITk_HGTD_NewID_PLR;
 
   if (m_isITkHGTD) InitializeField("Part",0,2);
   else InitializeField("Part",0,1);
@@ -44,7 +46,8 @@ void SiHitIdHelper::Initialize() {
   InitializeField("LayerDisk",0,20);
   if (m_isITkHGTD) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
-  InitializeField("PhiModule",0,200);
+  if (isITk_HGTD_NewID_PLR) InitializeField("PhiModule",0,1022);
+  else InitializeField("PhiModule",0,200);
   InitializeField("Side",0,3);
 
 }
