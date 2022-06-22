@@ -24,8 +24,8 @@ namespace InDet {
   class InDetTrackTruthOriginTool : public virtual IInDetTrackTruthOriginTool, public asg::AsgTool {
 
     ASG_TOOL_CLASS2( InDetTrackTruthOriginTool,
-		     asg::IAsgTool,
-		     InDet::IInDetTrackTruthOriginTool )
+         asg::IAsgTool,
+         InDet::IInDetTrackTruthOriginTool )
 
   public:
 

@@ -24,6 +24,8 @@ class TFile;
 
 namespace InDet {
 
+  class IInDetTrackTruthOriginTool;
+
   /// @class JetTrackFilterTool
   /// This tool randomly discards tracks in the core of a jet
   /// @author Felix Clark (michael.ryan.clark@cern.ch)
@@ -33,16 +35,16 @@ namespace InDet {
     , public virtual InDetTrackSystematicsTool
   //    , public asg::AsgTool 
   {
-    
+
     // create constructor for Athena
     ASG_TOOL_CLASS( JetTrackFilterTool,
-		    InDet::IJetTrackFilterTool )
-    
+        InDet::IJetTrackFilterTool )
+
   public:
     // create constructor for standalone Root
     JetTrackFilterTool( const std::string& name );
     virtual ~JetTrackFilterTool();
-    
+
     //  static const InterfaceID& interfaceID();
     virtual StatusCode initialize() override;
     virtual void prepare() override {};
@@ -70,11 +72,19 @@ namespace InDet {
     std::unique_ptr<TRandom3> m_rnd; //!
     double m_deltaR = 0.1;
     float m_trkEffSystScale = 1.0;
-    
+
     TH1* m_effForJetPt = nullptr; //!
     TH2* m_trkNomEff = nullptr; //!
 
-}; // class JetTrackFilterTool
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileNomEff;
+    std::string m_calibFileJetEff;
+
+    double m_fakeUncertTIDE = 0.25;
+
+    ToolHandle< IInDetTrackTruthOriginTool > m_trackOriginTool;
+
+  }; // class JetTrackFilterTool
 
 } // namespace InDet
 

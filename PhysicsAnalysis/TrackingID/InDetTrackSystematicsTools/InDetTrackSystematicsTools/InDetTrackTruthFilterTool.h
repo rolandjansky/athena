@@ -34,22 +34,28 @@ namespace InDet {
     , public virtual InDetTrackSystematicsTool
   //    , public asg::AsgTool 
   {
-    
+
     // create constructor for Athena
     ASG_TOOL_CLASS( InDetTrackTruthFilterTool,
-		    InDet::IInDetTrackTruthFilterTool )
-    
+            InDet::IInDetTrackTruthFilterTool )
+
   public:
     // create constructor for standalone Root
     InDetTrackTruthFilterTool( const std::string& name );
     virtual ~InDetTrackTruthFilterTool();
-    
+
     //  static const InterfaceID& interfaceID();
     virtual StatusCode initialize() override;
     virtual void prepare() override {};
 
     // right now this returns a bool; if we want to implement the ASG selection tool interface then this will need to change to a TAccept
+
+    // "standard" accept method - if appropriate systematic is activated, will call mu-dependent version (below) using mu value from EventInfo, otherwise will use truth info
     virtual bool accept(const xAOD::TrackParticle* track) const override;
+
+    // This is a version of the accept method that takes a value of mu (i.e. mean interactions per crossing) in order to calculate a probability that a givent track at that mu is a fake,
+    // and so should be considered for being dropped for the fake systematic variation - this version does not rely on truth information
+    virtual bool accept(const xAOD::TrackParticle* track, float mu) const override;
 
     /// returns: whether the tool is affected by the systematic
     virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const override;
@@ -64,14 +70,16 @@ namespace InDet {
 
     StatusCode initTrkEffSystHistogram(float scale, TH2 *&histogram, std::string rootFileName, std::string histogramName) const;
     float getFractionDropped(float fDefault, TH2 *histogram, float pt, float eta) const;
+    float pseudoFakeProbability(const xAOD::TrackParticle* track, float mu) const;
+    bool dropPseudoFake(float prob) const;
 
     int m_seed = 0;
     std::unique_ptr<TRandom3> m_rnd; //!
     
     float m_fPrim = 1.;
     float m_fSec = 1.;
-    float m_fFakeLoose = 0.29; // +- 0.009
-    float m_fFakeTight = 1.61; // +- 0.14 // this value is nonsense (no tracks will pass), as the method breaks down for large one-sided uncertainties
+    float m_fFakeLoose = 0.10;
+    float m_fFakeTight = 1.00; // this method breaks down for uncertainties > 1.00 (as was present in previous iterations)
     float m_fPU = 1.;
     float m_fFrag = 1.;
     float m_fFromC = 1.;
@@ -96,8 +104,11 @@ namespace InDet {
     TH2* m_trkEffHistTightPP0 = nullptr;
     TH2* m_trkEffHistTightPhysModel = nullptr;
 
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileNomEff;
+
     ToolHandle< IInDetTrackTruthOriginTool > m_trackOriginTool;
-    
+
 
 }; // class InDetTrackTruthFilterTool
 

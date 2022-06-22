@@ -36,32 +36,32 @@ namespace InDet {
     };
 
     /** Helper functions */
-      
+
     /** fake */
     inline bool isFake(int origin) {
       if (origin & (0x1 << Fake)) return true;
       return false;
     }
-    
+
     /** from pileup */
     inline bool isPileup(int origin) {
       if (origin & (0x1 << Pileup)) return true;
       return false;
     }
-    
+
     /** from V0 */
     inline bool isV0Decay(int origin) {
       if (origin & (0x1 << KshortDecay)) return true;
       if (origin & (0x1 << LambdaDecay)) return true;
       return false;
     }
-    
+
     /** from conversions */
     inline bool isGammaConversion(int origin) {
       if (origin & (0x1 << GammaConversion)) return true;
       return false;
     }
-    
+
     /** from hadronic interactions */
     inline bool isHadronicInteraction(int origin) {
       if (origin & (0x1 << HadronicInteraction)) return true;
@@ -74,7 +74,7 @@ namespace InDet {
       return false;
     }
 
-    /** from long living particle decays or gamma conversions or hadronic interactions and anything else with barcode > 200000 */ 
+    /** from long living particle decays or gamma conversions or hadronic interactions and anything else with barcode > 200000 */
     inline bool isSecondary(int origin) {
       if (origin & (0x1 << KshortDecay)) return true;
       if (origin & (0x1 << LambdaDecay)) return true;
@@ -103,7 +103,7 @@ namespace InDet {
       if (origin & (0x1 << BHadronDecay)) return true;
       return false;
     }
-    
+
     /** from D decay chain excluding B-->D */
     inline bool isFromDNotFromB(int origin) {
       if (isFromB(origin)) return false;
@@ -132,7 +132,7 @@ namespace InDet {
       return true;
     }
 
-  } // namespace TrkOrigin 
+  } // namespace TrkOrigin
 
   namespace ExclusiveOrigin {
     enum ExclusiveOrigin {

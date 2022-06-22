@@ -3,26 +3,30 @@
 */
 
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "PathResolver/PathResolver.h"
 
 #include <TH2.h>
 #include <TRandom3.h>
 #include <TFile.h>
 #include <utility>
 
-using std::make_unique;
-
 namespace InDet {
 
   static const CP::SystematicSet FilterSystematics = 
     {
-      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_TIDE)
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_TIDE),
+      InDet::TrackSystematicMap.at(TRK_FAKE_RATE_TIGHT_TIDE),
+      InDet::TrackSystematicMap.at(TRK_FAKE_RATE_LOOSE_TIDE)
     };
 
   JetTrackFilterTool::JetTrackFilterTool(const std::string& name) :
-    InDetTrackSystematicsTool(name)
+    InDetTrackSystematicsTool(name),
+    m_trackOriginTool("InDet::InDetTrackTruthOriginTool")
   {
 
 #ifndef XAOD_STANDALONE
@@ -32,21 +36,30 @@ namespace InDet {
     declareProperty("Seed", m_seed, "Seed used to initialize the RNG");
     declareProperty("DeltaR", m_deltaR, "Delta-R cut in which to apply jet-track efficiency rejection");
     declareProperty("trkEffSystScale", m_trkEffSystScale, "Option to scale the effect of the systematic (default 1)");
+    declareProperty("FakeUncertainty",  m_fakeUncertTIDE, "Option to set the fake uncertainty");
+    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TrackingRecommendations_final_rel21.root");
+    declareProperty("calibFileJetEff", m_calibFileJetEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TIDErejectProbv3.root");
+    declareProperty("trackOriginTool", m_trackOriginTool);
   }
 
   StatusCode JetTrackFilterTool::initialize()
   {
 
-    m_rnd = make_unique<TRandom3>(m_seed);
+    m_rnd = std::make_unique<TRandom3>(m_seed);
 
     ATH_CHECK ( initTIDEEffSystHistogram( m_trkEffSystScale,
-    					 m_effForJetPt,
-    					 "TIDErejectProbv3.root",
-    					 "h1") );
+               m_effForJetPt,
+               m_calibFileJetEff,
+               "h1") );
     ATH_CHECK( initObject<TH2>( m_trkNomEff,
-				"TrackingRecommendations_pre_rel21.root", 
-				"EfficiencyVSEtaPt_AfterRebinningNominal_Loose" ) );
-    
+               m_calibFileNomEff, 
+               "EfficiencyVSEtaPt_AfterRebinningNominal_Loose" ) );
+
+    ATH_MSG_INFO( "Using for nominal track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileNomEff) );
+    ATH_MSG_INFO( "Using for jet track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileJetEff) );
+
+    ATH_CHECK ( m_trackOriginTool.retrieve() );
+
     ATH_CHECK ( InDetTrackSystematicsTool::initialize() );
 
     return StatusCode::SUCCESS;
@@ -84,6 +97,21 @@ namespace InDet {
       if ( m_rnd->Uniform(0, 1) < probDrop ) return false;
     }
 
+    int origin = m_trackOriginTool->getTrackOrigin(track);
+
+    if( isActive( TRK_FAKE_RATE_LOOSE_TIDE ) ){
+      if ( InDet::TrkOrigin::isFake(origin) ) {
+        if(m_rnd->Uniform(0, 1) <  m_fakeUncertTIDE) return false;
+      }
+    }
+
+    if( isActive( TRK_FAKE_RATE_TIGHT_TIDE ) ){
+      if ( InDet::TrkOrigin::isFake(origin) ) {
+        ATH_MSG_DEBUG("Track fakes in jets uncertainty (Tight) covered by inclusive (Tight) uncertainty - operating in pass-through mode...");
+        return true;
+      }
+    }
+
     return true;
   }
 
@@ -99,6 +127,7 @@ namespace InDet {
     }
     return true;
   }
+
   StatusCode JetTrackFilterTool::initTIDEEffSystHistogram(float scale, TH1 *&histogram, std::string rootFileName, std::string histogramName) const
   {
     ATH_CHECK( initObject<TH1>(histogram, rootFileName, histogramName) );
@@ -108,7 +137,7 @@ namespace InDet {
       float content = histogram->GetBinContent(binx); // get the bin content
       content *= scale; // scale systematic
       if(content > 1) content = 1; // protection: no larger than 100% uncertainty
-      
+
       histogram->SetBinContent(binx, content);
     }
 
@@ -130,12 +159,12 @@ namespace InDet {
     float frac = histogram->GetBinContent(ptBin);
     if( frac > 1. ) {
       ATH_MSG_WARNING( "Fraction from histogram " << histogram->GetName()
-		       << " is greater than 1. Setting fraction to 1." );
+           << " is greater than 1. Setting fraction to 1." );
       frac = 1.;
     }
     if( frac < 0. ) {
       ATH_MSG_WARNING( "Fraction from histogram " << histogram->GetName()
-		       << " is less than 0. Setting fraction to 0." );
+           << " is less than 0. Setting fraction to 0." );
       frac = 0.;
     }
     //    ATH_MSG_DEBUG( "fraction dropped (from jet-pt histogram): " << frac );

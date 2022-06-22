@@ -156,12 +156,12 @@ namespace InDet {
     if(truthProb < m_matchingProbabilityCut) {
       origin = origin | (0x1 << InDet::TrkOrigin::Fake);
     }
-    
+
     // truth link is present: find truth origin
     if (truth) {
       origin = origin | getTruthOrigin(truth);
     }
-  
+
     return origin;
   }
 

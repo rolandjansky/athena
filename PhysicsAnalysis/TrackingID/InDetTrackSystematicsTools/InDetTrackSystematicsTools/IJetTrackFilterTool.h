@@ -22,10 +22,10 @@ namespace InDet {
     : public virtual asg::IAsgTool
     , public virtual CP::ISystematicsTool
   {
-      
+
   public:
     ASG_TOOL_INTERFACE( InDet::IJetTrackFilterTool )
-	
+
     virtual StatusCode initialize() = 0;
     virtual void prepare() = 0; // not sure if/why this function is necessary - felix
 
@@ -42,8 +42,8 @@ namespace InDet {
     virtual CP::SystematicSet recommendedSystematics() const = 0;
     /// configure the tool to apply a given list of systematic variations
     virtual StatusCode applySystematicVariation( const CP::SystematicSet& ) = 0;
-      
-      
+
+
   }; // class IJetTrackFilterTool
 
 } // namespace InDet

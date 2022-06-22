@@ -7,6 +7,9 @@
 #include <TH2F.h>
 #include <TFile.h>
 
+// std includes
+#include <utility>
+
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
 //#include "AthenaBaseComps/AthCheckMacros.h"
@@ -115,13 +118,13 @@ namespace InDet {
     delete m_smearZ0_highpt_sys_dw; m_smearZ0_highpt_sys_dw = nullptr;
   }
 
-  float InDetTrackSmearingTool::GetSmearD0Sigma(const xAOD::TrackParticle& track) {
+  float InDetTrackSmearingTool::GetSmearD0Sigma(const xAOD::TrackParticle& track) const {
     float pt = 1.e-3*track.pt(); // need to convert pt to GeV
     float eta = track.eta();
     float sigma_D0 = 0.f;
 
     if ( isActive(TRK_RES_D0_DEAD) ) {
-      float d0Smear = m_smearD0Dead->GetBinContent(m_smearD0Dead->FindBin(pt));
+      float d0Smear = m_smearD0Dead->GetBinContent(std::as_const(m_smearD0Dead)->FindBin(pt));
       sigma_D0 += d0Smear*d0Smear;
     }
 
@@ -173,14 +176,14 @@ namespace InDet {
   }
 
 
-  float InDetTrackSmearingTool::GetSmearZ0Sigma(const xAOD::TrackParticle& track) {
+  float InDetTrackSmearingTool::GetSmearZ0Sigma(const xAOD::TrackParticle& track) const {
     float pt = 1.e-3*track.pt(); // need to convert pt to GeV
     float eta = track.eta();
     float sigma_Z0 = 0.f;
 
     if ( isActive(TRK_RES_Z0_DEAD) ) {
       // the histogram returns a smeared value for z0*sin(theta), so we need to divide by sin(theta)
-      float z0Smear = m_smearZ0Dead->GetBinContent(m_smearZ0Dead->FindBin(pt))/std::sin(track.theta());
+      float z0Smear = m_smearZ0Dead->GetBinContent(std::as_const(m_smearZ0Dead)->FindBin(pt))/std::sin(track.theta());
       sigma_Z0 += z0Smear*z0Smear;
     }
 

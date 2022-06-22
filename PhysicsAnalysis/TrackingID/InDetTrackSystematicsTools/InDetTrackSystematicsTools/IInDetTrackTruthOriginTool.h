@@ -23,7 +23,7 @@ namespace InDet {
 
   ASG_TOOL_INTERFACE( InDet::IInDetTrackTruthOriginTool )
   public:
-    
+
   virtual StatusCode initialize() = 0;
 
   /** Safely access a track's linked truth particle, if available **/
