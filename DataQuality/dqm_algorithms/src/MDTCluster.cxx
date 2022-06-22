@@ -231,7 +231,7 @@ MDTCluster::execute( const std::string& name, const TObject& object, const dqm_c
   result->tags_["00-N_clusters"] = clusters.size();
 
   std::string Cluster="Cluster_";
-  char num[3];
+  char num[12];
   std::string Size="_info_1_size";
   std::string start_at_bin="_info_2_start_at_bin";
   std::string finish_at_bin="_info_3_finish_at_bin";
@@ -241,11 +241,11 @@ MDTCluster::execute( const std::string& name, const TObject& object, const dqm_c
 
   for(i=0;i<clusters.size();i++){
     if((i+1)<10){
-      sprintf(num,"0%d",(i+1));
+      sprintf(num,"0%u",(i+1));
     };  
 
     if((i+1)>=10){
-      sprintf(num,"%d",(i+1));
+      sprintf(num,"%u",(i+1));
     };  
  
     message1 = Cluster + (std::string) num + Size;

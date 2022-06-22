@@ -68,7 +68,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <map>
 
 /*******************************************************************************/
 
@@ -129,9 +128,9 @@ class MM_DigitizationTool : public PileUpToolBase {
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
         SG::ReadCondHandleKey<NswCalibDbThresholdData> m_condThrshldsKey {this, "CondThrshldsKey", "NswCalibDbThresholdData", "Key of NswCalibDbThresholdData object containing calibration data (VMM thresholds)"};
 
-  	Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-  	SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MM_Hits", "name of the input objects"};
-  	std::string m_inputObjectName{""};
+  		Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  		SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MM_Hits", "name of the input objects"};
+  		std::string m_inputObjectName{""};
 
 		Gaudi::Property<std::string> m_vmmReadoutMode{this,"vmmReadoutMode","peak","For readout (DAQ) path. Can be peak or threshold"};
 		Gaudi::Property<std::string> m_vmmARTMode{this,"vmmARTMode","threshold","For ART (trigger) path. Can be peak or threshold"};
@@ -218,9 +217,9 @@ class MM_DigitizationTool : public PileUpToolBase {
 		double m_bunchTime{-DBL_MAX};
 		double m_globalHitTime{-DBL_MAX};
 		double m_eventTime{-DBL_MAX};
-		std::vector<int> m_n_StrRespID;
-		std::vector<float> m_n_StrRespCharge;
-		std::vector<float> m_n_StrRespTime;
+		std::vector<int> m_n_StrRespID{};
+		std::vector<float> m_n_StrRespCharge{};
+		std::vector<float> m_n_StrRespTime{};
 
 		double m_noiseSlope {0.};
 		double m_noiseIntercept{0.};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MMSORTEDHITVECTOR_H
@@ -9,13 +9,13 @@ class micromegas_hit_info {
  public:
   micromegas_hit_info(Identifier i,double t,int ch,double strP,const TimedHitPtr<MMSimHit>* aHit) :
     id(i),time(t),charge(ch),stripPos(strP),simhit(aHit) {}
-    micromegas_hit_info(Identifier i,double t,int ch) : id(i),time(t),charge(ch),stripPos(0),simhit(0) {}
-      micromegas_hit_info() : time(0.),charge(0),stripPos(0),simhit(0) {}
-	Identifier id;
-	double time;
-	int charge;
-	double stripPos;
-	const TimedHitPtr<MMSimHit>* simhit;
+    micromegas_hit_info(Identifier i,double t,int ch) : id(i),time(t),charge(ch) {}
+      micromegas_hit_info() = default;
+	Identifier id{};
+	double time{0.};
+	int charge{0};
+	double stripPos{0.};
+	const TimedHitPtr<MMSimHit>* simhit{nullptr};
 	bool operator < (const micromegas_hit_info& aInfo) const
 	{
 	  if(id <  aInfo.id)

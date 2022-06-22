@@ -24,11 +24,10 @@ class SCTSiPropertiesCondAlg : public AthReentrantAlgorithm
  public:
   SCTSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCTSiPropertiesCondAlg() = default;
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override final;
   virtual StatusCode execute(const EventContext& ctx) const override;
-  virtual StatusCode finalize() override;
-  /** Make this algorithm clonable. */
-  virtual bool isClonable() const override { return true; };
+  virtual StatusCode finalize() override final;
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
   DoubleProperty m_temperatureMin{this, "TemperatureMin", -80., "Minimum temperature allowed in Celcius."};

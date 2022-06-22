@@ -45,6 +45,10 @@ public:
         TYPE_HIPT,
         TYPE_SL,
         TYPE_INNER,
+        TYPE_INNER_NSW,
+        TYPE_INNER_BIS,
+        TYPE_INNER_EIFI,
+        TYPE_INNER_TMDB,
         TYPE_UNKNOWN
     };
 

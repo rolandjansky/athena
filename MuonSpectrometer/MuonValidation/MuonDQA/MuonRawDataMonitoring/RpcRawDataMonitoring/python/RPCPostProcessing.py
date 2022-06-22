@@ -83,6 +83,7 @@ def make_evt_lumi(inputs):
   runs      = getRun(h_run)
 
   Dic_LBLumi = GetLBInfoFromCOOL.GetLumiInfoDic(runs[0], runs[-1]+1)
+  print ("len(Dic_LBLumi) = ", len(Dic_LBLumi))
 
   g_name   = 'NEvent_VS_Lumi'
   g_title  = 'NEvent VS Lumi'
@@ -94,7 +95,7 @@ def make_evt_lumi(inputs):
   y_err = []
 
   for LB, lbInfo in Dic_LBLumi.items():
-    if lbInfo['AtlasPhysics'] == 'false' or float(lbInfo['Duration'])<55. or float(lbInfo['Duration'])>65. :
+    if lbInfo['AtlasPhysics'] == 'false' or float(lbInfo['Duration'])<50.:
       continue
 
     hit_content = h_NEvt_LB.GetBinContent(LB)
@@ -184,6 +185,8 @@ def make_hit_rate(inputs):
 def make_hitMulti(inputs):
   hist = inputs[0][1][0].Clone()
   DicPanels  = readElementFromXML()
+
+  print ("make_hitMulti - hist = ", hist)
 
   draw_hitmulti = CoreClass.Draw_HitMultiplicity(hist)
   draw_hitmulti.SetPanelDic(DicPanels)
@@ -327,47 +330,5 @@ def getHistNames(hist_list, prefix, dic_hist):
         dic_hist[i_name] = i_hist
 
 #############################################################################
-def printHistNames():
-  # inputfileName = "/afs/cern.ch/user/s/ssu/testarea/postprocess/data18_13TeV.00358615.1000Evt.root" # 1000 event
-  inputfileName = "/afs/cern.ch/user/s/ssu/DQ_area/DQFramework/run/ExampleMonitorOutput.root" # 10 event
-
-  inputHist_dic = {
-    "make_hit_rate": ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_Panels_All', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run'],
-    "make_hitMulti": ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/HitMultiplicity_Panels', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/ClusterSize_Panels'],
-    "make_detection_eff": ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/Panel_Efficiency'],
-    "make_hitFrac": ['run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit', 'run_358615/Muon/MuonRawDataMonitoring/RPC/TrackMatch/OuttimeHitFraction_PRDHit_onTrack'],
-  }
-
-  import ROOT
-  inFile  = ROOT.TFile.Open(inputfileName, 'READ')
-
-  for func in ["make_hitMulti", "make_hitFrac", "make_detection_eff", "make_hit_rate"]:
-    inputHistNames = inputHist_dic[func]
-    inHists = [[0, [inFile.Get(h) for h in inputHistNames]]]
-
-    if   func == "make_hitMulti":
-      outHists = make_hitMulti(inHists)
-    elif func == "make_hitFrac":
-      outHists = make_hitFrac(inHists)
-    elif func == "make_detection_eff":
-      outHists = make_detection_eff(inHists)
-    elif func == "make_hit_rate":
-      outHists = make_hit_rate(inHists)
-
-    print ("=================================================")
-    print ("Function: %s" %func)
-    print ("Input hist names:")
-    print (inputHistNames)
-    print ("-------------------------------------------------")
-
-    print ("Output hist names:")
-    for i_out in outHists:
-      print (i_out.GetName())
-
-    print ("=================================================")
-
-
-#############################################################################
 if __name__ ==  '__main__':
   print ("RPCPostProcessing:  Hello, World !")
-  printHistNames()

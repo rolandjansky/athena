@@ -717,7 +717,7 @@ class Draw_Occupancy(Draw_Base):
     y = []
     y_err = []
     for LB, lbInfo in self._Dic_LumiInfo.items():
-      if lbInfo['AtlasPhysics'] == 'false' or float(lbInfo['Duration'])<55. or float(lbInfo['Duration'])>65.:
+      if lbInfo['AtlasPhysics'] == 'false' or float(lbInfo['Duration'])<50.:
         continue
 
       hit_content = round(h_LB.GetBinContent(LB), 2)
@@ -779,7 +779,7 @@ class Draw_Occupancy(Draw_Base):
     y = []
     y_err = []
     for LB, lbInfo in self._Dic_LumiInfo.items():
-      if lbInfo['AtlasPhysics'] == 'false' or float(lbInfo['Duration'])<55. or float(lbInfo['Duration'])>65. :
+      if lbInfo['AtlasPhysics'] == 'false' or float(lbInfo['Duration'])<50. :
         continue
       
       hit_content = self._in_histo.GetBinContent(LB, panelInd+1)

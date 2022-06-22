@@ -1,11 +1,12 @@
 #!/bin/bash
 # art-description: AOD->HIST, R22 MC, Trigger Only
 # art-type: grid
-# art-memory: 3072
+# art-memory: 4096
 # art-include: master/Athena
-# art-include: 22.0-mc20/Athena
+# art-include: 22.0/Athena
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
+# art-athena-mt: 2
 
 Reco_tf.py --AMI=q445 --preExec 'from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet="AODFULL"' --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --imf False
 echo "art-result: $? AOD_Creation"

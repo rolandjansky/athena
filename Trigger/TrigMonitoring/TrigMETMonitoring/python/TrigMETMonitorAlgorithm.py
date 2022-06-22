@@ -83,6 +83,10 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonAlg.l1_gFexJwojMETComponents_key = 'L1_gMETComponentsJwoj'
       TrigMETMonAlg.l1_gFexJwojMHTComponents_key = 'L1_gMHTComponentsJwoj'
       TrigMETMonAlg.l1_gFexJwojMSTComponents_key = 'L1_gMSTComponentsJwoj'
+      TrigMETMonAlg.l1_gFexNCMETScalar_key = 'L1_gScalarENoiseCut'
+      TrigMETMonAlg.l1_gFexNCMETComponents_key = 'L1_gMETComponentsNoiseCut'
+      TrigMETMonAlg.l1_gFexRhoMETScalar_key = 'L1_gScalarERms'
+      TrigMETMonAlg.l1_gFexRhoMETComponents_key = 'L1_gMETComponentsRms'
     else:
       TrigMETMonAlg.hlt_electron_key = 'HLT_xAOD__ElectronContainer_egamma_Electrons'
       TrigMETMonAlg.hlt_muon_key = 'HLT_xAOD__MuonContainer_MuonEFInfo'
@@ -154,7 +158,9 @@ def TrigMETMonConfig(inputFlags):
                     "gjwoj", 
                     "gpufit"]
     algsL1Fex = ["jFex",
-                 "gFexJwoj"]
+                 "gFexJwoj",
+                 "gFexNC",
+                 "gFexRho"]
     algsHLT = ["cell", 
                "tcpufit", 
                "tcpufit_sig30", 
