@@ -108,109 +108,110 @@ if __name__ == "__main__":
         for ntruth in range(0,len(inputTree.MuEntry_Particle_Pt)):
             truthhists += [MyHistoFiller( chamber_name = "TruthInfo", eta_sel = None, sector_sel = None )]
             truthhists[ntruth].fill(inputTree,ntruth)
-            
+        
+        
         #RPCs
         if RPC_eta == "positive":
-            rpc_eta_sel = lambda t: t.RPC_stationEta[nrpcHit] >= 0
+            rpc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.RPC_SIM_stationEta[nrpcHit])) >= 0
         elif RPC_eta == "negative":
-            rpc_eta_sel = lambda t: t.RPC_stationEta[nrpcHit] < 0
+            rpc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.RPC_SIM_stationEta[nrpcHit])) < 0
         else:
-            rpc_eta_sel = lambda t: t.RPC_stationEta[nrpcHit] < 9
+            rpc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.RPC_SIM_stationEta[nrpcHit])) < 9
 
         if RPC_sector == "None":
-            rpc_sector_sel = lambda s: s.RPC_stationPhi[nrpcHit] < 10
+            rpc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.RPC_SIM_stationPhi[nrpcHit])) < 10
         else:
-            rpc_sector_sel = lambda s: s.RPC_stationPhi[nrpcHit] == RPC_sector
-
-        for nrpcHit in range(0,len(inputTree.RPC_hitLocalPositionX)):
+            rpc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.RPC_SIM_stationPhi[nrpcHit])) == RPC_sector  
+        
+        for nrpcHit in range(0,len(inputTree.RPC_SIM_localPostionX)):  
             rpchists += [MyHistoFiller( chamber_name = "RPC_Sim", eta_sel = rpc_eta_sel, sector_sel = rpc_sector_sel )]
             rpchists[nrpcHit].fill(inputTree, nrpcHit)
 
         # MDTs
         if MDT_eta == "positive":
-            mdt_eta_sel = lambda t: t.MDT_stationEta[nmdtHit] >= 0
+            mdt_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.MDT_Sim_stationEta[nmdtHit])) >= 0
         elif MDT_eta == "negative":
-            mdt_eta_sel = lambda t: t.MDT_stationEta[nmdtHit] < 0
+            mdt_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.MDT_Sim_stationEta[nmdtHit])) < 0
         else:
-            mdt_eta_sel = lambda t: t.MDT_stationEta[nmdtHit] < 9
+            mdt_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.MDT_Sim_stationEta[nmdtHit])) < 9
 
         if MDT_sector == "None":
-            mdt_sector_sel = lambda s: s.MDT_stationPhi[nmdtHit] < 10
+            mdt_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.MDT_Sim_stationPhi[nmdtHit])) < 10
         else:
-            mdt_sector_sel = lambda s: s.MDT_stationPhi[nmdtHit] == MDT_sector
+            mdt_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.MDT_Sim_stationPhi[nmdtHit])) == MDT_sector
 
-        for nmdtHit in range(0,len(inputTree.MDT_hitLocalPositionX)):
+        for nmdtHit in range(0,len(inputTree.MDT_Sim_hitLocalPositionX)):
             mdthists += [MyHistoFiller( chamber_name = "MDT_Sim", eta_sel = mdt_eta_sel, sector_sel = mdt_sector_sel )]
             mdthists[nmdtHit].fill(inputTree, nmdtHit)
     
         # CSCs
         if Options.doCSC == True:
             if CSC_eta == "positive":
-                csc_eta_sel = lambda t: t.CSC_stationEta[ncscHit] >= 0
+                csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.CSC_Sim_stationEta[ncscHit])) >= 0
             elif CSC_eta == "negative":
-                csc_eta_sel = lambda t: t.CSC_stationEta[ncscHit] < 0
+                csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.CSC_Sim_stationEta[ncscHit])) < 0
             else:
-                csc_eta_sel = lambda t: t.CSC_stationEta[ncscHit] < 9
+                csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.CSC_Sim_stationEta[ncscHit])) < 9
 
             if CSC_sector == "None":
-                csc_sector_sel = lambda s: s.CSC_stationPhi[ncscHit] < 10
+                csc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.CSC_Sim_stationPhi[ncscHit])) < 10
             else:
-                csc_sector_sel = lambda s: s.CSC_stationPhi[ncscHit] == CSC_sector
+                csc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.CSC_Sim_stationPhi[ncscHit])) == CSC_sector
 
-            for ncscHit in range(0,len(inputTree.CSC_hitGlobalPositionX)):
+            for ncscHit in range(0,len(inputTree.CSC_Sim_hitGlobalPositionX)):
                 cschists += [MyHistoFiller( chamber_name = "CSC_Sim", eta_sel = csc_eta_sel, sector_sel = csc_sector_sel )]
                 cschists[ncscHit].fill(inputTree, ncscHit)
         
         # TGCs
         if TGC_eta == "positive":
-            tgc_eta_sel = lambda t: t.TGC_stationEta[ntgcHit] >= 0
+            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.TGC_Sim_stationEta[ntgcHit])) >= 0
         elif TGC_eta == "negative":
-            tgc_eta_sel = lambda t: t.TGC_stationEta[ntgcHit] < 0
+            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.TGC_Sim_stationEta[ntgcHit])) < 0
         else:
-            tgc_eta_sel = lambda t: t.TGC_stationEta[ntgcHit] < 9
+            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.TGC_Sim_stationEta[ntgcHit])) < 9
 
         if TGC_sector == "None":
-            tgc_sector_sel = lambda s: s.TGC_stationPhi[ntgcHit] < 51
+            tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.TGC_Sim_stationPhi[ntgcHit])) < 51
         else:
-            tgc_sector_sel = lambda s: s.TGC_stationPhi[ntgcHit] == TGC_sector
+            tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.TGC_Sim_stationPhi[ntgcHit])) == TGC_sector
 
-        for ntgcHit in range(0,len(inputTree.TGC_hitLocalPositionX)):
+        for ntgcHit in range(0,len(inputTree.TGC_Sim_hitLocalPositionX)):
             tgchists += [MyHistoFiller( chamber_name = "TGC_Sim", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]
             tgchists[ntgcHit].fill(inputTree, ntgcHit)
 
         # MMs
         if Options.doMM == True:
             if MM_eta == "positive":
-                mm_eta_sel = lambda t: t.Hits_MM_off_stationEta[nmmHit] >= 0
+                mm_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.Hits_MM_off_stationEta[nmmHit])) >= 0
             elif MM_eta == "negative":
-                mm_eta_sel = lambda t: t.Hits_MM_off_stationEta[nmmHit] < 0
+                mm_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.Hits_MM_off_stationEta[nmmHit])) < 0
             else:
-                mm_eta_sel = lambda t: t.Hits_MM_off_stationEta[nmmHit] < 9
+                mm_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.Hits_MM_off_stationEta[nmmHit])) < 9
 
             if MM_sector == "None":
-                mm_sector_sel = lambda s: s.Hits_MM_off_stationPhi[nmmHit] < 10
+                mm_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.Hits_MM_off_stationPhi[nmmHit])) < 10
             else:
-                mm_sector_sel = lambda s: s.Hits_MM_off_stationPhi[nmmHit] == MM_sector
+                mm_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.Hits_MM_off_stationPhi[nmmHit])) == MM_sector
 
-            for nmmHit in range(0,len(inputTree.Hits_MM_hitGlobalPositionX)):
+            for nmmHit in range(0,len(inputTree.Hits_MM_GlobalPositionX)):
                 mmhists += [MyHistoFiller( chamber_name = "MM_Sim", eta_sel = mm_eta_sel, sector_sel = mm_sector_sel )]
                 mmhists[nmmHit].fill(inputTree, nmmHit)
 
         # sTGCs
         if Options.doSTGC == True:
             if sTGC_eta == "positive":
-                stgc_eta_sel = lambda t: t.Hits_sTGC_off_stationEta[nstgcHit] >= 0
+                stgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.Hits_sTGC_off_stationEta[nstgcHit])) >= 0
             elif sTGC_eta == "negative":
-                stgc_eta_sel = lambda t: t.Hits_sTGC_off_stationEta[nstgcHit] < 0
+                stgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.Hits_sTGC_off_stationEta[nstgcHit])) < 0
             else:
-                stgc_eta_sel = lambda t: t.Hits_sTGC_off_stationEta[nstgcHit] < 9
+                stgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.Hits_sTGC_off_stationEta[nstgcHit])) < 9
 
             if sTGC_sector == "None":
-                stgc_sector_sel = lambda s: s.Hits_sTGC_off_stationPhi[nstgcHit] < 10
+                stgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.Hits_sTGC_off_stationPhi[nstgcHit])) < 10
             else:
-                stgc_sector_sel = lambda s: s.Hits_sTGC_off_stationPhi[nstgcHit] == sTGC_sector
+                stgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.Hits_sTGC_off_stationPhi[nstgcHit])) == sTGC_sector
 
-            for nstgcHit in range(0,len(inputTree.Hits_sTGC_hitGlobalPositionX)):
+            for nstgcHit in range(0,len(inputTree.Hits_sTGC_GlobalPositionX)):
                 stgchists += [MyHistoFiller( chamber_name = "sTGC_Sim", eta_sel = stgc_eta_sel, sector_sel = stgc_sector_sel )]
                 stgchists[nstgcHit].fill(inputTree, nstgcHit) 
 
