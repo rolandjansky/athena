@@ -18,20 +18,20 @@ namespace EgammaSelectors {
 // This is the internal part , We need to  map string to latest reccomendations
 const std::map<std::string, std::string> LHPointToConfFile = {
   { "VeryLooseLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
-    "ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf" },
+    "ElectronPhotonSelectorTools/offline/mc20_20220620/"
+    "ElectronLikelihoodVeryLooseOfflineConfig2018_Smooth.conf" },
   { "LooseLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
-    "ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf" },
+    "ElectronPhotonSelectorTools/offline/mc20_20220620/"
+    "ElectronLikelihoodLooseOfflineConfig2018_Smooth.conf" },
   { "LooseBLLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
-    "ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf" },
+    "ElectronPhotonSelectorTools/offline/mc20_20220620/"
+    "ElectronLikelihoodLooseOfflineConfig2018_CutBL_Smooth.conf" },
   { "MediumLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
-    "ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf" },
+    "ElectronPhotonSelectorTools/offline/mc20_20220620/"
+    "ElectronLikelihoodMediumOfflineConfig2018_Smooth.conf" },
   { "TightLHElectron",
-    "ElectronPhotonSelectorTools/offline/mc20_20210514/"
-    "ElectronLikelihoodTightOfflineConfig2017_Smooth.conf" },
+    "ElectronPhotonSelectorTools/offline/mc20_20220620/"
+    "ElectronLikelihoodTightOfflineConfig2018_Smooth.conf" },
 };
 const std::map<std::string, std::string> PhotonCutPointToConfFile = {
   { "LoosePhoton",
