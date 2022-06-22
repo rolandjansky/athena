@@ -13,7 +13,7 @@
 
 LArNoisyROMonAlg::LArNoisyROMonAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthMonitorAlgorithm(name, pSvcLocator), 
-  m_LArOnlineIDHelper(nullptr), m_knownFilled(false) {
+  m_LArOnlineIDHelper(nullptr) {
   
 }
 
@@ -38,62 +38,62 @@ StatusCode LArNoisyROMonAlg::initialize()
   return AthMonitorAlgorithm::initialize();
 }
 
-StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
-{
-  { // extra namespace for mutex
-     std::lock_guard<std::mutex> lock(m_lock);
-     if(!m_knownFilled) { // first time fill known Bad and MNB FEBs
-        // get the EventInfo, to know if we are in simulation
-        const xAOD::EventInfo* ei = nullptr;
-        if (evtStore()->retrieve(ei).isFailure()) {
-           ATH_MSG_WARNING ( " Cannot access to event info, assume we are working on data " );
-        }
-        SG::ReadCondHandle<LArBadFebCont> badHdl{m_badFebKey, ctx};
-        const LArBadFebCont *badCont{*badHdl};
-        if(badCont) {
-           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && badCont->begin() == badCont->end()) ) {
-                ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
-           } else {
-              auto sl=Monitored::Scalar<unsigned>("slotBad",0);
-              auto FT=Monitored::Scalar<unsigned>("FTBad",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); ++i) {
-                HWIdentifier chid(i->first);
-                sl = m_LArOnlineIDHelper->slot(chid);
-                FT = m_LArOnlineIDHelper->feedthrough(chid);
-                unsigned sd = partitionNumber(chid)/2;
-                unsigned part = partitionNumber(chid);
-                ATH_MSG_DEBUG("Filled known Bad FEBs for " << sd << " and " << part<<": "<<sl<<" "<<FT);
-                fill(m_tools[m_histoGroups.at(sd).at(m_partitions[part])],sl,FT);
-              }
-           }
-        } else {
-           ATH_MSG_WARNING("Known Bad FEBs container not existing !? ");
-        }
+
+void LArNoisyROMonAlg::fillHistogramsOnce(const EventContext& ctx, const bool isMC) const {
+  
+  SG::ReadCondHandle<LArBadFebCont> badHdl{m_badFebKey, ctx};
+  const LArBadFebCont *badCont{*badHdl};
+  if(badCont) {
+    if( !isMC && badCont->size()==0) {
+      ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+    } else {
+      auto sl=Monitored::Scalar<unsigned>("slotBad",0);
+      auto FT=Monitored::Scalar<unsigned>("FTBad",0);
+      for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); ++i) {
+	HWIdentifier chid(i->first);
+	sl = m_LArOnlineIDHelper->slot(chid);
+	FT = m_LArOnlineIDHelper->feedthrough(chid);
+	unsigned sd = partitionNumber(chid)/2;
+	unsigned part = partitionNumber(chid);
+	ATH_MSG_DEBUG("Filled known Bad FEBs for " << sd << " and " << part<<": "<<sl<<" "<<FT);
+	fill(m_tools[m_histoGroups.at(sd).at(m_partitions[part])],sl,FT);
+      }
+    }
+  } else {
+    ATH_MSG_WARNING("Known Bad FEBs container not existing !? ");
+  }
         
-        SG::ReadCondHandle<LArBadFebCont> mnbHdl(m_MNBFebKey, ctx);
-        const LArBadFebCont* mnbCont{*mnbHdl};
-        if(mnbCont) {
-           if(!ei || ((!ei->eventType( xAOD::EventInfo::IS_SIMULATION )) && mnbCont->begin() == mnbCont->end()) ) {
-                ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
-           } else {
-              auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
-              auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
-              for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); ++i) {
-                HWIdentifier chid(i->first);
-                sl = m_LArOnlineIDHelper->slot(chid);
-                FT = m_LArOnlineIDHelper->feedthrough(chid);
-                unsigned sd = partitionNumber(chid)/2;
-                unsigned part = partitionNumber(chid);
-                ATH_MSG_DEBUG("Filled known MNB FEBs for " << sd << " and " << m_partitions[part]<<": "<<sl<<" "<<FT);
-                fill(m_tools[m_histoGroups.at(sd).at(m_partitions[part])],sl,FT);
-              }
-           }
-        } else {
-           ATH_MSG_WARNING("Known MNB FEBs container not existing !? ");
-        }
-        m_knownFilled=true;
-     }
-  } // namespace for lock
+  SG::ReadCondHandle<LArBadFebCont> mnbHdl(m_MNBFebKey, ctx);
+  const LArBadFebCont* mnbCont{*mnbHdl};
+  if(mnbCont) {
+    if( !isMC && mnbCont->size()==0) {
+      ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+    } else {
+      auto sl=Monitored::Scalar<unsigned>("slotMNB",0);
+      auto FT=Monitored::Scalar<unsigned>("FTMNB",0);
+      for(LArBadFebCont::BadChanVec::const_iterator i = mnbCont->begin(); i!=mnbCont->end(); ++i) {
+	HWIdentifier chid(i->first);
+	sl = m_LArOnlineIDHelper->slot(chid);
+	FT = m_LArOnlineIDHelper->feedthrough(chid);
+	unsigned sd = partitionNumber(chid)/2;
+	unsigned part = partitionNumber(chid);
+	ATH_MSG_DEBUG("Filled known MNB FEBs for " << sd << " and " << m_partitions[part]<<": "<<sl<<" "<<FT);
+	fill(m_tools[m_histoGroups.at(sd).at(m_partitions[part])],sl,FT);
+      }
+    }
+  } else {
+    ATH_MSG_WARNING("Known MNB FEBs container not existing !? ");
+  }
+  return;
+} 
+
+
+StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const {
+
+  SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo(ctx);
+  const bool isMC=eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION);
+  std::call_once(m_onceFlag, &LArNoisyROMonAlg::fillHistogramsOnce, this, ctx, isMC);
+  
 
   // retrieve 
   SG::ReadHandle<LArNoisyROSummary> noisyRO{m_inputKey, ctx};
@@ -102,9 +102,6 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
     ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
     return StatusCode::SUCCESS;
   }
-  
-  
-  SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo(ctx);
   
   unsigned int LBN = eventInfo->lumiBlock();
   bool burstveto = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO);
