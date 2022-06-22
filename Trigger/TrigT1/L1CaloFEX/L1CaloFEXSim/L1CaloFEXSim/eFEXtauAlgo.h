@@ -78,8 +78,8 @@ namespace LVL1 {
     unsigned int m_twrcells[3][3];
     unsigned int m_seed;
     bool m_cellsSet = false;
-    bool m_und = true;
-    bool m_offPhi = 2;
+    bool m_und;
+    unsigned int m_offPhi;
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
 
