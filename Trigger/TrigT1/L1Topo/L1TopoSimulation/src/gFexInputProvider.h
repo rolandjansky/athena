@@ -2,8 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef L1TopoSimulation_gFexInputProvider
-#define L1TopoSimulation_gFexInputProvider
+#ifndef L1TOPOSIMULATION_GFEXINPUTPROVIDER_H
+#define L1TOPOSIMULATION_GFEXINPUTPROVIDER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"

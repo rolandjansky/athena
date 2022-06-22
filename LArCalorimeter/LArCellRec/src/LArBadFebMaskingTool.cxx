@@ -24,7 +24,6 @@ PURPOSE:
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArRecConditions/LArBadFeb.h"
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -56,9 +55,9 @@ StatusCode LArBadFebMaskingTool::initialize()
 
   // initialize read handle keys
   ATH_CHECK(m_larFebErrorSummaryKey.initialize());
-  ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK( m_badFebKey.initialize());
   ATH_CHECK( m_cablingKey.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
 
   // retrieve identifier helpers
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
@@ -98,17 +97,18 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
   ATH_MSG_DEBUG (" Number of Febs " << febMap.size());
 
-  // retrieve EventInfo
-  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-  
-  bool flagBadEvent = false;   // flag bad event = Feb error not known in database
-  int nbOfFebsInError = 0;
-
   // catch cases of empty LAR container  => severe problem in decoding => flag event as in ERROR
   unsigned int nLar = theCont->nCellsCalo(CaloCell_ID::LAREM)+theCont->nCellsCalo(CaloCell_ID::LARHEC)+theCont->nCellsCalo(CaloCell_ID::LARFCAL);
   if (nLar==0) {
      ATH_MSG_DEBUG (" empty lar cell container ");
-     flagBadEvent = true;
+     SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+     ATH_MSG_DEBUG (" set error bit for LAr for this event ");
+     if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
+        ATH_MSG_WARNING (" cannot set error state for LAr ");
+     }
+     if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
+      ATH_MSG_WARNING (" cannot set event bit info for LAr ");
+     }
   }
 
 
@@ -124,7 +124,6 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
   for (HWIdentifier febId : m_onlineID->feb_range()) {
       bool toMask1 = false;   // mask because of bad error
       bool inError = false;   // mask because Feb listed in database as being to mask
-      bool isDead  = false;   // set to true if Feb is deadAll or deadReadout 
 
 // for debug
       unsigned int ifeb = febId.get_identifier32().get_compact();
@@ -140,11 +139,6 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
       LArBadFeb febstatus = badFebs->status(febId);
       inError = febstatus.inError();
-      isDead = ( febstatus.deadReadout() || febstatus.deadAll() );
-      ATH_MSG_DEBUG (" inError, isDead "  << inError << " " << isDead);
-      
-
-      if (toMask1 && !inError && !isDead) nbOfFebsInError = nbOfFebsInError + 1;
 
       if (toMask1 || inError) {
          m_mask++;
@@ -177,18 +171,6 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
   }       // loop over Febs in error
 
-  if (nbOfFebsInError >= m_minFebsInError) flagBadEvent=true;
-
-  if (flagBadEvent) {
-    ATH_MSG_DEBUG (" set error bit for LAr for this event ");
-    if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
-      ATH_MSG_WARNING (" cannot set error state for LAr ");
-    }
-    if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
-      ATH_MSG_WARNING (" cannot set event bit info for LAr ");
-    }
-  }
- 
 
   return StatusCode::SUCCESS;
 }

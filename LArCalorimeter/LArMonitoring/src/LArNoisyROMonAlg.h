@@ -23,6 +23,9 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+
 #include <string>
 #include <array>
 
@@ -57,6 +60,9 @@ private:
 
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"KonwnBadFebKey","LArKnownBadFEBs","Key of known Bad-Feb object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_MNBFebKey{this,"KonwnMNBFebKey","LArKnownMNBFEBs","Key of known MNB-Feb object"};
+
+  //To get the data-dependency right ... 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
 
   struct CandidateMNBStruct
   {

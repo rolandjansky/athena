@@ -6,6 +6,7 @@ def addSCDumpFlags(flags):
 
     flags.addFlag("LArSCDump.digitsKey","SC")
     flags.addFlag("LArSCDump.nSamples",32)
+    flags.addFlag("LArSCDump.nEt",3)
     flags.addFlag("LArSCDump.doSamples",True)
     flags.addFlag("LArSCDump.doSamplesBas",False)
     flags.addFlag("LArSCDump.doEt",False)
@@ -20,7 +21,4 @@ def addSCDumpFlags(flags):
     flags.addFlag("LArSCDump.expandId",False)
     flags.addFlag("LArSCDump.overwriteEvN",False)
     flags.addFlag("LArSCDump.outputNtup","SCDigits.root")
-    
-
-
-
+    flags.addFlag("LArSCDump.doRawChan",False)

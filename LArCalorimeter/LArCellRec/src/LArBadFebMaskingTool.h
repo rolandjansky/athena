@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_LArBadFebMaskingTool_H
@@ -12,6 +12,7 @@
  AlgTool properties (name defined in cxx file): 
      Handle for bad channel tool name
      Switches to decide which Feb errors to mask
+     Removed setting LAr errors bit in EventInfo, moved to LArFebErrorSummaryMaker
 
  Created April 23, 2009  G.Unal
 */
@@ -23,9 +24,9 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include <atomic>
 
@@ -82,12 +83,6 @@ public:
   Gaudi::Property<bool> m_maskMissingHeader{this,"maskMissingHeader",true};
   Gaudi::Property<bool> m_maskBadGain{this,"maskBadGain",true};
 
-  /**  Minimum number of FEBs in error to trigger EventInfo::LArError 
-       Defined as 1 by default/bulk, 4 in online/express in CaloCellGetter (CaloRec package)
-  */
-  Gaudi::Property<int> m_minFebsInError{this,"minFebInError",1,
-        "Minimum number of FEBs in error to trigger EventInfo::LArError (1 by default/bulk, 4 in online/express"}; 
-  
   SG::ReadHandleKey<LArFebErrorSummary> m_larFebErrorSummaryKey{this,"FebErrorSummaryKey","LArFebErrorSummary"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo"};
 

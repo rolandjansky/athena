@@ -40,9 +40,15 @@ def LArFebErrorSummaryMakerCfg(configFlags):
 
     acc = LArBadFebCfg(configFlags)
 
+    minErrFeb=1
+    # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
+    if configFlags.Common.isOnline or configFlags.Common.doExpressProcessing:
+       minErrFeb=4
+
     acc.addEventAlgo(CompFactory.LArFebErrorSummaryMaker("LArFebErrorSummaryMaker",CheckAllFEB=bCheckAllFEB,
                                          WriteKey="StoreGateSvc+LArFebErrorSummary",
-                                         MaskFebScacStatus = lMaskFebScacStatus, MaskFebEvtId = lMaskFebEvtId
+                                         MaskFebScacStatus = lMaskFebScacStatus, MaskFebEvtId = lMaskFebEvtId,
+                                         minFebInError=minErrFeb
                                          #MaskFebZeroSample = lMaskFebZeroSample,
                                          )
                     )

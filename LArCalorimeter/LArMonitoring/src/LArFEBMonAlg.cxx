@@ -559,25 +559,24 @@ void LArFEBMonAlg::fillErrorsSummary(unsigned int partitNb_2,int ft,int slot,uin
   }
   
 
+  unsigned subdet = partitNb_2 / 2;
+  float ferr=0.;
   if (currentFebStatus){
-    unsigned subdet = partitNb_2 / 2;
     auto sl = Monitored::Scalar<int>("slotabs",slot);
     auto ftmon = Monitored::Scalar<int>("FTabs",ft);
     fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitNb_2])],sl,ftmon);
-    float ferr=0.;
     if (lar_inerror) {// LArinError
        eventRejected = true;
        if(environment() == Environment_t::online) ferr=100.;
     } else {
        if(environment() == Environment_t::online) ferr=50.;
     }
-    if(environment() == Environment_t::online) {
+  } 
+  if(environment() == Environment_t::online) {
        auto lbf = Monitored::Scalar<float>("LBf",0.5);
        auto erry = Monitored::Scalar<float>("erronl",ferr);
        fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitNb_2])],lbf,erry);
-    }
-  }
-  
+  } 
   return;
 }
 

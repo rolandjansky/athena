@@ -46,8 +46,6 @@ def LArCellCorrectorCfg(configFlags):
 
     if configFlags.LAr.doBadFebMasking:
         badFebMask=CompFactory.LArBadFebMaskingTool()
-        if configFlags.Common.isOnline:
-            badFebMask.minFebInError = 4
 
         correctionTools.append(badFebMask)
 

@@ -31,7 +31,7 @@ class L1CaloRampDataContainer;
 class L1CaloRampMaker;
 namespace LVL1{
   class IL1CaloOfflineTriggerTowerTools;
-  class IL1TriggerTowerTool;
+  class IL1TriggerTowerToolRun3;
   class IL1CaloxAODOfflineTriggerTowerTools;
 }
 
@@ -72,7 +72,7 @@ class L1CaloRampMaker : public AthAlgorithm
     unsigned int m_nSteps; // number of energy steps
     int m_fadcSaturationCut; // cut on FADC counts
     double m_tileSaturationCut; // cut on Tile TT Et in GeV
-    ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; // Handle to L1TriggerTowerTool.
+    ToolHandle<LVL1::IL1TriggerTowerToolRun3> m_ttTool; // Handle to L1TriggerTowerTool.
 
 
     ToolHandle<LVL1::IL1CaloxAODOfflineTriggerTowerTools> m_xAODTTTools;
