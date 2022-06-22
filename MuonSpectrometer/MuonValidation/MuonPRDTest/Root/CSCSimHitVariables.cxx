@@ -24,7 +24,7 @@ namespace MuonPRDTest {
             return false;
         }
         // Get the CSC Id hit helper
-        CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
+        const CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
 
         unsigned int numHits{0};
         for (const CSCSimHit& hit : *cscContainer) {

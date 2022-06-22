@@ -381,7 +381,7 @@ float MM_StripsResponseSimulation::getPathLengthTraveled(CLHEP::HepRandomEngine*
     // gaussian random number should be in the range from 0 to 10
     while (rndGaus < 0. || rndGaus > 10.) {rndGaus = CLHEP::RandGaussZiggurat::shoot(rndmEngine,m_interactionDensityMean, m_interactionDensitySigma);}
 
-    return  ( 1. / rndGaus) * -1. * log( CLHEP::RandFlat::shoot(rndmEngine) );
+    return  ( 1. / rndGaus) * -1. * std::log( CLHEP::RandFlat::shoot(rndmEngine) );
 }
 
 

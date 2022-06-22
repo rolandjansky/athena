@@ -44,14 +44,9 @@ StatusCode RpcTrackAnaAlg::initialize ()
   ATH_CHECK( m_idHelperSvc.retrieve());
   ATH_CHECK( m_eventInfo.initialize() );
 
-  m_dataType = dataTypeStringToEnum(m_dataTypeStr);
-  ATH_CHECK( m_lumiDataKey.initialize (m_useLumi) );
-  ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
-
   ATH_CHECK( m_MuonRoIContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_MuonContainerKey.initialize() );
   ATH_CHECK( m_rpcPrdKey.initialize() );
-
   
   ATH_CHECK( readElIndexFromXML() );
   ATH_CHECK( initRpcPanel() );
@@ -280,21 +275,6 @@ StatusCode RpcTrackAnaAlg::fillHistograms(const EventContext& ctx) const
   SG::ReadHandle<xAOD::EventInfo>         eventInfo(m_eventInfo, ctx);
   int e_lumiBlock                            = eventInfo->lumiBlock();
 
-  if (!m_lumiDataKey.empty() && ! m_lbDurationDataKey.empty()) {
-
-    SG::ReadCondHandle<LuminosityCondData>  lumi(m_lumiDataKey, ctx);
-    SG::ReadCondHandle<LBDurationCondData>  dur(m_lbDurationDataKey, ctx);
-
-    double e_lbAverageLuminosity      = lumi->lbAverageLuminosity();
-    double e_lbDuration               = dur->lbDuration();
-
-    if (e_lbAverageLuminosity < m_avrLumiThr || e_lbDuration < m_lbDuraThr ) {
-      ATH_MSG_DEBUG( " This Luminosity block doesn't pass lbAverageLuminosity and luminosity block duration selection. ");
-    
-      return StatusCode::SUCCESS;
-    }
-  }
-
   if(m_plotMuonEff){
     ATH_CHECK( fillMuonExtrapolateEff(ctx) );
   }
@@ -355,6 +335,7 @@ StatusCode RpcTrackAnaAlg::fillMuonExtrapolateEff(const EventContext& ctx) const
   std::vector<GasGapResult> results;
   std::vector<MyMuon>::iterator mu1_it = mymuons.begin();
   std::vector<MyMuon>::iterator mu1_end = mymuons.end();
+
   for(; mu1_it!=mu1_end; ++mu1_it){
     std::vector<MyMuon>::iterator mu2_it = mu1_it;
     std::vector<MyMuon>::iterator mu2_end = mu1_end;

@@ -3,6 +3,8 @@
 */
 
 #include "LArCalibTools/LArDigits2Ntuple.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArRawEvent/LArSCDigit.h"
@@ -47,6 +49,12 @@ StatusCode LArDigits2Ntuple::initialize()
     return sc;
   }
   
+  sc = m_nt->addItem("Gain",m_gain,0,4);
+  if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_ERROR( "addItem 'Gain' failed" );
+    return sc;
+  }
+  
   if(m_fillBCID){
     sc = m_nt->addItem("BCID",m_bcid);
     if (sc!=StatusCode::SUCCESS) {
@@ -63,7 +71,7 @@ StatusCode LArDigits2Ntuple::initialize()
     }
   }
 
-  ATH_CHECK(m_contKey.initialize() );
+  ATH_CHECK(m_contKey.initialize(m_contKey.key().size()) );
   ATH_CHECK(m_evtInfoKey.initialize() );
   ATH_CHECK(m_LArFebHeaderContainerKey.initialize(!m_isSC) );
 
@@ -76,6 +84,8 @@ StatusCode LArDigits2Ntuple::initialize()
 
 StatusCode LArDigits2Ntuple::execute()
 {
+
+  if(m_contKey.key().empty()) return StatusCode::SUCCESS;
 
   StatusCode	sc;
   
@@ -115,6 +125,11 @@ StatusCode LArDigits2Ntuple::execute()
 
   const LArDigitContainer DigitContainer   = *hdlDigit;
 
+  if(!hdlDigit.cptr()) {
+     ATH_MSG_WARNING( "No digits in this event ?");
+     return StatusCode::SUCCESS;
+  }
+
   unsigned cellCounter=0;
   for( const LArDigit *digi : DigitContainer ){
 
@@ -122,7 +137,6 @@ StatusCode LArDigits2Ntuple::execute()
     m_IEvent	   = thisevent;
 
     unsigned int trueMaxSample	   = digi->nsamples();
-    m_ntNsamples   = trueMaxSample;
 
     if (!m_isSC){
       m_gain	   = digi->gain();
@@ -131,11 +145,18 @@ StatusCode LArDigits2Ntuple::execute()
     }
     if(trueMaxSample>m_Nsamples){
       if(!m_ipass){
-        ATH_MSG_WARNING( "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
+        ATH_MSG_WARNING( "The number of digi samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
         m_ipass   = 1;
       }
       trueMaxSample   = m_Nsamples;
     }
+    else if(trueMaxSample<m_Nsamples){
+      if(!m_ipass){
+        ATH_MSG_WARNING( "The number of digi samples in data is lower than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << trueMaxSample << " will be available in the ntuple " );
+        m_ipass   = 1;
+      }
+    }
+    m_ntNsamples   = trueMaxSample;
 
     fillFromIdentifier(digi->hardwareID());      
 

@@ -39,7 +39,7 @@ class TGCSimHit;
 //--- class description
 class TgcDigitMaker : public AthMessaging {
  public:
-  TgcDigitMaker(TgcHitIdHelper*                     hitIdHelper, 
+  TgcDigitMaker(const TgcHitIdHelper* hitIdHelper,
 		const MuonGM::MuonDetectorManager * mdManager,
 		unsigned int                        runperiod);
 
@@ -132,8 +132,6 @@ class TgcDigitMaker : public AthMessaging {
   StatusCode readFileOfEnergyThreshold();
   /** Read share/TGC_Digitization_deadChamber.dat file */
   StatusCode readFileOfDeadChamber();
-  /** Read share/TGC_Digitization_alignment.dat file */
-  StatusCode readFileOfAlignment();
   /** Read share/TGC_Digitization_StripPosition.dat file */
   StatusCode readFileOfStripPosition();
 
@@ -147,9 +145,6 @@ class TgcDigitMaker : public AthMessaging {
   bool isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int gasGap);
   /** Get stationName integer from stationName string */
   int getIStationName(const std::string& staionName) const; 
-  /** Ad hoc implementation of detector position shift */
-  void adHocPositionShift(const std::string& stationName, int stationEta, int stationPhi, 
-			  const Amg::Vector3D& direCos, Amg::Vector3D &localPos) const;
   /** Method to get position of Strip channel */
   float getStripPosition(const std::string& stationName, int stationEta, int channel) const;
   /** Method to get signal propagation time delay */
@@ -169,21 +164,12 @@ class TgcDigitMaker : public AthMessaging {
   /** Dead chamber flag for each chamber */
   bool m_isDeadChamber[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_GASGAP]{};
 
-  /** Alignment z constants. Translation in the global r direction */ 
-  double m_alignmentZ[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
-  /** Alignment t constants. Translation in the global z direction */ 
-  double m_alignmentT[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
-  /** Alignment s constants. Translation in the global phi direction */ 
-  double m_alignmentS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
-  /** Alignment ths constants. Rotation around the global phi direction */ 
-  double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
-
   /** Position of Strip Channel (Longer base or Shorter base) */
   float m_StripPos[N_STATIONNAME][N_ABSSTATIONETA][N_STRIPCHANNEL]{};
 
   std::vector<std::vector<float> > m_vecAngle_Time;
 
-  TgcHitIdHelper* m_hitIdHelper;
+  const TgcHitIdHelper* m_hitIdHelper;
   unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager; // cannot use ReadCondHandleKey since no athena component
   const TgcIdHelper* m_idHelper;

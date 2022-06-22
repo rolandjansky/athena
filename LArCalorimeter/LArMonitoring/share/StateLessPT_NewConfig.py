@@ -177,6 +177,7 @@ if __name__=='__main__':
    ConfigFlags.DQ.disableAtlasReadyFilter=True
    ConfigFlags.DQ.useTrigger=True
    ConfigFlags.DQ.FileKey=''
+   ConfigFlags.DQ.Environment='online'
    
    ConfigFlags.LAr.doAlign=False
    ConfigFlags.LAr.doHVCorr=False

@@ -50,7 +50,6 @@ def TrigSPTRK(configFlags, highGranularity=False):
             mbEffGroup.defineHistogram( "nTrkOnline,zFinderWeight", type="TH2F", title=";N online tracks;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "nTrkOffline,zFinderWeight", type="TH2F", title=";N online tracks;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "nTrkOfflineVtx,zFinderWeight", type="TH2F", title=";N offline tracks with Vtx cut;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
-            mbEffGroup.defineHistogram( "nTrkOfflineVtx,zFinderWeight", type="TH2F", title=";N offline tracks with Vtx cut;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "nTrkOfflineVtx,nTrkOnlineVtx", type="TH2F", title=";N offline tracks with Vtx cut;N online tracks with Vtx cut;", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
             mbEffGroup.defineHistogram( "onlineOfflineVtxDelta", title=";(offline - online) vertex z[mm]", xbins=200, xmin=-200, xmax=200 )
 

@@ -28,7 +28,7 @@
 //---------------------------------------------------
 
 //----- Constructor
-TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
+TgcDigitMaker::TgcDigitMaker(const TgcHitIdHelper* hitIdHelper,
 			     const MuonGM::MuonDetectorManager* mdManager,
 			     unsigned int                       runperiod)
   : AthMessaging ("TgcDigitMaker")
@@ -70,9 +70,6 @@ StatusCode TgcDigitMaker::initialize()
 
   // Read share/TGC_Digitization_deadChamber.dat file and store values in m_isDeadChamber. 
   ATH_CHECK(readFileOfDeadChamber());
-
-  // Read share/TGC_Digitization_alignment.dat file and store values in m_alignmentZ, m_alignmentT, m_alignmentS, m_alignmentTHS
-  ATH_CHECK(readFileOfAlignment());
 
   // Read share/TGC_Digitization_StripPosition.dat file and store values in m_StripPosition.
   ATH_CHECK(readFileOfStripPosition());
@@ -143,9 +140,6 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   
   // local position
   Amg::Vector3D localPos = hit->localPosition();
-
-  /*** Ad hoc implementation of detector position shift */ 
-  //adHocPositionShift(stationName, stationEta, stationPhi, direCos, localPos);
 
   // Local z direction is global r direction.  
   float distanceZ = 1.4*CLHEP::mm / direCos[0]*direCos[2];
@@ -720,79 +714,6 @@ StatusCode TgcDigitMaker::readFileOfDeadChamber() {
 }
 
 
-StatusCode TgcDigitMaker::readFileOfAlignment() {
-  // Indices to be used 
-  int iStationName, stationEta, stationPhi;
-
-  for(iStationName=0; iStationName<N_STATIONNAME; iStationName++) {
-    for(stationEta=0; stationEta<N_STATIONETA; stationEta++) {
-      for(stationPhi=0; stationPhi<N_STATIONPHI; stationPhi++) {
-	m_alignmentZ[iStationName][stationEta][stationPhi] = 0.;
-	m_alignmentT[iStationName][stationEta][stationPhi] = 0.;
-	m_alignmentS[iStationName][stationEta][stationPhi] = 0.;
-	m_alignmentTHS[iStationName][stationEta][stationPhi] = 0.;
-      }
-    }
-  }
-
-  // Find path to the TGC_Digitization_alignment.dat file 
-  const std::string fileName = "TGC_Digitization_alignment.dat";
-  std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath.empty()) {
-    ATH_MSG_FATAL("readFileOfAlignment(): Could not find file " << fileName);
-    return StatusCode::FAILURE;
-  }
-
-  // Open the TGC_Digitization_alignment.dat file 
-  std::ifstream ifs;
-  ifs.open(fileWithPath.c_str(), std::ios::in);
-  if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfAlignment(): Could not open file " << fileName);
-    return StatusCode::FAILURE;
-  }
-    
-  // Read the TGC_Digitization_alignment.dat file
-  double tmpZ;
-  double tmpT;
-  double tmpS;
-  double tmpTHS;
-  while(ifs.good()) {
-    ifs >> iStationName >> stationEta >> stationPhi >> tmpZ >> tmpT >> tmpS >> tmpTHS;
-    ATH_MSG_DEBUG("readFileOfAlignment" 
-		      << " stationName= " << iStationName  
-		      << " stationEta= " << stationEta 
-		      << " stationPhi= " << stationPhi 
-		      << " z[mm]= " << tmpZ  
-		      << " t[mm]= " << tmpT  
-		      << " s[mm]= " << tmpS
-		      << " ths[rad]= " << tmpTHS);
-
-    // Subtract offsets to use indices of m_alignmentZ, m_alignmentT, m_alignmentTHS arrays
-    iStationName -= OFFSET_STATIONNAME;
-    stationEta   -= OFFSET_STATIONETA;
-    stationPhi   -= OFFSET_STATIONPHI;
-
-    // Check the indices are valid 
-    if(iStationName<0 || iStationName>=N_STATIONNAME) continue;
-    if(stationEta  <0 || stationEta  >=N_STATIONETA ) continue;
-    if(stationPhi  <0 || stationPhi  >=N_STATIONPHI ) continue;
-
-    m_alignmentZ[iStationName][stationEta][stationPhi]   = tmpZ;
-    m_alignmentT[iStationName][stationEta][stationPhi]   = tmpT;
-    m_alignmentS[iStationName][stationEta][stationPhi]   = tmpS;
-    m_alignmentTHS[iStationName][stationEta][stationPhi] = tmpTHS;
-
-    // If it is the end of the file, get out from while loop.   
-    if(ifs.eof()) break;
-  }
-
-  // Close the TGC_Digitization_alignment.dat file 
-  ifs.close();
-
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode TgcDigitMaker::readFileOfStripPosition() {
   //Indices to be used
   int iStationName, stationEta, channel;
@@ -994,41 +915,6 @@ int TgcDigitMaker::getIStationName(const std::string& stationName) const {
   else if(stationName=="T4E") iStationName = 48;
   
   return iStationName;
-}
-
-void TgcDigitMaker::adHocPositionShift(const std::string& stationName, int stationEta, int stationPhi,
-				       const Amg::Vector3D& direCos, Amg::Vector3D &localPos) const {
-  int iStationName = getIStationName(stationName);
-  iStationName -= OFFSET_STATIONNAME;
-  stationEta   -= OFFSET_STATIONETA;
-  stationPhi   -= OFFSET_STATIONPHI;
-  // Check the indices are valid
-  if(iStationName<0 || iStationName>=N_STATIONNAME) return;
-  if(stationEta  <0 || stationEta  >=N_STATIONETA ) return;
-  if(stationPhi  <0 || stationPhi  >=N_STATIONPHI ) return;
-  
-  // Local +x (-x) direction is global +z direction on A-side (C-side). 
-  double localDisplacementX = m_alignmentT[iStationName][stationEta][stationPhi]; 
-
-  // Local +z direction is global +r direction.  
-  double localDisplacementZ = m_alignmentZ[iStationName][stationEta][stationPhi]; 
-
-  // Local +s direction is global +phi direction.  
-  double localDisplacementY = m_alignmentS[iStationName][stationEta][stationPhi]; 
-
-  // Rotation around the s-axis is not implemented yet (2011/11/29).
-  // m_alignmentTHS[tmpStationName][tmpStationEta][tmpStationPhi];
-
-  // Convert local x translation to local y and z translations 
-  double localDisplacementYByX = 0.;
-  double localDisplacementZByX = 0.;
-  if(fabs(localDisplacementX)>1.0E-12) { // local y and z translations are non-zero only if local x translation is non-zero. 
-    if(fabs(direCos[0])<1.0E-12) return; // To avoid zero-division 
-    localDisplacementYByX = direCos[1]/direCos[0]*localDisplacementX;  
-    localDisplacementZByX = direCos[2]/direCos[0]*localDisplacementX;  
-  }
-  localPos.y() = localPos.y()+localDisplacementYByX+localDisplacementY; 
-  localPos.z() = localPos.z()+localDisplacementZByX-localDisplacementZ; 
 }
 
 

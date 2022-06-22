@@ -58,9 +58,6 @@ private:
   /** Handle to pedestal */
   SG::ReadCondHandleKey<ILArPedestal> m_keyPedestal{this,"LArPedestalKey","LArPedestal","SG key of LArPedestal CDO"};
 
-  /** Handle to event info */
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo"};
-  
   
   /**correlation histograms*/
 

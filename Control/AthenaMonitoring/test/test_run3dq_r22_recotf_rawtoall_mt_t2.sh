@@ -3,10 +3,10 @@
 # art-type: grid
 # art-memory: 6144
 # art-include: master/Athena
-# art-include: 22.0-mc20/Athena
+# art-include: 22.0/Athena
 # art-output: myHIST.root
 # art-output: log*
-# art-athena-mt: 2
+# art-athena-mt: 3
 
 Reco_tf.py --athenaopts='--threads=2' --AMI=q442 --steering doRAWtoALL --imf False > log.HIST_Creation 2>&1
 
@@ -17,5 +17,5 @@ ArtPackage=$1
 ArtJobName=$2
 art.py download ${ArtPackage} ${ArtJobName}
 REFFILE=(./ref-*/myHIST.root)
-hist_diff.sh myHIST.root $REFFILE -x TIME_execute -i > log.HIST_Diff 2>&1
+hist_diff.sh myHIST.root $REFFILE -x "(TIME_execute|L1Calo/CPM_CMX/Errors/Transmission_Simulation/MismatchEventNumbers|CandidateMNBFebs)" -i > log.HIST_Diff 2>&1
 echo "art-result: $? HIST_Diff"

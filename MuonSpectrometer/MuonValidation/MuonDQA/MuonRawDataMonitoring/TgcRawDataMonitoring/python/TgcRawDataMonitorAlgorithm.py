@@ -45,9 +45,9 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonAlg.FillGapByGapHistograms = (doGapByGapHitOcc or doGapByGapEffMap or doHitResiduals)
 
-    tgcRawDataMonAlg.UseOnlyCombinedMuons = False
-    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = False
-    tgcRawDataMonAlg.UseMuonSelectorTool = True
+    tgcRawDataMonAlg.UseOnlyCombinedMuons = True
+    tgcRawDataMonAlg.UseOnlyMuidCoStacoMuons = True
+    tgcRawDataMonAlg.UseMuonSelectorTool = False
 
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 

@@ -31,6 +31,9 @@ namespace TCS {
       parType_t      m_numberOfJets = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
+      parType_t      m_iso = { 0 };
+      parType_t      m_frac1 = { 0 };
+      parType_t      m_frac2 = { 0 };
       parType_t      m_et = { 0 };
     
    };

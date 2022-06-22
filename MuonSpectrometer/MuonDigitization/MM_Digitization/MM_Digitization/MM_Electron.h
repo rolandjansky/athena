@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRON_H
@@ -10,7 +10,7 @@
 //
 
 #include <memory>
-
+#include <cfloat>
 #include "TRandom3.h"
 #include "TVector2.h"
 
@@ -18,11 +18,10 @@ class MM_Electron {
 
  public:
 
-  MM_Electron();
+  MM_Electron() = default;
   MM_Electron(float x, float y);
-  MM_Electron(const MM_Electron& MM_Electron);
+  
 
-  void diffuseElectron(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);
   void setOffsetPosition(float x, float y);
   void propagateElectron(float lorentzAngle, float driftVel);
   void setTime(float Time);
@@ -38,11 +37,11 @@ class MM_Electron {
 
  private:
 
-  TVector2 m_initialPosition;
-  TVector2 m_offsetPosition;
+  TVector2 m_initialPosition{};
+  TVector2 m_offsetPosition{};
 
-  float m_time;
-  float m_charge;
+  float m_time{-FLT_MAX};
+  float m_charge{-FLT_MAX};
 
 
 };

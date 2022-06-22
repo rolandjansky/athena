@@ -3,10 +3,10 @@
 # art-type: grid
 # art-memory: 6144
 # art-include: master/Athena
-# art-include: 22.0-mc20/Athena
+# art-include: 22.0/Athena
 # art-output: myHIST.root
 # art-output: log*
-# art-athena-mt: 2
+# art-athena-mt: 3
 
 Reco_tf.py --athenaopts='--threads=1' --AMI=q442 --steering no --imf False > log.HIST_Creation 2>&1
 

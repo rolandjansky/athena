@@ -24,7 +24,7 @@ def createHLTDQConfigFlags():
 
     acf.addFlag('DQ.Steering.HLT.doInDet', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doBphys', lambda flags: flags.Input.Format is Format.POOL)
-    acf.addFlag('DQ.Steering.HLT.doCalo', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doCalo', True) #Switched to true to enable monitoring
     acf.addFlag('DQ.Steering.HLT.doEgamma', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doJet', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doMET', lambda flags: flags.Input.Format is Format.POOL)

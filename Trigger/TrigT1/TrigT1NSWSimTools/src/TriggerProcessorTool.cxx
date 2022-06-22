@@ -1,5 +1,5 @@
 /*                                                                                                                                                     
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                                                              
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration                                                                              
 */
 
 #include "TrigT1NSWSimTools/TriggerProcessorTool.h"
@@ -23,7 +23,7 @@ namespace NSWL1 {
                                             Muon::NSW_TrigRawDataContainer* trigRdoContainer) const {
     ATH_MSG_DEBUG("------------- TriggerProcessorTool::mergeRDO ---------------------");
     ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
-    for ( const auto &padTriggerData : *padTriggerContainer ) {
+    for ( const auto padTriggerData : *padTriggerContainer ) {
       ATH_MSG_DEBUG("Pad Trigger data: " << *padTriggerData);
 
       char sectorSide = (padTriggerData->endcap() == Muon::NSW_PadTriggerData::Endcap::A) ? 'A' : 'C';
@@ -60,7 +60,7 @@ namespace NSWL1 {
     }
     ATH_MSG_DEBUG("After PadTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
 
-    for (const auto &rawData : *stripTriggerContainer) {
+    for (const auto rawData : *stripTriggerContainer) {
       Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData, true);
       ATH_MSG_DEBUG("L1NSW-Strip Trigger Output: "
 		    << "sectorSide=" << trigRawData->sectorSide() << " "
@@ -80,7 +80,7 @@ namespace NSWL1 {
     }
     ATH_MSG_DEBUG("After sTGC strip trigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
 
-    for (const auto &rawData : *MMTriggerContainer) {
+    for (const auto rawData : *MMTriggerContainer) {
       Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData, false);
       ATH_MSG_DEBUG("L1NSW-MM Trigger Output: "
 		    << "sectorSide=" << trigRawData->sectorSide() << " "

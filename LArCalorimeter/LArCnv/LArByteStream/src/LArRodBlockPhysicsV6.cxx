@@ -400,7 +400,7 @@ int LArRodBlockPhysicsV6::getNextRawData(int& channelNumber, std::vector<short>&
     rearrangeFirstSample=m_rearrangeFirstSample; //Overwrite by jobOptions
   else
     rearrangeFirstSample=getFirstSampleIndex();
-  //std::cout << "FebConfig: "<< getFebConfig() << " FirstSampleIndex " << getFirstSampleIndex() <<std::endl;
+  //std::cout << "FebConfig: "<< getFebConfig() << " FirstSampleIndex " << rearrangeFirstSample <<std::endl;
   if (rearrangeFirstSample && rearrangeFirstSample<samples.size()) //FIXME: Very ugly hack! See explanation in LArRodDecoder.h file
       {//Change e.g. 3 0 1 2 4 to 0 1 2 3 4 
 	short movedSample=samples[0];

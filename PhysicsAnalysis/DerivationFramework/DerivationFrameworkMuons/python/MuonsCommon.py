@@ -26,9 +26,14 @@ def makeMuonsDFCommon():
    DFCommonMuonToolWrapperTools = []
    
    ### IDHits
+   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+   from AthenaConfiguration.Enums import LHCPeriod
+   isRun3 = False
+   if ConfigFlags.GeoModel.Run == LHCPeriod.Run3: isRun3 = True
    DFCommonMuonsSelector = CP__MuonSelectionTool(name = "DFCommonMuonsSelector")
    DFCommonMuonsSelector.MaxEta = 3.
    DFCommonMuonsSelector.MuQuality = 3
+   DFCommonMuonsSelector.IsRun3Geo = isRun3
    # turn of the momentum correction which is not needed for IDHits cut and Preselection
    DFCommonMuonsSelector.TurnOffMomCorr = True
    
