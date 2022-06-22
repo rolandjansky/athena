@@ -387,10 +387,15 @@ std::string TgcRawData::typeName(TgcRawData::DataType type)
 {
     switch (type)
     {
-    case TYPE_HIT:       return "Hit";          break;
-    case TYPE_TRACKLET:  return "Tracklet";     break;
-    case TYPE_HIPT:      return "High pT";      break;
-    case TYPE_SL:        return "Sector Logic"; break;
+    case TYPE_HIT:        return "Hit";          break;
+    case TYPE_TRACKLET:   return "Tracklet";     break;
+    case TYPE_HIPT:       return "High pT";      break;
+    case TYPE_SL:         return "RoI";          break;
+    case TYPE_INNER:      return "Inner";        break;
+    case TYPE_INNER_NSW:  return "NSW";          break;
+    case TYPE_INNER_BIS:  return "RPCBIS";       break;
+    case TYPE_INNER_EIFI: return "EIFI";         break;
+    case TYPE_INNER_TMDB: return "TMDB";         break;
     default:             return "";
     }
 }
@@ -456,6 +461,36 @@ stream& dump(stream& sl, const TgcRawData& data)
         << ", overlap=" << data.isOverlap()
         << ", veto=" << data.isVeto()
         << ", roi=" << data.roi();
+        break;
+    case TgcRawData::TYPE_INNER_NSW:
+        sl << ", nsweta=" << data.nsweta()
+        << ", nswphi=" << data.nswphi()
+        << ", nswcand=" << data.nswcand()
+        << ", nswdtheta=" << data.nswdtheta()
+        << ", nswphires=" << data.nswphires()
+        << ", nswlowres=" << data.nswlowres()
+        << ", nswid=" << data.nswid()
+        << ", forward=" << data.isForward()
+        << ", sector=" << data.sector();
+        break;
+    case TgcRawData::TYPE_INNER_BIS:
+        sl << ", rpceta=" << data.rpceta()
+        << ", rpcphi=" << data.rpcphi()
+        << ", rpcflag=" << data.rpcflag()
+        << ", rpcdeta=" << data.rpcdeta()
+        << ", rpcdphi=" << data.rpcdphi()
+        << ", sector=" << data.sector();
+        break;
+    case TgcRawData::TYPE_INNER_EIFI:
+        sl << ", ei=" << data.ei()
+        << ", fi=" << data.fi()
+        << ", forward=" << data.isForward()
+        << ", sector=" << data.sector();
+        break;
+    case TgcRawData::TYPE_INNER_TMDB:
+        sl << ", mod=" << data.tmdbmod()
+        << ", bcid=" << data.tmdbbcid()
+        << ", sector=" << data.sector();
         break;
     default:
         break;
