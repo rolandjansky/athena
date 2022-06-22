@@ -170,7 +170,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
   ATH_MSG_DEBUG( "Muon::TGC_RodDecoder::byteStream2Rdo" );
     
   // Check that we are filling the right collection
-  TGC_BYTESTREAM_SORUCEID sid;
+  TGC_BYTESTREAM_SOURCEID sid;
   fromBS32(source_id, sid);
     
   if(rdo.identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))

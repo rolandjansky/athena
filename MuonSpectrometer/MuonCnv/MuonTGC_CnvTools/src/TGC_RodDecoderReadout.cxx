@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -113,14 +113,22 @@ StatusCode Muon::TGC_RodDecoderReadout::fillCollection(const ROBFragment& robFra
   	// Get/fill the collection
   	getCollection(robFrag, rdo.get() );
   	// Add bytestream information
-  	byteStream2Rdo(bs, rdo.get(), robFrag.rod_source_id() );
+        if (sid.module_id()<13){// ROD
+          byteStream2Rdo(bs, rdo.get(), robFrag.rod_source_id() );
+        }else if (sid.module_id()>16){// SROD
+          byteStreamSrod2Rdo(bs, rdo.get(), robFrag.rod_source_id(), robFrag.rod_ndata() );
+        }else{
+          ATH_MSG_DEBUG( "Error: Invalid [S]ROD number" );
+          return StatusCode::FAILURE;
+        }
+
   	// Add TgcRdo to the container
   	StatusCode status_lock = lock.addOrDelete( std::move( rdo ) );
   	if(status_lock != StatusCode::SUCCESS){
-  		ATH_MSG_ERROR(" Failed to add TGC RDO collection to container with hash " << idHash );
+          ATH_MSG_ERROR(" Failed to add TGC RDO collection to container with hash " << idHash );
   	}
   	else{
-			ATH_MSG_DEBUG(" Adding TgcRdo collection with hash " << idHash << ", source id = " << sid.human() << " to the TgcRdo Container");
+          ATH_MSG_DEBUG(" Adding TgcRdo collection with hash " << idHash << ", source id = " << sid.human() << " to the TgcRdo Container");
   	}
   }
   
@@ -143,13 +151,20 @@ void Muon::TGC_RodDecoderReadout::getCollection(const ROBFragment& robFrag, TgcR
   rdo->setTriggerType(robFrag.rod_lvl1_trigger_type());
   rdo->setOnlineId(sid.subdetector_id(), sid.module_id());
   
-  uint32_t nstatus = robFrag.rod_nstatus();
+  uint32_t nstatus = robFrag.rod_nstatus(); // 5 : ROD , 3 : SROD
+  ATH_MSG_DEBUG( " Number of Status Words = " << nstatus ); 
   const uint32_t* status;
   robFrag.rod_status(status);
-  rdo->setErrors(nstatus > 0 ? status[0] : 0);
-  rdo->setRodStatus(nstatus > 1 ? status[1] : 0);
-  rdo->setLocalStatus(nstatus > 3 ? status[3] : 0);
-  rdo->setOrbit(nstatus > 4 ? status[4] : 0);
+  if (nstatus == 5 && sid.module_id() < 13){ // ROD
+    rdo->setErrors(status[0]);
+    rdo->setRodStatus(status[1]);;
+    rdo->setLocalStatus(status[3]);
+    rdo->setOrbit(status[4]);
+  }else if (nstatus == 3 && sid.module_id() > 16){// SROD
+    rdo->setErrors(status[0]);
+    rdo->setRodStatus(status[1]);
+    rdo->setLocalStatus(status[2]);
+  }
 
   if(m_showStatusWords) {
     showStatusWords(source_id, rdoId, idHash, nstatus, status);
@@ -167,7 +182,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
   ATH_MSG_DEBUG( "Muon::TGC_RodDecoderReadout::byteStream2Rdo" );
   
   // Check that we are filling the right collection
-  TGC_BYTESTREAM_SORUCEID sid;
+  TGC_BYTESTREAM_SOURCEID sid;
   fromBS32(source_id, sid);
   
   if(rdo->identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))
@@ -439,6 +454,185 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
   ATH_MSG_DEBUG( "Decoded " << MSG::dec << rdo->size() << " elements" );
   ATH_MSG_DEBUG( "Muon::TGC_RodDecoderReadout::byteStream2Rdo done" );
 }
+
+
+
+void Muon::TGC_RodDecoderReadout::byteStreamSrod2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs,
+                                                     TgcRdo* rdo,
+                                                     uint32_t source_id,
+                                                     uint32_t ndata) const
+{
+  ATH_MSG_DEBUG( "Muon::TGC_RodDecoderReadout::byteStreamSrod2Rdo" );
+  
+  // Check that we are filling the right collection
+  TGC_BYTESTREAM_SOURCEID sid;
+  fromBS32(source_id, sid);
+  //uint16_t rod = sid.rodid & 0x0F; // 1-3
+  
+  if(rdo->identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))
+    {
+      ATH_MSG_DEBUG( "Error: input TgcRdo id does not match bytestream id" );
+      return;
+    }
+
+  TGC_BYTESTREAM_NSL_ROI tmpfrag;
+  for(uint32_t iBs = 0; iBs < ndata; iBs++){
+    ATH_MSG_DEBUG( "WORD" << iBs << ":" << MSG::hex << bs[iBs] );
+    fromBS32(bs[iBs], tmpfrag);
+    switch(tmpfrag.type)
+      {
+      case 0 : // RoI
+        {
+          TGC_BYTESTREAM_NSL_ROI roi;
+          fromBS32(bs[iBs], roi);
+          TgcRawData* raw = new TgcRawData(bcTag(roi.bcBitmap),
+                                           rdo->subDetectorId(),
+                                           rdo->rodId(),
+                                           rdo->l1Id(),
+                                           rdo->bcId(),
+                                           static_cast<bool>(roi.fwd),
+                                           roi.sector,
+                                           roi.innerflag,
+                                           roi.coinflag,
+                                           static_cast<bool>(roi.charge),
+                                           roi.pt,
+                                           roi.roi);
+          rdo->push_back(raw);
+          break;
+        }
+      case 1 : // HiPT
+        {
+          TGC_BYTESTREAM_NSL_HIPT hipt;
+          fromBS32(bs[iBs], hipt);
+          TgcRawData* raw = new TgcRawData(bcTag(hipt.bcBitmap),
+                                           rdo->subDetectorId(),
+                                           rdo->rodId(),
+                                           rdo->l1Id(),
+                                           rdo->bcId(),
+                                           static_cast<bool>(hipt.strip),
+                                           static_cast<bool>(hipt.fwd),
+                                           hipt.sector,
+                                           hipt.chip,
+                                           hipt.cand,
+                                           static_cast<bool>(hipt.hipt),
+                                           hipt.hitId,
+                                           hipt.sub,
+                                           hipt.delta,
+                                           0);
+          rdo->push_back(raw);
+          break;
+        }
+      case 2 : // EIFI
+        {
+          TGC_BYTESTREAM_NSL_EIFI eifi;
+          fromBS32(bs[iBs], eifi);
+          TgcRawData* raw = new TgcRawData(bcTag(eifi.bcBitmap),
+                                           rdo->subDetectorId(),
+                                           rdo->rodId(),
+                                           rdo->l1Id(),
+                                           rdo->bcId(),
+                                           static_cast<bool>(eifi.fwd),
+                                           eifi.sector,
+                                           eifi.ei,
+                                           eifi.fi,
+                                           eifi.chamberid);
+          rdo->push_back(raw);
+          break;
+        }
+      case 3 : // TMDB
+        {
+          TGC_BYTESTREAM_NSL_TMDB tmdb;
+          fromBS32(bs[iBs], tmdb);
+          TgcRawData* raw = new TgcRawData(bcTag(tmdb.bcBitmap),
+                                           rdo->subDetectorId(),
+                                           rdo->rodId(),
+                                           rdo->l1Id(),
+                                           rdo->bcId(),
+                                           false,
+                                           tmdb.sector,
+                                           tmdb.module,
+                                           tmdb.bcid);
+          rdo->push_back(raw);
+          break;
+        }
+      case 4 : // NSW 4-5
+        {
+          TGC_BYTESTREAM_NSW_POS nswpos;
+          fromBS32(bs[iBs], nswpos);
+          iBs++;
+          TGC_BYTESTREAM_NSW_ANG nswang;
+          fromBS32(bs[iBs], nswang);
+          if (nswang.type != 5){
+            ATH_MSG_DEBUG( "Error: non-consecutive NSW words " );
+            iBs--;
+            continue;
+          }
+          if (( nswpos.bcBitmap != nswang.bcBitmap )||
+              ( nswpos.cand     != nswang.cand     )||
+              ( nswpos.input    != nswang.input    )){
+            ATH_MSG_DEBUG( "Error: inconsistent NSW words" );
+            iBs--;
+            continue;
+          }
+
+          TgcRawData* raw = new TgcRawData(bcTag(nswpos.bcBitmap),
+                                           rdo->subDetectorId(),
+                                           rdo->rodId(),
+                                           rdo->l1Id(),
+                                           static_cast<uint16_t>(rdo->bcId()),
+                                           static_cast<bool>(nswpos.fwd),
+                                           static_cast<uint16_t>(nswpos.sector),
+                                           nswpos.eta,
+                                           nswpos.phi,
+                                           nswpos.cand,
+                                           nswang.angle,
+                                           nswang.phires,
+                                           nswang.lowres,
+                                           nswang.nswid);
+          rdo->push_back(raw);
+          break;
+        }
+      case 6 : // RPC BIS78 6-7
+        {
+          TGC_BYTESTREAM_RPCBIS78_POS rpcpos;
+          fromBS32(bs[iBs], rpcpos);
+          iBs++;
+          TGC_BYTESTREAM_RPCBIS78_COIN rpccoin;
+          fromBS32(bs[iBs], rpccoin);
+          if (rpccoin.type != 7){
+            ATH_MSG_DEBUG( "Error: non-consecutive RPCBIS78 words " );
+            iBs--;
+            continue;
+          }
+          if (( rpcpos.bcBitmap != rpccoin.bcBitmap )||
+              ( rpcpos.cand     != rpccoin.cand     )){
+            ATH_MSG_DEBUG( "Error: inconsistent RPCBIS78 words" );
+            iBs--;
+            continue;
+          }
+
+          TgcRawData* raw = new TgcRawData(bcTag(rpcpos.bcBitmap),
+                                           rdo->subDetectorId(),
+                                           rdo->rodId(),
+                                           rdo->l1Id(),
+                                           static_cast<uint16_t>(rdo->bcId()),
+                                           static_cast<bool>(rpcpos.fwd),
+                                           static_cast<uint16_t>(rpcpos.sector),
+                                           rpcpos.eta,
+                                           rpcpos.phi,
+                                           static_cast<uint16_t>(rpccoin.flag),
+                                           rpccoin.deta,
+                                           rpccoin.dphi);
+          rdo->push_back(raw);
+          break;
+        }
+      } // switch
+  } // for iBs
+
+  ATH_MSG_DEBUG( "Decoded " << MSG::dec << rdo->size() << " elements" );
+  ATH_MSG_DEBUG( "Muon::TGC_RodDecoderReadout::byteStreamSrod2Rdo done" );
+}
+
 
 void Muon::TGC_RodDecoderReadout::showStatusWords(const uint32_t source_id, const uint16_t rdoId, const int idHash, 
 						  const uint32_t nstatus, const uint32_t* status) const {
