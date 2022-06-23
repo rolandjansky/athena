@@ -223,8 +223,11 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const EventContext& ctx, const Muo
   double time{-DBL_MAX}, charge{-DBL_MAX};
   tdoToTime  (ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->time  (), rdoId, time  , sTGCRawData->bcTag()); 
   pdoToCharge(ctx, sTGCRawData->timeAndChargeInCounts(), sTGCRawData->charge(), rdoId, charge                      );
-  
-  calibStrip.charge     = charge * sTGC_pCPerfC;
+  if(sTGCRawData->timeAndChargeInCounts()){
+    calibStrip.charge     = charge  * sTGC_pCPerfC;
+  } else {
+    calibStrip.charge     = charge;
+  }
   calibStrip.time       = time - stgcPeakTime();
   calibStrip.identifier = rdoId;
   calibStrip.locPos = locPos;
