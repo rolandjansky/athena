@@ -95,7 +95,10 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     from TriggerMenuMT.HLT.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
     PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoMonitoring" + tag)
     PrecisionElectronRecoMonAlgo.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
-    PrecisionElectronRecoMonAlgo.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo.ElectronOutputName]
+    PrecisionElectronRecoMonAlgo.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo.ElectronOutputName,
+                                                '%s.ptvarcone20' % TrigTopoEgammaAlgo.ElectronOutputName,
+                                                '%s.ptcone30' % TrigTopoEgammaAlgo.ElectronOutputName,
+                                                '%s.ptvarcone30' % TrigTopoEgammaAlgo.ElectronOutputName ]
     thesequence += PrecisionElectronRecoMonAlgo
 
     #online monitoring for TrigElectronSuperClusterBuilder
