@@ -15,8 +15,6 @@ def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
     kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()              )
-    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
     kwargs.setdefault("ParticleBroker"                   , 'ISF_ParticleBrokerSvc'               )
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_FastShowerCellBuilderTool' ])
@@ -36,8 +34,6 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False                                             )
     kwargs.setdefault("Identifier"                       , 'FastCaloSim'                                     )
     kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()+'PileUp'     )
-    kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
-    kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
     #kwargs.setdefault("PUWeights"                        , FastChain_Flags.FastChainPUWeights()  )
     kwargs.setdefault("PUWeights_lar_bapre"              , FastChain_Flags.FastChainPUWeights_lar_bapre()  )
     kwargs.setdefault("PUWeights_lar_hec"                , FastChain_Flags.FastChainPUWeights_lar_hec()  )
@@ -103,6 +99,7 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
                                                            'ISF_FastHitConvertTool' ])
     kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
     kwargs.setdefault("PunchThroughTool"                 , 'ISF_PunchThroughTool'             )
+
     kwargs.setdefault("DoPunchThroughSimulation"         , ISF_FastCaloSimFlags.DoPunchThroughSimulation())
     kwargs.setdefault("ParticleBroker"                   , 'ISF_AFIIParticleBrokerSvc'               )
 

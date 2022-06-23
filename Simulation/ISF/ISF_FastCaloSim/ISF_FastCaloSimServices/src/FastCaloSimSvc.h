@@ -45,28 +45,27 @@ namespace ISF {
   class ISFParticle;
   class IParticleBroker;
   class ITruthSvc;
-  class IPunchThroughTool;
 
   /** @class FastCaloSimSvc
-  
+
       @author Michael.Duehrssen -at- cern.ch
      */
-  class FastCaloSimSvc : public BaseSimulationSvc { 
-    public: 
-      
+  class FastCaloSimSvc : public BaseSimulationSvc {
+    public:
+
       //** Constructor with parameters */
       FastCaloSimSvc( const std::string& name, ISvcLocator* pSvcLocator );
-      
+
       /** Destructor */
-      virtual ~FastCaloSimSvc(); 
-      
+      virtual ~FastCaloSimSvc();
+
       /** Athena algorithm's interface methods */
       StatusCode  initialize();
       StatusCode  finalize();
 
       /** Simulation Call */
       StatusCode simulate(const ISFParticle& isp);
-                                                                 
+
       /** Setup Event chain - in case of a begin-of event action is needed */
       StatusCode setupEvent();
 
@@ -74,7 +73,7 @@ namespace ISF {
       StatusCode releaseEvent();
 
 
-    private:     
+    private:
       /** Default constructor */
       FastCaloSimSvc();
 
@@ -85,7 +84,7 @@ namespace ISF {
       std::vector<Trk::HitInfo>* caloHits(const ISF::ISFParticle &isfp) const;
 
       /** The Extrapolator setup */
-      ToolHandle<Trk::ITimedExtrapolator>      m_extrapolator;          
+      ToolHandle<Trk::ITimedExtrapolator>      m_extrapolator;
 
       /** whether CellContainer to be created will own (default) its cells or not */
       int m_ownPolicy;
@@ -99,8 +98,6 @@ namespace ISF {
 
       // authorise input to be the same as output (to be done with care)
       bool m_caloCellHack ;
-      //check if punch through simulation is used
-      bool m_doPunchThrough;
 
       Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
@@ -108,11 +105,10 @@ namespace ISF {
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_setup ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_simulate ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release ;
-      ToolHandle< IPunchThroughTool >     m_punchThroughTool;
       CaloCellContainer * 		  m_theContainer;
       ServiceHandle<ISF::IParticleBroker> m_particleBroker;
 
-  }; 
+  };
 }
 
 #endif //> !ISF_FASTCALOSIMSVC_H

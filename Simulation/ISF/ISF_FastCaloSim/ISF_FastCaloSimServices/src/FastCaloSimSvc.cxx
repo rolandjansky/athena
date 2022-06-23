@@ -33,8 +33,6 @@
 // use FastShowerCellBuilderTool for actual simulation
 //#include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
-// PunchThrough Tool
-#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
 
 /** Constructor **/
 ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
@@ -45,11 +43,9 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   m_simulateUndefinedBCs(false),
   m_caloCellsOutputName("AllCalo"),
   m_caloCellHack(false),
-  m_doPunchThrough(false),
   m_caloCellMakerTools_setup(),
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
-  m_punchThroughTool(""),
   m_theContainer(0),
   m_particleBroker ("ISF_ParticleBroker",name)
 {
@@ -58,10 +54,8 @@ ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("CaloCellMakerTools_setup"   ,       m_caloCellMakerTools_setup) ;
   declareProperty("CaloCellMakerTools_simulate",       m_caloCellMakerTools_simulate) ;
   declareProperty("CaloCellMakerTools_release" ,       m_caloCellMakerTools_release) ;
-  declareProperty("PunchThroughTool",                  m_punchThroughTool);
   declareProperty("CaloCellsOutputName",               m_caloCellsOutputName) ;
   declareProperty("CaloCellHack",                      m_caloCellHack) ;
-  declareProperty("DoPunchThroughSimulation", 	       m_doPunchThrough) ;
   declareProperty("Extrapolator",                      m_extrapolator );
   declareProperty("SimulateUndefinedBarcodeParticles",
                   m_simulateUndefinedBCs,
@@ -89,12 +83,6 @@ StatusCode ISF::FastCaloSimSvc::initialize()
         return StatusCode::FAILURE;
    if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_release).isFailure() )
         return StatusCode::FAILURE;
-
-   if (m_doPunchThrough && m_punchThroughTool.retrieve().isFailure() )
-   {
-     ATH_MSG_ERROR (m_punchThroughTool.propertyName() << ": Failed to retrieve tool " << m_punchThroughTool.type());
-     return StatusCode::FAILURE;
-   }
 
    // Get TimedExtrapolator
    if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
@@ -276,24 +264,6 @@ StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 {
   // read the particle's barcode
   Barcode::ParticleBarcode bc = isfp.barcode();
-//lets do punch-through here
-//----------------------------------------------------------
-
-  // punch-through simulation
-
-  if (m_doPunchThrough) {
-    // call punch-through simulation
-    const ISF::ISFParticleVector* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
-
-    // add punch-through particles to the ISF particle broker
-    if (isfpVec) {
-      ISF::ISFParticleVector::const_iterator partIt    = isfpVec->begin();
-      ISF::ISFParticleVector::const_iterator partItEnd = isfpVec->end();
-      for ( ; partIt!=partItEnd; ++partIt) {
-        m_particleBroker->push( *partIt, &isfp);
-      }
-    }
-  }
 
   // (a.) batch process mode, ignore the incoming particle for now
   if ( m_batchProcessMcTruth) {
