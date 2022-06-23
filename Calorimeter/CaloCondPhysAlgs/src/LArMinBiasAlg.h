@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,17 +18,18 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/LArID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
-#include "LArElecCalib/ILArMinBias.h"
+
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRawConditions/LArMCSym.h"
 
-#include "GaudiKernel/ITHistSvc.h"
-#include "TTree.h"
+
+class TTree;
+class LArEM_ID;
+class CaloCell_ID;
+class ITHistSvc;
+
 
 #define MAX_SYM_CELLS 3000
 

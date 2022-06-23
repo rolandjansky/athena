@@ -1,19 +1,19 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArMinBiasAlg.h"
 
-#include "CaloEvent/CaloCell.h"
-#include "CaloEvent/CaloCellContainer.h"
 
-#include "CaloUtils/CaloCellList.h"
-#include "CaloUtils/CaloLayerCalculator.h"
-
-#include "CaloIdentifier/LArID.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/LArEM_ID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
+#include "TTree.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
 
 
 
@@ -254,7 +254,8 @@
             int index2= m_symCellIndex[index];
             if (index2<0) return;
             if (index2 >= ((int)(m_CellList.size())) ) {
-	      ATH_MSG_INFO(" problem " << index << " " << index2 << " " << m_CellList.size());
+	      ATH_MSG_INFO(" LArMinBiasAlg::addCell: for " << index << ", " << index2 << " is out-of bounds for list of size " << m_CellList.size());
+	      return;
             }
             double oldN =  m_CellList[index2].nevt;
             double oldAverage = m_CellList[index2].average;
