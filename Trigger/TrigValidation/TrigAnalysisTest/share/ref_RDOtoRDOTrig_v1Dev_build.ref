@@ -293,10 +293,46 @@ HLT_2g10_loose_mu20_L1MU18VFCH:
     0: 20
     1: 3
     2: 2
+HLT_2g15_loose_25dphiAA_invmAA80_L12EM7:
+  eventCount: 1
+  stepCounts:
+    0: 13
+    1: 5
+    2: 5
+    3: 1
+  stepFeatures:
+    0: 47
+    1: 13
+    2: 10
+    3: 9
 HLT_2g15_loose_25dphiAA_invmAA80_L1DPHI-M70-2eEM15M:
   eventCount: 0
+HLT_2g15_tight_25dphiAA_L12EM7:
+  eventCount: 1
+  stepCounts:
+    0: 13
+    1: 5
+    2: 5
+    3: 1
+  stepFeatures:
+    0: 47
+    1: 13
+    2: 10
+    3: 5
 HLT_2g15_tight_25dphiAA_L1DPHI-M70-2eEM15M:
   eventCount: 0
+HLT_2g15_tight_25dphiAA_invmAA80_L12EM7:
+  eventCount: 1
+  stepCounts:
+    0: 13
+    1: 5
+    2: 5
+    3: 1
+  stepFeatures:
+    0: 47
+    1: 13
+    2: 10
+    3: 5
 HLT_2g15_tight_25dphiAA_invmAA80_L1DPHI-M70-2eEM15M:
   eventCount: 0
 HLT_2g15_tight_L1DPHI-M70-2eEM15M:
@@ -411,6 +447,18 @@ HLT_2g50_tight_L1eEM9_EMPTY:
   eventCount: 0
 HLT_2g50_tight_L1eEM9_UNPAIRED_ISO:
   eventCount: 0
+HLT_2g9_loose_25dphiAA_invmAA80_L12EM7:
+  eventCount: 1
+  stepCounts:
+    0: 20
+    1: 15
+    2: 10
+    3: 1
+  stepFeatures:
+    0: 73
+    1: 43
+    2: 35
+    3: 10
 HLT_2g9_loose_25dphiAA_invmAA80_L1DPHI-M70-2eEM9:
   eventCount: 0
   stepCounts:
@@ -1128,6 +1176,18 @@ HLT_2mu3_L12MU3VF:
     1: 9
     2: 8
     3: 5
+HLT_2mu4_11invmAA60_L12MU3V:
+  eventCount: 2
+  stepCounts:
+    0: 5
+    1: 3
+    2: 3
+    3: 2
+  stepFeatures:
+    0: 12
+    1: 7
+    2: 8
+    3: 5
 HLT_2mu4_11invmAA60_L1DY-BOX-2MU3V:
   eventCount: 2
   stepCounts:
@@ -1137,6 +1197,17 @@ HLT_2mu4_11invmAA60_L1DY-BOX-2MU3V:
     3: 2
   stepFeatures:
     0: 10
+    1: 7
+    2: 8
+    3: 5
+HLT_2mu4_7invmAA9_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 3
+    2: 3
+  stepFeatures:
+    0: 12
     1: 7
     2: 8
     3: 5
@@ -1803,6 +1874,18 @@ HLT_2mu50_msonly_L1MU18VFCH:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu6_11invmAA24_L12MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
+    3: 1
+  stepFeatures:
+    0: 7
+    1: 7
+    2: 8
+    3: 4
 HLT_2mu6_11invmAA24_L1DY-BOX-2MU5VF:
   eventCount: 1
   stepCounts:
@@ -1810,6 +1893,17 @@ HLT_2mu6_11invmAA24_L1DY-BOX-2MU5VF:
     1: 3
     2: 3
     3: 1
+  stepFeatures:
+    0: 7
+    1: 7
+    2: 8
+    3: 4
+HLT_2mu6_24invmAA60_L12MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
   stepFeatures:
     0: 7
     1: 7
