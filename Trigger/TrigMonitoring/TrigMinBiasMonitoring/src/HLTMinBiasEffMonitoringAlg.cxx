@@ -2,6 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "xAODTracking/TrackingPrimitives.h"
+#include "Utils.h"
 #include "HLTMinBiasEffMonitoringAlg.h"
 
 HLTMinBiasEffMonitoringAlg::HLTMinBiasEffMonitoringAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator) {}
@@ -36,15 +37,7 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
   const auto& trigDecTool = getTrigDecisionTool();
 
   auto vertexHandle = SG::makeHandle(m_vertexKey, context);
-  const xAOD::Vertex* priVtx = nullptr;
-  if (vertexHandle.isValid()) {
-    for (auto vtx : *vertexHandle) {
-      if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-        priVtx = vtx;
-        break;
-      }
-    }
-  }
+  const xAOD::Vertex* priVtx = Utils::selectPV(vertexHandle);
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   int countPassing = 0;
@@ -60,7 +53,7 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
   {
     if (m_trackSelectionTool->accept(*trk) and std::fabs(trk->pt()) > m_minPt) {
       ++countPassing;
-      if (priVtx and std::abs((trk->z0() + trk->vz() - priVtx->z()) * std::sin(trk->theta())) < m_z0
+      if (priVtx and std::abs(Utils::z0wrtPV(trk, priVtx)) < m_z0 
         and std::abs(trk->d0()) < m_d0) {
         ++countPassingVtx;
       }
