@@ -101,6 +101,18 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       for (const auto& monpair: m_monPairs) {
         mons.emplace_back(monpair.second, monpair.first(*btagging));
       }
+
+      if ( not btagging->auxdata<char>("SV1_isDefaults") ){
+	mons.emplace_back("SV1_masssvx",btagging->auxdata<float>("SV1_masssvx"));
+	mons.emplace_back("SV1_efracsvx",btagging->auxdata<float>("SV1_efracsvx"));
+      }
+      if ( not btagging->auxdata<char>("JetFitter_isDefaults") ){
+	mons.emplace_back("JetFitter_mass",btagging->auxdata<float>("JetFitter_mass"));
+	mons.emplace_back("JetFitter_energyFraction",btagging->auxdata<float>("JetFitter_energyFraction"));
+      }
+
+
+
       std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> mons_wrappers(
         mons.begin(), mons.end());
       Monitored::Group(m_monTool, mons_wrappers);
