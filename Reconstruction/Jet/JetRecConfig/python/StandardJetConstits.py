@@ -183,7 +183,7 @@ _stdInputList = [
 
     JetInputExternal("UFOCSSK", xAODType.FlowElement,
                      prereqs = ['input:GPFlowCSSK'],
-                     algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(stdConstitDic['GPFlowCSSK'], jdef._cflags)
+                     algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(jdef._cflags, stdConstitDic['GPFlowCSSK'])
                      ),
     
 ]
