@@ -163,7 +163,7 @@ void FolderInfo::printSpec(const cool::IRecordSpecification& catrspec) const {
   std::cout << std::endl;
 }
 
-FolderInfo::PayloadTime string2ptime(const std::string str) {
+FolderInfo::PayloadTime string2ptime(const std::string & str) {
   if (str=="DCSC") return FolderInfo::DCSC;
   if (str=="DCSP") return FolderInfo::DCSP;
   if (str=="RUNC") return FolderInfo::RUNC;
@@ -171,7 +171,7 @@ FolderInfo::PayloadTime string2ptime(const std::string str) {
   return FolderInfo::PTimeUndefined;
 }
 
-FolderInfo::PayloadType string2ptype(const std::string str) {
+FolderInfo::PayloadType string2ptype(const std::string & str) {
   if (str=="INT" || str=="int") return FolderInfo::Int;
   if (str=="FLOAT" || str=="float") return FolderInfo::Float;
   if (str=="STRING" || str=="string") return FolderInfo::String;

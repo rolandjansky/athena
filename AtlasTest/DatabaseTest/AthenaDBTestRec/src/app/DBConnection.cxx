@@ -38,7 +38,7 @@ DBConnection::DBConnection(const std::string options,
     m_schema=split[2];
     m_dbname=split[3];
     if (split.size()>4) m_user=split[4];
-    if (split.size()>4) m_passwd=split[5];
+    if (split.size()>5) m_passwd=split[5];
   }
   if (newschema!="") m_schema=newschema;
   m_active=false;
