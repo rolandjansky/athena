@@ -66,6 +66,7 @@ TagAndProbeGroup = ['Support:TagAndProbe']
 TagAndProbeLegGroup = ['Support:LegacyTagAndProbe']
 TagAndProbePhIGroup = ['Support:PhaseITagAndProbe']
 EOFL1MuGroup = ['EOF:L1Muon']
+EOFEgammaLegGroup = ['EOF:EgammaLegacy']
 EOFEgammaPhIGroup = ['EOF:EgammaPhaseI']
 EOFBPhysL1MuGroup = ['EOF:BPhysL1Muon']
 EOFBeeLegGroup = ['EOF:BeeLegacy']
@@ -305,7 +306,12 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_11invmAA60_L1DY-BOX-2MU3V', l1SeedThresholds=['MU3V'], groups=MultiMuonGroup+SupportGroup+Topo2Group+['RATE:CPS_DY-BOX-2MU3V']),
         ChainProp(name='HLT_2mu6_11invmAA24_L1DY-BOX-2MU5VF', l1SeedThresholds=['MU5VF'], groups=MultiMuonGroup+SupportGroup+Topo2Group+['RATE:CPS_DY-BOX-2MU5VF']),
         ChainProp(name='HLT_2mu6_24invmAA60_L1DY-BOX-2MU5VF', l1SeedThresholds=['MU5VF'], groups=MultiMuonGroup+SupportGroup+Topo2Group+['RATE:CPS_DY-BOX-2MU5VF']),
-        
+        # backup without L1Topo
+        ChainProp(name='HLT_2mu4_7invmAA9_L12MU3V', l1SeedThresholds=['MU3V'], groups=MultiMuonGroup+SupportGroup+['RATE:CPS_2MU3V']),
+        ChainProp(name='HLT_2mu4_11invmAA60_L12MU3V', l1SeedThresholds=['MU3V'], groups=MultiMuonGroup+SupportGroup+['RATE:CPS_2MU3V']),
+        ChainProp(name='HLT_2mu6_11invmAA24_L12MU5VF', l1SeedThresholds=['MU5VF'], groups=MultiMuonGroup+SupportGroup+['RATE:CPS_2MU5VF']),
+        ChainProp(name='HLT_2mu6_24invmAA60_L12MU5VF', l1SeedThresholds=['MU5VF'], groups=MultiMuonGroup+SupportGroup+['RATE:CPS_2MU5VF']),
+
         # ATR-24367 (express stream for ID)
         ChainProp(name='HLT_mu14_mu14_idperf_50invmAB130_L12MU8F', l1SeedThresholds=['MU8F','MU8F'], stream=[PhysicsStream,'express'], groups=MultiMuonGroup+SupportGroup, monGroups=['idMon:shifter']),
         ChainProp(name='HLT_mu4_mu4_idperf_1invmAB5_L12MU3VF', l1SeedThresholds=['MU3VF','MU3VF'], stream=[PhysicsStream,'express'], groups=MultiMuonGroup+SupportGroup+['RATE:CPS_2MU3VF'], monGroups=['idMon:t0']),
@@ -441,9 +447,16 @@ def setupMenu():
         ChainProp(name='HLT_2g9_loose_25dphiAA_invmAA80_L1DPHI-M70-2eEM9L', l1SeedThresholds=['eEM9'], groups=EOFEgammaPhIGroup+MultiPhotonGroup+Topo2Group),
 
         # low-mass diphoton ATR-21608
-        ChainProp(name='HLT_2g15_tight_25dphiAA_invmAA80_L1DPHI-M70-2eEM15M', l1SeedThresholds=['eEM15'], groups=PrimaryPhIGroup+MultiPhotonGroup+Topo2Group),
+        ChainProp(name='HLT_2g15_tight_25dphiAA_invmAA80_L1DPHI-M70-2eEM15M', l1SeedThresholds=['eEM15'], groups=PrimaryPhIGroup+MultiPhotonGroup+['RATE:CPS_DPHI-M70-2eEM15M']+Topo2Group),
         ChainProp(name='HLT_2g15_loose_25dphiAA_invmAA80_L1DPHI-M70-2eEM15M', l1SeedThresholds=['eEM15'], groups=SupportPhIGroup+MultiPhotonGroup+['RATE:CPS_DPHI-M70-2eEM15M']+Topo2Group),
         ChainProp(name='HLT_2g15_tight_25dphiAA_L1DPHI-M70-2eEM15M', l1SeedThresholds=['eEM15'], groups=SupportPhIGroup+MultiPhotonGroup+['RATE:CPS_DPHI-M70-2eEM15M']+Topo2Group),
+
+        # Non-L1Topo backups
+        ChainProp(name='HLT_2g9_loose_25dphiAA_invmAA80_L12EM7', l1SeedThresholds=['EM7'], groups=EOFEgammaLegGroup+MultiPhotonGroup+['RATE:CPS_2EM7']),
+        #
+        ChainProp(name='HLT_2g15_tight_25dphiAA_invmAA80_L12EM7', l1SeedThresholds=['EM12'], groups=SupportLegGroup+MultiPhotonGroup+['RATE:CPS_2EM7']),
+        ChainProp(name='HLT_2g15_loose_25dphiAA_invmAA80_L12EM7', l1SeedThresholds=['EM12'], groups=SupportLegGroup+MultiPhotonGroup+['RATE:CPS_2EM7']),
+        ChainProp(name='HLT_2g15_tight_25dphiAA_L12EM7', l1SeedThresholds=['EM12'], groups=SupportLegGroup+MultiPhotonGroup+['RATE:CPS_2EM7']),
 
         # support 2g ATR-23425
         ChainProp(name='HLT_2g20_loose_L12EM15VH', groups=SupportLegGroup+MultiPhotonGroup),
@@ -1725,18 +1738,18 @@ def setupMenu():
         ChainProp(name='HLT_mu20_bBmux_LbmuLcX_L1MU18VFCH', l1SeedThresholds=['MU18VFCH'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFBPhysL1MuGroup+['RATE:CPS_MU18VFCH']),
 
         #-- non-PEB JPsi
-        ChainProp(name='HLT_mu10_bJpsimutrk_L1MU8F', l1SeedThresholds=['MU8F'], stream=["BphysDelayed","express"], groups=SupportGroup+BphysicsGroup+['PS:Online','RATE:CPS_MU8F'], monGroups=['bphysMon:shifter']),
-        ChainProp(name='HLT_mu20_bJpsimutrk_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=["BphysDelayed","express"], groups=SupportGroup+BphysicsGroup+['PS:Online','RATE:CPS_MU14FCH'], monGroups=['bphysMon:t0']),
-        ChainProp(name='HLT_mu20_bJpsimutrk_L1MU18VFCH', l1SeedThresholds=['MU18VFCH'], stream=["BphysDelayed","express"], groups=SupportGroup+BphysicsGroup+['PS:Online','RATE:CPS_MU18VFCH'], monGroups=['bphysMon:t0']),
+        ChainProp(name='HLT_mu10_bJpsimutrk_L1MU8F', l1SeedThresholds=['MU8F'], stream=["BphysDelayed","express"], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU8F'], monGroups=['bphysMon:shifter']),
+        ChainProp(name='HLT_mu20_bJpsimutrk_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=["BphysDelayed","express"], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU14FCH'], monGroups=['bphysMon:t0']),
+        ChainProp(name='HLT_mu20_bJpsimutrk_L1MU18VFCH', l1SeedThresholds=['MU18VFCH'], stream=["BphysDelayed","express"], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU18VFCH'], monGroups=['bphysMon:t0']),
 
         #-- supplementary PEB triggers
-        ChainProp(name='HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3V', l1SeedThresholds=['MU3V'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online']),
-        ChainProp(name='HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3VF', l1SeedThresholds=['MU3VF'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online']),
-        ChainProp(name='HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online']),
-        ChainProp(name='HLT_mu6_bJpsimutrk_lowpt_MuonTrkPEB_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online']),
-        ChainProp(name='HLT_mu10_bJpsimutrk_MuonTrkPEB_L1MU8F', l1SeedThresholds=['MU8F'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online','RATE:CPS_MU8F'], monGroups=['bphysMon:online']),
-        ChainProp(name='HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online','RATE:CPS_MU14FCH'], monGroups=['bphysMon:online']),
-        ChainProp(name='HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU18VFCH', l1SeedThresholds=['MU18VFCH'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['PS:Online','RATE:CPS_MU18VFCH'], monGroups=['bphysMon:online']),
+        ChainProp(name='HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3V', l1SeedThresholds=['MU3V'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU3V']),
+        ChainProp(name='HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3VF', l1SeedThresholds=['MU3VF'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup),
+        ChainProp(name='HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU5VF']),
+        ChainProp(name='HLT_mu6_bJpsimutrk_lowpt_MuonTrkPEB_L1MU5VF', l1SeedThresholds=['MU5VF'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU5VF']),
+        ChainProp(name='HLT_mu10_bJpsimutrk_MuonTrkPEB_L1MU8F', l1SeedThresholds=['MU8F'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU8F'], monGroups=['bphysMon:online']),
+        ChainProp(name='HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU14FCH', l1SeedThresholds=['MU14FCH'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU14FCH'], monGroups=['bphysMon:online']),
+        ChainProp(name='HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU18VFCH', l1SeedThresholds=['MU18VFCH'], stream=['BphysPEB'], groups=SupportGroup+BphysicsGroup+['RATE:CPS_MU18VFCH'], monGroups=['bphysMon:online']),
 
         # 3mu inv mass (ATR-19355, ATR-19638)
         ChainProp(name='HLT_3mu4_b3mu_noos_L1BPH-0M10-3MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup+PrimaryL1MuGroup+Topo2Group),

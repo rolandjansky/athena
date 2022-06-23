@@ -18,14 +18,14 @@ const uint32_t TGC_BYTESTREAM_HEADERVERSION = 0x03000300;
 const uint32_t TGC_BYTESTREAM_STATUSSIZE = 0x5;
 
 /** The struct for source ID in ByteStream. */
-struct TGC_BYTESTREAM_SORUCEID
+struct TGC_BYTESTREAM_SOURCEID
 {
   unsigned rodid: 8;
   unsigned fill1: 8;
   unsigned side:  8;
   unsigned fill2: 8;
 
-  TGC_BYTESTREAM_SORUCEID() { memset(this, 0, sizeof(*this)); }
+  TGC_BYTESTREAM_SOURCEID() { memset(this, 0, sizeof(*this)); }
 };
 
 /** The struct for errors in ByteStream. */
@@ -205,7 +205,10 @@ struct TGC_BYTESTREAM_NSW_POS
 {
   unsigned eta:       8;
   unsigned phi:       6;
-  unsigned fill1:    10;
+  unsigned fill1:     3;
+  unsigned input:     3;
+  unsigned cand:      2;
+  unsigned bcBitmap:  2;
   unsigned sector:    4;
   unsigned fwd:       1;
   unsigned type:      3;
@@ -235,7 +238,9 @@ struct TGC_BYTESTREAM_RPCBIS78_POS
 {
   unsigned eta:       6;
   unsigned phi:       6;
-  unsigned fill1:    12;
+  unsigned fill1:     8;
+  unsigned cand:      2;
+  unsigned bcBitmap:  2;
   unsigned sector:    4;
   unsigned fwd:       1;
   unsigned type:      3;

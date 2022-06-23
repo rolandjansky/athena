@@ -93,11 +93,11 @@ namespace Muon
     private:
       /** The number of RODs (1-24 for 12-fold, 0-15 for 8-fold) */
       enum NROD_SIDE {
-	NROD = 24+1,
+	NROD  = 24+1,
+        NSROD = 6+1,
 	ASIDE = 0x67, // 103
 	CSIDE = 0x68  // 104
       };
-      
       /** The number of failures on decodeRodToRdo */
       mutable std::atomic<unsigned int> m_failedDecodeRodToRdo[NROD+1];
       /** The number of strange header and SizeRawData */

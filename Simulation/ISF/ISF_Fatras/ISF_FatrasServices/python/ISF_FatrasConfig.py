@@ -50,6 +50,8 @@ def fatrasHitCreatorPixelCfg(flags, name="ISF_FatrasHitCreatorPixel", **kwargs):
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("IdHelperName", 'PixelID')
     kwargs.setdefault("CollectionName", hits_collection_name)
+
+    kwargs.setdefault("ConditionsTool", "")
     kwargs.setdefault("UseConditionsTool", False)
 
     iFatras__HitCreatorSilicon = CompFactory.iFatras.HitCreatorSilicon
@@ -77,6 +79,8 @@ def fatrasHitCreatorSCTCfg(flags, name="ISF_FatrasHitCreatorSCT", **kwargs):
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("IdHelperName", 'SCT_ID')
     kwargs.setdefault("CollectionName", hits_collection_name)
+
+    kwargs.setdefault("ConditionsTool", "")
     kwargs.setdefault("UseConditionsTool", False)
 
     iFatras__HitCreatorSilicon = CompFactory.iFatras.HitCreatorSilicon
@@ -104,6 +108,7 @@ def fatrasHitCreatorTRTCfg(flags, name="ISF_FatrasHitCreatorTRT", **kwargs):
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("CollectionName", hits_collection_name)
 
+    kwargs.setdefault("StrawStatusSummaryTool", "")
     iFatras__HitCreatorTRT = CompFactory.iFatras.HitCreatorTRT
     result.setPrivateTools(iFatras__HitCreatorTRT(name=name, **kwargs))
     return result
@@ -307,7 +312,7 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
 
     seed = 'FatrasG4 OFFSET 0 23491234 23470291'
     result.merge(dSFMT(seed))
-    kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
+    kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc").name)
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     kwargs.setdefault("G4RandomStreamName", flags.Sim.Fatras.G4RandomStreamName)
     kwargs.setdefault("ValidationMode", flags.Sim.ISF.ValidationMode)
@@ -464,7 +469,8 @@ def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
 
     from TrkConfig.TrkExSTEP_PropagatorConfig import fatrasSTEP_PropagatorCfg
     step_propagator = result.popToolsAndMerge(fatrasSTEP_PropagatorCfg(flags))
-    kwargs.setdefault("STEP_Propagator", step_propagator)
+    result.addPublicTool(step_propagator)
+    kwargs.setdefault("STEP_Propagator", result.getPublicTool(step_propagator.name))
 
     # Fatras specific: stop the trajectory
     kwargs.setdefault("StopWithNavigationBreak", True)
@@ -643,10 +649,9 @@ def fatrasTransportToolCfg(flags, name="ISF_FatrasSimTool", **kwargs):
     result.addPublicTool(pdhelper_cfg)
     kwargs.setdefault("ParticleDecayHelper", result.getPublicTool(pdhelper_cfg.name))
 
-    acc = ParticleHelperCfg(flags)
-    part_helper_cfg = acc.getPrimary()
-    kwargs.setdefault("ParticleHelper", part_helper_cfg)
-    result.merge(acc)
+    part_helper = result.popToolsAndMerge(ParticleHelperCfg(flags))
+    result.addPublicTool(part_helper)
+    kwargs.setdefault("ParticleHelper", result.getPublicTool(part_helper.name))
 
     kin_filter_cfg = result.popToolsAndMerge(fatrasKinematicFilterCfg(flags))
     result.addPublicTool(kin_filter_cfg)
