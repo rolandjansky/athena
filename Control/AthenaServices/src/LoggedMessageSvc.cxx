@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -473,7 +473,7 @@ StatusCode LoggedMessageSvc::finalize() {
 }
 
 //#############################################################################
-std::string LoggedMessageSvc::colTrans(std::string col, int offset) {
+std::string LoggedMessageSvc::colTrans(const std::string &col, int offset) {
   ColorMap::const_iterator itr = m_colMap.find(col);
   int icol;
   if (itr != m_colMap.end()) {

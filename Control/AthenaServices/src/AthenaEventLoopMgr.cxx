@@ -974,14 +974,15 @@ StatusCode AthenaEventLoopMgr::seek (int evt)
     ATH_MSG_ERROR ( "Seek failed; unsupported by event selector" );
     return StatusCode::FAILURE;
   }
-
+  //cppcheck-suppress nullPointerRedundantCheck
   if (!m_evtSelCtxt) {
     if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
       ATH_MSG_FATAL ( "Can not create the event selector Context." );
       return StatusCode::FAILURE;
     }
   }
-
+  //m_evtSelCtxt cannot be null if createContext succeeded
+  //cppcheck-suppress nullPointerRedundantCheck
   StatusCode sc = is->seek (*m_evtSelCtxt, evt);
   if (sc.isSuccess()) {
     m_nevt = evt;
@@ -1011,14 +1012,15 @@ int AthenaEventLoopMgr::size()
     ATH_MSG_ERROR ( "Collection size unsupported by event selector" );
     return -1;
   }
-
+  //cppcheck-suppress nullPointerRedundantCheck
   if (!m_evtSelCtxt) {
     if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
       ATH_MSG_FATAL ( "Can not create the event selector Context." );
       return -1;
     }
   }
-
+  //m_evtSelCtxt cannot be null if createContext succeeded
+  //cppcheck-suppress nullPointerRedundantCheck
   return cs->size (*m_evtSelCtxt);
 }
 
