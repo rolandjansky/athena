@@ -114,7 +114,7 @@ TLAJetVars='.'.join(TLAJetVarsToKeep)
 
 # ==============
 # === EGAMMA ===
-ElToKeep = ['ptcone20', 'ptvarcone20','trk_d0','cl_eta2','cl_phi2', 'deltaEta1PearDistortion']
+ElToKeep = ['ptcone20', 'ptvarcone20', 'ptcone30', 'ptvarcone30', 'trk_d0','cl_eta2','cl_phi2', 'deltaEta1PearDistortion']
 ElVars = '.'.join(ElToKeep)
 
 PhToKeep = ['topoetcone20', 'etcone20']

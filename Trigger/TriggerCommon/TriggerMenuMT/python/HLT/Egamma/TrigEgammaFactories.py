@@ -188,7 +188,7 @@ def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
                                     CaloTopoIsolationTool = None,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = TrigTrackIsolationTool,
-                                    ElIsoTypes            = [[isoPar.ptcone20]],
+                                    ElIsoTypes            = [[isoPar.ptcone30, isoPar.ptcone20]],
                                     ElCorTypes            = [[isoPar.coreTrackPtr]],
                                     ElCorTypesExtra       = [[]],
                                     IsTrigger = True,
@@ -204,7 +204,7 @@ def TrigElectronIsoBuilderCfg_LRT(name='TrigElectronIsolationBuilder_LRT'):
                                     CaloTopoIsolationTool = None,
                                     PFlowIsolationTool    = None,
                                     TrackIsolationTool    = TrigTrackIsolationTool_LRT,
-                                    ElIsoTypes            = [[isoPar.ptcone20]],
+                                    ElIsoTypes            = [[isoPar.ptcone30, isoPar.ptcone20]],
                                     ElCorTypes            = [[isoPar.coreTrackPtr]],
                                     ElCorTypesExtra       = [[]],
                                      )

@@ -189,7 +189,7 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
         Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
 
-     float ptvarcone20(999), ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
+     float ptvarcone20(999), ptvarcone30(999), ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999),
         etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999), relptvarcone20(999);
 
      bool ispt20 = input.electron->isolationValue(ptvarcone20, xAOD::Iso::ptvarcone20);
@@ -264,6 +264,7 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      ATH_MSG_DEBUG( " d0      "<<input.electron->trackParticle()->d0());
      ATH_MSG_DEBUG( " z0      "<<input.electron->trackParticle()->z0());
      ATH_MSG_DEBUG( " ptvarcone20 " << ptvarcone20 ) ;
+     ATH_MSG_DEBUG( " ptvarcone30 " << ptvarcone30 ) ;
      ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
      ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
      ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
