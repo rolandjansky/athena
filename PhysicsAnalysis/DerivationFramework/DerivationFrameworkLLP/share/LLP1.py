@@ -262,12 +262,36 @@ thinningTools.append(LLP1LD0VSITPThinningTool)
 
 
 #====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+#LArOnOffIdMapping()
+
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+
+LLP1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LLP1_MaxCellDecoratorTool",
+                                                                      SGKey_electrons = "Electrons",
+                                                                      SGKey_photons   = "Photons"
+                                                                      )
+ToolSvc += LLP1_MaxCellDecoratorTool
+augmentationTools.append(LLP1_MaxCellDecoratorTool)
+
+LLP1_LRTMaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "LLP1_LRTMaxCellDecoratorTool",
+                                                                      SGKey_electrons = "LRTElectrons",
+                                                                      SGKey_egammaClusters = "egammaClusters",
+                                                                      )
+ToolSvc += LLP1_LRTMaxCellDecoratorTool
+augmentationTools.append(LLP1_LRTMaxCellDecoratorTool)
+
+#====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 # Add the kernel for thinning (requires the objects be defined)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 SeqLLP1 += CfgMgr.DerivationFramework__DerivationKernel("LLP1Kernel",
                                                         SkimmingTools = skimmingTools,
+                                                        AugmentationTools = augmentationTools,
                                                         ThinningTools = thinningTools)
 
 #====================================================================
@@ -379,6 +403,11 @@ if DerivationFrameworkIsMonteCarlo:
 
 LLP1SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
+                                      "Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
+				      "LRTElectrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
+                                      "Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.f3",
+                                      "egammaClusters.phi_sampl",
+                                      "LRTegammaClusters.phi_sampl",
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",
                                       "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostBHadronsFinal.GhostCHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostBHadronsFinal.GhostCHadronsFinal.GhostTrack.GhostTrackCount.GhostTrackLRT.GhostTrackLRTCount",
