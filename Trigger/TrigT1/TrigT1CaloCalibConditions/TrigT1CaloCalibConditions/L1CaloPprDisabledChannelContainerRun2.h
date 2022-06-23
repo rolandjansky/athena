@@ -58,7 +58,7 @@ private:
   std::map<L1CaloPprDisabledChannelContainerRun2::eCoolFolders, std::string> m_coolFoldersKeysMap;
 };
 
-#include "AthenaKernel/CondCont.h"
-CONDCONT_DEF(  L1CaloPprDisabledChannelContainerRun2 , 1104770746);
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_MIXED_DEF ( L1CaloPprDisabledChannelContainerRun2 , 1104770746);
 #endif
