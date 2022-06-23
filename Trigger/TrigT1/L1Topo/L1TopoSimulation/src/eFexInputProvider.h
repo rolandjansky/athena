@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoSimulation_EMTauInputProviderFEX
-#define L1TopoSimulation_EMTauInputProviderFEX
+#ifndef L1TOPOSIMULATION_EFEXINPUTPROVIDER_H
+#define L1TOPOSIMULATION_EFEXINPUTPROVIDER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
@@ -20,12 +20,12 @@ class ITHistSvc;
 
 namespace LVL1 {
 
-   class EMTauInputProviderFEX : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
+   class eFexInputProvider : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
    public:
-      EMTauInputProviderFEX(const std::string& type, const std::string& name, 
+      eFexInputProvider(const std::string& type, const std::string& name, 
                          const IInterface* parent);
       
-      virtual ~EMTauInputProviderFEX();
+      virtual ~eFexInputProvider();
 
       virtual StatusCode initialize() override final;
 

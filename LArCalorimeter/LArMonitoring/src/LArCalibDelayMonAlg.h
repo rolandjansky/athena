@@ -17,7 +17,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArFebHeader.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloIdentifier/CaloCell_ID.h"

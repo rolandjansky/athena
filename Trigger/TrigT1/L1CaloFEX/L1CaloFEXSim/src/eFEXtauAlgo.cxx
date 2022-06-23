@@ -364,10 +364,13 @@ void LVL1::eFEXtauAlgo::setUnDAndOffPhi()
   downwardEt += m_em2cells[m_seed][0];
   downwardEt += m_em1cells[m_seed][0];
 
-  if (downwardEt > upwardEt)
-  {
+  if (downwardEt > upwardEt) {
     m_offPhi = 0;
     m_und = false;
+  }
+  else {
+    m_offPhi = 2;
+    m_und = true;
   }
 }
 

@@ -98,7 +98,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "SumEt" || input == "SumEtTobArray" || input == "SumEtTobs" )
       return TCS::MET;
 
-   if ( input == "jXE")
+   if ( input == "jXE" || input == "jXETobs" )
       return TCS::JXE;
 
    if ( input == "jXEC")

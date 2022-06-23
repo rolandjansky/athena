@@ -1,6 +1,6 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#include "./EMTauInputProviderFEX.h"
+#include "./eFexInputProvider.h"
 
 #include <math.h>
 
@@ -21,12 +21,12 @@ using namespace LVL1;
 
 
 // eFex to L1Topo conversion factors
-const double EMTauInputProviderFEX::m_EtDouble_conversion = 0.1;      // 100 MeV to GeV
-const double EMTauInputProviderFEX::m_phiDouble_conversion = 0.05;    // 20 x phi to phi
-const double EMTauInputProviderFEX::m_etaDouble_conversion = 0.025;   // 40 x eta to eta
+const double eFexInputProvider::m_EtDouble_conversion = 0.1;      // 100 MeV to GeV
+const double eFexInputProvider::m_phiDouble_conversion = 0.05;    // 20 x phi to phi
+const double eFexInputProvider::m_etaDouble_conversion = 0.025;   // 40 x eta to eta
 
 
-EMTauInputProviderFEX::EMTauInputProviderFEX(const std::string& type, const std::string& name, 
+eFexInputProvider::eFexInputProvider(const std::string& type, const std::string& name, 
                                        const IInterface* parent) :
    base_class(type, name, parent),
    m_histSvc("THistSvc", name)
@@ -34,15 +34,15 @@ EMTauInputProviderFEX::EMTauInputProviderFEX(const std::string& type, const std:
    declareInterface<LVL1::IInputTOBConverter>( this );
 }
 
-EMTauInputProviderFEX::~EMTauInputProviderFEX()
+eFexInputProvider::~eFexInputProvider()
 {}
 
 StatusCode
-EMTauInputProviderFEX::initialize() {
+eFexInputProvider::initialize() {
 
    CHECK(m_histSvc.retrieve());
 
-   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "EnergyInputProviderFEX");
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "eFexInputProvider");
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
@@ -55,7 +55,7 @@ EMTauInputProviderFEX::initialize() {
 
 
 void
-EMTauInputProviderFEX::handle(const Incident& incident) {
+eFexInputProvider::handle(const Incident& incident) {
    if (incident.type()!="BeginRun") return;
    ATH_MSG_DEBUG( "In BeginRun incident");
 
@@ -224,7 +224,7 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 
 
 StatusCode
-EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
+eFexInputProvider::fillEM(TCS::TopoInputEvent& inputEvent) const {
   if (m_eEM_EDMKey.empty()) {
     ATH_MSG_DEBUG("eFex EM input disabled, skip filling");
     return StatusCode::SUCCESS;
@@ -294,7 +294,7 @@ EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
 
 
 StatusCode
-EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
+eFexInputProvider::fillTau(TCS::TopoInputEvent& inputEvent) const {
   if (m_eTau_EDMKey.empty()) {
     ATH_MSG_DEBUG("eFex Tau input disabled, skip filling");
     return StatusCode::SUCCESS;
@@ -358,7 +358,7 @@ EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 }
 
 StatusCode
-EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+eFexInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   ATH_CHECK(fillEM(inputEvent));
   ATH_CHECK(fillTau(inputEvent));
   return StatusCode::SUCCESS;
@@ -366,7 +366,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
 
 void 
-EMTauInputProviderFEX::CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const {
+eFexInputProvider::CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const {
    CPRoIDecoder get;
    double TwoPI = 2 * M_PI;
    CoordinateRange coordRange = get.coordinate( roiWord );

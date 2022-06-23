@@ -18,6 +18,7 @@
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 #include <string>
 #include <vector>
@@ -41,8 +42,9 @@ class LArCalibPedMonAlg: public AthMonitorAlgorithm
 
   // keys to access info
   SG::ReadHandleKey<LArAccumulatedDigitContainer> m_accDigitContainerKey{this,"LArAccumulatedDigitContainerKey","","SG key of LArAccumulatedDigitContainer read from Bytestream"};
-    SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
   SG::ReadHandleKey<LArFebErrorSummary> m_lArFebErrorSummaryKey{this, "LArFebErrorSummaryKey", "LArFebErrorSummary"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
   
   // Properties
   Gaudi::Property<bool> m_ignoreMissingHeaderEMB{this, "IgnoreMissingHeaderEMB", false};

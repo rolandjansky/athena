@@ -242,18 +242,14 @@ TCS::TopoSteeringStructure::setupFromMenu ATLAS_NOT_THREAD_SAFE (const TrigConf:
 
 	      string *foundAlgo = std::find(std::begin(AvailableMultAlgs), std::end(AvailableMultAlgs), algo_klass);
 	      if (foundAlgo == std::end(AvailableMultAlgs)) cout << "TopoSteeringStructure: No L1Topo algorithm matching the configured multiplicity algorithm in the menu! Algorithm: " << algo_klass  << endl;
-
-	      if ( (algo_klass != "eEmMultiplicity") && (algo_klass != "eTauMultiplicity") && (algo_klass != "jTauMultiplicity") && (algo_klass != "jJetMultiplicity") 
-		   && (algo_klass != "jLJetMultiplicity") && (algo_klass != "cTauMultiplicity") && (algo_klass != "EnergyThreshold") 
-                   && (algo_klass != "gJetMultiplicity") && (algo_klass != "gLJetMultiplicity") ) continue; // Only available multiplicity algorithms so far
-         
-         //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
-         if ( (algo_klass == "EnergyThreshold") && 
-              (algo.inputs().at(0) != "jXE" && algo.inputs().at(0) != "gXEJWOJ" && algo.inputs().at(0) != "gMHT" &&
-               algo.inputs().at(0) != "gXENC" && algo.inputs().at(0) != "gXERHO" &&
-               algo.inputs().at(0) != "jTE" && algo.inputs().at(0) != "gTE") ) continue;
-
-         auto it = find(storedConn.begin(), storedConn.end(), algo.name());
+ 
+              //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
+              if ( (algo_klass == "EnergyThreshold") && 
+                   (algo.inputs().at(0) != "jXE" && algo.inputs().at(0) != "gXEJWOJ" && algo.inputs().at(0) != "gMHT" &&
+                    algo.inputs().at(0) != "gXENC" && algo.inputs().at(0) != "gXERHO" &&
+                    algo.inputs().at(0) != "jTE" && algo.inputs().at(0) != "gTE") ) continue;
+     
+              auto it = find(storedConn.begin(), storedConn.end(), algo.name());
 	      if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
 
 		storedConn.push_back(algo.name());
@@ -383,10 +379,6 @@ TCS::TopoSteeringStructure::setupFromMenu ATLAS_NOT_THREAD_SAFE (const TrigConf:
 
       auto & l1algo = l1menu.algorithm(multAlgo, "MULTTOPO");
       
-      if ( (l1algo.klass() != "eEmMultiplicity") && (l1algo.klass() != "eEmVarMultiplicity") && (l1algo.klass() != "eTauMultiplicity") && (l1algo.klass() != "jTauMultiplicity")
-	   && (l1algo.klass() != "jJetMultiplicity") && (l1algo.klass() != "jLJetMultiplicity") && (l1algo.klass() != "cTauMultiplicity") && (l1algo.klass() != "EnergyThreshold") 
-           && (l1algo.klass() != "gJetMultiplicity") && (l1algo.klass() != "gLJetMultiplicity") ) continue; // Only available multiplicities for now
-
       //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
       if ( (l1algo.klass() == "EnergyThreshold") && 
            (l1algo.inputs().at(0) != "jXE" && l1algo.inputs().at(0) != "gXEJWOJ" && l1algo.inputs().at(0) != "gMHT" &&
