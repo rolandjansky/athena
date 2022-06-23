@@ -14,7 +14,8 @@ def EntryLayerToolCfg(flags, name="ISF_EntryLayerTool", **kwargs):
     kwargs["GeoIDSvc"] = result.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name
 
     filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
-    kwargs.setdefault("ParticleFilters", [filt])
+    result.addPublicTool(filt)
+    kwargs.setdefault("ParticleFilters", [result.getPublicTool(filt.name)])
 
     if flags.GeoModel.Run < LHCPeriod.Run4:
         kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
@@ -56,7 +57,8 @@ def AFIIEntryLayerToolCfg(flags, name="ISF_AFIIEntryLayerTool", **kwargs):
     kwargs["GeoIDSvc"] = result.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name
 
     filt = result.popToolsAndMerge(EntryLayerFilterCfg(flags))
-    kwargs.setdefault("ParticleFilters", [filt])
+    result.addPublicTool(filt)
+    kwargs.setdefault("ParticleFilters", [result.getPublicTool(filt.name)])
 
     if flags.GeoModel.Run < LHCPeriod.Run4:
         kwargs.setdefault("CaloEntryVolumeString", "IDET::IDET")
