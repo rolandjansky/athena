@@ -93,7 +93,7 @@ inline void FolderInfo::setpoolplace(Placement* const poolplace) const {
   m_poolplace=poolplace; }
 
 // helper functions
-FolderInfo::PayloadTime string2ptime(const std::string str);
-FolderInfo::PayloadType string2ptype(const std::string str);
+FolderInfo::PayloadTime string2ptime(const std::string & str);
+FolderInfo::PayloadType string2ptype(const std::string & str);
 
 #endif // ATHENADBTESTREC_FOLDERINFO_H
