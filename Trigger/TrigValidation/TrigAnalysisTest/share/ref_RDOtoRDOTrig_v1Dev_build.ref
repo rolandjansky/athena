@@ -12065,6 +12065,32 @@ HLT_mu10_PhysicsTLA_L1MU8F:
     3: 9
     4: 9
     5: 9
+HLT_mu10_bJpsimutrk_L1MU8F:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+    3: 8
+  stepFeatures:
+    0: 10
+    1: 10
+    2: 9
+    3: 9
+    4: 9
+HLT_mu10_bJpsimutrk_MuonTrkPEB_L1MU8F:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+    3: 8
+  stepFeatures:
+    0: 10
+    1: 10
+    2: 9
+    3: 9
+    4: 9
 HLT_mu10_ivarmedium_j70_j50a_j0_DJMASS900j50_L1MJJ-500-NFF:
   eventCount: 0
 HLT_mu10_ivarmedium_j70_j50a_j0_DJMASS900j50_L1jMJJ-500-NFF:
@@ -12682,6 +12708,58 @@ HLT_mu20_bBmux_LbmuLcX_L1MU14FCH:
     3: 5
     4: 5
 HLT_mu20_bBmux_LbmuLcX_L1MU18VFCH:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+  stepFeatures:
+    0: 6
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+HLT_mu20_bJpsimutrk_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+  stepFeatures:
+    0: 6
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+HLT_mu20_bJpsimutrk_L1MU18VFCH:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+  stepFeatures:
+    0: 6
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+  stepFeatures:
+    0: 6
+    1: 5
+    2: 5
+    3: 5
+    4: 5
+HLT_mu20_bJpsimutrk_MuonTrkPEB_L1MU18VFCH:
   eventCount: 0
   stepCounts:
     0: 5
@@ -15775,6 +15853,32 @@ HLT_mu4_L1MU3V:
     1: 15
     2: 15
     3: 12
+HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 10
+    1: 9
+    2: 8
+    3: 8
+  stepFeatures:
+    0: 17
+    1: 24
+    2: 15
+    3: 12
+    4: 12
+HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3VF:
+  eventCount: 0
+  stepCounts:
+    0: 10
+    1: 9
+    2: 8
+    3: 8
+  stepFeatures:
+    0: 15
+    1: 21
+    2: 13
+    3: 11
+    4: 11
 HLT_mu4_ivarloose_mu4_11invmAB60_L12MU3V:
   eventCount: 1
   stepCounts:
@@ -16364,6 +16468,35 @@ HLT_mu6_LRT_idperf_L1MU5VF:
     1: 12
     2: 13
     3: 13
+HLT_mu6_bJpsimutrk_MuonTrkPEB_L1MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+    3: 8
+  stepFeatures:
+    0: 12
+    1: 17
+    2: 13
+    3: 10
+    4: 10
+HLT_mu6_bJpsimutrk_lowpt_MuonTrkPEB_L1MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+    3: 8
+    4: 1
+    5: 1
+  stepFeatures:
+    0: 12
+    1: 17
+    2: 13
+    3: 10
+    4: 10
+    5: 1
 HLT_mu6_idperf_L1MU5VF:
   eventCount: 8
   stepCounts:
