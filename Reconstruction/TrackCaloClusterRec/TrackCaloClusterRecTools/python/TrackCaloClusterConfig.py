@@ -44,16 +44,14 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",detec
 
     components = ComponentAccumulator()
 
-
     from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg 
     caloExtAlg =CaloExtensionBuilderAlgCfg( configFlags )
     caloExtAlg.TrkPartContainerName = trackParticleName
+
     components.merge(caloExtAlg)    #since its a stack of algorithms
 
     from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
     TrackVertexAssoTool = components.popToolsAndMerge(TTVAToolCfg(configFlags,"tvaTool",WorkingPoint="Nonprompt_All_MaxWeight"))
-
-
 
     trackParticleClusterAssociation = CompFactory.TrackParticleClusterAssociationAlg(
         "TrackParticleClusterAssociationAlg"+assocPostfix,
@@ -107,7 +105,6 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", det
         
     ###################################
     # Schedule the TrackCaloClusterInfoAlg to create the weights for clusters/tracks and store them in a TrackCaloClusterInfo object.
-    #from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterAlg, TrackCaloClusterInfoAlg
     tccInfoAlg = CompFactory.TrackCaloClusterInfoAlg(
         "TCCInfoAlg",
         TCCInfoName = "TCCInfo",
@@ -185,14 +182,18 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", det
 
 
 
-def runUFOReconstruction(constits, configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", assocPostfix="UFO", inputFEcontainerkey=""):
+def runUFOReconstruction(configFlags, constits, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", assocPostfix="UFO", inputFEcontainerkey=""):
+    """wrapper function using CAtoGlobalWrapper in order to maintain compatibility with RunII-style config in derivations"""
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    return CAtoGlobalWrapper( runUFOReconstruction_r22, configFlags, constits=constits, caloClusterName=caloClusterName, detectorEtaName=detectorEtaName, assocPostfix=assocPostfix, inputFEcontainerkey=inputFEcontainerkey)
+    
+def runUFOReconstruction_r22( configFlags,constits, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", assocPostfix="UFO", inputFEcontainerkey=""):
     
     """Create a UFO collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
     This functions schedules 2 UFO specific algs : 
        * a TrackCaloClusterInfoUFOAlg to build the TrackCaloClusterInfo object
        * a TrackCaloClusterAlg to build the UFO
     """
-
     from JetRecConfig.JetDefinition import JetDefinition
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     components=ComponentAccumulator()

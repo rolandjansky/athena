@@ -166,6 +166,28 @@ def addDAODJets(jetlist,sequence):
             sequence += conf2toConfigurable(a)
 
 
+def swapAlgsInSequence(sequence, name1, name2):
+    """Used to swap specific algs with an AthSequence. 
+
+    the sequence is modified such that alg name2 always comes before alg name1.
+
+    This is mainly usefull when running in Run-II style config and when mix with CA without automatic scheduler 
+    result in wrong ordering in UFO building algs.
+    Typically : "jetalg_ConstitModCorrectPFOCSSKCHS_GPFlowCSSK" and "UFOInfoAlgCSSK"
+    """
+    from AthenaCommon.CFElements import findAlgorithm
+    alg1 = findAlgorithm(sequence, name1)
+    alg2 = findAlgorithm(sequence, name2)
+
+    if alg1 is None or alg2 is None:
+        return
+    alg1I = sequence.getChildren().index(alg1)
+    alg2I = sequence.getChildren().index(alg2)
+    if alg1I>alg2I:
+        sequence.remove(alg1)
+        sequence.insert(alg2I, alg1)
+    
+    
 ##################################################################  
 
 def addPassJvtForCleaning(sequence=DerivationFrameworkJob):

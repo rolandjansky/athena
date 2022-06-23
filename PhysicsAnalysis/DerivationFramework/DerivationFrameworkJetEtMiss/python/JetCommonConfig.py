@@ -27,7 +27,7 @@ def StandardJetsInDerivCfg(ConfigFlags):
     """Jet reconstruction needed for PHYS/PHYSLITE"""
 
     from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
-    from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
+    from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed,AntiKt10UFOCSSKSoftDrop
     from JetRecConfig.JetRecConfig import JetRecCfg
     from JetRecConfig.JetConfigFlags import jetInternalFlags
 
@@ -43,7 +43,7 @@ def StandardJetsInDerivCfg(ConfigFlags):
 
     jetList = [AntiKt4EMTopo_deriv, AntiKt4EMPFlow_deriv,
                AntiKtVR30Rmax4Rmin02PV0Track,
-               AntiKt10LCTopoTrimmed]
+               AntiKt10LCTopoTrimmed,AntiKt10UFOCSSKSoftDrop]
 
     jetInternalFlags.isRecoJob = True
 
