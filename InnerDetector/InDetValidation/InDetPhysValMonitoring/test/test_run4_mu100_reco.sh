@@ -22,9 +22,7 @@ run () {
     time ${cmd}
     rc=$?
     echo "art-result: $rc ${name}"
-    if [ $rc != 0 ]; then
-	exit $rc;
-    fi
+    return $rc
 }
 
 run "Simulation" \
@@ -69,13 +67,18 @@ run "IDPVM" \
     --doTightPrimary \
     --doHitLevelPlots
 
+reco_rc=$?
+if [ $reco_rc != 0 ]; then
+    exit $reco_rc
+fi
+
 echo "download latest result..."
 art.py download --user=artprod --dst="$lastref_dir" "$ArtPackage" "$ArtJobName"
 ls -la "$lastref_dir"
 
-run "ducbe-21p9" \
+run "dcube-21p9" \
     $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-    -p -x dcube \
+    -p -x dcube_21p9 \
     -c ${dcubeXml} \
     -r ${ref_21p9} \
     idpvm.root
