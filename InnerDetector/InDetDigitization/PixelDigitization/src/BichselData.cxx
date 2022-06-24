@@ -72,6 +72,7 @@ double
 BichselData::interpolateCollisionEnergy(std::pair<int, int> indices_BetaGammaLog10, double IntXLog10) const {
   if ((indices_BetaGammaLog10.first == -1) && (indices_BetaGammaLog10.second == -1)) return -1.;
   if (empty()) return -1.;
+ 
 
   // BetaGammaLog10_2 then
   std::pair<int, int> indices_IntXLog10_x2 =
@@ -87,6 +88,7 @@ BichselData::interpolateCollisionEnergy(std::pair<int, int> indices_BetaGammaLog
   double y22 = logIntegratedCrossSectionsVectorOfVector.at(indices_BetaGammaLog10.second).at(indices_IntXLog10_x2.second);
   const auto diff = y22 - y21;
   if (diff<1e-300){
+    //these are the same value
     return -1;
   }  
   double Est_x2 =
@@ -118,6 +120,9 @@ BichselData::interpolateCrossSection(std::pair<int, int> indices_BetaGammaLog10,
   }
   if (indices_BetaGammaLog10.second < 0) {
     return -1;
+  }
+  if (indices_BetaGammaLog10.second == indices_BetaGammaLog10.first){ //either an exact value or the last one in the table
+    return std::pow(10., logHighestCrossSectionsVector.at(indices_BetaGammaLog10.first));
   }
   double BetaGammaLog10_1 = logBetaGammaVector.at(indices_BetaGammaLog10.first);
   double BetaGammaLog10_2 = logBetaGammaVector.at(indices_BetaGammaLog10.second);
