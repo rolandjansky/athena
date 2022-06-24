@@ -66,7 +66,6 @@
     <hist1D name="TGCDigitStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCDigitGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCDigitChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="TGCDigitisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCDigitlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCDigitlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCDigitglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -76,7 +75,6 @@
     <hist1D name="TGCSDOStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCSDOGasgap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCSDOChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="TGCSDOisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCSDOWord" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCSDOBarcode" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCSDOGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -89,7 +87,6 @@
     <hist1D name="TGCRDOStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCRDOGasgap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCRDOChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="TGCRDOisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCRDOGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCRDOGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="TGCRDOGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>

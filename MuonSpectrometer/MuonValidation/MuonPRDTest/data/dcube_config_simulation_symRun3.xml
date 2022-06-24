@@ -20,8 +20,6 @@
     <hist1D name="rpcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="rpcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="rpcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -31,8 +29,6 @@
     <hist1D name="mdtGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -42,8 +38,6 @@
     <hist1D name="tgcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="tgcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="tgcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGlobalTime" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -52,13 +46,13 @@
     <hist1D name="mmGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mmGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mmGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mmStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="stgcGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="stgcGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="stgcGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="stgcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="stgcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="stgcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
    </TDirectory>
   </TDirectory>
  </dcube>
