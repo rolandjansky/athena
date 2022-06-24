@@ -196,10 +196,11 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
 
 
-def efMuHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+def efMuHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED",doSA=False):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
     efHypo.MuonDecisions = inputMuons
+    efHypo.IncludeSAmuons = doSA
     return efHypo
 
 def efMuIsoHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
@@ -321,7 +322,8 @@ def _muEFSAStepSeq(flags, name='RoI'):
 
     efmuMSHypo = efMuHypoConf( flags,
                               name = 'TrigMuonEFMSonlyHypo_'+name,
-                              inputMuons = "Muons_"+name )
+                              inputMuons = "Muons_"+name,
+                              doSA=True)
 
     selAccMS.addHypoAlgo(efmuMSHypo)
     
