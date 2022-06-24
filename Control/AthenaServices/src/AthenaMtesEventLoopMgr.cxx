@@ -816,7 +816,7 @@ StatusCode AthenaMtesEventLoopMgr::seek (int evt)
             << endmsg;
     return StatusCode::FAILURE;
   }
-
+  //cppcheck-suppress nullPointerRedundantCheck
   if (!m_evtContext) {
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       fatal() << "Can not create the event selector Context."
@@ -824,7 +824,8 @@ StatusCode AthenaMtesEventLoopMgr::seek (int evt)
       return StatusCode::FAILURE;
     }
   }
-
+  //m_evtContext cannot be null if createContext succeeded
+  //cppcheck-suppress nullPointerRedundantCheck
   StatusCode sc = is->seek (*m_evtContext, evt);
   if (sc.isSuccess()) {
     m_nevt = evt;
@@ -855,7 +856,7 @@ int AthenaMtesEventLoopMgr::size()
             << endmsg;
     return -1;
   }
-
+  //cppcheck-suppress nullPointerRedundantCheck
   if (!m_evtContext) {
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       fatal() << "Can not create the event selector Context."
@@ -863,7 +864,7 @@ int AthenaMtesEventLoopMgr::size()
       return -1;
     }
   }
-
+  //cppcheck-suppress nullPointerRedundantCheck
   return cs->size (*m_evtContext);
 }
 
@@ -1117,7 +1118,9 @@ int AthenaMtesEventLoopMgr::declareEventRootAddress(EventContext& ctx){
           }
         }
     }
-
+    //the pEventPtr was moved to the eventStore, the object is still 'alive'.
+    //so the raw pEvent pointer is also still valid
+    //cppcheck-suppress invalidLifetime
     ctx.setEventID( *((EventIDBase*) pEvent->event_ID()) );
 
   }  else  {

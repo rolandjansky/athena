@@ -167,7 +167,7 @@ private:
   std::map<std::string, MsgAry, std::less<>> m_sourceMap, m_inactiveMap;
   BooleanProperty m_suppress, m_inactCount;
 
-  std::string colTrans(std::string, int);
+  std::string colTrans(const std::string&, int);
   typedef std::map<std::string, MSG::Color> ColorMap;
   ColorMap m_colMap;
 
