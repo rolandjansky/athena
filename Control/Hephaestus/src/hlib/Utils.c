@@ -47,7 +47,8 @@ static const char* demangle( const char* s ) {
 
    if ( result != gDemangleBuf )
       gDemangleBuf = result;       /* realloc moved ptr */
-
+   
+   //cppcheck-suppress returnDanglingLifetime
    return gDemangleBuf;
 }
 
