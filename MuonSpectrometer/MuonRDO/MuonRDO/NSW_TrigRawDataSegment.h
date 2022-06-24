@@ -8,6 +8,8 @@
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
+#include <vector>
+#include <utility>
 
 namespace Muon {
 class NSW_TrigRawDataSegment
@@ -30,6 +32,8 @@ class NSW_TrigRawDataSegment
   bool phiRes() const  {return m_phiRes;}
   bool monitor() const  {return m_monitor;}
 
+  std::vector< std::pair<uint8_t,uint16_t> > channels() const {return m_channels;} 
+
   void setDeltaTheta(uint8_t deltaTheta) { m_deltaTheta=deltaTheta; }
   void setPhiIndex(uint8_t phiIndex)     { m_phiIndex=phiIndex; }
   void setRIndex(uint8_t rIndex) { m_rIndex=rIndex; }
@@ -38,6 +42,9 @@ class NSW_TrigRawDataSegment
   void setLowRes(bool lowRes)   {m_lowRes=lowRes;}
   void setPhiRes(bool phiRes)   {m_phiRes=phiRes;}
   void setMonitor(bool monitor) {m_monitor=monitor;}
+
+  void addChannel(uint8_t layer, uint16_t channel) 
+  { m_channels.push_back( std::pair<uint8_t,uint16_t>(layer,channel) ); }
 
  private:
 
@@ -50,7 +57,10 @@ class NSW_TrigRawDataSegment
   bool m_lowRes;
   bool m_phiRes;
   bool m_monitor;
-
+  
+  /// vector of trigger channels, defined as layer / channel
+  std::vector< std::pair<uint8_t,uint16_t> > m_channels;
+  
 };
 }
 
