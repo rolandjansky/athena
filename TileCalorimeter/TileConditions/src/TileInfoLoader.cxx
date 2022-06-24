@@ -48,6 +48,7 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <algorithm> //for std::none-of
 
 //*****************************************************************************
 TileInfoLoader::TileInfoLoader(const std::string& name,
@@ -239,8 +240,8 @@ StatusCode TileInfoLoader::initialize() {
     int comm = atlasVersion.compare(0,10,"ATLAS-Comm");
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int ver = 0;
-
-    bool nothing_found = (geo*run1*ibl*run2*comm*upg != 0);
+    const auto comparisons={geo, run1, ibl, run2, comm, upg};
+    bool nothing_found = std::none_of(comparisons.begin(), comparisons.end(), [](int zeroMeansFound){return zeroMeansFound==0;});
     GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
     bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2
                                    || geoConfig==GeoModel::GEO_RUN3
