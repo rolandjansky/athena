@@ -11,7 +11,7 @@ ATLAS_EXT_PROJECT_NAME="AthDerivationExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DLCG_VERSION_POSTFIX="_ATLAS_24"
-                        -DATLAS_GAUDI_TAG="v36r5.002"
+                        -DATLAS_GAUDI_TAG="v36r5.003"
                         -DATLAS_ACTS_TAG="v19.2.0"
                         -DATLAS_ONNXRUNTIME_USE_CUDA=FALSE
                         -DATLAS_GEOMODEL_TAG="4.2.8")
