@@ -16,6 +16,9 @@
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 #include <string>
 #include <vector>
 #include <bitset>
@@ -53,6 +56,8 @@ private:
   Gaudi::Property<std::vector<std::string> > m_SubDetNames{this, "SubDetNames", {} };
 
   Gaudi::Property<std::string> m_monGroupName  {this, "MonGroup", "FEBMon", "LArLARFEBMonGroup"};
+  //To get the data-dependency right ... 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
 
   /* Histogram grouping (part) */
   std::vector<std::map<std::string,int> > m_histoGroups;
