@@ -245,12 +245,14 @@ def Run1xAODConversionCfg(flags):
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
 
-    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,TrackParticleCreatorToolCfg,RecTrackParticleContainerCnvToolCfg
-    partCreatorTool = acc.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, 
-                                                                          #name="InDetxAODParticleCreatorTool"
-                                                                          PixelToTPIDTool=None
-                                                                          )
-                                             )
+    from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
+    partCreatorTool = acc.popToolsAndMerge(TrackParticleCreatorToolCfg(flags,
+                                                                       PixelToTPIDTool=None
+                                                                       )
+                                          )
+    acc.addPublicTool(partCreatorTool)
+
+    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,RecTrackParticleContainerCnvToolCfg
     trackCollCnvTool = acc.popToolsAndMerge(TrackCollectionCnvToolCfg(flags,
                                                                       name="TrackCollectionCnvTool",
                                                                       TrackParticleCreator= partCreatorTool

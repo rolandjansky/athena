@@ -71,3 +71,8 @@ def TRT_ElectronPidToolCfg(flags, name="TRT_ElectronPidTool", **kwargs):
 
     acc.setPrivateTools(CompFactory.InDet.TRT_ElectronPidToolRun2(name, **kwargs))
     return acc
+
+def GSFBuildTRT_ElectronPidToolCfg(flags, name="GSFBuildTRT_ElectronPidTool", **kwargs):
+    kwargs.setdefault("CalculateNNPid", False)
+    kwargs.setdefault("MinimumTrackPtForNNPid", 0.)
+    return TRT_ElectronPidToolCfg(flags, name, **kwargs)

@@ -4,36 +4,15 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 
-def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **kwargs):
-    result = ComponentAccumulator()
-    if "TrackToVertex" not in kwargs:
-        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-        kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
-    if "TrackSummaryTool" not in kwargs:
-        from TrkConfig.TrkTrackSummaryToolConfig import ITkTrackSummaryToolSharedHitsCfg
-        TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
-        result.addPublicTool(TrackSummaryTool)
-        kwargs["TrackSummaryTool"] = TrackSummaryTool
-    kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
-    kwargs.setdefault("KeepParameters", True)
-    kwargs.setdefault("KeepFirstParameters", False)
-    # need to treat Vertex specifically because at the time of
-    # the track particle creation the primary vertex does not yet exist.
-    # The problem is solved by first creating track particles wrt. the beam line
-    # and correcting the parameters after the vertex finding.
-    kwargs.setdefault("PerigeeExpression", "BeamLine" if flags.ITk.Tracking.perigeeExpression=="Vertex"
-                      else flags.ITk.Tracking.perigeeExpression)
-    kwargs.setdefault("IBLParameterSvc", "")
-    ITkTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
-    result.addPublicTool(ITkTrackParticleCreatorTool, primary=True)
-    return result
-
-def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTrackParticleCreator = None, **kwargs):
+def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", **kwargs):
     result = ComponentAccumulator()
 
-    ITkTrackParticleCreator = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
+    if "TrackParticleCreator" not in kwargs:
+        from TrkConfig.TrkParticleCreatorConfig import ITkTrackParticleCreatorToolCfg
+        ITkTrackParticleCreator = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
+        result.addPublicTool(ITkTrackParticleCreator)
+        kwargs.setdefault("TrackParticleCreator", ITkTrackParticleCreator)
 
-    kwargs.setdefault("TrackParticleCreator", ITkTrackParticleCreator)
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
@@ -69,12 +48,16 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContain
     kwargs.setdefault("TrackContainerName", TrackContainerName)
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
+
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
+        from TrkConfig.TrkParticleCreatorConfig import ITkTrackParticleCreatorToolCfg
+        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(ITkTrackParticleCreatorToolCfg(flags))
     if "TrackCollectionCnvTool" not in kwargs:
+        TrackParticleCreator = kwargs["TrackParticleCreator"]
+        result.addPublicTool(TrackParticleCreator)
         kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(ITkTrackCollectionCnvToolCfg(
             flags,
-            TrackParticleCreator=kwargs["TrackParticleCreator"],
+            TrackParticleCreator=TrackParticleCreator,
         ))
 
     if flags.ITk.Tracking.doTruth:

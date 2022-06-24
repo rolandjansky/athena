@@ -293,18 +293,10 @@ def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
 def _trackConverterCfg(flags, signature, inputTracksKey, outputTrackParticleKey):
   acc = ComponentAccumulator()
 
-  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
-  summaryTool = acc.popToolsAndMerge( InDetTrigTrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
-  acc.addPublicTool(summaryTool)
-
-  track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
-  creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                                          TrackSummaryTool      = summaryTool,
-                                                          TrackToVertex         = track_to_vertex,
-                                                          KeepParameters        = True,
-                                                          ComputeAdditionalInfo = True,
-                                                         )
+  from TrkConfig.TrkParticleCreatorConfig import InDetTrigParticleCreatorToolFTFCfg
+  creatorTool = acc.popToolsAndMerge(InDetTrigParticleCreatorToolFTFCfg(flags))
   acc.addPublicTool(creatorTool)
+
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
                                                           TrackName           = inputTracksKey,
