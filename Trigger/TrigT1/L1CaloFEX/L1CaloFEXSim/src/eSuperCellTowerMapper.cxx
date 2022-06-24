@@ -621,12 +621,12 @@ void eSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<eTowerContai
     }
     else {
       if( (eta_index / 4) < 15 ){ 
-	if(pos_neg < 0){ towerID_Modifier = 300000; }
-	else if(pos_neg > 0){ towerID_Modifier = 400000; }
+        if(pos_neg < 0){ towerID_Modifier = 300000; }
+        else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
       else{
-	if(pos_neg < 0){ towerID_Modifier = 500000; }
-	else if(pos_neg > 0){ towerID_Modifier = 600000; }
+        if(pos_neg < 0){ towerID_Modifier = 500000; }
+        else if(pos_neg > 0){ towerID_Modifier = 600000; }
       }
     }
 
@@ -690,8 +690,8 @@ void eSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<eTowerContai
       case CaloSampling::HEC2: { iCell = 12; break; }
       case CaloSampling::HEC3: { iCell = 13; break; }
       default: {
-	ATH_MSG_DEBUG("CaloSampling::HECX -> invalid sample for assigning iCell value! " << sample << " (Under investigation) ");
-	break;
+        ATH_MSG_DEBUG("CaloSampling::HECX -> invalid sample for assigning iCell value! " << sample << " (Under investigation) ");
+        break;
       }
       }
       break;
@@ -762,6 +762,22 @@ void eSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<eTowerContai
 
   if(validcell){
     iETower = FindTowerIDForSuperCell(towereta, towerphi) + towerID_Modifier;
+    
+    // Identify eTowers at eta < 0 and re-order layer 1/2 cells manually
+    // Algorithms want order to be increasing eta, not increasing |eta|
+    if (iETower < 200000 || (iETower > 300000 && iETower < 400000) || (iETower > 500000 && iETower < 600000)) {
+      if (layer == 1) {
+        iCell = 5 - iCell;
+        if (doenergysplit) iCell -= 1; // Need special treatment here because of way energy splitting works 
+      } else if (layer == 2) {
+        iCell = 13 - iCell;
+      }
+    }
+    
+    // Only one layer-1 cell in the region 2.4 < |eta| < 2.5. Set the slot to zero to match the behaviour of the firmware.
+    int etaIndex = (iETower%100000)/64;
+    if (iETower > 500000 && etaIndex == 24 && iCell < 5) iCell = 0; // Map final layer 1 cell into layer 0 slot
+
     if(doPrint){
       PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iETower, iCell, prov, ID, doenergysplit);
     }
@@ -806,18 +822,18 @@ int eSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
   }
   
   ATH_MSG_DEBUG("ASSIGNED CELL:::  CASE: " << sampleName
-		<< "\tSample: " << sample
-		<< "\tLayer: " << layer
-		<< "\tRegion: " << region
-		<< "\tEta_Index: " << eta_index
-		<< "\tPhi_Index: " << phi_index
-		<< "\tPosNeg: " << pos_neg
-		<< "\tiETower: " << iETower
-		<< "\tiCell: " << iCell
-		<< "\tDoEnergySplit: " << doenergysplit
-		<< "\tProvenance: " << prov
-		<< "\tID: " << ID
-		<< " ");
+                << "\tSample: " << sample
+                << "\tLayer: " << layer
+                << "\tRegion: " << region
+                << "\tEta_Index: " << eta_index
+                << "\tPhi_Index: " << phi_index
+                << "\tPosNeg: " << pos_neg
+                << "\tiETower: " << iETower
+                << "\tiCell: " << iCell
+                << "\tDoEnergySplit: " << doenergysplit
+                << "\tProvenance: " << prov
+                << "\tID: " << ID
+                << " ");
   
   return;
 }

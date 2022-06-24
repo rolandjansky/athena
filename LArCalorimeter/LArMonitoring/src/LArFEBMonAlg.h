@@ -17,7 +17,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "StoreGate/ReadDecorHandleKey.h"
-
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include <string>
 #include <vector>
