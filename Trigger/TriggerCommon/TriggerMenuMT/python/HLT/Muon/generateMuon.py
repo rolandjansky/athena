@@ -138,10 +138,8 @@ def MuonTrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", **
     TrackCollectionCnvTool = CompFactory.xAODMaker.TrackCollectionCnvTool
 
     result = ComponentAccumulator()
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
-    acc = MuonCombinedParticleCreatorCfg(flags)
-    kwargs.setdefault("TrackParticleCreator",  acc.popPrivateTools())
-    result.merge(acc)
+    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
+    kwargs.setdefault("TrackParticleCreator", result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags)))
 
     result.setPrivateTools(TrackCollectionCnvTool(name=name, **kwargs))
     return result
@@ -150,10 +148,8 @@ def MuonRecTrackParticleContainerCnvToolCfg(flags, name = "MuonRecTrackParticleC
     RecTrackParticleCnvTool = CompFactory.xAODMaker.RecTrackParticleContainerCnvTool
 
     result = ComponentAccumulator()
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
-    acc = MuonCombinedParticleCreatorCfg(flags)
-    kwargs.setdefault("TrackParticleCreator",  acc.popPrivateTools())
-    result.merge(acc)
+    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
+    kwargs.setdefault("TrackParticleCreator", result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags)))
 
     result.setPrivateTools(RecTrackParticleCnvTool(name=name, **kwargs))
     return result
@@ -162,12 +158,10 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     TrackParticleCnv = CompFactory.xAODMaker.TrackParticleCnvAlg
     result=ComponentAccumulator()
 
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
-    acc = MuonCombinedParticleCreatorCfg(flags)
-    particleCreator = acc.popPrivateTools()
+    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
+    particleCreator = result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags))
     result.addPublicTool(particleCreator) # Still public in TrackParticleCnvAlg
     kwargs.setdefault("TrackParticleCreator", particleCreator)
-    result.merge(acc)
 
     acc = MuonTrackCollectionCnvToolCfg(flags)
     kwargs.setdefault("TrackCollectionCnvTool", acc.popPrivateTools())
