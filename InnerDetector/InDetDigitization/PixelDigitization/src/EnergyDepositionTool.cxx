@@ -335,11 +335,11 @@ EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType,double Total
   BichselData iData = m_bichselData[ParticleType - 1];
   double BetaGammaLog10 = std::log10(BetaGamma);
   std::pair<int, int> indices_BetaGammaLog10 = iData.getBetaGammaIndices(BetaGammaLog10);
-
+ 
   // upper bound
   double IntXUpperBound = iData.interpolateCrossSection(indices_BetaGammaLog10, BetaGammaLog10);
   if (IntXUpperBound <= 0.) {
-    ATH_MSG_WARNING("Negative IntXUpperBound in EnergyDepositionTool::BichselSim! (-1,-1) will be returned");
+    ATH_MSG_WARNING("Negative IntXUpperBound in EnergyDepositionTool::BichselSim! (-1,-1) will be returned for log(betaGamma) = "<<BetaGammaLog10);
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
