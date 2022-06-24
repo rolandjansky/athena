@@ -105,6 +105,7 @@ int hhh_GenericBacktrace( void **array, int size )
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdangling-pointer"
 #endif
+   //cppcheck-suppress uninitvar
    top_stack = CURRENT_STACK_FRAME;
 #if __GNUC__ >= 12
 # pragma GCC diagnostic pop
