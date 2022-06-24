@@ -66,6 +66,7 @@ ElectronIDLoose LooseAndBLayerLH
 ElectronIsolation Tight_VarRad
 ElectronIsolationSF None # adjust to the isolation WP, once SFs are available
 ElectronIsolationLoose None
+ElectronTriggerEfficiencyConfig SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 # NOTE: the value for this option is for Run2 environment and needs to be set to a different value for Run3 
 
 ### Muon configuration
 MuonPt 25000

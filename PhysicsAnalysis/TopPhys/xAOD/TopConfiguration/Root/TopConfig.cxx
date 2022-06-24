@@ -211,6 +211,7 @@ namespace top {
     m_useElectronChargeIDSelection(false),
     m_useEgammaLeakageCorrection(true),
     m_enablePromptLeptonImprovedVetoStudies(false),
+    m_elTrigEffConfig(" "),
 
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
@@ -246,7 +247,6 @@ namespace top {
     m_muonForcePeriod(" "),
     m_muonForceYear(-1),
     m_muonForceTrigger(" "),
-    m_electronForceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1124,7 +1124,7 @@ namespace top {
     this->electrondeltaz0cut(std::stof(settings->value("Electrondeltaz0")));
     this->enablePromptLeptonImprovedVetoStudies(settings->value("EnablePromptLeptonImprovedVetoStudies"));
 
-
+    this->elTrigEffConfig(settings->value("ElectronTriggerEfficiencyConfig"));
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -1294,8 +1294,8 @@ namespace top {
     }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
     {
-      std::string const& customElectronForceTrigger = settings->value("ElectronForceTrigger");
-      this->electronForceTrigger(customElectronForceTrigger);
+      std::string const& customElTrigEffConfig = settings->value("ElectronTriggerEfficiencyConfig");
+      this->elTrigEffConfig(customElTrigEffConfig);
     }
 
     // Soft Muon configuration
