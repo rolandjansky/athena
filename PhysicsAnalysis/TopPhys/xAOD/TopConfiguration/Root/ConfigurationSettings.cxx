@@ -97,6 +97,9 @@ namespace top {
                       "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default True).", "True");
     registerParameter("EnablePromptLeptonImprovedVetoStudies",
 		      "True/False. Adds the (many!) variables necessary to validate the PromptLeptonImprovedVeto electron+muon isolation -- TEMPORARY, for studies only (Default False).", "False");
+    registerParameter("ElectronTriggerEfficiencyConfig",
+		      "Electron trigger efficiency SF configuration. REQUIRED!",
+		      " ");
 
     registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)", "Tight");
     registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)", "Tight");
@@ -193,9 +196,6 @@ namespace top {
                       "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
                       "False", {"True", "False"});
 
-    registerParameter("ElectronForceTrigger",
-                      "EXPERT OPTION! Tells the tools to use a custom electron Trigger. If set to \" \" will use the default", 
-                      " ");
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
    

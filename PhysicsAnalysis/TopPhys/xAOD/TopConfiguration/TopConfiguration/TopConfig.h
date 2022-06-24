@@ -880,6 +880,13 @@ namespace top {
     inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
     inline bool enablePromptLeptonImprovedVetoStudies() const {return m_enablePromptLeptonImprovedVetoStudies;}
 
+    std::string const& elTrigEffConfig() const {return m_elTrigEffConfig;}
+    void elTrigEffConfig(const std::string& s){
+      if (!m_configFixed) {
+	m_elTrigEffConfig = s;
+      }
+    }    
+
     // Fwd electron
     inline virtual void fwdElectronID(const std::string& s) {
       if (!m_configFixed) {
@@ -1134,13 +1141,6 @@ namespace top {
     void muonForceTrigger(const std::string& s) {
       if (!m_configFixed) {
         m_muonForceTrigger = s;
-      }
-    }
-
-    std::string const& electronForceTrigger() const {return m_electronForceTrigger;}
-    void electronForceTrigger(const std::string& s) {
-      if (!m_configFixed) {
-        m_electronForceTrigger = s;
       }
     }
 
@@ -2424,6 +2424,8 @@ namespace top {
     std::string m_electronIDSFFile_path = "Default";
     std::string m_electronIDSFFileLoose_path = "Default";
 
+    std::string m_elTrigEffConfig;
+
     bool m_eid_path_warning = false;
 
     //Fwd electron configuration
@@ -2462,7 +2464,6 @@ namespace top {
     std::string m_muonForcePeriod;
     int m_muonForceYear;
     std::string m_muonForceTrigger;
-    std::string m_electronForceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
