@@ -125,11 +125,10 @@ def checkL1HLTConsistency(flags):
 
             # Don't check topo assignments for multi-seeded triggers
             if len(l1item_vec)==1:
-                wrongLabelTopo = False
+                errormsg = ""
                 if l1topo_alg_to_item[item] in l1topo_alg_to_board:
                     if not any('Topo' in g for g in chain['groups']):
-                        log.error(f"Chain {chain['chainName']} has item {item} ({l1topo_alg_to_board[l1topo_alg_to_item[item]]}) but has no topo group")
-                        wrongLabelTopo = True
+                        errormsg = f"Chain has item {item} ({l1topo_alg_to_board[l1topo_alg_to_item[item]]}) but has no topo group"
 
                 # Possibilities for wrong assignment:
                 # - Item comes from topo board but has no topo group
@@ -141,12 +140,12 @@ def checkL1HLTConsistency(flags):
                             if group in l1topo_alg_to_board[l1topo_alg_to_item[item]]:
                                 log.debug("Chain correctly assigned topo board")
                             else:
-                                log.error(f"Chain {chain['chainName']} should be labelled with topo board {l1topo_alg_to_board[l1topo_alg_to_item[item]]}")
-                                wrongLabelTopo = True
+                                errormsg = f"Chain should be labelled with topo board {l1topo_alg_to_board[l1topo_alg_to_item[item]]}"
                         elif l1topo_alg_to_item[item] not in l1topo_alg_to_board:
-                            log.error(f"Chain {chain['chainName']} does not come from topo board but has Topo group {group}")
-                            wrongLabelTopo = True
+                            errormsg = f"Chain does not come from topo board but has Topo group {group}"
 
+                if errormsg:
+                    chainsWithWrongLabel.update({chain['chainName']: (chain['groups'], errormsg)})
 
         for th in l1thr_vec:
             if th=='FSNOSEED':
@@ -207,13 +206,14 @@ def checkL1HLTConsistency(flags):
                          wrongLabel = True
                       if foundLegacyCaloSeed and group.find('Legacy')>-1 :
                          rightLabel = True
-        if wrongLabelTopo or wrongLabel or not rightLabel:
-            chainsWithWrongLabel.update({chain['chainName']: chain['groups']})
+        if wrongLabel or not rightLabel:
+            errormsg = 'Incorrect L1Calo version label -- check Legacy/Phase-I assignment'
+            chainsWithWrongLabel.update({chain['chainName']: (chain['groups'],errormsg)})
 
     if len(chainsWithWrongLabel) and ('Physics' in lvl1name): # apply this check only for the Physics menu, for now
         log.error('These chains have the wrong groups:')
-        for key in chainsWithWrongLabel:
-            log.error('%s: %s', key, ",".join(chainsWithWrongLabel[key]))
+        for key, (groups, errormsg) in chainsWithWrongLabel.items():
+            log.error('%s: %s\n  --> %s', key, ",".join(groups), errormsg)
         raise Exception("Please fix these chains.")
 
     # check for unused L1 items

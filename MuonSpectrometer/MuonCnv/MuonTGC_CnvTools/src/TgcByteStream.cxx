@@ -206,7 +206,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
   
   bool p_debug = (log.level() <= MSG::DEBUG);
 
-  TGC_BYTESTREAM_SORUCEID sid;
+  TGC_BYTESTREAM_SOURCEID sid;
   fromBS32(source_id, sid);
   
   if(rdo.identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))

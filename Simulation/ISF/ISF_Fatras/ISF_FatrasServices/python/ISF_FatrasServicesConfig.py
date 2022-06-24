@@ -570,6 +570,7 @@ def getFatrasHitCreatorPixel(name="ISF_FatrasHitCreatorPixel", **kwargs):
     kwargs.setdefault("IdHelperName"    , 'PixelID')
     kwargs.setdefault("CollectionName"  , hits_collection_name)
 
+    kwargs.setdefault("ConditionsTool", "")
     kwargs.setdefault("UseConditionsTool", False)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
@@ -589,6 +590,8 @@ def getFatrasHitCreatorSCT(name="ISF_FatrasHitCreatorSCT", **kwargs):
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("IdHelperName"    , 'SCT_ID')
     kwargs.setdefault("CollectionName"  , hits_collection_name)
+
+    kwargs.setdefault("ConditionsTool", "")
     kwargs.setdefault("UseConditionsTool", False)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
@@ -607,6 +610,8 @@ def getFatrasHitCreatorTRT(name="ISF_FatrasHitCreatorTRT", **kwargs):
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("CollectionName"  , hits_collection_name)
+
+    kwargs.setdefault("StrawStatusSummaryTool", "")
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorTRT
     return iFatras__HitCreatorTRT(name, **kwargs )

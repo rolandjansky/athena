@@ -48,6 +48,7 @@ namespace Muon
       void getCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdo* rdo) const;
       /** Convert data contents of ROBFragment to RDO */
       void byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo* rdo, uint32_t source_id) const;
+      void byteStreamSrod2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo* rdo, uint32_t source_id, uint32_t ndata ) const;
       /** Show status words */
       void showStatusWords(const uint32_t source_id, const uint16_t rdoId, const int idHash, 
 			   const uint32_t nstatus, const uint32_t* status) const;

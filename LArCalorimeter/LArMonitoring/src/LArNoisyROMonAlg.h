@@ -82,8 +82,9 @@ private:
   // fill histogram of triggers
   void fillTriggerHisto(size_t partition, unsigned long triggerbits, unsigned long L1triggerbits) const;
 
-  mutable bool m_knownFilled ATLAS_THREAD_SAFE;
-  mutable std::mutex m_lock ATLAS_THREAD_SAFE;
+  void fillHistogramsOnce(const EventContext& ctx, const bool isMC) const;
+  
+  mutable std::once_flag m_onceFlag ATLAS_THREAD_SAFE;
   
 };
 

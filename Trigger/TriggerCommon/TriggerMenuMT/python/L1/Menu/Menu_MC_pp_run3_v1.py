@@ -70,7 +70,6 @@ def defineMenu():
         # non-primary MU 
         #'L1_MU8VF':'',
         'L1_MU14FCHR':'',
-        'L1_MU3VF':'',
         'L1_MU8FC':'', 
         'L1_MU15VFCH':'',
         'L1_2MU8VF':'',

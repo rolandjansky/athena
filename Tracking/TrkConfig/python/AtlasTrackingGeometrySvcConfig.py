@@ -274,7 +274,7 @@ def InDetTrackingGeometryBuilderCfg(name, flags, namePrefix='', setLayerAssociat
         # add it to tool service
         result.addPublicTool(PixelLayerBuilder)
         # put them to the caches
-        layerbuilders += [ PixelLayerBuilder ]
+        layerbuilders += [ result.getPublicTool(PixelLayerBuilder.name) ]
         binnings += [ 2 ] # PixelLayerBinning - the binning type of the layers
         colors += [ 3 ]
 
@@ -283,7 +283,7 @@ def InDetTrackingGeometryBuilderCfg(name, flags, namePrefix='', setLayerAssociat
         # add it to tool service
         result.addPublicTool(SCT_LayerBuilder)
         # put them to the caches
-        layerbuilders += [ SCT_LayerBuilder ]
+        layerbuilders += [ result.getPublicTool(SCT_LayerBuilder.name) ]
         binnings += [ 2 ] # SCT_LayerBinning - the binning type of the layer
         colors += [ 4 ]
 
@@ -294,7 +294,7 @@ def InDetTrackingGeometryBuilderCfg(name, flags, namePrefix='', setLayerAssociat
         # add it to tool service
         result.addPublicTool(TRT_LayerBuilder)
         # put them to the caches
-        layerbuilders += [ TRT_LayerBuilder ]
+        layerbuilders += [ result.getPublicTool(TRT_LayerBuilder.name) ]
         # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
         TRT_LayerBinning = 1
         from AthenaConfiguration.Enums import ProductionStep
@@ -328,14 +328,14 @@ def InDetTrackingGeometryBuilderCfg(name, flags, namePrefix='', setLayerAssociat
 
     # the tracking geometry builder
     result.setPrivateTools(CompFactory.InDet.RobustTrackingGeometryBuilder(namePrefix+name,
-                                                BeamPipeBuilder = beamPipeBuilder,
-                                                LayerBuilders = layerbuilders,
+                                                BeamPipeBuilder = result.getPublicTool(beamPipeBuilder.name), # public tool handle
+                                                LayerBuilders = layerbuilders, # public tool handle array
                                                 LayerBinningType = binnings,
                                                 ColorCodes = colors,
                                                 EnvelopeDefinitionSvc = result.getPrimaryAndMerge(EnvelopeDefSvcCfg(flags)).name,
                                                 VolumeEnclosureDiscPositions = [ 3000., 3450. ],
-                                                TrackingVolumeCreator = InDetCylinderVolumeCreator,
-                                                LayerArrayCreator = InDetLayerArrayCreator,
+                                                TrackingVolumeCreator = result.getPublicTool(InDetCylinderVolumeCreator.name), # public tool handle
+                                                LayerArrayCreator = result.getPublicTool(InDetLayerArrayCreator.name), # public tool handle
                                                 ReplaceAllJointBoundaries = True,
                                                 VolumeEnclosureCylinderRadii = [],
                                                 BuildBoundaryLayers = True,
@@ -455,26 +455,31 @@ def CaloTrackingGeometryBuilderCfg(name, flags, namePrefix=''):
     trackingVolumeHelper = result.popToolsAndMerge(TrackingVolumeHelperCfg(flags))
     result.addPublicTool(trackingVolumeHelper)
 
-    lArVolumeBuilder = CompFactory.LAr.LArVolumeBuilder(name="LArVolumeBuilder", TrackingVolumeHelper = trackingVolumeHelper)
+    lArVolumeBuilder = CompFactory.LAr.LArVolumeBuilder(name="LArVolumeBuilder",
+                                                        BarrelEnvelopeCover = 5.0,
+                                                        EndcapEnvelopeCover = 5.0,
+                                                        TrackingVolumeHelper = result.getPublicTool(trackingVolumeHelper.name))
     result.addPublicTool(lArVolumeBuilder)
 
     # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
     from TileGeoModel.TileGMConfig import TileGMCfg
     result.merge(TileGMCfg(flags))
-    tileVolumeBuilder = CompFactory.Tile.TileVolumeBuilder(name="TileVolumeBuilder", TrackingVolumeHelper = trackingVolumeHelper)
+    tileVolumeBuilder = CompFactory.Tile.TileVolumeBuilder(name="TileVolumeBuilder",
+                                                           TrackingVolumeHelper = result.getPublicTool(trackingVolumeHelper.name))
     result.addPublicTool(tileVolumeBuilder)
 
     caloVolumeCreator = CompFactory.Trk.CylinderVolumeCreator("CaloVolumeCreator")
     result.addPublicTool(caloVolumeCreator)
 
-    result.setPrivateTools(CompFactory.Calo.CaloTrackingGeometryBuilder(namePrefix+name, LArVolumeBuilder = lArVolumeBuilder,
-                                                             TileVolumeBuilder = tileVolumeBuilder,
-                                                             TrackingVolumeHelper = trackingVolumeHelper,
-                                                             EnvelopeDefinitionSvc = result.getPrimaryAndMerge(EnvelopeDefSvcCfg(flags)).name,
-                                                             EntryVolumeName = "InDet::Containers::EntryVolume",
-                                                             ExitVolumeName = "Calo::Container",
-                                                             GapLayerEnvelope=5.0,
-                                                             TrackingVolumeCreator = caloVolumeCreator
+    result.setPrivateTools(CompFactory.Calo.CaloTrackingGeometryBuilder(namePrefix+name,
+                                                                        LArVolumeBuilder = result.getPublicTool(lArVolumeBuilder.name), # public tool handle
+                                                                        TileVolumeBuilder = result.getPublicTool(tileVolumeBuilder.name), # public tool handle
+                                                                        TrackingVolumeHelper = result.getPublicTool(trackingVolumeHelper.name), # public tool handle
+                                                                        EnvelopeDefinitionSvc = result.getPrimaryAndMerge(EnvelopeDefSvcCfg(flags)).name,
+                                                                        EntryVolumeName = "InDet::Containers::EntryVolume",
+                                                                        ExitVolumeName = "Calo::Container",
+                                                                        GapLayerEnvelope=5.0,
+                                                                        TrackingVolumeCreator = result.getPublicTool(caloVolumeCreator.name) # public tool handle
                                                          ))
     return result
 
@@ -527,8 +532,8 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
     atlas_geometry_builder = CompFactory.Trk.GeometryBuilder(name='AtlasGeometryBuilder',
                                                              WorldDimension=[],
                                                              WorldMaterialProperties=[],
-                                                             TrackingVolumeArrayCreator=TrackingVolumeArrayCreator,
-                                                             TrackingVolumeHelper=TrackingVolumeHelper)
+                                                             TrackingVolumeArrayCreator=result.getPublicTool(TrackingVolumeArrayCreator.name),
+                                                             TrackingVolumeHelper=result.getPublicTool(TrackingVolumeHelper.name))
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:

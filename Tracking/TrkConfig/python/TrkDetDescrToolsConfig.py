@@ -63,13 +63,14 @@ def InDetCylinderVolumeCreatorCfg(flags, name='InDetCylinderVolumeCreator', **kw
 
     # helpers for the InDetTrackingGeometry Builder : cylinder volume creator
     result.setPrivateTools(CompFactory.Trk.CylinderVolumeCreator(name,
-                                                                 LayerArrayCreator = InDetLayerArrayCreator, # public tool handle
+                                                                 PassiveLayerBinsRZ = 1,
+                                                                 LayerArrayCreator = result.getPublicTool(InDetLayerArrayCreator.name), # public tool handle
                                                                  # FIXME The configuration of these two tools is only
                                                                  # consistent with InDetTrackingGeometryBuilder
                                                                  # as the default instances and the "InDet" instances
                                                                  # have the same configuration.
-                                                                 TrackingVolumeArrayCreator = TrackingVolumeArrayCreator, # public tool handle
-                                                                 TrackingVolumeHelper = TrackingVolumeHelper # public tool handle
+                                                                 TrackingVolumeArrayCreator = result.getPublicTool(TrackingVolumeArrayCreator.name), # public tool handle
+                                                                 TrackingVolumeHelper = result.getPublicTool(TrackingVolumeHelper.name) # public tool handle
                                                              ))
     # specifiy the binning, passive layers, entry layers - assume defaults
     return result
@@ -95,9 +96,9 @@ def ITkCylinderVolumeCreatorCfg(flags, name='InDetCylinderVolumeCreator', **kwar
 
     # helpers for the InDetTrackingGeometry Builder : cylinder volume creator
     InDetCylinderVolumeCreator = CompFactory.Trk.CylinderVolumeCreator(name,
-                                                                       LayerArrayCreator = InDetLayerArrayCreator, # public tool handle
-                                                                       TrackingVolumeArrayCreator = InDetTrackingVolumeArrayCreator, # public tool handle
-                                                                       TrackingVolumeHelper       = InDetTrackingVolumeHelper, # public tool handle
+                                                                       LayerArrayCreator = result.getPublicTool(InDetLayerArrayCreator.name), # public tool handle
+                                                                       TrackingVolumeArrayCreator = result.getPublicTool(InDetTrackingVolumeArrayCreator.name), # public tool handle
+                                                                       TrackingVolumeHelper       = result.getPublicTool(InDetTrackingVolumeHelper.name), # public tool handle
                                                                        PassiveLayerThickness      = 1., ## mm
                                                                        PassiveLayerBinsRZ   = flags.ITk.trackingGeometry.passiveBarrelMatZbins,
                                                                        PassiveLayerBinsPhi  = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins)
