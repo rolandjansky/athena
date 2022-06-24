@@ -20,6 +20,11 @@ namespace MuonCalib{
     using namespace MuonCalib;
     std::ifstream inputFile;
     inputFile.open(filename);
+    if(!inputFile.is_open()){ 
+	  MsgStream log(Athena::getMessageSvc(), "NSWCondUtils");
+	  log<<MSG::FATAL<<"Trying to load NSW alignment constants from ASCII file but cannot open: "<<filename<<endmsg;
+	  throw std::runtime_error("Trying to load NSW alignment constants from ASCII file but cannot open file.");
+	 }
     int nLines = 1;
     int nNewALines = 0;
     int nNewBLines = 0;

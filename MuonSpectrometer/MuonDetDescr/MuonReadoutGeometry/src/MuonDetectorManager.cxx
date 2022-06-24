@@ -744,6 +744,7 @@ namespace MuonGM {
 
 #ifndef SIMULATIONBASE
         if (m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLineAsciiPath.empty())) {
+			log << MSG::DEBUG << "Using NSW AB lines from file: " << m_NSWABLineAsciiPath << endmsg;
             ALineMapContainer writeALines;
             BLineMapContainer writeBLines;
             MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLineAsciiPath, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
