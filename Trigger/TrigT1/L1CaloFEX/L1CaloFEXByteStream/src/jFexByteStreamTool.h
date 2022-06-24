@@ -62,7 +62,7 @@ class jFexByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> 
         // ------------------------- Properties --------------------------------------
         // ROBIDs property required by the interface
         Gaudi::Property<std::vector<uint32_t>> m_robIds {this, "ROBIDs", {}, "List of ROB IDs required for conversion to/from xAOD RoI"};
-        Gaudi::Property<bool> m_saveExtendedTOBs {this, "SaveExtendedTOBs", false, "Decode and write xTOBs instead of TOBs"};
+        Gaudi::Property<bool> m_convertExtendedTOBs {this, "ConvertExtendedTOBs", false, "Convert xTOBs instead of TOBs"};
 
         // Write handle keys for the L1Calo EDMs for BS->xAOD mode of operation
         SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer> m_jJWriteKey   {this,"jJRoIContainerWriteKey"  ,"L1_jFexSRJetRoI","Write jFexEDM SRjet container"};

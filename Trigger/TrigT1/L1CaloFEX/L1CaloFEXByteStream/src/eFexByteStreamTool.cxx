@@ -46,27 +46,27 @@ eFexByteStreamTool::eFexByteStreamTool(const std::string& type,
     : base_class(type, name, parent) {}
 
 StatusCode eFexByteStreamTool::initialize() {
+    // Check conversion mode
+    ConversionMode modeEM = getConversionMode(m_eEMReadKey,m_eEMWriteKey,msg());
+    ConversionMode modeTAU = getConversionMode(m_eTAUReadKey,m_eTAUWriteKey,msg());
+    ATH_CHECK(modeEM!=ConversionMode::Undefined);
+    ATH_CHECK(modeEM==modeTAU);
 
-    std::vector<SG::VarHandleKey*> writeKeys = {
-            &m_eEMTOBWriteKey, &m_eTAUTOBWriteKey, &m_eEMxTOBWriteKey, &m_eTAUxTOBWriteKey };
-    std::vector<SG::VarHandleKey*> readKeys = {
-            &m_eEMTOBReadKey, &m_eTAUTOBReadKey, &m_eEMxTOBReadKey, &m_eTAUxTOBReadKey };
-    std::vector<SG::VarHandleKey*> sliceKeys = {
-            &m_eEMTOBSliceKey, &m_eTAUTOBSliceKey, &m_eEMxTOBSliceKey, &m_eTAUxTOBSliceKey };
+    // Initialise eEM data handle keys
+    ATH_CHECK(m_eEMReadKey.initialize(modeEM==ConversionMode::Encoding));
+    ATH_CHECK(m_eEMWriteKey.initialize(modeEM==ConversionMode::Decoding));
 
-    auto previousMode = ConversionMode::Undefined;
-    for(size_t i=0;i<writeKeys.size();i++) {
-        auto mode = getConversionMode(*readKeys.at(i),*writeKeys.at(i),msg());
-        ATH_CHECK(mode!=ConversionMode::Undefined);
-        if(i!=0) ATH_CHECK(mode==previousMode); // if this fails, user is trying to mix encoding and decoding
-        previousMode = mode;
-        ATH_CHECK(writeKeys.at(i)->initialize(mode==ConversionMode::Decoding));
-        ATH_CHECK(readKeys.at(i)->initialize(mode==ConversionMode::Encoding));
-        if(mode==ConversionMode::Decoding && m_multiSlice) {
-            ATH_CHECK(sliceKeys.at(i)->assign(!writeKeys.at(i)->empty() ? writeKeys.at(i)->key()+"OutOfTime" : ""));
-        }
-        ATH_CHECK(sliceKeys.at(i)->initialize(!sliceKeys.at(i)->empty()));
+    // Initialise eTAU data handle keys
+    ATH_CHECK(m_eTAUReadKey.initialize(modeTAU==ConversionMode::Encoding));
+    ATH_CHECK(m_eTAUWriteKey.initialize(modeTAU==ConversionMode::Decoding));
+
+    // Initialise out-of-time data handles
+    if (m_multiSlice.value()) {
+        ATH_CHECK(m_eEMSliceWriteKey.assign(m_eEMWriteKey.key()+"OutOfTime"));
+        ATH_CHECK(m_eTAUSliceWriteKey.assign(m_eTAUWriteKey.key()+"OutOfTime"));
     }
+    ATH_CHECK(m_eEMSliceWriteKey.initialize(m_multiSlice.value() && modeEM==ConversionMode::Decoding));
+    ATH_CHECK(m_eTAUSliceWriteKey.initialize(m_multiSlice.value() && modeTAU==ConversionMode::Decoding));
 
     return StatusCode::SUCCESS;
 }
@@ -79,15 +79,20 @@ StatusCode eFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
     std::map<std::pair<L1CaloRdoFexTob::TobSource,bool>,SG::WriteHandle<xAOD::eFexEMRoIContainer>> eContainers;
     std::map<std::pair<L1CaloRdoFexTob::TobSource,bool>,SG::WriteHandle<xAOD::eFexTauRoIContainer>> tContainers;
 
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexEMRoIContainer,xAOD::eFexEMRoIAuxContainer>(eContainers,L1CaloRdoFexTob::TobSource::EfexTob,false,m_eEMTOBWriteKey,ctx)) );
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexEMRoIContainer,xAOD::eFexEMRoIAuxContainer>(eContainers,L1CaloRdoFexTob::TobSource::EfexXtob,false,m_eEMxTOBWriteKey,ctx)) );
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexEMRoIContainer,xAOD::eFexEMRoIAuxContainer>(eContainers,L1CaloRdoFexTob::TobSource::EfexTob,true,m_eEMTOBSliceKey,ctx)) );
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexEMRoIContainer,xAOD::eFexEMRoIAuxContainer>(eContainers,L1CaloRdoFexTob::TobSource::EfexXtob,true,m_eEMxTOBSliceKey,ctx)) );
+    L1CaloRdoFexTob::TobSource tobSource = m_convertExtendedTOBs.value() ?
+                                           L1CaloRdoFexTob::TobSource::EfexXtob :
+                                           L1CaloRdoFexTob::TobSource::EfexTob;
 
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexTauRoIContainer,xAOD::eFexTauRoIAuxContainer>(tContainers,L1CaloRdoFexTob::TobSource::EfexTob,false,m_eTAUTOBWriteKey,ctx)) );
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexTauRoIContainer,xAOD::eFexTauRoIAuxContainer>(tContainers,L1CaloRdoFexTob::TobSource::EfexXtob,false,m_eTAUxTOBWriteKey,ctx)) );
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexTauRoIContainer,xAOD::eFexTauRoIAuxContainer>(tContainers,L1CaloRdoFexTob::TobSource::EfexTob,true,m_eTAUTOBSliceKey,ctx)) );
-    ATH_CHECK( StatusCode(addContainer<xAOD::eFexTauRoIContainer,xAOD::eFexTauRoIAuxContainer>(tContainers,L1CaloRdoFexTob::TobSource::EfexXtob,true,m_eTAUxTOBSliceKey,ctx)) );
+    ATH_CHECK( StatusCode(addContainer<xAOD::eFexEMRoIContainer,xAOD::eFexEMRoIAuxContainer>(
+        eContainers,tobSource,false,m_eEMWriteKey,ctx)) );
+    ATH_CHECK( StatusCode(addContainer<xAOD::eFexTauRoIContainer,xAOD::eFexTauRoIAuxContainer>(
+        tContainers,tobSource,false,m_eTAUWriteKey,ctx)) );
+    if (m_multiSlice.value()) {
+        ATH_CHECK( StatusCode(addContainer<xAOD::eFexEMRoIContainer,xAOD::eFexEMRoIAuxContainer>(
+            eContainers,tobSource,true,m_eEMSliceWriteKey,ctx)) );
+        ATH_CHECK( StatusCode(addContainer<xAOD::eFexTauRoIContainer,xAOD::eFexTauRoIAuxContainer>(
+            tContainers,tobSource,true,m_eTAUSliceWriteKey,ctx)) );
+    }
 
     std::list<L1CaloRdoRodInfo> rodInfos;
     std::list<L1CaloRdoEfexTob> efexTobs;

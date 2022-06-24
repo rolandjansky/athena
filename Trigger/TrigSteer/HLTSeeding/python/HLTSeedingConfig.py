@@ -117,7 +117,7 @@ def createLegacyCaloRoIUnpackers():
 
     return [emUnpacker, metUnpacker, tauUnpacker, jUnpacker ]
 
-def createCaloRoIUnpackers():
+def createCaloRoIUnpackers(flags):
     from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     maxRoICount_eFex = 150  # used for histogram range, 144 is the hardware limit
@@ -176,8 +176,15 @@ def createCaloRoIUnpackers():
         RoIHalfWidthPhi = 0.1,
         MonTool = RoIsUnpackingMonitoring(prefix="gLJ", maxCount=maxRoICount_gFex, maxEta=5))
 
-    return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker, cTauUnpacker,
-            jFexSRJetUnpacker, gFexLRJetUnpacker, gFexSRJetUnpacker, jFexLRJetUnpacker]
+    # Temporarily (23/06/2022) skip gFex when decoding Run-3 data, because we only have eFex and jFex converters implemented
+    skip_gFex = not flags.Trigger.doLVL1 # means we're not running L1Sim
+
+    tools = [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker, cTauUnpacker,
+             jFexSRJetUnpacker, jFexLRJetUnpacker]
+    if not skip_gFex:
+        tools += [gFexLRJetUnpacker, gFexSRJetUnpacker]
+
+    return tools
 
 def createLegacyMuonRoIUnpackers(flags):
     from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
@@ -228,13 +235,15 @@ def getL1TriggerResultMaker(flags):
 
     # L1Calo RoIs
     if flags.Trigger.enableL1CaloPhase1:
+        # Temporarily (23/06/2022) skip gFex when decoding Run-3 data, because we only have eFex and jFex converters implemented
+        skip_gFex = not flags.Trigger.doLVL1 # means we're not running L1Sim
         l1trMaker.eFexEMRoIKey = "L1_eEMRoI"
         l1trMaker.eFexTauRoIKey = "L1_eTauRoI"
         l1trMaker.jFexTauRoIKey = "L1_jFexTauRoI"
         l1trMaker.jFexSRJetRoIKey = "L1_jFexSRJetRoI"
         l1trMaker.jFexLRJetRoIKey = "L1_jFexLRJetRoI"
-        l1trMaker.gFexSRJetRoIKey = "L1_gFexSRJetRoI"
-        l1trMaker.gFexLRJetRoIKey = "L1_gFexLRJetRoI"
+        l1trMaker.gFexSRJetRoIKey = "" if skip_gFex else "L1_gFexSRJetRoI"
+        l1trMaker.gFexLRJetRoIKey = "" if skip_gFex else "L1_gFexLRJetRoI"
         l1trMaker.cTauRoIKey = "L1_cTauRoI"  # Note: WriteHandle
         l1trMaker.cjTauLinkKey = "L1_cTauRoI.jTauLink"  # Note: WriteDecorHandle
         l1trMaker.ThresholdPatternTools += [
@@ -244,9 +253,12 @@ def getL1TriggerResultMaker(flags):
             CompFactory.cTauRoIThresholdsTool(),
             CompFactory.jFexSRJetRoIThresholdsTool(),
             CompFactory.jFexLRJetRoIThresholdsTool(),
-            CompFactory.gFexSRJetRoIThresholdsTool(),
-            CompFactory.gFexLRJetRoIThresholdsTool(),
         ]
+        if not skip_gFex:
+            l1trMaker.ThresholdPatternTools += [
+                CompFactory.gFexSRJetRoIThresholdsTool(),
+                CompFactory.gFexLRJetRoIThresholdsTool(),
+            ]
     else:
        l1trMaker.eFexEMRoIKey = ""
        l1trMaker.eFexTauRoIKey = ""
@@ -288,7 +300,7 @@ class HLTSeeding(CompFactory.HLTSeeding) :
         # EM unpacker
         if flags.Trigger.doID or flags.Trigger.doCalo:
             if flags.Trigger.enableL1CaloPhase1:
-                self.xAODRoIUnpackers += createCaloRoIUnpackers()
+                self.xAODRoIUnpackers += createCaloRoIUnpackers(flags)
             if flags.Trigger.enableL1CaloLegacy:
                 self.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
@@ -349,7 +361,7 @@ def HLTSeedingCfg(flags, seqName = None):
 
     if flags.Trigger.doCalo:
         if flags.Trigger.enableL1CaloPhase1:
-            decoderAlg.xAODRoIUnpackers += createCaloRoIUnpackers()
+            decoderAlg.xAODRoIUnpackers += createCaloRoIUnpackers(flags)
         if flags.Trigger.enableL1CaloLegacy:
             decoderAlg.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
