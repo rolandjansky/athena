@@ -8584,6 +8584,8 @@ HLT_xe65_cell_xe110_tcpufit_L1XE50:
   eventCount: 0
 HLT_xe65_cell_xe110_tcpufit_L1jXE100:
   eventCount: 0
+HLT_xe65_cell_xe110_tcpufit_sig30_L1XE50:
+  eventCount: 0
 HLT_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 0
   stepFeatures:
@@ -8603,6 +8605,10 @@ HLT_xe65_cell_xe90_pfopufit_L1gXERHO100:
   stepFeatures:
     0: 1
 HLT_xe65_cell_xe90_pfopufit_L1jXE100:
+  eventCount: 0
+  stepFeatures:
+    0: 1
+HLT_xe65_cell_xe90_pfopufit_sig30_L1XE50:
   eventCount: 0
   stepFeatures:
     0: 1
@@ -8639,6 +8645,8 @@ HLT_xe80_cell_xe115_tcpufit_L1gXENC100:
 HLT_xe80_cell_xe115_tcpufit_L1gXERHO100:
   eventCount: 0
 HLT_xe80_cell_xe115_tcpufit_L1jXE100:
+  eventCount: 0
+HLT_xe80_cell_xe115_tcpufit_sig30_L1XE50:
   eventCount: 0
 HLT_xe80_tcpufit_dedxtrk25_medium_L1XE50:
   eventCount: 0
