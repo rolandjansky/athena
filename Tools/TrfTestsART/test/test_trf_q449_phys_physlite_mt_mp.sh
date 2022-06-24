@@ -9,6 +9,7 @@
 export ATHENA_CORE_NUMBER=8
 Reco_tf.py \
   --AMI q449 \
+  --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1 \
   --sharedWriter True \
   --steering doRAWtoALL \
   --outputDAODFile art.pool.root \
