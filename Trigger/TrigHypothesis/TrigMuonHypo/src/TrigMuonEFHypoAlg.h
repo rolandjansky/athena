@@ -30,6 +30,8 @@ class TrigMuonEFHypoAlg
 	this, "MuonDecisions", "MuonEFCombiner_MuonData", "Name of the input data on xAOD::MuonContainer produced by MuonCreatorAlg"};
     Gaudi::Property<bool> m_mapToPrevDec{
       this, "MapToPreviousDecisions", false, "Map to decisions from previous decisions (needed if IM has mergeUsingFeature=True)"};
+    Gaudi::Property<bool> m_inclSAmuons{
+      this, "IncludeSAmuons", false, "Include SA muons for SA hypo alg, but not for CB hypo alg"};
 
 
 };

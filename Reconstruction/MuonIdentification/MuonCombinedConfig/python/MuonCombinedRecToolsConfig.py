@@ -95,38 +95,6 @@ def MuonCombinedInDetDetailedTrackSelectorTool_LRTCfg(flags, name='MuonCombinedI
     return MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name, **kwargs)
 
 
-def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator", **kwargs):
-    from MuonConfig.MuonRecToolsConfig import MuonHitSummaryToolCfg
-
-    result = ComponentAccumulator()
-    if flags.Muon.SAMuonTrigger:
-        from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
-        kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags)))
-    else:
-        from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
-        kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonCombinedTrackSummaryToolCfg(flags)))
-
-    if 'TrackToVertex' not in kwargs:
-        kwargs.setdefault('TrackToVertex', result.popToolsAndMerge(
-            MuonTrackToVertexCfg(flags)))
-
-    # if "PixelToTPIDTool" not in kwargs and not flags.Muon.MuonTrigger and flags.GeoModel.Run < LHCPeriod.Run4:
-    #    from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-    #    kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(
-    #        InDetPixelToTPIDToolCfg(flags)))
-
-    kwargs.setdefault("KeepAllPerigee", True)
-    kwargs.setdefault("MuonSummaryTool", result.popToolsAndMerge(
-        MuonHitSummaryToolCfg(flags)))
-    if flags.Beam.Type is BeamType.Cosmics:
-        kwargs.setdefault("PerigeeExpression", "Origin")
-    kwargs.setdefault("IBLParameterSvc",
-                      "IBLParameterSvc" if flags.Detector.GeometryID else "")
-    tool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
-    result.setPrivateTools(tool)
-    return result
-
-
 def InDetCandidateToolCfg(flags, name="InDetCandidateTool", **kwargs):
     result = MuonCombinedInDetDetailedTrackSelectorToolCfg(flags)
     kwargs.setdefault("TrackSelector", result.getPrimary())
@@ -150,31 +118,6 @@ def MuonInDetForwardCandidateToolCfg(flags,  name='MuonInDetForwardCandidateTool
     return result  # FIXME - is this and the above, actually used?
 
 
-def MuonCaloParticleCreatorCfg(flags, name="MuonCaloParticleCreator", **kwargs):
-    from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-    result = ComponentAccumulator()
-    if "TrackToVertex" not in kwargs:
-        kwargs["TrackToVertex"] = result.popToolsAndMerge(
-            TrackToVertexCfg(flags))
-
-    if flags.Muon.SAMuonTrigger:
-        from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
-        kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(
-            MuonTrackSummaryToolCfg(flags)))
-    else:
-        from TrkConfig.TrkTrackSummaryToolConfig import MuonCombinedTrackSummaryToolCfg
-        kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(
-            MuonCombinedTrackSummaryToolCfg(flags)))
-    kwargs.setdefault("KeepAllPerigee", True)
-    kwargs.setdefault("PerigeeExpression", "Origin")
-    kwargs.setdefault("IBLParameterSvc",
-                      "IBLParameterSvc" if flags.Detector.GeometryID else "")
-    track_particle_creator = CompFactory.Trk.TrackParticleCreatorTool(
-        name="MuonCaloParticleCreator", **kwargs)
-    result.setPrivateTools(track_particle_creator)
-    return result
-
-
 def MuonCaloEnergyToolCfg(flags,  name="MuonCaloEnergyTool", **kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloCellAssociationToolCfg, ParticleCaloExtensionToolCfg
 
@@ -184,6 +127,7 @@ def MuonCaloEnergyToolCfg(flags,  name="MuonCaloEnergyTool", **kwargs):
     particle_calo_extension_tool = result.popToolsAndMerge(
         ParticleCaloExtensionToolCfg(flags))
 
+    from TrkConfig.TrkParticleCreatorConfig import MuonCaloParticleCreatorCfg
     track_particle_creator = result.popToolsAndMerge(
         MuonCaloParticleCreatorCfg(flags))
 
@@ -269,9 +213,8 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("ParticleCaloExtensionTool", acc.popPrivateTools())
     result.merge(acc)
 
-    acc = MuonCombinedParticleCreatorCfg(flags)
-    kwargs.setdefault("TrackParticleCreator", acc.popPrivateTools())
-    result.merge(acc)
+    from TrkConfig.TrkParticleCreatorConfig import MuonCombinedParticleCreatorCfg
+    kwargs.setdefault("TrackParticleCreator", result.popToolsAndMerge(MuonCombinedParticleCreatorCfg(flags)))
 
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     kwargs.setdefault("AmbiguityProcessor", result.popToolsAndMerge(MuonAmbiProcessorCfg(flags)))

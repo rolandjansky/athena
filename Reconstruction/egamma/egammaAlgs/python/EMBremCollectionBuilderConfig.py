@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
 from AthenaCommon.Logging import logging
 
 
@@ -23,34 +22,10 @@ def EMBremCollectionBuilderCfg(flags,
             egammaTrkRefitterToolCfg(flags))
 
     if "TrackParticleCreatorTool" not in kwargs:
-        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-
-        from InDetConfig.TRT_ElectronPidToolsConfig import (
-            TRT_ElectronPidToolCfg)
-        from TrkConfig.TrkTrackSummaryToolConfig import GSFTrackSummaryToolCfg
-        TrackSummaryTool = acc.popToolsAndMerge(GSFTrackSummaryToolCfg(flags))
-        acc.addPublicTool(TrackSummaryTool)
-
-        gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
-            name="GSFBuildInDetParticleCreatorTool",
-            KeepParameters=True,
-            TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            TrackSummaryTool=TrackSummaryTool,
-            PixelToTPIDTool=(CompFactory.InDet.PixelToTPIDTool(
-                name="GSFBuildPixelToTPIDTool")
-                if flags.GeoModel.Run < LHCPeriod.Run4 else None),
-            TRT_ElectronPidTool=(acc.popToolsAndMerge(
-                TRT_ElectronPidToolCfg(
-                    flags,
-                    name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=False,
-                    MinimumTrackPtForNNPid=0.))
-                if flags.Detector.EnableTRT else None),
-            BadClusterID=0,
-            IBLParameterSvc=(
-                "IBLParameterSvc" if flags.Detector.GeometryID else "")
-        )
-        kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
+        from TrkConfig.TrkParticleCreatorConfig import (
+            GSFBuildInDetParticleCreatorToolCfg)
+        kwargs["TrackParticleCreatorTool"] = acc.popToolsAndMerge(
+            GSFBuildInDetParticleCreatorToolCfg(flags))
 
     if "TrackSlimmingTool" not in kwargs:
         slimmingTool = CompFactory.Trk.TrackSlimmingTool(

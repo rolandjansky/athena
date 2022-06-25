@@ -28,7 +28,12 @@ namespace HLT::MET {
 
 StatusCode NNHLTFex::initialize()
   {
-    std::ifstream inputNN(m_filename);
+    std::string fullName = PathResolver::find_calib_file(m_filename);
+    if (fullName.empty()){
+      ATH_MSG_ERROR("Failed to find NN configuration file'" << m_filename << "'!");
+      return StatusCode::FAILURE;
+    }
+    std::ifstream inputNN(fullName);
     m_configNN = lwt::parse_json_graph(inputNN);
     if (m_configNN.inputs.size() != 1) return StatusCode::FAILURE;//only one input node allowed
     m_graphNN = std::make_unique<lwt::LightweightGraph>(m_configNN); 

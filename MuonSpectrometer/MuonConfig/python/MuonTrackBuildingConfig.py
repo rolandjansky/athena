@@ -434,20 +434,13 @@ def MuonTrackSelectorCfg(flags, name = "MuonTrackSelectorTool", **kwargs):
     return result
 
 def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParticleCnvAlg", **kwargs):
-    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, TrackParticleCreatorToolCfg, RecTrackParticleContainerCnvToolCfg
-    from MuonConfig.MuonRecToolsConfig import MuonHitSummaryToolCfg
-    from TrkConfig.TrkTrackSummaryToolConfig import MuonTrackSummaryToolCfg
+    from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, RecTrackParticleContainerCnvToolCfg
+    from TrkConfig.TrkParticleCreatorConfig import MuonParticleCreatorToolCfg
 
     result = ComponentAccumulator()
-    track_summary_tool = result.popToolsAndMerge(MuonTrackSummaryToolCfg(flags))
-    muon_hit_summary_tool = result.popToolsAndMerge(MuonHitSummaryToolCfg(flags))
-    muon_particle_creator_tool = result.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, name="MuonParticleCreatorTool", 
-                                                                    TrackSummaryTool=track_summary_tool, 
-                                                                    TRT_ElectronPidTool=None,
-                                                                    PixelToTPIDTool=None,
-                                                                    KeepAllPerigee=True,
-                                                                    MuonSummaryTool= muon_hit_summary_tool,
-                                                                    PerigeeExpression="Origin"  ) )
+
+    muon_particle_creator_tool = result.popToolsAndMerge(MuonParticleCreatorToolCfg(flags))
+    result.addPublicTool(muon_particle_creator_tool)
     track_collection_cnv_tool = result.getPrimaryAndMerge(TrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muon_particle_creator_tool))
     kwargs.setdefault("TrackParticleCreator",  muon_particle_creator_tool)
     kwargs.setdefault("RecTrackParticleContainerCnvTool", result.getPrimaryAndMerge(RecTrackParticleContainerCnvToolCfg(flags,

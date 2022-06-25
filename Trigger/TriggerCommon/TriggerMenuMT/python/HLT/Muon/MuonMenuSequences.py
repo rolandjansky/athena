@@ -448,7 +448,7 @@ def muEFSASequence(ConfigFlags, is_probe_leg=False):
 
     # setup EFSA hypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
-    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAHypoAlg" )
+    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAHypoAlg", IncludeSAmuons=True )
     trigMuonEFSAHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
@@ -613,7 +613,7 @@ def muEFSAFSSequence(ConfigFlags, is_probe_leg=False):
 
     # setup EFSA hypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
-    trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg" )
+    trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg", IncludeSAmuons=True )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName

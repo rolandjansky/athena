@@ -61,7 +61,7 @@ def l2MuCombRecoCfg(flags, name="L2MuCombReco"):
     acc, alg = muCombCfg(flags)
     alg.L2StandAloneMuonContainerName=muFastInfo
     alg.L2CombinedMuonContainerName = muCombInfo
-    alg.TrackParticlesContainerName= "HLT_IDTrack_Muon_FTF"
+    alg.TrackParticlesContainerName= flags.Trigger.InDetTracking.Muon.tracks_FTF
 
     muCombAcc = ComponentAccumulator()
     muCombAcc.addEventAlgo(alg)

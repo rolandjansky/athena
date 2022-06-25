@@ -19,7 +19,6 @@ from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonRecExample.MuonRecFlags import muonRecFlags
 
-theFTF_name = "FTFTracks_Muons" #Obsolete?
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
 CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
 CBTPnameLRT = recordable("HLT_CBCombinedMuon_LRTTrackParticles")
@@ -74,13 +73,15 @@ def isLRT(name):
 
 #Returns relevant track collection name
 def getIDTracks(name=''):
-  if isCosmic():
-      if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF")
-      else:           return recordable("HLT_IDTrack_Cosmic_IDTrig") #IDTrig as we are already retrieving PT collection
+
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+  if isLRT(name):
+    return getInDetTrigConfig("muonLRT").tracks_FTF()
+  elif isCosmic():
+    return getInDetTrigConfig("cosmics" ).tracks_IDTrig()
   else:
-      ### TODO This should be probably set in the IDTrigConfig, ATR-22755
-      if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF") 
-      else:           return recordable("HLT_IDTrack_Muon_FTF") 
+    return getInDetTrigConfig("muon").tracks_FTF()
 
 
 def MuDataPrepViewDataVerifierCfg(flags):
