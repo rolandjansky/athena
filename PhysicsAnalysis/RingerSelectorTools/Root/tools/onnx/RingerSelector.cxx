@@ -134,22 +134,24 @@ namespace Ringer{
     // barcode = 0: use only rings normalized by total energy as input
     // barcode = 1: use normalized rings and shower shapes (6 from cluster) as input
     // barcode = 2: use normalized rings, shower shapes and track variables as input 
+    // barcode = 3: use only a half of total rings and then normalize to use as input
     std::vector<std::vector<float>> RingerSelector::prepare_inputs(  unsigned barcode,
                                                                      const xAOD::TrigRingerRings *ringsCluster, 
                                                                      const xAOD::TrigElectron *el ) const
     {
-      // barcode 0
       std::vector< std::vector< float > > inputs;
-      const std::vector<float> rings = ringsCluster->rings();
-      std::vector<float> refRings(rings.size());
-      refRings.assign(rings.begin(), rings.end());
-       
-      float energy=0.0;
-      for(auto &ring : refRings ) energy+=ring;
-      for(auto &ring : refRings ) ring/=std::abs(energy);
-      
-      inputs.push_back( refRings );
-
+      // check if the barcode = 3 because this is the unique case that we do not use 100 rings
+      if ( barcode != 3 ){ 
+        const std::vector<float> rings = ringsCluster->rings();
+        std::vector<float> refRings(rings.size());
+        refRings.assign(rings.begin(), rings.end());
+        
+        float energy=0.0;
+        for(auto &ring : refRings ) energy+=ring;
+        for(auto &ring : refRings ) ring/=std::abs(energy);
+        
+        inputs.push_back( refRings );
+      }
 
       if ( barcode == 1 || barcode == 2 ){ // barcode 1
         std::vector<float> refShowers;
@@ -196,6 +198,41 @@ namespace Ringer{
         inputs.push_back( refTrack );
       }
 
+
+      if ( barcode == 3){ // barcode 3 (half of rings)
+
+        std::vector< std::vector< float > > inputs;
+        const std::vector<float> rings = ringsCluster->rings();
+        std::vector<float> refRings(rings.size());
+        refRings.assign(rings.begin(), rings.end());
+
+        std::vector<float> halfRings; 
+        
+        int PS   = 8;
+        int EM1  = 64;
+        int EM2  = 8;
+        int EM3  = 8;
+        int HAD1 = 4;
+        int HAD2 = 4;
+        int HAD3 = 4;
+
+        halfRings.insert(halfRings.end(), refRings.begin(), refRings.begin() + PS/2);
+        halfRings.insert(halfRings.end(), refRings.begin() + PS, refRings.begin() + PS + (EM1/2));
+        halfRings.insert(halfRings.end(), refRings.begin() + PS + EM1, refRings.begin() + PS + EM1 + (EM2/2));
+        halfRings.insert(halfRings.end(), refRings.begin() + PS + EM1 + EM2, refRings.begin() + PS + EM1 + EM2 + (EM3/2));
+        halfRings.insert(halfRings.end(), refRings.begin() + PS + EM1 + EM2 + EM3, refRings.begin() + PS + EM1 + EM2 + EM3 + (HAD1/2));
+        halfRings.insert(halfRings.end(), refRings.begin() + PS + EM1 + EM2 + EM3 + HAD1, refRings.begin() + PS + EM1 + EM2 + EM3 + HAD1 + (HAD2/2));
+        halfRings.insert(halfRings.end(), refRings.begin() + PS + EM1 + EM2 + EM3 + HAD1 + HAD2, refRings.begin() + PS + EM1 + EM2 + EM3 + HAD1 + HAD2 + (HAD3/2));
+
+        // concatenate
+        
+        
+        float energy=0.0;
+        for(auto &ring : halfRings ) energy+=ring;
+        for(auto &ring : halfRings ) ring/=std::abs(energy);
+
+        inputs.push_back( halfRings );
+      }
       return inputs;
     }
 
