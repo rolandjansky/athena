@@ -49,7 +49,7 @@ BPHY23JpsiFinder = Analysis__JpsiFinder(
     useMCPCuts                  = False )
 
 ToolSvc += BPHY23JpsiFinder
-print      BPHY23JpsiFinder
+#print      BPHY23JpsiFinder
 
 #--------------------------------------------------------------------
 ## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
@@ -69,7 +69,7 @@ BPHY23_Reco_mumu = DerivationFramework__Reco_mumu(
     DoVertexType           = 1)
 
 ToolSvc += BPHY23_Reco_mumu
-print BPHY23_Reco_mumu
+#print BPHY23_Reco_mumu
 
 ## 4/ setup a new vertexing tool (necessary due to use of mass constraint) 
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
@@ -79,7 +79,7 @@ BPHY23VertexFit = Trk__TrkVKalVrtFitter(
     FirstMeasuredPoint  = False,  # use Perigee strategy
     MakeExtendedVertex  = True)
 ToolSvc += BPHY23VertexFit
-print      BPHY23VertexFit
+#print      BPHY23VertexFit
 
 ## 5/ setup the Jpsi+2 track finder
 # https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/JpsiUpsilonTools/src/JpsiPlus2Tracks.cxx
@@ -106,7 +106,7 @@ BPHY23JpsiPlus2Tracks = Analysis__JpsiPlus2Tracks(
     UseMassConstraint		        = False)
 
 ToolSvc += BPHY23JpsiPlus2Tracks
-print      BPHY23JpsiPlus2Tracks
+#print      BPHY23JpsiPlus2Tracks
 
 BPHY23UpsiPlus2Tracks = Analysis__JpsiPlus2Tracks(
     name = "BPHY23UpsiPlus2Tracks",
@@ -130,7 +130,7 @@ BPHY23UpsiPlus2Tracks = Analysis__JpsiPlus2Tracks(
     UseMassConstraint		        = False)
 
 ToolSvc += BPHY23UpsiPlus2Tracks
-print      BPHY23UpsiPlus2Tracks
+#print      BPHY23UpsiPlus2Tracks
 
 ## 6/ setup the combined augmentation/skimming tool
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
@@ -142,7 +142,7 @@ BPHY23FourTrackSelect_JpsiTrkTrk = DerivationFramework__Reco_dimuTrkTrk(
     RefitPV                  = False)
 
 ToolSvc += BPHY23FourTrackSelect_JpsiTrkTrk
-print      BPHY23FourTrackSelect_JpsiTrkTrk
+#print      BPHY23FourTrackSelect_JpsiTrkTrk
 
 BPHY23FourTrackSelect_UpsiTrkTrk = DerivationFramework__Reco_dimuTrkTrk(
     name                     = "BPHY23FourTrackSelect_UpsiTrkTrk",
@@ -152,7 +152,7 @@ BPHY23FourTrackSelect_UpsiTrkTrk = DerivationFramework__Reco_dimuTrkTrk(
     RefitPV                  = False)
 
 ToolSvc += BPHY23FourTrackSelect_UpsiTrkTrk
-print      BPHY23FourTrackSelect_UpsiTrkTrk
+#print      BPHY23FourTrackSelect_UpsiTrkTrk
 
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
@@ -168,7 +168,7 @@ BPHY23_Select_Jpsi             = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 200)
 
 ToolSvc += BPHY23_Select_Jpsi
-print      BPHY23_Select_Jpsi
+#print      BPHY23_Select_Jpsi
 
 BPHY23_Select_Upsi             = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23_Select_Upsi",
@@ -181,7 +181,7 @@ BPHY23_Select_Upsi             = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 200)
 
 ToolSvc += BPHY23_Select_Upsi
-print      BPHY23_Select_Upsi
+#print      BPHY23_Select_Upsi
 
 BPHY23_Select_Psi              = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23_Select_Psi",
@@ -194,7 +194,7 @@ BPHY23_Select_Psi              = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 200.)
 
 ToolSvc += BPHY23_Select_Psi
-print      BPHY23_Select_Psi
+#print      BPHY23_Select_Psi
 
 BPHY23_Select_Upsi2S           = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23_Select_Upsi2S",
@@ -207,7 +207,7 @@ BPHY23_Select_Upsi2S           = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 200.)
 
 ToolSvc += BPHY23_Select_Upsi2S
-print      BPHY23_Select_Upsi2S
+#print      BPHY23_Select_Upsi2S
 
 #--------------------------------------------------------------------
 # set up TQ -> Jpsi Psi (Psi -> Jpsi pi pi) finder
@@ -356,7 +356,7 @@ BPHY23Revertex_JpsiPsi_RV1     = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23JpsiPsi_RV1")
 
 ToolSvc += BPHY23Revertex_JpsiPsi_RV1
-print      BPHY23Revertex_JpsiPsi_RV1
+#print      BPHY23Revertex_JpsiPsi_RV1
 
 BPHY23Select_JpsiPsi_RV1       = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_JpsiPsi_RV1",
@@ -369,7 +369,7 @@ BPHY23Select_JpsiPsi_RV1       = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_JpsiPsi_RV1
-print      BPHY23Select_JpsiPsi_RV1
+#print      BPHY23Select_JpsiPsi_RV1
 
 BPHY23Revertex_JpsiPsi_RV2     = DerivationFramework__ReVertex(
     name                       = "BPHY23Revertex_JpsiPsi_RV2",
@@ -384,7 +384,7 @@ BPHY23Revertex_JpsiPsi_RV2     = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23JpsiPsi_RV2")
 
 ToolSvc += BPHY23Revertex_JpsiPsi_RV2
-print      BPHY23Revertex_JpsiPsi_RV2
+#print      BPHY23Revertex_JpsiPsi_RV2
 
 BPHY23Select_JpsiPsi_RV2       = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_JpsiPsi_RV2",
@@ -397,7 +397,7 @@ BPHY23Select_JpsiPsi_RV2       = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_JpsiPsi_RV2
-print      BPHY23Select_JpsiPsi_RV2
+#print      BPHY23Select_JpsiPsi_RV2
 
 
 BPHY23Revertex_UpsiPsi_RV1     = DerivationFramework__ReVertex(
@@ -415,7 +415,7 @@ BPHY23Revertex_UpsiPsi_RV1     = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23UpsiPsi_RV1")
 
 ToolSvc += BPHY23Revertex_UpsiPsi_RV1
-print      BPHY23Revertex_UpsiPsi_RV1
+#print      BPHY23Revertex_UpsiPsi_RV1
 
 BPHY23Select_UpsiPsi_RV1       = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_UpsiPsi_RV1",
@@ -428,7 +428,7 @@ BPHY23Select_UpsiPsi_RV1       = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_UpsiPsi_RV1
-print      BPHY23Select_UpsiPsi_RV1
+#print      BPHY23Select_UpsiPsi_RV1
 
 BPHY23Revertex_UpsiPsi_RV2     = DerivationFramework__ReVertex(
     name                       = "BPHY23Revertex_UpsiPsi_RV2",
@@ -443,7 +443,7 @@ BPHY23Revertex_UpsiPsi_RV2     = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23UpsiPsi_RV2")
 
 ToolSvc += BPHY23Revertex_UpsiPsi_RV2
-print      BPHY23Revertex_UpsiPsi_RV2
+#print      BPHY23Revertex_UpsiPsi_RV2
 
 BPHY23Select_UpsiPsi_RV2       = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_UpsiPsi_RV2",
@@ -456,7 +456,7 @@ BPHY23Select_UpsiPsi_RV2       = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_UpsiPsi_RV2
-print      BPHY23Select_UpsiPsi_RV2
+#print      BPHY23Select_UpsiPsi_RV2
 
 
 BPHY23Revertex_JpsiUpsi2S_RV1  = DerivationFramework__ReVertex(
@@ -474,7 +474,7 @@ BPHY23Revertex_JpsiUpsi2S_RV1  = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23JpsiUpsi2S_RV1")
 
 ToolSvc += BPHY23Revertex_JpsiUpsi2S_RV1
-print      BPHY23Revertex_JpsiUpsi2S_RV1
+#print      BPHY23Revertex_JpsiUpsi2S_RV1
 
 BPHY23Select_JpsiUpsi2S_RV1    = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_JpsiUpsi2S_RV1",
@@ -487,7 +487,7 @@ BPHY23Select_JpsiUpsi2S_RV1    = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_JpsiUpsi2S_RV1
-print      BPHY23Select_JpsiUpsi2S_RV1
+#print      BPHY23Select_JpsiUpsi2S_RV1
 
 BPHY23Revertex_JpsiUpsi2S_RV2  = DerivationFramework__ReVertex(
     name                       = "BPHY23Revertex_JpsiUpsi2S_RV2",
@@ -502,7 +502,7 @@ BPHY23Revertex_JpsiUpsi2S_RV2  = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23JpsiUpsi2S_RV2")
 
 ToolSvc += BPHY23Revertex_JpsiUpsi2S_RV2
-print      BPHY23Revertex_JpsiUpsi2S_RV2
+#print      BPHY23Revertex_JpsiUpsi2S_RV2
 
 BPHY23Select_JpsiUpsi2S_RV2    = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_JpsiUpsi2S_RV2",
@@ -515,7 +515,7 @@ BPHY23Select_JpsiUpsi2S_RV2    = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_JpsiUpsi2S_RV2
-print      BPHY23Select_JpsiUpsi2S_RV2
+#print      BPHY23Select_JpsiUpsi2S_RV2
 
 
 BPHY23Revertex_UpsiUpsi2S_RV1  = DerivationFramework__ReVertex(
@@ -533,7 +533,7 @@ BPHY23Revertex_UpsiUpsi2S_RV1  = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23UpsiUpsi2S_RV1")
 
 ToolSvc += BPHY23Revertex_UpsiUpsi2S_RV1
-print      BPHY23Revertex_UpsiUpsi2S_RV1
+#print      BPHY23Revertex_UpsiUpsi2S_RV1
 
 BPHY23Select_UpsiUpsi2S_RV1    = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_UpsiUpsi2S_RV1",
@@ -546,7 +546,7 @@ BPHY23Select_UpsiUpsi2S_RV1    = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_UpsiUpsi2S_RV1
-print      BPHY23Select_UpsiUpsi2S_RV1
+#print      BPHY23Select_UpsiUpsi2S_RV1
 
 BPHY23Revertex_UpsiUpsi2S_RV2  = DerivationFramework__ReVertex(
     name                       = "BPHY23Revertex_UpsiUpsi2S_RV2",
@@ -561,7 +561,7 @@ BPHY23Revertex_UpsiUpsi2S_RV2  = DerivationFramework__ReVertex(
     OutputVtxContainerName     = "BPHY23UpsiUpsi2S_RV2")
 
 ToolSvc += BPHY23Revertex_UpsiUpsi2S_RV2
-print      BPHY23Revertex_UpsiUpsi2S_RV2
+#print      BPHY23Revertex_UpsiUpsi2S_RV2
 
 BPHY23Select_UpsiUpsi2S_RV2    = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY23Select_UpsiUpsi2S_RV2",
@@ -574,7 +574,7 @@ BPHY23Select_UpsiUpsi2S_RV2    = DerivationFramework__Select_onia2mumu(
     Chi2Max                    = 1.e6)
 
 ToolSvc += BPHY23Select_UpsiUpsi2S_RV2
-print      BPHY23Select_UpsiUpsi2S_RV2
+#print      BPHY23Select_UpsiUpsi2S_RV2
 
 
 CascadeCollections = []

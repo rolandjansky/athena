@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////
 // JpsiPlusPsiCascade.cxx, (c) ATLAS Detector software
@@ -57,19 +57,17 @@ namespace DerivationFramework {
 
   StatusCode JpsiPlusPsiCascade::addBranches() const {
     constexpr int topoN = 2;
-    std::array<xAOD::VertexContainer*, topoN> Vtxwritehandles;
-    std::array<xAOD::VertexAuxContainer*, topoN> Vtxwritehandlesaux;
+    std::array<std::unique_ptr<xAOD::VertexContainer>, topoN> Vtxwritehandles;
+    std::array<std::unique_ptr<xAOD::VertexAuxContainer>, topoN> Vtxwritehandlesaux;
     if(m_cascadeOutputsKeys.size() !=topoN) {
       ATH_MSG_FATAL("Incorrect number of VtxContainers");
       return StatusCode::FAILURE;
     }
 
     for(int i =0; i<topoN;i++){
-      Vtxwritehandles[i] = new xAOD::VertexContainer();
-      Vtxwritehandlesaux[i] = new xAOD::VertexAuxContainer();
-      Vtxwritehandles[i]->setStore(Vtxwritehandlesaux[i]);
-      ATH_CHECK(evtStore()->record(Vtxwritehandles[i]   , m_cascadeOutputsKeys[i]       ));
-      ATH_CHECK(evtStore()->record(Vtxwritehandlesaux[i], m_cascadeOutputsKeys[i] + "Aux."));
+      Vtxwritehandles[i] = std::make_unique<xAOD::VertexContainer>();
+      Vtxwritehandlesaux[i] = std::make_unique<xAOD::VertexAuxContainer>();
+      Vtxwritehandles[i]->setStore(Vtxwritehandlesaux[i].get());
     }
 
     //----------------------------------------------------
@@ -86,20 +84,24 @@ namespace DerivationFramework {
     //----------------------------------------------------
     // Try to retrieve refitted primary vertices
     //----------------------------------------------------
-    xAOD::VertexContainer*    refPvContainer    = nullptr;
-    xAOD::VertexAuxContainer* refPvAuxContainer = nullptr;
+    std::unique_ptr<xAOD::VertexContainer> refPvContainer;
+    std::unique_ptr<xAOD::VertexAuxContainer> refPvAuxContainer;
+    bool ref_record = false;
     if (m_refitPV) {
       if (evtStore()->contains<xAOD::VertexContainer>(m_refPVContainerName)) {
 	// refitted PV container exists. Get it from the store gate
-	ATH_CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
-	ATH_CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
+	xAOD::VertexContainer*    _refPvContainer    = nullptr;
+	xAOD::VertexAuxContainer* _refPvAuxContainer = nullptr;
+	ATH_CHECK(evtStore()->retrieve(_refPvContainer   , m_refPVContainerName       ));
+	ATH_CHECK(evtStore()->retrieve(_refPvAuxContainer, m_refPVContainerName + "Aux."));
+	refPvContainer.reset(_refPvContainer);
+	refPvAuxContainer.reset(_refPvAuxContainer);
       } else {
 	// refitted PV container does not exist. Create a new one.
-	refPvContainer = new xAOD::VertexContainer;
-	refPvAuxContainer = new xAOD::VertexAuxContainer;
-	refPvContainer->setStore(refPvAuxContainer);
-	ATH_CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
-	ATH_CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName + "Aux."));
+	refPvContainer = std::make_unique<xAOD::VertexContainer>();
+	refPvAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+	refPvContainer->setStore(refPvAuxContainer.get());
+	ref_record = true;
       }
     }
 
@@ -149,7 +151,7 @@ namespace DerivationFramework {
 
       // decorate the mother vertex with preceding vertex links
       // https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkBPhys/src/BPhysPVCascadeTools.cxx
-      if(!BPhysPVCascadeTools::LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1])) ATH_MSG_ERROR("Error decorating with cascade vertices");
+      if(!BPhysPVCascadeTools::LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0].get(), cascadeVertices[1])) ATH_MSG_ERROR("Error decorating with cascade vertices");
 
       // Identify the input Jpsi
       xAOD::Vertex* jpsiVertex2 = BPhysPVCascadeTools::FindVertex<2>(jpsiContainer, cascadeVertices[1]);
@@ -193,8 +195,17 @@ namespace DerivationFramework {
       ndof_nc_decor(*mainVertex) = y ? y->nDoF() : 1;
 
       double Mass_Moth = m_CascadeTools->invariantMass(moms[1]); // size=3
-      ATH_CHECK(helper.FillCandwithRefittedVertices(m_refitPV, pvContainer, refPvContainer, &(*m_pvRefitter), m_PV_max, m_DoVertexType, x, 1, Mass_Moth, vtx));
+      ATH_CHECK(helper.FillCandwithRefittedVertices(m_refitPV, pvContainer, refPvContainer.get(), &(*m_pvRefitter), m_PV_max, m_DoVertexType, x, 1, Mass_Moth, vtx));
     } // loop over cascadeinfoContainer
+
+    for(int i =0; i<topoN;i++){
+      ATH_CHECK(evtStore()->record(std::move(Vtxwritehandles[i])  , m_cascadeOutputsKeys[i]));
+      ATH_CHECK(evtStore()->record(std::move(Vtxwritehandlesaux[i]), m_cascadeOutputsKeys[i] + "Aux."));
+    }
+    if(ref_record) {
+      ATH_CHECK(evtStore()->record(std::move(refPvContainer)   , m_refPVContainerName));
+      ATH_CHECK(evtStore()->record(std::move(refPvAuxContainer), m_refPVContainerName + "Aux."));
+    }
 
     // Deleting cascadeinfo since this won't be stored.
     // Vertices have been kept in m_cascadeOutputs and should be owned by their container
@@ -362,7 +373,7 @@ namespace DerivationFramework {
       tracksJpsi2.clear();
       for(size_t it=0; it<jpsiTrkNum; it++) tracksJpsi2.push_back((*jpsiItr)->trackParticle(it));
       if (tracksJpsi2.size() != 2 || massesJpsi2.size() != 2) {
-	ATH_MSG_ERROR("problems with Jpsi input");
+	ATH_MSG_ERROR("Problems with Jpsi input: number of tracks or track mass inputs is not 2!");
       }
 
       // Iterate over Psi vertices
@@ -377,7 +388,7 @@ namespace DerivationFramework {
 	tracksPsi.clear();
 	for(size_t it=0; it<psiTrkNum; it++) tracksPsi.push_back((*psiItr)->trackParticle(it));
 	if (tracksPsi.size() != 4 || massesPsi.size() != 4 ) {
-	  ATH_MSG_ERROR("problems with Psi input");
+	  ATH_MSG_ERROR("Problems with Psi input: number of tracks or track mass inputs is not 4!");
 	}
 	tracksJpsi.clear();
 	tracksJpsi.push_back((*psiItr)->trackParticle(0));
