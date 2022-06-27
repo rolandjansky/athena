@@ -5,6 +5,9 @@
 # Declare the package name.
 atlas_subdir( PowhegControl )
 
+# External dependencies:
+find_package( scipy )
+
 # Install files from the package.
 atlas_install_python_modules( python/*.py
    python/algorithms python/decorators python/parameters
