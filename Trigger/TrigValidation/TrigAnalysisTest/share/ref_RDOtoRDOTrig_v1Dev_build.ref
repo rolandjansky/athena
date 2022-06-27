@@ -16467,7 +16467,7 @@ HLT_mu4_mu4_idperf_1invmAB5_L12MU3VF:
     0: 20
     1: 17
     2: 16
-    3: 12
+    3: 14
 HLT_mu50_L1MU14FCH:
   eventCount: 2
   stepCounts:
@@ -16716,7 +16716,7 @@ HLT_mu6_idperf_L1MU5VF:
     0: 12
     1: 12
     2: 13
-    3: 11
+    3: 13
 HLT_mu6_ivarloose_mu6_11invmAB24_L12MU5VF:
   eventCount: 0
   stepCounts:
