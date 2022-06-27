@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/test/exceptions_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -29,6 +27,7 @@ void test1()
   std::cout << SG::ExcIndexNotFound ("test").what() << "\n";
   std::cout << SG::ExcIncomparableEL().what() << "\n";
   std::cout << SG::ExcBadToTransient().what() << "\n";
+  std::cout << SG::ExcConstStorable (123, "key", 765).what() << "\n";
 }
 
 

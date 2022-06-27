@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -272,6 +272,36 @@ ExcBadToTransient::ExcBadToTransient()
 void throwExcBadToTransient()
 {
   throw ExcBadToTransient();
+}
+
+
+//*************************************************************************
+
+
+/// Helper: format exception error string.
+std::string
+excConstStorable_format (CLID clid, const std::string& key, SG::sgkey_t sgkey)
+{
+  std::ostringstream os;
+  os << "SG::ExcConstStorable: "
+     << "Tried to retrieve const storable as a non-const pointer "
+     << "[" << clid << "/" << key << "] (" << sgkey << ")";
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param clid CLID of the link.
+ * @param key String key of the link.
+ * @param sgkey Hashed key of the link.
+ */
+ExcConstStorable::ExcConstStorable (CLID clid,
+                                    const std::string& key,
+                                    SG::sgkey_t sgkey)
+  : std::runtime_error (excConstStorable_format (clid, key, sgkey))
+{
+  AthLinks_error();
 }
 
 

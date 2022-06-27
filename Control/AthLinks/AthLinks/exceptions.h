@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -263,6 +260,25 @@ public:
  */
 [[noreturn]]
 void throwExcBadToTransient();
+
+
+/**
+ * @brief Exception -- Tried to retrieve const storable as a non-const pointer.
+ */
+class ExcConstStorable
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param clid CLID of the link.
+   * @param key String key of the link.
+   * @param sgkey Hashed key of the link.
+   */
+  ExcConstStorable (CLID clid,
+                    const std::string& key,
+                    SG::sgkey_t sgkey);
+};
 
 
 } // namespace SG

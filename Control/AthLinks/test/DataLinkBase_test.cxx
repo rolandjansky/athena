@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/test/DataLinkBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -83,7 +81,7 @@ void test1 (SGTest::TestStore& store)
   assert (l1.isDefault());
   assert (l1.dataID() == "");
   assert (l1.key() == 0);
-  assert (l1.storableBase (foocast, fooclid) == 0);
+  assert (l1.storableBase (foocast, fooclid, true) == 0);
   assert (l1.proxy() == 0);
   assert (l1.source() == 0);
 
@@ -101,7 +99,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "foo1");
   assert (l1.key() == sgkey1);
-  assert (l1.storableBase (foocast, fooclid) == foo1);
+  assert (l1.storableBase (foocast, fooclid, true) == foo1);
   assert (l1.proxy()->name() == "foo1");
   assert (l1.source() == &store);
 
@@ -109,7 +107,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "");
   assert (l1.key() == 0);
-  assert (l1.storableBase (foocast, fooclid) == foo2);
+  assert (l1.storableBase (foocast, fooclid, true) == foo2);
   EXPECT_EXCEPTION (SG::ExcPointerNotInSG,
                     assert (l1.proxy()->name() == "foo2"));
   EXPECT_EXCEPTION (SG::ExcPointerNotInSG,
@@ -123,7 +121,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "foo1");
   assert (l1.key() == sgkey1);
-  assert (l1.storableBase (foocast, fooclid) == foo1);
+  assert (l1.storableBase (foocast, fooclid, true) == foo1);
   assert (l1.proxy()->name() == "foo1");
   assert (l1.source() == &store);
 
@@ -131,7 +129,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "foo3");
   assert (l1.key() == sgkey3);
-  assert (l1.storableBase (foocast, fooclid) == 0);
+  assert (l1.storableBase (foocast, fooclid, true) == 0);
   assert (l1.proxy()->name() == "foo3");
   assert (l1.source() == &store);
 
@@ -141,7 +139,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "foo1");
   assert (l1.key() == sgkey1);
-  assert (l1.storableBase (foocast, fooclid) == foo1);
+  assert (l1.storableBase (foocast, fooclid, true) == foo1);
   assert (l1.proxy()->name() == "foo1");
   assert (l1.source() == &store);
 
@@ -152,7 +150,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "foo3");
   assert (l1.key() == sgkey3);
-  assert (l1.storableBase (foocast, fooclid) == 0);
+  assert (l1.storableBase (foocast, fooclid, true) == 0);
   assert (l1.proxy()->name() == "foo3");
   assert (l1.source() == &store);
 
@@ -161,7 +159,7 @@ void test1 (SGTest::TestStore& store)
   assert (l1.isDefault());
   assert (l1.dataID() == "");
   assert (l1.key() == 0);
-  assert (l1.storableBase (foocast, fooclid) == 0);
+  assert (l1.storableBase (foocast, fooclid, true) == 0);
   assert (l1.proxy() == 0);
   assert (l1.source() == 0);
 
@@ -169,7 +167,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l2.isDefault());
   assert (l2.dataID() == "foo1");
   assert (l2.key() == sgkey1);
-  assert (l2.storableBase (foocast, fooclid) == foo1);
+  assert (l2.storableBase (foocast, fooclid, true) == foo1);
   assert (l2.proxy()->name() == "foo1");
   assert (l2.source() == &store);
 
@@ -177,7 +175,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l3.isDefault());
   assert (l3.dataID() == "foo1");
   assert (l3.key() == sgkey1);
-  assert (l3.storableBase (foocast, fooclid) == foo1);
+  assert (l3.storableBase (foocast, fooclid, true) == foo1);
   assert (l3.proxy()->name() == "foo1");
   assert (l3.source() == &store);
 
@@ -185,7 +183,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l4.isDefault());
   assert (l4.dataID() == "foo1");
   assert (l4.key() == sgkey1);
-  assert (l4.storableBase (foocast, fooclid) == foo1);
+  assert (l4.storableBase (foocast, fooclid, true) == foo1);
   assert (l4.proxy()->name() == "foo1");
   assert (l4.source() == &store);
 
@@ -195,7 +193,7 @@ void test1 (SGTest::TestStore& store)
   assert (!l5.isDefault());
   assert (l5.dataID() == "foo1");
   assert (l5.key() == sgkey1);
-  assert (l5.storableBase (foocast, fooclid) == foo1);
+  assert (l5.storableBase (foocast, fooclid, true) == foo1);
   assert (l5.proxy()->name() == "foo1");
   assert (l5.source() == &store);
 }
@@ -221,7 +219,7 @@ void test2 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "foo4");
   assert (l1.key() == sgkey4);
-  assert (l1.storableBase (foocast, fooclid) == foo4);
+  assert (l1.storableBase (foocast, fooclid, true) == foo4);
   assert (l1.proxy()->name() == "foo4");
   assert (l1.source() == &store);
   l1.toTransient(ctx);
@@ -257,7 +255,7 @@ void test2 (SGTest::TestStore& store)
   assert (!l1.isDefault());
   assert (l1.dataID() == "fooz");
   assert (l1.key() == sgkeyz);
-  assert (l1.storableBase (foocast, fooclid) == fooz);
+  assert (l1.storableBase (foocast, fooclid, true) == fooz);
   assert (l1.proxy()->name() == "fooz");
   assert (l1.source() == &store);
 

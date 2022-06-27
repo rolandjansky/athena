@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataLinkBase.h 783590 2016-11-11 00:38:09Z ssnyder $
 /**
  * @file AthLinks/DataLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -316,10 +313,11 @@ protected:
    * @param clid The CLID of the desired object.
    *             This is used to determine how the returned pointer
    *             is to be converted.
+   * @param isConst True if the returned object will be treated as const.
    * @return A pointer to an object of the type given by @a clid,
    *         or null on a failure (or if the reference is null).
    */
-  void* storableBase (castfn_t* castfn, const CLID& clid) const;
+  void* storableBase (castfn_t* castfn, const CLID& clid, bool isConst) const;
 
 
 
