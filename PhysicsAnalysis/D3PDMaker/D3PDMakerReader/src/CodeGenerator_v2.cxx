@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CodeGenerator_v2.cxx 530778 2012-12-17 12:56:33Z krasznaa $
 
 // System include(s):
 #include <ctime>
@@ -31,7 +30,7 @@
 #include "isPrimitive.h"
 
 /// A little header for all the generated source files
-static const char* CODE_COMMENT =
+static const char* const CODE_COMMENT =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// -------------------------------------------------------------\n"
    "//             Code produced by D3PDMakerReader\n"
@@ -710,7 +709,8 @@ namespace D3PD {
                    << System::osVersion() << std::endl;
             header << "    *  user = " << System::accountName() << std::endl;
             const time_t rawtime = time( NULL );
-            header << "    *  time = " << ctime( &rawtime );
+            char buf[26];
+            header << "    *  time = " << ctime_r( &rawtime, buf );
             header << "    */" << std::endl;
             header << "   class " << classname << "Element : "
                    << "public UserD3PDObjectElement {" << std::endl
@@ -808,7 +808,8 @@ namespace D3PD {
                 << System::osVersion() << std::endl;
          header << "    *  user = " << System::accountName() << std::endl;
          const time_t rawtime = time( NULL );
-         header << "    *  time = " << ctime( &rawtime );
+         char buf[26];
+         header << "    *  time = " << ctime_r( &rawtime, buf );
          header << "    */" << std::endl;
          header << "   class " << classname << " : "
                 << "public UserD3PDObject {" << std::endl << std::endl;
@@ -1642,7 +1643,7 @@ namespace D3PD {
             // Try to find the size variable's name:
             //
             static const int NSIZEVARS = 2;
-            static const char* SIZEVARS[ NSIZEVARS ] = { "n", "N" };
+            static const char* const SIZEVARS[ NSIZEVARS ] = { "n", "N" };
             std::string sizeVariable = "";
             ObjectMetadata::Variable var;
             for( int i = 0; i < NSIZEVARS; ++i ) {
@@ -1965,7 +1966,8 @@ namespace D3PD {
                 << std::endl;
          header << "    *  user = " << System::accountName() << std::endl;
          time_t rawtime = time( NULL );
-         header << "    *  time = " << ctime( &rawtime );
+         char buf[26];
+         header << "    *  time = " << ctime_r( &rawtime, buf );
          header << "    */" << std::endl;
          header << "   class " << classname << " : public D3PDObjectBase {" << std::endl
                 << std::endl;

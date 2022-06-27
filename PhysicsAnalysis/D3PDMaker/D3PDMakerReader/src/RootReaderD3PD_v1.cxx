@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RootReaderD3PD_v1.cxx 462802 2011-10-12 16:06:24Z krasznaa $
 
 // STL/system include(s):
 #include <iostream>
@@ -17,7 +16,7 @@
 #include "RootReaderD3PD_v1.h"
 
 /// A little header for all the generated source files
-static const char* CODE_COMMENT =
+static const char* const CODE_COMMENT =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// -------------------------------------------------------------\n"
    "//             Code produced by D3PDMakerReader\n"
@@ -26,7 +25,7 @@ static const char* CODE_COMMENT =
    "// -------------------------------------------------------------";
 
 /// Namespace into which all the code should be put
-static const char* CODE_NAMESPACE = "D3PDReader";
+static const char* const CODE_NAMESPACE = "D3PDReader";
 
 namespace D3PD {
 
@@ -95,7 +94,8 @@ namespace D3PD {
              << std::endl;
       header << "    *  user = " << System::accountName() << std::endl;
       time_t rawtime = time( NULL );
-      header << "    *  time = " << ctime( &rawtime );
+      char buf[26];
+      header << "    *  time = " << ctime_r( &rawtime, buf );
       header << "    */" << std::endl;
       header << "   class " << classname << " : public TNamed {" << std::endl << std::endl;
       header << "   public:" << std::endl;

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: isPrimitive.cxx 462802 2011-10-12 16:06:24Z krasznaa $
 
 // STL include(s):
 #include <vector>
@@ -28,37 +27,36 @@ namespace D3PD {
       // Create an internal list of primitive type names. This
       // only has to be done once.
       //
-      static std::vector< std::string > primitives;
-      if( ! primitives.size() ) {
+      static const std::vector< std::string > primitives = {
          // Normal C++ type names:
-         primitives.push_back( "bool" );
-         primitives.push_back( "char" );
-         primitives.push_back( "unsigned char" );
-         primitives.push_back( "short" );
-         primitives.push_back( "unsigned short" );
-         primitives.push_back( "int" );
-         primitives.push_back( "unsigned int" );
-         primitives.push_back( "long" );
-         primitives.push_back( "unsigned long" );
-         primitives.push_back( "long long" );
-         primitives.push_back( "unsigned long long" );
-         primitives.push_back( "float" );
-         primitives.push_back( "double" );
+         "bool",
+         "char",
+         "unsigned char",
+         "short",
+         "unsigned short",
+         "int",
+         "unsigned int",
+         "long",
+         "unsigned long",
+         "long long",
+         "unsigned long long",
+         "float",
+         "double",
          // ROOT type names:
-         primitives.push_back( "Bool_t" );
-         primitives.push_back( "Char_t" );
-         primitives.push_back( "UChar_t" );
-         primitives.push_back( "Short_t" );
-         primitives.push_back( "UShort_t" );
-         primitives.push_back( "Int_t" );
-         primitives.push_back( "UInt_t" );
-         primitives.push_back( "Long_t" );
-         primitives.push_back( "ULong_t" );
-         primitives.push_back( "Long64_t" );
-         primitives.push_back( "ULong64_t" );
-         primitives.push_back( "Float_t" );
-         primitives.push_back( "Double_t" );
-      }
+         "Bool_t",
+         "Char_t",
+         "UChar_t",
+         "Short_t",
+         "UShort_t",
+         "Int_t",
+         "UInt_t",
+         "Long_t",
+         "ULong_t",
+         "Long64_t",
+         "ULong64_t",
+         "Float_t",
+         "Double_t",
+      };
 
       return ( std::find( primitives.begin(), primitives.end(), type ) ==
                primitives.end() ? false : true );
