@@ -6,9 +6,7 @@
 # art-include: 22.0/Athena
 # art-athena-mt: 8
 
-# There was a database connection problem reported in ATR-24782. Rodney Walker's solution is to use the following export to fix the problem:
-export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-admin
-
+# Not doing diff-root comparison for DAOD_IDTIDE at the moment (because 0 events are selected). To enable comparison for DAOD_IDTIDE, rename the output to DAOD_IDTIDE.pool.root
 
 Reco_tf.py  \
 --AMI x654  \
@@ -17,7 +15,7 @@ Reco_tf.py  \
 --outputESDFile="ESD.pool.root" \
 --outputDAOD_L1CALO2File="L1CALO2.pool.root" \
 --outputHISTFile="HIST.root" \
---outputDAOD_IDTIDEFile="DAOD_IDTIDE.pool.root" \
+--outputDAOD_IDTIDEFile="DAOD_IDTIDE.root" \
 --outputDRAW_ZMUMUFile="myDRAW_ZMUMU.data" \
 --imf False
 
