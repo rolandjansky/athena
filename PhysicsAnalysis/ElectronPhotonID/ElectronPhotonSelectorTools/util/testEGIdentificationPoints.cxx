@@ -175,7 +175,7 @@ int main( int argc, char* argv[] ) {
      //Tight cut based photon
      
      asg::StandaloneToolHandle<IAsgPhotonIsEMSelector> photonTightIsEMSelector ("AsgPhotonIsEMSelector/photonTightIsEMSelector");
-     ANA_CHECK(photonTightIsEMSelector.setProperty("WorkingPoint", "TightPhoton"));
+     ANA_CHECK(photonTightIsEMSelector.setProperty("WorkingPoint", "TightPhotonWithMu"));
      ANA_CHECK(photonTightIsEMSelector.setProperty("OutputLevel", mylevel));
      ANA_CHECK(photonTightIsEMSelector.initialize());
      // Loop over the events:

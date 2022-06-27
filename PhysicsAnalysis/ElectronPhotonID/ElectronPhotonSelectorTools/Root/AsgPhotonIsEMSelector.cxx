@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -26,6 +26,7 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //=============================================================================
 // Standard constructor
@@ -114,6 +115,8 @@ AsgPhotonIsEMSelector::initialize()
     AsgConfigHelper::HelperFloat("CutBinEta_photonsNonConverted", env);
   m_rootTool->m_cutBinEnergy_photonsNonConverted =
     AsgConfigHelper::HelperFloat("CutBinEnergy_photonsNonConverted", env);
+  m_rootTool->m_cutBinMu_photonsNonConverted =
+    AsgConfigHelper::HelperFloat("CutBinMu_photonsNonConverted", env);
   m_rootTool->m_e277_photonsNonConverted =
     AsgConfigHelper::HelperFloat("e277_photonsNonConverted", env);
   m_rootTool->m_cutHadLeakage_photonsNonConverted =
@@ -128,6 +131,8 @@ AsgPhotonIsEMSelector::initialize()
     AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsNonConverted", env);
   m_rootTool->m_cutBinEnergyStrips_photonsNonConverted =
     AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsNonConverted", env);
+  m_rootTool->m_cutBinMuStrips_photonsNonConverted =
+    AsgConfigHelper::HelperFloat("CutBinMuStrips_photonsNonConverted", env);
   m_rootTool->m_f1_photonsNonConverted =
     AsgConfigHelper::HelperFloat("f1_photonsNonConverted", env);
   m_rootTool->m_deltae_photonsNonConverted =
@@ -146,6 +151,8 @@ AsgPhotonIsEMSelector::initialize()
     AsgConfigHelper::HelperFloat("CutBinEta_photonsConverted", env);
   m_rootTool->m_cutBinEnergy_photonsConverted =
     AsgConfigHelper::HelperFloat("CutBinEnergy_photonsConverted", env);
+  m_rootTool->m_cutBinMu_photonsConverted =
+    AsgConfigHelper::HelperFloat("CutBinMu_photonsConverted", env);
   m_rootTool->m_e277_photonsConverted =
     AsgConfigHelper::HelperFloat("e277_photonsConverted", env);
   m_rootTool->m_cutHadLeakage_photonsConverted =
@@ -160,6 +167,8 @@ AsgPhotonIsEMSelector::initialize()
     AsgConfigHelper::HelperFloat("CutBinEtaStrips_photonsConverted", env);
   m_rootTool->m_cutBinEnergyStrips_photonsConverted =
     AsgConfigHelper::HelperFloat("CutBinEnergyStrips_photonsConverted", env);
+  m_rootTool->m_cutBinMuStrips_photonsConverted =
+    AsgConfigHelper::HelperFloat("CutBinMuStrips_photonsConverted", env);
   m_rootTool->m_f1_photonsConverted =
     AsgConfigHelper::HelperFloat("f1_photonsConverted", env);
   m_rootTool->m_deltae_photonsConverted =
@@ -401,6 +410,14 @@ AsgPhotonIsEMSelector::execute(const EventContext& ctx,
   if (m_trigEtTh > 0)
     et = m_trigEtTh * 1.01;
 
+  // pileup
+  float mu(-999);
+  const xAOD::EventInfo* eventInfo = nullptr;
+  if (evtStore()->retrieve(eventInfo,"EventInfo").isFailure()) {
+    ATH_MSG_ERROR ( " Cannot access event info, will use mu = " << mu );
+  }
+  mu = eventInfo->actualInteractionsPerCrossing();
+
   // apply calorimeter selection for photons
   isEM = m_rootTool->calcIsEm(eta2,
                               et,
@@ -418,7 +435,8 @@ AsgPhotonIsEMSelector::execute(const EventContext& ctx,
                               fracm,
                               f3,
                               ep,
-                              xAOD::EgammaHelpers::isConvertedPhoton(eg));
+                              xAOD::EgammaHelpers::isConvertedPhoton(eg),
+                              mu);
 
   // Add ambiguity resolution cut for photon (vs electron)
   // to reproduce release 21.2 ambiguity tool configuration

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  TPhotonIsEMSelector.cxx
@@ -320,7 +320,9 @@ Root::TPhotonIsEMSelector::accept(
   // E/p
   double ep,
   // is it a conversion
-  bool isConversion) {
+  bool isConversion,
+  // pileup
+  float mu) {
 
   // Do the actual selection
 
@@ -340,7 +342,8 @@ Root::TPhotonIsEMSelector::accept(
                                fracm,
                                f3,
                                ep,
-                               isConversion);
+                               isConversion,
+                               mu);
 
   return fillAccept(isEM);
 }
@@ -383,7 +386,9 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
   // E/p
   double ep,
   // is it a conversion
-  bool isConversion) const {
+  bool isConversion,
+  // pileup
+  float mu) const {
   unsigned int iflag = 0;
 
   // apply calorimeter selection for photons
@@ -405,7 +410,8 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
                                       fracm,
                                       f3,
                                       ep,
-                                      iflag);
+                                      iflag,
+                                      mu);
 
   } else if (m_forceNonConvertedPhotonPID || !isConversion) {
     iflag = calocuts_photonsNonConverted(eta2,
@@ -423,7 +429,8 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
                                          wtot,
                                          fracm,
                                          f3,
-                                         iflag);
+                                         iflag,
+                                         mu);
   } else {
     iflag = calocuts_photonsConverted(eta2,
                                       et,
@@ -441,7 +448,8 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
                                       fracm,
                                       f3,
                                       ep,
-                                      iflag);
+                                      iflag,
+                                      mu);
   }
 
 
@@ -482,7 +490,9 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   float fracm,
   // fraction of energy reconstructed in the 3rd sampling
   float f3,
-  unsigned int iflag) const {
+  unsigned int iflag,
+  // pileup
+  float mu) const {
   //
   // second sampling cuts
   //
@@ -529,9 +539,31 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
       return iflag;
     }
 
+    int ibinMu = 0;
+    // loop on mu range
+    for (unsigned int ibin=1; ibin <= m_cutBinMu_photonsNonConverted.size(); 
+         ibin++) {
+      if ( ibin < m_cutBinMu_photonsNonConverted.size() ) {
+        if ( mu >= m_cutBinMu_photonsNonConverted[ibin-1] && 
+	     mu < m_cutBinMu_photonsNonConverted[ibin] ) {
+            ibinMu = ibin;
+          }
+        }
+      else if ( ibin == m_cutBinMu_photonsNonConverted.size() ) {
+        if ( mu >= m_cutBinMu_photonsNonConverted[ibin-1] ) {
+          ibinMu = ibin;
+        }
+      }
+    }  
+
     // check the bin number
-    const int ibin_combined = ibine * m_cutBinEta_photonsNonConverted.size() + ibinEta;
-    
+    //const int ibin_combined = ibine * m_cutBinEta_photonsNonConverted.size() + ibinEta;
+    const int ibin_combined
+       = ibinMu * ( m_cutBinEta_photonsNonConverted.size() *
+                  ( m_cutBinEnergy_photonsNonConverted.size()+1) )
+       + ibine * m_cutBinEta_photonsNonConverted.size()
+       + ibinEta;
+
     // hadronic leakage
     if (checkVar(m_cutHadLeakage_photonsNonConverted, 23)) {
       if (eta2 < 0.8) {
@@ -619,7 +651,29 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
       return iflag;
     }
 
-    const int ibin_combinedStrips = ibineStrips * m_cutBinEtaStrips_photonsNonConverted.size() + ibinEtaStrips;
+    int ibinMuStrips = 0;
+    // loop on mu range
+    for (unsigned int ibmu=1; 
+         ibmu <= m_cutBinMuStrips_photonsNonConverted.size(); ibmu++) {
+      if ( ibmu <m_cutBinMuStrips_photonsNonConverted.size() ) {
+	if ( mu >= m_cutBinMuStrips_photonsNonConverted[ibmu-1] && 
+	     mu < m_cutBinMuStrips_photonsNonConverted[ibmu] ) {
+	  ibinMuStrips = ibmu;
+	}
+      }
+      else if ( ibmu == m_cutBinMuStrips_photonsNonConverted.size() ) {
+	if ( mu >= m_cutBinMuStrips_photonsNonConverted[ibmu-1] ) {
+	  ibinMuStrips = ibmu;
+	}
+      }
+    }
+   
+    //const int ibin_combinedStrips = ibineStrips * m_cutBinEtaStrips_photonsNonConverted.size() + ibinEtaStrips;
+    const int ibin_combinedStrips 
+      = ibinMuStrips * m_cutBinEtaStrips_photonsNonConverted.size() 
+                     * ( m_cutBinEnergyStrips_photonsNonConverted.size()+1 )
+      + ibineStrips * m_cutBinEtaStrips_photonsNonConverted.size()
+      + ibinEtaStrips;
 
     if (checkVar(m_f1_photonsNonConverted, 0)) {
       if (f1 < m_f1_photonsNonConverted[0]) {
@@ -702,7 +756,9 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   float f3,
   // E/p
   double ep,
-  unsigned int iflag) const {
+  unsigned int iflag,
+  // pileup
+  float mu) const {
   int ibine = 0;
   // loop on ET range
   for (unsigned int ibe = 1; ibe <= m_cutBinEnergy_photonsConverted.size(); ibe++) {
@@ -739,8 +795,30 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
     return iflag;
   }
 
+  int ibinMu = 0;
+  // loop on mu range
+  for (unsigned int ibin=1; ibin <= m_cutBinMu_photonsConverted.size(); ibin++) {
+    if ( ibin < m_cutBinMu_photonsConverted.size() ) {
+      if ( mu >= m_cutBinMu_photonsConverted[ibin-1] && 
+           mu < m_cutBinMu_photonsConverted[ibin] ) {
+        ibinMu = ibin;
+      }
+    }
+    else if ( ibin == m_cutBinMu_photonsConverted.size() ) {
+      if ( mu >= m_cutBinMu_photonsConverted[ibin-1] ) {
+        ibinMu = ibin;
+      }
+    }
+  }
+
   // check the bin number
-  const int ibin_combined = ibine * m_cutBinEta_photonsConverted.size() + ibinEta;
+  //const int ibin_combined = ibine * m_cutBinEta_photonsConverted.size() + ibinEta;
+  const int ibin_combined
+     = ibinMu * ( m_cutBinEta_photonsConverted.size() *
+                ( m_cutBinEnergy_photonsConverted.size()+1 ) )
+     + ibine * m_cutBinEta_photonsConverted.size() 
+     + ibinEta;
+
   //
   // second sampling cuts
   //
@@ -829,13 +907,35 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
       }
     }
 
+    int ibinMuStrips = 0;
+    // loop on mu range
+    for (unsigned int ibmu=1; 
+         ibmu <= m_cutBinMuStrips_photonsConverted.size(); ibmu++) {
+      if ( ibmu <m_cutBinMuStrips_photonsConverted.size() ) {
+	if ( mu >= m_cutBinMuStrips_photonsConverted[ibmu-1] && 
+	     mu < m_cutBinMuStrips_photonsConverted[ibmu] ) {
+	  ibinMuStrips = ibmu;
+	}
+      }
+      else if ( ibmu == m_cutBinMuStrips_photonsConverted.size() ) {
+	if ( mu >= m_cutBinMuStrips_photonsConverted[ibmu-1] ) {
+	  ibinMuStrips = ibmu;
+	}
+      }
+    }
+
     // check the bin number
     if (ibinEtaStrips == -1) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
     }
 
-    const int ibin_combinedStrips = ibineStrips * m_cutBinEtaStrips_photonsConverted.size() + ibinEtaStrips;
+    //const int ibin_combinedStrips = ibineStrips * m_cutBinEtaStrips_photonsConverted.size() + ibinEtaStrips;
+    const int ibin_combinedStrips 
+      = ibinMuStrips * m_cutBinEtaStrips_photonsNonConverted.size()
+                     * ( m_cutBinEnergyStrips_photonsNonConverted.size()+1 )
+      + ibineStrips * m_cutBinEtaStrips_photonsNonConverted.size()
+      + ibinEtaStrips;
 
     if (checkVar(m_f1_photonsConverted, 0)) {
       if (f1 < m_f1_photonsConverted[0]) {
@@ -916,18 +1016,23 @@ bool Root::TPhotonIsEMSelector::checkVar(const std::vector <T> &vec, int choice)
 
   const unsigned int etaNB_photonsConv = m_cutBinEta_photonsConverted.size();
   const unsigned int etNB_photonsConv = m_cutBinEnergy_photonsConverted.size();
+  const unsigned int muNB_photonsConv  = m_cutBinMu_photonsConverted.size();
   const unsigned int etaStripsNB_photonsConv = m_cutBinEtaStrips_photonsConverted.size();
   const unsigned int etStripsNB_photonsConv = m_cutBinEnergyStrips_photonsConverted.size();
+  const unsigned int muStripsNB_photonsConv  = m_cutBinMuStrips_photonsConverted.size();
   const unsigned int etaNB_photonsNonConv = m_cutBinEta_photonsNonConverted.size();
   const unsigned int etNB_photonsNonConv = m_cutBinEnergy_photonsNonConverted.size();
+  const unsigned int muNB_photonsNonConv  = m_cutBinMu_photonsNonConverted.size();
   const unsigned int etaStripsNB_photonsNonConv = m_cutBinEtaStrips_photonsNonConverted.size();
   const unsigned int etStripsNB_photonsNonConv = m_cutBinEnergyStrips_photonsNonConverted.size();
+  const unsigned int muStripsNB_photonsNonConv = m_cutBinMuStrips_photonsNonConverted.size();
 
   unsigned int combinedStripsNB_photonsConv = etaStripsNB_photonsConv;
   unsigned int combinedStripsNB_photonsNonConv = etaStripsNB_photonsNonConv;
   unsigned int combinedNB_photonsNonConv = etaNB_photonsNonConv;
   unsigned int combinedNB_photonsConv = etaNB_photonsConv;
 
+  // pt-dependent cuts
   if (etStripsNB_photonsNonConv > 0)
     combinedStripsNB_photonsNonConv = etaStripsNB_photonsNonConv * (etStripsNB_photonsNonConv + 1);
 
@@ -940,6 +1045,18 @@ bool Root::TPhotonIsEMSelector::checkVar(const std::vector <T> &vec, int choice)
   if (etNB_photonsNonConv > 0)
     combinedNB_photonsNonConv = etaNB_photonsNonConv * (etNB_photonsNonConv + 1);
 
+  // mu-dependent cuts
+  if (muStripsNB_photonsNonConv > 0)
+    combinedStripsNB_photonsNonConv *= (muStripsNB_photonsNonConv + 1);
+
+  if (muNB_photonsConv > 0)
+    combinedNB_photonsConv *= (muNB_photonsConv + 1);
+
+  if (muStripsNB_photonsConv > 0)
+    combinedStripsNB_photonsConv *= (muStripsNB_photonsConv + 1);
+
+  if (muNB_photonsNonConv > 0)
+    combinedNB_photonsNonConv *= (muNB_photonsNonConv + 1);
 
   // if size of vector is 0 it means cut is not defined
   if (vec.empty()) return false;

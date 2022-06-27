@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the PhotonIsEMSelectorCutDefs
 
@@ -67,3 +67,22 @@ def PhotonIsEMTightSelectorConfigPtInclJan2018(theTool):
     # PHOTON tight cuts, now with January 2018 re-optimization
     #
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/20180116/PhotonIsEMTightSelectorCutDefs.conf"
+
+#
+# mu-dependend tight ID menu, derived in January 2022 for Run3
+# Needs to be kept around for commissioning until it will replace the Run2
+# tight menu
+#
+
+def PhotonIsEMTightSelectorConfigMuDependent2022(theTool):
+    '''
+    These are the photon isEM definitions for the mu-dependent Tight menu
+    '''
+
+    theTool = GetTool(theTool)
+
+    #
+    # PHOTON tight cuts, with mu-dependent January 2022 re-optimization
+    #
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc16_20220621/PhotonIsEMTightSelectorCutDefs.conf"
+
