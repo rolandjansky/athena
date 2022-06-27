@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import division
 
@@ -219,12 +219,8 @@ def HasInputFiles(runArgs, key):
 
 
 ## Low Pt minbias set-up
-bkgArgName="LowPtMinbiasHitsFile"
-if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
-    bkgArgName="inputLowPtMinbiasHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputLowPtMinbiasHitsFile"):
+    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(runArgs.inputLowPtMinbiasHitsFile,
                                                               digitizationFlags.numberOfLowPtMinBias.get_Value(), True, digilog)
 if digitizationFlags.LowPtMinBiasInputCols.statusOn:
     digitizationFlags.doLowPtMinBias = True
@@ -232,15 +228,11 @@ else:
     digitizationFlags.doLowPtMinBias = False
 
 ## High Pt minbias set-up
-bkgArgName="HighPtMinbiasHitsFile"
-if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
-    bkgArgName="inputHighPtMinbiasHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
+if HasInputFiles(runArgs, "inputHighPtMinbiasHitsFile"):
     if(digitizationFlags.HighPtMinBiasInputColOffset.get_Value()<0):
         #Calculate a pseudo random offset into the collection from the jobNumber
-        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(bkgArg, runArgs.jobNumber, digilog)
-    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg, 
+        digitizationFlags.HighPtMinBiasInputColOffset = getInputColOffset(runArgs.inputHighPtMinbiasHitsFile, runArgs.jobNumber, digilog)
+    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(runArgs.inputHighPtMinbiasHitsFile, 
                                                                digitizationFlags.numberOfHighPtMinBias.get_Value(), True, digilog,
                                                                digitizationFlags.HighPtMinBiasInputColOffset.get_Value())
 if digitizationFlags.HighPtMinBiasInputCols.statusOn:
@@ -249,12 +241,8 @@ else:
     digitizationFlags.doHighPtMinBias = False
 
 ## Cavern Background set-up
-bkgArgName="cavernHitsFile"
-if hasattr(runArgs, "inputCavernHitsFile"):
-    bkgArgName="inputCavernHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputCavernHitsFile"):
+    digitizationFlags.cavernInputCols = makeBkgInputCol(runArgs.inputCavernHitsFile,
                                                         digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()), digilog)
 if digitizationFlags.cavernInputCols.statusOn:
     digitizationFlags.doCavern = True
@@ -262,12 +250,8 @@ else:
     digitizationFlags.doCavern = False
 
 ## Beam Halo set-up
-bkgArgName="beamHaloHitsFile"
-if hasattr(runArgs, "inputBeamHaloHitsFile"):
-    bkgArgName="inputBeamHaloHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputBeamHaloHitsFile"):
+    digitizationFlags.beamHaloInputCols = makeBkgInputCol(runArgs.inputBeamHaloHitsFile,
                                                           digitizationFlags.numberOfBeamHalo.get_Value(), True, digilog)
 if digitizationFlags.beamHaloInputCols.statusOn:
     digitizationFlags.doBeamHalo = True
@@ -275,12 +259,8 @@ else:
     digitizationFlags.doBeamHalo = False
 
 ## Beam Gas set-up
-bkgArgName="beamGasHitsFile"
-if hasattr(runArgs, "inputBeamGasHitsFile"):
-    bkgArgName="inputBeamGasHitsFile"
-if HasInputFiles(runArgs, bkgArgName):
-    exec("bkgArg = runArgs."+bkgArgName)
-    digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
+if HasInputFiles(runArgs, "inputBeamGasHitsFile"):
+    digitizationFlags.beamGasInputCols = makeBkgInputCol(runArgs.inputBeamGasHitsFile,
                                                          digitizationFlags.numberOfBeamGas.get_Value(), True, digilog)
 if digitizationFlags.beamGasInputCols.statusOn:
     digitizationFlags.doBeamGas = True

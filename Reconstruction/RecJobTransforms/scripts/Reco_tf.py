@@ -72,7 +72,7 @@ def getTransform(RAWtoALL=False):
         addPileUpTrfArgs(trf.parser)
         addCommonSimDigTrfArgs(trf.parser)
         simStepSet = set()
-        addDigitizationSubstep(simStepSet)
+        addDigitizationSubstep(simStepSet, in_reco_chain=True)
         trf.appendToExecutorSet(list(simStepSet)[0])
     except ImportError as e:
         msg.warning('Failed to import digitisation arguments ({0}). Digitisation substep will not be available.'.format(e))
