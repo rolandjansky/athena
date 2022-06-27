@@ -188,8 +188,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::initialize() {
                             if (tempStrawNumber < 0 || tempStrawNumber > (s_Straw_max[ibe] - 1)) {
                                 ATH_MSG_WARNING("Found tempStrawNumber = " << tempStrawNumber << " out of range.");
                             } else {
-                                m_mat_chip_B[idPhiModule][tempStrawNumber]    = i_chip;
-                                m_mat_chip_B[idPhiModule + 32][tempStrawNumber] = i_chip;
+                                m_mat_chip_B.at(idPhiModule).at(tempStrawNumber)    = i_chip;
+                                m_mat_chip_B.at(idPhiModule + 32).at(tempStrawNumber) = i_chip;
                             }
                         } else if (ibe == 1) { //endcap
                             ++i_chip -= 104;
@@ -198,8 +198,8 @@ StatusCode TRTMonitoringRun3ESD_Alg::initialize() {
                             if (tempStrawNumber < 0 || tempStrawNumber > (s_Straw_max[ibe] - 1)) {
                                 ATH_MSG_WARNING("Found tempStrawNumber = " << tempStrawNumber << " out of range.");
                             } else {
-                                m_mat_chip_E[idPhiModule][tempStrawNumber]    = i_chip;
-                                m_mat_chip_E[idPhiModule + 32][tempStrawNumber] = i_chip;
+                                m_mat_chip_E.at(idPhiModule).at(tempStrawNumber)    = i_chip;
+                                m_mat_chip_E.at(idPhiModule + 32).at(tempStrawNumber) = i_chip;
                             }
                         }
                     }
@@ -697,13 +697,13 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
                 thisStrawNumber[ibe] = strawNumber(straw, straw_layer, layer_or_wheel);
 
                 if (thisStrawNumber[ibe] >= 0 && thisStrawNumber[ibe] < s_Straw_max[ibe]) {
-                    chip[ibe] = m_mat_chip_B[phi_module][thisStrawNumber[ibe]];
+                    chip[ibe] = m_mat_chip_B.at(phi_module).at(thisStrawNumber[ibe]);
                 }
             } else if (ibe == 1) {
                 thisStrawNumber[ibe] = strawNumberEndCap(straw, straw_layer, layer_or_wheel, phi_module, barrel_ec);
 
                 if (thisStrawNumber[ibe] >= 0 && thisStrawNumber[ibe] < s_Straw_max[ibe]) {
-                    chip[ibe] = m_mat_chip_E[phi_module][thisStrawNumber[ibe]];
+                    chip[ibe] = m_mat_chip_E.at(phi_module).at(thisStrawNumber[ibe]);
                 }
             } else {
                 thisStrawNumber[ibe] = -1;
