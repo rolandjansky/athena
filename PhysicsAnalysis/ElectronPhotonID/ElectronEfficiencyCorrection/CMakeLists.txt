@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ElectronEfficiencyCorrection )
@@ -44,7 +44,7 @@ atlas_add_executable( EgEfficiencyCorr_mem_check
 #Test
 atlas_add_test(ut_SimpleInitTest
    SCRIPT EgEfficiencyCorr_mem_check
-   LOG_IGNORE_PATTERN "Package.AsgTool...  DEBUG")
+   LOG_IGNORE_PATTERN "Package.AsgTool...  DEBUG|MessageSvc not found")
 
 # AnalysisBase-only utilities:
 if( XAOD_STANDALONE )
