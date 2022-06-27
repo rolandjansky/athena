@@ -333,7 +333,7 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
             alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
         else: # it must be a JetInputExternal
             alg = inputInstance.algoBuilder( jetdef, inputInstance.specs ) 
-
+            
         if alg is not None:
             if isinstance( alg, list):
                 # this can happen when running in runII style atlas config...
@@ -766,8 +766,14 @@ def isAnalysisRelease():
 def reOrderAlgs(algs):
     """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
     This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
-    """
-    algs = [ a for a in algs if not isinstance(a, ComponentAccumulator)] 
+    """    
+    algs_tmp = []
+    for a in algs:
+        if not isinstance(a, ComponentAccumulator) :
+            algs_tmp.append(a)
+        else:
+            algs_tmp += a._algorithms.values() # can not ask getEventAlgos() because this returns sub-AthSequence which confuses the rest of the chain
+    algs = algs_tmp
     evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
     pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
     pairsToswap = []
@@ -780,6 +786,7 @@ def reOrderAlgs(algs):
                 pairsToswap.append((i, j))
     for i, j in pairsToswap:
         algs[i], algs[j] = algs[j], algs[i]
+        
     return algs
 
 
