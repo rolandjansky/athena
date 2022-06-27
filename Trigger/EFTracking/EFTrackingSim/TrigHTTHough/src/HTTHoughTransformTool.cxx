@@ -11,6 +11,7 @@
 #include "TrigHTTObjects/HTTConstants.h"
 #include "TrigHTTConfTools/IHTTEventSelectionSvc.h"
 #include "TrigHTTObjects/HTTHit.h"
+#include "TrigHTTObjects/HTTConstants.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
 #include "TrigHTTMaps/HTTPlaneMap.h"
 #include "TrigHTTMaps/HTTRegionMap.h"
@@ -26,8 +27,6 @@ static inline int quant(double min, double max, unsigned nSteps, double val);
 static inline double unquant(double min, double max, unsigned nSteps, int step);
 template <typename T>
 static inline std::string to_string(const std::vector<T> &v);
-
-//const double HTTHoughTransformTool::A = 0.0003;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AthAlgTool
@@ -324,7 +323,7 @@ double HTTHoughTransformTool::yToX(double y, HTTHit const * hit) const
         double r = hit->getR(); // mm
         double phi_hit = hit->getGPhi(); // radians
         double d0 = std::isnan(m_parMin.d0) ? 0 : m_parMin.d0; // mm, assume min = max
-        x = asin(r * A * y - d0 / r) + phi_hit;
+        x = asin(r * htt::A * y - d0 / r) + phi_hit;
 
         if (m_fieldCorrection) x += fieldCorrection(m_EvtSel->getRegionID(), y, r);
     }

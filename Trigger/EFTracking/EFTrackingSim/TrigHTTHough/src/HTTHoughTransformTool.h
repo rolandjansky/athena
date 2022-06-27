@@ -112,8 +112,6 @@ class HTTHoughTransformTool : public extends <AthAlgTool, IHTTRoadFinderTool>
         unsigned getThreshold() const { return m_threshold[m_threshold.size() / 2]; }
         int getSubRegion() const { return m_subRegion; }
 
-        static constexpr double A = 0.0003;
-
         // Apply correction due to B != 2T everywhere. This correction should be ADDED to
         // phi_track.
         static double fieldCorrection(unsigned region, double y, double r);
