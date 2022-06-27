@@ -131,10 +131,10 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             else:
                 diff_rules_file = diff_rules_local_path
 
-        if diff_rules_file is None:
+        if diff_rules_file is None and diff_rules_path is not None:
             diff_rules_file = diff_rules_path / diff_rules_filename
 
-        if diff_rules_file.exists():
+        if diff_rules_file is not None and diff_rules_file.exists():
             self.logger.info(f"Reading the diff rules file from location {diff_rules_file}")
             exclusion_list = []
             with diff_rules_file.open() as f:
