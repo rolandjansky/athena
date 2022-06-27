@@ -101,9 +101,7 @@ namespace G4UA
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0)
       {
         int trackID = aTrack->GetTrackID();
-        // FIXME: can we remove this const_cast?
-        G4Track *itr = const_cast<G4Track*>(aTrack);
-        TrackHelper trackHelper(itr);
+        TrackHelper trackHelper(aTrack);
 
         AtlasG4EventUserInfo* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*>
           (G4EventManager::GetEventManager()->GetConstCurrentEvent()->

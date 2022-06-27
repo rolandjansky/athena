@@ -61,8 +61,8 @@ namespace G4UA
       return;
     }
 
-    G4TouchableHistory* preTH = (G4TouchableHistory*)(preStep->GetTouchable());
-    G4TouchableHistory* postTH = (G4TouchableHistory*)(postStep->GetTouchable());
+    const G4TouchableHistory* preTH = dynamic_cast<const G4TouchableHistory*>(preStep->GetTouchable());
+    const G4TouchableHistory* postTH = dynamic_cast<const G4TouchableHistory*>(postStep->GetTouchable());
     G4LogicalVolume* preLV = preStep->GetPhysicalVolume()->GetLogicalVolume();
 
     if (preTH) {
