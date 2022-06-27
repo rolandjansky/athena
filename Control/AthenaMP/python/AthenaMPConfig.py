@@ -3,7 +3,7 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags, GetFileMD
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import Format, ProductionStep
+from AthenaConfiguration.Enums import Format
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
 from AthenaCommon.Logging import log as msg
@@ -59,7 +59,7 @@ def AthenaMPCfg(configFlags):
     mpevtloop.CollectSubprocessLogs = configFlags.MP.CollectSubprocessLogs
     mpevtloop.PollingInterval = configFlags.MP.PollingInterval
     mpevtloop.MemSamplingInterval = configFlags.MP.MemSamplingInterval
-    mpevtloop.IsPileup = True if configFlags.Common.ProductionStep in [ProductionStep.PileUpPresampling, ProductionStep.Overlay] else False
+    mpevtloop.IsPileup = configFlags.Digitization.PileUp
     mpevtloop.EventsBeforeFork = 0 if configFlags.MP.Strategy == 'EventService' else configFlags.MP.EventsBeforeFork
 
     # Configure Gaudi File Manager
