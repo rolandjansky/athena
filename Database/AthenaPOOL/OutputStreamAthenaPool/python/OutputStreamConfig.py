@@ -85,6 +85,14 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    # for each item and merge them here.
    # ======================================================
    if any([ x in streamName for x in ['AOD','ESD'] ]):
+      # LumiBlockMetaDataTool seems to cause crashes in MP derivation jobs
+      # As done in RecExCommon_topOptions.py use the algorithm in MP jobs
+      # This needs to be checked and confirmed...
+      mdToolNames = ['BookkeeperTool']
+      if configFlags.Concurrency.NumProcs > 0:
+          result.addEventAlgo(CompFactory.CreateLumiBlockCollectionFromFile())
+      else:
+          mdToolNames.append('LumiBlockMetaDataTool')
       outputStream.MetadataItemList += ['xAOD::TriggerMenuContainer#*'
                                        ,'xAOD::TriggerMenuAuxContainer#*'
                                        ,'xAOD::TriggerMenuJsonContainer#*'
@@ -100,7 +108,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
       from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
       result.merge(MetaDataSvcCfg(configFlags,
                                   tools = [CompFactory.xAODMaker.TriggerMenuMetaDataTool('TriggerMenuMetaDataTool')],
-                                  toolNames = ['LumiBlockMetaDataTool','BookkeeperTool']))
+                                  toolNames = mdToolNames))
 
    # Support for MT thinning.
    thinningCacheTool = CompFactory.Athena.ThinningCacheTool(f"ThinningCacheTool_Stream{streamName}",
