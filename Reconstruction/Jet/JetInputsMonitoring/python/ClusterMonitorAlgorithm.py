@@ -31,8 +31,18 @@ def ClusterMonitoringConfig(inputFlags):
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
     # This uses the new Configurables object system.
+    
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+    from AthenaMonitoring.EventFlagFilterToolConfig import EventFlagFilterToolCfg
+
     from AthenaConfiguration.ComponentFactory import CompFactory
-    clusterMonAlg = helper.addAlgorithm(CompFactory.ClusterMonitorAlgorithm,'ClusterMonAlg')
+    clusterMonAlg = helper.addAlgorithm(CompFactory.ClusterMonitorAlgorithm,'ClusterMonAlg',
+                                        addFilterTools = [AtlasReadyFilterCfg(inputFlags),
+                                                          LArBadLBFilterToolCfg(inputFlags),
+                                                          EventFlagFilterToolCfg(inputFlags,doLAr=True, doTile=False, doSCT=False, doCore=False)
+                                                          ])
+    
 
 
     ### STEP 3 ###

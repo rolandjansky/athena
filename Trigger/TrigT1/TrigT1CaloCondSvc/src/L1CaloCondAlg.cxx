@@ -476,10 +476,10 @@ StatusCode  L1CaloCondAlg:: execute ()
 
 
    // Adding PprDisabledChannel dependencies
-   writeHandlePprDisabledChannel.addDependency(range_PpmDeadChannels);
-   writeHandlePprDisabledChannel.addDependency(range_PprChanCalib);
-   writeHandlePprDisabledChannel.addDependency(range_DisTowers);
-
+   writeHandlePprDisabledChannel.addDependency(readHandlePpmDeadChannels);
+   writeHandlePprDisabledChannel.addDependency(readHandlePprChanCalib);
+   writeHandlePprDisabledChannel.addDependency(readHandleDisTowers);
+   
   
 
    // Saving condition containers   

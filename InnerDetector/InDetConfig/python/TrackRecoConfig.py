@@ -14,90 +14,33 @@ def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result.setPrivateTools(CompFactory.Reco.TrackToVertex(name, **kwargs))
     return result
 
-def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kwargs):
-
-    if flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCreatorToolCfg
-        return ITkTrackParticleCreatorToolCfg(flags, name, **kwargs)
-
+def RecTrackParticleContainerCnvToolCfg(flags, name="RecTrackParticleContainerCnvTool", **kwargs):
     result = ComponentAccumulator()
-    if "TrackToVertex" not in kwargs:
-        kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
-    if "TrackSummaryTool" not in kwargs:
-        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolSharedHitsCfg
-        TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
-        result.addPublicTool(TrackSummaryTool)
-        kwargs["TrackSummaryTool"] = TrackSummaryTool
 
-    if "TRT_ElectronPidTool" not in kwargs :
-        from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
-        kwargs.setdefault("TRT_ElectronPidTool", result.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
+    if "TrackParticleCreator" not in kwargs:
+        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
+        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        result.addPublicTool(TrackParticleCreator)
+        kwargs.setdefault("TrackParticleCreator", TrackParticleCreator)
 
-    if 'PixelToTPIDTool' not in kwargs :
-        from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-        kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags)))
-
-    kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
-    kwargs.setdefault("KeepParameters", True)
-    kwargs.setdefault("KeepFirstParameters", False)
-    # need to treat Vertex specifically because at the time of
-    # the track particle creation the primary vertex does not yet exist.
-    # The problem is solved by first creating track particles wrt. the beam line
-    # and correcting the parameters after the vertex finding.
-    kwargs.setdefault("PerigeeExpression", "BeamLine" if flags.InDet.Tracking.perigeeExpression=="Vertex"
-                      else flags.InDet.Tracking.perigeeExpression)
-    result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
+    result.setPrivateTools(CompFactory.xAODMaker.RecTrackParticleContainerCnvTool(name, **kwargs))
     return result
 
-def TrackParticleCreatorToolPIDCheckCfg(flags, name="InDetxAODParticleCreatorTool", **kwargs):
-    # Used only through tracking passes, where ActivePass flags are defined
-    if not flags.InDet.Tracking.ActivePass.RunTRTPID:
-        kwargs.setdefault("TRT_ElectronPidTool", None)
-    if not flags.InDet.Tracking.ActivePass.RunPixelPID:
-        kwargs.setdefault("PixelToTPIDTool", None)
-
-    # have to create special public instance depending on PID tool configuration
-    if name=="InDetxAODParticleCreatorTool" :
-        pixel_pid = flags.InDet.Tracking.ActivePass.RunPixelPID
-        trt_pid = flags.InDet.Tracking.ActivePass.RunPixelPID
-        if not trt_pid and not pixel_pid :
-            name  += "NoPID"
-        elif not trt_pid :
-            name += "NoTRTPID"
-        elif not pixel_pid :
-            name  += "NoPixPID"
-
-    return TrackParticleCreatorToolCfg(flags, name, **kwargs)
-
-def TrackParticleCreatorToolNoPIDCfg(flags, name="InDetxAODParticleCreatorToolNoPID", **kwargs):
-
-    kwargs.setdefault("TRT_ElectronPidTool", None)
-    kwargs.setdefault("PixelToTPIDTool", None)
-    return TrackParticleCreatorToolCfg(flags, name, **kwargs)
-
-def RecTrackParticleContainerCnvToolCfg(flags, name="RecTrackParticleContainerCnvTool", TrackParticleCreator = None):
-    result = ComponentAccumulator()
-    if TrackParticleCreator is None:
-        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
-    result.setPrivateTools(CompFactory.xAODMaker.RecTrackParticleContainerCnvTool(name,
-                                                                                  TrackParticleCreator=TrackParticleCreator,
-    ))
-    return result
-
-def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
+def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", **kwargs):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
         from InDetConfig.ITkTrackRecoConfig import ITkTrackCollectionCnvToolCfg
-        return ITkTrackCollectionCnvToolCfg(flags, name, TrackParticleCreator)
+        return ITkTrackCollectionCnvToolCfg(flags, name, **kwargs)
 
     result = ComponentAccumulator()
-    if TrackParticleCreator is None:
-        TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
-    result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(
-        name,
-        TrackParticleCreator=TrackParticleCreator,
-    ))
+
+    if "TrackParticleCreator" not in kwargs:
+        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
+        TrackParticleCreator = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
+        result.addPublicTool(TrackParticleCreator)
+        kwargs.setdefault("TrackParticleCreator", TrackParticleCreator)
+
+    result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
 def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
@@ -144,12 +87,16 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName
     kwargs.setdefault("TrackContainerName", TrackContainerName)
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
+
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
+        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolCfg
+        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolCfg(flags))
     if "TrackCollectionCnvTool" not in kwargs:
+        TrackParticleCreator = kwargs["TrackParticleCreator"]
+        result.addPublicTool(TrackParticleCreator)
         kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(TrackCollectionCnvToolCfg(
             flags,
-            TrackParticleCreator=kwargs["TrackParticleCreator"],
+            TrackParticleCreator = TrackParticleCreator,
         ))
 
     if flags.InDet.doTruth:
@@ -167,20 +114,18 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName
     return result
 
 def TrackParticleCnvAlgPIDCheckCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs):
-
     result = ComponentAccumulator()
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(TrackParticleCreatorToolPIDCheckCfg(flags))
-
+        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolPIDCheckCfg
+        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolPIDCheckCfg(flags))
     result.merge(TrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs))
     return result
 
 def TrackParticleCnvAlgNoPIDCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs):
-
     result = ComponentAccumulator()
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(TrackParticleCreatorToolNoPIDCfg(flags))
-
+        from TrkConfig.TrkParticleCreatorConfig import TrackParticleCreatorToolNoPIDCfg
+        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(TrackParticleCreatorToolNoPIDCfg(flags))
     result.merge(TrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs))
     return result
 

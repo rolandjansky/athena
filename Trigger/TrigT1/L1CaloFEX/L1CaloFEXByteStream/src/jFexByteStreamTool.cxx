@@ -212,7 +212,7 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
             unsigned int tobIndex = trailers_pos - (jBits::jFEX2ROD_WORDS + jBits::TOB_TRAILERS + paddingWord);
 
 
-            if(m_saveExtendedTOBs) {
+            if(m_convertExtendedTOBs) {
                 /************************************************** DECODING xTOBS **************************************************/
                 
                 //saving xjEM into the EDM container
