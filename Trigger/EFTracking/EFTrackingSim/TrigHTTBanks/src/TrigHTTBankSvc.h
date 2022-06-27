@@ -8,7 +8,7 @@
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
 #include "TrigHTTBanks/ITrigHTTBankSvc.h"
 #include "TrigHTTBanks/HTTFitConstantBank.h"
-#include "HTTSectorSlice.h"
+#include "TrigHTTBanks/HTTSectorSlice.h"
 #include "TrigHTTBanks/HTTSectorBank.h"
 
 

@@ -8,9 +8,10 @@
  */
 
 #include "TrigHTTObjects/HTTTypes.h"
+#include "TrigHTTObjects/HTTHit.h"
+#include "TrigHTTObjects/HTTConstants.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
 #include "TrigHTTMaps/HTTPlaneMap.h"
-#include "TrigHTTObjects/HTTHit.h"
 #include "HTTPhiRoadFilterTool.h"
 
 #include "TH2.h"
@@ -24,8 +25,6 @@
 
 static inline std::string instance_name(std::string const & s);
 
-
-static const float A = 0.0003;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AthAlgTool
@@ -101,7 +100,7 @@ HTTRoad_Hough  HTTPhiRoadFilterTool::buildRoad(HTTRoad* origr) const
   for (unsigned lyr = 0; lyr < m_nLayers; lyr++) {
     std::vector<const HTTHit*> road_hits;
     for (auto hit : origr->getHits(lyr)) {
-      float phi_expected = -1.0*asin(A * hit->getR() * qPt) + phi;
+      float phi_expected = -1.0*asin(htt::A * hit->getR() * qPt) + phi;
       if (abs(hit->getGPhi()-phi_expected)< (m_window.value()[lyr]+qPt*m_ptscaling)) {
 	road_hits.push_back(hit);
 	hitLayers |= 1 << hit->getLayer();

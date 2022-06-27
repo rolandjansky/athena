@@ -7,7 +7,7 @@
  * @brief See header.
  */
 
-#include "HTTSectorSlice.h"
+#include "TrigHTTBanks/HTTSectorSlice.h"
 #include "TrigHTTObjects/HTTTypes.h"
 
 #include <TFile.h>

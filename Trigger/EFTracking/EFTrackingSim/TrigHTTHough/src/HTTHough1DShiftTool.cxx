@@ -14,6 +14,7 @@
 #include "TrigHTTMaps/HTTPlaneMap.h"
 #include "TrigHTTMaps/HTTRegionMap.h"
 #include "TrigHTTObjects/HTTHit.h"
+#include "TrigHTTObjects/HTTConstants.h"
 #include "TrigHTTBanks/ITrigHTTBankSvc.h"
 #include "HTTHough1DShiftTool.h"
 
@@ -30,8 +31,6 @@ static inline float deltaPhi(float r, float qPt);
 static inline boost::dynamic_bitset<> lshift(boost::dynamic_bitset<> const & b, int n);
 static inline boost::dynamic_bitset<> rshift(boost::dynamic_bitset<> const & b, int n);
 static inline void updateBinHits(std::vector<boost::dynamic_bitset<>> & binHits, unsigned layer, boost::dynamic_bitset<> const & b);
-
-static const float A = 0.0003;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AthAlgTool
@@ -390,7 +389,7 @@ HTTRoad_Hough HTTHough1DShiftTool::makeRoad(const std::vector<const HTTHit*>& hi
 float HTTHough1DShiftTool::getPtFromShiftDiff(int shift) const
 {
   if (m_iterLayer == 0) ATH_MSG_FATAL("getPtFromShiftDiff() iterLayer can't be 0");
-  return (shift * m_phiStep / A) / (m_r[m_iterLayer] - m_r[0]);
+  return (shift * m_phiStep / htt::A) / (m_r[m_iterLayer] - m_r[0]);
 }
 
 
@@ -425,9 +424,9 @@ float HTTHough1DShiftTool::qPt(float r, float deltaPhi) const
     float r1=m_r[0];
     float r2=r;
     float sign = deltaPhi>0 ? 1 : -1;
-    return sign*1/(2*A) * sqrt((4*sin(deltaPhi)*sin(deltaPhi))/( r1*r1 + r2*r2 -2*r2*r1*cos(deltaPhi)));
+    return sign*1/(2*htt::A) * sqrt((4*sin(deltaPhi)*sin(deltaPhi))/( r1*r1 + r2*r2 -2*r2*r1*cos(deltaPhi)));
   }
-  return sin(deltaPhi) / (A * r);
+  return sin(deltaPhi) / (htt::A * r);
 }
 
 float HTTHough1DShiftTool::phitrkDiff(float r1, float phi1,  float r2,  float phi2) const
@@ -459,7 +458,7 @@ static inline std::string instance_name(std::string const & s)
 
 static inline float deltaPhi(float r, float qPt)
 {
-  return asin(A * r * qPt);
+  return asin(htt::A * r * qPt);
 }
 
 

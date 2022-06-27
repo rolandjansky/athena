@@ -11,6 +11,7 @@
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
 #include "TrigHTTMaps/HTTPlaneMap.h"
 #include "TrigHTTObjects/HTTHit.h"
+#include "TrigHTTObjects/HTTConstants.h"
 #include "HTTEtaPatternFilterTool.h"
 
 #include "TH2.h"

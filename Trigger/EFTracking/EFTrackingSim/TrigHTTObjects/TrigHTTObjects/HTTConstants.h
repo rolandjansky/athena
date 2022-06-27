@@ -20,6 +20,9 @@ namespace htt {
     // --- This is the current HTTCluster to HTTHit scaling factor --- //
     constexpr float scaleHitFactor = 2;
     constexpr float DEG_TO_RAD = 0.017453292519943295;
+
+    static constexpr double A = 0.0003; // for Hough Transform
+
 }
 
 #endif // TRIGHTTOBJECTS_CONSTANTS_H
