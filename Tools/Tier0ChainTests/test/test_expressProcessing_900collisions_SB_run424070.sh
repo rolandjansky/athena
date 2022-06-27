@@ -6,18 +6,21 @@
 # art-include: 22.0/Athena
 # art-athena-mt: 8
 
-# There was a database connection problem reported in ATR-24782. Rodney Walker's solution is to use the following export to fix the problem:
-export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-admin
-
+# Not doing diff-root comparison for DAOD_IDTIDE at the moment (because 0 events are selected). To enable comparison for DAOD_IDTIDE, rename the output to DAOD_IDTIDE.pool.root
 
 Reco_tf.py  \
---AMI f1218  \
---inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_cos.00412343.physics_Main.daq.RAW._lb0840._SFO-13._0001.data" \
+--AMI x654  \
+--inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1" \
 --outputAODFile="AOD.pool.root" \
 --outputESDFile="ESD.pool.root" \
 --outputDAOD_L1CALO2File="L1CALO2.pool.root" \
 --outputHISTFile="HIST.root" \
+--outputDAOD_IDTIDEFile="DAOD_IDTIDE.root" \
 --imf False
+
+# Temporarily not creating DRAW_ZMUMU output due to https://its.cern.ch/jira/browse/ATLASRECTS-7122. If it is solved, then add it back:
+#--outputDRAW_ZMUMUFile="myDRAW_ZMUMU.data" \
+
 
 rc1=$?
 echo "art-result: $rc1 Reco"

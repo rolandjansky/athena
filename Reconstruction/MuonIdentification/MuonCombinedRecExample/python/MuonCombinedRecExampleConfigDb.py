@@ -87,6 +87,8 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrack
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonInDetForwardCandidateTool","MuonInDetForwardCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","MuonCombinedParticleCreator")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCaloParticleCreator","MuonCaloParticleCreator")
+
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonSelectionTool","MuonRecoSelTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","MuonCreatorTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorTool",BuildStauContainer=True)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool_LRT","MuonCreatorTool_LRT")

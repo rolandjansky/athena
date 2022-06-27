@@ -103,12 +103,13 @@ StatusCode TrackCountHypoAlg::execute(const EventContext &context) const
   {
     const double pT = trackPtr->pt();
     const double z0 = trackPtr->z0();
+    const double sinTheta = std::sin(trackPtr->theta());
 
     for (long unsigned int i = 0; i < m_minPt.size(); i++)
     {
       if (pT >= m_minPt[i] 
           && std::fabs(z0) < m_maxZ0[i] 
-          && ( std::abs(z0-vertexZ) < m_vertexZ[i] ) )
+          && ( std::abs((z0-vertexZ)*sinTheta) < m_vertexZ[i] ) )
         counts[i]++;
     }
   }

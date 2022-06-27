@@ -532,6 +532,24 @@ def muEFCBSequence(ConfigFlags, is_probe_leg=False):
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict,
                          IsProbe     = is_probe_leg )
 
+def muEFCBIDperfSequence(ConfigFlags, is_probe_leg=False):
+
+    (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
+
+    # setup EFCB hypo for idperf (needs to not require CB muons)
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
+    trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerIDperfHypoAlg", IncludeSAmuons=True  )
+    trigMuonEFCBHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBHypo.MapToPreviousDecisions=True
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFCBSequence,
+                         Maker       = efcbViewsMaker,
+                         Hypo        = trigMuonEFCBHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
+
 
 
 def muEFCBLRTAlgSequence(ConfigFlags):
