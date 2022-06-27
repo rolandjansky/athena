@@ -49,5 +49,5 @@ Python example:
 rootcint command. 
 Run in cmt/ or config/ directory.
 
-${ROOTSYS}/bin/rootcint -f ../Root/TGoodRunsListsCint.cxx -c -p  -O2 -Wall -fPIC -pthread -m32 -I${ROOTSYS}/include -D__NOLIBXML__ -I${ROOTSYS}/include -I.. -I../Root -I../GoodRunsLists TUniqueGRLString.h RegularFormula.h StrUtil.h TMsgLogger.h TGoodRunsListWriter.h TGoodRunsListReader.h TLumiBlockRange.h TGoodRun.h TGoodRunsList.h TGRLCollection.h DQHelperFunctions.h LinkDef.h
+${ROOTSYS}/bin/rootcint -f ../Root/TGoodRunsListsCint.cxx -c -p  -O2 -Wall -fPIC -pthread -m32 -I${ROOTSYS}/include -D__NOLIBXML__ -I${ROOTSYS}/include -I.. -I../Root -I../GoodRunsLists RegularFormula.h StrUtil.h TMsgLogger.h TGoodRunsListWriter.h TGoodRunsListReader.h TLumiBlockRange.h TGoodRun.h TGoodRunsList.h TGRLCollection.h LinkDef.h
 

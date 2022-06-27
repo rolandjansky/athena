@@ -12,7 +12,7 @@ atlas_add_root_dictionary( GoodRunsListsLib
    GoodRunsListsLibDictSource
    ROOT_HEADERS GoodRunsLists/TLumiBlockRange.h GoodRunsLists/RegularFormula.h
    GoodRunsLists/TGoodRunsListReader.h GoodRunsLists/TGoodRunsListWriter.h
-   GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h
+   Root/LinkDef.h
    EXTERNAL_PACKAGES LibXml2 ROOT )
 
 set( extra_libs DerivationFrameworkInterfaces )
