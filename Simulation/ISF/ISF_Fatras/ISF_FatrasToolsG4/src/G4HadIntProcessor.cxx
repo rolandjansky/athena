@@ -325,46 +325,46 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
   G4NistManager* G4Nist = G4NistManager::Instance();
   G4Material* air = G4Nist->G4NistManager::FindOrBuildMaterial("G4_AIR");
   if (air) {
-    G4MaterialCutsCouple* airCuts = new G4MaterialCutsCouple(air);
+    G4MaterialCutsCouple airCuts = G4MaterialCutsCouple(air);
     // airCuts->SetIndex(0);    // ?
-    std::pair<G4Material*,G4MaterialCutsCouple*> airMat(air,airCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(0.,airMat));
+    std::pair<G4Material*,G4MaterialCutsCouple> airMat(air,airCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(0.,airMat));
   }
   G4Material* h = G4Nist->G4NistManager::FindOrBuildMaterial("G4_H");
   if (h) {
-    G4MaterialCutsCouple* hCuts = new G4MaterialCutsCouple(h);
-    std::pair<G4Material*,G4MaterialCutsCouple*> hMat(h,hCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(1.,hMat));
+    G4MaterialCutsCouple hCuts = G4MaterialCutsCouple(h);
+    std::pair<G4Material*,G4MaterialCutsCouple> hMat(h,hCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(1.,hMat));
   }
   G4Material* al = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Al");
   if (al) {
-    G4MaterialCutsCouple* alCuts = new G4MaterialCutsCouple(al);
-    std::pair<G4Material*,G4MaterialCutsCouple*> alMat(al,alCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(13.,alMat));
+    G4MaterialCutsCouple alCuts = G4MaterialCutsCouple(al);
+    std::pair<G4Material*,G4MaterialCutsCouple> alMat(al,alCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(13.,alMat));
   }
   G4Material* si = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Si");
   if (si) {
-    G4MaterialCutsCouple* siCuts = new G4MaterialCutsCouple(si);
-    std::pair<G4Material*,G4MaterialCutsCouple*> siMat(si,siCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(14.,siMat));
+    G4MaterialCutsCouple siCuts = G4MaterialCutsCouple(si);
+    std::pair<G4Material*,G4MaterialCutsCouple> siMat(si,siCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(14.,siMat));
   }
   G4Material* ar = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Ar");
   if (ar) {
-    G4MaterialCutsCouple* arCuts = new G4MaterialCutsCouple(ar);
-    std::pair<G4Material*,G4MaterialCutsCouple*> arMat(ar,arCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(18.,arMat));
+    G4MaterialCutsCouple arCuts = G4MaterialCutsCouple(ar);
+    std::pair<G4Material*,G4MaterialCutsCouple> arMat(ar,arCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(18.,arMat));
   }
   G4Material* fe = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Fe");
   if (fe) {
-    G4MaterialCutsCouple* feCuts = new G4MaterialCutsCouple(fe);
-    std::pair<G4Material*,G4MaterialCutsCouple*> feMat(fe,feCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(26.,feMat));
+    G4MaterialCutsCouple feCuts = G4MaterialCutsCouple(fe);
+    std::pair<G4Material*,G4MaterialCutsCouple> feMat(fe,feCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(26.,feMat));
   }
   G4Material* pb = G4Nist->G4NistManager::FindOrBuildMaterial("G4_Pb");
   if (pb) {
-    G4MaterialCutsCouple* pbCuts = new G4MaterialCutsCouple(pb);
-    std::pair<G4Material*,G4MaterialCutsCouple*> pbMat(pb,pbCuts);
-    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(82.,pbMat));
+    G4MaterialCutsCouple pbCuts = G4MaterialCutsCouple(pb);
+    std::pair<G4Material*,G4MaterialCutsCouple> pbMat(pb,pbCuts);
+    m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple> >(82.,pbMat));
   }
 
   ATH_MSG_INFO("material vector size for had interaction:"<< m_g4Material.size());
@@ -432,12 +432,15 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
   //g4track->SetTouchableHandle( g4touchable);
 
   // setup up G4Material ---------------------------------------------------------------------------
-  std::pair<G4Material*, G4MaterialCutsCouple*> g4mat = retrieveG4Material(ematprop);
-  if (!g4mat.first) return chDef;
+  unsigned int g4matInd  = retrieveG4MaterialIndex(ematprop);
+
+  if (g4matInd >= m_g4Material.size()) {
+    return chDef;
+  }
 
   // further G4 initializations (G4Step, G4MaterialCutsCouple, ...)
-  m_g4stepPoint->SetMaterial( g4mat.first);
-  m_g4stepPoint->SetMaterialCutsCouple( g4mat.second);
+  m_g4stepPoint->SetMaterial(m_g4Material[g4matInd].second.first);
+  m_g4stepPoint->SetMaterialCutsCouple(&(m_g4Material[g4matInd].second.second));
 
   // preparing G4Step and G4Track
   m_g4step->DeleteSecondaryVector();
@@ -589,11 +592,14 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::doHadIntOnLayer(const ISF::IS
 
 }
 
-std::pair<G4Material*,G4MaterialCutsCouple*> iFatras::G4HadIntProcessor::retrieveG4Material(const Trk::Material *ematprop) const {
+unsigned int iFatras::G4HadIntProcessor::retrieveG4MaterialIndex(const Trk::Material *ematprop) const {
 
-  if (!m_g4Material.size()) {
+  unsigned int nMaterials = m_g4Material.size();
+  unsigned int invalidIndex = nMaterials + 1;
+  
+  if (0==nMaterials) {
     ATH_MSG_WARNING(" no predefined G4 material available for hadronic interaction " );
-    return std::pair<G4Material*,G4MaterialCutsCouple*> (0,0);
+    return (invalidIndex);
   }
 
   // in the absence of detailed material composition, use average Z
@@ -603,9 +609,9 @@ std::pair<G4Material*,G4MaterialCutsCouple*> iFatras::G4HadIntProcessor::retriev
   // choose from predefined materials
   unsigned int imat=0;
 
-  while (imat < m_g4Material.size() && iZ > m_g4Material[imat].first ) imat++;
+  while (imat < nMaterials && iZ > m_g4Material[imat].first ) imat++;
 
-  unsigned int iSel=imat< m_g4Material.size() ? imat : m_g4Material.size()-1;
+  unsigned int iSel=imat< nMaterials ? imat : nMaterials-1;
 
   if (iSel>0) {
     // pick randomly to reproduce the average Z
@@ -617,6 +623,6 @@ std::pair<G4Material*,G4MaterialCutsCouple*> iFatras::G4HadIntProcessor::retriev
     if (iZ*iZ+pow(m_g4Material[iSel-1].first,2) < rnd*dz2) iSel--;
   }
 
-  return m_g4Material[iSel].second;
+  return(iSel);
 
 }
