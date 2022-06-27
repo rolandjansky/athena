@@ -116,9 +116,9 @@ StatusCode MetaDataSvc::initialize() {
    ATH_CHECK( m_metaDataTools.retrieve() );
    ATH_MSG_INFO("Found " << m_metaDataTools);
 
-   m_incSvc->addListener(this, "FirstInputFile", 80);
-   m_incSvc->addListener(this, "BeginInputFile", 80);
-   m_incSvc->addListener(this, "EndInputFile", 10);
+   m_incSvc->addListener(this, "FirstInputFile", 80, true);
+   m_incSvc->addListener(this, "BeginInputFile", 80, true);
+   m_incSvc->addListener(this, "EndInputFile", 10, true);
 
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
@@ -241,7 +241,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
          m_clearedInputDataStore = true;
       }
       if (!initInputMetaDataStore(fileName).isSuccess()) {
-         ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
+         ATH_MSG_ERROR("Unable to initialize InputMetaDataStore");
          return StatusCode::FAILURE;
       }
    }
@@ -582,7 +582,8 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
       }
       std::list<SG::TransientAddress*> tList;
       if (!loadAddresses(StoreID::METADATA_STORE, tList).isSuccess()) {
-         ATH_MSG_WARNING("Unable to load MetaData Proxies");
+         ATH_MSG_ERROR("Unable to load MetaData Proxies");
+         return StatusCode::FAILURE;
       }
       for (SG::TransientAddress* tad : tList) {
          CLID clid = tad->clID();
@@ -592,6 +593,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
          } else {
             if (!m_inputDataStore->recordAddress(tad->name(), tad->address())) {
                ATH_MSG_ERROR("initInputMetaDataStore: Cannot create proxy for clid = " << clid << ", key = " << tad->name());
+               return StatusCode::FAILURE;
             }
          }
 
