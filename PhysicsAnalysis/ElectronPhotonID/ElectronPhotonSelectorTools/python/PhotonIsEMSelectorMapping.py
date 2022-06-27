@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # =============================================================================
 #  Name:        PhotonIsEMSelectorMapping.py
@@ -29,6 +29,7 @@ from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 class photonPIDmenu:
     menuCurrentCuts = 0
     menuPtInclJan2018 = 1
+    menuMuDependent2022 = 2
 
 
 # format - key: (mask, function)
@@ -63,6 +64,12 @@ PhotonIsEMMapPtInclJan2018 = {
         PhotonIsEMMenuDefs.PhotonIsEMTightSelectorConfigPtInclJan2018),
 }
 
+PhotonIsEMMapMuDependent2022 = {
+    egammaPID.PhotonIDTight:  (
+        egammaPID.PhotonTight,
+        PhotonIsEMMenuDefs.PhotonIsEMTightSelectorConfigMuDependent2022),
+}
+
 
 def PhotonIsEMMap(quality, menu):
     # These are the "current menus" (non-legacy)
@@ -70,5 +77,7 @@ def PhotonIsEMMap(quality, menu):
         return PhotonIsEMMapCurrent[quality]
     elif menu == photonPIDmenu.menuPtInclJan2018 and quality in PhotonIsEMMapPtInclJan2018.keys():
         return PhotonIsEMMapPtInclJan2018[quality]
+    elif menu == photonPIDmenu.menuMuDependent2022 and quality in PhotonIsEMMapMuDependent2022.keys():
+        return PhotonIsEMMapMuDependent2022[quality]
     else:
         raise ValueError("Requested menu is undefined: %d" % menu)

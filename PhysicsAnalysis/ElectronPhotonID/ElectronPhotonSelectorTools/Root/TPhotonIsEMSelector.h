@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -89,7 +89,10 @@ namespace Root {
       // E/p
       double ep,
       // is it a conversion
-      bool isConversion);
+      bool isConversion,
+      // pileup
+      float mu) ;
+
 
     /** Return dummy accept with only info */
     asg::AcceptData accept() const { return asg::AcceptData(&m_acceptInfo); }
@@ -131,7 +134,9 @@ namespace Root {
       // E/p
       double ep,
       // is it a conversion
-      bool isConversion) const;
+      bool isConversion,
+      // pileup
+      float mu) const;
 
     /** @brief Apply calorimeter cuts for selection of converted photons*/
     unsigned int calocuts_photonsConverted(
@@ -167,7 +172,10 @@ namespace Root {
       float f3,
       // E/p
       double ep,
-      unsigned int iflag) const;
+      //
+      unsigned int iflag,
+      // pileup
+      float mu) const;
 
     /** @brief Apply calorimeter cuts for selection of non converted photons*/
     unsigned int calocuts_photonsNonConverted(
@@ -201,7 +209,10 @@ namespace Root {
       float fracm,
       // fraction of energy reconstructed in the 3rd sampling
       float f3,
-      unsigned int iflag) const;
+      //
+      unsigned int iflag,
+      // pileup
+      float mu) const;
 
     ///////////////////////////////////
     // Public members (the cut values)
@@ -224,6 +235,8 @@ namespace Root {
     std::vector<float> m_cutBinEta_photonsNonConverted;
     /** @brief range of ET bins for photon-ID*/
     std::vector<float> m_cutBinEnergy_photonsNonConverted;
+    /** @brief range of mu bins for photon-ID*/
+    std::vector<float> m_cutBinMu_photonsNonConverted;
     /** @brief Cut in E277 for photons*/
     std::vector<float> m_e277_photonsNonConverted;
     /** @brief Cut on hadronic leakage for photons*/
@@ -239,6 +252,8 @@ namespace Root {
     std::vector<float> m_cutBinEtaStrips_photonsNonConverted;
     /** @brief */
     std::vector<float> m_cutBinEnergyStrips_photonsNonConverted;
+    /** @brief binning in pielup in strips for photons*/
+    std::vector<float> m_cutBinMuStrips_photonsNonConverted;
     /** @brief Cut on fraction of energy rec. in 1st sampling for photons*/
     std::vector<float> m_f1_photonsNonConverted;
     /** @brief Cut on Demax2 for photons*/
@@ -263,6 +278,8 @@ namespace Root {
     std::vector<float> m_cutBinEta_photonsConverted;
     /** @brief range of ET bins for photon-ID*/
     std::vector<float> m_cutBinEnergy_photonsConverted;
+    /** @brief range of mu bins for photon-ID*/
+    std::vector<float> m_cutBinMu_photonsConverted;
     /** @brief Cut in E277 for photons*/
     std::vector<float> m_e277_photonsConverted;
     /** @brief Cut on hadronic leakage for photons*/
@@ -278,6 +295,8 @@ namespace Root {
     std::vector<float> m_cutBinEtaStrips_photonsConverted;
     /** @brief */
     std::vector<float> m_cutBinEnergyStrips_photonsConverted;
+    /** @brief binning in pileup in strips for photons*/
+    std::vector<float> m_cutBinMuStrips_photonsConverted;
     /** @brief Cut on fraction of energy rec. in 1st sampling for photons*/
     std::vector<float> m_f1_photonsConverted;
     /** @brief Cut on Demax2 for photons*/

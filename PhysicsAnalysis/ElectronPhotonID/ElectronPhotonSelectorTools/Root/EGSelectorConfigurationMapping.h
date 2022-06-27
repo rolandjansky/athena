@@ -43,6 +43,9 @@ const std::map<std::string, std::string> PhotonCutPointToConfFile = {
   { "TightPhoton",
     "ElectronPhotonSelectorTools/offline/20180825/"
     "PhotonIsEMTightSelectorCutDefs.conf" },
+  { "TightPhotonWithMu",
+    "ElectronPhotonSelectorTools/offline/mc16_20220621/"
+    "PhotonIsEMTightSelectorCutDefs.conf" },
 };
 const std::map<std::string, std::string> ForwardLHPointToConfFile = {
   { "LooseLHForwardElectron",
@@ -80,6 +83,7 @@ const std::map<std::string, unsigned int> PhotonCutPointToMask = {
   { "LoosePhoton", egammaPID::PhotonLoose },
   { "MediumPhoton", egammaPID::PhotonMedium },
   { "TightPhoton", egammaPID::PhotonTight },
+  { "TightPhotonWithMu", egammaPID::PhotonTight },
 };
 const std::map<std::string, std::string> ElectronDNNPointToConfFile = {
   { "LooseDNNElectron",
