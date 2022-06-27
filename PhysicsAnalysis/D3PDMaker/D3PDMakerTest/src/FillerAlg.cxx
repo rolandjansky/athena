@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -35,8 +35,8 @@ namespace D3PDTest {
 // Dufus-quality RNG, using LCG.  Constants from numerical recipies.
 // I don't particularly care about RNG quality here, just about
 // getting something that's reproducible.
-uint32_t seed = 1;
-uint32_t rngmax = static_cast<uint32_t> (-1);
+std::atomic<uint32_t> seed = 1;
+const uint32_t rngmax = static_cast<uint32_t> (-1);
 uint32_t rng()
 {
   seed = (1664525*seed + 1013904223);
@@ -166,10 +166,10 @@ StatusCode FillerAlg::fillObj5Collections()
   auto store = make_unique<SG::AuxStoreInternal>();
   c->setStore (store.get());
 
-  static Obj5::Accessor<int> anInt ("anInt");
-  static Obj5::Accessor<float> aFloat ("aFloat");
-  static Obj5::Accessor<std::string> aString ("aString");
-  static Obj5::Accessor<D3PDTest::MyVec2> aFourvec ("aFourvec");
+  static const Obj5::Accessor<int> anInt ("anInt");
+  static const Obj5::Accessor<float> aFloat ("aFloat");
+  static const Obj5::Accessor<std::string> aString ("aString");
+  static const Obj5::Accessor<D3PDTest::MyVec2> aFourvec ("aFourvec");
 
   for (unsigned i = 0; i < 10; i++) {
     c->push_back (make_unique<Obj5> (300*m_count + i));
