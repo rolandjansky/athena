@@ -12,7 +12,6 @@ from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 #   """Fill default derivation flags"""
 #    # Not sure if anything will be needed here, leaving as a comment in case it is needed later
 
-
 def fromRunArgs(runArgs):
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = True

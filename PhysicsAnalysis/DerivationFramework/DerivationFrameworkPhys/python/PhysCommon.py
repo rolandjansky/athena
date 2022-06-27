@@ -19,7 +19,7 @@ EGammaCommon.makeEGammaDFCommon()
 MuonsCommon.makeMuonsDFCommon()
 from DerivationFrameworkJetEtMiss.JetCommon import addEventCleanFlags, addBadBatmanFlag, addDistanceInTrain, addDAODJets, addSidebandEventShape
 from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow,AntiKtVR30Rmax4Rmin02PV0Track
-from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed,AntiKt10UFOCSSKSoftDrop
 from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 
 ### Augmentation tools lists
@@ -71,7 +71,8 @@ AntiKt4EMPFlow_deriv = AntiKt4EMPFlow.clone(
 jetList = [AntiKt4EMTopo_deriv,
            AntiKt4EMPFlow_deriv,
            AntiKtVR30Rmax4Rmin02PV0Track,
-           AntiKt10LCTopoTrimmed]
+           AntiKt10LCTopoTrimmed,
+           AntiKt10UFOCSSKSoftDrop]
 
 addDAODJets(jetList,DerivationFrameworkJob)
 
