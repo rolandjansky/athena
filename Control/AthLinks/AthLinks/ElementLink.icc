@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/ElementLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -769,7 +767,7 @@ const void* ElementLink<STORABLE>::storable() const
 {
   typedef STORABLE* fn_t (SG::DataProxy*);
   fn_t* fn = &SG::DataProxy_cast<STORABLE>;
-  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID());
+  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID(), true);
 }
 
 
@@ -785,7 +783,7 @@ void* ElementLink<STORABLE>::storableNonConst()
 {
   typedef STORABLE* fn_t (SG::DataProxy*);
   fn_t* fn = &SG::DataProxy_cast<STORABLE>;
-  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID());
+  return this->storableBase (reinterpret_cast<castfn_t*> (fn), classID(), false);
 }
 
 

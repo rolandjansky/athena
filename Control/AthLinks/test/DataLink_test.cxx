@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/test/DataLink_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -98,6 +96,10 @@ void test1 (SGTest::TestStore& store)
   assert (foo2 == dl3.getDataPtr());
   assert (foo2 == dl3.getDataNonConstPtr());
   assert (dl3.source() == &store);
+
+  store.proxy (fooclid, "foo2")->setConst();
+  assert (foo2 == dl3.getDataPtr());
+  EXPECT_EXCEPTION (SG::ExcConstStorable, dl3.getDataNonConstPtr());
 
   Bar* bar = new Bar (5);
   store.record (bar, "bar");

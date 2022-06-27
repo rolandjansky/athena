@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
 /**
  * @file AthLinks/test/DataProxyHolder_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -62,7 +61,7 @@ void test1 (SGTest::TestStore& store)
   SG::DataProxyHolder h1;
   assert (h1.isDefault());
   assert (h1.dataID() == "");
-  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.storableBase (foocast, fooclid, true) == 0);
   assert (h1.proxy() == 0);
   assert (h1.source() == 0);
 
@@ -80,14 +79,14 @@ void test1 (SGTest::TestStore& store)
   assert (h1.toStorableObject (foo1, fooclid, 0) == sgkey1);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo1");
-  assert (h1.storableBase (foocast, fooclid) == foo1);
+  assert (h1.storableBase (foocast, fooclid, true) == foo1);
   assert (h1.proxy()->name() == "foo1");
   assert (h1.source() == &store);
 
   assert (h1.toStorableObject (foo2, fooclid, 0) == 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "");
-  assert (h1.storableBase (foocast, fooclid) == foo2);
+  assert (h1.storableBase (foocast, fooclid, true) == foo2);
   EXPECT_EXCEPTION (SG::ExcPointerNotInSG,
                     assert (h1.proxy()->name() == "foo2"));
   EXPECT_EXCEPTION (SG::ExcPointerNotInSG,
@@ -100,14 +99,14 @@ void test1 (SGTest::TestStore& store)
   assert (h1.toIdentifiedObject ("foo1", fooclid, 0) == sgkey1);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo1");
-  assert (h1.storableBase (foocast, fooclid) == foo1);
+  assert (h1.storableBase (foocast, fooclid, true) == foo1);
   assert (h1.proxy()->name() == "foo1");
   assert (h1.source() == &store);
 
   assert (h1.toIdentifiedObject ("foo3", fooclid, 0) == sgkey3);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo3");
-  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.storableBase (foocast, fooclid, true) == 0);
   assert (h1.proxy()->name() == "foo3");
   assert (h1.source() == &store);
 
@@ -117,7 +116,7 @@ void test1 (SGTest::TestStore& store)
   h1.toIdentifiedObject (sgkey1, fooclid, 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo1");
-  assert (h1.storableBase (foocast, fooclid) == foo1);
+  assert (h1.storableBase (foocast, fooclid, true) == foo1);
   assert (h1.proxy()->name() == "foo1");
   assert (h1.source() == &store);
   assert (store.m_missedProxies.empty());
@@ -125,17 +124,23 @@ void test1 (SGTest::TestStore& store)
   EXPECT_EXCEPTION (SG::ExcCLIDMismatch,
                     h1.toIdentifiedObject (sgkey1, barclid, 0));
 
+  assert (h1.storableBase (foocast, fooclid, false) == foo1);
+  store.proxy (fooclid, "foo1")->setConst();
+  assert (h1.storableBase (foocast, fooclid, true) == foo1);
+  EXPECT_EXCEPTION (SG::ExcConstStorable,
+                    h1.storableBase (foocast, fooclid, false));
+
   h1.toIdentifiedObject (sgkey3, fooclid, 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo3");
-  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.storableBase (foocast, fooclid, true) == 0);
   assert (h1.proxy()->name() == "foo3");
   assert (h1.source() == &store);
 
   h1.toIdentifiedObject (sgkey3x, fooclid, 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo3x");
-  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.storableBase (foocast, fooclid, true) == 0);
   assert (h1.proxy()->name() == "foo3x");
   assert (h1.source() == &store);
   assert (store.m_missedProxies.size() == 1);
@@ -145,7 +150,7 @@ void test1 (SGTest::TestStore& store)
   h1.clear();
   assert (h1.isDefault());
   assert (h1.dataID() == "");
-  assert (h1.storableBase (foocast, fooclid) == 0);
+  assert (h1.storableBase (foocast, fooclid, true) == 0);
   assert (h1.proxy() == 0);
   assert (h1.source() == 0);
 }
@@ -171,7 +176,7 @@ void test2 (SGTest::TestStore& store)
   h1.toTransient  (sgkey4);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo4");
-  assert (h1.storableBase (foocast, fooclid) == foo4);
+  assert (h1.storableBase (foocast, fooclid, true) == foo4);
   assert (h1.proxy()->name() == "foo4");
   assert (h1.source() == &store);
 
@@ -183,7 +188,7 @@ void test2 (SGTest::TestStore& store)
   h1.toTransient  (sgkeyx);
   assert (!h1.isDefault());
   assert (h1.dataID() == "fooy");
-  assert (h1.storableBase (foocast, fooclid) == fooy);
+  assert (h1.storableBase (foocast, fooclid, true) == fooy);
   assert (h1.proxy()->name() == "fooy");
   assert (h1.source() == &store);
 
@@ -191,7 +196,7 @@ void test2 (SGTest::TestStore& store)
   assert (h1.toTransient ("fooz", fooclid) == sgkeyz);
   assert (!h1.isDefault());
   assert (h1.dataID() == "fooz");
-  assert (h1.storableBase (foocast, fooclid) == fooz);
+  assert (h1.storableBase (foocast, fooclid, true) == fooz);
   assert (h1.proxy()->name() == "fooz");
   assert (h1.source() == &store);
 
@@ -338,11 +343,11 @@ void test7 (SGTest::TestStore& store)
   assert (dp1.toStorableObject (bar2, barclid, 0) == 0);
 
   SG::DataProxyHolder dp2 (dp1, (Bar*)0, (Bar*)0);
-  assert (dp1.storableBase (foocast, barclid) == bar2);
-  assert (dp2.storableBase (foocast, barclid) == bar2);
+  assert (dp1.storableBase (foocast, barclid, true) == bar2);
+  assert (dp2.storableBase (foocast, barclid, true) == bar2);
 
   SG::DataProxyHolder dp3 (dp1, (Bar*)0, (Foo*)0);
-  assert (dp3.storableBase (foocast, fooclid) == static_cast<Foo*>(bar2));
+  assert (dp3.storableBase (foocast, fooclid, true) == static_cast<Foo*>(bar2));
 
   // An object in SG
   TestStore::sgkey_t sgkey = store.stringToKey ("bar2", barclid);
@@ -350,15 +355,15 @@ void test7 (SGTest::TestStore& store)
   SG::DataProxyHolder dp4;
   assert (dp4.toIdentifiedObject ("bar2", barclid, 0) == sgkey);
   assert (dp4.dataID() == "bar2");
-  assert (dp4.storableBase (foocast, barclid) == bar2);
+  assert (dp4.storableBase (foocast, barclid, true) == bar2);
 
   SG::DataProxyHolder dp5 (dp4, (Bar*)0, (Bar*)0);
   assert (dp5.dataID() == "bar2");
-  assert (dp5.storableBase (foocast, barclid) == bar2);
+  assert (dp5.storableBase (foocast, barclid, true) == bar2);
 
   SG::DataProxyHolder dp6 (dp4, (Bar*)0, (Foo*)0);
   assert (dp6.dataID() == "bar2");
-  assert (dp6.storableBase (foocast, barclid) == bar2);
+  assert (dp6.storableBase (foocast, barclid, true) == bar2);
 }
 
 

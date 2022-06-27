@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -189,7 +189,7 @@ void test1 (SGTest::TestStore& store)
   assert (el1.isDefault());
   assert (el1.index() == null_index);
   assert (el1.persIndex() == static_cast<Link::stored_index_type>(null_index));
-  assert (el1.storableBase (0, fooclid) == 0);
+  assert (el1.storableBase (0, fooclid, true) == 0);
   assert (el1.dataID() == "");
   assert (el1.key() == 0);
   assert (el1.persKey() == 0);
@@ -216,7 +216,7 @@ void test1 (SGTest::TestStore& store)
   assert (el2.proxy() == el2.proxyHolder().proxy());
   assert (!el2.hasCachedElement());
   assert (el2.storedIndex() == index2);
-  assert (el2.storableBase (0, fooclid) == foocont);
+  assert (el2.storableBase (0, fooclid, true) == foocont);
 
   Link el3 (sgkey, fooclid, index2, 0);
   eltp = 0;
@@ -228,7 +228,7 @@ void test1 (SGTest::TestStore& store)
   assert (el3.key() == sgkey);
   assert (el3.source() == &store);
   assert (!el3.hasCachedElement());
-  assert (el3.storableBase (0, fooclid) == foocont);
+  assert (el3.storableBase (0, fooclid, true) == foocont);
 
   Link el4 (key, fooclid, index2, elt2, 0);
   eltp = 0;
@@ -240,7 +240,7 @@ void test1 (SGTest::TestStore& store)
   assert (el4.key() == sgkey);
   assert (el4.source() == &store);
   assert (el4.hasCachedElement());
-  assert (el4.storableBase (0, fooclid) == foocont);
+  assert (el4.storableBase (0, fooclid, true) == foocont);
 
   Link el5 (sgkey, fooclid, index2, elt2, 0);
   eltp = 0;
@@ -251,7 +251,7 @@ void test1 (SGTest::TestStore& store)
   assert (el5.dataID() == key);
   assert (el5.key() == sgkey);
   assert (el5.source() == &store);
-  assert (el5.storableBase (0, fooclid) == foocont);
+  assert (el5.storableBase (0, fooclid, true) == foocont);
   assert (el5.hasCachedElement());
 
   Link el6 (foocont2, fooclid, index2b, 0);
@@ -260,7 +260,7 @@ void test1 (SGTest::TestStore& store)
   assert (el6.dataID() == key2);
   assert (el6.key() == sgkey2);
   assert (el6.source() == &store);
-  assert (el6.storableBase (0, fooclid) == foocont2);
+  assert (el6.storableBase (0, fooclid, true) == foocont2);
   eltp = 0;
   assert (!el6.getCachedElement(eltp));
   assert (eltp == 0);
@@ -272,7 +272,7 @@ void test1 (SGTest::TestStore& store)
   assert (el7.dataID() == key2);
   assert (el7.key() == sgkey2);
   assert (el7.source() == &store);
-  assert (el7.storableBase (0, fooclid) == foocont2);
+  assert (el7.storableBase (0, fooclid, true) == foocont2);
   eltp = 0;
   assert (!el7.getCachedElement(eltp));
   assert (eltp == 0);
@@ -284,7 +284,7 @@ void test1 (SGTest::TestStore& store)
   assert (el1.dataID() == key2);
   assert (el1.key() == sgkey2);
   assert (el1.source() == &store);
-  assert (el1.storableBase (0, fooclid) == foocont2);
+  assert (el1.storableBase (0, fooclid, true) == foocont2);
   eltp = 0;
   assert (!el1.getCachedElement(eltp));
   assert (eltp == 0);
@@ -298,7 +298,7 @@ void test1 (SGTest::TestStore& store)
   assert (el8.dataID() == key);
   assert (el8.key() == sgkey);
   assert (el8.source() == &store);
-  assert (el8.storableBase (0, fooclid) == foocont);
+  assert (el8.storableBase (0, fooclid, true) == foocont);
   assert (!el8.toIndexedElement (foocont, fooclid, index1, 0));
   el8.reset();
   assert (el8.isDefault());
@@ -327,12 +327,12 @@ void test1 (SGTest::TestStore& store)
   assert (el11.dataID() == key);
   assert (el11.key() == sgkey);
   assert (el11.source() == &store);
-  assert (el11.storableBase (0, fooclid) == foocont);
+  assert (el11.storableBase (0, fooclid, true) == foocont);
   assert (!el11.hasCachedElement());
   assert (!el11.setStorableObject (foocont2, fooclid, false, 0));
   assert (el11.setStorableObject (foocont2, fooclid, true, 0));
   assert (el11.index() == null_index);
-  assert (el11.storableBase (0, fooclid) == foocont2);
+  assert (el11.storableBase (0, fooclid, true) == foocont2);
   assert (el11.dataID() == key2);
 
   Link el12;
@@ -345,7 +345,7 @@ void test1 (SGTest::TestStore& store)
   assert (el12.dataID() == key2);
   assert (el12.key() == sgkey2);
   assert (el12.source() == &store);
-  assert (el12.storableBase (0, fooclid) == foocont2);
+  assert (el12.storableBase (0, fooclid, true) == foocont2);
 
   el12.storeCachedElement (elt2);
   assert (el12.hasCachedElement());
@@ -356,7 +356,7 @@ void test1 (SGTest::TestStore& store)
   assert (el12.dataID() == key);
   assert (el12.key() == sgkey);
   assert (el12.source() == &store);
-  assert (el12.storableBase (0, fooclid) == foocont);
+  assert (el12.storableBase (0, fooclid, true) == foocont);
 
   Link el13 (el12, index1);
   assert (!el13.hasCachedElement());
@@ -365,7 +365,7 @@ void test1 (SGTest::TestStore& store)
   assert (el13.dataID() == key);
   assert (el13.key() == sgkey);
   assert (el13.source() == &store);
-  assert (el13.storableBase (0, fooclid) == foocont);
+  assert (el13.storableBase (0, fooclid, true) == foocont);
 
   el12.reset();
   assert (el12.isDefault());
@@ -373,7 +373,7 @@ void test1 (SGTest::TestStore& store)
   assert (el12.dataID() == "");
   assert (el12.key() == 0);
   assert (el12.source() == 0);
-  assert (el12.storableBase (0, fooclid) == 0);
+  assert (el12.storableBase (0, fooclid, true) == 0);
   assert (!el12.hasCachedElement());
 }
 
@@ -404,11 +404,11 @@ void test2 (SGTest::TestStore& store)
   assert (el2.toPersistent());
   assert (el2.isDefault());
   el2 = Link (key3, fooclid, 1, 0);
-  assert (el2.storableBase (0, fooclid) == foocont3);
+  assert (el2.storableBase (0, fooclid, true) == foocont3);
   assert (el2.index() == 1);
   assert (el2.key() == sgkey3);
   assert (el2.toPersistent());
-  assert (el2.storableBase (0, fooclid) == foocont3);
+  assert (el2.storableBase (0, fooclid, true) == foocont3);
   assert (el2.index() == 1);
   assert (el2.key() == sgkey3);
 
@@ -521,8 +521,8 @@ void test5 (SGTest::TestStore& store)
   // Storable not in SG.
   ElementLinkBase_test el3 (bar, barclid, 1, nullptr);
   ElementLinkBase_test el4 (el3, (BarTraits*)0, (FooTraits*)0);
-  BarCont* barcont1 = reinterpret_cast<BarCont*>(el3.storableBase (0, barclid));
-  FooCont* foocont1 = reinterpret_cast<FooCont*>(el4.storableBase (0, fooclid));
+  BarCont* barcont1 = reinterpret_cast<BarCont*>(el3.storableBase (0, barclid, true));
+  FooCont* foocont1 = reinterpret_cast<FooCont*>(el4.storableBase (0, fooclid, true));
   assert (barcont1 == bar);
   assert (barcont1 == foocont1);
   assert (static_cast<void*>(barcont1) != static_cast<void*>(foocont1));
@@ -536,8 +536,8 @@ void test5 (SGTest::TestStore& store)
   store.record (bar, key);
   ElementLinkBase_test el5 (key, barclid, 1, nullptr);
   ElementLinkBase_test el6 (el5, (BarTraits*)0, (FooTraits*)0);
-  barcont1 = reinterpret_cast<BarCont*>(el5.storableBase (0, barclid));
-  foocont1 = reinterpret_cast<FooCont*>(el6.storableBase (0, fooclid));
+  barcont1 = reinterpret_cast<BarCont*>(el5.storableBase (0, barclid, true));
+  foocont1 = reinterpret_cast<FooCont*>(el6.storableBase (0, fooclid, true));
   assert (barcont1 == bar);
   assert (barcont1 == foocont1);
   assert (static_cast<void*>(barcont1) != static_cast<void*>(foocont1));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -565,6 +565,10 @@ void testit (SGTest::TestStore& store,
   assert (el13.dataID() == key);
   assert (el13.key() == sgkey);
   assert (el13.source() == &store);
+
+  store.proxy_exact (sgkey)->setConst();
+  assert (el13.getDataPtr() == cont);
+  EXPECT_EXCEPTION (SG::ExcConstStorable, el13.getDataNonConstPtr());
 
   el12.reset();
   assert (el12.isDefault());

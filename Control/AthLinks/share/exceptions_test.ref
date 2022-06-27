@@ -8,3 +8,4 @@ SG::ExcInvalidIndex: test: invalid index
 SG::ExcIndexNotFound: test: index not found
 SG::ExcIncomparableEL: Attempt to compare an ElementLink that does not have a SG key or index.
 SG::ExcBadToTransient: toTransient() called on an already-initialized link.
+SG::ExcConstStorable: Tried to retrieve const storable as a non-const pointer [123/key] (765)

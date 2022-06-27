@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -242,10 +242,13 @@ DataProxyHolder::dataID() const
  * @param clid The CLID of the desired object.
  *             This is used to determine how the returned pointer
  *             is to be converted.
+ * @param isConst True if the returned object will be treated as const.
  * @return A pointer to an object of the type given by @a clid,
  *         or null on a failure (or if the reference is null).
  */
-void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
+void* DataProxyHolder::storableBase (castfn_t* castfn,
+                                     CLID clid,
+                                     bool isConst) const
 {
   // Test for null link.
   if (!m_proxy)
@@ -255,7 +258,15 @@ void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
   if (isObjpointer())
     return objpointer();
 
-  // We have a proxy.  Get the object pointer from the proxy.
+  // We have a proxy.  Check that we're not trying to use an object
+  // that's been marked const in SG in a non-const way.
+  if (!isConst && m_proxy->isConst()) {
+    throw SG::ExcConstStorable (m_proxy->clID(),
+                                m_proxy->name(),
+                                m_proxy->sgkey());
+  }
+
+  // Get the object pointer from the proxy.
   // We have to take care of converting to the proper return type, though
   // (as requested by clid).
   void* obj = castfn ? castfn (m_proxy) : SG::DataProxy_cast (m_proxy, clid);
