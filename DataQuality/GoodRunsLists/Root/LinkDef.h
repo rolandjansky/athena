@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __GOODRUNSLISTS__
@@ -9,7 +9,6 @@
 #include <string>
 #include <map>
 #include <TString.h>
-#include <GoodRunsLists/DQHelperFunctions.h>
 #include <GoodRunsLists/RegularFormula.h>
 #include <GoodRunsLists/TGoodRunsListReader.h>
 #include <GoodRunsLists/TGoodRunsListWriter.h>
@@ -48,10 +47,6 @@
 #pragma link C++ class vector<Root::TGoodRunsList>::iterator;
 
 #pragma link C++ class Root::TGRLCollection+;
-
-#pragma link C++ namespace DQ;
-#pragma link C++ function DQ::SetXMLFile( const TString& );
-#pragma link C++ function DQ::PassRunLB( int,int );
 
 #endif
 
