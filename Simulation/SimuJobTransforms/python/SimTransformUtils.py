@@ -1,6 +1,6 @@
 from __future__ import division
 from builtins import range
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with Digitization transform options and substep
 
@@ -224,16 +224,18 @@ def addAFII_HITSMergeSubstep(executorSet):
                                    extraRunargs = {'preInclude': ['FastSimulationJobTransforms/jobConfig.v14_Parametrisation.py','FastCaloSimHit/preInclude.AF2Hit.py'],
                                                    'postInclude': ['FastCaloSimHit/postInclude.AF2FilterHitItems.py','FastSimulationJobTransforms/jobConfig.FastCaloSim_ID_cuts.py','FastSimulationJobTransforms/jobConfig.egamma_lateral_shape_tuning.config20.py']} ))
 
-def addDigitizationSubstep(executorSet):
+def addDigitizationSubstep(executorSet, in_reco_chain=False):
     executorSet.add(athenaExecutor(name = 'HITtoRDO', skeletonFile = 'SimuJobTransforms/skeleton.HITtoRDO.py',
                                               skeletonCA='SimuJobTransforms.HITtoRDO_Skeleton',
-                                              substep = 'h2r', tryDropAndReload = False,
-                                              inData = ['HITS'], outData = ['RDO','RDO_FILT'], runtimeRunargs =
-                                              {'LowPtMinbiasHitsFile' : 'runArgs.inputLowPtMinbiasHitsFile',
-                                               'HighPtMinbiasHitsFile' : 'runArgs.inputHighPtMinbiasHitsFile',
-                                               'cavernHitsFile' : 'runArgs.inputCavernHitsFile',
-                                               'beamHaloHitsFile' : 'runArgs.inputBeamHaloHitsFile',
-                                               'beamGasHitsFile' : 'runArgs.inputBeamGasHitsFile',}))
+                                              substep = 'h2r', tryDropAndReload = False, 
+                                              inData = ['HITS'], outData = ['RDO','RDO_FILT'],
+                                              onlyMPWithRunargs = [
+                                                'inputLowPtMinbiasHitsFile',
+                                                'inputHighPtMinbiasHitsFile',
+                                                'inputCavernHitsFile',
+                                                'inputBeamHaloHitsFile',
+                                                'inputBeamGasHitsFile']
+                                              if in_reco_chain else None))
 
 def addSimValidationSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'SimValidation',
