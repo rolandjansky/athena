@@ -13,12 +13,14 @@
 
 // eformat
 #include "eformat/Status.h"
-#include "eformat/write/FullEventFragment.h" // max number of possible ROB fragments
 
 // Athena
 
 // STL includes
 #include <algorithm>    // std::find
+
+// Maximum number of ROB fragments in ROB buffer
+static const size_t MAX_ROBFRAGMENTS = 4096;
 
 HltROBDataProviderSvc::HltROBDataProviderSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   base_class(name, pSvcLocator)
@@ -322,11 +324,11 @@ void HltROBDataProviderSvc::setNextEvent(const EventContext& context, const RawE
   //--------------------+
 
   // get all the ROBFragments
-  OFFLINE_FRAGMENTS_NAMESPACE::PointerType robF[eformat::write::MAX_UNCHECKED_FRAGMENTS];
-  size_t number_robs = re->children(robF,eformat::write::MAX_UNCHECKED_FRAGMENTS);
-  if (number_robs == eformat::write::MAX_UNCHECKED_FRAGMENTS) {
+  OFFLINE_FRAGMENTS_NAMESPACE::PointerType robF[MAX_ROBFRAGMENTS];
+  size_t number_robs = re->children(robF,MAX_ROBFRAGMENTS);
+  if (number_robs == MAX_ROBFRAGMENTS) {
     ATH_MSG_ERROR("ROB buffer overflow: ROBs found = " << number_robs 
-		  << " Max. number of ROBs allowed = " << eformat::write::MAX_UNCHECKED_FRAGMENTS);
+		  << " Max. number of ROBs allowed = " << MAX_ROBFRAGMENTS);
   }
   std::vector<ROBF> rob_fragments;
   rob_fragments.reserve(number_robs);
@@ -542,7 +544,7 @@ int HltROBDataProviderSvc::collectCompleteEventData(const EventContext& context,
   if (!m_enabledROBs.value().empty()) {
     vRobInfos.reserve( m_enabledROBs.value().size() ) ;
   } else {
-    vRobInfos.reserve( eformat::write::MAX_UNCHECKED_FRAGMENTS ) ;
+    vRobInfos.reserve( MAX_ROBFRAGMENTS ) ;
   }
 
   // Get ROB Fragments for complete event with DataCollector
