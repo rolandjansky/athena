@@ -295,6 +295,7 @@ namespace top {
     m_jetJMSOption("None"),
     m_doLargeRPseudodataJER(false),
     m_jetCalibSequence("GSC"),
+    m_jetMCtoMCCalibration("None"),
     m_allowSmallRJMSforAFII(false),
     m_jetStoreTruthLabels("True"),
     m_doJVTInMETCalculation(true),
@@ -1448,6 +1449,7 @@ namespace top {
       this->doLargeRPseudodataJER(true);
     }
     this->jetCalibSequence(settings->value("JetCalibSequence"));
+    this->jetMCtoMCCalibration(settings->value("JetMCtoMCCalibration"));
     this->allowSmallRJMSforAFII(settings->value("AllowJMSforAFII") == "True");
     this->doJVTinMET(settings->retrieve("JVTinMETCalculation"));
     this->saveFailJVTJets(settings->retrieve("SaveFailJVTJets"));

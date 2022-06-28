@@ -278,6 +278,16 @@ namespace top {
       top::check(asg::setProperty(jetCalibrationTool, "IsData", !m_config->isMC()),
                  "Failed to set IsData " + std::to_string (!m_config->isMC()));
 
+      // experimental! Jet response MC-to-MC corrections
+      // see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21#MC_to_MC_calibrations_this_is_cu
+      if (m_config->jetMCtoMCCalibration() != "None" && m_config->isMC()) {
+	ATH_MSG_INFO("JES Calibration MC-to-MC      : " << m_config->jetMCtoMCCalibration());
+	top::check(asg::setProperty(jetCalibrationTool, "ShowerModel", m_config->jetMCtoMCCalibration()),
+		   "Failed to set ShowerModel " + m_config->jetMCtoMCCalibration());
+	top::check(asg::setProperty(jetCalibrationTool, "CalibSequence", calibSequence + "_MC2MC"),
+		   "Failed to set CalibSequence " + calibSequence + "_MC2MC");
+      }
+
       top::check(jetCalibrationTool->initializeTool(jetCalibrationName),
                  "Failed to initialize JetCalibrationTool");
       m_jetCalibrationTool = jetCalibrationTool;

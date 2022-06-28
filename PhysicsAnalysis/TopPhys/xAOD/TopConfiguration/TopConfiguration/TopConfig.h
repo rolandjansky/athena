@@ -1610,6 +1610,14 @@ namespace top {
 
     inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
 
+    inline virtual void jetMCtoMCCalibration(const std::string& s) {
+      if (!m_configFixed) {
+	m_jetMCtoMCCalibration = s;
+      }
+    }
+
+    inline virtual const std::string& jetMCtoMCCalibration() const {return m_jetMCtoMCCalibration;}
+
     inline virtual void allowSmallRJMSforAFII(const bool setting) {
       if (!m_configFixed) {
         m_allowSmallRJMSforAFII = setting;
@@ -2650,6 +2658,7 @@ namespace top {
     std::string m_jetJMSOption; // None, JMS_frozen or JMS_scaled
     bool m_doLargeRPseudodataJER; // True or False
     std::string m_jetCalibSequence; // GCC or JMS
+    std::string m_jetMCtoMCCalibration; // None or MC-to-MC jet response calibration
     bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False
     bool m_doJVTInMETCalculation;

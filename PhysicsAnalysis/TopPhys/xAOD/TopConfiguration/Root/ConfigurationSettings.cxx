@@ -283,6 +283,7 @@ namespace top {
                       "If set to True, produce additional JER smearing systematics treating MC as pseudo-data, provided FullJER or AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
                       "True",{"True", "False"});
     registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
+    registerParameter("JetMCtoMCCalibration","MC-to-MC calibration of the jet response, to be applied to non-Pythia8 samples. EXPERIMENTAL!" , "None", {"H713", "H716", "H716dip", "H721", "Sh221", "Sh222", "Sh225", "Sh225Lund", "Sh2211", "Sh2211tun", "None"});
     registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
 
