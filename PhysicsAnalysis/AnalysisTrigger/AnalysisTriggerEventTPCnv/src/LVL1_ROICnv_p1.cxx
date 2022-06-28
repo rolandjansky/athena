@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,11 +11,11 @@
 #include "AnalysisTriggerEventTPCnv/LVL1_ROICnv_p1.h"
 
 LVL1_ROICnv_p1::LVL1_ROICnv_p1()
-  : T_AthenaPoolTPCnvBase< LVL1_ROI, LVL1_ROI_p1 >() {
+  : T_AthenaPoolTPCnvConstBase< LVL1_ROI, LVL1_ROI_p1 >() {
 
 }
 
-void LVL1_ROICnv_p1::persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj, MsgStream &log ) {
+void LVL1_ROICnv_p1::persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj, MsgStream &log ) const {
 
   log << MSG::DEBUG << "Converting LVL1_ROI from persistent state..." << endmsg;
 
@@ -101,7 +101,7 @@ void LVL1_ROICnv_p1::persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj
 
 }
 
-void LVL1_ROICnv_p1::transToPers( const LVL1_ROI* transObj, LVL1_ROI_p1* persObj, MsgStream &log ) {
+void LVL1_ROICnv_p1::transToPers( const LVL1_ROI* transObj, LVL1_ROI_p1* persObj, MsgStream &log ) const {
 
   log << MSG::DEBUG << "Creating persistent state of LVL1_ROI..." << endmsg;
 

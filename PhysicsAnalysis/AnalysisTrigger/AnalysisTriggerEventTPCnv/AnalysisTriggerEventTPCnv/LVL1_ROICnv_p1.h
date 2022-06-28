@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSISTRIGGEREVENTTPCNV_LVL1_ROICNV_P1_H
@@ -22,13 +22,16 @@
  *          to do the T/P conversion before/after writing/reading the LVL1_ROI
  *          object.
  */
-class LVL1_ROICnv_p1 : public T_AthenaPoolTPCnvBase< LVL1_ROI, LVL1_ROI_p1 > {
+class LVL1_ROICnv_p1 : public T_AthenaPoolTPCnvConstBase< LVL1_ROI, LVL1_ROI_p1 > {
 
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
   LVL1_ROICnv_p1();
 
-  virtual void persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj, MsgStream &log );
-  virtual void transToPers( const LVL1_ROI* transObj, LVL1_ROI_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj, MsgStream &log ) const override;
+  virtual void transToPers( const LVL1_ROI* transObj, LVL1_ROI_p1* persObj, MsgStream &log ) const override;
 
 }; // class LVL1_ROICnv_p1
 
