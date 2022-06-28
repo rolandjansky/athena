@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -9,7 +9,6 @@
 #define SELECTION_HELPERS_SELECTION_READ_HANDLE_H
 
 #include <AthContainers/AuxElement.h>
-#include <AsgMessaging/MsgStream.h>
 #include <memory>
 
 class StatusCode;
@@ -72,18 +71,6 @@ namespace CP
   private:
     std::unique_ptr<ISelectionReadAccessor> m_accessor;
 
-
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( ) const;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 }
 

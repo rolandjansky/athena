@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -8,7 +8,7 @@ atlas_subdir( SelectionHelpers )
 atlas_add_library( SelectionHelpersLib
    SelectionHelpers/*.h SelectionHelpers/*.icc Root/*.cxx
    PUBLIC_HEADERS SelectionHelpers
-   LINK_LIBRARIES AthContainers AsgTools xAODBase AnaAlgorithmLib SystematicsHandlesLib
+   LINK_LIBRARIES AthContainers AsgTools CxxUtils xAODBase AnaAlgorithmLib SystematicsHandlesLib
    PRIVATE_LINK_LIBRARIES PATCoreLib PATInterfaces )
 
 atlas_add_dictionary( SelectionHelpersDict

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -22,7 +22,6 @@ namespace CP
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_selection (propertyValue)
-    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_selection, propertyDescription);
   }

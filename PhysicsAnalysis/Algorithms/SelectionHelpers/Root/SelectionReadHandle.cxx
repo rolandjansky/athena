@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,7 +11,6 @@
 
 #include <SelectionHelpers/SelectionReadHandle.h>
 
-#include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/StatusCode.h>
 
 //
@@ -20,25 +19,6 @@
 
 namespace CP
 {
-  MsgStream& SelectionReadHandle ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  MsgStream& SelectionReadHandle ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   bool SelectionReadHandle ::
   empty () const noexcept
   {
@@ -58,7 +38,6 @@ namespace CP
   StatusCode SelectionReadHandle ::
   initialize ()
   {
-    ANA_CHECK (makeSelectionReadAccessor (m_selection, m_accessor));
-    return StatusCode::SUCCESS;
+    return makeSelectionReadAccessor (m_selection, m_accessor);
   }
 }
