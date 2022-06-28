@@ -1,8 +1,6 @@
 #!/bin/sh
 
 # art-include: master/Athena
-# art-include: 22.0/Athena
-# art-include: 22.0-mc20/Athena
 # art-description: DAOD building PHYS data18 MT
 # art-type: grid
 # art-output: *.pool.root
@@ -13,7 +11,7 @@
 
 set -e
 
-Reco_tf.py --athenaopts='--threads=1' --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357772.physics_Main.recon.AOD.r13286/AOD.27654050._000557.pool.root.1 --outputDAODFile art.pool.root --reductionConf PHYS --maxEvents -1 --preExec 'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();'
+Derivation_tf.py --CA --athenaopts='--threads=1' --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data18_13TeV.00357772.physics_Main.recon.AOD.r13286/AOD.27654050._000557.pool.root.1 --outputDAODFile art.pool.root --formats PHYS --maxEvents -1
 
 echo "art-result: $? reco"
 
