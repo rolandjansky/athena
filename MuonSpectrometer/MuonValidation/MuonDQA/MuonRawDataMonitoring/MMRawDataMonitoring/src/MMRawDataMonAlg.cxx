@@ -530,12 +530,12 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 				int trk_stPhi = m_idHelperSvc->mmIdHelper().stationPhi(surfaceId);
 				int trk_multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
 				int trk_gap   = m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
-
+				
 				if( (trk_stPhi == stPhi) && (trk_stEta == stEta) && (trk_multi == multi) && (trk_gap == gap)) {
-					double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
-					int sectorPhi = get_sectorPhi_from_stationPhi_stName(trk_stPhi,stName); // 1->16
-					int side 	= (stEta > 0) ? 1 : 0;
-					float res_stereo = (x - x_trk);
+				  double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
+				  int sectorPhi = get_sectorPhi_from_stationPhi_stName(trk_stPhi,stName); // 1->16
+				  int side 	= (stEta > 0) ? 1 : 0;
+				  float res_stereo = (x - x_trk);
 					if(m_do_stereoCorrection) {
 						float stereo_angle = ((multi == 1 && gap < 3) || (multi == 2 && gap > 2)) ? 0 : 0.02618;
 						double y_trk = trkState->trackParameters()->parameters()[Trk::locY];
@@ -577,6 +577,15 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 			if (!trkState->type(Trk::TrackStateOnSurface::Measurement)) continue;
 			Identifier surfaceId = (trkState)->surface().associatedDetectorElementIdentifier();
 			if(!m_idHelperSvc->isMM(surfaceId)) continue;
+
+			const Trk::MeasurementBase* meas = trkState->measurementOnTrack() ;
+			if(!meas) continue;
+			
+			const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+                        if(!rot) continue;
+                        Identifier rot_id = rot->identify();
+                        if(!m_idHelperSvc->isMM(rot_id)) continue;
+			
 			const Amg::Vector3D& pos = (trkState)->trackParameters()->position();
 			int stEta = m_idHelperSvc->mmIdHelper().stationEta(surfaceId);
 			int multi = m_idHelperSvc->mmIdHelper().multilayer(surfaceId);
