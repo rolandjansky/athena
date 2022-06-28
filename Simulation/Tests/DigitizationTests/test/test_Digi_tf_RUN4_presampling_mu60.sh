@@ -4,13 +4,13 @@
 # art-type: grid
 # art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
-# art-output: RUN4_presampling.mu200.RDO.pool.root
+# art-output: RUN4_presampling.mu60.RDO.pool.root
 
-Events=3
-HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/single_neutrino.HITS.pool.root"
-HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/user.tadej.Upgrade.800381.Py8EG_A3NNPDF23LO_minbias_inelastic_high_keepJets.simul.HITS_FILT.20210902.r1_EXT0/*"
-LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/user.tadej.Upgrade.800380.Py8EG_A3NNPDF23LO_minbias_inelastic_low_keepJets.simul.HITS_FILT.20210902.r1_EXT0/*"
-DigiOutFileName="RUN4_presampling.mu200.RDO.pool.root"
+Events=25
+HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/ATLAS-P2-RUN4-01-00-00/mc15_14TeV.900149.PG_single_nu_Pt50.simul.HITS.e8371_s3856/HITS.29179777._000918.pool.root.1"
+HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/ATLAS-P2-RUN4-01-00-00/mc15_14TeV.800381.Py8EG_A3NNPDF23LO_minbias_inelastic_high_keepJets.merge.HITS.e8205_s3856_s3857/*"
+LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/ATLAS-P2-RUN4-01-00-00/mc15_14TeV.800380.Py8EG_A3NNPDF23LO_minbias_inelastic_low_keepJets.merge.HITS.e8205_s3856_s3857/*"
+DigiOutFileName="RUN4_presampling.mu60.RDO.pool.root"
 
 Digi_tf.py \
 --CA \
@@ -18,7 +18,7 @@ Digi_tf.py \
 --conditionsTag default:OFLCOND-MC15c-SDR-14-05 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --digiSteeringConf 'StandardSignalOnlyTruth' \
---geometryVersion default:ATLAS-P2-ITK-24-00-00 \
+--geometryVersion default:ATLAS-P2-RUN4-01-00-00 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
@@ -32,5 +32,13 @@ Digi_tf.py \
 rc=$?
 status=$rc
 echo "art-result: $rc digiCA"
+
+rc2=-9999
+if [ $rc -eq 0 ]; then
+  art.py compare grid --entries 10 "${1}" "${2}" --mode=semi-detailed --file="$DigiOutFileName"
+  rc2=$?
+  status=$rc2
+fi
+echo "art-result: $rc2 regression"
 
 exit $status
