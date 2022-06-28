@@ -236,7 +236,7 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
    m_maskL2EFModuleID = (re->nlvl2_trigger_info() != 0);
 
    // get all the ROBFragments
-   const size_t MAX_ROBFRAGMENTS = 2048;
+   const size_t MAX_ROBFRAGMENTS = 4096;
    OFFLINE_FRAGMENTS_NAMESPACE::PointerType robF[MAX_ROBFRAGMENTS];
    OFFLINE_FRAGMENTS_NAMESPACE::PointerType rePointer;
    re->start(rePointer);

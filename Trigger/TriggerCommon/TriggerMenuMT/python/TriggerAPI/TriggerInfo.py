@@ -94,8 +94,12 @@ class TriggerInfo:
             for j in range(i+1,len(self.triggerChains)):
                 probe2 = self.triggerChains[j]
                 if not (probe2.passType(triggerType, additionalTriggerType) and re.search(matchPattern, probe2.name)): continue
-                if probe1.isUnprescaled() and not probe2.isUnprescaled() and probe1.isLowerThan(probe2,self.period)==1: inconsistent.add(probe2.name)
-                if probe2.isUnprescaled() and not probe1.isUnprescaled() and probe2.isLowerThan(probe1,self.period)==1: inconsistent.add(probe1.name)
+                if probe1.isUnprescaled() and not probe2.isUnprescaled() and probe1.isLowerThan(probe2,self.period)==1:
+                    log.error(f"Found {probe2.name} that is tighter than Primary {probe1.name}")
+                    inconsistent.add(probe2.name)
+                if probe2.isUnprescaled() and not probe1.isUnprescaled() and probe2.isLowerThan(probe1,self.period)==1:
+                    log.error(f"Found {probe1.name} that is tighter than Primary {probe2.name}")
+                    inconsistent.add(probe1.name)
                 
         return inconsistent
 
@@ -104,7 +108,7 @@ class TriggerLeg:
     types          = ('e','j','mu','tau','xe','g','ht')
     legpattern     = re.compile('([0-9]*)(%s)([0-9]+)(noL1)?' % '|'.join(types))
     detailpattern  = re.compile(r'(?:-?\d+)|(?:[^0-9 -]+)') #split into text-only vs number-only
-    bjetpattern    = re.compile('bmv|bhmv|btight|bmedium|bloose')
+    bjetpattern    = re.compile('bmv|bhmv|btight|bmedium|bloose|bld1')
     bphyspattern   = re.compile('b[A-Z]')
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
     afppattern     = re.compile('afp|AFP')
@@ -292,7 +296,7 @@ class TriggerLeg:
 
         if tag1 == tag2: return -1
         #lower mv2 and deltaR/deltaZ/deltaPhi values are tighter, put a minus sign to trick it
-        inverseCuts = ("mv2c","dr","dz","dphi")
+        inverseCuts = ("mv2c","dr","dz","dphi","dl1d","dl1r")
         for cut in inverseCuts:
             tag1 = tag1.replace(cut,cut+"-")
             tag2 = tag2.replace(cut,cut+"-")

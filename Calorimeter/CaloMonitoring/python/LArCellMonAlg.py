@@ -140,7 +140,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerS
     else:
         LArCellMonAlg.useBadLBTool=True
 
-    if isCosmics or TriggerStream!='CosmicCalo':
+    if isCosmics or TriggerStream!='physics_CosmicCalo':
        LArCellMonAlg.useBeamBackgroundRemoval = False
        LArCellMonAlg.useLArCollisionFilterTool = False 
     else:
@@ -187,8 +187,8 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerS
 
     # Global Settings:
 
-    # All 2D plot occupancy are activate only for express and cosmiccalo
-    if (isCosmics or TriggerStream=='CosmicCalo' or TriggerStream=='express' or TriggerStream=='Main' or TriggerStream=='ZeroBias') or isOnline:
+    # All 2D plot occupancy are activated only for some streams
+    if (isCosmics or TriggerStream=='physics_CosmicCalo' or TriggerStream=='express_express' or TriggerStream=='physics_Main' or TriggerStream=='physics_ZeroBias') or isOnline:
         do2DOcc = True
     else:
         do2DOcc = False
@@ -200,7 +200,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerS
     thresholdDict["TriggersToExclude"]      = [ "none" , "none"      , "none"  , "none"  , "none" , "none"        , "none" ]
 
     thresholdDict["DoPercentageOccupancy"]  = [ True  , False       , True    , False   , False  , False         , False  ]
-    thresholdDict["DoEtaPhiOccupancy"]      = [ True  , False       , False   , do2DOcc,do2DOcc, do2DOcc      , False  ]
+    thresholdDict["DoEtaPhiOccupancy"]      = [ True  , False       , do2DOcc , do2DOcc,do2DOcc, do2DOcc      , False  ]
     thresholdDict["DoEtaOccupancy"]         = [ False  , False       , isCosmics   , False   , False  , False         , False  ]
     thresholdDict["DoPhiOccupancy"]         = [ False  , False       , True    , False   , False  , False         , False  ]
 
@@ -210,7 +210,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerS
     thresholdDict["DoEtaPhiRMSvsDBnoise"]   = [ False  , False       , False   , False   , False   , False        , False  ] 
 
     thresholdDict["DoEtaPhiAverageQuality"] = [ False  , False       , False   , False   , False   , False        , False  ]
-    thresholdDict["DoEtaPhiFractionOverQth"]= [ False  , False       , False   , False   , do2DOcc , do2DOcc      , False  ]
+    thresholdDict["DoEtaPhiFractionOverQth"]= [ False  , False       , False   , do2DOcc , do2DOcc , do2DOcc      , False  ]
     thresholdDict["QualityFactorThreshold"] = [ 4000. ]*7
 
     thresholdDict["DoEtaPhiAverageTime"]    = [ False  , False       , False   , (not isCosmics)    , False   , False        , False  ]
