@@ -101,6 +101,10 @@ def fromRunArgs(runArgs):
     from RecJobTransforms.RecoSteering import RecoSteering
     cfg = RecoSteering(ConfigFlags)
 
+    # Special message service configuration
+    from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
+    cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
+
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)
 
