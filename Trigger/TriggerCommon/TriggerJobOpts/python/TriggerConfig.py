@@ -601,13 +601,16 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.addSequence( seqOR( "HLTTop") )
 
+    acc.addSequence( parOR("HLTPreSeq"), parentName="HLTTop" )
+
+    from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
+    acc.merge( TrigCostMonitorCfg( flags ), sequenceName="HLTPreSeq" )
+
+
     acc.addSequence( parOR("HLTBeginSeq"), parentName="HLTTop" )
     # bit of a hack as for "legacy" type JO a seq name for cache creators has to be given,
     # in newJO realm the seqName will be removed as a comp fragment shoudl be unaware of where it will be attached
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName="AthAlgSeq" ), sequenceName="HLTBeginSeq" )
-
-    from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
-    acc.merge( TrigCostMonitorCfg( flags ), sequenceName="HLTBeginSeq" )
 
     from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
     hltSeedingAcc = HLTSeedingCfg( flags )

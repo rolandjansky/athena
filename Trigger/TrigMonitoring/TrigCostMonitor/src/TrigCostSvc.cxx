@@ -173,7 +173,8 @@ StatusCode TrigCostSvc::monitor(const EventContext& context, const AlgorithmIden
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
+StatusCode TrigCostSvc::monitorROS(const EventContext& context, robmonitor::ROBDataMonitorStruct payload){
+  ATH_CHECK(checkSlot(context));
   ATH_MSG_DEBUG( "Received ROB payload " << payload );
 
   // Associate payload with an algorithm
@@ -191,7 +192,10 @@ StatusCode TrigCostSvc::monitorROS(const EventContext& /*context*/, robmonitor::
 
   // Record data in TrigCostDataStore
   ATH_MSG_DEBUG( "Adding ROBs from" << payload.requestor_name << " to " << theAlg.m_hash );
-  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload), msg()) );
+  {
+    std::shared_lock lockShared( m_slotMutex[ context.slot() ] );
+    ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload), msg()) );
+  }
 
   return StatusCode::SUCCESS;
 }
