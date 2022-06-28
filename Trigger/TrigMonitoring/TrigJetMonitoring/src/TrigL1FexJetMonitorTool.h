@@ -29,8 +29,8 @@ public:
 			  const std::string&,
 			  const IInterface*);
 
-  StatusCode
-  queryInterface( const InterfaceID& riid, void** ppvIf );
+  virtual StatusCode
+  queryInterface( const InterfaceID& riid, void** ppvIf ) override;
 
   
   virtual StatusCode initialize() override;

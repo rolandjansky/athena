@@ -7,7 +7,8 @@
 
 #include <string>
 
-struct JetData {
+class JetData {
+public:
 JetData(float et, float eta, float phi, std::string et_label) :
   m_et{et}, m_eta{eta}, m_phi{phi}, m_et_label{et_label}{}
   
@@ -17,7 +18,8 @@ JetData(float et, float eta, float phi, std::string et_label) :
   std::string m_et_label;  //"et", "et8x8" ...
 };
 
-struct JetMatchData {
+class JetMatchData {
+public:
 JetMatchData(float dPt, float dEnergy, float dMass,
 	     float rPt, float rEnergy, float rMass,
 	     float ptRef, float etaRef) :
