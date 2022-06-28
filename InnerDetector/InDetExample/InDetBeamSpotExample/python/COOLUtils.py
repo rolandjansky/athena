@@ -12,7 +12,7 @@ from PyCool import cool
 from CoolConvUtilities import AtlCoolLib
 
 # For resolving tags
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/CondUtilsLib/')
+#sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/CondUtilsLib/')
 sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/')
 
 
@@ -239,7 +239,7 @@ class COOLQuery:
 def resolveCurrentAlias(tagtype='ST'):
     "Resolve the current BLK tag alias"
 
-    from AtlCoolBKLib import resolveAlias
+    from CondUtilsLib.AtlCoolBKLib import resolveAlias
 
     # Will raise exception if alias not defined
     alias = resolveAlias.getCurrent()
@@ -248,7 +248,7 @@ def resolveCurrentAlias(tagtype='ST'):
 def resolveNextAlias(tagtype='ST'):
     "Resolve the next BLK tag alias"
     
-    from AtlCoolBKLib import resolveAlias
+    from CondUtilsLib.AtlCoolBKLib import resolveAlias
 
     # Returns an empty string if Next not existing or exception thrown
     
