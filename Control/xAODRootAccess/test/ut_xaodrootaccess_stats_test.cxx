@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -31,7 +31,7 @@ int main() {
    using namespace asg::msgUserCode;
 
    // Get the name of the application:
-   const char* APP_NAME = "ut_xaodrootaccess_stats_test";
+   static const char* const APP_NAME = "ut_xaodrootaccess_stats_test";
 
    // Initialise the environment:
    ANA_CHECK( xAOD::Init( APP_NAME ) );
@@ -40,7 +40,7 @@ int main() {
    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
 
    // Connect an input file to the event:
-   static const char* FNAME = "${ASG_TEST_FILE_DATA}";
+   static const char* const FNAME = "${ASG_TEST_FILE_DATA}";
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, "File %s couldn't be opened...", FNAME );

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_tfilemerger_test.cxx 675811 2015-06-17 05:28:22Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -48,7 +47,7 @@ StatusCode checkMergedBranch( ::TTree& tree, const std::string& name );
 int main() {
 
    // The name of the application:
-   static const char* APP_NAME = "ut_xaodrootaccess_tfilemerger_test";
+   static const char* const APP_NAME = "ut_xaodrootaccess_tfilemerger_test";
 
    // Initialise the environment:
    R_CHECK( APP_NAME, xAOD::Init() );

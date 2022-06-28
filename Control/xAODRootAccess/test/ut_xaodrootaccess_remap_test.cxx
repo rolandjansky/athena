@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -29,7 +29,7 @@ int main() {
    using namespace asg::msgUserCode;
 
    // The application's name:
-   static const char* APP_NAME = "ut_xaodrootaccess_remap_test";
+   static const char* const APP_NAME = "ut_xaodrootaccess_remap_test";
 
    // Initialise the environment:
    ANA_CHECK( xAOD::Init( APP_NAME ) );
@@ -46,7 +46,7 @@ int main() {
    event.printNameRemap();
 
    // Connect the TEvent object to an input file:
-   static const char* FNAME = "${ASG_TEST_FILE_DATA}";
+   static const char* const FNAME = "${ASG_TEST_FILE_DATA}";
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file %s" ), FNAME );

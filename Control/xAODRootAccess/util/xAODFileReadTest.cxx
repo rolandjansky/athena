@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODFileReadTest.cxx 778334 2016-10-13 17:31:15Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -21,7 +20,7 @@
 #include "xAODRootAccess/tools/Message.h"
 
 /// The name of the application
-static const char* APP_NAME = "xAODFileReadTest";
+static const char* const APP_NAME = "xAODFileReadTest";
 
 /// Helper macro
 #define R_CHECK( EXP )                                                     \

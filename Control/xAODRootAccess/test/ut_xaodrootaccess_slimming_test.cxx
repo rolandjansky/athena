@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -51,7 +51,7 @@ int main() {
    event1.setAuxItemList( "MuonsAux.", "eta.phi" );
 
    // Connect an input file to the event:
-   static const char* FNAME = "${ASG_TEST_FILE_DATA}";
+   static const char* const FNAME = "${ASG_TEST_FILE_DATA}";
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
    if( ! ifile.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "File %s couldn't be opened..." ),
@@ -61,7 +61,7 @@ int main() {
    ANA_CHECK( event1.readFrom( ifile.get() ) );
 
    // Open a dummy output file, used in the slimming test:
-   static const char* OFNAME = "dummy1.root";
+   static const char* const OFNAME = "dummy1.root";
    std::unique_ptr< ::TFile > ofile1( ::TFile::Open( OFNAME, "RECREATE" ) );
    if( ! ofile1.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Output file %s could not be opened" ),

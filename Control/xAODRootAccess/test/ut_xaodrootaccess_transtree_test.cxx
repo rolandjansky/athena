@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -22,7 +22,7 @@
 int main() {
 
    // The name of the application:
-   static const char* APP_NAME = "ut_xaodrootaccess_transtree_test";
+   static const char* const APP_NAME = "ut_xaodrootaccess_transtree_test";
 
    // Initialise the environment:
    if( ! xAOD::Init( APP_NAME ).isSuccess() ) {

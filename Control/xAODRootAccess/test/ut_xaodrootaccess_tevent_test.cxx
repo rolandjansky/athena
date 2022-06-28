@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -245,7 +245,7 @@ int main() {
    xAOD::TEvent wevent;
 
    // And connect it to an output file:
-   static const char* OFNAME = "test.xAOD.root";
+   static const char* const OFNAME = "test.xAOD.root";
    std::unique_ptr< ::TFile > ofile( ::TFile::Open( OFNAME, "RECREATE" ) );
    if( ! ofile.get() ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't create test output file: %s" ),
