@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: d3pdReadersFromFile.cxx 634769 2014-12-09 15:23:59Z mnowak $
 
 // STL include(s):
 #include <iostream>
@@ -30,6 +29,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/checker_macros.h"
 
 // D3PD include(s):
 #include "D3PDMakerUtils/ObjectMetadata.h"
@@ -40,13 +40,13 @@
 #include "../RootObjectMetadata.h"
 
 /// The program description that's printed with the available parameters
-static const char* PROGRAM_DESC =
+static const char* const PROGRAM_DESC =
    "This application can be used to create all the D3PDReader classes\n"
    "from a D3PD file that stores the metadata of the D3PDObjects that\n"
    "were used to create it";
 
 /// A greeting text that's printed when the application starts up
-static const char* PROGRAM_GREETING =
+static const char* const PROGRAM_GREETING =
    "*******************************************************************\n"
    "*                                                                 *\n"
    "*               D3PDReader standalone code generator              *\n"
@@ -90,7 +90,7 @@ mergeObjects( const std::set< D3PD::ObjectMetadata >& objects );
 /// A convenience declaration to save myself some typeing
 namespace po = boost::program_options;
 
-int main( int argc, char* argv[] ) {
+int main ATLAS_NOT_THREAD_SAFE ( int argc, char* argv[] ) {
    // Let's disable the ROOT warnings:
    gErrorIgnoreLevel = kError;
 

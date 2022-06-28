@@ -7,8 +7,8 @@
 #ifndef D3PDMAKERREADER_ROOTREADERD3PD_V2_CONSTANTS_H
 #define D3PDMAKERREADER_ROOTREADERD3PD_V2_CONSTANTS_H
 
-static const char* VARHANDLE_HEADER_NAME = "VarHandle.h";
-static const char* VARHANDLE_HEADER = 
+static const char* const VARHANDLE_HEADER_NAME = "VarHandle.h";
+static const char* const VARHANDLE_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARHANDLE_H\n"
@@ -186,8 +186,8 @@ static const char* VARHANDLE_HEADER =
    "#endif // __CINT__\n\n"
    "#endif // D3PDREADER_VARHANDLE_H";
 
-static const char* VARHANDLE_IMPL_NAME = "VarHandle.icc";
-static const char* VARHANDLE_IMPL =
+static const char* const VARHANDLE_IMPL_NAME = "VarHandle.icc";
+static const char* const VARHANDLE_IMPL =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARHANDLE_ICC\n"
@@ -398,8 +398,8 @@ static const char* VARHANDLE_IMPL =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_VARHANDLE_ICC";
 
-static const char* VARHANDLE_CXX_NAME = "VarHandle.cxx";
-static const char* VARHANDLE_CXX =
+static const char* const VARHANDLE_CXX_NAME = "VarHandle.cxx";
+static const char* const VARHANDLE_CXX =
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// ROOT include(s):\n"
    "#include <TError.h>\n\n"
@@ -627,8 +627,8 @@ static const char* VARHANDLE_CXX =
    "   }\n\n"
    "} // namespace D3PDReader";
 
-static const char* VARPROXY_HEADER_NAME = "VarProxy.h";
-static const char* VARPROXY_HEADER =
+static const char* const VARPROXY_HEADER_NAME = "VarProxy.h";
+static const char* const VARPROXY_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARPROXY_H\n"
@@ -698,8 +698,8 @@ static const char* VARPROXY_HEADER =
    "#endif // __CINT__\n\n"
    "#endif // D3PDREADER_VARPROXY_H";
 
-static const char* VARPROXY_IMPL_NAME = "VarProxy.icc";
-static const char* VARPROXY_IMPL =
+static const char* const VARPROXY_IMPL_NAME = "VarProxy.icc";
+static const char* const VARPROXY_IMPL =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARPROXY_ICC\n"
@@ -751,8 +751,8 @@ static const char* VARPROXY_IMPL =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_VARPROXY_ICC";
 
-static const char* D3PDOBJECTBASE_HEADER_NAME = "D3PDObjectBase.h";
-static const char* D3PDOBJECTBASE_HEADER =
+static const char* const D3PDOBJECTBASE_HEADER_NAME = "D3PDObjectBase.h";
+static const char* const D3PDOBJECTBASE_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_D3PDOBJECTBASE_H\n"
@@ -801,8 +801,8 @@ static const char* D3PDOBJECTBASE_HEADER =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_D3PDOBJECTBASE_H";
 
-static const char* D3PDREADSTATS_HEADER_NAME = "D3PDReadStats.h";
-static const char* D3PDREADSTATS_HEADER =
+static const char* const D3PDREADSTATS_HEADER_NAME = "D3PDReadStats.h";
+static const char* const D3PDREADSTATS_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_D3PDREADSTATS_H\n"
@@ -993,8 +993,8 @@ static const char* D3PDREADSTATS_HEADER =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_D3PDREADSTATS_H";
 
-static const char* D3PDREADSTATS_CXX_NAME = "D3PDReadStats.cxx";
-static const char* D3PDREADSTATS_CXX =
+static const char* const D3PDREADSTATS_CXX_NAME = "D3PDReadStats.cxx";
+static const char* const D3PDREADSTATS_CXX =
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// System include(s):\n"
    "#include <cstring>\n"
@@ -1896,8 +1896,8 @@ static const char* D3PDREADSTATS_CXX =
    "   }\n\n"
    "} // namespace D3PDReader";
 
-static const char* D3PDPERFSTATS_HEADER_NAME = "D3PDPerfStats.h";
-static const char* D3PDPERFSTATS_HEADER =
+static const char* const D3PDPERFSTATS_HEADER_NAME = "D3PDPerfStats.h";
+static const char* const D3PDPERFSTATS_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_D3PDPERFSTATS_H\n"
@@ -1979,8 +1979,8 @@ static const char* D3PDPERFSTATS_HEADER =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_D3PDPERFSTATS_H";
 
-static const char* D3PDPERFSTATS_CXX_NAME = "D3PDPerfStats.cxx";
-static const char* D3PDPERFSTATS_CXX =
+static const char* const D3PDPERFSTATS_CXX_NAME = "D3PDPerfStats.cxx";
+static const char* const D3PDPERFSTATS_CXX =
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// ROOT include(s):\n"
    "#include <TTree.h>\n"
@@ -2239,8 +2239,8 @@ static const char* D3PDPERFSTATS_CXX =
    "   }\n\n"
    "} // namespace D3PDReader";
 
-static const char* UTILS_HEADER_NAME = "Utils.h";
-static const char* UTILS_HEADER =
+static const char* const UTILS_HEADER_NAME = "Utils.h";
+static const char* const UTILS_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_UTILS_H\n"
@@ -2257,8 +2257,8 @@ static const char* UTILS_HEADER =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_UTILS_H";
 
-static const char* UTILS_CXX_NAME = "Utils.cxx";
-static const char* UTILS_CXX =
+static const char* const UTILS_CXX_NAME = "Utils.cxx";
+static const char* const UTILS_CXX =
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// STL include(s):\n"
    "#include <cmath>\n\n"
@@ -2398,8 +2398,8 @@ static const char* UTILS_CXX =
    "   }\n\n"
    "} // namespace D3PDReader";
 
-static const char* USERD3PDOBJECT_HEADER_NAME = "UserD3PDObject.h";
-static const char* USERD3PDOBJECT_HEADER =
+static const char* const USERD3PDOBJECT_HEADER_NAME = "UserD3PDObject.h";
+static const char* const USERD3PDOBJECT_HEADER =
    "// Dear emacs, this is -*- c++ -*--\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_UserD3PDObject_H\n"
@@ -2549,8 +2549,8 @@ static const char* USERD3PDOBJECT_HEADER =
    "#endif // __CINT__\n\n"
    "#endif // D3PDREADER_UserD3PDObject_H";
 
-static const char* USERD3PDOBJECT_IMPL_NAME = "UserD3PDObject.icc";
-static const char* USERD3PDOBJECT_IMPL =
+static const char* const USERD3PDOBJECT_IMPL_NAME = "UserD3PDObject.icc";
+static const char* const USERD3PDOBJECT_IMPL =
    "// Dear emacs, this is -*- c++ -*-\n"
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_UserD3PDObject_ICC\n"
@@ -2774,8 +2774,8 @@ static const char* USERD3PDOBJECT_IMPL =
    "} // namespace D3PDReader\n\n"
    "#endif // D3PDREADER_UserD3PDObject_ICC";
 
-static const char* USERD3PDOBJECT_CXX_NAME = "UserD3PDObject.cxx";
-static const char* USERD3PDOBJECT_CXX =
+static const char* const USERD3PDOBJECT_CXX_NAME = "UserD3PDObject.cxx";
+static const char* const USERD3PDOBJECT_CXX =
    "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// ROOT include(s):\n"
    "#include <TPRegexp.h>\n\n"

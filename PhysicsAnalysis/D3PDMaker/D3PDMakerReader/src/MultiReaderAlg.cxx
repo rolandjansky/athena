@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -39,7 +39,7 @@ namespace D3PD {
                          "Output directory for the generated sources" );
    }
 
-   StatusCode MultiReaderAlg::initialize() {
+   StatusCode MultiReaderAlg::initialize ATLAS_NOT_THREAD_SAFE () {
 
       CHECK( m_d3pdSvc.retrieve() );
       CHECK( m_tools.retrieve() );

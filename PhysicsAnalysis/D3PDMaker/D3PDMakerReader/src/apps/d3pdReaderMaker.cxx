@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: d3pdReaderMaker.cxx 634769 2014-12-09 15:23:59Z mnowak $
 
 // STL include(s):
 #include <iostream>
@@ -30,19 +29,20 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/checker_macros.h"
 
 // Local include(s):
 #include "../CodeGenerator_v2.h"
 #include "../RootObjectMetadata.h"
 
 /// The program description that's printed with the available parameters
-static const char* PROGRAM_DESC =
+static const char* const PROGRAM_DESC =
    "This application can be used to generate D3PDReader classes\n"
    "based on an existing D3PD file and some additional command\n"
    "line options";
 
 /// A greeting text that's printed when the application starts up
-static const char* PROGRAM_GREETING =
+static const char* const PROGRAM_GREETING =
    "*******************************************************************\n"
    "*                                                                 *\n"
    "*               D3PDReader standalone code generator              *\n"
@@ -87,7 +87,7 @@ StatusCode extractVariables( const std::string& file_name, const std::string& tr
 /// A convenience declaration to save myself some typeing
 namespace po = boost::program_options;
 
-int main( int argc, char* argv[] ) {
+int main ATLAS_NOT_THREAD_SAFE ( int argc, char* argv[] ) {
    // Let's disable the ROOT warnings:
    gErrorIgnoreLevel = kError;
 

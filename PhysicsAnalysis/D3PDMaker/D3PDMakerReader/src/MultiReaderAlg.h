@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MultiReaderAlg.h 348546 2011-03-01 15:09:56Z krasznaa $
 #ifndef D3PDMAKERREADER_MULTIREADERALG_H
 #define D3PDMAKERREADER_MULTIREADERALG_H
 
@@ -15,6 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 
 // D3PDMaker include(s):
 #include "D3PDMakerInterfaces/ID3PDSvc.h"
@@ -40,8 +40,6 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 348546 $
-    * $Date: 2011-03-01 16:09:56 +0100 (Tue, 01 Mar 2011) $
     */
    class MultiReaderAlg : public AthAlgorithm {
 
@@ -50,7 +48,7 @@ namespace D3PD {
       MultiReaderAlg( const std::string& name, ISvcLocator* svcloc );
 
       /// Standard Gaudi @c initialize method.
-      virtual StatusCode initialize();
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE ();
       /// Standard Gaudi @c finalize method.
       virtual StatusCode finalize();
       /// Standard Gaudi @c execute method.

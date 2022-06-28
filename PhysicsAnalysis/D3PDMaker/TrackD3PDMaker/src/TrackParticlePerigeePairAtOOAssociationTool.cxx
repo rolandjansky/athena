@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -81,7 +81,7 @@ const D3PD::PerigeePair*
 TrackParticlePerigeePairAtOOAssociationTool::get
   (const xAOD::TrackParticle& track)
 {
-  static SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> > 
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> >
     orig ("originalTrackParticle");
   if (!orig.isAvailable(track) || !orig(track).isValid())
     return 0;
