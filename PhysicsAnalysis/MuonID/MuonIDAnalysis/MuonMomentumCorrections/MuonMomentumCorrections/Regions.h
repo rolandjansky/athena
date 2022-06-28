@@ -13,7 +13,7 @@
 
 ANA_MSG_HEADER(msgMMC)
 ANA_MSG_HEADER(msgMuonMomentumCorrections)
-
+// [[deprecated]]
 class Regions {
     bool m_loadNames;
     /* number of regions */
