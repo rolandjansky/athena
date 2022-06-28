@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //VolumeTreeNavigator.icc - Access functions for VolumeTreeNavigator class
@@ -37,19 +37,19 @@ int VolumeTreeNavigator::GetCopyNumber(int rel) const
 }
 
 inline
-G4Track* VolumeTreeNavigator::GetTrack() const 
+const G4Track* VolumeTreeNavigator::GetTrack() const
 {
   return m_track;
 }
 
 inline
-G4StepPoint* VolumeTreeNavigator::GetPreStepPoint() const 
+const G4StepPoint* VolumeTreeNavigator::GetPreStepPoint() const
 {
   return m_preStepPoint;
 }
 
 inline
-G4StepPoint* VolumeTreeNavigator::GetPostStepPoint() const 
+const G4StepPoint* VolumeTreeNavigator::GetPostStepPoint() const
 {
   return m_postStepPoint;
 }
