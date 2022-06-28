@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ namespace ISF {
     int getExtraBC() const;
     int process() const;
     int generation() const;
-    MaterialPathInfo* materialLimit() const;
+    const MaterialPathInfo* materialLimit() const;
 
     void setExtraBC(int extrabc);
     void setProcess(int proc);
@@ -76,7 +76,7 @@ namespace ISF {
     int  m_process;            // generating process
     int  m_generation;         // generation number (i.e. number of vertices separating vertex of origin
     //                    from the primary vertex (GenEvent input)
-    mutable MaterialPathInfo*   m_matInfo;     // presampled process and material collection
+    MaterialPathInfo*   m_matInfo;     // presampled process and material collection
   };
 } // end of namespace
 
@@ -85,7 +85,7 @@ inline int ISF::ParticleUserInformation::process()                const { return
 
 inline int ISF::ParticleUserInformation::generation()             const { return m_generation; }
 
-inline ISF::MaterialPathInfo* ISF::ParticleUserInformation::materialLimit()   const { return m_matInfo; }
+inline const ISF::MaterialPathInfo* ISF::ParticleUserInformation::materialLimit()   const { return m_matInfo; }
 
 inline void ISF::ParticleUserInformation::setProcess(int proc)    { m_process = proc; }
 

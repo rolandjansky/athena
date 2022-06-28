@@ -745,7 +745,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
     // add presampled process info
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
-      ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+      const ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
       ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
       validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? eCell.materialL0 : eCell.materialX0);
       regisp->setUserInformation(validInfo);
@@ -941,7 +941,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
     // add presampled process info
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
-      ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+      const ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
       ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
       validInfo->setMaterialLimit(matLim->process,matLim->dMax,matLim->process==121 ? eCell.materialL0 : eCell.materialX0);
       regisp->setUserInformation(validInfo);

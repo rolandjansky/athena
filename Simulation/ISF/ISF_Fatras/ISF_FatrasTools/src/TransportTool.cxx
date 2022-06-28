@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -257,7 +257,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
 
   // presample interactions if not done already
   Trk::PathLimit pathLim(-1.,0);
-  ISF::MaterialPathInfo* matLimit = isp.getUserInformation() ? isp.getUserInformation()->materialLimit() : nullptr;
+  const ISF::MaterialPathInfo* matLimit = isp.getUserInformation() ? isp.getUserInformation()->materialLimit() : nullptr;
   if (matLimit) {
     pathLim=Trk::PathLimit( matLimit->dMax,matLimit->process);
     pathLim.updateMat(matLimit->dCollected,13.,0.);          // arbitrary Z choice : update MaterialPathInfo

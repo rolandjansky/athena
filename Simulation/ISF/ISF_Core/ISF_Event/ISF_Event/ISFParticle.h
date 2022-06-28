@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -167,7 +167,8 @@ namespace ISF {
     void setBCID(int bcid);
 
     /** pointer to the simulation truth - optional, can be 0 */
-    TruthBinding* getTruthBinding() const;
+    const TruthBinding* getTruthBinding() const;
+    TruthBinding* getTruthBinding();
     void          setTruthBinding(TruthBinding *truth);
 
     /** HepMcParticleLink accessors */
@@ -179,7 +180,8 @@ namespace ISF {
     void           setOrder(ParticleOrder order);
 
     /** get/set ParticleUserInformation */
-    ParticleUserInformation *getUserInformation() const;
+    const ParticleUserInformation* getUserInformation() const;
+    ParticleUserInformation* getUserInformation();
     void                     setUserInformation(ParticleUserInformation *userInfo);
 
     /** Dump methods to be used by the overloaded stream operator (inheritance!) */
@@ -198,7 +200,7 @@ namespace ISF {
     int                          m_bcid;                  //!< bunch-crossing identifier
     TruthBinding*                m_truth;
     ParticleOrder                m_order;                 //!< particle simulation order
-    mutable ParticleUserInformation *m_userInfo;          //!< user information stored with the ISFParticle
+    ParticleUserInformation*     m_userInfo;              //!< user information stored with the ISFParticle
     const HepMcParticleLink*     m_partLink;
   };
 
