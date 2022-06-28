@@ -195,7 +195,7 @@ bool EtaPtFilterTool::isAccepted( HepMC::ConstGenParticlePtr mc ) const
   }
   
   if ( m_butKeepAllGeneratorStable.value() ) {
-    static IsGenStable isStable;
+    static const IsGenStable isStable;
     if ( isStable(mc) ) 
       return true;
   }
@@ -203,7 +203,7 @@ bool EtaPtFilterTool::isAccepted( HepMC::ConstGenParticlePtr mc ) const
   if ( m_onlyGenerator.value() ) {
     // helper class to know if a GenParticle has been produced at Generator 
     // level. ie: not at simulation level (Geant4)
-    static IsGenerator ifs;
+    static const IsGenerator ifs;
     if ( !ifs(mc) ) {
       return false;
     }

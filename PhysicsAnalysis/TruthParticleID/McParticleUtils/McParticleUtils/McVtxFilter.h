@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -23,12 +23,9 @@
 #include <sstream>
 #include <ostream>
 
-#include "AthContainers/DataVector.h"
-
 // Framework includes
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/GaudiException.h"
+#include "AthenaBaseComps/AthMessaging.h"
+#include "AthContainers/DataVector.h"
 
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
@@ -47,7 +44,7 @@
 
 // Forward declaration
 
-class McVtxFilter : virtual public IFilterCuts
+class McVtxFilter : virtual public IFilterCuts, public AthMessaging
 { 
   
   /////////////////////////////////////////////////////////////////// 
@@ -198,9 +195,6 @@ class McVtxFilter : virtual public IFilterCuts
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 
   protected: 
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  mutable MsgStream m_msg;
 
   /// Discrimination between particles and conjugates
   bool m_matchSign;
