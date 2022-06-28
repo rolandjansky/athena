@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4DEBUGGINGTOOLS_EnergyConservationTest_H
@@ -30,11 +30,10 @@ namespace G4UA
     virtual void UserSteppingAction(const G4Step*) override;
 
   private:
-    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
+    ServiceHandle<StoreGateSvc> m_evtStore;
     /// Pointer to StoreGate (detector store by default)
-    mutable StoreGateSvc_t m_detStore;
+    ServiceHandle<StoreGateSvc> m_detStore;
     double e_in , e_out , e_dep;
 
   }; // class EnergyConservationTest

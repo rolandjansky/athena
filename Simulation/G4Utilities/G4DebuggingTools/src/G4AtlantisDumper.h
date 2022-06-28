@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4DEBUGGINGTOOLS_G4AtlantisDumper_H
@@ -41,11 +41,10 @@ namespace G4UA
   private:
     Config m_config;
 
-    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
+    ServiceHandle<StoreGateSvc> m_evtStore;
     /// Pointer to StoreGate (detector store by default)
-    mutable StoreGateSvc_t m_detStore;
+    ServiceHandle<StoreGateSvc> m_detStore;
     int m_nsteps;
     std::ofstream *m_file;
     std::string m_filename;
