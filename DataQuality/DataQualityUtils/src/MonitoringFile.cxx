@@ -80,7 +80,7 @@ bool histOKToMerge(TH1* h) {
 
 MonitoringFile::OutputMetadata::
 OutputMetadata( TTree* metadata )
-	: m_metadata(metadata)
+  : m_metadata(metadata)
 {
   makeBranch( "Name", "Name/C" );
   makeBranch( "Interval", "Interval/C" );
@@ -109,10 +109,10 @@ fill( const std::string & theName,
   std::string chain = theChain;
   std::string merge = theMerge;
   m_metadata->SetBranchAddress("Name", name.data());
-	m_metadata->SetBranchAddress("Interval", interval.data());
+  m_metadata->SetBranchAddress("Interval", interval.data());
   m_metadata->SetBranchAddress("TriggerChain", chain.data());
   m_metadata->SetBranchAddress("MergeMethod", merge.data());
-	m_metadata->Fill();
+  m_metadata->Fill();
 }
 
 
@@ -252,8 +252,8 @@ createDir( DirMap_t& dirmap, TDirectory* dir, const std::string &parent, const s
   
   if( i != std::string::npos ) {
     std::string dName( path, 0, i );
-		std::string pName( path, i+1, std::string::npos );
-		fName += dName;
+    std::string pName( path, i+1, std::string::npos );
+    fName += dName;
     if( dName != "" ) {
       diter = dirmap.find( fName );
       if( diter != dirmap.end() ) {
@@ -264,13 +264,13 @@ createDir( DirMap_t& dirmap, TDirectory* dir, const std::string &parent, const s
         DirMap_t::value_type dirmapVal( fName, subdir );
         dirmap.insert( dirmapVal );
       }
-		}
+    }
     else {
       subdir = dir;
     }
     return createDir( dirmap, subdir, fName, pName );
   }
-	
+  
   fName += path;
     
   diter = dirmap.find( fName );
@@ -291,27 +291,27 @@ getObjKey( TDirectory* dir, const std::string & path )
 {
   if( dir == 0 )
     return 0;
-	
+  
   TKey* key(0);
-	
-	std::string::size_type i = path.find_first_of('/');
-	if( i != std::string::npos ) {
-		std::string dName( path, 0, i );
-		std::string pName( path, i+1, std::string::npos );
-		if( dName != "" ) {
-			key = dir->FindKey( dName.c_str() );
-			if( key != 0 ) {
-				TDirectory* subDir = dynamic_cast<TDirectory*>( key->ReadObj() );
-				if (subDir) {
-				  return getObjKey( subDir, pName );
-				} // else fall through
-			}
-			return 0;
-		}
-		return getObjKey( dir, pName );
-	}
-	
-	return dir->FindKey( path.c_str() );
+  
+  std::string::size_type i = path.find_first_of('/');
+  if( i != std::string::npos ) {
+    std::string dName( path, 0, i );
+    std::string pName( path, i+1, std::string::npos );
+    if( dName != "" ) {
+      key = dir->FindKey( dName.c_str() );
+      if( key != 0 ) {
+        TDirectory* subDir = dynamic_cast<TDirectory*>( key->ReadObj() );
+        if (subDir) {
+          return getObjKey( subDir, pName );
+        } // else fall through
+      }
+      return 0;
+    }
+    return getObjKey( dir, pName );
+  }
+  
+  return dir->FindKey( path.c_str() );
 
 }
 
@@ -366,10 +366,10 @@ void populateKeyMapping(TDirectory* dir, keycyclemap& kcmap) {
 // a directory, a merge type, and optionally an object to merge into.  
 // Return value is a merged object.
 TObject* MonitoringFile::mergeObjsMultiCycles(const std::string& keyname, 
-					      const std::vector<int>& cycles,
-					      TDirectory* dir,
-					      const std::string & mergeType,
-					      TObject* obj) {
+                const std::vector<int>& cycles,
+                TDirectory* dir,
+                const std::string & mergeType,
+                TObject* obj) {
    if (cycles.size() == 0) {
       return obj;
    }
@@ -380,38 +380,46 @@ TObject* MonitoringFile::mergeObjsMultiCycles(const std::string& keyname,
       start_idx = 1;
       TH1* h = dynamic_cast<TH1*>(obj);
       if (h && !histOKToMerge(h)) {
-	// histogram is damaged goods
-	std::cerr << "WARNING: HISTOGRAM " << h->GetName() << " IS INTERNALLY INCONSISTENT, NOT MERGING" << std::endl;
-	return obj;
+  // histogram is damaged goods
+  std::cerr << "WARNING: HISTOGRAM " << h->GetName() << " IS INTERNALLY INCONSISTENT, NOT MERGING" << std::endl;
+  return obj;
       }
    }
    for (std::vector<int>::size_type idx = start_idx; 
-	idx < cycles.size(); ++idx) {
+  idx < cycles.size(); ++idx) {
       TKey* nextKey = dir->GetKey(keyname.c_str(), cycles[idx]);
       if (nextKey != 0) {
-	 std::unique_ptr<TObject> nextObj(nextKey->ReadObj());
-	 if (nextObj.get() == 0) {
-	    std::cerr << "MonitoringFile::mergeObjsMultiCycles(): "
-		      << "In directory \"" << dir->GetPath() << "\",\n"
-		      << "  Object \"" << keyname << "\" cannot be read from file: skipping\n";
-	    continue;
-	 }
-	 TH1* h = dynamic_cast<TH1*>(nextObj.get());
-	 if (h && !histOKToMerge(h)) {
-	   // histogram is damaged goods; even deleting it may be dangerous
-	   std::cerr << "WARNING: HISTOGRAM " << h->GetName() << " IS INTERNALLY INCONSISTENT, NOT MERGING" << std::endl;
-	   nextObj.release();
-	   continue;
-	 }
+   std::unique_ptr<TObject> nextObj(nextKey->ReadObj());
+   if (nextObj.get() == 0) {
+      std::cerr << "MonitoringFile::mergeObjsMultiCycles(): "
+          << "In directory \"" << dir->GetPath() << "\",\n"
+          << "  Object \"" << keyname << "\" cannot be read from file: skipping\n";
+      continue;
+   }
+   TH1* h = dynamic_cast<TH1*>(nextObj.get());
+   if (h && !histOKToMerge(h)) {
+     // histogram is damaged goods; even deleting it may be dangerous
+     std::cerr << "WARNING: HISTOGRAM " << h->GetName() << " IS INTERNALLY INCONSISTENT, NOT MERGING" << std::endl;
+     nextObj.release();
+     continue;
+   }
+   // next: if current "target" histogram exists, but is empty, reset it to the next object.
+   // works around 
+  h = dynamic_cast<TH1*>(obj);
+  if (h && h->GetEntries() == 0 && h->GetSumOfWeights() == 0) {
+    // just take over nextObj as obj
+    obj = nextObj.release();
+    continue;
+  }
          if (h && (obj->IsA() !=  h->IsA())) {
            // problem: class types have changed ...
-	   std::cerr << "WARNING: CHANGE OF CLASS TYPES FOR " << h->GetName() << ", NOT MERGING" << std::endl;
-	   nextObj.release();
-	   continue;
-	 }
-	 MonitoringFile::mergeObjs(obj, nextObj.get(), mergeType,m_debugLevel>VERBOSE?VERBOSE: (dqutils::MonitoringFile::debugLevel_t)m_debugLevel);
+     std::cerr << "WARNING: CHANGE OF CLASS TYPES FOR " << h->GetName() << ", NOT MERGING" << std::endl;
+     nextObj.release();
+     continue;
+   }
+   MonitoringFile::mergeObjs(obj, nextObj.get(), mergeType,m_debugLevel>VERBOSE?VERBOSE: (dqutils::MonitoringFile::debugLevel_t)m_debugLevel);
       } else {
-	 std::cerr << "MonitoringFile::mergeObjsMultiCycles(): NULL KEY; corrupt file?" << std::endl;
+   std::cerr << "MonitoringFile::mergeObjsMultiCycles(): NULL KEY; corrupt file?" << std::endl;
       }
    }
    return obj;
@@ -419,14 +427,14 @@ TObject* MonitoringFile::mergeObjsMultiCycles(const std::string& keyname,
 
 
 void getListOfKeysWithName(TDirectory* dir, const std::string& keyname,
-			   TCollection* target) 
+         TCollection* target) 
 {
    target->Clear();
    TIter keyit(dir->GetListOfKeys());
    TKey* key;
    while ( (key = dynamic_cast<TKey*>(keyit())) != 0 ) {
       if (keyname == key->GetName()) {
-	 target->Add(key);
+   target->Add(key);
       }
    }
 }
@@ -501,31 +509,31 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
       populateKeyMapping(inputDir, kcmap);
                 
       for (keycyclemap::iterator kcit = kcmap.begin();
-	   kcit != kcmap.end();
-	   ++kcit) {
-	key = inputDir->GetKey(kcit->first.c_str(), kcit->second.back());
-	if (! key) {
-	  std::cout << "Key " << kcit->first.c_str() << ";" << kcit->second.back() << " not readable" << std::endl;
-	  continue;
-	}
-	kcit->second.pop_back();
-	keyName = getOutputDirectory(key, inputFile, has_multiple_runs, prefixes);
+     kcit != kcmap.end();
+     ++kcit) {
+  key = inputDir->GetKey(kcit->first.c_str(), kcit->second.back());
+  if (! key) {
+    std::cout << "Key " << kcit->first.c_str() << ";" << kcit->second.back() << " not readable" << std::endl;
+    continue;
+  }
+  kcit->second.pop_back();
+  keyName = getOutputDirectory(key, inputFile, has_multiple_runs, prefixes);
          ObjNameSet_t::iterator obji = mergedObjs.find( keyName );
          if( obji != mergedObjs.end() ) {
             // Object has already been processed
             continue;
          }
-	 // we only need to read the non-dir objects below target directory. skip the rest
-	 bool isDir=false;
-	 if(m_useRE && key->IsFolder()){
-	   //std::cout<<"Key "<<keyName<<" is a folder"<<std::endl;
-	   if(keyName!="metadata")isDir=true; //metadata is not going to be merged, treat it as a regular obj
-	 }
-	 if(!targetDir && !isDir){
-	   //std::cerr<<"Skipping keyname "<keyname<<std::endl;
-	   continue; //skip everything except directories 
-	 }
-	 std::unique_ptr<TObject> obj(key->ReadObj());
+   // we only need to read the non-dir objects below target directory. skip the rest
+   bool isDir=false;
+   if(m_useRE && key->IsFolder()){
+     //std::cout<<"Key "<<keyName<<" is a folder"<<std::endl;
+     if(keyName!="metadata")isDir=true; //metadata is not going to be merged, treat it as a regular obj
+   }
+   if(!targetDir && !isDir){
+     //std::cerr<<"Skipping keyname "<keyname<<std::endl;
+     continue; //skip everything except directories 
+   }
+   std::unique_ptr<TObject> obj(key->ReadObj());
          if (obj.get() == 0) {
             std::cerr << "MonitoringFile::mergeDirectory(): "
                << "In directory \"" << inputDir->GetPath() << "\",\n"
@@ -533,7 +541,7 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
             continue;
          }
 
-	 // we actually have an object, and it hasn't been done before 
+   // we actually have an object, and it hasn't been done before 
          mergedObjs.insert( keyName );
 
          TH1* h(0);
@@ -542,7 +550,7 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
          TDirectory* d(0);
          TTree* t(0);
          TObject* targetObj(0);
-	 //moved inside if to speedup
+   //moved inside if to speedup
 //          h = dynamic_cast<TH1*>( obj.get() );
 //          d = dynamic_cast<TDirectory*>( obj.get() );
 //          g = dynamic_cast<TGraph*>( obj.get() );
@@ -555,24 +563,24 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
                              || (e = dynamic_cast<TEfficiency*>(obj.get()))
                              ) 
             ) {
-	   //skip cases where regexp doesn't match object name, all directories are processed by default
-	   if(m_useRE){
-	     if(!boost::regex_search(keyName,*m_mergeMatchHistoRE)){
-	       //std::cerr<<" skipping   keyName=\""<<outputDirName+'/'+keyName<<"\""<<std::endl;
-	       continue; // not the histogram we want
-	     }
-	   }
-	   std::string mergeType("<default>");
-	   MetaDataMap_t::iterator mdi = mdMap.find( keyName );
-	   if( mdi != mdMap.end() ) {
+     //skip cases where regexp doesn't match object name, all directories are processed by default
+     if(m_useRE){
+       if(!boost::regex_search(keyName,*m_mergeMatchHistoRE)){
+         //std::cerr<<" skipping   keyName=\""<<outputDirName+'/'+keyName<<"\""<<std::endl;
+         continue; // not the histogram we want
+       }
+     }
+     std::string mergeType("<default>");
+     MetaDataMap_t::iterator mdi = mdMap.find( keyName );
+     if( mdi != mdMap.end() ) {
                metadataInDir = true;
                const MetaData& md = mdi->second;
                if (has_multiple_runs && 
-		   (md.interval != "run" && 
-		    md.interval != "fill" && 
-		    md.interval != "all" && 
-		    md.interval != "file")){
-		 continue;
+       (md.interval != "run" && 
+        md.interval != "fill" && 
+        md.interval != "all" && 
+        md.interval != "file")){
+     continue;
                }
                outputmd.fill( md.name, md.interval, md.chain, md.merge );
                mergeType = md.merge;
@@ -599,17 +607,17 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
                   << "In directory \"" << inputDir->GetPath() << "\",\n"
                      << "  object \"" << keyName << "\" has no metadata\n";
             }
- 	    if(t){
-	      TDirectory* currentDir = gDirectory;
-	      outputDir->cd();
-	      TTree* t2 = t->CloneTree();
-	      targetObj = t2;
-	      currentDir->cd();
-	    } else {
-	      targetObj = obj.get();
-	    }
-	    mergeObjsMultiCycles(keyName, kcit->second, inputDir,
-				 mergeType, targetObj);
+       if(t){
+        TDirectory* currentDir = gDirectory;
+        outputDir->cd();
+        TTree* t2 = t->CloneTree();
+        targetObj = t2;
+        currentDir->cd();
+      } else {
+        targetObj = obj.get();
+      }
+      targetObj = mergeObjsMultiCycles(keyName, kcit->second, inputDir,
+         mergeType, targetObj);
             for( std::vector<TFile*>::const_iterator j = i+1; j!= inputFilesEnd; ++j ) {
                TFile* nextInputFile = *j;
                TDirectory* nextInputDir = nextInputFile->GetDirectory( getInputDirectory(outputDirName, *j, has_multiple_runs, prefixes).c_str() );
@@ -618,34 +626,34 @@ mergeDirectory( TDirectory* outputDir, const std::vector<TFile*>& inputFiles, bo
                   continue;
                }
 
-	       TObjArray tl; std::vector<int> nextCycles;
-	       getListOfKeysWithName(nextInputDir, kcit->first, &tl);
-	       populateCycleVector(tl, nextCycles);
-		 
-	       mergeObjsMultiCycles(kcit->first, nextCycles, 
-	       			    nextInputDir, mergeType, targetObj);
+         TObjArray tl; std::vector<int> nextCycles;
+         getListOfKeysWithName(nextInputDir, kcit->first, &tl);
+         populateCycleVector(tl, nextCycles);
+     
+         targetObj = mergeObjsMultiCycles(kcit->first, nextCycles, 
+                   nextInputDir, mergeType, targetObj);
 
             }
             outputDir->cd();
-	    if (h) {
-	      h->SetDirectory(outputDir);
-	    }
+      if (h) {
+        h->SetDirectory(outputDir);
+      }
 
-	    targetObj->Write();
+      targetObj->Write();
          }else if( (targetDir) && (t = dynamic_cast<TTree*>(obj.get())) ) {
-	    // do not merge metadata
-	 }else if((d = dynamic_cast<TDirectory*>( obj.get() ))) {
-	   // Do not run the multicycle merge on directories;
-	   // haven't seen one yet that has multiple keys...
-	   // Merge TDirectory
-	   outputDir->cd();
-	   std::string outputSubDirName(getOutputDirectory(d->GetName(), inputFile, has_multiple_runs, prefixes));
-	   TDirectory* outputSubDir = outputDir->mkdir( outputSubDirName.c_str(), d->GetTitle() );
-	   mergeDirectory( outputSubDir, inputFiles, has_multiple_runs, prefixes );
+      // do not merge metadata
+   }else if((d = dynamic_cast<TDirectory*>( obj.get() ))) {
+     // Do not run the multicycle merge on directories;
+     // haven't seen one yet that has multiple keys...
+     // Merge TDirectory
+     outputDir->cd();
+     std::string outputSubDirName(getOutputDirectory(d->GetName(), inputFile, has_multiple_runs, prefixes));
+     TDirectory* outputSubDir = outputDir->mkdir( outputSubDirName.c_str(), d->GetTitle() );
+     mergeDirectory( outputSubDir, inputFiles, has_multiple_runs, prefixes );
          }else {
-	   std::cout << "MonitoringFile::mergeDirectory(): "
-		     << "In directory \"" << inputDir->GetPath() << "\",\n"
-		     << "  Object \"" << key->GetName() << "\" will not be merged\n";
+     std::cout << "MonitoringFile::mergeDirectory(): "
+         << "In directory \"" << inputDir->GetPath() << "\",\n"
+         << "  Object \"" << key->GetName() << "\" will not be merged\n";
          }
 
          //delete obj;
@@ -732,8 +740,8 @@ mergeFiles( const std::string & outFileName, const std::vector<std::string>& fil
     TList* keys = f->GetListOfKeys();
     if (keys->GetSize() == 0) {
       std::cerr << "MonitoringFile::mergeFiles(): "
-		<< "Input file " << *fi << " has no keys!" 
-		<< std::endl;
+    << "Input file " << *fi << " has no keys!" 
+    << std::endl;
       delete f;
       continue;
     } 
@@ -744,14 +752,14 @@ mergeFiles( const std::string & outFileName, const std::vector<std::string>& fil
     while ( (key = dynamic_cast<TKey*>(keyitr())) != 0 ) {
       std::string keyname(key->GetName());
       if (keyname.substr(0,4) == "run_") {
-	runkeys.push_back(keyname);
+  runkeys.push_back(keyname);
       }
     }
     if (runkeys.size() > 1) {
       std::cerr << "MonitoringFile::mergeFiles():\n"
-		<< "   Input root file " << *fi << " has multiple top-level run_* keys\n"
-		<< "   Assuming " << runkeys[0] << " is the run key" 
-		<< std::endl;
+    << "   Input root file " << *fi << " has multiple top-level run_* keys\n"
+    << "   Assuming " << runkeys[0] << " is the run key" 
+    << std::endl;
     }
     if (runkeys.size() > 0) {
       prefix_ignore[f] = runkeys[0];
@@ -768,20 +776,20 @@ mergeFiles( const std::string & outFileName, const std::vector<std::string>& fil
        ++pi_it) {
     if (prev_key_name != pi_it->second) {
       if (prev_key_name == "") {
-	prev_key_name = pi_it->second;
+  prev_key_name = pi_it->second;
       } else {
-	has_multiple_runs = true;
-	break;
+  has_multiple_runs = true;
+  break;
       }
     }
   }
 
   if (has_multiple_runs) {
     std::cout << "Multiple runs detected in input files.\n"
-	      << "Will merge ONLY RUN, FILL, FILE, or ALL histograms to run_multiple directory.\n"
-	      << "(That is, no event block, lumi block, lowStat, medStat,\n"
-	      << "or higStat histograms will be in the output.)"
-	      << std::endl;
+        << "Will merge ONLY RUN, FILL, FILE, or ALL histograms to run_multiple directory.\n"
+        << "(That is, no event block, lumi block, lowStat, medStat,\n"
+        << "or higStat histograms will be in the output.)"
+        << std::endl;
   }
   
   std::cout << "Writing file: " << outFileName << "\n";
@@ -1146,9 +1154,9 @@ getHanResults( const std::string & hanResultsDir, const std::string & input,
     std::string han_output_run = hanResultsDir+'/'+tdir_run_name+"_han.root";
     std::cout << "Calling han( " << hcfg << ", " << input << ", " << tdir_run_name
               << ", " << han_output_run << " ):\n" << std::flush;
-	  han.Analyze( hcfg, input, han_output_run, tdir_run_name );
+    han.Analyze( hcfg, input, han_output_run, tdir_run_name );
     std::cout << "\n";
-	  fileList += han_output_run + " " + tdir_run_name + "\n" ;
+    fileList += han_output_run + " " + tdir_run_name + "\n" ;
   }
   
   dirs_end = lowStat_dirs.end();
@@ -1161,11 +1169,11 @@ getHanResults( const std::string & hanResultsDir, const std::string & input,
     
     std::string han_output_lowStat = hanResultsDir+'/'+tdir_minutes_underscore+"_han.root";
     std::cout << "Running han, writing to " << han_output_lowStat << ":\n" << std::flush;
-	  han.Analyze( hcfg_lowStat, input, han_output_lowStat, tdir_minutes_path );
+    han.Analyze( hcfg_lowStat, input, han_output_lowStat, tdir_minutes_path );
     std::cout << "\n";
     std::string subdirname( tdir_minutes_path, tdir_minutes_i+1, std::string::npos );
     std::string dirname( tdir_minutes_path, 0, tdir_minutes_i );
-	  fileList += han_output_lowStat + " " + subdirname + " " + dirname + " " + subdirname +"\n" ;
+    fileList += han_output_lowStat + " " + subdirname + " " + dirname + " " + subdirname +"\n" ;
   }
   
   dirs_end = medStat_dirs.end();
@@ -1178,11 +1186,11 @@ getHanResults( const std::string & hanResultsDir, const std::string & input,
     
     std::string han_output_medStat = hanResultsDir+'/'+tdir_minutes_underscore+"_han.root";
     std::cout << "Running han, writing to " << han_output_medStat << ":\n" << std::flush;
-	  han.Analyze( hcfg_medStat, input, han_output_medStat, tdir_minutes_path );
+    han.Analyze( hcfg_medStat, input, han_output_medStat, tdir_minutes_path );
     std::cout << "\n";
     std::string subdirname( tdir_minutes_path, tdir_minutes_i+1, std::string::npos );
     std::string dirname( tdir_minutes_path, 0, tdir_minutes_i );
-	  fileList += han_output_medStat + " " + subdirname + " " + dirname + " " + subdirname +"\n" ;
+    fileList += han_output_medStat + " " + subdirname + " " + dirname + " " + subdirname +"\n" ;
   }
   
   return fileList;
@@ -1239,11 +1247,11 @@ printHanConfig() const
       indent_c = getIndentation(common,"");
       int counter = (indent_p.size() - indent_c.size())/2;
       for (int i = counter; i>0; i--){
-	std::string temp = indent_c;
-	for (int j = 0; j< i; j++){
-	  temp+="  ";
-	}
-	std::cout << temp << "} \n" ;
+  std::string temp = indent_c;
+  for (int j = 0; j< i; j++){
+    temp+="  ";
+  }
+  std::cout << temp << "} \n" ;
       }
       std::cout << indent << "} \n";
       std::cout << indent << "dir "  << shortName << "  { \n";
@@ -1594,7 +1602,7 @@ loopOnHistogramsInMetadata( HistogramOperation& fcn, TDirectory* dir )
     i_key = dir->FindKey( static_cast<char*>(i_name.GetAddress()) );
     if( i_key == 0 ) {
       std::cerr << "MonitoringFile::loopOnHistogramsInMetadata(): "
-		            << "No \'" << nameStr << "\' object found\n";
+                << "No \'" << nameStr << "\' object found\n";
       return false;
     }
       MetaData md( nameStr, 
@@ -1691,7 +1699,7 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, const std::strin
 //    t = dynamic_cast<TTree*>( objTarget );
    if((h = dynamic_cast<TH1*>( objTarget ))  ) {  // we are dealing with histograms
      /*     if ( debugLevel >= DEBUG )
-	    std::cout << " --> " << name << " is a histogram */
+      std::cout << " --> " << name << " is a histogram */
      nextH = dynamic_cast<TH1*>( obj );
      if (!nextH) {
        std::cerr << objTarget->GetName() << " is a TH1, but " << obj->GetName() << " is not: skip merging" << std::endl;
@@ -1699,9 +1707,9 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, const std::strin
      }
      if( mergeType == "effAsPerCent" ) {
        if((h2 = dynamic_cast<TH2*>( objTarget )) && (nextH2 = dynamic_cast<TH2*>( nextH ))){
-	 merge_effAsPerCent( *h2, *nextH2 );
+   merge_effAsPerCent( *h2, *nextH2 );
        }else{
-	 merge_effAsPerCentAlt( *h, *nextH );
+   merge_effAsPerCentAlt( *h, *nextH );
        }
      }else if( mergeType == "perBinEffPerCent" ) {
        merge_perBinEffPerCent( *h, *nextH );
@@ -1716,7 +1724,7 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, const std::strin
        merge_Rebinned( *h, *nextH );
      }else if( mergeType == "eventSample" ) {
        if((h2 = dynamic_cast<TH2*>( objTarget ))&& (nextH2 = dynamic_cast<TH2*>( nextH ))){
-	 merge_eventSample( *h2, *nextH2 );
+   merge_eventSample( *h2, *nextH2 );
        }
      }else if( mergeType == "mergeRMS" ) {
        merge_RMS( *h, *nextH );
@@ -1730,13 +1738,13 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, const std::strin
        TList tl; tl.Add(nextH); h->Merge(&tl);
      } else {
        if (!h->Add( nextH )) {
-	 std::cerr << "Histogram " << h->GetName() << " should NOT be using Add: needs to specify a merge method (e.g. merge) in its metadata";
+   std::cerr << "Histogram " << h->GetName() << " should NOT be using Add: needs to specify a merge method (e.g. merge) in its metadata";
        }
      }
    }else if( (g = dynamic_cast<TGraph*>( objTarget )) ) {  // TGraphs
      if( mergeType != "<default>" ) {
        std::cerr << name << ": TGraph " << obj->GetName() << " request mergeType = " << mergeType
-		 << " but only default merging implemented for TGraphs\n";              
+     << " but only default merging implemented for TGraphs\n";              
      }
      TGraph *nextG = dynamic_cast<TGraph*>( obj );
      TList listG;
@@ -1759,7 +1767,7 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, const std::strin
      }
      if( mergeType != "<default>" ) {
        std::cerr << name << ": TTree " << obj->GetName() << " request mergeType = " << mergeType
-		 << " but only default merging implemented for TTrees\n";            
+     << " but only default merging implemented for TTrees\n";            
      }
      TTree *nextT = dynamic_cast<TTree*>( obj );
      TList listT;
@@ -2014,7 +2022,7 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
       typedef std::map< std::string, MetaData >  MetaDataMap_t;
       TTree* mdTree = dynamic_cast<TTree*>(dir_out->Get("metadata"));
       if (!mdTree) {
-	mdTree = new TTree( "metadata", "Monitoring Metadata" );
+  mdTree = new TTree( "metadata", "Monitoring Metadata" );
       }
       mdTree->SetDirectory(0);
       OutputMetadata outputmd( mdTree );
@@ -2039,27 +2047,27 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
          TObject *objMerged(0);
          std::string mergeType("<default>");
           // LB interval loop
-	 bool key_checked = false;
+   bool key_checked = false;
          for( i = v_dirsStat.begin(); i != v_dirsStat.end(); ++i ) {
             // retrieve histogram for current LB interval
             TDirectory *dir_current = (*i);
-	    std::unique_ptr<TObject> objThis((TObject*) dir_current->Get(histFullName.c_str()));
+      std::unique_ptr<TObject> objThis((TObject*) dir_current->Get(histFullName.c_str()));
 
             if( ! objThis.get() ) { // histogram does not exist in this LB interval
                continue;
             }
 
-	   // test if histogram exists already in dir_out
-	   if (! key_checked) {
-	     TKey *test_key = dir_out->FindKey(objThis->GetName());
-	     if( test_key ) {
-	       if( debugLevel >= DEBUG )
-		 std::cout << name << ": " << dir_out->GetPath() << '/' << objThis->GetName()
-			   << " exists already, not written" << std::endl;
-	       break;
-	     }
-	     key_checked = true;
-	   }
+     // test if histogram exists already in dir_out
+     if (! key_checked) {
+       TKey *test_key = dir_out->FindKey(objThis->GetName());
+       if( test_key ) {
+         if( debugLevel >= DEBUG )
+     std::cout << name << ": " << dir_out->GetPath() << '/' << objThis->GetName()
+         << " exists already, not written" << std::endl;
+         break;
+       }
+       key_checked = true;
+     }
 
             if( ! objMerged ) {
               // clone the current histogram
@@ -2094,18 +2102,25 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
             }
             else {
                // objMerged already exists, merge with objThis
-	      mergeObjs(objMerged, objThis.get(), mergeType, debugLevel);
+               // but only if objMerged isn't empty ... otherwise swap
+               TH1* h = dynamic_cast<TH1*>(objMerged);
+               if (h && h->GetEntries() == 0 && h->GetSumOfWeights() == 0) {
+                delete objMerged;
+                objMerged = objThis->Clone();
+               } else {
+        mergeObjs(objMerged, objThis.get(), mergeType, debugLevel);
+               }
             }
-	    //delete objThis;
+      //delete objThis;
          }
 
          dir_out->cd();
          // write histogram to file and delete it from memory
          if( objMerged ) {
-	   objMerged->Write();
-	   if( debugLevel >= DEBUG )
-	     std::cout << name << ": wrote " << dir_out->GetPath() << '/' << objMerged->GetName() << std::endl;
-	   delete objMerged;
+     objMerged->Write();
+     if( debugLevel >= DEBUG )
+       std::cout << name << ": wrote " << dir_out->GetPath() << '/' << objMerged->GetName() << std::endl;
+     delete objMerged;
          }
       }
       // write metadata tree
@@ -2134,13 +2149,13 @@ void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, st
       continue;
     }
     if( debugLevel >= DEBUG ) std::cout << "Found " << dirname << " " 
-					<< v_splits[0] << " " 
-					<< v_splits[1] << std::endl;
+          << v_splits[0] << " " 
+          << v_splits[1] << std::endl;
     try {
       v_ranges.push_back(std::make_pair(*dirit, std::make_pair(boost::lexical_cast<int>(v_splits[0]), boost::lexical_cast<int>(v_splits[1]))));
     } catch (boost::bad_lexical_cast& e) {
       std::cerr << "Unable to cast to integers: " << v_splits[0] << " " 
-		<< v_splits[1] << std::endl;
+    << v_splits[1] << std::endl;
     }
   }
   for (std::vector<TDirectory*>::const_iterator dirit = v_dirLBs.begin();
@@ -2149,11 +2164,11 @@ void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, st
     std::string dirname((*dirit)->GetName());
     int lbnum = boost::lexical_cast<int>(dirname.substr(3, std::string::npos));
     for (range_t::const_iterator rangeit = v_ranges.begin(); 
-	 rangeit != v_ranges.end(); ++rangeit) {
+   rangeit != v_ranges.end(); ++rangeit) {
       if ((*rangeit).second.first <= lbnum && 
-	  lbnum <= (*rangeit).second.second) {
-	map_dir_vdir::iterator mapit = mapping.find((*rangeit).first);
-	(*mapit).second.push_back(*dirit);
+    lbnum <= (*rangeit).second.second) {
+  map_dir_vdir::iterator mapit = mapping.find((*rangeit).first);
+  (*mapit).second.push_back(*dirit);
       }
     }
   }
@@ -2201,9 +2216,9 @@ int MonitoringFile::mergeLB_processRun(TDirectory *dir_run, debugLevel_t& debugL
             continue;
          }
          std::string dirName(dir->GetName()); 
-	 if ( dirName.substr(0,3) == "lb_" ) {
-	   v_dirsLB.push_back(dir);
-	 } else if( dirName.size() > 7 )  {  
+   if ( dirName.substr(0,3) == "lb_" ) {
+     v_dirsLB.push_back(dir);
+   } else if( dirName.size() > 7 )  {  
             if( dirName.substr(0,8) == "lowStat_" ) {
                v_dirsLowStat.push_back(dir);
             }
