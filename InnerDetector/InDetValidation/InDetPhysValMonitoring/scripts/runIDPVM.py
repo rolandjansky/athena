@@ -32,26 +32,26 @@ def GetCustomAthArgs():
 # Parse the arguments 
 MyArgs = GetCustomAthArgs()
 
-from InDetPhysValMonitoring.InDetPhysValFlags import ConfigFlags 
-ConfigFlags.IDPVM.setTruthStrategy = MyArgs.HSFlag
-ConfigFlags.IDPVM.doExpertOutput   = MyArgs.doExpertPlots
-ConfigFlags.IDPVM.doPhysValOutput  = not MyArgs.doExpertPlots
-ConfigFlags.IDPVM.doValidateTruthToRecoNtuple = MyArgs.doTruthToRecoNtuple
-ConfigFlags.IDPVM.doValidateTracksInBJets = MyArgs.doTracksInBJets
-ConfigFlags.IDPVM.doValidateTracksInJets = MyArgs.doTracksInJets
-ConfigFlags.IDPVM.doValidateTightPrimaryTracks = MyArgs.doTightPrimary
-ConfigFlags.IDPVM.doTruthOriginPlots = MyArgs.doTruthOrigin
-ConfigFlags.IDPVM.doValidateMuonMatchedTracks = MyArgs.doMuonMatchedTracks
-ConfigFlags.IDPVM.doValidateElectronMatchedTracks = MyArgs.doElectronMatchedTracks
-ConfigFlags.IDPVM.doValidateLargeD0Tracks = MyArgs.doLargeD0Tracks
-ConfigFlags.IDPVM.doValidateMergedLargeD0Tracks = MyArgs.doMergedLargeD0Tracks
-ConfigFlags.IDPVM.doPerAuthorPlots = MyArgs.doPerAuthor
-ConfigFlags.IDPVM.doHitLevelPlots = MyArgs.doHitLevelPlots
-ConfigFlags.IDPVM.runDecoration = not MyArgs.disableDecoration
-ConfigFlags.IDPVM.ancestorIDs = MyArgs.ancestorIDList
-ConfigFlags.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
-ConfigFlags.IDPVM.truthMinPt = MyArgs.truthMinPt
-ConfigFlags.IDPVM.GRL = MyArgs.GRL
+from PhysValMonitoring.PhysValFlags import ConfigFlags
+ConfigFlags.PhysVal.IDPVM.setTruthStrategy = MyArgs.HSFlag
+ConfigFlags.PhysVal.IDPVM.doExpertOutput   = MyArgs.doExpertPlots
+ConfigFlags.PhysVal.IDPVM.doPhysValOutput  = not MyArgs.doExpertPlots
+ConfigFlags.PhysVal.IDPVM.doValidateTruthToRecoNtuple = MyArgs.doTruthToRecoNtuple
+ConfigFlags.PhysVal.IDPVM.doValidateTracksInBJets = MyArgs.doTracksInBJets
+ConfigFlags.PhysVal.IDPVM.doValidateTracksInJets = MyArgs.doTracksInJets
+ConfigFlags.PhysVal.IDPVM.doValidateTightPrimaryTracks = MyArgs.doTightPrimary
+ConfigFlags.PhysVal.IDPVM.doTruthOriginPlots = MyArgs.doTruthOrigin
+ConfigFlags.PhysVal.IDPVM.doValidateMuonMatchedTracks = MyArgs.doMuonMatchedTracks
+ConfigFlags.PhysVal.IDPVM.doValidateElectronMatchedTracks = MyArgs.doElectronMatchedTracks
+ConfigFlags.PhysVal.IDPVM.doValidateLargeD0Tracks = MyArgs.doLargeD0Tracks
+ConfigFlags.PhysVal.IDPVM.doValidateMergedLargeD0Tracks = MyArgs.doMergedLargeD0Tracks
+ConfigFlags.PhysVal.IDPVM.doPerAuthorPlots = MyArgs.doPerAuthor
+ConfigFlags.PhysVal.IDPVM.doHitLevelPlots = MyArgs.doHitLevelPlots
+ConfigFlags.PhysVal.IDPVM.runDecoration = not MyArgs.disableDecoration
+ConfigFlags.PhysVal.IDPVM.ancestorIDs = MyArgs.ancestorIDList
+ConfigFlags.PhysVal.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
+ConfigFlags.PhysVal.IDPVM.truthMinPt = MyArgs.truthMinP
+ConfigFlags.PhysVal.IDPVM.GRL = MyArgs.GRL
 
 ConfigFlags.Input.Files = []
 for path in MyArgs.filesInput.split(','):

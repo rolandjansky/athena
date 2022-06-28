@@ -56,7 +56,6 @@ namespace JetTagDQA {
     declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );
     declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );
 
-    declareProperty( "HistogramDefinitionsVector", m_HistogramDefinitionsVector );
     declareProperty( "JetPtCutTtbar", m_jetPtCutTtbar = 20000);
     declareProperty( "JetPtCutZprime", m_jetPtCutZprime = 500000);
     declareProperty( "JVTCutAntiKt4EMTopoJets", m_JVTCutAntiKt4EMTopoJets = 0.59);
