@@ -15,23 +15,18 @@
 #include "TrigT1CaloCalibTools/L1CaloPprPhos4Shape.h"
 
 L1CaloPprPhos4Shape::L1CaloPprPhos4Shape(const L1CaloCoolChannelId& coolId) :
-   AthMessaging("L1CaloPprPhos4Shape")
+   AthMessaging("L1CaloPprPhos4Shape"),
+   m_minSignalHeight                (30),
+   m_coolId                         (coolId),
+   m_eta                            (999),
+   m_phi                            (999),
+   m_layer                          (LAYER_NOT_SET),
+   m_isValid                        (true),
+   m_isEnabled                      (true),
+   m_currentFullDelayData           (0),
+   m_pedValue                       (0),
+   m_l1aFadcSlice                   (0)
 {
-   m_coolId                         = coolId;
-   m_eta                            = 999.;
-   m_phi                            = 999.;
-   m_layer                          = LAYER_NOT_SET;
-   
-   m_minSignalHeight                = 30;
-   
-   m_isValid                        = true;
-   m_isEnabled                      = true;
-   
-   m_currentFullDelayData           = 0;
-   m_pedValue                       = 0;
-   m_l1aFadcSlice                   = 0;
-   
-   
    // setup raw signal profile.
    m_raw_signalShape = new TProfile(GetPlotName("rawSignalShape",m_coolId).c_str(),GetPlotTitle("",m_coolId).c_str(),MAX_ADC_TIME_SLICES*NANOSEC_PER_LHC_CLOCK_TICK,0,MAX_ADC_TIME_SLICES*NANOSEC_PER_LHC_CLOCK_TICK);
 //    sm_raw_signalShape->GetXaxis()->SetTitle("nanosecond steps");
