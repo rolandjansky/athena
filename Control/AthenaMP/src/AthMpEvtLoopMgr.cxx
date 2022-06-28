@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthMpEvtLoopMgr.h"
@@ -204,7 +204,9 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 	ATH_MSG_WARNING("The job will attempt to save it with the name " << backupDir <<  " and create new top directory from scratch");
 
 	if(rename(m_workerTopDir.c_str(),backupDir.c_str())!=0) {
-	  ATH_MSG_ERROR("Unable to make backup directory! " << strerror(errno));
+      char buf[256];
+      strerror_r(errno, buf, sizeof(buf));
+	  ATH_MSG_ERROR("Unable to make backup directory! " << buf);
 	  return StatusCode::FAILURE;
 	}
 
@@ -214,8 +216,10 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
       /* FALLTHROUGH */
     default:
       {
-	ATH_MSG_ERROR("Unable to make top directory " << m_workerTopDir << " for children processes! " << strerror(errno));
-	return StatusCode::FAILURE;
+      char buf[256];
+      strerror_r(errno, buf, sizeof(buf));
+      ATH_MSG_ERROR("Unable to make top directory " << m_workerTopDir << " for children processes! " << buf);
+      return StatusCode::FAILURE;
       }
     }
   }
