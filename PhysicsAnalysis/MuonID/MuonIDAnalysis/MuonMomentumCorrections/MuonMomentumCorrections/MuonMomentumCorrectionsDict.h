@@ -13,4 +13,11 @@
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 
+
+#include "MuonMomentumCorrections/MuonCalibTool.h"
+#include "MuonMomentumCorrections/IMuonCalibIntTool.h"
+#include "MuonMomentumCorrections/MuonCalibIntSagittaTool.h"
+#include "MuonMomentumCorrections/MuonCalibIntScaleSmearTool.h"
+#include "MuonMomentumCorrections/MuonCalibIntHighpTSmearTool.h"
+
 #endif  // not MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
@@ -33,7 +33,6 @@
 #define DEFAULT_INIT_VAL -999
 #define MCAST_MAX_PT 100000000
 #define MZPDG 91.1876
-
 namespace CP {
 
     namespace MCAST {
@@ -89,7 +88,7 @@ namespace CP {
             enum { NOMINAL = 0, SINGLE = 1 };
         }
     }  // namespace MCAST
-
+    //  [[deprecated]] 
     class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool,
                                            public virtual ISystematicsTool,
                                            public asg::AsgTool {
