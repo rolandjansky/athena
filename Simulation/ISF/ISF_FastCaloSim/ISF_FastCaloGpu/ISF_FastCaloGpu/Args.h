@@ -12,7 +12,7 @@
 #define MAXBINS 1024
 #define MAXHITCT 2000
 
-class GeoGpu;
+struct GeoGpu;
 
 typedef struct Chain0_Args {
 
