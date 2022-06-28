@@ -32,6 +32,7 @@ def GetTaggerTrainingMap(jet_collection_list):
             "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
             "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
             "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+            "BTagging/20220509/gn1/antikt4empflow/network.onnx",
         ],
         "AntiKt4EMPFlowCustomVtx": [
             "BTagging/201903/rnnip/antikt4empflow/network.json",
@@ -147,8 +148,8 @@ def BTagAlgsCfg(inputFlags,
                 TaggerList=None,
                 SecVertexers=None,
                 trackCollection='InDetTrackParticles',
-                muons='Muons',
                 primaryVertices='PrimaryVertices',
+                muons='Muons',
                 BTagCollection=None):
 
     # If things aren't specified in the arguments, we'll read them
@@ -181,6 +182,7 @@ def BTagAlgsCfg(inputFlags,
         trackCollection,
         JetTrackAssociator,
     ))
+
     if muons:
         result.merge(JetParticleAssociationAlgCfg(
             inputFlags, jet+'Jets', muons, JetMuonAssociator))

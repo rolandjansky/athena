@@ -1,0 +1,6 @@
+index_ref
+(.*)_mems(.*)
+(.*)_timings(.*)
+
+# Ignore most b-tagging outside the reference tagger, DL1dv00
+xAOD::BTagging(?!.*PFlow.*DL1dv00_p.*)
