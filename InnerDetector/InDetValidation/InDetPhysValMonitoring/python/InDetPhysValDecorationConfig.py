@@ -41,10 +41,13 @@ def canAddDecorator(flags):
     A decorator can be added if a track particle converter alg is in the sequence or
     if ESDs or AODs are read.
     '''
+
     if not (flags.Detector.GeometryID or flags.Detector.GeometryITk):
         return False
 
-    return ("StreamESD" in flags.Input.ProcessingTags or "StreamAOD" in flags.Input.ProcessingTags) and flags.IDPVM.runDecoration
+    return flags.PhysVal.IDPVM.runDecoration and ("StreamESD" in flags.Input.ProcessingTags
+                                                  or "StreamAOD" in flags.Input.ProcessingTags
+                                                  or "StreamDAOD" in flags.Input.ProcessingTags[0]) # Look for substring StreamDAOD in first processing tag to cover all DAOD flavors
 
     '''
     if rec.readTAG:
@@ -62,9 +65,9 @@ def canAddDecorator(flags):
 
         except Exception:
             pass
-    '''
 
     return False
+    '''
 
 
 def createExtendNameIfNotDefaultCfg(alg,
@@ -229,10 +232,10 @@ def AddDecoratorCfg(flags,**kwargs):
 
         acc.merge(InDetPhysValTruthDecoratorAlgCfg(flags))
 
-    if flags.IDPVM.doValidateGSFTracks:
+    if flags.PhysVal.IDPVM.doValidateGSFTracks:
         acc.merge(AddGSFTrackDecoratorAlgCfg(flags))
 
-    if flags.IDPVM.doValidateDBMTracks and ("DBMTrackParticles" in flags.Input.Collections):
+    if flags.PhysVal.IDPVM.doValidateDBMTracks and ("DBMTrackParticles" in flags.Input.Collections):
         acc.merge(DBMTrackDecoratorsCfg(flags))
 
     return acc
@@ -243,13 +246,13 @@ def AddGSFTrackDecoratorAlgCfg(flags,**kwargs):
     #Search egamma algorithm and add the GSF TrackParticle decorator after the it.
     acc = ComponentAccumulator()
 
-    if flags.IDPVM.doValidateGSFTracks:
+    if flags.PhysVal.IDPVM.doValidateGSFTracks:
         # print ('DEBUG add addGSFTrackDecoratorAlg')
 
         acc.merge(GSFTrackDecoratorsCfg(flags))
 
         from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
-        for col in flags.IDPVM.validateExtraTrackCollections :
+        for col in flags.PhysVal.IDPVM.validateExtraTrackCollections :
             prefix=extractCollectionPrefix(col)
             decorator = acc.popToolsAndMerge(TrackDecoratorsCfg(flags))
             decorator.TrackParticleContainerName=prefix+"TrackParticles"

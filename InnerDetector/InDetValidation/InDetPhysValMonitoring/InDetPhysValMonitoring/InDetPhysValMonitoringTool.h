@@ -179,7 +179,6 @@ private:
     StringProperty m_pileupSwitch {this, "PileupSwitch", "HardScatter", "Pileup truth strategy to use. May be \"All\", \"HardScatter\", or \"PileUp\""}; 
     FloatProperty m_lowProb{this,"LowProb",0.5,"Truth match prob. cutoff for efficiency (lower bound) and fake (upper bound) classification."}; 
     FloatProperty m_highProb{this,"HighProb",0.8,"Truth match prob. cutoff - currently unused"}; 
-    IntegerProperty m_detailLevel{this, "DetailLevel",10,"High-level steering flag for plot detail level. A value of 100 will activate the PhysVal set of plots, and a value of 200 the full set"}; 
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool{this, "TrackSelectionTool", "InDet::InDetTrackSelectionTool/TrackSelectionTool", "Track selection tool to use"};
     ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool{this, "VertexTruthMatchTool", "InDetVertexTruthMatchTool/VtxTruthMatchTool", "Vertex truth matching tool to use"};

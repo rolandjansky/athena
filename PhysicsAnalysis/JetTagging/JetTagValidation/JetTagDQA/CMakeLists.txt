@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTagDQA )
@@ -15,3 +15,5 @@ atlas_add_component( JetTagDQA
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaMonitoringLib xAODBTagging xAODBase xAODJet xAODTracking ParticleJetToolsLib TrkValHistUtils InDetTrackSystematicsToolsLib FlavorTagDiscriminants )
 
 atlas_install_data( data/*.json )
+atlas_install_python_modules( python/*.py )
+atlas_install_runtime( scripts/*.py )
