@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -31,7 +31,7 @@
 ////////////////
 McVtxFilter::McVtxFilter() : 
   IFilterCuts(),
-  m_msg ( Athena::getMessageSvc(), "McVtxFilter" ),
+  AthMessaging ( "McVtxFilter" ),
   m_matchSign( false ),
   m_matchBranches( false ),
   m_decayPattern( "" ),
@@ -43,7 +43,7 @@ McVtxFilter::McVtxFilter( const std::string& decayPattern,
 			  const bool matchSign, 
 			  const bool matchBranches ) : 
   IFilterCuts(),
-  m_msg ( Athena::getMessageSvc(), "McVtxFilter" ),
+  AthMessaging ( "McVtxFilter" ),
   m_matchSign( matchSign ),
   m_matchBranches( matchBranches ),
   m_decayPattern( decayPattern ),
@@ -56,7 +56,7 @@ McVtxFilter::McVtxFilter( const std::string& decayPattern,
 McVtxFilter::McVtxFilter( const bool matchSign, 
 			  const bool matchBranches ) : 
   IFilterCuts(),
-  m_msg ( Athena::getMessageSvc(), "McVtxFilter" ),
+  AthMessaging ( "McVtxFilter" ),
   m_matchSign( matchSign ),
   m_matchBranches( matchBranches ),
   m_decayPattern( "" ),
@@ -66,7 +66,7 @@ McVtxFilter::McVtxFilter( const bool matchSign,
 
 McVtxFilter::McVtxFilter( const McVtxFilter& rhs ) : 
   IFilterCuts    ( rhs                 ),
-  m_msg          ( rhs.m_msg           ),
+  AthMessaging ( "McVtxFilter" ),
   m_matchSign    ( rhs.m_matchSign     ),
   m_matchBranches( rhs.m_matchBranches ),
   m_decayPattern ( rhs.m_decayPattern  ),
@@ -127,7 +127,7 @@ McVtxFilter & McVtxFilter::operator=(const McVtxFilter &rhs)
 ///////////////////////////////////////////////////////////////////
 bool McVtxFilter::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In McVtxFilter::isAccepted(...)" << endmsg;
+  ATH_MSG_VERBOSE("In McVtxFilter::isAccepted(...)");
 //AV TODO: add here a check to prevent null pointer dereference
 #ifdef HEPMC3
   unsigned int number_particles_out = vtx->particles_out().size();
@@ -193,13 +193,13 @@ bool McVtxFilter::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
   ////////////////////////////////
   /// Handle other generic cases
   ///
-  m_msg << MSG::VERBOSE << "trying checkParentBranch(...)" << endmsg;
+  ATH_MSG_VERBOSE("trying checkParentBranch(...)");
   if ( checkParentBranch( vtx ) == false ) return false;
 
-  m_msg << MSG::VERBOSE << "trying checkChildBranch(...)" << endmsg;
+  ATH_MSG_VERBOSE("trying checkChildBranch(...)");
   if ( checkChildBranch ( vtx ) == false ) return false;
 
-  m_msg << MSG::VERBOSE << "McVtxFilter::isAccepted(...) => DONE" << endmsg;
+  ATH_MSG_VERBOSE("McVtxFilter::isAccepted(...) => DONE");
   return true;
 }
 
@@ -243,10 +243,7 @@ void McVtxFilter::setFilter( const IFilterCuts * filter )
     if ( vtxFilter ) {
       operator=(*vtxFilter);
     } else {
-      m_msg << MSG::ERROR
-	    << "Can't dynamic_cast " << typeid(filter).name() 
-	    << " to a McVtxFilter"
-	    << endmsg;
+      ATH_MSG_ERROR("Can't dynamic_cast " << typeid(filter).name() << " to a McVtxFilter");
     }
   } //> filter is a valid pointer
 }
@@ -309,14 +306,14 @@ void McVtxFilter::setDecayPattern( const std::string& decayPattern )
 
 bool McVtxFilter::checkParentBranch( HepMC::ConstGenVertexPtr vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In checkParentBranch..." << endmsg;
+  ATH_MSG_VERBOSE("In checkParentBranch...");
 
   /// Check we aren't in the "any particle" case
   if ( m_parentList.empty() ) {
     return true;
   }
   
-  if ( m_msg.level() <= MSG::VERBOSE ) {
+  if ( msgLvl(MSG::VERBOSE) ) {
     HepMC::Print::line(std::cout,vtx);
   }
 
@@ -331,11 +328,11 @@ bool McVtxFilter::checkParentBranch( HepMC::ConstGenVertexPtr vtx ) const
   }
 #endif
 
-  if ( m_msg.level() <= MSG::VERBOSE ) {
-    m_msg << MSG::VERBOSE 
-	  << "Number of list of parents : " 
-	  << m_parentList.size() 
-	  << endmsg;
+  if ( msgLvl(MSG::VERBOSE) ) {
+    msg() << MSG::VERBOSE
+          << "Number of list of parents : "
+          << m_parentList.size()
+          << endmsg;
     m_parentList.front()->dropList();
   }
 
@@ -376,18 +373,17 @@ bool McVtxFilter::checkParentBranch( HepMC::ConstGenVertexPtr vtx ) const
     }
   }
 
-  m_msg << MSG::VERBOSE << ">>> CheckParentBranch is DONE : " 
-	<< ( accepted ? "accept" : "reject" )
-	<< " vtx= " << HepMC::barcode(vtx)
-	<< endmsg;
+  ATH_MSG_VERBOSE(">>> CheckParentBranch is DONE : "
+                  << ( accepted ? "accept" : "reject" )
+                  << " vtx= " << HepMC::barcode(vtx));
   return accepted;
 }
 
 bool McVtxFilter::checkChildBranch( HepMC::ConstGenVertexPtr vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In checkChildBranch..." << endmsg;
+  ATH_MSG_VERBOSE("In checkChildBranch...");
 
-  if ( m_msg.level() <= MSG::VERBOSE ) {
+  if ( msgLvl(MSG::VERBOSE) ) {
     HepMC::Print::line(std::cout,vtx);
   }
 
@@ -402,7 +398,7 @@ bool McVtxFilter::checkChildBranch( HepMC::ConstGenVertexPtr vtx ) const
 #else
   if ( static_cast<unsigned int>(vtx->particles_out_size()) < m_childList.size() ) return false;
 #endif
-  m_msg << MSG::VERBOSE << "Number of list of children : " << m_childList.size() << endmsg;
+  ATH_MSG_VERBOSE("Number of list of children : " << m_childList.size());
 
   std::vector<int> childIds;
   for ( auto Part: *vtx) {
@@ -428,16 +424,15 @@ bool McVtxFilter::checkChildBranch( HepMC::ConstGenVertexPtr vtx ) const
     }
   }
 
-  m_msg << MSG::VERBOSE << ">>> CheckChildBranch is DONE : " 
-	<< ( accepted ? "accept" : "reject" )
-	<< " vtx= " << HepMC::barcode(vtx)
-	<< endmsg;
+  ATH_MSG_VERBOSE(">>> CheckChildBranch is DONE : "
+                  << ( accepted ? "accept" : "reject" )
+                  << " vtx= " << HepMC::barcode(vtx));
   return accepted;
 }
 
 bool McVtxFilter::checkTwoBodyDecay( HepMC::ConstGenVertexPtr vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In checkTwoBodyDecay..." << endmsg;
+  ATH_MSG_VERBOSE("In checkTwoBodyDecay...");
 
   /// First check the parent branch matching decision
   /// if it doesn't fulfil our requirements, it is not worth
@@ -448,7 +443,7 @@ bool McVtxFilter::checkTwoBodyDecay( HepMC::ConstGenVertexPtr vtx ) const
   }
 
   /// Now, handle the child branch
-  m_msg << MSG::VERBOSE << ">>> Check child branch" << endmsg;
+  ATH_MSG_VERBOSE(">>> Check child branch");
 
   /// Cache the 2 particle candidate lists
   const ParticleCandidateList * children1 = m_childList[0];
@@ -474,14 +469,14 @@ bool McVtxFilter::checkTwoBodyDecay( HepMC::ConstGenVertexPtr vtx ) const
     for( ParticleCandidateList::const_iterator itr2 = children2->begin();
 	 itr2 != children2->end();
 	 ++itr2 ) {
-      m_msg << MSG::VERBOSE << "Checking the pair : " << (*itr1) << "/" << (*itr2)  << endmsg;
+      ATH_MSG_VERBOSE("Checking the pair : " << (*itr1) << "/" << (*itr2));
 
       /// If the strict match sign has been required, we check if
       /// the PDG ids are matching
       if ( m_matchSign && 
 	   ( ( (*itr1) == pdgId1 && (*itr2) == pdgId2 ) ||
 	     ( (*itr1) == pdgId2 && (*itr2) == pdgId1 ) ) ) {
-	m_msg << MSG::VERBOSE << "Strict sign matching found !" << endmsg;
+	ATH_MSG_VERBOSE("Strict sign matching found !");
 	return true;
       /// if we are in a loose sign request, we check only that the
       /// absolute values of the pdg IDs are matching
@@ -489,16 +484,16 @@ bool McVtxFilter::checkTwoBodyDecay( HepMC::ConstGenVertexPtr vtx ) const
 		    std::abs(*itr2) == std::abs(pdgId2) )   ||
 		  ( std::abs(*itr1) == std::abs(pdgId2) && 
 		    std::abs(*itr2) == std::abs(pdgId1) ) ) {
-	m_msg << MSG::VERBOSE << "Loose sign matching found !" << endmsg;
+	ATH_MSG_VERBOSE("Loose sign matching found !");
 	return true;
       }
-      m_msg << MSG::VERBOSE << "Checking next pair" << endmsg;
+      ATH_MSG_VERBOSE("Checking next pair");
     }//> loop over 2nd child's candidates
   }//> loop over 1st child's candidates
 
   /// If we are here, then the vertex candidate didn't fulfil the 
   /// requirements we have setup
-  m_msg << MSG::VERBOSE << ">>> CheckTwoBodyDecay is DONE." << endmsg;
+  ATH_MSG_VERBOSE(">>> CheckTwoBodyDecay is DONE.");
   return false;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -20,7 +20,7 @@
 // McParticleTools includes
 #include "HepMcWriterTool.h"
 
-static const char * s_protocolSep = ":";
+static const char * const s_protocolSep = ":";
 
 /////////////////////////////////////////////////////////////////// 
 /// Constructors
