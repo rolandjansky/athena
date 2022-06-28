@@ -36,7 +36,7 @@ namespace AFP
     if ( attrLocList == nullptr )
     {
         ATH_MSG_WARNING("vertex ToF parameters data for key " << m_rch_vtx.fullKey() << " not found, returning empty string");
-        return std::move(nlohmann::json::parse(""));
+        return nlohmann::json::parse("");
     }
     
     if(attrLocList->size()>1) ATH_MSG_INFO("there should be only one real channel in "<< m_rch_vtx.fullKey() <<", there are "<<attrLocList->size()<<" real channels, only the first one will be used ");
@@ -45,7 +45,7 @@ namespace AFP
     const coral::AttributeList &atr = itr->second;
     std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
 
-    return std::move(nlohmann::json::parse(data));
+    return nlohmann::json::parse(data);
   }
   
   

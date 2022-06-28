@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -43,7 +43,7 @@ namespace AFP
     if ( attrGlobList == nullptr )
     {
         ATH_MSG_WARNING("global alignment data for key " << m_rch_glob.fullKey() << " not found, returning empty string");
-        return std::move(nlohmann::json::parse(""));
+        return nlohmann::json::parse("");
     }
     
     if(attrGlobList->size()>1) ATH_MSG_INFO("there should be only one real channel in "<< m_rch_glob.fullKey() <<", there are "<<attrGlobList->size()<<" real channels, only the first one will be used ");
@@ -52,7 +52,7 @@ namespace AFP
     const coral::AttributeList &atr = itr->second;
     std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
 
-    return std::move(nlohmann::json::parse(data));
+    return nlohmann::json::parse(data);
   }
   
   
