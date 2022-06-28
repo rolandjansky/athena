@@ -159,6 +159,8 @@ namespace LVL1::MuCTPIBits {
   static constexpr uint32_t RUN3_TIMESLICE_NTOB_MASK = 0x3f;
   static constexpr uint32_t RUN3_TIMESLICE_NCAND_SHIFT = 0;
   static constexpr uint32_t RUN3_TIMESLICE_NCAND_MASK = 0x3ff;
+  static constexpr uint32_t RUN3_NSW_MONITORING_TRIGGER_SHIFT = 0x8;
+  static constexpr uint32_t RUN3_NSW_MONITORING_TRIGGER_MASK = 0b1;
   static constexpr uint32_t RUN3_MULTIPLICITY_OVERFLOW_SHIFT = 0x9;
   static constexpr uint32_t RUN3_MULTIPLICITY_OVERFLOW_MASK = 0b1;
   static constexpr uint32_t RUN3_MULTIPLICITY_TRIGBITS_SHIFT = 0xa;
