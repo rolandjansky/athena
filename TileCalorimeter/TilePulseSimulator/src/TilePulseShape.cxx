@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,42 +12,27 @@
 
 #include <iostream>
 
-#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/GaudiException.h"
 
 //_________________________________________________________________________
 TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, const std::string& name)
-  : TObject()
-  , m_pulseShape(0)
-  , m_deformedShape(0)
-  , m_deformedSpline(0)
-  , m_log(0)
+  : AthMessaging(msgSvc, name)
 {
-  m_log = new MsgStream (msgSvc, name);
 }
 
 //_________________________________________________________________________
 TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, const std::string& name, const TString& fileName)
-  : TObject()
-  , m_pulseShape(0)
-  , m_deformedShape(0)
-  , m_deformedSpline(0)
-  , m_log(0)
+  : AthMessaging(msgSvc, name)
 {
-  m_log = new MsgStream (msgSvc, name);
   loadPulseShape(fileName);
 } 
 
 //________________________________________________________________________
 TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, const std::string& name, const std::vector<double>& shapevec)
-  : TObject()
-  , m_pulseShape(0)
-  , m_deformedShape(0)
-  , m_deformedSpline(0)
-  , m_log(0)
+  : AthMessaging(msgSvc, name)
 {
-  m_log = new MsgStream (msgSvc, name);
-  setPulseShape(shapevec);   
-
+  setPulseShape(shapevec);
 }
 
 //_________________________________________________________________________
@@ -56,7 +41,6 @@ TilePulseShape::~TilePulseShape()
   resetDeformation();
   if(m_pulseShape) delete m_pulseShape;
   if(m_deformedSpline) delete m_deformedSpline;
-  if(m_log) delete m_log;
 }
 
 //_________________________________________________________________________
@@ -66,10 +50,9 @@ void TilePulseShape::loadPulseShape(const TString& fileName)
   if(m_pulseShape) delete m_pulseShape;
   m_pulseShape = new TGraph(fileName.Data());
   if(m_pulseShape->IsZombie()) {
-    (*m_log) << MSG::WARNING << "TilePulseShape: ERROR, could not load pulseshape from file: " << fileName << endmsg;
-    exit(1);
-   } else (*m_log) << MSG::INFO << "Loaded pulseshape from file: " 
-	 << fileName << endmsg;
+    throw GaudiException(std::string("could not load pulseshape from file: ") + fileName.Data(),
+                         "TilePulseShape", StatusCode::FAILURE);
+  } else ATH_MSG_INFO("Loaded pulseshape from file: " << fileName);
   resetDeformation();
 }
 
@@ -94,7 +77,7 @@ double TilePulseShape::eval(double x, bool useSpline, bool useUndershoot)
 
   //=== make sure pulseshape is available
   if(!m_deformedShape){
-    (*m_log) << MSG::WARNING << "TilePulseShape:: ERROR: No pulseshape loaded!" << endmsg;
+    ATH_MSG_ERROR("No pulseshape loaded!");
     return 0.;
   }
 
@@ -108,7 +91,7 @@ double TilePulseShape::eval(double x, bool useSpline, bool useUndershoot)
     //=== left out of bounds, return leftmost value
 //    y = (_deformedShape->GetY())[0]; 
     y = 0;
-    (*m_log) << MSG::DEBUG << "Left out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endmsg;
+    ATH_MSG_DEBUG("Left out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")");
   }
   else if(idx>=n-1){
     //=== right out of bounds, return rightmost value
@@ -118,7 +101,7 @@ double TilePulseShape::eval(double x, bool useSpline, bool useUndershoot)
     }
     else{
       y = 0;
-      (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endmsg;
+      ATH_MSG_DEBUG("Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")");
     }
   }
   else{
@@ -157,7 +140,7 @@ int TilePulseShape::scalePulse(double leftSF, double rightSF)
 
   resetDeformation();
   if(!m_pulseShape) {
-    (*m_log) << MSG::WARNING << "Attempted pulse shape scaling before loading pulse shape" << endmsg;
+    ATH_MSG_WARNING("Attempted pulse shape scaling before loading pulse shape");
     return 1;
    } else {
     m_deformedShape = (TGraph*) m_pulseShape->Clone();
