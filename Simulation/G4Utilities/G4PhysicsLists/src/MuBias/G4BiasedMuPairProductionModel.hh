@@ -23,7 +23,6 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4MuPairProductionModel.hh,v 1.29 2010-10-26 13:52:32 vnivanch Exp $
 // GEANT4 tag $Name: geant4-09-04-patch-01 $
 //
 // -------------------------------------------------------------------
@@ -162,7 +161,7 @@ protected:
   G4double m_z23;
   G4double m_lnZ;
 
-  static G4double s_xgi[8],s_wgi[8];
+  static const G4double s_xgi[8],s_wgi[8];
 
 private:
 
@@ -178,7 +177,7 @@ private:
   G4int m_ntdat;
   G4int m_nbiny;
   size_t m_nmaxElements;
-  static G4double s_zdat[5], s_adat[5], s_tdat[8];
+  static const G4double s_zdat[5], s_adat[5], s_tdat[8];
   G4double m_ya[1001], m_proba[5][8][1001];
 
   G4double m_ymin;

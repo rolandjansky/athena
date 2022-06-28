@@ -23,7 +23,6 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4MuPairProductionModel.cc,v 1.46 2010-10-26 13:52:32 vnivanch Exp $
 // GEANT4 tag $Name: geant4-09-04-patch-01 $
 //
 // -------------------------------------------------------------------
@@ -89,14 +88,14 @@
 
 // static members
 //
-G4double G4BiasedMuPairProductionModel::s_zdat[]={1., 4., 13., 29., 92.};
-G4double G4BiasedMuPairProductionModel::s_adat[]={1.01, 9.01, 26.98, 63.55, 238.03};
-G4double G4BiasedMuPairProductionModel::s_tdat[]={1.e3, 1.e4, 1.e5, 1.e6, 1.e7, 1.e8,
-                                          1.e9, 1.e10};
-G4double G4BiasedMuPairProductionModel::s_xgi[]={ 0.0199, 0.1017, 0.2372, 0.4083,
-                                          0.5917, 0.7628, 0.8983, 0.9801 };
-G4double G4BiasedMuPairProductionModel::s_wgi[]={ 0.0506, 0.1112, 0.1569, 0.1813,
-                                          0.1813, 0.1569, 0.1112, 0.0506 };
+const G4double G4BiasedMuPairProductionModel::s_zdat[]={1., 4., 13., 29., 92.};
+const G4double G4BiasedMuPairProductionModel::s_adat[]={1.01, 9.01, 26.98, 63.55, 238.03};
+const G4double G4BiasedMuPairProductionModel::s_tdat[]={1.e3, 1.e4, 1.e5, 1.e6, 1.e7, 1.e8,
+                                                        1.e9, 1.e10};
+const G4double G4BiasedMuPairProductionModel::s_xgi[]={ 0.0199, 0.1017, 0.2372, 0.4083,
+                                                        0.5917, 0.7628, 0.8983, 0.9801 };
+const G4double G4BiasedMuPairProductionModel::s_wgi[]={ 0.0506, 0.1112, 0.1569, 0.1813,
+                                                        0.1813, 0.1569, 0.1112, 0.0506 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
