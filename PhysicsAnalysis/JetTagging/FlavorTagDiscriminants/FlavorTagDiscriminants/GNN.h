@@ -36,7 +36,7 @@ namespace FlavorTagDiscriminants {
         float defaultOutputValue = NAN);
     GNN(GNN&&);
     GNN(const GNN&);
-    ~GNN();
+    virtual ~GNN();
 
     virtual void decorate(const xAOD::BTagging& btag) const;
     virtual void decorate(const xAOD::Jet& jet) const;
