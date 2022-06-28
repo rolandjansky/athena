@@ -858,6 +858,9 @@ class athenaExecutor(scriptExecutor):
     #  @param memMonitor Enable subprocess memory monitoring
     #  @param disableMT Ensure that AthenaMT is not used
     #  @param disableMP Ensure that AthenaMP is not used
+    #  @param onlyMP Ensure that MP is always used, even if MT is requested
+    #  @param onlyMPWithRunargs Ensure that MP is always used, even if MT is requested when one of the listed
+    #  runargs is provided
     #  @note The difference between @c extraRunargs, @c runtimeRunargs and @c literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
@@ -866,7 +869,7 @@ class athenaExecutor(scriptExecutor):
                  inData = set(), outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], 
                  substep = None, inputEventTest = True, perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
-                 manualDataDictionary = None, memMonitor = True, disableMT = False, disableMP = False):
+                 manualDataDictionary = None, memMonitor = True, disableMT = False, disableMP = False, onlyMP = False, onlyMPWithRunargs = None):
         
         self._substep = forceToAlphaNum(substep)
         self._inputEventTest = inputEventTest
@@ -879,6 +882,8 @@ class athenaExecutor(scriptExecutor):
         self._inputDataTypeCountCheck = inputDataTypeCountCheck
         self._disableMT = disableMT
         self._disableMP = disableMP
+        self._onlyMP = onlyMP
+        self._onlyMPWithRunargs = onlyMPWithRunargs
         self._skeletonCA=skeletonCA
 
         if perfMonFile:
@@ -930,6 +935,14 @@ class athenaExecutor(scriptExecutor):
     @disableMT.setter
     def disableMT(self, value):
         self._disableMT = value
+
+    @property
+    def onlyMP(self):
+        return self._onlyMP
+    
+    @onlyMP.setter
+    def onlyMP(self, value):
+        self._onlyMP = value
         
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
@@ -990,6 +1003,12 @@ class athenaExecutor(scriptExecutor):
         else:
             msg.info('Asetup report: {0}'.format(asetupReport()))
 
+        # Conditional MP based on runtime arguments
+        if self._onlyMPWithRunargs:
+            for k in self._onlyMPWithRunargs:
+                if k in self.conf._argdict:
+                    self._onlyMP = True
+
         # Check the consistency of parallel configuration: CLI flags + evnironment.
         if ((('multithreaded' in self.conf._argdict and self.conf._argdict['multithreaded'].value) or ('multiprocess' in self.conf._argdict and self.conf._argdict['multiprocess'].value)) and
             ('ATHENA_CORE_NUMBER' not in os.environ)):
@@ -1010,6 +1029,13 @@ class athenaExecutor(scriptExecutor):
                 self._athenaMP = 0
             else:
                 self._athenaMP = detectAthenaMPProcs(self.conf.argdict, self.name, legacyThreadingRelease)
+
+            # Check that we actually support MT
+            if self._onlyMP and self._athenaMT and not self._athenaMP:
+                msg.info("This configuration does not support MT, falling back to MP")
+                self._athenaMP = self._athenaMT
+                self._athenaMT = 0
+                self._athenaConcurrentEvents = 0
 
         # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
         # which also avoids issues with zero sized files
