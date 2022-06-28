@@ -124,7 +124,7 @@ StatusCode TrigEventInfoRecorderAlg::decorateTLA(const EventContext& context, xA
                 && privtx->nTrackParticles() >= 2 ) ){
             privtx = nullptr;
         } else {
-            ATH_MSG_INFO( "Primary vertex successfully retrieved" );
+            ATH_MSG_DEBUG( "Primary vertex successfully retrieved" );
             NPV++;
         }
        }

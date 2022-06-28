@@ -28,19 +28,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     tgcRawDataMonitorTool = CompFactory.TgcRawDataMonitorTool("TgcRawDataMonitorTool")
 
-    muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
-    muonSelectionTool.MuQuality = 1 # tight:0 medium:1
-    muonSelectionTool.MaxEta = 2.7 # tgc trigger coverage is only up to 2.4 but the detector coverage itself is up to 2.7
-    muonSelectionTool.DisablePtCuts = True # won't use pT-balance cuts
-    muonSelectionTool.TurnOffMomCorr= True   
-    muonSelectionTool.AllowSettingGeometryOnTheFly=True
-    from AthenaConfiguration.Enums import LHCPeriod
-    muonSelectionTool.IsRun3Geo = (inputFlags.GeoModel.Run == LHCPeriod.Run3)
-
+    from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
                                            TgcRawDataMonitorTool = tgcRawDataMonitorTool,
-                                           MuonSelectionTool = muonSelectionTool )
+                                           MuonSelectionTool = result.popToolsAndMerge(MuonSelectionToolCfg(inputFlags, 
+                                                                                                            MuQuality=1,
+                                                                                                            MaxEta=2.7)) )
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
