@@ -1,30 +1,21 @@
-################################################################################
-# Package: G4ProfilingTools
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( G4ProfilingTools )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
+find_package( Boost )
 find_package( Geant4 )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
-find_package( XercesC )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
-# tag ROOTSTLDictLibs was not recognized in automatic conversion in cmt2cmake
+find_package( ROOT COMPONENTS Core Hist RIO )
 
 # Component(s) in the package:
 atlas_add_library( G4ProfilingToolsLib
                    src/*.cxx
                    OBJECT
                    NO_PUBLIC_HEADERS
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES GaudiKernel G4AtlasToolsLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel )
+                   LINK_LIBRARIES G4AtlasToolsLib
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} AthenaBaseComps GaudiKernel G4AtlasToolsLib )
 
 atlas_add_library( G4ProfilingTools
                    src/components/*.cxx

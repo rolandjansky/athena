@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -24,8 +24,7 @@
 #include <vector>
 #include <stdarg.h>
 
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 class G4Step;
 class G4Track;
@@ -37,7 +36,7 @@ typedef std::pair<G4VPhysicalVolume*,int> VolID;
 typedef std::vector<VolID> VolTree;
 typedef VolTree::iterator VolNav;
 
-class VolumeTreeNavigator {
+class VolumeTreeNavigator : public AthMessaging {
   public:
       VolumeTreeNavigator(const G4Step*);
 
@@ -51,20 +50,18 @@ class VolumeTreeNavigator {
       int                GetCurrentDepth();
       G4VPhysicalVolume* GetVolume(int rel = 0) const;
       int                GetCopyNumber(int rel = 0) const;
-      G4Track*           GetTrack() const;
-      G4StepPoint*       GetPreStepPoint() const;
-      G4StepPoint*       GetPostStepPoint() const;
+      const G4Track*     GetTrack() const;
+      const G4StepPoint* GetPreStepPoint() const;
+      const G4StepPoint* GetPostStepPoint() const;
       int                GetStepNumber() const;
       VolTree            GetHistory() const;
       int                GetFullDepth() const;
 
   private:
-      IMessageSvc* m_msgSvc;
-
       G4Track* m_track;				//!< current track
       G4StepPoint* m_preStepPoint;		//!< volume/process/etc. info before the current step
       G4StepPoint* m_postStepPoint;		//!< volume/process/etc. info after the current step
-      G4TouchableHistory* m_preHistory;		//!< touchable history containing current volume's history
+      const G4TouchableHistory* m_preHistory;		//!< touchable history containing current volume's history
       int m_preDepth, m_stepNo;			//!< depth of volume tree, step number
 
       VolTree m_history;				//!< full volume history, cast as const after preparation

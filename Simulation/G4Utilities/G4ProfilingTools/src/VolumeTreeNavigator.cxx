@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -33,19 +33,15 @@ using std::string;	using std::vector;
 using std::pair;	using std::make_pair;
 
 VolumeTreeNavigator::VolumeTreeNavigator(const G4Step* aStep) :
+  AthMessaging("VolumeTreeNavigator"),
   m_track(0), m_preHistory(0), m_preDepth(0), m_stepNo(0)
 
 {
-  // test message service
-  m_msgSvc = Athena::getMessageSvc();
-  MsgStream log(m_msgSvc,"VolumeTreeNavigator");
-  log<< MSG::VERBOSE <<"Athena message service initialized (VolumeTreeNavigator)"<< endmsg;
-
   // collect full set of volume tree data
   m_track = aStep->GetTrack();
   m_preStepPoint = aStep->GetPreStepPoint();
   m_postStepPoint = aStep->GetPostStepPoint();
-  m_preHistory = (G4TouchableHistory*)m_preStepPoint->GetTouchable();
+  m_preHistory = dynamic_cast<const G4TouchableHistory*>(m_preStepPoint->GetTouchable());
   m_preDepth = m_preHistory->GetHistoryDepth();
   m_stepNo = m_track->GetCurrentStepNumber();
 
@@ -58,7 +54,7 @@ VolumeTreeNavigator::VolumeTreeNavigator(const G4Step* aStep) :
       pair<G4VPhysicalVolume*, int> thPVID = make_pair(thPV, thPVRep);
       m_history.push_back(thPVID);
   }
-  log<< MSG::DEBUG <<"history size: "<< m_history.size() << endmsg;
+  ATH_MSG_DEBUG("history size: "<< m_history.size());
 
   // Set h_end to specify full history unless otherwise chosen by DepthCut functions, and
   // set h_nav to start at the lowest accessible level, h_end - 1.
@@ -68,45 +64,44 @@ VolumeTreeNavigator::VolumeTreeNavigator(const G4Step* aStep) :
 
 void VolumeTreeNavigator::SetDepthCutSimple(const int CALO, const int BeamPipe, const int IDET, const int MUONQ02)
 {
-  MsgStream log(m_msgSvc,"VolumeTreeNavigator");
   unsigned int cut = m_history.size();
   if ( m_history.size() > 1 ) {
-      string name = stringify(m_history[1].first->GetName());
+      const string name = stringify(m_history[1].first->GetName());
       if (name == "CALO::CALO")			cut = CALO+1;
       else if (name == "BeamPipe::BeamPipe")	cut = BeamPipe+1;
       else if (name == "IDET::IDET" || name == "ITK::ITK")		cut = IDET+1;
       else if (name == "MUONQ02::MUONQ02")	cut = MUONQ02+1;
-      else { log<< MSG::INFO <<"Level 1 volume not found, output default depth"<< endmsg; }
+      else { ATH_MSG_INFO("Level 1 volume not found, output default depth"); }
   }
   else if ( m_history.empty() ) {
-      log<< MSG::FATAL <<"No volumes in history, run will terminate!" << endmsg;
+      ATH_MSG_FATAL("No volumes in history, run will terminate!");
   }
 
   if ( cut > m_history.size() )  cut = m_history.size();
   m_h_end = m_history.begin();
   advance(m_h_end, cut);
   m_h_nav = m_h_end-1;
-  log<< MSG::DEBUG <<"VolumeTreeNavigator::SetDepthCutSimple at "<< m_h_nav->first->GetName() << endmsg;
+  ATH_MSG_DEBUG("VolumeTreeNavigator::SetDepthCutSimple at "<< m_h_nav->first->GetName());
   return;
 }
 
 void VolumeTreeNavigator::SetDepthCutDetail(const char* cpath)
 {
-  MsgStream log(m_msgSvc,"VolumeTreeNavigator");
-  static vector<string> volumes;
-  if ( volumes.empty() ) {
-      log<< MSG::INFO <<"SetDepthCutDetail path parsed as ";
+  static const vector<string> volumes = [&]() {
+      vector<string> v;
+      msg() << MSG::INFO <<"SetDepthCutDetail path parsed as ";
       string path = stringify(cpath);
       string::size_type slash = 0;
       string::size_type start = path.find_first_not_of( '/' );
       while ( slash != string::npos ) {
           start = slash+1;
           slash = path.find_first_of( '/', start );
-          volumes.push_back( path.substr(start, slash-start) );
-          log<< MSG::INFO <<"/"<<volumes.back();
+          v.push_back( path.substr(start, slash-start) );
+          msg() << MSG::INFO <<"/"<<volumes.back();
       }
-      log<< MSG::INFO << endmsg;
-  }
+      msg() << endmsg;
+      return v;
+  }();
 
   m_h_nav = m_h_end;
   vector<string>::const_iterator v_nav = volumes.begin();
@@ -120,19 +115,18 @@ void VolumeTreeNavigator::SetDepthCutDetail(const char* cpath)
   }
   m_h_end = m_h_nav;
   m_h_nav = m_h_end-1;
-  log<< MSG::INFO <<"VolumeTreeNavigator::SetDepthCutDetail at "<< m_h_nav->first->GetName() << endmsg;
+  ATH_MSG_INFO("VolumeTreeNavigator::SetDepthCutDetail at "<< m_h_nav->first->GetName());
   return;
 }
 
 VolTree VolumeTreeNavigator::Extract()
 {
-  MsgStream log(m_msgSvc,"VolumeTreeNavigator");
   // Derive a permanent VolTree object from the current volume and its history
   VolTree ret;
   for (VolNav t = m_history.begin(); t != m_h_nav+1; t++) {
       ret.push_back(*t);
   }
-  log<< MSG::DEBUG <<"VolumeTreeNavigator::Extract succeeded for "<< m_h_nav->first->GetName() <<"."<< endmsg;
+  ATH_MSG_DEBUG("VolumeTreeNavigator::Extract succeeded for "<< m_h_nav->first->GetName() <<".");
   return ret;
 }
 
@@ -167,7 +161,6 @@ bool VolumeTreeNavigator::KillProcesses(const int numProc, const char* pr1, ...)
 {
   // Checks for disallowed processes, and if found returns true; accepts arbitrary number
   // of process names.
-  MsgStream log(m_msgSvc,"VolumeTreeNavigator");
   const G4VProcess* pds = m_postStepPoint->GetProcessDefinedStep();
   va_list procs;
 
@@ -177,7 +170,7 @@ bool VolumeTreeNavigator::KillProcesses(const int numProc, const char* pr1, ...)
       va_start(procs, pr1);
       for ( int i = 0; i != numProc; i++ ) {
           if ( name == va_arg(procs, const char*) ) {
-              log<< MSG::DEBUG << name <<" process triggered - return"<< endmsg;
+              ATH_MSG_DEBUG(name <<" process triggered - return");
               va_end(procs);
               return 1;
           }
