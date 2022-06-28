@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -46,7 +46,7 @@ namespace CP
     fillSystematics (const ISystematicsSvc& svc,
                      const CP::SystematicSet& fullAffecting,
                      const std::vector<CP::SystematicSet>& sysList,
-                     const std::string& objectName);
+                     const std::string& objectName) override;
 
 
 
