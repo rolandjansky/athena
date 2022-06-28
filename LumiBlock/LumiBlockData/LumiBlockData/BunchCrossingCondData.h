@@ -333,7 +333,7 @@ private:
 };  
 
 CLASS_DEF (BunchCrossingCondData, 158463439, 0)
-CONDCONT_DEF (BunchCrossingCondData, 157905099 );
+CONDCONT_MIXED_DEF (BunchCrossingCondData, 157905099 );
 
 inline 
 bool BunchCrossingCondData::isFilled(const bcid_type bcid) const {
