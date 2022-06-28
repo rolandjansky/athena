@@ -26,26 +26,26 @@ double RedThreshold_cell=100;
 ofstream outputfile;
 class clusterbin{
  public:
-    float m_eta;
-    float m_phi;
-    int   m_nx;
-    int   m_ny;
-    float m_value;
+    float m_eta{};
+    float m_phi{};
+    int   m_nx{};
+    int   m_ny{};
+    float m_value{};
     string   m_level;
-    float m_OSRatio;
+    float m_OSRatio{};
 };
 class cellbin{
 public:
-    float m_eta;
-    float m_phi;
-    int   m_nx;
-    int   m_ny;
-    float m_value;
-    int   m_partition;
-    int   m_layer;
-    int   m_side;
+    float m_eta{};
+    float m_phi{};
+    int   m_nx{};
+    int   m_ny{};
+    float m_value{};
+    int   m_partition{};
+    int   m_layer{};
+    int   m_side{};
     string   m_level;
-    float m_OSRatio;
+    float m_OSRatio{};
     string m_name;
 };
 enum{EMBA,EMECA,HECA,FCALA,EMBC,EMECC,HECC,FCALC,NbOfPartition};
