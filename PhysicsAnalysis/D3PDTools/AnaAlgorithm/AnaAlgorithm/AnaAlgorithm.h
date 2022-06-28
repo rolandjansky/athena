@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -103,15 +103,24 @@ namespace EL
 #ifdef XAOD_STANDALONE
     /// Type of the metadata store pointer in standalone mode
     typedef asg::SgTEventMeta* MetaStorePtr_t;
+    typedef const asg::SgTEventMeta* ConstMetaStorePtr_t;
 #else
     /// Type of the metadata store pointer in standalone mode
     typedef ServiceHandle< StoreGateSvc >& MetaStorePtr_t;
+    typedef const ServiceHandle< StoreGateSvc >& ConstMetaStorePtr_t;
 #endif // XAOD_STANDALONE
 
+    ///@{
     /// Accessor for the input metadata store
-    MetaStorePtr_t inputMetaStore() const;
+    ConstMetaStorePtr_t inputMetaStore() const;
+    MetaStorePtr_t inputMetaStore();
+    ///@}
+
+    ///@{
     /// Accessor for the output metadata store
-    MetaStorePtr_t outputMetaStore() const;
+    ConstMetaStorePtr_t outputMetaStore() const;
+    MetaStorePtr_t outputMetaStore();
+    ///@}
 
 #ifdef XAOD_STANDALONE
     /// \brief get the (main) event store for this algorithm
@@ -514,11 +523,11 @@ namespace EL
 
     /// \brief Object accessing the input metadata store
   private:
-    mutable MetaStore_t m_inputMetaStore;
+    MetaStore_t m_inputMetaStore;
 
     /// \brief Object accessing the output metadata store
   private:
-    mutable MetaStore_t m_outputMetaStore;
+    MetaStore_t m_outputMetaStore;
 
 #ifdef XAOD_STANDALONE
     /// \brief the value of \ref histogramWorker

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -68,7 +68,16 @@ namespace EL
 
 
 
-  AnaAlgorithm::MetaStorePtr_t AnaAlgorithm::inputMetaStore() const
+  AnaAlgorithm::ConstMetaStorePtr_t AnaAlgorithm::inputMetaStore() const
+  {
+#ifdef XAOD_STANDALONE
+     return &m_inputMetaStore;
+#else
+     return m_inputMetaStore;
+#endif // XAOD_STANDALONE
+  }
+
+  AnaAlgorithm::MetaStorePtr_t AnaAlgorithm::inputMetaStore()
   {
 #ifdef XAOD_STANDALONE
      return &m_inputMetaStore;
@@ -79,7 +88,16 @@ namespace EL
 
 
 
-  AnaAlgorithm::MetaStorePtr_t AnaAlgorithm::outputMetaStore() const
+  AnaAlgorithm::ConstMetaStorePtr_t AnaAlgorithm::outputMetaStore() const
+  {
+#ifdef XAOD_STANDALONE
+     return &m_outputMetaStore;
+#else
+     return m_outputMetaStore;
+#endif // XAOD_STANDALONE
+  }
+
+  AnaAlgorithm::MetaStorePtr_t AnaAlgorithm::outputMetaStore()
   {
 #ifdef XAOD_STANDALONE
      return &m_outputMetaStore;
