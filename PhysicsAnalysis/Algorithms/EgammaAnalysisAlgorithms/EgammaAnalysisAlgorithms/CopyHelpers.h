@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,6 +11,7 @@
 
 #include <SystematicsHandles/CopyHelpers.h>
 
+#include <CxxUtils/checker_macros.h>
 #include <xAODEgamma/EgammaContainer.h>
 
 namespace CP
@@ -31,14 +32,19 @@ namespace CP
                const xAOD::EgammaContainer *inputObject,
                const std::string& outputName, const std::string& auxName)
       {
-        const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl; return msgStream;};
+        // Set up a lambda for providing a msg(...) function.
+        // Suppress thread-checker warning because this provides just a wrapper to MsgStream.
+        const auto msg = [&] ATLAS_NOT_THREAD_SAFE (MSG::Level lvl) -> MsgStream& {
+          msgStream << lvl;
+          return msgStream;
+        };
 
         xAOD::IParticleContainer *subobject = nullptr;
         if (!ShallowCopy<xAOD::IParticleContainer>::getCopy (msgStream, store, subobject, inputObject, outputName, auxName).isSuccess())
           return StatusCode::FAILURE;
         if (!(object = dynamic_cast<xAOD::EgammaContainer*>(subobject)))
         {
-          ANA_MSG_ERROR ("copy of EgammaContainer is not an EgammaContainer"); 
+          ANA_MSG_ERROR ("copy of EgammaContainer is not an EgammaContainer");
           ANA_MSG_ERROR ("check logic in CopyHelpers");
           return StatusCode::FAILURE;
         }

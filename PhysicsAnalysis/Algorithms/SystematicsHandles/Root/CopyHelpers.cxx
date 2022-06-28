@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -37,7 +37,11 @@ namespace CP
       // the proper way will require an xAOD expert to do it.
 
       // Set up a lambda for providing a msg(...) function.
-      const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl; return msgStream;};
+      // Suppress thread-checker warning because this provides just a wrapper to MsgStream.
+      const auto msg = [&] ATLAS_NOT_THREAD_SAFE (MSG::Level lvl) -> MsgStream& {
+        msgStream << lvl;
+        return msgStream;
+      };
 
       // using a macro is a bit awkward, but doing this as a template
       // is not practical either

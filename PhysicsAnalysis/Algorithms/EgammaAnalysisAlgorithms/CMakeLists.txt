@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -11,7 +11,7 @@ atlas_add_library( EgammaAnalysisAlgorithmsLib
    PUBLIC_HEADERS EgammaAnalysisAlgorithms
    LINK_LIBRARIES xAODEgamma SelectionHelpersLib SystematicsHandlesLib
    IsolationSelectionLib AnaAlgorithmLib IsolationCorrectionsLib
-   EgammaAnalysisInterfacesLib )
+   EgammaAnalysisInterfacesLib CxxUtils )
 
 atlas_add_dictionary( EgammaAnalysisAlgorithmsDict
    EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsDict.h

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -11,6 +11,7 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/StatusCode.h>
+#include <CxxUtils/checker_macros.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODBase/IParticleHelpers.h>
 #include <xAODCore/ShallowCopy.h>
@@ -76,8 +77,11 @@ namespace CP
                const std::string& outputName, const std::string& auxName)
       {
         // Define the msg(...) function as a lambda.
-        const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl;
-                                                             return msgStream;};
+        // Suppress thread-checker warning because this provides just a wrapper to MsgStream.
+        const auto msg = [&] ATLAS_NOT_THREAD_SAFE (MSG::Level lvl) -> MsgStream& {
+           msgStream << lvl;
+           return msgStream;
+        };
 
         // Make sure that we get a valid pointer.
         assert (inputObject != nullptr);
@@ -101,7 +105,7 @@ namespace CP
                  }
               }
               // Postfix for the shallow-copy container of the origin container.
-              static const char* ORIGIN_POSTFIX = "_ShallowCopyOrigin";
+              static const char* const ORIGIN_POSTFIX = "_ShallowCopyOrigin";
               // Make a shallow copy of the origin container.
               auto originCopy = xAOD::shallowCopyContainer( *originContainer );
               if( ( ! originCopy.first ) || ( ! originCopy.second ) ) {
@@ -183,8 +187,11 @@ namespace CP
                const std::string& outputName, const std::string& auxName)
       {
          // Define the msg(...) function as a lambda.
-         const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl;
-            return msgStream;};
+         // Suppress thread-checker warning because this provides just a wrapper to MsgStream.
+         const auto msg = [&] ATLAS_NOT_THREAD_SAFE (MSG::Level lvl) -> MsgStream& {
+            msgStream << lvl;
+            return msgStream;
+         };
 
          // Make sure that we get a valid pointer.
          assert (inputObject != nullptr);
@@ -208,7 +215,7 @@ namespace CP
                   }
                }
                // Postfix for the shallow-copy container of the origin container.
-               static const char* ORIGIN_POSTFIX = "_ShallowCopyOrigin";
+               static const char* const ORIGIN_POSTFIX = "_ShallowCopyOrigin";
                // Make a shallow copy of the origin container.
                auto originCopy = xAOD::shallowCopyContainer( *originContainer );
                if( ( ! originCopy.first ) || ( ! originCopy.second ) ) {
@@ -277,8 +284,11 @@ namespace CP
                 const std::string& outputName, const std::string& auxName)
        {
           // Define the msg(...) function as a lambda.
-          const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl;
-             return msgStream;};
+          // Suppress thread-checker warning because this provides just a wrapper to MsgStream.
+          const auto msg = [&] ATLAS_NOT_THREAD_SAFE (MSG::Level lvl) -> MsgStream& {
+             msgStream << lvl;
+             return msgStream;
+          };
 
           // We can just copy the object as is.
           auto copy = xAOD::shallowCopyObject( *inputObject );

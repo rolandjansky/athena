@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -9,6 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYSTEMATICS_SVC_H
 
 #include <AsgServices/AsgService.h>
+#include <CxxUtils/checker_macros.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISystematicsSvc.h>
 #include <mutex>
@@ -96,26 +97,25 @@ namespace CP
 
     /// \brief the list of affecting systematics
   private:
-    mutable SystematicSet m_affectingSystematics;
+    mutable SystematicSet m_affectingSystematics ATLAS_THREAD_SAFE;
 
     /// \brief the list of recommended systematics
   private:
-    mutable SystematicSet m_recommendedSystematics;
+    mutable SystematicSet m_recommendedSystematics ATLAS_THREAD_SAFE;
 
     /// \brief the list of per-object systematics
   private:
-    mutable std::unordered_map<std::string,CP::SystematicSet> m_objectSystematics;
+    mutable std::unordered_map<std::string,CP::SystematicSet> m_objectSystematics ATLAS_THREAD_SAFE;
 
     /// \brief the list of per-object-and-decoration systematics
   private:
-    mutable std::unordered_map<std::string,CP::SystematicSet> m_decorSystematics;
+    mutable std::unordered_map<std::string,CP::SystematicSet> m_decorSystematics ATLAS_THREAD_SAFE;
 
     /// \brief the map of registered copies
   private:
-    mutable std::unordered_map<std::string,std::string> m_copies;
+    mutable std::unordered_map<std::string,std::string> m_copies ATLAS_THREAD_SAFE;
 
-    /// \brief a mutex for accessing \ref m_affectingSystematics and
-    /// \ref m_recommendedSystematics
+    /// \brief a mutex for accessing the above mutable members
   private:
     mutable std::mutex m_systematicsMutex;
   };
