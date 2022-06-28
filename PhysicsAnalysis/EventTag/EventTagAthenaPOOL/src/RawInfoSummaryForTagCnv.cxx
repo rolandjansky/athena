@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@ RawInfoSummaryForTagCnv::RawInfoSummaryForTagCnv(ISvcLocator* svcloc)
 
 TRANS*  RawInfoSummaryForTagCnv::createTransient()
 {
-   static pool::Guid p1_guid( "4CBBDF6D-4A58-42A9-9B26-534676C52F4C" );
+   static const pool::Guid p1_guid( "4CBBDF6D-4A58-42A9-9B26-534676C52F4C" );
 
    MsgStream mlog(msgSvc(), "RawInfoSummaryForTagCnv" );
    mlog << MSG::DEBUG << "createTransient()" << endmsg;
