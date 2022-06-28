@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 // **********************************************************************
@@ -812,12 +812,12 @@ IDAlignMonNtuple::getUnbiasedTrackParameters(const Trk::Track* trkPnt, const Trk
       const AmgSymMatrix(5) * covariance = OMSHmeasuredTrackParameter->covariance();
       if (covariance) {
         ATH_MSG_VERBOSE( "OtherSideTrackParameters: " << *(otherModuleSideHit->trackParameters()) );
-        otherSideUnbiasedTrackParams = std::move(
+        otherSideUnbiasedTrackParams = 
           m_iUpdator->removeFromState(
           *(otherModuleSideHit->trackParameters()),
           otherModuleSideHit->measurementOnTrack()->localParameters(),
-          otherModuleSideHit->measurementOnTrack()->localCovariance())
-        ); //we own these track parameters here
+          otherModuleSideHit->measurementOnTrack()->localCovariance());
+         //we own these track parameters here
 
         if (otherSideUnbiasedTrackParams) {
           ATH_MSG_VERBOSE("Unbiased OtherSideTrackParameters: " << *otherSideUnbiasedTrackParams );
@@ -843,13 +843,13 @@ IDAlignMonNtuple::getUnbiasedTrackParameters(const Trk::Track* trkPnt, const Trk
             ATH_MSG_VERBOSE( "TempSurface->associatedLayer() does not exist" );
           }
           ATH_MSG_VERBOSE( "Before other side unbiased propagation" );
-          if (TempSurface.associatedLayer() && TempField) propagatedTrackParams = std::move(m_propagator->propagate(
+          if (TempSurface.associatedLayer() && TempField) propagatedTrackParams = m_propagator->propagate(
             Gaudi::Hive::currentContext(),
             *otherSideUnbiasedTrackParams,
             tsos->measurementOnTrack()->associatedSurface(),
             Trk::anyDirection, false,
             *TempField,
-            Trk::nonInteracting));
+            Trk::nonInteracting);
 
           ATH_MSG_VERBOSE( "After other side unbiased propagation" );
           
@@ -871,7 +871,7 @@ IDAlignMonNtuple::getUnbiasedTrackParameters(const Trk::Track* trkPnt, const Trk
 
   // if propagation failed or no TrueUnbiased or no SCT then use original TrackParams
   if (!propagatedTrackParams) {
-    propagatedTrackParams = std::move(tsos->trackParameters()->uniqueClone());
+    propagatedTrackParams = tsos->trackParameters()->uniqueClone();
   }
 
   auto unbiasedTrackParams =
