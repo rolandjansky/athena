@@ -179,7 +179,7 @@ class TrigEgammaMonAlgBuilder:
 
   def setDefaultProperties(self):
    
-    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee, monitoring_tags 
+    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee,  monitoring_tags 
     
     if self.pp_mode:
         self.electronList = monitoring_electron
@@ -188,7 +188,7 @@ class TrigEgammaMonAlgBuilder:
         self.tagItems     = monitoring_tags 
         self.topoList     = monitoring_topo
     elif self.mc_mode:
-        self.electronList = validation_electron + validation_Zee
+        self.electronList = validation_electron # + validation_Zee (no T&P chains yet)
         self.photonList   = validation_photon
         self.tpList       = validationTP_electron
         self.jpsiList     = validation_jpsi
@@ -247,7 +247,8 @@ class TrigEgammaMonAlgBuilder:
     acc.addPublicTool(TightDNNElectronSelector)
 
     if self.runFlag == '2022':
-      raise RuntimeError( '2022 (Run 3) configuration not available yet' )
+       raise RuntimeError( '2022 (Run 3) configuration not available yet' )
+
 
   
     elif self.runFlag == '2018':
@@ -607,8 +608,8 @@ class TrigEgammaMonAlgBuilder:
       self.addHistogram(monGroup, TH1F("et"     , "Et; Et [GeV] ; Count", 100, 0., 200.))
       self.addHistogram(monGroup, TH1F("eta"    , "eta; eta ; Count"    , 50, -2.5, 2.5))
       self.addHistogram(monGroup, TH1F("phi"    , "phi; phi ; Count"    , 20, -3.2, 3.2))
-      self.addHistogram(monGroup, TH1F("Rhad"   , "Rhad; Rhad ; Count"  , 10, 0, 1))
-      self.addHistogram(monGroup, TH1F("Reta"   , "Reta; Reta ; Count"  , 10, 0, 1 ))
+      self.addHistogram(monGroup, TH1F("Rhad"   , "Rhad; Rhad ; Count"  , 40, 0, 1))
+      self.addHistogram(monGroup, TH1F("Reta"   , "Reta; Reta ; Count"  , 40, 0, 1 ))
       self.addHistogram(monGroup, TH1F("Wstot"  , "Wstot; Wstot ; Count", 40, 0, 4 ))
 
     else: # L1Calo Legacy
