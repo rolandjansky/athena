@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file D3PDMakerConfig/python/egammaD3PD.py
@@ -18,7 +18,6 @@ from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from CaloD3PDMaker.MBTSTimeD3PDObject         import MBTSTimeD3PDObject
 from CaloD3PDMaker.LArCollisionTimeD3PDObject import LArCollisionTimeD3PDObject
 from CaloD3PDMaker.CollisionDecisionD3PDObject import CollisionDecisionD3PDObject
-from MissingETD3PDMaker.MissingETD3PDObject   import MissingETD3PDObject
 # from EventCommonD3PDMaker.LBMetadataConfig    import LBMetadataConfig
 from TruthD3PDMaker.TruthEventD3PDObject      import TruthEventD3PDObject
 # from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
@@ -279,9 +278,6 @@ def egammaD3PD (alg = None,
     alg += MBTSD3PDObject             (**_args (level, 'MBTS', kw))
     alg += MBTSTimeD3PDObject         (**_args (level, 'MBTSTime', kw))
     alg += CollisionDecisionD3PDObject(**_args (level, 'CollisionDecision', kw))
-    alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
-                                         sgkey = 'MET_Core_AntiKt4EMTopo',
-                                         prefix = 'MET_RefFinal_'))
 
     # May be missing in single-beam data.
     alg += PrimaryxAODVertexD3PDObject (**_args (

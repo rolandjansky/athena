@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file TruthD3PDMaker/python/evgenD3PD.py
@@ -12,7 +12,6 @@ import D3PDMakerCoreComps
 
 from EventCommonD3PDMaker.EventInfoD3PDObject        import EventInfoD3PDObject
 from TruthD3PDMaker.TruthJetD3PDObject               import TruthJetD3PDObject
-from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import TruthMETD3PDObject
 
 from TruthD3PDMaker.GenEventD3PDObject               import GenEventD3PDObject
 from TruthD3PDAnalysis.truthParticleConfig           import truthParticleConfig
@@ -86,7 +85,6 @@ def evgenD3PD (file,
     if rec.doTruth():
         alg += GenEventD3PDObject (1)
         alg += TruthParticleD3PDObject (1)
-        alg += TruthMETD3PDObject (level=10)
         alg += TruthJetD3PDObject (level=10, sgkey='AntiKt4Truth'+mysuffix+'Jets', prefix='jet_antikt4truth'+mysuffix+'jets_')
         alg += TruthJetD3PDObject (level=10, sgkey='AntiKt6Truth'+mysuffix+'Jets', prefix='jet_antikt6truth'+mysuffix+'jets_')
         if doExcludeWZdecays:
