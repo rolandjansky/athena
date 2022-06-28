@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from ..CommonSequences.FullScanDefs import caloFSRoI
+from ..CommonSequences.FullScanDefs import trkFSRoI
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
@@ -217,7 +217,7 @@ def FTFTrackSequence(ConfigFlags):
     IDTrigConfig = getInDetTrigConfig( 'jet' )
 
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
-    TrkInputNoViewAlg = makeInDetTrigFastTrackingNoView( config=IDTrigConfig, rois=caloFSRoI )
+    TrkInputNoViewAlg = makeInDetTrigFastTrackingNoView( config=IDTrigConfig, rois=trkFSRoI )
 
     from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
     
