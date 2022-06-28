@@ -47,6 +47,7 @@ namespace Brandeis {
     static const double p28ID = 0.283329;
 
     // methods
+    // [[deprecated]]
     double GetMomentumResolutionID(double mu_pt, double mu_eta, bool isMC);
 }  // namespace Brandeis
 
