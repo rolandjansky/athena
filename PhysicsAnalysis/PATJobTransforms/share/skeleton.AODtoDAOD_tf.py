@@ -3,6 +3,7 @@ from __future__ import print_function
 #
 # $Id: skeleton.AODtoDAOD_tf.py 731616 2016-03-22 15:25:39Z cranshaw $
 #
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
 msg = logging.getLogger('AODtoDAOD')
