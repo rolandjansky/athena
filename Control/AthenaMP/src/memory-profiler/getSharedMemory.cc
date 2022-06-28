@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -12,20 +12,21 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#include "CxxUtils/checker_macros.h"
+
 namespace athenaMP_MemHelper
 {
   void getPss(pid_t, unsigned long&, unsigned long&, unsigned long&, unsigned long&, bool verbose=false );
 }
 
 void
-usage(int e)
+usage()
 {
-  std::cerr << "Usage: shared_memory [-h|-v] <pid>\n" << "\n";
-  exit(e);
+  std::cerr << "Usage: getSharedMemory [-h|-v] <pid>\n" << "\n";
 }
 
 int
-main(int argc, char *argv[])
+main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 {
   int opt;
   long mpid;
@@ -37,17 +38,20 @@ main(int argc, char *argv[])
       verbose = true;
       break;
     case 'h':
-      usage(0);
+      usage();
+      return 0;
       break;
     default:
-      usage(-1);
+      usage();
+      return -1;
     }
   }
   
   if (optind >= argc)
     {
       std::cerr << "Expected <pid> options\n";
-      usage(-1);
+      usage();
+      return -1;
     }
   
   if(verbose)
@@ -58,7 +62,8 @@ main(int argc, char *argv[])
   if( ! sscanf(argv[optind],"%80ld",&mpid) || mpid < 2 )
     {
       std::cerr << "Invalid <pid>\n";
-      usage(-1);
+      usage();
+      return -1;
     }
   
   if(verbose)
@@ -85,5 +90,5 @@ main(int argc, char *argv[])
       std::cout << "Used time (user/sys):  " << tu << " / " << ts << "\n";
     }
   
-  exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
