@@ -12,7 +12,7 @@
  * See below for batch read and write functions.
  */
 
-#include "TrigHTTBankGen/HTTMatrixAccumulator.h"
+#include "HTTMatrixAccumulator.h"
 #include "TrigHTTObjects/HTTTypes.h"
 
 #include <vector>

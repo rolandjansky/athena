@@ -12,9 +12,9 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "TrigHTTBanks/HTTSectorSlice.h"
-#include "TrigHTTBankGen/HTTConstGenAlgo.h"
 #include "TrigHTTObjects/HTTConstants.h"
 
+#include "HTTConstGenAlgo.h"
 #include "HTTMatrixIO.h"
 
 #include "TTree.h"
