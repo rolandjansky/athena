@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -97,14 +97,13 @@ StatusCode testTTMap_Algo::execute(){
 
   ATH_MSG_INFO ( "=> testTTMap_Algo::Executing " );
 
-  const LArTTCellMap* ttCellMap_c = nullptr;
-  ATH_CHECK( detStore()->retrieve( ttCellMap_c ) );
-  LArTTCellMap*   ttCellMap = const_cast<LArTTCellMap*>(ttCellMap_c); 
-  
+  const LArTTCellMap* ttCellMap = nullptr;
+  ATH_CHECK( detStore()->retrieve( ttCellMap ) );
+
   //
   // first test the structure
   //
-  LArTTCell_P* ttCell_P = ttCellMap->getP(); 
+  const LArTTCell_P* ttCell_P = ttCellMap->getP();
   typedef std::vector<LArTTCell_P::LArTTCell_P_t> VTTCELL; 
   VTTCELL::const_iterator it   = ttCell_P->m_v.begin(); 
   VTTCELL::const_iterator it_e = ttCell_P->m_v.end(); 

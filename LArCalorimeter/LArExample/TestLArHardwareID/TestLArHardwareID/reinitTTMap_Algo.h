@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REINITTTMAP_ALGO_H
@@ -9,8 +9,10 @@
 /* date of creation : 11/03/2009 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include <string>
+#include "CxxUtils/checker_macros.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
+
+#include <string>
 
 /** 
   * Algorithm meant to initialise LAr TT<->cell maping
@@ -19,7 +21,7 @@
 class LArFCAL_ID;
 class IAthenaOutputStreamTool;
 
-class reinitTTMap_Algo : public AthAlgorithm {
+class ATLAS_NOT_THREAD_SAFE reinitTTMap_Algo : public AthAlgorithm {
 
   private :
   
