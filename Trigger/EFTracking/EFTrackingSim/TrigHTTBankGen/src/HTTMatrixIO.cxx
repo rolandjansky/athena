@@ -16,8 +16,6 @@ HTTMatrixReader::HTTMatrixReader(TTree *tree, size_t nLayers, size_t nCoords) :
   m_tree(tree),
   m_entry(0),
   m_nEntries(tree->GetEntries()),
-  m_nLayers(nLayers),
-  m_nCoords(nCoords),
   m_modules(nLayers),
   m_acc(nLayers, nCoords),
   m_pQoP(&m_bins_QoP),

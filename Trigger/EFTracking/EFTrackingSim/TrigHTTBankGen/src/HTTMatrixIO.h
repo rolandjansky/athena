@@ -61,8 +61,6 @@ class HTTMatrixReader
 
         size_t m_entry;
         size_t m_nEntries;
-        size_t m_nLayers;
-        size_t m_nCoords;
 
         std::vector<module_t> m_modules;
         HTTMatrixAccumulator m_acc;
