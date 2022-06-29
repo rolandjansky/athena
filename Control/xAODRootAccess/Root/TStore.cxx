@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include <set>
 
@@ -118,7 +118,7 @@ namespace xAOD {
       for( ; itr != end; ++itr ) {
          ::Info( "xAOD::TStore::print", "-----------------------------------" );
          ::Info( "xAOD::TStore::print", "  Name: %s", itr->first.c_str() );
-         ::TClass* cl = itr->second->getClass();
+         const ::TClass* cl = itr->second->getClass();
          const std::type_info* ti = itr->second->getTypeInfo();
          ::Info( "xAOD::TStore::print", "    Type: %s",
                  ( cl ? cl->GetName() :
@@ -380,7 +380,7 @@ namespace xAOD {
 
       for ( const auto& pair : m_objects ) {
          const std::string& key = pair.first;
-         ::TClass* cl = pair.second->getClass();
+         const ::TClass* cl = pair.second->getClass();
          const std::type_info* ti = pair.second->getTypeInfo();
          std::string typeName;
          if (cl)

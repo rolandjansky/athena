@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <iostream>
@@ -116,7 +116,7 @@ namespace xAOD {
       }
 
       // Source of the missing dictionary warnings:
-      static const char* DICT_WARNING_SOURCE = "TClass::Init";
+      static const char* const DICT_WARNING_SOURCE = "TClass::Init";
 
       // Filter out warnings about missing dictionaries. As these are relatively
       // common. In case a problem occurs because of a missing dictionary, some
