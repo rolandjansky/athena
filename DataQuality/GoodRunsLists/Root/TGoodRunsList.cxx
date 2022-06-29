@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -12,13 +12,7 @@ ClassImp(Root::TGoodRunsList)
 
 
 Root::TGoodRunsList::TGoodRunsList()
-  : std::map<Int_t,TGoodRun>()
-  , TNamed("noname","notitle")
-  , m_checkGRLInfo(kFALSE)
-  , m_hasRun(kFALSE)
-  , m_hasLB(kFALSE)
-  , m_prevRun(-10)
-  , m_prevLB(-10)
+  : TGoodRunsList("noname")
 {
 }
 
@@ -26,11 +20,6 @@ Root::TGoodRunsList::TGoodRunsList()
 Root::TGoodRunsList::TGoodRunsList( const char* name )
   : std::map<Int_t,TGoodRun>()
   , TNamed(name,"notitle")
-  , m_checkGRLInfo(kFALSE)
-  , m_hasRun(kFALSE)
-  , m_hasLB(kFALSE)
-  , m_prevRun(-10)
-  , m_prevLB(-10)
 {
 }
 
@@ -39,41 +28,7 @@ Root::TGoodRunsList::~TGoodRunsList()
 {
 }
 
-
-Root::TGoodRunsList::TGoodRunsList(const Root::TGoodRunsList& other)
-  : std::map<Int_t,TGoodRun>(other)
-  , TNamed(other)
-  , m_version(other.m_version)
-  , m_metadata(other.m_metadata)
-  , m_checkGRLInfo(other.m_checkGRLInfo)
-  , m_hasRun(other.m_hasRun)
-  , m_hasLB(other.m_hasLB)
-  , m_prevRun(other.m_prevRun)
-  , m_prevLB(other.m_prevLB)
-{
-}
-
-
-Root::TGoodRunsList&
-Root::TGoodRunsList::operator=(const Root::TGoodRunsList& other)
-{
-  if (&other==this) {
-    return *this ;
-  } 
-  std::map<Int_t,TGoodRun>::operator=(other);
-  TNamed::operator=(other);
-  m_version = other.m_version;
-  m_metadata = other.m_metadata;
-  m_checkGRLInfo = other.m_checkGRLInfo;
-  m_hasRun = other.m_hasRun;
-  m_hasLB = other.m_hasLB;
-  m_prevRun = other.m_prevRun;
-  m_prevLB = other.m_prevLB;
-  return *this ;
-}
-
-
-void 
+void
 Root::TGoodRunsList::AddGRL(const TGoodRunsList& other)
 {
   // ensure version and name are identical
@@ -256,42 +211,17 @@ Root::TGoodRunsList::GetPartNotIn(const Root::TGoodRunsList& other) const
 
 
 Bool_t 
-Root::TGoodRunsList::HasRun( const Int_t& runnr )  const
+Root::TGoodRunsList::HasRun( Int_t runnr )  const
 {
-  // run searched same as previous run?
-  if ( runnr==m_prevRun )
-  {
-    return m_hasRun;
-  }
-
-  // rationale: I need to reset the previous lumiblock here in order
-  //   to ensure that the first lumiblock on each run gets tested.
-  m_prevRun=runnr;
-  m_prevLB = -10;
-  m_hasRun = ( this->find(runnr)!=this->end() );
-  return m_hasRun;
+  return ( this->find(runnr)!=this->end() );
 }
 
 
 Bool_t
-Root::TGoodRunsList::HasRunLumiBlock( const Int_t& runnr, const Int_t& lumiblocknr ) const
+Root::TGoodRunsList::HasRunLumiBlock( Int_t runnr, Int_t lumiblocknr ) const
 {
-  Bool_t pass = kFALSE;
-
-  if (this->HasRun(runnr)) {
-    // rationale: this uses the cached result of the last lumi-block
-    //   query.  if we switched runs, m_prevLB will have been set to
-    //   an invalid value in HasRun to force a re-read.
-    if (lumiblocknr==m_prevLB)
-    {
-      return m_hasLB;
-    }
-    m_prevLB = lumiblocknr;
-    m_hasLB  = (this->find(runnr))->second.HasLB( lumiblocknr );
-    pass = m_hasLB;
-  }
-
-  return pass;
+  const auto run = this->find(runnr);
+  return ( run!=this->end() && run->second.HasLB( lumiblocknr ) );
 }
 
 
@@ -343,57 +273,49 @@ Root::TGoodRunsList::Summary(Bool_t verbose /*= kFALSE*/) const
 }
 
 
-const std::vector<int>
+std::vector<int>
 Root::TGoodRunsList::GetRunlist() const
 {
   std::vector<int> runlist;
-
-  std::map<Int_t,Root::TGoodRun>::const_iterator itr = this->begin();
-  std::map<Int_t,Root::TGoodRun>::const_iterator end = this->end();
-  for (; itr!=end; ++itr) runlist.push_back(itr->first);
+  for (const auto& [runno, run] : *this) runlist.push_back(runno);
 
   return runlist;
 }
 
 
-const std::vector<Root::TGoodRun>
+std::vector<Root::TGoodRun>
 Root::TGoodRunsList::GetGoodRuns() const
 {
   std::vector<Root::TGoodRun> runlist;
-
-  std::map<Int_t,Root::TGoodRun>::const_iterator itr = this->begin();
-  std::map<Int_t,Root::TGoodRun>::const_iterator end = this->end();
-  for (; itr!=end; ++itr) runlist.push_back(itr->second);
+  for (const auto& [runno, run] : *this) runlist.push_back(run);
 
   return runlist;
 }
 
 
-const std::vector<std::string>
+std::vector<std::string>
 Root::TGoodRunsList::GetTriggerList() const
 {
   std::vector<std::string> triggerchains;
 
-  std::map<TString,TString>::const_iterator itr = m_metadata.begin();
-  for (; itr!=m_metadata.end(); ++itr) {
-    TString triggername = itr->first;
+  for (const auto& [key, value] : m_metadata) {
+    TString triggername = key;
     triggername.ToLower();
-    if (triggername.BeginsWith("trigger") && itr->second.Length()>0) triggerchains.push_back(itr->second.Data());
+    if (triggername.BeginsWith("trigger") && value.Length()>0) triggerchains.push_back(value.Data());
   }
   return triggerchains;
 }
 
 
-const std::vector<std::string>
+std::vector<std::string>
 Root::TGoodRunsList::GetStreamList() const
 {
   std::vector<std::string> streamlist;
   
-  std::map<TString,TString>::const_iterator itr = m_metadata.begin();
-  for (; itr!=m_metadata.end(); ++itr) {
-    TString streamname = itr->first;
+  for (const auto& [key, value] : m_metadata) {
+    TString streamname = key;
     streamname.ToLower(); 
-    if (streamname.BeginsWith("stream") && itr->second.Length()>0) streamlist.push_back(itr->second.Data());
+    if (streamname.BeginsWith("stream") && value.Length()>0) streamlist.push_back(value.Data());
   }   
   return streamlist;
 }     
@@ -464,7 +386,7 @@ Root::TGoodRunsList::IsEmpty() const
 }
 
 
-const TString
+TString
 Root::TGoodRunsList::GetSuggestedName() const
 {
   if (this->IsEmpty()) return "grl_empty";
@@ -488,7 +410,7 @@ Root::TGoodRunsList::GetSuggestedName() const
 
 
 void 
-Root::TGoodRunsList::AddRunLumiBlock( const Int_t& runnr, const Int_t& lumiblocknr )
+Root::TGoodRunsList::AddRunLumiBlock( Int_t runnr, Int_t lumiblocknr )
 {
   if (runnr<0 || lumiblocknr<0) return;
   if (this->HasRunLumiBlock(runnr,lumiblocknr)) return;
@@ -506,8 +428,6 @@ Root::TGoodRunsList::AddRunLumiBlock( const Int_t& runnr, const Int_t& lumiblock
 void 
 Root::TGoodRunsList::Compress()
 {
-  std::map< Int_t, TGoodRun >::iterator itr = this->begin();
-  for (; itr!=this->end(); ++itr)
-    itr->second.Compress();
+  for (auto& [runno, run] : *this) run.Compress();
 }
 
