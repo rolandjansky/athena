@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_RawEvent/LUCID_Digit.h"
 #include "LUCID_EventTPCnv/LUCID_Digit_p1.h"
 #include "LUCID_EventTPCnv/LUCID_DigitCnv_p1.h"
 
-void LUCID_DigitCnv_p1::persToTrans(const LUCID_Digit_p1* persObj, LUCID_Digit* transObj, MsgStream &log) {
+void LUCID_DigitCnv_p1::persToTrans(const LUCID_Digit_p1* persObj, LUCID_Digit* transObj, MsgStream &log) const {
 
   log << MSG::DEBUG << " In LUCID_DigitCnv_p1::persToTrans " << endmsg;
   
@@ -19,7 +19,7 @@ void LUCID_DigitCnv_p1::persToTrans(const LUCID_Digit_p1* persObj, LUCID_Digit* 
                            false);
 }
 
-void LUCID_DigitCnv_p1::transToPers(const LUCID_Digit* transObj, LUCID_Digit_p1* persObj, MsgStream& log) {
+void LUCID_DigitCnv_p1::transToPers(const LUCID_Digit* transObj, LUCID_Digit_p1* persObj, MsgStream& log) const {
 
   log << MSG::DEBUG << " In LUCID_DigitCnv_p1::transToPers " << endmsg;
   

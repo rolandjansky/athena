@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_EventTPCnv/LUCID_DigitContainerCnv_p2.h"
 #include "GaudiKernel/MsgStream.h"
 
-static LUCID_DigitCnv_p2 digitConv_p2;
+static const LUCID_DigitCnv_p2 digitConv_p2;
 
-void LUCID_DigitContainerCnv_p2::transToPers(const LUCID_DigitContainer* transObj, LUCID_DigitContainer_p2* persObj, MsgStream& log) {
+void LUCID_DigitContainerCnv_p2::transToPers(const LUCID_DigitContainer* transObj, LUCID_DigitContainer_p2* persObj, MsgStream& log) const {
 
   log << MSG::DEBUG << "In LUCID_DigitContainerCnv_p2::transToPers" << endmsg;
   
@@ -21,7 +21,7 @@ void LUCID_DigitContainerCnv_p2::transToPers(const LUCID_DigitContainer* transOb
   }    
 }
 
-void LUCID_DigitContainerCnv_p2::persToTrans(const LUCID_DigitContainer_p2* persObj, LUCID_DigitContainer* transObj, MsgStream& log) {
+void LUCID_DigitContainerCnv_p2::persToTrans(const LUCID_DigitContainer_p2* persObj, LUCID_DigitContainer* transObj, MsgStream& log) const {
 
   log << MSG::DEBUG << "In LUCID_DigitContainerCnv_p2::persToTrans" << endmsg;
 
@@ -31,7 +31,7 @@ void LUCID_DigitContainerCnv_p2::persToTrans(const LUCID_DigitContainer_p2* pers
 
     const LUCID_Digit_p2* digit = &((*persObj)[i]);
     
-    transObj->push_back(digitConv_p2.createTransient(digit, log));
+    transObj->push_back(digitConv_p2.createTransientConst(digit, log));
   }    
 }
 

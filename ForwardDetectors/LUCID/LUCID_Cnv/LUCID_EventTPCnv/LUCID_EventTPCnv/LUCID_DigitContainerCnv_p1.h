@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGITCONTAINERCNV_P1_H
@@ -12,14 +12,16 @@
 
 class MsgStream;
 
-class LUCID_DigitContainerCnv_p1: public T_AthenaPoolTPCnvBase<LUCID_DigitContainer, LUCID_DigitContainer_p1> {
+class LUCID_DigitContainerCnv_p1: public T_AthenaPoolTPCnvConstBase<LUCID_DigitContainer, LUCID_DigitContainer_p1> {
   
  public:
-  
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
   LUCID_DigitContainerCnv_p1() {}
   
-  virtual void persToTrans(const LUCID_DigitContainer_p1* persObj, LUCID_DigitContainer*   transObj, MsgStream& log);
-  virtual void transToPers(const LUCID_DigitContainer*   transObj, LUCID_DigitContainer_p1* persObj, MsgStream& log);
+  virtual void persToTrans(const LUCID_DigitContainer_p1* persObj, LUCID_DigitContainer*   transObj, MsgStream& log)const override;
+  virtual void transToPers(const LUCID_DigitContainer*   transObj, LUCID_DigitContainer_p1* persObj, MsgStream& log)const override;
 };
 
 template<> class T_TPCnv<LUCID_DigitContainer, LUCID_DigitContainer_p1>: public LUCID_DigitContainerCnv_p1 {

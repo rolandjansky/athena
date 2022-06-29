@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCID_DIGITCNV_P2_H
@@ -11,14 +11,16 @@
 
 class MsgStream;
 
-class LUCID_DigitCnv_p2: public T_AthenaPoolTPCnvBase<LUCID_Digit, LUCID_Digit_p2> {
+class LUCID_DigitCnv_p2: public T_AthenaPoolTPCnvConstBase<LUCID_Digit, LUCID_Digit_p2> {
 
  public:
-  
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
   LUCID_DigitCnv_p2() {}
   
-  virtual void persToTrans(const LUCID_Digit_p2* persObj, LUCID_Digit*    transObj, MsgStream& log);
-  virtual void transToPers(const LUCID_Digit*   transObj, LUCID_Digit_p2* persObj , MsgStream& log);
+  virtual void persToTrans(const LUCID_Digit_p2* persObj, LUCID_Digit*    transObj, MsgStream& log) const override;
+  virtual void transToPers(const LUCID_Digit*   transObj, LUCID_Digit_p2* persObj , MsgStream& log) const override;
 };
 
 
