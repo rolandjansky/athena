@@ -1,5 +1,5 @@
 #include "../HTTLogicalHitsProcessAlg.h"
-#include "TrigHTTAlgorithms/HTTMapMakerAlg.h"
+#include "../HTTMapMakerAlg.h"
 #include "../HTTNNTrackTool.h"
 #include "../HTTOverlapRemovalTool.h"
 #include "../HTTTrackFitterTool.h"
