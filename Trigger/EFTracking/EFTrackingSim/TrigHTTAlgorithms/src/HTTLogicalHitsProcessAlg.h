@@ -57,7 +57,6 @@ class HTTLogicalHitsProcessAlg : public AthAlgorithm
     private:
 
         std::string m_description;
-        int m_histoPrintDetail = 0; // must be int type for gaudi
         int m_ev = 0;
 
         // Handles

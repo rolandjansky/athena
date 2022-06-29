@@ -20,7 +20,7 @@ atlas_add_library(
     LINK_LIBRARIES              ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} ${LWTNN_LIBRARIES}
                                 AthenaBaseComps GaudiKernel TrigHTTBanksLib TrigHTTConfToolsLib TrigHTTInputLib TrigHTTMapsLib TrigHTTObjectsLib 
                                 TrigHTTHoughLib TrigHTTLRTLib
-    PRIVATE_LINK_LIBRARIES      ${ROOT_LIBRARIES}
+    PRIVATE_LINK_LIBRARIES      ${ROOT_LIBRARIES} CxxUtils
 )
 
 atlas_add_component(
