@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,7 @@
 #include <iostream>
 #include <map>
 
-bool VP1HelperClassBase::s_vp1verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
+const bool VP1HelperClassBase::s_vp1verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
 
 //only filled in verbose mode:
 static std::map<VP1HelperClassBase*,QString> vp1helperclassbase_instanceMap;//instance -> systemname

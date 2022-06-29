@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -61,8 +61,8 @@ public:
 private:
   VP1Msg(){}
   ~VP1Msg(){}
-  static bool m_verbose;
-  static bool m_debug;
+  static std::atomic<bool> m_verbose;
+  static std::atomic<bool> m_debug;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,12 +18,12 @@
 #include <iostream>
 
 #ifndef BUILDVP1LIGHT   //TODO: Merge the two mechanisms, specifically for VP1
-  bool VP1Msg::m_verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
-  bool VP1Msg::m_debug = VP1QtUtils::environmentVariableIsOn("VP1_DEBUG_OUTPUT");
+  std::atomic<bool> VP1Msg::m_verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
+  std::atomic<bool> VP1Msg::m_debug = VP1QtUtils::environmentVariableIsOn("VP1_DEBUG_OUTPUT");
 #endif
 #ifdef BUILDVP1LIGHT
-  bool VP1Msg::m_verbose = VP1QtUtils::expertSettingIsSet("general", "ExpertSettings/VP1_VERBOSE_OUTPUT");
-  bool VP1Msg::m_debug = VP1QtUtils::expertSettingIsSet("general", "ExpertSettings/VP1_DEBUG_OUTPUT");
+  std::atomic<bool> VP1Msg::m_verbose = VP1QtUtils::expertSettingIsSet("general", "ExpertSettings/VP1_VERBOSE_OUTPUT");
+  std::atomic<bool> VP1Msg::m_debug = VP1QtUtils::expertSettingIsSet("general", "ExpertSettings/VP1_DEBUG_OUTPUT");
 #endif
 
 //____________________________________________________________________

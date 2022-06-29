@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -66,7 +66,7 @@ private:
 
   QString m_helpername;
   IVP1System * m_system;
-  static bool s_vp1verbose;
+  static const bool s_vp1verbose;
 };
 
 #endif
