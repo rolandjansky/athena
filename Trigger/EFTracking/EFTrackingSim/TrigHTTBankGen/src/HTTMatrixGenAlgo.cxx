@@ -449,16 +449,16 @@ HTTMatrixGenAlgo::selectHit_returnCode HTTMatrixGenAlgo::selectHit(HTTHit const 
     int  old_disk = 0;
     int  new_disk = 0;
     if (m_doHoughConstants) {
-      m_HTTMapping->PlaneMap_1st()->isEC(layer, old_section);
-      m_HTTMapping->PlaneMap_1st()->isEC(layer, new_section);
-      m_HTTMapping->PlaneMap_1st()->getLayerInfo(layer, old_section).physDisk;
-      m_HTTMapping->PlaneMap_1st()->getLayerInfo(layer, new_section).physDisk;
+      old_isEC = m_HTTMapping->PlaneMap_1st()->isEC(layer, old_section);
+      new_isEC = m_HTTMapping->PlaneMap_1st()->isEC(layer, new_section);
+      old_disk = m_HTTMapping->PlaneMap_1st()->getLayerInfo(layer, old_section).physDisk;
+      new_disk = m_HTTMapping->PlaneMap_1st()->getLayerInfo(layer, new_section).physDisk;
     }
     else {
-      m_HTTMapping->PlaneMap_2nd()->isEC(layer, old_section);
-      m_HTTMapping->PlaneMap_2nd()->isEC(layer, new_section);
-      m_HTTMapping->PlaneMap_2nd()->getLayerInfo(layer, old_section).physDisk;
-      m_HTTMapping->PlaneMap_2nd()->getLayerInfo(layer, new_section).physDisk;
+      old_isEC = m_HTTMapping->PlaneMap_2nd()->isEC(layer, old_section);
+      new_isEC = m_HTTMapping->PlaneMap_2nd()->isEC(layer, new_section);
+      old_disk = m_HTTMapping->PlaneMap_2nd()->getLayerInfo(layer, old_section).physDisk;
+      new_disk = m_HTTMapping->PlaneMap_2nd()->getLayerInfo(layer, new_section).physDisk;
     }
     // If one is barrel and one endcap, it's definitely OK, take the barrel hit
     if (old_isEC != new_isEC) {
