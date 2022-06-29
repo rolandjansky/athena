@@ -443,8 +443,8 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
       //if(m_zPlus<zMin || m_zMinus > zMax) return false;
       if(refCoordJ > zm) {//outer layer
 	
-	if(zm <= m_zMinus) return false;
-	
+	if(zm < m_zMinus) return false;
+	if(zm == m_zPlus) return false;
 	float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
 	if( m_zMinus > zMax) return false;
 	if (rm < minB) {
@@ -474,7 +474,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 	  float zMin = (zm*maxB-rm*refCoordJ)/(maxB-rm);
 	  if(m_zPlus<zMin) return false;
 	}
-
+	if(zm == m_zPlus || zm == m_zMinus) return false;
 	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
 	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
 	m_minCoord -= deltaRefCoord*rm/std::fabs(zm-m_zPlus);
@@ -491,7 +491,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
       if(refCoordJ < zm) {//outer layer
 
 	if(zm > m_zPlus) return false;
-	
+	if(zm == m_zMinus) return false;
 	float zMin = (zm*maxB-rm*refCoordJ)/(maxB-rm);
 	if( m_zPlus < zMin) return false;
 	if (rm<minB) {// otherwise, intersect of line from minB through middle sp will be on the wrong side of the layer
@@ -519,7 +519,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 	  float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
 	  if(m_zMinus>zMax) return false;
 	}
-
+	if(zm == m_zPlus || zm == m_zMinus) return false;
 	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
 	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
 	m_minCoord -= deltaRefCoord*rm/std::fabs(zm-m_zMinus);
