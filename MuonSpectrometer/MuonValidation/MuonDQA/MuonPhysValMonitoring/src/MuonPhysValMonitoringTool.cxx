@@ -10,29 +10,32 @@
 // PhysVal includes
 #include "MuonPhysValMonitoringTool.h"
 
-#include <math.h>
+
 
 #include "GaudiKernel/IToolSvc.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
-#include "TString.h"
+
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODCore/ShallowCopy.h"
-#include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/SlowMuon.h"
 #include "xAODMuon/SlowMuonAuxContainer.h"
 #include "xAODMuon/SlowMuonContainer.h"
-#include "xAODTrigMuon/L2CombinedMuon.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/L2StandAloneMuon.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
-#include "xAODTruth/TruthParticle.h"
+
 #include "xAODTruth/TruthVertexAuxContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "FourMomUtils/xAODP4Helpers.h"
+
+
+#include "TString.h"
+#include <cmath>
+#include <limits>
+
+
 namespace{
     using TrackLink = ElementLink<xAOD::TrackParticleContainer>;
     using MuonLink = ElementLink<xAOD::MuonContainer>;
@@ -907,12 +910,14 @@ namespace MuonPhysValMonitoring {
             }
             // fill plots
             for (unsigned int i = 0; i < m_selectMuonCategories.size(); i++) {
-                if (m_selectMuonCategories[i] == ALL || m_selectMuonCategories[i] == thisMuonCategory) {
+                if (m_selectMuonCategories[i] == ALL or m_selectMuonCategories[i] == thisMuonCategory) {
+                  if (mu_c){
                     // histos
                     m_muonValidationPlots[i]->fill(*mu_c, weight);
-                    if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu, *mu_c, weight);
+                    if (smu) m_slowMuonValidationPlots[i]->fill(*smu, *mu_c, weight);
                     // tree branches
                     m_muonValidationPlots[i]->fillTreeBranches(*mu_c);
+                  }
                 }
             }
         }
@@ -937,12 +942,13 @@ namespace MuonPhysValMonitoring {
 
         for (unsigned int i = 0; i < m_selectMuonCategories.size(); i++) {
             if (m_selectMuonCategories[i] == ALL) {
-                // histos
-                m_muonValidationPlots[i]->fill(*mu_c);
-                if (smu && mu_c) m_slowMuonValidationPlots[i]->fill(*smu, *mu_c, weight);
-                // tree branches
-                m_muonValidationPlots[i]->fillTreeBranches(*mu_c);
-                break;
+                if (mu_c){// histos
+                  m_muonValidationPlots[i]->fill(*mu_c);
+                  if (smu) m_slowMuonValidationPlots[i]->fill(*smu, *mu_c, weight);
+                  // tree branches
+                  m_muonValidationPlots[i]->fillTreeBranches(*mu_c);
+                  break;
+                }
             }
         }
     }
