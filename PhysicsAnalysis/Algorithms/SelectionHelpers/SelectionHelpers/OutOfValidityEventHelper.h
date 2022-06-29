@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -8,7 +8,7 @@
 #ifndef SELECTION_HELPERS__OUT_OF_VALIDITY_EVENT_HELPER_H
 #define SELECTION_HELPERS__OUT_OF_VALIDITY_EVENT_HELPER_H
 
-#include <AsgMessaging/MsgStream.h>
+#include <AsgMessaging/AsgMessagingForward.h>
 #include <AthContainers/AuxElement.h>
 #include <CxxUtils/AthUnlikelyMacros.h>
 #include <SelectionHelpers/ISelectionWriteAccessor.h>
@@ -32,7 +32,7 @@ namespace CP
   /// correct handling in all situations.  This helper allows to
   /// configure a variety of behaviors via properties.
 
-  class OutOfValidityEventHelper final
+  class OutOfValidityEventHelper final : public asg::AsgMessagingForward
   {
     /// \brief standard constructor
   public:
@@ -55,10 +55,6 @@ namespace CP
   private:
     unsigned m_action {unsigned (OutOfValidityAction::ABORT)};
 
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
     /// \brief whether we have been initialized
     ///
     /// This is only used in debug mode to indicate a programming
@@ -66,10 +62,6 @@ namespace CP
     /// initialize this object.
   private:
     bool m_isInitialized = false;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 
 
@@ -77,7 +69,7 @@ namespace CP
   template<typename T> OutOfValidityEventHelper ::
   OutOfValidityEventHelper (T *owner, const std::string& propertyName,
                        const std::string& propertyDescription)
-    : m_msg (&owner->msg())
+    : asg::AsgMessagingForward (owner)
   {
     owner->declareProperty (propertyName, m_action,
                             propertyDescription);
