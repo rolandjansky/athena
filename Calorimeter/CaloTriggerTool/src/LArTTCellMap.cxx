@@ -196,6 +196,11 @@ LArTTCellMap::createCellIDvec(const Identifier & sid) const
 
 }
 
+const LArTTCell_P* LArTTCellMap::getP() const
+{
+  return &m_persData;
+}
+
 LArTTCell_P* LArTTCellMap::getP()
 {
   return &m_persData;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRIGGERTOOL_LARTTCELLMAP_H
@@ -54,7 +54,10 @@ public:
   Identifier whichTTID(const Identifier & id) const; 
 
   /** return the persistified map */
-  LArTTCell_P* getP() ; 
+  const LArTTCell_P* getP() const ;
+
+  /** return the persistified map (non-const) */
+  LArTTCell_P* getP() ;
  
   /**  initialize from POOL */
   void set(  const LArTTCell_P& t ) ; 
