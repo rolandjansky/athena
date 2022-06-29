@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigComboHypoTool.h"
@@ -325,8 +325,8 @@ float TrigComboHypoTool::compute(const std::pair<KineInfo,KineInfo>& kinepair, C
       }
     case ComboHypoVars::MT:
       {
-        ROOT::Math::Polar2DVectorF p1(pt1,phi1), p2(pt2,phi2);
-        value = sqrt((p1+p2).Mag2())*invGeV; // Convert to GeV
+	//Transverse mass defined for semi-visible decays in hadron colliders. See PDG 49.6, section on kinematics
+	value = std::sqrt(2*pt1*pt2*(1-std::cos(xAOD::P4Helpers::deltaPhi(phi1,phi2) ) ) )*invGeV; // Convert to GeV
         break;
       }
     case ComboHypoVars::DETA:
