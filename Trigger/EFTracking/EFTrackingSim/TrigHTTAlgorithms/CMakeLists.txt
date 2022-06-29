@@ -1,33 +1,18 @@
-################################################################################
-# Package: TrigHTTAlgorithms
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigHTTAlgorithms )
 
-
 # External dependencies:
-find_package( Boost )
-find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Hist RIO )
 find_package( lwtnn )
 
 # Component(s) in the package:
-atlas_add_library(
-    TrigHTTAlgorithmsLib        src/*.cxx 
-    PUBLIC_HEADERS              TrigHTTAlgorithms
-    INCLUDE_DIRS                ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-    LINK_LIBRARIES              ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} ${LWTNN_LIBRARIES}
-                                AthenaBaseComps GaudiKernel TrigHTTBanksLib TrigHTTConfToolsLib TrigHTTInputLib TrigHTTMapsLib TrigHTTObjectsLib 
-                                TrigHTTHoughLib TrigHTTLRTLib
-    PRIVATE_LINK_LIBRARIES      ${ROOT_LIBRARIES} CxxUtils
-)
-
-atlas_add_component(
-    TrigHTTAlgorithms           src/components/*.cxx
-    INCLUDE_DIRS                ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES              TrigHTTAlgorithmsLib
-)
+atlas_add_component( TrigHTTAlgorithms
+   src/*.cxx
+   src/components/*.cxx
+   INCLUDE_DIRS   ${LWTNN_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${LWTNN_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel TrigHTTBanksLib TrigHTTConfToolsLib TrigHTTHoughLib TrigHTTInputLib TrigHTTLRTLib TrigHTTMapsLib TrigHTTObjectsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -1,6 +1,6 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#include "TrigHTTAlgorithms/HTTMapMakerAlg.h"
+#include "HTTMapMakerAlg.h"
 
 #include "TrigHTTInput/IHTTEventInputHeaderTool.h"
 #include "TH2.h"

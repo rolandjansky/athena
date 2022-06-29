@@ -1,5 +1,5 @@
 #include "../HTTMatrixGenAlgo.h"
-#include "TrigHTTBankGen/HTTConstGenAlgo.h"
+#include "../HTTConstGenAlgo.h"
 #include "../HTTMatrixReductionAlgo.h"
 #include "../HTTMatrixMergeAlgo.h"
 

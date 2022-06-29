@@ -24,7 +24,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
-#include "TrigHTTBankGen/HTTMatrixAccumulator.h"
+#include "HTTMatrixAccumulator.h"
 
 class TTree;
 

@@ -11,7 +11,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "HTTMatrixGenAlgo.h"
-#include "TrigHTTBankGen/HTTMatrixAccumulator.h"
+#include "HTTMatrixAccumulator.h"
 #include "TrigHTTConfTools/HTTRegionSlices.h"
 #include "TrigHTTObjects/HTTConstants.h"
 

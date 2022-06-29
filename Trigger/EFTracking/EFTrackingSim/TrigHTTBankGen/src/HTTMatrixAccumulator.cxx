@@ -7,7 +7,7 @@
  * @brief Helper struct and functions for accumulating sector information for matrix generation.
  */
 
-#include "TrigHTTBankGen/HTTMatrixAccumulator.h"
+#include "HTTMatrixAccumulator.h"
 
 
 /**
