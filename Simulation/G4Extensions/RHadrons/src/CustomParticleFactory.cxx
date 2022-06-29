@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -17,18 +17,22 @@
 #include "G4DecayTable.hh"
 #include "G4PhaseSpaceDecayChannel.hh"
 
-bool CustomParticleFactory::loaded = false;
-std::set<G4ParticleDefinition *> CustomParticleFactory::m_particles;
-
 bool CustomParticleFactory::isCustomParticle(G4ParticleDefinition *particle)
 {
-  return (m_particles.find(particle)!=m_particles.end());
+  static const std::set<G4ParticleDefinition *> particles = load();
+  return (particle!=nullptr && particles.find(particle)!=particles.end());
 }
 
 void CustomParticleFactory::loadCustomParticles()
 {
-  if(loaded) return;
-  loaded = true;
+  // tickle the loading of the particles if it wasn't done yet
+  isCustomParticle(nullptr);
+}
+
+std::set<G4ParticleDefinition *> CustomParticleFactory::load()
+{
+  std::set<G4ParticleDefinition *> particles;
+
   std::ifstream configFile("particles.txt");
   G4String pType="custom";
   G4String pSubType="";
@@ -117,7 +121,7 @@ void CustomParticleFactory::loadCustomParticles()
             <<G4endl;
     }
 
-    m_particles.insert(particle);
+    particles.insert(particle);
   }
   configFile.close();
 
@@ -132,7 +136,7 @@ void CustomParticleFactory::loadCustomParticles()
   decayFile.close();
 
   // Looping over custom particles to add decays
-  for (std::set<G4ParticleDefinition *>::iterator part=m_particles.begin();part!=m_particles.end();part++) {
+  for (std::set<G4ParticleDefinition *>::iterator part=particles.begin();part!=particles.end();part++) {
     name=(*part)->GetParticleName();
     std::vector<std::vector<std::string> > mydecays;
     for (unsigned int i = 0; i!= decays.size(); i++){
@@ -163,5 +167,5 @@ void CustomParticleFactory::loadCustomParticles()
       (*part)->SetDecayTable(table);
     }
   }
-  return;
+  return particles;
 }
