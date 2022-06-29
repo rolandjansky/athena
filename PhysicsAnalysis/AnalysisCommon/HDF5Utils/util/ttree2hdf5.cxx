@@ -29,6 +29,8 @@ int run(int argc, char* argv[]) {
   using namespace H5Utils;
   AppOpts opts = getTreeCopyOpts(argc, argv);
 
+  if (opts.exit_code != 0) return opts.exit_code;
+
   // Read in the root tree. We pick whatever tree is on the top level
   // of the file. If there are two we throw an error.
   std::string tree_name = opts.file.tree;

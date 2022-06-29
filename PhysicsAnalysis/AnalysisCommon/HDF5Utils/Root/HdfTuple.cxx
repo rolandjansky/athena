@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "HDF5Utils/HdfTuple.h"
 #include "HDF5Utils/common.h"
@@ -36,8 +36,6 @@ namespace H5Utils {
 // _______________________________________________________________________
 // Xd writter
 //
-
-  std::vector<size_t> WriterXd::s_NONE = {};
 
   WriterXd::WriterXd(H5::Group& group, const std::string& name,
                      VariableFillers fillers,

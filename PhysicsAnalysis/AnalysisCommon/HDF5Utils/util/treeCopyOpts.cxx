@@ -59,12 +59,12 @@ namespace H5Utils {
                 .positional(pos_opts).run(), vm);
       if ( vm.count("help") ) {
         std::cout << opt << std::endl;
-        exit(1);
+        app.exit_code = 1;
       }
       po::notify(vm);
     } catch (po::error& err) {
       std::cerr << usage << "ERROR: " << err.what() << std::endl;
-      exit(1);
+      app.exit_code = 1;
     }
     return app;
   }

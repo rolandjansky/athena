@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TREE_COPY_OPTS_HH
@@ -36,6 +36,7 @@ namespace H5Utils {
   {
     TreeCopyOpts tree;
     IOOpts file;
+    int exit_code{0};
   };
 
   AppOpts getTreeCopyOpts(int argc, char* argv[]);

@@ -1,6 +1,6 @@
 // this is -*- C++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HDF_TUPLE_HH
@@ -161,11 +161,10 @@ namespace H5Utils {
     WriterXd& operator=(WriterXd&) = delete;
     ~WriterXd();
     void fillWhileIncrementing(
-      std::vector<size_t>& indices = WriterXd::s_NONE);
+      std::vector<size_t>& indices);
     void flush();
     size_t index() const;
   private:
-    static std::vector<size_t> s_NONE;
     hsize_t buffer_size() const;
     H5::CompType m_type;
     std::vector<hsize_t> m_max_length;

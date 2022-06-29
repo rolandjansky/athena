@@ -139,6 +139,7 @@ namespace H5Utils {
 
     // This is the 1d variables
     VariableFillers vars;
+    std::vector<size_t> idx_dummy;
 
     // These are 2d variables (i.e. vector<T> in the root file)
     //
@@ -296,7 +297,7 @@ namespace H5Utils {
       tt.GetEntry(iii);
       if(cut) cut->UpdateFormulaLeaves();
       if (!passTTreeCut(cut)) continue;
-      if (writer1d) writer1d->fillWhileIncrementing();
+      if (writer1d) writer1d->fillWhileIncrementing(idx_dummy);
       if (writer2d) writer2d->fillWhileIncrementing(idx);
       if (writer3d) writer3d->fillWhileIncrementing(idx2);
     }
