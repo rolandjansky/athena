@@ -1112,12 +1112,13 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg, MuonSeededSegmentFinderCfg
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg
-
+    from MuonConfig.MuonSegmentFindingConfig import MuonLayerHoughAlgCfg
     kwargs.setdefault("DoSummary", flags.Muon.printSummary)
     kwargs.setdefault("ConsideredPDGs", [13, -13, 1000015, -1000015])
     kwargs.setdefault("DoTruth", flags.Input.isMC)
 
     result = MuonEDMPrinterToolCfg(flags)
+    result.merge(MuonLayerHoughAlgCfg(flags))
     # Not setting up MuonIdHelperSvc nor MuonEDMHelperSvc
     kwargs.setdefault("MuonEDMPrinterTool"  , result.getPrimary())
     kwargs.setdefault("MuonPRDSelectionTool", result.popToolsAndMerge(MuonPRDSelectionToolCfg(flags)))
