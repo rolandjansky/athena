@@ -61,14 +61,14 @@ private:
     SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+
     /** TMP special ROB number for sector13 runs*/
     int m_specialROBNumber{-1};
 
     bool m_BMEpresent{false};
-    bool m_BMGpresent{false};
     int m_BMEid{-1};
-    int m_BMGid{-1};
-
+   
     // variables to count how often the caching kicks in
     // Mutable as this is just to count calls of const function
     mutable std::atomic_uint m_nCache ATLAS_THREAD_SAFE = 0;
