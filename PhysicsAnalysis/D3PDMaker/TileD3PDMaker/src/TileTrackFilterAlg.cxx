@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -18,7 +18,6 @@ TileTrackFilterAlg::TileTrackFilterAlg( const std::string& name,ISvcLocator* pSv
     AthAlgorithm( name, pSvcLocator ),
     m_track_iso_tool("TrackIsolationTool"){
 //==============================================================================================
-    m_outputCont = 0;
     declareProperty("track_iso_tool", m_track_iso_tool );
     declareProperty("InputTracksName", m_trackContainerName = "TrackParticleCandidate"); // INPUT TRACK CONTAINER
     declareProperty("OutputTracksName", m_outputTracksName = "SelectedTracks"); // OUTPUT TRACK CONTAINER
@@ -47,8 +46,8 @@ StatusCode TileTrackFilterAlg::execute(){
 //=======================================
 
     // TRACKPARTICLE OUTPUT CONTAINER
-    m_outputCont = new TRACKCONTAINER( SG::VIEW_ELEMENTS );
-    CHECK( evtStore()->record( m_outputCont, m_outputTracksName ) );
+    auto outputCont = new ConstDataVector<TRACKCONTAINER>( SG::VIEW_ELEMENTS );
+    CHECK( evtStore()->record( outputCont, m_outputTracksName ) );
     
     // NUMBER OF TRACKPARTICLECANDIDATES
     int counter = 0;
@@ -77,8 +76,8 @@ StatusCode TileTrackFilterAlg::execute(){
             } // IF
             // CHECK WHETHER TRACK SHOULD BE ACCEPTED
             if(accept(trackPointer)){
-                if(std::find(m_outputCont->begin(),m_outputCont->end(),trackPointer) == m_outputCont->end()){
-                    m_outputCont->push_back(const_cast<TRACK*>(trackPointer));
+                if(std::find(outputCont->begin(),outputCont->end(),trackPointer) == outputCont->end()){
+                    outputCont->push_back(trackPointer);
                     ++counter;
                 } // IF
             } // IF
