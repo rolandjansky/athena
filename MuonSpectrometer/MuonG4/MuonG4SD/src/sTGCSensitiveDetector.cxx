@@ -56,7 +56,7 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 
   if (depositEnergy<0.0001 && (!geantinoHit)) return false;
 
-  G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+  const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 
   // int iDepth=touchHist->GetHistoryDepth();
   //  G4cout << "\t\t\t\t Touchable history dump "<<G4endl;

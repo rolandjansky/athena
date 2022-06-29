@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSensitiveDetector.h"
@@ -52,7 +52,7 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
     }
   }
 
-  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+  const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
   G4ThreeVector           position  = aStep->GetPreStepPoint()->GetPosition();
   G4ThreeVector           postPosition  = aStep->GetPostStepPoint()->GetPosition();
   const G4AffineTransform trans     = track->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
