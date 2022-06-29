@@ -26,7 +26,7 @@ atlas_install_scripts( test/HTTInputTestSetup.sh )
 atlas_add_test( HTTRegionSlices_test
    SOURCES        test/HTTRegionSlices_test.cxx
    INCLUDE_DIRS   ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver TrigHTTConfToolsLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TrigHTTConfToolsLib )
 
 atlas_add_test( HTTEventSelectionSvc_test
                 SCRIPT python -m TrigHTTConfTools.HTTConfigCompInit
