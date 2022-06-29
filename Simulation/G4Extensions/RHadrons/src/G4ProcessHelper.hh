@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RHADRONS_G4PROCESSHELPER_HH
@@ -25,10 +25,10 @@ class G4ProcessHelper {
 public:
   static G4ProcessHelper* Instance();
 
-  G4bool ApplicabilityTester(const G4ParticleDefinition& aPart);
+  G4bool ApplicabilityTester(const G4ParticleDefinition& aPart) const;
 
   G4double GetInclusiveCrossSection(const G4DynamicParticle *aParticle,
-                                    const G4Element *anElement);
+                                    const G4Element *anElement) const;
 
   //Make sure the element is known (for n/p-decision)
   ReactionProduct GetFinalState(const G4Track& aTrack,G4ParticleDefinition*& aTarget);
@@ -51,8 +51,6 @@ private:
   G4ParticleDefinition* theRbaryoncloud;
 
   ReactionMap* theReactionMap;
-
-  static G4ProcessHelper* pinstance;
 
   // Version where we know if we baryonize already
   ReactionProduct GetFinalStateInternal(const G4Track& aTrack,G4ParticleDefinition*& aTarget, const bool baryonize_failed);
