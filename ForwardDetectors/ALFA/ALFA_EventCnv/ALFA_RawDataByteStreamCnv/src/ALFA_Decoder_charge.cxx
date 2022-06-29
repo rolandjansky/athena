@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawDataByteStreamCnv/ALFA_Decoder_charge.h"
@@ -479,7 +479,6 @@ msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::getCollection" << endmsg;
     }
   }
   if (collExists) {
-    coll = const_cast<ALFA_RawDataCollection_charge*>(&**cont_it);
     msg(MSG::DEBUG) << " Collection exists " << endmsg;
     return 0;
 
