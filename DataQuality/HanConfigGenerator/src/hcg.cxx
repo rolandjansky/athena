@@ -39,7 +39,8 @@
 
 #include "TPad.h"
 
-
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // standalone app
 
 /// file names and file pointers
 std::vector<std::string> files;
