@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_RawEvent/LUCID_RawData.h"
@@ -7,7 +7,7 @@
 #include "LUCID_EventTPCnv/LUCID_RawData_p1.h"
 #include "LUCID_EventTPCnv/LUCID_RawDataCnv_p1.h"
 
-void LUCID_RawDataCnv_p1::persToTrans(const LUCID_RawData_p1* persObj, LUCID_RawData* transObj, MsgStream &log) {
+void LUCID_RawDataCnv_p1::persToTrans(const LUCID_RawData_p1* persObj, LUCID_RawData* transObj, MsgStream &log) const {
 
   log << MSG::DEBUG << "In LUCID_RawDataCnv_p1:persToTrans" << endmsg;
   
@@ -29,7 +29,7 @@ void LUCID_RawDataCnv_p1::persToTrans(const LUCID_RawData_p1* persObj, LUCID_Raw
   transObj->setStatus (persObj->m_status);
 }
 
-void LUCID_RawDataCnv_p1::transToPers(const LUCID_RawData* transObj, LUCID_RawData_p1* persObj, MsgStream &log) {
+void LUCID_RawDataCnv_p1::transToPers(const LUCID_RawData* transObj, LUCID_RawData_p1* persObj, MsgStream &log) const {
   
   log << MSG::DEBUG << "In LUCID_RawDataCnv_p1:transToPers" << endmsg;
   
