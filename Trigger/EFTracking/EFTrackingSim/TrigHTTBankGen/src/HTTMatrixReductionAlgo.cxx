@@ -154,7 +154,6 @@ std::pair<std::vector<size_t>, std::vector<size_t>> HTTMatrixReductionAlgo::matc
         }
     }
 
-  assert(layer_1st == m_pmap_1st->getNLogiLayers());
   assert(iCoord_1st == m_pmap_1st->getNCoords());
   return { layers_1st_to_2nd, coords_1st_to_2nd };
 }
