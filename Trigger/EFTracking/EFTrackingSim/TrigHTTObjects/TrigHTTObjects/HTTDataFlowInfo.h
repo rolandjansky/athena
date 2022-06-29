@@ -14,8 +14,9 @@
 #include <iostream>
 #include <vector>
 
-struct HTTDataFlowInfo
+class HTTDataFlowInfo
 {
+public:
     std::vector<size_t> nMappedHits_1st_layer; // Number of 1st stage mapped hits for each layer. Size = Number of 1st stage layers
     size_t nMappedHits_1st_total;              // Number of 1st stage mapped hits for all layers
 
