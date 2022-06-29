@@ -11,17 +11,11 @@
 
 #include <map>
 #include <string>
-typedef std::map<const GeoMaterial* , G4Material*, std::less<const GeoMaterial*> > matList;
-typedef std::map<std::string, const GeoMaterial*, std::less<std::string> > matNames;
 
 class Geo2G4MaterialFactory : public AthMessaging {
 public:
   Geo2G4MaterialFactory();
   G4Material* Build(const GeoMaterial*);
-
-private:
-  static matList m_geoMaterialToG4Material;
-  static matNames m_geoMaterialNameToObject;
 };
 
 #endif

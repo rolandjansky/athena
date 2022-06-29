@@ -12,9 +12,10 @@
 
 #include "G4Material.hh"
 
-
-matList  Geo2G4MaterialFactory::m_geoMaterialToG4Material;
-matNames Geo2G4MaterialFactory::m_geoMaterialNameToObject;
+namespace {
+  typedef std::map<const GeoMaterial* , G4Material*, std::less<const GeoMaterial*> > matList;
+  typedef std::map<std::string, const GeoMaterial*, std::less<std::string> > matNames;
+}
 
 Geo2G4MaterialFactory::Geo2G4MaterialFactory() :
   AthMessaging("Geo2G4MaterialFactory")
@@ -23,14 +24,16 @@ Geo2G4MaterialFactory::Geo2G4MaterialFactory() :
 
 G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
 {
-  static Geo2G4ElementFactory eFactory;
-  Geo2G4MatPropTableFactory* tFactory = Geo2G4MatPropTableFactory::instance();
+  // Material caches
+  static matList geoMaterialToG4Material;
+  static matNames geoMaterialNameToObject;
 
   //
   // Check if this material has already been defined.
   //
-  if(m_geoMaterialToG4Material.find(geoMaterial) != m_geoMaterialToG4Material.end()) {
-    return m_geoMaterialToG4Material[geoMaterial];
+  const auto itr = geoMaterialToG4Material.find(geoMaterial);
+  if(itr != geoMaterialToG4Material.end()) {
+    return itr->second;
   }
 
   const std::string& geoMaterialName = geoMaterial->getName();
@@ -77,6 +80,7 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
     const GeoMaterialPropertiesTable* geoPropTable = extMat->GetMaterialPropertiesTable();
 
     if(geoPropTable) {
+      Geo2G4MatPropTableFactory* tFactory = Geo2G4MatPropTableFactory::instance();
       G4MaterialPropertiesTable* g4PropTable = tFactory->Build(geoPropTable);
       if(g4PropTable) {
         g4Material->SetMaterialPropertiesTable(g4PropTable);
@@ -89,6 +93,7 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
                                nelements);
   }
 
+  static Geo2G4ElementFactory eFactory;
   for (int ii = 0; ii< nelements; ii++)  {
     G4Element* g4Element = eFactory.Build(geoMaterial->getElement(ii));
     g4Material->AddElement(g4Element, geoMaterial->getFraction(ii));
@@ -104,20 +109,19 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
   }
   if ( copyIndex.size() > 1 ) {
     ATH_MSG_WARNING ( "Details of all G4Materials named " << g4MaterialName << " in the G4MaterialTable.");
-    for (const auto& index : copyIndex) {
+    for (size_t index : copyIndex) {
       ATH_MSG_WARNING ( "G4Material at position "<< index<<" in the G4MaterialTable: \n" << *(theMaterialTable[index]));
     }
   }
 
 
-  m_geoMaterialToG4Material[geoMaterial]=g4Material;
+  geoMaterialToG4Material[geoMaterial]=g4Material;
 
   // Check if we have the situation when on GeoModel side two different
   // materials share the same name.
   // Print a WARNING message if so.
-  if(m_geoMaterialNameToObject.find(geoMaterialName)==m_geoMaterialNameToObject.end())
-    m_geoMaterialNameToObject[geoMaterialName] = geoMaterial;
-  else if(m_geoMaterialNameToObject[geoMaterialName] != geoMaterial) {
+  const auto [it, inserted] = geoMaterialNameToObject.try_emplace(geoMaterialName, geoMaterial);
+  if(!inserted) {
     ATH_MSG_WARNING ( "!!! On GeoModel side two different materials share the name: " << geoMaterialName );
   }
 
