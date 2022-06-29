@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrEvent.h"
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrEvent_p1.h"
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrEventCnv_p1.h"
 
-void ALFA_LocRecCorrEventCnv_p1::persToTrans(const ALFA_LocRecCorrEvent_p1* persObj, ALFA_LocRecCorrEvent* transObj, MsgStream &log)
+void ALFA_LocRecCorrEventCnv_p1::persToTrans(const ALFA_LocRecCorrEvent_p1* persObj, ALFA_LocRecCorrEvent* transObj, MsgStream &log) const
 {
 	log << MSG::DEBUG << "ALFA_LocRecCorrEventCnv_p1::persToTrans called " << endmsg;
 
@@ -26,7 +26,7 @@ void ALFA_LocRecCorrEventCnv_p1::persToTrans(const ALFA_LocRecCorrEvent_p1* pers
  
 void ALFA_LocRecCorrEventCnv_p1::transToPers(const ALFA_LocRecCorrEvent* transObj, 
                                        ALFA_LocRecCorrEvent_p1* persObj, 
-                                       MsgStream &log)
+                                       MsgStream &log) const
 {
 	log << MSG::DEBUG << "ALFA_LocRecCorrEventCnv_p1::transToPers called " << endmsg;
 

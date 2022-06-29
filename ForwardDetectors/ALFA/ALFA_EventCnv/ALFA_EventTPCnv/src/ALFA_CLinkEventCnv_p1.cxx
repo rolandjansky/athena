@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_CLinkEv/ALFA_CLinkEvent.h"
 #include "ALFA_EventTPCnv/ALFA_CLinkEvent_p1.h"
 #include "ALFA_EventTPCnv/ALFA_CLinkEventCnv_p1.h"
 
-void ALFA_CLinkEventCnv_p1::persToTrans(const ALFA_CLinkEvent_p1* persObj, ALFA_CLinkEvent* transObj, MsgStream &log)
+void ALFA_CLinkEventCnv_p1::persToTrans(const ALFA_CLinkEvent_p1* persObj, ALFA_CLinkEvent* transObj, MsgStream &log) const
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CLinkEventCnv_p1");
 	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv_p1::persToTrans"<<endmsg;
@@ -47,8 +47,7 @@ void ALFA_CLinkEventCnv_p1::persToTrans(const ALFA_CLinkEvent_p1* persObj, ALFA_
 	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv_p1::persToTrans"<<endmsg;
 }
  
-void ALFA_CLinkEventCnv_p1::transToPers(const ALFA_CLinkEvent* transObj, ALFA_CLinkEvent_p1* persObj,MsgStream &log)
-{
+void ALFA_CLinkEventCnv_p1::transToPers(const ALFA_CLinkEvent* transObj, ALFA_CLinkEvent_p1* persObj,MsgStream &log) const {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CLinkEventCnv_p1");
 	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv_p1::transToPers"<<endmsg;
 

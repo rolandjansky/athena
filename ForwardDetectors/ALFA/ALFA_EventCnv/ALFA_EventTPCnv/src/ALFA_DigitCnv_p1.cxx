@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawEv/ALFA_Digit.h"
 #include "ALFA_EventTPCnv/ALFA_Digit_p1.h"
 #include "ALFA_EventTPCnv/ALFA_DigitCnv_p1.h"
 
-void ALFA_DigitCnv_p1::persToTrans(const ALFA_Digit_p1* persObj, ALFA_Digit* transObj, MsgStream &log)
+void ALFA_DigitCnv_p1::persToTrans(const ALFA_Digit_p1* persObj, ALFA_Digit* transObj, MsgStream &log) const
 {
    log << MSG::DEBUG << "ALFA_DigitCnv_p1::persToTrans called " << endmsg;
 
@@ -18,7 +18,7 @@ void ALFA_DigitCnv_p1::persToTrans(const ALFA_Digit_p1* persObj, ALFA_Digit* tra
  
 void ALFA_DigitCnv_p1::transToPers(const ALFA_Digit* transObj, 
                                        ALFA_Digit_p1* persObj, 
-                                       MsgStream &log)
+                                       MsgStream &log) const
 {
    log << MSG::DEBUG << "ALFA_DigitCnv_p1::transToPers called " << endmsg;
     persObj->m_plate       = transObj->getPlate();

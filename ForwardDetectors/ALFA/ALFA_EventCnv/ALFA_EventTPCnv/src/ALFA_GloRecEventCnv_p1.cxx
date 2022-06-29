@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_GloRecEv/ALFA_GloRecEvent.h"
@@ -8,7 +8,7 @@
 
 
 
-void ALFA_GloRecEventCnv_p1::persToTrans(const ALFA_GloRecEvent_p1* persObj, ALFA_GloRecEvent* transObj, MsgStream &log)
+void ALFA_GloRecEventCnv_p1::persToTrans(const ALFA_GloRecEvent_p1* persObj, ALFA_GloRecEvent* transObj, MsgStream &log) const
 {
    log << MSG::DEBUG << "ALFA_GloRecEventCnv_p1::persToTrans called - version with pointers to LocRecCorr " << endmsg;
    *transObj = ALFA_GloRecEvent (persObj->m_arm,
@@ -26,7 +26,7 @@ void ALFA_GloRecEventCnv_p1::persToTrans(const ALFA_GloRecEvent_p1* persObj, ALF
  
 void ALFA_GloRecEventCnv_p1::transToPers(const ALFA_GloRecEvent* transObj, 
                                        ALFA_GloRecEvent_p1* persObj, 
-                                       MsgStream &log)
+                                       MsgStream &log) const
 {
    log << MSG::DEBUG << "ALFA_GloRecEventCnv_p1::transToPers called - version with pointers to LocRecCorr " << endmsg;
    persObj->m_arm       = transObj->getArmNum();

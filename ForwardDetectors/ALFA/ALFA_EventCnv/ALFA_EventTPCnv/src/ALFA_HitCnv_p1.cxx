@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_SimEv/ALFA_Hit.h"
@@ -7,7 +7,7 @@
 #include "ALFA_EventTPCnv/ALFA_HitCnv_p1.h"
 
 
-void ALFA_HitCnv_p1::persToTrans(const ALFA_Hit_p1* persObj, ALFA_Hit* transObj, MsgStream &log)
+void ALFA_HitCnv_p1::persToTrans(const ALFA_Hit_p1* persObj, ALFA_Hit* transObj, MsgStream &log) const
 {
    log << MSG::DEBUG << "ALFA_HitCnv_p1::persToTrans called " << endmsg;
    
@@ -34,7 +34,7 @@ void ALFA_HitCnv_p1::persToTrans(const ALFA_Hit_p1* persObj, ALFA_Hit* transObj,
  
 void ALFA_HitCnv_p1::transToPers(const ALFA_Hit* transObj, 
                                        ALFA_Hit_p1* persObj, 
-                                       MsgStream &log)
+                                       MsgStream &log) const
 {
    log << MSG::DEBUG << "ALFA_HitCnv_p1::transToPers called " << endmsg;
  //  HepMcParticleLinkCnv_p1 HepMcPLCnv;

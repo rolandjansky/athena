@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawEv/ALFA_RawData.h"
 #include "GaudiKernel/MsgStream.h"
 #include "ALFA_EventTPCnv/ALFA_RawDataCnv_p1.h"
 
-void ALFA_RawDataCnv_p1::persToTrans(const ALFA_RawData_p1* persObj, 
-ALFA_RawData* transObj, MsgStream &log) {
+void ALFA_RawDataCnv_p1::persToTrans(const ALFA_RawData_p1* persObj, ALFA_RawData* transObj, MsgStream &log) const {
 
 
   log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:persToTrans called" << endmsg;
@@ -25,7 +24,7 @@ ALFA_RawData* transObj, MsgStream &log) {
  
   }
 
-void ALFA_RawDataCnv_p1::transToPers(const ALFA_RawData* transObj, ALFA_RawData_p1* persObj, MsgStream &log) {
+void ALFA_RawDataCnv_p1::transToPers(const ALFA_RawData* transObj, ALFA_RawData_p1* persObj, MsgStream &log) const {
 
   
   log << MSG::DEBUG << "In ALFA_RawDataCnv_p1:transToPers called" << endmsg;

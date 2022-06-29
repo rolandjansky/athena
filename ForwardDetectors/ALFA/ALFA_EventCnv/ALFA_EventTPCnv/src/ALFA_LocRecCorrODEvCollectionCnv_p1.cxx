@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrODEvCollectionCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
  
-static ALFA_LocRecCorrODEventCnv_p1 recConv;
+static const ALFA_LocRecCorrODEventCnv_p1 recConv;
  
-void ALFA_LocRecCorrODEvCollectionCnv_p1::transToPers(const ALFA_LocRecCorrODEvCollection* transObj, ALFA_LocRecCorrODEvCollection_p1* persObj, MsgStream& log) {
+void ALFA_LocRecCorrODEvCollectionCnv_p1::transToPers(const ALFA_LocRecCorrODEvCollection* transObj, ALFA_LocRecCorrODEvCollection_p1* persObj, MsgStream& log) const {
    
   persObj->resize(transObj->size());
    
@@ -19,7 +19,7 @@ void ALFA_LocRecCorrODEvCollectionCnv_p1::transToPers(const ALFA_LocRecCorrODEvC
   }    
 }
  
-void ALFA_LocRecCorrODEvCollectionCnv_p1::persToTrans(const ALFA_LocRecCorrODEvCollection_p1* persObj, ALFA_LocRecCorrODEvCollection* transObj, MsgStream& log) {
+void ALFA_LocRecCorrODEvCollectionCnv_p1::persToTrans(const ALFA_LocRecCorrODEvCollection_p1* persObj, ALFA_LocRecCorrODEvCollection* transObj, MsgStream& log) const {
  
   transObj->reserve(persObj->size());
    
@@ -27,7 +27,6 @@ void ALFA_LocRecCorrODEvCollectionCnv_p1::persToTrans(const ALFA_LocRecCorrODEvC
  
     const ALFA_LocRecCorrODEvent_p1* locRec = &((*persObj)[i]);
      
-    transObj->push_back(recConv.createTransient(locRec, log));
+    transObj->push_back(recConv.createTransientConst(locRec, log));
   }    
 }
- 
