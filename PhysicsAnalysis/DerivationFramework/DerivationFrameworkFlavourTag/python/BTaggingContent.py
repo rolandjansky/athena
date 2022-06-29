@@ -57,7 +57,11 @@ BTaggingStandardAux = \
     , "dipsLoose20220314v2flip_pu"
     , "dipsLoose20220314v2flip_pc"
     , "dipsLoose20220314v2flip_pb"
-    
+
+    , "GN120220509_pb"
+    , "GN120220509_pc"
+    , "GN120220509_pu"
+
     ]
 
 # These are the inputs to DL1rmu + SMT
@@ -148,7 +152,9 @@ BTaggingHighLevelAux = [
     , "DL1d20210824r22_pc"
     , "DL1d20210824r22_pb"    
 
-    
+    , "GN120220509_pb"
+    , "GN120220509_pc"
+    , "GN120220509_pu"
     
 ]
 

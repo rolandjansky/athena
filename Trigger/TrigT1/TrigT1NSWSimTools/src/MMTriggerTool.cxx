@@ -158,7 +158,7 @@ namespace NSWL1 {
             m_trigger_truePhi->push_back(ppos);
             m_trigger_trueDth->push_back(dt);
           }
-        } else ATH_MSG_WARNING( "Extra reco particle with no truth candidate available" );
+        } else ATH_MSG_DEBUG( "Extra reco particle with no truth candidate available" );
       }
       // Now let's switch to reco hits: firstly, extracting the station name we're working on...
       std::string station = "-";
@@ -307,7 +307,7 @@ namespace NSWL1 {
                   rdo->push_back(trigRawData);
                 }
                 ATH_MSG_DEBUG("Filled MM RDO container now having size: " << rdo->size() << ". Clearing event information!");
-              } else ATH_MSG_WARNING("No output slopes to store");
+              } else ATH_MSG_DEBUG("No output slopes to store");
             }
           } else {
             //////////////////////////////////////////////////////////////

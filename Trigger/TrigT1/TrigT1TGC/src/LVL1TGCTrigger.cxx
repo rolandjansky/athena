@@ -1426,7 +1426,6 @@ StatusCode LVL1TGCTrigger::fillBIS78(){
 	  );
       }
     }
-    bis78->print();    // just for test
 
     if(sc.isFailure()){
       ATH_MSG_WARNING("Couldn't retrieve RPC BIS78 trigger output");

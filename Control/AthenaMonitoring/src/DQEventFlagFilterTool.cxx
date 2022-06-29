@@ -19,6 +19,7 @@ StatusCode DQEventFlagFilterTool::initialize()
   // don't register callback if we always return true anyway
   ATH_CHECK( m_EventInfoKey.initialize(!m_alwaysReturnTrue) );
   ATH_CHECK( m_TileStatusKey.initialize(!m_alwaysReturnTrue) );
+  ATH_CHECK( m_larFlag.initialize(!m_alwaysReturnTrue) );
   return StatusCode::SUCCESS;
 }
 

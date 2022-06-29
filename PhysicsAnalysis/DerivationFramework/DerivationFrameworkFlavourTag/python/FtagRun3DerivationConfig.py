@@ -126,10 +126,12 @@ def getFtagComponent(cfgFlags, jetcol, pvCol):
         PrimaryVertexCollectionName=pvCol,
     ))
 
+    # decorate tracks with leptonID
     acc.addEventAlgo(CompFactory.FlavorTagDiscriminants.TrackLeptonDecoratorAlg(
         'TrackLeptonDecoratorAlg',
         trackContainer=track_collection,
     ))
+
     if cfgFlags.Input.isMC:
         acc.addEventAlgo(CompFactory.FlavorTagDiscriminants.TrackTruthDecoratorAlg(
             'TrackTruthDecoratorAlg',
