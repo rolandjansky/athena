@@ -22,11 +22,11 @@ public:
     NswAsBuiltDbData(){};
     virtual ~NswAsBuiltDbData() = default;
 
-    inline void setMmData(const std::string data){ 
+    inline void setMmData(const std::string& data){ 
         m_MmData.assign(data); 
         m_MmIsSet = true; 
     };
-    inline void setSTgcData(const std::string data){ 
+    inline void setSTgcData(const std::string& data){ 
         m_sTgcData.assign(data); 
         m_sTgcIsSet = true; 
     };
