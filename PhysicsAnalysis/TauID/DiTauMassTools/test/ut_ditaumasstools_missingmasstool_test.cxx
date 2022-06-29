@@ -66,7 +66,7 @@ int main() {
 
    // Connect an input file to the event:
    
-   const char *FNAME = getenv("ASG_TEST_FILE_MC");
+   const char *FNAME = getenv("ASG_TEST_FILE_MC_OLD");
 
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
 

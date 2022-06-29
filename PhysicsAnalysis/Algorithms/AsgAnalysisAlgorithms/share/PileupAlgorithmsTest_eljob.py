@@ -30,7 +30,7 @@ import os
 sh = ROOT.SH.SampleHandler()
 sh.setMetaString( 'nc_tree', 'CollectionTree' )
 sample = ROOT.SH.SampleLocal (dataType)
-sample.add (os.getenv ("ASG_TEST_FILE_MC"))
+sample.add (os.getenv ("ASG_TEST_FILE_MC_OLD"))
 sh.add (sample)
 sh.printContent()
 

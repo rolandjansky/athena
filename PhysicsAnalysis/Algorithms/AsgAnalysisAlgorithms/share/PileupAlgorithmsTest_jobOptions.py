@@ -6,7 +6,7 @@
 # Only test on 'mc'
 import AthenaRootComps.ReadAthenaxAODHybrid
 theApp.EvtMax = 500
-svcMgr.EventSelector.InputCollections = [os.getenv("ASG_TEST_FILE_MC")]
+svcMgr.EventSelector.InputCollections = [os.getenv("ASG_TEST_FILE_MC_OLD")]
 
 from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makePileupSequence
 algseq = makePileupSequence()

@@ -45,10 +45,10 @@ if( XAOD_STANDALONE )
       SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
-      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
-      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
 elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
    atlas_add_test( testJobData
@@ -57,10 +57,10 @@ elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
-      MetAnalysisAlgorithms/MetAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      MetAnalysisAlgorithms/MetAnalysisAlgorithmsTest_jobOptions.py - --data-type mc --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
-      MetAnalysisAlgorithms/MetAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+      MetAnalysisAlgorithms/MetAnalysisAlgorithmsTest_jobOptions.py - --data-type afii --old-file
       PROPERTIES TIMEOUT 600 )
 endif()

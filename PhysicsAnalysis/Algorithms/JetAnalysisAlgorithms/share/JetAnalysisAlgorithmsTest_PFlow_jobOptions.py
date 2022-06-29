@@ -9,17 +9,26 @@ athArgsParser = AthArgumentParser()
 athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
                            default = "data",
                            help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgsParser.add_argument( "--old-file", dest = "old_file",
+                            action = "store_true", default = False,
+                            help = "Use the old ASG test file.")
 athArgs = athArgsParser.parse_args()
 
 dataType = athArgs.data_type
+useOldFile = athArgs.old_file
 if not dataType in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
 
 print("Running on data type: " + dataType)
 
-inputfile = {"data": 'ASG_TEST_FILE_DATA',
-             "mc":   'ASG_TEST_FILE_MC',
-             "afii": 'ASG_TEST_FILE_MC_AFII'}
+if not useOldFile :
+    inputfile = {"data": 'ASG_TEST_FILE_DATA',
+                 "mc":   'ASG_TEST_FILE_MC',
+                 "afii": 'ASG_TEST_FILE_MC_AFII'}
+else :
+    inputfile = {"data": 'ASG_TEST_FILE_DATA_OLD',
+                 "mc":   'ASG_TEST_FILE_MC_OLD',
+                 "afii": 'ASG_TEST_FILE_MC_AFII_OLD'}
 
 jetContainer = "AntiKt4EMTopoJets"
 

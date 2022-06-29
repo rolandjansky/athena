@@ -75,7 +75,7 @@ def main():
 
     # Create a transient tree from a test file
     #FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r7725/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7725_r7676/AOD.07915862._000100.pool.root.1"
-    FNAME = os.environ['ASG_TEST_FILE_MC']
+    FNAME = os.environ['ASG_TEST_FILE_MC_OLD']
 
     ifile = ROOT.TFile.Open(FNAME, 'read')
 

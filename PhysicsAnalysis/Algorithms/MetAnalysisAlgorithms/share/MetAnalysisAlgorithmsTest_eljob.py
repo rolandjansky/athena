@@ -12,6 +12,9 @@ parser = optparse.OptionParser()
 parser.add_option( '-d', '--data-type', dest = 'data_type',
                    action = 'store', type = 'string', default = 'data',
                    help = 'Type of data to run over. Valid options are data, mc, afii' )
+parser.add_option( '--old-file', dest = 'old_file',
+                   action = 'store_true', default = False,
+                   help = 'Use the old ASG test file.')
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
@@ -31,6 +34,7 @@ ROOT.xAOD.JetContainer ()
 # configure per-sample right now
 
 dataType = options.data_type
+useOldFile = options.old_file
 
 if dataType not in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
@@ -42,13 +46,22 @@ sh = ROOT.SH.SampleHandler()
 sh.setMetaString( 'nc_tree', 'CollectionTree' )
 sample = ROOT.SH.SampleLocal (dataType)
 if dataType == "data" :
-    sample.add (os.getenv ('ASG_TEST_FILE_DATA'))
+    if not useOldFile :
+        sample.add (os.getenv ('ASG_TEST_FILE_DATA'))
+    else :
+        sample.add (os.getenv ('ASG_TEST_FILE_DATA_OLD'))
     pass
 if dataType == "mc" :
-    sample.add (os.getenv ('ASG_TEST_FILE_MC'))
+    if not useOldFile :
+        sample.add (os.getenv ('ASG_TEST_FILE_MC'))
+    else :
+        sample.add (os.getenv ('ASG_TEST_FILE_MC_OLD'))
     pass
 if dataType == "afii" :
-    sample.add (os.getenv ('ASG_TEST_FILE_MC_AFII'))
+    if not useOldFile :
+        sample.add (os.getenv ('ASG_TEST_FILE_MC_AFII'))
+    else :
+        sample.add (os.getenv ('ASG_TEST_FILE_MC_AFII_OLD'))
     pass
 sh.add (sample)
 sh.printContent()

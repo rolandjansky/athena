@@ -181,16 +181,8 @@ def makeGeneratorAlgorithmsSequence (dataType) :
     sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
     sysService.sigmaRecommended = 1
 
-    # Include, and then set up the pileup analysis sequence (to make a copy):
-    if dataType == "data":
-        prwfiles = []
-        lumicalcfiles = []
-    else:
-        lumicalcfiles = [
-            "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
-            "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
-        ]
-        prwfiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
+    # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
 
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
@@ -243,6 +235,10 @@ def pileupConfigFiles(dataType):
             # We don't have a PRW file that works properly for the AFII file so we don't apply it in
             # this case
             prwfiles = []
+        # temporarily disabling prwfiles until I find the right ones for
+        # both old and new data files
+        prwfiles = []
+        lumicalcfiles = []
     return prwfiles, lumicalcfiles
 
 def makePileupSequence () :
@@ -274,11 +270,13 @@ def makePileupSequence () :
     algSeq += treeMaker
     ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
     ntupleMaker.TreeName = 'events'
-    ntupleMaker.Branches = [
+    branches = [
         'EventInfo.runNumber   -> runNumber',
         'EventInfo.eventNumber -> eventNumber',
-        'EventInfo.PileupWeight_%SYS% -> pileupWeight_%SYS%',
     ]
+    if len (prwfiles) > 0 :
+        branches += ['EventInfo.PileupWeight_%SYS% -> pileupWeight_%SYS%']
+    ntupleMaker.Branches = branches
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'events'

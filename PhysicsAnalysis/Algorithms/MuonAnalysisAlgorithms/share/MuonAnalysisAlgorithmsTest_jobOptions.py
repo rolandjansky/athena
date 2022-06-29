@@ -12,6 +12,9 @@ athArgsParser.add_argument("--data-type",action="store",dest="data_type",
 athArgsParser.add_argument("--write-xaod",action="store",dest="write_xaod",
                            default=False,
                            help="Specify if you want xaod writing to happen (which means slower access mode for now)")
+athArgsParser.add_argument( "--old-file", dest = "old_file",
+                            action = "store_true", default = False,
+                            help = "Use the old ASG test file.")
 athArgs = athArgsParser.parse_args()
 
 
@@ -23,6 +26,7 @@ else:
     jps.AthenaCommonFlags.AccessMode = "ClassAccess"
 
 dataType = athArgs.data_type
+useOldFile = athArgs.old_file
 
 # Set up a histogram/tree output file for the job:
 jps.AthenaCommonFlags.HistOutputs = ["ANALYSIS:MuonAnalysisAlgorithmsTest." + dataType + ".hist.root"]
@@ -32,13 +36,16 @@ svcMgr.THistSvc.MaxFileSize=-1 #make job run faster by disabling file size check
 #can override with standard athena command line options (--evtMax and --filesInput)
 jps.AthenaCommonFlags.EvtMax = 500
 
-if dataType=="data":
-    testFile = os.getenv ('ASG_TEST_FILE_DATA')
-elif dataType=="mc":
-    testFile = os.getenv ('ASG_TEST_FILE_MC')
-elif dataType=="afii":
-    testFile = os.getenv ('ASG_TEST_FILE_MC_AFII')
+if not useOldFile :
+    inputfile = {"data": 'ASG_TEST_FILE_DATA',
+                 "mc":   'ASG_TEST_FILE_MC',
+                 "afii": 'ASG_TEST_FILE_MC_AFII'}
+else :
+    inputfile = {"data": 'ASG_TEST_FILE_DATA_OLD',
+                 "mc":   'ASG_TEST_FILE_MC_OLD',
+                 "afii": 'ASG_TEST_FILE_MC_AFII_OLD'}
 
+testFile = os.getenv ( inputfile[dataType] )
 jps.AthenaCommonFlags.FilesInput = [testFile]
 
 

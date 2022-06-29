@@ -49,16 +49,16 @@ if( XAOD_STANDALONE )
       SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSimEMTopo
-      SCRIPT JetAnalysisAlgorithmsTest_EMTopo_eljob.py --data-type mc --unit-test
+      SCRIPT JetAnalysisAlgorithmsTest_EMTopo_eljob.py --data-type mc --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSimPFlow
-      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type mc --unit-test
+      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type mc --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSimEMTopo
-      SCRIPT JetAnalysisAlgorithmsTest_EMTopo_eljob.py --data-type afii --unit-test
+      SCRIPT JetAnalysisAlgorithmsTest_EMTopo_eljob.py --data-type afii --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSimPFlow
-      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type afii --unit-test
+      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type afii --unit-test --old-file
       PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobDataEMTopo
@@ -71,18 +71,18 @@ else()
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSimEMTopo
       SCRIPT athena.py
-      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_EMTopo_jobOptions.py - --data-type mc
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_EMTopo_jobOptions.py - --data-type mc --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSimPFlow
       SCRIPT athena.py
-      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type mc
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type mc --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSimEMTopo
       SCRIPT athena.py
-      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_EMTopo_jobOptions.py - --data-type afii
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_EMTopo_jobOptions.py - --data-type afii --old-file
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSimPFlow
       SCRIPT athena.py
-      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type afii
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type afii --old-file
       PROPERTIES TIMEOUT 600 )
 endif()

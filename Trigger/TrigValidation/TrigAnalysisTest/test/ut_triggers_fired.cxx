@@ -6,8 +6,10 @@
 // fired.
 
 #include "TrigAnalysisTest/RootCoreTestHarness.h"
+#include <cstdlib>
 
 int main()
 {
+  setenv ("ROOTCORE_TEST_FILE", getenv ("ASG_TEST_FILE_MC_OLD"), true);
   return TrigAnalysisTest::runTrigAnalysisTest("BasicTriggerFired");
 }
