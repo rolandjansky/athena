@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -113,7 +113,6 @@ namespace ISF {
     const Barcode::PhysicsProcessCode  m_process;
     const ISF::KillPrimary             m_killsPrimary;
     mutable const HepMC::FourVector   *m_position;
-    mutable std::vector<bool>          m_passedFilters;
   };
 
 } // end of namespace

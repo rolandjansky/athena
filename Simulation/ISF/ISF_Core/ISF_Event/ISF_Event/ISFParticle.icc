@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // this file contains all ISFParticle inline methods
@@ -39,7 +39,8 @@ namespace ISF {
 
   // truth methods
   //
-  inline TruthBinding* ISFParticle::getTruthBinding() const              { return m_truth; }
+  inline const TruthBinding* ISFParticle::getTruthBinding() const        { return m_truth; }
+  inline TruthBinding* ISFParticle::getTruthBinding()                    { return m_truth; }
   inline void          ISFParticle::setTruthBinding(TruthBinding *truth) { m_truth = truth; }
 
   // particle order methods
@@ -48,7 +49,8 @@ namespace ISF {
   inline void ISFParticle::setOrder( ParticleOrder order ) { m_order = order; }
 
   // set ParticleUserInformation
-  inline ParticleUserInformation *ISFParticle::getUserInformation() const                            { return m_userInfo;    }
+  inline const ParticleUserInformation *ISFParticle::getUserInformation() const { return m_userInfo;    }
+  inline ParticleUserInformation *ISFParticle::getUserInformation()             { return m_userInfo;    }
   inline void                     ISFParticle::setUserInformation(ParticleUserInformation *userInfo)
   {
     if ( m_userInfo==0 ) { m_userInfo = userInfo; }

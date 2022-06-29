@@ -502,7 +502,7 @@ iFatras::McMaterialEffectsUpdator::updateInLay(
                                                       isp->barcode());
       // add presampled process info
       if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
-        ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+        const ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
         ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
         validInfo->setMaterialLimit(
           matLim->process, matLim->dMax, matLim->process == 121 ? pathLim.l0Collected : pathLim.x0Collected);
@@ -690,7 +690,7 @@ iFatras::McMaterialEffectsUpdator::updateInLay(
                                                     isp->barcode());
     // add presampled process info
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
-      ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
+      const ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
       ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
       validInfo->setMaterialLimit(
         matLim->process, matLim->dMax, matLim->process == 121 ? pathLim.l0Collected : pathLim.x0Collected);

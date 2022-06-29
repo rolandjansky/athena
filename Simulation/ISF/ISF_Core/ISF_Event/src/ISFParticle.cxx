@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
   m_order(ISF::DefaultParticleOrder),
   m_userInfo(nullptr)
 {
-  TruthBinding *truth = isfp.getTruthBinding();
+  const TruthBinding *truth = isfp.getTruthBinding();
   if (truth) {
     m_truth = new TruthBinding(*truth);
   }
@@ -156,7 +156,7 @@ ISF::ISFParticle& ISF::ISFParticle::operator=(const ISF::ISFParticle& rhs)
     delete m_truth;
     m_truth = nullptr;
 
-    TruthBinding *rhsTruth = rhs.getTruthBinding();
+    const TruthBinding *rhsTruth = rhs.getTruthBinding();
     if (rhsTruth) {
       m_truth = new TruthBinding(*rhsTruth);
     }
