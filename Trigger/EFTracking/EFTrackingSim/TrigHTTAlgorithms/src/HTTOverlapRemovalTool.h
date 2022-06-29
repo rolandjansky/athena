@@ -33,7 +33,7 @@ class HTTOverlapRemovalTool: public AthAlgTool {
 public:
 
   HTTOverlapRemovalTool (const std::string&, const std::string&, const IInterface*);
-  HTTOverlapRemovalTool() = default;
+  HTTOverlapRemovalTool() = delete;
 
   StatusCode initialize() override;
 

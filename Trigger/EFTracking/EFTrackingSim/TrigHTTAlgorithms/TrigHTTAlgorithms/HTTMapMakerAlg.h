@@ -28,8 +28,6 @@ class HTTMapMakerAlg : public AthAlgorithm
         virtual StatusCode finalize() override;
 
     private:
-        int m_histoPrintDetail = 0; // must be int type for gaudi
-
         // Handles
         ToolHandle<IHTTEventInputHeaderTool>    m_hitInputTool{this, "InputTool", "HTTSGToRawHitsTool/HTTSGToRawHitsTool"};
 

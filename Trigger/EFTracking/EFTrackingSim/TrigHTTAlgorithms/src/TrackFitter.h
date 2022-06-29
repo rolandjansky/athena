@@ -93,9 +93,6 @@ class TrackFitter
 	TrackCorrType m_IdealCoordFitType = TrackCorrType::None;
 	bool m_doDeltaGPhis = false;
 
-        // Layout
-        const int m_npars = 5;          // number of parameters
-
         // Hit Combation
         const int m_max_ncomb = 10000;  // maximum number of combinations to process per road
         unsigned m_do_majority = 1;     // Do majority fits. If >1, we only do majority fits if ALL full fits fail the chi2 cut
@@ -110,7 +107,6 @@ class TrackFitter
 
         // Output
         bool m_identify_badhit = false; // enables the identification of the bad hits for the recovery
-        bool m_saveIncompleteTracks = false;
 
 
         ///////////////////////////////////////////////////////////////////////

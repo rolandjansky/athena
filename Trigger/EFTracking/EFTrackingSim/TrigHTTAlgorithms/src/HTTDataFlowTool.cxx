@@ -12,6 +12,7 @@
 
 #include "TrigHTTConfTools/IHTTEventSelectionSvc.h"
 #include "TrigHTTMaps/ITrigHTTMappingSvc.h"
+#include "CxxUtils/bitscan.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 HTTDataFlowTool::HTTDataFlowTool(std::string const & algname, std::string const & name, IInterface const * ifc) :
@@ -58,8 +59,8 @@ StatusCode HTTDataFlowTool::calculateDataFlow(HTTDataFlowInfo* info, HTTLogicalE
 
     info->nRoads_1st_total = roads_1st.size();
     for (HTTRoad const * r : roads_1st) {
-        if (__builtin_popcount(r->getHitLayers()) == m_nLayers_1st - 1) info->nRoads_1st_7hits++;
-        if (__builtin_popcount(r->getHitLayers()) == m_nLayers_1st)     info->nRoads_1st_8hits++;
+        if (CxxUtils::count_ones(r->getHitLayers()) == m_nLayers_1st - 1) info->nRoads_1st_7hits++;
+        if (CxxUtils::count_ones(r->getHitLayers()) == m_nLayers_1st)     info->nRoads_1st_8hits++;
     }
 
     std::unordered_map<int, size_t> pattID_nTracks_1st;
