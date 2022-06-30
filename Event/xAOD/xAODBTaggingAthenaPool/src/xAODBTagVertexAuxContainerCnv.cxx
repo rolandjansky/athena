@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODBTaggingAuxContainerCnv.cxx 566967 2013-10-24 13:24:31Z krasznaa $
@@ -27,7 +27,7 @@ createPersistentWithKey( xAOD::BTagVertexAuxContainer* trans,
                          const std::string& key)
 {
   // ??? Still needed?
-  std::once_flag flag;
+  static std::once_flag flag;
   std::call_once (flag,
                   [this] {
                     LOAD_DICTIONARY( "std::vector<std::vector<ElementLink<DataVector<xAOD::TrackParticle_v1> > > >" );
