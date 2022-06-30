@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_BASESIMULATIONSVC_H
@@ -139,12 +139,14 @@ namespace ISF {
     /** @brief The standard @c StoreGateSvc (event store)
      * Returns (kind of) a pointer to the @c StoreGateSvc
      */
-    StoreGateSvc_t& evtStore() const {return m_evtStore;};
+    const StoreGateSvc_t& evtStore() const {return m_evtStore;};
+    StoreGateSvc_t& evtStore() {return m_evtStore;};
 
     /** @brief The standard @c StoreGateSvc/DetectorStore
      * Returns (kind of) a pointer to the @c StoreGateSvc
      */
-    StoreGateSvc_t& detStore() const {return m_detStore;};
+    const StoreGateSvc_t& detStore() const {return m_detStore;};
+    StoreGateSvc_t& detStore() {return m_detStore;};
 
     /** templated Tool retrieval - gives unique handling & look and feel */
     template <class T> StatusCode retrieveTool(ToolHandle<T>& thandle){
@@ -203,10 +205,10 @@ namespace ISF {
     BaseSimulationSvc();
 
     /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
+    StoreGateSvc_t m_evtStore;
 
     /// Pointer to StoreGate (detector store by default)
-    mutable StoreGateSvc_t m_detStore;
+    StoreGateSvc_t m_detStore;
 
 
   protected:
