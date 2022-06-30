@@ -4,6 +4,7 @@
 atlas_subdir( TrigHTTBankGen )
 
 # External dependencies:
+find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Matrix )
 
 # Declare Gaudi component(s) in the package
