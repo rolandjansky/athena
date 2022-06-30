@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class  AthCommonDataStore
@@ -78,13 +78,6 @@ public:
     }
   }
 
-  //  using PBASE::PBASE;
-
-  /** @brief The standard @c StoreGateSvc
-   * Returns (kind of) a pointer to the @c StoreGateSvc
-   * @warning: deprecated. please use @c evtStore() instead
-   */
-  const ServiceHandle<StoreGateSvc>& sgSvc() const { return m_evtStore; }
 
   /** @brief The standard @c StoreGateSvc (event store)
    * Returns (kind of) a pointer to the @c StoreGateSvc
