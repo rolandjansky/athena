@@ -38,9 +38,6 @@
 #include "GaudiKernel/SmartIF.h"
 #include "Gaudi/Interfaces/IOptionsSvc.h"
 
-// TDAQ includes
-#include "eformat/write/FullEventFragment.h"
-
 // TBB includes
 #include "tbb/concurrent_queue.h"
 #include "tbb/task_arena.h"
