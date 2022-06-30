@@ -36,7 +36,7 @@
 #include "TLorentzVector.h"
 
 namespace Analysis {
-
+    // [[deprecated]]
     class MuonResolutionAndMomentumScaleFactors {
     public:
         // Constructor //

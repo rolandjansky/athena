@@ -38,15 +38,21 @@
 
 ANA_MSG_HEADER(msgMMC)
 
+#include <MuonMomentumCorrections/CalibContainer.h>
+#include <MuonMomentumCorrections/CalibInitializer.h>
+
+
 int main(int argc, char* argv[]) {
+
+    const char* APP_NAME = argv[0];
+
     // setup for ANA_CHECK()
-    using namespace msgMMC;
+     using namespace msgMMC;
     ANA_CHECK_SET_TYPE(int);
 
-    bool useCorrectedCopy = false;
+    bool useCorrectedCopy = true;
 
     // The application's name:
-    const char* APP_NAME = argv[0];
 
     // Check if we received a file name:
     if (argc < 2) {
@@ -67,6 +73,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < argc; i++) { options += (argv[i]); }
 
     int Ievent = -1;
+    
     if (options.find("-event") != std::string::npos) {
         for (int ipos = 0; ipos < argc; ipos++) {
             if (std::string(argv[ipos]).compare("-event") == 0) {
@@ -88,6 +95,20 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    TString limitSys = "";
+    if (options.find("-s") != std::string::npos) {
+        for (int ipos = 0; ipos < argc; ipos++) {
+            if (std::string(argv[ipos]).compare("-s") == 0) {
+                limitSys = TString(argv[ipos + 1]);
+                break;
+            }
+        }
+    }
+
+    bool doSys = false;
+    if (options.find("-doSys") != std::string::npos) {
+       doSys = true;
+    }
     ////////////////////////////////////////////////////
     //:::  initialize the application and get the event
     ////////////////////////////////////////////////////
@@ -111,6 +132,10 @@ int main(int argc, char* argv[]) {
 
     //::: Decide how many events to run over:
     Long64_t entries = event.getEntries();
+    if (fileName.find("data") != std::string::npos) entries = 2000;
+    // if (fileName.find("mc20") != std::string::npos) entries = 2000;
+
+    if(doSys) entries = 200;
 
     ////////////////////////////////////////////////////
     //::: MuonCalibrationAndSmearingTool
@@ -119,23 +144,46 @@ int main(int argc, char* argv[]) {
     ////////////////////////////////////////////////////
     //::: create the tool handle
     asg::StandaloneToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool;  //!
-    corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
+    corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MCT");
     //::: set the properties
-    corrTool.setProperty("Year", "Data16").ignore();
-    corrTool.setProperty("Release", "Recs2021_11_04").ignore();
-    corrTool.setProperty("SagittaRelease", "sagittaBiasDataAll_15_09_2021").ignore();
+    if (fileName.find("data18") != std::string::npos) corrTool.setProperty("Year", "Data18").ignore();
+    if (fileName.find("data17") != std::string::npos) corrTool.setProperty("Year", "Data17").ignore();
+    if (fileName.find("data16") != std::string::npos) corrTool.setProperty("Year", "Data16").ignore();
+    if (fileName.find("data15") != std::string::npos) corrTool.setProperty("Year", "Data16").ignore();
+
+    if (fileName.find("r13145") != std::string::npos) corrTool.setProperty("Year", "Data18").ignore();
+    if (fileName.find("r13144") != std::string::npos) corrTool.setProperty("Year", "Data17").ignore();
+    if (fileName.find("r13167") != std::string::npos) corrTool.setProperty("Year", "Data16").ignore();
+    corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale").ignore();
     corrTool.setProperty("SagittaCorr", true).ignore();
     corrTool.setProperty("doSagittaMCDistortion", false).ignore();
-    corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale").ignore();
-    corrTool.setProperty("doDirectCBCalib", true).ignore();
+    corrTool.setProperty("doDirectCBCalib", false).ignore();
+    // corrTool.setProperty("doExtraSmearing", true).ignore();
+    // corrTool.setProperty("do2StationsHighPt", true).ignore();
+
+    asg::StandaloneToolHandle<CP::IMuonCalibrationAndSmearingTool> newcorrTool;  //!
+    newcorrTool.setProperty("calibMode", 1).ignore();
+    // newcorrTool.setProperty("doExtraSmearing", true).ignore();
+    // newcorrTool.setProperty("do2StationsHighPt", false).ignore();
+
+    newcorrTool.setTypeAndName("CP::MuonCalibTool/NewMCT");
+
+
 
     bool isDebug = false;
     if (nEvents >= 0 || Ievent >= 0) isDebug = true;
 
     if (isDebug) corrTool.setProperty("OutputLevel", MSG::VERBOSE).ignore();
+    if (isDebug) newcorrTool.setProperty("OutputLevel", MSG::VERBOSE).ignore();
+    //::: retrieve the tool
+    StatusCode sc = newcorrTool.retrieve();
+    if (sc.isFailure()) {
+        Error(APP_NAME, "Cannot retrieve MuonCorrectionTool");
+        return 1;
+    }
 
     //::: retrieve the tool
-    StatusCode sc = corrTool.retrieve();
+    sc = corrTool.retrieve();
     if (sc.isFailure()) {
         Error(APP_NAME, "Cannot retrieve MuonCorrectionTool");
         return 1;
@@ -165,13 +213,17 @@ int main(int argc, char* argv[]) {
     //::: Systematics initialization
     ////////////////////////////////////////////////////
     std::vector<CP::SystematicSet> sysList;
-    sysList.push_back(CP::SystematicSet());
+    if(limitSys.Length() == 0)sysList.push_back(CP::SystematicSet());
 
-    const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-    const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
-    for (CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin(); sysItr != recommendedSystematics.end(); ++sysItr) {
-        sysList.push_back(CP::SystematicSet());
-        sysList.back().insert(*sysItr);
+    if(doSys)
+    {
+        const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
+        const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
+        for (CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin(); sysItr != recommendedSystematics.end(); ++sysItr) {
+            if(!TString(sysItr->name()).Contains(limitSys) && limitSys.Length() > 0) continue;
+            sysList.push_back(CP::SystematicSet());
+            sysList.back().insert(*sysItr);
+        }
     }
 
     std::vector<CP::SystematicSet>::const_iterator sysListItr;
@@ -244,9 +296,11 @@ int main(int argc, char* argv[]) {
                 Info(APP_NAME, "-----------------------------------------------------------");
                 Info(APP_NAME, "Looking at %s systematic", (sysListItr->name()).c_str());
             }
-
             //::: Check if systematic is applicable to the correction tool
             if (corrTool->applySystematicVariation(*sysListItr) != StatusCode::SUCCESS) {
+                Error(APP_NAME, "Cannot configure muon calibration tool for systematic");
+            }
+            if (newcorrTool->applySystematicVariation(*sysListItr) != StatusCode::SUCCESS) {
                 Error(APP_NAME, "Cannot configure muon calibration tool for systematic");
             }
 
@@ -313,9 +367,27 @@ int main(int argc, char* argv[]) {
                     CorrPtCB = mu->pt();
                     CorrPtID = mu->auxdata<float>("InnerDetectorPt");
                     CorrPtMS = mu->auxdata<float>("MuonSpectrometerPt");
+
+
+                    xAOD::Muon* muNew = 0;
+                    if (!newcorrTool->correctedCopy(*muon, muNew)) {
+                        Error(APP_NAME, "Cannot really apply calibration nor smearing");
+                        continue;
+                    }
+                    double NewCorrPtCB = muNew->pt();
+                    double NewCorrPtID = muNew->auxdata<float>("InnerDetectorPt");
+                    double NewCorrPtMS = muNew->auxdata<float>("MuonSpectrometerPt");
+
                     if (isDebug)
-                        Info(APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(),
-                             mu->pt() / 1e3, mu->auxdata<float>("InnerDetectorPt") / 1e3, mu->auxdata<float>("MuonSpectrometerPt") / 1e3);
+                    {
+                        Info(APP_NAME, "Old Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt() / 1e3, mu->auxdata<float>("InnerDetectorPt") / 1e3, mu->auxdata<float>("MuonSpectrometerPt") / 1e3);
+                        Info(APP_NAME, "new Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muNew->eta(), muNew->phi(), muNew->pt() / 1e3, muNew->auxdata<float>("InnerDetectorPt") / 1e3, muNew->auxdata<float>("MuonSpectrometerPt") / 1e3);
+                    }
+                    if(std::abs(NewCorrPtCB-CorrPtCB) > 0.5) Warning(APP_NAME, "CB pt not matching: old = %g, new = %g, event=%lli, eta = %g, phi = %g, for %s", CorrPtCB, NewCorrPtCB, eventNum, mu->eta(), mu->phi(),  sysListItr->name().c_str());
+                    if(std::abs(NewCorrPtID-CorrPtID) > 0.5) Warning(APP_NAME, "ID pt not matching: old = %g, new = %g, event=%lli, eta = %g, phi = %g, for %s", CorrPtID, NewCorrPtID, eventNum, mu->eta(), mu->phi(),  sysListItr->name().c_str());
+                    if(std::abs(NewCorrPtMS-CorrPtMS) > 0.5) Warning(APP_NAME, "MS pt not matching: old = %g, new = %g, event=%lli, eta = %g, phi = %g, for %s", CorrPtMS, NewCorrPtMS, eventNum, mu->eta(), mu->phi(),  sysListItr->name().c_str());
+
+                    
                     sysTreeMap[*sysListItr]->Fill();
                     //::: Delete the calibrated muon:
                     delete mu;
@@ -344,7 +416,7 @@ int main(int argc, char* argv[]) {
             delete muons_shallowCopy.second;
         }
         //::: Close with a message:
-        if (entry % 1000 == 0)
+        if (entry % 5 == 0)
             Info(APP_NAME,
                  "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast<int>(evtInfo->eventNumber()),
                  static_cast<int>(evtInfo->runNumber()), static_cast<int>(entry + 1));
@@ -355,7 +427,7 @@ int main(int argc, char* argv[]) {
     //::: Close output file
     outputFile->Close();
 
-    xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+    xAOD::IOStats::instance().stats().printSmartSlimmingBranchList(); 
 
     //::: Return gracefully:
     return 0;
