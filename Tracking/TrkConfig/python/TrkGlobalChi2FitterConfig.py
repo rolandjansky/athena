@@ -37,7 +37,7 @@ def InDetGlobalChi2FitterBaseCfg(flags,
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import (
         AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg,
-        InDetMaterialEffectsUpdatorCfg, MultipleScatteringUpdatorCfg)
+        InDetMaterialEffectsUpdatorCfg, InDetMultipleScatteringUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     InDetNavigator = acc.popToolsAndMerge(
@@ -46,7 +46,7 @@ def InDetGlobalChi2FitterBaseCfg(flags,
     InDetMaterialEffectsUpdator = acc.popToolsAndMerge(
         InDetMaterialEffectsUpdatorCfg(flags))
     MultipleScatteringUpdator = acc.popToolsAndMerge(
-        MultipleScatteringUpdatorCfg(flags))
+        InDetMultipleScatteringUpdatorCfg(flags))
 
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import InDetPropagatorCfg
     InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
@@ -450,7 +450,7 @@ def ITkGlobalChi2FitterBaseCfg(flags,
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import (
         AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg,
-        ITkMaterialEffectsUpdatorCfg, MultipleScatteringUpdatorCfg)
+        ITkMaterialEffectsUpdatorCfg, ITkMultipleScatteringUpdatorCfg)
 
     Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     Navigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags))
@@ -458,7 +458,7 @@ def ITkGlobalChi2FitterBaseCfg(flags,
     ITkMaterialEffectsUpdator = acc.popToolsAndMerge(
         ITkMaterialEffectsUpdatorCfg(flags))
     MultipleScatteringUpdator = acc.popToolsAndMerge(
-        MultipleScatteringUpdatorCfg(flags))
+        ITkMultipleScatteringUpdatorCfg(flags))
 
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import ITkPropagatorCfg
     ITkPropagator = acc.popToolsAndMerge(ITkPropagatorCfg(flags))

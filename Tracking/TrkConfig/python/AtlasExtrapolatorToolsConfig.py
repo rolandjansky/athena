@@ -102,16 +102,36 @@ def FastSimNavigatorCfg(flags,
     result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
     return result
 
+# Uses Highland formula for sigma
+# from Trk::MaterialInteraction::sigmaMS
+# (PDG 2018 formula 33.15)
+# = default config
+def AtlasMultipleScatteringUpdatorCfg(flags,
+                                      name="AtlasMultipleScatteringUpdator",
+                                      **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("UseTrkUtils", True)
+    acc.setPrivateTools(
+        CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
+    return acc
 
-def MultipleScatteringUpdatorCfg(flags,
-                                 name="MultipleScatteringUpdator",
-                                 **kwargs):
+# Uses Highland formula for sigma
+# from Trk::MultipleScatteringUpdator::sigmaSquare
+# (PDG 2010 formula 27.14)
+# = non default config, used for GlobalChi2Fitter
+def InDetMultipleScatteringUpdatorCfg(flags,
+                                      name="InDetMultipleScatteringUpdator",
+                                      **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("UseTrkUtils", False)
     acc.setPrivateTools(
         CompFactory.Trk.MultipleScatteringUpdator(name, **kwargs))
     return acc
 
+def ITkMultipleScatteringUpdatorCfg(flags,
+                                    name="ITkMultipleScatteringUpdator",
+                                    **kwargs):
+    return InDetMultipleScatteringUpdatorCfg(flags, name, **kwargs)
 
 def fatrasMultipleScatteringUpdatorCfg(flags,
                                        name="ISF_FatrasMultipleScatteringUpdator",
