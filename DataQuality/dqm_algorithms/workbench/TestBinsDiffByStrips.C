@@ -212,7 +212,7 @@ TH1 * TestBinsDiffByStrips()
 		  redsFlaggedYellow++;
 		}
 		else if(trueStatus == 3){
-		  greensFlaggedYellow;
+		  greensFlaggedYellow++;
 		}
 	      }
 	      break;

@@ -44,7 +44,7 @@ dqm_algorithms::summary::SimpleSummary::execute(	const std::string & ,
   float ngrey   = 0;
   float nblack  = 0;
     
-  for (iter=map.begin();iter!=map.end();iter++){
+  for (iter=map.begin();iter!=map.end();++iter){
       
     dqm_core::Result::Status status=iter->second->getResult().get()->status_;
 

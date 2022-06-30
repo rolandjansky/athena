@@ -56,7 +56,7 @@ dqm_algorithms::summary::PercentSummary::execute(	const std::string & ,
 
   dqm_core::Result *newresult = new dqm_core::Result();
   
-  for (iter=map.begin();iter!=map.end();iter++){
+  for (iter=map.begin();iter!=map.end();++iter){
     dqm_core::Result::Status status=iter->second->getResult().get()->status_;
     if(status==dqm_core::Result::Red) {	
       rweight+=iter->second->getWeight();

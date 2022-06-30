@@ -77,7 +77,7 @@ dqm_algorithms::tools::MakeComparisons(	const std::map<std::string,double> & alg
   
   std::map<std::string,double>::const_iterator g_iter;
   
-  for (g_iter=gthreshold.begin();g_iter!=gthreshold.end();g_iter++){
+  for (g_iter=gthreshold.begin();g_iter!=gthreshold.end();++g_iter){
         
     std::string name=(std::string) g_iter->first;
     std::string findname=name;
@@ -187,7 +187,7 @@ dqm_algorithms::tools::CompareWithErrors( const std::map<std::string,double> & a
   
   std::map<std::string,double>::const_iterator g_iter;
   
-  for (g_iter=gthreshold.begin();g_iter!=gthreshold.end();g_iter++){
+  for (g_iter=gthreshold.begin();g_iter!=gthreshold.end();++g_iter){
         
     std::string name=(std::string) g_iter->first;
     std::string findname=name;
@@ -969,7 +969,7 @@ dqm_algorithms::tools::findOutliersUsingErrors( std::vector<binContainer>& input
 
     //If max(absDiff) < minDiff, this is not considered an outlier: we are done.
     std::map<double,binContainer*>::iterator outlierCandidate = absDiffMap.end();
-    outlierCandidate--;//<- the last element in a map is the largest.
+    --outlierCandidate;//<- the last element in a map is the largest.
     if( outlierCandidate->first < minDiff ) {
       return;
     }

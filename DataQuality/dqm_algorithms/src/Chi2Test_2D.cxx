@@ -206,7 +206,7 @@ catch( dqm_core::Exception & ex ) {
  p=ChisqValues.end();
 
 //since the iterator points to one past the end, must decrement before we use it.
- p--;
+ --p;
 
 //define a second iterator for the map, do not decrement it, as it will be assigned to a point in the map before use
  map<double,int>::iterator p2;
@@ -270,7 +270,7 @@ while(mymap.size()>0)
   if(p==ChisqValues.begin()||k>Num_to_print)
   {break;}
   
-  p--;
+  --p;
   k++;
   }
 
