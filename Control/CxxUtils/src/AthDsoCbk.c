@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* implementation for AthDsoCbk */
@@ -85,7 +85,15 @@ struct dlfcn_hook
   void *pad[4];
 };
 
-extern struct dlfcn_hook *_dlfcn_hook __attribute__ ((nocommon));
+// FIXME: Disable use of this as of 2.34, as _dlfcn_hook is no longer exported
+// from libc.  Trying to get it to work again would be way fragile.
+// Consider using the supported audit functionality
+// (man rtld-audit) once we no longer need the root dso loading workaround.
+#if __GLIBC_PREREQ(2, 34)
+  static struct dlfcn_hook *_dlfcn_hook;
+#else
+  extern struct dlfcn_hook *_dlfcn_hook __attribute__ ((nocommon));
+#endif
 
 void *ath_dlopen( const char *fname, int mode, void *dl_caller );
 int ath_dlclose( void *handle );
