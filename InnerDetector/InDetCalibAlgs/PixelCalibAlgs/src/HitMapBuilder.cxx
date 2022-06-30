@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -368,7 +368,7 @@ StatusCode HitMapBuilder::execute() {
 
   // retrieve EventInfo
   const EventInfo* eventInfo;
-  StatusCode sc = sgSvc()->retrieve(eventInfo);
+  StatusCode sc = evtStore()->retrieve(eventInfo);
   if (!sc.isSuccess()) {
     ATH_MSG_FATAL("Unable to retrieve event info");
     return StatusCode::FAILURE;
@@ -386,7 +386,7 @@ StatusCode HitMapBuilder::execute() {
 
   // retrieve PixelRDO container
   const DataHandle<PixelRDO_Container> pixelRDOs;
-  sc = sgSvc()->retrieve(pixelRDOs, m_pixelRDOKey);
+  sc = evtStore()->retrieve(pixelRDOs, m_pixelRDOKey);
   if (!sc.isSuccess()) {
     ATH_MSG_FATAL( "Unable to retrieve pixel RDO container at " << m_pixelRDOKey );
     return StatusCode::FAILURE;

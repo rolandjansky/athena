@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignErrorExampleAlg.h"
@@ -29,7 +29,7 @@ StatusCode MuonAlignErrorExampleAlg::initialize() {
 StatusCode MuonAlignErrorExampleAlg::execute() {
     StatusCode sc;
     const ::TrackCollection* tracks = nullptr;
-    sc = sgSvc()->retrieve(tracks, "MuonSpectrometerTracks");  // for example, should be a job option
+    sc = evtStore()->retrieve(tracks, "MuonSpectrometerTracks");  // for example, should be a job option
     if (sc.isFailure()) return sc;
 
     // LOOP ON MUON TRACKS //
