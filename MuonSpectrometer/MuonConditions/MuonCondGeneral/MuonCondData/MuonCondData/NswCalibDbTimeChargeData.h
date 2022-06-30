@@ -34,6 +34,7 @@ public:
        double intercept{0.};
        double interceptError{0.};
        bool is_valid{false}; /// Flag set by the data indicating that the constants are actually valid 
+ 
     };
     
     NswCalibDbTimeChargeData(const MmIdHelper&, const sTgcIdHelper&);
@@ -44,8 +45,14 @@ public:
 	void setZero(CalibDataType type, CalibTechType tech,  CalibConstants constants);
 
 	// retrieval functions
-	std::vector<Identifier> getChannelIds   (CalibDataType type, const std::string tech, const std::string side) const;
-    const CalibConstants& getCalibForChannel(CalibDataType type, const Identifier& channelId) const; 
+	
+    //// Retrieves the list of all identifiers for which calibration channels are available
+    std::vector<Identifier> getChannelIds   (const CalibDataType type, const std::string& tech, const std::string& side) const;
+    /// Retrieves the calibration constant for a particular readout channel. If there is no calibration constant available,
+    /// then the zero calibChannel is returned.
+    const CalibConstants& getCalibForChannel(const CalibDataType type, const Identifier& channelId) const; 
+    /// Returns the dummy calibration constant for the given technology type
+    const CalibConstants& getZeroCalibChannel(const CalibDataType type, const CalibTechType tech) const;
  
 private:
     
@@ -61,6 +68,8 @@ private:
 	const sTgcIdHelper& m_stgcIdHelper;
 
 };
+
+std::ostream& operator<<(std::ostream& ostr, const NswCalibDbTimeChargeData::CalibConstants& obj);
 
 CLASS_DEF( NswCalibDbTimeChargeData , 120842040 , 1 )
 CLASS_DEF( CondCont<NswCalibDbTimeChargeData> , 217895024 , 1 )
