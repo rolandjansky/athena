@@ -121,15 +121,12 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     augmentationToolsList = [ dfTruth.DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
-    if dfInputIsEVNT:
-        from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
+    from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
-        # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-        from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthDressedWZQGLabelTool
-        augmentationToolsList += [ DFCommonTruthGenFilter ,
-                                   DFCommonTruthDressedWZQGLabelTool]
-    else:
-        augmentationToolsList = []
+    # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
+    from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthDressedWZQGLabelTool
+    augmentationToolsList += [ DFCommonTruthGenFilter ,
+                               DFCommonTruthDressedWZQGLabelTool]
     # SUSY signal decorations
     from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
     if IsSUSYSignal():
