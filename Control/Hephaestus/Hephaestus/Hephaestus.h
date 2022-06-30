@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HEPHAESTUS_HEPHAESTUS_H
@@ -48,5 +48,16 @@
 
 /* max size for symbols, files, and other buffers */
 #define hhh_SYMBOL_BUFLEN          2048
+
+
+#include <features.h>
+
+// Do we have malloc hooks?  They were removed in glibc 2.34.
+#if defined(__GLIBC__) && !__GLIBC_PREREQ(2, 34)
+# define HAVE_MALLOC_HOOKS 1
+#else
+# define HAVE_MALLOC_HOOKS 0
+#endif
+
 
 #endif /* !HEPHAESTUS_HEPHAESTUS_H */
