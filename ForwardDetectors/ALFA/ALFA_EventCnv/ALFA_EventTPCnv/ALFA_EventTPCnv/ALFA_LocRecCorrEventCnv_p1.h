@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_LocRecCorrEventCnv_p1_h
@@ -13,13 +13,16 @@
 class MsgStream;
 
 class ALFA_LocRecCorrEventCnv_p1
-    : public T_AthenaPoolTPCnvBase< ALFA_LocRecCorrEvent, ALFA_LocRecCorrEvent_p1> 
+    : public T_AthenaPoolTPCnvConstBase< ALFA_LocRecCorrEvent, ALFA_LocRecCorrEvent_p1>
 {
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
   ALFA_LocRecCorrEventCnv_p1() {}
   
-  virtual void persToTrans( const ALFA_LocRecCorrEvent_p1* persObj, ALFA_LocRecCorrEvent* transObj, MsgStream &log);
-  virtual void transToPers( const ALFA_LocRecCorrEvent* transObj, ALFA_LocRecCorrEvent_p1* persObj, MsgStream &log);
+  virtual void persToTrans( const ALFA_LocRecCorrEvent_p1* persObj, ALFA_LocRecCorrEvent* transObj, MsgStream &log) const override;
+  virtual void transToPers( const ALFA_LocRecCorrEvent* transObj, ALFA_LocRecCorrEvent_p1* persObj, MsgStream &log) const override;
  
 };
  

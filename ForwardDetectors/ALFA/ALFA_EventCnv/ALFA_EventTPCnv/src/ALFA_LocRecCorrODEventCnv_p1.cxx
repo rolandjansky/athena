@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrODEvent.h"
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrODEvent_p1.h"
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrODEventCnv_p1.h"
 
-void ALFA_LocRecCorrODEventCnv_p1::persToTrans(const ALFA_LocRecCorrODEvent_p1* persObj, ALFA_LocRecCorrODEvent* transObj, MsgStream &log)
+void ALFA_LocRecCorrODEventCnv_p1::persToTrans(const ALFA_LocRecCorrODEvent_p1* persObj, ALFA_LocRecCorrODEvent* transObj, MsgStream &log) const
 {
 	log << MSG::DEBUG << "ALFA_LocRecCorrODEventCnv_p1::persToTrans called " << endmsg;
 
@@ -21,7 +21,7 @@ void ALFA_LocRecCorrODEventCnv_p1::persToTrans(const ALFA_LocRecCorrODEvent_p1* 
 }
 
 
-void ALFA_LocRecCorrODEventCnv_p1::transToPers(const ALFA_LocRecCorrODEvent* transObj, ALFA_LocRecCorrODEvent_p1* persObj, MsgStream &log)
+void ALFA_LocRecCorrODEventCnv_p1::transToPers(const ALFA_LocRecCorrODEvent* transObj, ALFA_LocRecCorrODEvent_p1* persObj, MsgStream &log) const
 {
 	log << MSG::DEBUG << "ALFA_LocRecCorrODEventCnv_p1::transToPers called " << endmsg;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
@@ -11,14 +11,16 @@
 
 class MsgStream;
  
- class ALFA_GloRecEvCollectionCnv_p1: public T_AthenaPoolTPCnvBase<ALFA_GloRecEvCollection, ALFA_GloRecEvCollection_p1> {
+ class ALFA_GloRecEvCollectionCnv_p1: public T_AthenaPoolTPCnvConstBase<ALFA_GloRecEvCollection, ALFA_GloRecEvCollection_p1> {
    
   public:
-   
+   using base_class::persToTrans;
+   using base_class::transToPers;
+
    ALFA_GloRecEvCollectionCnv_p1() {}
    
-   virtual void persToTrans(const ALFA_GloRecEvCollection_p1* persObj, ALFA_GloRecEvCollection*   transObj, MsgStream& log);
-   virtual void transToPers(const ALFA_GloRecEvCollection*   transObj, ALFA_GloRecEvCollection_p1* persObj, MsgStream& log);
+   virtual void persToTrans(const ALFA_GloRecEvCollection_p1* persObj, ALFA_GloRecEvCollection*   transObj, MsgStream& log) const override;
+   virtual void transToPers(const ALFA_GloRecEvCollection*   transObj, ALFA_GloRecEvCollection_p1* persObj, MsgStream& log) const override;
  };
  
  template<> class T_TPCnv<ALFA_GloRecEvCollection, ALFA_GloRecEvCollection_p1>: public ALFA_GloRecEvCollectionCnv_p1 {
