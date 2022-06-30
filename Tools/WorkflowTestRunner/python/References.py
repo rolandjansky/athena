@@ -17,6 +17,7 @@ references_map = {
     # Overlay
     "d1590": "v2",
     "d1726": "v2",
+    "d1759": "v1",
     # Reco
     "q442": "v1",
     "q445": "v6",
