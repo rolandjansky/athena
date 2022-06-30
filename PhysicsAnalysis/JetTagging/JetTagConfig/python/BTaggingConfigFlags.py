@@ -48,6 +48,8 @@ def createBTaggingConfigFlags():
     btagcf.addFlag("BTagging.calibrationChannelAliases",
                    calibrationChannelAliases)
     btagcf.addFlag("BTagging.forcedCalibrationChannel", "")
+    btagcf.addFlag("BTagging.calibrationTag", lambda prevFlags: "BTagCalibITk-23-00-03-v1" if prevFlags.GeoModel.Run>=LHCPeriod.Run4 else "")
+
     # the track association minimum is set to 4 GeV because of track
     # jets in offline reconstruction.
     btagcf.addFlag("BTagging.minimumJetPtForTrackAssociation", 4e3)
