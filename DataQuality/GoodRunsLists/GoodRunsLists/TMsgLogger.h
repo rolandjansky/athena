@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -94,7 +94,8 @@ namespace Root {
 
       // the current minimum level is global for the whole Root
       // it can only be changed by the central storage singleton object
-      static TMsgLevel                 m_minLevel;       // minimum level for logging output
+      // we make this atomic to suppress thread-checker warnings
+      static std::atomic<TMsgLevel>    m_minLevel;       // minimum level for logging output
 
       // private utility routines
       void Send();

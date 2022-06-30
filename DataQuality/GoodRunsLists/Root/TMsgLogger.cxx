@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -37,7 +37,7 @@ static const string PREFIX = "--- ";
 // this is the hardcoded suffix
 static const string SUFFIX = ": ";
 
-Root::TMsgLevel Root::TMsgLogger::m_minLevel = kINFO;
+std::atomic<Root::TMsgLevel> Root::TMsgLogger::m_minLevel = kINFO;
 
 Root::TMsgLogger::TMsgLogger( const TObject* source, TMsgLevel /* minLevel */ )
    : m_objSource( source ), 
@@ -177,7 +177,7 @@ void Root::TMsgLogger::WriteMsg( TMsgLevel mlevel, const std::string& line ) con
 #endif // USE_COLORED_CONSOLE
 
    // take decision to stop if fatal error
-   if (mlevel == kFATAL) { cout << "***> abort program execution" << endl; exit(1); }
+   if (mlevel == kFATAL) { cout << "***> abort program execution" << endl; std::abort(); }
 }
 
 Root::TMsgLogger& Root::TMsgLogger::endmsg( TMsgLogger& logger ) 
