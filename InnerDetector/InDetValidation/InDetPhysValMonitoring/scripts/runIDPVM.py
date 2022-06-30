@@ -50,7 +50,7 @@ ConfigFlags.PhysVal.IDPVM.doHitLevelPlots = MyArgs.doHitLevelPlots
 ConfigFlags.PhysVal.IDPVM.runDecoration = not MyArgs.disableDecoration
 ConfigFlags.PhysVal.IDPVM.ancestorIDs = MyArgs.ancestorIDList
 ConfigFlags.PhysVal.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
-ConfigFlags.PhysVal.IDPVM.truthMinPt = MyArgs.truthMinP
+ConfigFlags.PhysVal.IDPVM.truthMinPt = MyArgs.truthMinPt
 ConfigFlags.PhysVal.IDPVM.GRL = MyArgs.GRL
 
 ConfigFlags.Input.Files = []
