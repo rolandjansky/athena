@@ -72,7 +72,7 @@ def DigitizationMainContentCfg(flags):
             from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
             acc.merge(EventInfoCnvAlgCfg(flags,
                                         inputKey="McEventInfo",
-                                        outputKey="HITs_EventInfo"))
+                                        outputKey="Input_EventInfo"))
 
         from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoUpdateFromContextAlgCfg
         acc.merge(EventInfoUpdateFromContextAlgCfg(flags))

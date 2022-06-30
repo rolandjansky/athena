@@ -144,6 +144,8 @@ if not ISF_Flags.ReSimulation():
     if not checkForContainerInInput("xAOD::EventInfo"):
         # If xAOD::EventInfo is not present in the input file then it should be created
         topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg() ## TODO: update config so that ReSim can use the same xAOD::EventInfo
+    else:
+        topSeq += CfgGetter.getAlgorithm("EventInfoUpdateFromContextAlg")
 
 #--------------------------------------------------------------
 # ISF kernel configuration
