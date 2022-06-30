@@ -67,206 +67,206 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // access event info container
     SG::ReadHandle<xAOD::EventInfo> eventInfo(m_EventInfoKey, ctx);
     if (! eventInfo.isValid() ){
-        ATH_MSG_DEBUG("Container "<< eventInfo << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< eventInfo << " does not exist");
     }
 
     // access lepton containers
     SG::ReadHandle<xAOD::ElectronContainer> hlt_electron_cont(m_hlt_electron_key, ctx);
-    if (! hlt_electron_cont.isValid() || hlt_electron_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_electron_key << " does not exist or is empty");
+    if (! hlt_electron_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_electron_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::MuonContainer> hlt_muon_cont(m_hlt_muon_key, ctx);
-    if (! hlt_muon_cont.isValid() || hlt_muon_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_muon_key << " does not exist or is empty");
+    if (! hlt_muon_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_muon_key << " does not exist");
     }
 
     // access topoclusters container
     SG::ReadHandle<xAOD::CaloClusterContainer> hlt_topoclusters_cont(m_topoclusters_key, ctx);
-    if (! hlt_topoclusters_cont.isValid() || hlt_topoclusters_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_topoclusters_key << " does not exist or is empty");
+    if (! hlt_topoclusters_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_topoclusters_key << " does not exist");
     }
 
     // access tracks container
     SG::ReadHandle<xAOD::TrackParticleContainer> hlt_tracks_cont(m_tracks_key, ctx);
-    if (! hlt_tracks_cont.isValid() || hlt_tracks_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_tracks_key << " does not exist or is empty");
+    if (! hlt_tracks_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_tracks_key << " does not exist");
     }
 
     // access vertex container
     SG::ReadHandle<xAOD::VertexContainer> hlt_vertex_cont(m_vertex_key, ctx);
-    if (! hlt_vertex_cont.isValid() || hlt_vertex_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_vertex_key << " does not exist or is empty");
+    if (! hlt_vertex_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_vertex_key << " does not exist");
     }
     
     SG::ReadHandle<xAOD::VertexContainer> offline_vertex_cont(m_offline_vertex_key, ctx);
-    if (! offline_vertex_cont.isValid() || offline_vertex_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_offline_vertex_key << " does not exist or is empty");
+    if (! offline_vertex_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_offline_vertex_key << " does not exist");
     }
 
     // access offline met containers
     SG::ReadHandle<xAOD::MissingETContainer> offline_met_cont(m_offline_met_key, ctx);
-    if (! offline_met_cont.isValid() || offline_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_offline_met_key << " does not exist or is empty");
+    if (! offline_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_offline_met_key << " does not exist");
     }
 
     // access L1 met containers
     SG::ReadHandle<xAOD::EnergySumRoI> l1_roi_cont(m_lvl1_roi_key, ctx);
     if (! l1_roi_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_roi_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_roi_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_jnc_cont(m_lvl1_jnc_key, ctx);
     if (! l1_jnc_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_jnc_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_jnc_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_jrho_cont(m_lvl1_jrho_key, ctx);
     if (! l1_jrho_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_jrho_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_jrho_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_gnc_cont(m_lvl1_gnc_key, ctx);
     if (! l1_gnc_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_gnc_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_gnc_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_grho_cont(m_lvl1_grho_key, ctx);
     if (! l1_grho_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_grho_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_grho_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_gjwoj_cont(m_lvl1_gjwoj_key, ctx);
     if (! l1_gjwoj_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_gjwoj_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_gjwoj_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_gpufit_cont(m_lvl1_gpufit_key, ctx);
     if (! l1_gpufit_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_lvl1_gpufit_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_lvl1_gpufit_key << " does not exist");
     }
 
     // access L1 Fex met containers
     SG::ReadHandle<xAOD::jFexMETRoIContainer> l1_jFexMet_cont(m_l1_jFexMet_key, ctx);
     if (! l1_jFexMet_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_jFexMet_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_jFexMet_key << " does not exist");
     }
     SG::ReadHandle<xAOD::jFexSumETRoIContainer> l1_jFexSumEt_cont(m_l1_jFexSumEt_key, ctx);
     if (! l1_jFexSumEt_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_jFexSumEt_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_jFexSumEt_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojScalar_cont(m_l1_gFexJwojScalar_key, ctx);
     if (! l1_gFexJwojScalar_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojScalar_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojScalar_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMETComponents_cont(m_l1_gFexJwojMETComponents_key, ctx);
     if (! l1_gFexJwojMETComponents_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMETComponents_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMETComponents_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMHTComponents_cont(m_l1_gFexJwojMHTComponents_key, ctx);
     if (! l1_gFexJwojMHTComponents_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMHTComponents_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMHTComponents_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexJwojMSTComponents_cont(m_l1_gFexJwojMSTComponents_key, ctx);
     if (! l1_gFexJwojMSTComponents_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMSTComponents_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMSTComponents_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexNCMETScalar_cont(m_l1_gFexNCMETScalar_key, ctx);
     if (! l1_gFexNCMETScalar_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexNCMETScalar_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexNCMETScalar_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexNCMETComponents_cont(m_l1_gFexNCMETComponents_key, ctx);
     if (! l1_gFexNCMETComponents_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexNCMETComponents_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexNCMETComponents_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexRhoMETScalar_cont(m_l1_gFexRhoMETScalar_key, ctx);
     if (! l1_gFexRhoMETScalar_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexRhoMETScalar_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexRhoMETScalar_key << " does not exist");
     }
     SG::ReadHandle<xAOD::gFexGlobalRoIContainer> l1_gFexRhoMETComponents_cont(m_l1_gFexRhoMETComponents_key, ctx);
     if (! l1_gFexRhoMETComponents_cont.isValid() ) {
-        ATH_MSG_DEBUG("Container "<< m_l1_gFexRhoMETComponents_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_l1_gFexRhoMETComponents_key << " does not exist");
     }
 
     // access HLT met containers
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
-    if (! hlt_cell_met_cont.isValid() || hlt_cell_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_cell_met_key << " does not exist or is empty");
+    if (! hlt_cell_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_cell_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mht_met_cont(m_hlt_mht_met_key, ctx);
-    if (! hlt_mht_met_cont.isValid() || hlt_mht_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_mht_met_key << " does not exist or is empty");
+    if (! hlt_mht_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_mht_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_met_cont(m_hlt_tc_met_key, ctx);
-    if (! hlt_tc_met_cont.isValid() || hlt_tc_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_tc_met_key << " does not exist or is empty");
+    if (! hlt_tc_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_tc_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_em_met_cont(m_hlt_tc_em_met_key, ctx);
-    if (! hlt_tc_em_met_cont.isValid() || hlt_tc_em_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_tc_em_met_key << " does not exist or is empty");
+    if (! hlt_tc_em_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_tc_em_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_met_cont(m_hlt_tcpufit_met_key, ctx);
-    if (! hlt_tcpufit_met_cont.isValid() || hlt_tcpufit_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_met_key << " does not exist or is empty");
+    if (! hlt_tcpufit_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_met_key << " does not exist");
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_sig30_met_cont(m_hlt_tcpufit_sig30_met_key, ctx);
-    if (! hlt_tcpufit_sig30_met_cont.isValid() || hlt_tcpufit_sig30_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_sig30_met_key << " does not exist or is empty");
+    if (! hlt_tcpufit_sig30_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_sig30_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_trkmht_met_cont(m_hlt_trkmht_met_key, ctx);
-    if (! hlt_trkmht_met_cont.isValid() || hlt_trkmht_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_trkmht_met_key << " does not exist or is empty");
+    if (! hlt_trkmht_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_trkmht_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfsum_met_cont(m_hlt_pfsum_met_key, ctx);
-    if (! hlt_pfsum_met_cont.isValid() || hlt_pfsum_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_met_key << " does not exist or is empty");
+    if (! hlt_pfsum_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfsum_cssk_met_cont(m_hlt_pfsum_cssk_met_key, ctx);
-    if (! hlt_pfsum_cssk_met_cont.isValid() || hlt_pfsum_cssk_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_cssk_met_key << " does not exist or is empty");
+    if (! hlt_pfsum_cssk_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_cssk_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfsum_vssk_met_cont(m_hlt_pfsum_vssk_met_key, ctx);
-    if (! hlt_pfsum_vssk_met_cont.isValid() || hlt_pfsum_vssk_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_vssk_met_key << " does not exist or is empty");
+    if (! hlt_pfsum_vssk_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_vssk_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfopufit_met_cont(m_hlt_pfopufit_met_key, ctx);
-    if (! hlt_pfopufit_met_cont.isValid() || hlt_pfopufit_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_met_key << " does not exist or is empty");
+    if (! hlt_pfopufit_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_met_key << " does not exist");
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfopufit_sig30_met_cont(m_hlt_pfopufit_sig30_met_key, ctx);
-    if (! hlt_pfopufit_sig30_met_cont.isValid() || hlt_pfopufit_sig30_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_sig30_met_key << " does not exist or is empty");
+    if (! hlt_pfopufit_sig30_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_sig30_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cvfpufit_met_cont(m_hlt_cvfpufit_met_key, ctx);
-    if (! hlt_cvfpufit_met_cont.isValid() || hlt_cvfpufit_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_cvfpufit_met_key << " does not exist or is empty");
+    if (! hlt_cvfpufit_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_cvfpufit_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mhtpufit_pf_met_cont(m_hlt_mhtpufit_pf_met_key, ctx);
-    if (! hlt_mhtpufit_pf_met_cont.isValid() || hlt_mhtpufit_pf_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_pf_met_key << " does not exist or is empty");
+    if (! hlt_mhtpufit_pf_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_pf_met_key << " does not exist");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mhtpufit_em_met_cont(m_hlt_mhtpufit_em_met_key, ctx);
-    if (! hlt_mhtpufit_em_met_cont.isValid() || hlt_mhtpufit_em_met_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_em_met_key << " does not exist or is empty");
+    if (! hlt_mhtpufit_em_met_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_em_met_key << " does not exist");
     }
     
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_met_nn_cont(m_hlt_met_nn_key, ctx);
-    if (! hlt_met_nn_cont.isValid() || hlt_met_nn_cont->size()==0 ) {
-        ATH_MSG_DEBUG("Container "<< m_hlt_met_nn_key << " does not exist or is empty");
+    if (! hlt_met_nn_cont.isValid() ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_met_nn_key << " does not exist");
     }
 
     // define variables
@@ -499,7 +499,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     // access L1 jFex MET values
-    if (l1_jFexMet_cont.isValid()) {
+    if (l1_jFexMet_cont.isValid() && l1_jFexMet_cont->size() > 0) {
       float L1_met_Ex = 0;
       float L1_met_Ey = 0;
       for (const auto l1_jmet: *l1_jFexMet_cont) {
@@ -518,7 +518,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       auto L1_Et_log = Monitored::Scalar<float>("L1_jFex_Et_log", static_cast<float>(L1_met_Et_log));
      fill(tool, L1_Ex, L1_Ey, L1_Et, L1_Ex_log, L1_Ey_log, L1_Et_log);
     }
-    if (l1_jFexSumEt_cont.isValid()) {
+    if (l1_jFexSumEt_cont.isValid() && l1_jFexSumEt_cont->size() > 0) {
       float L1_met_sumEt = 0;
       for (const auto l1_jsumEt: *l1_jFexSumEt_cont) {
         L1_met_sumEt += l1_jsumEt->Et_lower()*0.001 + l1_jsumEt->Et_upper()*0.001;
@@ -534,7 +534,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // access L1 gFex MET values
     // This will be properly implemented when it's ready
-    if (l1_gFexJwojScalar_cont.isValid()) {
+    if (l1_gFexJwojScalar_cont.isValid() && l1_gFexJwojScalar_cont->size() > 0) {
       l1_gmet = l1_gFexJwojScalar_cont->at(0);
       float L1_met_Et = l1_gmet->METquantityOne()*0.001;
       float L1_met_sumEt = l1_gmet->METquantityTwo()*0.001;
@@ -547,7 +547,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
     }
 
-    if (l1_gFexJwojMETComponents_cont.isValid()) {
+    if (l1_gFexJwojMETComponents_cont.isValid() && l1_gFexJwojMETComponents_cont->size() > 0) {
       l1_gmet = l1_gFexJwojMETComponents_cont->at(0);
       float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
       float L1_met_Ex_log = signed_log(L1_met_Ex, epsilon);
@@ -560,7 +560,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_Ex, L1_Ey, L1_Ex_log, L1_Ey_log);
     }
 
-    if (l1_gFexJwojMHTComponents_cont.isValid()) {
+    if (l1_gFexJwojMHTComponents_cont.isValid() && l1_gFexJwojMHTComponents_cont->size() > 0) {
       l1_gmet = l1_gFexJwojMHTComponents_cont->at(0);
       float L1_met_HT_Ex = l1_gmet->METquantityOne()*0.001;
       float L1_met_HT_Ex_log = signed_log(L1_met_HT_Ex, epsilon);
@@ -573,7 +573,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_HT_Ex, L1_HT_Ey, L1_HT_Ex_log, L1_HT_Ey_log);
     }
 	
-    if (l1_gFexJwojMSTComponents_cont.isValid()) {
+    if (l1_gFexJwojMSTComponents_cont.isValid() && l1_gFexJwojMSTComponents_cont->size() > 0) {
       l1_gmet = l1_gFexJwojMSTComponents_cont->at(0);
       float L1_met_ST_Ex = l1_gmet->METquantityOne()*0.001;
       float L1_met_ST_Ex_log = signed_log(L1_met_ST_Ex, epsilon);
@@ -586,7 +586,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_ST_Ex, L1_ST_Ey, L1_ST_Ex_log, L1_ST_Ey_log);
     }
     
-    if (l1_gFexNCMETScalar_cont.isValid()) {
+    if (l1_gFexNCMETScalar_cont.isValid() && l1_gFexNCMETScalar_cont->size() > 0) {
       l1_gmet = l1_gFexNCMETScalar_cont->at(0);
       float L1_met_Et = l1_gmet->METquantityOne()*0.001;
       float L1_met_sumEt = l1_gmet->METquantityTwo()*0.001;
@@ -599,7 +599,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
     }
     
-    if (l1_gFexNCMETComponents_cont.isValid()) {
+    if (l1_gFexNCMETComponents_cont.isValid() && l1_gFexNCMETComponents_cont->size() > 0) {
       l1_gmet = l1_gFexNCMETComponents_cont->at(0);
       float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
       float L1_met_Ex_log = signed_log(L1_met_Ex, epsilon);
@@ -612,7 +612,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_Ex, L1_Ey, L1_Ex_log, L1_Ey_log);
     }
 	
-    if (l1_gFexRhoMETScalar_cont.isValid()) {
+    if (l1_gFexRhoMETScalar_cont.isValid() && l1_gFexRhoMETScalar_cont->size() > 0) {
       l1_gmet = l1_gFexRhoMETScalar_cont->at(0);
       float L1_met_Et = l1_gmet->METquantityOne()*0.001;
       float L1_met_sumEt = l1_gmet->METquantityTwo()*0.001;
@@ -625,7 +625,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
     }
     
-    if (l1_gFexRhoMETComponents_cont.isValid()) {
+    if (l1_gFexRhoMETComponents_cont.isValid() && l1_gFexRhoMETComponents_cont->size() > 0) {
       l1_gmet = l1_gFexRhoMETComponents_cont->at(0);
       float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
       float L1_met_Ex_log = signed_log(L1_met_Ex, epsilon);
