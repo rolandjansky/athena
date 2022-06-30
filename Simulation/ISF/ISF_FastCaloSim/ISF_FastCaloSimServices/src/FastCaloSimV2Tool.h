@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMV2TOOL_H
@@ -10,7 +10,7 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 
 // FastCaloSim includes
-#include "IFastCaloSimParamSvc.h"
+#include "ISF_FastCaloSimInterfaces/IFastCaloSimParamSvc.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
 
