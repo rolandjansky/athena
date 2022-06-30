@@ -66,6 +66,7 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
     final configuration by expanding the regexes using the objects in 'td'"""
     log.info('Translating regexes...')
 
+    refmapcache = {}  # Avoid repeated lookups of reference TMaps
     mapping = {}
     mapping_regex = {}
     mapping_groups = {'top_level': top_level}
@@ -126,7 +127,10 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
                 algrefname = a.GetAlgRefName()
                 # patch up reference if it's embedded in a TMap
                 if a.GetAlgRefName() != "":
-                    ref = config.Get(a.GetAlgRefName())
+                    ref = refmapcache.get(a.GetAlgRefName())
+                    if ref is None:
+                        ref = config.Get(a.GetAlgRefName())
+                        refmapcache[a.GetAlgRefName()] = ref
                     if not ref:
                         log.error('Unable to find references for', orig)
                     else:
@@ -156,6 +160,10 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
                     mapping_groups_final[os.path.dirname(p)].AddGroup(g)
                 except KeyError:
                     log.error(f'Unable to attach group to parent. Details: group path {g.GetPathName()}, attempted parent is {os.path.dirname(p)}')
+
+    for v in refmapcache.values():
+        # fully clean up reference maps, will not happen otherwise
+        v.DeleteAll()
 
     return mapping_groups_final['top_level']
 
