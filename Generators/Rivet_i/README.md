@@ -563,7 +563,7 @@ On the other hand, `--no-weights` flag will only plot the nominal.
 In the `.plot` file, you can add the following:
 
 ```
-# BEGIN SPECIAL /MY_ROUTINE/my_histo
+# BEGIN SPECIAL /MY_ROUTINE/my_histo logo
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
 \rput[Br]{0}(0.95,0.85){\fontsize{14pt}{14pt}\selectfont {\bfseries \itshape ATLAS} \fontsize{12pt}{12pt}\selectfont Preliminary}
 \rput[Br]{0}(0.95,0.78){\fontsize{10pt}{10pt}\selectfont $\sqrt{s}$ = 13 TeV, 150.0 fb$^{-1}$}
@@ -574,7 +574,7 @@ where the text is right-aligned and the round parenthesis is the fractional coor
 For left-aligned text in the top left corner, something like the following should work:
 
 ```
-# BEGIN SPECIAL /MY_ROUTINE/my_histo
+# BEGIN SPECIAL /MY_ROUTINE/my_histo anotherLogo
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
 \rput[Bl]{0}(0.05,0.85){\fontsize{14pt}{14pt}\selectfont {\bfseries \itshape ATLAS} \fontsize{12pt}{12pt}\selectfont Generator Level}
 \rput[Bl]{0}(0.05,0.78){\fontsize{10pt}{10pt}\selectfont $\sqrt{s}$ = 13 TeV}
