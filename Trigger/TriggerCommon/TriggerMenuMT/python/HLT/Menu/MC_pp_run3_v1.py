@@ -171,6 +171,9 @@ def addMCSignatures(chains):
         ChainProp(name='HLT_g0_hiptrt_L1EM22VHI', groups=SinglePhotonGroup), 
         ChainProp(name='HLT_g0_hiptrt_L1eEM26M' , groups=SinglePhotonGroup), 
 
+        #ATR-25764 - adding Photon chains with different isolation WPs
+        ChainProp(name='HLT_g25_tight_icaloloose_L1EM22VHI', groups=PrimaryLegGroup+EgammaJetGroup),
+        ChainProp(name='HLT_g25_tight_icalotight_L1EM22VHI', groups=PrimaryLegGroup+EgammaJetGroup),
     ]
 
     chainsMC['Bphysics'] = [    
