@@ -7,6 +7,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     """Configure the common augmentation"""
@@ -72,7 +73,10 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     acc.merge(AddDiTauLowPtCfg(ConfigFlags, prefix = 'PhysCommon'))
     acc.merge(AddMuonRemovalTauAODReRecoAlgCfg(ConfigFlags, prefix = 'PhysCommon'))
     acc.merge(AddTauWPDecorationCfg(ConfigFlags, prefix = 'PhysCommon', evetoFixTag="v1"))
-    acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
+    FTagJetColl = ['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
+        FTagJetColl.append('AntiKt4EMTopoJets')
+    acc.merge(FtagJetCollectionsCfg(ConfigFlags,FTagJetColl))
     acc.merge(METCommonCfg(ConfigFlags))
 
     # Trigger matching
