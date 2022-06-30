@@ -44,9 +44,11 @@ namespace Muon
     using IMMClusterBuilderTool::getCalibratedClusterPosition;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    bool m_writeStripProperties;
+    Gaudi::Property<bool> m_writeStripProperties {this, "writeStripProperties",true};
+    Gaudi::Property<double> m_scaleClusterError {this, "scaleClusterError",5.0};
+    Gaudi::Property<uint> m_maxHoleSize {this,"maxHoleSize",1};
 
-    uint m_maxHoleSize;
+    
     
 };
 
