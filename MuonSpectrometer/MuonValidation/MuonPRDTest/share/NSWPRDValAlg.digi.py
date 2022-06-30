@@ -10,7 +10,6 @@
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 from MuonPRDTest.MuonPRDTestConf import *
-
 job+=NSWPRDValAlg('NSWPRDValAlg', OutputLevel = WARNING)
 NSWPRDValAlg.OutputLevel = INFO
 NSWPRDValAlg.doTruth = True
@@ -46,6 +45,8 @@ NSWPRDValAlg.doCSCHit= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCSDO= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCDigit= MuonGeometryFlags.hasCSC()
 NSWPRDValAlg.doCSCRDO= MuonGeometryFlags.hasCSC()
+if not MuonGeometryFlags.hasCSC():
+    NSWPRDValAlg.CscRDODecoder= ""
 NSWPRDValAlg.doCSCPRD= False
 NSWPRDValAlg.OutputLevel = DEBUG
 #-----------------------------------------------------------------------------
