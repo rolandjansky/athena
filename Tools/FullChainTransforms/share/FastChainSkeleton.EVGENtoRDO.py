@@ -967,6 +967,12 @@ if hasattr(runArgs,"preDigiInclude"):
     for fragment in runArgs.preDigiInclude:
         include(fragment)
 
+# Add TruthJet containers
+if DetFlags.Truth_on():
+    digitizationFlags.experimentalDigi += ['PileUpAntiKt4TruthJets']
+    digitizationFlags.experimentalDigi += ['PileUpAntiKt6TruthJets']
+
+
 # Sync again
 syncDetFlagsAndDigitizationJobProperties()
 #--------------------------------------------------------------
