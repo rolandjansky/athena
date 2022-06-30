@@ -14,6 +14,6 @@ def TrkEventCnvSuperToolCfg(flags):
         DoMuons=flags.Detector.EnableMuon,
     )
     if (flags.Common.ProductionStep == ProductionStep.Overlay or flags.Output.doWriteRDO) and flags.Overlay.doTrackOverlay:
-        EventCnvSuperTool.doTrackOverlay=True
+        EventCnvSuperTool.DoTrackOverlay=True
     acc.addPublicTool(EventCnvSuperTool)
     return acc
