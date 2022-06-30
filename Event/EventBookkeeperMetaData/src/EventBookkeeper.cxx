@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -225,7 +225,7 @@ EventBookkeeper::updateAcceptedEventsIncludingFamily(const EventBookkeeper* eb)
   addNAcceptedEvents( eb->getNAcceptedEvents() );
   addNWeightedAcceptedEvents( eb->getNWeightedAcceptedEvents() );
 
-  std::vector<EventBookkeeper*>* eb_children = eb->getChildrenEventBookkeepers();
+  const std::vector<EventBookkeeper*>* eb_children = eb->getChildrenEventBookkeepers();
   for(unsigned int i=0; i<m_childrenEB->size(); i++){
     m_childrenEB->at(i)->updateAcceptedEventsIncludingFamily(eb_children->at(i));
   }
