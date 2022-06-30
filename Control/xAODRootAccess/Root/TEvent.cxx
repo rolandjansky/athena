@@ -2726,6 +2726,7 @@ namespace xAOD {
          if( ! omgr ) {
             ::Fatal( "xAOD::TEvent::connectAux",
                      XAOD_MESSAGE( "There's a logic error in the code" ) );
+            return StatusCode::FAILURE;
          }
 
          // Check if we can switch out the internal store of this object:
@@ -2837,6 +2838,7 @@ namespace xAOD {
          if( ! omgr ) {
             ::Fatal( "xAOD::TEvent::connectMetaAux",
                      XAOD_MESSAGE( "There's a logic error in the code" ) );
+            return StatusCode::FAILURE;
          }
 
          // Check if we can switch out the internal store of this object:
@@ -2956,6 +2958,7 @@ namespace xAOD {
       if( ! storeHolder ) {
          ::Fatal( "xAOD::TEvent::setUpDynamicStore",
                   XAOD_MESSAGE( "There's a logic error in the code" ) );
+         return StatusCode::FAILURE;
       }
 
       // Create a TAuxStore instance that will read the dynamic variables

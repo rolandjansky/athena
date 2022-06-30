@@ -25,17 +25,16 @@
 
 // Containers
 #include <set>
-#include <deque>
+#include <map>
+#include <vector>
+
 
 // Input/Output includes
-#include <fstream>
-#include <iomanip>
 #include <nlohmann/json.hpp>
 
 // Other Libraries
-#include <algorithm>
-#include <cmath>
-#include <functional>
+
+
 #include <memory>
 #include <mutex>
 
@@ -166,7 +165,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   enum Snapshots {CONFIGURE, INITIALIZE, FIRSTEVENT, EXECUTE, FINALIZE, NSNAPSHOTS};
 
   // Store event level measurements
-  PMonMT::EventLevelData m_eventLevelData;
+  PMonMT::EventLevelData m_eventLevelData{};
 
   // Lock for capturing event loop measurements
   std::mutex m_mutex_capture;
