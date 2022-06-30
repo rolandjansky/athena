@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1CaloByteStream )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat_write )
+find_package( tdaq-common COMPONENTS eformat )
 
 # Component(s) in the package:
 atlas_add_library( TrigT1CaloByteStreamLib
