@@ -552,7 +552,7 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::patchMissingFEBs(const FEBANDGA
 }
 
 template<class CONDITIONSCONTAINER>
-bool LArCalibValidationAlg<CONDITIONSCONTAINER>::patchMissingCalibBoards(const CBANDCHANANDGAIN_t& CBAndGain, const LArOnOffIdMapping *cabling, const LArCalibLineMapping *clCont) {
+bool LArCalibValidationAlg<CONDITIONSCONTAINER>::patchMissingCalibBoards(const CBANDCHANANDGAIN_t& CBAndGain, const LArOnOffIdMapping *cabling, const LArCalibLineMapping */*clCont*/) {
   unsigned nGood=0;
   unsigned nMissing=0;
   CBANDCHANANDGAIN_t::const_iterator missingIt=CBAndGain.begin();
