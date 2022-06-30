@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -129,7 +129,7 @@ public:
       std::cout<<"disconnect"<<std::endl;
     }catch(const pool::Exception& er){
       std::cerr << er.what() << std::endl;
-      exit(1);
+      throw er;
     }
   }
   

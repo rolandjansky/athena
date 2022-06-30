@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TESTDRIVER_H
@@ -13,8 +13,8 @@ public:
   TestDriver();
   ~TestDriver();
   void loadLibraries( const std::vector<std::string>& libraries );
-  void testWriting();
-  void testReading();
+  std::string testWriting();
+  void testReading(const std::string& testTypeID);
 };
 
 #endif

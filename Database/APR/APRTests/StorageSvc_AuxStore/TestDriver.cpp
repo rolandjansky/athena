@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -31,14 +31,11 @@
 
 using namespace std;
 
-bool  test_nodict = false;
+static const bool test_nodict = false;
 
 static const std::string file = "pool_test.root";
 static const std::string container = "CollectionTree(container_Aux.)";
-static int nObjects = 10;
-// hardcode here in case we only test reading, remember to keep in sync with selection.xml
-static string   testTypeID = "A2222222-B111-C111-D111-E22134511111";
-
+static const int nObjects = 10;
 
 class TestClassNoDict {
 public:
@@ -64,8 +61,8 @@ inline int getVal1(int objn, int idx) { return objn*1000 + idx; }
 inline int getVal2(int objn, int idx) { return objn*5000 + (idx<<1); }
 
 
-void
-TestDriver::testWriting()
+
+std::string TestDriver::testWriting()
 {
    cout << "createStorageSvc" << endl;
    pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
@@ -141,7 +138,7 @@ TestDriver::testWriting()
    if ( ! shape ) {
       throw std::runtime_error( "Could not create a persistent shape." );
    }
-   testTypeID = shape->shapeID().toString();
+   std::string testTypeID = shape->shapeID().toString();
 
    // Writing the objects.
    cout << "Writing objects" << endl;
@@ -180,11 +177,13 @@ TestDriver::testWriting()
    }
    cout << "Releasing StorageSvc" << endl;
    storSvc->release();
+
+   return testTypeID;
 }
 
 
 void
-TestDriver::testReading()
+TestDriver::testReading(const string& testTypeID)
 {
   pool::IStorageSvc* storSvc = pool::createStorageSvc("StorageSvc");
   if ( ! storSvc ) {
