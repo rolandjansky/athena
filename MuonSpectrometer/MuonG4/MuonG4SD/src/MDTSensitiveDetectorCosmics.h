@@ -101,7 +101,7 @@ public:
     G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override final;
     
 private:
-    int  GetIdentifier(G4TouchableHistory* touchHist);
+    int  GetIdentifier(const G4TouchableHistory* touchHist);
     Amg::Vector3D m_mom;           
     double m_momMag;           
     Amg::Vector3D m_vertex; 
