@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNEVENT_ALIGNVERTEX_H
@@ -76,7 +76,7 @@ namespace Trk {
 
     /** retrieve pointer to original vertex and its position*/
     const xAOD::Vertex * originalVertex() const { return  m_original; }
-    inline Amg::Vector3D*  originalPosition() const {return m_originalPosition;}
+    inline const Amg::Vector3D*  originalPosition() const {return m_originalPosition;}
 
     /** set pointer to original vertex */
     void setOriginalVertex(const xAOD::Vertex* vertex) { m_original = vertex; }
@@ -86,8 +86,8 @@ namespace Trk {
     inline void setType(AlignVertexType type) {m_type = type;}
 
     /**get the vertex position and covariance */
-    inline Amg::Vector3D*   position()   const {return m_position;}
-    inline AmgSymMatrix(3)* covariance() const {return m_covariance;}
+    inline const Amg::Vector3D*   position()   const {return m_position;}
+    inline const AmgSymMatrix(3)* covariance() const {return m_covariance;}
 
     /** The Amg::VectorX is a vector of first-derivatives of the alignTSOS on the alignTrack 
         w.r.t. a particular alignment parameter times W*F.  There is one Amg::VectorX in the vector for 
@@ -112,18 +112,18 @@ namespace Trk {
     void fitVertex();
 
     /** get the number of contributing tracks */
-    int  Ntracks() { return m_nTracks; }
+    int  Ntracks() const { return m_nTracks; }
 
     /** set and get the constraint on VTX position */
     void setConstraint(AmgSymMatrix(3)*, Amg::Vector3D*); 
 
-    AmgSymMatrix(3)* Qmatrix() { return m_qMatrix; }
+    const AmgSymMatrix(3)* Qmatrix() const { return m_qMatrix; }
 
-    Amg::Vector3D* Vvector() { return m_vVector; }
+    const Amg::Vector3D* Vvector() const { return m_vVector; }
 
     void setUnconstrained() { m_constrained=false; }
 
-    bool Constrained() { return m_constrained; }
+    bool Constrained() const { return m_constrained; }
 
        
    private:
