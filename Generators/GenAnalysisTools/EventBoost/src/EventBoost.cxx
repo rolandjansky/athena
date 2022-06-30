@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////
@@ -67,7 +67,7 @@ StatusCode EventBoost::execute() {
 
   // Read Data from Transient Store
   const McEventCollection* mcCollptr;
-  if ( sgSvc()->retrieve(mcCollptr, m_genEvtInKey).isFailure() ) {
+  if ( evtStore()->retrieve(mcCollptr, m_genEvtInKey).isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve McEventCollection" << m_genEvtInKey<< endmsg;
     return StatusCode::FAILURE;
   }
@@ -89,7 +89,7 @@ StatusCode EventBoost::execute() {
 
   
   const McEventCollection* mcCollptrCOPY;
-  if ( sgSvc()->retrieve(mcCollptrCOPY, m_genEvtOutKey).isFailure() ) {
+  if ( evtStore()->retrieve(mcCollptrCOPY, m_genEvtOutKey).isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve boosted McEventCollection" << m_genEvtOutKey<< endmsg;
     return StatusCode::FAILURE;
   }
@@ -319,7 +319,7 @@ StatusCode EventBoost::EventCopy(const HepMC::GenEvent* evt) const
   mcEvtColl = new McEventCollection;
   mcEvtColl->push_back(newEvt);
   
-  if ( sgSvc()->record( mcEvtColl, m_genEvtOutKey ).isFailure() ) {
+  if ( evtStore()->record( mcEvtColl, m_genEvtOutKey ).isFailure() ) {
     msg(MSG::ERROR) << "Could not record boosted McEventCollection" << m_genEvtOutKey<< endmsg;
     return StatusCode::FAILURE;
   }

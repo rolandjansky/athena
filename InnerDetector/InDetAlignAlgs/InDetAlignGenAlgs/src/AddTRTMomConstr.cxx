@@ -117,7 +117,7 @@ StatusCode AddTRTMomConstr::finalize() {
 StatusCode AddTRTMomConstr::execute() {
   if( !m_trackListOutput.empty() && !m_trackListInput.empty() ) {
     const TrackCollection* inputtracks ;
-    ATH_CHECK(sgSvc()->retrieve( inputtracks, m_trackListInput) );
+    ATH_CHECK(evtStore()->retrieve( inputtracks, m_trackListInput) );
     auto outputtracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS ) ;
     for (const auto it : *inputtracks){
       auto track=it;
@@ -139,7 +139,7 @@ StatusCode AddTRTMomConstr::execute() {
     m_nTracksProcessed += inputtracks->size() ;
     m_nTracksAccepted += outputtracks->size() ;
 
-    if( sgSvc()->record( std::move(outputtracks), m_trackListOutput ).isFailure() ) {
+    if( evtStore()->record( std::move(outputtracks), m_trackListOutput ).isFailure() ) {
       ATH_MSG_ERROR( "Failed to record trackcollection with name " << m_trackListOutput );
     }
   }
