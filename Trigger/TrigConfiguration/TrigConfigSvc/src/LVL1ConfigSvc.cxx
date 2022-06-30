@@ -41,7 +41,7 @@ StatusCode TrigConf::LVL1ConfigSvc::loadRun3StyleMenu()
     if (!m_hltFileName.empty() && smk == 0u) {
       auto hltmenu = std::make_unique<TrigConf::HLTMenu>();
       const bool status = fileLoader.loadFile(m_hltFileName, *hltmenu);
-      if (status && hltmenu != nullptr) {
+      if (status) {
         smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
       } else {
         ATH_MSG_DEBUG("No HLT menu created, cannot compute a MC-SMK in this job");

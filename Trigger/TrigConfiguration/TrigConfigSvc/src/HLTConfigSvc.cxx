@@ -43,7 +43,7 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
     if (!m_l1FileName.empty() && smk == 0u) {
       auto l1menu = std::make_unique<TrigConf::L1Menu>();
       const bool status = fileLoader.loadFile(m_l1FileName, *l1menu);
-      if (status && l1menu != nullptr) {
+      if (status) {
         smk = TrigConf::truncatedHash(*l1menu, *hltmenu);
       } else {
         ATH_MSG_DEBUG("No L1 menu created, cannot compute a MC-SMK in this job");  
