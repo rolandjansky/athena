@@ -14,14 +14,14 @@ bool IDCCacheCreatorBase::isInsideView(const EventContext& context) const
 
 IDCCacheCreatorBase::IDCCacheCreatorBase(const std::string &name,ISvcLocator *pSvcLocator) : 
 AthReentrantAlgorithm(name,pSvcLocator),
-m_disableWarningCheck(false)
+m_disableWarningCheck(ATOMIC_FLAG_INIT)
 {
   
 }
 
 StatusCode IDCCacheCreatorBase::checkInsideViewOnce(const EventContext& ctx) const
 {
-  if(!m_disableWarningCheck && !m_disableWarningCheck.exchange(true)){ //Only check once
+  if(!m_disableWarningCheck.test_and_set(std::memory_order_relaxed)){ //Only check once
      if(isInsideView(ctx)){
         ATH_MSG_ERROR("CacheCreator is running inside a view, this is probably a misconfiguration");
         return StatusCode::FAILURE;

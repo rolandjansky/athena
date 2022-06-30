@@ -85,7 +85,7 @@ StatusCode MuonPRDCacheCreator::initialize() {
   if( !m_idHelperSvc->hasMM() && !m_MmCacheKey.key().empty() ){
     ATH_MSG_WARNING("MM ID Helper is not available and MM PRD cache was requested - This will not be created");
   }
-  if(m_disableWarning) m_disableWarningCheck.store(true, std::memory_order_relaxed);
+  if(m_disableWarning) m_disableWarningCheck.test_and_set(std::memory_order_relaxed);
   return StatusCode::SUCCESS;
 }
 
