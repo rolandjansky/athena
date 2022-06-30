@@ -183,8 +183,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   auto trkPhi = Collection("trkPhi", *offlineTrkHandle, [](const auto& trk) { return trk->phi(); });
   auto trkD0 = Collection("trkD0", *offlineTrkHandle, [](const auto& trk) { return trk->d0(); });
   auto trkZ0 = Collection("trkZ0", *offlineTrkHandle, [](const auto& trk) { return trk->z0(); });
-  auto z0wrtPV = Utils::z0wrtPV;
-  auto trkZ0wrtPV = Collection("trkZ0wrtPV", *offlineTrkHandle, [priVtx, z0wrtPV](const auto& trk) {
+  auto trkZ0wrtPV = Collection("trkZ0wrtPV", *offlineTrkHandle, [priVtx](const auto& trk) {
     return (priVtx != nullptr) ? Utils::z0wrtPV(trk, priVtx) : -999; });
 
   auto getNhits = [](const xAOD::TrackParticle* trk) {
