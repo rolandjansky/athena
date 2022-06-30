@@ -115,7 +115,7 @@ def EventInfoUpdateFromContextAlgCfg(flags, name="EventInfoUpdateFromContextAlg"
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     acc.merge(BeamSpotCondAlgCfg(flags))
 
-    kwargs.setdefault("SignalInputKey", "HITs_EventInfo")
+    kwargs.setdefault("SignalInputKey", "Input_EventInfo")
     kwargs.setdefault("OutputKey", "EventInfo")
 
     # Do the xAOD::EventInfo overlay
@@ -124,8 +124,8 @@ def EventInfoUpdateFromContextAlgCfg(flags, name="EventInfoUpdateFromContextAlg"
     # Re-map signal address
     from SGComps.AddressRemappingConfig import AddressRemappingCfg
     acc.merge(AddressRemappingCfg([
-        "xAOD::EventInfo#EventInfo->" + "HITs_EventInfo",
-        "xAOD::EventAuxInfo#EventInfoAux.->" + "HITs_EventInfoAux.",
+        "xAOD::EventInfo#EventInfo->" + "Input_EventInfo",
+        "xAOD::EventAuxInfo#EventInfoAux.->" + "Input_EventInfoAux.",
     ]))
 
     return acc
@@ -151,7 +151,7 @@ def EventInfoUpdateFromContextCfg(flags, **kwargs):
     if "EventInfo" not in flags.Input.Collections and "EventInfo" not in flags.Input.SecondaryCollections:
         acc.merge(EventInfoCnvAlgCfg(flags,
                                      inputKey="McEventInfo",
-                                     outputKey="HITs_EventInfo",
+                                     outputKey="Input_EventInfo",
                                      **kwargs))
 
     acc.merge(EventInfoUpdateFromContextAlgCfg(flags, **kwargs))

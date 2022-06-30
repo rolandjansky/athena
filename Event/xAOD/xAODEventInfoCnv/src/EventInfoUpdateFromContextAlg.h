@@ -42,7 +42,7 @@ namespace xAODMaker
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 #endif
 
-    SG::ReadHandleKey<xAOD::EventInfo> m_signalInputKey{ this, "SignalInputKey", "HITs_EventInfo", "ReadHandleKey for Signal xAOD::EventInfo" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_signalInputKey{ this, "SignalInputKey", "Input_EventInfo", "ReadHandleKey for input xAOD::EventInfo" };
     SG::WriteHandleKey<xAOD::EventInfo> m_outputKey{ this, "OutputKey", "EventInfo", "WriteHandleKey for Output xAOD::EventInfo" };
   };
 
