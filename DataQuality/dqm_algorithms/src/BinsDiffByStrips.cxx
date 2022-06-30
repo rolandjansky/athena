@@ -768,7 +768,7 @@ if(name_flag==1){
     double maxvalue=0;
     int counter=0;
     int counter2=0;
-    for(vector<tools::binContainer>::const_iterator it =AllBinInOneStrip.begin();it!=AllBinInOneStrip.end();it++){
+    for(vector<tools::binContainer>::const_iterator it =AllBinInOneStrip.begin();it!=AllBinInOneStrip.end();++it){
       int flag_my = i==0 || ( bin_entries_status[counter] && it->value <= maxvalue_pre);
       if(fabs(it->value) >= fabs(maxvalue) && flag_my) {
          maxvalue = it->value; 

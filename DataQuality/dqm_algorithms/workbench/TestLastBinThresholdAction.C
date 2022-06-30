@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-void printHistogram(const TH1* histogam, std::string name) {
+void printHistogram(const TH1* histogam, const std::string & name) {
   std::cout << "===========>  BEGIN Histogram: " << name << "  <============" << std::endl;
   histogam->Print("All");
   std::cout << "------------>  END Histogram: " << name << "  <--------------" << std::endl;
@@ -103,7 +103,7 @@ bool testTileDataCorruption(std::string name, double value, std::array<double, 3
 
 
 
-void printTestStatus(std::string test, bool isTestOk) {
+void printTestStatus(const std::string & test, bool isTestOk) {
   std::cout << "------------------------------------------------------------" << std::endl;
   std::cout << "TEST [" << test << "]:\t" << (isTestOk ? "PASSED" : "FAILED") << std::endl;
   std::cout << "------------------------------------------------------------" << std::endl;

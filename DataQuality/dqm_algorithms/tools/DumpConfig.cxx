@@ -81,7 +81,7 @@ sprintf(line, "<rel name=\"%sThresholds\" num=\"%d\">\n", Name.c_str(),objsize);
  m_myfile<<line;
  std::map<std::string,double>::const_iterator iter;
  
- for (iter=object.begin();iter!=object.end();iter++){ 
+ for (iter=object.begin();iter!=object.end();++iter){ 
    if (Name == "Red"){
      m_red_id.push_back(Name+"Thresh_"+ParameterName+"_"+iter->first);
    }else {
@@ -112,7 +112,7 @@ dqm_algorithms::tools::DumpConfig::DumpThresholds(){
         id=m_red_id;
     }
     
-    for (iter=thresh.begin();iter!=thresh.end();iter++){ 
+    for (iter=thresh.begin();iter!=thresh.end();++iter){ 
       m_myfile<<"<obj class=\"DQThreshold\" id=\""+id[count]+"\">\n";
       m_myfile<<"  <attr name=\"Name\" type=\"string\">\""+iter->first+"\"</attr>\n";
       sprintf(line, "  <attr name=\"Value\" type=\"double\">%4.2f</attr>\n</obj>\n\n",iter->second);
@@ -131,7 +131,7 @@ dqm_algorithms::tools::DumpConfig::DumpParams(){
   char pline[500];
   int count=0;
   
-  for (iter=m_params.begin();iter!=m_params.end();iter++){
+  for (iter=m_params.begin();iter!=m_params.end();++iter){
     m_myfile<<"<obj class=\"DQAlgorithmParameter\" id=\""+m_param_id[count]+"\">\n";
     m_myfile<<"  <attr name=\"Name\" type=\"string\">\""+iter->first+"\"</attr>\n";
     sprintf(pline, "  <attr name=\"Value\" type=\"double\" num=\"1\">%4.2f</attr>\n</obj>\n\n",iter->second);
@@ -195,7 +195,7 @@ dqm_algorithms::tools::DumpConfig::DumpOnlineConfig(std::string filename, bool d
 m_myfile <<paramsline;
  
  std::map<std::string,double>::const_iterator iter;
- for (iter=m_params.begin();iter!=m_params.end();iter++){
+ for (iter=m_params.begin();iter!=m_params.end();++iter){
    m_myfile <<"     \"DQAlgorithmParameter\" \"Params_"+m_ParameterName+"_"+iter->first+"\"\n";
    m_param_id.push_back("Params_"+m_ParameterName+"_"+iter->first);
  }

@@ -42,7 +42,7 @@ dqm_algorithms::summary::MDTWorstCaseSummary::execute( const std::string & ,
   double TotalBins = 0;
   int NBins = 0;
 
-  for (iter=map.begin();iter!=map.end();iter++){
+  for (iter=map.begin();iter!=map.end();++iter){
     
     std::string name = (*iter).first;
     if(name.find("NumberOfHitsIn") == std::string::npos) continue;

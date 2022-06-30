@@ -40,7 +40,7 @@ dqm_algorithms::summary::WorstCaseSummary::execute( const std::string & ,
   unsigned int undefined = 0;
   unsigned int skipped = 0;
 
-  for (iter=map.begin();iter!=map.end();iter++){
+  for (iter=map.begin();iter!=map.end();++iter){
     //If weight is 0 skip this result. Allow to "turn off" 
     // results in summary makers
     if ( iter->second->getWeight() == 0 ) 

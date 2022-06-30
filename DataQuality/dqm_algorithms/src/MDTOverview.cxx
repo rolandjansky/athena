@@ -121,8 +121,8 @@ MDTOverview::execute( const std::string& name, const TObject& object, const dqm_
   int binY = hist->GetNbinsY();
   double nML=0;
 
-  std::list<int> hist_buffer;
-  std::list<int> ref_buffer;
+  std::vector<int> hist_buffer;
+  std::vector<int> ref_buffer;
 
   for(int x_index=1;x_index<=binX;x_index++){
     for(int y_index=1;y_index<=binY;y_index++){
@@ -183,23 +183,17 @@ MDTOverview::execute( const std::string& name, const TObject& object, const dqm_
     }
   }
 
-  hist_buffer.sort();
-  ref_buffer.sort();
+   auto median=[](std::vector<int> & v)->int {
+    const auto midPoint = v.begin()+v.size()/2;
+    std::nth_element(v.begin(), midPoint, v.end());
+    return v[v.size()/2];
+  };
+  
 
-  std::list<int>::iterator it_hist;
-  std::list<int>::iterator it_ref;
 
-  int size_hist = hist_buffer.size();
-  int size_ref = ref_buffer.size();
-
-  it_hist=hist_buffer.begin();
-  it_ref=ref_buffer.begin();
-
-  for(int i=1;i<(size_hist/2);i++) it_hist++;
-  for(int i=1;i<(size_ref/2);i++) it_ref++;
-
-  int mediana_hist = *it_hist;
-  int mediana_ref = *it_ref;
+  int mediana_hist = median(hist_buffer);
+  int mediana_ref = median(ref_buffer);
+  const int size_hist = hist_buffer.size();
 
   int count=0;
   int count_non_0=0;

@@ -157,7 +157,7 @@ dqm_algorithms::summary::DivideByHist::execute( const std::string & name,
   }//end loop over parameters map
 
   //Now loop over the paramVecMap to finish the algConfig
-  for ( std::map<std::string,double>::const_iterator pvIter=paramVecMap.begin(); pvIter!=paramVecMap.end();pvIter++){
+  for ( std::map<std::string,double>::const_iterator pvIter=paramVecMap.begin(); pvIter!=paramVecMap.end();++pvIter){
     algConfig.addParameter( pvIter->first, pvIter->second );
   }
 
