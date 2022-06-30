@@ -6,7 +6,12 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "Identifier/Identifier.h"
 
-
+std::ostream& operator<<(std::ostream& ostr, const NswCalibDbTimeChargeData::CalibConstants& obj) {
+    ostr<<" valid channel: "<< (obj.is_valid ? "si" : "no");
+    ostr<<" slope: "<<std::setprecision(15)<<obj.slope<<" pm "<<std::setprecision(15)<<obj.slopeError;
+    ostr<<" intercept: "<<std::setprecision(15)<<obj.intercept<<" pm "<<std::setprecision(15)<<obj.interceptError;
+    return ostr;
+}
 
 // general functions ---------------------------------
 NswCalibDbTimeChargeData::NswCalibDbTimeChargeData(const MmIdHelper& mmIdHelper, const sTgcIdHelper& stgcIdHelper):
@@ -43,44 +48,51 @@ NswCalibDbTimeChargeData::setZero(CalibDataType type, CalibTechType tech,  Calib
 
 // getChannelIds
 std::vector<Identifier>
-NswCalibDbTimeChargeData::getChannelIds(CalibDataType type, const std::string tech, const std::string side) const {
-	std::vector<Identifier> chnls;
-	if(m_data.find(type) == m_data.end()) return chnls;
-	std::vector<Identifier> keys;
-        for (const auto& p : m_data.at(type)) {
+NswCalibDbTimeChargeData::getChannelIds(const CalibDataType type, const std::string& tech, const std::string& side) const {
+	if(m_data.find(type) == m_data.end()) {
+        return {};
+	}
+    std::vector<Identifier> keys;
+	keys.reserve(m_data.size());
+	for (const auto& p : m_data.at(type)) {
 		keys.emplace_back(p.first);
 	}
-	if(tech=="" && side=="") return keys;
+	if(tech.empty() && side.empty()) return keys;
+	std::vector<Identifier> chnls;
 	for(unsigned int i=0; i<keys.size(); ++i){
 		bool isMM = m_mmIdHelper.is_mm(keys[i]);
 		bool isSTGC = m_stgcIdHelper.is_stgc(keys[i]);
-		int eta = (isSTGC)? m_stgcIdHelper.stationEta(keys[i]) : m_mmIdHelper.stationEta(keys[i]);
-		if(strcmp(tech.c_str(), "STGC")==0 && !isSTGC) continue;
-		if(strcmp(tech.c_str(), "MM"  )==0 && !isMM) continue;
-		if(strcmp(side.c_str(), "A"   )==0 && eta<=0) continue;
-		if(strcmp(side.c_str(), "C"   )==0 && eta>=0) continue;
+		int eta = (isSTGC)? m_stgcIdHelper.stationEta(keys[i]) : m_mmIdHelper.stationEta(keys[i]);		
+		if(!isSTGC && tech == "STGC")  continue;
+		if(!isMM && tech == "MM") continue;
+		if(eta<=0 && side == "A") continue;
+		if(eta>=0 && side == "C") continue;	
 		chnls.push_back(keys[i]);
 	}
 	return chnls;
 }
-const NswCalibDbTimeChargeData::CalibConstants& NswCalibDbTimeChargeData::getCalibForChannel(CalibDataType type, const Identifier& channelId) const {
+const NswCalibDbTimeChargeData::CalibConstants& NswCalibDbTimeChargeData::getCalibForChannel(const CalibDataType type, const Identifier& channelId) const {
 	// search for data for this channel
-	static const CalibConstants dummy{};
 	std::map<CalibDataType, ChannelCalibMap>::const_iterator itr = m_data.find(type);
-	if (itr == m_data.end()) {
-		// search for data for channel 0
-		CalibTechType tech = (m_stgcIdHelper.is_stgc(channelId))? CalibTechType::STGC : CalibTechType::MM;
-		std::map<CalibTechType, ZeroCalibMap>::const_iterator ztr = m_zero.find(tech);
-		if(ztr == m_zero.end()) return dummy;
-		const ZeroCalibMap& zeroMap = ztr->second;
-		ZeroCalibMap::const_iterator type_ztr = zeroMap.find(type);
-		if(type_ztr != zeroMap.end()) return type_ztr->second;
-		return dummy;   
+	if (itr != m_data.end()) {
+		const ChannelCalibMap& channelMap = itr->second;
+		ChannelCalibMap::const_iterator chan_itr = channelMap.find(channelId.get_compact());
+		if (chan_itr != channelMap.end()) return chan_itr->second;
 	}
-	const ChannelCalibMap& channelMap = itr->second;
-	ChannelCalibMap::const_iterator chan_itr = channelMap.find(channelId.get_compact());
-	if (chan_itr != channelMap.end()) return chan_itr->second;
-	return dummy;   
+	// search for data for channel zero
+	const CalibTechType tech = (m_stgcIdHelper.is_stgc(channelId))? CalibTechType::STGC : CalibTechType::MM;
+	return getZeroCalibChannel(type, tech);		
+
+}
+const NswCalibDbTimeChargeData::CalibConstants& NswCalibDbTimeChargeData::getZeroCalibChannel(const CalibDataType type, const CalibTechType tech) const{
+	static const CalibConstants dummy{};
+	std::map<CalibTechType, ZeroCalibMap>::const_iterator itr = m_zero.find(tech);
+	if(itr != m_zero.end()) {
+		const ZeroCalibMap& zeroMap = itr->second;
+		ZeroCalibMap::const_iterator type_itr = zeroMap.find(type);
+		if(type_itr != zeroMap.end()) return type_itr->second;
+	}
+	return dummy;
 }
 
 

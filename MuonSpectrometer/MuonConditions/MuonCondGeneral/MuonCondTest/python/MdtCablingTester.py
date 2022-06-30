@@ -19,33 +19,30 @@ def SetupArgParser():
     parser.add_argument("-d", "--debug", default=None, help="attach debugger (gdb) before run, <stage>: conf, init, exec, fini")
     parser.add_argument("--inputFile", "-i", default=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"], 
                         help="Input file to run on ", nargs="+")
-    args = parser.parse_args()
-
-    return args
-
+    return parser
+    
 def setupServicesCfg(flags):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    result = MainServicesCfg(flags)
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(flags))
-
     from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
     result.merge(MuonIdHelperSvcCfg(flags))
-    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
-    result.merge(MDTCablingConfigCfg(flags))
+    
     return result
 
 def MdtCablingTestAlgCfg(flags, name = "MdtCablingTestAlg"):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    result = ComponentAccumulator()
-    result.merge(setupServicesCfg(flags))
+    result = setupServicesCfg(flags)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    result.merge(MDTCablingConfigCfg(flags))
     event_algo = CompFactory.MdtCablingTestAlg(name)
     result.addEventAlgo(event_algo, primary = True)
     return result
+
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    args = SetupArgParser()
+    args = SetupArgParser().parse_args()
 
     ConfigFlags.Concurrency.NumThreads = args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents = args.threads  # Might change this later, but good enough for the moment.
@@ -54,17 +51,16 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
    
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-    cfg = MainServicesCfg(ConfigFlags)
+    
+    cfg = MdtCablingTestAlgCfg(ConfigFlags)
     msgService = cfg.getService('MessageSvc')
     msgService.Format = "S:%s E:%e % F%128W%S%7W%R%T  %0W%M"
 
-    cfg.merge(MdtCablingTestAlgCfg(ConfigFlags))
     cfg.printConfig(withDetails=True, summariseProps=True)
 
     ConfigFlags.dump()
 
-    f = open("CosmicDataTaking.pkl", "wb")
+    f = open("MdtCablingTester.pkl", "wb")
     cfg.store(f)
     f.close()
 
