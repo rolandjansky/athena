@@ -31,9 +31,11 @@
 void hhh_dummy() {}
 
 /* forward declarations */
+#if HAVE_MALLOC_HOOKS
 static void *hhh_MallocHook( size_t size, const void *caller );
 static void *hhh_ReallocHook( void *ptr, size_t size, const void *caller );
 static void hhh_FreeHook( void *ptr, const void *caller );
+#endif
 
 /* holders for original hooks */
 static void *(*s_OldMallocHook)  ( size_t size, const void *caller );
@@ -358,6 +360,7 @@ static long configure( long flags ) {
 
 /* _________________________________________________________________________ */
 static void hhh_Hooks_save() {
+#if HAVE_MALLOC_HOOKS
 /* store old hooks in buffer for reset later; prevent storing ourselves in
    case of a double-call by the user (e.g. from python) */
    if ( __malloc_hook != hhh_MallocHook )
@@ -366,20 +369,25 @@ static void hhh_Hooks_save() {
       s_OldReallocHook = __realloc_hook;
    if ( __free_hook != hhh_FreeHook )
       s_OldFreeHook    = __free_hook;
+#endif
 }
 
 /* _________________________________________________________________________ */
 static void hhh_Hooks_install() {
+#if HAVE_MALLOC_HOOKS
    __free_hook    = hhh_FreeHook;
    __realloc_hook = hhh_ReallocHook;
    __malloc_hook  = hhh_MallocHook;
+#endif
 }
 
 /* _________________________________________________________________________ */
 static void hhh_Hooks_uninstall() {
+#if HAVE_MALLOC_HOOKS
    __malloc_hook  = s_OldMallocHook;
    __realloc_hook = s_OldReallocHook;
    __free_hook    = s_OldFreeHook;
+#endif
 }
 
 /* _________________________________________________________________________ */
@@ -435,6 +443,7 @@ static void hhh_Hooks_atexit() {
 }
 
 
+#if HAVE_MALLOC_HOOKS
 /* out-of-line to ensure symbol exists */
 static void captureTrace( void *result, long size, int isrealloc ) {
    static void *addr_malloc  = NULL;
@@ -703,6 +712,7 @@ static void hhh_FreeHook( void *ptr, const void *unused ) {
 /* reset tracker hook */
    hhh_Hooks_install();
 }
+#endif
 
 
 /*========================================================================== */
