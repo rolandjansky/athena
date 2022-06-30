@@ -25,6 +25,8 @@
 #include <cstdint>
 #include <ctime>
 #include <fstream>
+#include <map>
+#include <string>
 
 typedef std::map<std::string, int64_t> MemoryMap_t;  // Component : Memory Measurement(kB)
 
@@ -67,8 +69,8 @@ namespace PMonMT {
   struct ComponentMeasurement {
 
     // Variables to store measurements
-    double cpu_time, wall_time; // Timing
-    double vmem, malloc; // Memory: Vmem, Malloc
+    double cpu_time{}, wall_time{}; // Timing
+    double vmem{}, malloc{}; // Memory: Vmem, Malloc
 
     // Capture component-level measurements
     void capture() {
@@ -96,11 +98,11 @@ namespace PMonMT {
   struct ComponentData {
 
     // These variables are used to calculate and store the component level measurements
-    uint64_t m_call_count;
-    double m_tmp_cpu, m_delta_cpu;
-    double m_tmp_wall, m_delta_wall;
-    double m_tmp_vmem, m_delta_vmem;
-    double m_tmp_malloc, m_delta_malloc;
+    uint64_t m_call_count{};
+    double m_tmp_cpu{}, m_delta_cpu{};
+    double m_tmp_wall{}, m_delta_wall{};
+    double m_tmp_vmem{}, m_delta_vmem{};
+    double m_tmp_malloc{}, m_delta_malloc{};
 
     // [Component Level Monitoring] : Start
     void addPointStart(const ComponentMeasurement& meas, const bool doMem = false) {
@@ -163,7 +165,7 @@ namespace PMonMT {
   struct SnapshotMeasurement {
 
     // Variables to store measurements
-    double cpu_time, wall_time; // Timing
+    double cpu_time{}, wall_time{}; // Timing
     MemoryMap_t mem_stats; // Memory: Vmem, Rss, Pss, Swap
 
     // Capture snapshot measurements
@@ -205,7 +207,7 @@ namespace PMonMT {
     }
 
     // Wall time offset for event level monitoring
-    double m_offset_wall;
+    double m_offset_wall{};
 
     // Convenience methods
     void set_wall_time_offset(const double wall_time_offset) { m_offset_wall = wall_time_offset; }
@@ -247,8 +249,8 @@ namespace PMonMT {
   struct SnapshotData {
 
     // These variables are used to calculate and store the serial component level measurements
-    double m_tmp_cpu, m_delta_cpu;
-    double m_tmp_wall, m_delta_wall;
+    double m_tmp_cpu{}, m_delta_cpu{};
+    double m_tmp_wall{}, m_delta_wall{};
     MemoryMap_t m_memMonTmpMap, m_memMonDeltaMap;
 
     // [Snapshot Level Monitoring] : Start

@@ -464,6 +464,7 @@ namespace xAOD {
             if( ! treeObj ) {
                Fatal( "mergeDirectory",
                       XAOD_MESSAGE( "Internal logic error found" ) );
+               return StatusCode::FAILURE;
             }
             ::TTree* itree = dynamic_cast< TTree* >( treeObj );
             if( ! itree ) {
@@ -1042,6 +1043,7 @@ namespace xAOD {
          if( ! br ) {
             Fatal( "getMissingBranches",
                    XAOD_MESSAGE( "Couldn't cast branch to TBranch?!?" ) );
+            return result;
          }
          // Skip it if we don't have a dictionary for it:
          ::TClass* cl = 0;
@@ -1081,6 +1083,7 @@ namespace xAOD {
          if( ! br ) {
             Fatal( "getSkippedBranches",
                    XAOD_MESSAGE( "Couldn't cast branch to TBranch?!?" ) );
+            return result;
          }
          // Check the type of it:
          ::TClass* cl = 0;

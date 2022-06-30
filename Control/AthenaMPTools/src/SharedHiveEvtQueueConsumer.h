@@ -67,15 +67,15 @@ class SharedHiveEvtQueueConsumer final : public AthenaMPToolBase
       "Use SharedWriter to merge worker outputs on-the-fly if true. The default is false."};
 
 
-  int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
+  int  m_rankId{};          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
 
   ServiceHandle<IChronoStatSvc>  m_chronoStatSvc;
-  IDataShare*                    m_dataShare;
-  IEvtSelectorSeek*              m_evtSelSeek;
-  IEvtSelector::Context*         m_evtContext;
+  IDataShare*                    m_dataShare{};
+  IEvtSelectorSeek*              m_evtSelSeek{};
+  IEvtSelector::Context*         m_evtContext{};
 
-  AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
-  AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          
+  AthenaInterprocess::SharedQueue*  m_sharedEventQueue{};          
+  AthenaInterprocess::SharedQueue*  m_sharedRankQueue{};          
 
   std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
   std::queue<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization

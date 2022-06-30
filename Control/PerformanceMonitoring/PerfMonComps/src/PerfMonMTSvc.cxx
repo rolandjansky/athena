@@ -20,6 +20,9 @@
 
 // STD includes
 #include <algorithm>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
 
 // Boost includes
 #include "boost/filesystem.hpp"
