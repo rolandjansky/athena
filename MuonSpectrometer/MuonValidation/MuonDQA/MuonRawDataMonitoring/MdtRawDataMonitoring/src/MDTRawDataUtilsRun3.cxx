@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -519,7 +519,7 @@ std::string MdtRawDataMonAlg::getChamberName(Identifier id) const{
     IdentifierHash idHash;
     m_idHelperSvc->mdtIdHelper().get_module_hash(id, idHash);
     if( idHash < m_hist_hash_list->size() ) {
-      MDTChamber* chamber = (*m_hist_hash_list)[idHash];
+      MDTChamber* chamber = std::as_const(*m_hist_hash_list)[idHash];
       if(chamber) return chamber->getName();
       else return convertChamberName(m_idHelperSvc->mdtIdHelper().stationName(id),m_idHelperSvc->mdtIdHelper().stationEta(id),m_idHelperSvc->mdtIdHelper().stationPhi(id),"MDT");    
     }
@@ -530,8 +530,8 @@ std::string MdtRawDataMonAlg::getChamberName(Identifier id) const{
 StatusCode MdtRawDataMonAlg::getChamber(IdentifierHash id, MDTChamber* &chamber) const{
   if( id >= m_hist_hash_list->size() ) return StatusCode::FAILURE;
 
-   chamber = (*m_hist_hash_list)[id];
-    if( chamber == nullptr ) return StatusCode::FAILURE;
+  chamber = std::as_const(*m_hist_hash_list)[id];
+  if( chamber == nullptr ) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ class MDTNoisyTubes {
   MDTNoisyTubes(bool doMask=true);
   ~MDTNoisyTubes();
 
-  bool isNoisy(const Muon::MdtPrepData*);
+  bool isNoisy(const Muon::MdtPrepData*) const;
   std::set<Identifier> getNoiseList(IdentifierHash);
     
  private:
