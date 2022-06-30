@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFCALH62004CalibCalculatorBase.h"
@@ -155,8 +155,8 @@ G4bool LArFCALH62004CalibCalculatorBase::Process(const G4Step* a_step, LArG4Iden
   // S.M.          TransformPoint(p);
 
   // Find a transformation to a module coordinate system
-  G4TouchableHistory* theTouchable =
-    (G4TouchableHistory*) (pre_step_point->GetTouchable());
+  const G4TouchableHistory* theTouchable =
+    dynamic_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
 
   G4String volumeName = theTouchable->GetVolume()->GetName() ;
   int modVol=theTouchable->GetHistoryDepth();

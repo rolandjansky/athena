@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadLenNtuple.h"
@@ -21,12 +21,10 @@
 
 namespace G4UA
 {
-  // ADS why not class members?
-  static bool has_cryo, has_em, has_hec, has_fcal;
 
   void RadLenNtuple::BeginOfEventAction(const G4Event* /*anEvent*/)
   {
-    has_cryo = has_em = has_hec = has_fcal = false;
+    m_has_cryo = m_has_em = m_has_hec = m_has_fcal = false;
     //   m_tot_x = m_cryo_x = m_em_x = m_hec_x = m_fcal_x = 0.;
     //   m_tot_ni = m_cryo_ni = m_em_ni = m_hec_ni = m_fcal_ni = 0.;
     //   m_fcal_y = m_em_y = m_hec_y = m_cryo_y = 0.;
@@ -111,7 +109,7 @@ namespace G4UA
   {
 
     G4StepPoint *preStep=aStep->GetPreStepPoint();
-    G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+    const G4TouchableHistory* touchHist = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
     G4LogicalVolume *lv=touchHist->GetVolume()->GetLogicalVolume();
     std::string volName=lv->GetName();
     G4Material *mat=lv->GetMaterial();
@@ -123,42 +121,42 @@ namespace G4UA
     std::string::size_type npos;
     m_tot_x += thickstep;
     m_tot_ni += radstep;
-    if(!has_cryo) {
+    if(!m_has_cryo) {
       m_cryo_x += thickstep;
       m_cryo_ni += radstep;
       npos=volName.find("Cryostat");
       if(npos< volName.size()){
-        has_cryo = true;
+        m_has_cryo = true;
         m_cryo_y = preStep->GetPosition().y();
         if(m_verboseLevel>4) { std::cout <<"RadLenNtuple DEBUG  Has cryo: "<<static_cast<float>(m_cryo_y) << std::endl; }
       }
     }
-    if(!has_em) {
+    if(!m_has_em) {
       m_em_x += thickstep;
       m_em_ni += radstep;
       npos=volName.find("EMEC");
       if(npos< volName.size()){
-        has_em = true;
+        m_has_em = true;
         m_em_y = preStep->GetPosition().y();
         if(m_verboseLevel>4) { std::cout << "RadLenNtuple DEBUG  Has EMEC: "<<static_cast<float>(m_em_y) << std::endl; }
       }
     }
-    if(!has_hec) {
+    if(!m_has_hec) {
       m_hec_x += thickstep;
       m_hec_ni += radstep;
       npos=volName.find("HEC");
       if(npos< volName.size()){
-        has_hec = true;
+        m_has_hec = true;
         m_hec_y = preStep->GetPosition().y();
         if(m_verboseLevel>4) { std::cout <<"RadLenNtuple DEBUG  Has HEC: "<<static_cast<float>(m_hec_y) << std::endl; }
       }
     }
-    if(!has_fcal) {
+    if(!m_has_fcal) {
       m_fcal_x += thickstep;
       m_fcal_ni += radstep;
       npos=volName.find("FCAL");
       if(npos< volName.size()){
-        has_fcal = true;
+        m_has_fcal = true;
         m_fcal_y = preStep->GetPosition().y();
         if(m_verboseLevel>4) { std::cout <<"RadLenNtuple DEBUG  Has FCAL: "<<static_cast<float>(m_fcal_y) << std::endl; }
       }
