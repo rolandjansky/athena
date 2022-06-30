@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileMerger.cxx 784654 2016-11-16 17:17:32Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -640,7 +639,7 @@ namespace xAOD {
                   // Check if the cloner is valid:
                   if( ! cloner.IsValid()) {
                      // Let's check why
-                     static const char* okerror = "One of the export branch";
+                     static const char* const okerror = "One of the export branch";
                      if( ::strncmp( cloner.GetWarning(), okerror,
                                     ::strlen( okerror ) ) == 0 ) {
                         // That's fine we will handle it

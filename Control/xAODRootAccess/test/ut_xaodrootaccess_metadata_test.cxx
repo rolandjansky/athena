@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -87,7 +87,7 @@ int main() {
    SIMPLE_ASSERT( c->size() == 1 );
 
    // Open a test output file:
-   static const char* OFNAME = "test.root";
+   static const char* const OFNAME = "test.root";
    std::unique_ptr< ::TFile > ofile( ::TFile::Open( OFNAME, "RECREATE" ) );
    RETURN_CHECK( APP_NAME, event.writeTo( ofile.get() ) );
 

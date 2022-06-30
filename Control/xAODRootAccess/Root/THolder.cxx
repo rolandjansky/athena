@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TClass.h>
@@ -18,11 +18,11 @@
 namespace {
 
    /// Function for getting @c xAOD::THolder::TypeKind from a @c TClass
-   xAOD::THolder::TypeKind getTypeKind( TClass* type ) {
+   xAOD::THolder::TypeKind getTypeKind( const TClass* type ) {
 
-      static const TClass* dvClass =
+      static const TClass* const dvClass =
          TClass::GetClass( typeid( SG::AuxVectorBase ) );
-      static const TClass* aeClass =
+      static const TClass* const aeClass =
          TClass::GetClass( typeid( SG::AuxElement ) );
 
       // Don't waste time (and possibly invoke autoparsing) for types
@@ -336,7 +336,12 @@ namespace xAOD {
       return getAs( tid, silent );
    }
 
-   ::TClass* THolder::getClass() const {
+   const ::TClass* THolder::getClass() const {
+
+      return m_type;
+   }
+
+   ::TClass* THolder::getClass() {
 
       return m_type;
    }

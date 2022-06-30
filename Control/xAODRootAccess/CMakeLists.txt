@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( xAODRootAccess )
@@ -29,7 +29,7 @@ atlas_add_library( xAODRootAccess
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
-   xAODRootAccessInterfaces AsgMessagingLib ${extra_libs} )
+   xAODRootAccessInterfaces AsgMessagingLib CxxUtils ${extra_libs} )
 
 # Build a (Reflex) dictionary library:
 atlas_add_dictionary( xAODRootAccessDict

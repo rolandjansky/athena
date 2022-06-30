@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef XAODROOTACCESS_TOOLS_THOLDER_H
 #define XAODROOTACCESS_TOOLS_THOLDER_H
@@ -74,10 +74,12 @@ namespace xAOD {
       virtual const void* getAsConst( const std::type_info& tid,
                                       ::Bool_t silent = kFALSE ) const;
 
+      ///@{
       /// Return the concrete type of the object
-      ::TClass* getClass() const;
-      /// Return the concrete type of the object
+      const ::TClass* getClass() const;
+      ::TClass* getClass();
       const std::type_info* getTypeInfo() const;
+      ///@}
 
       /// Renew the object in memory
       void renew();

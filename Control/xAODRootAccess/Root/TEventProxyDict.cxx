@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 //
 // File holding the implementation of the xAOD::TEvent functions that implement
 // the IProxyDict interface. Just to make TEvent.cxx a little smaller.
@@ -23,6 +23,7 @@
 #endif // NOT XAOD_STANDALONE
 
 // Local include(s):
+#include "CxxUtils/checker_macros.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/THolder.h"
@@ -354,12 +355,12 @@ namespace xAOD {
    StatusCode TEvent::addToStore( CLID clid, SG::DataProxy* proxy ) {
 
       // Warn the user that the function got called:
-      static bool warningPrinted = false;
-      if( ! warningPrinted ) {
-         ::Warning( "xAOD::TEvent::addToStore",
+
+      static std::atomic_flag warningPrinted ATLAS_THREAD_SAFE = ATOMIC_FLAG_INIT;
+      if ( ! warningPrinted.test_and_set() ) {
+          ::Warning( "xAOD::TEvent::addToStore",
                     "Function should only be called through an invalid "
                     "ElementLink" );
-         warningPrinted = true;
       }
 
       // Hold on to the proxy with some non-existent, hopefully unique key:

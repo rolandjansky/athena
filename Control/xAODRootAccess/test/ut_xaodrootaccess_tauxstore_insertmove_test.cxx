@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -22,7 +22,7 @@
 #include <cassert>
 
 
-const char* APP_NAME = "ut_xaodrootaccess_tauxstore_insertmove_test";
+const char* const APP_NAME = "ut_xaodrootaccess_tauxstore_insertmove_test";
 
 
 struct MoveTest

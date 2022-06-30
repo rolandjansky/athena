@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -33,7 +33,7 @@ StatusCode copyObjects( xAOD::TEvent::EAuxMode mode );
 int main() {
 
    // The name of the application
-   static const char* APP_NAME = "ut_xaodrootaccess_tevent_copy_test";
+   static const char* const APP_NAME = "ut_xaodrootaccess_tevent_copy_test";
 
    // Initialise the environment:
    TEST_CHECK( APP_NAME, xAOD::Init() );

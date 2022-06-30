@@ -465,7 +465,7 @@ namespace xAOD {
          /// Data proxy describing this branch/object
          std::unique_ptr< SG::DataProxy > m_proxy;
          /// Dictionary describing this branch/object
-         ::TClass* m_class = 0;
+         const ::TClass* m_class = 0;
       }; // struct BranchInfo
 
       /// Map from hashed sgkey to BranchInfo.
