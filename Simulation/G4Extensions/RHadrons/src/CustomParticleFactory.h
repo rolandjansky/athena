@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CustomParticleFactory_h
@@ -15,15 +15,13 @@
 
 class CustomParticleFactory
 {
-private:
-  static bool loaded;
-  static std::set<G4ParticleDefinition *> m_particles;
 
 public:
   static void loadCustomParticles();
   static bool isCustomParticle(G4ParticleDefinition *particle);
 
-
+private:
+  static std::set<G4ParticleDefinition *> load();
 };
 
 

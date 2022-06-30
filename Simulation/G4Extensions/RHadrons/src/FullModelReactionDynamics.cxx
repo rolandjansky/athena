@@ -1021,7 +1021,8 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
           G4cerr << "currentParticle side = " << currentParticle.GetSide() << G4endl;
           for( i=0; i<vecLen; ++i )
             G4cerr << "particle #" << i << " side = " << vec[i]->GetSide() << G4endl;
-          exit( EXIT_FAILURE );
+          throw std::runtime_error("FullModelReactionDynamics::GenerateXandPt: "
+                                   "tempLen is not the same as backwardNucleonCount");
         }
       constantCrossSection = true;
       // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);

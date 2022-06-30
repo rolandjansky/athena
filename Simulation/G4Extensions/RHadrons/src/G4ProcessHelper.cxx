@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4ProcessHelper.hh"
@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+
+#include "CxxUtils/checker_macros.h"
 
 G4ProcessHelper::G4ProcessHelper()
   : theTarget(0)
@@ -160,25 +162,23 @@ G4ProcessHelper::G4ProcessHelper()
   return;
 }
 
-G4ProcessHelper* G4ProcessHelper::pinstance = 0;
-
 G4ProcessHelper* G4ProcessHelper::Instance()
 {
-  if (pinstance == 0)
-    {
-      pinstance = new G4ProcessHelper();
-    }
-  return pinstance;
+  static G4ProcessHelper instance;
+  return &instance;
 }
 
-G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart){
-  const G4ParticleDefinition* aP = &aPart;
-  if (known_particles[aP]) return true;
-  return false;
+G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart) const {
+  try {
+    return known_particles.at(&aPart);
+  }
+  catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aParticle,
-                                                   const G4Element *anElement){
+                                                   const G4Element *anElement) const {
   //We really do need a dedicated class to handle the cross sections. They might not always be constant
 
   //Disassemble the PDG-code
@@ -484,7 +484,8 @@ G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,c
   G4double M_after = 0;
   for (ReactionProduct::const_iterator r_it = aReaction.begin(); r_it !=aReaction.end(); r_it++){
     //G4cout<<"Mass contrib: "<<(particleTable->FindParticle(*r_it)->GetPDGMass())/CLHEP::MeV<<" MeV"<<G4endl;
-    M_after += particleTable->FindParticle(*r_it)->GetPDGMass();
+    auto table ATLAS_THREAD_SAFE = particleTable;  // safe because table has been loaded by now
+    M_after += table->FindParticle(*r_it)->GetPDGMass();
   }
   //G4cout<<"Intending to return this ReactionProductMass: " << sqrts << " - " <<  M_after << " MeV"<<G4endl;
   return sqrts - M_after;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FullModelHadronicProcess.hh"
@@ -82,7 +82,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   // A little setting up
   aParticleChange.Initialize(aTrack);
   //  G4DynamicParticle* OrgPart = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
-  G4DynamicParticle* IncidentRhadron = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
+  const G4DynamicParticle* IncidentRhadron = aTrack.GetDynamicParticle();
   CustomParticle* CustomIncident = static_cast<CustomParticle*>(IncidentRhadron->GetDefinition());
   const G4ThreeVector& aPosition = aTrack.GetPosition();
   const G4int theIncidentPDG = IncidentRhadron->GetDefinition()->GetPDGEncoding();
