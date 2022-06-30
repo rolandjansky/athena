@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawDataByteStreamCnv/ALFAEventBitInfo.h"
@@ -672,7 +672,6 @@ ALFA_RawDataCollection* ALFA_Decoder::getCollection(unsigned int MBIdNum, ALFA_R
     }
   if (collExists)
     {
-      coll = const_cast<ALFA_RawDataCollection*>(&**cont_it);
       msg(MSG::DEBUG) << " Collection exists " << endmsg;
       return 0;
 
