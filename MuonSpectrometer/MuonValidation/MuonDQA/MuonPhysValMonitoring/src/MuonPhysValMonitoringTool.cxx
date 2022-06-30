@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPhysValMonitoringTool.cxx
@@ -110,17 +110,15 @@ namespace MuonPhysValMonitoring {
 
         if (m_selectMuonAuthors.size() == 1 && m_selectMuonAuthors[0] == 0) m_selectMuonAuthors.clear();
 
-        static std::map<int,std::string> theMuonCategories;
-        if (theMuonCategories.empty()) {
-            theMuonCategories[ALL] = "All";
-            theMuonCategories[PROMPT] = "Prompt";
-            theMuonCategories[INFLIGHT] = "InFlight";
-            theMuonCategories[NONISO] = "NonIsolated";
-            theMuonCategories[REST] = "Rest";
-        }
-       
+        static const std::map<int,std::string> theMuonCategories = {
+          {ALL, "All"},
+          {PROMPT, "Prompt"},
+          {INFLIGHT, "InFlight"},
+          {NONISO, "NonIsolated"},
+          {REST, "Rest"}
+        };
 
-        for (const auto& category : m_selectMuonCategories) m_selectMuonCategoriesStr.emplace_back(theMuonCategories[category]);
+        for (const auto& category : m_selectMuonCategories) m_selectMuonCategoriesStr.emplace_back(theMuonCategories.at(category));
 
         // no such muons in case of SlowMuon reco
         bool separateSAFMuons = m_slowMuonsName.empty();
@@ -130,7 +128,7 @@ namespace MuonPhysValMonitoring {
             std::string categoryPath = m_muonsName + "/" + category + "/";
             m_muonValidationPlots.emplace_back(std::make_unique<MuonValidationPlots>(
                 nullptr, categoryPath, m_selectMuonWPs, m_selectMuonAuthors, m_isData,
-                (category == theMuonCategories[ALL] ? false : m_doBinnedResolutionPlots.value()), separateSAFMuons, m_doMuonTree));
+                (category == theMuonCategories.at(ALL) ? false : m_doBinnedResolutionPlots.value()), separateSAFMuons, m_doMuonTree));
             if (!m_slowMuonsName.empty()) m_slowMuonValidationPlots.emplace_back(std::make_unique<SlowMuonValidationPlots>(nullptr, categoryPath, m_isData));
             if (m_doTrigMuonValidation) {
                 if (category == "All") {
@@ -160,7 +158,7 @@ namespace MuonPhysValMonitoring {
                     std::make_unique<MuonTrackValidationPlots>(nullptr, categoryPath, "IDForwardTrackParticles", m_isData));
 
             if (!m_muonSegmentsName.empty()) {
-                if (category != theMuonCategories[ALL]) continue;  // cannot identify the truth origin of segments...
+                if (category != theMuonCategories.at(ALL)) continue;  // cannot identify the truth origin of segments...
                 m_muonSegmentValidationPlots.emplace_back(std::make_unique<MuonSegmentValidationPlots>(nullptr, categoryPath, m_isData));
                 if (!m_isData)
                     m_oUnmatchedRecoMuonSegmentPlots.reset(
@@ -215,15 +213,15 @@ namespace MuonPhysValMonitoring {
         m_h_overview_reco_category =
             new TH1F(Form("%s_Overview_reco_category", muonContainerName.c_str()), "", 4, 0, 4);  // prompt/in-flight/non-isolated/other
         for (int i = 1; i < 4; i++) {                                                             // skip 'All'
-            m_h_overview_reco_category->GetXaxis()->SetBinLabel(i, theMuonCategories[i].c_str());
+            m_h_overview_reco_category->GetXaxis()->SetBinLabel(i, theMuonCategories.at(i).c_str());
         }
         m_h_overview_reco_category->GetXaxis()->SetBinLabel(4, "Other");  // of some other origin or fakes
         ATH_CHECK(regHist(m_h_overview_reco_category, Form("%s/Overview", muonContainerName.c_str()), all));
 
         int nAuth = xAOD::Muon::NumberOfMuonAuthors;
         for (int i = 1; i < 4; i++) {
-            m_h_overview_reco_authors.emplace_back(new TH1F((m_muonsName + "_" + theMuonCategories[i] + "_reco_authors").c_str(),
-                                                         (muonContainerName + "_" + theMuonCategories[i] + "_reco_authors").c_str(),
+            m_h_overview_reco_authors.emplace_back(new TH1F((m_muonsName + "_" + theMuonCategories.at(i) + "_reco_authors").c_str(),
+                                                         (muonContainerName + "_" + theMuonCategories.at(i) + "_reco_authors").c_str(),
                                                          nAuth + 1, -0.5, nAuth + 0.5));
         }
         m_h_overview_reco_authors.emplace_back(new TH1F((m_muonsName + "_Overview_Other_reco_authors").c_str(),

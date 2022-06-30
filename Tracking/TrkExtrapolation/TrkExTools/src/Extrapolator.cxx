@@ -1456,8 +1456,9 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 *nextLayer->fullUpdateMaterialProperties(*nextPar)); // !<@TODOcheck
               double scatsigma = std::sqrt(m_msupdater->sigmaSquare(
                 materialProperties, 1. / std::abs(nextPar->parameters()[qOverP]), 1., particle));
-              auto newsa = Trk::ScatteringAngles(
-                0, 0, scatsigma / std::sin(nextPar->parameters()[Trk::theta]), scatsigma);
+              const double par_theta = std::abs(nextPar->parameters()[Trk::theta]) > FLT_EPSILON ? nextPar->parameters()[Trk::theta] : FLT_EPSILON;
+              Trk::ScatteringAngles newsa(
+                0, 0, scatsigma / std::sin(par_theta), scatsigma);
               // energy loss
               double currentqoverp = nextPar->parameters()[Trk::qOverP];
               std::unique_ptr<EnergyLoss> eloss = (m_elossupdater->energyLoss(
