@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ZdcAnalysis )
@@ -11,7 +11,7 @@ atlas_add_library( ZdcAnalysisLib
                    Root/*.cxx
                    PUBLIC_HEADERS ZdcAnalysis
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgDataHandlesLib AsgTools xAODEventInfo xAODForward xAODTrigL1Calo
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgDataHandlesLib AsgTools CxxUtils xAODEventInfo xAODForward xAODTrigL1Calo
 		           PRIVATE_LINK_LIBRARIES PathResolver )
 
 atlas_add_component( ZdcAnalysis
