@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,7 +25,7 @@
 #include <cassert>
 #include <iostream>
 
-bool IVP1System::s_vp1verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT"); // TODO: is this used at all?
+const bool IVP1System::s_vp1verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT"); // TODO: is this used at all?
 
 class IVP1System::Imp {
 public:
