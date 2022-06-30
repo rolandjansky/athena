@@ -144,7 +144,7 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
                         exclusion_list.append(r"'{}'".format(stripped_line))
         else:
             self.logger.info("No diff rules file exists, using the default list")
-            exclusion_list = [r"'index_ref'", r"'(.*)_timings\.(.*)'", r"'(.*)_mems\.(.*)'"]
+            exclusion_list = [r"'index_ref'", r"'(.*)_timings(.*)'", r"'(.*)_mems(.*)'"]
 
         file_name = f"my{self.format}.pool.root"
         reference_file = reference_path / file_name

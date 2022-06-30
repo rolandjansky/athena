@@ -5,7 +5,7 @@ from sys import exit
 
 from WorkflowTestRunner.ScriptUtils import setup_logger, setup_parser, get_test_setup, get_standard_performance_checks, \
     run_tests, run_checks, run_summary
-from WorkflowTestRunner.StandardTests import PileUpTest, QTest, SimulationTest
+from WorkflowTestRunner.StandardTests import OverlayTest, PileUpTest, QTest, SimulationTest
 from WorkflowTestRunner.Test import WorkflowRun, WorkflowType
 
 
@@ -28,12 +28,17 @@ def main():
         if not options.workflow or options.workflow is WorkflowType.AF3:
             log.error("AF3 not supported yet")
     elif options.overlay:
-        log.error("Overlay not supported yet")
-        exit(1)
+        if not options.workflow or options.workflow is WorkflowType.MCOverlay:
+            tests_to_run.append(OverlayTest("d1759", run, WorkflowType.MCOverlay, ["Overlay"], setup, options.extra_args))
     elif options.pileup:
+        if setup.parallel_execution:
+            log.error("Parallel execution not supported for pile-up workflow")
+            exit(1)
         if not options.workflow or options.workflow is WorkflowType.PileUpPresampling:
-            ami_tag = "d1744" if not options.ami_tag else options.ami_tag
+            ami_tag = "d1760" if not options.ami_tag else options.ami_tag
             tests_to_run.append(PileUpTest(ami_tag, run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
+        if not options.workflow or options.workflow is WorkflowType.MCPileUpReco:
+            tests_to_run.append(QTest("q446", run, WorkflowType.MCPileUpReco, ["Overlay", "RAWtoALL"], setup, options.extra_args))
     else:
         if not options.workflow or options.workflow is WorkflowType.MCReco:
             ami_tag = "q445" if not options.ami_tag else options.ami_tag
