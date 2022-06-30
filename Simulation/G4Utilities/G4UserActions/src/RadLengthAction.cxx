@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadLengthAction.h"
@@ -14,7 +14,6 @@
 #include <TTree.h>
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "G4PrimaryParticle.hh"
@@ -41,6 +40,7 @@ namespace G4UA
     , m_SDTGC(nullptr)
     , m_SDCSC(nullptr)
     , m_SDRPC(nullptr)
+    , m_hSvc("THistSvc", "RadLengthAction")
   {
   }
 
@@ -138,18 +138,8 @@ namespace G4UA
       variables[(*volit).first].resize(12);
     }
 
-    // procedure to get the THistoSvc
-    StatusCode status;
-
-    static ITHistSvc* hSvc=0;
-
-    if(!hSvc){
-      ISvcLocator* svcLocator = Gaudi::svcLocator();
-      status = svcLocator->service("THistSvc", hSvc, true);
-      if( status.isFailure() ){
-        return;
-      }
-    }
+    // get the THistoSvc
+    if(m_hSvc.retrieve().isFailure()) return;
 
     // using already initialized treeMap to register the trees with volname
     // and branches which are REFERENCED to the components of the corresponding
@@ -158,7 +148,7 @@ namespace G4UA
     for(it=treeMap.begin(); it!=treeMap.end(); it++){
       std::string filename= "/RadLengthAction/";
       std::string treepath= filename+(*it).first;
-      if (hSvc) hSvc->regTree(treepath.c_str(), treeMap[(*it).first]).ignore();
+      m_hSvc->regTree(treepath.c_str(), treeMap[(*it).first]).ignore();
       //if (!hSvc) log()<< MSG::ERROR << "Cannot register Tree!" << (*it).first << endreq;
       treeMap[(*it).first]->Branch("EnergyLoss",  &variables[(*it).first].at(0), "EnergyLoss/D");
       treeMap[(*it).first]->Branch("RadLength",   &variables[(*it).first].at(1),  "RadLength/D");
@@ -243,7 +233,8 @@ namespace G4UA
     if(TrackHelper(aStep->GetTrack()).IsPrimary()) {
 
       // get touchable history since used often
-      G4TouchableHistory* touchHist =(G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+      const G4TouchableHistory* touchHist =
+        static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 
       // get point before Stepping was started
       G4ThreeVector xyz = (G4ThreeVector) aStep->GetPreStepPoint()->GetPosition();

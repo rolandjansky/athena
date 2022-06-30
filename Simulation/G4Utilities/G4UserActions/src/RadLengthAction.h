@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_RadLengthAction_H
@@ -15,6 +15,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4VSensitiveDetector.hh"
 
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 class TTree;
 
@@ -71,6 +73,9 @@ namespace G4UA
     G4VSensitiveDetector* m_SDTGC;
     G4VSensitiveDetector* m_SDCSC;
     G4VSensitiveDetector* m_SDRPC;
+
+    // Handle to the histogram service
+    ServiceHandle<ITHistSvc> m_hSvc;
 
     // methode to fill vector stored in variables map (index volume name)
     void fillVariables(std::vector<double> varvec, const std::string& name);

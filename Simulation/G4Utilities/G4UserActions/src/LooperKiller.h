@@ -52,9 +52,9 @@ namespace G4UA
 
       typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
       /// Pointer to StoreGate (event store by default)
-      mutable StoreGateSvc_t m_evtStore;
+      StoreGateSvc_t m_evtStore;
       /// Pointer to StoreGate (detector store by default)
-      mutable StoreGateSvc_t m_detStore;
+      StoreGateSvc_t m_detStore;
 
       /// My configuration options
       Config m_config;

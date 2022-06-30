@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_HitWrapper_H
@@ -31,9 +31,9 @@ namespace G4UA
 
       typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
       /// Pointer to StoreGate (event store by default)
-      mutable StoreGateSvc_t m_evtStore;
+      StoreGateSvc_t m_evtStore;
       /// Pointer to StoreGate (detector store by default)
-      mutable StoreGateSvc_t m_detStore;
+      StoreGateSvc_t m_detStore;
 
       Config m_config;
 
