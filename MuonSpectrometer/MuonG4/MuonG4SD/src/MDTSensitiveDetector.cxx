@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetector.h"
@@ -112,7 +112,7 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   if( ((nameSD) && (namePreStepMat != namePostStepMat)) || (currentTrack->GetTrackStatus() ==  fStopAndKill)){
 
     // get identifier
-    G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+    const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
     int MDTid = GetIdentifier(touchHist);
 
     TrackHelper trHelp(aStep->GetTrack());
@@ -129,7 +129,7 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   return true;
 }
 
-int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
+int MDTSensitiveDetector::GetIdentifier(const G4TouchableHistory* touchHist)
 {
   // attributes of the MDT identifier construction
   std::string stationName;
