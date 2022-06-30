@@ -33,4 +33,4 @@ atlas_add_dictionary( OLD_G4SimTPCnvDict
 atlas_add_test( TrackRecordCnv_p1_test
                 SOURCES
                 test/TrackRecordCnv_p1_test.cxx
-                LINK_LIBRARIES G4SimTPCnv TestTools )
+                LINK_LIBRARIES G4SimTPCnv TestTools CxxUtils )
