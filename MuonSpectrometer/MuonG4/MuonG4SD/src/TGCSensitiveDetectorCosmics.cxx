@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSensitiveDetectorCosmics.h"
@@ -39,7 +39,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     if (track->GetDefinition()!=G4Geantino::GeantinoDefinition()) return true;
     else if (track->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition()) return true;
   }
-  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+  const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
   G4ThreeVector           position  = aStep->GetPreStepPoint()->GetPosition();
   const G4AffineTransform trans     = track->GetTouchable()->GetHistory()->GetTopTransform();
 

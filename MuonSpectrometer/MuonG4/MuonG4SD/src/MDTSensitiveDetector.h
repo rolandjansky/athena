@@ -96,7 +96,7 @@ public:
     G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override final;
     
 private:
-    int  GetIdentifier(G4TouchableHistory* touchHist);
+    int  GetIdentifier(const G4TouchableHistory* touchHist);
                  
     /** member data */
     SG::WriteHandle<MDTSimHitCollection> m_MDTHitColl;
