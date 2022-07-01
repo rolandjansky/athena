@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -213,7 +213,7 @@ bool AFP_TDSensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
       else if(nStationID==3 && nQuarticID==1){ if (m_nNOfTDSimHits[3][nDetectorID] >= TDMAXCNT) return 1;}
 
       // Get the Touchable History:
-      G4TouchableHistory*  myTouch = (G4TouchableHistory*)(pPreStepPoint->GetTouchable());
+      const G4TouchableHistory* myTouch = static_cast<const G4TouchableHistory*>(pPreStepPoint->GetTouchable());
       // Calculate the local step position.
       // From a G4 FAQ:
       // http://geant4-hn.slac.stanford.edu:5090/HyperNews/public/get/geometry/17/1.html
