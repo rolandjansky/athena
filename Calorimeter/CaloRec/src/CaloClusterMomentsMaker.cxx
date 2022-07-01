@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -53,7 +53,7 @@ using CLHEP::cm;
 // Known moments
 namespace {
   // name -> enum translator
-  std::map<std::string,xAOD::CaloCluster::MomentType> momentNameToEnumMap = { 
+  const std::map<std::string,xAOD::CaloCluster::MomentType> momentNameToEnumMap = {
     { "AVG_LAR_Q",         xAOD::CaloCluster::AVG_LAR_Q },
     { "AVG_TILE_Q",        xAOD::CaloCluster::AVG_TILE_Q },
     { "BADLARQ_FRAC",      xAOD::CaloCluster::BADLARQ_FRAC },
@@ -94,7 +94,7 @@ namespace {
     { "NCELL_SAMPLING",    xAOD::CaloCluster::NCELL_SAMPLING }
   };
   // enum -> name translator
-  std::map<xAOD::CaloCluster::MomentType,std::string> momentEnumToNameMap = { 
+  const std::map<xAOD::CaloCluster::MomentType,std::string> momentEnumToNameMap = {
     { xAOD::CaloCluster::AVG_LAR_Q,          "AVG_LAR_Q"        },
     { xAOD::CaloCluster::AVG_TILE_Q,         "AVG_TILE_Q"       },
     { xAOD::CaloCluster::BADLARQ_FRAC,       "BADLARQ_FRAC"     },
