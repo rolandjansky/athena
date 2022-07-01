@@ -130,6 +130,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     Extrapolator = CompFactory.Trk.Extrapolator(name,
                                                 Navigator=AtlasNavigator,
                                                 MaterialEffectsUpdators=AtlasUpdators,
+                                                STEP_Propagator=AtlasSTEP_Propagator,
                                                 Propagators=AtlasPropagators,
                                                 SubPropagators=AtlasSubPropagators,
                                                 SubMEUpdators=AtlasSubUpdators,
@@ -335,18 +336,21 @@ def MuonExtrapolatorCfg(flags, name="MuonExtrapolator", **kwargs):
     AtlasELossUpdater = result.popToolsAndMerge(TC.AtlasEnergyLossUpdatorCfg(flags))
     kwargs.setdefault("EnergyLossUpdater", AtlasELossUpdater)
 
-    if 'Propagators' not in kwargs:
+    if 'STEP_Propagator' not in kwargs:
         from TrkConfig.TrkExSTEP_PropagatorConfig import (
             AtlasSTEP_PropagatorCfg)
-        muon_prop = result.popToolsAndMerge(
-            AtlasSTEP_PropagatorCfg(flags, name="MuonPropagator"))
-        kwargs.setdefault("Propagators", [muon_prop])
+        AtlasSTEP_Propagator = result.popToolsAndMerge(
+            AtlasSTEP_PropagatorCfg(flags))
+        kwargs.setdefault("STEP_Propagator", AtlasSTEP_Propagator)
+
+    if 'Propagators' not in kwargs:
+        kwargs.setdefault("Propagators", [kwargs["STEP_Propagator"]])
 
     kwargs.setdefault("ResolveMuonStation", True)
     # must be > 1um to avoid missing MTG intersections
     kwargs.setdefault("Tolerance", 0.0011)
 
-    extrap = CompFactory.Trk.Extrapolator(name=name, **kwargs)
+    extrap = CompFactory.Trk.Extrapolator(name, **kwargs)
     result.setPrivateTools(extrap)
     return result
 
@@ -358,7 +362,7 @@ def MuonStraightLineExtrapolatorCfg(flags,
     result = ComponentAccumulator()
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
     muon_prop = result.popToolsAndMerge(
-        AtlasSTEP_PropagatorCfg(flags, name="MuonStraightLinePropagator"))
+        AtlasSTEP_PropagatorCfg(flags, name))
     kwargs.setdefault("Propagators", [muon_prop])
     kwargs.setdefault("STEP_Propagator", muon_prop)
     extrap = result.popToolsAndMerge(
@@ -372,8 +376,9 @@ def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator', **kwargs):
     result = ComponentAccumulator()
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
     prop = result.popToolsAndMerge(
-        AtlasSTEP_PropagatorCfg(flags, name="MCTBPropagator"))
+        AtlasSTEP_PropagatorCfg(flags))
     kwargs.setdefault("Propagators", [prop])
+    kwargs.setdefault("STEP_Propagator", prop)
     kwargs.setdefault("ResolveMuonStation", False)
     extrap = result.popToolsAndMerge(
         MuonExtrapolatorCfg(flags, name, **kwargs))

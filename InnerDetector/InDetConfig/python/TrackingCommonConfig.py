@@ -83,7 +83,7 @@ def InDetTRT_DriftCircleOnTrackToolCfg(flags, name='TRT_DriftCircleOnTrackTool',
     acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackTool(name, **kwargs))
     return acc
 
-def InDetBroadTRT_DriftCircleOnTrackToolCfg(name='InDetBroadTRT_DriftCircleOnTrackTool', **kwargs):
+def TRT_DriftCircleOnTrackNoDriftTimeToolCfg(name='TRT_DriftCircleOnTrackNoDriftTimeTool', **kwargs):
     acc = ComponentAccumulator()
     acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackNoDriftTimeTool(name, **kwargs))
     return acc
@@ -93,10 +93,10 @@ def InDetTRT_DriftCircleOnTrackUniversalToolCfg(name='InDetTRT_RefitRotCreator',
     default_ScaleHitUncertainty = 2.5
 
     if 'RIOonTrackToolDrift' not in kwargs:
-        RIOonTrackToolDrift = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
+        RIOonTrackToolDrift = acc.popToolsAndMerge(TRT_DriftCircleOnTrackNoDriftTimeToolCfg())
         kwargs.setdefault("RIOonTrackToolDrift", RIOonTrackToolDrift)
     if 'RIOonTrackToolTube' not in kwargs:
-        RIOonTrackToolTube = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
+        RIOonTrackToolTube = acc.popToolsAndMerge(TRT_DriftCircleOnTrackNoDriftTimeToolCfg())
         kwargs.setdefault("RIOonTrackToolTube", RIOonTrackToolTube)
     kwargs.setdefault("ScaleHitUncertainty", default_ScaleHitUncertainty) 
     acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackUniversalTool(name, **kwargs))
@@ -152,8 +152,8 @@ def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics'
         kwargs.setdefault("RIOonTrackToolYesDr", InDetTRT_DriftCircleOnTrackUniversalToolCosmics)
 
     if 'RIOonTrackToolNoDr' not in kwargs:
-        InDetBroadTRT_DriftCircleOnTrackTool = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
-        kwargs.setdefault("RIOonTrackToolNoDr", InDetBroadTRT_DriftCircleOnTrackTool)
+        TRT_DriftCircleOnTrackNoDriftTimeTool = acc.popToolsAndMerge(TRT_DriftCircleOnTrackNoDriftTimeToolCfg())
+        kwargs.setdefault("RIOonTrackToolNoDr", TRT_DriftCircleOnTrackNoDriftTimeTool)
 
     kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles()
     kwargs.setdefault("SearchNeighbour", False)   # needs debugging!!!
@@ -183,6 +183,11 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
 
     if 'RIOonTrackToolYesDr' not in kwargs:
         kwargs.setdefault("RIOonTrackToolYesDr", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
+
+
+    if 'RIOonTrackToolNoDr' not in kwargs:
+        TRT_DriftCircleOnTrackNoDriftTimeTool = acc.popToolsAndMerge(TRT_DriftCircleOnTrackNoDriftTimeToolCfg())
+        kwargs.setdefault("RIOonTrackToolNoDr", TRT_DriftCircleOnTrackNoDriftTimeTool)
 
     if 'RoadTool' not in kwargs:
         InDetTRT_RoadMaker = acc.popToolsAndMerge(InDetTRT_RoadMakerCfg(flags))

@@ -93,7 +93,7 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     kwargs.setdefault("NavigatorTool", navigator)
     
     from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
-    muon_prop =  result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name="MuonSTEP_Propagator"))
+    muon_prop =  result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags))
     kwargs.setdefault("PropagatorTool", muon_prop)
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
