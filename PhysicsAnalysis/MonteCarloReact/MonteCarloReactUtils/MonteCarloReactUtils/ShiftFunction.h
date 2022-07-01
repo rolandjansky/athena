@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MONTECARLOREACT_SHIFTFUNCTION_H
@@ -119,7 +119,7 @@ namespace MonteCarloReact {
     /// if mode set to IGNORE_UNDERFLOW will substitute the underflow with the lowest bin value
     /// if mode set to  IGNORE_OVERFLOW will substitute the overrflow with the highest bin value 
     /// IGNORE_UNDEROVERFLOW will substitue both underflow and overflow
-    void setExeptionMode(Mode mode) const {m_flowMode = mode ;}
+    void setExeptionMode(Mode mode) {m_flowMode = mode ;}
 
     // return historgram dimension (number of axis)
     int getDimension() const { return m_axisEdges.size();} 
@@ -136,7 +136,7 @@ namespace MonteCarloReact {
     std::vector< TF2 > m_tf2;
 
     
-    mutable Mode m_flowMode ;
+    Mode m_flowMode ;
 
     // write efficiency information to the output stream
     void stream( std::ostream &) const;
