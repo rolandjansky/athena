@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file D3PDMakerRoot/src/RootD3PD.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -84,8 +83,6 @@ char find_typecode (const std::type_info& ti)
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 672209 $
- * $Date$
  */
 class NameMatches {
 public:
@@ -672,7 +669,12 @@ StatusCode RootD3PD::redim (const Dim_t* /*ptr*/)
 /**
  * @brief Return the underlying root tree.
  */
-TTree* RootD3PD::tree() const
+const TTree* RootD3PD::tree() const
+{
+  return m_tree;
+}
+
+TTree* RootD3PD::tree()
 {
   return m_tree;
 }
