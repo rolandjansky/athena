@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleJetTools/CopyTruthJetParticles.h"
@@ -14,6 +14,7 @@
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgMessaging/Check.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <mutex>          // std::call_once, std::once_flag
 
@@ -181,7 +182,7 @@ unsigned int CopyTruthJetParticles::getTCresult(const xAOD::TruthParticle* tp,
   return tc_results[tp];
 }
 
-int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{ 
+int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() {
 
   ATH_MSG_DEBUG(" in call once barcode offset is"<<m_barcodeOffset);
 
@@ -252,14 +253,17 @@ int CopyTruthJetParticles::execute() const {
   // they need the "this" pointer which always point to the object the function is working on
   //http://www.learncpp.com/cpp-tutorial/812-static-member-functions/ 
 
-  //  m_barcodeOffset = m_barcodeOffset;
-    ATH_MSG_DEBUG(" barcode offset before the check  is"<<m_barcodeOffset);
+  ATH_MSG_DEBUG(" barcode offset before the check  is"<<m_barcodeOffset);
 
   //  std::call_once(metaDataFlag,&CopyTruthJetParticles::basicMetaDataCheck,this,barcodeOffset);
   // this call happens only once and it modifies m_barcodeOffset
   // Note that catching the return value of this is rather complicated, so it throws rather than returning errors
   static std::once_flag metaDataFlag;
-  std::call_once(metaDataFlag,&CopyTruthJetParticles::setBarCodeFromMetaDataCheck, this);
+  std::call_once(metaDataFlag,[&]() {
+      // calling non-const within const method is safe here because protected by std::once_flag
+      auto this_nc ATLAS_THREAD_SAFE = const_cast<CopyTruthJetParticles*>(this);
+      this_nc->setBarCodeFromMetaDataCheck();
+    });
 
   std::vector<const xAOD::TruthParticle*> promptLeptons;
   promptLeptons.reserve(10);

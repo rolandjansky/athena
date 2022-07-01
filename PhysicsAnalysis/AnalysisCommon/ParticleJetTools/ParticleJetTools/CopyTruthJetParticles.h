@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COPYTRUTHJETPARTICLES_H
@@ -34,7 +34,7 @@ public:
                         std::map<const xAOD::TruthParticle*,unsigned int>& tc_results) const;
 
   // metadata check
-  int setBarCodeFromMetaDataCheck() const ;
+  int setBarCodeFromMetaDataCheck();
 
   /// The base classify() is not used 
   bool classify(const xAOD::TruthParticle* ) const {return false;}
@@ -58,9 +58,7 @@ private:
   float m_maxAbsEta;
 
   /// Offset for Geant4 particle barcodes
-  // this is set to mutable so that it changes if the metadata information is available
-  //http://stackoverflow.com/questions/12247970/error-in-assignment-of-member-in-read-only-object
-  mutable int m_barcodeOffset;
+  int m_barcodeOffset;
 
   /// Determine how the barcode offset is set from metadata
   ///  0 -> no metdata access, use BarCodeOffset property
