@@ -26,7 +26,8 @@
 // STL include files
 #include <map>
 #include <string>
-#include <algorithm>
+#include <vector>
+
 
 /*
  *  POOL namespace declaration
