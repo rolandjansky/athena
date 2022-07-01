@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcEventTPCnv/ZdcDigitsCollectionCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
 
-static ZdcDigitsCnv_p1 digitConv;
+static const ZdcDigitsCnv_p1 digitConv;
 
-void ZdcDigitsCollectionCnv_p1::transToPers(const ZdcDigitsCollection* transObj, ZdcDigitsCollection_p1* persObj, MsgStream& log) {
+void ZdcDigitsCollectionCnv_p1::transToPers(const ZdcDigitsCollection* transObj, ZdcDigitsCollection_p1* persObj, MsgStream& log) const {
   
   persObj->resize(transObj->size());
   
@@ -19,7 +19,7 @@ void ZdcDigitsCollectionCnv_p1::transToPers(const ZdcDigitsCollection* transObj,
   }    
 }
 
-void ZdcDigitsCollectionCnv_p1::persToTrans(const ZdcDigitsCollection_p1* persObj, ZdcDigitsCollection* transObj, MsgStream& log) {
+void ZdcDigitsCollectionCnv_p1::persToTrans(const ZdcDigitsCollection_p1* persObj, ZdcDigitsCollection* transObj, MsgStream& log) const {
 
   //log << MSG::INFO << " size = " << persObj->size() << endmsg;
 
@@ -30,6 +30,6 @@ void ZdcDigitsCollectionCnv_p1::persToTrans(const ZdcDigitsCollection_p1* persOb
     //log << MSG::INFO << " i = " << i << endmsg;
     const ZdcDigits_p1* digit = &((*persObj)[i]);
     
-    transObj->push_back(digitConv.createTransient(digit, log));
+    transObj->push_back(digitConv.createTransientConst(digit, log));
   }    
 }

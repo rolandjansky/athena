@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ZdcDigitsCollectionCnv_p1.h 
@@ -22,14 +22,16 @@
 
 class MsgStream;
 
-class ZdcDigitsCollectionCnv_p1: public T_AthenaPoolTPCnvBase<ZdcDigitsCollection, ZdcDigitsCollection_p1> {
+class ZdcDigitsCollectionCnv_p1: public T_AthenaPoolTPCnvConstBase<ZdcDigitsCollection, ZdcDigitsCollection_p1> {
   
 public:
-  
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
   ZdcDigitsCollectionCnv_p1() {}
   
-  virtual void persToTrans(const ZdcDigitsCollection_p1* persObj, ZdcDigitsCollection*   transObj, MsgStream& log);
-  virtual void transToPers(const ZdcDigitsCollection*   transObj, ZdcDigitsCollection_p1* persObj, MsgStream& log);
+  virtual void persToTrans(const ZdcDigitsCollection_p1* persObj, ZdcDigitsCollection*   transObj, MsgStream& log) const override;
+  virtual void transToPers(const ZdcDigitsCollection*   transObj, ZdcDigitsCollection_p1* persObj, MsgStream& log) const override;
 };
 
 

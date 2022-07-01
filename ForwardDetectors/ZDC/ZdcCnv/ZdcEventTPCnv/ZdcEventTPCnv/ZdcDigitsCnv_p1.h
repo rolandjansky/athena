@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ZdcDigitsCnv_p1.h 
@@ -23,9 +23,11 @@
 
 class MsgStream;
 
-class ZdcDigitsCnv_p1 : public T_AthenaPoolTPCnvBase<ZdcDigits, ZdcDigits_p1> {
+class ZdcDigitsCnv_p1 : public T_AthenaPoolTPCnvConstBase<ZdcDigits, ZdcDigits_p1> {
 
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
 
   /** Default constructor: 
    */
@@ -34,12 +36,12 @@ public:
   /** Method creating the transient representation ZdcDigits
    *  from its persistent representation ZdcDigits_p1
    */
-  virtual void persToTrans(const ZdcDigits_p1* persObj, ZdcDigits* transObj, MsgStream &log);
+  virtual void persToTrans(const ZdcDigits_p1* persObj, ZdcDigits* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation ZdcDigits_p1
    *  from its transient representation ZdcDigits
    */
-  virtual void transToPers(const ZdcDigits* transObj, ZdcDigits_p1* persObj, MsgStream &log);
+  virtual void transToPers(const ZdcDigits* transObj, ZdcDigits_p1* persObj, MsgStream &log) const override;
 
 };
 

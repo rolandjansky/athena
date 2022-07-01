@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDC_SimEvent/ZDC_SimPixelHit.h"
 #include "Identifier/Identifier.h"
 #include "ZdcEventTPCnv/ZDC_SimPixelHitCnv_p1.h"
 
-void ZDC_SimPixelHitCnv_p1::persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_SimPixelHit* transObj, MsgStream& log) {
+void ZDC_SimPixelHitCnv_p1::persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_SimPixelHit* transObj, MsgStream& log) const {
 
   log << MSG::DEBUG << " In ZDC_SimPixelHitCnv_p1::persToTrans " << endmsg;
 
@@ -18,7 +18,7 @@ void ZDC_SimPixelHitCnv_p1::persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_S
                                
 }
 
-void ZDC_SimPixelHitCnv_p1::transToPers(const ZDC_SimPixelHit* transObj, ZDC_SimPixelHit_p1* persObj, MsgStream& log) {
+void ZDC_SimPixelHitCnv_p1::transToPers(const ZDC_SimPixelHit* transObj, ZDC_SimPixelHit_p1* persObj, MsgStream& log) const {
 
   log << MSG::DEBUG << " In ZDC_SimPixelHitCnv_p1::transToPers " << endmsg;
 

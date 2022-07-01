@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ZdcRawChannelCnv_p1.cxx
@@ -15,7 +15,7 @@
 
 
 void
-ZdcRawChannelCnv_p1::persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel* transObj, MsgStream &log)
+ZdcRawChannelCnv_p1::persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel* transObj, MsgStream &log) const
 {
   //log << MSG::INFO << "ZdcRawChannelCnv_p1::persToTrans called " << endmsg;
   log << MSG::VERBOSE << "ZdcRawChannelCnv_p1::persToTrans called " << endmsg;
@@ -38,7 +38,7 @@ ZdcRawChannelCnv_p1::persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel*
 
 
 void
-ZdcRawChannelCnv_p1::transToPers(const ZdcRawChannel* transObj, ZdcRawChannel_p1* persObj, MsgStream &log)
+ZdcRawChannelCnv_p1::transToPers(const ZdcRawChannel* transObj, ZdcRawChannel_p1* persObj, MsgStream &log) const
 {
   log << MSG::VERBOSE << "ZdcRawChannelCnv_p1::transToPers called " << endmsg;
 
