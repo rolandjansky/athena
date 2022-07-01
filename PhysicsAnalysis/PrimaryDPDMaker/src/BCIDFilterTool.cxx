@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -16,9 +16,7 @@
 BCIDFilterTool::BCIDFilterTool( const std::string& t,
 				const std::string& n,
 				const IInterface* p ) : 
-  AthAlgTool(t,n,p),
-  m_ntot(0),
-  m_npass(0)
+  AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("AcceptBCIDs", m_acceptBCIDs);
@@ -31,7 +29,6 @@ BCIDFilterTool::~BCIDFilterTool() {}
 // Athena initialize and finalize
 StatusCode BCIDFilterTool::initialize()
 {
-     ATH_MSG_VERBOSE("initialize() ...");
      if (m_acceptBCIDs.size() && m_rejectBCIDs.size()) {
        ATH_MSG_ERROR("Failed to initialize - both accept and reject BCIDs specified, please only use one");
        return StatusCode::FAILURE;
@@ -52,7 +49,6 @@ StatusCode BCIDFilterTool::initialize()
 }
 StatusCode BCIDFilterTool::finalize()
 {
-     ATH_MSG_VERBOSE("finalize() ...");
      ATH_MSG_INFO("Processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter ");
      return StatusCode::SUCCESS;
 }
@@ -69,15 +65,19 @@ bool BCIDFilterTool::eventPassesFilter() const
      
      if (m_acceptBCIDs.size()) {
        for (auto acceptBCID : m_acceptBCIDs) {
-	 if (bcid == acceptBCID) return true;
+         if (bcid == acceptBCID) {
+           ++m_npass;
+           return true;
+         }
        }
        return false;
      }
 
      else {
        for (auto rejectBCID : m_rejectBCIDs) {
-	 if (bcid == rejectBCID) return false;
+         if (bcid == rejectBCID) return false;
        }
+       ++m_npass;
        return true;
      }
 }  
