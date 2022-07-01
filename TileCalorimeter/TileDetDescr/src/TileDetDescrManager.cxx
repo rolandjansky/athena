@@ -290,7 +290,7 @@ void TileDetDescrManager::create_elements(bool checks)
       }
 
       double deta    = 0.1; // fixed deta for gap scin
-      int    neta    = 6;   // fixed number of eta bins for gap scin
+      int    neta    = (emax>1.65) ? 7 : 6;   // fixed number of eta bins for gap scin - 6 for RUN1/RUN2, 7 for RUN3/RUN4
       depth_in[0] = zmin;
       depth_out[0] = zmax;
       CaloCell_ID::CaloSample sample = CaloCell_ID::TileGap3;
@@ -535,7 +535,7 @@ void TileDetDescrManager::create_elements(bool checks)
                     std::cout<<"old z/dz: " << oldz << " " << olddz << std::endl
                              <<"new z/dz: " << elt->z() << " " << elt->dz() << " "
                              << elt->z()/oldz*100-100 << " % diff "
-                             <<"do not change z/dz for BC cells in barrel"<<std::endl;
+                             <<"use z/dz from descriptor for E cells"<<std::endl;
           
         } else {
           //                  elt->set_z_pos_and_size(z,dz);
