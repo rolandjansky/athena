@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LengthIntegrator.h"
@@ -415,7 +415,8 @@ namespace G4UA
    void LengthIntegrator::UserSteppingAction(const G4Step* aStep)
   {
 
-    G4TouchableHistory* touchHist = (G4TouchableHistory*) aStep->GetPreStepPoint()->GetTouchable();
+    const G4TouchableHistory* touchHist =
+      static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
     G4LogicalVolume* lv = touchHist->GetVolume()->GetLogicalVolume();
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
     G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
