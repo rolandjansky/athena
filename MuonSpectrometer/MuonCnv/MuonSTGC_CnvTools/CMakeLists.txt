@@ -1,12 +1,10 @@
-################################################################################
-# Package: MuonTGC_CnvTools
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonSTGC_CnvTools )
 
-# External dependencies (some of these aren't currently needed, but they will once we add BS etc)
-find_package( tdaq-common COMPONENTS eformat_write DataWriter )
+# External dependencies:
+find_package( tdaq-common COMPONENTS eformat )
 
 atlas_add_library( MuonSTGC_CnvToolsLib
                    MuonSTGC_CnvTools/*.h
