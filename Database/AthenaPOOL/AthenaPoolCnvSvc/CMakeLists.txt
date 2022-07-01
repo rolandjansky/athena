@@ -5,7 +5,7 @@ atlas_subdir( AthenaPoolCnvSvc )
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core )
+find_package( ROOT COMPONENTS Core Net )
 
 # Component(s) in the package:
 atlas_add_library( AthenaPoolCnvSvcLib
