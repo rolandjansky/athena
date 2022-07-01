@@ -29,7 +29,7 @@ def useLArFloat(flags):
     """Return bool for simplified transient LArHit with float E,time"""
     # temporary, remapping to LArHitFloat does not seeem to work
     # with this scheme... => larger memory usage
-    if flags.Digitization.DoXingByXingPileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Digitization.DoXingByXingPileUp or flags.Common.isOverlay:
         return False
     # check for fast chain, running digitisation from hits in memory
     if flags.Sim.DoFullChain:
@@ -86,7 +86,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     acc.merge(LArXTalkWeightCondAlgCfg(flags))
 
     # defaults
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         # Some noise needs to be added during MC Overlay
         # No noise should be added during Data Overlay
         kwargs.setdefault("NoiseOnOff", not flags.Overlay.DataOverlay)
@@ -105,9 +105,9 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
     else:
         kwargs.setdefault("PileUpMergeSvc", '')
-    kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault("RndmEvtOverlay", flags.Common.isOverlay)
     # if doing MC+MC overlay
-    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
+    if flags.Common.isOverlay and flags.Input.isMC:
         kwargs.setdefault("isMcOverlay", True)
 
     # cosmics digitization
@@ -115,7 +115,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("UseTriggerTime", True)
         CosmicTriggerTimeTool = CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
-    if flags.Digitization.PileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Digitization.PileUp or flags.Common.isOverlay:
         kwargs.setdefault("PileUp", True)
     kwargs.setdefault("useLArFloat", useLArFloat(flags))
     if useLArFloat(flags):
@@ -125,7 +125,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         acc.merge(InputOverwriteCfg("LArHitContainer","LArHitFCAL","LArHitFloatContainer","LArHitFCAL"))
         kwargs.setdefault("LArHitContainers", [])
 
-        if flags.Common.ProductionStep == ProductionStep.Overlay:
+        if flags.Common.isOverlay:
             from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
             acc.merge(SGInputLoaderCfg(flags, [
                 "LArHitFloatContainer#LArHitEMB",
@@ -136,7 +136,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     else:
         kwargs.setdefault("LArHitFloatContainers", [])
 
-        if flags.Common.ProductionStep == ProductionStep.Overlay:
+        if flags.Common.isOverlay:
             from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
             acc.merge(SGInputLoaderCfg(flags, [
                 "LArHitContainer#LArHitEMB",
@@ -144,7 +144,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
                 "LArHitContainer#LArHitFCAL",
                 "LArHitContainer#LArHitHEC",
             ]))
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("OnlyUseContainerName", False)
         if flags.Overlay.DataOverlay:
             kwargs.setdefault("InputDigitContainer", f"{flags.Overlay.BkgPrefix}FREE")
@@ -177,14 +177,14 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
         requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
 
-    if flags.Common.ProductionStep != ProductionStep.Overlay:
+    if not flags.Common.isOverlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
         #kwargs.setdefault('AutoCorrNoiseKey','LArAutoCorr')
 
     if "ProblemsToMask" not in kwargs:
         kwargs["ProblemsToMask"] = ["deadReadout", "deadPhys"]
     # defaults
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         # Some noise needs to be added during MC Overlay
         # No noise should be added during Data Overlay
         kwargs.setdefault("NoiseOnOff", not flags.Overlay.DataOverlay)
@@ -192,17 +192,17 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
         kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     kwargs.setdefault("DoDigiTruthReconstruction", flags.Digitization.DoDigiTruth)
     kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
-    if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
+    if (not flags.Digitization.HighGainFCal) and (not flags.Common.isOverlay):
         kwargs.setdefault("HighGainThreshFCAL", 0)
-    if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
+    if (not flags.Digitization.HighGainEMECIW) and (not flags.Common.isOverlay):
         kwargs.setdefault("HighGainThreshEMECIW", 0)
-    kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault("RndmEvtOverlay", flags.Common.isOverlay)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
     else:
         kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
     # if doing MC+MC overlay
-    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
+    if flags.Common.isOverlay and flags.Input.isMC:
           kwargs.setdefault("isMcOverlay", True)
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", #Need to set a negative value to include preceeding samples
@@ -309,7 +309,7 @@ def LArAutoCorrNoiseCondSCAlgCfg(flags, **kwargs):
 def LArSCL1MakerCfg(flags, **kwargs):
     """Return ComponentAccumulator for LArSCL1Maker"""
     acc = ComponentAccumulator()
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         acc.merge(LArOverlayDigitizationBasicCfg(flags))
     else:
         acc.merge(LArDigitizationBasicCfg(flags))
@@ -341,7 +341,7 @@ def LArSCL1MakerCfg(flags, **kwargs):
                       acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("SCL1ContainerName", f"{flags.Overlay.BkgPrefix}LArDigitSCL2") # Output - why L2??
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs.setdefault("BkgDigitKey", f"{flags.Overlay.BkgPrefix}LArDigitSCL2")
 
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg

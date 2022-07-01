@@ -37,7 +37,7 @@ def CSC_RangeCfg(flags, name="CSC_Range", **kwargs):
 def CSC_DigitizationToolCommonCfg(flags, name="CscDigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
     acc = ComponentAccumulator()
-    if flags.Digitization.PileUp and flags.Common.ProductionStep is not ProductionStep.Overlay:
+    if flags.Digitization.PileUp and not flags.Common.isOverlay:
         intervals = []
         if not flags.Digitization.DoXingByXingPileUp:
             intervals += [acc.popToolsAndMerge(CSC_RangeCfg(flags))]
