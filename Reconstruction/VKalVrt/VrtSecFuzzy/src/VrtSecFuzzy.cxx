@@ -171,30 +171,6 @@ namespace VKalVrtAthena {
         return StatusCode::FAILURE;
       }
     }
-/*
-    for(unsigned int ifile = 0; ifile < m_jp.BDTFilesName.size(); ifile++){
-
-//      TFile* rootFile = TFile::Open(Form("%s", m_jp.BDTFilesName.at(ifile).c_str()), "READ"); // for local testing
-      std::string rootFilePath = PathResolver::find_calib_file("VrtSecFuzzy/"+m_jp.BDTFilesName.at(ifile));
-      TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");    
-
-      if (!rootFile) {
-        ATH_MSG_FATAL("Could not retrieve root file: " << m_jp.BDTFilesName.at(ifile));
-        return StatusCode::FAILURE;
-      }
-      m_tfile.reset(rootFile);
-
-      TTree *training = (TTree*)m_tfile->Get("BDT");
-      if (training) {
-        MVAUtils::BDT *tmpBDT = new MVAUtils::BDT(training);
-        delete training; 
-        m_bdt.push_back(tmpBDT);
-      }else {
-        ATH_MSG_FATAL("Could not retrieve tree: BDT");
-        return StatusCode::FAILURE;
-      }
-    }
-*/
 
     ATH_MSG_INFO("initialize: Exit VrtSecFuzzy::initialize()");
     return StatusCode::SUCCESS; 
@@ -310,7 +286,7 @@ namespace VKalVrtAthena {
     
     //-------------------------------------------------------
     // Skip the event if the number of selected tracks is more than m_jp.SelTrkMaxCutoff
-    ATH_MSG_INFO("execute(): # selected tracks = " << m_selectedTracks->size());
+    ATH_MSG_DEBUG("execute(): # selected tracks = " << m_selectedTracks->size());
     if( m_selectedTracks->size() < 2 ) {
       ATH_MSG_DEBUG( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
       return StatusCode::SUCCESS;   
@@ -324,7 +300,10 @@ namespace VKalVrtAthena {
     //-------------------------------------------------------
     // Core part of Vertexing
     //
-    
+  
+    const xAOD::EventInfo* eventInfo { nullptr };
+    sc = evtStore()->retrieve(eventInfo, "EventInfo");
+
     m_vertexingAlgorithmStep = 0;
     
     // set of vertices created in the following while loop.
@@ -333,6 +312,7 @@ namespace VKalVrtAthena {
     // the main sequence of the main vertexing algorithms
     // see initialize() what kind of algorithms exist.
     for( auto vertAlgo : m_vertexingAlgorithms ) {
+      bool nvrt_overflow = false;
       
       auto& alg = vertAlgo.second;
      
@@ -342,9 +322,15 @@ namespace VKalVrtAthena {
                                  []( WrkVrt& wrkvrt ) {
                                    return ( wrkvrt.isGood == false || wrkvrt.ntrks < 2 ); }
                                );
-      
+       
       workVerticesContainer->erase( end, workVerticesContainer->end() );
-
+      
+      while(workVerticesContainer->size() > m_jp.SelTwoTrkSeedMaxCutoff){
+        nvrt_overflow = true;
+        workVerticesContainer->pop_back();
+      }
+      eventInfo->auxdecor<bool>("VrtSecFuzzy_" + vertAlgo.first + "_overflow") =  nvrt_overflow;
+      
       m_vertexingAlgorithmStep++;
       
     }

@@ -69,11 +69,12 @@ namespace VKalVrtAthena {
     // default values are set upstream 
     
     // selection for tracks
-    declareProperty("SelTrkMaxCutoff",                 m_jp.SelTrkMaxCutoff                 = 10000                            ); // max number of tracks
+    declareProperty("SelTrkMaxCutoff",                 m_jp.SelTrkMaxCutoff                 = 10000                         ); // maximam number of tracks
+    declareProperty("SelTwoTrkSeedMaxCutoff",          m_jp.SelTwoTrkSeedMaxCutoff          = 500                           ); // maximam number of 2-track seed vertices
     declareProperty("do_PVvetoCut",                    m_jp.do_PVvetoCut                    = true                          );
-    declareProperty("do_d0Cut",                        m_jp.do_d0Cut                        = false                          );
-    declareProperty("do_z0Cut",                        m_jp.do_z0Cut                        = false                          );
-    declareProperty("do_trkChi2Cut",                   m_jp.do_trkChi2Cut                   = false                          );
+    declareProperty("do_d0Cut",                        m_jp.do_d0Cut                        = false                         );
+    declareProperty("do_z0Cut",                        m_jp.do_z0Cut                        = false                         );
+    declareProperty("do_trkChi2Cut",                   m_jp.do_trkChi2Cut                   = false                         );
     declareProperty("TrkPtCut",                        m_jp.TrkPtCut                        = 1000.                         ); // low pT threshold. in [MeV]
     declareProperty("d0TrkPVDstMinCut",                m_jp.d0TrkPVDstMinCut                = 0.                            ); // in [mm]
     declareProperty("d0TrkPVDstMaxCut",                m_jp.d0TrkPVDstMaxCut                = 1000.                         ); // in [mm]
