@@ -35,7 +35,8 @@ class LArBadChannelEnum {
     sporadicBurstNoiseBit = 19,
     deadSCACellBit = 20,
     badFirstSampleBit = 21,
-    unflaggedByLADIeSBit = 22
+    unflaggedByLADIeSBit = 22,
+    reflaggedByLADIeSBit = 23
   };
 
   ///  const static BitWord HighGainMask;
