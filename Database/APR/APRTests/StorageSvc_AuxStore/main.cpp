@@ -4,12 +4,16 @@
 
 #include <iostream>
 #include <exception>
+#include <string>
 #include "TestDriver.h"
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/errorcheck.h"
 
 int main( int argc, char** argv ) {
   errorcheck::ReportMessage::hideFunctionNames (true);
+
+  // hardcode here in case we only test reading, remember to keep in sync with classes.xml
+  std::string testTypeID = "A2222222-B111-C111-D111-E22134511111";
 
   ISvcLocator* svcloc = nullptr;
   if (!Athena_test::initGaudi (svcloc)) std::abort();
@@ -24,12 +28,12 @@ int main( int argc, char** argv ) {
 
     if( argc<2 || *argv[1] == 'w' ) {
        std::cout << "[OVAL] Testing the writing operations" << std::endl;
-       driver.testWriting();
+       testTypeID = driver.testWriting();
        std::cout << "[OVAL] ...done" << std::endl;
     }
     if( argc<2 || *argv[1] == 'r' ) {
        std::cout << "[OVAL] Testing the reading operations" << std::endl;
-       driver.testReading();
+       driver.testReading(testTypeID);
        std::cout << "[OVAL] ...done" << std::endl;
     }
   }
