@@ -23,7 +23,7 @@ namespace MuonGM {
       m_nova_version (0),
       m_amdb_version (0),
       m_amdb_from_rdb (false),
-      m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
+       m_controlAlines(0)
     {
         for (unsigned int i = 0; i < NTgcReadouts; i++) {
             m_tgcReadout[i] = nullptr;

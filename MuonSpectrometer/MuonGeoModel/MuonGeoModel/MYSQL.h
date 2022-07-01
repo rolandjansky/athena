@@ -48,16 +48,10 @@ namespace MuonGM {
         ~MYSQL();
         inline bool amdb_from_RDB() const;
         inline void set_amdb_from_RDB(bool);
-        inline void set_DBMuonVersion(const std::string&);
-        inline std::string get_DBMuonVersion();
         inline void setGeometryVersion(const std::string& s);
         inline std::string getGeometryVersion() const;
-        inline void setCtbBisFlag(int i);
-        inline int getCtbBisFlag() const;
         inline void setLayoutName(const std::string& s);
         inline std::string getLayoutName() const;
-        inline void setCutoutsBogFlag(int i);
-        inline int getCutoutsBogFlag() const;
         inline void setNovaVersion(int i);
         inline int getNovaVersion() const;
         inline void setNovaReadVersion(int i);
@@ -132,8 +126,6 @@ namespace MuonGM {
         int m_nova_version;
         int m_amdb_version;
         bool m_amdb_from_rdb;
-        int m_includeCutoutsBog;
-        int m_includeCtbBis;
         int m_controlAlines;
     };
 
@@ -193,27 +185,15 @@ namespace MuonGM {
 
     std::string MYSQL::getGeometryVersion() const { return m_geometry_version; }
 
-    void MYSQL::setCtbBisFlag(int i) { m_includeCtbBis = i; }
-
-    int MYSQL::getCtbBisFlag() const { return m_includeCtbBis; }
-
     int MYSQL::getNovaReadVersion() const { return m_amdb_version; }
 
     std::string MYSQL::getLayoutName() const { return m_layout_name; }
-
-    void MYSQL::setCutoutsBogFlag(int i) { m_includeCutoutsBog = i; }
-
-    int MYSQL::getCutoutsBogFlag() const { return m_includeCutoutsBog; }
 
     int MYSQL::getNovaVersion() const { return m_nova_version; }
 
     bool MYSQL::amdb_from_RDB() const { return m_amdb_from_rdb; }
 
     void MYSQL::set_amdb_from_RDB(bool val) { m_amdb_from_rdb = val; }
-
-    void MYSQL::set_DBMuonVersion(const std::string& a) { m_DBMuonVersion = a; }
-
-    std::string MYSQL::get_DBMuonVersion() { return m_DBMuonVersion; }
 
     void MYSQL::setControlAlines(int cA) { m_controlAlines = cA; }
 

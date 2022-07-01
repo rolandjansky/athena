@@ -63,6 +63,7 @@ namespace MuonGM {
         friend class Muon::RpcAlignModule;
         friend class Muon::CombinedMuonAlignModule;
         friend class MuonChamber;
+        friend class MuonChamberLite;
 
     public:
         /** constructor */
