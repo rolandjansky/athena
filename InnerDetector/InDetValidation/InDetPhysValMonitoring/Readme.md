@@ -123,6 +123,9 @@ athena.py  -c "from InDetPhysValMonitoring.InDetPhysValJobProperties import InDe
 ```
 will run the same configuration as the command line arguments above or the transform example. Except for providing an example, there is no real point in using this to set flags that can also be steered more easily using command line arguments, but it can be used to set flags not exposed via this mechanism. 
 
+# Plotting the output
+The [IDPhysValPlotting](https://gitlab.cern.ch/Atlas-Inner-Tracking/IDPhysValPlotting) package can be used to plot the output including comparing multiple sets of plots.
+
 # Modifying the code 
 
 You may wish to add additional functionality to the package or change histogram binnings. 
