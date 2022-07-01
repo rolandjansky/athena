@@ -110,8 +110,8 @@ def IsoHPtTrackTriggerCfg(flags):
     return IsoHPtTrackTriggerHypoSequence()
 
 def FTFRecoOnlyCfg(flags):
-    from TriggerMenuMT.HLT.UnconventionalTracking.IsoHighPtTrackTriggerConfiguration import FTFRecoOnlySequence
-    return FTFRecoOnlySequence()
+    from TriggerMenuMT.HLT.UnconventionalTracking.CommonConfiguration import getFullScanRecoOnlySequence
+    return getFullScanRecoOnlySequence()
 
 def FSLRTTriggerCfg(flags):
     from TriggerMenuMT.HLT.UnconventionalTracking.FullScanLRTTrackingConfiguration import FullScanLRTTriggerMenuSequence

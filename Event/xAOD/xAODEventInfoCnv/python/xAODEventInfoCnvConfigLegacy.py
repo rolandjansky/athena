@@ -20,10 +20,10 @@ def getEventInfoOverlay(name="EventInfoOverlay", **kwargs):
 
 def getEventInfoUpdateFromContextAlg(name="EventInfoUpdateFromContextAlg", **kwargs):
     from SGComps import AddressRemappingSvc
-    AddressRemappingSvc.addInputRename("xAOD::EventInfo","EventInfo","HITs_EventInfo")
-    AddressRemappingSvc.addInputRename("xAOD::EventAuxInfo","EventInfoAux.","HITs_EventInfoAux.")
+    AddressRemappingSvc.addInputRename("xAOD::EventInfo","EventInfo","Input_EventInfo")
+    AddressRemappingSvc.addInputRename("xAOD::EventAuxInfo","EventInfoAux.","Input_EventInfoAux.")
 
-    kwargs.setdefault("SignalInputKey", "HITs_EventInfo")
+    kwargs.setdefault("SignalInputKey", "Input_EventInfo")
     kwargs.setdefault("OutputKey", "EventInfo")
 
     return CfgMgr.xAODMaker__EventInfoUpdateFromContextAlg(name, **kwargs)

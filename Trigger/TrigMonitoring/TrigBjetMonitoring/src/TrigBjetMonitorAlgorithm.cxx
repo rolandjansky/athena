@@ -238,9 +238,10 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	nJet = onlinejets.size();
 	fill("TrigBjetMonitor",nJet);
 
-	float muonPt1(0.), muonEta1(0.), muonPhi1(0.), muonZ1(0.), jetPt1(0.), jetEta1(0.), jetPhi1(0.), jetZ1(0.);
+	float muonPt1(0.), muonEta1(0.), muonPhi1(0.), muonZ1(0.), jetPt1(0.), jetEta1(0.), jetPhi1(0.), jetZ1(0.), muonZ(0.);
 	double DL1d_mv(0.);
 	bool theLLR1(false);
+	bool plotDeltaZ(false);
 
 	for(const auto& muonLinkInfo : onlinemuons) {
 	  const xAOD::Muon* muon = *(muonLinkInfo.link);
@@ -265,7 +266,15 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	  muonPhi = muon->phi();
 	  ATH_MSG_DEBUG("        muonPhi : " << muonPhi);
 	  // muonZ
-	  float muonZ = (*(muon->combinedTrackParticleLink()))->z0() + (*(muon->combinedTrackParticleLink()))->vz();
+	  auto link = muon->combinedTrackParticleLink();    // TM and DG 18/06/22
+	  if (link.isValid()) {
+	    plotDeltaZ = true;
+	    const xAOD::TrackParticle* track = *link;
+	    muonZ = track->z0() + track->vz(); 
+	  } else {
+	    plotDeltaZ = false;
+	    muonZ = 0.;
+	  }
 
 	  if (imuon == 0) {
 	    //store the parameter for the 1st muon
@@ -351,7 +360,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	auto DeltaZ = Monitored::Scalar<float>(DeltaZH,0.0);
 	DeltaZ = fabs(muonZ1-jetZ1);
 	ATH_MSG_DEBUG("       Delta Z : " << DeltaZ);
-	fill("TrigBjetMonitor",DeltaZ);
+	if (plotDeltaZ) fill("TrigBjetMonitor",DeltaZ);
 
 	// muonPt/jetPt
 	std::string RatioPtH = "RatioPt_"+trigName;

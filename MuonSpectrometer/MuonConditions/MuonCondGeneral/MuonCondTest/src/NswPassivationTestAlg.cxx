@@ -94,7 +94,6 @@ StatusCode NswPassivationTestAlg::retrieve(const EventContext& ctx, std::chrono:
 		int chnl = m_idHelperSvc->mmIdHelper().channel   (channel);
 		int pcb  = (chnl-1)/1024+1; // int division should round downwards
 		if(std::abs(eta)>1) pcb+=5;
-
         ATH_MSG_INFO("Board "<<i<<" ("<<channel.get_compact()<<"): "<<passiv.left<<", "<<passiv.right<<", "<<passiv.top<<", "<<passiv.bottom);
 		fout << channel.get_compact()<<","<<pcb<<","<<m_idHelperSvc->toString(channel)<<","<<passiv.left<<","<<passiv.right<<","<<passiv.top<<","<<passiv.bottom<<std::endl;
     }

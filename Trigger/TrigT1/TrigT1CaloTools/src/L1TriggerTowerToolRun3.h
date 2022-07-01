@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
-// L1TriggerTowerTool.h, 
+// L1TriggerTowerToolRun3.h, 
 ///////////////////////////////////////////////////////////////////
 
  /***************************************************************************
@@ -12,8 +12,6 @@
 
 #ifndef L1TRIGGERTOWERTOOLRUN3_H
 #define L1TRIGGERTOWERTOOLRUN3_H
-
-
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -29,6 +27,8 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainerRun2.h"
 #include "TrigT1CaloCalibConditions/L1CaloPpmFineTimeRefsContainer.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h" 
+
 
 class CaloIdManager;
 class CaloLVL1_ID;
@@ -41,13 +41,13 @@ namespace LVL1
   class IL1CaloTTIdTools;
   class IL1DynamicPedestalProvider;
 
-  /** @class L1TriggerTowerTool
+  /** @class L1TriggerTowerToolRun3
 
       This is a tool to reconstruct the L1 EM/tau trigger sums
       for a particular RoI location from the stored TriggerTowers.
       Used for offline monitoring and trigger reconstruction.
 
-      Useage: L1TriggerTowerTool->process(digits, eta, phi, EmHad,  //inputs
+      Useage: L1TriggerTowerToolRun3->process(digits, eta, phi, EmHad,  //inputs
                                         et, bcid, bcidresult)     //outputs
       
       @author  Alan Watson <Alan.Watson@cern.ch>
@@ -152,10 +152,13 @@ namespace LVL1
       bool m_correctFir;
       ToolHandle<LVL1::IL1DynamicPedestalProvider> m_dynamicPedestalProvider;
 
-      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
-      { this, "EventInfoKey", "EventInfo", "" };
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfoKey", "EventInfo", "" };
       SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
       
+      // xAOD ConfigSvc is useable in both RAWtoALL jobs and from ESD, AOD.
+      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc"};  
+      const TrigConf::L1Menu* getL1Menu(const EventContext& ctx) const;
+
       ///Parameters
       static const int s_saturationValue = 255;
       static const int s_maxTowers = 7168;     

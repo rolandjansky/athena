@@ -120,7 +120,7 @@ private:
 
     // Matching algorithm
 
-    Gaudi::Property<bool> m_doNSWMatching{this, "doNSWMatchingAlg", true};
+    Gaudi::Property<bool> m_doNSWMatching{this, "doNSWMatchingAlg", false};
     Gaudi::Property<bool> m_doNSWMatchingMuon{this, "doNSWMatchingMuonOnly", false};
     Gaudi::Property<uint> m_maxStripDiff{this, "setMaxStripDistance", 3};
     // this property is temporarely added to be able to deactivate the "No match found!" warning when running on the grid

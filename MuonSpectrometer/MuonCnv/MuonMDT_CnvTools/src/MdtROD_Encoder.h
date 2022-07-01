@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_MDTROD_ENCODER_H
@@ -7,42 +7,21 @@
 
 #include <stdint.h>
 
+#include <MuonIdHelpers/IMuonIdHelperSvc.h>
 #include "ByteStreamData/RawEvent.h"
 #include "MuonRDO/MdtCsm.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-class MdtIdHelper;
-
-namespace MuonGM {
-    class MuonDetectorManager;
-}
-
-// #include "MuonByteStream/RPC_Hid2RESrcID.h"
-
-/** This class provides conversion from LArRawChannel to ROD format.
-   * @author H. Ma
-   * @version  0-0-1 , Oct 7, 2002
-
-   * Modified, Jan 02, 2003
-       Split from LArROD_Decoder.
-
-   * Adapted for Muons by Ketevi A. Assamagan
-   * Jan 14 2003, BNL
-   * Conversion from RpcFiredChannel, CoinMatrix, Pad to ROD format
-
-   * Adapted for MDTs by Stefano Rosati
-   * Mar 02 2003 CERN
-   * Conversion from MdtAmtHit and MdtCsm to MROD format
-   */
 
 class MdtROD_Encoder {
 public:
     /** constructor
      */
-    MdtROD_Encoder(const MdtIdHelper& mdtIdHelper);
+    MdtROD_Encoder();
 
     /** destructor
      */
-    ~MdtROD_Encoder();
+    ~MdtROD_Encoder() = default;
 
     /** initialize the map
      */
@@ -62,10 +41,8 @@ public:
     void fillROD(std::vector<uint32_t>& v);
 
 private:
-    //	RPC_Hid2RESrcID* m_hid2re;
-    std::vector<const MdtCsm*> m_vMdtCsm;
-    const MdtIdHelper& m_mdtIdHelper;
-    int m_BMGid;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_mdtIdHelper{"Muon::MuonIdHelperSvc/MuonIdHelperSvc", "MdtRDO_Encoder"};
+    std::vector<const MdtCsm*> m_vMdtCsm;   
 };
 
 #endif

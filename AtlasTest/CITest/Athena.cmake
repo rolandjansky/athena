@@ -41,6 +41,11 @@ atlas_add_citest( OverlayRun2MC
 atlas_add_citest( OverlayRun2Data
    SCRIPT RunWorkflowTests_Run2.py --CI -o -w DataOverlay )
 
+atlas_add_citest( OverlayRun3MC
+   SCRIPT RunWorkflowTests_Run3.py --CI -o -w MCOverlay )
+
+atlas_add_citest( OverlayRun3MC_CAConfig
+   SCRIPT RunWorkflowTests_Run3.py --CI -o -w MCOverlay -e '--CA True' )
 
 #################################################################################
 # Standard reconstruction workflows
@@ -97,6 +102,10 @@ atlas_add_citest( RecoRun3MC_CAConfig
 atlas_add_citest( RecoRun3MC_LegacyVsCA
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoLegacyVsCA.sh RecoRun3MC q445
    DEPENDS_SUCCESS RecoRun3MC RecoRun3MC_CAConfig )
+
+atlas_add_citest( RecoRun3MC_PileUp
+   SCRIPT RunWorkflowTests_Run3.py --CI -p -w MCPileUpReco -e '--maxEvents 5 --inputRDO_BKGFile=../../PileUpPresamplingRun3/run_d1760/myRDO.pool.root' --no-output-checks  # go two levels up as the test runs in a subfolder
+   DEPENDS_SUCCESS PileUpPresamplingRun3 )
 
 atlas_add_citest( RecoRun4MC
    SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder

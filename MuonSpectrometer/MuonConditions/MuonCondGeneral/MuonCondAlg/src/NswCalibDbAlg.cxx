@@ -275,7 +275,7 @@ NswCalibDbAlg::loadTimeChargeData(const EventContext& ctx, const readKey_t& read
 			writeCdo->setData(type, channelId, std::move(calib_data));
 			++nChns;
 		}
-		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels.");
+		ATH_MSG_VERBOSE("Retrieved data for "<<nChns<<" channels. "<<tree->GetName()<<" "<<tree->GetEntries());
 		++nObjs;		
 	}
 	ATH_MSG_VERBOSE("Retrieved data for "<<nObjs<<" objects.");
