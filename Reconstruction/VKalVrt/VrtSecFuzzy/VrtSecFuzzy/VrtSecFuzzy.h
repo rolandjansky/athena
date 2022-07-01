@@ -139,6 +139,7 @@ namespace VKalVrtAthena {
       // others
       bool   do_PVvetoCut;
       unsigned int SelTrkMaxCutoff; // if # tracks > the cutoff, this vertexing won't be executed
+      unsigned int SelTwoTrkSeedMaxCutoff; // if # seeds > the cutoff, the latter part (multi-track vertexing) won't be excuted 
      
       // track extrpolator; 1==VKalGetImpact, 2==m_trackToVertexTool
       int trkExtrapolator;

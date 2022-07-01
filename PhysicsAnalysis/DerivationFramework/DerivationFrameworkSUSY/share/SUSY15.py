@@ -387,7 +387,8 @@ if runFuzzyVertexing:
   VrtSecFuzzy.DoTruth                                = False 
   VrtSecFuzzy.FillIntermediateVertices               = False 
   VrtSecFuzzy.SelVrtChi2Cut                          = 50. # VSI: 5.0
-  VrtSecFuzzy.SelTrkMaxCutoff                        = 10000 
+  VrtSecFuzzy.SelTrkMaxCutoff                        = 10000 # Skip events with many selected tracks 
+  VrtSecFuzzy.SelTwoTrkSeedMaxCutoff                 = 500 # Maximum number of 2-track seed vertices used to form multi-track vertices. When exceeded, ovweflow flag becoms true.
   VrtSecFuzzy.BDTFilesName                           = ["TMVAClassification_BDT.weights_1ns_r21_newTrackSelection.weight.root", "TMVAClassification_BDT.weights_p1ns_r21_newTrackSelection.weight.root", "TMVAClassification_BDT.weights_p01ns_r21_newTrackSelection.weight.root"] # BDT files used to select track pairs likely to form seeds
   VrtSecFuzzy.BDTMins_1stTry                         = [0.1, 0.1, 0.1] # Threshold of BDT scores [short, middle, long lifetime] used for the first seeding
   VrtSecFuzzy.BDTMins_2ndTry                         = [-0.05, -0.05, -0.05] # Threshold of BDT [short, middle, long lifetime] scores used in the second and third seedsing

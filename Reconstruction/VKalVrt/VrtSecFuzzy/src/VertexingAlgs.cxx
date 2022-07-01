@@ -57,10 +57,11 @@ namespace VKalVrtAthena {
     const double maxR { 563. };         // r = 563 mm is the TRT inner surface
     const double roughD0Cut { 100. };
     const double roughZ0Cut { 50.  };
+    const double minR = 4.0; 
     
     unsigned int nfiles = m_bdt.size();
 
-    // first, make 2-track vertices (seeds)
+    // first, make 2-track seed vertices
     int nSeedCand = 0;
     std::vector<const xAOD::TrackParticle*>  usedTracks; 
     std::vector<int>  usedTracks_id; 
@@ -93,7 +94,7 @@ namespace VKalVrtAthena {
         baseTracks.emplace_back( *jtrk );
         dummyNeutrals.clear(); 
 
-        // new code to find initial approximate vertex
+        // find initial approximate vertex
         Amg::Vector3D initVertex;
 
         StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, initVertex ); // Fast crude estimation 
@@ -153,7 +154,8 @@ namespace VKalVrtAthena {
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": attempting form vertex from ( " << itrk_id << ", " << jtrk_id << " )." );
 
         if(vertexSelection( wrkvrt, *itrk, *jtrk ) != 6) continue; //reject bad vertices
-
+        if(wrkvrt.vertex.perp() < minR) continue; // not displaced
+        
         if(m_jp.FillIntermediateVertices){
           xAOD::Vertex *vertex = new xAOD::Vertex;
           twoTrksVertexContainer->emplace_back( vertex );
@@ -181,7 +183,6 @@ namespace VKalVrtAthena {
         
         // Now this vertex passed all criteria and considred to be a compatible vertices.
         wrkvrt.isGood = true;
-        
         workVerticesContainer->emplace_back( wrkvrt );
 
         // Store the tracks which consist of seeds
@@ -195,13 +196,13 @@ namespace VKalVrtAthena {
         }
       }
     }
-    ATH_MSG_INFO("execute(): # seed candidates after first trial = " << nSeedCand);
+    ATH_MSG_DEBUG("execute(): # seed candidates after first trial = " << nSeedCand);
     
-    ATH_MSG_INFO("execute(): # used tracks = " << usedTracks.size());
-    std::vector<const xAOD::TrackParticle*>  unusedTracks; 
-    std::vector<int>  unusedTracks_id; 
-    unusedTracks.clear();
-    unusedTracks_id.clear();
+    ATH_MSG_DEBUG("execute(): # used tracks = " << usedTracks.size());
+    std::vector<const xAOD::TrackParticle*>  closeTracks; 
+    std::vector<int>  closeTracks_id; 
+    closeTracks.clear();
+    closeTracks_id.clear();
 
     for( auto& targetVertex : *workVerticesContainer ) {
       for( auto itrk = m_selectedTracks->begin(); itrk != m_selectedTracks->end(); ++itrk ) {
@@ -214,20 +215,20 @@ namespace VKalVrtAthena {
         std::vector<double> impactParErrors;
         if( !getSVImpactParameters( *itrk, targetVertex.vertex, impactParameters, impactParErrors) ) continue;
         if( std::abs( impactParameters.at(0) ) > 10.0 || std::abs( impactParameters.at(1) ) > 10.0 ) continue; //select the tracks around seeds 
-        if(std::find( unusedTracks.begin(), unusedTracks.end(), *itrk ) == unusedTracks.end()){
-          unusedTracks.emplace_back( *itrk ); 
-          unusedTracks_id.emplace_back( itrk_id );
+        if(std::find( closeTracks.begin(), closeTracks.end(), *itrk ) == closeTracks.end()){
+          closeTracks.emplace_back( *itrk ); 
+          closeTracks_id.emplace_back( itrk_id );
         }
       }      
     }
 
-    ATH_MSG_INFO("execute(): # selected tracks around seeds = " << unusedTracks.size());
+    ATH_MSG_DEBUG("execute(): # selected tracks around seeds = " << closeTracks.size());
     
     // second trial, 1 used track + 1 unused track around seeds
     for( auto itrk = usedTracks.begin(); itrk != usedTracks.end(); ++itrk ) {
-      for( auto jtrk = unusedTracks.begin(); jtrk != unusedTracks.end(); ++jtrk ) {
+      for( auto jtrk = closeTracks.begin(); jtrk != closeTracks.end(); ++jtrk ) {
         const int itrk_id = itrk - usedTracks.begin();
-        const int jtrk_id = jtrk - unusedTracks.begin();
+        const int jtrk_id = jtrk - closeTracks.begin();
 
         std::vector<float> wgtSelect;
         BDTSelection(*itrk, *jtrk, wgtSelect);
@@ -242,7 +243,7 @@ namespace VKalVrtAthena {
         
         WrkVrt wrkvrt;
         wrkvrt.selectedTrackIndices.emplace_back( usedTracks_id.at(itrk_id) );
-        wrkvrt.selectedTrackIndices.emplace_back( unusedTracks_id.at(jtrk_id) );
+        wrkvrt.selectedTrackIndices.emplace_back( closeTracks_id.at(jtrk_id) );
         std::sort(wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end()); // track1's ID is always smaller than track2's
 
         baseTracks.clear();
@@ -310,6 +311,7 @@ namespace VKalVrtAthena {
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": attempting form vertex from ( " << itrk_id << ", " << jtrk_id << " )." );
 
         if(vertexSelection( wrkvrt, *itrk, *jtrk ) != 6) continue; //bad vertex
+        if(wrkvrt.vertex.perp() < minR) continue; // not displaced
         
         if(m_jp.FillIntermediateVertices){
           xAOD::Vertex *vertex = new xAOD::Vertex;  
@@ -341,14 +343,14 @@ namespace VKalVrtAthena {
 
       }
     }
-    ATH_MSG_INFO("execute(): # seed candidates after second trial = " << nSeedCand);
+    ATH_MSG_DEBUG("execute(): # seed candidates after second trial = " << nSeedCand);
     
     // third trial, 2 unused tracks around seeds
-    for( auto itrk = unusedTracks.begin(); itrk != unusedTracks.end(); ++itrk ) {
-      for( auto jtrk = std::next(itrk); jtrk != unusedTracks.end(); ++jtrk ) {
+    for( auto itrk = closeTracks.begin(); itrk != closeTracks.end(); ++itrk ) {
+      for( auto jtrk = std::next(itrk); jtrk != closeTracks.end(); ++jtrk ) {
         
-        const int itrk_id = itrk - unusedTracks.begin();
-        const int jtrk_id = jtrk - unusedTracks.begin();
+        const int itrk_id = itrk - closeTracks.begin();
+        const int jtrk_id = jtrk - closeTracks.begin();
 
         std::vector<float> wgtSelect;
         BDTSelection(*itrk, *jtrk, wgtSelect);
@@ -362,8 +364,8 @@ namespace VKalVrtAthena {
         nSeedCand++;
      
         WrkVrt wrkvrt;
-        wrkvrt.selectedTrackIndices.emplace_back( unusedTracks_id.at(itrk_id) );
-        wrkvrt.selectedTrackIndices.emplace_back( unusedTracks_id.at(jtrk_id) );
+        wrkvrt.selectedTrackIndices.emplace_back( closeTracks_id.at(itrk_id) );
+        wrkvrt.selectedTrackIndices.emplace_back( closeTracks_id.at(jtrk_id) );
         std::sort(wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end());
         
         baseTracks.clear();
@@ -431,6 +433,7 @@ namespace VKalVrtAthena {
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": attempting form vertex from ( " << itrk_id << ", " << jtrk_id << " )." );
 
         if(vertexSelection( wrkvrt, *itrk, *jtrk ) != 6) continue; //bad vertex
+        if(wrkvrt.vertex.perp() < minR) continue; // not displaced
         
         if(m_jp.FillIntermediateVertices){
           xAOD::Vertex *vertex = new xAOD::Vertex;  
@@ -463,7 +466,9 @@ namespace VKalVrtAthena {
   
       }
     }
-    ATH_MSG_INFO("execute(): # seed candidates after third trial = " << nSeedCand);
+    ATH_MSG_DEBUG("execute(): # seed candidates after third trial = " << nSeedCand);
+    
+    std::sort(workVerticesContainer->begin(), workVerticesContainer->end(), sortSeed_wBDT{});
 
     }catch ( bad_alloc ) {
       ATH_MSG_WARNING( " bad_alloc error is detected in form2trackVertices " );
@@ -476,7 +481,7 @@ namespace VKalVrtAthena {
   StatusCode VrtSecFuzzy::merge2trackVertices( std::vector<WrkVrt>* workVerticesContainer )
   {
     ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": begin");
-    ATH_MSG_INFO("execute(): # wrk vertices = " << workVerticesContainer->size());
+    ATH_MSG_DEBUG("execute(): # wrk vertices = " << workVerticesContainer->size());
     
     xAOD::VertexContainer *secondaryVertexContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecFuzzy_" + m_jp.secondaryVerticesContainerName ) ); // DV's container
@@ -497,7 +502,6 @@ namespace VKalVrtAthena {
     if( !m_decor_is_svtrk_final ) m_decor_is_svtrk_final = std::make_unique< SG::AuxElement::Decorator<char> >( "is_svtrk_final_fuzzy" );
 
     unsigned int nfiles = m_bdt.size();
-    const double rMin = 4.0; 
 
     std::vector<WrkVrt> primarySeeds;
     primarySeeds.clear();
@@ -507,8 +511,7 @@ namespace VKalVrtAthena {
     allSeedTrackIDs.clear();
 
     for( auto& wrkvrt : *workVerticesContainer ) {
-      if(wrkvrt.isGood == false) continue;
-      if(wrkvrt.vertex.perp() < rMin) continue; // too close to the beam line
+      if(wrkvrt.isGood == false) continue; // must not exist
       if(std::find(allSeedTrackIDs.begin(), allSeedTrackIDs.end(), wrkvrt.selectedTrackIndices) != allSeedTrackIDs.end()){
         ATH_MSG_INFO("multiple seeds by the same pair ?, trk pair: " << wrkvrt.selectedTrackIndices.at(0) << ", " << wrkvrt.selectedTrackIndices.at(1));
         continue;
@@ -524,8 +527,7 @@ namespace VKalVrtAthena {
       if(isPrimary == true) primarySeeds.emplace_back(wrkvrt);
     }
     int nprimary = primarySeeds.size();
-    ATH_MSG_INFO("# primary seeds = " << nprimary);
-    std::sort(primarySeeds.begin(), primarySeeds.end(), sortSeed_wBDT{});
+    ATH_MSG_DEBUG("# primary seeds = " << nprimary);
       
     workVerticesContainer->clear();
 
@@ -660,15 +662,15 @@ namespace VKalVrtAthena {
       // store DV
       xAOD::Vertex *vertex = new xAOD::Vertex;  
       secondaryVertexContainer->emplace_back( vertex );
-      double aveX = 0.0;
-      double aveY = 0.0;
-      double aveZ = 0.0;
-      double varX = 0.0;
-      double varY = 0.0;
-      double varZ = 0.0;
-      double covXY = 0.0;
-      double covYZ = 0.0;
-      double covZX = 0.0;
+      float aveX = 0.0;
+      float aveY = 0.0;
+      float aveZ = 0.0;
+      float varX = 0.0;
+      float varY = 0.0;
+      float varZ = 0.0;
+      float covXY = 0.0;
+      float covYZ = 0.0;
+      float covZX = 0.0;
       float maxBDT_inClus = -999;
       int n_seeds_highScore = 0;
       std::vector<const xAOD::TrackParticle*> baseTracks;
@@ -722,15 +724,15 @@ namespace VKalVrtAthena {
       vertex->setVertexType( xAOD::VxType::SecVtx );
       vertex->setPosition( wrkvrt.vertex );
       vertex->auxdata<int>("ntrks") = baseTracks.size();
-      vertex->auxdata<double>("aveX") = aveX;
-      vertex->auxdata<double>("aveY") = aveY;
-      vertex->auxdata<double>("aveZ") = aveZ;
-      vertex->auxdata<double>("varX") = varX;
-      vertex->auxdata<double>("varY") = varY;
-      vertex->auxdata<double>("varZ") = varZ;
-      vertex->auxdata<double>("covXY") = covXY;
-      vertex->auxdata<double>("covYZ") = covYZ;
-      vertex->auxdata<double>("covZX") = covZX;
+      vertex->auxdata<float>("averageX") = aveX;
+      vertex->auxdata<float>("averageY") = aveY;
+      vertex->auxdata<float>("averageZ") = aveZ;
+      vertex->auxdata<float>("varianceX") = varX;
+      vertex->auxdata<float>("varianceY") = varY;
+      vertex->auxdata<float>("varianceZ") = varZ;
+      vertex->auxdata<float>("covarianceXY") = covXY;
+      vertex->auxdata<float>("covarianceYZ") = covYZ;
+      vertex->auxdata<float>("covarianceZX") = covZX;
       vertex->auxdata<int>("nseeds") = n_seeds;
       vertex->auxdata<float>("maxBDT") = maxBDT_inClus;
       vertex->auxdata<int>("nseeds_highScore") = n_seeds_highScore;
@@ -819,7 +821,7 @@ namespace VKalVrtAthena {
       ATH_MSG_DEBUG("# tracks in DV = " << baseTracks.size());
       ATH_MSG_DEBUG("# seeds in DV = " << n_seeds);
     }
-    ATH_MSG_INFO("# seed groups after seed group merging = " << nclus_afterGroupMerge);
+    ATH_MSG_DEBUG("# seed groups after seed group merging = " << nclus_afterGroupMerge);
     
     return StatusCode::SUCCESS;
   }
