@@ -167,7 +167,7 @@ def ITkStripSurfaceChargesGeneratorCfg(flags, name="ITkStripSurfaceChargesGenera
     kwargs.setdefault("SmallStepLength", 5*Units.micrometer)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
-    kwargs.setdefault("isOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault("isOverlay", flags.Common.isOverlay)
     # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
     # experimental ITkStripDetailedSurfaceChargesGenerator config dropped here
     tool = CompFactory.ITk.StripSurfaceChargesGenerator(name, **kwargs)
@@ -209,7 +209,7 @@ def ITkStripFrontEndCfg(flags, name="ITkStripFrontEnd", **kwargs):
     #    kwargs.setdefault("NoiseOn", True)
     #    kwargs.setdefault("AnalogueNoiseOn", True)
     # In overlay MC, only analogue noise is on (off for data). Noise hits are not added.
-    if flags.Common.ProductionStep == ProductionStep.Overlay:
+    if flags.Common.isOverlay:
         kwargs["NoiseOn"] = False
         kwargs["AnalogueNoiseOn"] = flags.Input.isMC
     # Use Calibration data from Conditions DB, still for testing purposes only

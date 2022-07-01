@@ -44,8 +44,7 @@ def writeDigitizationMetadata(ConfigFlags):
 
     # doMuonNoise no actual flag in new-style
     testKey = "doMuonNoise"
-    from AthenaConfiguration.Enums import ProductionStep
-    testValue = str(ConfigFlags.Common.ProductionStep != ProductionStep.Overlay) # Hardcoded for now
+    testValue = str(not ConfigFlags.Common.isOverlay) # Hardcoded for now
     dbFiller.addDigitParam(testKey, testValue)
     logDigitizationWriteMetadata.info('DigitizationMetaData: setting "%s" to be %s', testKey, testValue)
 

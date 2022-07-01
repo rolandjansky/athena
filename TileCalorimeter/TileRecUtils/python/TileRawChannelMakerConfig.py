@@ -69,7 +69,7 @@ def TileRawChannelMakerCfg(flags, **kwargs):
 
     kwargs.setdefault('TileRawChannelBuilder', tileRawChannelBuilder)
 
-    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Concurrency.NumThreads > 0:
+    if flags.Common.isOverlay and flags.Concurrency.NumThreads > 0:
         kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
     TileRawChannelMaker=CompFactory.TileRawChannelMaker
