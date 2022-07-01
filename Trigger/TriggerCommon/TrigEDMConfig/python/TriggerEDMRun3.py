@@ -1,18 +1,14 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# ------------------------------------------------------------
-# Definition of trigger EDM for Run 3
+# Definition of trigger EDM for the Run 3
 
 # Concept of categories is kept similar to TriggerEDMRun2.py, categories are:
-#   Bjet, Bphys, Egamma, ID, Jet, L1, MET, MinBias, Muon, Steer, Tau, Calo (new in Run 3)
+#   Bjet, Bphys, Egamma, ID,
+#   Jet, L1, MET, MinBias, Muon, Steer, Tau, Calo
 
-# New additions in Run 3:
-#  * Dynamic varialbes/Container slimming: All dyn vars are removed unless explicitly specified to be kept!
-#    Please refer to ATR-20275 for discussion about policy/handling of dynamic variables
-# 
-#  * Per target dynamic EDM content (ATR-25505) which is defined through a list that 
-#    removes the variables from the AODFULL EDM for the target EDM AODSLIM
-# ------------------------------------------------------------
+# Please note:
+#   Dynamic varialbes/Container slimming: All dyn vars are removed unless explicitly specified to be kept!
+#   Please refer to ATR-20275 for discussion about policy/handling of dynamic variables
 
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
@@ -20,13 +16,6 @@ __log = logging.getLogger('TriggerEDMRun3Config')
 from TrigEDMConfig import DataScoutingInfo
 
 _allowedEDMPrefixes = ['HLT_', 'L1_', 'LVL1']
-
-# ------------------------------------------------------------
-# AllowedOutputFormats
-# ------------------------------------------------------------
-AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODCOMM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
-AllowedOutputFormats.extend(DataScoutingInfo.getAllDataScoutingIdentifiers())
-
 
 def recordable( arg ):
     """
@@ -41,7 +30,6 @@ def recordable( arg ):
 
     alg.outputKey = recordable("SomeKey")
     If the names are correct the outputKey is assigned with SomeKey, if there is a missmatch an exception is thrown.
-
     """
 
     # Allow passing DataHandle as argument - convert to string and remove store name
@@ -65,19 +53,21 @@ def recordable( arg ):
 
 
 # ------------------------------------------------------------
-# Lists of variables to be kept in the collections 
+# Trigger EDM list for Run 3 with all containers that should
+# be stored in the specified format as well as the category
 # ------------------------------------------------------------
-# ============
-# === JETS ===
+AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODCOMM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
+AllowedOutputFormats.extend(DataScoutingInfo.getAllDataScoutingIdentifiers())
+
+
 JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'ActiveArea4vec_phi', 'ActiveArea4vec_pt', 'AlgorithmType',
                  'DetectorEta', 'DetectorPhi', 'EMFrac', 'EnergyPerSampling', 'GhostTrack_ftf', 'HECFrac', 'InputType',
                  'JetConstitScaleMomentum_eta', 'JetConstitScaleMomentum_m', 'JetConstitScaleMomentum_phi', 'JetConstitScaleMomentum_pt',
                  'JetPileupScaleMomentum_eta', 'JetPileupScaleMomentum_m', 'JetPileupScaleMomentum_phi', 'JetPileupScaleMomentum_pt',
                  'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                  'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
-                 'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtChargedPFOPt500', 'SumPtTrkPt500', 
-                 'SumPtTrkPt1000','Timing','TrackWidthPt1000', 'N90Constituents',
-             ]
+                 'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtChargedPFOPt500', 'SumPtTrkPt500', 'SumPtTrkPt1000','Timing','TrackWidthPt1000', 'GhostTrack_ftf', 'N90Constituents',
+]
 JetVars = '.'.join(JetVarsToKeep)
 
 JetCopyVarsToKeep = ['pt', 'eta', 'phi', 'm',
@@ -96,32 +86,16 @@ JetFastFTagVarsToKeep += ['TracksForMinimalJetTag']
 JetFastFTagVarsToKeep += [f'fastDips_p{x}' for x in 'cub']
 JetFastFTagVars = '.'.join(JetFastFTagVarsToKeep)
 
-
-VSIVarsToKeep = ['vsi_mass', 'vsi_pT', 'vsi_charge', 'vsi_isFake',
-                 'vsi_twoCirc_dr', 'vsi_twoCirc_dphi', 'vsi_twoCirc_int_r', 'vsi_vrtFast_r', 'vsi_vrtFast_eta', 
-                 'vsi_vrtFast_phi', 'vsi_vrtFast_trkd0', 'vsi_vrtFast_trkz0',
-                 'vsi_vrtFit_r', 'vsi_vrtFit_chi2', 'vsi_vPos', 'vsi_vPosMomAngT', 'vsi_dphi1', 'vsi_dphi2',
-                 'vsi_isPassMMV', 'vsi_trkd0cut', 'vsi_twoCircErrcut', 'vsi_twoCircRcut', 'vsi_fastErrcut', 
-                 'vsi_fastRcut', 'vsi_fitErrcut', 'vsi_chi2cut']
-VSIVars = '.'.join(VSIVarsToKeep)
-
-
-# ===========
-# === TLA ===
 # Create a (temporary) list of TLAJetVars as the union of JetVars JetCopyVars and JetFastFTagVars
 TLAJetVarsToKeep = sorted(list(set(JetVarsToKeep+JetFastFTagVarsToKeep)))
 TLAJetVars='.'.join(TLAJetVarsToKeep)
 
-# ==============
-# === EGAMMA ===
 ElToKeep = ['ptcone20', 'ptvarcone20', 'ptcone30', 'ptvarcone30', 'trk_d0','cl_eta2','cl_phi2', 'deltaEta1PearDistortion']
 ElVars = '.'.join(ElToKeep)
 
 PhToKeep = ['topoetcone20', 'etcone20']
 PhVars = '.'.join(PhToKeep)
 
-# =============
-# === BJETS ===
 def getBTagViewName(jetType, jetDetailStr="subresjesgscIS_ftf"):
     return f"BTagViews_HLT_{jetType}_{jetDetailStr}"
 
@@ -135,27 +109,21 @@ BTagOutput = ['jetLink','BTagTrackToJetAssociator','Muons',]
 BTagOutput_IPxD = [
     'IP{x}D_TrackParticleLinks','IP{x}D_nTrks','IP{x}D_isDefaults',
     'IP{x}D_cu','IP{x}D_bu','IP{x}D_bc',
-    'IP{x}D_pu','IP{x}D_pc','IP{x}D_pb',]
+    'IP{x}D_pu','IP{x}D_pc','IP{x}D_pb',
+]
 BTagOutput_IP2D = [f.format(x=2) for f in BTagOutput_IPxD]
 BTagOutput_IP3D = [f.format(x=3) for f in BTagOutput_IPxD]
-BTagOutput_SV1 = ['SV1_TrackParticleLinks','SV1_vertices','SV1_isDefaults','SV1_NGTinSvx','SV1_masssvx','SV1_N2Tpair',
-                  'SV1_efracsvx','SV1_deltaR','SV1_Lxy','SV1_L3d','SV1_significance3d','SV1_energyTrkInJet',
-                  'SV1_dstToMatLay','SV1_badTracksIP','SV1_normdist',]
+BTagOutput_SV1 = ['SV1_TrackParticleLinks','SV1_vertices','SV1_isDefaults','SV1_NGTinSvx','SV1_masssvx','SV1_N2Tpair','SV1_efracsvx','SV1_deltaR','SV1_Lxy','SV1_L3d','SV1_significance3d','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_badTracksIP','SV1_normdist',]
 BTagOutput_JetFitter = [
-    'JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX',
-    'JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR',
-    'JetFitterSecondaryVertex_isDefaults','JetFitterSecondaryVertex_nTracks','JetFitterSecondaryVertex_mass',
-    'JetFitterSecondaryVertex_energy','JetFitterSecondaryVertex_energyFraction','JetFitterSecondaryVertex_displacement3d',
-    'JetFitterSecondaryVertex_displacement2d',
+    'JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR',
+    'JetFitterSecondaryVertex_isDefaults','JetFitterSecondaryVertex_nTracks','JetFitterSecondaryVertex_mass','JetFitterSecondaryVertex_energy','JetFitterSecondaryVertex_energyFraction','JetFitterSecondaryVertex_displacement3d','JetFitterSecondaryVertex_displacement2d',
     'JetFitterSecondaryVertex_minimumTrackRelativeEta',
     'JetFitterSecondaryVertex_maximumTrackRelativeEta',
     'JetFitterSecondaryVertex_averageTrackRelativeEta',
     'JetFitterSecondaryVertex_minimumAllJetTrackRelativeEta',
     'JetFitterSecondaryVertex_maximumAllJetTrackRelativeEta',
     'JetFitterSecondaryVertex_averageAllJetTrackRelativeEta',
-    'JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair',
-    'JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks',
-    'JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
+    'JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair','JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
 BTagOutput_rnnip = ['rnnip_isDefaults','rnnip_pu','rnnip_pc','rnnip_pb','rnnip_ptau',]
 
 # we don't plan to keep all these, they are just for comparisons while tuning
@@ -182,15 +150,12 @@ BTagVars = '.'.join(BTagOutput)
 BTagJetOutput = ['btaggingLink', 'Jvt', 'JVFCorr', 'SumPtTrkPt500']
 BTagJetVars  ='.'.join(BTagJetOutput)
 
-hitDVToKeepBase = ['seed_eta','seed_phi','seed_type','n_track_qual','ly0_sp_frac','ly1_sp_frac','ly2_sp_frac','ly3_sp_frac',
-                   'ly4_sp_frac','ly5_sp_frac','ly6_sp_frac','ly7_sp_frac','bdt_score']
+hitDVToKeepBase = ['seed_eta','seed_phi','seed_type','n_track_qual','ly0_sp_frac','ly1_sp_frac','ly2_sp_frac','ly3_sp_frac','ly4_sp_frac','ly5_sp_frac','ly6_sp_frac','ly7_sp_frac','bdt_score']
 hitDVToKeep = []
 for var in hitDVToKeepBase:
     hitDVToKeep.append('hitDV_'+var)
 hitDVVars = '.'.join(hitDVToKeep)
 
-# ==========
-# === ID ===
 dEdxTrkToKeepBase = ['id','pt','eta','phi','dedx','dedx_n_usedhits','a0beam','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct']
 dEdxTrkToKeep = []
 for var in dEdxTrkToKeepBase:
@@ -204,8 +169,7 @@ for var in dEdxHitToKeepBase:
 dEdxHitVars = '.'.join(dEdxHitToKeep)
 
 HPtdEdxTrkToKeepBase = ['pt','eta','phi','a0beam','dedx','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
-                        'n_hdedx_hits_1p45','n_hdedx_hits_1p50','n_hdedx_hits_1p55','n_hdedx_hits_1p60','n_hdedx_hits_1p65',
-                        'n_hdedx_hits_1p70','n_hdedx_hits_1p75','n_hdedx_hits_1p80']
+                        'n_hdedx_hits_1p45','n_hdedx_hits_1p50','n_hdedx_hits_1p55','n_hdedx_hits_1p60','n_hdedx_hits_1p65','n_hdedx_hits_1p70','n_hdedx_hits_1p75','n_hdedx_hits_1p80']
 HPtdEdxTrkToKeep = []
 for var in HPtdEdxTrkToKeepBase:
     HPtdEdxTrkToKeep.append('HPtdEdxTrk_'+var)
@@ -213,10 +177,8 @@ HPtdEdxTrkVars = '.'.join(HPtdEdxTrkToKeep)
 
 DisTrkToKeepNoIso = ['pt','eta','phi','d0','z0','chi2','ndof','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
                      'pt_wrtVtx','eta_wrtVtx','phi_wrtVtx','d0_wrtVtx','z0_wrtVtx',
-                     'chi2sum_br_ibl','chi2sum_br_pix1','chi2sum_br_pix2','chi2sum_br_pix3','chi2sum_br_sct1','chi2sum_br_sct2',
-                     'chi2sum_br_sct3','chi2sum_br_sct4',
-                     'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2',
-                     'ndofsum_br_sct3','ndofsum_br_sct4']
+                     'chi2sum_br_ibl','chi2sum_br_pix1','chi2sum_br_pix2','chi2sum_br_pix3','chi2sum_br_sct1','chi2sum_br_sct2','chi2sum_br_sct3','chi2sum_br_sct4',
+                     'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2','ndofsum_br_sct3','ndofsum_br_sct4']
 DisTrkToKeepIso = ['category','is_fail','iso1_dr01','iso1_dr02','iso2_dr01','iso2_dr02','iso3_dr01','iso3_dr02']
 DisTrkVars = []
 for var in DisTrkToKeepNoIso:
@@ -226,38 +188,24 @@ for var in DisTrkToKeepIso:
     DisTrkVars.append('disTrkCand_'+var)
 DisTrkCandVars = '.'.join(DisTrkVars)
 
-DisTrkBDTSelToKeepBase = ['category','pt','eta','phi','refit_pt','is_fail','d0_wrtVtx','z0_wrtVtx','chi2','ndof',
-                          'n_hits_pix','n_hits_sct','n_hits_innermost','iso3_dr01','iso3_dr02','refit_d0_wrtVtx',
-                          'refit_z0_wrtVtx','refit_chi2','refit_ndof','chi2ndof_pix','bdtscore']
+DisTrkBDTSelToKeepBase = ['category','pt','eta','phi','refit_pt','is_fail','d0_wrtVtx','z0_wrtVtx','chi2','ndof','n_hits_pix','n_hits_sct','n_hits_innermost','iso3_dr01','iso3_dr02','refit_d0_wrtVtx','refit_z0_wrtVtx','refit_chi2','refit_ndof','chi2ndof_pix','bdtscore']
 DisTrkBDTSelToKeep = []
 for var in DisTrkBDTSelToKeepBase:
     DisTrkBDTSelToKeep.append('disTrk_'+var)
 DisTrkBDTSelVars = '.'.join(DisTrkBDTSelToKeep)
 
-# ==============
-# === L1Topo ===
+VSIVarsToKeep = ['vsi_mass', 'vsi_pT', 'vsi_charge', 'vsi_isFake',
+                 'vsi_twoCirc_dr', 'vsi_twoCirc_dphi', 'vsi_twoCirc_int_r', 'vsi_vrtFast_r', 'vsi_vrtFast_eta', 'vsi_vrtFast_phi',
+                 'vsi_vrtFast_trkd0', 'vsi_vrtFast_trkz0',
+                 'vsi_vrtFit_r', 'vsi_vrtFit_chi2', 'vsi_vPos', 'vsi_vPosMomAngT', 'vsi_dphi1', 'vsi_dphi2',
+                 'vsi_isPassMMV', 'vsi_trkd0cut', 'vsi_twoCircErrcut', 'vsi_twoCircRcut', 'vsi_fastErrcut', 'vsi_fastRcut', 'vsi_fitErrcut', 'vsi_chi2cut']
+VSIVars = '.'.join(VSIVarsToKeep)
+
 L1TopoErrorFlagVars = '.'.join(['hasGenericRoiError', 'hasGenericDaqError', 'hasCrcTobError', 'hasCrcFibreError',
                                 'hasCrcDaqError', 'hasRoibDaqDifference', 'hasRoibCtpDifference', 'hasDaqCtpDifference'])
-# ===========
-# === TAU ===
+
 TauTrackToKeep = ['pt', 'eta', 'phi', 'flagSet', 'trackLinks', 'd0TJVA', 'd0SigTJVA', 'z0sinthetaTJVA', 'z0sinthetaSigTJVA']
 TauTrackVars = '.'.join(TauTrackToKeep)
-
-
-# ------------------------------------------------------------
-# List of tuples with variables [0] and associated collections 
-# to be removed from collections for AODSLIM
-# Format: ('decoration', 'Container1Aux', 'Container2Aux',...)
-# e.g. ('GhostTrack_ftf', 'HLT_AntiKt4EMTopoJets_nojcalib_ftfAux', 'HLT_AntiKt4EMTopoJets_nojcalibAux'),
-# ------------------------------------------------------------
-varToRemoveFromAODSLIM = []
-
-
-
-# ------------------------------------------------------------
-# Trigger EDM list for Run 3 with all containers that should
-# be stored in the specified format as well as the category
-# ------------------------------------------------------------
 
 TriggerHLTListRun3 = [
 
@@ -354,28 +302,20 @@ TriggerHLTListRun3 = [
     ('xAOD::jFexSumETRoIContainer#L1_jFexSumETRoI',                                 'BS ESD AODFULL', 'L1'),
     ('xAOD::jFexSumETRoIAuxContainer#L1_jFexSumETRoIAux.thresholdPatterns',         'BS ESD AODFULL', 'L1'),
 
-    ('xAOD::gFexJetRoIContainer#L1_gFexSRJetRoI',                                       'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexJetRoIAuxContainer#L1_gFexSRJetRoIAux.thresholdPatterns',               'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexJetRoIContainer#L1_gFexLRJetRoI',                                       'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexJetRoIAuxContainer#L1_gFexLRJetRoIAux.thresholdPatterns',               'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexJetRoIContainer#L1_gFexRhoRoI',                                         'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexJetRoIAuxContainer#L1_gFexRhoRoIAux.thresholdPatterns',                 'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gScalarEJwoj',                                    'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gScalarEJwojAux.thresholdPatterns',            'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gMETComponentsJwoj',                              'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsJwojAux.thresholdPatterns',      'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gMHTComponentsJwoj',                              'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMHTComponentsJwojAux.thresholdPatterns',      'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gMSTComponentsJwoj',                              'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMSTComponentsJwojAux.thresholdPatterns',      'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gMETComponentsNoiseCut',                          'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsNoiseCutAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gMETComponentsRms',                               'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsRmsAux.thresholdPatterns',       'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gScalarENoiseCut',                                'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gScalarENoiseCutAux.thresholdPatterns',        'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIContainer#L1_gScalarERms',                                     'BS ESD AODFULL', 'L1'),
-    ('xAOD::gFexGlobalRoIAuxContainer#L1_gScalarERmsAux.thresholdPatterns',             'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIContainer#L1_gFexSRJetRoI',                                   'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIAuxContainer#L1_gFexSRJetRoIAux.thresholdPatterns',           'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIContainer#L1_gFexLRJetRoI',                                   'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIAuxContainer#L1_gFexLRJetRoIAux.thresholdPatterns',           'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIContainer#L1_gFexRhoRoI',                                     'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIAuxContainer#L1_gFexRhoRoIAux.thresholdPatterns',             'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gScalarEJwoj',                                'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gScalarEJwojAux.thresholdPatterns',        'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gMETComponentsJwoj',                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsJwojAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gMHTComponentsJwoj',                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMHTComponentsJwojAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gMSTComponentsJwoj',                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMSTComponentsJwojAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
 
     ('xAOD::EnergySumRoI#jXENOISECUTPerf' ,                 'ESD AODFULL AODSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#jXENOISECUTPerfAux.',       'ESD AODFULL AODSLIM AODBLSSLIM', 'L1'),
@@ -562,7 +502,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigBphysContainer#HLT_Bmumux',                                 'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_BmumuxAux.',                          'BS ESD AODFULL AODSLIM AODBLSSLIM', 'Bphys'),
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bmumux_FTF',                 'BS ESD', 'Bphys', 'inViews:BmumuxViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_FTFAux.',          'BS ESD', 'Bphys'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_FTFAux.',          'BS ESD AODFULL', 'Bphys'),
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bmumux_IDTrig',              'BS ESD AODFULL AODSLIM', 'Bphys', 'inViews:BmumuxViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bmumux_IDTrigAux.',       'BS ESD AODFULL AODSLIM', 'Bphys'),
     ('TrigRoiDescriptorCollection#HLT_Roi_Bmumux',                          'BS ESD', 'Bphys'),
@@ -786,26 +726,25 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4HIJets',                      'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4HIJetsAux.'+HIJetVars,       'BS ESD AODFULL', 'Jet'),
 
-    # TLA jets + PEB jets
-    ('TrigRoiDescriptorCollection#HLT_Roi_JetPEBPhysicsTLA',             'BS ESD JetPEBPhysicsTLA',  'Jet'),
+    # TLA jets
 
-    ('xAOD::TrigCompositeContainer#HLT_TCEventInfo_TLA',                                 'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet' ),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TCEventInfo_TLAAux.JetDensityEMPFlow.JetDensityEMTopo.AvgMu.NumPV',         'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'    ),
+    ('xAOD::TrigCompositeContainer#HLT_TCEventInfo_TLA',                                 'BS PhysicsTLA ESD', 'Jet' ),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TCEventInfo_TLAAux.JetDensityEMPFlow.JetDensityEMTopo.AvgMu.NumPV',         'BS PhysicsTLA ESD', 'Jet'    ),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+TLAJetVars,       'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+TLAJetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA',                      'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+TLAJetVars,       'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+TLAJetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
 
     # TLA Photons
-    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Egamma'),
-    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Egamma'),
+    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA ESD', 'Egamma'),
+    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA ESD', 'Egamma'),
 
     # TLA Muons
-    ('xAOD::MuonContainer#HLT_MuonsCB_RoI_TLA',                                       'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Muon'),
-    ('xAOD::MuonAuxContainer#HLT_MuonsCB_RoI_TLAAux.',                                'BS PhysicsTLA JetPEBPhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonContainer#HLT_MuonsCB_RoI_TLA',                                       'BS PhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonsCB_RoI_TLAAux.',                                'BS PhysicsTLA ESD', 'Muon'),
 
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
