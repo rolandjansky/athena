@@ -21,7 +21,7 @@ protected:
   StatusCode createContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
   template<bool checkKey = true, typename T, typename X>
   StatusCode createValueContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext&, const X& defaultValue ) const;
-  mutable std::atomic_bool m_disableWarningCheck;
+  mutable std::atomic_flag m_disableWarningCheck ATLAS_THREAD_SAFE;
   bool isInsideView(const EventContext&) const;
   StatusCode checkInsideViewOnce(const EventContext&) const;
 };

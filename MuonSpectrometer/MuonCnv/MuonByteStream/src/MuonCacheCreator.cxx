@@ -26,7 +26,7 @@ StatusCode MuonCacheCreator::initialize() {
   } else ATH_CHECK( m_CscCacheKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_RpcCacheKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_TgcCacheKey.initialize(SG::AllowEmpty) );
-  if(m_disableWarning) m_disableWarningCheck.store(true, std::memory_order_relaxed);
+  if(m_disableWarning) m_disableWarningCheck.test_and_set(std::memory_order_relaxed);
   return StatusCode::SUCCESS;
 }
 

@@ -36,7 +36,7 @@ namespace InDet{
         if (!m_disableTRT.value()) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
         ATH_CHECK(detStore()->retrieve(m_pix_idHelper, "PixelID"));
-        if(m_disableWarning) m_disableWarningCheck.store(true, std::memory_order_relaxed);
+        if(m_disableWarning) m_disableWarningCheck.test_and_set(std::memory_order_relaxed);
         return StatusCode::SUCCESS;
     }
 
