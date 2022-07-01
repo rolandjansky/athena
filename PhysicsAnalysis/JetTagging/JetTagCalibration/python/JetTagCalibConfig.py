@@ -24,11 +24,13 @@ def JetTagCalibCfg(ConfigFlags):
     if ConfigFlags.Input.isMC:
         readkeycalibpath = readkeycalibpath.replace("/Onl/","/")
 
+    calibrationTag = ConfigFlags.BTagging.calibrationTag if ConfigFlags.BTagging.calibrationTag else None
     result.merge(addFoldersSplitOnline(ConfigFlags, "GLOBAL",
                                        [f"/GLOBAL/Onl/{scheme}BTagCalib/RUN12"],
                                        [f"/GLOBAL/{scheme}BTagCalib/RUN12"],
                                        className="CondAttrListCollection",
-                                       splitMC=True))
+                                       splitMC=True,
+                                       tag=calibrationTag))
 
     JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
     result.addCondAlgo(JetTagCalibCondAlg("JetTagCalibCondAlg",
