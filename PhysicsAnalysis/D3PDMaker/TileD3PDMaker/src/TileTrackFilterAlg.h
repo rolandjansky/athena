@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -65,8 +65,6 @@ class TileTrackFilterAlg : public AthAlgorithm{
         bool accept(const TRACK* p);         // CHECK WHETHER TRACKPARTICLE IS OK
 
     private:
-        TRACKCONTAINER* m_outputCont;
-
         // CONTAINER NAMES
         std::string m_trackContainerName;            // INPUT CELL CONTAINER
         std::string m_outputTracksName;              // OUTPUT CELL CONTAINER
