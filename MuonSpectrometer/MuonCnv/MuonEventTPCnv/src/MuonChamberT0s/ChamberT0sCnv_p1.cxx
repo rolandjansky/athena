@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #include <utility>
 
 void ChamberT0sCnv_p1::
-persToTrans( const Muon::ChamberT0s_p1 *persObj, Muon::ChamberT0s *transObj,MsgStream & log ) 
+persToTrans( const Muon::ChamberT0s_p1 *persObj, Muon::ChamberT0s *transObj,MsgStream & log ) const
 {
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "ChamberT0sCnv_p1::persToTrans" << endmsg;
     // better way to do this?
@@ -28,7 +28,7 @@ persToTrans( const Muon::ChamberT0s_p1 *persObj, Muon::ChamberT0s *transObj,MsgS
 }
 
 void ChamberT0sCnv_p1::
-transToPers( const Muon::ChamberT0s *transObj, Muon::ChamberT0s_p1 *persObj, MsgStream & log )
+transToPers( const Muon::ChamberT0s *transObj, Muon::ChamberT0s_p1 *persObj, MsgStream & log ) const
 {
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "ChamberT0sCnv_p1::transToPers" << endmsg;
     persObj->m_t0s.clear();
