@@ -32,10 +32,10 @@
 #include <memory>
 #include <cstdio>
 
-using namespace std;
+
 using namespace pool;
 
-ostream& operator << (ostream& os, const Token::OID_t oid ) {
+std::ostream& operator << (std::ostream& os, const Token::OID_t oid ) {
    os << "("<<oid.first<<","<<oid.second<<")";
    return os;
 }
@@ -46,8 +46,8 @@ static const DbPrintLvl::MsgLevel dbg_lvl = DbPrintLvl::Debug;
 
 // Standard Constructor
 DbDatabaseObj::DbDatabaseObj( DbDomain&       dom, 
-                              const string&   pfn, 
-                              const string&   fid, 
+                              const std::string&   pfn, 
+                              const std::string&   fid, 
                               DbAccessMode    mod) 
 : Base(fid, mod, dom.type(), dom.db()), m_dom(dom), 
   m_info(0), m_string_t(0), m_fileAge(0)
@@ -94,8 +94,8 @@ DbDatabaseObj::DbDatabaseObj( DbDomain&       dom,
   }
   DbString s;
   DbTypeInfo::Columns c;
-  c.push_back(new DbColumn("db_string",DbColumn::STRING,size_t((string*)&s)-size_t(&s),0,1,0));
-  m_string_t = DbTypeInfo::create(string("pool::DbString"), c);
+  c.push_back(new DbColumn("db_string",DbColumn::STRING,size_t((std::string*)&s)-size_t(&s),0,1,0));
+  m_string_t = DbTypeInfo::create(std::string("pool::DbString"), c);
   if ( m_string_t ) m_string_t->addRef();
 }
 
@@ -178,7 +178,7 @@ DbStatus DbDatabaseObj::makeLink(Token* pTok, Token::OID_t& refLnk) {
         log << dbg_lvl 
             << "--->Adding Assoc :" << link->dbID() 
             << "/" << link->contID() 
-            << " [" << hex << link->technology() << "] " 
+            << " [" << std::hex << link->technology() << "] " 
             << " (" << link->oid().first << " , " << link->oid().second
             << ")" << DbPrint::endmsg;
         log << "---->ClassID:" << link->classID().toString() << DbPrint::endmsg;
@@ -224,7 +224,7 @@ const DbTypeInfo* DbDatabaseObj::objectShape(const TypeH& id)  {
 }
 
 // Retrieve shape information for a specified object by container name
-const DbTypeInfo* DbDatabaseObj::contShape(const string& nam) {
+const DbTypeInfo* DbDatabaseObj::contShape(const std::string& nam) {
   if ( 0 == m_info )    {
     open();
   }
@@ -251,14 +251,14 @@ DbStatus DbDatabaseObj::addShape (const DbTypeInfo* pShape) {
     if ( i != m_shapeMap.end() )   {
       return Success;
     }
-    else if ( pShape == m_string_t )  {
+    else if ( m_string_t and (pShape == m_string_t) )  {
       return Success;
     }
-    else if ( id == m_string_t->shapeID() )  {
+    else if ( m_string_t and (id == m_string_t->shapeID()) )  {
       return Success;
     }
     else if ( mode() != pool::READ )  {
-      const string& dsc = pShape->toString();
+      const std::string& dsc = pShape->toString();
       // Add the persistent entry to the links container
       if ( 0 != m_string_t )   {
         DbPrint log( m_logon );
@@ -301,7 +301,7 @@ DbStatus DbDatabaseObj::addShape (const DbTypeInfo* pShape) {
         persH.ptr()->~DbString(); m_shapes.free(persH.ptr());
         if ( inserted ) pShape2->addRef();
         if ( pShape2->clazz() )  {
-          m_classMap.insert(make_pair(pShape2->clazz(), pShape2));
+          m_classMap.insert(std::make_pair(pShape2->clazz(), pShape2));
         }
         return Success;
       }
@@ -384,7 +384,7 @@ DbStatus DbDatabaseObj::open()   {
                pShape->addRef();
             const bool noIdScan = true;
             if ( pShape->clazz(noIdScan) )  {
-               m_classMap.insert(make_pair(pShape->clazz(), pShape));
+               m_classMap.insert(std::make_pair(pShape->clazz(), pShape));
             }
             it.object()->~DbString(); m_shapes.free(it.object());
           }
@@ -402,7 +402,7 @@ DbStatus DbDatabaseObj::open()   {
             }
             log << "--->Reading Assoc:" << link->dbID() 
                 << "/" << link->contID() 
-                << " [" << hex << link->technology() << "] " 
+                << " [" << std::hex << link->technology() << "] " 
                 << " (" << link->oid().first << " , " << link->oid().second
                 << ")" << DbPrint::endmsg;
             log << "---->ClassID:" << link->classID().toString() << DbPrint::endmsg;
@@ -418,20 +418,20 @@ DbStatus DbDatabaseObj::open()   {
         }
         
         if ( m_params.open(dbH,"##Params",m_string_t,type(),mode()).isSuccess() )    {
-	  vector<string> fids;
+	  std::vector<std::string> fids;
           DbIter<DbString> it;
           //it.scan(m_params, m_string_t);
           //it.next();
           for ( it.scan(m_params, m_string_t); it.next().isSuccess(); )   {
-            string dsc = **it;
+            std::string dsc = **it;
             size_t id1 = dsc.find("[NAME=");
             size_t id2 = dsc.find("[VALUE=");
-            if ( id1 != string::npos && id2 != string::npos )  {
+            if ( id1 != std::string::npos && id2 != std::string::npos )  {
               size_t id11 = dsc.find(']', id1+6);
               size_t id22 = dsc.find(']', id2+7);
-              if ( id11 != string::npos && id22 != string::npos )  {
-                string n = dsc.substr(id1+6, id11-id1-6);
-                string v = dsc.substr(id2+7, id22-id2-7);
+              if ( id11 != std::string::npos && id22 != std::string::npos )  {
+                std::string n = dsc.substr(id1+6, id11-id1-6);
+                std::string v = dsc.substr(id2+7, id22-id2-7);
                 // ParamMap::value_type val(n, v);
                 log << "--->Reading Param:" << n << "=[" << v << ']' 
                     << DbPrint::endmsg;
@@ -444,7 +444,7 @@ DbStatus DbDatabaseObj::open()   {
 	  // We assume that the last FID is the true FID of the file...
 	  ParamMap::const_iterator fidIt = m_paramMap.find("FID");
 	  if ( fidIt != m_paramMap.end() ) {
-	    const string& fid = (*fidIt).second;
+	    const std::string& fid = (*fidIt).second;
 	    for(size_t i=0; fids.size()>0 && i<fids.size()-1;++i)  {	    
 	      char num[32];
 	      ::sprintf(num, "FID.%d", int(i+1));
@@ -456,7 +456,7 @@ DbStatus DbDatabaseObj::open()   {
 	  }
 	}
         if ( mode()&pool::CREATE || mode()&pool::UPDATE)  {
-          string par_val;
+          std::string par_val;
           if ( !param("FID", par_val).isSuccess() )  {
             if ( !addParam("FID", name()).isSuccess() )  {
               log << "Failed to write parameter FID=" << name() << DbPrint::endmsg;
@@ -480,15 +480,15 @@ DbStatus DbDatabaseObj::open()   {
 	  if ( sections.open(dbH,"##Sections",m_string_t,type(),mode()).isSuccess() )    {
 	    DbIter<DbString> it;
 	    for ( it.scan(sections, m_string_t); it.next().isSuccess(); )   {
-	      string dsc = **it;
+	      std::string dsc = **it;
 	      size_t id1 = dsc.find("[CNT=");
 	      size_t id2 = dsc.find("[OFF=");
 	      size_t id3 = dsc.find("[START=");
 	      size_t id4 = dsc.find("[LEN=");
-	      if( id1 != string::npos && id2 != string::npos && id3 != string::npos && id4 != string::npos ) {
-		string tmp;
+	      if( id1 != std::string::npos && id2 != std::string::npos && id3 != std::string::npos && id4 != std::string::npos ) {
+		std::string tmp;
 		//string db  = dsc.substr(id0+4, id1-1-4);
-		string cnt = dsc.substr(id1+5, id2-1-5);
+		std::string cnt = dsc.substr(id1+5, id2-1-5);
 		int section_offset  = ::atoi((tmp=dsc.substr(id2+5,id3-id2-6)).c_str());
 		int section_start   = ::atoi((tmp=dsc.substr(id3+7,id4-id3-8)).c_str());
 		int section_length  = ::atoi((tmp=dsc.substr(id4+5,dsc.find(']',id4+5)-id4-5)).c_str());
@@ -563,12 +563,12 @@ DbStatus DbDatabaseObj::reopen(DbAccessMode mod) {
 /// Close Database object
 DbStatus DbDatabaseObj::close()  {
   DbStatus sc = retire();
-  vector<DbContainerObj*> conts;
+  std::vector<DbContainerObj*> conts;
   for (const_iterator j=begin(); j != end(); ++j )  {
     DbContainerObj* curr = (*j).second;
     conts.push_back(curr);
   }
-  for(vector<DbContainerObj*>::iterator i=conts.begin(); i != conts.end(); ++i)  {
+  for(std::vector<DbContainerObj*>::iterator i=conts.begin(); i != conts.end(); ++i)  {
     DbContainerObj* curr = (*i);
     if ( curr->isOpen() ) curr->close();
     this->remove(curr);
@@ -612,7 +612,7 @@ DbStatus DbDatabaseObj::retire()  {
 }
 
 /// Access to sections if availible
-const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const string& cnt)   {
+const DbDatabaseObj::ContainerSections& DbDatabaseObj::sections(const std::string& cnt)   {
   Sections::const_iterator i = m_sections.find(cnt);
   if ( i == m_sections.end() ) {
     static const ContainerSections s_sect(1,DbSection());
@@ -630,13 +630,13 @@ int DbDatabaseObj::nParam() {
 }
 
 /// Add a persistent parameter to the file
-DbStatus DbDatabaseObj::addParam(const string& nam, const string& val) {
+DbStatus DbDatabaseObj::addParam(const std::string& nam, const std::string& val) {
   if ( !nam.empty() && !val.empty() ) {
     if ( 0 == m_info ) open();
     if ( m_info )  {
       ParamMap::const_iterator i = m_paramMap.find(nam);
       if ( i == m_paramMap.end() )  {
-        string dsc = "[NAME=" + nam + "][VALUE=" + val + ']';
+        std::string dsc = "[NAME=" + nam + "][VALUE=" + val + ']';
         DbHandle<DbString> persH = new(m_params, m_string_t) DbString(dsc);
         if ( !m_params.save(persH, m_string_t).isSuccess() )  {
           return Error;
@@ -652,7 +652,7 @@ DbStatus DbDatabaseObj::addParam(const string& nam, const string& val) {
 }
 
 /// Retrieve existing parameter by name
-DbStatus DbDatabaseObj::param(const string& nam, string& val)  {
+DbStatus DbDatabaseObj::param(const std::string& nam, std::string& val)  {
   if ( 0 == m_info ) open();
   if ( m_info ) {
     ParamMap::const_iterator i = m_paramMap.find(nam);
@@ -847,7 +847,7 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
 
 
 /// Allow access to all known containers
-DbStatus DbDatabaseObj::containers(vector<const Token*>& conts,bool with_internals)  {
+DbStatus DbDatabaseObj::containers(std::vector<const Token*>& conts,bool with_internals)  {
   conts.clear();
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
@@ -865,7 +865,7 @@ DbStatus DbDatabaseObj::containers(vector<const Token*>& conts,bool with_interna
 }
 
 /// Allow access to all known containers
-DbStatus DbDatabaseObj::containers(vector<IDbContainer*>& conts,bool with_internals)  {
+DbStatus DbDatabaseObj::containers(std::vector<IDbContainer*>& conts,bool with_internals)  {
   conts.clear();
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
@@ -882,7 +882,7 @@ DbStatus DbDatabaseObj::containers(vector<IDbContainer*>& conts,bool with_intern
 
 
 /// Access local container token (if container exists)
-const Token* DbDatabaseObj::cntToken(const string& cntName)  {
+const Token* DbDatabaseObj::cntToken(const std::string& cntName)  {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
     LinkVector::const_iterator j=m_linkVec.begin();
@@ -896,7 +896,7 @@ const Token* DbDatabaseObj::cntToken(const string& cntName)  {
 }
 
 /// Allow access to all known shapes used by the database
-DbStatus DbDatabaseObj::shapes(vector<const DbTypeInfo*>& shaps)  {
+DbStatus DbDatabaseObj::shapes(std::vector<const DbTypeInfo*>& shaps)  {
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
     shaps.clear();
@@ -909,7 +909,7 @@ DbStatus DbDatabaseObj::shapes(vector<const DbTypeInfo*>& shaps)  {
 }
 
 /// Allow access to all known associations between containers
-DbStatus DbDatabaseObj::associations(vector<const Token*>& assocs) {
+DbStatus DbDatabaseObj::associations(std::vector<const Token*>& assocs) {
   assocs.clear();
   if ( 0 == m_info ) open();
   if ( 0 != m_info )    {
