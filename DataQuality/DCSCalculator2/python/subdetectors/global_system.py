@@ -95,7 +95,7 @@ class LUMI_EmittanceScan(DCSC_Defect_Global_Variable):
         return IOVSet(list(connect_adjacent_iovs_defect(self.emittance_generator(iovs))))
 
     def emittance_generator(self, iovs):
-        events = process_iovs(iovs)
+        events = process_iovs(_ for _ in iovs if _.channel == 1 and _.ScanningIP != 0)
 
         for since, until, (state,) in events:
             #print state, state.RunLB & 0xffffffff if state.RunLB else 0
@@ -121,7 +121,7 @@ class Global(DCSC_Subdetector_DefectsOnly):
         TDAQ_Ready('/TDAQ/RunCtrl/DataTakingMode', lambda x: True),
         #TDAQ_Busy('/TRIGGER/LUMI/PerBcidDeadtime', lambda x: True),
         TDAQ_Busy('/TRIGGER/OFLLUMI/LumiAccounting', lambda x: True),
-        LUMI_EmittanceScan('/TDAQ/OLC/LHC/SCANDATA', lambda x: True),
+        LUMI_EmittanceScan('/TDAQ/OLC/LHC/SCANDATA', lambda x: True),  # restore once the SCANDATA folder is figured out by OLC
     ]
 
     def __init__(self, tolerance=2):
