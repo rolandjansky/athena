@@ -106,8 +106,11 @@ StatusCode L1TriggerTowerToolRun3::initialize()
   }
 
   ATH_CHECK( m_eventInfoKey.initialize() );
-
+  
   ATH_CHECK( m_L1MenuKey.initialize() );
+  
+  
+
   
   ATH_MSG_INFO( "Initialization completed" );
   
@@ -765,8 +768,10 @@ void L1TriggerTowerToolRun3::jepLut(const std::vector<int> &fir, const L1CaloCoo
     // assert instead ?!
     ATH_MSG_WARNING("::jepLut: Run-1 data - behaviour undefined!");
   }
-
+  
+  
   SG::ReadCondHandle<L1CaloPprConditionsContainerRun2>  pprConditionsRun2( m_pprConditionsContainerRun2);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   if(! m_pprConditionsContainerRun2.empty()) {
     const auto settings = pprConditionsRun2->pprConditions(channelId.id());
@@ -778,8 +783,8 @@ void L1TriggerTowerToolRun3::jepLut(const std::vector<int> &fir, const L1CaloCoo
       ped        = settings->pedValue();
       pedMean    = settings->pedMean();
       scale_db   = settings->lutJepScale();
-      
-      auto l1Menu = SG::makeHandle( m_L1MenuKey );
+
+      auto l1Menu = getL1Menu(ctx);
       scale_menu = l1Menu->thrExtraInfo().JET().jetScale(); // Retrieve scale param from menu
       
       if (strategy == 3) {
@@ -915,7 +920,9 @@ namespace { // helper function
     if(!settings) return std::make_tuple(false, 0, 0);
     return std::make_tuple(true, settings->bcidEnergyRangeLow(), settings->bcidEnergyRangeHigh());
   }
-} // anonymous namespace
+} 
+
+// anonymous namespace
 
 void L1TriggerTowerToolRun3::etRange(const std::vector<int> &et, const L1CaloCoolChannelId& channelId, std::vector<int> &output) const 
 {
@@ -1470,9 +1477,32 @@ bool L1TriggerTowerToolRun3::isRun2() const
   return false;
 }
 
+
+
+const TrigConf::L1Menu* L1TriggerTowerToolRun3::getL1Menu(const EventContext& ctx) const {
+  const TrigConf::L1Menu* menu = nullptr;
+
+  StatusCode sc =   m_configSvc.retrieve();
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING( "Cannot retrieve trigger configuration service" );
+  } 
+  
+  if (detStore()->contains<TrigConf::L1Menu>(m_L1MenuKey.key())) {
+    SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey, ctx );
+    if( l1MenuHandle.isValid() ){
+      menu=l1MenuHandle.cptr();
+    }
+  } else {
+    menu = &(m_configSvc->l1Menu(ctx)); 
+  }
+
+  return menu;
+}
+
+
+
 } // end of namespace
  
-
 
 
 

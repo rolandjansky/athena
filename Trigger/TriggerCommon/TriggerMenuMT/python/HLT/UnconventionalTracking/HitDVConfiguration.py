@@ -1,10 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.Logging import logging
 
-from ..Config.MenuComponents import RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 logging.getLogger().info("Importing %s",__name__)
@@ -12,12 +11,17 @@ log = logging.getLogger(__name__)
 
 
 def UTTJetRecoSequence():
+
+        from TriggerMenuMT.HLT.CommonSequences.CaloSequences import caloClusterRecoSequence
+        topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                caloClusterRecoSequence, flags=ConfigFlags, RoIs='')
+ 
         from TrigStreamerHypo.TrigStreamerHypoConf   import TrigStreamerHypoAlg
         from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 
-        from ..Jet.JetRecoSequences     import jetRecoSequence
-        from ..Jet.JetRecoCommon import extractRecoDict
-        from ..Menu.SignatureDicts      import JetChainParts_Default
+        from ..Jet.JetRecoSequences  import jetRecoSequence
+        from ..Jet.JetRecoCommon     import extractRecoDict
+        from ..Menu.SignatureDicts   import JetChainParts_Default
         
         jetRecoDict = extractRecoDict([JetChainParts_Default])
         jetRecoDict.update( 
@@ -29,7 +33,7 @@ def UTTJetRecoSequence():
         JetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
             jetRecoSequence,
             ConfigFlags,
-            clustersKey='HLT_TopoCaloClustersFS',
+            clustersKey=clustersKey,
             **trkcolls,
             **jetRecoDict,
         )
@@ -37,9 +41,9 @@ def UTTJetRecoSequence():
         HypoAlg = TrigStreamerHypoAlg("UTTJetRecDummyStream")
 
         from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-
         IMalg = clusterFSInputMaker()
-        return MenuSequence( Sequence    = seqAND("UTTJetRecoSeq", [IMalg,JetSeq]),
+
+        return MenuSequence( Sequence    = seqAND("UTTJetRecoSeq", [IMalg,topoClusterSequence,JetSeq]),
                              Maker       = IMalg,
                              Hypo        = HypoAlg,
                              HypoToolGen = StreamerHypoToolGenerator

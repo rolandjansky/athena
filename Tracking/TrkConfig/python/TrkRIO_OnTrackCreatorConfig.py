@@ -88,11 +88,11 @@ def InDetBroadRotCreatorCfg(flags,
     if flags.Detector.EnableTRT:
         if 'ToolTRT_DriftCircle' not in kwargs:
             from InDetConfig.TrackingCommonConfig import (
-                InDetBroadTRT_DriftCircleOnTrackToolCfg)
-            InDetBroadTRT_DriftCircleOnTrackTool = acc.popToolsAndMerge(
-                InDetBroadTRT_DriftCircleOnTrackToolCfg())
+                TRT_DriftCircleOnTrackNoDriftTimeToolCfg)
+            TRT_DriftCircleOnTrackNoDriftTimeTool = acc.popToolsAndMerge(
+                TRT_DriftCircleOnTrackNoDriftTimeToolCfg())
             kwargs.setdefault('ToolTRT_DriftCircle',
-                              InDetBroadTRT_DriftCircleOnTrackTool)
+                              TRT_DriftCircleOnTrackNoDriftTimeTool)
 
     InDetRotCreator = acc.popToolsAndMerge(
         InDetRotCreatorCfg(flags, name, **kwargs))

@@ -698,7 +698,7 @@ StatusCode RpcTrackAnaAlg::extrapolate2RPC(const Trk::TrackParameters* trackPara
     return StatusCode::FAILURE;
   }
 
-  Trk::TrackParameters *trackParamLayer = nullptr;
+  const Trk::TrackParameters *trackParamLayer = nullptr;
   double minDR = 1.0; // A intial value
   
   const std::vector<int> dl_vec = dl_vec_it->second;
@@ -750,7 +750,7 @@ StatusCode RpcTrackAnaAlg::extrapolate2RPC(const Trk::TrackParameters* trackPara
   }
   
   if (trackParamLayer == nullptr){
-    trackParamLayer =  const_cast<Trk::TrackParameters *>(trackParam);
+    trackParamLayer = trackParam;
   }
   BarrelDL nextDL = BarrelDL(barrelDL+1);
 

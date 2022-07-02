@@ -119,7 +119,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(Muon::MMPrepDataCont
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
     if ( !getLocalPos ) {
-      ATH_MSG_WARNING("Could not get the local strip position for MM");
+      ATH_MSG_WARNING("Could not get the local strip position for MM "<<m_idHelperSvc->toString(prdId));
       continue;
     }
     int stripNumberRDOId = detEl->stripNumber(localPos,layid);

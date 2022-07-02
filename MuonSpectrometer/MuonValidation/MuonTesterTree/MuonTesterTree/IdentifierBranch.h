@@ -99,7 +99,7 @@ private:
     VectorBranch<uint8_t>& m_gas_gap{parent().newVector<uint8_t>(name() + "_gas_gap")};
     VectorBranch<uint8_t>& m_multiplet{parent().newVector<uint8_t>(name() + "_multiplet")};
     VectorBranch<uint8_t>& m_channel_type{parent().newVector<uint8_t>(name() + "_channel_type")};
-    VectorBranch<uint8_t>& m_channel{parent().newVector<uint8_t>(name() + "_channel")};
+    VectorBranch<uint16_t>& m_channel{parent().newVector<uint16_t>(name() + "_channel")};
 };
 
 /// Branch to store all information of the MmIdentifier
@@ -112,7 +112,7 @@ public:
 private:
     VectorBranch<uint8_t>& m_gas_gap{parent().newVector<uint8_t>(name() + "_gas_gap")};
     VectorBranch<uint8_t>& m_multiplet{parent().newVector<uint8_t>(name() + "_multiplet")};
-    VectorBranch<uint8_t>& m_channel{parent().newVector<uint8_t>(name() + "_channel")};
+    VectorBranch<uint16_t>& m_channel{parent().newVector<uint16_t>(name() + "_channel")};
 };
 
 #endif

@@ -43,8 +43,10 @@ public:
 private:
 
 	// containers
-    std::map<unsigned long long, std::vector<double> > m_data{};
-    std::map<ThrsldTechType, double > m_zero{};
+    using ChannelMap = std::map<unsigned long long, std::vector<double>>;
+    using ZeroMap = std::map<ThrsldTechType, double >;
+    ChannelMap m_data{};
+    ZeroMap m_zero{};
 
 	// ID helpers
 	const MmIdHelper&   m_mmIdHelper;

@@ -5,7 +5,7 @@
 #ifndef ISF_FASTCALOSIMV2PARAMSVC_H
 #define ISF_FASTCALOSIMV2PARAMSVC_H 1
 
-#include "IFastCaloSimParamSvc.h"
+#include "ISF_FastCaloSimInterfaces/IFastCaloSimParamSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
