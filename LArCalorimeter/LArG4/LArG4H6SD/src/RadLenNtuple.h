@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4H6SD_RadLenNtuple_H
@@ -60,6 +60,7 @@ namespace G4UA
     SG::ReadHandle<McEventCollection> m_mcEvtColl;
     int m_verboseLevel;
 
+    bool m_has_cryo, m_has_em, m_has_hec, m_has_fcal;
   };
 }
 #endif

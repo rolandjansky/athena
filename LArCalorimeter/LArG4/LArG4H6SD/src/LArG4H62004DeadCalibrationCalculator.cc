@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004DeadCalibrationCalculator.h"
@@ -23,15 +23,31 @@ using CLHEP::Hep3Vector;
 using CLHEP::HepRotation;
 
 
-static double yshift=-538.66*CLHEP::mm;
-static double zshift = -7343.366*CLHEP::mm;
-static double alpha = 4.668*CLHEP::degree;
-static double yrot = 45.*CLHEP::degree;
+static constexpr double yshift=-538.66*CLHEP::mm;
+static constexpr double zshift = -7343.366*CLHEP::mm;
+static constexpr double alpha = 4.668*CLHEP::degree;
+static constexpr double yrot = 45.*CLHEP::degree;
 
-static Hep3Vector shift;
-static HepRotation m13,my3;
+static const HepRotation m13 = []() {
+  const Hep3Vector colX(cos(yrot),sin(yrot),0);
+  const Hep3Vector colY(-cos(alpha)*sin(yrot),cos(alpha)*cos(yrot),-sin(alpha));
+  const Hep3Vector colZ(-sin(alpha)*sin(yrot),sin(alpha)*cos(yrot),cos(alpha));
+  return HepRotation(colX, colY, colZ);
+ }();
 
-static const double zSamplings[10] = {
+static const HepRotation my3 = []() {
+  const Hep3Vector colXX(cos(yrot),sin(yrot),0);
+  const Hep3Vector colYY(-sin(yrot),cos(yrot),0);
+  const Hep3Vector colZZ(0,0,1);
+  return HepRotation(colXX, colYY, colZZ);
+ }();
+
+static const Hep3Vector shift = []() {
+  Hep3Vector sh(0., yshift, zshift);
+  return my3*sh;
+ }();
+
+static constexpr double zSamplings[10] = {
   3691.*CLHEP::mm,                                                   // z-start of EMEC active part
   (3691. + 536.)*CLHEP::mm,                                          // z-end of EMEC active part
   (4317. + 12.5)*CLHEP::mm,                                          // z-start of HEC-1 active part
@@ -47,19 +63,19 @@ static const double zSamplings[10] = {
 enum smp_start_keys { zStartEMEC, zEndEMEC, zStartHEC1, zEndHEC1, zStartHEC2, zEndHEC2,
     zStartFCAL1, zStartFCAL2, zStartFCAL3, zEndFCAL3};
 
-static const double dHec12 = 2*268.*CLHEP::mm; // depth of second sampling in HEC
-static const double dHec22 = 2*234.*CLHEP::mm; // depth of fourth sampling in HEC
-//static const double shiftTB = 7339*CLHEP::mm; // Z_TB -> Z_ATLAS
-static const double EMrouter = 698.6*CLHEP::mm; // Outer part of the  EMEC inner wheel
-static const double HECrouter = 1159.0*CLHEP::mm; // Outer part of our HEC module
-//static const double EMrinner = 301.4*CLHEP::mm; //  Inner r of the EMEC
-static const double HECrinner1 = 372.0*CLHEP::mm; // Inner part of the HEC
-static const double HECrinner2 = 475.0*CLHEP::mm; // Inner part of the HEC
-static const double FCALrinner = 71.8*CLHEP::mm; // Inner part of the FCAL
-static const double FCALrouter = 450.*CLHEP::mm; // Outer part of the FCAL
-static const double TBzStart = 11067.*CLHEP::mm;
-//static const double TBzEnd = 12500.*CLHEP::mm;
-static const double offset = 20.*CLHEP::mm; // safety offset while calculated edges of different zones
+static constexpr double dHec12 = 2*268.*CLHEP::mm; // depth of second sampling in HEC
+static constexpr double dHec22 = 2*234.*CLHEP::mm; // depth of fourth sampling in HEC
+//static constexpr double shiftTB = 7339*CLHEP::mm; // Z_TB -> Z_ATLAS
+static constexpr double EMrouter = 698.6*CLHEP::mm; // Outer part of the  EMEC inner wheel
+static constexpr double HECrouter = 1159.0*CLHEP::mm; // Outer part of our HEC module
+//static constexpr double EMrinner = 301.4*CLHEP::mm; //  Inner r of the EMEC
+static constexpr double HECrinner1 = 372.0*CLHEP::mm; // Inner part of the HEC
+static constexpr double HECrinner2 = 475.0*CLHEP::mm; // Inner part of the HEC
+static constexpr double FCALrinner = 71.8*CLHEP::mm; // Inner part of the FCAL
+static constexpr double FCALrouter = 450.*CLHEP::mm; // Outer part of the FCAL
+static constexpr double TBzStart = 11067.*CLHEP::mm;
+//static constexpr double TBzEnd = 12500.*CLHEP::mm;
+static constexpr double offset = 20.*CLHEP::mm; // safety offset while calculated edges of different zones
 
 
 namespace {
@@ -83,19 +99,6 @@ int etaToBin2 (G4double eta, G4double eta0)
 LArG4H62004DeadCalibrationCalculator::LArG4H62004DeadCalibrationCalculator(const std::string& name, ISvcLocator * pSvcLocator)
   : LArCalibCalculatorSvcImp(name, pSvcLocator)
 {
-  // Make sure there are no uninitialized variables.
-
-  Hep3Vector sh(0., yshift, zshift);
-  const Hep3Vector colX(cos(yrot),sin(yrot),0);
-  const Hep3Vector colY(-cos(alpha)*sin(yrot),cos(alpha)*cos(yrot),-sin(alpha));
-  const Hep3Vector colZ(-sin(alpha)*sin(yrot),sin(alpha)*cos(yrot),cos(alpha));
-  m13 = HepRotation(colX, colY, colZ);
-  const Hep3Vector colXX(cos(yrot),sin(yrot),0);
-  const Hep3Vector colYY(-sin(yrot),cos(yrot),0);
-  const Hep3Vector colZZ(0,0,1);
-  my3 = HepRotation(colXX, colYY, colZZ);
-
-  shift = my3*sh;
 }
 
 
@@ -136,7 +139,7 @@ G4bool LArG4H62004DeadCalibrationCalculator::Process( const G4Step* a_step, LArG
     identifier.clear();
     // Calculate the identifier.
     G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-    G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
+    const G4TouchableHistory* theTouchable = dynamic_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
     // Volume name
     G4String hitVolume = theTouchable->GetVolume(0)->GetName();
     //   if(hitVolume.contains("::") ) {

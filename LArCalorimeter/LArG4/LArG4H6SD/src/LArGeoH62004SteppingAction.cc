@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoH62004SteppingAction.h"
@@ -30,27 +30,15 @@ namespace G4UA
   void LArGeoH62004SteppingAction::UserSteppingAction(const G4Step * theStep)
   {
 
-    // ADS: why are these static?
-
-    static G4int h_num,kk;
-    static G4int trackid;
-    static G4ThreeVector xyz;
-    static G4String vname;
-    static G4Track* theTrack;
-    static G4String thePrePVname;
-    static G4StepPoint* tacka;
-    //  static ILArCalculatorSvc *whcalc;
-    static double z;
-
     // Check the primary track
     if(m_checkprim) {
       //   std::cout <<"LArGeoH62004SteppingAction::LArGeoH62004SteppingAction checking primary track "<<std::endl;
 
-      tacka=theStep->GetPostStepPoint();
-      xyz = tacka->GetPosition();
-      z=xyz.z();
-      theTrack = theStep->GetTrack();
-      trackid = theTrack->GetTrackID();
+      G4StepPoint* tacka=theStep->GetPostStepPoint();
+      G4ThreeVector xyz = tacka->GetPosition();
+      double z=xyz.z();
+      G4Track* theTrack = theStep->GetTrack();
+      G4int trackid = theTrack->GetTrackID();
       if(trackid > 1 || z > 9460. || z < 8005. ) return; // not a scint. region
       if( z < 9325. && z > 8015 ) return; // BPC&MWPC region
       //  if(trackid > 10 ) return;
@@ -80,11 +68,11 @@ namespace G4UA
       boost::io::ios_base_all_saver coutsave (std::cout);
       std::cout <<"LArGeoH62004SteppingAction::LArGeoH62004SteppingAction printing "<<std::endl;
 
-      tacka=theStep->GetPreStepPoint();
+      G4StepPoint* tacka=theStep->GetPreStepPoint();
       G4StepPoint* tackab=theStep->GetPostStepPoint();
-      G4TouchableHistory* theTouchable =
-        (G4TouchableHistory*) (tacka->GetTouchable());
-      xyz = tacka->GetPosition();
+      const G4TouchableHistory* theTouchable =
+        dynamic_cast<const G4TouchableHistory*>(tacka->GetTouchable());
+      G4ThreeVector xyz = tacka->GetPosition();
 
       std::cout<<"----------------------------------------------------"<<std::endl;
       std::cout<<std::fixed<<std::setprecision(3)<<"Step: X= "<<std::setw(10)<<xyz.x()<<" Y= "<<std::setw(10)<<xyz.y()<<" Z= "<<std::setw(10)<<xyz.z()<<std::endl;
@@ -92,7 +80,7 @@ namespace G4UA
 
       G4cout<<"Local: X= "<<localPoint.x()<<" Y= "<<localPoint.y()<<
         " Z= "<<localPoint.z()<<G4endl;
-      vname = tacka->GetPhysicalVolume()->GetName();
+      G4String vname = tacka->GetPhysicalVolume()->GetName();
       G4cout<<"Name: "<<vname<< "  Copy n.: "<<tacka->GetPhysicalVolume()->GetCopyNo()<<G4endl;
       G4cout<<"Material: "<<tacka->GetPhysicalVolume()->GetLogicalVolume()->GetMaterial()->GetName()<<G4endl;
       std::cout<<"-------------------"<<std::endl;
@@ -134,9 +122,9 @@ namespace G4UA
 
 
       G4int dubina=theTouchable->GetHistoryDepth();
-      for( kk=0; kk<=dubina; kk++ )
+      for( G4int kk=0; kk<=dubina; kk++ )
         {
-          h_num=theTouchable->GetVolume(kk)->GetCopyNo();
+          G4int h_num=theTouchable->GetVolume(kk)->GetCopyNo();
           vname=theTouchable->GetVolume(kk)->GetName();
           G4cout<<vname<<" "<<h_num<<G4endl;
         }

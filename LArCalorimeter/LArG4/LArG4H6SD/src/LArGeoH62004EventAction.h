@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4H6SD_LArGeoH62004EventAction_h
@@ -30,7 +30,7 @@ namespace G4UA
     virtual void EndOfEventAction(const G4Event*) override;
 
   private:
-    static int m_evnum;
+    inline static std::atomic<int> m_evnum{0};
 
     SG::WriteHandle<TBEventInfo> m_ev;
     float m_xpos;

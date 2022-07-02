@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6BeamSD.h"
@@ -38,38 +38,30 @@ void LArG4H6BeamSD::Initialize(G4HCofThisEvent* /*HCE*/)
 
 G4bool LArG4H6BeamSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*Touchable*/)
 {
-  static G4int kk;
-  static std::string vname, ime1;
-  static short num, h_num;
-  static G4double edep;
-  static G4StepPoint *preStep;
-  static G4TouchableHistory* theTouchable;
-  static G4ThreeVector xyz;
-  static G4VPhysicalVolume* physVol1;
-  static LArG4H6FrontHit* theFrontHit;
+  LArG4H6FrontHit* theFrontHit;
 
-  edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
+  G4double edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
 
  if(edep == 0) return true;
 
-  preStep = aStep->GetPreStepPoint();
-  theTouchable = (G4TouchableHistory*) (preStep->GetTouchable());
-  xyz = preStep->GetPosition();
-  physVol1 = theTouchable->GetVolume();
+  G4StepPoint* preStep = aStep->GetPreStepPoint();
+  const G4TouchableHistory* theTouchable = dynamic_cast<const G4TouchableHistory*>(preStep->GetTouchable());
+  G4ThreeVector xyz = preStep->GetPosition();
+  G4VPhysicalVolume* physVol1 = theTouchable->GetVolume();
 //
-  ime1=physVol1->GetName();
+  std::string ime1=physVol1->GetName();
 //
   //dubina=theTouchable->GetHistoryDepth();
 //
   G4String lname(ime1);
-  kk = lname.last(':');
+  G4int kk = lname.last(':');
   lname.remove(0,kk+1);
 #ifdef DEBUG_HITS
   std::cout<<"**** LArG4H6BeamSD: "<<SensitiveDetectorName.data()<<" :ProcessHits: lname: "<<lname.data()<<std::endl;
 #endif
 //
-   num = physVol1->GetCopyNo();
-   h_num = -1;
+   short num = physVol1->GetCopyNo();
+   short h_num = -1;
    if((!strcmp(lname.data(),"XDiv")) || (!strcmp(lname.data(),"YDiv")))
     {
      h_num = theTouchable->GetVolume(2)->GetCopyNo();

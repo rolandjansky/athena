@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4TBECBeamChHit.hh
@@ -21,9 +21,6 @@ public:
   LArG4TBECBeamChHit(G4int c = 0, G4double energy = 0., G4double time   = 0.);
   virtual ~LArG4TBECBeamChHit();
 
-  inline void* operator new(size_t);
-  inline void operator delete(void *aHit);
-
   void Draw();
   void Print();
 
@@ -42,23 +39,6 @@ public:
 };
 
 
-// The following is copied from the Geant4 example; I'm not entirely
-// sure why we need to define "new" and "delete".
-
 typedef G4THitsCollection<LArG4TBECBeamChHit> LArG4TBECBeamChHitsCollection;
-
-extern G4Allocator<LArG4TBECBeamChHit> LArG4TBECBeamChHitAllocator;
-
-inline void* LArG4TBECBeamChHit::operator new(size_t)
-{
-  void *aHit;
-  aHit = (void *) LArG4TBECBeamChHitAllocator.MallocSingle();
-  return aHit;
-}
-
-inline void LArG4TBECBeamChHit::operator delete(void *aHit)
-{
-  LArG4TBECBeamChHitAllocator.FreeSingle((LArG4TBECBeamChHit*) aHit);
-}
 
 #endif // _LArG4TBECBeamChHit_H_

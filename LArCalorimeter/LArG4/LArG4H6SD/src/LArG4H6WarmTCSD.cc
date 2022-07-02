@@ -75,13 +75,10 @@ void LArG4H6WarmTCSD::Initialize(G4HCofThisEvent*)
 
 G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
 {
-  static G4double edep;
-  static LArG4H6WarmTCHit* theHit;
-
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: processing: "<<this->GetName()<<std::endl;
 #endif
-  edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
+  G4double edep  = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   if(edep == 0.) {
     if(m_isCalib){
       AtlasG4EventUserInfo * atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
@@ -163,7 +160,7 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
 #endif
   hitIt it;
   if((it = m_hits.find(addr)) == m_hits.end()) { // insert the new hit
-    theHit = new LArG4H6WarmTCHit(addr, edep);
+    LArG4H6WarmTCHit* theHit = new LArG4H6WarmTCHit(addr, edep);
     m_hits.insert(hitPair(addr,theHit));
   } else { // Adding the energy
     (it->second)->AddEnergy(edep);

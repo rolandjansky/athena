@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoH62004EventAction.h"
@@ -12,7 +12,6 @@
 
 namespace G4UA
 {
-  int LArGeoH62004EventAction::m_evnum=0;
 
   LArGeoH62004EventAction::LArGeoH62004EventAction(const Config& config)
     : m_ev("TBEventInfo")
