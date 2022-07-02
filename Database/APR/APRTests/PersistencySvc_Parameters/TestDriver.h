@@ -15,6 +15,8 @@ namespace pool {
   public:
     TestDriver();
     ~TestDriver();
+    TestDriver(const TestDriver & ) = delete;
+    TestDriver& operator=(const TestDriver & ) = delete;
     void write();
     void read();
 
