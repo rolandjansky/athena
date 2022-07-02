@@ -128,7 +128,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(
                                  30000,
                                  60000,
                                  80000,
-                                 13000000 },
+                                 13600000 },
     "Custom Eta/Pt binning for the SIMPLIFIED correlation model.");
   declareProperty("EventInfoCollectionName",
                   m_eventInfoCollectionName = "EventInfo",
@@ -298,10 +298,7 @@ AsgElectronEfficiencyCorrectionTool::initialize()
 
   // get Nsyst
   m_nCorrSyst = m_rootTool->getNSyst();
-  //
-  if (m_correlation_model == correlationModel::FULL) {
-    m_nUncorrSyst = m_rootTool->getNbins(m_pteta_bins);
-  }
+  m_nUncorrSyst = m_rootTool->getNbins(m_pteta_bins);
 
   // Initialize the systematics
   if (InitSystematics() != StatusCode::SUCCESS) {
@@ -352,12 +349,13 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
   //
   double cluster_eta(-9999.9);
   double et(0.0);
-  et = inputObject.pt();
+
   const xAOD::CaloCluster* cluster = inputObject.caloCluster();
   if (!cluster) {
     ATH_MSG_ERROR("ERROR no cluster associated to the Electron \n");
     return CP::CorrectionCode::Error;
   }
+
   // we need to use different variables for central and forward electrons
   static const SG::AuxElement::ConstAccessor<uint16_t> accAuthor("author");
   if (accAuthor.isAvailable(inputObject) &&
@@ -365,6 +363,24 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(
     cluster_eta = cluster->eta();
   } else {
     cluster_eta = cluster->etaBE(2);
+  }
+
+  // use et from cluster because it is immutable under syst variations of ele energy scale
+  const double energy = cluster->e();
+  if (inputObject.trackParticle()) {
+    et = (std::cosh(inputObject.trackParticle()->eta()) != 0.)
+      ? energy / std::cosh(inputObject.trackParticle()->eta())
+      : 0.;
+  } else {
+    et = (std::cosh(cluster_eta) != 0.) ? energy / std::cosh(cluster_eta) : 0.;
+  }
+
+  // allow for a 5% margin at the lowest pT bin boundary (i.e. increase et by 5% 
+  // for sub-threshold electrons). This assures that electrons that pass the 
+  // threshold only under syst variations of energy get a scale factor assigned.
+  std::map<float, std::vector<float>>::const_iterator itr_pt = m_pteta_bins.begin();
+  if (itr_pt!=m_pteta_bins.end() && et<itr_pt->first) {
+    et=et*1.05;
   }
 
   size_t CorrIndex{ 0 };
