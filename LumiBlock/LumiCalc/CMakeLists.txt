@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LumiCalc )
@@ -16,7 +16,7 @@ atlas_add_library( LumiBlockCoolQuery
                    src/LumiBlockCollectionConverter.cxx
                    PUBLIC_HEADERS LumiCalc
                    INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
-                   LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel GoodRunsListsLib LumiBlockData xAODLuminosity )
+                   LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GoodRunsListsLib LumiBlockData xAODLuminosity )
 
 atlas_add_executable( iLumiCalc
                       src/iLumiCalc.cxx

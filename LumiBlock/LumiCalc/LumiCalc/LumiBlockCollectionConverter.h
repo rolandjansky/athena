@@ -17,6 +17,8 @@
 #include <vector>
 #include "TString.h"
 
+#include "CxxUtils/checker_macros.h"
+
 namespace Root {
   class TGoodRunsList;
   class TGRLCollection;
@@ -28,7 +30,7 @@ class LumiBlockCollection;
 
 typedef std::map<TString,TString> grlmetadatamap;
 
-class LumiBlockCollectionConverter {
+class ATLAS_NOT_THREAD_SAFE LumiBlockCollectionConverter {
    
  public:
 

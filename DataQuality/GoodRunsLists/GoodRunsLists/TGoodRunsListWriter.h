@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,6 +20,7 @@
 #include "TObject.h"
 #include "TString.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "GoodRunsLists/TMsgLogger.h"
 #include "GoodRunsLists/TGoodRunsList.h"
 #include "GoodRunsLists/TGRLCollection.h"
@@ -34,7 +35,7 @@ namespace Root {
   class TGoodRun;
   class TGoodRunsList;
   
-  class TGoodRunsListWriter : public TObject {
+  class ATLAS_NOT_THREAD_SAFE TGoodRunsListWriter : public TObject {
     
    public:
     
