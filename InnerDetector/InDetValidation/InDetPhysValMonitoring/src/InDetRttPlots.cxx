@@ -207,33 +207,30 @@ InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle, float weight) {
 
 void
 InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle* track, const bool isGood, const float mu, const unsigned int nVtx, float weight) {
-  if (m_effPlots) m_effPlots->fill(truth, isGood, weight);
-
+  if (m_effPlots) m_effPlots->fill(truth, isGood, weight, mu);
   if (m_anTrackingPlots) m_anTrackingPlots->fillEfficiency(truth, track, isGood, mu, nVtx, weight);
   if(m_config.doEfficienciesPerAuthor){
     if(isGood && track){
       std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track->patternRecoInfo();
-    
+
       bool isSiSpSeededFinder = patternInfo.test(0);
       bool isInDetExtensionProcessor = patternInfo.test(3);
       bool isTRTSeededTrackFinder = patternInfo.test(4);
       bool isTRTStandalone = patternInfo.test(20);
       bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
 
-      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_effSiSPSeededFinderPlots->fill(truth, isGood, weight);
-      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_effInDetExtensionProcessorPlots->fill(truth, isGood, weight);
-      if(isTRTSeededTrackFinder and not isTRTStandalone) m_effTRTSeededTrackFinderPlots->fill(truth, isGood, weight);
-      if(isTRTStandalone) m_effTRTStandalonePlots->fill(truth, isGood, weight);
-      if(isSiSpacePointsSeedMaker_LargeD0) m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood, weight);
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_effSiSPSeededFinderPlots->fill(truth, isGood, weight, mu);
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_effInDetExtensionProcessorPlots->fill(truth, isGood, weight, mu);
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_effTRTSeededTrackFinderPlots->fill(truth, isGood, weight, mu);
+      if(isTRTStandalone) m_effTRTStandalonePlots->fill(truth, isGood, weight, mu);
+      if(isSiSpacePointsSeedMaker_LargeD0) m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood, weight, mu);
     } else {
-      m_effSiSPSeededFinderPlots->fill(truth, isGood, weight);
-      m_effInDetExtensionProcessorPlots->fill(truth, isGood, weight);
-      m_effTRTSeededTrackFinderPlots->fill(truth, isGood, weight);
-      m_effTRTStandalonePlots->fill(truth, isGood, weight);
-      m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood, weight);
-
+      m_effSiSPSeededFinderPlots->fill(truth, isGood, weight, mu);
+      m_effInDetExtensionProcessorPlots->fill(truth, isGood, weight, mu);
+      m_effTRTSeededTrackFinderPlots->fill(truth, isGood, weight, mu);
+      m_effTRTStandalonePlots->fill(truth, isGood, weight, mu);
+      m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood, weight, mu);
     }
-    
   }
 
 }
@@ -245,10 +242,10 @@ InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Trac
 void
 InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx, float weight){
 
-  if (m_missingTruthFakePlots) m_missingTruthFakePlots->fill(track, !isAssociatedTruth, weight);
+  if (m_missingTruthFakePlots) m_missingTruthFakePlots->fill(track, !isAssociatedTruth, weight, mu);
   if (m_anTrackingPlots) m_anTrackingPlots->fillUnlinked(track, !isAssociatedTruth, mu, nVtx, weight);
   if(isAssociatedTruth) {
-    if (m_fakePlots) m_fakePlots->fill(track, isFake, weight);
+    if (m_fakePlots) m_fakePlots->fill(track, isFake, weight, mu);
     if (m_hitsFakeTracksPlots) m_hitsFakeTracksPlots->fill(track, mu, weight);
     if (m_anTrackingPlots) m_anTrackingPlots->fillFakeRate(track, isFake, mu, nVtx, weight);
     if(m_config.doFakesPerAuthor){
@@ -260,11 +257,11 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
         bool isTRTStandalone = patternInfo.test(20);
         bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
 
-        if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_fakeSiSPSeededFinderPlots->fill(track, isFake, weight); //No extensions 
-        if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_fakeInDetExtensionProcessorPlots->fill(track, isFake, weight); //Extensions but not Back-tracking
-        if(isTRTSeededTrackFinder and not isTRTStandalone) m_fakeTRTSeededTrackFinderPlots->fill(track, isFake, weight); //BackTracking
-        if(isTRTStandalone) m_fakeTRTStandalonePlots->fill(track, isFake, weight); //TRT standalone
-        if(isSiSpacePointsSeedMaker_LargeD0) m_fakeSiSpacePointsSeedMaker_LargeD0Plots->fill(track, isFake, weight); //ANT
+        if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_fakeSiSPSeededFinderPlots->fill(track, isFake, weight, mu); //No extensions 
+        if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_fakeInDetExtensionProcessorPlots->fill(track, isFake, weight, mu); //Extensions but not Back-tracking
+        if(isTRTSeededTrackFinder and not isTRTStandalone) m_fakeTRTSeededTrackFinderPlots->fill(track, isFake, weight, mu); //BackTracking
+        if(isTRTStandalone) m_fakeTRTStandalonePlots->fill(track, isFake, weight, mu); //TRT standalone
+        if(isSiSpacePointsSeedMaker_LargeD0) m_fakeSiSpacePointsSeedMaker_LargeD0Plots->fill(track, isFake, weight, mu); //ANT
     }
   }
   else { 

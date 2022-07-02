@@ -16,7 +16,8 @@ InDetPerfPlot_FakeRate::InDetPerfPlot_FakeRate(InDetPlotBase* pParent, const std
   m_fakerate_vs_pt{},
   m_fakerate_vs_phi{},
   m_fakerate_vs_d0{},
-  m_fakerate_vs_z0{} {
+  m_fakerate_vs_z0{},
+  m_fakerate_vs_mu{} {
   // nop
 }
 
@@ -28,11 +29,12 @@ InDetPerfPlot_FakeRate::initializePlots() {
   book(m_fakerate_vs_phi, "fakerate_vs_phi");
   book(m_fakerate_vs_d0, "fakerate_vs_d0");
   book(m_fakerate_vs_z0, "fakerate_vs_z0");
+  book(m_fakerate_vs_mu, "fakerate_vs_mu");
 
 }
 
 void
-InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake, float weight) {
+InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake, float weight, float mu) {
 
   double eta = track.eta();
   double pt = track.pt() / Gaudi::Units::GeV; // convert MeV to GeV
@@ -45,7 +47,7 @@ InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake
   fillHisto(m_fakerate_vs_phi, phi, isFake, weight); 
   fillHisto(m_fakerate_vs_d0, d0, isFake, weight);
   fillHisto(m_fakerate_vs_z0, z0, isFake, weight);
-
+  fillHisto(m_fakerate_vs_mu, mu, isFake, weight);
 }
 
 void
