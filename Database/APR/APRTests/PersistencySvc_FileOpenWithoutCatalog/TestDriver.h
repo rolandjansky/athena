@@ -18,6 +18,8 @@ namespace pool {
   public:
     TestDriver();
     ~TestDriver();
+    TestDriver(const TestDriver & ) = delete;
+    TestDriver& operator=(const TestDriver & ) = delete;
     void loadLibraries( const std::vector<std::string>& libraries );
     void write();
     void read();
