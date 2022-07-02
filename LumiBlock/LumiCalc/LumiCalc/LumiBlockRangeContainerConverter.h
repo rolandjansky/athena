@@ -25,12 +25,13 @@ namespace Root {
   class TGoodRunsListWriter;
 }
 
+#include "CxxUtils/checker_macros.h"
 #include "xAODLuminosity/LumiBlockRangeContainer.h"
 #include "xAODLuminosity/LumiBlockRangeAuxContainer.h"
 
 typedef std::map<TString,TString> grlmetadatamap;
 
-class LumiBlockRangeContainerConverter {
+class ATLAS_NOT_THREAD_SAFE LumiBlockRangeContainerConverter {
    
  public:
 

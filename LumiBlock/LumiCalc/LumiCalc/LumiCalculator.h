@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUMICALC_LUMICALCULATOR_H
 #define LUMICALC_LUMICALCULATOR_H
 
-
+#include "CxxUtils/checker_macros.h"
 #include "LumiCalc/CoolQuery.h"
 #include "LumiCalc/LumiBlockRangeContainerConverter.h"
 #include <vector>
@@ -31,7 +31,7 @@ class LumiCalculator{
   void UseLumiMethod(const std::string& method);// i.e. COOL Folder channel
   void UseLumiChannel(int chan);
   void UseLiveTrigger(bool live, std::string& livetrigger);
-  void IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, const std::string& triggerchain);
+  void IntegrateLumi ATLAS_NOT_THREAD_SAFE (const xAOD::LumiBlockRangeContainer * iovc, const std::string& triggerchain);
   void SetCollName(const std::string& lbcollname);
   void setTree(TTree * tree = 0);
 
