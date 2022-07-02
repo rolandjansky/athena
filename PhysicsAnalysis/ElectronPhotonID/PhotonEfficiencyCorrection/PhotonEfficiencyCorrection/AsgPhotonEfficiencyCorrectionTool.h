@@ -139,6 +139,9 @@ private:
   
   /// map filename
   std::string m_mapFile;  
+
+  // bin boundaries of correction files
+  std::map<float, std::vector<float>> m_pteta_bins;
   
   //use RandomRun Number
   bool m_useRandomRunNumber;

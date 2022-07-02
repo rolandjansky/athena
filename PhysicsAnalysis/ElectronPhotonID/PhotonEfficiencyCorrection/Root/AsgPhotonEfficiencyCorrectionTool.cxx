@@ -107,8 +107,8 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
 
   // First check if the tool is initialized using the input files or map
   if(!m_mapFile.empty()){ // using map file
-     corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
-	 corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
+         corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true)); // converted photons input
+	 corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false)); // unconverted photons input
   }
   else if(!m_corrFileNameConv.empty() && !m_corrFileNameUnconv.empty()){ // initialize the tool using input files (old scheme)
   	corrFileNameList.push_back(m_corrFileNameConv);
@@ -147,7 +147,7 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   m_rootTool_con->addFileName( corrFileNameList[0] );
   m_rootTool_unc->addFileName( corrFileNameList[1] );
 
-    // Forward the message level
+  // Forward the message level
   m_rootTool_con->msg().setLevel(this->msg().level());
   m_rootTool_unc->msg().setLevel(this->msg().level());
 
@@ -170,7 +170,18 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
       ATH_MSG_ERROR("Could not initialize the TPhotonEfficiencyCorrectionTool!");
       return StatusCode::FAILURE;
     }
-  
+
+  // get the map of pt/eta bins
+  // let's start with converted 
+  m_rootTool_con->getNbins(m_pteta_bins);
+  std::map<float, std::vector<float>> pteta_bins_unc;
+  // now let's get unconverted
+  m_rootTool_unc->getNbins(pteta_bins_unc);
+  // let's loop the unconverted map and copy over to the common one
+  // in this tool we only ever care about et, so don't care if we overwrite eta information
+  for (const auto& [pt_unc, eta_unc]: pteta_bins_unc) {
+    m_pteta_bins[pt_unc] = eta_unc;
+  }
 
   // Add the recommended systematics to the registry
   if ( registerSystematics() != StatusCode::SUCCESS) {
@@ -223,7 +234,21 @@ const Result AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::Egamma* e
         return result;
     }
   double eta2   = fabsf(cluster->etaBE(2));
-  double et = egam->pt();
+  // use et from cluster because it is immutable under syst variations of ele energy scale
+  const double energy = cluster->e();
+  double et = 0.;
+  if (eta2 < 999.) {
+    const double cosheta = std::cosh(eta2);
+    et = (cosheta != 0.) ? energy / cosheta : 0.;
+  }
+
+  // allow for a 5% margin at the lowest pT bin boundary (i.e. increase et by 5% 
+  // for sub-threshold electrons). This assures that electrons that pass the 
+  // threshold only under syst variations of energy get a scale factor assigned.
+  std::map<float, std::vector<float>>::const_iterator itr_pt = m_pteta_bins.begin();
+  if (itr_pt!=m_pteta_bins.end() && et<itr_pt->first) {
+    et=et*1.05;
+  }
   	
   // Check if photon in the range to get the SF
   if(eta2>MAXETA) {
@@ -232,15 +257,15 @@ const Result AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::Egamma* e
   }
   if(et<MIN_ET_OF_SF && m_sysSubstring=="ID_") {
         ATH_MSG_WARNING( "No ID scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-        return result;
+	return result;
   }
   if(et<MIN_ET_Iso_SF && m_sysSubstring=="ISO_") {
         ATH_MSG_WARNING( "No isolation scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-        return result;
+	return result;
   }
   if(et<MIN_ET_Trig_SF && m_sysSubstring=="TRIGGER_") {
         ATH_MSG_WARNING( "No trigger scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-        return result;
+	return result;
   }
   if(et>MAX_ET_OF_SF && m_sysSubstring=="ID_") {
         ATH_MSG_WARNING( "No scale factor provided for et "<<et/1e3<<"GeV Returning SF for "<<MAX_ET_OF_SF/1e3<<"GeV");
