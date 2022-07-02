@@ -120,7 +120,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoringAlgorithm::fillHistograms( const Even
 	  validCTP_RIO = false;
 	  ++numberOfInvalidFragments;
 	}
-	ATH_MSG_WARNING( "validCTP_RIO: " << validCTP_RIO );
+        ATH_MSG_DEBUG( "validCTP_RIO: " << validCTP_RIO );
       }
     }
     if (m_processRoIB && m_processMuctpiRIO) {
@@ -1049,7 +1049,8 @@ TrigT1CTMonitoring::BSMonitoringAlgorithm::doCtp(const CTP_RDO* theCTP_RDO,
 			 << freqFromCool << " Hz => t_BC = " << bcDurationInNs << " ns"); 
 	}
 	else {
-	  ATH_MSG_WARNING( "No valid frequency measurements found in COOL, will use hardcoded BC interval: t_BC = " 
+	  //ATH_MSG_WARNING( "No valid frequency measurements found in COOL, will use hardcoded BC interval: t_BC = "
+ 	  ATH_MSG_INFO( "No valid frequency measurements found in COOL, will use hardcoded BC interval: t_BC = " 
 			 << bcDurationInNs << " ns");
 	}
 
@@ -1316,13 +1317,15 @@ TrigT1CTMonitoring::BSMonitoringAlgorithm::doCtp(const CTP_RDO* theCTP_RDO,
     errorSummaryY = 0;
     fill(m_packageName, errorSummaryX, errorSummaryY);
 
+    if (msgLvl(MSG::DEBUG)) {
     std::vector<unsigned int> triggersFired = ctp.getAllTriggers(storeBunch);
     std::stringstream str;
     //for ( unsigned int i = 0; i < triggersFired.size(); ++i ) {
-    for (auto i : triggersFired ) {
-      str << triggersFired[i] << " ";
+    for (auto i : triggersFired ) { 
+      str << i << " "; 
     }
     ATH_MSG_DEBUG( triggersFired.size() << " trigger items fired: " << str.str());
+    }
   } 
   else {
     if (!m_runOnESD) {
