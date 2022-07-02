@@ -670,7 +670,7 @@ namespace MuonGM {
         m_idhash = collIdhash;
         // set RE hash id
         if (idh->get_detectorElement_hash(id, detIdhash) != 0) {
-            MsgStream log(Athena::getMessageSvc(), "MdtReadoutElement");
+            MsgStream log(Athena::getMessageSvc(), "RpcReadoutElement");
             log << MSG::WARNING << "setIdentifier -- detectorElement hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
         }
         m_detectorElIdhash = detIdhash;

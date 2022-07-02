@@ -55,6 +55,7 @@ namespace MuonGM {
         friend class Muon::MdtAlignModule;
         friend class Muon::CombinedMuonAlignModule;
         friend class MuonChamber;
+        friend class MuonChamberLite;
 
     public:
         MdtReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);

@@ -156,11 +156,8 @@ namespace MuonGM {
         MYSQL::LockedMYSQL mysql = MYSQL::GetPointer();
         mysql->setGeometryVersion(m_layout);
         mysql->set_amdb_from_RDB(m_rdb == 1);
-        mysql->set_DBMuonVersion(m_DBMuonVersion);
 
-        log << MSG::INFO << "Mysql helper class created here for geometry version " << mysql->getGeometryVersion() << " from DB MuonVersion <" << mysql->get_DBMuonVersion() << ">"
-            << endmsg;
-
+ 
         StatusCode sc = StatusCode::SUCCESS;
 
         const MdtIdHelper *mdtidh = nullptr;
@@ -242,8 +239,6 @@ namespace MuonGM {
         // m_includeCutouts = 0 => no cutouts
         m_manager->setCutoutsFlag(m_includeCutouts);
         m_manager->setCutoutsBogFlag(m_includeCutoutsBog);
-        mysql->setCutoutsBogFlag(m_includeCutoutsBog);
-        mysql->setCtbBisFlag(m_includeCtbBis);
         mysql->setControlAlines(m_controlAlines);
 
         dbr->setGeometryVersion(m_layout);
