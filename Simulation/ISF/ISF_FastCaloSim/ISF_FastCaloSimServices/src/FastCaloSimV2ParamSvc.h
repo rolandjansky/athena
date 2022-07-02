@@ -43,7 +43,6 @@ namespace ISF {
     GeoLoadGpu* m_gl;
     GeoLoadGpu m_glg;
     void* m_rd4h;
-    t_cellmap_Gpu*    m_cellmap;
     t_cellmap_Gpu    m_cellmap_gpu;
 #endif
     /** @brief The standard @c StoreGateSvc/DetectorStore
