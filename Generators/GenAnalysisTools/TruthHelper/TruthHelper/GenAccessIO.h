@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRUTHHELPER_GENACCESSIO_H
@@ -11,8 +11,6 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/ObjectVector.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <vector>
