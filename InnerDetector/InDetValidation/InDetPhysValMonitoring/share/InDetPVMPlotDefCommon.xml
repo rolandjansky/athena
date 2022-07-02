@@ -741,6 +741,10 @@
   <x title="p_{T} [GeV]" n="60" lo="0" hi="3"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
+<h id="efficiency_vs_pt_log" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="Log(p_{T})" n="49" lo="0.745" hi="1000.0" />
+  <y title="Efficiency" lo="0.0" hi="2.0" />
+</h>
 <h id="efficiency_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#phi [rads]" n="25" lo="-&PI;" hi="&PI;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
@@ -763,6 +767,10 @@
 </h>
 <h id="extended_efficiency_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="d_{0} [mm]" n="50" lo="-300" hi="300"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="efficiency_vs_mu" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="#mu" n="100" lo="0" hi="100"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="extended_efficiency_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
@@ -804,6 +812,10 @@
 </h>
 <h id="fakerate_vs_z0" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">
   <x title="z_{0} [mm]" n="100" lo="-250" hi="250"/>
+  <y title="Fake Rate" lo="0.0" hi="2.0"/>
+</h>
+<h id="fakerate_vs_mu" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">
+  <x title="#mu" n="100" lo="0" hi="100"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
 <h id="fakerate_vs_R" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">

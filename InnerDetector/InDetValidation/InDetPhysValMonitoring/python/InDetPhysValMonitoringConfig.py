@@ -107,7 +107,7 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         from InDetPhysValMonitoring.addRecoJetsConfig import AddRecoJetsIfNotExistingCfg
         acc.merge(AddRecoJetsIfNotExistingCfg(flags, jets_name_for_HardScatter))
 
-    if flags.IDPVM.GRL:
+    if flags.PhysVal.IDPVM.GRL:
         grlTool = acc.popToolsAndMerge(GoodRunsListSelectionToolCfg(flags))
         kwargs.setdefault("useGRL", True)
         kwargs.setdefault('GoodRunsListSelectionTool', grlTool)

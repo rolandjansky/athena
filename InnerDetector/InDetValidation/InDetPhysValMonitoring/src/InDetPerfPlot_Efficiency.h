@@ -20,7 +20,7 @@
 #include "InDetPlotBase.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
-
+#include "logLinearBinning.h"
 // std includes
 #include <string>
 
@@ -29,7 +29,7 @@ class InDetPerfPlot_Efficiency: public InDetPlotBase {
 public:
   InDetPerfPlot_Efficiency(InDetPlotBase* pParent, const std::string& dirName);
 
-  void fill(const xAOD::TruthParticle& truth, const bool isGood, float weight);
+  void fill(const xAOD::TruthParticle& truth, const bool isGood, float weight, float mu);
 private:
   TEfficiency* m_efficiency_vs_pteta;
 
@@ -37,11 +37,13 @@ private:
   TEfficiency* m_efficiency_vs_pt;
   TEfficiency* m_efficiency_vs_pt_low;
   TEfficiency* m_efficiency_vs_pt_high;
+  TEfficiency* m_efficiency_vs_pt_log;
   TEfficiency* m_efficiency_vs_phi;
   TEfficiency* m_efficiency_vs_d0;
   TEfficiency* m_efficiency_vs_z0;
   TEfficiency* m_efficiency_vs_R;
   TEfficiency* m_efficiency_vs_Z;
+  TEfficiency* m_efficiency_vs_mu;
 
   TEfficiency* m_extended_efficiency_vs_d0;
   TEfficiency* m_extended_efficiency_vs_z0;
