@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -176,7 +176,7 @@ namespace CP
     if (name.find ("%SYS%") != std::string::npos)
     {
       accessor = std::make_unique<SelectionWriteAccessorSys>(name);
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
 
     SplitData splitData;
