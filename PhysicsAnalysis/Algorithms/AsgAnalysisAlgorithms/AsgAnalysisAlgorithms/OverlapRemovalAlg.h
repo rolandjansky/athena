@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -10,6 +10,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AssociationUtils/ToolBox.h>
+#include <SelectionHelpers/SysWriteSelectionHandle.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysWriteDecorHandle.h>
@@ -59,17 +60,17 @@ namespace CP
 
     /// \brief the decoration for the overlap removal status
   private:
-    SysWriteDecorHandle<char> m_electronsDecoration {
+    SysWriteSelectionHandle m_electronsSelectionHandle {
       this, "electronsDecoration", "", "the decoration for the electron overlap removal selection"};
-    SysWriteDecorHandle<char> m_muonsDecoration {
+    SysWriteSelectionHandle m_muonsSelectionHandle {
       this, "muonsDecoration", "", "the decoration for the muon overlap removal selection"};
-    SysWriteDecorHandle<char> m_jetsDecoration {
+    SysWriteSelectionHandle m_jetsSelectionHandle {
       this, "jetsDecoration", "", "the decoration for the jet overlap removal selection"};
-    SysWriteDecorHandle<char> m_tausDecoration {
+    SysWriteSelectionHandle m_tausSelectionHandle {
       this, "tausDecoration", "", "the decoration for the tau overlap removal selection"};
-    SysWriteDecorHandle<char> m_photonsDecoration {
+    SysWriteSelectionHandle m_photonsSelectionHandle {
       this, "photonsDecoration", "", "the decoration for the photon overlap removal selection"};
-    SysWriteDecorHandle<char> m_fatJetsDecoration {
+    SysWriteSelectionHandle m_fatJetsSelectionHandle {
       this, "fatJetsDecoration", "", "the decoration for the fat jet overlap removal selection"};
 
     /// \brief the tool output decoration for the overlap removal status

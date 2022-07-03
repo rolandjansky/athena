@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
@@ -37,7 +37,6 @@ namespace CP
     ANA_CHECK (m_eventInfoHandle.initialize (m_systematicsList));
     ANA_CHECK (m_particleHandle.initialize (m_systematicsList));
     ANA_CHECK (m_preselection.initialize (m_systematicsList, m_particleHandle, SG::AllowEmpty));
-    ANA_CHECK (m_inputSelectionDecoration.initialize (m_systematicsList, m_particleHandle, SG::AllowEmpty));
     ANA_CHECK (m_scaleFactorInputDecoration.initialize (m_systematicsList, m_particleHandle));
     ANA_CHECK (m_scaleFactorOutputDecoration.initialize (m_systematicsList, m_eventInfoHandle));
     ANA_CHECK (m_systematicsList.initialize());
@@ -63,9 +62,6 @@ namespace CP
       {
         if (m_preselection.getBool (*particle, sys))
         {
-          if (m_inputSelectionDecoration && m_inputSelectionDecoration.get (*particle, sys) == 0)
-            continue;
-
           scaleFactor *= m_scaleFactorInputDecoration.get (*particle, sys);
         }
       }

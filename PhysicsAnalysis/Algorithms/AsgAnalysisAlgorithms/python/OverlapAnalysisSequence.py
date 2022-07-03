@@ -81,12 +81,12 @@ def makeOverlapAnalysisSequence( dataType,
     alg = createAlgorithm( 'CP::OverlapRemovalAlg', 'OverlapRemovalAlg' + postfix )
     alg.OutputLabel = outputLabel
     if not shallowViewOutput:
-        alg.electronsDecoration = outputLabel + '_%SYS%'
-        alg.muonsDecoration = outputLabel + '_%SYS%'
-        alg.tausDecoration = outputLabel + '_%SYS%'
-        alg.jetsDecoration = outputLabel + '_%SYS%'
-        alg.photonsDecoration = outputLabel + '_%SYS%'
-        alg.fatJetsDecoration = outputLabel + '_%SYS%'
+        alg.electronsDecoration = outputLabel + '_%SYS%,as_char'
+        alg.muonsDecoration = outputLabel + '_%SYS%,as_char'
+        alg.tausDecoration = outputLabel + '_%SYS%,as_char'
+        alg.jetsDecoration = outputLabel + '_%SYS%,as_char'
+        alg.photonsDecoration = outputLabel + '_%SYS%,as_char'
+        alg.fatJetsDecoration = outputLabel + '_%SYS%,as_char'
 
     # Create its main tool, and set its basic properties:
     addPrivateTool( alg, 'overlapTool', 'ORUtils::OverlapRemovalTool' )
