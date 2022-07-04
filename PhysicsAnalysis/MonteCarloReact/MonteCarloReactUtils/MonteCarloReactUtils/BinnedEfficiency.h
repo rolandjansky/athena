@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MONTECARLOREACTUTILS_BINNEDEFFICIENCY_H
@@ -138,7 +138,7 @@ namespace MonteCarloReact {
     /* if mode set to IgopreUnderflow will substitute the underflow with the lowest bin value
        if mode set to  IgnoreOverflow will substitute the overrflow with the highest bin value 
        IgnoreUnderflowOverflow will substitue both underflow and overflow */
-    void setExeptionMode(Mode mode) const {m_flowMode = mode ;}
+    void setExeptionMode(Mode mode) {m_flowMode = mode ;}
     
   protected:
     /* Read in Line of the efficiency file */
@@ -149,7 +149,7 @@ namespace MonteCarloReact {
     std::vector<std::vector< float > > m_axisEdges ; // The order of axes is x, y, z ...
     std::vector< EffVal > m_eff;
 
-    mutable Mode m_flowMode ;
+    Mode m_flowMode ;
 
     /* write efficiency information to the output stream */
     void stream( std::ostream &) const;

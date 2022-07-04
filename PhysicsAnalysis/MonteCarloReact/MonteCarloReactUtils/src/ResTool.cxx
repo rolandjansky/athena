@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MonteCarloReactUtils/ResTool.h"
@@ -48,7 +48,7 @@ bool ResTool::makeResolutionObj(const ResInfo& request, const std::string& path)
    cerr << "MonteCarloReactUtils::ResObj ERROR: Directory " 
 	 << path  <<  " does not contains any mcr file!" 
 	 << endl ;
-    exit (1) ;
+    throw EffConfigException("MonteCarloReactUtils::ResObj ERROR: Directory does not contain any mcr file");
   }
   // Create a file_name from params
   string FileName = request.makeFileName();
@@ -140,7 +140,7 @@ bool ResTool::makeResolutionObj(const ResInfo& request, const std::vector<std::s
     }
     cerr <<  "does not contain any mcr file!" 
 	 << endl ;
-    exit (1) ;
+    throw EffConfigException("MonteCarloReactUtils::ResObj ERROR: Directory does not contain any mcr file");
   }
 
   // Create a file_name from params
