@@ -14,9 +14,6 @@
 #ifndef ATHENAPOOLTESTDATA_ATHENAPOOLTESTMAPDATALINK_H
 # define ATHENAPOOLTESTDATA_ATHENAPOOLTESTMAPDATALINK_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
 /**
  * @class AthenaPoolTestMapDataLink 
  * 

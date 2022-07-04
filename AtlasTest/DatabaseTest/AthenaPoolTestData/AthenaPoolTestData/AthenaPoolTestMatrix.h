@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,7 +24,6 @@
 #ifndef ATHENAPOOLTESTDATA_ATHENAPOOLTESTMATRIX_H
 # define ATHENAPOOLTESTDATA_ATHENAPOOLTESTMATRIX_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -32,12 +31,6 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class AthenaPoolTestMatrix
 {
@@ -48,6 +41,9 @@ public:
     AthenaPoolTestMatrix();
 
     ~AthenaPoolTestMatrix();
+
+    AthenaPoolTestMatrix (const AthenaPoolTestMatrix&) = delete;
+    AthenaPoolTestMatrix& operator= (const AthenaPoolTestMatrix&) = delete;
     
     const CLHEP::HepMatrix&          smallMatrix     () const;
     const CLHEP::HepMatrix&          bigMatrix       () const;
