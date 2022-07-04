@@ -34,6 +34,7 @@ truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFramewo
 
 preExec = " --preExec \'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();\' "
 preExecLLP = " --preExec \'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff(); DetFlags.detdescr.pixel_setOn(); DetFlags.detdescr.SCT_setOn(); from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);\' "
+postExec = " --postExec \'from DerivationFrameworkJetEtMiss.JetCommon import swapAlgsInSequence; swapAlgsInSequence(topSequence,\"jetalg_ConstitModCorrectPFOCSSKCHS_GPFlowCSSK\", \"UFOInfoAlgCSSK\" );\' "
 
 def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFileName = "test_"+label+formatName+".sh"
@@ -56,9 +57,9 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
       elif (formatName in ["LLP1","IDTR2"] and isMC):
          outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExecLLP+" --passThrough True "+"\n")
       elif (formatName not in ["PHYS","PHYSLITE"] and isMC):
-         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+" --passThrough True "+"\n")
+         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+postExec+" --passThrough True "+"\n")
       else:
-         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+"\n")
+         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+preExec+postExec+"\n")
    if isTruth: outputFile.write("Derivation_tf.py --CA --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --formats "+formatName+" --maxEvents "+nEvents+"\n")
    outputFile.write("\n")
    outputFile.write("echo \"art-result: $? reco\""+"\n")
@@ -89,7 +90,7 @@ def generateTrains(formatList,label,inputFile,isMC):
    outputFile.write("\n")
    outputFile.write("set -e"+"\n")
    outputFile.write("\n")
-   outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+" ".join(formatList)+" --maxEvents 500 "+preExec+" --passThrough True "+"\n")
+   outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+" ".join(formatList)+" --maxEvents 500 "+preExec+postExec+" --passThrough True "+"\n")
    os.system("chmod +x "+outputFileName)
 
 if (makeDataDAODs or makeMCDAODs):
