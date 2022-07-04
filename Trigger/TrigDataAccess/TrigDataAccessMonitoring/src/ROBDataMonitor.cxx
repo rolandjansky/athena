@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <functional>
@@ -65,7 +65,7 @@ ROBDataMonitorStruct::ROBDataMonitorStruct()
    end_time_of_ROB_request()
 {}
 
-ROBDataMonitorStruct::ROBDataMonitorStruct(const uint32_t l1_id, const std::string req_nam="UNKNOWN")
+ROBDataMonitorStruct::ROBDataMonitorStruct(const uint32_t l1_id, const std::string& req_nam="UNKNOWN")
   :lvl1ID(l1_id),
    requestor_name(req_nam),
    requested_ROBs(),
@@ -75,14 +75,14 @@ ROBDataMonitorStruct::ROBDataMonitorStruct(const uint32_t l1_id, const std::stri
 
 ROBDataMonitorStruct::ROBDataMonitorStruct(const uint32_t l1_id, 
 					   const std::vector<uint32_t>& req_robs,
-					   const std::string req_nam="UNKNOWN")
+					   const std::string& req_nam="UNKNOWN")
   :lvl1ID(l1_id),
    requestor_name(req_nam),
    start_time_of_ROB_request(),
    end_time_of_ROB_request()
 {
-  for ( std::vector<uint32_t>::const_iterator it=req_robs.begin(); it != req_robs.end(); it++) {
-    requested_ROBs[ (*it) ] = robmonitor::ROBDataStruct( (*it) ) ;
+  for (uint32_t rob : req_robs) {
+    requested_ROBs[ rob ] = robmonitor::ROBDataStruct( rob ) ;
   }
 }
 
@@ -92,63 +92,56 @@ unsigned ROBDataMonitorStruct::allROBs() const {
 
 unsigned ROBDataMonitorStruct::unclassifiedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isUnclassified()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isUnclassified()) ++ret;
   }     
   return ret;
 } 
 
 unsigned ROBDataMonitorStruct::HLTcachedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isHLTCached()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isHLTCached()) ++ret;
   }     
   return ret;
 }
 
 unsigned ROBDataMonitorStruct::DCMcachedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isDCMCached()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isDCMCached()) ++ret;
   }     
   return ret;
 }
 
 unsigned ROBDataMonitorStruct::retrievedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isRetrieved()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isRetrieved()) ++ret;
   }     
   return ret;
 }
 
 unsigned ROBDataMonitorStruct::ignoredROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isIgnored()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isIgnored()) ++ret;
   }     
   return ret;
 }
 
 unsigned ROBDataMonitorStruct::undefinedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isUndefined()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isUndefined()) ++ret;
   }     
   return ret;
 }
 
 unsigned ROBDataMonitorStruct::statusOkROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
-        it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isStatusOk()) ++ret;
+  for (const auto& p : requested_ROBs) {
+    if (p.second.isStatusOk()) ++ret;
   }     
   return ret;
 }
