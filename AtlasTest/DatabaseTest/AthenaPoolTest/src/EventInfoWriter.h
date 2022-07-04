@@ -71,7 +71,7 @@ private:
 private:
 
     /// Add in tags to TagInfoMgr
-    StatusCode fillTagInfo    () const;
+    StatusCode fillTagInfo    ();
 
     /// For testing only: add in dummy tags
     BooleanProperty m_createDummyTags;
@@ -88,6 +88,8 @@ private:
 
     /// SG key for Event Info
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "EventInfo name"};
+
+    bool m_setDummyTags = false;
 
 };
 

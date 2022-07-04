@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -169,7 +169,7 @@ StatusCode RDOReaderDoubleSelector::checkPixel() const
   for (unsigned int i = 0; i < linkVec->pixelRDOs().size(); ++i) {
     // Print out rdos from element link
     PixelRDOElemLinkVec::elem_type rdo  = linkVec->pixelRDOs()[i];
-    PixelRDORawData* ncrdo = const_cast<PixelRDORawData*>(*rdo);
+    const PixelRDORawData* ncrdo = *rdo;
     ATH_MSG_DEBUG("RDO ID=" << m_pixelId->show_to_string((*rdo)->identify())
                   << "RDO ToT=" << ncrdo->getToT() );
   }

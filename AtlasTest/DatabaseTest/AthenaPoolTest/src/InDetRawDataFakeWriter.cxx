@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -101,7 +101,7 @@ StatusCode InDetRawDataFakeWriter::execute()
     return StatusCode::SUCCESS;
 }
 
-StatusCode InDetRawDataFakeWriter::createPixels() const
+StatusCode InDetRawDataFakeWriter::createPixels()
 {
     ATH_MSG_DEBUG("InDetRawDataFakeWriter::createPixels()" );
 
@@ -172,7 +172,7 @@ StatusCode InDetRawDataFakeWriter::createPixels() const
     return StatusCode::SUCCESS;
 }
 
-StatusCode InDetRawDataFakeWriter::createSCTs() const
+StatusCode InDetRawDataFakeWriter::createSCTs()
 {
     ATH_MSG_DEBUG("InDetRawDataFakeWriter::execute()" );
 
@@ -213,7 +213,7 @@ StatusCode InDetRawDataFakeWriter::createSCTs() const
     return StatusCode::SUCCESS;
 }
 
-StatusCode InDetRawDataFakeWriter::createTRTs() const
+StatusCode InDetRawDataFakeWriter::createTRTs()
 {
     ATH_MSG_DEBUG("InDetRawDataFakeWriter::execute()" );
 

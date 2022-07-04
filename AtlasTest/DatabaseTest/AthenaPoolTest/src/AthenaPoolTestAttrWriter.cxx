@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,6 +24,7 @@
 
 // AttributeList:
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 AthenaPoolTestAttrWriter::AthenaPoolTestAttrWriter(const std::string& name,
 						   ISvcLocator* pSvcLocator)
@@ -71,7 +72,8 @@ StatusCode AthenaPoolTestAttrWriter::execute()
     const EventID* myEventID=eventInfo->event_ID();
  
     // Create AttrList
-    static unsigned int iEvent = 0;
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    unsigned int iEvent = ctx.evt() + 1;
     AthenaAttributeList* attributes = m_attributes;
     
     try {

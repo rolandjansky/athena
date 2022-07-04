@@ -91,9 +91,8 @@ StatusCode EventInfoWriter::execute()
     }
  
     // Set new dummy tags only at the first event of run 2
-    static bool setDummyTags = false; // flag to set tags only once
-    if (!setDummyTags && eventInfo->runNumber() == 2 && m_createDummyOverrideTags) {
-        setDummyTags = true;
+    if (!m_setDummyTags && eventInfo->runNumber() == 2 && m_createDummyOverrideTags) {
+        m_setDummyTags = true;
         ATH_MSG_DEBUG("Create dummy tags, A2-D2");
 	// New/different tags
         if (m_tagInfoMgr->addTag("TagA1", "A2").isFailure()) {
@@ -133,7 +132,7 @@ StatusCode EventInfoWriter::finalize()
 }
 
 StatusCode 
-EventInfoWriter::fillTagInfo    () const
+EventInfoWriter::fillTagInfo    ()
 {
 
     // Get the messaging service, print where you are
