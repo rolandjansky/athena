@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file MuonEventAthenaPool/test/RpcPadContainerCnv_p2_test.cxx
@@ -11,6 +11,7 @@
 #undef NDEBUG
 #include "../src/RpcPadContainerCnv_p2.h"
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/leakcheck.h"
@@ -92,7 +93,7 @@ void testit (const RpcPadContainer& trans1)
 }
 
 
-void test1 ()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
 
@@ -143,7 +144,7 @@ void test1 ()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("MuonEventAthenaPool/MuonEventAthenaPool_test.txt", pSvcLoc)) {
@@ -153,7 +154,8 @@ int main()
 
   TestRCUSvc rcusvc;
 
-  make_dd();
+  IdDictParser parser;
+  make_dd(parser);
   make_cond(rcusvc);
 
   test1();

@@ -23,13 +23,12 @@
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // testing code
 
-void make_dd()
+void make_dd (IdDictParser& parser)
 {
   ISvcLocator* svcLoc = Gaudi::svcLocator();
   StoreGateSvc* sg = 0;
   assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
 
-  static IdDictParser parser;
   parser.register_external_entity ("InnerDetector",
                                    "IdDictInnerDetector.xml");
   parser.register_external_entity ("MuonSpectrometer",
@@ -81,7 +80,7 @@ EventIDBase runlbn (int run, int lbn)
 
 
 void make_cond (TestRCUSvc& rcusvc,
-                const std::vector<Identifier> ids = std::vector<Identifier>())
+                const std::vector<Identifier>& ids = std::vector<Identifier>())
 {
   EventContext ctx;
   ctx.setEventID (runlbn (1, 1));
@@ -98,7 +97,7 @@ void make_cond (TestRCUSvc& rcusvc,
   EventIDRange r (runlbn(0, 0), runlbn (10000000, 0));
   DataObjID id ("RpcCablingCondData", key);
   auto cc = std::make_unique<CondCont<RpcCablingCondData> > (rcusvc, id);
-  assert (cc->insert (r, std::move(data), ctx).isSuccess());
+  if (cc->insert (r, std::move(data), ctx).isFailure()) std::abort();
 
   ServiceHandle<StoreGateSvc> condStore ("StoreGateSvc/ConditionStore", "test");
   assert (condStore.retrieve().isSuccess());
