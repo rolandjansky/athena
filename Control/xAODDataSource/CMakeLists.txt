@@ -25,33 +25,33 @@ atlas_add_test( dataSourceEvent_test
    SOURCES test/dataSourceEvent_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODDataSourceLib
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|TInterpreter::ReadRoot" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|TInterpreter::ReadRoot|Can.t find EventFormatElement for hashed SG key" )
 
 atlas_add_test( dataSource_test
    SOURCES test/dataSource_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODDataSourceLib
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|TInterpreter::ReadRoot" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|TInterpreter::ReadRoot|Can.t find EventFormatElement for hashed SG key" )
 
 atlas_add_test( dataFrame_test
    SOURCES test/dataFrame_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODBase xAODDataSourceLib CxxUtils
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|Can.t find EventFormatElement for hashed SG key" )
 
 atlas_add_test( dataFrameTypeConversion_test
    SOURCES test/dataFrameTypeConversion_test.cxx
    LINK_LIBRARIES xAODRootAccess xAODBase xAODEgamma xAODDataSourceLib CxxUtils
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|Can.t find EventFormatElement for hashed SG key" )
 
 atlas_add_test( dataFrameElementLink_test
    SOURCES test/dataFrameElementLink_test.cxx
    LINK_LIBRARIES xAODRootAccess xAODBase xAODEgamma xAODMuon xAODDataSourceLib CxxUtils
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called" )
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|Can.t find EventFormatElement for hashed SG key" )
 
 atlas_add_test( dataFrame_pytest
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/dataFrame_test.py
-   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called"
+   LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called|Can.t find EventFormatElement for hashed SG key"
    PROPERTIES TIMEOUT 600 )
 
 # Install files from the package.
