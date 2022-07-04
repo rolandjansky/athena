@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCALFastSimDedicatedSD.h"
@@ -32,17 +32,17 @@ FCALFastSimDedicatedSD::FCALFastSimDedicatedSD(StoreGateSvc* detStore)
 void FCALFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
   // Fill the identifier.
 
-  static Transform3D xfNeg[3] = {
+  static const Transform3D xfNeg[3] = {
     Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(0))->getAbsoluteTransform().inverse()),
     Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(0))->getAbsoluteTransform().inverse()),
     Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(0))->getAbsoluteTransform().inverse())};
 
-  static Transform3D xfPos[3] = {
+  static const Transform3D xfPos[3] = {
     Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(1))->getAbsoluteTransform().inverse()),
     Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(1))->getAbsoluteTransform().inverse()),
     Amg::EigenTransformToCLHEP(m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(1))->getAbsoluteTransform().inverse())};
 
-  static const GeoTubs * fcalTubs[3] = {
+  static const GeoTubs * const fcalTubs[3] = {
     (const GeoTubs *) m_fcalManager->getFCAL(FCALModule::Module(1),FCALModule::Endcap(0))->getMaterialGeom()->getLogVol()->getShape(),
     (const GeoTubs *) m_fcalManager->getFCAL(FCALModule::Module(2),FCALModule::Endcap(0))->getMaterialGeom()->getLogVol()->getShape(),
     (const GeoTubs *) m_fcalManager->getFCAL(FCALModule::Module(3),FCALModule::Endcap(0))->getMaterialGeom()->getLogVol()->getShape()};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BarrelFastSimDedicatedSD.h"
@@ -40,8 +40,8 @@ void BarrelFastSimDedicatedSD::ProcessSpot(const EnergySpot  & spot){
   // Fill the identifier.
   Point3D<double> globalPosition=spot.GetPosition();
 
-  static Transform3D xfNeg = Amg::EigenTransformToCLHEP(m_embManager->getDetectorRegion(0,0,0)->getAbsoluteTransform().inverse());
-  static Transform3D xfPos = Amg::EigenTransformToCLHEP(m_embManager->getDetectorRegion(1,0,0)->getAbsoluteTransform().inverse());
+  static const Transform3D xfNeg = Amg::EigenTransformToCLHEP(m_embManager->getDetectorRegion(0,0,0)->getAbsoluteTransform().inverse());
+  static const Transform3D xfPos = Amg::EigenTransformToCLHEP(m_embManager->getDetectorRegion(1,0,0)->getAbsoluteTransform().inverse());
 
   Point3D<double> localPosition = globalPosition.z()<0 ? xfNeg*globalPosition : xfPos*globalPosition;
   int zIndex = globalPosition.z() <0 ? 0:1;
