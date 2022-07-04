@@ -959,7 +959,10 @@ int main(int argc, char** argv)
 
   /// filters for true selection for efficiency
 
-  Filter_Vertex filter_vertex(a0v, z0v);
+  std::cout << "a0v: " << a0v << std::endl;
+  std::cout << "z0v: " << z0v << std::endl;
+
+  Filter_Vertex filter_vertex( a0v, z0v );
 
   Filter_Track filter_offline( eta, 1000, a0min, zed, pT, 
                                npix, nsct, -1, nbl, 
@@ -995,13 +998,11 @@ int main(int argc, char** argv)
   Filter_Combined  filter_muon( &filter_offline, &filter_vertex);
 
   Filter_Track      filter_onlinekine(  eta_rec, 1000, 0., 2000, pT,    -1,  npix,  nsct, -1,  -2, -2);
-  Filter_Vertex     filter_onlinevertex(a0vrec, z0vrec);
+  Filter_Vertex     filter_onlinevertex( a0vrec, z0vrec);
   Filter_Combined   filter_online( &filter_onlinekine, &filter_onlinevertex ); 
 
   Filter_Track      filter_offkinetight(  5, 1000, 0., 2000, pT,    -1,  0,  0, -1,  -2, -2);
   Filter_Combined   filter_offtight( &filter_offkinetight, &filter_inout ); 
-
-
 
   Filter_Offline2017* filter_offline2017 = 0;
   Filter_Combined*    filter_off2017     = 0;
@@ -1017,7 +1018,7 @@ int main(int argc, char** argv)
     std::cout << "Filter: " << inputdata.GetString("Filter") << " : " << filter << std::endl;
     if ( filter.head()=="Offline2017" ) {
       std::string filter_type = filter.tail();
-      filter_offline2017 = new Filter_Offline2017( pT, filter_type ); 
+      filter_offline2017 = new Filter_Offline2017( pT, filter_type, z0v, a0v ); 
       filter_off2017     = new Filter_Combined ( filter_offline2017, &filter_vertex);
       refFilter = filter_off2017;
     }
@@ -1489,6 +1490,11 @@ int main(int argc, char** argv)
   
     TTree* data = (TTree*)finput->Get("tree");
 
+    if ( !data ) { 
+      std::cerr << "Error: cannot open TTree: " << filenames[ifile] << std::endl; 
+      continue; 
+    }
+
     TIDA::Event* track_ev = new TIDA::Event();
 
     gevent = track_ev;
@@ -1524,11 +1530,10 @@ int main(int argc, char** argv)
     unsigned cNentries = data->GetEntries();
     
     bool skip = true;
-    
+  
     /// so we can specify the number of entries 
     /// we like, rather than run on all of them
     for (unsigned int i=0; skip && run && i<cNentries ; i++ ) {
-
 
       //      if ( _Nentries<Nentries ) { 
       //        run = false;
@@ -1537,7 +1542,6 @@ int main(int argc, char** argv)
       //    Nentries++;
 
      data->GetEntry(i);
-
 
      //    if (i==0) {
      //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
@@ -1667,7 +1671,6 @@ int main(int argc, char** argv)
       }
     }
 
-    
     /// select the reference offline vertices
 
     std::vector<TIDA::Vertex> vertices; // keep for now as needed for line 1709
@@ -1739,9 +1742,6 @@ int main(int argc, char** argv)
 
     //    filter_vertex.setVertex( vvtx ) ;
     hcorr->Fill( vertices.size(), Nvtxtracks ); 
-
-
-
 
     dynamic_cast<Filter_Combined*>(refFilter)->setRoi(0);
 
@@ -2063,8 +2063,7 @@ int main(int argc, char** argv)
 
         const std::vector<TIDA::Track*>&  refp  =  refp_vec;
 
-        
-        //      if ( debugPrintout ) { 
+	//      if ( debugPrintout ) { 
         //        std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
         //      }           
 
@@ -2073,9 +2072,6 @@ int main(int argc, char** argv)
         //      std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 
         groi = &roi;
-
-
-
 
         /// now found all the tracks within the RoI - *now* if required find the 
         /// the count how many of these reference tracks are on each of the 
@@ -2246,17 +2242,19 @@ int main(int argc, char** argv)
           static int ecounter = 0;
           ecounter++;
         }
-     } // loop through rois
-    } // loop through chanines
-  } // loop through nentries
+      } // loop through rois
+      
+    } // loop through chanines - this block is indented incorrectly
+    
+    } // loop through nentries
+    
+    delete track_ev;
+    delete data;
+    delete finput;
 
-  delete track_ev;
-  delete data;
-  delete finput;
-
-  //  std::cout << "run: " << run << std::endl;
-
-  } // loop through files
+    //  std::cout << "run: " << run << std::endl;
+    
+  }// loop through files
 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events"
             << "\ttimes "  << mintime << " " << maxtime 

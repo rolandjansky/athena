@@ -335,7 +335,11 @@ archive :
 	cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
 
 
-INSTALLDIR=$(TestArea)/build/$(ATLAS_ARCH)/bin
+ifeq ($(WorkDir_DIR),)
+   INSTALLDIR=$(TestArea)/build/$(ATLAS_ARCH)/bin
+else
+   INSTALLDIR=$(WorkDir_DIR)/bin
+endif
 
 $(INSTALLDIR)/TIDA% : $(EXEDIR)/%
 	cp $< $@
