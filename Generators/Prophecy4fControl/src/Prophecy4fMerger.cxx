@@ -30,8 +30,6 @@ int Prophecy4fMerger::alulb4(double *ps, double *pi, double *pf){
     // transform pi rest to lab frame of ps - output pf
     // For description, see LOREN4 doc in CERNLIB
 
-    static double fn, pf4;
-  
     if(ps[3] == ps[4]){
         pf[0] = pi[0];
         pf[1] = pi[1];
@@ -39,8 +37,8 @@ int Prophecy4fMerger::alulb4(double *ps, double *pi, double *pf){
         pf[3] = pi[3];
     }
     else{
-        pf4 = (pi[0] * ps[0] + pi[1] * ps[1] + pi[2] * ps[2] + pi[3] * ps[3]) / ps[4];
-        fn = (pf4 + pi[3]) / (ps[3] + ps[4]);
+        const double pf4 = (pi[0] * ps[0] + pi[1] * ps[1] + pi[2] * ps[2] + pi[3] * ps[3]) / ps[4];
+        const double fn = (pf4 + pi[3]) / (ps[3] + ps[4]);
         pf[0] = pi[0] + fn * ps[0];
         pf[1] = pi[1] + fn * ps[1];
         pf[2] = pi[2] + fn * ps[2];
@@ -55,8 +53,6 @@ int Prophecy4fMerger::alulf4(double *ps, double *pi, double *pf){
     // transform pi lab to rest frame of ps - output pf
     // For description, see LOREN4 doc in CERNLIB
   
-    static double fn, pf4;
-  
     if(ps[3] == ps[4]){
         pf[0] = pi[0];
         pf[1] = pi[1];
@@ -64,8 +60,8 @@ int Prophecy4fMerger::alulf4(double *ps, double *pi, double *pf){
         pf[3] = pi[3];
     }
     else{
-        pf4 = (pi[3] * ps[3] - pi[2] * ps[2] - pi[1] * ps[1] - pi[0] * ps[0]) / ps[4]; 
-        fn = (pf4 + pi[3]) / (ps[3] + ps[4]); 
+        const double pf4 = (pi[3] * ps[3] - pi[2] * ps[2] - pi[1] * ps[1] - pi[0] * ps[0]) / ps[4];
+        const double fn = (pf4 + pi[3]) / (ps[3] + ps[4]);
         pf[0] = pi[0] - fn * ps[0]; 
         pf[1] = pi[1] - fn * ps[1]; 
         pf[2] = pi[2] - fn * ps[2]; 
@@ -101,15 +97,14 @@ double Prophecy4fMerger::alupcm(double em0, double em1, double em2){
     // calculate the momentum of particles 1 and 2 in the rest frame of 0 given the three masses
 
     double ret_val;
-    static double emd, ems;
-  
+
     //ems = abs(em1 + em2);
     //emd = abs(em1 - em2);
-    ems = (em1 + em2);
+    double ems = (em1 + em2);
     if(ems < 0){
         ems=-(em1 + em2);
     }
-    emd = (em1 - em2);
+    double emd = (em1 - em2);
     if(emd < 0){
         emd = -(em1 - em2);
     }
@@ -132,13 +127,11 @@ int Prophecy4fMerger::rescms(double *p, double *p1, double *p2, double m1, doubl
     // p1 and p2 are the four-vector decay products of p. Here we change the masses of p1 and p2 to be
     // m1 and m2. Note that for Prophecy, the masses in p1 and p2 are zero.
   
-    static double m;
-    static int il;
-    static double mo1, mo2, po1[5], po2[5], pcm, pcmo;
+    double po1[5], po2[5], pcm, pcmo;
       
-    m = p[4];
-    mo1 = p1[4];
-    mo2 = p2[4];
+    const double m = p[4];
+    const double mo1 = p1[4];
+    const double mo2 = p2[4];
   
     // transform p1 to po1 to be in rest frame of p, sampe for p2
     alulof(p, p1, po1);
@@ -156,7 +149,7 @@ int Prophecy4fMerger::rescms(double *p, double *p1, double *p2, double m1, doubl
     pcm = alupcm(m, m1, m2);
   
     //rescale the cms momenta, po1 and po2, to account for the new masses used 
-    for (il = 0; il < 4; il++) {
+    for (int il = 0; il < 4; il++) {
         po1[il] = pcm / pcmo * po1[il];
         po2[il] = pcm / pcmo * po2[il];
     }
