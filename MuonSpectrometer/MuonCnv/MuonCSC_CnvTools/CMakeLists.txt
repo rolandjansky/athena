@@ -1,13 +1,11 @@
-################################################################################
-# Package: MuonCSC_CnvTools
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonCSC_CnvTools )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( tdaq-common COMPONENTS eformat_write DataWriter )
+find_package( tdaq-common COMPONENTS eformat )
 
 atlas_add_library( MuonCSC_CnvToolsLib
                    MuonCSC_CnvTools/*.h

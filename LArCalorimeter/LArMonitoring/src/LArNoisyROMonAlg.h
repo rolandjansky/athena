@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -62,7 +62,7 @@ private:
   SG::ReadCondHandleKey<LArBadFebCont> m_MNBFebKey{this,"KonwnMNBFebKey","LArKnownMNBFEBs","Key of known MNB-Feb object"};
 
   //To get the data-dependency right ... 
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
 
   struct CandidateMNBStruct
   {

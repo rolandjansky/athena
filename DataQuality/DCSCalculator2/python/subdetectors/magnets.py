@@ -32,7 +32,10 @@ class Magnet_Currents(DCSC_Defect_Global_Variable):
             # 28-05-2015: excluding empty 'desired' value, because how do we make
             # a decision without an expectation? Should debug this some more, as
             # the issue came up in 2015 run 253014.
-            if measured is not None and desired is not None and not desired._is_empty:
+
+            # At least temporarily ignore desired value
+            # if measured is not None and desired is not None and not desired._is_empty:
+            if measured is not None:
                 # NOTE: if measured is 'empty', this is always true
                 if measured.value is None:
                     continue
@@ -40,15 +43,20 @@ class Magnet_Currents(DCSC_Defect_Global_Variable):
                     # Magnet off
                     defect = system + '_OFF'
 
-                elif abs(measured.value - desired.value) <= tolerance:
-                    if ((system == 'GLOBAL_SOLENOID' and abs(desired.value - 7730.) > tolerance)
-                        or (system == 'GLOBAL_TOROID' and abs(desired.value - 20400.) > tolerance)):
-                        # Magnet has non-nominal current
-                        defect = system + '_NOTNOMINAL'
-                    else:
+                # this code is what we should use if desired values become valid again
+                # elif abs(measured.value - desired.value) <= tolerance:
+                #     if ((system == 'GLOBAL_SOLENOID' and abs(desired.value - 7730.) > tolerance)
+                #         or (system == 'GLOBAL_TOROID' and abs(desired.value - 20400.) > tolerance)):
+                #         # Magnet has non-nominal current
+                #         defect = system + '_NOTNOMINAL'
+                #     else:
+                #         defect = None
+                elif ((system == 'GLOBAL_SOLENOID' and abs(measured.value - 7730.) < tolerance)
+                    or (system == 'GLOBAL_TOROID' and abs(measured.value - 20400.) < tolerance)):
+                    # Magnet is nominal
                         defect = None
                 else:
-                    # Magnet is ramping
+                    # Magnet is ramping (possibly not true if we run at reduced field ...)
                     defect = system + '_RAMPING'
 
                 if defect is None:

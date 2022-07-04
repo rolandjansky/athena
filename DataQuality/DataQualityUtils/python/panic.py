@@ -31,7 +31,7 @@ def panic(msg):
                      'time': time.time(),
                      'usrtime': time.strftime('%Y-%m-%d %H:%H:%M %Z', time.localtime()),
                      })
-    conn.send(body, **header)
+    conn.send(body=body, headers=header, destination=DEST, ack='auto')
     print('panic: sent message')
     print(header)
     print(body)

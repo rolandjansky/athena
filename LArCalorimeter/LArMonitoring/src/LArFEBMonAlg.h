@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONITORING_LARFEBMONALG_H
@@ -56,7 +56,7 @@ private:
 
   Gaudi::Property<std::string> m_monGroupName  {this, "MonGroup", "FEBMon", "LArLARFEBMonGroup"};
   //To get the data-dependency right ... 
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
 
   /* Histogram grouping (part) */
   std::vector<std::map<std::string,int> > m_histoGroups;

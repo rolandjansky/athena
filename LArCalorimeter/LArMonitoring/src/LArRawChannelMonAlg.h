@@ -122,7 +122,7 @@ class LArRawChannelMonAlg : public AthMonitorAlgorithm {
       this, "CaloDetDescrManager", "CaloDetDescrManager",
       "SG Key for CaloDetDescrManager in the Condition Store"};
   //To get the data-dependency right ... 
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo.larFlag", "Key for EventInfo object"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
 
   // Index of the GenericMonitoringTool associated to a given partition
   // in the vector AthMonitorAlgorithm::m_tools

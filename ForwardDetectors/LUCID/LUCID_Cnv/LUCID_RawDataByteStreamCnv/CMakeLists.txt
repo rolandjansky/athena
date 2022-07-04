@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LUCID_RawDataByteStreamCnv )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat_write DataWriter )
+find_package( tdaq-common COMPONENTS eformat )
 
 # Component(s) in the package:
 atlas_add_component( LUCID_RawDataByteStreamCnv
