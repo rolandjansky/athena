@@ -100,7 +100,7 @@ class HTTMatrixWriter
         int m_nLayers;
         int m_nCoords;
         int m_nCoords2;
-        float m_coverage;
+        float m_coverage = 0.0F;
 
         std::vector<short> m_bins_QoP;
         std::vector<short> m_bins_phi;
