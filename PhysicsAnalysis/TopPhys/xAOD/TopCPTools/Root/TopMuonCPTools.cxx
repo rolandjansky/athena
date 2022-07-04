@@ -238,6 +238,8 @@ namespace top {
       tool = asg::ToolStore::get<CP::IMuonSelectionTool>(name);
     } else {
       tool = new CP::MuonSelectionTool(name);
+      top::check(asg::setProperty(tool, "IsRun3Geo", m_config->isRun3()),
+                 "Failed to set IsRun3Geo for " + name);
       top::check(asg::setProperty(tool, "MuQuality", qual_int),
                  "Failed to set MuQuality for " + name);
       top::check(asg::setProperty(tool, "MaxEta", max_eta),

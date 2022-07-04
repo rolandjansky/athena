@@ -1974,6 +1974,9 @@ namespace top {
     inline unsigned int forceRandomRunNumber() const {return m_forceRandomRunNumber;}
     inline void setForceRandomRunNumber(const unsigned int randomRunNumber) {m_forceRandomRunNumber = randomRunNumber;}
 
+    inline bool isRun3() const {return m_isRun3;}
+    inline void setIsRun3(const bool isRun3) {m_isRun3 = isRun3;}
+
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
     inline bool demandPriVtx() const {return m_demandPriVtx;}
@@ -2807,6 +2810,7 @@ namespace top {
     std::string m_sumOfEventWeightsMetaData;
 
     unsigned int m_forceRandomRunNumber = 0;
+    bool m_isRun3 = false;
 
     // Object Selector name
     std::string m_objectSelectionName;

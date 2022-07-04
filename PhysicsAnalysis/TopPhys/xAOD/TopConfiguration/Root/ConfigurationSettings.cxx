@@ -615,6 +615,11 @@ namespace top {
     registerParameter("ForceRandomRunNumber",
                       "If set to an integer, will disable PRW and use that value as the random run number for MC",
                       " ");
+    
+    registerParameter("IsRun3",
+                      "Tells the code to setup congiguration for Run 3",
+                      "False",
+                      {"True", "False"});
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 

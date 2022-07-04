@@ -1124,7 +1124,13 @@ namespace top {
     this->electrondeltaz0cut(std::stof(settings->value("Electrondeltaz0")));
     this->enablePromptLeptonImprovedVetoStudies(settings->value("EnablePromptLeptonImprovedVetoStudies"));
 
-    this->elTrigEffConfig(settings->value("ElectronTriggerEfficiencyConfig"));
+    {
+      const std::string elTrigConfig = settings->value("ElectronTriggerEfficiencyConfig");
+      if (elTrigConfig == " ") {
+        throw std::invalid_argument{"TopConfig: ElectronTriggerEfficiencyConfig not set in the config!"};
+      }
+      this->elTrigEffConfig(elTrigConfig);
+    }
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -1807,6 +1813,9 @@ namespace top {
       m_pileup_reweighting.apply = false;
       this->setForceRandomRunNumber(randomRunNumber);
     }
+
+    const std::string isRun3 = settings->value("IsRun3");
+    this->setIsRun3(isRun3 == "True");
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 
