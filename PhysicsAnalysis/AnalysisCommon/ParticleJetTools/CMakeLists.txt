@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ParticleJetTools )
@@ -12,7 +12,7 @@ if( XAOD_STANDALONE )
       PUBLIC_HEADERS ParticleJetTools
       LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTracking xAODTruth
       JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
-      PRIVATE_LINK_LIBRARIES AthContainers TruthUtils )
+      PRIVATE_LINK_LIBRARIES AthContainers CxxUtils TruthUtils )
 else()
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
@@ -20,7 +20,7 @@ else()
       LINK_LIBRARIES AsgDataHandlesLib AsgTools AthContainers AthenaBaseComps EventPrimitives
       GaudiKernel JetInterface JetRecLib MCTruthClassifierLib
       xAODBase xAODEventInfo xAODJet xAODTruth
-      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AthAnalysisBaseCompsLib TruthUtils xAODTracking )
+      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AthAnalysisBaseCompsLib CxxUtils TruthUtils xAODTracking )
 endif()
 
 if( NOT XAOD_STANDALONE )
