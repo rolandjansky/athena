@@ -64,25 +64,25 @@ class HTTMatrixMergeAlgo : public AthAlgorithm
 	Gaudi::Property<bool> m_Monitor {this, "Monitor", false, "flag to enable the monitor"};
 
 
-        int m_region_start;
-        int m_region_end;
+        int m_region_start = 0;
+        int m_region_end = 0;
 
         int m_nFiles = 0;
         int m_nLayers = 0;
-        int m_nDim;
-        int m_nDim2;
+        int m_nDim = 0;
+        int m_nDim2 = 0;
 
         ///////////////////////////////////////////////////////////////////////
         // Meta Data
 
         // Histograms
-        TH1I* m_h_nSector;
-        TH1I* m_h_nHit;
-        TH1F* m_h_c;
-        TH1F* m_h_d;
-        TH1F* m_h_phi;
-        TH1F* m_h_coto;
-        TH1F* m_h_z;
+        TH1I* m_h_nSector = nullptr;
+        TH1I* m_h_nHit = nullptr;
+        TH1F* m_h_c = nullptr;
+        TH1F* m_h_d = nullptr;
+        TH1F* m_h_phi = nullptr;
+        TH1F* m_h_coto = nullptr;
+        TH1F* m_h_z = nullptr;
 
         ///////////////////////////////////////////////////////////////////////
         // Helper Functions

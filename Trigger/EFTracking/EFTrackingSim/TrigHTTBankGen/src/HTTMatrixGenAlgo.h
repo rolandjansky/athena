@@ -115,7 +115,7 @@ class HTTMatrixGenAlgo : public AthAlgorithm
         HTTTrackPars m_sliceMax = 0;
         HTTTrackParsI m_nBins;
 
-        HTTEventInputHeader*         m_eventHeader;
+        HTTEventInputHeader*         m_eventHeader = nullptr;
 
         ///////////////////////////////////////////////////////////////////////
         // Meta Data
@@ -150,9 +150,9 @@ class HTTMatrixGenAlgo : public AthAlgorithm
         TH1I* m_h_3hitsInLayer[HTTTrackPars::NPARS];
         TH1I* m_h_notEnoughHits[HTTTrackPars::NPARS];
 
-        TH1I* m_h_trackQoP_okHits;
-        TH1I* m_h_trackQoP_okRegion;
-        TH1I* m_h_nHit;
+        TH1I* m_h_trackQoP_okHits = nullptr;
+        TH1I* m_h_trackQoP_okRegion = nullptr;
+        TH1I* m_h_nHit = nullptr;
 };
 
 #endif // HTTMatrixGenAlgo_h

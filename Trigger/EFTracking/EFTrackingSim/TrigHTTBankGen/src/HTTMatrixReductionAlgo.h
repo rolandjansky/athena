@@ -50,8 +50,8 @@ class HTTMatrixReductionAlgo: public AthAlgorithm
 
         ServiceHandle<ITrigHTTMappingSvc> m_HTTMapping {this, "TrigHTTMappingSvc","TrigHTTMappingSvc"};
         ServiceHandle<ITHistSvc> m_tHistSvc {this, "THistSvc","THistSvc"};
-        HTTPlaneMap const * m_pmap_1st;
-        HTTPlaneMap const * m_pmap_2nd;
+        HTTPlaneMap const * m_pmap_1st = nullptr;
+        HTTPlaneMap const * m_pmap_2nd = nullptr;
 
         ///////////////////////////////////////////////////////////////////////
         // Configuration
@@ -60,8 +60,8 @@ class HTTMatrixReductionAlgo: public AthAlgorithm
 	Gaudi::Property<int> m_region {this, "region", 0, "Region to run"};
 	Gaudi::Property<int> m_nRegions {this, "nbank", 96, "Number of regions and thus banks to create"};
 
-        int m_region_start;
-        int m_region_end;
+        int m_region_start = 0;
+        int m_region_end = 0;
 
         ///////////////////////////////////////////////////////////////////////
         // Data

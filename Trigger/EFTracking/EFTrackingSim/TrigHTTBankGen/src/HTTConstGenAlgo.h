@@ -98,7 +98,7 @@ class HTTConstGenAlgo : public AthAlgorithm
         ServiceHandle<ITrigHTTMappingSvc> m_HTTMapping{this, "TrigHTTMappingSvc","TrigHTTMappingSvc"};
         ServiceHandle<ITHistSvc> m_tHistSvc{this, "THistSvc","THistSvc"};
 
-        const HTTPlaneMap* m_pmap;
+        const HTTPlaneMap* m_pmap = nullptr;
 
 
 	
@@ -116,16 +116,16 @@ class HTTConstGenAlgo : public AthAlgorithm
         ///////////////////////////////////////////////////////////////////////
         // ROOT Objects
 
-        TFile *m_mafile;
-        TTree *m_ctree;
-        TTree *m_matrix_tree;
-        TTree *m_good_tree;
+        TFile *m_mafile = nullptr;
+        TTree *m_ctree = nullptr;
+        TTree *m_matrix_tree = nullptr;
+        TTree *m_good_tree = nullptr;
 
-        TH1F *m_h_vc;
-        TH1F *m_h_vd;
-        TH1F *m_h_vf;
-        TH1F *m_h_vz;
-        TH1F *m_h_veta;
+        TH1F *m_h_vc = nullptr;
+        TH1F *m_h_vd = nullptr;
+        TH1F *m_h_vf = nullptr;
+        TH1F *m_h_vz = nullptr;
+        TH1F *m_h_veta = nullptr;
 
         ///////////////////////////////////////////////////////////////////////
         // Slice Info
@@ -137,11 +137,11 @@ class HTTConstGenAlgo : public AthAlgorithm
         ///////////////////////////////////////////////////////////////////////
         // Sizes
 
-        int m_nLayers;
-        int m_nKernel;
-        int m_nKAverages;
-        int m_nCoords;
-        int m_nCoords_2; // m_nCoords^2
+        int m_nLayers = 0;
+        int m_nKernel = 0;
+        int m_nKAverages = 0;
+        int m_nCoords = 0;
+        int m_nCoords_2 = 0; // m_nCoords^2
 
 
         ///////////////////////////////////////////////////////////////////////

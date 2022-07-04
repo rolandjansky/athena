@@ -68,7 +68,7 @@ private:
   Gaudi::Property <std::string> m_algorithm { this, "ORAlgo", "Normal", "Overlap removal algorithm"};
   Gaudi::Property <bool> m_doFastOR { this, "doFastOR", false, "Use fast overlap removal algorithm instead of default"};
 
-  int m_totLayers;                 //  Total number of layers used for a track
+  int m_totLayers = 0;                 //  Total number of layers used for a track
   ORAlgo m_algo;                    //  Internal ORAlgo enum for faster compare
 
 
