@@ -3,7 +3,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TrkVKalVrtFitter.VKalVrtFitterConfig import TrkVKalVrtFitterCfg
+from TrkConfig.TrkVKalVrtFitterConfig import TrkVKalVrtFitterCfg
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
  
