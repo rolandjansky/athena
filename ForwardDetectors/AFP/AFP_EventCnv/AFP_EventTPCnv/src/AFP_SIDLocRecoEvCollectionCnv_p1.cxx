@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEvCollectionCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
  
-static AFP_SIDLocRecoEventCnv_p1 recConv;
+static const AFP_SIDLocRecoEventCnv_p1 recConv;
  
 void AFP_SIDLocRecoEvCollectionCnv_p1::transToPers(const AFP_SIDLocRecoEvCollection* transObj, AFP_SIDLocRecoEvCollection_p1* persObj, MsgStream& log) const {
    
@@ -27,7 +27,7 @@ void AFP_SIDLocRecoEvCollectionCnv_p1::persToTrans(const AFP_SIDLocRecoEvCollect
  
     const AFP_SIDLocRecoEvent_p1* locRec = &((*persObj)[i]);
      
-    transObj->push_back(recConv.createTransient(locRec, log));
+    transObj->push_back(recConv.createTransientConst(locRec, log));
   }    
 }
  
