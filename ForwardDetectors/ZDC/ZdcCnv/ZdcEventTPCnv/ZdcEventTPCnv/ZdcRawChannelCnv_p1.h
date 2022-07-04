@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ZdcRawChannelCnv_p1.h 
@@ -23,9 +23,11 @@
 
 class MsgStream;
 
-class ZdcRawChannelCnv_p1 : public T_AthenaPoolTPCnvBase<ZdcRawChannel, ZdcRawChannel_p1> {
+class ZdcRawChannelCnv_p1 : public T_AthenaPoolTPCnvConstBase<ZdcRawChannel, ZdcRawChannel_p1> {
 
 public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
 
   /** Default constructor: 
    */
@@ -34,12 +36,12 @@ public:
   /** Method creating the transient representation ZdcRawChannel
    *  from its persistent representation ZdcRawChannel_p1
    */
-  virtual void persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel* transObj, MsgStream &log);
+  virtual void persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel* transObj, MsgStream &log) const override;
 
   /** Method creating the persistent representation ZdcRawChannel_p1
    *  from its transient representation ZdcRawChannel
    */
-  virtual void transToPers(const ZdcRawChannel* transObj, ZdcRawChannel_p1* persObj, MsgStream &log);
+  virtual void transToPers(const ZdcRawChannel* transObj, ZdcRawChannel_p1* persObj, MsgStream &log) const override;
 
 };
 

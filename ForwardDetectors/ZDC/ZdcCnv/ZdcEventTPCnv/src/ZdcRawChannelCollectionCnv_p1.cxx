@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcEventTPCnv/ZdcRawChannelCollectionCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
 
-static ZdcRawChannelCnv_p1 rawchannelConv;
+static const ZdcRawChannelCnv_p1 rawchannelConv;
 
-void ZdcRawChannelCollectionCnv_p1::transToPers(const ZdcRawChannelCollection* transObj, ZdcRawChannelCollection_p1* persObj, MsgStream& log) {
+void ZdcRawChannelCollectionCnv_p1::transToPers(const ZdcRawChannelCollection* transObj, ZdcRawChannelCollection_p1* persObj, MsgStream& log) const {
   
   persObj->resize(transObj->size());
   
@@ -19,7 +19,7 @@ void ZdcRawChannelCollectionCnv_p1::transToPers(const ZdcRawChannelCollection* t
   }    
 }
 
-void ZdcRawChannelCollectionCnv_p1::persToTrans(const ZdcRawChannelCollection_p1* persObj, ZdcRawChannelCollection* transObj, MsgStream& log) {
+void ZdcRawChannelCollectionCnv_p1::persToTrans(const ZdcRawChannelCollection_p1* persObj, ZdcRawChannelCollection* transObj, MsgStream& log) const {
 
   //log << MSG::INFO << " size = " << persObj->size() << endmsg;
 
@@ -30,6 +30,6 @@ void ZdcRawChannelCollectionCnv_p1::persToTrans(const ZdcRawChannelCollection_p1
     //log << MSG::INFO << " i = " << i << endmsg;
     const ZdcRawChannel_p1* rawchannel = &((*persObj)[i]);
     
-    transObj->push_back(rawchannelConv.createTransient(rawchannel,log));
+    transObj->push_back(rawchannelConv.createTransientConst(rawchannel,log));
   }    
 }

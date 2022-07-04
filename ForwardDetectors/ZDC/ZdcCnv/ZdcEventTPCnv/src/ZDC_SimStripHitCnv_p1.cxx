@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZDC_SimEvent/ZDC_SimStripHit.h"
 #include "Identifier/Identifier.h"
 #include "ZdcEventTPCnv/ZDC_SimStripHitCnv_p1.h"
 
-void ZDC_SimStripHitCnv_p1::persToTrans(const ZDC_SimStripHit_p1* persObj, ZDC_SimStripHit* transObj, MsgStream& log) {
+void ZDC_SimStripHitCnv_p1::persToTrans(const ZDC_SimStripHit_p1* persObj, ZDC_SimStripHit* transObj, MsgStream& log) const {
 
   log << MSG::DEBUG << " In ZDC_SimStripHitCnv_p1::persToTrans " << endmsg;
 
@@ -16,7 +16,7 @@ void ZDC_SimStripHitCnv_p1::persToTrans(const ZDC_SimStripHit_p1* persObj, ZDC_S
                                persObj->Edep);
 }
 
-void ZDC_SimStripHitCnv_p1::transToPers(const ZDC_SimStripHit* transObj, ZDC_SimStripHit_p1* persObj, MsgStream& log) {
+void ZDC_SimStripHitCnv_p1::transToPers(const ZDC_SimStripHit* transObj, ZDC_SimStripHit_p1* persObj, MsgStream& log) const {
 
   log << MSG::DEBUG << " In ZDC_SimStripHitCnv_p1::transToPers " << endmsg;
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ZdcDigitsCnv_p1.cxx 
@@ -15,7 +15,7 @@
 
 
 void
-ZdcDigitsCnv_p1::persToTrans(const ZdcDigits_p1* persObj, ZdcDigits* transObj, MsgStream &log)
+ZdcDigitsCnv_p1::persToTrans(const ZdcDigits_p1* persObj, ZdcDigits* transObj, MsgStream &log) const
 {
   //log << MSG::INFO << "ZdcDigitsCnv_p1::persToTrans called " << endmsg;
   log << MSG::VERBOSE << "ZdcDigitsCnv_p1::persToTrans called " << endmsg;
@@ -35,7 +35,7 @@ ZdcDigitsCnv_p1::persToTrans(const ZdcDigits_p1* persObj, ZdcDigits* transObj, M
 
 
 void
-ZdcDigitsCnv_p1::transToPers(const ZdcDigits* transObj, ZdcDigits_p1* persObj, MsgStream &log)
+ZdcDigitsCnv_p1::transToPers(const ZdcDigits* transObj, ZdcDigits_p1* persObj, MsgStream &log) const
 {
   log << MSG::VERBOSE << "ZdcDigitsCnv_p1::transToPers called " << endmsg;
 

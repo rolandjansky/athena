@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDC_SIMPIXELHITCNV_P1_H
@@ -12,14 +12,16 @@
 
 class MsgStream;
 
-class ZDC_SimPixelHitCnv_p1: public T_AthenaPoolTPCnvBase<ZDC_SimPixelHit, ZDC_SimPixelHit_p1> {
+class ZDC_SimPixelHitCnv_p1: public T_AthenaPoolTPCnvConstBase<ZDC_SimPixelHit, ZDC_SimPixelHit_p1> {
 
  public:
-  
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
   ZDC_SimPixelHitCnv_p1() {}
   
-  virtual void persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_SimPixelHit*	 transObj, MsgStream& log);
-  virtual void transToPers(const ZDC_SimPixelHit*   transObj, ZDC_SimPixelHit_p1* persObj, MsgStream& log);
+  virtual void persToTrans(const ZDC_SimPixelHit_p1* persObj, ZDC_SimPixelHit*	 transObj, MsgStream& log) const override;
+  virtual void transToPers(const ZDC_SimPixelHit*   transObj, ZDC_SimPixelHit_p1* persObj, MsgStream& log) const override;
 
 
 };
