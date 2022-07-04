@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -88,14 +88,14 @@ namespace robmonitor {
         @param  L1 ID
 	@param  requestor name 
      */                                   
-    ROBDataMonitorStruct(const uint32_t, const std::string);             
+    ROBDataMonitorStruct(const uint32_t, const std::string&);             
 
     /** @brief constructor
         @param  L1 ID
 	@param  vector of ROB Ids
 	@param  requestor name 
      */                                   
-    ROBDataMonitorStruct(const uint32_t, const std::vector<uint32_t>&, const std::string);
+    ROBDataMonitorStruct(const uint32_t, const std::vector<uint32_t>&, const std::string&);
 
     ROBDataMonitorStruct(const ROBDataMonitorStruct&) = default;
 
