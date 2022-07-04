@@ -13,6 +13,8 @@
 #include "PerfMonEvent/MemStatsHooks.h"
 #include "CxxUtils/checker_macros.h"
 
+#include "CxxUtils/features.h"
+
 // std includes
 #include <pthread.h>
 #include <stdexcept>
@@ -20,6 +22,7 @@
 // mutex for the hooks
 static pthread_mutex_t pmon_mem_lock ATLAS_THREAD_SAFE = PTHREAD_MUTEX_INITIALIZER;
 
+#if HAVE_MALLOC_HOOKS
 // holders for original hooks (locked by above mutex)
 static void* (*orig_malloc ATLAS_THREAD_SAFE) (size_t size, const void* caller);
 static void* (*orig_realloc ATLAS_THREAD_SAFE)(void* ptr, size_t size, const void* caller);
@@ -29,6 +32,7 @@ static void  (*orig_free ATLAS_THREAD_SAFE)   (void* ptr, const void* caller);
 static void* pmon_mem_malloc (size_t size, const void* caller);
 static void* pmon_mem_realloc(void* ptr, size_t size, const void* caller);
 static void  pmon_mem_free   (void* ptr, const void* caller);
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 std::atomic<bool> PerfMon::MemStats::m_enabled = false;
@@ -95,22 +99,27 @@ void PerfMon::MemStats::stop()
 
 void PerfMon::MemStats::installHooks()
 {
+#if HAVE_MALLOC_HOOKS
   __free_hook    = pmon_mem_free;
   __realloc_hook = pmon_mem_realloc;
   __malloc_hook  = pmon_mem_malloc;
+#endif
   pthread_mutex_unlock(&pmon_mem_lock);
 }
 
 void PerfMon::MemStats::uninstallHooks()
 {
   pthread_mutex_lock(&pmon_mem_lock);
+#if HAVE_MALLOC_HOOKS
   __free_hook    = orig_free;
   __realloc_hook = orig_realloc;
   __malloc_hook  = orig_malloc;
+#endif
 }
 
 void PerfMon::MemStats::saveHooks()
 {
+#if HAVE_MALLOC_HOOKS
   // store old hooks in buffer for reset later
   // prevent storing ourselves in case of a double-call by user
   if ( __malloc_hook != pmon_mem_malloc ) {
@@ -124,11 +133,13 @@ void PerfMon::MemStats::saveHooks()
   if ( __free_hook != pmon_mem_free ) { 
     orig_free = __free_hook;
   }
+#endif
 
   return;
 }
 
 
+#if HAVE_MALLOC_HOOKS
 static void* pmon_mem_malloc(size_t size, const void* /*caller*/)
 {
   void *result;
@@ -194,6 +205,7 @@ static void  pmon_mem_free( void* ptr, const void* /*caller*/ )
 
   return;
 }
+#endif
 
 #endif /* __linux__ */
 
