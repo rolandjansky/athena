@@ -23,7 +23,7 @@ endif()
 
 atlas_add_test( ProxyProviderSvc_test
    SOURCES test/ProxyProviderSvc_test.cxx
-   LINK_LIBRARIES TestTools ToyConversionLib AthenaKernel SGTools StoreGateLib GaudiKernel
+   LINK_LIBRARIES TestTools ToyConversionLib AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils
    LOG_IGNORE_PATTERN "0x[0-9a-fA-F]{4,}|${PPSoptignore}^ClassIDSvc +DEBUG|Histogram.* (DEBUG|INFO)|DetectorStore +DEBUG|ToyConversionSvc +DEBUG|EventDataSvc +DEBUG|EventPersis.* +(DEBUG|INFO)|HistoryStore +DEBUG|^DataProxy +VERBOSE|^ProxyProviderSvc +DEBUG|^ServiceManager +DEBUG"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
@@ -53,7 +53,7 @@ atlas_add_test( ElementLinkVector_test
 
 atlas_add_test( StoreGateSvcClient_test
    SOURCES test/StoreGateSvcClient_test.cxx
-   LINK_LIBRARIES TestTools AthContainers AthenaKernel SGTools SGtests StoreGateLib
+   LINK_LIBRARIES TestTools AthContainers AthenaKernel SGTools SGtests StoreGateLib CxxUtils
    LOG_IGNORE_PATTERN "0x[0-9a-fA-F]{4,}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

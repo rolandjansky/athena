@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -26,6 +26,8 @@
 #include "AthContainers/ConstDataVector.h"
 
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
+
 using namespace Athena_test;
 using namespace std;
 
@@ -274,7 +276,7 @@ void test_lock (StoreGateSvc& sg)
 
 ////////////////////////////////////////////////////////////////////////////
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
   ISvcLocator* pSvcLoc;
   if (!initGaudi("StoreGateSvcClient_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
