@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauJetCnv_p5.h
@@ -14,7 +14,6 @@
 /// 
 /// Created by Lukasz Janyst in May 2008
 ///
-/// $Id: TauJetCnv_p4.h,v 1.2 2009-01-27 17:38:43 tburgess Exp $
 
 
 #ifndef tauEventTPCnv_TAUJETCNV_P5_H
@@ -27,9 +26,12 @@ class MsgStream;
 
 /// Transient<->persistent converter for Analysis::TauJet v5
 class TauJetCnv_p5: 
-    public T_AthenaPoolTPCnvBase<Analysis::TauJet, TauJet_p5>
+    public T_AthenaPoolTPCnvConstBase<Analysis::TauJet, TauJet_p5>
 {
 public:
+    using base_class::persToTrans;
+    using base_class::transToPers;
+
     ///Constructor
     TauJetCnv_p5() {}
 
@@ -44,7 +46,7 @@ public:
     virtual void persToTrans( 
 	const TauJet_p5 *pers,
 	Analysis::TauJet *trans,
-	MsgStream &msg );
+	MsgStream &msg ) const override;
 
     ///Fills a persistent object from a transient object   
     ///
@@ -54,7 +56,7 @@ public:
     virtual void transToPers( 
 	const Analysis::TauJet *trans,
 	TauJet_p5 *pers,
-	MsgStream &msg );
+	MsgStream &msg ) const override;
 private:
 };
 

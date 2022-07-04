@@ -20,9 +20,9 @@
 #include "tauEventTPCnv/VectorUtils.h"
 #include "tauEventTPCnv/TauRecDetailsCnv_p1.h"
 
-static HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
+static const HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
 
-static ElementLinkVectorCnv_p1<
+static const ElementLinkVectorCnv_p1<
     ElementLinkVector<
 	Rec::TrackParticleContainer> > tracksCnv;
 

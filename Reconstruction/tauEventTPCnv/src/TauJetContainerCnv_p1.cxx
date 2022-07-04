@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #include "tauEventTPCnv/TauJetCnv_p1.h"
 
 
-static TauJetCnv_p1 tauCnv;
+static const TauJetCnv_p1 tauCnv;
 
 void TauJetContainerCnv_p1 :: persToTrans( const TauJetContainer_p1    *pers,
                                            Analysis :: TauJetContainer *trans,

@@ -25,13 +25,13 @@
 #include "tauEventTPCnv/Tau1P3PDetailsCnv_p1.h"
 
 ///Converter for calo cluster container
-static ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > clusterCnv;
+static const ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > clusterCnv;
 
 ///Converter for cluster vector
-static ElementLinkVectorCnv_p1<ElementLinkVector<CaloClusterContainer> > clusterVectCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<CaloClusterContainer> > clusterVectCnv;
 
 ///Converter for Hep lorentz vector
-static HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
+static const HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
 
 Tau1P3PDetailsCnv_p1::Tau1P3PDetailsCnv_p1() :
     T_AthenaPoolTPPolyCnvBase<

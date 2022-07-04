@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauJetCnv_p5.cxx
@@ -15,7 +15,6 @@
 ///
 /// Created by Lukasz Janyst in May 2009
 ///
-/// $Id: TauJetCnv_p4.cxx,v 1.5 2009-03-02 17:13:27 binet Exp $
 
 
 #include "tauEvent/TauJet.h"
@@ -29,16 +28,16 @@
 #include "EventCommonTPCnv/HepLorentzVectorCnv_p1.h"
 
 //Pre-allocate converters
-static HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
-static P4ImplEEtaPhiMCnv_p2 momCnv;
-static ParticleBaseCnv_p2 partBaseCnv;
-static ElementLinkCnv_p3<ElementLink<CaloClusterContainer> > clusterCnv;
-static ElementLinkCnv_p3<ElementLink<JetCollection> > jetCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Analysis::TauDetailsContainer> > detailsCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > tracksCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > conversionTracksCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedCalo_tracksCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedTrk_tracksCnv;
+static const HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
+static const P4ImplEEtaPhiMCnv_p2 momCnv;
+static const ParticleBaseCnv_p2 partBaseCnv;
+static const ElementLinkCnv_p3<ElementLink<CaloClusterContainer> > clusterCnv;
+static const ElementLinkCnv_p3<ElementLink<JetCollection> > jetCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Analysis::TauDetailsContainer> > detailsCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > tracksCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > conversionTracksCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedCalo_tracksCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedTrk_tracksCnv;
 
 static void setBit( unsigned char &field, unsigned num, bool val )
 {
@@ -55,7 +54,7 @@ static bool getBit( unsigned char field, unsigned num )
 
 void TauJetCnv_p5::persToTrans( const TauJet_p5 *pers,
         Analysis::TauJet *trans,
-        MsgStream &msg )
+        MsgStream &msg ) const
 {
     momCnv.persToTrans( &pers->m_momentum, &trans->momentumBase(), msg );
     partBaseCnv.persToTrans( &pers->m_particleBase, &trans->particleBase(), msg );
@@ -130,7 +129,7 @@ void TauJetCnv_p5::persToTrans( const TauJet_p5 *pers,
 
 void TauJetCnv_p5::transToPers( const Analysis::TauJet *trans,
         TauJet_p5 *pers,
-        MsgStream &msg )
+        MsgStream &msg ) const
 {
     momCnv.transToPers( &trans->momentumBase(), &pers->m_momentum, msg );
     partBaseCnv.transToPers( &trans->particleBase(), &pers->m_particleBase, msg );

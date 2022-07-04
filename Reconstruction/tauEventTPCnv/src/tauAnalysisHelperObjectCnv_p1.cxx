@@ -18,9 +18,9 @@
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 #include "tauEventTPCnv/tauAnalysisHelperObjectCnv_p1.h"
 
-static ElementLinkVectorCnv_p1<ElementLinkVector<CaloCellContainer> >
+static const ElementLinkVectorCnv_p1<ElementLinkVector<CaloCellContainer> >
 cellVectCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<
+static const ElementLinkVectorCnv_p1<ElementLinkVector<
 				   Rec::TrackParticleContainer> >
 trackVectCnv;
 
