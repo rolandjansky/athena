@@ -69,7 +69,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     if ( executeNavigation( ctx, info.trigName,pairObjs).isFailure() || pairObjs.empty())                
     {            
-       ATH_MSG_WARNING("executeNavigation failed");                                                                                                       
+       ATH_MSG_DEBUG("executeNavigation failed");                                                                                                       
        return StatusCode::SUCCESS;                                                                                                                         
     }  
 
