@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Script building all the externals necessary for AnalysisBase.
 #
@@ -9,7 +9,7 @@
 ATLAS_PROJECT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 ATLAS_EXT_PROJECT_NAME="AnalysisBaseExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
-ATLAS_EXTRA_CMAKE_ARGS=()
+ATLAS_EXTRA_CMAKE_ARGS=(-DATLAS_ONNXRUNTIME_USE_CUDA=FALSE)
 ATLAS_EXTRA_MAKE_ARGS=()
 
 # Let "the common script" do all the heavy lifting.

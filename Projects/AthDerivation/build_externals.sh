@@ -13,7 +13,6 @@ ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DLCG_VERSION_POSTFIX="_ATLAS_24"
                         -DATLAS_GAUDI_TAG="v36r5.003"
                         -DATLAS_ACTS_TAG="v19.2.0"
-                        -DATLAS_ONNXRUNTIME_USE_CUDA=FALSE
                         -DATLAS_GEOMODEL_TAG="4.2.8")
 ATLAS_EXTRA_MAKE_ARGS=()
 
