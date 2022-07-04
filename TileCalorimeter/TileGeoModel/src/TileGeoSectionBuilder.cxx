@@ -2538,11 +2538,9 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
   unsigned int index;
   int currentSample, etaIndex, nsamp;
   std::vector<int> samples;    // samples of a given region
-  std::vector<int> firstScin;  // first scintillator for samples of a given region
-  std::vector<int> lastScin;   // last scintillator for samples of a given region
 
   // -- default values for all regions
-  // they are overwritten later in calculateR() by actual values taken from DB
+  // TODO: Connect to DB !!!!!!!!!
   float phi_min, phi_max;
   float dphi = 4*acos(0.)/64;
 
@@ -2623,8 +2621,6 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
       }
 
       samples.push_back((int)m_dbManager->TICLsample());
-      firstScin.push_back((int)m_dbManager->TICLfirstrow());
-      lastScin.push_back((int)m_dbManager->TICLlastrow());
 
       // iterate over all other TICLs in the detector
       while(m_dbManager->SetNextTiclInDet())
@@ -2636,11 +2632,7 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
       currentSample = (int)m_dbManager->TICLsample();
       for(index=0; index<samples.size(); index++)
         if(currentSample==samples[index]) break;
-      if(index==samples.size()) {
-        samples.push_back(currentSample);
-        firstScin.push_back((int)m_dbManager->TICLfirstrow());
-        lastScin.push_back((int)m_dbManager->TICLlastrow());
-      }
+      if(index==samples.size()) samples.push_back(currentSample);
     }
       }
     }
@@ -2681,13 +2673,6 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
          rcenter[etaIndex-1] = rExtended[indHardcoded];
          dr[etaIndex-1] = drExtended[indHardcoded];       
       }
-      calculateR(detector,
-                 etaIndex,
-                 addPlates,
-                 firstScin[index],
-                 lastScin[index],
-                 rcenter[etaIndex-1],
-                 dr[etaIndex-1]);
     }
   }
   else if(detector == TILE_REGION_GAP)
@@ -2726,13 +2711,6 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
     rcenter[etaIndex-1] = rGap[indHardcoded];
     dr[etaIndex-1] = drGap[indHardcoded];
     indHardcoded++;
-        calculateR(detector,
-                   etaIndex,
-                   addPlates,
-                   m_dbManager->TICLfirstrow(),
-                   m_dbManager->TICLlastrow(),
-                   rcenter[etaIndex-1],
-                   dr[etaIndex-1]);
     }
   }
   else // MBSCIN case
@@ -3233,31 +3211,17 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
     CurrentScin = 100*m_dbManager->TILBsection()+1;
       }
 
-      double rMIN = m_dbManager->TILBrmin()*Gaudi::Units::cm;
-      double rMAX = m_dbManager->TILBrmax()*Gaudi::Units::cm;
+      rMin = m_dbManager->TILBrmin()*Gaudi::Units::cm;
 
       // Initialize rMin, rMax, zMin, zMax vectors
       for (unsigned int j = CurrentScin; j < (CurrentScin + m_dbManager->TILBnscin()); j++)
       {
     m_dbManager->SetCurrentScin(j);
-
-    double rCenter = rMIN + m_dbManager->SCNTrc()*Gaudi::Units::cm;
-    double dR2 = (0.5 * m_dbManager->SCNTdr() + m_dbManager->SCNTdrw()) *Gaudi::Units::cm;
-    if (addPlates) {
-      if (j==CurrentScin) { // cells E2, E4 - use rMin of mother volume, calculate rMax
-        rMin = rMIN;
-        rMax = rCenter + dR2;
-      } else { // cells E1, E3 - use rMax of mother volume, calculate rMin
-        rMin = rCenter - dR2;
-        rMax = rMAX;
-      }
-    } else {
-      rMin = rCenter - dR2;
-      rMax = rCenter + dR2;
-    }
+    rMax = rMin + m_dbManager->SCNTdr()*Gaudi::Units::cm;
     
     rmins.push_back(rMin);
     rmaxs.push_back(rMax);
+    rMin = rMax;
     
     zmins.push_back((m_dbManager->TILBzoffset() - m_dbManager->TILBdzmodul()/2)*Gaudi::Units::cm);
     zmaxs.push_back((m_dbManager->TILBzoffset() + m_dbManager->TILBdzmodul()/2)*Gaudi::Units::cm);
@@ -3385,113 +3349,6 @@ void TileGeoSectionBuilder::calculateZ(int detector,
   zcenter += zshift;
   // inversion for negative side
   if (side<1) zcenter *= -1;
-
-  return;
-}
-
-void TileGeoSectionBuilder::calculateR(int detector,
-                                       int sample,
-                                       bool addPlates,
-                                       int firstScin,
-                                       int lastScin,
-                                       float& rcenter,
-                                       float& dr)
-{
-  int cell = 0;
-  switch(detector) {
-  case TILE_REGION_CENTRAL:
-    m_dbManager->SetCurrentSection(TileDddbManager::TILE_BARREL);
-    break;
-  case TILE_REGION_EXTENDED:
-    m_dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
-    break;
-  case TILE_REGION_GAP:
-    if (sample==3) { // D4
-      cell = -2;
-      m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
-    } else if (sample==2) { // C10
-      cell = -1;
-      m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-    } else if (sample<13) { // E1-E2
-      m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG3);
-      cell = firstScin - 2; // E2 has index 1, E1 has index 2
-    } else { // E3-E4
-      m_dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
-      cell = firstScin; // E4 has index 1, E3 has index 2
-    }
-    break;
-  default:
-    (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::calculateR: Unexpected detector: "
-             << detector << endmsg;
-    return;
-  }
-
-  float oldrc = rcenter;
-  float olddr = dr;
-
-  float rMin = m_dbManager->TILBrmin();
-  float rMax = m_dbManager->TILBrmax();
-
-  if (cell>0) { // single gap/crack scintillator
-    m_dbManager->SetCurrentScin(100*m_dbManager->TILBsection()+cell);
-    rcenter = (rMin + m_dbManager->SCNTrc());
-    dr = m_dbManager->SCNTdr() + 2. * m_dbManager->SCNTdrw();
-    if (addPlates) {
-      if (cell==1) { // cells E4, E2 - use rMin of mother volume, recalculate rMax
-        rMax = rcenter + dr * 0.5;
-      } else { // cells E3, E1 - use rMax of mother volume, recalculate rMin
-        rMin = rcenter - dr * 0.5;
-      }
-      rcenter = (rMax+rMin) * 0.5;
-      dr = (rMax-rMin);
-    }
-  } else {
-    int first = 100*m_dbManager->TILBsection()+firstScin;
-    int last = 100*m_dbManager->TILBsection()+lastScin;
-    if (m_dbManager->TILBcurscint() != 0) { // for cells C10 and D4 first/last should be different
-      first = m_dbManager->TILBcurscint();
-      last = first + m_dbManager->TILBnscin()-1;
-    }
-    if (addPlates) {
-      if (cell == -1) { // adjust size for cell C10
-        rMin -=  m_dbManager->TILBdrfront(); // add front plate at inner radius
-        rMax -=  m_dbManager->TILBdrfront(); // decrease outer radius by thickness of front plate of cell D4
-      } else if (cell == -2) { // adjust size for cell D4, use rMax of mother volume
-        rMin -=  m_dbManager->TILBdrfront(); // add front plate at inner radius
-      } else if (firstScin == 1) { // decrease rMin by thickness of front plate, calculate rMax for layer A
-        m_dbManager->SetCurrentScin(last);
-        rMax = rMin + m_dbManager->SCNTrc() + round(m_dbManager->SCNTdr())*0.5;
-        rMin -=  m_dbManager->TILBdrfront();
-      } else if (lastScin == m_dbManager->TILBnscin()) { // use rMax of mother volume, calculate rMin for layer D
-        m_dbManager->SetCurrentScin(first);
-        rMin += m_dbManager->SCNTrc() - round(m_dbManager->SCNTdr())*0.5;
-      } else { // calculate both rMin and rMax for layer BC and B
-        m_dbManager->SetCurrentScin(last);
-        rMax = rMin + m_dbManager->SCNTrc() + round(m_dbManager->SCNTdr())*0.5;
-        m_dbManager->SetCurrentScin(first);
-        rMin += m_dbManager->SCNTrc() - round(m_dbManager->SCNTdr())*0.5;
-      }
-    } else { // keep only sensitive part of the cell without front/back planes
-      m_dbManager->SetCurrentScin(last);
-      rMax = rMin + m_dbManager->SCNTrc() + round(m_dbManager->SCNTdr())*0.5;
-      m_dbManager->SetCurrentScin(first);
-      rMin += m_dbManager->SCNTrc() - round(m_dbManager->SCNTdr())*0.5;
-    }
-
-    rcenter = (rMax+rMin)*0.5;
-    dr = (rMax-rMin);
-  }
-
-  rcenter *= Gaudi::Units::cm;
-  dr *= Gaudi::Units::cm;
-
-/* -------- DEBUG printouts -------------- */
-  if (m_verbose) {
-    std::cout << std::setiosflags(std::ios::fixed) << std::setw(9) << std::setprecision(2);
-    std::cout << "Detector " << detector << " sample " << sample << " old r/dr " << oldrc   << " " << olddr << std::endl;
-    std::cout << "Detector " << detector << " sample " << sample << " new r/dr " << rcenter << " " << dr << " delta r/dr " << rcenter-oldrc << " " << dr-olddr << std::endl;
-    std::cout << std::resetiosflags(std::ios::fixed);
-  }
 
   return;
 }

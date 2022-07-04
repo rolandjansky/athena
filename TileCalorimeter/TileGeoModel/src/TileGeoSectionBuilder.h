@@ -139,7 +139,7 @@ class TileGeoSectionBuilder
                       float                 zShiftPos, // in mm
                       float                 zShiftNeg); // in mm
 
-  /** Calculator of Z position given sample in region (detector):
+  /** Calculator of Z pozition given sample in region (detector):
       @param zshift   Z shift
       @param zcenter  Z central position
       @param dz       dZ length
@@ -150,18 +150,6 @@ class TileGeoSectionBuilder
                   float zshift,
                   float& zcenter,
                   float& dz);
-
-  /** Calculator of R position given sample in region (detector):
-      @param rcenter  R central position
-      @param dr       dR length
-  */
-  void calculateR(int detector,
-                  int sample,
-                  bool addPlates,
-                  int firstScin,
-                  int lastScin,
-                  float& rcenter,
-                  float& dr);
 
   /** calculateEta function calculates are the following parameters
       given sample in region (detector)
