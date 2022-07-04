@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
@@ -54,11 +54,6 @@ namespace CP
   private:
     SysReadSelectionHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
-
-    /// \brief the decoration for reading systematically aware preselection
-  private:
-    SysReadDecorHandle<char> m_inputSelectionDecoration {
-      this, "inputSelectionDecoration", "", "the decoration for the input selection flag"};
 
     /// \brief the decoration for reading the scale factor
   private:

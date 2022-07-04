@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -41,17 +41,17 @@ namespace CP
 
     ANA_CHECK (m_overlapTool.retrieve());
     ANA_CHECK (m_electronsHandle.initialize (m_systematicsList, SG::AllowEmpty));
-    ANA_CHECK (m_electronsDecoration.initialize (m_systematicsList, m_electronsHandle, SG::AllowEmpty));
+    ANA_CHECK (m_electronsSelectionHandle.initialize (m_systematicsList, m_electronsHandle, SG::AllowEmpty));
     ANA_CHECK (m_muonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
-    ANA_CHECK (m_muonsDecoration.initialize (m_systematicsList, m_muonsHandle, SG::AllowEmpty));
+    ANA_CHECK (m_muonsSelectionHandle.initialize (m_systematicsList, m_muonsHandle, SG::AllowEmpty));
     ANA_CHECK (m_jetsHandle.initialize (m_systematicsList, SG::AllowEmpty));
-    ANA_CHECK (m_jetsDecoration.initialize (m_systematicsList, m_jetsHandle, SG::AllowEmpty));
+    ANA_CHECK (m_jetsSelectionHandle.initialize (m_systematicsList, m_jetsHandle, SG::AllowEmpty));
     ANA_CHECK (m_tausHandle.initialize (m_systematicsList, SG::AllowEmpty));
-    ANA_CHECK (m_tausDecoration.initialize (m_systematicsList, m_tausHandle, SG::AllowEmpty));
+    ANA_CHECK (m_tausSelectionHandle.initialize (m_systematicsList, m_tausHandle, SG::AllowEmpty));
     ANA_CHECK (m_photonsHandle.initialize (m_systematicsList, SG::AllowEmpty));
-    ANA_CHECK (m_photonsDecoration.initialize (m_systematicsList, m_photonsHandle, SG::AllowEmpty));
+    ANA_CHECK (m_photonsSelectionHandle.initialize (m_systematicsList, m_photonsHandle, SG::AllowEmpty));
     ANA_CHECK (m_fatJetsHandle.initialize (m_systematicsList, SG::AllowEmpty));
-    ANA_CHECK (m_fatJetsDecoration.initialize (m_systematicsList, m_fatJetsHandle, SG::AllowEmpty));
+    ANA_CHECK (m_fatJetsSelectionHandle.initialize (m_systematicsList, m_fatJetsHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
   }
@@ -63,49 +63,49 @@ namespace CP
   {
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
-      std::unordered_map<const xAOD::IParticleContainer *, const SysWriteDecorHandle<char> *> decorationsMap;
+      std::unordered_map<const xAOD::IParticleContainer *, const SysWriteSelectionHandle *> decorationsMap;
 
       xAOD::ElectronContainer *electrons {nullptr};
       if (m_electronsHandle)
       {
         ANA_CHECK (m_electronsHandle.getCopy (electrons, sys));
-        if (m_electronsDecoration)
-          decorationsMap.emplace(electrons, &m_electronsDecoration);
+        if (m_electronsSelectionHandle)
+          decorationsMap.emplace(electrons, &m_electronsSelectionHandle);
       }
       xAOD::MuonContainer *muons {nullptr};
       if (m_muonsHandle)
       {
         ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
-        if (m_muonsDecoration)
-          decorationsMap.emplace(muons, &m_muonsDecoration);
+        if (m_muonsSelectionHandle)
+          decorationsMap.emplace(muons, &m_muonsSelectionHandle);
       }
       xAOD::JetContainer *jets {nullptr};
       if (m_jetsHandle)
       {
         ANA_CHECK (m_jetsHandle.getCopy (jets, sys));
-        if (m_jetsDecoration)
-          decorationsMap.emplace(jets, &m_jetsDecoration);
+        if (m_jetsSelectionHandle)
+          decorationsMap.emplace(jets, &m_jetsSelectionHandle);
       }
       xAOD::TauJetContainer *taus {nullptr};
       if (m_tausHandle)
       {
         ANA_CHECK (m_tausHandle.getCopy (taus, sys));
-        if (m_tausDecoration)
-          decorationsMap.emplace(taus, &m_tausDecoration);
+        if (m_tausSelectionHandle)
+          decorationsMap.emplace(taus, &m_tausSelectionHandle);
       }
       xAOD::PhotonContainer *photons {nullptr};
       if (m_photonsHandle)
       {
         ANA_CHECK (m_photonsHandle.getCopy (photons, sys));
-        if (m_photonsDecoration)
-          decorationsMap.emplace(photons, &m_photonsDecoration);
+        if (m_photonsSelectionHandle)
+          decorationsMap.emplace(photons, &m_photonsSelectionHandle);
       }
       xAOD::JetContainer *fatJets {nullptr};
       if (m_fatJetsHandle)
       {
         ANA_CHECK (m_fatJetsHandle.getCopy (fatJets, sys));
-        if (m_fatJetsDecoration)
-          decorationsMap.emplace(fatJets, &m_fatJetsDecoration);
+        if (m_fatJetsSelectionHandle)
+          decorationsMap.emplace(fatJets, &m_fatJetsSelectionHandle);
       }
 
       ATH_CHECK (m_overlapTool->removeOverlaps (electrons, muons, jets, taus,
@@ -116,7 +116,8 @@ namespace CP
       {
         for (const xAOD::IParticle *particle : *(pair.first))
         {
-          (*(pair.second)).set (*particle, (*m_overlapRemovalAccessor) (*particle), sys);
+          (*(pair.second)).setBool
+            (*particle, (*m_overlapRemovalAccessor) (*particle), sys);
         }
       }
     }
