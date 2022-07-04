@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETRAWDATAFAKEWRITER_H
@@ -73,13 +73,13 @@ private:
 private:
 
     /// Create pixel collections
-    StatusCode createPixels() const;
+    StatusCode createPixels();
 
     /// Create sct collections
-    StatusCode createSCTs() const;
+    StatusCode createSCTs();
 
     /// Create trt collections
-    StatusCode createTRTs() const;
+    StatusCode createTRTs();
 
     /// Print out RDOs
     StatusCode printRDOs() const;
