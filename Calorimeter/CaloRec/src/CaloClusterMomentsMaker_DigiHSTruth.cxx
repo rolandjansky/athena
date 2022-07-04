@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //-----------------------------------------------------------------------
 // File and Version Information:
@@ -51,7 +51,7 @@ struct MomentName
 
 
 // Must be sorted by name.
-MomentName moment_names[] = {
+const MomentName moment_names[] = {
   { "ENERGY_DigiHSTruth",            xAOD::CaloCluster::ENERGY_DigiHSTruth },
   { "ETA_DigiHSTruth",               xAOD::CaloCluster::ETA_DigiHSTruth },
   { "PHI_DigiHSTruth",               xAOD::CaloCluster::PHI_DigiHSTruth },
@@ -90,7 +90,7 @@ MomentName moment_names[] = {
   { "SIGNIFICANCE_DigiHSTruth",      xAOD::CaloCluster::SIGNIFICANCE_DigiHSTruth },
 };
 
-MomentName* moment_names_end =
+const MomentName* const moment_names_end =
   moment_names + sizeof(moment_names)/sizeof(moment_names[0]);
 
 #if 0

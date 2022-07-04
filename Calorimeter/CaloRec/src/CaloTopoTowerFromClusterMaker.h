@@ -1,5 +1,5 @@
 // -*- c++ -*- 
-/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration */
 #ifndef CALOREC_CALOTOPOTOWERFROMCLUSTERMAKER_H
 #define CALOREC_CALOTOPOTOWERFROMCLUSTERMAKER_H
 
@@ -84,10 +84,9 @@ private:
   //uint_t             m_maxCellHash;            ///< Maximum hash index of cell ( number of cells - 1)
   uint_t             m_numberOfSamplings;      ///< Number of samplings
   //uint_t             m_numberOfTowers;         ///< Number of towers
-  static double      m_energyThresholdDef;     ///< Default energy threshold
-  static double      m_clusterRangeDef;        ///< Default cluster @f$ y @f$ range
-  static std::string m_defaultKey;             ///< Default container key
-  static uint_t      m_errorValueUINT;         ///< Error value for @c uint_t type values
+  static const double      m_energyThresholdDef;     ///< Default energy threshold
+  static const double      m_clusterRangeDef;        ///< Default cluster @f$ y @f$ range
+  static const uint_t      m_errorValueUINT;         ///< Error value for @c uint_t type values
   /// @}
 
   ///@name Internally used helpers

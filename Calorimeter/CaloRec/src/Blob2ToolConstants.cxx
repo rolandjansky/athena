@@ -13,6 +13,7 @@
 #include "TBufferFile.h"
 #include "TClass.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/crc64.h"
 
 Blob2ToolConstants::Blob2ToolConstants (const std::string& type, 
@@ -98,7 +99,9 @@ StatusCode Blob2ToolConstants::AttrListToToolConstants(const coral::AttributeLis
       else
 	msg(MSG::DEBUG) << "Got TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
 
-      TBufferFile buf (TBuffer::kRead, blob.size(), (void*)blob.startingAddress(), false);
+      // TBufferFile needs a void* even in read-only mode:
+      void* blob_start ATLAS_THREAD_SAFE = const_cast<void*>(blob.startingAddress());
+      TBufferFile buf (TBuffer::kRead, blob.size(), blob_start, false);
       map.reset( (T*)buf.ReadObjectAny (klass) );
     }catch (coral::AttributeListException &e) {
       msg(MSG::ERROR) << e.what() << endmsg;

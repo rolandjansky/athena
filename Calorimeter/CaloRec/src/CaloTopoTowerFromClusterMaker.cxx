@@ -1,4 +1,4 @@
-/* Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration */
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -43,10 +43,9 @@ std::atomic<bool> CaloTopoTowerFromClusterMaker_checkCellIndices(false);
 // CaloTopoTowerFromClusterMaker //
 ///////////////////////////////////
 
-double                                CaloTopoTowerFromClusterMaker::m_energyThresholdDef = -100000000.; // in MeV
-double                                CaloTopoTowerFromClusterMaker::m_clusterRangeDef    = 5.;
-std::string                           CaloTopoTowerFromClusterMaker::m_defaultKey         = "NONE";
-CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::m_errorValueUINT     = uint_t(-1); 
+const double                                CaloTopoTowerFromClusterMaker::m_energyThresholdDef = -100000000.; // in MeV
+const double                                CaloTopoTowerFromClusterMaker::m_clusterRangeDef    = 5.;
+const CaloTopoTowerFromClusterMaker::uint_t CaloTopoTowerFromClusterMaker::m_errorValueUINT     = uint_t(-1);
 
 CaloTopoTowerFromClusterMaker::CaloTopoTowerFromClusterMaker(const std::string& type,
 							     const std::string& name,
