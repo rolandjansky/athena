@@ -11,7 +11,8 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileMBTSMonitorAlgorithm algorithm in the monitoring system.'''
 
-    kwargs.setdefault('useTrigger', False)
+    kwargs.setdefault('useTrigger', flags.DQ.useTrigger)
+    kwargs.setdefault('FillHistogramsPerMBTS', True)
 
     # Define one top-level monitoring algorithm. The new configuration
     # framework uses a component accumulator.
@@ -185,11 +186,10 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
                                 xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS,
                                 ybins = numberOfErrors, ymin = 0, ymax = numberOfErrors)
 
+    nEnergyBins = 550 if isCosmics else 400
+    maxEnergy = 5 if isCosmics else 80
 
     if fillHistogramPerMBTS:
-
-        nEnergyBins = 550 if isCosmics else 400
-        maxEnergy = 5 if isCosmics else 80
 
         # 11) Configure histogram with MBTS counter energy
         energyArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileEnergyMBTS', topPath = 'Tile/MBTS')
@@ -357,6 +357,18 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             deltaBCIDTitle += f';Bunch crossing between {trigger} fire and L1Accept'
             tool.defineHistogram(f'DeltaBCID;MBTS_DeltaBCID_{trigger}_{mbtsName}', path = 'Trigger', type='TH1F',
                                  title = deltaBCIDTitle, xbins = 19, xmin = -9.5, xmax = 9.5)
+
+        # 27.2) Configure histogram with BCID of MBTS signals
+        bcidArray = helper.addArray([len(triggerNames), numberOfMBTS], tileMBTSMonAlg, 'MBTS_BCID', topPath = 'Tile/MBTS')
+        for postfix, tool in bcidArray.Tools.items():
+            elements = postfix.split('_')
+            mbtsCounter = int( elements.pop() )
+            triggerIdx = int( elements.pop() )
+            mbtsName = labelsMBTS[mbtsCounter]
+            trigger = triggerNames[triggerIdx]
+            bcidTitle = f'Run {run}: {mbtsName} BCID of {trigger} signal;BCID'
+            tool.defineHistogram(f'MBTS_BCID;MBTS_BCID_{trigger}_{mbtsName}', path = 'Trigger', type='TH1F',
+                                 title = bcidTitle, xbins = 3565, xmin = -0.5, xmax = 3564.5)
 
         # 28) Configure histogram with MBTS counter energy with TBP fired
         energyTrigArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileEnergyTrigMBTS', topPath = 'Tile/MBTS')

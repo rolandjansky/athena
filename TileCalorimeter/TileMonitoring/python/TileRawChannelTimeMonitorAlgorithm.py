@@ -37,8 +37,13 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     partitionPairs = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
     kwargs.setdefault('PartitionTimeDiffferncePairs', partitionPairs)
 
+    partitionTimeCorrections = [0, 0, 0, 0]
     if flags.Input.RunNumber[0] > 400000: # Update partition time corrections for Run 3
-        kwargs.setdefault('PartitionTimeCorrections', [-28.65, -45.2, 25.24, 24.94])
+        partitionTimeCorrections = [-28.65, -45.2, 25.24, 24.94]
+    else:
+        partitionTimeCorrections = [-15.18, -15.37, 47.65, 47.42]
+
+    kwargs.setdefault('PartitionTimeCorrections', partitionTimeCorrections)
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -62,24 +67,27 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
                                      xbins = 100, xmin = 0, xmax = 100000)
 
 
-    from TileMonitoring.TileMonitoringCfgHelper import addTileModuleChannelMapsArray
+    from TileMonitoring.TileMonitoringCfgHelper import addTileModuleChannelMapsArray, getPartitionName
 
     # 2) Configure histograms with status of Tile channel time per partition
     addTileModuleChannelMapsArray(helper, tileRawChanTimeMonAlg, name = 'TileAverageTime',
-                                  title = 'Tile average time', path = 'Tile/RawChannelTime/Summary',
+                                  title = 'Tile average time with laser (partition average time is subracted)',
+                                  path = 'Tile/RawChannelTime/Summary',
                                   type = 'TProfile2D', value = 'time', run = run)
 
     from TileMonitoring.TileMonitoringCfgHelper import addTile2DHistogramsArray
 
     # 3) Configure histograms with Tile partition average time vs luminosity block per partition
+    partitionAverageTimeTitle = {}
+    partitionAverageTimeTitleTemplate = 'Tile average time with laser corrected by %+0.0f [ns] vs LumiBlock;LumiBlock;t [ns]'
+    for ros in range(1,5):
+        partitionAverageTimeTitle[getPartitionName(ros)] = partitionAverageTimeTitleTemplate % (partitionTimeCorrections[ros - 1])
     addTile2DHistogramsArray(helper, tileRawChanTimeMonAlg, name = 'TileAverageTimeLB',
                              xvalue = 'lumiBlock', yvalue = 'time', type='TH2D',
-                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]', opt = 'kAddBinsDynamically', merge = 'merge',
+                             title = partitionAverageTimeTitle, opt = 'kAddBinsDynamically', merge = 'merge',
                              path = 'Tile/RawChannelTime/Summary', run = run, perPartition = True,
                              xbins = 3000, xmin = -0.5, xmax = 2999.5, ybins = 149, ymin = -74.5, ymax = 74.5)
 
-
-    from TileMonitoring.TileMonitoringCfgHelper import getPartitionName
 
     # 4) Configure histograms with Tile partition average time difference vs luminosity block
     partitionPairs = kwargs['PartitionTimeDiffferncePairs']
@@ -88,8 +96,12 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     for postfix, tool in partTimeDiffVsLBArray.Tools.items():
         pairIdx = int(postfix.split('_').pop())
         partitionName1, partitionName2 = [getPartitionName(ros + 1) for ros in partitionPairs[pairIdx]]
+        ros1, ros2 = partitionPairs[pairIdx]
+        partitionTimeCorrection1 = partitionTimeCorrections[ros1]
+        partitionTimeCorrection2 = partitionTimeCorrections[ros2]
 
-        title = 'Run %s: Average time between %s and %s' % (run, partitionName1, partitionName2)
+        title = 'Run %s: Average time with laser between %s and %s' % (run, partitionName1, partitionName2)
+        title += ' corrected by %+0.0f [ns]' % (partitionTimeCorrection2 - partitionTimeCorrection1)
         title += ' vs luminosity block;LumiBlock;t [ns]'
         name = 'lumiBlock,time;TileAverageTimeDifferenceLB_%s-%s' % (partitionName1, partitionName2)
 
@@ -109,7 +121,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
 
         moduleName = Tile.getDrawerString(ros + 1, module)
         title = 'Run ' + run + ' ' + moduleName + ' Digitizer ' + str(digitizer)
-        title +=  ': Time vs luminosity block;LumiBlock;t [ns]'
+        title +=  ': Time vs luminosity block (partition average time is subracted);LumiBlock;t [ns]'
         name = 'lumiBlock,time;TileDigitizerTimeLB_' + moduleName + '_DIGI_' + str(digitizer)
         path = getPartitionName(ros + 1) + '/' + moduleName
 
