@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIClusterSubtraction.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "HIEventUtils/HIEventShapeMap.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "HIJetRec/HIJetRecDefs.h"
 #include "xAODBase/IParticleHelpers.h"

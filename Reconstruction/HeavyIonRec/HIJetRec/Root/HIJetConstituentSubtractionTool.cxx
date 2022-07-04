@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIJetConstituentSubtractionTool.h"
@@ -8,7 +8,6 @@
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include "HIEventUtils/HIEventShapeMap.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -53,10 +52,8 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
     es_index=m_eventShapeMapTool->getIndexFromShape(shape); 
     if(es_index==nullptr)
     {
-      ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_eventShapeKey.key() << " adding it to the map");
-      HIEventShapeIndex* h=new HIEventShapeIndex();
-      h->setBinning(shape);
-      es_index=HIEventShapeMap::insert(m_eventShapeKey.key(),*h);
+      ATH_MSG_ERROR("No HIEventShapeIndex w/ name " << m_eventShapeKey.key());
+      return StatusCode::FAILURE;
     }
   }
 
