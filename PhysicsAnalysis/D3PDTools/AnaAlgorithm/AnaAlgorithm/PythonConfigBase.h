@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -10,7 +10,9 @@
 #define ANA_ALGORITHM__PYTHON_CONFIG_BASE_H
 
 #ifndef ROOTCORE
+#ifndef __CPPCHECK__
 #error only include this header in AnalysisBase
+#endif
 #endif
 
 #include <AnaAlgorithm/Global.h>
