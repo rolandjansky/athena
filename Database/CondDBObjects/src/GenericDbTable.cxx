@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <climits>
 #include <cfloat>
+#include <algorithm> //count_if
 
 #define NULLINT -INT_MAX
 #define NULLFLOAT -FLT_MAX
@@ -113,10 +114,8 @@ int GenericDbTable::getRowID(std::string &pID) const
   unsigned int ncolumn = 0;
 
   if (getNames(names) != CDB_NOT_INITIALIZED) { //success
-    
-    while (names[ncolumn] != "Id" && ncolumn != names.size())
-      ncolumn++;
-    
+    ncolumn = std::count_if(names.begin(),names.end(), [](const auto & s){return s != "Id";} );
+   
     // if the table does not have id's
     if (ncolumn == names.size())
       return -1;
@@ -125,7 +124,7 @@ int GenericDbTable::getRowID(std::string &pID) const
 
     for (unsigned int i = 0; i < dcolumn->column.size(); i++) {
       if (dcolumn->column[i] == pID) {
-	return i;
+	      return i;
       }
     }
   }

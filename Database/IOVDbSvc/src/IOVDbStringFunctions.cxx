@@ -8,7 +8,7 @@
 
 namespace IOVDbNamespace{
   std::string 
-  spaceStrip( std::string_view input){
+  spaceStrip( const std::string & input){
     // return the input string stripped of leading/trailing spaces
     std::string::size_type idx1=input.find_first_not_of(" \n\r\t");
     std::string::size_type idx2=input.find_last_not_of(" \n\r\t");
