@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -182,8 +182,8 @@ namespace Trk {
     // check if the track belongs to a vertex. If yes, retrieve the relevant objects:
     bool                                  fullVertex   = false;
     AlignVertex                         * ptrVertex    = alignTrack->getVtx();
-    Amg::Vector3D                       * ptrPosition  = nullptr;
-    AmgSymMatrix(3)                     * ptrCovariance = nullptr;
+    const Amg::Vector3D                 * ptrPosition  = nullptr;
+    const AmgSymMatrix(3)               * ptrCovariance = nullptr;
     std::vector<AlignModuleVertexDerivatives>   * ptrX = nullptr;
     AlignVertex::AlignVertexType          vtxType      = AlignVertex::Unknown;
     if( ptrVertex )  {
