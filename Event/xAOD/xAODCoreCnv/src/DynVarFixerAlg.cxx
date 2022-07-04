@@ -74,7 +74,7 @@ namespace xAODMaker {
          for( SG::auxid_t auxid : ioHandle->getDynamicAuxIDs() ) {
 
             // Access the registry:
-            static auto& reg = SG::AuxTypeRegistry::instance();
+            static const auto& reg = SG::AuxTypeRegistry::instance();
 
             // Tell the user what's happening.
             ATH_MSG_VERBOSE( "Checking variable \"" << cname
@@ -158,7 +158,7 @@ namespace xAODMaker {
       }
 
       // If not, then look for a dictionary for this type:
-      static auto& reg = SG::AuxTypeRegistry::instance();
+      static const auto& reg = SG::AuxTypeRegistry::instance();
       static const ::Bool_t LOAD = kTRUE;
       static const ::Bool_t SILENT = kTRUE;
       ::TClass* cl = ::TClass::GetClass( reg.getVecTypeName( auxid ).c_str(),
