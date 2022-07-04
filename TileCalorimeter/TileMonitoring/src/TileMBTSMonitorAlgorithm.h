@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILEMBTSMONITORALGORITHM_H
@@ -125,6 +125,7 @@ class TileMBTSMonitorAlgorithm : public AthMonitorAlgorithm {
     std::vector<int> m_coinTrigGroups;
     std::vector<int> m_deltaBCIDSumGroups;
     std::vector<std::vector<int>> m_deltaBCIDGroups;
+    std::vector<std::vector<int>> m_bcidGroups;
 
     const TileTBID* m_tileTBID{nullptr};
     const TileHWID* m_tileHWID{nullptr};

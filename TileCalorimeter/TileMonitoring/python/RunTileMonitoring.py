@@ -181,13 +181,15 @@ if __name__=='__main__':
     ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
     ConfigFlags.Tile.RunType = 'PHY'
 
+    if args.mbts and args.useMbtsTrigger:
+        ConfigFlags.Trigger.triggerConfig = 'DB'
+
     if args.stateless:
         _configFlagsFromPartition(ConfigFlags, args.partition, log)
         ConfigFlags.Input.Files = []
         ConfigFlags.Input.isMC = False
         ConfigFlags.Input.Format = Format.BS
         if args.mbts and args.useMbtsTrigger:
-            ConfigFlags.Trigger.triggerConfig = 'DB'
             from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
             autoConfigOnlineRecoFlags(ConfigFlags, args.partition)
     else:
@@ -378,7 +380,14 @@ if __name__=='__main__':
             configurations += [os.path.join(dataPath, 'TileRawChanNoisePostProc.yaml')]
 
         from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
-        ppa = DQPostProcessingAlg("DQPostProcessingAlg")
+        class TileMonPostProcessingAlg(DQPostProcessingAlg):
+            def initialize(self):
+                if hasattr(self, 'OutputLevel'):
+                    self.msg.setLevel(self.OutputLevel)
+                return super(TileMonPostProcessingAlg, self).initialize()
+
+        ppa = TileMonPostProcessingAlg("TileMonPostProcessingAlg")
+        ppa.OutputLevel = ConfigFlags.Exec.OutputLevel
         ppa.ExtraInputs = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
         ppa.Interval = args.postProcessingInterval
         ppa.ConfigFiles = configurations
