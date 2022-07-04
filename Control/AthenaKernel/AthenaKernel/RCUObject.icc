@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaKernel/RCUObject.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -35,15 +33,25 @@ void IRCUObject::quiescent()
 inline
 void IRCUObject::quiescent (const EventContext& ctx)
 {
+  if (!m_dirty) return;
   lock_t g (m_mutex);
-  if (endGrace(g, ctx)) return;
-  clearOld(g);
+  if (!endGrace(g, ctx, m_grace)) {
+    clearAll(g);
+    m_nold = 0;
+    m_dirty = false;
+  }
+  else if (m_nold > 0 && !endGrace(g, ctx, m_oldGrace)) {
+    if (clearOld(g, m_nold)) {
+      m_dirty = false;
+    }
+    m_nold = 0;
+  }
 }
 
 
 /**
  * @brief Declare that the grace period for a slot is ending.
- * @param Lock object (external locking).
+ * @param lock Lock object (external locking).
  * @param ctx Event context for the slot.
  * @returns true if any slot is still in a grace period.
  *          false if no slots are in a grace period.
@@ -51,13 +59,9 @@ void IRCUObject::quiescent (const EventContext& ctx)
  * The caller must be holding the mutex for this object.
  */
 inline
-bool IRCUObject::endGrace (lock_t& /*lock*/, const EventContext& ctx)
+bool IRCUObject::endGrace (lock_t& lock, const EventContext& ctx)
 {
-  EventContext::ContextID_t slot = ctx.slot();
-  if (slot == EventContext::INVALID_CONTEXT_ID) return false;
-  if (slot >= m_grace.size()) std::abort();
-  m_grace[slot] = false;
-  return m_grace.any();
+  return endGrace (lock, ctx, m_grace);
 }
 
 
@@ -71,6 +75,7 @@ inline
 void IRCUObject::setGrace (lock_t& /*lock*/)
 {
   m_grace.set();
+  if (!m_dirty) m_dirty = true;
 }
 
 
@@ -81,6 +86,48 @@ inline
 typename IRCUObject::mutex_t& IRCUObject::mutex()
 {
   return m_mutex;
+}
+
+
+/**
+ * @brief Make existing pending objects old, if possible.
+ * @param lock Lock object (external locking).
+ * @param garbageSize Present number of objects pending deletion.
+ *
+ * A new object is about to be added to the list of objects pending deletion.
+ * If there are any existing pending objects and there are no existing
+ * old objects, make the current pending objects old.
+ */
+inline
+void IRCUObject::makeOld (lock_t& /*lock*/, size_t garbageSize)
+{
+  if (garbageSize && m_nold == 0) {
+    m_oldGrace = m_grace;
+    m_nold = garbageSize;
+  }
+}
+
+
+/**
+ * @brief Declare that the grace period for a slot is ending.
+ * @param Lock object (external locking).
+ * @param ctx Event context for the slot.
+ * @param grace Bitmask tracking grace periods.
+ * @returns true if any slot is still in a grace period.
+ *          false if no slots are in a grace period.
+ *
+ * The caller must be holding the mutex for this object.
+ */
+inline
+bool IRCUObject::endGrace (lock_t& /*lock*/,
+                           const EventContext& ctx,
+                           boost::dynamic_bitset<>& grace) const
+{
+  EventContext::ContextID_t slot = ctx.slot();
+  if (slot == EventContext::INVALID_CONTEXT_ID) return false;
+  if (slot >= grace.size()) std::abort();
+  grace[slot] = false;
+  return grace.any();
 }
 
 
@@ -98,10 +145,10 @@ template <class T>
 template <typename... Args>
 inline
 RCUObject<T>::RCUObject (IRCUSvc& svc, Args&&... args)
-  : IRCUObject (svc)
+  : IRCUObject (svc),
+    m_objref (std::make_unique<T>(std::forward<Args>(args)...)),
+    m_obj (m_objref.get())
 {
-  m_objs.push_back (std::make_unique<T>(std::forward<Args>(args)...));
-  m_obj = m_objs.front().get();
 }
 
 
@@ -114,10 +161,27 @@ template <class T>
 template <typename... Args>
 inline
 RCUObject<T>::RCUObject (size_t nslots, Args&&... args)
-  : IRCUObject (nslots)
+  : IRCUObject (nslots),
+    m_objref (std::make_unique<T>(std::forward<Args>(args)...)),
+    m_obj (m_objref.get())
 {
-  m_objs.push_back (std::make_unique<T>(std::forward<Args>(args)...));
-  m_obj = m_objs.front().get();
+}
+
+
+/**
+ * @brief Constructor, with RCUSvc.
+ * @param svc Service with which to register.
+ *
+ * The service will call @c quiescent at the end of each event.
+ * No current object will be created.
+ */
+template <class T>
+inline
+RCUObject<T>::RCUObject (IRCUSvc& svc, NoObjectEnum)
+  : IRCUObject (svc),
+    m_objref(),
+    m_obj (nullptr)
+{
 }
 
 
@@ -129,9 +193,11 @@ RCUObject<T>::RCUObject (size_t nslots, Args&&... args)
 template <class T>
 RCUObject<T>::RCUObject (RCUObject&& other)
   : IRCUObject (std::move (other)),
+    m_objref (std::move (other.m_objref)),
     m_obj (static_cast<const T*> (other.m_obj)),
-    m_objs (std::move (other.m_objs))
+    m_garbage (std::move (other.m_garbage))
 {
+  other.m_obj = nullptr;
 }
 
 
@@ -214,28 +280,58 @@ RCUObject<T>::updater (const EventContext& ctx)
  * be called by a thread running outside of a slot context).
  */
 template <class T>
-void RCUObject<T>::discard (std::unique_ptr<T> p)
+void RCUObject<T>::discard (std::unique_ptr<const T> p)
 {
   lock_t g (mutex());
-  // This doesn't become the current object, so push to the _back_,
-  // not the front.
-  m_objs.push_back (std::move (p));
-  setGrace (g);
+  discard (g, std::move (p));
 }
 
 
 /**
- * @brief Delete all old objects.
+ * @brief Queue an object for later deletion.
+ * @param lock Lock object (external locking).
+ * @param p The object to delete.
+ */
+template <class T>
+void RCUObject<T>::discard (lock_t& lock, std::unique_ptr<const T> p)
+{
+  makeOld (lock, m_garbage.size());
+  m_garbage.push_front (std::move (p));
+  setGrace (lock);
+}
+
+
+/**
+ * @brief Delete all objects.
  * @param Lock object (external locking).
  *
  * The caller must be holding the mutex for this object.
  */
 template <class T>
 inline
-void RCUObject<T>::clearOld (lock_t& /*lock*/)
+void RCUObject<T>::clearAll (lock_t& /*lock*/)
 {
-  while (m_objs.size() > 1)
-    m_objs.pop_back();
+  m_garbage.clear();
+}
+
+
+/**
+ * @brief Delete old objects.
+ * @param Lock object (external locking).
+ * @param nold Number of old objects to delete.
+ *
+ * The caller must be holding the mutex for this object.
+ * Returns true if there are no more objects pending deletion.
+ */
+template <class T>
+inline
+bool RCUObject<T>::clearOld (lock_t& /*lock*/, size_t nold)
+{
+  while (nold > 0) {
+    m_garbage.pop_back();
+    --nold;
+  }
+  return m_garbage.empty();
 }
 
 
@@ -249,7 +345,7 @@ void RCUObject<T>::clearOld (lock_t& /*lock*/)
 template <class T>
 inline
 RCURead<T>::RCURead (const RCUObject<T>& rcuobj)
-  : m_obj (*rcuobj.m_obj)
+  : m_obj (rcuobj.m_obj)
 {
 }
 
@@ -261,7 +357,7 @@ template <class T>
 inline
 const T& RCURead<T>::operator*() const
 {
-  return m_obj;
+  return *m_obj;
 }
 
 
@@ -272,7 +368,7 @@ template <class T>
 inline
 const T* RCURead<T>::operator->() const
 {
-  return &m_obj;
+  return m_obj;
 }
 
 
@@ -289,8 +385,8 @@ template <class T>
 inline
 RCUReadQuiesce<T>::RCUReadQuiesce (RCUObject<T>& rcuobj)
   : RCURead<T> (rcuobj),
-  m_rcuobj (rcuobj),
-  m_ctx (Gaudi::Hive::currentContext())
+    m_rcuobj (rcuobj),
+    m_ctx (Gaudi::Hive::currentContext())
 {
 }
 
@@ -305,8 +401,8 @@ inline
 RCUReadQuiesce<T>::RCUReadQuiesce (RCUObject<T>& rcuobj,
                                    const EventContext& ctx)
   : RCURead<T> (rcuobj),
-  m_rcuobj (rcuobj),
-  m_ctx (ctx)
+    m_rcuobj (rcuobj),
+    m_ctx (ctx)
 {
 }
 
@@ -387,9 +483,14 @@ const T* RCUUpdate<T>::operator->() const
 template <class T>
 void RCUUpdate<T>::update (std::unique_ptr<T> ptr)
 {
-  m_rcuobj.m_objs.push_front (std::move (ptr));
-  m_rcuobj.m_obj = m_rcuobj.m_objs.front().get();
-  m_rcuobj.setGrace(m_g);
+  // Queue the current object for deletion, if it exists.
+  if (m_rcuobj.m_objref) {
+    m_rcuobj.discard (m_g, std::move (m_rcuobj.m_objref));
+  }
+
+  // Install the new object.
+  m_rcuobj.m_objref = std::move (ptr);
+  m_rcuobj.m_obj = m_rcuobj.m_objref.get();
 
   // Go ahead and end the grace period for the current slot.
   m_rcuobj.endGrace(m_g, m_ctx);
