@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaKernel/src/RCUObject.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -27,7 +25,10 @@ namespace Athena {
  */
 IRCUObject::IRCUObject (IRCUSvc& svc)
   : m_svc (&svc),
-    m_grace (svc.getNumSlots())
+    m_grace (svc.getNumSlots()),
+    m_oldGrace (svc.getNumSlots()),
+    m_nold(0),
+    m_dirty(false)
 {
   m_svc->add (this);
 }
@@ -41,7 +42,10 @@ IRCUObject::IRCUObject (IRCUSvc& svc)
  */
 IRCUObject::IRCUObject (size_t nslots)
   : m_svc (nullptr),
-    m_grace (nslots)
+    m_grace (nslots),
+    m_oldGrace (nslots),
+    m_nold(0),
+    m_dirty(false)
 {
 }
 
@@ -65,8 +69,16 @@ IRCUObject::~IRCUObject()
  */
 IRCUObject::IRCUObject (IRCUObject&& other)
   : m_svc (other.m_svc),
-    m_grace (other.m_grace.size())
+    m_grace (std::move (other.m_grace)),
+    m_oldGrace (std::move (other.m_oldGrace)),
+    m_nold (other.m_nold),
+    m_dirty (false)
 {
+  other.m_nold = 0;
+  if (other.m_dirty) {
+    m_dirty = true;
+  }
+  other.m_dirty = false;
   if (m_svc) {
     if (m_svc->remove (&other).isFailure()) {
       std::abort();
