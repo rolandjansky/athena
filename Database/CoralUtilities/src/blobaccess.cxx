@@ -106,7 +106,9 @@ bool readBlobAsJson(const coral::Blob &blob, nlohmann::json& out){
 }
 
 bool readBlobAsTTree(const coral::Blob &blob, std::unique_ptr<TTree>& out){
-	std::string sb {reinterpret_cast<const char*>(blob.startingAddress())};
+	const char* cstring = reinterpret_cast<const char*>(blob.startingAddress());
+	std::string sb;
+	sb.assign(cstring, blob.size());
 	std::vector<unsigned char> bdata = CxxUtils::base64_decode(sb);
 	TMemFile f("buffer", reinterpret_cast<char*>(bdata.data()), bdata.size()); 
 	TTree* t = nullptr;
