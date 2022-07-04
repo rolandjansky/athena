@@ -182,7 +182,9 @@ if [ ${ERROR_COUNT} -ne 0 ]; then
     if [ "${ATLAS_CI_BUILD}" = "1" ]; then
         echo "Removing external project artifacts..."
         rm -rf "${ATLAS_BUILD_DIR}/build/${ATLAS_EXT_PROJECT_NAME}/src"
+        rm -rf "${ATLAS_BUILD_DIR}/build/${ATLAS_EXT_PROJECT_NAME}/tmp"
         rm -rf "${ATLAS_BUILD_DIR}/build/${ATLAS_EXT_PROJECT_NAME}/External"
+        rm -rf "${ATLAS_BUILD_DIR}/build/${ATLAS_EXT_PROJECT_NAME}/${BINARY_TAG}"
     fi
 else
     cp "${ATLAS_PROJECT_DIR}/externals.txt" "${externals_stamp}"
