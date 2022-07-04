@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -65,13 +65,13 @@ public:
 
 
   /// Standard Gaudi initialize method.
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /// Standard Gaudi finalize  method.
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /// Run the tool.
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
 
   /** This method will check the validity of the input McEventCollection 
@@ -81,7 +81,7 @@ public:
    *  the filtering process.
    */
   virtual StatusCode buildMcAod( const McEventCollection* in,
-				 McEventCollection* filtered );
+				 McEventCollection* filtered ) override;
 
 
   /// Filter a single @c GenEvent.
@@ -89,11 +89,11 @@ public:
                                   HepMC::GenEvent* ev_out);
 
   /// Add a @c GenParticle (and its production vertex) to a @c GenEvent.
-  virtual StatusCode addParticle (HepMC::GenParticlePtr p,
+  virtual StatusCode addParticle (HepMC::ConstGenParticlePtr p,
                                   HepMC::GenEvent* ev);
 
   /// Add a @c GenVertex to a @c GenEvent.
-  virtual StatusCode addVertex (HepMC::GenVertexPtr p,
+  virtual StatusCode addVertex (HepMC::ConstGenVertexPtr p,
                                 HepMC::GenEvent* ev);
 
   /// Test to see if we want to keep a particle.

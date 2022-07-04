@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TruthD3PDAnalysis/src/TruthParticleFilterBase.cxx
@@ -191,9 +191,7 @@ StatusCode
 TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in, HepMC::GenEvent* ev_out)
 {
   // Loop over particles.
-  // (range-based for doesn't work here because particle_const_iterator
-  // isn't consistent in the use of const...)
-  for (auto ip: *((HepMC::GenEvent*)ev_in))
+   for (auto ip: *ev_in)
   {
     // Copy the particle if we want to keep it.
     if (isAccepted (ip))
@@ -207,7 +205,7 @@ TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in, HepMC::GenEv
  * @brief Add a @c GenParticle (and its production vertex) to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addParticle (HepMC::GenParticlePtr p, HepMC::GenEvent* ev)
+TruthParticleFilterBase::addParticle (HepMC::ConstGenParticlePtr p, HepMC::GenEvent* ev)
 {
   // Add parent vertex if it exists.  Otherwise, add decay vertex.
   if (p->production_vertex())
@@ -265,7 +263,7 @@ TruthParticleFilterBase::addParticle (HepMC::GenParticlePtr p, HepMC::GenEvent* 
  * @brief Add a @c GenVertex to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addVertex (HepMC::GenVertexPtr v, HepMC::GenEvent* ev)
+TruthParticleFilterBase::addVertex (HepMC::ConstGenVertexPtr v, HepMC::GenEvent* ev)
 {
 #ifdef HEPMC3
   // See if this vertex has already been copied.
