@@ -21,8 +21,6 @@ public:
 protected:
   virtual PERS*   createPersistent (RpcSectorLogicContainer* transObj);
   virtual RpcSectorLogicContainer*  createTransient ();
-private:
-  RpcSectorLogicContainerCnv_p1 m_converter;
 };
 
 #endif

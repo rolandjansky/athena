@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventAthenaPool/test/CscRawDataCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
 #include "muIdHelper.icc"
 #include <cassert>
 #include <iostream>
@@ -46,7 +45,7 @@ void testit (const CscRawData& trans1, Muon::MuonIdHelperSvc* muIdSvc)
 }
 
 
-void test1(Muon::MuonIdHelperSvc* muIdSvc)
+void test1 ATLAS_NOT_THREAD_SAFE (Muon::MuonIdHelperSvc* muIdSvc)
 {
   std::cout << "test1\n";
 
@@ -61,14 +60,15 @@ void test1(Muon::MuonIdHelperSvc* muIdSvc)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("MuonEventAthenaPool_test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }
-  Muon::MuonIdHelperSvc* muIdSvc = muIdHelperSvc();
+  IdDictParser parser;
+  Muon::MuonIdHelperSvc* muIdSvc = muIdHelperSvc(parser);
   test1(muIdSvc);
   return 0;
 }

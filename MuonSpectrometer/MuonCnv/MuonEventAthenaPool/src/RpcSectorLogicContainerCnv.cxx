@@ -4,10 +4,14 @@
 
 #include "MuonRDO/RpcSectorLogicContainer.h"
 #include "RpcSectorLogicContainerCnv.h"
+#include "MuonEventAthenaPool/RpcSectorLogicContainer_p1.h"
+#include "RpcSectorLogicContainerCnv_p1.h"
+
+static const RpcSectorLogicContainerCnv_p1   TPconverter_p1;
 
 RpcSectorLogicContainer_p1* RpcSectorLogicContainerCnv::createPersistent(RpcSectorLogicContainer* transObj) {
     MsgStream log(msgSvc(), "MuonRpcSectorLogicContainerConverter" );
-    RpcSectorLogicContainer_p1 *persObj = m_converter.createPersistent( transObj, log );
+    RpcSectorLogicContainer_p1 *persObj = TPconverter_p1.createPersistentConst( transObj, log );
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainer write Success" << endmsg;
     return persObj;
 }
@@ -19,7 +23,7 @@ RpcSectorLogicContainer* RpcSectorLogicContainerCnv::createTransient() {
         std::unique_ptr< RpcSectorLogicContainer_p1 > col_vect( poolReadObject< RpcSectorLogicContainer_p1 >() );
         MsgStream log(msgSvc(), "RpcSectorLogicContainerCnv_p1" );
         //log << MSG::DEBUG << "Reading RpcSectorLogicContainer_p1" << endmsg;
-        return m_converter.createTransient( col_vect.get(), log );
+        return TPconverter_p1.createTransientConst( col_vect.get(), log );
     } 
     throw std::runtime_error("Unsupported persistent version of RpcSectorLogicContainer");
 }

@@ -7,16 +7,12 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // testing code
-
-Muon::MuonIdHelperSvc* muIdHelperSvc()
+Muon::MuonIdHelperSvc* muIdHelperSvc (IdDictParser& parser)
 {
   ISvcLocator* svcLoc = Gaudi::svcLocator();
   StoreGateSvc* sg = nullptr;
   assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
 
-  static IdDictParser parser;
   parser.register_external_entity("MuonSpectrometer", "IdDictMuonSpectrometer_R.03.xml");
   IdDictMgr& idd = parser.parse("IdDictParser/ATLAS_IDS.xml");
 
@@ -39,9 +35,9 @@ Muon::MuonIdHelperSvc* muIdHelperSvc()
   Muon::MuonIdHelperSvc* muIdSvc = new Muon::MuonIdHelperSvc("MuonIdHelperSvc", svcLoc);
   assert ( muIdSvc->setProperty("HasSTgc", false).isSuccess() );
   assert ( muIdSvc->setProperty("HasMM", false).isSuccess() );
-  assert ( muIdSvc->initialize().isSuccess() );
+  if ( muIdSvc->initialize().isFailure() ) std::abort();
   ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( svcLoc );
-  assert ( svcmgr->addService( muIdSvc ).isSuccess() );
+  if ( svcmgr->addService( muIdSvc ).isFailure() ) std::abort();
   return muIdSvc;
 }
 

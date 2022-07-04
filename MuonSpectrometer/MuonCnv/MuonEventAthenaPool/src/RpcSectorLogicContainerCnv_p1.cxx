@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/RpcSectorLogic.h"
@@ -23,7 +23,7 @@
 #include "boost/range/iterator_range.hpp"
 #include <assert.h>
 
-void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* transCont,  RpcSectorLogicContainer_p1* persCont, MsgStream & log) 
+void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* transCont,  RpcSectorLogicContainer_p1* persCont, MsgStream & log)  const
 {
   unsigned int tCsize=transCont->size();
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainerCnv_p1::transToPers " << endmsg;
@@ -103,7 +103,7 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
       << endmsg;
 }
 
-void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p1* persCont, RpcSectorLogicContainer* transCont, MsgStream & /**log*/) 
+void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p1* persCont, RpcSectorLogicContainer* transCont, MsgStream & /**log*/) const
 {
    transCont->setSectorList (persCont->m_sectorList);
    //std::cout<<"**** RpcSectorLogicContainerCnv_p1::persToTrans"<<std::endl;
