@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // memory_hooks which are used for the AthMemoryAuditor
@@ -8,11 +8,13 @@
 #ifndef ATHENAAUDITORS_MEMORYHOOKSSTDCMALLOC_H
 #define ATHENAAUDITORS_MEMORYHOOKSSTDCMALLOC_H
 
-// This auditor is not thread-safe without signiicant work.
+// This auditor is not thread-safe without significant work.
 // Disable checking for now.
 // We'll also report an ERROR is this is used in an MT job.
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+#include "CxxUtils/features.h"
 
 #include <iostream>
 #include <fstream>
@@ -164,19 +166,23 @@ static node s_last;
 
 /* Prototypes for our hooks.  */
 static void  my_init_hook (void);
+#if HAVE_MALLOC_HOOKS
 static void *my_malloc_hook (size_t, const void *);
 static void *my_realloc_hook (void *, size_t, const void *);
 static void *my_memalign_hook (size_t, size_t, const void *);
 static void  my_free_hook (void*, const void *);
+#endif
 
 // static void *my_malloc_hook_fini (size_t, const void *);
 // static void *my_realloc_hook_fini (void *, size_t, const void *);
 // static void *my_memalign_hook_fini (size_t, size_t, const void *);
 
+#if HAVE_MALLOC_HOOKS
 static void *(*old_malloc_hook)(size_t, const void *);
 static void *(*old_realloc_hook)(void *, size_t, const void *);
 static void *(*old_memalign_hook)(size_t, size_t, const void *);
 static void  (*old_free_hook)(void*, const void *);
+#endif
      
 // various counters needed
 static long long counter_m(0);
@@ -194,6 +200,7 @@ static long long counter_ma(0);
 ////////  code for stdcmalloc
 /////////////////////////////////////////////////////////////////////
 
+#if HAVE_MALLOC_HOOKS
 static void *my_malloc_hook (size_t size, const void* /* caller */)
 {
   uintptr_t result(0);
@@ -516,6 +523,7 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
   counter_r++;
   return (void*)result;
 }
+#endif
 
 /* static void * */
 /* my_realloc_hook_new(void *ptr, size_t size, const void * /\* caller *\/) */
@@ -684,6 +692,7 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
 
 #include <stdlib.h>
 
+#if HAVE_MALLOC_HOOKS
 static void *
 my_memalign_hook (size_t alignment, size_t size, const void * /* caller */ )
 {
@@ -722,7 +731,8 @@ my_memalign_hook (size_t alignment, size_t size, const void * /* caller */ )
     {
       allocset_tc.insert( *b );
     }
-  
+
+#if HAVE_MALLOC_HOOKS
   /* Save underlying hooks */
   old_malloc_hook = __malloc_hook;
   old_realloc_hook = __realloc_hook;
@@ -734,9 +744,11 @@ my_memalign_hook (size_t alignment, size_t size, const void * /* caller */ )
   __realloc_hook = my_realloc_hook;
   __memalign_hook = my_memalign_hook;
   __free_hook = my_free_hook;
+#endif
   counter_ma++;
   return (void*)result;
 }
+#endif
 
 #ifdef MYDEBUG
 
@@ -911,7 +923,8 @@ my_init_hook (void)
   s_last.setPrev(&s_first);
   
   bg_tc = new myBlocks_tc();
-  
+
+#if HAVE_MALLOC_HOOKS
   // save underying old hooks
   old_malloc_hook = __malloc_hook;
   old_realloc_hook = __realloc_hook;
@@ -922,6 +935,7 @@ my_init_hook (void)
   __realloc_hook = my_realloc_hook;
   __memalign_hook = my_memalign_hook;
   __free_hook = my_free_hook;
+#endif
   initialized=true;
   
 #ifdef MYDEBUG
