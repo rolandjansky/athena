@@ -9,7 +9,7 @@
 #include "IOVDbParser.h"
 #include "IOVDbStringFunctions.h"
 
-IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
+IOVDbParser::IOVDbParser(const std::string & input, MsgStream& log) :
   m_valid(true)
 {
   // parse the input string as XML, decode into Key/Value pairs

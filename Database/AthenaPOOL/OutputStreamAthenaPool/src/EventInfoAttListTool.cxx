@@ -21,6 +21,7 @@ Purpose : create a EventInfoAttList - The Tag information associated to the even
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "CoralBase/AttributeListSpecification.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
 
 #include <sstream>
 

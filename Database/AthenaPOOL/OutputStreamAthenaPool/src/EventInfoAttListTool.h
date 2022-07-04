@@ -11,12 +11,16 @@ Purpose : Tool to buid the Global Event Tags
 *****************************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CoralBase/AttributeListSpecification.h"
-#include "PersistentDataModel/AthenaAttributeList.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h" //typedef
 
 #include <string>
+#include <memory> //unique_ptr
+
+class AthenaAttributeList;
+class EventInfo;
+namespace coral{
+ class AttributeListSpecification;
+}
 
 /** Interface ID for EventInfoAttListTool */  
 static const InterfaceID IID_EventInfoAttListTool("EventInfoAttListTool", 1, 0);
@@ -53,7 +57,7 @@ protected:
   StatusCode eventTag       (AthenaAttributeList& eventTagCol, 
                              const EventInfo& eventInfo);
 
-  coral::AttributeListSpecification* m_attribListSpec;
+  coral::AttributeListSpecification* m_attribListSpec{};
 
 };
 
