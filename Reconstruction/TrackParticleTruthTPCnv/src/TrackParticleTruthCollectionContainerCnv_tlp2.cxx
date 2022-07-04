@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionContainerCnv_tlp2.h"
+#include "CxxUtils/checker_macros.h"
 
 TrackParticleTruthCollectionContainerCnv_tlp2::TrackParticleTruthCollectionContainerCnv_tlp2()
 {
@@ -30,7 +31,12 @@ persToTrans (const TrackParticleTruthCollectionContainer_tlp2* pers,
              TrackParticleTruthCollectionContainer* trans,
              MsgStream& msg)
 {
-    setPStorage (const_cast<TrackParticleTruthCollectionContainer_tlp2*> (pers));
+    // FIXME: TPConverter uses the same non-const member m_pStorage
+    // for both reading and writing, but we want it to be const
+    // in the former case.
+    auto pers_nc ATLAS_THREAD_SAFE =
+      const_cast<TrackParticleTruthCollectionContainer_tlp2*> (pers);
+    setPStorage (pers_nc);
     m_mainConverter.pstoreToTrans (0, trans, msg);
 }
 
