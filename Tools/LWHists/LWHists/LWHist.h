@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -67,7 +67,8 @@ public:
   //For convenience it is possible to assign custom data to an LWHist
   //[NB: used by the AthenaMonitoring framework]:
   void setCustomData(void*data) { m_customData = data; }
-  void * getCustomData() const  { return m_customData; }
+  const void * getCustomData() const { return m_customData; }
+  void * getCustomData() { return m_customData; }
   virtual TH1* getROOTHistBase() = 0;
   bool usingROOTBackend() const { return m_usingROOTBackend; }
   bool ownsROOTHisto() const { return m_ownsRootHisto; }
