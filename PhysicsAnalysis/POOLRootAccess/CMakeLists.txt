@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( POOLRootAccess )
@@ -22,12 +22,12 @@ atlas_add_dictionary( POOLRootAccessDict
 atlas_add_executable( ut_basicRead_test
                       test/ut_basicRead_test.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AthAnalysisBaseCompsLib POOLRootAccessLib xAODEventInfo xAODRootAccess )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AthAnalysisBaseCompsLib POOLRootAccessLib xAODEventInfo xAODRootAccess CxxUtils )
 
 atlas_add_executable( ut_basicxAODRead_test
                       test/ut_basicxAODRead_test.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODBase xAODEventInfo xAODRootAccess )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODBase xAODEventInfo xAODRootAccess CxxUtils )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.opts )

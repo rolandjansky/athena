@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "xAODEventInfo/EventInfo.h"
 #include "POOLRootAccess/TEvent.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TStopwatch.h"
 #include "TChain.h"
@@ -16,7 +17,7 @@
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
-int main(int argc, char* argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]) {
 
    ANA_CHECK_SET_TYPE (int);
    using namespace asg::msgUserCode;
