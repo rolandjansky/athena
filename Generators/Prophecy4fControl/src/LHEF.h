@@ -1144,7 +1144,7 @@ struct Weight : public TagBase {
   /**
    * The weights of this event.
    */
-  mutable std::vector<double> weights;
+  std::vector<double> weights;
 
   /**
    * The indices where the weights are stored.
@@ -2022,7 +2022,7 @@ public:
   /**
    * Print out the event (group) as an XML tag.
    */
-  void print(std::ostream & file) const {
+  void print(std::ostream & file) {
 
     using std::setw;
 

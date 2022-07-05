@@ -22,7 +22,7 @@ int main(int argc, char*argv[]){
         ANA_MSG_INFO("               --randomSeed [the seed]");
         ANA_MSG_INFO("         Additional options:");
         ANA_MSG_INFO("               --debug [Enable debug mode]");
-        exit(0);
+        return 0;
     }
     std::string powheg, prophecy4e, prophecy4mu, prophecy2e2mu, out;
     unsigned long long seed = 0;
