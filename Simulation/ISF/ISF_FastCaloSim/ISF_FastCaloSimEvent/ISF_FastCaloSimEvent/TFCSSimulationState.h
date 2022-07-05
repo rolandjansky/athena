@@ -60,6 +60,7 @@ class TFCSSimulationState:public TObject
 
 #ifdef USE_GPU
     //for FastCaloSim-GPU
+    //will not compile by default
     void * get_gpu_rand(){ return m_gpu_rand; };
     void set_gpu_rand(void * rand ){ m_gpu_rand=rand ; } ;
     void * get_geold() { return m_geold; };
@@ -70,6 +71,7 @@ class TFCSSimulationState:public TObject
 
 #ifdef USE_GPU
     //for FastCaloSim-GPU
+    //will not compile by default
     void * m_gpu_rand ;
     void * m_geold ;
 #endif
