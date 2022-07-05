@@ -29,6 +29,8 @@ class DQTDataFlowMonAlg: public AthMonitorAlgorithm
 
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
+  ToolHandle<IDQFilterTool> m_atlasReadyFilter{this,"ReadyFilterTool","DQAtlasReadyFilterTool/DQAtlasReadyFilterTool"};
+
  private:
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_TileStatusKey{this, "TileStatusKey", "EventInfo.TileStatus"};
 

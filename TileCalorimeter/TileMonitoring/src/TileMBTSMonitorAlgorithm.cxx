@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileMBTSMonitorAlgorithm.h"
@@ -100,6 +100,7 @@ StatusCode TileMBTSMonitorAlgorithm::initialize() {
     m_coinTrigGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_CoincidentTriggers", nTriggers);
     m_deltaBCIDSumGroups = Monitored::buildToolMap<int>(m_tools, "MBTS_DeltaBCID_Summary", nTriggers);
     m_deltaBCIDGroups = Monitored::buildToolMap<std::vector<int>>(m_tools, "MBTS_DeltaBCID", nTriggers, MAX_MBTS_COUNTER);
+    m_bcidGroups = Monitored::buildToolMap<std::vector<int>>(m_tools, "MBTS_BCID", nTriggers, MAX_MBTS_COUNTER);
   }
 
   return StatusCode::SUCCESS;
@@ -201,6 +202,7 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       // Loop over bunch crossings in CTP window
       for (const CTP_BC& ctpBunchCrossing : ctpBunchCrossings) {
         bcid = ctpBunchCrossing.getBCID();
+
         int deltaBCID = l1aBCID - bcid;
 
         std::vector<std::reference_wrapper<const std::bitset<512>>> triggers;
@@ -219,6 +221,8 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
             if (m_ctpID[counter] < 0) continue;
             if (currentTrigger.test(m_ctpID[counter])) {
               triggerInWindowCounters.push_back(counter);
+              auto monBCID = Monitored::Scalar<unsigned int>("MBTS_BCID", bcid);
+              fill(m_tools[m_bcidGroups[triggerIdx][counter]], monBCID);
               deltaBCIDs.push_back(deltaBCID);
               auto monDeltaBCID = Monitored::Scalar<float>("DeltaBCID", deltaBCID);
               fill(m_tools[m_deltaBCIDGroups[triggerIdx][counter]], monDeltaBCID);

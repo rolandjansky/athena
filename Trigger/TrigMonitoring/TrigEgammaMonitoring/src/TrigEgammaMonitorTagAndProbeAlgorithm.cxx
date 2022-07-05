@@ -74,7 +74,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
     ATH_MSG_DEBUG("Execute TP selection");
     
     if( !executeTandP(ctx, probes) ){
-        ATH_MSG_WARNING("Tag and Probe event failed.");
+        ATH_MSG_DEBUG("Tag and Probe event failed.");
         return StatusCode::SUCCESS;
     }
 

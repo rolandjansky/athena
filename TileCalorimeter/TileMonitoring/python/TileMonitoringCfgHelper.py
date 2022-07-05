@@ -312,6 +312,8 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         merge     -- Whether to use a different histogram merging algorithm (must be "merge" for opt=kAddBinsDynamically)
     '''
 
+    import builtins
+
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
                                 perGain = perGain, allPartitions = allPartitions)
 
@@ -329,7 +331,8 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
 
         subPath = getTileHistogramPath(path = '', subDirectory = subDirectory, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
+        partitionTitle = title[partition] if builtins.type(title) is dict else title
+        fullTitle = getTileHistogramTitle(title = partitionTitle, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = subPath, type = type, title = fullTitle,
                               xlabels = nxlabels, ylabels = nylabels,

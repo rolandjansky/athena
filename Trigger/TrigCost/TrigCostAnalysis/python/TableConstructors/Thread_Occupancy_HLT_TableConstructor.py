@@ -43,8 +43,8 @@ class Thread_Occupancy_HLT_TableConstructor(TableConstructorBase):
         self.columns["unmonitoredTimePerEvent"] = Column("Unmonitored Time/Event [ms]", "Mean time which could not be monitored per event")
 
 
-    def fillColumns(self, histName):
-        self.columns['name'].addValue(histName)
+    def fillColumns(self, itemName):
+        self.columns['name'].addValue(itemName)
         self.columns["events"].addValue(self.getHistogram("AlgCalls_perEvent").GetEntries())
         self.columns["eventsWeighted"].addValue(self.getHistogram("AlgCalls_perEvent").Integral())
         self.columns["callsPerEvent"].addValue(self.getHistogram("AlgCalls_perEvent").GetMean())
