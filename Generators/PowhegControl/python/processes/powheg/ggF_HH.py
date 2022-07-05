@@ -23,9 +23,23 @@ class ggF_HH(PowhegV2):
         """
         super(ggF_HH, self).__init__(base_directory, "ggHH", **kwargs)
 
+        logger.debug("PYTHONPATH (before) = {0}".format(os.getenv('PYTHONPATH')))
+
         # For some reason, this process calls a python script which looks for .grid files in $PYTHONPATH
         # By appending the folder that they live in to PYTHONPATH it is able to find them
         os.environ["PYTHONPATH"] += ":" + self.executable.replace("pwhg_main", "Virtual")
+        
+        # we actually do need to create symbolic links of the .grid files locally
+        # (the PYTHONPATH update above still allows to access the python script)
+        for f in ["Virt_full_cHHH_-1.0.grid", "Virt_full_cHHH_0.0.grid", "Virt_full_cHHH_1.0.grid", "events.cdf"]:
+            os.symlink(self.executable.replace("pwhg_main", "Virtual")+"/"+f,"./"+f)
+            logger.warning("Local symbolic link of {} was created - needed by ggF_HH process".format(f))
+
+        #FIXME setuping scipy python module - this is needed temporarly until this can be used via atlasexternals
+        os.environ["PYTHONPATH"] += ":/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/scipy/0.18.1/x86_64-centos7-gcc62-opt/lib/python2.7/site-packages"
+        logger.warning("Setuping scipy module on the fly - needed by ggF_HH process")
+
+        logger.debug("PYTHONPATH (after) = {0}".format(os.getenv('PYTHONPATH')))
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphas_from_lhapdf")
