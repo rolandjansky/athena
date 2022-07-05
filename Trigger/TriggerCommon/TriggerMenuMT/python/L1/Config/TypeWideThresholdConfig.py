@@ -126,22 +126,74 @@ def getConfig_eEM():
     # based on https://indico.cern.ch/event/1035198/contributions/4378014/attachments/2251846/3820098/20210526_l1calo_TGM.pdf
     confObj["workingPoints"]["Loose"] = [
         odict([("reta_fw", reta_fw_loose), ("reta", eFEXfwToFloatConversion(reta_fw_loose,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_loose), ("rhad", eFEXfwToFloatConversion(rhad_fw_loose,bitshift_rhad)), 
+               ("etamin", -49), ("etamax", -24), ("priority", 0)]),
+        odict([("reta_fw", reta_fw_loose), ("reta", eFEXfwToFloatConversion(reta_fw_loose,bitshift_reta)), 
                ("wstot_fw", wstot_fw_loose), ("wstot", eFEXfwToFloatConversion_wstot(wstot_fw_loose,bitshift_wstot)), 
                ("rhad_fw", rhad_fw_loose), ("rhad", eFEXfwToFloatConversion(rhad_fw_loose,bitshift_rhad)), 
-               ("etamin", -49), ("etamax", 49), ("priority", 1)]),
+               ("etamin", -24), ("etamax", 24), ("priority", 0)]),
+        odict([("reta_fw", reta_fw_loose), ("reta", eFEXfwToFloatConversion(reta_fw_loose,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_loose), ("rhad", eFEXfwToFloatConversion(rhad_fw_loose,bitshift_rhad)), 
+               ("etamin",  24), ("etamax", 49), ("priority", 0)]),
+        # Exclude crack region
+        odict([("reta_fw", reta_fw_loose), ("reta", eFEXfwToFloatConversion(reta_fw_loose,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_loose), ("rhad", eFEXfwToFloatConversion(rhad_fw_loose,bitshift_rhad)), 
+               ("etamin", -15), ("etamax", -14), ("priority", 1)]),
+        odict([("reta_fw", reta_fw_loose), ("reta", eFEXfwToFloatConversion(reta_fw_loose,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_loose), ("rhad", eFEXfwToFloatConversion(rhad_fw_loose,bitshift_rhad)), 
+               ("etamin",  14), ("etamax", 15), ("priority", 1)]),
                # another item can be added with higher priority to set eta-dependent cuts
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("reta_fw", reta_fw_medium), ("reta", eFEXfwToFloatConversion(reta_fw_medium,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_medium), ("rhad", eFEXfwToFloatConversion(rhad_fw_medium,bitshift_rhad)), 
+               ("etamin", -49), ("etamax", -24), ("priority", 0)]),
+        odict([("reta_fw", reta_fw_medium), ("reta", eFEXfwToFloatConversion(reta_fw_medium,bitshift_reta)), 
                ("wstot_fw", wstot_fw_medium), ("wstot", eFEXfwToFloatConversion_wstot(wstot_fw_medium,bitshift_wstot)), 
                ("rhad_fw", rhad_fw_medium), ("rhad", eFEXfwToFloatConversion(rhad_fw_medium,bitshift_rhad)), 
-               ("etamin", -49), ("etamax", 49), ("priority", 1)]),
+               ("etamin", -24), ("etamax", 24), ("priority", 0)]),
+        odict([("reta_fw", reta_fw_medium), ("reta", eFEXfwToFloatConversion(reta_fw_medium,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_medium), ("rhad", eFEXfwToFloatConversion(rhad_fw_medium,bitshift_rhad)), 
+               ("etamin",  24), ("etamax", 49), ("priority", 0)]),
+        # Exclude crack region
+        odict([("reta_fw", reta_fw_medium), ("reta", eFEXfwToFloatConversion(reta_fw_medium,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_medium), ("rhad", eFEXfwToFloatConversion(rhad_fw_medium,bitshift_rhad)), 
+               ("etamin", -15), ("etamax", -14), ("priority", 1)]),
+        odict([("reta_fw", reta_fw_medium), ("reta", eFEXfwToFloatConversion(reta_fw_medium,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_medium), ("rhad", eFEXfwToFloatConversion(rhad_fw_medium,bitshift_rhad)), 
+               ("etamin", 14), ("etamax", 15), ("priority", 1)]),
+
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("reta_fw", reta_fw_tight), ("reta", eFEXfwToFloatConversion(reta_fw_tight,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_tight), ("rhad", eFEXfwToFloatConversion(rhad_fw_tight,bitshift_rhad)), 
+               ("etamin", -49), ("etamax", -24), ("priority", 0)]),
+        odict([("reta_fw", reta_fw_tight), ("reta", eFEXfwToFloatConversion(reta_fw_tight,bitshift_reta)), 
                ("wstot_fw", wstot_fw_tight), ("wstot", eFEXfwToFloatConversion_wstot(wstot_fw_tight,bitshift_wstot)), 
                ("rhad_fw", rhad_fw_tight), ("rhad", eFEXfwToFloatConversion(rhad_fw_tight,bitshift_rhad)), 
-               ("etamin", -49), ("etamax", 49), ("priority", 1)]),
+               ("etamin", -24), ("etamax", 24), ("priority", 0)]),
+        odict([("reta_fw", reta_fw_tight), ("reta", eFEXfwToFloatConversion(reta_fw_tight,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_tight), ("rhad", eFEXfwToFloatConversion(rhad_fw_tight,bitshift_rhad)), 
+               ("etamin",  24), ("etamax", 49), ("priority", 0)]),
+        # Exclude crack region
+        odict([("reta_fw", reta_fw_tight), ("reta", eFEXfwToFloatConversion(reta_fw_tight,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_tight), ("rhad", eFEXfwToFloatConversion(rhad_fw_tight,bitshift_rhad)), 
+               ("etamin", -15), ("etamax", -14), ("priority", 1)]),
+        odict([("reta_fw", reta_fw_tight), ("reta", eFEXfwToFloatConversion(reta_fw_tight,bitshift_reta)), 
+               ("wstot_fw", 0), ("wstot", 0), 
+               ("rhad_fw", rhad_fw_tight), ("rhad", eFEXfwToFloatConversion(rhad_fw_tight,bitshift_rhad)), 
+               ("etamin", 14), ("etamax", 15), ("priority", 1)]),
     ]
     confObj["ptMinToTopo"] = 3 
     confObj["maxEt"] = 50
