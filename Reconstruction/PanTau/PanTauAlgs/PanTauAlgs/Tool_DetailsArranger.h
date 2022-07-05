@@ -70,7 +70,7 @@ namespace PanTau {
 
 	void SetNeutralConstituentMass(xAOD::PFO* neutral_pfo, double mass) const;
 
-	void SetNeutralConstituentVectorMasses(const std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass) const;
+	void SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> >& neutralPFOLinks, double mass) const;
 
 	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed,
 											const std::vector< ElementLink< xAOD::PFOContainer > >& cellbased_neutralPFOLinks,
