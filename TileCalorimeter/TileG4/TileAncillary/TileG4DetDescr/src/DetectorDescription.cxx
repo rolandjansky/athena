@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileG4DetDescr/DetectorDescription.h"
@@ -9,14 +9,14 @@ namespace FADS {
 
   DetectorDescription::DetectorDescription(std::string n)
       : m_name(n) {
-    DetectorDescriptionStore *dd = DetectorDescriptionStore::GetDetectorDescriptionStore();
-    dd->AddDetectorDescription(this);
+    DetectorDescriptionStore& dd = DetectorDescriptionStore::GetDetectorDescriptionStore();
+    dd.AddDetectorDescription(this);
     m_isPointed = false;
   }
 
   DetectorDescription::DetectorDescription(const DetectorDescription& d) {
-    DetectorDescriptionStore *dd = DetectorDescriptionStore::GetDetectorDescriptionStore();
-    dd->ReplaceDetectorDescription(d.GetName(), this);
+    DetectorDescriptionStore& dd = DetectorDescriptionStore::GetDetectorDescriptionStore();
+    dd.ReplaceDetectorDescription(d.GetName(), this);
     m_isPointed = false;
   }
 
