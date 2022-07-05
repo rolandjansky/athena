@@ -49,7 +49,7 @@ atlas_add_executable( JetCalibTools_PlotJMSFactors
    util/JetCalibTools_PlotJMSFactors.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-   xAODCore xAODRootAccess JetCalibToolsLib ${_extraLibs} )
+   xAODCore xAODRootAccess JetCalibToolsLib CxxUtils ${_extraLibs} )
 
 atlas_add_executable( JetCalibTools_SmearingPlots
    util/JetCalibTools_SmearingPlots.cxx

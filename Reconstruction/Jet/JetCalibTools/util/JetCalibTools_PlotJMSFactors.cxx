@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/JetCalibrationTool.h"
@@ -12,12 +12,12 @@
 #include "xAODRootAccess/TStore.h"
 
 #include "AsgTools/StandaloneToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include "TString.h"
 #include "TH2D.h"
 #include "TCanvas.h"
-
 
 namespace jet
 {
@@ -44,7 +44,7 @@ double mTA(const double trackMass, const double trackPt, const double caloPt)
 
 
 
-int main (int argc, char* argv[])
+int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[])
 {
     // Check argument usage
     if (argc != 5 && argc != 6)
