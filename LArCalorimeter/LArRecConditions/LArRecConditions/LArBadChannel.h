@@ -50,6 +50,7 @@ class  LArBadChannel : public LArBadChannelEnum {
   bool deadSCACell() const {return statusBad( deadSCACellBit);}
   bool badFirstSample() const {return statusBad( badFirstSampleBit);}
   bool unflaggedByLADIeS() const {return statusBad( unflaggedByLADIeSBit);}
+  bool reflaggedByLADIeS() const {return statusBad( reflaggedByLADIeSBit);}
 	
   bool reallyNoisy() const {return (highNoiseHG() || highNoiseMG() || highNoiseLG() ||
 				    unstableNoiseHG() || unstableNoiseMG() || unstableNoiseLG());}
