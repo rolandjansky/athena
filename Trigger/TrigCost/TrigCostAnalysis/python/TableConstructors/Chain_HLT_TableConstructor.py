@@ -4,6 +4,8 @@
 #
 
 from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
+from AthenaCommon.Logging import logging
+log = logging.getLogger('Chain_HLT')
 
 '''
 @file Chain_HLT_TableConstructor.py
@@ -50,10 +52,10 @@ class Chain_HLT_TableConstructor(TableConstructorBase):
         self.columns["retrievedDataSizeRate"]   = Column("Retrieved ROB Rate [kB/s]", "Average size of retrieved ROB data fetches for this algorithm in this run range") 
 
 
-    def fillColumns(self, histName):
+    def fillColumns(self, itemName):
         slowCalls = self.getHistogram("Time_perCall").Integral(self.getHistogram("Time_perCall").FindBin(1000.), self.getHistogram("Time_perCall").GetNbinsX())
 
-        self.columns["name"].addValue(histName)
+        self.columns["name"].addValue(itemName)
         self.columns["events"].addValue(self.getHistogram("Chain_perEvent").GetEntries())
         self.columns["eventsWeighted"].addValue(self.getHistogram("Chain_perEvent").Integral())
         self.columns["time"].addValue(self.getHistogram("Time_perEvent").GetMean())
@@ -81,6 +83,9 @@ class Chain_HLT_TableConstructor(TableConstructorBase):
 
     def postProcessing(self):
         totalTimeEntries = self.columns["totalTime"].content
+        if (sum(totalTimeEntries) == 0):
+            log.error("No histograms for the Chain HLT summary were found")
+            return
 
         for entry in totalTimeEntries:
             self.columns["totalTimeFrac"].addValue(100 * entry / self.totalTime)

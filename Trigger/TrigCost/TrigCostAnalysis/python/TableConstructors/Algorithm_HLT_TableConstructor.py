@@ -54,12 +54,12 @@ class Algorithm_HLT_TableConstructor(TableConstructorBase):
         self.columns["retrievedDataSizeRate"]   = Column("Retrieved ROB Rate [kB/s]", "Average size of retrieved ROB data fetches for this algorithm in this run range")
     
     
-    def fillColumns(self, histName):
+    def fillColumns(self, itemName):
         weightedEvents = self.getHistogram("AlgCalls_perEvent").Integral()
         weightedCalls = self.getXWeightedIntegral("AlgCalls_perEvent", isLog=False)
         slowCalls = self.getHistogram("Time_perCall").Integral(self.getHistogram("Time_perCall").FindBin(1000.), self.getHistogram("Time_perCall").GetNbinsX())
 
-        self.columns["name"].addValue(histName)
+        self.columns["name"].addValue(itemName)
         self.columns["events"].addValue(self.getHistogram("AlgCalls_perEvent").GetEntries())
         self.columns["eventsWeighted"].addValue(weightedEvents)
         self.columns["callsPerEvent"].addValue(self.getHistogram("AlgCalls_perEvent").GetMean())
@@ -77,13 +77,15 @@ class Algorithm_HLT_TableConstructor(TableConstructorBase):
         self.columns["retrievedDataSizeRate"].addValue(self.getXWeightedIntegral("NetworkROBSize_perEvent", isLog=False))
 
         if self.dumpSummary:
-            log.info("Algorithm: {0:300} Mean Time per call [ms]: {1:10.4} Mean Time per event [ms]: {2:10.3}".format(histName, self.getHistogram("Time_perCall").GetMean(), self.getHistogram("Time_perEvent").GetMean()))
+            log.info("Algorithm: {0:300} Mean Time per call [ms]: {1:10.4} Mean Time per event [ms]: {2:10.3}".format(itemName, self.getHistogram("Time_perCall").GetMean(), self.getHistogram("Time_perEvent").GetMean()))
 
 
     def postProcessing(self):
-
         totalTimeEntries = self.columns["totalTimeSec"].content
         totalTime = sum(totalTimeEntries)
+        if (totalTime == 0):
+            log.error("No histograms for the Algorithm HLT summary were found")
+            return
 
         for entry in totalTimeEntries:
             self.columns["totalTimePerc"].addValue(100 * entry / totalTime)

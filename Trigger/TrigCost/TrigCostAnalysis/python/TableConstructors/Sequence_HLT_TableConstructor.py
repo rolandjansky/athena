@@ -4,6 +4,8 @@
 #
 
 from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
+from AthenaCommon.Logging import logging
+log = logging.getLogger('Sequence_HLT')
 
 '''
 @file Sequence_HLT_TableConstructor.py
@@ -48,12 +50,12 @@ class Sequence_HLT_TableConstructor(TableConstructorBase):
         self.columns["retrievedDataSizeRate"]   = Column("Retrieved ROB Rate [kB/s]", "Average size of retrieved ROB data fetches for algorithms in this sequence in this run range")
     
     
-    def fillColumns(self, histName):
+    def fillColumns(self, itemName):
         weightedEvents = self.getHistogram("Sequence_perEvent").Integral()
         weightedCalls = self.getXWeightedIntegral("Sequence_perEvent", isLog=False)
         slowCalls = self.getHistogram("Time_perCall").Integral(self.getHistogram("Time_perCall").FindBin(1000.), self.getHistogram("Time_perCall").GetNbinsX())
 
-        self.columns["name"].addValue(histName)
+        self.columns["name"].addValue(itemName)
         self.columns["events"].addValue(self.getHistogram("Sequence_perEvent").GetEntries())
         self.columns["eventsWeighted"].addValue(weightedEvents)
         self.columns["callsPerEvent"].addValue(self.getHistogram("Sequence_perEvent").GetMean())
@@ -75,6 +77,10 @@ class Sequence_HLT_TableConstructor(TableConstructorBase):
     def postProcessing(self):
         totalTimeEntries = self.columns["totalTimeSec"].content
         totalTime = sum(totalTimeEntries)
+
+        if (totalTime == 0):
+            log.error("No histograms for the Sequence HLT summary were found")
+            return
 
         for entry in totalTimeEntries:
             self.columns["totalTimePerc"].addValue(100 * entry / totalTime)

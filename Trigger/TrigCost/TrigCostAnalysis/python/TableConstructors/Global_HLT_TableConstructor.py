@@ -43,12 +43,12 @@ class Global_HLT_TableConstructor(TableConstructorBase):
         self.columns['nPUErr']               = Column("Error on number of CPUs", "Error on number of CPUs based on Algorithm tome per event error")
 
 
-    def fillColumns(self, histName):
-        rateDenominator = self.lbLength if histName == "All" else self.getHistogram("LbLength").GetBinContent(1)
+    def fillColumns(self, itemName):
+        rateDenominator = self.lbLength if itemName == "All" else self.getHistogram("LbLength").GetBinContent(1)
         weightedEvents = self.getHistogram("SteeringTime_perEvent").Integral()
         weightedCalls = self.getXWeightedIntegral("AlgCalls_perEvent", isLog=False)
 
-        self.columns['name'].addValue(histName)
+        self.columns['name'].addValue(itemName)
         self.columns['lbLength'].addValue(self.getHistogram("LbLength").GetBinContent(1))
         self.columns['events'].addValue(self.getHistogram("SteeringTime_perEvent").GetEntries())
         self.columns['eventsWeighted'].addValue(weightedEvents)
