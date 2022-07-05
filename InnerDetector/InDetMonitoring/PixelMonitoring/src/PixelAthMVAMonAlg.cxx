@@ -8,7 +8,6 @@
  **/
 #include "PixelAthMVAMonAlg.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -40,7 +39,7 @@ StatusCode PixelAthMVAMonAlg::initialize() {
   if ( !m_holeSearchTool.empty() ) ATH_CHECK( m_holeSearchTool.retrieve() );
   if ( !m_trackSelTool.empty() ) ATH_CHECK( m_trackSelTool.retrieve() );
   if ( !m_trkextrapolator.empty() ) ATH_CHECK( m_trkextrapolator.retrieve() );
-  ATH_CHECK( m_tracksKey.initialize() );
+  ATH_CHECK( m_trackParticlesKey.initialize() );
   ATH_CHECK( m_clustersKey.initialize() );
   
   for (int ii = 0; ii < PixLayers::NBASELAYERS; ++ii) {
@@ -128,12 +127,12 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   // input data from tracks
   //
 
-  auto tracks = SG::makeHandle(m_tracksKey, ctx);
-  if ( !(tracks.isValid()) ) {
-    ATH_MSG_ERROR("Pixel MVAMon: Track container "<< m_tracksKey.key() << " could not be found.");
+  auto trackParticles = SG::makeHandle(m_trackParticlesKey, ctx);
+  if ( !(trackParticles.isValid()) ) {
+    ATH_MSG_ERROR("Pixel MVAMon: TrackParticle container "<< m_trackParticlesKey.key() << " could not be found.");
     return StatusCode::RECOVERABLE;
   } else {
-    ATH_MSG_DEBUG("Pixel MVAMon: Track container "<< tracks.name() <<" is found.");
+    ATH_MSG_DEBUG("Pixel MVAMon: TrackParticle container "<< trackParticles.name() <<" is found.");
   }
 
   bool eventHasPixHits(false);
@@ -146,8 +145,14 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   std::vector<float> trkchi2byndf(MAXHASH*2);
   std::vector<float> trknpixdead(MAXHASH*2);
   std::vector<float> trknblayerhits(MAXHASH*2);
-  for (auto track: *tracks) {
-    if (track == nullptr || track->perigeeParameters() == nullptr || track->trackSummary() == nullptr || track->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
+
+  uint8_t iSummaryValue(0); // Dummy counter to retrieve summary values
+
+  for (auto trackPart: *trackParticles) {
+    const Trk::Track * track = trackPart->track();
+    int numberOfPixelHits = trackPart->summaryValue(iSummaryValue, xAOD::numberOfPixelHits) ? iSummaryValue : 0;
+
+    if (track == nullptr || track->perigeeParameters() == nullptr || track->trackSummary() == nullptr || numberOfPixelHits == 0) {
       ATH_MSG_DEBUG("Pixel MVAMon: Track either invalid or it does not contain pixel hits, continuing...");
       continue;
     }
@@ -161,15 +166,17 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     float trkfitchi2byndf = track->fitQuality()->chiSquared();
     if (trkfitndf != 0) trkfitchi2byndf /= trkfitndf;
     else continue; 
-    float npixdead   = track->trackSummary()->get(Trk::numberOfPixelDeadSensors);
+    float npixdead   = trackPart->summaryValue(iSummaryValue, xAOD::numberOfPixelDeadSensors) ? iSummaryValue : 0;
     float nblayerhits(0);
-    if (track->trackSummary()->get( Trk::expectNextToInnermostPixelLayerHit )) {
-      nblayerhits=track->trackSummary()->get(Trk::numberOfNextToInnermostPixelLayerHits);
+    int expBLhit = trackPart->summaryValue(iSummaryValue, xAOD::expectNextToInnermostPixelLayerHit) ? iSummaryValue : 0;
+    if (expBLhit==1) {
+      nblayerhits = trackPart->summaryValue(iSummaryValue, xAOD::numberOfNextToInnermostPixelLayerHits) ? iSummaryValue : 0;
     }
     
     const Trk::Track* trackWithHoles( track );
     std::unique_ptr<const Trk::Track> trackWithHolesUnique = nullptr;
-    if ( track->trackSummary()->get(Trk::numberOfPixelHoles) > 0 ) {
+    int nPixHoles = trackPart->summaryValue(iSummaryValue, xAOD::numberOfPixelHoles) ? iSummaryValue : 0;
+    if ( nPixHoles > 0 ) {
       trackWithHolesUnique.reset( m_holeSearchTool->getTrackWithHoles(*track) );
       trackWithHoles = trackWithHolesUnique.get();
     }
@@ -295,7 +302,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     } // end of TSOS loop
     eventHasPixHits = eventHasPixHits || (nPixelHits > 0);
 
-    if (!hasIBLTSOS && 	track->trackSummary()->get(Trk::expectInnermostPixelLayerHit) && track->trackSummary()->get(Trk::numberOfPixelHoles)==0 )
+    int expIBLhit = trackPart->summaryValue(iSummaryValue, xAOD::expectInnermostPixelLayerHit) ? iSummaryValue : 0;
+    if (!hasIBLTSOS && expIBLhit==1 && nPixHoles==0 )
       {
 	const Trk::Perigee *perigee = track->perigeeParameters();
 	Amg::Transform3D transSurf;
