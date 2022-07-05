@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  RCUObject_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -145,6 +143,7 @@ void test2()
   RCUObject<Payload> rcuo (svc);
   {
     RCURead<Payload> r (rcuo);
+    assert (r);
     r->check(0);
   }
   {
@@ -184,6 +183,26 @@ void test2()
   assert (Payload::getlog().empty());
   rcuo.quiescent (EventContext (0, 0));
   assert (Payload::getlog() == std::vector<int>{3});
+
+  //*****************************************************
+
+  rcuo.discard (std::make_unique<Payload> (10));
+  rcuo.quiescent (EventContext (0, 0));
+  rcuo.quiescent (EventContext (0, 1));
+  assert (Payload::getlog().empty());
+  rcuo.discard (std::make_unique<Payload> (11));
+  rcuo.quiescent (EventContext (0, 2));
+  rcuo.quiescent (EventContext (0, 3));
+  assert (Payload::getlog() == std::vector<int>{10});
+  rcuo.quiescent (EventContext (0, 0));
+  rcuo.quiescent (EventContext (0, 1));
+  assert (Payload::getlog() == std::vector<int>{11});
+
+  RCUObject<Payload> rcunull (svc, IRCUObject::NoObject);
+  {
+    RCURead<Payload> r (rcunull);
+    assert (!r);
+  }
 }
 
 
