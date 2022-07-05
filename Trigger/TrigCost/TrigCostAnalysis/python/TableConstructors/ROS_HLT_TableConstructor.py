@@ -44,8 +44,8 @@ class ROS_HLT_TableConstructor(TableConstructorBase):
         self.columns['robsNotOk']           = Column("Not OK ROBs Rate [Hz]", "Rate of ROB calls in which the is OK bit was false.", True)
 
 
-    def fillColumns(self, histName):
-        self.columns['name'].addValue(histName)
+    def fillColumns(self, itemName):
+        self.columns['name'].addValue(itemName)
         self.columns['events'].addValue(self.getHistogram("Request_perEvent").GetEntries())
         self.columns['eventsWeighted'].addValue(self.getHistogram("Request_perEvent").Integral())
         self.columns['requestRate'].addValue(self.getXWeightedIntegral("Request_perEvent", isLog=False))

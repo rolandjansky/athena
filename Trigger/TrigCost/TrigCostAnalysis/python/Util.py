@@ -37,12 +37,12 @@ def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowTh
     '''
 
     processingWarnings = []
-    for key in inputFile.GetListOfKeys():
-        walltime = getWalltime(inputFile, key.GetName())
-        obj = key.ReadObj()
-        if not obj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
+    for timeRange in inputFile.GetListOfKeys():
+        walltime = getWalltime(inputFile, timeRange.GetName())
+        rangeObj = timeRange.ReadObj()
+        if not rangeObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
 
-        for table in obj.GetListOfKeys():
+        for table in rangeObj.GetListOfKeys():
             tableObj = table.ReadObj()
             if not tableObj.IsA().InheritsFrom(ROOT.TDirectory.Class()): continue
             log.info("Processing Table %s", table.GetName())
@@ -53,7 +53,7 @@ def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowTh
                 t = eval(className + "(tableObj, underflowThreshold, overflowThreshold)")
 
                 if table.GetName() == "Chain_HLT" or table.GetName() == "Chain_Algorithm_HLT":
-                    t.totalTime = getAlgorithmTotalTime(inputFile, obj.GetName())
+                    t.totalTime = getAlgorithmTotalTime(inputFile, rangeObj.GetName())
 
                 if table.GetName() == "Global_HLT":
                     t.lbLength = walltime
@@ -61,8 +61,8 @@ def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowTh
                 if table.GetName() == "Algorithm_HLT":
                     t.dumpSummary = dumpSummary
 
-                fileName = getFileName(table.GetName(), key.GetName())
-                histPrefix = getHistogramPrefix(table.GetName(), key.GetName())
+                fileName = getFileName(table.GetName(), timeRange.GetName())
+                histPrefix = getHistogramPrefix(table.GetName(), timeRange.GetName())
 
                 t.fillTable(histPrefix)
                 t.normalizeColumns(walltime)
