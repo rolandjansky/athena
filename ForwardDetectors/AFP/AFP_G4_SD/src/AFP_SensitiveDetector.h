@@ -19,10 +19,6 @@
 class G4Step;
 class G4TouchableHistory;
 
-//FIXME Try to avoid using preprocessor constants
-#define TDMAXQEFF 0.15
-#define TDMAXCNT  4000
-#define SIDMAXCNT 1000
 
 class AFP_SensitiveDetector : public G4VSensitiveDetector
 {
@@ -46,6 +42,10 @@ public:
    could get rather tricky, but the idea is to allow fast simulations to use the very
    same SD classes as the standard simulation. */
   //template <class... Args> void AddHit(Args&&... args){ m_HitColl->Emplace( args... ); }
+  
+  static constexpr double TDMaxQEff = 0.15;
+  static constexpr int TDMaxCnt  = 4000;
+  static constexpr int SiDMaxCnt = 1000;
 
 private:
   int m_nHitID;
