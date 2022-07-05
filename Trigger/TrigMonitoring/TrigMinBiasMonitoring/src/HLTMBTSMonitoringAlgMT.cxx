@@ -65,8 +65,10 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
   auto mbtsEnergy = Scalar<float>("MBTS_energy", 0.);
   auto mbtsTime = Scalar<float>("MBTS_time", 0.);
   // Parameters to be tuned to correspond to trigger threshold:
-  const double timeCut = 20.;
-  const double energyCut = 40. / 222.;
+  //const double timeCut = 20.;
+  //const double energyCut = 40. / 222.;
+  const double timeCut = 10e-4;         // minimal cut-off : copy from TileMBTSMonitorAlg
+  const double energyCut = 60. / 222.;      // copy from TileMBTSMonitorAlgorithm
   int ebaCounters = 0;
   int ebcCounters = 0;
 
@@ -103,12 +105,12 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
 
           if (mbtsEnergy > energyCut)
             triggerWord.set(i);
-          if (std::abs(mbtsTime) < timeCut)
+	  if (std::abs(mbtsTime) > timeCut)
             timeWord.set(i);
           if ( not (triggerWord[i] and timeWord[i]) ) continue;
 
           ATH_MSG_DEBUG( "MBTS module " << i << " time " <<  mbtsHitTimes.at(i) << " energies: " << mbtsHitEnergies.at(i));
-          fill(trig + "_shifter", channelID, mbtsTime, mbtsEnergy);
+	  fill(trig + "_shifter", channelID, mbtsTime, mbtsEnergy);
           if (i < 16)
           { // A side
             energyMean_A += mbtsHitEnergies.at(i);
@@ -122,7 +124,7 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
               {
                 energyMean_A /= ebaCounters;
                 timeMean_A /= ebaCounters;
-                energyWeightedTime_A /= timeMean_A;
+                if (energyMean_A > 0)   energyWeightedTime_A /= energyMean_A*ebaCounters;
                 fill(trig + "_expert", energyMean_A, timeMean_A);
               } else {
                 energyWeightedTime_A = -999; // out of range
@@ -139,11 +141,11 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
             ebcCounters++;
             if (i == 31)
             {
-              if (ebaCounters > 0)
+              if (ebcCounters > 0)
               {
-                energyMean_C /= ebaCounters;
-                timeMean_C /= ebaCounters;
-                energyWeightedTime_C /= timeMean_C;
+                energyMean_C /= ebcCounters;
+                timeMean_C /= ebcCounters;
+                if (energyMean_C > 0) energyWeightedTime_C /= energyMean_C*ebcCounters;
                 fill(trig + "_expert", energyMean_C, timeMean_C);
               } else {
                 energyWeightedTime_C = -999; // out of range
