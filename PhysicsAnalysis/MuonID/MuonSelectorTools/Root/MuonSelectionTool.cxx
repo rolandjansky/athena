@@ -99,6 +99,11 @@ namespace CP {
             ATH_MSG_ERROR("Cannot use lowPt working point if allAuthors is not available!");
             return StatusCode::FAILURE;
         }
+        
+        if(m_CaloScoreWP<1 || m_CaloScoreWP>4){
+          ATH_MSG_FATAL("CaloScoreWP property must be set to 1, 2, 3 or 4");
+          return StatusCode::FAILURE;
+        }
 
         // Load Tight WP cut-map
         ATH_MSG_INFO("Initialising tight working point histograms...");
@@ -278,6 +283,10 @@ namespace CP {
               {
                 ATH_MSG_WARNING("muonSelectionTool configured for run2 geometry, but rununmber "<<rn<<" is run3! configure properly the isRun3Geo property; geometry set to run2 on the fly");
               }
+              else if(m_forceGeometry)
+              {
+                ATH_MSG_WARNING("muonSelectionTool configured for run2 geometry, but rununmber "<<rn<<" is run3! Since ForceGeometry is set to True, we'll keep using the wrong geometry, but this is an expert option, make sure you know what you're doing");
+              }
               else
               {
                 ATH_MSG_FATAL("muonSelectionTool configured for run2 geometry, but rununmber "<<rn<<" is run3! configure properly the isRun3Geo property");
@@ -289,6 +298,10 @@ namespace CP {
               if(m_geoOnTheFly)
               {
                 ATH_MSG_WARNING("muonSelectionTool configured for run3 geometry, but rununmber "<<rn<<" is run2! configure properly the isRun3Geo property; geometry set to run2 on the fly");
+              }
+              else if(m_forceGeometry)
+              {
+                ATH_MSG_WARNING("muonSelectionTool configured for run3 geometry, but rununmber "<<rn<<" is run3! Since ForceGeometry is set to True, we'll keep using the wrong geometry, but this is an expert option, make sure you know what you're doing");
               }
               else
               {
@@ -442,10 +455,11 @@ namespace CP {
             if (summary.middleSmallHits > 2 || summary.middleLargeHits > 2) summary.nprecisionLayers += 1;
             if (summary.outerSmallHits > 2 || summary.outerLargeHits > 2) summary.nprecisionLayers += 1;
         }
-        if (isRun3() && m_excludeNSWFromPrecisionLayers && std::abs(mu.eta()) > 1.05) {
+        if (isRun3() && m_excludeNSWFromPrecisionLayers && std::abs(mu.eta()) > 1.3) {
             summary.nprecisionLayers = 0;            
             if (summary.middleSmallHits > 2 || summary.middleLargeHits > 2) summary.nprecisionLayers += 1;
             if (summary.outerSmallHits > 2 || summary.outerLargeHits > 2) summary.nprecisionLayers += 1;
+            if (summary.extendedSmallHits > 2 || summary.extendedLargeHits > 2) summary.nprecisionLayers += 1;
         }      
         if (mu.muonType() == xAOD::Muon::Combined) {
             ATH_MSG_VERBOSE("Muon is combined");
@@ -1187,7 +1201,7 @@ namespace CP {
         if (mu.muonType() == xAOD::Muon::Combined) { return mu.author() != xAOD::Muon::STACO; }
         // ::
         if (mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta()) < 0.105)
-            return true;  // removed the passedCaloTagQuality(mu) until this is better understood in r22
+            return passedCaloTagQuality(mu);
         // ::
         if (mu.muonType() == xAOD::Muon::SegmentTagged && (std::abs(mu.eta()) < 0.105 || m_useSegmentTaggedLowPt)) return true;
         // ::
@@ -1258,19 +1272,26 @@ namespace CP {
         // Extract the relevant score variable (NN discriminant)
         float CaloMuonScore{-999.0};
         retrieveParam(mu, CaloMuonScore, xAOD::Muon::CaloMuonScore);
+        
+        if(m_CaloScoreWP==1) return (CaloMuonScore >= 0.92);
+        if(m_CaloScoreWP==2) return (CaloMuonScore >= 0.56);
+        else if(m_CaloScoreWP==3 || m_CaloScoreWP==4)
+        {
+          // Cut on the score variable
+          float pT = mu.pt() * MeVtoGeV;  // GeV
 
-        // Cut on the score variable
-        float pT = mu.pt() * MeVtoGeV;  // GeV
-
-        if (pT > 20.0)  // constant cut above 20 GeV
-            return (CaloMuonScore >= 0.7694);
-        else {
-            // pT-dependent cut below 20 GeV
-            // The pT-dependent cut is based on a fit of a third-degree polynomial, with coefficients as given below
-            constexpr float a = -1.80277888e-4, b = 5.01552713e-3, c = -4.62271761e-2, d = 1.12479350;
-            float cutValue = a * std::pow(pT, 3) + b * std::pow(pT, 2) + c * pT + d;
-            return (CaloMuonScore >= cutValue);
+          if (pT > 20.0)  // constant cut above 20 GeV
+              return (CaloMuonScore >= 0.77);
+          else {
+              // pT-dependent cut below 20 GeV
+              // The pT-dependent cut is based on a fit of a third-degree polynomial, with coefficients as given below
+              
+              if(m_CaloScoreWP==3) return (CaloMuonScore >= (-1.98e-4 * std::pow(pT, 3) -6.04e-3 * std::pow(pT, 2) -6.13e-2 * pT + 1.16));
+              if(m_CaloScoreWP==4) return (CaloMuonScore >= (-1.80e-4 * std::pow(pT, 3) +5.02e-3 * std::pow(pT, 2) -4.62e-2 * pT + 1.12));
+          }
         }
+        
+        return false;
     }
 
     bool MuonSelectionTool::passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const {
