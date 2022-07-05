@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ProxyProviderSvc_test.cxx
@@ -7,7 +7,6 @@
  * @author ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: ProxyProviderSvc_test.cxx,v 1.7 2008-07-10 00:29:24 calaf Exp $
 
 #include "AthenaKernel/IProxyProviderSvc.h"
 
@@ -36,6 +35,8 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
 
+#include "CxxUtils/checker_macros.h"
+
 
 using namespace Athena_test;
 using std::cerr;
@@ -53,9 +54,8 @@ public:
   }
 private:
   int m_i;
-  static int s_i;
+  inline static std::atomic<int> s_i{0};
 };
-int FooBar::s_i=0;
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FooBar, 8109, 0)
@@ -227,7 +227,7 @@ void testOverwrite(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
   cout << "*** ProxyProviderSvc_test Overwrite OK ***\n\n" <<endl;
 }
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
   ISvcLocator* pSvcLoc(nullptr);
   if (!initGaudi("ProxyProviderSvc_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
