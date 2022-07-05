@@ -22,14 +22,14 @@
 #include "tauEventTPCnv/TauCommonDetailsCnv_p2.h"
 
 //Pre allocate converters
-static HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > tracksCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > conversionTracksCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedCalo_wideTrkCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedTrk_wideTrkCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > otherTrkCnv;
-static ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > clusterCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<CaloClusterContainer> > clusterVectCnv;
+static const HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > tracksCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > conversionTracksCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedCalo_wideTrkCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > seedTrk_wideTrkCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> > otherTrkCnv;
+static const ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > clusterCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<CaloClusterContainer> > clusterVectCnv;
 
 TauCommonDetailsCnv_p2::TauCommonDetailsCnv_p2()
     :  T_AthenaPoolTPPolyCnvBase<Analysis::TauDetails,

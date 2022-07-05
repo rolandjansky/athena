@@ -25,13 +25,13 @@
 #include "tauEventTPCnv/TauCommonDetailsCnv_p1.h"
 
 //Pre allocate converters
-static HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> >
+static const HepLorentzVectorCnv_p1 hepLorentzVectorCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> >
 tracksCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> >
+static const ElementLinkVectorCnv_p1<ElementLinkVector<Rec::TrackParticleContainer> >
 conversionTracksCnv;
-static ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > clusterCnv;
-static ElementLinkVectorCnv_p1<ElementLinkVector<CaloClusterContainer> > 
+static const ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > clusterCnv;
+static const ElementLinkVectorCnv_p1<ElementLinkVector<CaloClusterContainer> > 
 clusterVectCnv;
 
 TauCommonDetailsCnv_p1::TauCommonDetailsCnv_p1() 
