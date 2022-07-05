@@ -42,7 +42,7 @@ def PixelMonitoringConfig(flags):
         kwargsMVAMonAlg = { 'calibFolder'     : '20220503',
                             'RDOName'         : InDetKeys.PixelRDOs(),      #'PixelRDOs'
                             'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
-                            'TrackName'       : InDetKeys.UnslimmedTracks()          #'Tracks'
+                            'TrackParticleContainerName' : InDetKeys.xAODTrackParticleContainer()
         }
 
         if doHitMonAlg or doClusterMonAlg or doErrorMonAlg or doMVAMonAlg:
@@ -114,8 +114,10 @@ def PixelMonitoringConfig(flags):
                 TrackSelectionTool.maxD0            = 2
                 TrackSelectionTool.maxZ0            = 150
 
+            from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
             pixelAthMVAMonAlg.TrackSelectionTool = TrackSelectionTool
-            pixelAthMVAMonAlg.Extrapolator                        = acc.getPublicTool("InDetExtrapolator")
+            pixelAthMVAMonAlg.HoleSearchTool     = acc.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags))
+            pixelAthMVAMonAlg.Extrapolator       = acc.getPublicTool("InDetExtrapolator")
             PixelAthMVAMonAlgCfg(helper, pixelAthMVAMonAlg, **kwargsMVAMonAlg)
 
         acc.merge(helper.result())

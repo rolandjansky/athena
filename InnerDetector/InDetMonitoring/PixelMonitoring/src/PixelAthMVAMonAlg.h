@@ -10,7 +10,7 @@
 
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "TrkTrack/TrackCollection.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
@@ -53,7 +53,7 @@ class PixelAthMVAMonAlg : public PixelAthMonitoringBase {
 
   SG::ReadHandleKey<PixelRDO_Container> m_pixelRDOName{this, "RDOName", "PixelRDOs", "rdo data key"};
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_clustersKey{this, "ClusterName", "PixelClusters", "pixel cluster data key" };
-  SG::ReadHandleKey<TrackCollection> m_tracksKey{this, "TrackName", "CombinedInDetTracks", "track data key"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticlesKey{this, "TrackParticleContainerName", "InDetTrackParticles", "track particle data key"};
 
   std::string m_calibFolder;
   std::map<std::string, std::unique_ptr<MVAUtils::BDT> > m_classBDT;
