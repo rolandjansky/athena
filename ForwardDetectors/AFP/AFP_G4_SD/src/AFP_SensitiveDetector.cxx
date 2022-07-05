@@ -185,10 +185,10 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
       nQuarticID=szbuff[7]-0x30;
 
       // Cut on maximum number of generated photons/bar
-      if     (nStationID==0 && nQuarticID==0){ if (m_nNOfTDSimHits[0][nDetectorID] >= TDMAXCNT) return 1;}
-      else if(nStationID==0 && nQuarticID==1){ if (m_nNOfTDSimHits[1][nDetectorID] >= TDMAXCNT) return 1;}
-      else if(nStationID==3 && nQuarticID==0){ if (m_nNOfTDSimHits[2][nDetectorID] >= TDMAXCNT) return 1;}
-      else if(nStationID==3 && nQuarticID==1){ if (m_nNOfTDSimHits[3][nDetectorID] >= TDMAXCNT) return 1;}
+      if     (nStationID==0 && nQuarticID==0){ if (m_nNOfTDSimHits[0][nDetectorID] >= TDMaxCnt) return 1;}
+      else if(nStationID==0 && nQuarticID==1){ if (m_nNOfTDSimHits[1][nDetectorID] >= TDMaxCnt) return 1;}
+      else if(nStationID==3 && nQuarticID==0){ if (m_nNOfTDSimHits[2][nDetectorID] >= TDMaxCnt) return 1;}
+      else if(nStationID==3 && nQuarticID==1){ if (m_nNOfTDSimHits[3][nDetectorID] >= TDMaxCnt) return 1;}
 
       // Get the Touchable History:
       G4TouchableHistory*  myTouch = (G4TouchableHistory*)(pPreStepPoint->GetTouchable());
@@ -339,7 +339,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
         // maximum PMT efficiency cut (15%) to to avoid crashes due to the too large memory consumption
         rand = G4UniformRand();
-        if (rand>TDMAXQEFF) continue;
+        if (rand>TDMaxCnt) continue;
         ///////////////////////////////////////////////////////////////////////////////////////////////
 
         NumPhotonsCuts++;
@@ -361,10 +361,10 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         fWaveLength = 2.*M_PI*CLHEP::hbarc/sampledEnergy/(CLHEP::MeV*CLHEP::nm);
 
         // Cut on maximum number of generated photons/bar
-        if     (nStationID==0 && nQuarticID==0){ if (m_nNOfTDSimHits[0][nDetectorID] >= TDMAXCNT) return 1;}
-        else if(nStationID==0 && nQuarticID==1){ if (m_nNOfTDSimHits[1][nDetectorID] >= TDMAXCNT) return 1;}
-        else if(nStationID==3 && nQuarticID==0){ if (m_nNOfTDSimHits[2][nDetectorID] >= TDMAXCNT) return 1;}
-        else if(nStationID==3 && nQuarticID==1){ if (m_nNOfTDSimHits[3][nDetectorID] >= TDMAXCNT) return 1;}
+        if     (nStationID==0 && nQuarticID==0){ if (m_nNOfTDSimHits[0][nDetectorID] >= TDMaxCnt) return 1;}
+        else if(nStationID==0 && nQuarticID==1){ if (m_nNOfTDSimHits[1][nDetectorID] >= TDMaxCnt) return 1;}
+        else if(nStationID==3 && nQuarticID==0){ if (m_nNOfTDSimHits[2][nDetectorID] >= TDMaxCnt) return 1;}
+        else if(nStationID==3 && nQuarticID==1){ if (m_nNOfTDSimHits[3][nDetectorID] >= TDMaxCnt) return 1;}
 
         int nSensitiveElementID=-1;
         if(nQuarticID==0) { nSensitiveElementID=1; }
@@ -404,7 +404,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         else
           {
             // Cut on maximum number of SID hits/station
-            if(m_nNOfSIDSimHits[nStationID] >= SIDMAXCNT) return 1;
+            if(m_nNOfSIDSimHits[nStationID] >= SiDMaxCnt) return 1;
 
             // Get the Touchable History:
             G4TouchableHistory*  myTouch = (G4TouchableHistory*)(pPreStepPoint->GetTouchable());
@@ -457,10 +457,10 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
                 G4cout << "AFP_SensitiveDetector::ProcessHits: local, x_det_post: " << x_det_post << ", y_det_post: " << y_det_post << ", z_det_post: " << z_det_post << G4endl;
                 G4cout << "AFP_SensitiveDetector::ProcessHits:  angle_phi_global in -pi:pi = "  << angle_phi_global << G4endl;
               }
-            if (angle_phi < 0.) angle_phi = 2.*M_PI + angle_phi;
+            if (angle_phi_global < 0.) angle_phi_global = 2.*M_PI + angle_phi_global;
             if(verboseLevel>5)
               {
-                G4cout << "AFP_SensitiveDetector::ProcessHits: angle_phi_global in 0:2pi = "  << angle_phi << G4endl;
+                G4cout << "AFP_SensitiveDetector::ProcessHits: angle_phi_global in 0:2pi = "  << angle_phi_global << G4endl;
                 G4cout << "AFP_SensitiveDetector::ProcessHits: angle_phi in -pi:pi = "  << angle_phi << G4endl;
               }
             if (angle_phi < 0.) angle_phi = 2.*M_PI + angle_phi;
@@ -687,6 +687,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
                           }
 
                         x_det = x_border;
+                        y_det = y_border;
 
                         x_next_pixel = x_next_pixel + sign_pixels_x*m_delta_pixel_x;
                         number_pixels_x = number_pixels_x - 1;
@@ -702,12 +703,12 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
                         if(verboseLevel>5) { G4cout << "AFP_SensitiveDetector::ProcessHits: cross is y, " << G4endl; }
                         y_border = y_next_pixel;
 
-                        if ((sign_pixels_y >= 0) &&  (y_border > y_det_post)) y_border = x_det_post;
-                        if ((sign_pixels_y < 0) &&  (y_border < y_det_post)) y_border = x_det_post;
+                        if ((sign_pixels_y >= 0) &&  (y_border > y_det_post)) y_border = y_det_post;
+                        if ((sign_pixels_y < 0) &&  (y_border < y_det_post)) y_border = y_det_post;
 
                         x_border = (y_border-y_det)/tan_phi + x_det;
 
-                        if (( act_pixel_y - n_lower_pixels <= 80) && (act_pixel_x -n_death_pixels <= 336) && ( act_pixel_y - n_lower_pixels >= 0) && (act_pixel_x - n_death_pixels >= 0))
+                        if (( act_pixel_y - n_lower_pixels <= 80) && (act_pixel_x -n_death_pixels <= 336) && ( act_pixel_y - n_lower_pixels > 0) && (act_pixel_x - n_death_pixels > 0))
                           {
                             pixel_track_length_XY = std::sqrt(pow(x_border-x_det,2)+pow(y_border-y_det,2));
 
@@ -724,8 +725,8 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
                                                             fEnergyDeposit*(pixel_track_length_XY/track_length_XY),
                                                             fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,fPostStepZ,
                                                             fGlobalTime,nStationID,nDetectorID,bIsSIDAuxVSID,
-                                                            (act_pixel_y - n_lower_pixels),
-                                                            (act_pixel_x - n_death_pixels));
+                                                            (act_pixel_y - n_lower_pixels - 1),
+                                                            (act_pixel_x - n_death_pixels - 1));
 
                             if(verboseLevel>5) { G4cout << "AFP_SensitiveDetector::ProcessHits:pixel["<< act_pixel_x - n_death_pixels <<"]["<< act_pixel_y - n_lower_pixels <<"] will be stored, with energy "
                                           << fEnergyDeposit*(pixel_track_length_XY/track_length_XY) << G4endl; }
@@ -736,6 +737,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
                           }
 
                         y_det = y_border;
+                        x_det = x_border;
 
                         y_next_pixel = y_next_pixel + sign_pixels_y*m_delta_pixel_y;
                         number_pixels_y = number_pixels_y - 1;
