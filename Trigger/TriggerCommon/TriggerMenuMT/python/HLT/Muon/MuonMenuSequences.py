@@ -23,6 +23,8 @@ muonCombinedRecFlags.doSiAssocForwardMuons = False
 muonCombinedRecFlags.doStatisticalCombination = False
 muonCombinedRecFlags.doCombinedFit = True
 muonRecFlags.enableErrorTuning = False
+muonRecFlags.runCommissioningChain = False
+
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, ViewCreatorNamedROITool, \
@@ -446,7 +448,7 @@ def muEFSASequence(ConfigFlags, is_probe_leg=False):
 
     # setup EFSA hypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
-    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAHypoAlg" )
+    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAHypoAlg", IncludeSAmuons=True )
     trigMuonEFSAHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
@@ -519,6 +521,24 @@ def muEFCBSequence(ConfigFlags, is_probe_leg=False):
     # setup EFCB hypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
     trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerHypoAlg" )
+    trigMuonEFCBHypo.MuonDecisions = sequenceOut
+    trigMuonEFCBHypo.MapToPreviousDecisions=True
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    return MenuSequence( Sequence    = muonEFCBSequence,
+                         Maker       = efcbViewsMaker,
+                         Hypo        = trigMuonEFCBHypo,
+                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict,
+                         IsProbe     = is_probe_leg )
+
+def muEFCBIDperfSequence(ConfigFlags, is_probe_leg=False):
+
+    (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
+
+    # setup EFCB hypo for idperf (needs to not require CB muons)
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
+    trigMuonEFCBHypo = TrigMuonEFHypoAlg( "TrigMuonEFCombinerIDperfHypoAlg", IncludeSAmuons=True  )
     trigMuonEFCBHypo.MuonDecisions = sequenceOut
     trigMuonEFCBHypo.MapToPreviousDecisions=True
 
@@ -611,7 +631,7 @@ def muEFSAFSSequence(ConfigFlags, is_probe_leg=False):
 
     # setup EFSA hypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFHypoAlg
-    trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg" )
+    trigMuonEFSAFSHypo = TrigMuonEFHypoAlg( "TrigMuonEFSAFSHypoAlg", IncludeSAmuons=True )
     trigMuonEFSAFSHypo.MuonDecisions = sequenceOut
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName

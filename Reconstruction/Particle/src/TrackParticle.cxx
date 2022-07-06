@@ -19,6 +19,7 @@ TrackParticle.cxx  -  Description
 
 #include <sstream>
 
+
 namespace Rec
 {
 
@@ -47,7 +48,7 @@ namespace Rec
       , P4PxPyPzE(definingParameter->momentum()[Trk::px],
                   definingParameter->momentum()[Trk::py],
                   definingParameter->momentum()[Trk::pz],
-                  sqrt(pow(Trk::ParticleMasses().mass[Trk::pion], 2) +
+                  sqrt(pow(Trk::ParticleMasses::mass[Trk::pion], 2) +
                        pow(definingParameter->momentum()[Trk::px], 2) +
                        pow(definingParameter->momentum()[Trk::py], 2) +
                        pow(definingParameter->momentum()[Trk::pz], 2)))

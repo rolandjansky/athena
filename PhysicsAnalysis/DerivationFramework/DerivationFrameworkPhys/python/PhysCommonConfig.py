@@ -7,6 +7,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     """Configure the common augmentation"""
@@ -47,11 +48,6 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
         # Re-point links on reco objects
         acc.merge(AddMiniTruthCollectionLinksCfg(ConfigFlags))
         acc.merge(AddPVCollectionCfg(ConfigFlags))
-        # TODO: not at all clear what is supposed to be achieved by the next line or how to do it in the CA 
-        # Set appropriate truth jet collection for tau truth matching
-        # ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
-
-
 
     # InDet, Muon, Egamma common augmentations
     from DerivationFrameworkInDet.InDetCommonConfig import InDetCommonCfg
@@ -68,15 +64,20 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                              MergeLRT = False)) 
     acc.merge(MuonsCommonCfg(ConfigFlags))
     acc.merge(EGammaCommonCfg(ConfigFlags))
-    # Jets, di-taus, tau decorations and flavour tagging
+    # Jets, di-taus, tau decorations, flavour tagging, MET association
     from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
     from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollectionsCfg
     from DerivationFrameworkTau.TauCommonConfig import AddDiTauLowPtCfg
-    from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg 
+    from DerivationFrameworkTau.TauCommonConfig import AddTauWPDecorationCfg
+    from DerivationFrameworkJetEtMiss.METCommonConfig import METCommonCfg 
     acc.merge(JetCommonCfg(ConfigFlags))
     acc.merge(AddDiTauLowPtCfg(ConfigFlags, prefix = 'PhysCommon'))
     acc.merge(AddTauWPDecorationCfg(ConfigFlags, prefix = 'PhysCommon', evetoFixTag="v1"))
-    acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
+    FTagJetColl = ['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']
+    if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
+        FTagJetColl.append('AntiKt4EMTopoJets')
+    acc.merge(FtagJetCollectionsCfg(ConfigFlags,FTagJetColl))
+    acc.merge(METCommonCfg(ConfigFlags))
     # Trigger matching
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun3Cfg

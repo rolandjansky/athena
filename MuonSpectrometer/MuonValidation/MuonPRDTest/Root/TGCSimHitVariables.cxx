@@ -24,7 +24,7 @@ namespace MuonPRDTest {
             return false;
         }
         // Get the TGC Id hit helper
-        TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
+        const TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
 
         unsigned int numHits{0};
         for (const TGCSimHit& hit : *tgcContainer) {

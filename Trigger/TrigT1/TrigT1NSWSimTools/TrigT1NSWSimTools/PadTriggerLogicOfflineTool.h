@@ -74,7 +74,7 @@ namespace NSWL1 {
                         const std::string& name,
                         const IInterface* parent);
         virtual ~PadTriggerLogicOfflineTool()=default;
-        virtual StatusCode initialize() override;
+        virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override;
         virtual void handle (const Incident& inc) override;
         /// Log a message using the Athena controlled logging system
 
@@ -102,7 +102,7 @@ namespace NSWL1 {
         Gaudi::Property<bool>  m_useSimple4of4 {this, "UseSimple4of4",   false, "Use simplified logic requiring 4 hits on 4 gas gaps"};
         Gaudi::Property<bool>  m_doNtuple      {this, "DoNtuple",        false, "Save the trigger outputs in an analysis ntuple"};
 
-        PadTriggerValidationTree m_validation_tree;
+        std::unique_ptr<PadTriggerValidationTree> m_validation_tree;
         void fillGeometricInformation(const std::shared_ptr<PadOfflineData>&) const;
         void fillPhiTable();
         L1TdrStgcTriggerLogic m_tdrLogic;

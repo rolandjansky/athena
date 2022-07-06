@@ -353,7 +353,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		const xAOD::VertexContainer* xaodVtxCollection = 0;
 
 		if ( m_provider->evtStore()->retrieve( xaodVtxCollection, vertexType ).isFailure()) {
-			m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vertexType <<  endmsg;
+		  if (m_provider->msg().level() <= MSG::WARNING) m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vertexType <<  endmsg;
 		}
 		
 		if ( xaodVtxCollection!=0 ) { 
@@ -490,7 +490,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	    const xAOD::VertexContainer* xaodVtxCollection = 0;
 	    
 	    if ( m_provider->evtStore()->retrieve( xaodVtxCollection, vtx_name ).isFailure() ) {
-	      m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vtx_name <<  endmsg;
+	      if (m_provider->msg().level() <= MSG::WARNING) m_provider->msg(MSG::WARNING) << "xAOD vertex container not found with key " << vtx_name <<  endmsg;
 	    }
 	    
 	    if ( xaodVtxCollection!=0 ) { 
@@ -861,7 +861,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 			       xAOD::VertexContainer::const_iterator > vtx_itrpair = getCollection<xAOD::VertexContainer>( roi_link, vtx_name );
 		    
 		    if ( vtx_itrpair.first == vtx_itrpair.second ) { 
-		      m_provider->msg(MSG::WARNING) << "\tNo xAOD::Vertex for chain " << chainName << " for key " << vtx_name << endmsg;
+		      if ( m_provider->msg().level() <= MSG::DEBUG ) {
+			m_provider->msg(MSG::WARNING) << "\tNo xAOD::Vertex for chain " << chainName << " for key " << vtx_name << endmsg;
+		      }
 		    }
 		    else {
 		      

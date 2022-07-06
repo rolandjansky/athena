@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,6 +22,9 @@
 
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
+
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 #include <string>
 #include <array>
@@ -58,6 +61,9 @@ private:
   SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this,"KonwnBadFebKey","LArKnownBadFEBs","Key of known Bad-Feb object"};
   SG::ReadCondHandleKey<LArBadFebCont> m_MNBFebKey{this,"KonwnMNBFebKey","LArKnownMNBFEBs","Key of known MNB-Feb object"};
 
+  //To get the data-dependency right ... 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
+
   struct CandidateMNBStruct
   {
     unsigned int candidate_MNB_time;
@@ -76,8 +82,9 @@ private:
   // fill histogram of triggers
   void fillTriggerHisto(size_t partition, unsigned long triggerbits, unsigned long L1triggerbits) const;
 
-  mutable bool m_knownFilled ATLAS_THREAD_SAFE;
-  mutable std::mutex m_lock ATLAS_THREAD_SAFE;
+  void fillHistogramsOnce(const EventContext& ctx, const bool isMC) const;
+  
+  mutable std::once_flag m_onceFlag ATLAS_THREAD_SAFE;
   
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -11,8 +11,8 @@
  */
 
 #include "PerigeeBLPredictionFillerTool.h"
-#include "InDetTestBLayer/InDetTestBLayerTool.h"
-#include "InDetTestBLayer/TrackStateOnBLayerInfo.h"
+#include "InDetTestPixelLayer/InDetTestPixelLayerTool.h"
+#include "InDetTestPixelLayer/TrackStateOnPixelLayerInfo.h"
 #include "AthenaKernel/errorcheck.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/PixelID.h"
@@ -30,9 +30,9 @@ PerigeeBLPredictionFillerTool::PerigeeBLPredictionFillerTool
      const std::string& name,
      const IInterface* parent)
   : BlockFillerTool<Trk::Perigee> (type, name, parent),
-    m_inDetTestBLayerTool("InDet::InDetRecTestBLayerTool")
+    m_inDetTestPixelLayerTool("InDet::InDetTestPixelLayerToolInner")
 {
-  declareProperty ("InDetTestBLayerTool", m_inDetTestBLayerTool,
+  declareProperty ("InDetTestPixelLayerTool", m_inDetTestPixelLayerTool,
                    "Tool to test if the track crosses a dead module "
                    "on the B-Layer.");
 
@@ -46,7 +46,7 @@ PerigeeBLPredictionFillerTool::PerigeeBLPredictionFillerTool
 StatusCode PerigeeBLPredictionFillerTool::initialize()
 {
   CHECK( BlockFillerTool<Trk::Perigee>::initialize() );
-  CHECK( m_inDetTestBLayerTool.retrieve() );
+  CHECK( m_inDetTestPixelLayerTool.retrieve() );
   CHECK( detStore()->retrieve(m_pixId, "PixelID") );
 
   return StatusCode::SUCCESS;
@@ -90,13 +90,13 @@ PerigeeBLPredictionFillerTool::fill (const Trk::Perigee& p) {
 
   this->clearData();
 
-  std::vector<InDet::TrackStateOnBLayerInfo>  trackStateBlayer;
-  if(!m_inDetTestBLayerTool->getTrackStateOnBlayerInfo(&p, trackStateBlayer)){
+  std::vector<InDet::TrackStateOnPixelLayerInfo>  trackStateBlayer;
+  if(!m_inDetTestPixelLayerTool->getTrackStateOnInnermostPixelLayerInfo(&p, trackStateBlayer)){
     return StatusCode::SUCCESS;
   }
   
-  std::vector<InDet::TrackStateOnBLayerInfo>::const_iterator itr = trackStateBlayer.begin();
-  std::vector<InDet::TrackStateOnBLayerInfo>::const_iterator end = trackStateBlayer.end();
+  std::vector<InDet::TrackStateOnPixelLayerInfo>::const_iterator itr = trackStateBlayer.begin();
+  std::vector<InDet::TrackStateOnPixelLayerInfo>::const_iterator end = trackStateBlayer.end();
   for (; itr!=end; ++itr){
     Identifier id = itr->moduleId();
     

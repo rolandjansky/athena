@@ -2,6 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "xAODTracking/TrackingPrimitives.h"
+#include "Utils.h"
 #include "HLTMinBiasEffMonitoringAlg.h"
 
 HLTMinBiasEffMonitoringAlg::HLTMinBiasEffMonitoringAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator) {}
@@ -36,19 +37,11 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
   const auto& trigDecTool = getTrigDecisionTool();
 
   auto vertexHandle = SG::makeHandle(m_vertexKey, context);
-  const xAOD::Vertex* priVtx = nullptr;
-  if(vertexHandle.isValid()){
-    for (auto vtx : *vertexHandle) {
-      if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	priVtx = vtx;
-	break;
-      }
-    }
-  }
+  const xAOD::Vertex* priVtx = Utils::selectPV(vertexHandle);
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   int countPassing = 0;
-  int countPassingVtx = 0;  
+  int countPassingVtx = 0;
   int countPassing_pt05 = 0; // count of tracks passing higher pt (here 0.5 GeV)
   int countPassing_pt1 = 0; // count of tracks passing higher pt (here 1 GeV)
   int countPassing_pt2 = 0; // ...
@@ -59,15 +52,13 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
   for (const auto trk : *offlineTrkHandle)
   {
     if (m_trackSelectionTool->accept(*trk) and std::fabs(trk->pt()) > m_minPt) {
-      const double pt = std::fabs(trk->pt()) * 1e-3; // fabs used in case the charge is encoded in pt ( i.e. it is really q * pt)
-
       ++countPassing;
-
-      if (priVtx and std::abs((trk->z0() + trk->vz() - priVtx->z()) * std::sin(trk->theta())) < m_z0
+      if (priVtx and std::abs(Utils::z0wrtPV(trk, priVtx)) < m_z0 
         and std::abs(trk->d0()) < m_d0) {
         ++countPassingVtx;
       }
 
+      const double pt = std::fabs(trk->pt()) * 1e-3; // fabs used in case the charge is encoded in pt ( i.e. it is really q * pt)
 
       if (pt > 0.5)
         ++countPassing_pt05;
@@ -86,7 +77,7 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
   }
   ATH_MSG_DEBUG("::monitorTrkCounts countPassing = " << countPassing);
   auto nTrkOffline = Scalar("nTrkOffline", countPassing);
-  auto nTrkOfflineVtx = Scalar("nTrkOfflineVtx", countPassing);
+  auto nTrkOfflineVtx = Scalar("nTrkOfflineVtx", countPassingVtx);
   auto nTrkOffline_pt05 = Scalar("nTrkOffline_pt05", countPassing_pt05);
   auto nTrkOffline_pt1 = Scalar("nTrkOffline_pt1", countPassing_pt1);
   auto nTrkOffline_pt2 = Scalar("nTrkOffline_pt2", countPassing_pt2);
@@ -94,17 +85,32 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
   auto nTrkOffline_pt6 = Scalar("nTrkOffline_pt6", countPassing_pt6);
   auto nTrkOffline_pt8 = Scalar("nTrkOffline_pt8", countPassing_pt8);
 
-  for (auto& ref : m_refTriggerList)
+
+  auto passedL1 = [](unsigned int bits) { return (bits & TrigDefs::L1_isPassedBeforePrescale) != 0; };
+  auto passedHLT = [](unsigned int bits) { return (bits & TrigDefs::EF_passedRaw) != 0; };
+  auto activeHLT = [](unsigned int bits) { return (bits & TrigDefs::EF_prescaled) == 0; };
+  auto isL1 = [](const std::string& name) { return name.compare(0, 3, "L1_") == 0; };
+  auto isHLT = [](const std::string& name) { return  name.compare(0, 4, "HLT_") == 0; };
+
+
+  for (size_t index = 0; index < m_refTriggerList.size(); ++index)
   {
-    auto trig = m_triggerList[&ref - &m_refTriggerList[0]];
+    auto trig = m_triggerList[index];
+    auto ref = m_refTriggerList[index];
+
     ATH_MSG_DEBUG("checking " << trig << " vs " << ref);
 
     if (trigDecTool->isPassed(ref, TrigDefs::requireDecision))
     {
       ATH_MSG_DEBUG("ref passed for " << trig << " vs " << ref);
+
       const unsigned int passBits = trigDecTool->isPassedBits(trig);
-      if (!(passBits & TrigDefs::EF_prescaled)) {
-        auto decision = ((passBits & TrigDefs::EF_passedRaw) != 0) ? 1 : 0;
+      const bool wasRun = isL1(trig) or (isHLT(trig) and activeHLT(passBits));
+
+      if (wasRun) {
+        const auto decision = (isL1(trig) and passedL1(passBits)) or (isHLT(trig) and passedHLT(passBits));
+        ATH_MSG_DEBUG("chain " << trig << (decision ? " passed" : " failed"));
+         
         auto effPassed = Scalar<int>("EffPassed", decision);
         fill(trig + ref, effPassed, nTrkOffline, nTrkOfflineVtx, nTrkOffline_pt05, nTrkOffline_pt1, nTrkOffline_pt2, nTrkOffline_pt4, nTrkOffline_pt6, nTrkOffline_pt8, leadingTrackPt);
       }

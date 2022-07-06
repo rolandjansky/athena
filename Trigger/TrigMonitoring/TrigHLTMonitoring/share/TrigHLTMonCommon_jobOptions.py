@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #-- set flags ------------------------------------------------------------------------------
 log = logging.getLogger( "TrigHLTMonCommon_jobOptions.py" )
@@ -97,9 +97,6 @@ if data_type == 'bytestream':
     from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
     gettrigger = TriggerRecoGetter()
     
-    from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
-    bsu=ByteStreamUnpackGetter()
-
     theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
     theByteStreamAddressProviderSvc.TypeNames += ['HLT::HLTResult/HLTResult_HLT',
         "MuCTPI_RDO/MUCTPI_RDO",
@@ -121,15 +118,11 @@ if data_type == 'pool':
     cfg =  TriggerConfigGetter()
     
     if not hasattr(ToolSvc, 'TrigDecisionTool'):
-        from AthenaCommon.Configurable import Configurable
-        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        Configurable.configurableRun3Behavior += 1
         from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
-        acc = TrigDecisionToolCfg(ConfigFlags)
-        appendCAtoAthena( acc )
-        Configurable.configurableRun3Behavior -= 1
-    
+        CAtoGlobalWrapper(TrigDecisionToolCfg, ConfigFlags)
+
     # enable slices for monitoring 
     # otherwise enable slices via monFlags 
     HLTMonFlags.doMonTier0 = True
@@ -141,7 +134,7 @@ if data_type == 'pool':
         HLTMonFlags.doBjet    = True
         HLTMonFlags.doTau     = True
         HLTMonFlags.doMuon    = True
-        HLTMonFlags.doIDtrk   = True
+        HLTMonFlags.doInDet   = True
         HLTMonFlags.doCalo    = True
         HLTMonFlags.doBphys   = False
         HLTMonFlags.doMinBias = False

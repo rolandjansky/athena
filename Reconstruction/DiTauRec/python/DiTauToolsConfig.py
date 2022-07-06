@@ -3,132 +3,108 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def SeedJetBuilderCfg(ConfigFlags, **kwargs):
+def SeedJetBuilderCfg(ConfigFlags, name="DiTauRec_SeedJetBuilder", **kwargs):
     """Configure the seed jet builder"""
-
-    _name = f"{kwargs['prefix']}SeedJetBuilder"
     acc = ComponentAccumulator()
-        
-    SeedJetBuilder = CompFactory.SeedJetBuilder(name=_name, JetCollection=kwargs["JetCollection"])
-    acc.setPrivateTools(SeedJetBuilder)
-
-    return(acc)
+    acc.setPrivateTools(CompFactory.SeedJetBuilder(name, **kwargs))
+    return acc
 
 
-def SubjetBuilderCfg(ConfigFlags, **kwargs):
+def SubjetBuilderCfg(ConfigFlags, name="DiTauRec_SubjetBuilder", **kwargs):
     """Configure the subjet builder"""
-
-    _name = f"{kwargs['prefix']}SubjetBuilder"
     acc = ComponentAccumulator()
 
-    SubjetBuilder = CompFactory.SubjetBuilder(name=_name,
-                                              Rsubjet=0.2,
-                                              Nsubjet=4,
-                                              ptminsubjet=10000)
-    acc.setPrivateTools(SubjetBuilder)
-    return(acc)
+    kwargs.setdefault("Rsubjet", 0.2)
+    kwargs.setdefault("Nsubjet", 4)
+    kwargs.setdefault("ptminsubjet", 10000)
+
+    acc.setPrivateTools(CompFactory.SubjetBuilder(name, **kwargs))
+    return acc
 
 
-def ElMuFinderCfg(ConfigFlags, **kwargs):
-    """Configure the ElMuFiner"""
-    _name = f"{kwargs['prefix']}ElMuFinder"
-
+def ElMuFinderCfg(ConfigFlags, name = "DiTauRec_ElMuFinder", **kwargs):
+    """Configure the ElMuFinder"""
     acc = ComponentAccumulator()
 
-    ElMuFinder = CompFactory.ElMuFinder(name=_name,
-                                        ElectronContainer="Electrons",
-                                        MuonContainer="Muons",
-                                        ElectronMinPt=7000,
-                                        ElectronMaxEta=2.47,
-                                        MuonMinPt=7000,
-                                        MuonMaxEta=2.7, 
-                                        MuonQuality=3)   # Tight,Medium,Loose,VeryLoose: 0,1,2,3
+    kwargs.setdefault("ElectronContainer", "Electrons")
+    kwargs.setdefault("MuonContainer", "Muons")
+    kwargs.setdefault("ElectronMinPt", 7000)
+    kwargs.setdefault("ElectronMaxEta", 2.47)
+    kwargs.setdefault("MuonMinPt", 7000)
+    kwargs.setdefault("MuonMaxEta", 2.7)
+    kwargs.setdefault("MuonQuality", 3)   # Tight,Medium,Loose,VeryLoose: 0,1,2,3
 
-    acc.setPrivateTools(ElMuFinder)
-    return(acc)
+    acc.setPrivateTools(CompFactory.ElMuFinder(name, **kwargs))
+    return acc
 
-def TVAToolCfg(ConfigFlags, **kwargs):
+def TVAToolCfg(ConfigFlags, name="TVATool_forDiTaus", **kwargs):
     """Configure the TVA tool"""
-
-    _name = f"{kwargs['prefix']}TVATool"
     acc = ComponentAccumulator()
 
-    TVATool = CompFactory.TrackVertexAssociationTool("TVATool_forDiTaus",
-                                                     TrackParticleContainer="InDetTrackParticles",
-                                                     TrackVertexAssociation="JetTrackVtxAssoc_forDiTaus",
-                                                     VertexContainer="PrimaryVertices",
-                                                     MaxTransverseDistance=2.5,  # in mm
-                                                     MaxLongitudinalDistance=2)  # in mm
-    # This presumably needs to be public since otherwise the VertexFinderAlg won't be able to use it...
-    acc.addPublicTool(TVATool)
-    jetTrackAlg = CompFactory.JetAlgorithm(name=_name, Tools = [TVATool])
-    acc.addEventAlgo(jetTrackAlg)
-    return(acc)
+    kwargs.setdefault("TrackParticleContainer", "InDetTrackParticles")
+    kwargs.setdefault("TrackVertexAssociation", "JetTrackVtxAssoc_forDiTaus")
+    kwargs.setdefault("VertexContainer", "PrimaryVertices")
+    kwargs.setdefault("MaxTransverseDistance", 2.5) # in mm
+    kwargs.setdefault("MaxLongitudinalDistance", 2) # in mm
 
-# requires getTVATool - see above
-def VertexFinderCfg(ConfigFlags, **kwargs):
+    acc.setPrivateTools(CompFactory.TrackVertexAssociationTool(name, **kwargs))
+    return acc
+
+def JetAlgCfg(ConfigFlags, name="DiTauRec_JetAlgorithm", **kwargs): # Name changed wrt legacy config DiTauRec_TVATool
+    """Configure the JetAlgorithm"""
+    acc = ComponentAccumulator()
+
+    tools = [acc.popToolsAndMerge(TVAToolCfg(ConfigFlags))]
+    kwargs.setdefault("Tools", tools)
+
+    acc.addEventAlgo(CompFactory.JetAlgorithm(name, **kwargs))
+    return acc
+
+# require TrackVertexAssociation to be produced by TVA tool - see above
+def VertexFinderCfg(ConfigFlags, name="DiTauRec_VertexFinder", **kwargs):
     """Configure the vertex finder"""
-
-    _name = f"{kwargs['prefix']}VertexFinder"
     acc = ComponentAccumulator()
 
-    VertexFinder = CompFactory.VertexFinder(name=_name,
-                                            PrimVtxContainerName="PrimaryVertices",
-                                            AssociatedTracks="GhostTrack",
-                                            TrackVertexAssociation="JetTrackVtxAssoc_forDiTaus")
-    
-    acc.setPrivateTools(VertexFinder)
-    return(acc)
+    kwargs.setdefault("PrimVtxContainerName", "PrimaryVertices")
+    kwargs.setdefault("AssociatedTracks", "GhostTrack")
+    kwargs.setdefault("TrackVertexAssociation", "JetTrackVtxAssoc_forDiTaus")
 
+    acc.setPrivateTools(CompFactory.VertexFinder(name, **kwargs))
+    return acc
 
-def DiTauTrackFinderCfg(ConfigFlags, **kwargs):
+def DiTauTrackFinderCfg(ConfigFlags, name="DiTauRec_DiTauTrackFinder", **kwargs):
     """Configure the di-tau track finder"""    
- 
-    _name = f"{kwargs['prefix']}DiTauTrackFinder"
     acc = ComponentAccumulator()
     
-    from tauRec.TauToolHolder import InDetTrackSelectorToolCfg 
-    InDetTrackSelectorTool = acc.popToolsAndMerge(InDetTrackSelectorToolCfg(ConfigFlags))
-    acc.addPublicTool(InDetTrackSelectorTool)
+    kwargs.setdefault("MaxDrJet", 1.0)
+    kwargs.setdefault("MaxDrSubjet", 0.2)
+    kwargs.setdefault("TrackParticleContainer", "InDetTrackParticles")
 
-    DiTauTrackFinder = CompFactory.DiTauTrackFinder(name=_name,
-                                                    MaxDrJet=1.0,
-                                                    MaxDrSubjet=0.2,
-                                                    TrackParticleContainer="InDetTrackParticles",
-                                                    TrackSelectorTool=InDetTrackSelectorTool)
+    if "TrackSelectorTool" not in kwargs:
+        from tauRec.TauToolHolder import InDetTrackSelectorToolCfg
+        InDetTrackSelectorTool = acc.popToolsAndMerge(InDetTrackSelectorToolCfg(ConfigFlags))
+        acc.addPublicTool(InDetTrackSelectorTool)
+        kwargs.setdefault("TrackSelectorTool", InDetTrackSelectorTool)
 
-    acc.setPrivateTools(DiTauTrackFinder)
-    return(acc)
+    acc.setPrivateTools(CompFactory.DiTauTrackFinder(name, **kwargs))
+    return acc
 
-# TODO: Doesn't seem to to be in use. Commenting for now
-#def getCellFinder(writeJetCells, writeSubjetCells):
-#    _name = sPrefix + 'CellFinder'
-#
-#    if _name in cached_instances:
-#        return cached_instances[_name]
-#
-#    # if JetCells are written, SubjetCells are written too
-#    writeSubjetCells = True if writeJetCells else writeSubjetCells
-#
-#    from DiTauRec.DiTauRecConf import CellFinder
-#    CellFinder = CellFinder(name=_name,
-#                            writeJetCells=writeJetCells,
-#                            writeSubjetCells=writeJetCells,
-#                            ClusterContainer="CaloCalTopoClusters",
-#                            CellContainer="AllCalo",
-#                            Rsubjet=0.2)
-#
-#    cached_instances[_name] = CellFinder
-#    return CellFinder
-
-
-def IDVarCalculatorCfg(ConfigFlags, **kwargs):
-    """Configure the IDVarCalculator"""
-
-    _name = f"{kwargs['prefix']}IDVarCalculator"
+def CellFinderCfg(ConfigFlags, name="DiTauRec_CellFinder", **kwargs):
+    """Configure the cell finder"""
     acc = ComponentAccumulator()
 
-    IDVarCalculator = CompFactory.IDVarCalculator(name=_name,
-                                                  useCells=kwargs['useCells'])
-    acc.setPrivateTools(IDVarCalculator)
-    return(acc)
+    kwargs.setdefault("ClusterContainer", "CaloCalTopoClusters")
+    kwargs.setdefault("CellContainer", "AllCalo")
+    kwargs.setdefault("Rsubjet", 0.2)
+
+    CellFinder = CompFactory.CellFinder(name, **kwargs)
+    CellFinder.writeSubjetCells = CellFinder.writeJetCells
+    acc.setPrivateTools(CellFinder)
+    return acc
+
+
+def IDVarCalculatorCfg(ConfigFlags, name="DiTauRec_IDVarCalculator", **kwargs):
+    """Configure the IDVarCalculator"""
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.IDVarCalculator(name, **kwargs))
+    return acc

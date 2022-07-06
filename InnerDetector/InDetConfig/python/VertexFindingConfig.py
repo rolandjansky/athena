@@ -73,40 +73,6 @@ def primaryVertexFindingCfg(flags, **kwargs):
     return acc
 
 
-def VtxInDetTrackSelectionCfg(flags, **kwargs):
-    acc = ComponentAccumulator()
-
-    if flags.Detector.GeometryITk:
-        vtxFlags = flags.ITk.PriVertex
-    else:
-        vtxFlags = flags.InDet.PriVertex
-
-    for key in (
-        "maxAbsEta",
-        "maxD0",
-        "maxNPixelHoles",
-        "maxSigmaD0",
-        "maxSigmaZ0SinTheta",
-        "maxZ0",
-        "maxZ0SinTheta",
-        "minNInnermostLayerHits",
-        "minNPixelHits",
-        "minNSctHits",
-        "minNSiHits",
-        "minNTrtHits",
-        "minPt",
-    ):
-        kwargs.setdefault(key, getattr(vtxFlags, key))
-
-    InDetTrackSelectorTool = CompFactory.InDet.InDetTrackSelectionTool(
-        CutLevel="TightPrimary",
-        UseTrkTrackTools=False,
-        **kwargs,
-    )
-    acc.setPrivateTools(InDetTrackSelectorTool)
-    return acc
-
-
 def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
     acc = ComponentAccumulator()
     if "SeedFinder" not in kwargs:
@@ -124,6 +90,7 @@ def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
             )
 
     if "TrackSelector" not in kwargs:
+        from InDetConfig.InDetTrackSelectionToolConfig import VtxInDetTrackSelectionCfg
         kwargs["TrackSelector"] = acc.popToolsAndMerge(
             VtxInDetTrackSelectionCfg(flags)
         )
@@ -186,6 +153,7 @@ def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
             )
 
     if "TrackSelector" not in kwargs:
+        from InDetConfig.InDetTrackSelectionToolConfig import VtxInDetTrackSelectionCfg
         kwargs["TrackSelector"] = acc.popToolsAndMerge(
             VtxInDetTrackSelectionCfg(flags)
         )
@@ -245,6 +213,7 @@ def ActsGaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
     )
 
     if "TrackSelector" not in kwargs:
+        from InDetConfig.InDetTrackSelectionToolConfig import VtxInDetTrackSelectionCfg
         kwargs["TrackSelector"] = acc.popToolsAndMerge(
             VtxInDetTrackSelectionCfg(flags)
         )
@@ -270,9 +239,6 @@ def ActsGaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
 
 if __name__ == "__main__":
     from AthenaCommon.Logging import logging
-    from AthenaCommon.Configurable import Configurable
-
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties

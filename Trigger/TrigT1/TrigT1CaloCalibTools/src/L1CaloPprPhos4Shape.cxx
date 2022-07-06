@@ -12,11 +12,10 @@
 //
 // *********************************************************
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPhos4Shape.h"
 
 L1CaloPprPhos4Shape::L1CaloPprPhos4Shape(const L1CaloCoolChannelId& coolId) :
-   AthMessaging(Athena::getMessageSvc(), "L1CaloPprPhos4Shape")
+   AthMessaging("L1CaloPprPhos4Shape")
 {
    m_coolId                         = coolId;
    m_eta                            = 999.;

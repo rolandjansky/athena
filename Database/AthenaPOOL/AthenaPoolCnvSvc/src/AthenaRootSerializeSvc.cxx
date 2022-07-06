@@ -15,7 +15,7 @@
 
 //___________________________________________________________________________
 AthenaRootSerializeSvc::AthenaRootSerializeSvc(const std::string& name,
-	ISvcLocator* pSvcLocator) : AthService(name, pSvcLocator) {
+	ISvcLocator* pSvcLocator) : base_class(name, pSvcLocator) {
 }
 
 //___________________________________________________________________________
@@ -30,24 +30,6 @@ StatusCode AthenaRootSerializeSvc::initialize() {
    // possible errors during event processing (ATR-25049)
    TClass::GetClass("TMessageHandler");
 
-   return(StatusCode::SUCCESS);
-}
-
-//___________________________________________________________________________
-StatusCode AthenaRootSerializeSvc::finalize() {
-   ATH_MSG_INFO("in finalize()");
-   return(::AthService::finalize());
-}
-
-//___________________________________________________________________________
-StatusCode AthenaRootSerializeSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-   if ( IAthenaSerializeSvc::interfaceID().versionMatch(riid) ) {
-      *ppvInterface = (IAthenaSerializeSvc*)this;
-   } else {
-      // Interface is not directly available: try out a base class
-      return(AthService::queryInterface(riid, ppvInterface));
-   }
-   addRef();
    return(StatusCode::SUCCESS);
 }
 

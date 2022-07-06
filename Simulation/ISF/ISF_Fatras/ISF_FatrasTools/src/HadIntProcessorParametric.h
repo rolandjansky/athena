@@ -20,7 +20,6 @@
 
 // Trk
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 // ISF
 #include "ISF_Event/ITruthIncident.h"
@@ -127,8 +126,6 @@ namespace iFatras {
        CLHEP::HepRandomEngine*                     m_randomEngine;
        std::string                          m_randomEngineName; //!< Name of the random number stream
 
-       /** struct of Particle Masses */
-       static Trk::ParticleMasses    s_particleMasses;
                     
        bool                          m_validationMode;
        ToolHandle<IPhysicsValidationTool>  m_validationTool;

@@ -3,7 +3,6 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.Configurable import Configurable
 from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
@@ -351,8 +350,6 @@ def emulateHLTSeedingCfg(flags, seqName = None):
     copy of HLTSeeding/python/HLTSeedingConfig.py to allow seeding with emulated data with CA
     """
 
-    Configurable.configurableRun3Behavior += 1
-
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentAccumulator import CompFactory
     acc = ComponentAccumulator()
@@ -387,7 +384,4 @@ def emulateHLTSeedingCfg(flags, seqName = None):
     acc.merge( TrigConfigSvcCfg( flags ) )
     acc.merge( HLTPrescaleCondAlgCfg( flags ) )
 
-    Configurable.configurableRun3Behavior -= 1
-
     return acc
-

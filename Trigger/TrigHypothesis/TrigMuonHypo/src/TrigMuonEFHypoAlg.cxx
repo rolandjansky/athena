@@ -84,21 +84,27 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       ATH_CHECK( muonEL.isValid() );
 
       const xAOD::Muon* muon = *muonEL;
+      //skip SA muons if we are looking only for combined muons
+      if(muon->author()==5 && !m_inclSAmuons) continue; 
 
       //Map muons to the correct decisions from previous step
       bool matchedToDec = false;
       if(m_mapToPrevDec){
-	//First try to check if the combined muon has an extrapolated track particle
+	//Check if the combined muon has an extrapolated track particle
 	//and if so whether it matches the SA track from the previous decision's muon
-	auto trk1 = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
-	auto trk2 = muonPrev->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
-	if(trk1 && trk2){
-	  if(trk1->p4()==trk2->p4()){
-	    matchedToDec = true;
+	//This won't work for inside-out muons
+	if(muon->author()!=6){
+	  auto trk1 = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+	  auto trk2 = muonPrev->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+	  if(trk1 && trk2){
+	    if(trk1->p4()==trk2->p4()){
+	      matchedToDec = true;
+	    }
 	  }
 	}
 	else{
-	  //If no extrapolated track particle (combined muon reconstructed by InsdieOutAlg)
+	  //For muons reconstructed by InsideOutRecoAlg, extrapolated track will 
+	  //not be identical to standard SA muon from previous step so
 	  //do dR matching. dR<0.05 should be sufficient to get correct matching
 	  double dr = muon->p4().DeltaR(muonPrev->p4());
 	  if(dr<0.05) matchedToDec = true;
@@ -118,7 +124,7 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       newd -> setObjectLink( featureString(), muonEL );
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
-      ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt()/Gaudi::Units::GeV << " GeV");
+      ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt()/Gaudi::Units::GeV << " GeV, author: "<<(*muonEL)->author());
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
       ATH_MSG_DEBUG("Added view, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 

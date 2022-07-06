@@ -25,6 +25,8 @@
 #include "../L1TriggerResultMaker.h"
 #include "../L1DataConsistencyChecker.h"
 
+#include "../RoiUpdaterTool.h"
+
 // Algorithms
 DECLARE_COMPONENT( HLTSeeding )
 DECLARE_COMPONENT( HLTSeedingNoCtpForTesting )
@@ -72,3 +74,5 @@ DECLARE_COMPONENT( RoIsUnpackingToolBase )
 DECLARE_COMPONENT( RoIsUnpackingEmulationTool )
 DECLARE_COMPONENT( FSRoIsUnpackingTool )
 DECLARE_COMPONENT( L1DataConsistencyChecker )
+
+DECLARE_COMPONENT( RoiUpdaterTool )

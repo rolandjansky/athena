@@ -9,33 +9,6 @@ from RecExConfig.Configured import Configured
 from RecExConfig.RecFlags import rec
 
 
-class ByteStreamUnpackGetter(Configured):
-    def configure(self):
-        log = logging.getLogger("ByteStreamUnpackGetter")
-
-        # Define the decoding sequence
-        from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg
-        from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
-        from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
-        from AthenaCommon.CFElements import seqAND
-        decoder = HLTResultMTByteStreamDecoderAlg()
-        deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
-        nav_collection = getRun3NavigationContainerFromInput(ConfigFlags)
-        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+%s' % nav_collection)]  
-        decodingSeq = seqAND("HLTDecodingSeq")
-        decodingSeq += decoder  # BS -> HLTResultMT
-        decodingSeq += deserialiser  # HLTResultMT -> xAOD
-
-        # Append the decoding sequence to topSequence
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        topSequence += decodingSeq
-
-        log.debug("Configured HLT result BS decoding sequence")
-        return True
-
-
-
 class HLTTriggerResultGetter(Configured):
 
     log = logging.getLogger("HLTTriggerResultGetter.py")
@@ -51,7 +24,8 @@ class HLTTriggerResultGetter(Configured):
                 from TriggerJobOpts.TriggerRecoConfig import Run1Run2BSExtractionCfg
                 CAtoGlobalWrapper(Run1Run2BSExtractionCfg, ConfigFlags)
             elif ConfigFlags.Trigger.EDMVersion >= 3:
-                bs = ByteStreamUnpackGetter()  # noqa: F841
+                from TriggerJobOpts.TriggerRecoConfig import Run3TriggerBSUnpackingCfg
+                CAtoGlobalWrapper(Run3TriggerBSUnpackingCfg, ConfigFlags)
             else:
                 raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 

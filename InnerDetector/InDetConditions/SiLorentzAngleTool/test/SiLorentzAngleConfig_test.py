@@ -7,13 +7,11 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
-from AthenaCommon.Configurable import Configurable
 from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
 from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
 
 # test setup
 log.setLevel(DEBUG)
-Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 # using __init__ to reset, preventing errors on deletion
 # case online

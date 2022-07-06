@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -10,13 +10,12 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 from ..Config.ChainConfigurationBase import ChainConfigurationBase
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
 
-# newJO:
-from AthenaCommon.Configurable import Configurable
-if Configurable.configurableRun3Behavior: 
+if isRun3Cfg():
     from .generateMuon import muFastSequence, muEFSASequence, muCombSequence, muEFCBSequence
 else: 
-    from .MuonMenuSequences import muFastSequence, muFastCalibSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence, muRoiClusterSequence
+    from .MuonMenuSequences import muFastSequence, muFastCalibSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBIDperfSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence, muRoiClusterSequence
 
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 
@@ -56,6 +55,9 @@ def muEFSASequenceCfg(flags,is_probe_leg=False):
 
 def muEFCBSequenceCfg(flags,is_probe_leg=False):
     return muEFCBSequence(flags, is_probe_leg=is_probe_leg)
+
+def muEFCBIDperfSequenceCfg(flags,is_probe_leg=False):
+    return muEFCBIDperfSequence(flags, is_probe_leg=is_probe_leg)
 
 def muEFCBLRTSequenceCfg(flags,is_probe_leg=False):
     return muEFCBLRTSequence(flags, is_probe_leg=is_probe_leg)
@@ -142,6 +144,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "lateMu":['getLateMuRoI','getLateMu'], #late muon triggers
             "muoncalib":['getmuFast'], #calibration
             "vtx":['getmuRoiClu'], #LLP Trigger
+            "mucombTag":['getmuFast', muCombStep], #Trigger for alignment 
         }
 
         return stepDictionary
@@ -208,6 +211,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
             return self.getStep(4,'EFCB', [muEFCBSequenceCfg], comboTools=[TrigMuonEFInvMassHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "LRT" in self.chainPart['addInfo']:
             return self.getStep(4,'EFCBLRT', [muEFCBLRTSequenceCfg], is_probe_leg=is_probe_leg)
+        elif "idperf" in self.chainPart['addInfo']:
+            return self.getStep(4,'EFCBIDPERF', [muEFCBIDperfSequenceCfg], is_probe_leg=is_probe_leg)
         else:
             return self.getStep(4,'EFCB', [muEFCBSequenceCfg], is_probe_leg=is_probe_leg)
 

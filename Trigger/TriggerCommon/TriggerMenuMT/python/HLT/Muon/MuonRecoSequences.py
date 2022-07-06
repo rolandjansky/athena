@@ -17,10 +17,11 @@ from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_C
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from AthenaConfiguration.ComponentFactory import CompFactory
+from MuonRecExample.MuonRecFlags import muonRecFlags
 
-theFTF_name = "FTFTracks_Muons" #Obsolete?
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
 CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
+CBTPnameLRT = recordable("HLT_CBCombinedMuon_LRTTrackParticles")
 ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
 ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
 MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
@@ -72,13 +73,15 @@ def isLRT(name):
 
 #Returns relevant track collection name
 def getIDTracks(name=''):
-  if isCosmic():
-      if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF")
-      else:           return recordable("HLT_IDTrack_Cosmic_IDTrig") #IDTrig as we are already retrieving PT collection
+
+  from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+  if isLRT(name):
+    return getInDetTrigConfig("muonLRT").tracks_FTF()
+  elif isCosmic():
+    return getInDetTrigConfig("cosmics" ).tracks_IDTrig()
   else:
-      ### TODO This should be probably set in the IDTrigConfig, ATR-22755
-      if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF") 
-      else:           return recordable("HLT_IDTrack_Muon_FTF") 
+    return getInDetTrigConfig("muon").tracks_FTF()
 
 
 def MuDataPrepViewDataVerifierCfg(flags):
@@ -393,7 +396,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg, MuonLayerHoughAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg, MuonLayerHoughAlg, MuonSegmentFilterAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -422,14 +425,33 @@ def muEFSARecoSequence( RoIs, name ):
       theMuonLayerHough = MuonLayerHoughAlg("TrigMuonLayerHoughAlg")
       efAlgs.append(theMuonLayerHough)
 
-      theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
+      # if NSW is excluded from reconstruction (during commissioning)
+      if muonRecFlags.runCommissioningChain():
+        theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name,SegmentCollectionName="TrackMuonSegments_withNSW") 
+        theSegmentFilterAlg = MuonSegmentFilterAlg("TrigMuonSegmentFilter_"+name,SegmentCollectionName="TrackMuonSegments_withNSW",
+                                                   FilteredCollectionName="TrackMuonSegments", TrashUnFiltered=False, ThinStations={}) 
+      else:
+        theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
+
   else:
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
   from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
-  TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "TrackMuonSegments", 
-                                          TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering"), 
-                                          MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name))
+
+  if muonRecFlags.runCommissioningChain():
+     chamberRecovery = CfgGetter.getPublicToolClone("MuonChamberRecovery", "MuonChamberHoleRecoveryTool", 
+                                                                sTgcPrepDataContainer="",
+                                                                MMPrepDataContainer="")
+     MooTrackBuilder = CfgGetter.getPublicToolClone("MooMuonTrackBuilder", 
+                                                "MooTrackBuilderTemplate",
+                                                 ChamberHoleRecoveryTool = chamberRecovery)
+     trackSteering = CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering",TrackBuilderTool= MooTrackBuilder) 
+
+  else:
+     trackSteering = CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering")
+
+  TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "TrackMuonSegments",                                                                                                             TrackSteering = trackSteering,                                                                                                                                                         MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name))
+
   xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("TrigMuonStandaloneTrackParticleCnvAlg_"+name)
   theMuonCandidateAlg=MuonCombinedMuonCandidateAlg("TrigMuonCandidateAlg_"+name)
 
@@ -445,6 +467,8 @@ def muEFSARecoSequence( RoIs, name ):
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
+  if muonRecFlags.runCommissioningChain():
+    efAlgs.append( theSegmentFilterAlg )
   efAlgs.append( TrackBuilder )
   efAlgs.append( xAODTrackParticleCnvAlg )
   efAlgs.append( theMuonCandidateAlg )
@@ -628,7 +652,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
   from AthenaCommon.CFElements import parOR
   from AthenaCommon import CfgMgr
 
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonSegmentFinderAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonSegmentFinderAlg, MuonSegmentFilterAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedInDetCandidateAlg, MuonInsideOutRecoAlg, MuGirlStauAlg, MuonCreatorAlg, StauCreatorAlg, MuonInDetToMuonSystemExtensionAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -659,11 +683,21 @@ def muEFInsideOutRecoSequence(RoIs, name):
       if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
         efAlgs.append(theMuonLayerHough)
-        theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
+
+        # if NSW is excluded from reconstruction (during commissioning)
+        if muonRecFlags.runCommissioningChain():
+          theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name,SegmentCollectionName="TrackMuonSegments_withNSW")
+          theSegmentFilterAlg = MuonSegmentFilterAlg("TrigMuonSegmentFilter_"+name,SegmentCollectionName="TrackMuonSegments_withNSW",
+                                                     FilteredCollectionName="TrackMuonSegments", TrashUnFiltered=False, ThinStations={})
+        else:
+          theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
+
       else:
         theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
 
       efAlgs.append(theSegmentFinderAlg)
+      if muonRecFlags.runCommissioningChain():
+        efAlgs.append(theSegmentFilterAlg) 
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
 

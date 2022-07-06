@@ -128,9 +128,7 @@ namespace Muon {
             "Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool",
         };
         ToolHandle<IMuonPRDSelectionTool> m_muonPRDSelectionTool{
-            this,
-            "MuonPRDSelectionTool",
-            "Muon::MuonPRDSelectionTool/MuonPRDSelectionTool",
+            this, "MuonPRDSelectionTool", ""
         };
         ToolHandle<IMuonSegmentMaker> m_segmentMaker{
             this,

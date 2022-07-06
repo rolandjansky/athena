@@ -132,9 +132,6 @@ TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
    , m_EtDouble(eem.EtDouble())
    , m_etaDouble(eem.etaDouble())
    , m_phiDouble(eem.phiDouble())
-   , m_reta(eem.Reta())
-   , m_rhad(eem.Rhad())
-   , m_wstot(eem.Wstot())
    , m_tobType(EEM)
 {}
 
@@ -147,8 +144,6 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_EtDouble(etau.EtDouble())
    , m_etaDouble(etau.etaDouble())
    , m_phiDouble(etau.phiDouble())
-   , m_rCore(etau.rCore())
-   , m_rHad(etau.rHad())
    , m_tobType(ETAU)
 {}
 
@@ -186,7 +181,7 @@ TCS::GenericTOB::GenericTOB(const LateMuonTOB & lateMuon) :
    BaseTOB(lateMuon.roiWord(), lateMuon.tobName())
    , m_Et(lateMuon.Et())
    , m_eta(lateMuon.eta())
-   , m_phi(lateMuon.phi())
+   , m_phi(static_cast<int>(lateMuon.phi()))
    , m_EtDouble(lateMuon.EtDouble())
    , m_etaDouble(lateMuon.EtaDouble())
    , m_phiDouble(lateMuon.PhiDouble())

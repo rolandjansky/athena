@@ -18,6 +18,7 @@ Sim_tf.py \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
+--preExec 'EVNTtoHITS:simFlags.LArParameterization.set_Value_and_Lock(0)' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "HITS.FullG4.pool.root" \
@@ -30,8 +31,9 @@ echo  "art-result: $rc1 simulation FullG4"
 AtlasG4_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:Campaigns/MC16Simulation.py' \
+--preInclude 'sim:Campaigns/MC16Simulation.py' \
 --postExec 'sim:topSeq.BeamEffectsAlg.ISFRun=True' \
+--preExec 'sim:simFlags.LArParameterization.set_Value_and_Lock(0);simFlags.CalibrationRun.set_Off()' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "HITS.AtlasG4.pool.root" \

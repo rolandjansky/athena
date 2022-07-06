@@ -347,7 +347,7 @@ void gFEXJwoJAlgo::sumEtFPGA(gTowersCentral twrs, int & partial_sumEt ){
 
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
-      partial_sumEt += twrs[irow][jcolumn];
+      partial_sumEt += (twrs[irow][jcolumn] > 0 ? twrs[irow][jcolumn]: 0);
     }
   }
 }

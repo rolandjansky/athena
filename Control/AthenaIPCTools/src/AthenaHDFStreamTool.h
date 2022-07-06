@@ -27,6 +27,28 @@ namespace H5 {
 /** @class AthenaHDFStreamTool
  *  @brief This class provides the IPCTool for HDF Stream objects
  **/
+/* To use this tool to
+ * write data to HDF5 add the following jobOption fragment:
+ *
+ * from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+ * import AthenaPoolCnvSvc.AthenaPool
+ * from AthenaIPCTools.AthenaIPCToolsConf import AthenaHDFStreamTool
+ * svcMgr.AthenaPoolCnvSvc.OutputStreamingTool += [ AthenaHDFStreamTool("OutputStreamingTool") ]
+ * svcMgr.AthenaPoolCnvSvc.MakeStreamingToolClient = 1
+ * svcMgr.AthenaPoolCnvSvc.ParallelCompression=False
+ *
+ * To read it back use:
+ * from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+ * import AthenaPoolCnvSvc.ReadAthenaPool
+ * from AthenaIPCTools.AthenaIPCToolsConf import AthenaHDFStreamTool
+ * svcMgr.EventSelector.SharedMemoryTool = AthenaHDFStreamTool("EventStreamingTool")
+ * svcMgr.EventSelector.MakeStreamingToolClient = -1
+ * svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaHDFStreamTool("InputStreamingTool")
+ * svcMgr.AthenaPoolCnvSvc.MakeStreamingToolClient = 1
+ * svcMgr.AthenaPoolCnvSvc.StreamingTechnology = 1025
+ *
+ **/
+
 class AthenaHDFStreamTool : public ::AthAlgTool, virtual public IAthenaIPCTool {
 public: 
    /// Standard Service Constructor

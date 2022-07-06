@@ -56,7 +56,17 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.G4Version", _check_G4_version)
 
-    scf.addFlag("Sim.PhysicsList", "FTFP_BERT_ATL")
+    def _checkPhysicsListConf(prevFlags):
+        physicsList = "FTFP_BERT_ATL"
+        if prevFlags.Input.Files:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            physicsList = GetFileMD(prevFlags.Input.Files).get("PhysicsList", "")
+            if not physicsList:
+                # Currently physicsList is also part of /Digitization/Parameters metadata. TODO migrate away from this.
+                physicsList = GetFileMD(prevFlags.Input.Files).get("physicsList", "FTFP_BERT_ATL")
+        return physicsList
+
+    scf.addFlag("Sim.PhysicsList", _checkPhysicsListConf)
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
     scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
@@ -97,7 +107,40 @@ def createSimConfigFlags():
 
     # ISF
     scf.addFlag("Sim.ISFRun", False)
-    scf.addFlag("Sim.ISF.Simulator", SimulationFlavour.Unknown, enum=SimulationFlavour)
+
+    def _checkSimulationFlavour(prevFlags):
+        simulator = SimulationFlavour.Unknown
+        if prevFlags.Input.Files:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            simFlavour = GetFileMD(prevFlags.Input.Files).get("Simulator", "")
+            if not simFlavour:
+                simFlavour = GetFileMD(prevFlags.Input.Files).get("SimulationFlavour", "")
+            try:
+                simulator = SimulationFlavour(simFlavour)
+            except ValueError:
+                # Deal with old non-thread-safe simulators
+                if simFlavour in ['default']: # This is the case when ISF was not configured in sim
+                    simulator = SimulationFlavour.AtlasG4
+                elif simFlavour in ['MC12G4', 'FullG4']:
+                    simulator = SimulationFlavour.FullG4MT
+                elif simFlavour in ['FullG4_QS', 'FullG4_Longlived']:
+                    simulator = SimulationFlavour.FullG4MT_QS
+                elif simFlavour in ['PassBackG4']:
+                    simulator = SimulationFlavour.PassBackG4MT
+                elif simFlavour in ['ATLFASTII']:
+                    simulator = SimulationFlavour.ATLFASTIIMT
+                elif simFlavour in ['ATLFASTIIF']:
+                    simulator = SimulationFlavour.ATLFASTIIFMT
+                elif simFlavour in ['ATLFAST3']:
+                    simulator = SimulationFlavour.ATLFAST3MT
+                elif simFlavour in ['ATLFAST3_QS']:
+                    simulator = SimulationFlavour.ATLFAST3MT_QS
+                else:
+                    # Obscure old-style configuration used - do not try to interpret
+                    simulator = SimulationFlavour.Unknown
+        return simulator
+
+    scf.addFlag("Sim.ISF.Simulator", _checkSimulationFlavour, enum=SimulationFlavour)
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks

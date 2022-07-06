@@ -6,8 +6,8 @@ def getNewConfigFlags():
     from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
     ConfigFlags = getNewConfigFlags()
     """
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import BeamType
 
     # Import some old-style flags
     from AthenaCommon.DetFlags import DetFlags
@@ -20,6 +20,7 @@ def getNewConfigFlags():
     from RecExConfig.RecFlags import rec
     from RecExConfig.RecAlgsFlags import recAlgs
     from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
+    from MuonRecExample.MuonRecFlags import muonRecFlags
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -30,6 +31,7 @@ def getNewConfigFlags():
                                     jobproperties.AthenaCommonFlags.PoolHitsInput() )
 
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
+    ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType())
     ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
     ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
     # Geometry - General
@@ -101,6 +103,7 @@ def getNewConfigFlags():
     # Muon reco flags
     ConfigFlags.MuonCombined.doMuGirl = recAlgs.doMuGirl()
     ConfigFlags.MuonCombined.doMuGirlLowBeta = muonCombinedRecFlags.doMuGirlLowBeta()
+    ConfigFlags.Muon.doMSVertex = muonRecFlags.doMSVertex()
 
     # data overlay
     from AthenaCommon.GlobalFlags import globalflags

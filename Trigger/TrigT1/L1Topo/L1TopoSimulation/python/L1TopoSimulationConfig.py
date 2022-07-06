@@ -31,7 +31,8 @@ def L1LegacyTopoSimulationCfg(flags):
                                                     EMTAUInputProvider = emtauProvider,
                                                     IsLegacyTopo = True,
                                                     InputDumpFile = "inputdump_legacy.txt",
-                                                    EnableInputDump = flags.Trigger.enableL1TopoDump, 
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump,
+                                                    UseBitwise = flags.Trigger.enableL1TopoBWSimulation,
                                                     MonHistBaseDir = "L1/L1LegacyTopoAlgorithms")
 
     # No muon inputs to legacy Topo
@@ -46,7 +47,8 @@ def L1LegacyTopoSimulationCfg(flags):
 def L1TopoSimulationCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    
+    from AthenaConfiguration.Enums import Format
+
     acc = ComponentAccumulator()
 
     #Configure the MuonInputProvider
@@ -60,20 +62,23 @@ def L1TopoSimulationCfg(flags):
     muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = True)
     muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = True)
 
-    emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
-    jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
+    emtauProvider = CompFactory.LVL1.eFexInputProvider("eFexInputProvider")
+    jetProvider = CompFactory.LVL1.jFexInputProvider("jFexInputProvider")
     energyProvider = CompFactory.LVL1.gFexInputProvider("gFexInputProvider")
     if not flags.Trigger.enableL1CaloPhase1:
         emtauProvider.eFexEMRoIKey = ""
         emtauProvider.eFexTauRoIKey = ""
         jetProvider.jFexSRJetRoIKey = ""
         jetProvider.jFexLRJetRoIKey = ""
+        jetProvider.jFexEMRoIKey = ""
         jetProvider.jFexTauRoIKey = ""
         jetProvider.jFexXERoIKey = ""
         jetProvider.jFexTERoIKey = ""
         energyProvider.gFexSRJetRoIKey = ""
         energyProvider.gFexLRJetRoIKey = ""
         energyProvider.gFexXEJWOJRoIKey = ""
+        energyProvider.gFexXENCRoIKey = ""
+        energyProvider.gFexXERHORoIKey = ""
         energyProvider.gFexMHTRoIKey = ""
         energyProvider.gFexTERoIKey = ""
 
@@ -83,11 +88,13 @@ def L1TopoSimulationCfg(flags):
                                                     JetInputProvider = jetProvider,
                                                     EnergyInputProvider = energyProvider,
                                                     IsLegacyTopo = False,
-                                                    EnableInputDump = flags.Trigger.enableL1TopoDump
-                                                    #UseBitwise = True
+                                                    EnableInputDump = flags.Trigger.enableL1TopoDump,
+                                                    UseBitwise = flags.Trigger.enableL1TopoBWSimulation,
+                                                    FillHistoBasedOnHardware = (flags.Input.Format is Format.BS)
                                                     )
 
     acc.addEventAlgo(topoSimAlg)
+    
     from L1TopoOnlineMonitoring import L1TopoOnlineMonitoringConfig as TopoMonConfig
     acc.addEventAlgo(TopoMonConfig.getL1TopoPhase1OnlineMonitor(flags))
     
@@ -105,9 +112,9 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
 
     # Calo inputs
     if flags.Trigger.enableL1CaloPhase1 and not isLegacy:
-        topoSimSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
+        topoSimSeq.EMTAUInputProvider = 'LVL1::eFexInputProvider/eFexInputProvider'
         # Need further test from inputs.
-        topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        topoSimSeq.JetInputProvider = 'LVL1::jFexInputProvider/jFexInputProvider'
         # Need further test from inputs. Reverting back to Run 2 MET 
         topoSimSeq.EnergyInputProvider = 'LVL1::gFexInputProvider/gFexInputProvider'
 

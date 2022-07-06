@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -46,7 +46,7 @@ namespace Egamma{
 
 
 
-  void IsolationPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) const{
+  void IsolationPlots::fill(const xAOD::Egamma& egamma, const xAOD::EventInfo& eventInfo) {
     FillIsolationPlot(etcone20       ,xAOD::Iso::etcone20, egamma, eventInfo);
     FillIsolationPlot(etcone30       ,xAOD::Iso::etcone30, egamma, eventInfo);
     FillIsolationPlot(etcone40       ,xAOD::Iso::etcone40, egamma, eventInfo);

@@ -59,15 +59,6 @@ public:
   virtual StatusCode finalize() override;
 
   typedef IegammaTrkRefitterTool::Cache Cache;
-  /** @brief Refit the track associated with an egamma object*/
-  virtual StatusCode refitElectronTrack(const EventContext& ctx,
-                                        const xAOD::Electron*,
-                                        Cache& cache) const override final;
-
-  /** @brief Refit a track assoicated to a TrackParticle*/
-  virtual StatusCode refitTrackParticle(const EventContext& ctx,
-                                        const xAOD::TrackParticle*,
-                                        Cache& cache) const override final;
 
   /** @brief Refit a track*/
   virtual StatusCode refitTrack(const EventContext& ctx,
@@ -142,14 +133,6 @@ private:
     1,
     "Type of material interaction in extrapolation (Default Electron)"
   };
-
-  /** @brief Minimum number of silicon hits on track before it is allowed to be
-   * refitted*/
-  Gaudi::Property<int> m_MinNoSiHits{ this,
-                                      "minNoSiHits",
-                                      3,
-                                      "Minimum number of silicon hits on track "
-                                      "before it is allowed to be refitted" };
 
   /** @brief Particle Hypothesis*/
   Trk::ParticleHypothesis m_ParticleHypothesis;

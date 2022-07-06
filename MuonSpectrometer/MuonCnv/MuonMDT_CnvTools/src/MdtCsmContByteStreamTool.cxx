@@ -37,19 +37,15 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(const MdtCsmContainer* cont, 
         return StatusCode::FAILURE;
     }
 
-    FullEventAssembler<MDT_Hid2RESrcID>::RODDATA* theROD;
+    FullEventAssembler<MDT_Hid2RESrcID>::RODDATA* theROD{nullptr};
 
     std::map<uint32_t, MdtROD_Encoder> mapEncoder;
-
-    const MuonGM::MuonDetectorManager* mdm = nullptr;
-    ATH_CHECK(detStore()->retrieve(mdm, "Muon"));
-    const MdtIdHelper& mdtIdHelper = *mdm->mdtIdHelper();
 
     ATH_MSG_DEBUG(" number of collections " << cont->size());
     for (const MdtCsm* csm : *cont) {
         Identifier coll_id = csm->identify();
         uint32_t rodId = m_hid2re->getRodID(coll_id);
-        mapEncoder.try_emplace(rodId, mdtIdHelper).first->second.add(csm);
+        mapEncoder.try_emplace(rodId).first->second.add(csm);
     }
 
     // MdtCsm_Encoder has collected all the csm, now can fill the

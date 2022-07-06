@@ -54,6 +54,13 @@ def TileTMDBRawChannelMonitoringConfig(flags, MuRcvRawChCnt = "MuRcvRawChCnt", F
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     result.merge( TileCablingSvcCfg(flags) )
 
+    from AthenaConfiguration.Enums import Format
+    if flags.Input.Format == Format.BS:
+        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+        result.merge(ByteStreamReadCfg(flags, type_names=['TileMuonReceiverContainer/TileMuRcvCnt',
+                                                          'TileRawChannelContainer/MuRcvRawChCnt',
+                                                          'TileDigitsContainer/MuRcvDigitsCnt']))
+
     isDSP = (MuRcvRawChCnt == "MuRcvRawChCnt")
     if not isDSP:
         result.merge(TileMuRcvRawChannelMakerCfg(flags, MuRcvRawChCnt = MuRcvRawChCnt))
@@ -151,10 +158,6 @@ def TileTMDBRawChannelMonitoringConfig(flags, MuRcvRawChCnt = "MuRcvRawChCnt", F
 
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

@@ -7,7 +7,7 @@ from AthenaConfiguration.Enums import BeamType, LHCPeriod
 
 def TauBuildAlgCfg(flags):
 
-    result=ComponentAccumulator()
+    result = ComponentAccumulator()
 
     # Tracking
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
@@ -56,10 +56,10 @@ def TauBuildAlgCfg(flags):
                                  Key_tauShotClusOutputContainer="TauShotClusters",
                                  Key_tauShotPFOOutputContainer="TauShotParticleFlowObjects",
                                  Key_tauPi0CellOutputContainer="TauCommonPi0Cells",
-                                 MaxEta = flags.Tau.SeedMaxEta,
-                                 MinPt = flags.Tau.SeedMinPt,
-                                 MaxNTracks = flags.Tau.MaxNTracks,
-                                 CellMakerTool = result.popToolsAndMerge(tauTools.TauCellFinalizerCfg(flags)) )
+                                 MaxEta=flags.Tau.SeedMaxEta,
+                                 MinPt=flags.Tau.SeedMinPt,
+                                 MaxNTracks=flags.Tau.MaxNTracks,
+                                 CellMakerTool=result.popToolsAndMerge(tauTools.TauCellFinalizerCfg(flags)))
 
     if flags.GeoModel.Run is LHCPeriod.Run4:
         BuildAlg.PixelDetEleCollKey=""
@@ -115,10 +115,10 @@ def TauCaloAlgCfg(flags):
     result.addEventAlgo(CaloTopoForTausMaker)
 
     relinkAlg = CompFactory.ClusterCellRelinkAlg('ClusterCellRelinkAlg',
-                                                 Cells = 'AllCalo',
-                                                 ClustersInput = CaloTopoForTausMaker.ClustersOutputName,
-                                                 ClustersOutput = 'TauPi0Clusters',
-                                                 CellLinksOutput = 'TauPi0Clusters_links')
+                                                 Cells='AllCalo',
+                                                 ClustersInput=CaloTopoForTausMaker.ClustersOutputName,
+                                                 ClustersOutput='TauPi0Clusters',
+                                                 CellLinksOutput='TauPi0Clusters_links')
     result.addEventAlgo(relinkAlg)
 
 
@@ -213,8 +213,12 @@ def TauOutputCfg(flags):
     TauAODList += [ "xAOD::PFOContainer#TauHadronicParticleFlowObjects" ]
     TauAODList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 
+    if flags.Tau.doDiTauRec:
+        TauAODList += [ "xAOD::DiTauJetContainer#DiTauJets" ]
+        TauAODList += [ "xAOD::DiTauJetAuxContainer#DiTauJetsAux." ]
+
     # Set common to ESD too
-    TauESDList = TauAODList
+    TauESDList = list(TauAODList)
 
     # add AOD specific
     TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.-mu.-nVtxPU.-ABS_ETA_LEAD_TRACK.-TAU_ABSDELTAPHI.-TAU_ABSDELTAETA.-absipSigLeadTrk.-passThinning" ]
@@ -250,6 +254,11 @@ def TauReconstructionCfg(flags):
     tauRunnerAlg = TauRunnerAlgCfg(flags)
     result.merge(tauRunnerAlg)
 
+    if flags.Tau.doDiTauRec:
+        from DiTauRec.DiTauBuilderConfig import DiTauBuilderCfg
+        diTauBuildAlg = DiTauBuilderCfg(flags)
+        result.merge(diTauBuildAlg)
+
     if (flags.Output.doWriteESD or flags.Output.doWriteAOD):
         tauOut = TauOutputCfg(flags)
         result.merge(tauOut)
@@ -262,11 +271,6 @@ def TauReconstructionCfg(flags):
 
 if __name__=="__main__":
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-    
-    # from AthenaCommon.Logging import log
-    # from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     from AthenaCommon.AlgSequence import AlgSequence

@@ -61,18 +61,15 @@
 #include "NSWCalibTools/INSWCalibTool.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonCondData/NswCalibDbThresholdData.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include <memory>
 #include <string>
 #include <sstream>
 #include <vector>
-#include <map>
 
 /*******************************************************************************/
-
-namespace MuonGM{
-  class MuonDetectorManager;
-}
 
 class MicromegasHitIdHelper;
 class TTree;
@@ -129,10 +126,11 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool{this,"CalibrationTool","Muon::NSWCalibTool/NSWCalibTool"};
 
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
+        SG::ReadCondHandleKey<NswCalibDbThresholdData> m_condThrshldsKey {this, "CondThrshldsKey", "NswCalibDbThresholdData", "Key of NswCalibDbThresholdData object containing calibration data (VMM thresholds)"};
 
-  	Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-  	SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MM_Hits", "name of the input objects"};
-  	std::string m_inputObjectName{""};
+  		Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  		SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MM_Hits", "name of the input objects"};
+  		std::string m_inputObjectName{""};
 
 		Gaudi::Property<std::string> m_vmmReadoutMode{this,"vmmReadoutMode","peak","For readout (DAQ) path. Can be peak or threshold"};
 		Gaudi::Property<std::string> m_vmmARTMode{this,"vmmARTMode","threshold","For ART (trigger) path. Can be peak or threshold"};
@@ -173,6 +171,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 		ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
 
 
+		Gaudi::Property<bool> m_useCondThresholds{this, "useCondThresholds", false, "Use conditions data to get thresholds, overrules useThresholdScaling"};
 		Gaudi::Property<bool> m_useThresholdScaling{this, "useThresholdScaling", true, "Use a strip length dependent threshold in MM digitiation"};
 		Gaudi::Property<float> m_thresholdScaleFactor{this,"thresholdScaleFactor", 9.0, "Use x times the strip length dependent noise as MM threshold"};
 		Gaudi::Property<float> m_vmmDeadtime{this,"vmmDeadtime",200,"Specifies how much before the lower time limit the VMM simulation should start evaluating the signal"};
@@ -182,46 +181,48 @@ class MM_DigitizationTool : public PileUpToolBase {
 		TFile *m_file{};
 		TTree *m_ntuple{};
 
-		const MicromegasHitIdHelper* m_muonHelper{}; // not owned
-		const MuonGM::MuonDetectorManager* m_MuonGeoMgr{}; // not owned
+		const MicromegasHitIdHelper* m_muonHelper{nullptr}; // not owned
+		SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
+                                                                                "Key of input MuonDetectorManager condition data"};
+
 		std::list<std::unique_ptr<MMSimHitCollection>> m_MMHitCollList{};
 		std::unique_ptr<TimedHitCollection<MMSimHit>> m_timedHitCollection_MM{}; // the pileup hits
 		std::unique_ptr<MM_StripsResponseSimulation> m_StripsResponseSimulation{};
 		std::unique_ptr<MM_ElectronicsResponseSimulation> m_ElectronicsResponseSimulation{};
 
-		float m_driftVelocity;
-		int m_n_Station_side;
-		int m_n_Station_eta;
-		int m_n_Station_phi;
-		int m_n_Station_multilayer;
-		int m_n_Station_layer;
-		int m_n_hitStripID;
-		int m_n_StrRespTrg_ID;
-		int m_n_strip_multiplicity;
-		int m_n_strip_multiplicity_2;
-		int m_n_hitPDGId;
+        double m_driftVelocity{0};
+		int m_n_Station_side{-INT_MAX};
+		int m_n_Station_eta{-INT_MAX};
+		int m_n_Station_phi{-INT_MAX};
+		int m_n_Station_multilayer{-INT_MAX};
+		int m_n_Station_layer{-INT_MAX};
+		int m_n_hitStripID{-INT_MAX};
+		int m_n_StrRespTrg_ID{-INT_MAX};
+		int m_n_strip_multiplicity{-INT_MAX};
+		int m_n_strip_multiplicity_2{-INT_MAX};
+		int m_n_hitPDGId{-INT_MAX};
 
-		double m_n_hitOnSurface_x;
-		double m_n_hitOnSurface_y;
-		double m_n_hitDistToChannel;
-		double m_n_hitIncomingAngle;
-		double m_n_StrRespTrg_Time;
-		double m_n_hitIncomingAngleRads;
-		double m_n_hitKineticEnergy;
-		double m_n_hitDepositEnergy;
+		double m_n_hitOnSurface_x{-DBL_MAX};
+		double m_n_hitOnSurface_y{-DBL_MAX};
+		double m_n_hitDistToChannel{-DBL_MAX};
+		double m_n_hitIncomingAngle{-DBL_MAX};
+		double m_n_StrRespTrg_Time{-DBL_MAX};
+		double m_n_hitIncomingAngleRads{-DBL_MAX};
+		double m_n_hitKineticEnergy{-DBL_MAX};
+		double m_n_hitDepositEnergy{-DBL_MAX};
 
-		int m_exitcode;
+		int m_exitcode{0};
 
-		float m_tofCorrection;
-		float m_bunchTime;
-		float m_globalHitTime;
-		float m_eventTime;
-		std::vector<int> m_n_StrRespID;
-		std::vector<float> m_n_StrRespCharge;
-		std::vector<float> m_n_StrRespTime;
+		double m_tofCorrection{-DBL_MAX};
+		double m_bunchTime{-DBL_MAX};
+		double m_globalHitTime{-DBL_MAX};
+		double m_eventTime{-DBL_MAX};
+		std::vector<int> m_n_StrRespID{};
+		std::vector<float> m_n_StrRespCharge{};
+		std::vector<float> m_n_StrRespTime{};
 
-		float m_noiseSlope = 0.0F;
-		float m_noiseIntercept = 0.0F;
+		double m_noiseSlope {0.};
+		double m_noiseIntercept{0.};
 };
 
 #endif // MM_DigitizationTool

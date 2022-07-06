@@ -1,13 +1,10 @@
-# $Id: CMakeLists.txt 757198 2016-06-23 10:12:56Z krasznaa $
-################################################################################
-# Package: TileByteStream
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileByteStream )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat eformat_write )
+find_package( tdaq-common COMPONENTS eformat )
 
 # Component(s) in the package:
 atlas_add_library( TileByteStreamLib

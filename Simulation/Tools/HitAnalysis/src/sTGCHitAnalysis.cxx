@@ -130,7 +130,7 @@ StatusCode sTGCHitAnalysis::execute() {
 
       Amg::Vector3D p = (*i_hit).globalPosition();
       //Get station names and make plots for each wedge
-      sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
+      const sTgcHitIdHelper* hitHelper = sTgcHitIdHelper::GetHelper();
       int simId = (*i_hit).sTGCId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
 

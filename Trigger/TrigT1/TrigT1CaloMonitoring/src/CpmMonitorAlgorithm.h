@@ -7,6 +7,7 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigL1Calo/CPMTowerContainer.h" 
 #include "xAODTrigL1Calo/CPMTobRoIContainer.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
@@ -83,7 +84,7 @@ private:
   Gaudi::Property<int> m_maxTobsPerCmx{this,"MaxTOBsPerCMX", 70,  "Maximum number of TOBs per CMX plotted"};
 
   // Error vector StoreGate key
-  StringProperty m_errorLocation{this,"ErrorLocation","L1CaloCPMErrorVector","Error vector name"};
+  SG::WriteHandleKey<std::vector<int>> m_errorLocation{this,"ErrorLocation","L1CaloCPMErrorVector","Error vector name"};
 
   // Error summary plot bins
   enum SummaryErrors { EMParity, EMLink, HadParity, HadLink, CPMStatus,

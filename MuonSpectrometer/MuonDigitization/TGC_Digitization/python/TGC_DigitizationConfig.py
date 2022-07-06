@@ -13,7 +13,7 @@ def TGC_FirstXing():
 def TGC_LastXing():
     return 75
 
-def setupTgcDigitASDposCondAlg():
+def setupTgcDigitCondAlg():
     from AthenaCommon.AlgSequence import AthSequencer
     condSequence = AthSequencer("AthCondSeq")
     if not hasattr(condSequence, "TgcDigitASDposCondAlg"):
@@ -23,16 +23,12 @@ def setupTgcDigitASDposCondAlg():
             conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS", className='CondAttrListCollection')
         else:   # since the folder does not exist in the presented global tag, need explicit tag?
             conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS <tag>TgcDigitAsdPos-00-01</tag>", className='CondAttrListCollection', forceMC=True)
+        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/TOFFSET <tag>TgcDigitTimeOffset-00-01</tag>", className='CondAttrListCollection', forceMC=True)   # TODO remove explicit tag
+        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/XTALK <tag>TgcDigitXTalk-00-01</tag>", className='CondAttrListCollection', forceMC=True)   # TODO remove explicit tag
 
         condSequence += CfgMgr.TgcDigitASDposCondAlg("TgcDigitASDposCondAlg")
-
-def setupTgcDigitTimeOffsetCondAlg():
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSequence = AthSequencer("AthCondSeq")
-    if not hasattr(condSequence, "TgcDigitTimeOffsetCondAlg"):
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/TOFFSET <tag>TgcDigitTimeOffset-00-01</tag>", className='CondAttrListCollection', forceMC=True)   # TODO remove explicit tag
         condSequence += CfgMgr.TgcDigitTimeOffsetCondAlg("TgcDigitTimeOffsetCondAlg")
+        condSequence += CfgMgr.TgcDigitCrosstalkCondAlg("TgcDigitCrosstalkCondAlg")
 
 
 def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
@@ -52,10 +48,10 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
 
-    setupTgcDigitASDposCondAlg()
+    setupTgcDigitCondAlg()
     kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
-    setupTgcDigitTimeOffsetCondAlg()
     kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
+    kwargs.setdefault("TGCDigitCrosstalkKey", "TGCDigitCrosstalkData")
 
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 

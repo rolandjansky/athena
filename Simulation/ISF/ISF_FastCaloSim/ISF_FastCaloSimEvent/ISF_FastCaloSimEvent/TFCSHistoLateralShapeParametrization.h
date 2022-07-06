@@ -10,7 +10,7 @@
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #ifdef USE_GPU
 #include "ISF_FastCaloGpu/LoadGpuFuncHist.h"
-#include "ISF_FastCaloGpu/GeoLoadGpu.h"
+#include "ISF_FastCaloGpu/FH_structs.h"
 #endif
 
 class TH2;
@@ -70,6 +70,7 @@ public:
 #ifdef USE_GPU
   //for FCS-GPU
   //construct the hist function and copy to GPU
+  //will not compile by default
   void  set_d_HistFunc( FH2D* hf_ptr ) { m_d_HistFunc = hf_ptr; };
   const FH2D*  d_HistFunc() { return m_d_HistFunc; };
   LoadGpuFuncHist* LdFH() { return m_LdFH; };

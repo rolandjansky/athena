@@ -5,8 +5,8 @@
 #ifndef MMT_ROAD_H 
 #define MMT_ROAD_H
 
-#include "AthenaBaseComps/AthMessaging.h"
 #include "MMT_Hit.h"
+#include <cmath>
 #include <numeric>
  
 namespace MuonGM {
@@ -37,7 +37,7 @@ struct micromegas_t {
   std::vector<ROOT::Math::XYZVector> planeCoordinates{};
 };
 
-class MMT_Road : public AthMessaging {
+class MMT_Road {
   public:
     MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t &mm, int xthr, int uvthr, int iroadx, int iroadu = -1, int iroadv = -1);
     ~MMT_Road()=default;
@@ -57,7 +57,7 @@ class MMT_Road : public AthMessaging {
     void incrementAge(const int &bcwind);
     double getB() const { return m_B; }
     double getPitch() const { return m_pitch; }
-    const ROOT::Math::XYZVector& getPlaneCoordinate(const unsigned int index) const { return m_planeCoordinates.at(index); }
+    const ROOT::Math::XYZVector& getPlaneCoordinate(const unsigned int index) const { return m_planeCoordinates[index]; }
     int getRoadSize() const { return m_roadSize; }
     int getRoadSizeUpX() const { return m_roadSizeUpX; }
     int getRoadSizeDownX() const { return m_roadSizeDownX; }

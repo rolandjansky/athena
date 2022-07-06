@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGORITHMS_SIDETECTORELEMENTINFOCONDALG_H
@@ -22,19 +22,14 @@ namespace InDet {
       SiDetectorElementStatusCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
       virtual ~SiDetectorElementStatusCondAlg() override = default;
 
-      virtual StatusCode initialize() override;
-      virtual StatusCode execute(const EventContext& ctx) const override;
-      virtual StatusCode finalize() override;
-
-      // @TODO should a reentrant algorithm be clonable ??
-      // virtual bool isClonable() const override { return true; };
+      virtual StatusCode initialize() override final;
+      virtual StatusCode execute(const EventContext& ctx) const override final;
+      virtual StatusCode finalize() override final;
+      virtual bool isReEntrant() const override final { return false; }
 
    private:
       ToolHandle <IDetectorElementStatusTool> m_condSummaryTool
          {this, "ConditionsSummaryTool", "", "Tool to retrieve e.g. Pixel or SCT Conditions summary"};
-      SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_readKey
-         {this, "ReadKey", "", "Optional key of an input SiDetectorElementStatus to be anded with the summary information from the tool "};
-
       SG::WriteCondHandleKey<InDet::SiDetectorElementStatus> m_writeKey
          {this, "WriteKey", "", "Key of output SiDetectorElementStatus data"};
       Gaudi::Property< bool> m_activeOnly

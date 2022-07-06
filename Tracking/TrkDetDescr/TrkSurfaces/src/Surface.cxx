@@ -38,7 +38,7 @@ Trk::Surface::Surface()
 #endif
 }
 
-#if defined(FLATTEN) && defined(__GNUC__)
+#if defined(__GNUC__)
 // We compile this function with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call
 // to out-of-line Eigen code that is linked from other DSOs; in that case,
@@ -87,7 +87,7 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier
 #endif
 }
 
-#if defined(FLATTEN) && defined(__GNUC__)
+#if defined(__GNUC__)
 // We compile this function with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call
 // to out-of-line Eigen code that is linked from other DSOs; in that case,
@@ -111,7 +111,7 @@ Trk::Surface::Surface(const Surface& sf)
 #endif
 }
 
-#if defined(FLATTEN) && defined(__GNUC__)
+#if defined(__GNUC__)
 // We compile this function with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call
 // to out-of-line Eigen code that is linked from other DSOs; in that case,

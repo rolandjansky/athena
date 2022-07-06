@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAURUNNERALG_H
@@ -41,7 +41,6 @@ class TauRunnerAlg: public AthAlgorithm
         //-----------------------------------------------------------------
         virtual StatusCode initialize() override;
         virtual StatusCode execute() override;
-        virtual StatusCode finalize() override;
 
  private:
        

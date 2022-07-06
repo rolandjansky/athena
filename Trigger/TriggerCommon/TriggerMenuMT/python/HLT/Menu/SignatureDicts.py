@@ -25,7 +25,7 @@ SliceIDDict = {
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
     'EnhancedBias'  : 'eb',
-    'UnconventionalTracking'  : 'unconvtrk',
+    'UnconventionalTracking'  : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet', 'dispvtx'],
     'Test'          : 'TestChain',
 }
 
@@ -152,6 +152,7 @@ JetChainParts = {
        'preselj120',
        'preselj140',
        'preselj180',
+       'preselj190',
        'preselj200',
        'preselj225',
        # Multijets
@@ -174,7 +175,10 @@ JetChainParts = {
        'presel4j85',
        'presel5j25',
        'presel5j50',
+       'presel5j55',
+       'presel5c50',
        'presel6j40',
+       'presel6j45',
        'presel7j30',
        # Multiple threshold
        'preselj60XXj40',
@@ -182,7 +186,9 @@ JetChainParts = {
        'preselj80XX2j45',
        'presel2j180XXj80',
        # Nonstandard eta regions
+       'presel5c55',
        'presel6c25',
+       'presel6c45',
        'preselj45XX2f40',
        'preselc60XXc45XXc25XXc20', # L1J45p0ETA21_3J15p0ETA25
        'preselc60XXj45XXf40',
@@ -200,11 +206,12 @@ JetChainParts = {
        'presel2c20XX2c20b85',
        'presel2c20XX2c20b90',
        'preselj20b95',
+       'preselj2b77',
        'preselj20b77',
        'presel3j45b95',
        'presel4j25b95',
-       'presel2j25b85XX2j25',
-       'presel2j25b85XX3j25',
+       'presel2j25XX2j25b85',
+       'presel3j25XX2j25b85',
        'preselj50b85XX3j50',
        'preselj80XX2j45b90',
        'preselj140b85XXj45b85',
@@ -241,7 +248,7 @@ JetChainParts = {
                       'DJMASS1000j50', # alias
                       'DJMASS1000j50dphi240', # alias
                       'DJMASS1000j50dphi200x400deta', # alias
-                      
+
                       'DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta', # needed for hypoToolTests.py
                       'DIJET80j12etXX0j12eta240XX700djmass', # needed for hypoToolTests.py
 
@@ -257,8 +264,8 @@ JetChainParts = {
                       'HT50XX10etXX0eta320'  # needed for hypoToolTests.py
                       ],
 
-    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2', 
-                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4', 
+    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p075dR1p2', 'emergingPTF0p07dR1p2', 'emergingPTF0p0dR1p2',
+                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p075dR0p4', 'emergingPTF0p07dR0p4', 'emergingPTF0p0dR0p4',
                   'tracklessdR1p2',      'tracklessdR0p4',
                   'calratio','calratiormbib' # Exotics CalRatio jets (trackless and low-EMF, with option to clean out BIB)
               ],
@@ -273,7 +280,10 @@ JetChainParts = {
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
-      ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
+       ['050momemfrac100', 'momhecfrac010', '050momemfrac100XXmomhecfrac010'],
+    'timing'        : # delayed jets
+    ['2timing'],
+
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
     ['CLEANlb', 'CLEANllp', 'MASK300ceta210XX300nphi10',
      # ptrangeXrY (X, Y matches regex \d+)  triggers a prehypo selection of
@@ -306,7 +316,7 @@ JetChainParts_Default = {
     'L1threshold'   : '',
     'threshold'     : '',
     'multiplicity'  : '',
-    'trigType'      :'j',
+    'trigType'      : '',
     'topo'          : [],
     'extra'         : '',
     'addInfo'       : [],
@@ -327,6 +337,7 @@ JetChainParts_Default = {
     'etaRange'      : '0eta320',
     'jvt'           : '',
     'momCuts'       : '',
+    'timing'       : '',
     'prefilters'    : [],
     'bdips'         : '',
     'hypoScenario'  : 'simple',
@@ -368,7 +379,7 @@ MuonChainParts = {
     'etaRange'       : ['0eta105'],
     'threshold'      : '',
     'tnpInfo'        : ['probe'],
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','vtx','mucombTag'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
@@ -388,7 +399,7 @@ MuonChainParts_Default = {
     'alignmentGroup' : ['Muon'],
     'L1threshold'    : '',
     'multiplicity'   : '',
-    'trigType'       : ['mu'],
+    'trigType'       : '',
     'etaRange'       : '0eta250',
     'threshold'      : '',
     'tnpInfo'        : '',
@@ -412,8 +423,8 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20', 
-    
+    'bBmumux', 'bBmux', 'b0dRAB12vtx20', 'b0dRAB127invmAB22vtx20', 'b0dRAB207invmAB22vtx20', 'b7invmAB22vtx20',
+
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
@@ -481,14 +492,14 @@ TauChainParts_Default = {
     'threshold'     : '20',
     'preselection'  : '',
     'selection'     : '',
-    'multiplicity'  :  '',
-    'trigType'      : ['tau'],
+    'multiplicity'  : '',
+    'trigType'      : '',
     'trkInfo'       : [],
     'tnpInfo'       : '',
     'extra'         : '',
     'recoAlg'       : '',
     'calib'         : '',
-    'addInfo'       :  '',
+    'addInfo'       : '',
     'topo'          : [],
     'sigFolder'     : ['Tau'],
     'subSigs'       : ['Tau'],
@@ -529,7 +540,7 @@ METChainParts_Default = {
     'signature'      : ['MET'],
     'alignmentGroup' : ['MET'],
     'L1threshold'    : '',
-    'trigType'       : ['xe'],
+    'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
     'calib'          : 'lcw',
@@ -558,7 +569,7 @@ XSChainParts['trigType']  = ['xs']
 # ---- xs Dictionary of default Values ----
 XSChainParts_Default = METChainParts_Default
 XSChainParts_Default['signature'] = ['XS']
-XSChainParts_Default['trigType']  = ['xs']
+XSChainParts_Default['trigType']  = ''
 
 #==========================================================
 # TE
@@ -571,7 +582,7 @@ TEChainParts['trigType']  = ['te']
 # ---- te Dictionary of default Values ----
 TEChainParts_Default = METChainParts_Default
 TEChainParts_Default['signature'] = ['TE']
-TEChainParts_Default['trigType']  = ['te']
+TEChainParts_Default['trigType']  = ''
 
 #==========================================================
 # Electron Chains
@@ -621,7 +632,7 @@ ElectronChainParts_Default = {
     'reccalibInfo'   : '',
     'idperfInfo'     : '',
     'gsfInfo'        : '',
-    'lrtInfo'        : '', 
+    'lrtInfo'        : '',
     'caloInfo'       : '',
     'lhInfo'         : '',
     'L2IDAlg'        : '',
@@ -716,7 +727,6 @@ MinBiasChainParts = {
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280', 'trk290',
                          '2trk6', '1trk5'], #ranges for exclusive tracks
     'hypoPtInfo'     : [ 'pt05', 'pt1', 'pt2', 'pt4', 'pt6', 'pt8', ],
-    'hypoSumEtInfo'  : ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf', 'afprec', 'afptof', 'excl'],
     'addInfo'        : ['peb'],
     'sigFolder'     : ['MinBias'],
@@ -730,7 +740,7 @@ MinBiasChainParts_Default = {
     'L1threshold'    : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
-    'trigType'       : ['mb'],
+    'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
     'IDinfo'         : '',
@@ -784,7 +794,7 @@ HeavyIonChainParts_Default = {
     'L1threshold'    : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
-    'trigType'       : ['hi'],
+    'trigType'       : '',
     'threshold'      : '',
     'extra'          : '',
     'IDinfo'         : '',
@@ -900,7 +910,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'tilelarcalib',
                                 'larnoiseburst','ibllumi',
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP', 'larpsallem', 'larpsall', 
+                                'calibAFP', 'larpsallem', 'larpsall',
                                 'acceptedevts',
                                 ]
 
@@ -915,7 +925,7 @@ CalibChainParts = {
     'purpose'        : AllowedCalibChainIdentifiers,
     'location'       : ['central', 'fwd'],
     'addInfo'        : ['loose','noise','beam'],
-    'hypo'           : ['trk9', 'trk16', 'trk29', 'conej40', 'conej165', 'conej75_320eta490', 'conej140_320eta490','satu20em'],
+    'hypo'           : ['trk4','trk9', 'trk16', 'trk29', 'conej40', 'conej165', 'conej75_320eta490', 'conej140_320eta490','satu20em'],
     'streamingInfo'  : ['vdm',],
     'threshold'      : '',
     'multiplicity'   : '',
@@ -1067,7 +1077,7 @@ BeamspotChainParts_Default = {
     'threshold'      : '',
     'multiplicity'   : '',
     'location'       : 'vtx',
-    'trigType'       : 'beamspot',
+    'trigType'       : '',
     'extra'          : '',
     'sigFolder'     : ['CalibCosmicMon'],
     'subSigs'       : ['Beamspot'],
@@ -1084,13 +1094,12 @@ UnconventionalTrackingChainParts = {
     'L1threshold'    : '',
     'chainPartName'  : [],
     'multiplicity'   : '',
-    'trigType'       : ['unconvtrk'],
+    'trigType'       : ['isotrk', 'fslrt', 'dedxtrk', 'hitdvjet', 'fsvsi', 'distrk', 'dispjet', 'dispvtx'],
     'threshold'      : '',
     'IDinfo'         : ['loose','medium','tight','vloose'],
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
-    'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "fsvsi", "distrk", "dispj"],
-    'addInfo'        : [],
-    'dispjVariant'   : ['2jet','1jet', '2jetperf', '1jetperf'],
+    'extra'          : '',
+    'addInfo'        : ['perf'],
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': list(range(0,10))
@@ -1103,12 +1112,11 @@ UnconventionalTrackingChainParts_Default = {
     'chainPartName'  : [],
     'multiplicity'   : '',
     'IDinfo'         : '',
-    'trigType'       : ['unconvtrk'],
-    'isoInfo'        : '',
+    'trigType'       : '',
     'threshold'      : '',
+    'isoInfo'        : '',
     'extra'          : '',
     'addInfo'        : '',
-    'dispjVariant'   : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0
@@ -1118,13 +1126,14 @@ UnconventionalTrackingChainParts_Default = {
 # Combined Chains
 #==========================================================
 AllowedTopos_comb = [
-    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','dRAB04','02dRAB','02dRAC','02dRBC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
+    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','dRAB04','02dRAB','02dRAC','02dRBC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC','80mTAD',
     '90invmAB',# TEST
     '1invmAB5','50invmAB130', # Jpsiee, Zee/Zeg
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon
     'invmAB10', '10invmAB70',
-    '7invmAB9', '11invmAB60', '11invmAB24', '24invmAB60', '7invmAA9', '11invmAA60', '11invmAA24', '24invmAA60', # Low mass Drell-Yan
+    '7invmAB9', '11invmAB60', '11invmAB24', '24invmAB60', '7invmAA9', '11invmAA60', '11invmAA24', '24invmAA60',
+    '20detaAA' # Low mass Drell-Yan
     ]
 
 # ---- Combined Dictionary of all allowed Values ----
@@ -1136,7 +1145,7 @@ CombinedChainParts['topo'] = AllowedTopos_comb
 CombinedChainParts_Default = deepcopy(PhotonChainParts_Default)
 CombinedChainParts_Default['signature'] = ['Photon','Muon']
 CombinedChainParts_Default['chainParts'] = ['g','mu'],
-CombinedChainParts_Default['trigType'] =['g','mu']
+CombinedChainParts_Default['trigType'] = ''
 CombinedChainParts_Default['topo'] = []
 
 #==========================================================
@@ -1151,20 +1160,19 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_g + AllowedTopos_mu + AllowedTopos_
 def getSignatureNameFromToken(chainpart):
     import re
     theMatchingTokens = []
-    reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
+    reverseSliceIDDict = { subvalue: key for key, value in SliceIDDict.items() for subvalue in ([value] if not isinstance(value, list) else value) } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
-        if re.match(r'^\d*'+token+r'\d*\w*$', chainpart):
-            theMatchingTokens += [token]
-    if len(theMatchingTokens) == 1:
-        return reverseSliceIDDict[theMatchingTokens[0]]
-    elif len(theMatchingTokens)>1:
-        log.error('[getSignatureNameFromToken] There are several signatures tokens, %s, matching the chain part %s. I don\'t know which one to use!',
-                                  theMatchingTokens,chainpart)
+        token = token if isinstance(token, list) else [token]
+        for subtoken in token:
+            if re.match(r'^\d*'+subtoken+r'\d*\w*$', chainpart):
+                theMatchingTokens += [subtoken]
+    if len(theMatchingTokens) > 0:
+        return reverseSliceIDDict[sorted(theMatchingTokens, key=lambda x: len(x), reverse=True)[0]]
     else:
         log.error('No signature matching chain part %s was found.', chainpart)
-    
+
     raise Exception('[getSignatureNameFromToken] Cannot find signature from chain name, exiting.')
-    
+
     return False
 
 
@@ -1222,7 +1230,13 @@ def getSignatureInformation(signature):
 #==========================================================
 def getBasePattern():
     import re
-    allTrigTypes = SliceIDDict.values()
+    allTrigTypes = []
+    for v in SliceIDDict.values():
+        if isinstance(v, list):
+            allTrigTypes += v
+        else:
+            allTrigTypes.append(v)
+
     possibleTT = '|'.join(allTrigTypes)
     pattern = re.compile(r"(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT))
     return pattern

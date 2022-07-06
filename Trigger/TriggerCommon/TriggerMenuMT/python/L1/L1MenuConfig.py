@@ -231,6 +231,10 @@ class L1MenuConfig(object):
     def _menuToLoad(self, silent=False):
         """ resolve the menu name to the menu files to load"""
         menuToLoadReq = self.menuFullName
+        # Extract the menu name, independent of menu prescale sets
+        if menuToLoadReq.endswith('prescale'):
+            menuToLoadReq = re.match(r'\w*_v\d*',self.menuFullName).group(0)
+            log.info(f'Base menu name {menuToLoadReq} extracted from {self.menuFullName}')
         from .Menu.MenuMapping import menuMap
         if menuToLoadReq in menuMap:
             menuToLoad = menuMap[menuToLoadReq]
@@ -494,6 +498,7 @@ class L1MenuConfig(object):
                 self.l1menu.addTopoAlgo( sortingAlgo, category = cat )
 
 
+
     def _generateMenu(self):
 
         if len(self.l1menu.items) > 0:
@@ -534,6 +539,17 @@ class L1MenuConfig(object):
                         list_of_undefined_thresholds += [ thrName ]
                     else:
                         self.l1menu.addThreshold( threshold )
+                try:
+                    zbThrName = connDef["zeroBias"]
+                    zbThr = self.getDefinedThreshold(zbThrName)
+                    if zbThr is None:
+                        log.error('Zero bias threshold %s is listed in menu but not defined', zbThrName )
+                        list_of_undefined_thresholds += [ zbThrName ]
+                    else:
+                        self.l1menu.addThreshold( zbThr )
+                except KeyError:
+                    pass
+
 
         # signals from merger boards like AlfaCtpin
         for (boardName, boardDef) in L1MenuFlags.boards().items():

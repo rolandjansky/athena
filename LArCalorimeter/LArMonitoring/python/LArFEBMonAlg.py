@@ -121,6 +121,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   title='# of readout FEB/DSP header;Num. FEBs;Partition',
                                   type='TH2I',
                                   path=summary_hist_path,
+                                  opt='kAlwaysCreate',
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   ylabels=lArDQGlobals.Partitions
@@ -129,6 +130,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   title='# of data corruption errors',
                                   type='TH2I',
                                   path=summary_hist_path,
+                                  opt='kAlwaysCreate',
                                   xbins=lArDQGlobals.N_FEBErrors, xmin=0.5, xmax=lArDQGlobals.N_FEBErrors+0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
@@ -173,6 +175,11 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     Group.defineHistogram('LB0,EvtRejYieldOut;RAW_YieldOfRejectedEventsVsLBout', 
                                   title='Yield of corrupted events (DATACORRUPTED) not vetoed by time window;Luminosity Block;Yield(%)',
+                                  type='TProfile',
+                                  path=summary_hist_path,
+                                  xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
+    Group.defineHistogram('LB0,EvtOneErrorYield;RAW_YieldOfOneErrorEventsVsLB', 
+                                  title='Yield of events with >=1 FEB in error;Luminosity Block;Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
@@ -416,8 +423,6 @@ if __name__=='__main__':
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
    from AthenaCommon.Constants import DEBUG
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
 
 

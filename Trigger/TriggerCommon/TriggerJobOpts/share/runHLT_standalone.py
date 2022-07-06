@@ -44,12 +44,13 @@ class opt:
     enableL1CaloPhase1   = False      # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
+    enableL1TopoBWSimulation = False  # Enable bitwise L1Topo simulation
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
     enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
     enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
     enableL1NSWPadTrigger = True      # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
     enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
-    enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
+    enableL1RPCBIS78    = True        # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -192,7 +193,8 @@ if opt.setGlobalTag is None:
         opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
     else:
         if ConfigFlags.GeoModel.Run == LHCPeriod.Run3:
-            opt.setGlobalTag = 'OFLCOND-MC21-SDR-RUN3-06'
+            # temporarily roll back to v5 for Run3 MC due to incompatibility between MC21 RDO and v6 MDT conditions
+            opt.setGlobalTag = 'OFLCOND-MC21-SDR-RUN3-05'
         else:
             opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
 
@@ -239,6 +241,7 @@ if opt.enableL1MuonPhase1 is not None:
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
+ConfigFlags.Trigger.enableL1TopoBWSimulation = opt.enableL1TopoBWSimulation
 
 ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
 ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
@@ -331,6 +334,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from AthenaCommon.CFElements import seqOR,parOR
 hltTop = seqOR("HLTTop")
+hltPreSeq = parOR("HLTPreSeq")
+hltTop += hltPreSeq
 hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
 topSequence += hltTop
@@ -427,7 +432,7 @@ if ConfigFlags.Trigger.doID:
 # Switch off CPS mechanism if we only run selected
 # signatures or chains, to avoid single-chain sets
 #-------------------------------------------------------------
-if opt.enabledSignatures or opt.selectChains:
+if len(opt.enabledSignatures)==1 or opt.selectChains:
     ConfigFlags.Trigger.disableCPS=True
 
 #-------------------------------------------------------------
@@ -443,6 +448,14 @@ from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
+
+
+#-------------------------------------------------------------
+# Cost Monitoring
+#-------------------------------------------------------------
+from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg
+CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags, seqName="HLTPreSeq")
+
 
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
@@ -461,6 +474,14 @@ if ConfigFlags.Trigger.doMuon:
 
 # restore logger after above includes
 log = logging.getLogger('runHLT_standalone.py')
+
+# ---------------------------------------------------------------
+# Track Overlay
+# ---------------------------------------------------------------
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+if overlayFlags.doTrackOverlay():
+    from TrkEventCnvTools.TrkEventCnvToolsConfigCA import TrkEventCnvSuperToolCfg
+    CAtoGlobalWrapper(TrkEventCnvSuperToolCfg, ConfigFlags)
 
 # ----------------------------------------------------------------
 # Pool input
@@ -564,8 +585,7 @@ if not opt.createHLTMenuExternally:
     if opt.endJobAfterGenerate:
         from AthenaCommon.AlgSequence import dumpSequence
         dumpSequence( topSequence )
-        import sys
-        sys.exit(0)
+        theApp.exit()
 
 
 
@@ -586,6 +606,9 @@ if hasattr(topSequence,"SGInputLoader"):
 if not hasattr(svcMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     svcMgr += THistSvc()
+    if ConfigFlags.Trigger.L1MuonSim.WriteNSWDebugNtuple:
+        svcMgr.THistSvc.Output += [ "NSWL1Simulation DATAFILE='NSWL1Simulation.root'  OPT='RECREATE'" ]
+
 if hasattr(svcMgr.THistSvc, "Output"):
     from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
@@ -620,8 +643,8 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
     nfilters = sum(len(v) for v in filters.values())
-    nhypos = sum(len(v) for v in hypos.values())    
-    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+    nhypos = sum(len(v) for v in hypos.values())
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos)
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     hltSeeding = findAlgorithm(topSequence, "HLTSeeding")
@@ -644,15 +667,6 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
-# Cost Monitoring
-#-------------------------------------------------------------
-
-from TrigCostMonitor.TrigCostMonitorConfig import TrigCostMonitorCfg, TrigCostMonitorPostSetup
-CAtoGlobalWrapper(TrigCostMonitorCfg, ConfigFlags)
-# TODO - how can TrigCostMonitorPostSetup be component-accumulator-ised?
-TrigCostMonitorPostSetup()
-
-#-------------------------------------------------------------
 # Debugging for view cross-dependencies
 #-------------------------------------------------------------
 if opt.reverseViews or opt.filterViews:
@@ -665,6 +679,12 @@ if opt.reverseViews or opt.filterViews:
     for alg in viewMakers:
         alg.ReverseViewsDebug = opt.reverseViews
         alg.FallThroughFilter = theFilter
+
+#-------------------------------------------------------------
+# Cost Monitoring Post Setup
+#-------------------------------------------------------------
+from TrigCostMonitor.TrigCostMonitorConfig import  TrigCostMonitorPostSetup
+TrigCostMonitorPostSetup()
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

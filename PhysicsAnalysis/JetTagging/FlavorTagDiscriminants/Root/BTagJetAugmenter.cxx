@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagJetAugmenter.h"
@@ -117,7 +117,8 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumAllJetTrackRelativeEta"),
   m_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageAllJetTrackRelativeEta"),
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
-  m_rnnip_isDefaults(rnn(f) + "_isDefaults")
+  m_rnnip_isDefaults(rnn(f) + "_isDefaults"),
+  m_flipConfig(f)
 {
 }
 
@@ -285,10 +286,12 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
 
     for (std::size_t jf_vtx_index = 0; jf_vtx_index < m_jf_vertices(btag).size() && jf_vtx_index < m_jf_fittedPosition(btag).size() - 5; jf_vtx_index++) {
       float jf_vtx_L3d = m_jf_fittedPosition(btag).at(jf_vtx_index + 5);
-      if (jf_vtx_L3d > 0){
-        if(std::isnan(min_jf_vtx_L3d) || (jf_vtx_L3d < min_jf_vtx_L3d)){ 
+      if ((m_flipConfig==FlipTagConfig::STANDARD and jf_vtx_L3d > 0) || 
+	   (m_flipConfig!=FlipTagConfig::STANDARD and jf_vtx_L3d < 0)){
+        if(std::isnan(min_jf_vtx_L3d) || ( std::abs(jf_vtx_L3d) < std::abs(min_jf_vtx_L3d) ) ){ 
           secondary_jf_vtx_index = jf_vtx_index;
-          min_jf_vtx_L3d = jf_vtx_L3d;
+	  min_jf_vtx_L3d = jf_vtx_L3d;
+
         }
       }
     }
@@ -303,6 +306,12 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
   } else {
     m_secondaryVtx_isDefaults(btag) = 1;
   }
+  
+  if (m_flipConfig!=FlipTagConfig::STANDARD and !std::isnan(min_jf_vtx_L3d) ) {
+    min_jf_vtx_L3d=-1*min_jf_vtx_L3d;
+  }
+
+  
   m_secondaryVtx_L3d(btag) = min_jf_vtx_L3d;
   m_secondaryVtx_Lxy(btag) = min_jf_vtx_L3d * sinf(jf_theta);
 

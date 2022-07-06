@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -20,24 +20,26 @@ namespace Trk {
 
 
 class TruthTrajectoryCnv_p1 
-  : public T_AthenaPoolTPCnvBase<TruthTrajectory,
-				 Trk::TruthTrajectory_p1>
+  : public T_AthenaPoolTPCnvConstBase<TruthTrajectory,
+                                      Trk::TruthTrajectory_p1>
 { 
-public: 
+public:
+  using base_class::persToTrans;
+  using base_class::transToPers;
   
   /** Method creating the transient representation of @c Analysis::TruthTrajectory
    *  from its persistent representation @c TruthTrajectory_p1
    */
   virtual void persToTrans( const Trk::TruthTrajectory_p1* persObj, 
                             TruthTrajectory* transObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
   
   /** Method creating the persistent representation @c TruthTrajectory_p1
    *  from its transient representation @c Analysis::TruthTrajectory
    */
   virtual void transToPers( const TruthTrajectory* transObj, 
                             Trk::TruthTrajectory_p1* persObj, 
-                            MsgStream& msg );
+                            MsgStream& msg ) const override;
 
 }; 
 

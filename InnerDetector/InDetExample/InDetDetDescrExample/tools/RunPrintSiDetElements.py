@@ -6,12 +6,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 import sys
 from argparse import ArgumentParser
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-# Set up logging and new style config
-Configurable.configurableRun3Behavior = True
-
 
 # Argument parsing
 parser = ArgumentParser("PrintSiDetectorElements.py")

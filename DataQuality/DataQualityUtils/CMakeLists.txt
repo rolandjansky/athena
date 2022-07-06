@@ -10,6 +10,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Graf Gpad MathCore RooFit RooFitCore Minuit Cint Core Tree TreePlayer Hist RIO pthread MathMore Minuit2 Matrix Physics HistPainter Rint Graf3d Html Postscript Gui GX11TTF GX11 )
 find_package( stomppy )
 find_package( FFTW ) # Needed for RooFFTConvPdf
+find_package( nlohmann_json )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( DataQualityUtils
@@ -64,7 +65,7 @@ atlas_add_library( DataQualityUtils
                    ${DataQualityUtilsDictSource}
                    PUBLIC_HEADERS DataQualityUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} nlohmann_json::nlohmann_json
                    PRIVATE_LINK_LIBRARIES DataQualityInterfaces )
 
 # With gcc8, need to link with -lstdc++fs in order to use std::filesystem.

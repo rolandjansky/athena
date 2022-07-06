@@ -14,6 +14,8 @@ def createRecoConfigFlags():
                   prevFlags.Reco.EnableTracking)
     flags.addFlag("Reco.EnableEgamma",
                   lambda prevFlags: prevFlags.Detector.EnableCalo)
+    flags.addFlag("Reco.EnableCaloRinger",
+                  lambda prevFlags: prevFlags.Reco.EnableEgamma)
     flags.addFlag("Reco.EnableJet", lambda prevFlags: (
         prevFlags.Detector.EnableCalo
         and prevFlags.Reco.EnableTracking

@@ -38,6 +38,8 @@ StatusCode CpmMonitorAlgorithm::initialize() {
   ATH_CHECK( m_cmxCpTobLocation.initialize());
   ATH_CHECK( m_cmxCpHitsLocation.initialize());
 
+  ATH_CHECK(m_errorLocation.initialize());
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -743,11 +745,11 @@ StatusCode CpmMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   // Save error vector for global summary
 
-  std::vector<int> *save = new std::vector<int>(crateErr);
-  StatusCode sc = evtStore()->record(save, m_errorLocation);
-  if (sc != StatusCode::SUCCESS) {
+  auto save = std::make_unique<std::vector<int>>(crateErr);
+  auto* result = SG::makeHandle(m_errorLocation, ctx).put(std::move(save));
+  if (!result) {
     ATH_MSG_ERROR("Error recording CPM error vector in TES");
-    return sc;
+    return StatusCode::FAILURE;
   }
 
   fill(m_packageName,variables);

@@ -4,7 +4,7 @@
 
 #include "DataQualityInterfaces/HanConfig.h"
 
-#include <string.h>	// strncmp()
+#include <cstring>	// strncmp()
 
 #include <iostream>
 #include <map>
@@ -767,9 +767,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
               }
             }
             m_outfile->cd();
-            if (toWriteOut) {
-              toWriteOut->Write(newRefId.c_str(), 1);
-            }
+            toWriteOut->Write(newRefId.c_str(), 1);
           }
         }
 

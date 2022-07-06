@@ -16,6 +16,7 @@ namespace FlavorTagDiscriminants {
     declareProperty("flipTagConfig", m_props.flipTagConfig);
     declareProperty("variableRemapping", m_props.variableRemapping);
     declareProperty("trackLinkType", m_props.trackLinkType);
+    declareProperty("defaultOutputValue", m_props.default_output_value);
   }
   DL2Tool::~DL2Tool() {}
 

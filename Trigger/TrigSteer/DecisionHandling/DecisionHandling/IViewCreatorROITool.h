@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VIEWALGS_IVIEWCREATORROITOOL_H
@@ -9,6 +9,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "Gaudi/Property.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+
 
 /**
  * @class IViewCreatorROITool
@@ -33,6 +34,7 @@ public:
  * decision->setObjectLink(TrigCompositeUtils::roiString(), roiElementLink);
  **/
   virtual StatusCode attachROILinks(TrigCompositeUtils::DecisionContainer& decisions, const EventContext& ctx) const = 0;
+
 
 };
 

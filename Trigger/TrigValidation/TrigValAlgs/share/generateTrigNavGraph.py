@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__=='__main__':
@@ -22,10 +22,7 @@ if __name__=='__main__':
   log = logging.getLogger("generateTrigNavGraph.py")
   log.info("Generating NavGraphs for :" + args.chain)
 
-  # Setup the Run III behaviour
-  from AthenaCommon.Configurable import Configurable
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  Configurable.configurableRun3Behavior = 1
 
   # Set the Athena configuration flags
   #

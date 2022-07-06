@@ -23,7 +23,6 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -36,7 +35,7 @@
 
 PixelServMatFactoryFS::PixelServMatFactoryFS(StoreGateSvc *detStore,
 					     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "PixelServMatFactoryFS"),
+  AthMessaging("PixelServMatFactoryFS"),
   m_detStore(detStore),
   m_rdbAccess(std::move(pRDBAccess))
 { 

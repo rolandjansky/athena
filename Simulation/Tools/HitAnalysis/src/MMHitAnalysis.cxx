@@ -269,7 +269,7 @@ StatusCode MMHitAnalysis::execute() {
       
       Amg::Vector3D p = (*i_hit).globalPosition();
       //Get station names and make plots for each sector
-      MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper(); 
+      const MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
       int simId = (*i_hit).MMId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
       int sim_side = hitHelper->GetSide(simId);

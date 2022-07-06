@@ -85,8 +85,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
      sc=StatusCode::FAILURE;
   }
   // Configuration of the material effects
-  Trk::ParticleSwitcher particleSwitch;
-  m_particleHypothesis = particleSwitch.particle[m_matEffects];
+  m_particleHypothesis = Trk::ParticleSwitcher::particle[m_matEffects];
 
   ATH_CHECK(AmbiguityProcessorBase::m_observerTool.retrieve(DisableTool{AmbiguityProcessorBase::m_observerTool.empty()}));
   ATH_CHECK(m_observerToolWriter.retrieve(DisableTool{m_observerToolWriter.empty()}));

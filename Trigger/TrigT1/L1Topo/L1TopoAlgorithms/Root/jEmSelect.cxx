@@ -23,7 +23,10 @@ TCS::jEmSelect::jEmSelect(const std::string & name) :
    defineParameter( "OutputWidth", 10 );
    defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
-   defineParameter( "MaxEta", 31);
+   defineParameter( "MaxEta", 0 );
+   defineParameter( "IsoMin", 0 );
+   defineParameter( "Frac1Min", 0 );
+   defineParameter( "Frac2Min", 0 );
 }
 
 
@@ -36,6 +39,10 @@ TCS::jEmSelect::initialize() {
    m_et = parameter("MinET").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
+   m_maxEta = parameter("MaxEta").value();
+   m_iso = parameter("IsoMin").value();
+   m_frac1 = parameter("Frac1Min").value();
+   m_frac2 = parameter("Frac2Min").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -49,8 +56,13 @@ TCS::jEmSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
   // fill output array with GenericTOBs builds from jets
   for(jEmTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
-    unsigned int Et = parType_t((*jet)->Et()); 
-    if( Et <= m_et ) continue; // ET cut
+    // ET cut
+    if ( parType_t((*jet)->Et()) <= m_et ) continue;
+    // Isolation cuts
+    if ( !isocut(m_iso, (*jet)-> isolation()) ) continue;
+    if ( !isocut(m_frac1, (*jet)-> frac1()) ) continue;
+    if ( !isocut(m_frac2, (*jet)-> frac2()) ) continue;
+    // Eta cut
     if ( parType_t(std::abs((*jet)-> eta())) < m_minEta ) continue; 
     if ( parType_t(std::abs((*jet)-> eta())) > m_maxEta ) continue;      	
 

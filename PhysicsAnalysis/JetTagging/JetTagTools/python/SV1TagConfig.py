@@ -23,7 +23,10 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     output: The actual tool."""    
     acc = ComponentAccumulator()
     options['name'] = name
-    options['xAODBaseName'] = 'SV1'
+    if 'Flip' in name:
+        options['xAODBaseName'] = 'SV1Flip'
+    else:
+        options['xAODBaseName'] = 'SV1'
     if useBTagFlagsDefaults:
         likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SV1NewLikelihoodTool', 'SV1', scheme))
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,

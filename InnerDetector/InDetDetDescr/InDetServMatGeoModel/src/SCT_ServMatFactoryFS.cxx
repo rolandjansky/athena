@@ -24,7 +24,6 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -35,7 +34,7 @@
 #include <iostream>
 
 SCT_ServMatFactoryFS::SCT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc>& pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "SCT_ServMatFactoryFS"),
+  AthMessaging("SCT_ServMatFactoryFS"),
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess)
 {

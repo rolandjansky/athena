@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file MTMonitoring.py
@@ -20,7 +20,7 @@ from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFr
 OfflineJetCollections = {
   'AntiKt4EMTopoJets'  : { 'MatchTo' : 'AntiKt4EMPFlowJets' },
   'AntiKt4EMPFlowJets' : { 'MatchTo' : 'NONE' },
-  'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets' : { 'MatchTo' : 'NONE' },
+  #'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets' : { 'MatchTo' : 'NONE' }, # Remove until ATR-25800 is fixed
 }
 
 ###########################################
@@ -41,13 +41,15 @@ L1JetCollections = {
   'L1_jFexSRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
                                   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
 
-  'L1_jFexLRJetRoI': {'MatchTo': ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
+  # temporarily modified to use small-R jet in turn-on to fix tier0 jet mon crash ATR-25800!! - throws exception if < 2 jet collections provided
+  'L1_jFexLRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
                                   'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes']},
 
   'L1_gFexSRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
                                   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
 
-  'L1_gFexLRJetRoI': {'MatchTo': ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
+  # temporarily modified to use small-R jet in turn-on to fix tier0 jet mon crash ATR-25800!! - throws exception if < 2 jet collections provided
+  'L1_gFexLRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
                                   'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes']},
 }
 
@@ -175,6 +177,7 @@ JetCollections = dict()
 
 JetCollections['MT'] = {
   'HLT_AntiKt4EMTopoJets_subjesIS'                                : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # default small-R EM
+  'HLT_AntiKt4EMTopoJets_subjesIS_fastftag'                       : { 'MatchTo' : 'NONE'}, # small-R EM jets with RoI tracking & fast flavour tagging
   'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'                         : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 calo jet w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'                        : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 pflow w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'                     : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 pflow w/ residual + calo+track GSC
@@ -182,7 +185,7 @@ JetCollections['MT'] = {
   'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf'                       : { 'MatchTo' : 'NONE'},               # a4 pflow cssk nojcalib
   'HLT_AntiKt10EMTopoRCJets_subjesIS'                             : { 'MatchTo' : 'NONE'},               # a10r
   'HLT_AntiKt10LCTopoJets_subjes'                                 : { 'MatchTo' : 'NONE'},               # a10
-  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes'              : { 'MatchTo' : 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'}, # a10t
+  'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes'              : { 'MatchTo' : 'NONE'}, # a10t
   'HLT_AntiKt10LCTopoSoftDropBeta100Zcut10Jets_nojcalib'          : { 'MatchTo' : 'NONE'},               # a10sd lcw nojcalib
   'HLT_AntiKt10EMPFlowSoftDropBeta100Zcut10Jets_nojcalib_ftf'     : { 'MatchTo' : 'NONE'},               # a10sd pflow nojcalib
   'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf' : { 'MatchTo' : 'NONE'},               # a10sd pflow cssk nojcalib
@@ -259,79 +262,79 @@ Chains2Monitor['MT'] = {
   
   # Large-R reclustered chains
   'HLT_j460_a10r_L1J100': {'HLTColl': 'HLT_AntiKt10EMTopoRCJets_subjesIS',
-                           'RefChain': 'HLT_j85_L1J20',
-                           'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                           'RefChain': 'NONE',
+                           'OfflineColl': 'NONE'},
   
   # Large-R LCTopo chains
   'HLT_j460_a10_lcw_subjes_L1J100': {'HLTColl': 'HLT_AntiKt10LCTopoJets_subjes',
-                                     'RefChain': 'HLT_j85_L1J20',
-                                     'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                     'RefChain': 'NONE',
+                                     'OfflineColl': 'NONE'},
   
   # Large-R trimmed chains
   'HLT_j420_a10t_lcw_jes_L1J100': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                   'RefChain': 'HLT_j85_L1J20',
-                                   'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                   'RefChain': 'NONE',
+                                   'OfflineColl': 'NONE'},
   
   'HLT_j420_35smcINF_a10t_lcw_jes_L1J100': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                            'RefChain': 'HLT_j85_L1J20',
-                                            'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                            'RefChain': 'NONE',
+                                            'OfflineColl': 'NONE'},
   
   'HLT_j460_a10t_lcw_jes_L1J100': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                   'RefChain': 'HLT_j85_L1J20',
-                                   'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                   'RefChain': 'NONE',
+                                   'OfflineColl': 'NONE'},
 
   'HLT_j460_a10t_lcw_jes_L1SC111-CJ15': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                         'RefChain': 'HLT_j85_L1J20',
-                                         'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                         'RefChain': 'NONE',
+                                         'OfflineColl': 'NONE'},
   
   'HLT_j420_a10t_lcw_jes_35smcINF_L1SC111-CJ15': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                                  'RefChain': 'HLT_j85_L1J20',
-                                                  'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                  'RefChain': 'NONE',
+                                                  'OfflineColl': 'NONE'},
 
   'HLT_2j330_a10t_lcw_jes_L1J100':          {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                             'RefChain': 'HLT_j85_L1J20',
-                                             'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                             'RefChain': 'NONE',
+                                             'OfflineColl': 'NONE'},
   
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', # TODO: Remove after 21st Round Sample A (has old naming convention)
-                                             'RefChain': 'HLT_j85_L1J20',
-                                             'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                             'RefChain': 'NONE',
+                                             'OfflineColl': 'NONE'},
 
   'HLT_2j330_35smcINF_a10t_lcw_jes_L1J100': {'HLTColl': 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes',
-                                             'RefChain': 'HLT_j85_L1J20',
-                                             'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                             'RefChain': 'NONE',
+                                             'OfflineColl': 'NONE'},
   
   # Large-R SoftDrop chains
   'HLT_j420_a10sd_cssk_pf_jes_ftf_preselj225_L1J100': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                       'RefChain': 'HLT_j85_L1J20',
-                                                       'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                       'RefChain': 'NONE',
+                                                       'OfflineColl': 'NONE'},
   
   'HLT_j420_35smcINF_a10sd_cssk_pf_jes_ftf_preselj225_L1J100': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                                'RefChain': 'HLT_j85_L1J20',
-                                                                'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                                'RefChain': 'NONE',
+                                                                'OfflineColl': 'NONE'},
   
   'HLT_j460_a10sd_cssk_pf_jes_ftf_preselj225_L1J100': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                       'RefChain': 'HLT_j85_L1J20',
-                                                       'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                       'RefChain': 'NONE',
+                                                       'OfflineColl': 'NONE'},
   
   'HLT_2j330_a10sd_cssk_pf_jes_ftf_presel2j225_L1SC111-CJ15': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                               'RefChain': 'HLT_j85_L1J20',
-                                                               'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                               'RefChain': 'NONE',
+                                                               'OfflineColl': 'NONE'},
   
   'HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_presel2j225_L1SC111-CJ15': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf', # TODO: Remove after 21st Round Sample A (has old naming convention)
-                                                                        'RefChain': 'HLT_j85_L1J20',
-                                                                        'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                                        'RefChain': 'NONE',
+                                                                        'OfflineColl': 'NONE'},
   
   'HLT_2j330_35smcINF_a10sd_cssk_pf_jes_ftf_presel2j225_L1SC111-CJ15': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                                        'RefChain': 'HLT_j85_L1J20',
-                                                                        'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                                        'RefChain': 'NONE',
+                                                                        'OfflineColl': 'NONE'},
 
   'HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_presel2j225_L1J100': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                                  'RefChain': 'HLT_j85_L1J20',
-                                                                  'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                                  'RefChain': 'NONE',
+                                                                  'OfflineColl': 'NONE'},
 
   'HLT_2j330_35smcINF_a10sd_cssk_pf_jes_ftf_presel2j225_L1J100': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
-                                                                  'RefChain': 'HLT_j85_L1J20',
-                                                                  'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                                                                  'RefChain': 'NONE',
+                                                                  'OfflineColl': 'NONE'},
 
   # HT and dijet scenarios
   'HLT_j0_HT1000_L1J100': {'HLTColl': 'HLT_AntiKt4EMTopoJets_subjesIS',
@@ -392,10 +395,11 @@ temp_Phase1_chains.update({
   'HLT_noalg_L1jJ140': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
                         'RefChain': 'HLT_j45_pf_ftf_preselj20_L1J15',
                         'OfflineColl': 'AntiKt4EMPFlowJets'},
-  
+ 
+  # temporarily modify to using small-R jet in turn-on to fix tier0 jet mon crash ATR-25800!!
   'HLT_noalg_L1jLJ140': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
                          'RefChain': 'HLT_j45_pf_ftf_preselj20_L1J15',
-                         'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                         'OfflineColl': 'AntiKt4EMPFlowJets'},
   
   'HLT_noalg_L1gJ100': {'HLTColl': 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
                         'RefChain': 'HLT_j45_pf_ftf_preselj20_L1J15',
@@ -405,9 +409,10 @@ temp_Phase1_chains.update({
                         'RefChain': 'HLT_j45_pf_ftf_preselj20_L1J15',
                         'OfflineColl': 'AntiKt4EMPFlowJets'},
   
+  # temporarily modify to using small-R jet in turn-on to fix tier0 jet mon crash ATR-25800!!
   'HLT_noalg_L1gLJ160': {'HLTColl': 'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf',
                          'RefChain': 'HLT_j45_pf_ftf_preselj20_L1J15',
-                         'OfflineColl': 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets'},
+                         'OfflineColl': 'AntiKt4EMPFlowJets'},
 
   'HLT_j60_pf_ftf_preselj50_L1jJ50': {'HLTColl': 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
                                       'RefChain': 'NONE',
@@ -536,6 +541,18 @@ def getHTBinning(chain,binwidth):
   xmax = xmin + 500
   xbins = int((xmax-xmin)/binwidth)-1
   return xbins, xmin, xmax
+
+# Add fast flavour-tag monitoring.
+# Adds a 20 GeV jet pT cut to avoid FPE WARNINGS from jets below min jet pT for RoI track association
+def addFlavourTagVariables(conf, network_prefix):
+    cutname='pt20'
+    fastDipsSelectSpec = SelectSpec(cutname, '20<pt:GeV&|eta|<3.2', path='NoTriggerSelection/'+cutname, FillerTools=[])
+    for f in "cub":
+      xvar = f"{network_prefix}_p{f}"
+      varname = f"ftag_p{f}"
+      fastDipsHistSpec = HistoSpec(varname, xvar=xvar, bins=(70, -0.2, 1.2), title=f"{varname};{varname};;Entries")
+      fastDipsSelectSpec.appendHistos(fastDipsHistSpec)
+      conf.appendHistos(fastDipsSelectSpec)
 
 #########################################################
 # Schedule more histograms for dedicated jet collections
@@ -781,7 +798,6 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 
   return Conf
 
-
 def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''
 
@@ -803,10 +819,10 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
          if 'PF' in jetcoll: # dedicated histograms for online PFlow jets
            conf.appendHistos("SumPtChargedPFOPt500[0]")
            conf.appendHistos("fCharged")
-       if jetcoll == "HLT_AntiKt4EMTopoJets_subjesIS": # only for presel calo jets
-         for f in "cub":
-           fastDipsHistSpec = HistoSpec(f"fastDips_p{f}", (70, -0.2, 1.2), title=f"fastDips_p{f};fastDips_p{f};Entries")
-           conf.appendHistos(fastDipsHistSpec)
+           if "subresjesgscIS" in jetcoll:
+               addFlavourTagVariables(conf,"fastDIPS20211215")
+       if 'fastftag' in jetcoll:
+         addFlavourTagVariables(conf,"fastDips")
      else:
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
      # Add matched jets plots
@@ -1136,10 +1152,6 @@ if __name__=='__main__':
   else:
     logger.error('ERROR: No input file provided, exiting')
     sys.exit(0)
-
-  # Setup the Run III behavior
-  from AthenaCommon.Configurable import Configurable
-  Configurable.configurableRun3Behavior = 1
 
   # Setup logs
   from AthenaCommon.Logging import log

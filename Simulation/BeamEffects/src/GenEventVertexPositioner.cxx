@@ -46,7 +46,7 @@ namespace Simulation
   }
 
   /** modifies (displaces) the given GenEvent */
-  StatusCode GenEventVertexPositioner::manipulate(HepMC::GenEvent& ge) const
+  StatusCode GenEventVertexPositioner::manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const
   {
     // Grab signal_process_vertex pointer
     auto signalProcVtx=HepMC::signal_process_vertex(&ge);
@@ -59,7 +59,7 @@ namespace Simulation
     for (const auto& vertexShifter : m_vertexShifters) {
 
       // call VertexShifter and let it compute the current shift
-      CLHEP::HepLorentzVector *curShift = vertexShifter->generate();
+      CLHEP::HepLorentzVector *curShift = vertexShifter->generate(ctx);
       if (!curShift) {
         ATH_MSG_ERROR("Vertex Shifter AthenaTool returned zero-pointer! Ignore.");
         continue;

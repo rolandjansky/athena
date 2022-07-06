@@ -16,9 +16,9 @@ Offline configurations are available here:
 from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys  import getTrigEgammaKeys
 TrigEgammaKeys = getTrigEgammaKeys()
 from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEMShowerBuilder, TrigEgammaDecorationTools
+from TriggerMenuMT.HLT.Egamma.TrigEgammaMVACalibFactories import trigPrecEgammaMVASvc
 
 """ Importing all the tool components """
-from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
@@ -42,7 +42,7 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               SuperElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterRecCollection,
                                               SuperClusterCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection,
                                               ClusterCorrectionTool=egammaSwSuperClusterTool,
-                                              MVACalibSvc=egammaMVASvc,
+                                              MVACalibSvc=trigPrecEgammaMVASvc,
                                               EtThresholdCut=1000,
                                               TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
                                               doAdd= False,
@@ -60,7 +60,7 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
             InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
             ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
             PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
-            EMClusterTool = TrigEMClusterTool,
+            EMClusterTool = TrigEMClusterTool("_Electron"),
             EMShowerTool=TrigEMShowerBuilder,
             egammaTools = FcnWrapper(TrigEgammaDecorationTools),
             doAdd = False,

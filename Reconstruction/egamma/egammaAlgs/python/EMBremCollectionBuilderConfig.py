@@ -2,46 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import LHCPeriod
 from AthenaCommon.Logging import logging
-
-
-def GSFTrackSummaryToolCfg(flags,
-                           name="GSFTrackSummaryTool",
-                           **kwargs):
-    """ The Track Summary for the GSF refitted Tracks/TrackParticles"""
-
-    acc = ComponentAccumulator()
-
-    if "InDetSummaryHelperTool" not in kwargs:
-        testBLTool = None
-        if flags.Detector.EnablePixel:
-            from InDetConfig.TrackingCommonConfig import (
-                InDetRecTestBLayerToolCfg)
-            testBLTool = acc.popToolsAndMerge(
-                InDetRecTestBLayerToolCfg(
-                    flags,
-                    name="GSFBuildTestBLayerTool"))
-
-        from InDetConfig.InDetTrackSummaryHelperToolConfig import (
-            InDetTrackSummaryHelperToolCfg)
-        kwargs["InDetSummaryHelperTool"] = acc.popToolsAndMerge(
-            InDetTrackSummaryHelperToolCfg(
-                flags,
-                name="GSFBuildTrackSummaryHelperTool",
-                HoleSearch=None,
-                AssoTool=None,
-                TestBLayerTool=testBLTool
-            ))
-
-    kwargs.setdefault("doSharedHits", False)
-    kwargs.setdefault("doHolesInDet", False)
-    kwargs.setdefault("AddExpectedHits", True)
-
-    summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
-    # Particle creator needs a public one
-    acc.addPublicTool(summaryTool, primary=True)
-    return acc
 
 
 def EMBremCollectionBuilderCfg(flags,
@@ -61,32 +22,10 @@ def EMBremCollectionBuilderCfg(flags,
             egammaTrkRefitterToolCfg(flags))
 
     if "TrackParticleCreatorTool" not in kwargs:
-        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-
-        from InDetConfig.TRT_ElectronPidToolsConfig import (
-            TRT_ElectronPidToolCfg)
-
-        gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
-            name="GSFBuildInDetParticleCreatorTool",
-            KeepParameters=True,
-            TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            TrackSummaryTool=acc.getPrimaryAndMerge(
-                GSFTrackSummaryToolCfg(flags)),
-            PixelToTPIDTool=(CompFactory.InDet.PixelToTPIDTool(
-                name="GSFBuildPixelToTPIDTool")
-                if flags.GeoModel.Run < LHCPeriod.Run4 else None),
-            TRT_ElectronPidTool=(acc.popToolsAndMerge(
-                TRT_ElectronPidToolCfg(
-                    flags,
-                    name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=(flags.GeoModel.Run is LHCPeriod.Run3),
-                    MinimumTrackPtForNNPid=0.))
-                if flags.Detector.EnableTRT else None),
-            BadClusterID=0,
-            IBLParameterSvc=(
-                "IBLParameterSvc" if flags.Detector.GeometryID else "")
-        )
-        kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
+        from TrkConfig.TrkParticleCreatorConfig import (
+            GSFBuildInDetParticleCreatorToolCfg)
+        kwargs["TrackParticleCreatorTool"] = acc.popToolsAndMerge(
+            GSFBuildInDetParticleCreatorToolCfg(flags))
 
     if "TrackSlimmingTool" not in kwargs:
         slimmingTool = CompFactory.Trk.TrackSlimmingTool(
@@ -103,6 +42,7 @@ def EMBremCollectionBuilderCfg(flags,
         flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
     kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
+    kwargs.setdefault("slimTrkTracks", flags.Egamma.slimGSFTrkTracks)
 
     # P->T conversion extra dependencies
     if flags.Detector.GeometryITk:
@@ -126,8 +66,6 @@ def EMBremCollectionBuilderCfg(flags,
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.ComponentAccumulator import printProperties

@@ -34,7 +34,7 @@ def getTaggerList(flags):
     # NOTE: MV2c10 is deprecated but something in trigger is asking
     # for it... maybe online monitoring?
     base = ['IP2D','IP3D','SV1','JetFitterNN']
-    flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip']
+    flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip','SV1Flip']
     if flags.BTagging.RunFlipTaggers:
         return base + flip
     return base
@@ -48,6 +48,8 @@ def createBTaggingConfigFlags():
     btagcf.addFlag("BTagging.calibrationChannelAliases",
                    calibrationChannelAliases)
     btagcf.addFlag("BTagging.forcedCalibrationChannel", "")
+    btagcf.addFlag("BTagging.calibrationTag", lambda prevFlags: "BTagCalibITk-23-00-03-v1" if prevFlags.GeoModel.Run>=LHCPeriod.Run4 else "")
+
     # the track association minimum is set to 4 GeV because of track
     # jets in offline reconstruction.
     btagcf.addFlag("BTagging.minimumJetPtForTrackAssociation", 4e3)

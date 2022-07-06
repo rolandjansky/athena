@@ -38,6 +38,14 @@ void takemax(int sc, const TH2I* inhist, TH2I* outhist) {
 }
 """)
 
+cppyy.cppdef("""
+void clearhist(TH2I* hist) {
+    for (int i = 0; i < hist->GetSize(); ++i) {
+       hist->SetBinContent(i,0);
+       hist->SetBinError(i,0);
+    }
+}
+""")
 # @profile
 def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
     """ For each bin, fill the output with the max filled error code. All histograms should have the same bin content"""
@@ -80,6 +88,7 @@ def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
 
         #fill with max 
         cl.Clear()
+        cppyy.gbl.clearhist(cl)
         for i in inputs:
             statusCode=int(i[0]['sc'])
             h = i[1][0]
@@ -164,14 +173,23 @@ def fillWithMaxCoverage(inputs,isFtSlotPlot=True):
 
 
 def normToEntries(inputs,titleToReplace="",replaceWith=""):
-    """ This function normalises histogram 1 to the number of entries of histogram 2 (which is supposed to represent the number of events) """
+    """ This function creates TH2F as ratio of input TH2I and the number of entries of histogram 2 (which is supposed to represent the number of events) """
     assert len(inputs) == 1 , len(inputs)
     assert len(inputs[0][1]) == 2 , len(inputs[0][1])
 
-    cl = inputs[0][1][0].Clone()
+    #cl = inputs[0][1][0].Clone()
+    inh=inputs[0][1][0]
+    cl=TH2F(inh.GetName(),inh.GetTitle(),inh.GetXaxis().GetNbins(),inh.GetXaxis().GetBinLowEdge(1),inh.GetXaxis().GetBinUpEdge(inh.GetXaxis().GetNbins()), inh.GetYaxis().GetNbins(),inh.GetYaxis().GetBinLowEdge(1),inh.GetYaxis().GetBinUpEdge(inh.GetYaxis().GetNbins()))
+    clx=cl.GetXaxis()
+    clx.SetTitle(inh.GetXaxis().GetTitle())
+    cl.GetYaxis().SetTitle(inh.GetYaxis().GetTitle())
+
     Nen = inputs[0][1][1].GetEntries()
     if Nen!=0:
-        cl.Scale(100./Nen)
+        for xbins in range(1,cl.GetNbinsX()+1):
+           for ybins in range(1,cl.GetNbinsY()+1):
+              ibin=inh.GetBin(xbins,ybins)
+              cl.SetBinContent(ibin, 100.*inh.GetBinContent(ibin) / Nen)
         pass
 
     if titleToReplace=="":
@@ -185,22 +203,40 @@ def normToEntries(inputs,titleToReplace="",replaceWith=""):
 
 
 
-def normToEntriesAndSetMin(inputs,minVal=0,maxVal=0,useMax=False):
+def normToEntriesAndSetMin(inputs,minVal=0,maxVal=0,useMax=False,clone=True,titleToReplace="",replaceWith=""):
     """ This function normalises histogram 1 to the number of entries of histogram 2 (which is supposed to represent the number of events) and sets the histogram max/min """
 
     assert len(inputs) == 1 , len(inputs)
     assert len(inputs[0][1]) == 2 , len(inputs[0][1])
 
-    cl = inputs[0][1][0].Clone()
+    if clone:
+       cl = inputs[0][1][0].Clone()
+    else:
+       inh=inputs[0][1][0]
+       cl=TH2F(inh.GetName()[3:],inh.GetTitle(),inh.GetXaxis().GetNbins(),inh.GetXaxis().GetBinLowEdge(1),inh.GetXaxis().GetBinUpEdge(inh.GetXaxis().GetNbins()), inh.GetYaxis().GetNbins(),inh.GetYaxis().GetBinLowEdge(1),inh.GetYaxis().GetBinUpEdge(inh.GetYaxis().GetNbins()))
+       cl.GetXaxis().SetTitle(inh.GetXaxis().GetTitle())
+       cl.GetYaxis().SetTitle(inh.GetYaxis().GetTitle())
+       for xbins in range(1,cl.GetNbinsX()+1):
+          for ybins in range(1,cl.GetNbinsY()+1):
+             ibin=inh.GetBin(xbins,ybins)
+             cl.SetBinContent(ibin, inh.GetBinContent(ibin))
+
     Nen = inputs[0][1][1].GetEntries()
     if Nen!=0:
-        cl.Scale(1./Nen)
+        cl.Scale(100./Nen)
         pass
 
     cl.SetMinimum(minVal)
     if useMax:
         cl.SetMaximum(maxVal)
         pass
+
+    if titleToReplace=="":
+        return [cl]
+
+    tit = cl.GetTitle()
+    tit=tit.replace(titleToReplace,replaceWith)
+    cl.SetTitle(tit)
 
     return [cl]
 
@@ -214,7 +250,7 @@ def normToBinAndSetMinMax(inputs,bin_norm=0,minVal=0,maxVal=0,useMax=False, titl
     cl=TH1F(inh.GetName()+"Yield",inh.GetTitle(),inh.GetNbinsX(),inh.GetBinLowEdge(1),inh.GetBinLowEdge(inh.GetNbinsX()))
     clx=cl.GetXaxis()
     clx.SetTitle(inh.GetXaxis().GetTitle())
-    for i in range(0,inh.GetNbinsX()+1):
+    for i in range(1,inh.GetNbinsX()+1):
        clx.SetBinLabel(i,inh.GetXaxis().GetBinLabel(i))
     cl.GetYaxis().SetTitle(inh.GetYaxis().GetTitle())
 
@@ -244,12 +280,23 @@ def normToBinAndSetMinMax(inputs,bin_norm=0,minVal=0,maxVal=0,useMax=False, titl
 
 
 def divideHist(inputs,titleToReplace="",replaceWith=""):
-    """ This function returns the ratio of two ROOT histograms """
+    """ This function create a new TH1F from ratio of two ROOT histograms """
     assert len(inputs) == 1  
     assert len(inputs[0][1]) == 2
 
-    cl = inputs[0][1][0].Clone()
-    cl.Divide(inputs[0][1][1])
+    inh=inputs[0][1][0]
+    cl=TH1F(inh.GetName(),inh.GetTitle(),inh.GetNbinsX(),inh.GetBinLowEdge(1),inh.GetBinLowEdge(inh.GetNbinsX()))
+    clx=cl.GetXaxis()
+    clx.SetTitle(inh.GetXaxis().GetTitle())
+    cl.GetYaxis().SetTitle(inh.GetYaxis().GetTitle())
+    inn=inputs[0][1][1]
+    xbins = inh.GetNbinsX()
+    if inn.GetNbinsX() < xbins: xbins=inn.GetNbinsX()
+    for ibin in range(1,xbins+1):
+       if inn.GetBinContent(ibin) > 0:
+          cl.SetBinContent(ibin,1.*inh.GetBinContent(ibin)/inn.GetBinContent(ibin))
+       else:
+          cl.SetBinContent(ibin,1.*inh.GetBinContent(ibin))
 
     if titleToReplace=="":
         return [cl]

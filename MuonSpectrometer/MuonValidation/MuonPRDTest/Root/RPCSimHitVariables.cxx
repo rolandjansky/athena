@@ -9,7 +9,7 @@
 
 namespace MuonPRDTest {
     RPCSimHitVariables::RPCSimHitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
-        PrdTesterModule(tree, "SDO_RPC", false, msglvl), m_key{container_name} {}
+        PrdTesterModule(tree, "SIM_RPC", false, msglvl), m_key{container_name} {}
 
     bool RPCSimHitVariables::declare_keys() { return m_key.initialize().isSuccess(); }
 
@@ -24,7 +24,7 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         unsigned int n_hits{0};
         // Get the RPC Id hit helper
-        RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper();
+        const RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper();
         if (!rpcContainer->size()) ATH_MSG_DEBUG("RPC sdo container is empty");
         for (const RPCSimHit& hit : *rpcContainer) {
             HitID hitid = hit.RPCid();

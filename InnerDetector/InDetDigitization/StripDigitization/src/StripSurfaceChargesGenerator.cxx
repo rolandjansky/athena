@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripSurfaceChargesGenerator.h"
@@ -23,6 +23,8 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
+
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 // C++ Standard Library
 #include <cmath>
@@ -63,75 +65,15 @@ StatusCode StripSurfaceChargesGenerator::initialize() {
   }
 
   if (m_doHistoTrap) {
+    if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+      ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+      return StatusCode::FAILURE;
+    }
+
     // -- Get Histogram Service
     ATH_CHECK(m_thistSvc.retrieve());
-
-    m_h_efieldz = new TProfile("efieldz", "", 50, 0., 0.4);
-    ATH_CHECK(m_thistSvc->regHist("/file1/efieldz", m_h_efieldz));
-
-    m_h_efield = new TH1F("efield", "", 100, 200., 800.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/efield", m_h_efield));
-
-    m_h_spess = new TH1F("spess", "", 50, 0., 0.4);
-    ATH_CHECK(m_thistSvc->regHist("/file1/spess", m_h_spess));
-
-    m_h_depD = new TH1F("depD", "", 50, -0.3, 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/depD", m_h_depD));
-
-    m_h_drift_electrode = new TH2F("drift_electrode", "", 50, 0., 20., 50, 0., 20.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/drift_electrode", m_h_drift_electrode));
-
-    m_h_drift_time = new TH1F("drift_time", "", 100, 0., 20.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/drift_time", m_h_drift_time));
-
-    m_h_t_electrode = new TH1F("t_electrode", "", 100, 0., 20.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/t_electrode", m_h_t_electrode));
-
-    m_h_ztrap = new TH1F("ztrap", "", 100, 0., 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/ztrap", m_h_ztrap));
-
-    // More histograms to check what's going on
-    m_h_zhit = new TH1F("zhit", "", 50, -0.2, 0.2);
-    ATH_CHECK(m_thistSvc->regHist("/file1/zhit", m_h_zhit));
-
-    m_h_ztrap_tot = new TH1F("ztrap_tot", "", 100, 0., 0.5);
-    ATH_CHECK(m_thistSvc->regHist("/file1/ztrap_tot", m_h_ztrap_tot));
-
-    m_h_no_ztrap = new TH1F("no_ztrap", "", 100, 0., 0.5);
-    ATH_CHECK(m_thistSvc->regHist("/file1/no_ztrap", m_h_no_ztrap));
-
-    m_h_trap_drift_t = new TH1F("trap_drift_t", "", 100, 0., 20.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/trap_drift_t", m_h_trap_drift_t));
-
-    m_h_notrap_drift_t = new TH1F("notrap_drift_t", "", 100, 0., 20.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/notrap_drift_t", m_h_notrap_drift_t));
-
-    m_h_mob_Char = new TProfile("mob_Char", "", 200, 100., 1000.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/mob_Char", m_h_mob_Char));
-
-    m_h_vel = new TProfile("vel", "", 100, 100., 1000.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/vel", m_h_vel));
-
-    m_h_drift1 = new TProfile("drift1", "", 50, 0., 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/drift1", m_h_drift1));
-
-    m_h_gen = new TProfile("gen", "", 50, 0., 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/gen", m_h_gen));
-
-    m_h_gen1 = new TProfile("gen1", "", 50, 0., 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/gen1", m_h_gen1));
-
-    m_h_gen2 = new TProfile("gen2", "", 50, 0., 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/gen2", m_h_gen2));
-
-    m_h_velocity_trap = new TProfile("velocity_trap", "", 50, 0., 1000.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/velocity_trap", m_h_velocity_trap));
-
-    m_h_mobility_trap = new TProfile("mobility_trap", "", 50, 100., 1000.);
-    ATH_CHECK(m_thistSvc->regHist("/file1/mobility_trap", m_h_mobility_trap));
-
-    m_h_trap_pos = new TH1F("trap_pos", "", 100, 0., 0.3);
-    ATH_CHECK(m_thistSvc->regHist("/file1/trap_pos", m_h_trap_pos));
+    m_h = std::make_unique<Hists>();
+    ATH_CHECK(m_h->book(*m_thistSvc));
   }
   ///////////////////////////////////////////////////
 
@@ -169,6 +111,79 @@ StatusCode StripSurfaceChargesGenerator::initialize() {
 
   return StatusCode::SUCCESS;
 }
+
+StatusCode StripSurfaceChargesGenerator::Hists::book (ITHistSvc& histSvc)
+{
+  m_h_efieldz = new TProfile("efieldz", "", 50, 0., 0.4);
+  ATH_CHECK(histSvc.regHist("/file1/efieldz", m_h_efieldz));
+
+  m_h_efield = new TH1F("efield", "", 100, 200., 800.);
+  ATH_CHECK(histSvc.regHist("/file1/efield", m_h_efield));
+
+  m_h_spess = new TH1F("spess", "", 50, 0., 0.4);
+  ATH_CHECK(histSvc.regHist("/file1/spess", m_h_spess));
+
+  m_h_depD = new TH1F("depD", "", 50, -0.3, 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/depD", m_h_depD));
+
+  m_h_drift_electrode = new TH2F("drift_electrode", "", 50, 0., 20., 50, 0., 20.);
+  ATH_CHECK(histSvc.regHist("/file1/drift_electrode", m_h_drift_electrode));
+
+  m_h_drift_time = new TH1F("drift_time", "", 100, 0., 20.);
+  ATH_CHECK(histSvc.regHist("/file1/drift_time", m_h_drift_time));
+
+  m_h_t_electrode = new TH1F("t_electrode", "", 100, 0., 20.);
+  ATH_CHECK(histSvc.regHist("/file1/t_electrode", m_h_t_electrode));
+
+  m_h_ztrap = new TH1F("ztrap", "", 100, 0., 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/ztrap", m_h_ztrap));
+
+  // More histograms to check what's going on
+  m_h_zhit = new TH1F("zhit", "", 50, -0.2, 0.2);
+  ATH_CHECK(histSvc.regHist("/file1/zhit", m_h_zhit));
+
+  m_h_ztrap_tot = new TH1F("ztrap_tot", "", 100, 0., 0.5);
+  ATH_CHECK(histSvc.regHist("/file1/ztrap_tot", m_h_ztrap_tot));
+
+  m_h_no_ztrap = new TH1F("no_ztrap", "", 100, 0., 0.5);
+  ATH_CHECK(histSvc.regHist("/file1/no_ztrap", m_h_no_ztrap));
+
+  m_h_trap_drift_t = new TH1F("trap_drift_t", "", 100, 0., 20.);
+  ATH_CHECK(histSvc.regHist("/file1/trap_drift_t", m_h_trap_drift_t));
+
+  m_h_notrap_drift_t = new TH1F("notrap_drift_t", "", 100, 0., 20.);
+  ATH_CHECK(histSvc.regHist("/file1/notrap_drift_t", m_h_notrap_drift_t));
+
+  m_h_mob_Char = new TProfile("mob_Char", "", 200, 100., 1000.);
+  ATH_CHECK(histSvc.regHist("/file1/mob_Char", m_h_mob_Char));
+
+  m_h_vel = new TProfile("vel", "", 100, 100., 1000.);
+  ATH_CHECK(histSvc.regHist("/file1/vel", m_h_vel));
+
+  m_h_drift1 = new TProfile("drift1", "", 50, 0., 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/drift1", m_h_drift1));
+
+  m_h_gen = new TProfile("gen", "", 50, 0., 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/gen", m_h_gen));
+
+  m_h_gen1 = new TProfile("gen1", "", 50, 0., 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/gen1", m_h_gen1));
+
+  m_h_gen2 = new TProfile("gen2", "", 50, 0., 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/gen2", m_h_gen2));
+
+  m_h_velocity_trap = new TProfile("velocity_trap", "", 50, 0., 1000.);
+  ATH_CHECK(histSvc.regHist("/file1/velocity_trap", m_h_velocity_trap));
+
+  m_h_mobility_trap = new TProfile("mobility_trap", "", 50, 100., 1000.);
+  ATH_CHECK(histSvc.regHist("/file1/mobility_trap", m_h_mobility_trap));
+
+  m_h_trap_pos = new TH1F("trap_pos", "", 100, 0., 0.3);
+  ATH_CHECK(histSvc.regHist("/file1/trap_pos", m_h_trap_pos));
+
+  return StatusCode::SUCCESS;
+}
+
 
 // ----------------------------------------------------------------------
 // finalize
@@ -453,8 +468,9 @@ void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element
     const double spess{zReadout};
 
     if (m_doHistoTrap) {
-      m_h_depD->Fill(z1);
-      m_h_spess->Fill(spess);
+      Hists& h = getHists();
+      h.m_h_depD->Fill(z1);
+      h.m_h_spess->Fill(spess);
     }
 
     float t_drift{driftTime(zReadout, element, ctx)};  // !< t_drift: perpandicular drift time
@@ -512,7 +528,8 @@ void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element
         // -- Charge Trapping
         if (m_doTrapping) {
           if (m_doHistoTrap) {
-            m_h_zhit->Fill(zhit);
+            Hists& h = getHists();
+            h.m_h_zhit->Fill(zhit);
           }
           double trap_pos{-999999.}, drift_time{-999999.}; // FIXME need better default values
           if (chargeIsTrapped(spess, element, trap_pos, drift_time)) {
@@ -632,21 +649,23 @@ bool StripSurfaceChargesGenerator::chargeIsTrapped(double spess,
   const double electric_field{condData.getElectricField()};
 
   if (m_doHistoTrap) {
+    Hists& h = getHists();
     const double mobChar{condData.getHoleDriftMobility()};
-    m_h_efieldz->Fill(spess, electric_field);
-    m_h_efield->Fill(electric_field);
-    m_h_mob_Char->Fill(electric_field, mobChar);
-    m_h_vel->Fill(electric_field, electric_field * mobChar);
+    h.m_h_efieldz->Fill(spess, electric_field);
+    h.m_h_efield->Fill(electric_field);
+    h.m_h_mob_Char->Fill(electric_field, mobChar);
+    h.m_h_vel->Fill(electric_field, electric_field * mobChar);
   }
   const double t_electrode{condData.getTimeToElectrode()};
   drift_time = condData.getTrappingTime();
   const double z_trap{condData.getTrappingPositionZ()};
   trap_pos = spess - z_trap;
   if (m_doHistoTrap) {
-    m_h_drift_time->Fill(drift_time);
-    m_h_t_electrode->Fill(t_electrode);
-    m_h_drift_electrode->Fill(drift_time, t_electrode);
-    m_h_ztrap_tot->Fill(z_trap);
+    Hists& h = getHists();
+    h.m_h_drift_time->Fill(drift_time);
+    h.m_h_t_electrode->Fill(t_electrode);
+    h.m_h_drift_electrode->Fill(drift_time, t_electrode);
+    h.m_h_ztrap_tot->Fill(z_trap);
   }
   // -- Calculate if the charge is trapped, and at which distance
   // -- Charge gets trapped before arriving to the electrode
@@ -655,25 +674,37 @@ bool StripSurfaceChargesGenerator::chargeIsTrapped(double spess,
     ATH_MSG_INFO("drift_time: " << drift_time << " t_electrode:  " << t_electrode << " spess " << spess);
     ATH_MSG_INFO("z_trap: " << z_trap);
     if (m_doHistoTrap) {
-      m_h_ztrap->Fill(z_trap);
-      m_h_trap_drift_t->Fill(drift_time);
-      m_h_drift1->Fill(spess, drift_time / t_electrode);
-      m_h_gen->Fill(spess, drift_time);
-      m_h_gen1->Fill(spess, z_trap);
-      m_h_gen2->Fill(spess, z_trap / drift_time * t_electrode);
-      m_h_velocity_trap->Fill(electric_field, z_trap / drift_time);
-      m_h_mobility_trap->Fill(electric_field, z_trap / drift_time / electric_field);
-      m_h_trap_pos->Fill(trap_pos);
+      Hists& h = getHists();
+      h.m_h_ztrap->Fill(z_trap);
+      h.m_h_trap_drift_t->Fill(drift_time);
+      h.m_h_drift1->Fill(spess, drift_time / t_electrode);
+      h.m_h_gen->Fill(spess, drift_time);
+      h.m_h_gen1->Fill(spess, z_trap);
+      h.m_h_gen2->Fill(spess, z_trap / drift_time * t_electrode);
+      h.m_h_velocity_trap->Fill(electric_field, z_trap / drift_time);
+      h.m_h_mobility_trap->Fill(electric_field, z_trap / drift_time / electric_field);
+      h.m_h_trap_pos->Fill(trap_pos);
     }
   } else {
     isTrapped = false;
     if (m_doHistoTrap) {
       const double z_trap{condData.getTrappingPositionZ()};
-      m_h_no_ztrap->Fill(z_trap);
-      m_h_notrap_drift_t->Fill(drift_time);
+      Hists& h = getHists();
+      h.m_h_no_ztrap->Fill(z_trap);
+      h.m_h_notrap_drift_t->Fill(drift_time);
     }
   }
   return isTrapped;
 }
+
+
+StripSurfaceChargesGenerator::Hists&
+StripSurfaceChargesGenerator::getHists() const
+{
+  // We earlier checked that no more than one thread is being used.
+  Hists* h ATLAS_THREAD_SAFE = m_h.get();
+  return *h;
+}
+
 
 } // namespace ITk

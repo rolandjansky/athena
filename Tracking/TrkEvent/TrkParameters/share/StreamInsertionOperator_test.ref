@@ -1,0 +1,119 @@
+Surface type: 4
+CurvilinearParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+associated surface:
+Trk::PlaneSurface
+     Center position  (x, y, z) = (0.0000, 0.0000, 0.0000)
+     Rotation:             colX = (1.000000, 0.000000, 0.000000)
+                           colY = (0.000000, 1.000000, 0.000000)
+                           colZ = (0.000000, 0.000000, 1.000000)
+     Bounds  : Trk::NoBounds ... boundless surface
+
+
+****************************************************************
+Surface type: 0
+ParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+no associated surface
+
+****************************************************************
+Surface type: 1
+ParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+no associated surface
+
+****************************************************************
+Surface type: 2
+ParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+no associated surface
+
+****************************************************************
+Surface type: 3
+ParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+no associated surface
+
+****************************************************************
+Surface type: 4
+ParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+no associated surface
+
+****************************************************************
+Surface type: 5
+ParametersT parameters:
+ * TrackParameters on Surface
+ * loc1  : 0.0000000
+ * loc2  : 0.0000000
+ * phi   : 0.0000000
+ * Theta : 0.0000000
+ * q/p   : 0.0000000
+ * charge: 1.0000000
+ * covariance matrix = 0
+ * corresponding global parameters:
+ *    position  (x,  y,  z ) = (0.0000000, 0.0000000, 0.0000000)
+ *    momentum  (px, py, pz) = (0.0000000, 0.0000000, 0.0000000)
+no associated surface
+
+****************************************************************

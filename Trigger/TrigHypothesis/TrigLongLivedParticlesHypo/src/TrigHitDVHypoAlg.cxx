@@ -12,6 +12,9 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include "PathResolver/PathResolver.h"
 
+#include <vector>
+#include <unordered_map>
+
 using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionAuxContainer;
@@ -230,15 +233,13 @@ StatusCode TrigHitDVHypoAlg::execute( const EventContext& context ) const
    ATH_MSG_DEBUG( "nr of dv container / jet-seeded / sp-seed candidates = " << dvContainer->size() << " / " << n_passed_jet << " / " << n_passed_sp );
 
    // Prepare inputs to HypoTool
-   std::vector<TrigHitDVHypoTool::HitDVHypoInfo> hitDVHypoInputs;
+   std::vector<TrigHitDVHypoTool::HitDVHypoInfo>   hitDVHypoInputs;
+   std::unordered_map<Decision*, size_t>           mapDecIdx;
 
    for ( auto dv : *dvContainer ) {
       Decision* newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
 
-      ElementLink<xAOD::TrigCompositeContainer> dvEL = ElementLink<xAOD::TrigCompositeContainer>(*outputHandle, dv->index());
-      ATH_CHECK( dvEL.isValid() );
-
-      ATH_CHECK( newDecision->setObjectLink<xAOD::TrigCompositeContainer>(TrigCompositeUtils::featureString(), dvEL) );
+      mapDecIdx.emplace( newDecision, dv->index() );
 
       TrigHitDVHypoTool::HitDVHypoInfo hypoInfo{ newDecision, isSPOverflow, averageMu, dv, previousDecisionIDs };
       hitDVHypoInputs.push_back( hypoInfo );
@@ -253,22 +254,33 @@ StatusCode TrigHitDVHypoAlg::execute( const EventContext& context ) const
       ATH_CHECK( tool->decide( hitDVHypoInputs ) );
    }
 
-   DecisionContainer::iterator it = outputDecisions->begin();
-   while(it != outputDecisions->end()) {
-      ATH_MSG_DEBUG( "+++++ outputDecision: " << *it << " +++++" );
-      if ( allFailed( *it ) ) {
-	 ATH_MSG_DEBUG( "---> all failed, erasing" );
-	 it = outputDecisions->erase(it);
-      } else {
-	 ATH_MSG_DEBUG( "---> not all failed" );
-	 ++it;
-      }
-   }
-
    // record hitDV object
    SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVHandle(m_hitDVKey, context);
    ATH_CHECK( hitDVHandle.record( std::move( hitDVContainer ), std::move( hitDVContainerAux ) ) );
    ATH_MSG_DEBUG( "recorded hitDV object to SG" );
+
+   DecisionContainer::iterator it = outputDecisions->begin();
+   while(it != outputDecisions->end()) {
+      ATH_MSG_DEBUG( "+++++ outputDecision: " << *it << " +++++" );
+      if ( allFailed( *it ) ) {
+         ATH_MSG_DEBUG( "---> all failed, erasing" );
+         it = outputDecisions->erase(it);
+      } else {
+         ATH_MSG_DEBUG( "---> not all failed" );
+
+         // Link hitDV object
+         auto     decision = *it;
+         size_t   idx = mapDecIdx.at(*it);
+
+         ElementLink<xAOD::TrigCompositeContainer> dvEL = ElementLink<xAOD::TrigCompositeContainer>(*hitDVHandle, idx, context);
+         ATH_CHECK( dvEL.isValid() );
+
+         ATH_CHECK( decision->setObjectLink<xAOD::TrigCompositeContainer>(featureString(), dvEL) );
+
+         ATH_MSG_DEBUG(*decision);
+         ++it;
+      }
+   }
 
    //
    ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
@@ -723,14 +735,14 @@ StatusCode TrigHitDVHypoAlg::findSPSeeds( const EventContext& ctx, const xAOD::T
    unsigned int slotnr    = ctx.slot();
    unsigned int subSlotnr = ctx.subSlot();
 
-   sprintf(hname,"hitdv_s%i_ss%i_ly6_h2_nsp",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly6_h2_nsp",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly6_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   sprintf(hname,"hitdv_s%i_ss%i_ly7_h2_nsp",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly7_h2_nsp",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly7_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
-   sprintf(hname,"hitdv_s%i_ss%i_ly6_h2_nsp_notrk",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly6_h2_nsp_notrk",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly6_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   sprintf(hname,"hitdv_s%i_ss%i_ly7_h2_nsp_notrk",slotnr,subSlotnr);
+   sprintf(hname,"hitdv_s%u_ss%u_ly7_h2_nsp_notrk",slotnr,subSlotnr);
    std::unique_ptr<TH2F> ly7_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
    for ( auto spData : *spsContainer ) {

@@ -25,6 +25,7 @@
 
 #include "nlohmann/json.hpp"
 #include <string>
+#include <utility>
 
 namespace AFP
 {
@@ -44,8 +45,9 @@ namespace AFP
     virtual StatusCode finalize() override;
 
     /// Provide alignment parameters for a given station. Returns nullptr if no data available.
-    const SiGlobAlignData alignment (const EventContext& ctx, const int stationID) const override;
-    
+    nlohmann::json alignmentData(const EventContext& ctx) const override;
+    const SiGlobAlignData alignment(const nlohmann::json& jsondata, const int stationID) const override;
+        
   private:
     SG::ReadCondHandleKey<CondAttrListCollection> m_rch_glob {this, "glob_align_key", "/FWD/Onl/AFP/Align/Global", "read condition handle for global alignement"};
   };

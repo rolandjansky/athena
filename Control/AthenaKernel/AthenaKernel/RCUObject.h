@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaKernel/RCUObject.h
  * @author scott snyder <snyder@bnl.gov>
@@ -49,20 +47,21 @@
  * Objects can also be registered with the Athena RCUSvc, which will
  * declare objects quiescent at the end of an event.
  *
- * The current implementation is very simple, and is suitable for a small
- * number of objects that change infrequently.
+ * The current implementation is quite simple, mostly suitable for a small
+ * number of objects that change infrequently.  There was an issue
+ * whereby if objects are being updated frequently and one is relying
+ * on RCUSvc to mark them as quiescent, then it's possible that one will
+ * never be out of the grace period for all event slots simultaneously,
+ * preventing objects from being cleaned up.  This is addressed my maintaining
+ * both a `current' and `old' set of grace periods.  If an object is updated
+ * while there are still objects pending deletion, the pending objects
+ * are moved to an `old' list, and we reset the grace periods only for
+ * the current list.  We then don't move anything else to the old list
+ * until those objects have been deleted.
  *
- *   - If objects are being updated ~ every event and one is relying
- *     on RCUSvc to mark them as quiescent, then it's possible that we'll
- *     never be out of the grace period for all event slots simultaneously,
- *     preventing objects from being cleaned up.
- *
- *   - If there are a large number of infrequently-changing objects,
- *     then RCUSvc may waste time marking as quiescent objects that
- *     have not changed.
- *
- *  If either of these becomes an issue, they can be addressed with a more
- *  elaborate implementation.
+ *  It still may be the case, however, that if there are a large number
+ *  of infrequently-changing objects, then RCUSvc may waste time marking
+ *  as quiescent objects that have not changed.
  *
  * Usage:
  *
@@ -79,6 +78,11 @@
  * to the constructor for @c Payload.  This will register the object
  * with the service.  One can alternately create a @c RCUObject directly,
  * passing it the number of event slots.
+ *
+ * It is also possible to create a @c RCUObject that does not hold an object
+ * by passing @c IRCUObject::NoObject to the constructor.  This is useful
+ * if the @c RCUObject is just being used to manage deletion of objects
+ * owned elsewhere.
  *
  * To read the controlled object, create a @c RCURead object:
  *
@@ -141,6 +145,11 @@ template <class T> class RCUUpdate;
 class IRCUObject
 {
 public:
+  /// Value to pass to a constructor to mark that we shouldn't allocate
+  /// an object.
+  enum NoObjectEnum { NoObject };
+
+
   /**
    * @brief Constructor, with RCUSvc.
    * @param svc Service with which to register.
@@ -213,7 +222,8 @@ protected:
    *
    * The caller must be holding the mutex for this object.
    */
-  bool endGrace (lock_t& /*lock*/, const EventContext& ctx);
+  bool endGrace (lock_t& lock,
+                 const EventContext& ctx);
 
 
   /**
@@ -232,15 +242,53 @@ protected:
 
 
   /**
-   * @brief Delete all old objects.
+   * @brief Delete all objects.
    * @param Lock object (external locking).
    *
    * The caller must be holding the mutex for this object.
    */
-  virtual void clearOld (lock_t& /*lock*/) = 0;
+  virtual void clearAll (lock_t& /*lock*/) = 0;
+
+
+  /**
+   * @brief Delete old objects.
+   * @param Lock object (external locking).
+   * @param nold Number of old objects to delete.
+   *
+   * The caller must be holding the mutex for this object.
+   * Returns true if there are no more objects pending deletion.
+   */
+  virtual bool clearOld (lock_t& /*lock*/, size_t nold) = 0;
+
+
+  /**
+   * @brief Make existing pending objects old, if possible.
+   * @param lock Lock object (external locking).
+   * @param garbageSize Present number of objects pending deletion.
+   *
+   * A new object is about to be added to the list of objects pending deletion.
+   * If there are any existing pending objects and there are no existing
+   * old objects, make the current pending objects old.
+   */
+  void makeOld (lock_t& lock, size_t garbageSize);
 
 
 private:
+  /**
+   * @brief Declare that the grace period for a slot is ending.
+   * @param Lock object (external locking).
+   * @param ctx Event context for the slot.
+   * @param grace Bitmask tracking grace periods.
+   * @returns true if any slot is still in a grace period.
+   *          false if no slots are in a grace period.
+   *
+   * The caller must be holding the mutex for this object.
+   */
+  bool endGrace (lock_t& /*lock*/,
+                 const EventContext& ctx,
+                 boost::dynamic_bitset<>& grace) const;
+
+
   /// The mutex for this object.
   std::mutex m_mutex;
 
@@ -249,6 +297,17 @@ private:
 
   /// Bit[i] set means that slot i is in a grace period.
   boost::dynamic_bitset<> m_grace;
+
+  /// Same thing, for the objects marked as old.
+  boost::dynamic_bitset<> m_oldGrace;
+
+  /// Number of old objects.
+  /// The objects at the end of the garbage list are old.
+  size_t m_nold;
+
+  /// True if there are any objects pending deletion.
+  /// Used to avoid taking the lock in quiescent() if there's nothing to do.
+  std::atomic<bool> m_dirty;
 };
 
 
@@ -285,6 +344,16 @@ public:
    */
   template <typename... Args>
   RCUObject (size_t nslots, Args&&... args);
+
+
+  /**
+   * @brief Constructor, with RCUSvc.
+   * @param svc Service with which to register.
+   *
+   * The service will call @c quiescent at the end of each event.
+   * No current object will be created.
+   */
+  RCUObject (IRCUSvc& svc, NoObjectEnum);
 
 
   /**
@@ -354,17 +423,37 @@ public:
    * the current slot as having completed the grace period (so this can
    * be called by a thread running outside of a slot context).
    */
-  void discard (std::unique_ptr<T> p);
+  void discard (std::unique_ptr<const T> p);
+
+
+protected:
+  /**
+   * @brief Queue an object for later deletion.
+   * @param lock Lock object (external locking).
+   * @param p The object to delete.
+   */
+  void discard (lock_t& /*lock*/, std::unique_ptr<const T> p);
 
 
 private:
   /**
-   * @brief Delete all old objects.
+   * @brief Delete all objects.
    * @param Lock object (external locking).
    *
    * The caller must be holding the mutex for this object.
    */
-  virtual void clearOld (lock_t& /*lock*/) override;
+  virtual void clearAll (lock_t& /*lock*/) override;
+
+
+  /**
+   * @brief Delete old objects.
+   * @param Lock object (external locking).
+   * @param nold Number of old objects to delete.
+   *
+   * The caller must be holding the mutex for this object.
+   * Returns true if there are no more objects pending deletion.
+   */
+  virtual bool clearOld (lock_t& /*lock*/, size_t nold) override;
 
 
 private:
@@ -372,13 +461,14 @@ private:
   template <class U> friend class RCURead;
   template <class U> friend class RCUUpdate;
 
+  /// Owning reference to the current object.
+  std::unique_ptr<T> m_objref;
+
   /// Pointer to the current object.
   std::atomic<const T*> m_obj;
 
-  /// List of all allocated objects.
-  /// The current object is the one at the front;
-  /// the others are pending cleanup.
-  std::deque<std::unique_ptr<T> > m_objs;
+  /// List of objects pending cleanup.
+  std::deque<std::unique_ptr<const T> > m_garbage;
 };
 
 
@@ -398,6 +488,9 @@ public:
   RCURead (const RCUObject<T>& rcuobj);
 
 
+  operator bool() const { return m_obj != nullptr; }
+
+
   /**
    * @brief Access data.
    */
@@ -412,7 +505,7 @@ public:
   
 private:
   /// The data object we're reading.
-  const T& m_obj;
+  const T* m_obj;
 };
 
 

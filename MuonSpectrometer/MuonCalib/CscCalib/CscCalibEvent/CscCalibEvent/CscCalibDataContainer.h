@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBEVENT_CSCCALIBDATACONTAINER_H
@@ -19,7 +19,8 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "AthenaKernel/CLASS_DEF.h"
-#include "EventContainers/IdentifiableContainer.h" 
+#include "EventContainers/IdentifiableContainer.h"
+#include "CxxUtils/checker_macros.h"
 
 class CscCalibDataContainer : public IdentifiableContainer<CscCalibDataCollection> {
  public:  
@@ -35,7 +36,7 @@ class CscCalibDataContainer : public IdentifiableContainer<CscCalibDataCollectio
     typedef IdentifiableContainer<CscCalibDataCollection> MyBase; 
 
     /** Insert a Calibration data */
-    void push_back( CscCalibData* calibData);
+    void push_back ATLAS_NOT_THREAD_SAFE ( CscCalibData* calibData);
 
     /** content size */
     size_type calibData_size() const ; 

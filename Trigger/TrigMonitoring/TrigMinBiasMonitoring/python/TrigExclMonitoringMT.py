@@ -15,8 +15,8 @@ def TrigExcl(configFlags):
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     alg = monConfig.addAlgorithm(CompFactory.ExclMinBiasTrkMonAlg, "HLTExclMonAlg")
-    trkSel = CompFactory.InDet.InDetTrackSelectionTool("InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary")
-
+    from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_LoosePrimary_Cfg
+    trkSel = monConfig.resobj.popToolsAndMerge(InDetTrackSelectionTool_LoosePrimary_Cfg(configFlags))
     alg.TrackSelectionTool = trkSel
 
     alg.triggerList = [c for c in getHLTMenuAccess(configFlags) if '_excl_' in c]
@@ -65,12 +65,6 @@ def TrigExcl(configFlags):
 
 
 if __name__ == "__main__":
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-
-    Configurable.configurableRun3Behavior = 1
-
-
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.DQ.Environment = "AOD"

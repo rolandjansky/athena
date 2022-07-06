@@ -164,6 +164,18 @@ StatusCode TopoInputEvent::setgMHT(const TCS::gXETOB & gmht) {
    return StatusCode::SUCCESS;
 }
 
+StatusCode TopoInputEvent::setgXENC(const TCS::gXETOB & gxenc) {
+   m_gxenc.clear();
+   m_gxenc.push_back(gxenc);
+   return StatusCode::SUCCESS;
+}
+
+StatusCode TopoInputEvent::setgXERHO(const TCS::gXETOB & gxerho) {
+   m_gxerho.clear();
+   m_gxerho.push_back(gxerho);
+   return StatusCode::SUCCESS;
+}
+
 StatusCode TopoInputEvent::setgTE(const TCS::gTETOB & gte) {
    m_gte.clear();
    m_gte.push_back(gte);
@@ -251,6 +263,16 @@ void TopoInputEvent::setOverflowFromgXEJWOJInput   (const bool &v)
 void TopoInputEvent::setOverflowFromgMHTInput   (const bool &v)
 {
     m_overflowFromgMHTInput = v;
+}
+
+void TopoInputEvent::setOverflowFromgXENCInput   (const bool &v)
+{
+    m_overflowFromgXENCInput = v;
+}
+
+void TopoInputEvent::setOverflowFromgXERHOInput   (const bool &v)
+{
+    m_overflowFromgXERHOInput = v;
 }
 
 void TopoInputEvent::setOverflowFromgTEInput   (const bool &v)
@@ -503,6 +525,18 @@ TopoInputEvent::dump() {
    }
    file << "</gmht>" << std::endl;
 
+   file << "<gxenc>" << std::endl;
+   for(const gXETOB* gxenc : m_gxenc) {
+      file << gxenc->Ex() << "  " << gxenc->Ey() << "  " << gxenc->Et() << std::endl;
+   }
+   file << "</gxenc>" << std::endl;
+
+   file << "<gxerho>" << std::endl;
+   for(const gXETOB* gxerho : m_gxerho) {
+      file << gxerho->Ex() << "  " << gxerho->Ey() << "  " << gxerho->Et() << std::endl;
+   }
+   file << "</gxerho>" << std::endl;
+
    file << "<gte>" << std::endl;
    for(const gTETOB* gte : m_gte) {
       file << gte->sumEt() << std::endl;
@@ -546,17 +580,19 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "Event:" << std::endl;
    o << "  #clusters: " << evt.clusters().size() << " (capacity: " << evt.clusters().capacity() << ")" << std::endl;
    o << "  #eEms    : " << evt.eEms().size() << " (capacity: " << evt.eEms().capacity() << ")" << std::endl;
-   o << "  #eTaus    : " << evt.eTaus().size() << " (capacity: " << evt.eTaus().capacity() << ")" << std::endl;
+   o << "  #eTaus   : " << evt.eTaus().size() << " (capacity: " << evt.eTaus().capacity() << ")" << std::endl;
    o << "  #taus    : " << evt.taus().size() << " (capacity: " << evt.taus().capacity() << ")" << std::endl;
    o << "  #jets    : " << evt.jets().size() << " (capacity: " << evt.jets().capacity() << ")" << std::endl;
-   o << "  #jJets    : " << evt.jJets().size() << " (capacity: " << evt.jJets().capacity() << ")" << std::endl;
+   o << "  #jJets   : " << evt.jJets().size() << " (capacity: " << evt.jJets().capacity() << ")" << std::endl;
    o << "  #muons   : " << evt.muons().size() << " (capacity: " << evt.muons().capacity() << ")" << std::endl;
    o << "  #latemuons   : " << evt.lateMuons().size() << " (capacity: " << evt.lateMuons().capacity() << ")" << std::endl;
    o << "  #muonsNextBC : " << evt.muonsNextBC().size() << " (capacity: " << evt.muonsNextBC().capacity() << ")" << std::endl;
    o << "  #jxe     : " << evt.m_jxe.size() << " (capacity: " << evt.m_jxe.capacity() << ")" << std::endl;
    o << "  #jte     : " << evt.m_jte.size() << " (capacity: " << evt.m_jte.capacity() << ")" << std::endl;
-   o << "  #gxejwoj     : " << evt.m_gxejwoj.size() << " (capacity: " << evt.m_gxejwoj.capacity() << ")" << std::endl;
+   o << "  #gxejwoj : " << evt.m_gxejwoj.size() << " (capacity: " << evt.m_gxejwoj.capacity() << ")" << std::endl;
    o << "  #gmht    : " << evt.m_gmht.size() << " (capacity: " << evt.m_gmht.capacity() << ")" << std::endl;
+   o << "  #gxenc   : " << evt.m_gxenc.size() << " (capacity: " << evt.m_gxenc.capacity() << ")" << std::endl;
+   o << "  #gxerho  : " << evt.m_gxerho.size() << " (capacity: " << evt.m_gxerho.capacity() << ")" << std::endl;
    o << "  #gte     : " << evt.m_gte.size() << " (capacity: " << evt.m_gte.capacity() << ")" << std::endl;
    o << "  #met     : " << evt.m_met.size() << " (capacity: " << evt.m_met.capacity() << ")" << std::endl;
    o << "  #info    : runNo, evtNo, lumiBlock and BCID" << std::endl;
@@ -573,8 +609,10 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << std::endl << evt.muonsNextBC();
    o << "jXE input (" << evt.m_jxe.name() << "):" << std::endl << evt.m_jxe;
    o << "jTE input (" << evt.m_jte.name() << "):" << std::endl << evt.m_jte;
-   o << "gXE input (" << evt.m_gxejwoj.name() << "):" << std::endl << evt.m_gxejwoj;
+   o << "gXEJWOJ input (" << evt.m_gxejwoj.name() << "):" << std::endl << evt.m_gxejwoj;
    o << "gMHT input (" << evt.m_gmht.name() << "):" << std::endl << evt.m_gmht;
+   o << "gXENC input (" << evt.m_gxenc.name() << "):" << std::endl << evt.m_gxenc;
+   o << "gXERHO input (" << evt.m_gxerho.name() << "):" << std::endl << evt.m_gxerho;
    o << "gTE input (" << evt.m_gte.name() << "):" << std::endl << evt.m_gte;
    o << "MET input (" << evt.m_met.name() << "):" << std::endl << evt.m_met;
    o << "Overflow from:"
@@ -607,6 +645,8 @@ TopoInputEvent::print() const {
    TRG_MSG_INFO("  #jte     : " << m_jte.size() << " (capacity: " << m_jte.capacity() << ")");
    TRG_MSG_INFO("  #gxejwoj : " << m_gxejwoj.size() << " (capacity: " << m_gxejwoj.capacity() << ")");
    TRG_MSG_INFO("  #gmht    : " << m_gmht.size() << " (capacity: " << m_gmht.capacity() << ")");
+   TRG_MSG_INFO("  #gxenc    : " << m_gxenc.size() << " (capacity: " << m_gxenc.capacity() << ")");
+   TRG_MSG_INFO("  #gxerho   : " << m_gxerho.size() << " (capacity: " << m_gxerho.capacity() << ")");
    TRG_MSG_INFO("  #gte     : " << m_gte.size() << " (capacity: " << m_gte.capacity() << ")");
    TRG_MSG_INFO("  #met     : " << m_met.size() << " (capacity: " << m_met.capacity() << ")");
    
@@ -633,10 +673,14 @@ TopoInputEvent::print() const {
    for(auto * x : m_jxe) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("jTE input (" << m_jte.name() << "):");
    for(auto * x : m_jte) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("gXE input (" << m_gxejwoj.name() << "):");
+   TRG_MSG_DEBUG("gXEJWOJ input (" << m_gxejwoj.name() << "):");
    for(auto * x : m_gxejwoj) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("gMHT input (" << m_gmht.name() << "):");
    for(auto * x : m_gmht) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("gXENC input (" << m_gxenc.name() << "):");
+   for(auto * x : m_gxenc) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("gXERHO input (" << m_gxerho.name() << "):");
+   for(auto * x : m_gxerho) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("gTE input (" << m_gte.name() << "):");
    for(auto * x : m_gte) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << std::endl << m_met;

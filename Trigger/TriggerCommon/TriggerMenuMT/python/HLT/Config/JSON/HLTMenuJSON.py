@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import re
 import json
@@ -43,13 +43,16 @@ def __getStepsDataFromAlgSequence(HLTAllSteps):
         __log.warn( "No HLTAllSteps sequencer, will not export per-Step data for chains.")
     return stepsData
 
+# Accessing Configurable properties is sadly rather slow,
+# so we cache the result here:
 @lru_cache(maxsize=2048)
 def __getFilterChains(filterAlg):
     return filterAlg.Chains if hasattr(filterAlg, "Chains") else []
 
 def __isChainInFilter(chainName, filterAlg):
     for fChain in __getFilterChains(filterAlg):
-        if (fChain.startswith('leg') and chainName == fChain[7:]) or chainName == fChain:
+        # on purpose not using 'startswith' as this is called many times:
+        if (fChain[0:3] == 'leg' and chainName == fChain[7:]) or chainName == fChain:
             return True
     return False
 

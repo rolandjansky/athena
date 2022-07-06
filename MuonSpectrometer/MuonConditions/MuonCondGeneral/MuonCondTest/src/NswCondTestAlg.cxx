@@ -11,8 +11,9 @@
 #include <ctime>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
-#include "vector"
+
 
 // Gaudi and Athena
 #include "AthenaKernel/IOVInfiniteRange.h"
@@ -32,6 +33,7 @@ StatusCode NswCondTestAlg::initialize() {
     ATH_MSG_INFO("Calling initialize");
     ATH_CHECK(m_readKey_tdopdo.initialize());
     ATH_CHECK(m_readKey_vmm.initialize());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -54,16 +56,16 @@ StatusCode NswCondTestAlg::execute(const EventContext& ctx) const {
     std::chrono::duration<double> retrieving_STGC_VMM_C{};
 
     // retrieve all folders
-    if (!retrieveTdoPdo(ctx, "TDO", "MM", "A", retrieving_MM_TDO_A).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "TDO", "MM", "C", retrieving_MM_TDO_C).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "PDO", "MM", "A", retrieving_MM_PDO_A).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "PDO", "MM", "C", retrieving_MM_PDO_C).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::PDO, "MM", "A", retrieving_MM_PDO_A).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::PDO, "MM", "C", retrieving_MM_PDO_C).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::TDO, "MM", "A", retrieving_MM_TDO_A).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::TDO, "MM", "C", retrieving_MM_TDO_C).isSuccess()) return StatusCode::FAILURE;
     if (!retrieveVmm(ctx, "MM", "A", retrieving_MM_VMM_A).isSuccess()) return StatusCode::FAILURE;
     if (!retrieveVmm(ctx, "MM", "C", retrieving_MM_VMM_C).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "TDO", "STGC", "A", retrieving_STGC_TDO_A).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "TDO", "STGC", "C", retrieving_STGC_TDO_C).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "PDO", "STGC", "A", retrieving_STGC_PDO_A).isSuccess()) return StatusCode::FAILURE;
-    if (!retrieveTdoPdo(ctx, "PDO", "STGC", "C", retrieving_STGC_PDO_C).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::TDO, "STGC", "A", retrieving_STGC_TDO_A).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::TDO, "STGC", "C", retrieving_STGC_TDO_C).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::PDO, "STGC", "A", retrieving_STGC_PDO_A).isSuccess()) return StatusCode::FAILURE;
+    if (!retrieveTdoPdo(ctx, TimeChargeType::PDO, "STGC", "C", retrieving_STGC_PDO_C).isSuccess()) return StatusCode::FAILURE;
     if (!retrieveVmm(ctx, "STGC", "A", retrieving_STGC_VMM_A).isSuccess()) return StatusCode::FAILURE;
     if (!retrieveVmm(ctx, "STGC", "C", retrieving_STGC_VMM_C).isSuccess()) return StatusCode::FAILURE;
 
@@ -98,9 +100,9 @@ StatusCode NswCondTestAlg::execute(const EventContext& ctx) const {
 }
 
 // retrieveTdoPdo
-StatusCode NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, const std::string& data, const std::string& tech,
+StatusCode NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, TimeChargeType data, const std::string& tech,
                                           const std::string& side, std::chrono::duration<double>& timer) const {
-    ATH_MSG_INFO("Starting with " << data << " data for " << tech << " and " << side << " at " << timestamp());
+    ATH_MSG_INFO("Starting with " << " data for " << tech << " and " << side << " at " << timestamp());
     auto start1 = std::chrono::high_resolution_clock::now();
 
     // Start with an infinte range and narrow it down as needed
@@ -109,8 +111,7 @@ StatusCode NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, const std::st
     // Retrieve Data Object
     SG::ReadCondHandle<NswCalibDbTimeChargeData> readHandle{m_readKey_tdopdo, ctx};
     const NswCalibDbTimeChargeData* readCdo{*readHandle};
-    //	std::unique_ptr<NswCalibDbTimeChargeData> writeCdo{std::make_unique<NswCalibDbTimeChargeData>(m_idHelperSvc->mmIdHelper())};
-    if (readCdo == nullptr) {
+    if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -129,22 +130,29 @@ StatusCode NswCondTestAlg::retrieveTdoPdo(const EventContext& ctx, const std::st
     ATH_MSG_INFO("Found data for " << channelIds.size() << " channels!");
 
     // retrieve data for the first channel
-    if (channelIds.size() > 0) {
-        Identifier channel = channelIds[0];
-        ATH_MSG_INFO("Checking channel 0 (Id = " << channel.get_compact() << ")");
-
-        double slope;
-        readCdo->getSlope(data, &channel, slope);
-        double error;
-        readCdo->getSlopeError(data, &channel, error);
-        ATH_MSG_INFO("slope     = " << slope << " (error=" << error << ")");
-
-        double intercept;
-        readCdo->getIntercept(data, &channel, intercept);
-        double interror;
-        readCdo->getInterceptError(data, &channel, interror);
-        ATH_MSG_INFO("intercept = " << intercept << " (error=" << interror << ")");
+    std::stringstream sstr{};
+    if (!channelIds.empty()) {
+        const Identifier& channel = channelIds[0];
+        
+        const NswCalibDbTimeChargeData::CalibConstants calib_data = readCdo->getCalibForChannel(data, channel);
+        ATH_MSG_INFO("Checking channel 0 (Id = " << channel.get_compact() << ") "<<calib_data);
+        if (!m_logName.empty()){
+            for (const Identifier& chan_id : channelIds) {
+                const NswCalibDbTimeChargeData::CalibConstants& calib_data = readCdo->getCalibForChannel(data, channel);
+                sstr<<m_idHelperSvc->toString(chan_id)<<" "<<calib_data<<std::endl;
+            }                   
+        }
+    } else if (!m_logName.empty()) {
+       const NswCalibDbTimeChargeData::CalibConstants& calib_data = readCdo->getZeroCalibChannel(data, tech == "MM" ? TimeTech::MM : TimeTech::STGC); 
+        sstr<<"Dummy calib channel "<<calib_data<<std::endl; 
     }
+
+    if (!m_logName.empty()){
+        std::ofstream ostr{m_logName+"_"+ (data == TimeChargeType::TDO ? "TDO" : "PDO") + "_"+tech+side+".txt"};
+        ostr<<sstr.str()<<std::endl;
+    }
+    
+    ATH_MSG_ALWAYS(sstr.str());
 
     auto end1 = std::chrono::high_resolution_clock::now();
     timer += end1 - start1;
@@ -164,7 +172,7 @@ StatusCode NswCondTestAlg::retrieveVmm(const EventContext& ctx, const std::strin
     // Retrieve Data Object
     SG::ReadCondHandle<NswCalibDbThresholdData> readHandle{m_readKey_vmm, ctx};
     const NswCalibDbThresholdData* readCdo{*readHandle};
-    if (readCdo == nullptr) {
+    if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -183,13 +191,21 @@ StatusCode NswCondTestAlg::retrieveVmm(const EventContext& ctx, const std::strin
     ATH_MSG_INFO("Found data for " << channelIds.size() << " channels!");
 
     // retrieve data for the first channel
-    if (channelIds.size() > 0) {
-        Identifier channel = channelIds[0];
-        ATH_MSG_INFO("Checking channel 0 (Id = " << channel.get_compact() << ")");
-
-        double threshold;
-        readCdo->getThreshold(&channel, threshold);
-        ATH_MSG_INFO("threshold = " << threshold);
+    std::stringstream sstr {};
+    if (!channelIds.empty()) {
+        const Identifier& channel = channelIds[0];
+        double threshold{0.};
+        readCdo->getThreshold(channel, threshold);
+        ATH_MSG_INFO("Checking channel 0 (Id = " << m_idHelperSvc->toString(channel)<< ")  threshold "<< threshold);
+        if (!m_logName.empty()){
+           for (const Identifier& id : channelIds){
+            sstr<<m_idHelperSvc->toString(id)<<" threshold "<<threshold<<std::endl;
+           }  
+        }
+    }
+    if (!m_logName.empty()){
+        std::ofstream ostr{m_logName+"_THRESH_"+tech+side+".txt"};
+        ostr<<sstr.str()<<std::endl;
     }
 
     auto end1 = std::chrono::high_resolution_clock::now();

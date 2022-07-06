@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_EdgeMethod.h"
 #include <algorithm>
 
@@ -14,7 +13,7 @@ ALFA_EdgeMethod::ALFA_EdgeMethod() :
 }
 
 ALFA_EdgeMethod::ALFA_EdgeMethod(Bool_t bOpt_Sisters, Bool_t bOpt_UseGaps) :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_EdgeMethod")
+    AthMessaging("ALFA_EdgeMethod")
 {
 	m_bOpt_Sisters = bOpt_Sisters;
 	m_bOpt_UseGaps = bOpt_UseGaps;

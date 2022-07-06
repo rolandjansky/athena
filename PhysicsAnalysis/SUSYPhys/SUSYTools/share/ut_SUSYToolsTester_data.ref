@@ -28,7 +28,7 @@ Package.SUSYToolsTester  INFO    GRL tool retrieve & initialized...
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /nfs/dust/atlas/user/mrimoldi/software/DevelopST_R22/Btagging/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /nfs/dust/atlas/user/mrimoldi/software/DevelopST_R22/ELEWP/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -69,7 +69,7 @@ SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.IdExpert
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.EffNPcorrModel" with value TOTAL
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.EffCorrFNList" with value 
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.TriggerSFStringSingle" with value SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.EffMapFilePath" with value ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Ele.EffMapFilePath" with value ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map1.txt
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Trig.Singlelep2015" with value e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose||mu20_iloose_L1MU15_OR_mu50
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Trig.Singlelep2016" with value e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0||mu26_ivarmedium_OR_mu50
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Trig.Singlelep2017" with value e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0||mu26_ivarmedium_OR_mu50
@@ -93,8 +93,8 @@ SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "MuonBaseline
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.TTVASF" with value 1
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.Pt" with value 10000
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.Eta" with value 2.7
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.Iso" with value Loose_VarRad
-SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.IsoHighPt" with value Loose_VarRad
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.Iso" with value PflowLoose_VarRad
+SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.IsoHighPt" with value PflowLoose_VarRad
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.IsoHighPtThresh" with value 200000
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.d0sig" with value 3
 SUSYObjDef_xAOD          INFO    configFromFile(): Loaded property "Muon.z0" with value 0.5
@@ -262,7 +262,7 @@ Info in <CP::TPileupReweighting::UsePeriodConfig>: Using MC16 Period configurati
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0x9af2940
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xb471d80
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow to calibrate AntiKt4EMPFlowjets
 ToolSvc.JetCalibTool_A...INFO    Reading global JES settings from: JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config
 ToolSvc.JetCalibTool_A...INFO    resolved in: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetCalibTools/CalibArea-00-04-82/CalibrationConfigs/JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config
@@ -708,7 +708,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-05-05T0220/AnalysisBase/22.2.73/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-05-14T0220/AnalysisBase/22.2.75/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -784,10 +784,10 @@ ToolSvc.MuonTTVAEffici...INFO    Trying to initialize, with working point TTVA, 
 ReadStreamerInfo, class:string, illegal uid=-2
 ToolSvc.MuonTTVAEffici...INFO    Successfully initialized! 
 ToolSvc.MuonIsolationS...INFO    Efficiency type is = ISO
-ToolSvc.MuonIsolationS...INFO    Trying to initialize, with working point Loose_VarRadIso, using calibration release 210222_Precision_r21
+ToolSvc.MuonIsolationS...INFO    Trying to initialize, with working point PflowLoose_VarRadIso, using calibration release 210222_Precision_r21
 ToolSvc.MuonIsolationS...INFO    Successfully initialized! 
 ToolSvc.MuonHighPtIsol...INFO    Efficiency type is = ISO
-ToolSvc.MuonHighPtIsol...INFO    Trying to initialize, with working point Loose_VarRadIso, using calibration release 210222_Precision_r21
+ToolSvc.MuonHighPtIsol...INFO    Trying to initialize, with working point PflowLoose_VarRadIso, using calibration release 210222_Precision_r21
 ToolSvc.MuonHighPtIsol...INFO    Successfully initialized! 
 ToolSvc.MuonTriggerSca...INFO    MuonQuality = 'Medium'
 ToolSvc.MuonTriggerSca...INFO    Binning = 'fine'
@@ -807,18 +807,13 @@ ToolSvc.PhotonSelIsEMB...INFO    Configfile to use  ElectronPhotonSelectorTools/
 ToolSvc.PhotonSelIsEMB...INFO    operating point : Tight
 SUSYObjDef_xAOD          INFO    Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
 SUSYObjDef_xAOD          INFO    Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
-SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_iso_TightLLHFCLoose) Your electron Iso WP: FCLoose is no longer supported. This will almost certainly cause a crash now.
-SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_isoHigPt_TightLLHFCHighPtCaloOnly) Your electron high-pt Iso WP: FCHighPtCaloOnly is no longer supported. This will almost certainly cause a crash now.
-SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_singleLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
-SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_mixLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
-SUSYObjDef_xAOD          WARNING Your Electron Iso WP (FCLoose) is not supported for ECID SFs, falling back to Gradient for SF purposes
-SUSYObjDef_xAOD          WARNING (ElectronChargeEfficiencyCorrectionTool_TightLLHFCLoose) Your electron Iso WP: FCLoose is no longer supported. This will almost certainly cause a crash now.
+SUSYObjDef_xAOD          WARNING Your Electron Iso WP (FCLoose) is not supported for ECID SFs, falling back to FCTight for SF purposes
 ToolSvc.ElectronPhoton...INFO    No config file set! Using default shift values for the electron shifter.
 Info in <FudgeMCTool>: Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root
 ToolSvc.EgammaCalibrat...INFO    Initialization
@@ -1035,9 +1030,9 @@ ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, -1431858503run #358031 499 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #-1431858503, run #358031 500 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 204.600000 / 257.382166 ms
-  First event           - 960.000000 / 26385.806084 ms
-  Excluding first event - 203.086172 / 205.020593 ms
+  Entire loop           - 146.940000 / 146.950704 ms
+  First event           - 720.000000 / 721.370935 ms
+  Excluding first event - 145.791583 / 145.799559 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 498, mu: 498
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 498, mu: 498
@@ -1045,7 +1040,7 @@ Package.SUSYToolsTester  INFO    Cut 2(TileTrip)-> el: 498, mu: 498
 Package.SUSYToolsTester  INFO    Cut 3(Trigger)-> el: 498, mu: 498
 Package.SUSYToolsTester  INFO    Cut 4(Cosmic veto)-> el: 492, mu: 492
 Package.SUSYToolsTester  INFO    Cut 5(==1 baseline lepton)-> el: 65, mu: 65
-Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 46, mu: 46
+Package.SUSYToolsTester  INFO    Cut 6(==1 signal lepton)-> el: 46, mu: 45
 Package.SUSYToolsTester  INFO    Cut 7(lepton pT>20 GeV)-> el: 44, mu: 40
 Package.SUSYToolsTester  INFO    Cut 8(trig. matched lepton)-> el: 42, mu: 35
 Package.SUSYToolsTester  INFO    Cut 9(Njet(pT>50 GeV)>=2)-> el: 1, mu: 1

@@ -89,6 +89,13 @@ baseParser.add_argument(
 )
 
 baseParser.add_argument(
+    "--skipProperties",
+    help="Do not load properties other than those referring to other components",
+    action="store_true",
+)
+
+
+baseParser.add_argument(
     "--debug",
     help="Enable tool debugging messages",
     action="store_true",
@@ -268,6 +275,54 @@ def shortenDefaultComponents(dic, args) -> Dict:
         conf[key] = shorten_defaults(value)
     return conf
 
+def isReference(value, compname, conf) -> bool:
+    """Returns true if value stores reference to other components
+       value - the value to check
+       compname - full component name
+       conf - complete config dict
+    """
+    try:
+        value = ast.literal_eval(str(value))
+    except Exception:
+        pass
+
+    if isinstance(value, str):
+        ctype_name = value.split('/')
+        instance = None
+        if len(ctype_name) == 2:
+            instance = ctype_name[1]
+        if len(ctype_name) == 1:
+            instance = ctype_name[0] 
+        if instance:
+            if f"{compname}.{instance}" in conf: # private tool
+                return [f"{compname}.{instance}"]
+            if f"ToolSvc.{instance}" in conf: # public tool
+                return [f"ToolSvc.{instance}"]
+            if instance in conf: # service
+                return [instance]
+        if  len(ctype_name) == 2: # in either case for 2 elements value we consider that as comp
+            return [ctype_name[1]]
+
+    elif isinstance(value, list):
+        refs = [isReference(el, compname, conf) for el in value]
+        if any(refs):
+            flattened = []
+            [flattened.extend(el) for el in refs if el]
+            return flattened
+    return []
+
+
+def skipProperties(conf, args) -> Dict:
+    updated = {}
+    for (name, properties) in conf.items():
+        updated[name] = {}
+        if not isinstance(properties, dict): # keep it
+            updated[name] = properties
+        else:
+            for property_name, value in properties.items():
+                if isReference( value, name, conf) or property_name == 'Members': # later for sequences structure
+                    updated[name][property_name] = value
+    return updated
 
 def loadConfigFile(fname, args) -> Dict:
     """loads config file into a dictionary, supports several modifications of the input switched on via additional arguments
@@ -349,6 +404,9 @@ def loadConfigFile(fname, args) -> Dict:
 
     if args.shortenDefaultComponents:
         conf = shortenDefaultComponents(conf, args)
+
+    if args.skipProperties:
+        conf = skipProperties(conf, args)
     return conf
 
 class ComponentsFileLoader:

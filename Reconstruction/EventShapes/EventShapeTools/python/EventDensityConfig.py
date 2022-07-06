@@ -16,9 +16,10 @@ def getEventShapeName( defOrLabel, nameprefix="", suffix=None, radius=0.4):
     """
 
     from JetRecConfig.JetDefinition import JetDefinition,JetInputConstit
-
+    tail=''
     if isinstance(defOrLabel, JetDefinition):
         label = defOrLabel.inputdef.label
+        tail = defOrLabel.infix or ''
     elif isinstance(defOrLabel, JetInputConstit):
         label = defOrLabel.label
     else:
@@ -28,7 +29,7 @@ def getEventShapeName( defOrLabel, nameprefix="", suffix=None, radius=0.4):
     suffix = suffix or ""
     nameprefix = nameprefix or "" # just in case we are passed None
     
-    return f"{nameprefix}Kt{R}{label}{suffix}EventShape"
+    return f"{nameprefix}Kt{R}{label}{suffix}{tail}EventShape"
 
 
 def configEventDensityTool( name, jetOrConstitdef, radius=0.4, **options ):

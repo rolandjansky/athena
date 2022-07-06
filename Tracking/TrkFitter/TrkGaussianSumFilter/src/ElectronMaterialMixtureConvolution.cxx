@@ -22,6 +22,38 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 
 namespace {
+
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line Eigen calls
+#endif
+inline void
+dummyCacheElement(GsfMaterial::Combined& elem)
+{
+  elem.numEntries = 1;
+  elem.deltaPs[0] = 0;
+  elem.deltaParameters[0] = AmgVector(5)::Zero();
+  elem.deltaCovariances[0] = AmgSymMatrix(5)::Zero();
+}
+
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line Eigen calls
+#endif
+inline void
+updateCacheElement(GsfMaterial::Combined& update,
+                   size_t index,
+                   const AmgVector(5) & parameters,
+                   const AmgSymMatrix(5) * covariance)
+{
+  update.deltaParameters[index] = parameters;
+  if (covariance) {
+    update.deltaCovariances[index] += *covariance;
+  } else {
+    update.deltaCovariances[index].setZero();
+  }
+}
+
 bool
 updateP(double& qOverP, double deltaP)
 {
@@ -97,7 +129,8 @@ Trk::ElectronMaterialMixtureConvolution::ElectronMaterialMixtureConvolution(
   declareInterface<IMaterialMixtureConvolution>(this);
 }
 
-Trk::ElectronMaterialMixtureConvolution::~ElectronMaterialMixtureConvolution() = default;
+Trk::ElectronMaterialMixtureConvolution::~ElectronMaterialMixtureConvolution() =
+  default;
 
 StatusCode
 Trk::ElectronMaterialMixtureConvolution::initialize()
@@ -128,7 +161,7 @@ Trk::ElectronMaterialMixtureConvolution::update(
 
   Trk::MultiComponentState updatedMergedState = update(
     caches, multiComponentState, layer, direction, particleHypothesis, Normal);
-  
+
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -239,13 +272,11 @@ Trk::ElectronMaterialMixtureConvolution::update(
     const AmgSymMatrix(5)* measuredCov = inputState[i].first->covariance();
     // If the momentum is too dont apply material effects
     if (inputState[i].first->momentum().mag() <= m_momentumCut) {
-      caches[i].resetAndAddDummyValues();
-      caches[i].deltaParameters[0] = inputState[i].first->parameters();
+      dummyCacheElement(caches[i]);
+      updateCacheElement(
+        caches[i], 0, inputState[i].first->parameters(), measuredCov);
       caches[i].weights[0] = inputState[i].second;
-      if (measuredCov) {
-        caches[i].deltaCovariances[0] += *measuredCov;
-      }
-      n += caches[i].numWeights;
+      n += caches[i].numEntries;
       continue;
     }
 
@@ -255,41 +286,27 @@ Trk::ElectronMaterialMixtureConvolution::update(
         inputState[i].first.get(), layer, m_useReferenceMaterial);
 
     if (!matPropPair.first) {
-      caches[i].resetAndAddDummyValues();
-      caches[i].deltaParameters[0] = inputState[i].first->parameters();
+      dummyCacheElement(caches[i]);
+      updateCacheElement(
+        caches[i], 0, inputState[i].first->parameters(), measuredCov);
       caches[i].weights[0] = inputState[i].second;
-      if (measuredCov) {
-        caches[i].deltaCovariances[0] += *measuredCov;
-      }
-      n += caches[i].numWeights;
+      n += caches[i].numEntries;
       continue;
     }
-
+    // Now we can compute/apply actual material effects
     // Apply the update factor
     matPropPair.second *= updateFactor;
-
     m_materialEffects.compute(caches[i],
                               inputState[i],
                               *matPropPair.first,
                               matPropPair.second,
                               direction);
 
-    // check vectors have the same size
-    if (caches[i].numWeights != caches[i].numDeltaPs) {
-      ATH_MSG_WARNING("Inconsistent number of components in the updator!!! no "
-                      "material effect will be applied");
-      caches[i].resetAndAddDummyValues();
-    }
-
     // Apply material effects to input state and store results in cache
-    for (size_t j(0); j < caches[i].numWeights; ++j) {
-      if (measuredCov) {
-        caches[i].deltaCovariances[j] += *measuredCov;
-      } else {
-        caches[i].deltaCovariances[j].setZero();
-      }
-      caches[i].deltaParameters[j] = inputState[i].first->parameters();
-      // Adjust the momentum of the component's parameters vector here. Check to
+    for (size_t j(0); j < caches[i].numEntries; ++j) {
+      updateCacheElement(
+        caches[i], j, inputState[i].first->parameters(), measuredCov);
+      // Adjust q/p of the (delta) Parameters
       // make sure update is good.
       if (!updateP(caches[i].deltaParameters[j][Trk::qOverP],
                    caches[i].deltaPs[j])) {
@@ -305,10 +322,10 @@ Trk::ElectronMaterialMixtureConvolution::update(
         caches[i].weights[j] = std::numeric_limits<float>::min();
       }
     }
-    n += caches[i].numWeights;
-  }
+    n += caches[i].numEntries;
+  } // End of loop filling the cache
 
-  // Fill information for to calculate which components to merge
+  // Fill information for  calculating which components to merge
   // In addition scan all components for covariance matrices. If one or more
   // component is missing an error matrix, component reduction is impossible.
   bool componentWithoutMeasurement = false;
@@ -318,7 +335,7 @@ Trk::ElectronMaterialMixtureConvolution::update(
   std::vector<std::pair<size_t, size_t>> indices(n);
   size_t k(0);
   for (size_t i(0); i < inputState.size(); ++i) {
-    for (size_t j(0); j < caches[i].numWeights; ++j) {
+    for (size_t j(0); j < caches[i].numEntries; ++j) {
       const AmgSymMatrix(5)* measuredCov = inputState[i].first->covariance();
       // Fill in infomation
       const double cov =
@@ -338,6 +355,7 @@ Trk::ElectronMaterialMixtureConvolution::update(
     }
   }
 
+  // fallback if we have a component without measurement
   if (componentWithoutMeasurement) {
     auto* result = std::max_element(
       componentsArray.components.data(),
@@ -376,12 +394,13 @@ Trk::ElectronMaterialMixtureConvolution::update(
     return returnMultiState;
   }
 
-  // Gather the merges
+  // Gather the merges we need
   GSFUtils::MergeArray KL;
   if (n > m_maximumNumberOfComponents) {
     KL = findMerges(componentsArray, m_maximumNumberOfComponents);
   }
-  // Merge components
+
+  // Merge components "From" to components "To"
   MultiComponentStateAssembler::Cache assemblerCache;
   int nMerges(0);
   std::array<bool, GSFConstants::maxComponentsAfterConvolution> isMerged = {};
@@ -432,6 +451,7 @@ Trk::ElectronMaterialMixtureConvolution::update(
     caches[stateIndex2].deltaCovariances[materialIndex2].setZero();
   }
 
+  // Loop over remaining unmerged components
   for (size_t i(0); i < n; ++i) {
     if (isMerged[i]) {
       continue;

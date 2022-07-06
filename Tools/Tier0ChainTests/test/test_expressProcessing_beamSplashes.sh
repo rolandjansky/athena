@@ -3,16 +3,14 @@
 # art-description: Express processing at Tier0
 # art-type: grid
 # art-include: master/Athena
+# art-include: 22.0/Athena
 # art-athena-mt: 8
-
-# There was a database connection problem reported in ATR-24782. Rodney Walker's solution is to use the following export to fix the problem:
-export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-admin
 
 
 Reco_tf.py  \
---AMI x627  \
---inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_comm.00417320.express_express.merge.RAW._lb0108._SFO-ALL._0001.1" \
---outputAODFile="AOD.root" \
+--AMI x654  \
+--inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_comm.00420624.express_express.merge.RAW._lb1054._SFO-ALL._0001.1" \
+--outputAODFile="AOD.pool.root" \
 --outputESDFile="ESD.pool.root" \
 --outputDAOD_L1CALO2File="L1CALO2.pool.root" \
 --outputHISTFile="HIST.root" \

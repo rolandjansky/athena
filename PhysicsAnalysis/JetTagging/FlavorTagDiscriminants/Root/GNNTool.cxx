@@ -32,8 +32,9 @@ namespace FlavorTagDiscriminants {
       "user-defined mapping to rename the vars stored in the NN");
     declareProperty("trackLinkType", m_props.trackLinkType,
       "access tracks as IParticleContainer or as TrackParticleContainer");
+    declareProperty("defaultOutputValue", m_props.default_output_value);
   }
-  
+
   GNNTool::~GNNTool() {}
 
   StatusCode GNNTool::initialize() {
@@ -92,6 +93,13 @@ namespace FlavorTagDiscriminants {
   }
   void GNNTool::decorate(const xAOD::Jet& jet) const {
     decorate(jet, jet);
+  }
+  void GNNTool::decorateWithDefaults(const xAOD::Jet& jet) const {
+    for (const auto& dec: m_decorators) {
+      for (const auto& node: dec.second) {
+        node.second(jet) = m_props.default_output_value;
+      }
+    }
   }
 
   void GNNTool::decorate(const xAOD::Jet& jet, const SG::AuxElement& btag) const {

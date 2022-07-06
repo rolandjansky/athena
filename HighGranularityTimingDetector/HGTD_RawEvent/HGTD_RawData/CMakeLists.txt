@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Declare the package name:
 atlas_subdir( HGTD_RawData )
@@ -20,14 +20,14 @@ atlas_add_test(test_HGTD_RDO
            LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData
            POST_EXEC_SCRIPT nopost.sh)
 
-atlas_add_test(test_HGTD_RDOColl
-          SOURCES test/test_HGTD_RDOColl.cxx
+atlas_add_test(test_HGTD_RDO_Collection
+          SOURCES test/test_HGTD_RDO_Collection.cxx
           INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
           LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData
           POST_EXEC_SCRIPT nopost.sh)
 
-atlas_add_test(test_HGTD_RDOCont
-          SOURCES test/test_HGTD_RDOCont.cxx
+atlas_add_test(test_HGTD_RDO_Container
+          SOURCES test/test_HGTD_RDO_Container.cxx
           INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
           LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_RawData TestTools SGTools
           GaudiKernel StoreGateLib

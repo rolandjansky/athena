@@ -31,5 +31,5 @@ public:
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArHVScaleCorrFlat , 245481026 , 1 )
-CONDCONT_DEF( LArHVScaleCorrFlat, 11793039, ILArHVScaleCorr );
+CONDCONT_MIXED_DEF( LArHVScaleCorrFlat, 11793039, ILArHVScaleCorr );
 #endif 

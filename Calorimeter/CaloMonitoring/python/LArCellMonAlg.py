@@ -19,6 +19,11 @@ def LArCellMonConfigOld(inputFlags):
     else:
        isMC=True
 
+    from RecExConfig.RecFlags import rec   
+    from RecExConfig.AutoConfiguration import ConfigureTriggerStream
+    ConfigureTriggerStream()
+    TriggerStream=rec.triggerStream()
+
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     if not isMC and DQMonFlags.enableLumiAccess():
         from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault
@@ -31,7 +36,9 @@ def LArCellMonConfigOld(inputFlags):
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg()
 
-    algo = LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    algo = LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, 
+                                TriggerStream, isMC, athenaCommonFlags.isOnline)
 
     from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
     algo.ReadyFilterTool = GetAtlasReadyFilterTool()
@@ -84,7 +91,9 @@ def LArCellMonConfig(inputFlags):
 
     algo = LArCellMonConfigCore(helper, lArCellMonAlg, inputFlags,
                                 inputFlags.Beam.Type is BeamType.Cosmics,
-                                inputFlags.Input.isMC, algname)
+                                inputFlags.Input.TriggerStream,
+                                inputFlags.Input.isMC, inputFlags.Common.isOnline,
+                                algname)
     algo.useTrigger = inputFlags.DQ.useTrigger
 
     #copied from LArCellMonTool
@@ -93,9 +102,6 @@ def LArCellMonConfig(inputFlags):
     algo.minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1"
     algo.metTriggerNames     = "EF_xe[0-9]+.*"
     algo.miscTriggerNames    = ""
-
-
-
 
     from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
     algo.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
@@ -112,7 +118,7 @@ def LArCellMonConfig(inputFlags):
     return cfg
 
 
-def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=False, algname='LArCellMonAlg'):
+def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, TriggerStream='CosmicCalo', isMC=False, isOnline=False, algname='LArCellMonAlg'):
 
 
     LArCellMonAlg = helper.addAlgorithm(algclass, algname)
@@ -134,11 +140,17 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     else:
         LArCellMonAlg.useBadLBTool=True
 
-# FIXME: to be added:    if isCosmics or rec.triggerStream()!='CosmicCalo':
-    LArCellMonAlg.useBeamBackgroundRemoval = False
-    LArCellMonAlg.useLArCollisionFilterTool = False #FIXME: set to true for cosmicCalo
-# FIXME: to be added:    else:
-# FIXME: to be added:       LArCellMonAlg.useBeamBackgroundRemoval = True
+    if isCosmics or TriggerStream!='physics_CosmicCalo':
+       LArCellMonAlg.useBeamBackgroundRemoval = False
+       LArCellMonAlg.useLArCollisionFilterTool = False 
+    else:
+       LArCellMonAlg.useBeamBackgroundRemoval = True
+       LArCellMonAlg.useLArCollisionFilterTool = True
+
+    if isOnline:
+       LArCellMonAlg.useLArNoisyAlg = False   
+    else:   
+       LArCellMonAlg.useLArNoisyAlg = True
 
     GroupName="LArCellMon"
     LArCellMonAlg.MonGroupName = GroupName
@@ -175,14 +187,11 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
     # Global Settings:
 
-    # All 2D plot occupancy are activate only for express and cosmiccalo
-#FIXME to be added     if (isCosmics or rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express' or rec.triggerStream()=='Main' or rec.triggerStream()<=='ZeroBias') or (inputFlags.Common.isOnline):
-#FIXME to be added        do2DOcc = True
-#FIXME to be added    else:
-#FIXME to be added        do2DOcc = False
-
-    do2DOcc = True #TMP
-
+    # All 2D plot occupancy are activated only for some streams
+    if (isCosmics or TriggerStream=='physics_CosmicCalo' or TriggerStream=='express_express' or TriggerStream=='physics_Main' or TriggerStream=='physics_ZeroBias') or isOnline:
+        do2DOcc = True
+    else:
+        do2DOcc = False
 
     thresholdDict = {}
     thresholdDict["ThresholdType"]         = [ "noEth_CSCveto", "noEth_rndm_CSCveto", "medEth_CSCveto", "5Sigma_CSCveto", "hiEth_CSCveto", "hiEth_noVeto", "met_CSCveto"  ]
@@ -191,7 +200,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     thresholdDict["TriggersToExclude"]      = [ "none" , "none"      , "none"  , "none"  , "none" , "none"        , "none" ]
 
     thresholdDict["DoPercentageOccupancy"]  = [ True  , False       , True    , False   , False  , False         , False  ]
-    thresholdDict["DoEtaPhiOccupancy"]      = [ True  , False       , False   , do2DOcc,do2DOcc, do2DOcc      , False  ]
+    thresholdDict["DoEtaPhiOccupancy"]      = [ True  , False       , do2DOcc , do2DOcc,do2DOcc, do2DOcc      , False  ]
     thresholdDict["DoEtaOccupancy"]         = [ False  , False       , isCosmics   , False   , False  , False         , False  ]
     thresholdDict["DoPhiOccupancy"]         = [ False  , False       , True    , False   , False  , False         , False  ]
 
@@ -201,7 +210,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     thresholdDict["DoEtaPhiRMSvsDBnoise"]   = [ False  , False       , False   , False   , False   , False        , False  ] 
 
     thresholdDict["DoEtaPhiAverageQuality"] = [ False  , False       , False   , False   , False   , False        , False  ]
-    thresholdDict["DoEtaPhiFractionOverQth"]= [ False  , False       , False   , False   , do2DOcc , do2DOcc      , False  ]
+    thresholdDict["DoEtaPhiFractionOverQth"]= [ False  , False       , False   , do2DOcc , do2DOcc , do2DOcc      , False  ]
     thresholdDict["QualityFactorThreshold"] = [ 4000. ]*7
 
     thresholdDict["DoEtaPhiAverageTime"]    = [ False  , False       , False   , (not isCosmics)    , False   , False        , False  ]
@@ -356,7 +365,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
                            xbins=lArCellBinningScheme.timescale, ybins=lArCellBinningScheme.energyscale)
 
          cellMonGroup.defineHistogram('cellTime_'+part+';CellEnergyVsTime_'+part+'_'+str(int(eCutForTiming[idx//2])),
-                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(int(eCutForTiming[idx//2]))+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
+                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(int(eCutForTiming[idx//2]))+' [MeV]);Cell Time [ns]; NEvents',
                            weight='cellEnergy_'+part,
                            cutmask='enGreaterThanCut_'+part,
                            type='TH1F', path=energyvstime_hist_path,
@@ -501,16 +510,6 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
 
 if __name__=='__main__':
-
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
-    # Setup logs
-    from AthenaCommon.Constants import DEBUG
-#    from AthenaCommon.Constants import WARNING
-    from AthenaCommon.Logging import log
-    log.setLevel(DEBUG)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags

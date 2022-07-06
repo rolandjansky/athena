@@ -110,6 +110,7 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( eFexEMRoIContainer );
   INIT_XAOD( eFexTauRoIContainer );
   INIT_XAOD( jFexTauRoIContainer );
+  INIT_XAOD( jFexFwdElRoIContainer );
   INIT_XAOD( jFexSRJetRoIContainer );
   INIT_XAOD( jFexLRJetRoIContainer );
   INIT_XAOD( jFexMETRoIContainer );
@@ -425,6 +426,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( eFexEMRoIContainer, eFexEMRoIAuxContainer );
   CREATE_XAOD( eFexTauRoIContainer, eFexTauRoIAuxContainer );
   CREATE_XAOD( jFexTauRoIContainer, jFexTauRoIAuxContainer );
+  CREATE_XAOD( jFexFwdElRoIContainer, jFexFwdElRoIAuxContainer );
   CREATE_XAOD( jFexSRJetRoIContainer, jFexSRJetRoIAuxContainer );
   CREATE_XAOD( jFexLRJetRoIContainer, jFexLRJetRoIAuxContainer );
   CREATE_XAOD( jFexMETRoIContainer, jFexMETRoIAuxContainer );

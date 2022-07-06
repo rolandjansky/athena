@@ -29,6 +29,8 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMuonHypoConfig')
 
 muFastThresholds = {
+    # added for Run3 low-mu 2mu3
+    '3GeV_v22a'              : [ [0,9.9], [ 0.1 ] ],
     # 2011a tuning + 2015 tuning
     '4GeV_v15a'              : [ [0,1.05,1.5,2.0,9.9], [  3.38,  1.25,  3.17,  3.41] ],
     '4GeV_barrelOnly_v15a'   : [ [0,1.05,1.5,2.0,9.9], [  3.38, 1000., 1000., 1000.] ],
@@ -64,6 +66,8 @@ muFastThresholds = {
     }
 
 muCombThresholds = {
+    # added for Run3 low-mu 2mu3
+    '3GeV_v22a'              : [ [0,1.05,1.5,2.0,9.9], [  2.82,  2.76,  2.64,  2.64] ],
     # original + 2015 tuning
     '2GeV_v15a'              : [ [0,9.9],              [ 2.000] ],
     '3GeV_v15a'              : [ [0,9.9],              [ 3.000] ],
@@ -106,6 +110,9 @@ muCombThresholds = {
     }
 
 trigMuonEFSAThresholds = {
+    # added for Run3 low-mu 2mu3
+    '3GeV_v22a'              : [ [0,9.9], [ 1.0 ] ],
+    #
     '0GeV'                   : [ [0,9.9],              [ 0.100 ] ],
     '2GeV'                   : [ [0,9.9],              [ 2.000 ] ],
     '3GeV'                   : [ [0,9.9],              [ 3.000 ] ],
@@ -148,6 +155,9 @@ trigMuonEFSAThresholds = {
    }
 
 efCombinerThresholds = {
+    #
+    # added for Run3 low-mu 2mu3
+    '3GeV_v22a'              : [ [0,1.05,1.5,2.0,9.9], [  2.94,  2.91,  2.77,  2.72] ],
     # original + 2015 tuning
     '2GeV_v15a'              : [ [0,9.9], [2.000] ],
     '3GeV_v15a'              : [ [0,9.9], [3.000] ],
@@ -189,6 +199,8 @@ efCombinerThresholds = {
 
 muFastThresholdsForECWeakBRegion = {
     #
+    # added for Run3 low-mu 2mu3
+    '3GeV_v22a'             : [  0.1,   0.1 ],
     # 2011a tuning + 2015 tuning
     '4GeV_v15a'             : [  2.72,  1.58],
     '4GeV_barrelOnly_v15a'  : [ 1000., 1000. ],
@@ -259,8 +271,10 @@ def getThresholdsFromDict( chainDict ):
 
 
 def TrigMufastHypoToolFromDict( chainDict ):
-
-    thresholds = getThresholdsFromDict( chainDict )
+    if 'mucombTag' in chainDict['chainParts'][0]['extra']:
+        thresholds = ['passthrough']
+    else:   
+        thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
 
@@ -358,6 +372,8 @@ class TrigMufastHypoConfig(object):
                 else:
                     if "idperf" in toolName or int(thvalue) < 5 or "3layersEC" in toolName:
                         thvaluename =  thvalue + 'GeV_v15a'
+                        if int(thvalue)==3:
+                            thvaluename = thvalue + 'GeV_v22a'
                     elif "0eta105" in toolName:
                         thvaluename = thvalue+ "GeV_barrelOnly_v15a"
                     # 15.03.2022: added to allow to use the new HLT algo thresholds
@@ -546,6 +562,8 @@ class TrigmuCombHypoConfig(object):
                 #else:
                 #    thvaluename = thvalue + 'GeV_v15a'
                 thvaluename = thvalue + 'GeV_v15a'
+                if int(thvalue)==3:
+                    thvaluename = thvalue + 'GeV_v22a'
                 log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
                 try:
@@ -628,6 +646,8 @@ class TrigMuonEFMSonlyHypoConfig(object):
                 thvaluename = thvalue+ "GeV_barrelOnly"
             else:
                 thvaluename = thvalue + 'GeV'
+                if int(thvalue)==3:
+                    thvaluename = thvalue + 'GeV_v22a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:
@@ -745,6 +765,8 @@ class TrigMuonEFCombinerHypoConfig(object):
         tool.RemoveOverlaps=overlap
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
+            if thvalue != 'passthrough' and int(thvalue) == 3:
+                thvaluename = thvalue + 'GeV_v22a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
 
             try:

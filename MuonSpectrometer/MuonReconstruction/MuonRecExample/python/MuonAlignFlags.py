@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
 from AthenaCommon.GlobalFlags import globalflags
+from IOVDbSvc.CondDB import conddb
 from AthenaCommon.Logging import logging
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 import re 
 logMuon = logging.getLogger("MuonAlign")
 
@@ -56,8 +58,8 @@ class MuonAlign(JobPropertyContainer):
             setDefault(self.UseIlines, True)
             setDefault(self.UseAsBuilt, True)
             logMuon.info("Running a reconstruction job on data: UseAlines=%r UseBlines=%r UseIlines=%r UseAsBuilt=%r",
-                         self.UseAlines(), self.UseBlines(), self.UseIlines(), self.UseAsBuilt())
-
+                         self.UseAlines(), self.UseBlines(), self.UseIlines(), self.UseAsBuilt())        
+        setDefault(self.applyMMPassivation, CommonGeometryFlags.Run not in ["RUN1","RUN2"] and not conddb.isOnline )
 
 jobproperties.add_Container(MuonAlign)
 muonAlignFlags = jobproperties.MuonAlign
@@ -92,5 +94,10 @@ class UseAsBuilt(JobProperty):
 
 muonAlignFlags.add_JobProperty(UseAsBuilt)
 
+class applyMMPassivation(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = True
+muonAlignFlags.add_JobProperty(applyMMPassivation)
 # at the end, set the defaults
 muonAlignFlags.setDefaults()

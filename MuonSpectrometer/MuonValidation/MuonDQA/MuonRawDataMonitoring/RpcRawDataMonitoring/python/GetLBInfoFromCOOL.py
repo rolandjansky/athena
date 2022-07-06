@@ -79,8 +79,6 @@ class LumiBlock:
 
         return 0.0
 
-
-
 #==================================================================================================================
 class Run:
     def __init__(self, run_number, lbs):
@@ -197,15 +195,7 @@ def GetLumiInfoDic(beg_run, end_run):
     physics_runs = []
 
     getRunOnlineLumi(collect_runs)
-
-    for run, lbs_ in collect_runs.items():
-        lbs = lbs_.values()
-        r = Run(run, lbs)
-
-        if r.GetPeakInstLumi() > 100.0 and r.GetIntLumiInvPB() > 1.0:
-            physics_runs += [r]
-        else:
-            print('INFO::Ignore ' ,r.AsStr())
+    physics_runs = [Run(run, lbs.values()) for run,lbs in collect_runs.items()]
 
     if len(physics_runs) == 0:
         print('WARNING::Found 0 physics runs')
@@ -219,14 +209,25 @@ def GetLumiInfoDic(beg_run, end_run):
 
         key_since = run.GetRunStartTime() - 100000
         key_until = run.GetRunEndTime()   + 100000
-
+        
         f = Folder('COOLOFL_TRIGGER/CONDBR2', '/TRIGGER/OFLLUMI/LumiAccounting')
+        taglist=f.folder.listTags()
+        filledTags = {}
+        for tag in taglist:
+            objs = f.folder.browseObjects(key_since, key_until, cool.ChannelSelection.all(), tag)
+            if len(objs) != 0:
+                filledTags[tag] = len(objs)
 
-        fit = f.folder.browseObjects(key_since, key_until, cool.ChannelSelection.all(), 'OflLumiAcct-001')
-
-        icount = 0
-        while fit.goToNext():
-            obj = fit.currentRef()
+        if len(filledTags) == 0:
+            print ("ERROR: no filled tag")
+            return 
+        elif len(filledTags) > 1:
+            print ("WARNING: the number filled tags is more than 1")
+       
+        filledTags = sorted(filledTags.items(),key=lambda x:x[1],reverse=True)
+        objs       = f.folder.browseObjects(key_since, key_until, cool.ChannelSelection.all(), filledTags[0][0])
+        icount     = 0
+        for obj in objs:
             crun = obj.payload()['Run']        
             clb  = obj.payload()['LumiBlock']
 
@@ -259,18 +260,20 @@ def GetLumiInfoDic(beg_run, end_run):
     return RunsLumiDic
 
 #==================================================================================================================
-def printLumiInfo(beg_run, end_run):
-    
-    RunsLumiDic =  GetLumiInfoDic(beg_run, end_run)
+def printLumiInfo(RunsLumiDic):
+    # for run, lumiDic in RunsLumiDic.items():
+    for lb, lumiInfo in RunsLumiDic.items():
+        # s  = 'Run %d  lb=%4d - AtlasPhysics=%d, InstLumi=%f, LiveFraction=%f, Duration=%f' %( 
+            # run,
+        s  = 'lb=%4d - AtlasPhysics=%d, InstLumi=%f, LiveFraction=%f, Duration=%f' %( 
+            lb,
+            lumiInfo['AtlasPhysics'],
+            lumiInfo['InstLumi'],
+            lumiInfo['LiveFraction'],
+            lumiInfo['Duration']
+        )
 
-    for run, lumiDic in RunsLumiDic.items():
-        for lb, lumiInfo in lumiDic.items():
-            s  = '%d'               ,lumiInfo.payload()['Run']
-            s += ' lb=%4d -'        ,lumiInfo.payload()['LumiBlock']
-            s +=' AtlasPhysics=%d'  ,lumiInfo.payload()['AtlasPhysics']
-            s +=' InstLumi=%f,'     ,lumiInfo.payload()['InstLumi']        
-            s +=' LiveFraction=%f'  ,lumiInfo.payload()['LiveFraction']
-            print (s)
+        print (s)
 
 #==================================================================================================================
 if __name__ == '__main__':

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IInDetTestPixelLayerTool_H
 #define IInDetTestPixelLayerTool_H
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ThreadLocalContext.h" //for Gaudi::Hive::currentContext()
 #include "TrkParameters/TrackParameters.h"
 #include <string>
 #include <vector>
@@ -16,6 +17,8 @@ class TrackParticleBase;
 namespace InDet {
 class TrackStateOnPixelLayerInfo;
 }
+
+class EventContext;
 
 namespace InDet {
 
@@ -31,14 +34,52 @@ public:
     return IID_IInDetTestPixelLayerTool;
   };
 
-  virtual bool expectHitInPixelLayer(const Trk::TrackParticleBase*,
+  virtual bool expectHitInPixelLayer(const EventContext& ctx,
+                                     const Trk::TrackParticleBase*,
                                      int pixel_layer,
                                      bool recompute = false) const = 0;
-  virtual bool expectHitInPixelLayer(const Trk::Track*,
+  virtual bool expectHitInPixelLayer(const EventContext& ctx,
+                                     const Trk::Track*,
                                      int pixel_layer,
-                                     bool recompute = false) const = 0;
-  virtual bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar,
-                                     int pixel_layer) const = 0;
+                                     bool recompute = false,
+                                     bool checkBarrelOnly = false) const = 0;
+  virtual bool expectHitInPixelLayer(const EventContext& ctx,
+                                     const Trk::TrackParameters* trackpar,
+                                     int pixel_layer,
+                                     bool checkBarrelOnly = false) const = 0;
+
+  bool expectHitInInnermostPixelLayer(const EventContext& ctx,
+                                      const Trk::Track* track,
+                                      bool recompute = false) const
+  {
+    return expectHitInPixelLayer(ctx, track, 0, recompute, true);
+  }
+  bool expectHitInInnermostPixelLayer(const Trk::Track* track,
+                                      bool recompute = false) const
+  {
+    return expectHitInInnermostPixelLayer(
+      Gaudi::Hive::currentContext(), track, recompute);
+  }
+  bool expectHitInInnermostPixelLayer(const Trk::TrackParameters* trackpar) const
+  {
+    return expectHitInPixelLayer(
+      Gaudi::Hive::currentContext(), trackpar, 0, true);
+  }
+
+  bool expectHitInNextToInnermostPixelLayer(const EventContext& ctx,
+                                            const Trk::Track* track,
+                                            bool recompute = false) const
+  {
+    return expectHitInPixelLayer(ctx, track, 1, recompute, true);
+  }
+  bool expectHitInNextToInnermostPixelLayer(const Trk::Track* track,
+                                            bool recompute = false) const
+  {
+    return expectHitInInnermostPixelLayer(
+      Gaudi::Hive::currentContext(), track, recompute);
+  }
+
+
   virtual bool expectHit(const Trk::TrackParameters* trackpar) const = 0;
 
   virtual bool getTrackStateOnPixelLayerInfo(
@@ -49,7 +90,15 @@ public:
     std::vector<TrackStateOnPixelLayerInfo>& infoList) const = 0;
   virtual bool getTrackStateOnPixelLayerInfo(
     const Trk::TrackParameters* trackpar,
-    std::vector<TrackStateOnPixelLayerInfo>& infoList) const = 0;
+    std::vector<TrackStateOnPixelLayerInfo>& infoList,
+    int pixel_layer = -1,
+    bool checkBarrelOnly = false) const = 0;
+
+  bool getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParameters* trackpar,
+					      std::vector<TrackStateOnPixelLayerInfo>& infoList) const
+  {
+    return getTrackStateOnPixelLayerInfo(trackpar, infoList, 0, true);
+  }
 
   virtual double getFracGood(const Trk::TrackParticleBase* trackpar,
                              int pixel_layer) const = 0;

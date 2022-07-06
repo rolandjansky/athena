@@ -1412,7 +1412,9 @@ void AnalysisConfig_Ntuple::loop() {
 			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>(vtx_name);
 
 			if ( trigvertices.empty() ) { 
-			  m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << " for key " << vtx_name << endmsg;
+			  if ( m_provider->msg().level() <= MSG::DEBUG ) {
+                            m_provider->msg(MSG::WARNING) << "\tNo VxContainer for chain " << chainName << " for key " << vtx_name << endmsg;
+                          }
 			}
 			else {
 			  
@@ -1460,7 +1462,9 @@ void AnalysisConfig_Ntuple::loop() {
 			std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = comb->get<xAOD::VertexContainer>(vtx_name);
 
 			if ( xaodtrigvertices.empty() ) { 
-			  m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainName << " for key " << vtx_name << endmsg;
+			  if ( m_provider->msg().level() <= MSG::DEBUG ) {
+			    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainName << " for key " << vtx_name << endmsg;
+			  }
 			}
 			else {
 

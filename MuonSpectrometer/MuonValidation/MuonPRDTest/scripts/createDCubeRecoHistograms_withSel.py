@@ -69,16 +69,16 @@ if __name__ == "__main__":
         # CSCs
         if Options.doCSC == True:
             if CSC_eta == "positive":
-                csc_eta_sel = lambda t: t.PRD_CSC_stationEta[ncscPRD] >= 0
+                csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_CSC_stationEta[ncscPRD])) >= 0
             elif CSC_eta == "negative":
-                csc_eta_sel = lambda t: t.PRD_CSC_stationEta[ncscPRD] < 0
+                csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_CSC_stationEta[ncscPRD])) < 0
             else:
-                csc_eta_sel = lambda t: t.PRD_CSC_stationEta[ncscPRD] < 9
+                csc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_CSC_stationEta[ncscPRD])) < 9
 
             if CSC_sector == "None":
-                csc_sector_sel = lambda s: s.PRD_CSC_stationPhi[ncscPRD] < 10
+                csc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_CSC_stationPhi[ncscPRD])) < 10
             else:
-                csc_sector_sel = lambda s: s.PRD_CSC_stationPhi[ncscPRD] == CSC_sector
+                csc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_CSC_stationPhi[ncscPRD])) == CSC_sector
 
             for ncscPRD in range(0,len(inputTree.PRD_CSC_localPosX)):
                 cscPRDHists += [MyHistoFiller( chamber_name = "CSC_PRD", eta_sel = csc_eta_sel, sector_sel = csc_sector_sel )]
@@ -88,16 +88,16 @@ if __name__ == "__main__":
                 
         # TGCs
         if TGC_eta == "positive":
-            tgc_eta_sel = lambda t: t.PRD_TGC_stationEta[ntgcPRD] >= 0
+            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) >= 0
         elif TGC_eta == "negative":
-            tgc_eta_sel = lambda t: t.PRD_TGC_stationEta[ntgcPRD] < 0
+            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) < 0
         else:
-            tgc_eta_sel = lambda t: t.PRD_TGC_stationEta[ntgcPRD] < 9
+            tgc_eta_sel = lambda t: MyHistoFiller.Eta(ord(t.PRD_TGC_stationEta[ntgcPRD])) < 9
 
         if TGC_sector == "None":
-            tgc_sector_sel = lambda s: s.PRD_TGC_stationPhi[ntgcPRD] < 51
+            tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_TGC_stationPhi[ntgcPRD])) < 51
         else:
-            tgc_sector_sel = lambda s: s.PRD_TGC_stationPhi[ntgcPRD] == TGC_sector
+            tgc_sector_sel = lambda s: MyHistoFiller.Eta(ord(s.PRD_TGC_stationPhi[ntgcPRD])) == TGC_sector
             
         for ntgcPRD in range(0,len(inputTree.PRD_TGC_localPosX)):
             tgcPRDHists += [MyHistoFiller( chamber_name = "TGC_PRD", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]

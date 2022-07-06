@@ -211,12 +211,13 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	nTofHits = afpToFHitContainer->size();
 	fill("AFPToFTool", lb, nTofHits);
 
-    int eventsInStations[4] = {};
+	int eventsInStations[4] = {};
 
-    for(const xAOD::AFPToFHit *hitsItr: *afpToFHitContainer)
+	for(const xAOD::AFPToFHit *hitsItr: *afpToFHitContainer)
 	{
 		trainID = hitsItr->trainID();
 		barInTrainID = hitsItr->barInTrainID();
+		++eventsInStations[hitsItr->stationID()];
 
 		if(hitsItr->isSideA())
 		{
@@ -282,7 +283,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	}
 	
 	// Events histograms
-	if(eventsInStations[0] > 0 && eventsInStations[3] > 0)
+	if(eventsInStations[0] > 0 || eventsInStations[3] > 0)
 	{
 		fill("AFPToFTool", lbAandCToFEvents);
 		

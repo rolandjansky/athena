@@ -106,7 +106,7 @@ theOutputConditionsAlg.Run1 = IOVBeginRun
 theOutputConditionsAlg.LB1 = IOVBeginLB
 
 if IOVEndRun > 0 and IOVEndLB >= 0:
-   theOutputConditionsAlg.Run2 = IOVEndRun
+   theOutputConditionsAlg.RUN2 = IOVEndRun
    theOutputConditionsAlg.LB2 = IOVEndLB
 
 svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname="+DBInstance

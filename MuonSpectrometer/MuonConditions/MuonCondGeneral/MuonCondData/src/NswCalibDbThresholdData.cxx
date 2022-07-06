@@ -20,14 +20,18 @@ NswCalibDbThresholdData::NswCalibDbThresholdData(const MmIdHelper& mmIdHelper, c
 
 // setData
 void
-NswCalibDbThresholdData::setData(const Identifier* chnlId, const double threshold) {
-	unsigned long long channelId = chnlId->get_compact();
+NswCalibDbThresholdData::setData(const Identifier& chnlId, const double threshold) {
+	unsigned long long channelId = chnlId.get_compact();
 	if(m_data.find(channelId) != m_data.end()) return;
-	std::vector<double> empty; // storing as vector is not optimal, but keep for now in case we'll add more data in the future
-	m_data[channelId] = empty;
+	// storing as vector is not optimal, but keep for now in case we'll add more data in the future
 	m_data[channelId].push_back(threshold);
 }
 
+// setZero
+void
+NswCalibDbThresholdData::setZero(ThrsldTechType tech, const double threshold) {
+    m_zero[tech] = threshold;
+}
 
 
 // retrieval functions -------------------------------
@@ -35,19 +39,23 @@ NswCalibDbThresholdData::setData(const Identifier* chnlId, const double threshol
 // getChannelIds
 std::vector<Identifier>
 NswCalibDbThresholdData::getChannelIds(const std::string tech, const std::string side) const {
-	std::vector<Identifier> chnls;
 	std::vector<Identifier> keys;
-        for (const auto& p : m_data) {
+	keys.reserve(m_data.size());
+	for (const auto& p : m_data) {
 		keys.emplace_back(p.first);
 	}
-	if(tech=="" && side=="") return keys;
+
+	if(tech.empty() && side.empty()) return keys;
+	std::vector<Identifier> chnls;
+
 	for(unsigned int i=0; i<keys.size(); ++i){
-		int tec = m_mmIdHelper.technology(keys[i]);
-		int eta = m_mmIdHelper.stationEta(keys[i]);
-		if(strcmp(tech.c_str(), "STGC")==0 && tec!=4) continue;
-		if(strcmp(tech.c_str(), "MM"  )==0 && tec!=5) continue;
-		if(strcmp(side.c_str(), "A"   )==0 && eta<=0) continue;
-		if(strcmp(side.c_str(), "C"   )==0 && eta>=0) continue;
+		bool isMM = m_mmIdHelper.is_mm(keys[i]);
+		bool isSTGC = m_stgcIdHelper.is_stgc(keys[i]);
+		int eta = (isSTGC)? m_stgcIdHelper.stationEta(keys[i]) : m_mmIdHelper.stationEta(keys[i]);
+		if(!isSTGC && tech == "STGC")  continue;
+		if(!isMM && tech == "MM") continue;
+		if(eta<=0 && side == "A") continue;
+		if(eta>=0 && side == "C") continue;
 		chnls.push_back(keys[i]);
 	}
 	return chnls;
@@ -55,12 +63,24 @@ NswCalibDbThresholdData::getChannelIds(const std::string tech, const std::string
 
 // getThreshold
 bool
-NswCalibDbThresholdData::getThreshold(const Identifier* chnlId, double& threshold) const {
-	unsigned long long channelId = chnlId->get_compact();
-	if(m_data.find(channelId)      == m_data.end()) return false;
-	if(m_data.at(channelId).size() != 1           ) return false;
-	threshold = m_data.at(channelId).at(0);
-	return true;
+NswCalibDbThresholdData::getThreshold(const Identifier& chnlId, double& threshold) const {
+	unsigned long long channelId = chnlId.get_compact();
+	ChannelMap::const_iterator chan_itr = m_data.find(channelId);
+	/// For the moment require that there is only one channel per identifier
+	if(chan_itr != m_data.end() && chan_itr->second.size() == 1) {
+		threshold = chan_itr->second[0];
+		return true;
+	}
+	// if channelId doesn't exist in buffer, use 0 channel data ("all channels"), if exists
+    const ThrsldTechType tech = (m_stgcIdHelper.is_stgc(chnlId))? ThrsldTechType::STGC : ThrsldTechType::MM;
+    
+	ZeroMap::const_iterator zero_itr = m_zero.find(tech);
+	if (zero_itr != m_zero.end()) {
+		threshold = zero_itr->second;
+		return true;
+	}
+	threshold = 0.;
+	return false;
 }
 
 

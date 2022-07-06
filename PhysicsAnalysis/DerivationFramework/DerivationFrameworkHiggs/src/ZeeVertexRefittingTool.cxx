@@ -30,14 +30,12 @@ namespace DerivationFramework {
 					   const IInterface* p) : 
     ExpressionParserUser<AthAlgTool>(t, n, p),
     m_expression("true"),
-    m_massCut(0.0),
-    m_pvrefitter("Analysis::PrimaryVertexRefitter")
+    m_massCut(0.0)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ObjectRequirements", m_expression);  
     declareProperty("LowMassCut", m_massCut);
     declareProperty("MCSamples",m_MCSamples);
-    declareProperty("PrimaryVertexRefitterTool", m_pvrefitter);
   }
 
   StatusCode ZeeVertexRefittingTool::initialize()

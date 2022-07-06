@@ -2,12 +2,11 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDOverlap.h"
 using namespace std;
 
 ALFA_MDOverlap::ALFA_MDOverlap() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_MDOverlap")
+    AthMessaging("ALFA_MDOverlap")
 {
 	m_histU_PT = NULL;
 	m_histV_PT = NULL;

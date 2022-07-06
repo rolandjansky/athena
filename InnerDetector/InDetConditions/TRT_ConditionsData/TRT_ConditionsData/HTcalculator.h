@@ -19,10 +19,10 @@
 \****************************************************************************************/
 #include "TRT_ConditionsData/StorePIDinfo.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 
 class HTcalculator {
@@ -67,7 +67,6 @@ class HTcalculator {
   StorePIDinfo m_CpHT_B_Zmm_OR_new  	[N_GAS]	[N_DET];
 
 
-  Trk::ParticleMasses        m_particlemasses;
 
   static const int SIZE_OF_HEADER = sizeof(float) * 4;
   static const int SIZE_OF_BLOB     = sizeof(float) *( (N_PAR2*N_DET));

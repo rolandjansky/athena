@@ -132,6 +132,7 @@ StatusCode AFP_SIDLocRecoTool::execute(const EventContext& ctx) const
     }
         
     trkSize += afpTrk->size();
+    ATH_MSG_DEBUG("Number of AFP SID tracks = " << trkSize);
 
     SG::WriteHandle<xAOD::AFPTrackContainer> trackContainer(whk, ctx);
     ATH_CHECK( trackContainer.record(std::move(afpTrk), std::move(afpTrkAux)) );

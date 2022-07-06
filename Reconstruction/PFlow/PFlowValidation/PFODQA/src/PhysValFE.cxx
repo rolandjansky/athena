@@ -17,12 +17,20 @@ PhysValFE::~PhysValFE() {}
 StatusCode PhysValFE::initialize(){
   ATH_CHECK(ManagedMonitorToolBase::initialize());  
   ATH_CHECK(m_vertexContainerReadHandleKey.initialize());
-  ATH_CHECK(m_FEContainerHandleKey.initialize());
+  ATH_CHECK(m_FEContainerHandleKey.initialize());  
 
-  ATH_CHECK(m_MuonContainerHandleKey.initialize());
-  ATH_CHECK(m_ElectronContainerHandleKey.initialize());
-  ATH_CHECK(m_PhotonContainerHandleKey.initialize());
-  ATH_CHECK(m_TauJetContainerHandleKey.initialize());
+  ATH_CHECK(m_muonChargedFEReadHandleKey.initialize());
+  ATH_CHECK(m_muonNeutralFEReadHandleKey.initialize());
+
+  ATH_CHECK(m_electronChargedFEReadHandleKey.initialize());
+  ATH_CHECK(m_electronNeutralFEReadHandleKey.initialize());
+
+  ATH_CHECK(m_photonChargedFEReadHandleKey.initialize());
+  ATH_CHECK(m_photonNeutralFEReadHandleKey.initialize());
+
+  ATH_CHECK(m_tauJetChargedFEReadHandleKey.initialize());
+  ATH_CHECK(m_tauJetNeutralFEReadHandleKey.initialize());
+  
   ATH_CHECK(m_eventInfoReadHandleKey.initialize());
   
   return StatusCode::SUCCESS;
@@ -105,7 +113,6 @@ StatusCode PhysValFE::fillHistograms(){
      return StatusCode::SUCCESS;
   }
 
-
   for (auto theFE : *FEContainerReadHandle){
     if(theFE){
        if (!m_useNeutralFE) m_FEChargedValidationPlots->fill(*theFE,theVertex,*eventInfoReadHandle);
@@ -114,46 +121,80 @@ StatusCode PhysValFE::fillHistograms(){
     else ATH_MSG_WARNING("Invalid pointer to xAOD::FlowElement");
   }  
 
-  SG::ReadHandle<xAOD::MuonContainer> MuonContainerReadHandle(m_MuonContainerHandleKey);
-  if(!MuonContainerReadHandle.isValid()){
-    ATH_MSG_WARNING("Muon readhandle is a dud");    
+  if(!m_useNeutralFE){
+    SG::ReadDecorHandle<xAOD::MuonContainer,std::vector<ElementLink<xAOD::FlowElementContainer> > > MuonContainerReadDecorHandle(m_muonChargedFEReadHandleKey);
+    if(!MuonContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("Muon readhandle is a dud");    
+    }
+    else{
+      for (auto Muon: *MuonContainerReadDecorHandle) m_LeptonLinkerPlots_CFE->fill(*Muon,*eventInfoReadHandle);
+    } 
   }
   else{
-    for (auto Muon: *MuonContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Muon,*eventInfoReadHandle);
-      else m_LeptonLinkerPlots_NFE->fill(*Muon,*eventInfoReadHandle);
+    SG::ReadDecorHandle<xAOD::MuonContainer, std::vector<ElementLink<xAOD::FlowElementContainer> > > MuonContainerReadDecorHandle(m_muonNeutralFEReadHandleKey);
+    if(!MuonContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("Muon readhandle is a dud");    
     }
-  }
-  SG::ReadHandle<xAOD::ElectronContainer> ElectronContainerReadHandle(m_ElectronContainerHandleKey);
-  if(!ElectronContainerReadHandle.isValid()){
-    ATH_MSG_WARNING("Electron readhandle is a dud");
-  }
-  else{
-    for (auto Electron: *ElectronContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Electron,*eventInfoReadHandle);
-    else m_LeptonLinkerPlots_NFE->fill(*Electron,*eventInfoReadHandle);
-    }
+    else{
+      for (auto Muon: *MuonContainerReadDecorHandle) m_LeptonLinkerPlots_NFE->fill(*Muon,*eventInfoReadHandle);
+    } 
   }
 
-  SG::ReadHandle<xAOD::PhotonContainer> PhotonContainerReadHandle(m_PhotonContainerHandleKey);
-  if(!PhotonContainerReadHandle.isValid()){
-    ATH_MSG_WARNING("Photon readhandle is a dud");
+  if(!m_useNeutralFE){
+    SG::ReadDecorHandle<xAOD::ElectronContainer,std::vector<ElementLink<xAOD::FlowElementContainer> > > ElectronContainerReadDecorHandle(m_electronChargedFEReadHandleKey);
+    if(!ElectronContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("Electron readhandle is a dud");    
+    }
+    else{
+      for (auto Electron: *ElectronContainerReadDecorHandle) m_LeptonLinkerPlots_CFE->fill(*Electron,*eventInfoReadHandle);
+    } 
   }
   else{
-    for (auto Photon: *PhotonContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Photon,*eventInfoReadHandle);
-      else m_LeptonLinkerPlots_NFE->fill(*Photon,*eventInfoReadHandle);
+    SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<ElementLink<xAOD::FlowElementContainer> > > ElectronContainerReadDecorHandle(m_electronNeutralFEReadHandleKey);
+    if(!ElectronContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("Electron readhandle is a dud");    
     }
+    else{
+      for (auto Electron: *ElectronContainerReadDecorHandle) m_LeptonLinkerPlots_NFE->fill(*Electron,*eventInfoReadHandle);
+    } 
   }
-  SG::ReadHandle<xAOD::TauJetContainer> TauJetContainerReadHandle(m_TauJetContainerHandleKey);
-  if(!TauJetContainerReadHandle.isValid()){
-    ATH_MSG_WARNING("TauJet readhandle is a dud");
+
+  if(!m_useNeutralFE){
+    SG::ReadDecorHandle<xAOD::PhotonContainer,std::vector<ElementLink<xAOD::FlowElementContainer> > > PhotonContainerReadDecorHandle(m_photonChargedFEReadHandleKey);
+    if(!PhotonContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("Photon readhandle is a dud");    
+    }
+    else{
+      for (auto Photon: *PhotonContainerReadDecorHandle) m_LeptonLinkerPlots_CFE->fill(*Photon,*eventInfoReadHandle);
+    } 
   }
   else{
-    for (auto Tau: *TauJetContainerReadHandle){
-      if(!m_useNeutralFE) m_LeptonLinkerPlots_CFE->fill(*Tau,*eventInfoReadHandle);
-      else m_LeptonLinkerPlots_NFE->fill(*Tau,*eventInfoReadHandle);
+    SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<ElementLink<xAOD::FlowElementContainer> > > PhotonContainerReadDecorHandle(m_photonNeutralFEReadHandleKey);
+    if(!PhotonContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("Photon readhandle is a dud");    
     }
+    else{
+      for (auto Photon: *PhotonContainerReadDecorHandle) m_LeptonLinkerPlots_NFE->fill(*Photon,*eventInfoReadHandle);
+    } 
+  }
+
+  if(!m_useNeutralFE){
+    SG::ReadDecorHandle<xAOD::TauJetContainer,std::vector<ElementLink<xAOD::FlowElementContainer> > > TauJetContainerReadDecorHandle(m_tauJetChargedFEReadHandleKey);
+    if(!TauJetContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("TauJet readhandle is a dud");    
+    }
+    else{
+      for (auto TauJet: *TauJetContainerReadDecorHandle) m_LeptonLinkerPlots_CFE->fill(*TauJet,*eventInfoReadHandle);
+    } 
+  }
+  else{
+    SG::ReadDecorHandle<xAOD::TauJetContainer, std::vector<ElementLink<xAOD::FlowElementContainer> > > TauJetContainerReadDecorHandle(m_tauJetNeutralFEReadHandleKey);
+    if(!TauJetContainerReadDecorHandle.isValid()){
+      ATH_MSG_WARNING("TauJet readhandle is a dud");    
+    }
+    else{
+      for (auto TauJet: *TauJetContainerReadDecorHandle) m_LeptonLinkerPlots_NFE->fill(*TauJet,*eventInfoReadHandle);
+    } 
   }  
   
   return StatusCode::SUCCESS;

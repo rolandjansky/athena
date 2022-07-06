@@ -116,6 +116,11 @@ def CSC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with CSC Overlay digitization"""
     acc = MuonGeoModelCfg(flags, forceDisableAlignment=not flags.Overlay.DataOverlay)
     acc.merge(CscCondDbAlgCfg(flags))
+
+    if flags.Common.ProductionStep != ProductionStep.FastChain:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, ["CSCSimHitCollection#CSC_Hits"]))
+
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

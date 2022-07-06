@@ -30,13 +30,14 @@
 #include <string>
 #include <istream>
 
-class PixelCablingCondAlg : public AthReentrantAlgorithm {  
+class PixelCablingCondAlg : public AthReentrantAlgorithm {
   public:
     PixelCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelCablingCondAlg() = default;
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode initialize() override final;
+    virtual StatusCode execute(const EventContext& ctx) const override final;
+    virtual bool isReEntrant() const override final { return false; }
 
   private:
     const PixelID* m_pixelID{nullptr};

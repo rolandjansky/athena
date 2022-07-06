@@ -26,6 +26,7 @@ DQTDataFlowMonAlg::initialize()
 {
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_TileStatusKey.initialize());
+  ATH_CHECK(m_atlasReadyFilter.retrieve(/*not isMC*/));
   return StatusCode::SUCCESS;
 }
 
@@ -50,8 +51,12 @@ DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
         auto weight = Scalar<double>("mcweight", evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION) ? evtinfo->mcEventWeight() : 1);
         auto lb = Scalar("LB", evtinfo->lumiBlock());
         fill(group, weight, lb);
+      } else {
+        //Monitor AtlasReady flag .. for real-data only
+        bool atlasReady=m_atlasReadyFilter->accept();
+        auto isReady=Scalar<short>("atlasready",atlasReady);
+        fill(group,isReady);
       }
-
       std::vector<int> detstatevec(xAOD::EventInfo::nDets+1);
       std::vector<int> detstatevec_idx(xAOD::EventInfo::nDets+1);
       std::iota(detstatevec_idx.begin(), detstatevec_idx.end(), 0);
@@ -66,6 +71,9 @@ DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
       }
       detstatevec[xAOD::EventInfo::nDets] = worststate;
       fill(group, detstates, detstates_idx);
+
+      
+      
     }
   }
 

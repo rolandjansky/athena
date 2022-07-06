@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <cmath>
 
 namespace FlavorTagDiscriminants {
 
@@ -27,7 +28,8 @@ namespace FlavorTagDiscriminants {
     DL2HighLevel(const std::string& nn_file_name,
                  FlipTagConfig = FlipTagConfig::STANDARD,
                  std::map<std::string, std::string> remap_scalar = {},
-                 TrackLinkType = TrackLinkType::TRACK_PARTICLE);
+                 TrackLinkType = TrackLinkType::TRACK_PARTICLE,
+                 float default_output_value = NAN);
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::BTagging& btag) const;

@@ -740,8 +740,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
   const xAOD::Vertex*    vtx = nullptr;
   AlignTrack::AlignTrackType type = AlignTrack::Unknown;
   // configuration of the material effects needed for track fitter
-  ParticleSwitcher particleSwitch;
-  ParticleHypothesis particleHypothesis = particleSwitch.particle[m_particleNumber];
+  ParticleHypothesis particleHypothesis = Trk::ParticleSwitcher::particle[m_particleNumber];
 
   // initialization the GX2 track fitter
   ToolHandle<Trk::IGlobalTrackFitter> fitter = m_trackFitter;

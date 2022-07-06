@@ -167,6 +167,7 @@ TCS::cTauMultiplicity::cTauMatching(const TCS::cTauTOB * etauCand, const TCS::cT
 
 }
 
+// Functions used by the HLT seeding 
 
 #ifndef TRIGCONF_STANDALONE
 size_t
@@ -192,4 +193,25 @@ TCS::cTauMultiplicity::cTauMatching(const xAOD::eFexTauRoI & eTau, const xAOD::j
   return i_matched;
 
 }
+
+bool 
+TCS::cTauMultiplicity::cTauMatching(const xAOD::eFexTauRoI & eTau, const xAOD::jFexTauRoI & jTau) {
+
+  // eFEX: etaTower = iEta, phiTower = iPhi
+  // jFEX: etaTower = globalEta, phiTower = globalPhi
+  bool matching = ( eTau.iEta() == jTau.globalEta() ) && ( static_cast<unsigned int>(eTau.iPhi()) == jTau.globalPhi() );
+  return matching;
+
+}
+
+unsigned int
+TCS::cTauMultiplicity::convertIsoToBit( float jtauIso, float etauPt ){ 
+  unsigned int bit = 0;
+  // Assign the tightest accept WP as default bit
+  if( jtauIso < etauPt * 0.4 ) bit = 1; // Loose
+  if( jtauIso < etauPt * 0.35) bit = 2; // Medium
+  if( jtauIso < etauPt * 0.3 ) bit = 3; // Tight 
+  return bit;
+}
+
 #endif

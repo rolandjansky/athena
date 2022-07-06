@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonConfig
@@ -6,10 +6,6 @@ from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonConfig
 
 
 if __name__=='__main__':     
-    # Setup the Run III behavior     
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'

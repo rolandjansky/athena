@@ -229,9 +229,7 @@ def MinBiasMbtsSequence():
 if __name__ == "__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     flags.lock()
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-    ca = MinBiasZVertexFinderSequenceCfg(flags)    
+    ca = MinBiasZVertexFinderSequenceCfg(flags)
     ca.ca.printConfig(withDetails=True)
 
     from ..Config.MenuComponents import menuSequenceCAToGlobalWrapper

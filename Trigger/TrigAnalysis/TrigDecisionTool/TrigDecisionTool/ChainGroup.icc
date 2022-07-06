@@ -12,6 +12,8 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey,
         const int restrictToLegIndex) const {
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   bool errState = false;
   if ( condition != TrigDefs::Physics && condition != TrigDefs::includeFailedDecisions ) {
     ATH_MSG_ERROR("features may only be called with: "
@@ -28,7 +30,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
-  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> navigationSummaryRH = SG::ReadHandle(HLTSummaryKeyIn);
+  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> navigationSummaryRH = SG::ReadHandle(HLTSummaryKeyIn, ctx);
   if (!navigationSummaryRH.isValid()) {
     ATH_MSG_ERROR("Unable to read Run 3 trigger navigation from " << HLTSummaryKeyIn.key() << ". Cannot retrieve features.");
     errState = true;
@@ -99,7 +101,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
 
     // Obtain navigation routes for objects which pass
     // Final parameter TRUE as the chain passed (has its ID in terminusNode)
-    TrigCompositeUtils::recursiveGetDecisions(terminusNode, navGraph, thisChainIDs, true);
+    TrigCompositeUtils::recursiveGetDecisions(terminusNode, navGraph, ctx, thisChainIDs, true);
 
     ATH_MSG_DEBUG("Added all passed navigation data for chain " << chainID
       << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
@@ -114,7 +116,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
 
       for (const TrigCompositeUtils::Decision* rejectedNode : rejectedDecisionNodes) {
         // Final parameter FALSE as the chain failed here (its ID was removed from rejectedNode)
-        TrigCompositeUtils::recursiveGetDecisions(rejectedNode, navGraph, thisChainIDs, false);
+        TrigCompositeUtils::recursiveGetDecisions(rejectedNode, navGraph, ctx, thisChainIDs, false);
       }
 
       ATH_MSG_DEBUG("Added all failed navigation data for chain " << chainID

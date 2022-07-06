@@ -79,6 +79,7 @@ def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs):
 
 def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs):
   kwargs.setdefault("ClusterBuilderTool","SimpleSTgcClusterBuilderTool")
+  kwargs.setdefault("NSWCalibTool","NSWCalibTool")
   from MuonSTGC_CnvTools.MuonSTGC_CnvToolsConf import Muon__sTgcRdoToPrepDataToolMT
   return Muon__sTgcRdoToPrepDataToolMT(name,**kwargs)
 

@@ -4,15 +4,12 @@
 # Created: Nov 2019, sss
 # Purpose: Configure CaloThinCellsByClusterAlg.
 
-from __future__ import print_function
-
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 def CaloThinCellsByClusterAlgCfg(flags, streamName, clusters,
                                  samplings=[],
-                                 addLinksToAOD=True,
                                  cells='AllCalo'):
     result = ComponentAccumulator()
 
@@ -23,23 +20,12 @@ def CaloThinCellsByClusterAlgCfg(flags, streamName, clusters,
                                     SamplingCellsName=samplings,
                                     Cells=cells)
     result.addEventAlgo(alg)
-
-    if "AOD" in streamName and addLinksToAOD:
-        # Add cell-container and cluster links to AOD:
-        from OutputStreamAthenaPool.OutputStreamConfig import addToAOD
-        toAOD = [f'CaloCellContainer#{cells}',
-                 f"xAOD::CaloClusterAuxContainer#{clusters}Aux.CellLink",
-                 f"CaloClusterCellLinkContainer#{clusters}_links"]
-        result.merge(addToAOD(flags, toAOD))
     return result
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloThinCellsByClusterAlg_myclusters',
             ]

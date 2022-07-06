@@ -9,28 +9,15 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
-#include "CSCPRDVariables.h"
-#include "CSCRDOVariables.h"
 #include "EDM_object.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MMDigitVariables.h"
-#include "MMPRDVariables.h"
-#include "MMRDOVariables.h"
-#include "MMSDOVariables.h"
-#include "MMSimHitVariables.h"
 #include "MuEntryVariables.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonTesterTree/MuonTesterTree.h"
-#include "TGCPRDVariables.h"
-#include "TGCRDOVariables.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "TTree.h"
-#include "sTGCDigitVariables.h"
-#include "sTGCPRDVariables.h"
-#include "sTGCRDOVariables.h"
-#include "sTGCSDOVariables.h"
-#include "sTGCSimHitVariables.h"
 
 class ITHistSvc;
 
@@ -112,7 +99,7 @@ private:
     Gaudi::Property<std::string> m_NSWMM_PRDContainerName{this, "NSWMM_PRDContainerName", "MM_Measurements"};
 
     Gaudi::Property<std::string> m_CSC_SimContainerName{this, "CSC_SimContainerName", "CSC_Hits"};
-    Gaudi::Property<std::string> m_CSC_SDOContainerName{this, "CSC_SDOContainerName", "CSCSDO"};
+    Gaudi::Property<std::string> m_CSC_SDOContainerName{this, "CSC_SDOContainerName", "CSC_SDO"};
     Gaudi::Property<std::string> m_CSC_DigitContainerName{this, "CSC_DigitContainerName", "CSC_DIGITS"};
     Gaudi::Property<std::string> m_CSC_RDOContainerName{this, "CSC_RDOContainerName", "CSCRDO"};
     Gaudi::Property<std::string> m_CSC_PRDContainerName{this, "CSC_PRDContainerName", "CSC_Clusters"};
@@ -133,7 +120,7 @@ private:
 
     // Matching algorithm
 
-    Gaudi::Property<bool> m_doNSWMatching{this, "doNSWMatchingAlg", true};
+    Gaudi::Property<bool> m_doNSWMatching{this, "doNSWMatchingAlg", false};
     Gaudi::Property<bool> m_doNSWMatchingMuon{this, "doNSWMatchingMuonOnly", false};
     Gaudi::Property<uint> m_maxStripDiff{this, "setMaxStripDistance", 3};
     // this property is temporarely added to be able to deactivate the "No match found!" warning when running on the grid

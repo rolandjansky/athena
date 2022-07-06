@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTgcSIMIDTOOFFLINEID_H
@@ -17,7 +17,7 @@ struct sTgcSimIdToOfflineId {
   inline int convert (const Identifier & id) const;
 
   const sTgcIdHelper* m_idHelper;
-  sTgcHitIdHelper* m_simIdHelper;
+  const sTgcHitIdHelper* m_simIdHelper;
 };
 
 
@@ -30,7 +30,7 @@ Identifier sTgcSimIdToOfflineId::convert( int simId ) const {
   int side = m_simIdHelper->GetSide(simId);
   return m_idHelper->channelID( stationName[1] == 'L' ?  "STL" : "STS",
 				side == 1 ? stationEta+1 : -stationEta-1,
-				(stationPhi-1)/2+1,multilayer,layer,1,1 );
+				(stationPhi-1)/2+1,multilayer,layer,sTgcIdHelper::sTgcChannelTypes::Wire,1 );
 }
 
 inline int sTgcSimIdToOfflineId::convert (const Identifier & id) const

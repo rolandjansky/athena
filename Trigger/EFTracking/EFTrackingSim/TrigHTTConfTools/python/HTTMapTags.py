@@ -100,7 +100,7 @@ HTTMapTags = {
             'rmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/rmaps/{regionName}_ATLAS-P2-ITK-22-02-00.rmap',
             'subrmap':      '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/zslicemaps/ATLAS-P2-ITK-22-02-00/{regionName}_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
             'modulemap':    '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/ITk.global-to-local.moduleidmap',
-            'slices':       '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/slices_v01_Jan21.txt',
+            'slices':       '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/slices_v01_Jan21.txt',            
             'NNmap':        '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
             'sampleType':   'singleMuons',
 

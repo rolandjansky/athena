@@ -121,7 +121,7 @@ StatusCode L2MuonSAIOMon :: fillVariablesPerOfflineMuonPerChain(const EventConte
     if( !probe_ms_track.isValid() ) return StatusCode::SUCCESS; // probe muon dosen't have ms track
     float tpext_deta = (*tag_ms_track)->eta() - (*probe_ms_track)->eta();
     float tpext_dphi = xAOD::P4Helpers::deltaPhi((*tag_ms_track)->phi(), (*probe_ms_track)->phi());
-    offdR = sqrt(tpext_deta*tpext_deta + tpext_dphi*tpext_dphi);
+    offdR = std::sqrt(tpext_deta*tpext_deta + tpext_dphi*tpext_dphi);
 
     if( Trig_L2IOobject == nullptr ){
       passL2InsideOut = false;
@@ -622,7 +622,7 @@ StatusCode L2MuonSAIOMon :: matchL2IO_wContainer(const EventContext &ctx, const 
 
   // match l2io objects to l2sa objects using roiWord
   std::vector< const xAOD::L2CombinedMuon* > matchSA_L2IOobjects;
-  for(const auto& L2IOobject : *L2IOobjects){
+  for(const auto L2IOobject : *L2IOobjects){
     ATH_MSG_DEBUG(" L2IOobject->muSATrack()->roiWord()/L2IOobject->pt(): " << L2IOobject->muSATrack()->roiWord() << "/" << L2IOobject->pt() );
     for(const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer>& L2SALinkInfo : featureCont){
       ATH_CHECK( L2SALinkInfo.isValid() );
@@ -796,7 +796,7 @@ bool L2MuonSAIOMon :: isOverlap( const xAOD::L2CombinedMuon* matchSA_L2IOobject1
   bool dRisClose = false;
   float deta = mu1Eta - mu2Eta;
   float dphi = xAOD::P4Helpers::deltaPhi(mu1Phi, mu2Phi);
-  float dR = sqrt(deta*deta + dphi*dphi);
+  float dR = std::sqrt(deta*deta + dphi*dphi);
   if( m_RequireDR ) {
     if( dR < dRThres ) dRisClose = true;
     ATH_MSG_DEBUG( "   ...-> dR=" << dR << " : dRisClose=" << dRisClose );
@@ -811,7 +811,7 @@ bool L2MuonSAIOMon :: isOverlap( const xAOD::L2CombinedMuon* matchSA_L2IOobject1
     // (i.e. we apply muComb based cut even if muFast rec is failed)
     float deta = muSA1->etaMS() - muSA2->etaMS();
     float dphi = xAOD::P4Helpers::deltaPhi(muSA1->phiMS(), muSA2->phiMS());
-    float dRBySA = sqrt(deta*deta + dphi*dphi);
+    float dRBySA = std::sqrt(deta*deta + dphi*dphi);
     if( dRBySA < dRbySAThres ) dRbySAisClose = true;
     ATH_MSG_DEBUG( "   ...-> dR(by MF)=" << dRBySA << " : dRbySAisClose=" << dRbySAisClose );
   }
@@ -894,7 +894,7 @@ StatusCode L2MuonSAIOMon :: chooseBestMuon( std::vector< const xAOD::L2CombinedM
         if(roadAw < 0) roadEta *= -1.;
         float detaRoadRoI = roadEta -  matchSA_L2IOobjects.at(j)->muSATrack()->roiEta();
         float dphiRoadRoI = xAOD::P4Helpers::deltaPhi(roadPhi, matchSA_L2IOobjects.at(j)->muSATrack()->roiPhi());
-        float dRRoadRoI = sqrt(detaRoadRoI*detaRoadRoI + dphiRoadRoI*dphiRoadRoI);
+        float dRRoadRoI = std::sqrt(detaRoadRoI*detaRoadRoI + dphiRoadRoI*dphiRoadRoI);
 	ATH_MSG_DEBUG("     j="<< j << " , ptCombMf=" << ptCombMf << ", dRRoadRoI=" << dRRoadRoI);
 
 
@@ -1027,20 +1027,22 @@ std::tuple<float,float,float> L2MuonSAIOMon :: L2ORPosForMatchFunc(const xAOD::L
 const xAOD::L2CombinedMuon* L2MuonSAIOMon :: searchL2InsideOut( const EventContext &ctx, const xAOD::Muon *mu, const std::string& trig) const {
   ATH_MSG_DEBUG("MuonMonitoring::searchL2InsideOut()");
 
-  float reqdR = 1000.;
+  const xAOD::L2CombinedMuon* offlinematched_L2IOobject = nullptr;
 
   //TDT workaround
   std::vector< const xAOD::L2CombinedMuon* > Trig_L2IOobjects;
-  ATH_MSG_INFO( matchL2IO_wContainer(ctx, trig, Trig_L2IOobjects) );
+  if( !matchL2IO_wContainer(ctx, trig, Trig_L2IOobjects).isSuccess() ) {
+    ATH_MSG_WARNING("matchL2IO_wContainer failed, returning nullptr");
+    return offlinematched_L2IOobject;
+  }
+  if( Trig_L2IOobjects.empty() ) {
+    return offlinematched_L2IOobject;
+  }
+
+  float reqdR = 1000.;
 
   double offlEta = mu->eta();
   double offlPhi = mu->phi();
-
-  const xAOD::L2CombinedMuon* offlinematched_L2IOobject;
-  if( Trig_L2IOobjects.size() < 1 ){
-    offlinematched_L2IOobject = nullptr;
-    return offlinematched_L2IOobject;
-  }
 
   int loop_counter = 0;
   int match_index = 0;
@@ -1049,7 +1051,7 @@ const xAOD::L2CombinedMuon* L2MuonSAIOMon :: searchL2InsideOut( const EventConte
     double trigPhi = Trig_L2IOobject->phi();
     double deta = offlEta - trigEta;
     double dphi = xAOD::P4Helpers::deltaPhi(offlPhi, trigPhi);
-    double dR = sqrt(deta*deta + dphi*dphi);
+    double dR = std::sqrt(deta*deta + dphi*dphi);
 
     ATH_MSG_VERBOSE("Trigger muon candidate eta=" << trigEta << " phi=" << trigPhi  << " pt=" << Trig_L2IOobject->pt() << " dR=" << dR);
     if( dR<reqdR ){

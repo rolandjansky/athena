@@ -6,8 +6,20 @@ import ROOT
 import math 
 import importlib.resources
 
-LB_deg = ROOT.TH1F('LB_deg', 'b-tag degradation;LB;total b-tag degradation', 3000, -0.5, 2999.5)
+LB_deg = ROOT.TH1F('TotalDegradationPerLumi', 'b-tag degradation;LB;total b-tag degradation', 3000, -0.5, 2999.5)
 degFactor70 = [0.0032, 0.0078, 0.011, 0.020, 0.023, 0.018, 0.098, 0.10, 0.26, 0.36, 0.33, 0.17, 0.65, 0.79, 0.81]
+
+def normalize_perEvent(inputs):
+    layer = inputs[0][0]['sec'] 
+    nEventLB = inputs[0][1][1]
+    nAllEvents = nEventLB.Integral(1, nEventLB.GetNbinsX()+1)
+ 
+    histoName = inputs[0][1][0].GetName()
+    histo = inputs[0][1][0].Clone()
+    errorName = histoName.split('_')[0]
+    histo.SetName(errorName + '_Norm_' + layer)
+    histo.Scale(1.0/nAllEvents)
+    return [histo]
 
 def badEtaPhi_forAllMaskPatterns(inputs):
     Th = 0.5

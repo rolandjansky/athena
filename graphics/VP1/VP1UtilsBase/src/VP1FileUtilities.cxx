@@ -65,10 +65,10 @@ VP1FileUtilities::~VP1FileUtilities()
 }
 
 void VP1FileUtilities::produceNewFile(const std::string& sourceFile,
-                      int runNumber,
-                      int eventNumber,
-                      int timeStamp,
-                                      const std::string& textLabel)
+				      unsigned int runNumber,
+				      unsigned long long eventNumber,
+				      unsigned int timeStamp,
+                      const std::string& textLabel)
 {
   // Check if the sourceFile exists
   QString srcName(sourceFile.c_str());

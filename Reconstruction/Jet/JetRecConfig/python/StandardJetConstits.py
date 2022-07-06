@@ -66,8 +66,7 @@ def standardReco(input):
         def f(jetdef,spec):
             from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
             flags = jetdef._cflags
-            return MuonReconstructionCfg(flags) if flags.Jet.doUpstreamDependencies else None
-        
+            return MuonReconstructionCfg(flags) if flags.Jet.doUpstreamDependencies else None     
     elif input=="PFlow":
         def f(jetdef,spec):
             from eflowRec.PFRun3Config import PFCfg
@@ -184,7 +183,7 @@ _stdInputList = [
 
     JetInputExternal("UFOCSSK", xAODType.FlowElement,
                      prereqs = ['input:GPFlowCSSK'],
-                     algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(stdConstitDic['GPFlowCSSK'], jdef._cflags)
+                     algoBuilder = lambda jdef,_ : tcccfg.runUFOReconstruction(jdef._cflags, stdConstitDic['GPFlowCSSK'])
                      ),
     
 ]

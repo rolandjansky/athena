@@ -305,8 +305,9 @@ class rewriteLVL1(_modifier):
     # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
 
     def preSetup(self, flags):
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
-        L1ByteStreamEncodersRecExSetup()
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamEncoderCfg
+        CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg, flags)
 
     def postSetup(self, flags):
         if not flags.Output.doWriteBS:
@@ -403,6 +404,11 @@ class fpeAuditor(_modifier):
     Turn on FPEAuditor
     """
     def postSetup(self, flags):
+        import os
+        platform = os.environ.get(os.environ.get('AtlasProject','')+'_PLATFORM','')
+        if 'x86_64' not in platform:
+            log.info('The fpeAuditor Modifier is ignored because FPEAuditor doesn\'t support the platform "%s". It only supports x86_64', platform)
+            return
         from AthenaCommon import CfgMgr
         theApp.AuditAlgorithms = True
         theApp.AuditServices = True

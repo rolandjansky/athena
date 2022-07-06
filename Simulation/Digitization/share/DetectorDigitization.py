@@ -40,7 +40,7 @@ if 'LegacyEventInfo' in digitizationFlags.experimentalDigi() and \
     from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
     alg=xAODEventInfoCnvAlgDefault (sequence = job)
     if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
-        alg.xAODKey="HITs_EventInfo"
+        alg.xAODKey="Input_EventInfo"
 
 #make copy of xAOD::EventInfo and update information in it
 if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):

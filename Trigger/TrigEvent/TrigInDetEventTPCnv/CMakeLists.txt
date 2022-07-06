@@ -1,4 +1,4 @@
-# Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2020, 2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigInDetEventTPCnv )
@@ -35,7 +35,7 @@ foreach( name TrigHisto1DCnv_p1_test TrigHisto2DCnv_p1_test
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES GaudiKernel IdDictParser TestTools TrigInDetEventTPCnv
+      LINK_LIBRARIES GaudiKernel IdDictParser TestTools TrigInDetEventTPCnv CxxUtils
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 endforeach()

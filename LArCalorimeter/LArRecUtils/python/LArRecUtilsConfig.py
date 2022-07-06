@@ -202,11 +202,8 @@ def LArRoIMapCondAlgCfg (flags, name = 'LArRoIMapCondAlg', **kwargs):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     print ('--- LArOFCCondAlg 1')
     flags1 = ConfigFlags.clone()

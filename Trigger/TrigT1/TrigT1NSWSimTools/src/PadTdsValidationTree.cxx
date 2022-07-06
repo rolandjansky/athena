@@ -94,7 +94,7 @@ namespace NSWL1{
         return success;
     }
     //------------------------------------------------------------------------------
-    void PadTdsValidationTree::reset_ntuple_variables()
+    bool PadTdsValidationTree::reset_ntuple_variables()
     {
         if(m_tree){
             m_nPadHits->clear();
@@ -122,34 +122,7 @@ namespace NSWL1{
             m_padEtaIdFromOldSimu->clear();
             m_padPhiIdFromOldSimu->clear();
         }
-    }
-    //------------------------------------------------------------------------------
-    void PadTdsValidationTree::clear_ntuple_variables()
-    {
-        m_nPadHits                    = NULL;
-        m_padGlobalX                  = NULL;
-        m_padGlobalY                  = NULL;
-        m_padGlobalZ                  = NULL;
-        m_padDelayedTime              = NULL;
-        m_padBCHR                     = NULL;
-        m_padGlobalCornerX            = NULL;
-        m_padGlobalCornerY            = NULL;
-        m_padGlobalCornerZ            = NULL;
-        m_padTruthHitGlobalX          = NULL;
-        m_padTruthHitGlobalY          = NULL;
-        m_padTruthHitGlobalZ          = NULL;
-        m_padEtaIdFromOfflineId       = NULL;
-        m_padPhiIdFromOfflineId       = NULL;
-        m_padSectorIdFromOfflineId    = NULL;
-        m_padSectorTypeFromOfflineId  = NULL;
-        m_padGasGapIdFromOfflineId    = NULL;
-        m_padModuleIdFromOfflineId    = NULL;
-        m_padMultipletIdFromOfflineId = NULL;
-        m_padSideIdFromOfflineId      = NULL;
-        m_offlineIdPadEtaConverted    = NULL;
-        m_offlineIdPadPhiConverted    = NULL;
-        m_padEtaIdFromOldSimu         = NULL;
-        m_padPhiIdFromOldSimu         = NULL;
+        return true;
     }
     //------------------------------------------------------------------------------
     void PadTdsValidationTree::fill_num_pad_hits(size_t num) const

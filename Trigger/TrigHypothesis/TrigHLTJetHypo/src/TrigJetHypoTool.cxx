@@ -134,9 +134,9 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
 
   // steady_clock::time_point t =  steady_clock::now();
   // monitoring -- timing plots (filled for every call)
-  auto tHypo = Monitored::Timer<std::chrono::milliseconds>("TIME_jetHypo");
   auto mon_NInputs =  Monitored::Scalar("NJetsIn",jets->size()); 
   auto mon_NOutputs =  Monitored::Scalar("NJetsOut",-1);
+  auto tHypo = Monitored::Timer<std::chrono::milliseconds>("TIME_jetHypo");  
   auto monitor_group_multTime = Monitored::Group( m_monTool, tHypo, mon_NOutputs, mon_NInputs);
 
   xAODJetCollector jetCollector;
@@ -148,6 +148,7 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
                   << e.what());
     return StatusCode::FAILURE;
   }
+  tHypo.stop();
   
   if (!pass) {
     
@@ -185,7 +186,6 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
     ss << jetCollector.hypoJets();
     jetdumper->collect("passed", ss.str());
   }
-  tHypo.stop();
   
   //monitoring -- filled in passing events 
   HypoJetVector hjv = jetCollector.hypoJets();

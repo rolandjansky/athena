@@ -167,13 +167,17 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
       double relativePrescale{};
    };
 
-   ChainSet activeChainSet{ initiallyActive.begin(), initiallyActive.end() };
-
    for ( auto [groupName, chainIDs]: m_CPSGroups) {
-      if ( std::find(initiallyActive.begin(), initiallyActive.end(), chainIDs.front()) != initiallyActive.end() ) {
-         // this group is seeded
+      // check if this group is seeded
+      // only need to find one CPS chain if initiallyActive is L1seeded HLT id's
+      if ( forExpressStream || std::find(initiallyActive.begin(), initiallyActive.end(), chainIDs.front()) != initiallyActive.end() ) {
          std::vector<ChainAndPrescale> psValueSorted;
          for ( const HLT::Identifier& ch: chainIDs ) {
+            // in express stream initiallyActive are HLT accept id's, but chainIDs contain all chains in the group
+            // regardless of HLT accept; skip the HLT reject id's to ensure remainActive is a subset of initiallyActive
+            if ( forExpressStream && std::find(initiallyActive.begin(), initiallyActive.end(), ch) == initiallyActive.end() ) {
+               continue;
+            }
             auto ps = getPrescale(ch);
             if ( ps.enabled ) // exclude prescaled out chains
                psValueSorted.emplace_back( ChainAndPrescale({ch, ps}) );

@@ -21,7 +21,7 @@ namespace Muon {
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
-    ATH_CHECK(m_mmClusterCreator.retrieve());
+    if (m_idHelperSvc->recosTgc() || m_idHelperSvc->recoMM()) ATH_CHECK(m_mmClusterCreator.retrieve());
     return StatusCode::SUCCESS;
   }
 

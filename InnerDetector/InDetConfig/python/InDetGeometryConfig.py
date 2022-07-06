@@ -42,13 +42,11 @@ def InDetGeometryCfg (flags):
 if __name__ == "__main__":
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
-  from AthenaCommon.Configurable import Configurable
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   # Set up logging and new style config
   log.setLevel(DEBUG)
-  Configurable.configurableRun3Behavior = True
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   # Provide MC input
   ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2

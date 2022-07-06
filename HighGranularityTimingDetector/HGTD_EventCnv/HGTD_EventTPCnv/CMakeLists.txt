@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Declare the package name:
 atlas_subdir( HGTD_EventTPCnv )
@@ -23,14 +23,14 @@ set( _jobOPath "${CMAKE_CURRENT_SOURCE_DIR}/share" )
 set( _jobOPath "${_jobOPath}:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
 set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
-atlas_add_test( HGTD_RDOCnv_p1_test
-    SOURCES test/HGTD_RDOCnv_p1_test.cxx
+atlas_add_test( HGTD_RDO_Cnv_p1_test
+    SOURCES test/HGTD_RDO_Cnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
     LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel HGTD_EventTPCnv
     POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( HGTD_RDOContainerCnv_p1_test
-    SOURCES test/HGTD_RDOContainerCnv_p1_test.cxx
+atlas_add_test( HGTD_RDO_ContainerCnv_p1_test
+    SOURCES test/HGTD_RDO_ContainerCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
     LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel HGTD_EventTPCnv
     HGTD_Identifier HGTD_RawData IdDictParser Identifier TestTools SGTools

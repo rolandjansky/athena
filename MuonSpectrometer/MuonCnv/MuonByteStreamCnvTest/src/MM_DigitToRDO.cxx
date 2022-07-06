@@ -4,6 +4,7 @@
 
 #include "MM_DigitToRDO.h"
 
+
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
@@ -18,6 +19,7 @@ StatusCode MM_DigitToRDO::initialize()
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK( m_rdoContainer.initialize() );
   ATH_CHECK( m_digitContainer.initialize() );
+  ATH_CHECK(m_calibTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -26,11 +28,9 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
 
   using namespace Muon;
   ATH_MSG_DEBUG( "in execute()"  );
-  SG::WriteHandle<MM_RawDataContainer> rdos (m_rdoContainer, ctx);
-  SG::ReadHandle<MmDigitContainer> digits (m_digitContainer, ctx);
-
-  ATH_CHECK( rdos.record(std::make_unique<MM_RawDataContainer>(m_idHelperSvc->mmIdHelper().module_hash_max())) );
-
+  SG::ReadHandle<MmDigitContainer> digits (m_digitContainer, ctx);  
+  std::unique_ptr<MM_RawDataContainer> rdos = std::make_unique<MM_RawDataContainer>(m_idHelperSvc->mmIdHelper().module_hash_max());
+  
   if (digits.isValid()){
     for (const MmDigitCollection* digitColl : *digits ){
 
@@ -87,24 +87,19 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
             continue;
           }
 
+          // RDO has time and charge in counts
+          int tdo     = 0;
+          int relBcid = 0;   
+          int pdo     = 0;
+          m_calibTool->timeToTdo  (ctx, digit->stripResponseTime  ().at(i), newId, tdo, relBcid); 
+          m_calibTool->chargeToPdo(ctx, digit->stripResponseCharge().at(i), newId, pdo         ); 
 
-          // at some point the time measurement should be converted to tdc counts and relBcid
-          // but for now we set relBcid to zero for the simulation
-          // Patrick Scholer 6. September 2021
-          //
-          uint16_t relBcid = 0;   
-          //Now that the MM_RawData has a bolean that indicates if the conversion to counts has been applied
-          //let's set it to false for now until the calibration is in place. pscholer March 2022 
-	  bool timeAndChargeInCounts = false;         
-
- 
+          // Fill object
           MM_RawData* rdo = new MM_RawData(newId,
                                            digit->stripResponsePosition().at(i),
-                                           digit->stripResponseTime().at(i),
-                                           digit->stripResponseCharge().at(i),
-                                           relBcid,
-					   timeAndChargeInCounts);
-
+                                           tdo,
+                                           pdo,
+                                           relBcid, true);
           coll->push_back(rdo);
 
         }
@@ -114,7 +109,9 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
   } else {
     ATH_MSG_WARNING("Unable to find MM digits");
   }
-
+  SG::WriteHandle<MM_RawDataContainer> writeHanlde (m_rdoContainer, ctx); 
+  ATH_CHECK( writeHanlde.record(std::move(rdos)));
+  
   ATH_MSG_DEBUG( "done execute()"  );
   return StatusCode::SUCCESS;
 }

@@ -221,8 +221,6 @@ protected:
   std::optional<AmgSymMatrix(DIM)> m_covariance = std::nullopt;
   T m_chargeDef; //!< charge definition for this track
 
-  private:
-  
 };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug

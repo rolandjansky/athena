@@ -1,7 +1,10 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-# Configuration of TrkExRungeKuttaPropagator package
+
+# Configuration of RungeKuttaPropagator
+# for track parameters propagation through magnetic field.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+
 
 def RungeKuttaPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
     result = ComponentAccumulator()
@@ -9,19 +12,28 @@ def RungeKuttaPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
     result.setPrivateTools(tool)
     return result
 
-def egRungeKuttaPropagatorCfg(flags, name='egTrkPropagator', **kwargs):
+
+def InDetPropagatorCfg(flags, name='InDetPropagator', **kwargs):
+    kwargs.setdefault("AccuracyParameter", 0.0001)
+    kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
+    return RungeKuttaPropagatorCfg(flags, name, **kwargs)
+
+
+def GSFRungeKuttaPropagatorCfg(flags, name='GSFTrkPropagator', **kwargs):
     kwargs.setdefault("AccuracyParameter", 0.0001)
     return RungeKuttaPropagatorCfg(flags, name, **kwargs)
 
-def MuonCombinedPropagatorCfg(flags, name='MuonCombinedPropagator', **kwargs ):
+
+def MuonCombinedPropagatorCfg(flags, name='MuonCombinedPropagator', **kwargs):
     if not flags.Muon.MuonTrigger:
-        kwargs.setdefault("AccuracyParameter",   .000001 )
-        kwargs.setdefault("IncludeBgradients",   True )
-        kwargs.setdefault("MaxHelixStep",        .001 )
-        kwargs.setdefault("MaxStraightLineStep", .001 )
+        kwargs.setdefault("AccuracyParameter",   .000001)
+        kwargs.setdefault("IncludeBgradients",   True)
+        kwargs.setdefault("MaxHelixStep",        .001)
+        kwargs.setdefault("MaxStraightLineStep", .001)
     return RungeKuttaPropagatorCfg(flags, name, **kwargs)
 
-def ITkRKPropagatorCfg(flags, name='ITkPropagator', **kwargs):
+
+def ITkPropagatorCfg(flags, name='ITkPropagator', **kwargs):
     kwargs.setdefault("AccuracyParameter", 0.0001)
     kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
     return RungeKuttaPropagatorCfg(flags, name, **kwargs)

@@ -3,10 +3,9 @@
 */
 
 #include "ZDC_DetManager.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 ZDC_DetManager::ZDC_DetManager()
-  : AthMessaging (Athena::getMessageSvc(), "ZDC_DetManager")
+  : AthMessaging ("ZDC_DetManager")
 {
   setName("ZDC");
   

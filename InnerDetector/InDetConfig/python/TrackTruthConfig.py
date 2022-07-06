@@ -47,9 +47,6 @@ def InDetTrackTruthCfg(flags, Tracks="CombinedInDetTracks", DetailedTruth="Combi
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     numThreads=1

@@ -63,7 +63,7 @@ class MenuThresholdsCollection( object ):
 
     def json(self):
         confObj = odict()
-        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO] + [ThrType.ALFA]):
+        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO] + [ThrType.ALFA] + [ThrType.NSWMon]):
             confObj[ttype.name] = odict()
             confObj[ttype.name]["type"] = ttype.name
             confObj[ttype.name]["thresholds"] = odict()
@@ -604,6 +604,16 @@ class MuonThreshold( Threshold ):
                 confObj["rpcExclROIList"] = self.rpcExclROIList
         return confObj
 
+class NSWMonThreshold( Threshold ):
+
+    def __init__(self, name, mapping = -1):
+        super(NSWMonThreshold,self).__init__(name = name, ttype = ThrType.NSWMon, mapping=mapping, run = 3)
+        self.thresholdValues = [ThresholdValue(thrtype=self.ttype,value=0,**ThresholdValue.getDefaults(self.ttype))]
+
+    def json(self):
+        confObj = odict()
+        confObj["mapping"] = self.mapping
+        return confObj
 
 
 class eTauThreshold( Threshold ):

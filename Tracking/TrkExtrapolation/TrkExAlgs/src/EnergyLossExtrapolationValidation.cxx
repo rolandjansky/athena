@@ -318,7 +318,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
         m_parameterP[0] /= sin(m_parameterTheta[0]);
     m_parameterQoverP[0] = charge/m_parameterP[0];
 
-    double mass = Trk::ParticleMasses().mass[m_particleType];
+    double mass = Trk::ParticleMasses::mass[m_particleType];
 
     double energy1 = sqrt(m_parameterP[0]*m_parameterP[0] + mass*mass);
 

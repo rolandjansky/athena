@@ -11,7 +11,7 @@ from PyJobTransforms.trfUtils import findFile
 from PyJobTransforms.trfLogger import msg
 
 from TrigHTTMaps.TrigHTTMapsConf import TrigHTTMappingSvc, HTTHitFilteringTool
-import TrigHTTConfig.HTTConfigCompInit as HTTConfig
+import TrigHTTConfTools.HTTConfigCompInit as HTTConfig
 
 def findFileWithTest(datapath,filename):
     retv = findFile(datapath,filename)

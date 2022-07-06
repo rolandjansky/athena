@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_SIMIDTOOFFLINEID_H
@@ -17,7 +17,7 @@ struct MM_SimIdToOfflineId {
   inline int convert (const Identifier & id) const;
 
   const MmIdHelper* m_idHelper;
-  MicromegasHitIdHelper* m_simIdHelper;
+  const MicromegasHitIdHelper* m_simIdHelper;
 };
 
 

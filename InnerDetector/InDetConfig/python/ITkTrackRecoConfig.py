@@ -4,52 +4,38 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 
-def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **kwargs):
-    result = ComponentAccumulator()
-    if "TrackToVertex" not in kwargs:
-        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-        kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
-    if "TrackSummaryTool" not in kwargs:
-        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-        TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
-        kwargs["TrackSummaryTool"] = TrackSummaryTool
-    kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
-    kwargs.setdefault("KeepParameters", True)
-    kwargs.setdefault("KeepFirstParameters", False)
-    # need to treat Vertex specifically because at the time of
-    # the track particle creation the primary vertex does not yet exist.
-    # The problem is solved by first creating track particles wrt. the beam line
-    # and correcting the parameters after the vertex finding.
-    kwargs.setdefault("PerigeeExpression", "BeamLine" if flags.ITk.Tracking.perigeeExpression=="Vertex"
-                      else flags.ITk.Tracking.perigeeExpression)
-    kwargs.setdefault("IBLParameterSvc", "")
-    ITkTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
-    result.addPublicTool(ITkTrackParticleCreatorTool, primary=True)
-    return result
-
-def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTrackParticleCreator = None, **kwargs):
+def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", **kwargs):
     result = ComponentAccumulator()
 
-    ITkTrackParticleCreator = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
+    if "TrackParticleCreator" not in kwargs:
+        from TrkConfig.TrkParticleCreatorConfig import ITkTrackParticleCreatorToolCfg
+        ITkTrackParticleCreator = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
+        result.addPublicTool(ITkTrackParticleCreator)
+        kwargs.setdefault("TrackParticleCreator", ITkTrackParticleCreator)
 
-    kwargs.setdefault("TrackParticleCreator", ITkTrackParticleCreator)
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
-def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", InputCombinedTracks=None, CombinedITkClusterSplitProbContainer=None, **kwargs):
+def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger",
+                                   InputCombinedTracks=None,
+                                   OutputCombinedTracks="CombinedITkTracks",
+                                   AssociationMapName="ITkPRDToTrackMapCombinedITkTracks",
+                                   CombinedITkClusterSplitProbContainer="",
+                                   **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
-    kwargs.setdefault("OutputTracksLocation", 'CombinedITkTracks')
+    kwargs.setdefault("OutputTracksLocation", OutputCombinedTracks)
     from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMapCombinedITkTracks')
+    kwargs.setdefault("AssociationMapName", AssociationMapName)
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
-    from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags, name="CombinedITkSplitProbTrackSummaryToolSharedHits"))
+    from TrkConfig.TrkTrackSummaryToolConfig import ITkTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags, name="CombinedITkSplitProbTrackSummaryToolSharedHits"))
     TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedITkClusterSplitProbContainer
+    result.addPublicTool(TrackSummaryTool)
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
@@ -62,12 +48,16 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContain
     kwargs.setdefault("TrackContainerName", TrackContainerName)
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
+
     if "TrackParticleCreator" not in kwargs:
-        kwargs["TrackParticleCreator"] = result.getPrimaryAndMerge(ITkTrackParticleCreatorToolCfg(flags))
+        from TrkConfig.TrkParticleCreatorConfig import ITkTrackParticleCreatorToolCfg
+        kwargs["TrackParticleCreator"] = result.popToolsAndMerge(ITkTrackParticleCreatorToolCfg(flags))
     if "TrackCollectionCnvTool" not in kwargs:
+        TrackParticleCreator = kwargs["TrackParticleCreator"]
+        result.addPublicTool(TrackParticleCreator)
         kwargs["TrackCollectionCnvTool"] = result.popToolsAndMerge(ITkTrackCollectionCnvToolCfg(
             flags,
-            TrackParticleCreator=kwargs["TrackParticleCreator"],
+            TrackParticleCreator=TrackParticleCreator,
         ))
 
     if flags.ITk.Tracking.doTruth:
@@ -92,6 +82,8 @@ def CombinedTrackingPassFlagSets(flags):
     # Primary Pass
     if flags.ITk.Tracking.doFastTracking:
         flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.FastPass")
+    else:
+        flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.MainPass")
     flags_set += [flags]
 
     # LRT
@@ -107,6 +99,13 @@ def CombinedTrackingPassFlagSets(flags):
         flags_set += [flagsConv]
 
     return flags_set
+
+def ITkClusterSplitProbabilityContainerName(flags):
+
+    flags_set = CombinedTrackingPassFlagSets(flags)
+    extension = flags_set[-1].ITk.Tracking.ActivePass.extension
+    ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb" + extension
+    return ClusterSplitProbContainer
 
 def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
@@ -158,7 +157,7 @@ def ITkTrackRecoCfg(flags):
 
     result.merge(ITkTrackCollectionMergerAlgCfg(flags,
                                                 InputCombinedTracks = InputCombinedITkTracks,
-                                                CombinedITkClusterSplitProbContainer = ClusterSplitProbContainer))
+                                                CombinedITkClusterSplitProbContainer = ITkClusterSplitProbabilityContainerName(flags)))
 
     if flags.ITk.Tracking.doTruth:
         from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
@@ -172,7 +171,7 @@ def ITkTrackRecoCfg(flags):
 
     if flags.ITk.Tracking.writeExtendedPRDInfo:
         from InDetConfig.InDetPrepRawDataToxAODConfig import ITkPixelPrepDataToxAODCfg, ITkStripPrepDataToxAODCfg
-        result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ITkClusterSplitProbabilityContainerName(flags)))
         result.merge(ITkStripPrepDataToxAODCfg(flags))
 
         from DerivationFrameworkInDet.InDetToolsConfig import ITkTrackStateOnSurfaceDecoratorCfg
@@ -205,6 +204,23 @@ def ITkTrackRecoOutputCfg(flags):
     if not flags.ITk.Tracking.writeExtendedPRDInfo:
         excludedAuxData += '.-msosLink'
 
+    # Save PRD
+    toESD += [
+        "InDet::SCT_ClusterContainer#ITkStripClusters",
+        "InDet::PixelClusterContainer#ITkPixelClusters",
+        "InDet::PixelGangedClusterAmbiguities#ITkPixelClusterAmbiguitiesMap",
+        "InDet::PixelGangedClusterAmbiguities#ITkSplitClusterAmbiguityMap"
+    ]
+    toESD += ["Trk::ClusterSplitProbabilityContainer#" + ITkClusterSplitProbabilityContainerName(flags)]
+
+    # add tracks
+    if flags.ITk.Tracking.doStoreTrackSeeds:
+        toESD += ["TrackCollection#SiSPSeedSegments"]
+
+    toESD += ["TrackCollection#SiSPSeededTracks"]
+    toESD += ["TrackCollection#CombinedInDetTracks"]
+
+    ##### AOD #####
     toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
     toAOD += [f"xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.{excludedAuxData}"]
 
@@ -227,9 +243,6 @@ def ITkTrackRecoOutputCfg(flags):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     # Disable calo for this test

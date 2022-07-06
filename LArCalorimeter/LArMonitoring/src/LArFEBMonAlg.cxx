@@ -11,6 +11,7 @@
 #include "LArFEBMonAlg.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 #include "LArRawConditions/LArDSPThresholdsComplete.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -22,29 +23,16 @@
 #include <math.h>
 #include <sys/types.h>
 
-//const unsigned nFEBnominal=1524;
+const unsigned sizeNorm=262144;
 
 // ********************************************************************
 LArFEBMonAlg::LArFEBMonAlg( const std::string& name, ISvcLocator* pSvcLocator) 
   : AthMonitorAlgorithm(name, pSvcLocator),
-    //m_CorruptTree(nullptr),
-    // m_eventTime(0),
-    // m_eventTime_ns(0),
     m_onlineHelper(nullptr),
     m_dspThrDone(false),
     m_maskedDone(false),
     m_nbOfFebBlocksTotal(-1)
 {
-  /** Give the name of the streams you want to monitor, if empty, only simple profile per partition (offline case):*/
-  //declareProperty("Streams",m_streams);
- 
-  /*
-  for (unsigned i = 0;i < nFEBnominal; i++) {
-    m_bfebIE[i]     = false;
-  }
-  FIXME*/
-
-  //m_CorruptTree		= nullptr;
 
 }
 
@@ -81,6 +69,7 @@ StatusCode LArFEBMonAlg::initialize() {
 
   ATH_CHECK( m_run1DSPThresholdsKey.initialize (SG::AllowEmpty) );
   ATH_CHECK( m_run2DSPThresholdsKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -97,8 +86,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   // Retrieve event info to get event time,trigger type...
   // Retrieved at beg of method now to get the LVL1 type
   // to check consistency with DSP trigger type
-
-  SG::ReadHandle<xAOD::EventInfo> thisEvent = GetEventInfo(ctx);
+  SG::ReadDecorHandle<xAOD::EventInfo,uint32_t> thisEvent(m_eventInfoKey, ctx);
 
   unsigned int l1Trig = thisEvent->level1TriggerType();
   auto l1 = Monitored::Scalar<int>("LVL1Trig",l1Trig);
@@ -342,16 +330,13 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
       auto rbits = Monitored::Scalar<unsigned long>("rejBits", rejectionBits.to_ulong());
       fill(m_monGroupName, rbits);
     }
-    else{ // Event in error but not corrupted
-       evt_yield = 50.; evtyieldout=100.;
-    }
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) evtrej=5;
   } else{ // The event is NOT in error. Fill per LB TProfile
     evtrej=6; evt_yield = 0.; evtyieldout=0.;
   }
   evtyield=evt_yield;
-  auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/262144);
+  auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/sizeNorm);
   auto sweet2 = Monitored::Scalar<int>("NbOfSweet2",totNbOfSweet2);
   auto lb0 = Monitored::Scalar<int>("LB0",lumi_block); //to avoid 'NbOfEventsVSLB' being filled multiple times
   fill(m_monGroupName,evtrej,evtyieldout,evtyield,evSize, sweet2, lb0);
@@ -363,10 +348,11 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
   if(anyfebIE) { 
-     //Fill LArCorrupted tree
+     //Fill LArCorrupted tree and >=1FEB in errors
      auto mon_febInErrorTree = Monitored::Collection("febHwId", febInErrorTree);
      auto mon_febErrorTypeTree = Monitored::Collection("febErrorType", febErrorTypeTree);
-     fill(m_monGroupName,mon_febInErrorTree,mon_febErrorTypeTree,eventTime,eventTime_ns);
+     auto evtonerej = Monitored::Scalar<int>("EvtOneErrorYield",100);
+     fill(m_monGroupName,mon_febInErrorTree,mon_febErrorTypeTree,eventTime,eventTime_ns,evtonerej);
   }
   
   // Now we could fill the event size
@@ -393,12 +379,12 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 	}
       }
       streambin =  streamsThisEvent[str];
-      evsize = larEventSize;
+      evsize = larEventSize/sizeNorm;
       fill(m_monGroupName,lb,streambin,evsize);
       
       for(unsigned i=0; i <m_partitions.size(); ++i){
         unsigned subdet = i / 2;
-        evsize =  larEventSize_part[i]/262144;
+        evsize =  larEventSize_part[i]/sizeNorm;
         fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[i])],lb,streambin,evsize);
       }
 
@@ -406,7 +392,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   } else { // we are filling only simple profiles
     for(unsigned i=0; i<m_partitions.size(); ++i) { 
        unsigned subdet = i / 2;
-       evsize=larEventSize_part[i]/262144;
+       evsize=larEventSize_part[i]/sizeNorm;
        fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[i])],lb,evsize);
     }
   }
@@ -573,25 +559,24 @@ void LArFEBMonAlg::fillErrorsSummary(unsigned int partitNb_2,int ft,int slot,uin
   }
   
 
+  unsigned subdet = partitNb_2 / 2;
+  float ferr=0.;
   if (currentFebStatus){
-    unsigned subdet = partitNb_2 / 2;
     auto sl = Monitored::Scalar<int>("slotabs",slot);
     auto ftmon = Monitored::Scalar<int>("FTabs",ft);
     fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitNb_2])],sl,ftmon);
-    float ferr=0.;
     if (lar_inerror) {// LArinError
        eventRejected = true;
        if(environment() == Environment_t::online) ferr=100.;
     } else {
        if(environment() == Environment_t::online) ferr=50.;
     }
-    if(environment() == Environment_t::online) {
+  } 
+  if(environment() == Environment_t::online) {
        auto lbf = Monitored::Scalar<float>("LBf",0.5);
        auto erry = Monitored::Scalar<float>("erronl",ferr);
        fill(m_tools[m_histoGroups.at(subdet).at(m_partitions[partitNb_2])],lbf,erry);
-    }
-  }
-  
+  } 
   return;
 }
 

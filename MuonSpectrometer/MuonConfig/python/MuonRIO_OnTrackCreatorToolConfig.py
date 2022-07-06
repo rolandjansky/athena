@@ -106,3 +106,13 @@ def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwarg
     muon_cluster_rot_creator = CompFactory.Muon.MuonClusterOnTrackCreator(name, **kwargs)
     result.setPrivateTools(muon_cluster_rot_creator)
     return result
+
+def MMClusterOnTrackCreatorCfg(flags,name="MMClusterOnTrackCreator", **kwargs):
+    result = ComponentAccumulator()
+    from MuonConfig.MuonCalibrationConfig import NSWCalibToolCfg
+    from MuonConfig.MuonRecToolsConfig import SimpleMMClusterBuilderToolCfg
+    kwargs.setdefault("NSWCalibTool", result.popToolsAndMerge(NSWCalibToolCfg(flags)))
+    kwargs.setdefault("SimpleMMClusterBuilder", result.popToolsAndMerge(SimpleMMClusterBuilderToolCfg(flags)))  
+    the_tool = CompFactory.Muon.MMClusterOnTrackCreator(name, **kwargs)
+    result.setPrivateTools(the_tool)
+    return result

@@ -10,8 +10,6 @@ using namespace Muon;
 Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p) {
   declareInterface<IMMClusterBuilderTool>(this);
-  declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
-  declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
 StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
@@ -212,7 +210,7 @@ StatusCode SimpleMMClusterBuilderTool::getClusterPosition(std::vector<Muon::MMPr
   clusterLocalPosition = Amg::Vector2D(weightedPosX,posY);
 
   covMatrix->setIdentity();
-  double localUncertainty = 5.*(0.074+0.66*theta-0.15*theta*theta);
+  double localUncertainty = m_scaleClusterError*(0.074+0.66*theta-0.15*theta*theta);
   (*covMatrix)(0,0) = localUncertainty * localUncertainty;
     
   return StatusCode::SUCCESS;
@@ -227,7 +225,7 @@ StatusCode SimpleMMClusterBuilderTool::getCalibratedClusterPosition(const Muon::
   /// correct the precision coordinate of the local position based on the centroid calibration
   double xPosCalib = 0.0;
   double totalCharge = 0.0;
-  for ( auto it : strips ) {
+  for ( const auto& it : strips ) {
     xPosCalib += it.charge*it.dx;
     totalCharge += it.charge;
   }

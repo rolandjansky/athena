@@ -16,15 +16,10 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
-Configurable.configurableRun3Behavior+=1
-tdtAcc = TrigDecisionToolCfg(ConfigFlags)
-Configurable.configurableRun3Behavior-=1
-appendCAtoAthena( tdtAcc )
-
+CAtoGlobalWrapper(TrigDecisionToolCfg, ConfigFlags)
 
 from AthenaCommon.AppMgr import topSequence
 
@@ -55,7 +50,7 @@ if 'doNewTIDATier0' in locals():
   doNewTier0Mon = doNewTIDATier0
 
 
-############ TrigIDtrkMonitoring part ################################
+############ TrigInDetMonitoring part ################################
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -80,7 +75,7 @@ if doTier0Mon and not doNewTier0Mon:
 if doNewTier0Mon :   
 
   # this is the new location ...
-  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  from TrigInDetMonitoring.TIDAMonitoring import TIDAMonitoring
   for git in TIDAMonitoring( None, "idtrigger" ):
     algseq += git
 
@@ -100,7 +95,8 @@ if ( True ) :
   TestMonTool.EnableLumi = False
 # TestMonTool.RequireDecision = False
   TestMonTool.mcTruth = True
-  TestMonTool.ntupleChainNames = ['']
+  TestMonTool.pTCutOffline = 1000
+  TestMonTool.ntupleChainNames = []
 
   if ( 'LRT' in dir() ) :
     if LRT == True :
@@ -168,17 +164,17 @@ if ( True ) :
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_FTF",
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_IDTrig",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
-    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
+    "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
     # don't use FSJet any longer
     # "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
     "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     # don't use FSJet any longer
     # "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
-    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
+    "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
 
-    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
-    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
-    "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_IDTrig;DTE",
+    "HLT_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
+    "HLT_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
+    "HLT_fslrt.*:HLT_IDTrack_FSLRT_IDTrig;DTE",
 
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
@@ -202,9 +198,9 @@ if ( True ) :
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
     "HLT_e.*:HLT_IDTrack_Electron_GSF",
 
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e20_idperf_loose_lrtloose_L1EM15VH:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
     "HLT_e30_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
+    "HLT_e20_idperf_loose_lrtloose_L1EM15VH:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
     "HLT_e30_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
     # electron lrt e tag
@@ -221,11 +217,14 @@ if ( True ) :
     "HLT_e30_lhloose_nopix_lrtmedium_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=0",
 
     # double electron chains for tag and probe analysis
-    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:extra=el_tag:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:extra=el_probe:roi=HLT_Roi_FastElectron:te=1",
 
-    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=0",
-    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=1",
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:extra=el_probe:te=1",
+
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_GSF:extra=el_tag:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_GSF:extra=el_probe:te=1",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",

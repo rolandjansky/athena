@@ -576,7 +576,6 @@ MdtRawDataProvider                                   INFO  'DoSeededDecoding':Fa
 ClassIDSvc                                           INFO getRegistryEntries: read 1368 CLIDRegistry entries for module ALL
 MdtRawDataProvider.MDT_RawDataProviderToolMT         INFO Retrieved service ROBDataProviderSvc = ServiceHandle('ROBDataProviderSvc')
 MdtRawDataProvider.MDT_RawDataPro...MdtROD_Decoder   INFO Processing configuration for layouts with BME chambers.
-MdtRawDataProvider.MDT_RawDataPro...MdtROD_Decoder   INFO Processing configuration for layouts with BMG chambers.
 MdtRawDataProvider.MDT_RawDataProviderToolMT         INFO Retrieved tool Decoder = PrivateToolHandle('MdtROD_Decoder/MdtROD_Decoder')
 MdtRawDataProvider.MDT_RawDataProviderToolMT         INFO initialize() successful in MdtRawDataProvider.MDT_RawDataProviderToolMT
 ClassIDSvc                                           INFO getRegistryEntries: read 1003 CLIDRegistry entries for module ALL

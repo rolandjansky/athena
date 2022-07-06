@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthTPCnvSvc.h 
@@ -14,6 +14,7 @@
 // STL includes
 #include <string>
 #include <vector>
+#include <mutex>
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -104,11 +105,13 @@ class AthTPCnvSvc
    */
   ServiceHandle<IClassIDSvc> m_clidSvc;
 
-  typedef std::vector<ITPCnvBase*> TpCnvs_t;
+  typedef std::vector<std::unique_ptr<ITPCnvBase> > TpCnvs_t;
   /** a registry of ITPCnvBase* instances
    */
   TpCnvs_t m_cnvs;
-  
+
+  // Protect access to m_cnvs.
+  mutable std::mutex m_mutex;
 }; 
 
 

@@ -27,11 +27,16 @@ def MuonsCommonCfg(ConfigFlags):
     ### IDHits
     # turn of the momentum correction which is not needed for IDHits cut and Preselection
     from MuonSelectorTools.MuonSelectorToolsConfig import MuonSelectionToolCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import LHCPeriod
+    isRun3 = False
+    if ConfigFlags.GeoModel.Run == LHCPeriod.Run3: isRun3 = True
     DFCommonMuonsSelector = acc.popToolsAndMerge(MuonSelectionToolCfg(
         ConfigFlags,
         name            = "DFCommonMuonsSelector",
         MaxEta          = 3.,
         MuQuality       = 3,
+        IsRun3Geo       = isRun3,
         TurnOffMomCorr  = True)) 
     acc.addPublicTool(DFCommonMuonsSelector)
     if DFCommonMuonsTrtCutOff is not None: DFCommonMuonsSelector.TrtCutOff = DFCommonMuonsTrtCutOff
@@ -59,22 +64,20 @@ def MuonsCommonCfg(ConfigFlags):
     CommonAugmentation = CompFactory.DerivationFramework.CommonAugmentation
     acc.addEventAlgo(CommonAugmentation("DFCommonMuonsKernel",
                                         AugmentationTools = DFCommonMuonToolWrapperTools))
-   
-    # TODO: this goes down a rabbit hole of configs that need to be done in the ID
-    # Not migrated yet
-    #from IsolationAlgs.IsoUpdatedTrackConesConfig import AddUpdatedIsoTrackConesCfg
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Loose"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nominal"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Tight"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Prompt_D0Sig"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_Hard_D0Sig"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_Hard_D0Sig"))       
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_Medium_D0Sig"))    
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_All_D0Sig"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Prompt_MaxWeight"))          
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_Hard_MaxWeight"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_Medium_MaxWeight"))
-    #acc.merge(AddUpdatedIsoTrackConesCfg(WP="Nonprompt_All_MaxWeight"))
+
+    from IsolationAlgs.DerivationTrackIsoConfig import DerivationTrackIsoCfg
+    # A selection of WP is probably needed, as only a few variables are in CP content !
+    #   maybe MUON derivations can add some other ones for studies
+    #listofTTVAWP = [ 'Loose', 'Nominal', 'Tight',
+    #                 'Prompt_D0Sig', 'Prompt_MaxWeight',
+    #                 'Nonprompt_Hard_D0Sig',
+    #                 'Nonprompt_Medium_D0Sig',
+    #                 'Nonprompt_All_D0Sig',
+    #                 'Nonprompt_Hard_MaxWeight',
+    #                 'Nonprompt_Medium_MaxWeight',
+    #                 'Nonprompt_All_MaxWeight' ]
+    for WP in [ 'Nonprompt_All_MaxWeight' ]:
+        acc.merge(DerivationTrackIsoCfg(ConfigFlags, WP = WP, object_type = ('Electrons', 'Muons')))
 
     return acc
 

@@ -377,14 +377,24 @@ void AthenaOutputStream::handle(const Incident& inc)
    // mutex shared with write() which is called from writeMetaData
    std::unique_lock<mutex_t>  lock(m_mutex);
 
-   // Handle Event Ranges for Event Service
-   if( m_outSeqSvc->inUse() )
-   {
-      if( inc.type() == "MetaDataStop" )  {
-         // all substreams should be closed by this point
-         ATH_MSG_DEBUG("Ignoring MetaDataStop incident in ES mode");
-         return;
+   if( inc.type() == "MetaDataStop" )  {
+      if( m_outSeqSvc->inUse() ) {
+         if( m_outSeqSvc->inConcurrentEventsMode() ) {
+            // EventService MT - all substreams should be closed by this point
+            ATH_MSG_DEBUG("Ignoring MetaDataStop incident in ES/MT mode");
+            return;
+         }
+         if( m_outSeqSvc->lastIncident() == "EndEvent" ) {
+            // in r22 EndEvent comes before output writing - queue metadata writing and disconnect for after Event write
+            m_writeMetadataAndDisconnect = true;
+            return;
+         }
       }
+      // not in Event Service
+      writeMetaData();
+   }
+   else if( m_outSeqSvc->inUse() ) {
+      // Handle Event Ranges for Event Service
       if( slot == EventContext::INVALID_CONTEXT_ID ) {
          throw GaudiException("Received Incident with invalid slot in ES mode", name(), StatusCode::FAILURE);
       }
@@ -419,12 +429,7 @@ void AthenaOutputStream::handle(const Incident& inc)
                                  name(), StatusCode::FAILURE);
          }
       }
-   } else {
-      // not in Event Service
-      if( inc.type() == "MetaDataStop" )  {
-         writeMetaData();
-      }
-   }
+   } 
    
    ATH_MSG_DEBUG("Leaving incident handler for " << inc.type());
 }
@@ -530,6 +535,14 @@ StatusCode AthenaOutputStream::execute() {
    }
    for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
       if(!tool->postExecute().isSuccess()) {
+         failed = true;
+      }
+   }
+   if( m_writeMetadataAndDisconnect ) {
+      writeMetaData();
+      m_writeMetadataAndDisconnect = false;
+      // finalize will disconnect output
+      if( !finalize().isSuccess() ) {
          failed = true;
       }
    }

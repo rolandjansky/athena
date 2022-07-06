@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMDIGITTORDO_H
@@ -11,6 +11,7 @@
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "NSWCalibTools/INSWCalibTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -28,6 +29,7 @@ private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   SG::WriteHandleKey<Muon::MM_RawDataContainer> m_rdoContainer{this, "OutputObjectName", "MMRDO","WriteHandleKey for Output MM_RawDataContainer"};
   SG::ReadHandleKey<MmDigitContainer> m_digitContainer{this, "InputObjectName", "MM_DIGITS", "ReadHAndleKey for Input MmDigitContainer"};
+  ToolHandle<Muon::INSWCalibTool> m_calibTool{this,"CalibrationTool", ""};
 };
 
 #endif

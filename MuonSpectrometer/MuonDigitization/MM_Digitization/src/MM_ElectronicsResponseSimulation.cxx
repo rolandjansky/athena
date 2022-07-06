@@ -15,16 +15,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "TF1.h"
 
-/*******************************************************************************/
-MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
-  m_peakTime(0),
-  m_timeWindowLowerOffset(0),
-  m_timeWindowUpperOffset(0),
-  m_stripDeadTime(0),
-  m_artDeadTime(0),
-  m_useNeighborLogic(true)
-{
-}
+
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::initialize()
 {
@@ -140,11 +131,7 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::getTheFastestS
 	std::vector<float> electronicsTriggerStripCharge;
 	std::vector<int>   electronicsTriggerVMMid;
 	std::vector<int>   electronicsTriggerMMFEid;
-	electronicsTriggerStripPos.clear();
-	electronicsTriggerStripTime.clear();
-	electronicsTriggerStripCharge.clear();
-	electronicsTriggerVMMid.clear();
-	electronicsTriggerMMFEid.clear();
+	
 
 	const int BXtime = 250; // (ns)
 	int nstep = (int)(m_timeWindowUpperOffset-m_timeWindowLowerOffset)/BXtime;
@@ -156,28 +143,28 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::getTheFastestS
 
 		std::vector<int> tmp_VMM_id; tmp_VMM_id.clear();
 		for(size_t i = 0; i<electronicsThresholdStripPos.size(); i++){
-			if(electronicsThresholdStripTime[i] >= timeWindowLower &&
-				electronicsThresholdStripTime[i] < timeWindowUpper){
+			if(electronicsThresholdStripTime.at(i) >= timeWindowLower &&
+				electronicsThresholdStripTime.at(i) < timeWindowUpper){
 
-				int VMM_id = trigger_VMM_id[i];
+				int VMM_id = trigger_VMM_id.at(i);
 				std::vector< int >::iterator VMM_flag = std::find(tmp_VMM_id.begin(), tmp_VMM_id.end(), VMM_id);
 				if(VMM_flag != tmp_VMM_id.end()) continue; // Already filled
 				tmp_VMM_id.push_back(VMM_id);
 
 				// Get id for the fastest signal in a VMM
 				int theFastestSignal = getIdTheFastestSignalInVMM(
-					electronicsThresholdStripTime[i],
+					electronicsThresholdStripTime.at(i),
 					VMM_id,
 					trigger_VMM_id,
 					electronicsThresholdStripTime,
-					(float)m_timeWindowLowerOffset+istep*BXtime,
-					(float)m_timeWindowLowerOffset+(istep+1)*BXtime);
+					m_timeWindowLowerOffset+istep*BXtime,
+					m_timeWindowLowerOffset+(istep+1)*BXtime);
 
-				electronicsTriggerStripPos.push_back(    electronicsThresholdStripPos[theFastestSignal]    );
-				electronicsTriggerStripTime.push_back(   electronicsThresholdStripTime[theFastestSignal]   );
-				electronicsTriggerStripCharge.push_back( electronicsThresholdStripCharge[theFastestSignal] );
-				electronicsTriggerVMMid.push_back(       trigger_VMM_id[theFastestSignal]                    );
-				electronicsTriggerMMFEid.push_back(      trigger_MMFE_VMM_id[theFastestSignal]               );
+				electronicsTriggerStripPos.push_back(    electronicsThresholdStripPos.at(theFastestSignal)    );
+				electronicsTriggerStripTime.push_back(   electronicsThresholdStripTime.at(theFastestSignal)   );
+				electronicsTriggerStripCharge.push_back( electronicsThresholdStripCharge.at(theFastestSignal) );
+				electronicsTriggerVMMid.push_back(       trigger_VMM_id.at(theFastestSignal)                    );
+				electronicsTriggerMMFEid.push_back(      trigger_MMFE_VMM_id.at(theFastestSignal)               );
 
 			}
 		}
@@ -203,10 +190,10 @@ int MM_ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 	int theFastestSignal = -1;
 	float min_time = 9999.0;
 	for(size_t ii = 0; ii<trigger_VMM_id.size(); ii++){
-		if(electronicsThresholdStripTime[ii]>= timeWindowLower &&
-			electronicsThresholdStripTime[ii] < timeWindowUpper){
+		if(electronicsThresholdStripTime.at(ii)>= timeWindowLower &&
+			electronicsThresholdStripTime.at(ii) < timeWindowUpper){
 
-			if(trigger_VMM_id[ii]==VMM_id){
+			if(trigger_VMM_id.at(ii)==VMM_id){
 				if(time<min_time){
 					theFastestSignal = ii;
 					min_time=time;
@@ -252,21 +239,19 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::applyDeadTimeStrip(const MM
 	std::vector<int>   electronicsAppliedDeadtimeStripPos;
 	std::vector<float> electronicsAppliedDeadtimeStripTime;
 	std::vector<float> electronicsAppliedDeadtimeStripCharge;
-	electronicsAppliedDeadtimeStripPos.clear();
-	electronicsAppliedDeadtimeStripTime.clear();
-	electronicsAppliedDeadtimeStripCharge.clear();
+	
 
 	float deadTime = m_stripDeadTime;
 	std::vector<int> v_id = electronicsStripPos;
 
 	for(size_t i = 0; i<electronicsStripPos.size(); i++){
-		int id = v_id[i];
-		float time = electronicsStripTime[i];
+		int id = v_id.at(i);
+		float time = electronicsStripTime.at(i);
 		bool DEAD = deadChannel(id, time, electronicsAppliedDeadtimeStripPos, electronicsAppliedDeadtimeStripTime, deadTime);
 		if(!DEAD){
-			electronicsAppliedDeadtimeStripPos.push_back(electronicsStripPos[i]);
-			electronicsAppliedDeadtimeStripTime.push_back(electronicsStripTime[i]);
-			electronicsAppliedDeadtimeStripCharge.push_back(electronicsStripCharge[i]);
+			electronicsAppliedDeadtimeStripPos.push_back(electronicsStripPos.at(i));
+			electronicsAppliedDeadtimeStripTime.push_back(electronicsStripTime.at(i));
+			electronicsAppliedDeadtimeStripCharge.push_back(electronicsStripCharge.at(i));
 		}
 	}
 
@@ -296,12 +281,7 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyARTTiming
 	std::vector<float> electronicsTriggerAppliedTimingStripCharge;
 	std::vector<int>   electronicsTriggerAppliedTimingVMMId;
 	std::vector<int>   electronicsTriggerAppliedTimingMMFEId;
-	electronicsTriggerAppliedTimingStripPos.clear();
-	electronicsTriggerAppliedTimingStripTime.clear();
-	electronicsTriggerAppliedTimingStripCharge.clear();
-	electronicsTriggerAppliedTimingVMMId.clear();
-	electronicsTriggerAppliedTimingMMFEId.clear();
-
+	
 	//bunchTime = bunchTime + artOffset + jitter;
 
 	TF1 gaussianSmearing("timingSmearing","gaus",offset-jitter*5,offset+jitter*5);
@@ -312,14 +292,14 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyARTTiming
 		// std::normal_distribution<double> distribution(offset,jitter);
 		// float timingTransformation = distribution(generator);
 
-		electronicsTriggerAppliedTimingStripPos.push_back(electronicsTriggerStripPos[i]);
+		electronicsTriggerAppliedTimingStripPos.push_back(electronicsTriggerStripPos.at(i));
 
-		if(jitter || offset)    electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime[i] + gaussianSmearing.GetRandom() );
-		else electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime[i] );
+		if(jitter || offset)    electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime.at(i) + gaussianSmearing.GetRandom() );
+		else electronicsTriggerAppliedTimingStripTime.push_back(electronicsTriggerStripTime.at(i) );
 
-		electronicsTriggerAppliedTimingStripCharge.push_back(electronicsTriggerStripCharge[i]);
-		electronicsTriggerAppliedTimingVMMId.push_back(electronicsTriggerVMMid[i]);
-		electronicsTriggerAppliedTimingMMFEId.push_back(electronicsTriggerMMFEid[i]);
+		electronicsTriggerAppliedTimingStripCharge.push_back(electronicsTriggerStripCharge.at(i));
+		electronicsTriggerAppliedTimingVMMId.push_back(electronicsTriggerVMMid.at(i));
+		electronicsTriggerAppliedTimingMMFEId.push_back(electronicsTriggerMMFEid.at(i));
 
 	}
 
@@ -346,18 +326,13 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyDeadTimeA
 	std::vector<float> electronicsTriggerAppliedDeadtimeStripCharge;
 	std::vector<int>   electronicsTriggerAppliedDeadtimeVMMid;
 	std::vector<int>   electronicsTriggerAppliedDeadtimeMMFEid;
-	electronicsTriggerAppliedDeadtimeStripPos.clear();
-	electronicsTriggerAppliedDeadtimeStripTime.clear();
-	electronicsTriggerAppliedDeadtimeStripCharge.clear();
-	electronicsTriggerAppliedDeadtimeVMMid.clear();
-	electronicsTriggerAppliedDeadtimeMMFEid.clear();
-
+	
 	float deadtime = m_artDeadTime;
 	std::vector<int> v_id = electronicsTriggerVMMid;
 
 	for(size_t i = 0; i<electronicsTriggerStripPos.size(); i++){
-		int id = v_id[i];
-		float time = electronicsTriggerStripTime[i];
+		int id = v_id.at(i);
+		float time = electronicsTriggerStripTime.at(i);
 		bool DEAD = deadChannel(id,
 			time,
 			electronicsTriggerAppliedDeadtimeVMMid,
@@ -365,11 +340,11 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyDeadTimeA
 			deadtime);
 
 		if(!DEAD){
-			electronicsTriggerAppliedDeadtimeStripPos.push_back(electronicsTriggerStripPos[i]);
-			electronicsTriggerAppliedDeadtimeStripTime.push_back(electronicsTriggerStripTime[i]);
-			electronicsTriggerAppliedDeadtimeStripCharge.push_back(electronicsTriggerStripCharge[i]);
-			electronicsTriggerAppliedDeadtimeVMMid.push_back(electronicsTriggerVMMid[i]);
-			electronicsTriggerAppliedDeadtimeMMFEid.push_back(electronicsTriggerMMFEid[i]);
+			electronicsTriggerAppliedDeadtimeStripPos.push_back(electronicsTriggerStripPos.at(i));
+			electronicsTriggerAppliedDeadtimeStripTime.push_back(electronicsTriggerStripTime.at(i));
+			electronicsTriggerAppliedDeadtimeStripCharge.push_back(electronicsTriggerStripCharge.at(i));
+			electronicsTriggerAppliedDeadtimeVMMid.push_back(electronicsTriggerVMMid.at(i));
+			electronicsTriggerAppliedDeadtimeMMFEid.push_back(electronicsTriggerMMFEid.at(i));
 		}
 	}
 
@@ -383,20 +358,14 @@ MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyDeadTimeA
 	return electronicsTriggerOutputAppliedDeadTime;
 }
 bool MM_ElectronicsResponseSimulation::deadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime){
-	bool DEAD = false;
 	for(size_t ii = 0; ii<v_id.size(); ii++){
-		if(id == v_id[ii]){
-			if(v_time[ii]<time && time-v_time[ii]<deadtime){
-				DEAD = true;
-				continue;
+		if(id == v_id.at(ii)){
+			if(v_time.at(ii)<time && time-v_time.at(ii)<deadtime){
+				return true;				
 			}
 		}
 	}
-	return DEAD;
+	return false;
 }
 
-MM_ElectronicsResponseSimulation::~MM_ElectronicsResponseSimulation()
-{
-	clearValues();
-}
-/*******************************************************************************/
+

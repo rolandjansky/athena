@@ -36,11 +36,8 @@ def ToolConstantsCondAlgCfg (flags, key, DetStoreKey='', COOLFolder=''):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = []
-    ConfigFlags.loadAllDynamicFlags()
 
     flags = ConfigFlags.clone()
     flags.lock()

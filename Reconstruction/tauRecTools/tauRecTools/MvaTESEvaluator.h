@@ -18,7 +18,7 @@ class MvaTESEvaluator
   ASG_TOOL_CLASS2(MvaTESEvaluator, TauRecToolBase, ITauToolBase)
     
   MvaTESEvaluator(const std::string& name="MvaTESEvaluator");
-  virtual ~MvaTESEvaluator();
+  virtual ~MvaTESEvaluator() = default;
     
   virtual StatusCode initialize() override;
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
@@ -55,10 +55,13 @@ class MvaTESEvaluator
     float ptSeed_D_ptCombined{0.0};
 
     // for online calibration
-    float ptDetectorAxis{0.0};
+    float logPtDetectorAxis{0.0};
     float etaDetectorAxis{0.0};
     float upsilon_cluster{0.0};
     float lead_cluster_frac{0.0};
+    float second_cluster_frac{0.0};
+    float third_cluster_frac{0.0};
+    float ptDetectorAxis_D_ptJetSeed{0.0};
   };
 
   std::unique_ptr<tauRecTools::BDTHelper> m_bdtHelper;
@@ -67,7 +70,7 @@ class MvaTESEvaluator
   // Configurable properties
   std::string m_sWeightFileName;
   std::string m_sWeightFileName0p;
-  bool m_useEMoverLC;
+
 };
 
 #endif // TAURECTOOLS_MVATESEVALUATOR_H

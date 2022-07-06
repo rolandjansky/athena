@@ -34,6 +34,8 @@
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 // STDLIB
 #include <string>
 #include <vector>
@@ -43,6 +45,10 @@ namespace InDetDD {
     class TRT_DetectorManager;
 }
  
+namespace InDet {
+    class IInDetTrackSelectionTool;
+}
+
 class AtlasDetectorID;
 class TRT_ID;
 class Identifier;
@@ -61,8 +67,8 @@ private:
     const TRT_ID* m_pTRTHelper;
     const InDetDD::TRT_DetectorManager *m_mgr;
     
-    unsigned char m_mat_chip_E[64][3840]{};
-    unsigned char m_mat_chip_B[64][1642]{};
+    std::vector<std::vector<unsigned char>> m_mat_chip_E{64, std::vector<unsigned char>(3840)};
+    std::vector<std::vector<unsigned char>> m_mat_chip_B{64, std::vector<unsigned char>(1642)};
     
     enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
     
@@ -126,13 +132,13 @@ private:
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
     ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};
     SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName",  "TRT_BCID",      "Name of TRT BCID collection"};
-    SG::ReadHandleKey<xAOD::EventInfo>     m_xAODEventInfoKey{this,      "xAODEventInfo",          "EventInfo",     "Name of EventInfo object"};
     SG::ReadHandleKey<TrackCollection>     m_combTrackCollectionKey{this, "track_collection_hole_finder", "CombinedInDetTracks", "Name of tracks container used for hole finder"};
-    SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "Tracks", "Name of tracks container"};
+    SG::ReadHandleKey<TrackCollection> m_trackCollectionKey{this, "TRTTracksObjectName", "CombinedInDetTracks", "Name of tracks container"};
 
     SG::ReadHandleKey<TRT_BSErrContainer> m_bsErrContKey{this,"ByteStreamErrors","TRT_ByteStreamErrs","SG key of TRT ByteStream Error container"};
 

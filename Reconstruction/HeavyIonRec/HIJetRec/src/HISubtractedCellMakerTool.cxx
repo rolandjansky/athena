@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HISubtractedCellMakerTool.h"
@@ -7,7 +7,6 @@
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "HIEventUtils/HIEventDefs.h"
-#include "HIEventUtils/HIEventShapeMap.h"
 #include "HIEventUtils/HICaloRange.h"
 
 #include "StoreGate/ReadHandle.h"

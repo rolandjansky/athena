@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonCnvPlots.h"
@@ -41,7 +41,7 @@ void PhotonCnvPlots::initializePlots(){
 
 
 
-  void PhotonCnvPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) const{
+  void PhotonCnvPlots::fill(const xAOD::Photon& photon, const xAOD::EventInfo& eventInfo, bool isPrompt) {
  
     float weight = 1.;
     weight = eventInfo.beamSpotWeight();

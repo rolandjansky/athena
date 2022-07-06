@@ -1,9 +1,7 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import log
-
-Configurable.configurableRun3Behavior = True
 
 ## Just enable ID for the moment.
 ConfigFlags.Input.isMC             = True

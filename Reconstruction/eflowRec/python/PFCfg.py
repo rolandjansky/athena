@@ -18,13 +18,8 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
 
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    InDet__InDetTrackSelectionToolFactory=CompFactory.InDet.InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionToolFactory("PFTrackSelectionTool")
-
-    TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0
-
-    PFTrackSelector.trackSelectionTool = TrackSelectionTool
+    from InDetConfig.InDetTrackSelectionToolConfig import PFTrackSelectionToolCfg
+    PFTrackSelector.trackSelectionTool = result.popToolsAndMerge(PFTrackSelectionToolCfg(inputFlags))
 
     # P->T conversion extra dependencies
     if inputFlags.Detector.GeometryITk:
@@ -423,15 +418,6 @@ def PFTauFlowElementLinkingCfg(inputFlags,neutral_FE_cont_name="",charged_FE_con
     result=ComponentAccumulator()
     
     result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name,charged_FE_cont_name,AODTest))
-
-    # the following is needed to reliably determine whether we're really being steered from an old-style job option
-    # assume we're running CPython
-    #Snippet provided by Carlo Varni
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-      for el in result._allSequences:
-        el.name = "TopAlg"
 
     return result
 

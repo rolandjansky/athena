@@ -8,6 +8,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
 #ifdef USE_GPU
 #include "ISF_FastCaloGpu/LoadGpuHist.h"
+#include "ISF_FastCaloGpu/FH_structs.h"
 #endif
 
 class TH1;
@@ -21,6 +22,7 @@ public:
   virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
 #ifdef USE_GPU
+  //will not compile by default
   void    set_d_Hist( FH1D* hf_ptr ) { m_d_Hist = hf_ptr; };
   const FH1D*       d_Hist() { return m_d_Hist; };
   void             LoadHist();

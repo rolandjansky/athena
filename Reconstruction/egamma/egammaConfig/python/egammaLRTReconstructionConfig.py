@@ -17,6 +17,9 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
 
     acc = ComponentAccumulator()
 
+    # All algorithms defined herein will be assigned to LRT
+    acc.flagPerfmonDomain('LRT')
+
     # Add e/gamma tracking algorithms
     if flags.Egamma.doTracking:
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
@@ -109,21 +112,12 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             MatchForwardElectrons=False)
         )
 
-    # To use egamma CA within standard config
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in acc._allSequences:
-            el.name = "TopAlg"
-
     mlog.info("EGamma LRT reconstruction configured")
 
     return acc
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg

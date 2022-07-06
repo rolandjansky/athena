@@ -29,7 +29,7 @@ private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{"Muon::MuonIdHelperSvc/MuonIdHelperSvc", name()};
     VectorBranch<std::string>& m_stationName{parent().newVector<std::string>(name() + "_stationName")};
     VectorBranch<uint8_t>& m_stationIndex{parent().newVector<uint8_t>(name() + "_stationIndex")};
-    VectorBranch<uint8_t>& m_stationEta{parent().newVector<uint8_t>(name() + "_stationEta")};
+    VectorBranch<int8_t>& m_stationEta{parent().newVector<int8_t>(name() + "_stationEta")};
     VectorBranch<uint8_t>& m_stationPhi{parent().newVector<uint8_t>(name() + "_stationPhi")};
 };
 
@@ -86,6 +86,33 @@ private:
     VectorBranch<uint8_t>& m_gasgap{parent().newVector<uint8_t>(name() + "_GasGap")};
     VectorBranch<bool>& m_measuresPhi{parent().newVector<bool>(name() + "_measuresPhi")};
     VectorBranch<uint8_t>& m_channel{parent().newVector<uint8_t>(name() + "_channel")};
+};
+
+/// Branch to store all information of the sTgcIdentifier
+class sTgcIdentifierBranch : public MuonIdentifierBranch {
+public:
+    sTgcIdentifierBranch(MuonTesterTree& tree, const std::string& grp_name);
+
+    void push_back(const Identifier& id) override final;
+
+private:
+    VectorBranch<uint8_t>& m_gas_gap{parent().newVector<uint8_t>(name() + "_gas_gap")};
+    VectorBranch<uint8_t>& m_multiplet{parent().newVector<uint8_t>(name() + "_multiplet")};
+    VectorBranch<uint8_t>& m_channel_type{parent().newVector<uint8_t>(name() + "_channel_type")};
+    VectorBranch<uint16_t>& m_channel{parent().newVector<uint16_t>(name() + "_channel")};
+};
+
+/// Branch to store all information of the MmIdentifier
+class MmIdentifierBranch : public MuonIdentifierBranch {
+public:
+    MmIdentifierBranch(MuonTesterTree& tree, const std::string& grp_name);
+
+    void push_back(const Identifier& id) override final;
+
+private:
+    VectorBranch<uint8_t>& m_gas_gap{parent().newVector<uint8_t>(name() + "_gas_gap")};
+    VectorBranch<uint8_t>& m_multiplet{parent().newVector<uint8_t>(name() + "_multiplet")};
+    VectorBranch<uint16_t>& m_channel{parent().newVector<uint16_t>(name() + "_channel")};
 };
 
 #endif

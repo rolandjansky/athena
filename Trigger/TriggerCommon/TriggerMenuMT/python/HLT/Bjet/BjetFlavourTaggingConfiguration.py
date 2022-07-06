@@ -190,6 +190,7 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=F
                     # note that the tracks are associated to the jet as
                     # and IParticle container.
                     trackLinkType='IPARTICLE',
+                    defaultOutputValue=0
                 ),
             )
         )

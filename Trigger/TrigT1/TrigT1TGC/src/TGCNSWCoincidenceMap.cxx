@@ -9,7 +9,6 @@
 #include <string>
 #include <iomanip>
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
 #include "TrigT1TGC/NSWTrigOut.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
@@ -23,7 +22,7 @@ namespace LVL1TGCTrigger {
 
 
   TGCNSWCoincidenceMap::TGCNSWCoincidenceMap(TGCArguments* tgcargs,const std::string& version,int side,int oct,int mod)
-    :AthMessaging(Athena::getMessageSvc(), "TGCNSWCoincidenceMap"),
+    :AthMessaging("TGCNSWCoincidenceMap"),
      m_verName(version),
      m_side(side),
      m_octant(oct),

@@ -3,6 +3,7 @@
 */
 
 #include "TrackParticleTPCnv/TrackParticleContainerCnv_tlp1.h"
+#include "CxxUtils/checker_macros.h"
 
 TrackParticleContainerCnv_tlp1::TrackParticleContainerCnv_tlp1()
 {
@@ -161,7 +162,12 @@ persToTrans (const Rec::TrackParticleContainer_tlp1* pers,
              Rec::TrackParticleContainer* trans,
              MsgStream& msg)
 {
-  setPStorage (const_cast<Rec::TrackParticleContainer_tlp1*> (pers));
+    // FIXME: TPConverter uses the same non-const member m_pStorage
+    // for both reading and writing, but we want it to be const
+    // in the former case.
+    Rec::TrackParticleContainer_tlp1* pers_nc ATLAS_THREAD_SAFE =
+      const_cast<Rec::TrackParticleContainer_tlp1*> (pers);
+    setPStorage (pers_nc);
   m_mainConverter.pstoreToTrans (0, trans, msg);
 }
 

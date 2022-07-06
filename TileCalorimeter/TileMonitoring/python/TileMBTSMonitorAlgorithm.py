@@ -11,7 +11,8 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileMBTSMonitorAlgorithm algorithm in the monitoring system.'''
 
-    kwargs.setdefault('useTrigger', False)
+    kwargs.setdefault('useTrigger', (flags.DQ.useTrigger and not flags.Input.isMC))
+    kwargs.setdefault('FillHistogramsPerMBTS', True)
 
     # Define one top-level monitoring algorithm. The new configuration
     # framework uses a component accumulator.
@@ -163,7 +164,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
                                           title = ('Run ' + run + ': Time difference between MBTS on A and C sides vs LumiBlock'
                                                    + ';Luminosity Block;Time difference A-side - C-side [ns]'),
                                           xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 151, ymin = -75.5, ymax = 75.5,
-                                          opt = 'kAddBinsDynamically')
+                                          opt = 'kAddBinsDynamically', merge = 'merge')
 
     # 9) Configure histogram with coincident Hits (energy) between two MBTS counters
     coincidentHitsGroup = helper.addGroup(tileMBTSMonAlg, 'TileCoincidentHitsMBTS', 'Tile')
@@ -185,11 +186,10 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
                                 xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS,
                                 ybins = numberOfErrors, ymin = 0, ymax = numberOfErrors)
 
+    nEnergyBins = 550 if isCosmics else 400
+    maxEnergy = 5 if isCosmics else 80
 
     if fillHistogramPerMBTS:
-
-        nEnergyBins = 550 if isCosmics else 400
-        maxEnergy = 5 if isCosmics else 80
 
         # 11) Configure histogram with MBTS counter energy
         energyArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileEnergyMBTS', topPath = 'Tile/MBTS')
@@ -209,7 +209,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             title = 'Run ' + run + ': Energy of ' + mbtsName + ' per lumiblock;Lumiblocks;Energy [pC]'
             name = 'lumiBlock,Energy;EnergyLB_' + mbtsName
             tool.defineHistogram(name, title = title, type = 'TProfile', path = 'Cell',
-                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
         # 13) Configure histogram with MBTS counter time
         timeArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileTimeMBTS', topPath = 'Tile/MBTS')
@@ -358,6 +358,18 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             tool.defineHistogram(f'DeltaBCID;MBTS_DeltaBCID_{trigger}_{mbtsName}', path = 'Trigger', type='TH1F',
                                  title = deltaBCIDTitle, xbins = 19, xmin = -9.5, xmax = 9.5)
 
+        # 27.2) Configure histogram with BCID of MBTS signals
+        bcidArray = helper.addArray([len(triggerNames), numberOfMBTS], tileMBTSMonAlg, 'MBTS_BCID', topPath = 'Tile/MBTS')
+        for postfix, tool in bcidArray.Tools.items():
+            elements = postfix.split('_')
+            mbtsCounter = int( elements.pop() )
+            triggerIdx = int( elements.pop() )
+            mbtsName = labelsMBTS[mbtsCounter]
+            trigger = triggerNames[triggerIdx]
+            bcidTitle = f'Run {run}: {mbtsName} BCID of {trigger} signal;BCID'
+            tool.defineHistogram(f'MBTS_BCID;MBTS_BCID_{trigger}_{mbtsName}', path = 'Trigger', type='TH1F',
+                                 title = bcidTitle, xbins = 3565, xmin = -0.5, xmax = 3564.5)
+
         # 28) Configure histogram with MBTS counter energy with TBP fired
         energyTrigArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileEnergyTrigMBTS', topPath = 'Tile/MBTS')
         for postfix, tool in energyTrigArray.Tools.items():
@@ -376,7 +388,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             title = f'Run {run}: Energy with TBP fired of {mbtsName} per lumiblock;Lumiblocks;Energy [pC]'
             name = f'lumiBlock,Energy;EnergyLB_TBP_{mbtsName}'
             tool.defineHistogram(name, title = title, type = 'TProfile', path = 'Cell',
-                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
+                                 xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically', merge = 'merge')
 
         # 30) Configure histogram with MBTS counter time with TBP
         timeTrigArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileTimeTrigMBTS', topPath = 'Tile/MBTS')
@@ -411,10 +423,6 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
                                  xbins = 7, xmin = -0.5, xmax = 6.5)
 
 if __name__=='__main__':
-
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
 
     # Setup logs
     from AthenaCommon.Logging import log

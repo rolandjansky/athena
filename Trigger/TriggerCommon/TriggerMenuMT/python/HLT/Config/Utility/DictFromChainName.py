@@ -659,7 +659,9 @@ def dictFromChainName(chainInfo):
     log.debug('ChainProperties: %s', chainDict)
     
     from TriggerMenuMT.HLT.CommonSequences.EventBuildingSequences import isRoIBasedPEB
-    _isRoIBasedPEB = isRoIBasedPEB(chainDict['eventBuildType'])
+    # TODO: pass flags by argument instead of import, or find a way to determine PEB type without initialising a temporary PEB tool (which needs flags)
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    _isRoIBasedPEB = isRoIBasedPEB(ConfigFlags, chainDict['eventBuildType'])
 
     for chainPart in chainDict['chainParts']:
         # fill the sigFolder and subSigs folder

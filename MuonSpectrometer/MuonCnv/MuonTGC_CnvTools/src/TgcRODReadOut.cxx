@@ -72,7 +72,7 @@ StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs,
   
   // set ROD attribute
   uint16_t subDetectorId = (source_id & 0x00FF0000) >> 16;
-  uint16_t rodId         = (source_id & 0x000000FF);
+  uint16_t rodId         = (source_id & 0x000000FF); // ROD : 0x01-0x0C(12), SROD: 0x11(17)-0x13(19)
 
   uint32_t l1Id          = tgcRdo.l1Id();
   uint16_t bcId          = tgcRdo.bcId();

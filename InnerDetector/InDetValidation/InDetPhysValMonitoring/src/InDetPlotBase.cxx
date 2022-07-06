@@ -9,7 +9,6 @@
 
 #include "InDetPlotBase.h"
 // bring Athena/Gaudi utilities in scope
-#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Service.h"
@@ -39,7 +38,7 @@ namespace {
 
 
 InDetPlotBase::InDetPlotBase(InDetPlotBase* pParent, const std::string& dirName) :
-  PlotBase(pParent, dirName), AthMessaging(Athena::getMessageSvc(), "InDetPlotBase"), m_histoDefSvc(nullptr) {
+  PlotBase(pParent, dirName), AthMessaging("InDetPlotBase"), m_histoDefSvc(nullptr) {
   // nop
 }
 

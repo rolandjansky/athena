@@ -344,7 +344,7 @@ def getTriggerTranslatorToolSimple(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
     from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
-    import collections
+    import collections.abc
 
     TriggerTranslatorToolSimple=CompFactory.TriggerTranslatorToolSimple
     
@@ -352,7 +352,7 @@ def getTriggerTranslatorToolSimple(inputFlags):
     tdt_local_hltconfig = HLTMonTriggerList()
     tdt_mapping = {}
     for tdt_menu, tdt_menu_item in tdt_local_hltconfig.__dict__.items():
-        if not isinstance(tdt_menu_item, collections.Iterable):
+        if not isinstance(tdt_menu_item, collections.abc.Iterable):
             continue
         # work around possibly buggy category items
         if isinstance(tdt_menu_item, str):

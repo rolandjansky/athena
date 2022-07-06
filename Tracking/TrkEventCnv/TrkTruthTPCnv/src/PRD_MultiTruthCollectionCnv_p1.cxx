@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for PRD_MultiTruthCollection.
@@ -14,7 +14,7 @@
 
 
 namespace {
-  HepMcParticleLinkCnv_p1 particleLinkConverter;
+  const HepMcParticleLinkCnv_p1 particleLinkConverter;
 }
 
 

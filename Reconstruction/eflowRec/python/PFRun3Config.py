@@ -111,12 +111,6 @@ def PFCfg(inputFlags,**kwargs):
     from ThinningUtils.ThinNegativeEnergyNeutralPFOCfg import ThinNegativeEnergyNeutralPFOCfg
     result.merge(ThinNegativeEnergyNeutralPFOCfg(inputFlags))
 
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-      for el in result._allSequences:
-        el.name = "TopAlg"
-
     return result
 
 #Configure tau-FE link algorithm - this cannot be in PFCfg because
@@ -129,9 +123,6 @@ def PFTauFELinkCfg(inputFlags,**kwargs):
   return result
 
 if __name__=="__main__":
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 

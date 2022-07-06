@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -158,8 +158,14 @@ class LogMergeStep(Step):
                         continue
                     with open(log_name, encoding='utf-8') as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
-                        for line in log_file:
-                            merged_file.write(line)
+                        # temporary workaround to ignore false positives in AOD->DAOD log parsing
+                        # FIXME: drop AODtoDAOD once test_trigAna_AODtoDAOD_run2_build.py is migrated to Derivation_tf
+                        if log_name == 'log.Derivation' or log_name == 'log.AODtoDAOD':
+                            for line in log_file:
+                                merged_file.write(line.replace('Selected dynamic Aux', 'Selected Dynamic Aux'))
+                        else:
+                            for line in log_file:
+                                merged_file.write(line)
             return 0
         except OSError as e:
             self.log.error('%s merging failed due to OSError: %s',
@@ -619,7 +625,7 @@ class MessageCountStep(Step):
     def __init__(self, name='MessageCount'):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
-        self.log_regex = r'(athena\.(?!.*tail).*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.log_regex = r'(athena\.(?!.*tail).*log$|athenaHLT:.*\.out$|^log\.(.*to.*|Derivation))'
         self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
@@ -745,13 +751,14 @@ def default_check_steps(test):
         log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
-    reco_tf_steps = [step for step in test.exec_steps if step.type in ['Reco_tf', 'Trig_reco_tf']]
+    reco_tf_steps = [step for step in test.exec_steps if step.type in ['Reco_tf', 'Trig_reco_tf', 'Derivation_tf']]
     if len(reco_tf_steps) > 0:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
+        # FIXME: drop AODtoDAOD once test_trigAna_AODtoDAOD_run2_build.py is migrated to Derivation_tf
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
                     'PhysicsValidation', 'RAWtoALL',
-                    'BSRDOtoRAW', 'DRAWCOSTtoNTUPCOST', 'AODtoNTUPRATE', 'AODtoDAOD']
+                    'BSRDOtoRAW', 'DRAWCOSTtoNTUPCOST', 'AODtoNTUPRATE', 'Derivation', 'AODtoDAOD']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         if not get_step_from_list('LogMerge', check_steps):
             for step in reco_tf_steps:

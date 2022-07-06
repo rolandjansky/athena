@@ -20,7 +20,6 @@
 
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/jTauTOBArray.h"
-#include "L1TopoEvent/GenericTOB.h"
 
 REGISTER_ALG_TCS(jTauMultiplicity)
 
@@ -81,14 +80,14 @@ TCS::jTauMultiplicity::process( const TCS::InputTOBArray & input,
       jtau != jtaus.end();
       ++jtau ) {
     
-    const GenericTOB gtob(**jtau);
-
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() > jTAUThr.thrValue100MeV(gtob.eta()/4);
+    bool passed = (*jtau)->Et() > jTAUThr.thrValue100MeV((*jtau)->eta()/4);
+
+    if ( !isocut(TrigConf::Selection::wpToString(jTAUThr.isolation()), convertIsoToBit(*jtau)) ) {continue;}
 
     if (passed) {
       counting++; 
-      fillHist2D( m_histAccept[0], gtob.eta(), gtob.EtDouble() );
+      fillHist2D( m_histAccept[0], (*jtau)->eta(), (*jtau)->EtDouble() );
     }
 
   }
@@ -101,3 +100,17 @@ TCS::jTauMultiplicity::process( const TCS::InputTOBArray & input,
   return TCS::StatusCode::SUCCESS;
 
 }
+
+unsigned int
+TCS::jTauMultiplicity::convertIsoToBit(const TCS::jTauTOB * jtau) const {
+  unsigned int bit = 0;
+
+  // Assign the tightest accept WP as default bit
+  // TO DO: read WPs from the menu
+  if( jtau->EtIso() < jtau->Et() * 0.4 ) bit = 1; // Loose
+  if( jtau->EtIso() < jtau->Et() * 0.35) bit = 2; // Medium
+  if( jtau->EtIso() < jtau->Et() * 0.3 ) bit = 3; // Tight 
+  
+  return bit;
+}
+

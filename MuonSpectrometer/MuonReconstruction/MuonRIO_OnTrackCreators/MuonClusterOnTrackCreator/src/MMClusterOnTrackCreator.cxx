@@ -136,7 +136,7 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::calibratedCluster
     /// calibrate the input
     const MMPrepData* MClus = dynamic_cast<const MMPrepData*>(&RIO);
     std::vector<NSWCalib::CalibratedStrip> calibratedStrips;
-    StatusCode sc = m_calibTool->calibrateClus(MClus, GP, calibratedStrips);
+    StatusCode sc = m_calibTool->calibrateClus(Gaudi::Hive::currentContext(), MClus, GP, calibratedStrips);
     if (sc != StatusCode::SUCCESS) {
         ATH_MSG_WARNING("Could not calibrate the MM Cluster in the RIO on track creator");
         return cluster;

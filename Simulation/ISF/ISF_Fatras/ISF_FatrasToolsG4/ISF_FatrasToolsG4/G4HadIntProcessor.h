@@ -110,7 +110,7 @@ namespace iFatras {
       std::map<int,G4VProcess*>::iterator  initProcessPDG(int pdg) const;
 
       //!< choose for list of predefined (pure) materials
-      std::pair<G4Material*,G4MaterialCutsCouple*> retrieveG4Material(const Trk::Material* ematprop) const;
+      unsigned int retrieveG4MaterialIndex(const Trk::Material* ematprop) const;
 
       //!< random number service
       ServiceHandle<IAtRndmGenSvc>         m_rndGenSvc;
@@ -138,7 +138,7 @@ namespace iFatras {
       mutable const G4ThreeVector*         m_g4zeroPos;
       mutable G4Step*                      m_g4step;
       mutable G4StepPoint*                 m_g4stepPoint;
-      mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple*> > > m_g4Material;
+      mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple> > > m_g4Material;
 
       /** ISF services & Tools */
       ServiceHandle<ISF::IParticleBroker>  m_particleBroker;

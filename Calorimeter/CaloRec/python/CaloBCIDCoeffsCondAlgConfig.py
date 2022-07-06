@@ -1,10 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloRec/python/CaloBCIDCoeffsCondAlgConfig.py
 # Created: Mar 2020, sss
 # Purpose: Configure CaloBCIDCoeffsCondAlg.
-
-from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -68,11 +66,8 @@ def CaloBCIDCoeffsCondAlgCfg (flags):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloBCIDCoeffsCondAlg',
             'LArPileUpAvgSymCondAlg',

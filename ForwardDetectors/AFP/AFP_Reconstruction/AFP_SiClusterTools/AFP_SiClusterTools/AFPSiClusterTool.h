@@ -13,9 +13,6 @@
  * @brief  Header file for AFPSiClusterTool used for clustering hits.
  */
 
-// STL includes
-#include <string>
-#include <vector>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -41,6 +38,11 @@
 #include "xAODForward/AFPSiHitsCluster.h"
 #include "xAODForward/AFPSiHitsClusterContainer.h"
 #include "xAODForward/AFPSiHitsClusterAuxContainer.h"
+
+// STL includes
+#include "nlohmann/json.hpp"
+#include <string>
+#include <vector>
 
 /**
  * @brief This class reconstructs clusters of pixels.

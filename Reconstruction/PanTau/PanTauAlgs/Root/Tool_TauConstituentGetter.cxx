@@ -42,7 +42,7 @@ StatusCode PanTau::Tool_TauConstituentGetter::initialize() {
 /**
  * Function to get the PFOs for a given TauJet object (Shots in each PFO etc are collected in "ConvertToTauConstituent")
  */
-StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::TauJet* tauJet,
+StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(xAOD::TauJet* tauJet,
                                                                  std::vector<TauConstituent*>& outputConstituents,
                                                                  const std::string& algName) const {
     
@@ -55,7 +55,7 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::Tau
   unsigned int nChargedPFO = tauJet->nProtoChargedPFOs();
 
   for(unsigned int iChrgPFO=0; iChrgPFO<nChargedPFO; iChrgPFO++) {
-    xAOD::PFO* curChrgPFO = const_cast<xAOD::PFO*>(tauJet->protoChargedPFO( iChrgPFO ));
+    xAOD::PFO* curChrgPFO = tauJet->protoChargedPFONonConst( iChrgPFO );
 
     //convert to tau constituent
     PanTau::TauConstituent* curConst = nullptr;
@@ -76,8 +76,8 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::Tau
   unsigned int nNeutPFO = tauJet->nProtoNeutralPFOs();
     
   for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++) {
-    xAOD::PFO* curNeutPFO = const_cast<xAOD::PFO*>(tauJet->protoNeutralPFO( iNeutPFO ));
-        
+    xAOD::PFO* curNeutPFO = tauJet->protoNeutralPFONonConst( iNeutPFO );
+
     //convert to tau constituent
     PanTau::TauConstituent* curConst = nullptr;
     ATH_CHECK( m_Tool_InputConverter->ConvertToTauConstituent(curNeutPFO, curConst, tauJet) );

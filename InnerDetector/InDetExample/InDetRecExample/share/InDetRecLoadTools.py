@@ -305,12 +305,6 @@ if InDetFlags.loadSummaryTool():
 
     InDetTestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool()
     InDetHoleSearchTool     = TrackingCommon.getInDetHoleSearchTool()
-    #
-    # Load BLayer tool
-    #
-    InDetRecTestBLayerTool = None
-    if DetFlags.haveRIO.pixel_on() :
-        InDetRecTestBLayerTool = TrackingCommon.getInDetRecTestBLayerTool()
 
     #
     # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
@@ -656,7 +650,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                       useTrackQualityInfo                 = InDetPrimaryVertexingCuts.useTrackQualityInfo(),
                                                                       fitChi2OnNdfMax                     = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(),
                                                                       TrtMaxEtaAcceptance                 = InDetPrimaryVertexingCuts.TrtMaxEtaAcceptance(),
-                                                                      # InDetTestBLayerTool                 = InDetRecTestBLayerTool,
                                                                       TrackSummaryTool                    = TrackingCommon.getInDetTrackSummaryTool(),
                                                                       Extrapolator                        = TrackingCommon.getInDetExtrapolator())
          ToolSvc += sliding_window_track_selector

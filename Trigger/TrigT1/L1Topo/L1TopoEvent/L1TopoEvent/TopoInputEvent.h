@@ -65,6 +65,8 @@ namespace TCS {
       const jTETOB & jte() const { return m_jte[0]; }
       const gXETOB & gxe() const { return m_gxejwoj[0]; }
       const gXETOB & gmht() const { return m_gmht[0]; }
+      const gXETOB & gxenc() const { return m_gxenc[0]; }
+      const gXETOB & gxerho() const { return m_gxerho[0]; }
       const gTETOB & gte() const { return m_gte[0]; }
       uint32_t run_number()        const { return m_runNo; }
       uint32_t event_number()      const { return m_evtNo; }

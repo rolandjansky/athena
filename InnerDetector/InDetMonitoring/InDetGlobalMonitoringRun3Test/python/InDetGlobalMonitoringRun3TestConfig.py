@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 ####################################################
@@ -38,24 +38,22 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         for k, v in kwargsInDetGlobalTrackMonAlg.items():
             setattr(inDetGlobalTrackMonAlg, k, v)
 
-        inDetGlobalTrackMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalTrackMonAlg_TrackSelectionTool')
-        inDetGlobalTrackMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalTrackMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
-        inDetGlobalTrackMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-        inDetGlobalTrackMonAlg.TrackSelectionTool.minPt            = 5000
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalTrackMonAlg_TightTrackSelectionTool')
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
-        
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-        TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+        from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
+        TrackSelectionTool = acc.popToolsAndMerge(
+            InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags, name='TrackSelectionTool',
+                                                                maxNPixelHoles = 1, # Default for TightPrimary is 0
+                                                                minPt = 5000))
+        Tight_TrackSelectionTool = acc.popToolsAndMerge(
+            InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags, name='TightTrackSelectionTool',
+                                                                minPt = 5000))
+        inDetGlobalTrackMonAlg.TrackSelectionTool = TrackSelectionTool
+        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool = Tight_TrackSelectionTool
+
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+        TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalTrackMonAlg.TrackSummaryTool = TrackSummaryTool
-        inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
-        inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        
+        inDetGlobalTrackMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
+
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
         ########### here ends InDetGlobalTrackMonAlg ###########
 
@@ -76,17 +74,14 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         for k, v in kwargsInDetGlobalLRTMonAlg.items():
             setattr(inDetGlobalLRTMonAlg, k, v)
 
-        inDetGlobalLRTMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalLRTMonAlg_TrackSelectionTool')
-        inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 1000
-        
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-        InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+        from InDetConfig.InDetTrackSelectionToolConfig import InDetGlobalLRTMonAlg_TrackSelectionToolCfg
+        inDetGlobalLRTMonAlg.TrackSelectionTool = acc.popToolsAndMerge(InDetGlobalLRTMonAlg_TrackSelectionToolCfg(flags))
+
+        from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+        InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalLRTMonAlg.TrackSummaryTool = InDetTrackSummaryTool
-        inDetGlobalLRTMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-        inDetGlobalLRTMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        
+        inDetGlobalLRTMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
+
         InDetGlobalLRTMonAlgCfg(helper, inDetGlobalLRTMonAlg, **kwargsInDetGlobalLRTMonAlg)
         ########### here ends InDetGlobalLRTMonAlg ###########
 

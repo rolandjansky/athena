@@ -6,6 +6,7 @@
 #define NSWL1_PADTDSVALIDATIONTREE_H
 
 #include "TrigT1NSWSimTools/PadOfflineData.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h" // Amg::Vector3D (cannot fw declare typedef)
 #include "TTree.h"
@@ -27,7 +28,7 @@ class PadOfflineData;
  * Major updates for Release 22: francesco.giuseppe.gravili@cern.ch
  */
 
-class PadTdsValidationTree {
+class ATLAS_NOT_THREAD_SAFE PadTdsValidationTree {
   public:
     PadTdsValidationTree();
     /// initialize the output containers and the tree
@@ -35,8 +36,7 @@ class PadTdsValidationTree {
        The tree should be provided by the THistSvc from Athena.
     */
     bool init_tree(TTree *tree);
-    void reset_ntuple_variables(); ///< clear all vectors of internal containers
-    void clear_ntuple_variables(); ///< set to 0 all pointers of internal containers
+    bool reset_ntuple_variables(); ///< clear all vectors of internal containers
     void fill_num_pad_hits(size_t num) const; ///< store the number of hits for one pad
     void fill_hit_global_pos(const Amg::Vector3D& pos) const; ///< store global position of a hit
     void fill_hit_global_corner_pos(const std::vector<Amg::Vector3D> &pos) const; ///< store global position of a hit
@@ -51,31 +51,31 @@ class PadTdsValidationTree {
 
   private:
     std::string m_treename;
-    TTree* m_tree;                                          ///< ntuple for analysis
-    std::vector<int>*   m_nPadHits;                         ///< number of PAD hit delivered
-    std::vector<float>* m_padGlobalX;                       ///< global position X of the PAD hit
-    std::vector<float>* m_padGlobalY;                       ///< global position Y of the PAD hit
-    std::vector<float>* m_padGlobalZ;                       ///< global position Z of the PAD hit
-    std::vector<float>* m_padDelayedTime;                   ///< delayed time of the PAD hit
-    std::vector<int>*   m_padBCHR;                          ///< human readable BC info of the PAD
-    std::vector<float>* m_padGlobalCornerX;                 ///< global position X of the PAD hit corner
-    std::vector<float>* m_padGlobalCornerY;                 ///< global position Y of the PAD hit corner 
-    std::vector<float>* m_padGlobalCornerZ;                 ///< global position Z of the PAD hit corner  
-    std::vector<float>* m_padTruthHitGlobalX;               ///< global position X of the truth hit associated to the PAD hit
-    std::vector<float>* m_padTruthHitGlobalY;               ///< global position Y of the truth hit associated to the PAD hit
-    std::vector<float>* m_padTruthHitGlobalZ;               ///< global position Z of the truth hit associated to the PAD hit
-    std::vector<int>*   m_padEtaIdFromOfflineId;            ///< PAD eta Id from the offline Id
-    std::vector<int>*   m_padPhiIdFromOfflineId;            ///< PAD phi Id from the offline Id
-    std::vector<int>*   m_padSectorIdFromOfflineId;         ///< PAD sector Id from the offline Id
-    std::vector<int>*   m_padSectorTypeFromOfflineId;       ///< PAD sector type from the offline Id
-    std::vector<int>*   m_padGasGapIdFromOfflineId;         ///< PAD gas gap Id from the offline Id
-    std::vector<int>*   m_padModuleIdFromOfflineId;         ///< PAD module Id from the offline Id
-    std::vector<int>*   m_padMultipletIdFromOfflineId;      ///< PAD multilayer Id from the offline Id
-    std::vector<int>*   m_padSideIdFromOfflineId;           ///< PAD side Id from the offline Id
-    std::vector<int>*   m_offlineIdPadEtaConverted;         ///< PAD eta Id from the offline Id that were converted
-    std::vector<int>*   m_offlineIdPadPhiConverted;         ///< PAD phi Id from the offline Id that were converted
-    std::vector<int>*   m_padEtaIdFromOldSimu;              ///< PAD eta Id from the standalone simulation code
-    std::vector<int>*   m_padPhiIdFromOldSimu;              ///< PAD phi Id from the standalone simulation code
+    TTree* m_tree{nullptr};                                          ///< ntuple for analysis
+    std::vector<int>*   m_nPadHits{nullptr};                         ///< number of PAD hit delivered
+    std::vector<float>* m_padGlobalX{nullptr};                       ///< global position X of the PAD hit
+    std::vector<float>* m_padGlobalY{nullptr};                       ///< global position Y of the PAD hit
+    std::vector<float>* m_padGlobalZ{nullptr};                       ///< global position Z of the PAD hit
+    std::vector<float>* m_padDelayedTime{nullptr};                   ///< delayed time of the PAD hit
+    std::vector<int>*   m_padBCHR{nullptr};                          ///< human readable BC info of the PAD
+    std::vector<float>* m_padGlobalCornerX{nullptr};                 ///< global position X of the PAD hit corner
+    std::vector<float>* m_padGlobalCornerY{nullptr};                 ///< global position Y of the PAD hit corner
+    std::vector<float>* m_padGlobalCornerZ{nullptr};                 ///< global position Z of the PAD hit corner
+    std::vector<float>* m_padTruthHitGlobalX{nullptr};               ///< global position X of the truth hit associated to the PAD hit
+    std::vector<float>* m_padTruthHitGlobalY{nullptr};               ///< global position Y of the truth hit associated to the PAD hit
+    std::vector<float>* m_padTruthHitGlobalZ{nullptr};               ///< global position Z of the truth hit associated to the PAD hit
+    std::vector<int>*   m_padEtaIdFromOfflineId{nullptr};            ///< PAD eta Id from the offline Id
+    std::vector<int>*   m_padPhiIdFromOfflineId{nullptr};            ///< PAD phi Id from the offline Id
+    std::vector<int>*   m_padSectorIdFromOfflineId{nullptr};         ///< PAD sector Id from the offline Id
+    std::vector<int>*   m_padSectorTypeFromOfflineId{nullptr};       ///< PAD sector type from the offline Id
+    std::vector<int>*   m_padGasGapIdFromOfflineId{nullptr};         ///< PAD gas gap Id from the offline Id
+    std::vector<int>*   m_padModuleIdFromOfflineId{nullptr};         ///< PAD module Id from the offline Id
+    std::vector<int>*   m_padMultipletIdFromOfflineId{nullptr};      ///< PAD multilayer Id from the offline Id
+    std::vector<int>*   m_padSideIdFromOfflineId{nullptr};           ///< PAD side Id from the offline Id
+    std::vector<int>*   m_offlineIdPadEtaConverted{nullptr};         ///< PAD eta Id from the offline Id that were converted
+    std::vector<int>*   m_offlineIdPadPhiConverted{nullptr};         ///< PAD phi Id from the offline Id that were converted
+    std::vector<int>*   m_padEtaIdFromOldSimu{nullptr};              ///< PAD eta Id from the standalone simulation code
+    std::vector<int>*   m_padPhiIdFromOldSimu{nullptr};              ///< PAD phi Id from the standalone simulation code
   };  // PadTdsValidationTree
 } // NSWL1
 #endif

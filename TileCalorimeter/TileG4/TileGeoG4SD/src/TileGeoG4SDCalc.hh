@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -109,8 +109,8 @@ private:
 
   TileSDOptions m_options{};
 
-  Gaudi::Property<double> m_birk1{this, "birk1",0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
-  Gaudi::Property<double> m_birk2{this, "birk2",9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
+  Gaudi::Property<double> m_birk1{this, "birk1",0.02002 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "value updated for G4 10.6.p03"};
+  Gaudi::Property<double> m_birk2{this, "birk2",0.0 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "value updated for G4 10.6.p03"};
 
   /** @brief Keep hit time */
   bool m_keepHitTime{};

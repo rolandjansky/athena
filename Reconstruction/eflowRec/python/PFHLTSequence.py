@@ -266,30 +266,15 @@ def getPFAlg(flags, clustersin, tracktype):
 # particle flow objects
 def getPFOCreators(flags,tracktype):
 
-    # flag for ATR-24619 (to remove flag and use FlowElement after)
-    if flags.Trigger.usexAODFlowElements:
-        log.debug("Using eflowRec with xAODType FlowElement") # TODO Remove after ATR-24619 complete
-        PFOChargedCreatorAlgorithm = eflowRecConf.PFChargedFlowElementCreatorAlgorithm(
-            "PFChargedCreatorAlgorithm_" + tracktype,
-            FlowElementOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
-        )
+    PFOChargedCreatorAlgorithm = eflowRecConf.PFChargedFlowElementCreatorAlgorithm(
+        "PFChargedCreatorAlgorithm_" + tracktype,
+        FlowElementOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
+    )
 
-        PFONeutralCreatorAlgorithm = eflowRecConf.PFNeutralFlowElementCreatorAlgorithm(
-            "PFNeutralCreatorAlgorithm_" + tracktype,
-            FlowElementOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
-        )
-    else:
-        log.debug("Using eflowRec with xAODType ParticleFlow") # TODO Remove after ATR-24619 complete
-        PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm(
-            "PFOChargedCreatorAlgorithm_" + tracktype,
-            PFOOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype),
-        )
-
-        PFONeutralCreatorAlgorithm = eflowRecConf.PFONeutralCreatorAlgorithm(
-            "PFONeutralCreatorAlgorithm_" + tracktype,
-            PFOOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
-            DoClusterMoments=False,  # Only CENTER_MAG
-        )
+    PFONeutralCreatorAlgorithm = eflowRecConf.PFNeutralFlowElementCreatorAlgorithm(
+        "PFNeutralCreatorAlgorithm_" + tracktype,
+        FlowElementOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
+    )
     return PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm
 
 

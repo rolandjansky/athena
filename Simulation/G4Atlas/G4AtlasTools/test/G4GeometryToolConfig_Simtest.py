@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 """Run tests on G4Geometry Tool configuration
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-  # Set up logging and config behaviour
+  # Set up logging
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
-  from AthenaCommon.Configurable import Configurable
   log.setLevel(DEBUG)
-  Configurable.configurableRun3Behavior = 1
 
 
   #import config flags

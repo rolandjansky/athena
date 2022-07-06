@@ -1,6 +1,7 @@
 from AthenaCommon.GlobalFlags  import globalflags
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+
 if type(theApp).__name__ == "fakeAppMgr": theApp.initialize() #this line cuts off pathena when joboption parsing ... since all outputs now declared
 
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
@@ -62,6 +63,8 @@ StreamAOD.ItemList+=["xAOD::jFexLRJetRoIAuxContainer#*"]
 StreamAOD.ItemList+=["xAOD::TriggerTowerContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexTauRoIContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexTauRoIAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexFwdElRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::jFexFwdElRoIAuxContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexSumETRoIContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexSumETRoIAuxContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexMETRoIContainer#*"]

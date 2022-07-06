@@ -39,6 +39,7 @@ namespace FlavorTagDiscriminants {
     std::vector<internal::VarFromJet> m_varsFromJet;
     std::vector<internal::TrackSequenceBuilder> m_trackSequenceBuilders;
     std::map<std::string, internal::OutNode> m_decorators;
+    float m_defaultValue;
 
     FTagDataDependencyNames m_dataDependencyNames;
 

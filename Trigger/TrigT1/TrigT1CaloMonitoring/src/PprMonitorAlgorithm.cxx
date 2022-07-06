@@ -255,9 +255,8 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     // --------  High/low threshold pass cases (Sat80) --------
     // ppm_1d_tt_adc_HLCase
 
-    auto sat80Word = Monitored::Scalar<int>("sat80Word", (myTower.tower)->sat80Vec()[peak]);
-
     if (cpET > 0 && tslice < adcSize && peak < (myTower.tower)->sat80Vec().size()) {
+      auto sat80Word = Monitored::Scalar<int>("sat80Word", (myTower.tower)->sat80Vec()[peak]);
       for(unsigned int i = 0; i < 8; i++) {
         if (sat80Word == char(i)) fill(groupName, sat80Word);
       }
@@ -321,7 +320,7 @@ StatusCode PprMonitorAlgorithm::makePPMTower( const xAOD::TriggerTower_v2* tt,
   
   // LUT JEP
   int jepET = 0;
-  const std::vector<uint_least8_t> jepETvec = tt->lut_jep();
+  const std::vector<uint_least8_t>& jepETvec = tt->lut_jep();
   if (jepETvec.size() > 0) jepET = tt->jepET();
   
   // ADC timeslice

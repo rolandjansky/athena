@@ -2,8 +2,8 @@
     <!-- HGTD_RawData -->
     <class name="HGTD_RDO_p1" />
     <class name="std::vector<HGTD_RDO_p1>" />
-    <class name="HGTD_RDOCollection_p1" />
-    <class name="HGTD_RDOContainer_p1" id="C25315CC-F0A2-43D6-8F42-012BE34B0107" />
+    <class name="HGTD_RDO_Collection_p1" />
+    <class name="HGTD_RDO_Container_p1" id="C25315CC-F0A2-43D6-8F42-012BE34B0107" />
 
     <!-- HGTD_PrepRawData -->
     <class name="HGTD_Cluster_p1" />

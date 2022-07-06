@@ -109,13 +109,13 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars) const
   return {0., 0., locpars[Trk::z0] + (center().z())};
 }
 
-#if defined(FLATTEN) && defined(__GNUC__)
+#if defined(__GNUC__)
 // We compile this function with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call
 // to out-of-line Eigen code that is linked from other DSOs; in that case,
 // it would not be optimized.  Avoid this by forcing all Eigen code
 // to be inlined here if possible.
-__attribute__ ((flatten))
+[[gnu::flatten]]
 #endif
 // true local to global method/
 void
@@ -163,7 +163,7 @@ Trk::PerigeeSurface::globalToLocal(const Amg::Vector3D& glopos,
                                    const Amg::Vector3D& glomom,
                                    Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D perPos = (transform().inverse()) * glopos;
+  Amg::Vector3D perPos = inverseTransformMultHelper(glopos);
   double d0 = perPos.perp();
   double z0 = perPos.z();
   // decide the sign of d0

@@ -4,6 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigServicesConfig')
 
 # old-JO style function
 def setupMessageSvc():
@@ -52,9 +54,6 @@ def setupMessageSvc():
 def enableCOOLFolderUpdates():
    '''Enable COOL folder updates'''
 
-   from AthenaCommon.Logging import logging
-   log = logging.getLogger('TrigServicesConfig')
-
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    if not hasattr(svcMgr,'IOVDbSvc'):
       return
@@ -91,7 +90,7 @@ def getTrigCOOLUpdateHelper(name='TrigCOOLUpdateHelper'):
    return cool_helper
 
 
-def getHltROBDataProviderSvc(name='ROBDataProviderSvc'):
+def getHltROBDataProviderSvc(flags, name='ROBDataProviderSvc'):
    '''online ROB data provider service'''
    svc = CompFactory.HltROBDataProviderSvc(name)
    svc.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
@@ -113,10 +112,11 @@ def getHltROBDataProviderSvc(name='ROBDataProviderSvc'):
    svc.MonTool.defineHistogram('NUMBER_CollectAllROBs', path='EXPERT', type='TH1F',
                                title='Number of received ROBs for collect call;number',
                                xbins=100, xmin=0, xmax=2500)
+
    return svc
 
 
-def getHltEventLoopMgr(name='HltEventLoopMgr'):
+def getHltEventLoopMgr(flags, name='HltEventLoopMgr'):
    '''online event loop manager'''
    svc = CompFactory.HltEventLoopMgr(name)
    svc.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
@@ -167,16 +167,19 @@ def getHltEventLoopMgr(name='HltEventLoopMgr'):
    from TrigSteerMonitor.TrigSteerMonitorConfig import getTrigErrorMonTool
    svc.TrigErrorMonTool = getTrigErrorMonTool()
 
+   if flags.Trigger.CostMonitoring.doCostMonitoring:
+      svc.TrigErrorMonTool.TrigCostSvc = CompFactory.TrigCostSvc()
+
    return svc
 
 
 def TrigServicesCfg(flags):
    acc = ComponentAccumulator()
 
-   rob_data_provider = getHltROBDataProviderSvc()
+   rob_data_provider = getHltROBDataProviderSvc(flags)
    acc.addService(rob_data_provider)
 
-   loop_mgr = getHltEventLoopMgr()
+   loop_mgr = getHltEventLoopMgr(flags)
    loop_mgr.CoolUpdateTool = getTrigCOOLUpdateHelper()
 
    from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg

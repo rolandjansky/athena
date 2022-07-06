@@ -278,10 +278,10 @@ def _parsePostfix(postfix, triggers = [], perPartition = False, perSample = Fals
     return kwargs
 
 def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue = '', value = '',
-                             title = '', path = '', weight = '', xbins = 0, xmin = 0, xmax = 0,
-                             ybins = 0, ymin = 0, ymax = 0, type = 'TH2D', run = '', triggers = [],
+                             title = '', path = '', weight = '', xbins = 0, xmin = 0., xmax = 0.,
+                             ybins = 0, ymin = 0., ymax = 0., type = 'TH2D', run = '', triggers = [],
                              xlabels = (), ylabels = (), opt = '', subDirectory = False, perPartition = False,
-                             perSample = False, perGain = False, allPartitions = False, separator = '_' ):
+                             perSample = False, perGain = False, allPartitions = False, separator = '_', merge = None ):
     '''
     This function configures 2D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
 
@@ -309,7 +309,10 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         perGain   -- Configure histograms per gain (if True gain name will be put into the title)
         allPartitions  -- Configure additional histogram with information from all partitions
         separator -- Given it will be used as separtor between name and trigger
+        merge     -- Whether to use a different histogram merging algorithm (must be "merge" for opt=kAddBinsDynamically)
     '''
+
+    import builtins
 
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
                                 perGain = perGain, allPartitions = allPartitions)
@@ -328,13 +331,14 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
 
         subPath = getTileHistogramPath(path = '', subDirectory = subDirectory, **kwargs)
-        fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
+        partitionTitle = title[partition] if builtins.type(title) is dict else title
+        fullTitle = getTileHistogramTitle(title = partitionTitle, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = subPath, type = type, title = fullTitle,
                               xlabels = nxlabels, ylabels = nylabels,
                               xbins = xbins, xmin = xmin, xmax = xmax,
                               ybins = ybins, ymin = ymin, ymax = ymax,
-                              weight = weight, opt = opt)
+                              weight = weight, opt = opt, merge = merge)
 
     return array
 
@@ -506,9 +510,9 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 
 
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
-                             weight = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
+                             weight = '', xbins = 0, xmin = 0., xmax = 0., type = 'TH1D', run = '', triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, opt = '',
-                             perGain = False, xlabels = (), allPartitions = False, separator = '_' ):
+                             perGain = False, xlabels = (), allPartitions = False, separator = '_', merge = None ):
     '''
     This function configures 1D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
 
@@ -532,6 +536,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         xlabels    -- List of bin labels
         allPartitions  -- Configure additional histogram with information from all partitions
         separator -- Given it will be used as separtor between name and trigger
+        merge     -- Whether to use a different histogram merging algorithm (must be "merge" for opt=kAddBinsDynamically)
     '''
 
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
@@ -553,7 +558,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
         tool.defineHistogram( fullName, path = subPath, weight = weight, type = type, title = fullTitle,
-                              xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
+                              xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt, merge = merge)
 
     return array
 
@@ -642,7 +647,7 @@ def addTileTMDB_2DHistogramsArray(helper, algorithm, name = '', value = '',
                                 ybins = ybins, ymin = -0.5, ymax = ybins - 0.5)
 
 def addTileTMDB_1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '',
-                                  path = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '',
+                                  path = '', xbins = 0, xmin = 0., xmax = 0., type = 'TH1D', run = '',
                                   perModule = False, isCorr=False):
 
     for ros in range(1, Tile.MAX_ROS):
@@ -683,3 +688,59 @@ def addTileTMDB_1DHistogramsArray(helper, algorithm, name = '', xvalue = '', val
 
             tool.defineHistogram(fullName, path = '', type = type, title = fullTitle,
                                  xbins = xbins, xmin = xmin, xmax = xmax)
+
+
+def addTileChannelHistogramsArray(helper, algorithm, name, title, path,
+                                  xvalue, xbins, xmin, xmax, type='TH1D',
+                                  yvalue=None, ybins=None, ymin=None, ymax=None,
+                                  run='', value='', aliasSuffix=''):
+    '''
+    This function configures 1D histograms with Tile monitored value per module, channel, gain.
+
+    Arguments:
+        helper    -- Helper
+        algorithm -- Monitoring algorithm
+        name      -- Name of histogram, actual name is constructed dynamicaly like:
+                    name + mudule + channel + gain
+        title     -- Title of histogram, actual title is constructed dynamicaly like:
+                    run + module + channel + gain + title
+        path      -- Path in file for histogram (relative to the path of given group)
+        xvalue    -- Name of monitored value for x axis
+        yvalue    -- Name of monitored value for y axis
+        type      -- Type of histogram (TH1D, TProfile, TH2D)
+        value     -- Name of monitored value (needed for TProfile)
+        run       -- Run number (given it will be put into the title)
+        xlabels    -- List of bin labels
+    '''
+
+    import builtins
+    dimensions = [int(Tile.MAX_ROS) - 1, int(Tile.MAX_DRAWER)]
+    array = helper.addArray(dimensions, algorithm, name, topPath = path)
+
+    for postfix, tool in array.Tools.items():
+        ros, module = [int(x) for x in postfix.split('_')[1:]]
+        moduleName = Tile.getDrawerString(ros + 1, module)
+        fullPath = moduleName
+
+        for channel in range(0, int(Tile.MAX_CHAN)):
+            channelName = f'0{channel}' if channel < 10 else str(channel)
+            for gain in range(0, Tile.MAX_GAIN):
+                gainName = {0 : 'low', 1 : 'high'}[gain]
+                nameSuffix = aliasSuffix if aliasSuffix else xvalue
+                fullName = f'{xvalue}_{channel}_{gain}'
+                fullName += f',{yvalue}_{channel}_{gain}' if yvalue else ""
+                fullName += f',{value}_{channel}_{gain};' if 'Profile' in type else ';'
+                fullName += f'{moduleName}_ch_{channelName}_{gainName[:2]}_{nameSuffix}'
+                fullTitle = f'Run {run} {moduleName} Channel {channelName} {gainName} gain: {title}'
+
+                xbinsInGain = xbins[gain] if builtins.type(xbins) is list else xbins
+                xminInGain = xmin[gain] if builtins.type(xmin) is list else xmin
+                xmaxInGain = xmax[gain] if builtins.type(xmax) is list else xmax
+
+                ybinsInGain = ybins[gain] if builtins.type(ybins) is list else ybins
+                yminInGain = ymin[gain] if builtins.type(ymin) is list else ymin
+                ymaxInGain = ymax[gain] if builtins.type(ymax) is list else ymax
+
+                tool.defineHistogram(fullName, title = fullTitle, path = fullPath, type = type,
+                                     xbins = xbinsInGain, xmin = xminInGain, xmax = xmaxInGain,
+                                     ybins = ybinsInGain, ymin = yminInGain, ymax = ymaxInGain)

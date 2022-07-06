@@ -112,17 +112,10 @@ condSeq+=theLArBadChannelCondAlg
 theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = RunNumber
 
-if SuperCells or IsFlat:
-   from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
-   theLArCondSvc=LArFlatConditionSvc(DoSuperCells=SuperCells,DoRegularCells=IsFlat)
-   svcMgr+=theLArCondSvc
-   svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
-   #svcMgr.LArFlatConditionSvc.OutputLevel=DEBUG
-   
-
 if SuperCells:   
-   conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/OnOffIdMap_SC<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>")
-
+   from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC
+   LArOnOffIdMappingSC()
+   LArCalibIdMappingSC()
 
 if 'PoolFiles' in dir():
   from AthenaCommon.ConfigurableDb import getConfigurable
@@ -150,14 +143,19 @@ if doObj("PEDESTAL"):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Pedestal"))
       LArPedestals2Ntuple.ContainerKey="LArPedestal"
   elif IsFlat:    
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Pedestal"))
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedCondAlg 
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    folder="/LAR/ElecCalibFlat/Pedestal"
+    conddb.addFolder("",getDBFolderAndTag(folder),className = 'CondAttrListCollection')
     LArPedestals2Ntuple.ContainerKey="Pedestal"
-    svcMgr.LArFlatConditionSvc.PedestalInput="/LAR/ElecCalibFlat/Pedestal"
+    condSequence += LArPedCondAlg(ReadKey=folder, WriteKey='Pedestal')
   else:   
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Pedestals/Pedestal"))
     LArPedestals2Ntuple.ContainerKey="Pedestal"
   LArPedestals2Ntuple.isSC=SuperCells 
   LArPedestals2Ntuple.isFlat=IsFlat 
+  LArPedestals2Ntuple.OutputLevel=DEBUG 
   topSequence+=LArPedestals2Ntuple
 
 
@@ -177,19 +175,43 @@ if doObj("AUTOCORR"):
        print( 'No Flat Autocorr exists !!!')
        import sys; sys.exit(-1) 
   else:
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"))
+    if SuperCells:
+       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOflSC/AutoCorrs/AutoCorr"),className="LArAutoCorrComplete")
+    else:   
+       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"),className="LArAutoCorrComplete")
     loadCastorCat=True
+    LArAutoCorr2Ntuple.ContainerKey="LArAutoCorr"
   LArAutoCorr2Ntuple.isSC=SuperCells
   LArAutoCorr2Ntuple.isFlat=IsFlat  
   topSequence+=LArAutoCorr2Ntuple
 
 if doObj("PHYSAUTOCORR"):
-  conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/AutoCorrs/PhysicsAutoCorr"))
+  if SuperCells:
+     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOflSC/AutoCorrs/PhysicsAutoCorr"))
+  else:   
+     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/AutoCorrs/PhysicsAutoCorr"))
   from LArCalibTools.LArCalibToolsConf import LArAutoCorr2Ntuple
   LArAutoCorr2Ntuple=LArAutoCorr2Ntuple("LArAutoCorr2Ntuple")
   LArAutoCorr2Ntuple.AddFEBTempInfo=False
+  LArAutoCorr2Ntuple.isSC=SuperCells
+  LArAutoCorr2Ntuple.isFlat=False  
   topSequence+=LArAutoCorr2Ntuple
 
+if (doObj("OFPhase")):
+  if SuperCells:
+     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOflSC/OFCBin/PhysShift"),className="LArOFCBinComplete")
+     Ckey="LArSCOFCPhase"
+  else: 
+     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts"),className="LArOFCBinComplete")
+     Ckey="LArPhysWaveShift"
+  print("OFPhase key: ",Ckey)
+  from LArCalibTools.LArCalibToolsConf import LArOFCBin2Ntuple
+  LArOFCBin2Ntuple=LArOFCBin2Ntuple("LArOFCBin2Ntuple")
+  LArOFCBin2Ntuple.ContainerKey=Ckey
+  LArOFCBin2Ntuple.AddFEBTempInfo=False
+  LArOFCBin2Ntuple.isSC = SuperCells
+  LArOFCBin2Ntuple.OffId=OffIdDump
+  topSequence+=LArOFCBin2Ntuple
 
 if doObj("OFC"):
   from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
@@ -209,16 +231,25 @@ if doObj("OFC"):
     from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg 
     from AthenaCommon.AlgSequence import AthSequencer
     condSequence = AthSequencer("AthCondSeq")
-    folder = '/LAR/ElecCalibFlat/OFC'
+    if SuperCells:
+       folder = '/LAR/ElecCalibFlatSC/OFC'
+    else:   
+       folder = '/LAR/ElecCalibFlat/OFC'
     conddb.addFolder('LAR_ONL', getDBFolderAndTag(folder), className = 'CondAttrListCollection')
     condSequence += LArOFCCondAlg  (ReadKey=folder, WriteKey='LArOFC')
 
   else:
-    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder) + '<key>LArOFC</key>',
+    if SuperCells:
+       #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"+OFCFolder) + '<key>LArOFC</key>',
+       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOflSC/OFC/CaliWave") + '<key>LArOFC</key>',
+                     className='LArOFCComplete')
+    else:   
+       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder) + '<key>LArOFC</key>',
                      className='LArOFCComplete')
 
   LArOFC2Ntuple.isSC=SuperCells
   LArOFC2Ntuple.isFlat=IsFlat  
+  #LArOFC2Ntuple.OutputLevel=VERBOSE
   topSequence+=LArOFC2Ntuple
 
 if (doObj("SHAPE")):
@@ -235,7 +266,6 @@ if (doObj("SHAPE")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Shape"))
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Shape"))
-    svcMgr.LArFlatConditionSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Shape/RTM/"+OFCFolder))
     LArShape2Ntuple.isComplete=True
@@ -263,7 +293,6 @@ if doObj("RAMP"):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Ramp"))
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Ramp"))
-    svcMgr.LArFlatConditionSvc.RampInput="/LAR/ElecCalibFlat/Ramp"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Ramps/RampLinea"))
   LArRamps2Ntuple.RawRamp = False
@@ -290,10 +319,7 @@ if (doObj("UA2MEV")):
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/DAC2uA"))
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/uA2MeV"))
-    svcMgr.LArFlatConditionSvc.DAC2uAInput="/LAR/ElecCalibFlat/DAC2uA"
-    svcMgr.LArFlatConditionSvc.uA2MeVInput="/LAR/ElecCalibFlat/uA2MeV"
   else:  
-    #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/DAC2uA/Symmetry"))
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/uA2MeV/Symmetry"))
     LAruA2MeV2Ntuple.DAC2uAKey=""
   topSequence+=LAruA2MeV2Ntuple
@@ -308,7 +334,6 @@ if (doObj("MPHYSOVERMCAL")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/MphysOverMcal"))
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/MphysOverMcal"))
-    svcMgr.LArFlatConditionSvc.MphysOverMcalInput="/LAR/ElecCalibFlat/MphysOverMcal"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/MphysOverMcal/RTM"))
   from LArCalibTools.LArCalibToolsConf import LArMphysOverMcal2Ntuple
@@ -419,7 +444,6 @@ if doObj("HVSCALE"):
   else: 
     if IsFlat:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/HVScaleCorr"))
-      svcMgr.LArFlatConditionSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
     else:
       print( 'Only Flat HVSCALE !!!')
       import sys; sys.exit(-5) 
@@ -467,6 +491,14 @@ if (doObj("PILEUP")):
   LArPileup2Ntuple.NtupleName="/NTUPLES/FILE1/PILEUP"
   topSequence+=LArPileup2Ntuple
 
+if (doObj("RINJ")):
+  conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/HecPAMap"))
+  from LArCalibTools.LArCalibToolsConf import LArRinj2Ntuple
+  LArRinj2Ntuple=LArRinj2Ntuple("LArRinj2Ntuple")
+  LArRinj2Ntuple.AddFEBTempInfo=False
+  LArRinj2Ntuple.isSC = False
+  LArRinj2Ntuple.OffId=OffIdDump
+  topSequence+=LArRinj2Ntuple
 
 if loadCastorCat:
   svcMgr.PoolSvc.ReadCatalog += ['xmlcatalog_file:'+'/afs/cern.ch/atlas/conditions/poolcond/catalogue/poolcond/PoolCat_comcond_castor.xml']
@@ -480,4 +512,6 @@ svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFile+"' OPT='NEW'" ]
 #svcMgr.DetectorStore.Dump=True
 #svcMgr.MessageSvc.OutputLevel = DEBUG
 svcMgr.MessageSvc.Format = "% F%50W%C%8W%R%T %0W%M"
+#svcMgr.MessageSvc.defaultLimit = 99999999
+
 svcMgr.IOVDbSvc.DBInstance=""

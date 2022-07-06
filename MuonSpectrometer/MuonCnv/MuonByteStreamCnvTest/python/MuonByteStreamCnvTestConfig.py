@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -47,6 +47,7 @@ def getSTGC_RdoToDigitAlg(name="STGC_RdoToDigitAlg", **kwargs):
         kwargs.setdefault("EvtStore", overlayFlags.dataStore())
         kwargs.setdefault("sTgcRdoContainer", overlayFlags.dataStore()+"+sTGCRDO")
         kwargs.setdefault("sTgcDigitContainer", overlayFlags.dataStore()+"+sTGC_DIGITS")
+    kwargs.setdefault("sTgcRdoDecoderTool", "STGC_RDO_Decoder")
     return CfgMgr.STGC_RdoToDigit(name, **kwargs)
 
 
@@ -59,6 +60,7 @@ def getMM_RdoToDigitAlg(name="MM_RdoToDigitAlg", **kwargs):
         kwargs.setdefault("EvtStore", overlayFlags.dataStore())
         kwargs.setdefault("MmRdoContainer", overlayFlags.dataStore()+"+MMRDO")
         kwargs.setdefault("MmDigitContainer", overlayFlags.dataStore()+"+MM_DIGITS")
+    kwargs.setdefault("mmRdoDecoderTool", "MM_RDO_Decoder")
     return CfgMgr.MM_RdoToDigit(name, **kwargs)
 
 
@@ -97,6 +99,7 @@ def getSTGC_DigitToRDO(name="STGC_DigitToRDO", **kwargs):
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "sTGCRDO")
     else:
         kwargs.setdefault("OutputObjectName", "sTGCRDO")
+    kwargs.setdefault("CalibrationTool", "NSWCalibTool")
     return CfgMgr.STGC_DigitToRDO(name, **kwargs)
 
 
@@ -107,6 +110,7 @@ def getMM_DigitToRDO(name="MM_DigitToRDO", **kwargs):
         kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "MMRDO")
     else:
         kwargs.setdefault("OutputObjectName", "MMRDO")
+    kwargs.setdefault("CalibrationTool", "NSWCalibTool")
     return CfgMgr.MM_DigitToRDO(name, **kwargs)
 
 
@@ -129,3 +133,17 @@ def getSigTgcDigitToTgcRDO(name="SigTgcDigitToTgcRDO", **kwargs):
     kwargs.setdefault("InputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGCRDO")
     return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)
+
+
+def getCscRdoDecoder(name="CscRDO_Decoder", **kwargs):
+    return CfgMgr.Muon__CscRDO_Decoder(name, **kwargs)
+
+
+def getsTgcRdoDecoder(name="STGC_RDO_Decoder", **kwargs):
+    kwargs.setdefault("CalibrationTool", "NSWCalibTool")
+    return CfgMgr.Muon__STGC_RDO_Decoder(name,**kwargs)
+
+
+def getMmRdoDecoder(name = "MM_RDO_Decoder", **kwargs):
+    kwargs.setdefault("CalibrationTool", "NSWCalibTool")
+    return CfgMgr.Muon__MM_RDO_Decoder(name,**kwargs)

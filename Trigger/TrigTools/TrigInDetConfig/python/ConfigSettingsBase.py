@@ -63,7 +63,9 @@ class _ConfigSettingsBase() :
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
       self._usePixelNN          = False
-      self._useBeamSpotForRoiZwidth = False
+      self._useDynamicRoiZWidth = False
+
+
       #precision tracking configuration values
       self._maxRPhiImpactPT   = None
       self._maxZImpactPT      = None
@@ -381,10 +383,9 @@ class _ConfigSettingsBase() :
    def minTRTonTrk(self):
       return self._minTRTonTrkPT
 
-     
    @property
-   def useBeamSpotForRoiZwidth(self):
-      return self._useBeamSpotForRoiZwidth 
+   def useDynamicRoiZWidth(self):
+      return self._useDynamicRoiZWidth
 
    @property
    def useSiSPSeededTrackFinder(self):
@@ -423,10 +424,8 @@ class _ConfigSettingsBase() :
       log.info( "   LRTHardPtmin          : %s", self._LRTHardPtMin )
       log.info( "   doHitDV               : %s", self._doHitDV )
       log.info( "   nClustersMin          : %s", self._nClustersMin )
-      log.info( "   useBremModel          : %s", self._useBremModel )
       log.info( "   suffix                : %s", self._suffix )
-      log.info( "   record                : %s", self._record )
-      log.info( "   Roi                   : %s", self._Roi )
+      log.info( "   roi                   : %s", self._roi )
       log.info( "   addSingleTrackVertices: %s", self._addSingleTrackVertices )
       log.info( "   maxRPhiImpact         : %s", self._maxRPhiImpactPT )
       log.info( "   maxZImpact            : %s", self._maxZImpactPT )
@@ -439,5 +438,9 @@ class _ConfigSettingsBase() :
       log.info( "   useSCT                : %s", self._useSCTPT )
       log.info( "   doEmCaloSeed          : %s", self._doEmCaloSeedPT )
       log.info( "   minTRTonTrk           : %s", self._minTRTonTrkPT )
-      log.info( "   BeamSpotForRoiZwidth  : %s", self._useBeamSpotForRoiZwidth )
+      log.info( "   useDynamicRoiZWidth   : %s", self._useDynamicRoiZWidth )
       log.info( "   useSiSPSeededTrackFinder : %s", self._useSiSPSeededTrackFinder )
+
+if __name__=='__main__':
+   config = _ConfigSettingsBase()
+   config.printout()

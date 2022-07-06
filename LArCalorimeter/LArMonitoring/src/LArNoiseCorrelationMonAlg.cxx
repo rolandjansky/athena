@@ -49,9 +49,6 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
-//Events infos:
-#include "xAODEventInfo/EventInfo.h"
-
 //for looping on FEBs
 #include "LArRawEvent/LArFebHeaderContainer.h"
 
@@ -94,9 +91,6 @@ LArNoiseCorrelationMonAlg::initialize()
   ATH_CHECK(m_bcContKey.initialize(m_ignoreKnownBadChannels));
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
 
-  /** Configure event info */
-  ATH_CHECK(m_eventInfoKey.initialize());
-
   // initialize superclass
   ATH_CHECK( AthMonitorAlgorithm::initialize() );
 
@@ -122,13 +116,6 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
   /** check trigger */
   bool passTrig = m_isCalibrationRun;
   if(!m_isCalibrationRun) { 
-     /**EventID is a part of EventInfo, search event informations:*/
-    SG::ReadHandle<xAOD::EventInfo> thisEvent{m_eventInfoKey,ctx};
-     if (!thisEvent.isValid()) {
-       ATH_MSG_ERROR("xAOD::EventInfo retrieval failed");
-       return StatusCode::FAILURE;
-     }
-  
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
 
      bool passBCID;
@@ -137,7 +124,7 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
        const int ABORT_GAP_START = 3446;
        const int ABORT_GAP_END   = 3563;
        for(auto trig_chain : m_vTrigChainNames) {
-	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END):true);
+	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(ctx.eventID().bunch_crossing_id() >= ABORT_GAP_START && ctx.eventID().bunch_crossing_id() <= ABORT_GAP_END):true);
 	passTrig=(passTrig || (passBCID && trigTool->isPassed(trig_chain)));
        }
      }

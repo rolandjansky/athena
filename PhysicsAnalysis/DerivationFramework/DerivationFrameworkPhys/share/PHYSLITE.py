@@ -271,7 +271,8 @@ associators = [AssocConfig('PFlowJet', 'AnalysisJets'),
                AssocConfig('Soft', '')]
 PHYSLITE_cfg = METAssocConfig('AnalysisMET',
                               associators,
-                              doPFlow=True)
+                              doPFlow=True,
+                              usePFOLinks=True)
 METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
 scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 

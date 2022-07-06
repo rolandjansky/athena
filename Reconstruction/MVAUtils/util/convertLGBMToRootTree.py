@@ -215,7 +215,13 @@ def test(model_file, tree_file, tree_name="lgbm", ntests=10000, test_file=None):
 
     mva_utils = ROOT.MVAUtils.BDT(tree)
 
-    objective = booster.dump_model()["objective"].strip()
+    objective = booster.dump_model()["objective"]
+
+    # sometimes options are inlined with objective
+    # we don't support non-default options
+    objective = objective.replace("sigmoid:1", "")
+    objective = objective.strip()
+    
     # binary and xentropy are not the exact same thing when training but the output value is the same
     # same for l1/l2/huber/... regression
     # (https://lightgbm.readthedocs.io/en/latest/Parameters.html)
@@ -572,12 +578,12 @@ if __name__ == "__main__":
         result = test(args.input, args.output, args.tree_name, args.ntests, args.test_file)
         if not result:
             print(
-                "some problems during test." "Have you setup athena? Do not use this in production!"
+                "some problems during test." " Have you setup athena? Do not use this in production!"
             )
         else:
             try:
                 print(
-                    u"::: :) :) :)  everything fine:" "LGBM output == MVAUtils output :) :) :) :::"
+                    u"::: :) :) :)  everything fine:" " LGBM output == MVAUtils output :) :) :) :::"
                 )
             except UnicodeEncodeError:
                 print(":::==> everything fine:" "LGBM output == MVAUtils output <==:::")

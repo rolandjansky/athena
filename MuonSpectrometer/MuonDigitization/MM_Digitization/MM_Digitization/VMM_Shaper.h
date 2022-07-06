@@ -23,22 +23,30 @@ class VMM_Shaper{
 
 
  private:
-     double m_peakTime;
-     double m_lowerTimeWindow, m_upperTimeWindow;
+     double m_peakTime{0.};
+     double m_lowerTimeWindow{0.};
+     double m_upperTimeWindow{0.};
      
-     double m_timeStep, m_inverseTimeStep;
+     double m_timeStep{0.};
+     double m_inverseTimeStep{0.};
 
-     double m_preCalculationVMMShaper = 0.0; 
+     double m_preCalculationVMMShaper{0.}; 
      // shaper parameters
-     double m_a = 0.0, m_pole0 = 0.0, m_re_pole1 = 0.0, m_im_pole1 = 0.0, m_pole1_square = 0.0, m_k1_abs = 0.0, m_argK1 = 0.0;
-     double m_peakTimeChargeScaling = 0.0;
+     double m_a{0.};
+     double m_pole0{0.};
+     double m_re_pole1{0.};
+     double m_im_pole1{0.};
+     double m_pole1_square{0.};
+     double m_k1_abs{0.};
+     double m_argK1{0.};
+     double m_peakTimeChargeScaling{0.};
 
      double vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const;
      double findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const;
      bool aboveThresholdSimple(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const;
-     double m_pole0_ns = 0.0;
-     double m_re_pole1_ns = 0.0; 
-     double m_im_pole1_ns = 0.0;
+     double m_pole0_ns{0.};
+     double m_re_pole1_ns{0.}; 
+     double m_im_pole1_ns{0.};
 };
 
 #endif  // MM_DIGITIZATION_VMM_SHAPER_H

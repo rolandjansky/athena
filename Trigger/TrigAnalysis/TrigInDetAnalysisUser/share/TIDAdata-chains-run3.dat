@@ -47,9 +47,9 @@ testChains = {
     "HLT_e5_idperf_tight_L1EM3:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron",
     "HLT_e5_idperf_tight_L1EM3:HLT_IDTrack_Electron_IDTrig",
 
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
+    "HLT_e20_idperf_loose_lrtloose_L1EM15VH:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
     "HLT_e30_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-    "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
+    "HLT_e20_idperf_loose_lrtloose_L1EM15VH:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
     "HLT_e30_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
     "HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT:1",
@@ -57,6 +57,15 @@ testChains = {
 
     "HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT:0",
     "HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT:0",
+
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:extra=el_tag:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:extra=el_probe:roi=HLT_Roi_FastElectron:te=1",
+
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:extra=el_tag:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:extra=el_probe:te=1",
+
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_GSF:extra=el_tag:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_GSF:extra=el_probe:te=1",
 
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore",
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso",
@@ -72,14 +81,14 @@ testChains = {
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso",
     "HLT_tau25_idperf_tracktwoMVA_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso:HLT_IDVertex_Tau:post:rvtx=HLT_IDVertex_Tau",
     
-    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_FTF",
-    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:HLT_IDTrack_Bjet_IDTrig:HLT_Roi_Bjet:HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx:post:rvtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
+    "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_FTF",
+    "HLT_j45_0eta290_020jvt_boffperf_pf_ftf_L1J20:HLT_IDTrack_Bjet_IDTrig:HLT_Roi_Bjet:HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx:post:rvtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
 
     "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig",
     
-    "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FSLRT_FTF;DTE",
-    "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FS_FTF;DTE",
-    "HLT_unconvtrk0_fslrt_L1J100:HLT_IDTrack_FSLRT_IDTrig;DTE",
+    "HLT_fslrt0_L1J100:HLT_IDTrack_FSLRT_FTF;DTE",
+    "HLT_fslrt0_L1J100:HLT_IDTrack_FS_FTF;DTE",
+    "HLT_fslrt0_L1J100:HLT_IDTrack_FSLRT_IDTrig;DTE",
     
     "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF",
     "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig",

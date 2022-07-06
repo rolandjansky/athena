@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """Dump CutBookkeepers
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from argparse import ArgumentParser
 
-from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -19,9 +18,6 @@ parser = ArgumentParser(prog='test_BookkeeperDumpertool')
 parser.add_argument('input', type=str, nargs='?',
                     help='Specify the input file')
 args = parser.parse_args()
-
-# Setup configuration
-Configurable.configurableRun3Behavior = True
 
 if args.input:
     ConfigFlags.Input.Files = [args.input]

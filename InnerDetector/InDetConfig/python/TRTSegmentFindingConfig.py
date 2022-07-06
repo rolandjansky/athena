@@ -196,9 +196,6 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files=defaultTestFiles.RDO_RUN2
@@ -209,6 +206,8 @@ if __name__ == "__main__":
     numThreads=1
     flags.Concurrency.NumThreads=numThreads
     flags.Concurrency.NumConcurrentEvents=numThreads # Might change this later, but good enough for the moment.
+
+    flags = flags.cloneAndReplace("InDet.Tracking.ActivePass","InDet.Tracking.MainPass")
 
     flags.lock()
     flags.dump()

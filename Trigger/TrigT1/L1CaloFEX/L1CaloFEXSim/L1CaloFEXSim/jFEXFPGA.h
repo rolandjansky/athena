@@ -9,7 +9,6 @@
 //     email                : jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
-
 #ifndef jFEXFPGA_H
 #define jFEXFPGA_H
 
@@ -80,6 +79,9 @@ namespace LVL1 {
     virtual std::vector <std::vector <uint32_t>> getSmallRJetTOBs() override;
     virtual std::vector <std::vector <uint32_t>> getLargeRJetTOBs() override;
 
+    /** sorted Electron tobs */
+    virtual std::vector <std::vector <uint32_t>> getFwdElTOBs() override;
+
     /**Form a tob word out of the potential candidate Tau tob */
     virtual uint32_t formTauTOB(int &, int &) override;
     virtual std::vector <std::vector <uint32_t>> getTauTOBs() override;    
@@ -106,12 +108,14 @@ namespace LVL1 {
     static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jJ_etBit   ) & 0x7ff  )> ((j.at(0) >> FEXAlgoSpaceDefs::jJ_etBit  ) & 0x7ff ));}
     static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jLJ_etBit  ) & 0x1fff )> ((j.at(0) >> FEXAlgoSpaceDefs::jLJ_etBit ) & 0x1fff));}
     static bool etTauSort  (std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jTau_etBit ) & 0x7ff  )> ((j.at(0) >> FEXAlgoSpaceDefs::jTau_etBit) & 0x7ff ));}
+    static bool etFwdElSort  (std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jEM_etBit ) & 0x7ff  )> ((j.at(0) >> FEXAlgoSpaceDefs::jEM_etBit) & 0x7ff ));}
     
     int m_id;
     int m_jfexid;
     std::vector<std::vector<uint32_t>> m_SRJet_tobwords;
     std::vector<std::vector<uint32_t>> m_LRJet_tobwords;
     std::vector<std::vector<uint32_t>> m_tau_tobwords;
+    std::vector<std::vector<uint32_t>> m_FwdEl_tobwords;
     std::vector<uint32_t> m_sumET_tobwords;
     std::vector<uint32_t> m_Met_tobwords;
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
@@ -124,6 +128,7 @@ namespace LVL1 {
     
 
     std::unordered_map<int, jFEXForwardJetsInfo> m_FCALJets; 
+    std::unordered_map<uint, jFEXForwardElecInfo> m_ForwardElecs;
 
     int m_SRJetET;
     int m_LRJetET;

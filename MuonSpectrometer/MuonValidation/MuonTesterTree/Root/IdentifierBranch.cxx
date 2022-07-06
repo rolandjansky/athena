@@ -80,3 +80,28 @@ void TgcIdentifierBranch::push_back(const Identifier& id) {
     m_measuresPhi.push_back(idHelperSvc()->tgcIdHelper().measuresPhi(id));
     m_channel.push_back(idHelperSvc()->tgcIdHelper().channel(id));
 }
+
+///###############################################################
+///                 sTgcIdentifierBranch
+///###############################################################
+sTgcIdentifierBranch::sTgcIdentifierBranch(MuonTesterTree& tree, const std::string& grp_name) : MuonIdentifierBranch(tree, grp_name) {}
+
+void sTgcIdentifierBranch::push_back(const Identifier& id) {
+    MuonIdentifierBranch::push_back(id);
+    m_gas_gap.push_back(idHelperSvc()->stgcIdHelper().gasGap(id));
+    m_multiplet.push_back(idHelperSvc()->stgcIdHelper().multilayer(id));
+    m_channel_type.push_back(idHelperSvc()->stgcIdHelper().channelType(id));
+    m_channel.push_back(idHelperSvc()->stgcIdHelper().channel(id));
+}
+
+///###############################################################
+///                 MmIdentifierBranch
+///###############################################################
+MmIdentifierBranch::MmIdentifierBranch(MuonTesterTree& tree, const std::string& grp_name) : MuonIdentifierBranch(tree, grp_name) {}
+
+void MmIdentifierBranch::push_back(const Identifier& id) {
+    MuonIdentifierBranch::push_back(id);
+    m_gas_gap.push_back(idHelperSvc()->mmIdHelper().gasGap(id));
+    m_multiplet.push_back(idHelperSvc()->mmIdHelper().multilayer(id));
+    m_channel.push_back(idHelperSvc()->mmIdHelper().channel(id));
+}

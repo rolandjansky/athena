@@ -35,9 +35,10 @@ class LWTNNCondAlg : public AthReentrantAlgorithm {
   LWTNNCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
   ~LWTNNCondAlg() = default;
 
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
+  StatusCode initialize() override final;
+  StatusCode execute(const EventContext& ctx) const override final;
+  StatusCode finalize() override final;
+  virtual bool isReEntrant() const override final { return false; }
 
  private:
 //  TTrainedNetwork* retrieveNetwork(TFile &input_file, const std::string& folder) const;

@@ -157,7 +157,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,
 
         # set the binning from bi-aequidistant to arbitrary for complex TRT volumes
         TRT_LayerBinning = 1
-        if buildTrtStrawLayers:
+        from AthenaConfiguration.Enums import ProductionStep
+        from G4AtlasApps.SimEnums import SimulationFlavour
+        if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIMT]):
             TRT_LayerBinning = 2
             TRT_LayerBuilder.ModelLayersOnly = False
         # TRT -> ToolSvc
@@ -279,6 +281,9 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         PixelLayerBuilderInner.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.pixelBarrelMatPhiBins
         PixelLayerBuilderInner.EndcapLayerBinsR = flags.ITk.trackingGeometry.pixelEndcapMatRbins
         PixelLayerBuilderInner.EndcapLayerBinsPhi = flags.ITk.trackingGeometry.pixelEndcapMatPhiBins
+        #adding one passive layer to map PLR material
+        PixelLayerBuilderInner.EndcapAdditionalLayerPositionsZ = [-2250., 2250.]
+        PixelLayerBuilderInner.EndcapAdditionalLayerType = [1, 1]
 
         # set the layer association
         PixelLayerBuilderInner.SetLayerAssociation = setLayerAssociation
@@ -708,8 +713,6 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
 
 
 if __name__ == '__main__':
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 

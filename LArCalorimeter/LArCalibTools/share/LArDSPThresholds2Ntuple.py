@@ -7,8 +7,13 @@ if 'inputtag' not in dir():
 if 'inputdb' not in dir():
    inputdb="COOLONL_LAR/CONDBR2"
 
+if 'runNumber' not in dir():
+   runNumber=500000
+
+if 'RootFile' not in dir():
+   RootFile='DSPthresholds.root'
+
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
-from string import split,join
 from time import time
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
@@ -41,13 +46,16 @@ svcMgr.IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-05"
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 theApp.EvtMax = 1
-svcMgr.EventSelector.RunNumber = 500000
+svcMgr.EventSelector.RunNumber = runNumber
 svcMgr.EventSelector.InitialTimeStamp=int(time())
-dbname="<db>COOLOFL_LAR/CONDBR2</db>"
 
-conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels<key>/LAR/BadChannels/BadChannels</key>"+dbname)
-conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>"+dbname)
-conddb.addFolder("",inputfolder+"<tag>"+inputtag+"</tag><db>"+inputdb+"</db>")
+bchdbname="<db>COOLONL_LAR/CONDBR2</db>"
+conddb.addFolder("","/LAR/BadChannels/BadChannels<key>/LAR/BadChannels/BadChannels</key><tag>LARBadChannelsBadChannels-RUN2-UPD1-00</tag>"+bchdbname,className='CondAttrListCollection')
+conddb.addFolder("","/LAR/BadChannels/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key><tag>LARBadChannelsMissingFEBs-RUN2-UPD1-01</tag>"+bchdbname,className='AthenaAttributeList')
+conddb.addFolder("",inputfolder+"<tag>"+inputtag+"</tag><db>"+inputdb+"</db>",className="AthenaAttributeList")
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+condSeq+=LArBadChannelCondAlg(ReadKey='/LAR/BadChannels/BadChannels')
 
 
 ## for f in LArFebConfigFolders:
@@ -69,7 +77,7 @@ topSequence+=theLArDSPThresholds2Ntuple
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc
 svcMgr += NTupleSvc()
-svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='DSPthresholds.root' OPT='NEW'" ]
+svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFile+"' OPT='NEW'" ]
 
 #svcMgr.DetectorStore.Dump=True
 svcMgr.MessageSvc.OutputLevel = WARNING

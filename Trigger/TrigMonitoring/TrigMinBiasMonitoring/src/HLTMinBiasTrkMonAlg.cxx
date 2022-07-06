@@ -2,6 +2,7 @@
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "xAODTracking/TrackingPrimitives.h"
+#include "Utils.h"
 #include "HLTMinBiasTrkMonAlg.h"
 
 HLTMinBiasTrkMonAlg::HLTMinBiasTrkMonAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthMonitorAlgorithm(name, pSvcLocator)
@@ -89,6 +90,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorSPCounts(const EventContext& context) con
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) const
 {
   using namespace Monitored;
@@ -107,19 +109,32 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   }
   ATH_CHECK(trkCountsHandle->size() == 1); // if object is present then it should have size == 1
   auto nTrkOnline = Scalar("nTrkOnline", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
+  std::vector<int> counts = trkCountsHandle->at(0)->getDetail<std::vector<int>>("counts");
 
-  float priVtxZ = 999; // intentionally - initial zPos
-  auto vertexHandle = SG::makeHandle(m_vertexKey, context);
-  const xAOD::Vertex* priVtx = nullptr;
-  if(vertexHandle.isValid()){
-    for (auto vtx : *vertexHandle) {
-      if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	priVtxZ = vtx->z();
-	priVtx = vtx;
-	break;
-      }
+  int countTrkVtxOnline = -1;
+  auto countsOnline = Collection("countsOnline", counts);
+  const std::vector<float> ptCutValues = trkCountsHandle->at(0)->getDetail<std::vector<float>>("pTcuts");
+  const std::vector<float> z0CutValues = trkCountsHandle->at(0)->getDetail<std::vector<float>>("z0cuts");
+  const std::vector<float> vtxCutValues = trkCountsHandle->at(0)->getDetail<std::vector<float>>("vertexZcuts");
+  std::vector<std::string> descriptions(counts.size());
+
+  for (size_t i = 0; i < countsOnline.size(); ++i) {
+    std::ostringstream s;
+    s << "pt: " << ptCutValues[i];
+    s << " z0: " << z0CutValues[i];
+    auto vtxCut = vtxCutValues[i];
+    s << " vtx-z: " << vtxCut;
+    descriptions[i] = s.str();
+    if (vtxCut < 100) { // online counter that uses vertex cut
+      countTrkVtxOnline = counts[i];
     }
   }
+  auto countsOnlineNames = Collection("countsOnlineNames", descriptions);
+  auto nTrkOnlineVtx = Scalar("nTrkOnlineVtx", countTrkVtxOnline);
+
+  auto vertexHandle = SG::makeHandle(m_vertexKey, context);
+  const xAOD::Vertex* priVtx = Utils::selectPV(vertexHandle);
+  const float priVtxZ =  priVtx == nullptr ? 999 : priVtx->z();
 
   auto offlineVtxZ = Scalar("offlineVtxZ", priVtxZ);
 
@@ -127,15 +142,14 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   int countPassing = 0;
   int countPassingVtx = 0;
 
-  auto track_selector = [this](const xAOD::TrackParticle& trk) {
-    return static_cast<bool>(m_trackSelectionTool->accept(trk));
+  auto track_selector = [this](const xAOD::TrackParticle* trk) {
+    return static_cast<bool>(m_trackSelectionTool->accept(*trk));
   };
 
   for (const auto trk : *offlineTrkHandle) {
-    if (track_selector(*trk) and std::abs(trk->pt()) > m_minPt) {
+    if (track_selector(trk) and std::abs(trk->pt()) > m_minPt) {
       ++countPassing;
-      if (priVtx and std::abs((trk->z0() + trk->vz() - priVtx->z()) * std::sin(trk->theta())) < m_z0
-        and std::abs(trk->d0()) < m_d0) {
+      if (priVtx and std::abs(Utils::z0wrtPV(trk, priVtx)) < m_z0 and std::abs(trk->d0()) < m_d0) {
         ++countPassingVtx;
       }
     }
@@ -163,14 +177,15 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   auto nTrkOffline = Scalar("nTrkOffline", countPassing);
   auto nTrkOfflineVtx = Scalar("nTrkOfflineVtx", countPassingVtx);
   auto nAllTrkOffline = Scalar("nAllTrkOffline", offlineTrkHandle->size());
-  auto trkMask = Collection("trkMask", *offlineTrkHandle, [&](const auto& trk) { return track_selector(*trk); });
+  auto trkMask = Collection("trkMask", *offlineTrkHandle, [&](const auto& trk) { return track_selector(trk); });
   auto trkPt = Collection("trkPt", *offlineTrkHandle, [](const auto& trk) { return trk->pt() * 1.e-3; });
   auto trkEta = Collection("trkEta", *offlineTrkHandle, [](const auto& trk) { return trk->eta(); });
   auto trkPhi = Collection("trkPhi", *offlineTrkHandle, [](const auto& trk) { return trk->phi(); });
   auto trkD0 = Collection("trkD0", *offlineTrkHandle, [](const auto& trk) { return trk->d0(); });
   auto trkZ0 = Collection("trkZ0", *offlineTrkHandle, [](const auto& trk) { return trk->z0(); });
-  auto trkZ0wrtPV = Collection("trkZ0wrtPV", *offlineTrkHandle, [priVtx](const auto& trk) { 
-      return ( priVtx != nullptr )? trk->z0() + trk->vz() - priVtx->z() : -999; } );
+  auto z0wrtPV = Utils::z0wrtPV;
+  auto trkZ0wrtPV = Collection("trkZ0wrtPV", *offlineTrkHandle, [priVtx, z0wrtPV](const auto& trk) {
+    return (priVtx != nullptr) ? Utils::z0wrtPV(trk, priVtx) : -999; });
 
   auto getNhits = [](const xAOD::TrackParticle* trk) {
     int nhits = 0;
@@ -185,7 +200,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   auto onlTrkEta = Collection("onlTrkEta", *onlineTrkHandle, [](const auto& trk) { return trk->eta(); });
   auto onlTrkPhi = Collection("onlTrkPhi", *onlineTrkHandle, [](const auto& trk) { return trk->phi(); });
   auto onlTrkD0 = Collection("onlTrkD0", *onlineTrkHandle, [](const auto& trk) { return trk->d0(); });
-  auto onlTrkZ0 = Collection("onlTrkZ0", *onlineTrkHandle, [](const auto& trk) { return trk->z0(); } );
+  auto onlTrkZ0 = Collection("onlTrkZ0", *onlineTrkHandle, [](const auto& trk) { return trk->z0(); });
   auto onlTrkHits = Collection("onlTrkHits", *onlineTrkHandle, getNhits);
 
 
@@ -196,7 +211,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   ATH_MSG_DEBUG("L1TE monitoring, handle validity " << L1TEHandle.isValid());
   float sum_roi_sumEt = 0.;
   if (!L1TEHandle.isValid()) sum_roi_sumEt = -1.;
-  else sum_roi_sumEt = static_cast<float>(L1TEHandle->energyT()) / 1000.;
+  else sum_roi_sumEt = static_cast<float>(L1TEHandle->energyT()) * 1.e-3;
   auto L1sumEt = Scalar("L1sumEt", sum_roi_sumEt);
 
   auto spCountsHandle = SG::makeHandle(m_spCountsKey, context);
@@ -235,9 +250,11 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
         PixBarr_SP, PixECA_SP, PixECC_SP,
         SctTot, SctBarr_SP, SctECA_SP, SctECC_SP,
         L1sumEt,
+        countsOnline, countsOnlineNames,
         trkMask, trkPt, trkEta, trkPhi, trkD0, trkZ0, trkZ0wrtPV, trkHits,
         onlTrkPt, onlTrkEta, onlTrkPhi, onlTrkHits, onlTrkD0, onlTrkZ0,
-        zFinderWeight, zFinderVtxZ, offlineVtxZ, onlineOfflineVtxDelta);
+        zFinderWeight, zFinderVtxZ, offlineVtxZ, onlineOfflineVtxDelta,
+        nTrkOnlineVtx);
     }
 
     // measure eff wrt the L1

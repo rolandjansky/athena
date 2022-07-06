@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ persToTrans( const Muon::RpcClusterOnTrack_p1 *persObj,
    // check to handle cases explained in bug#56227
 
    const MuonGM::RpcReadoutElement * de = transObj->detectorElement();
-   if (de->Nphigasgaps() == 1 && de->NphiStripPanels() == 2){
+   if (de->NgasGaps(true) == 1 && de->NphiStripPanels() == 2){
       // okay, so this was originally on a large surface and needs correcting.
       const Amg::Vector3D& globalposHIT = de->stripPos( transObj->identify() );
       Amg::Vector2D tmpLocal;

@@ -18,6 +18,54 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
 from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
 
+# this is where you add the new trainings!
+def GetTaggerTrainingMap(jet_collection_list):
+    derivationTrainingMap = {
+        "AntiKt4EMPFlow": [
+            "BTagging/201903/rnnip/antikt4empflow/network.json",
+            "BTagging/201903/dl1r/antikt4empflow/network.json",
+            "BTagging/20210519r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20210729/dipsLoose/antikt4empflow/network.json",  # old r22 trainings
+            "BTagging/20210729/dips/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json",  # “recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+            "BTagging/20210824r22/dl1d/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
+            "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+            "BTagging/20220509/gn1/antikt4empflow/network.onnx",
+        ],
+        "AntiKt4EMPFlowCustomVtx": [
+            "BTagging/201903/rnnip/antikt4empflow/network.json",
+            "BTagging/201903/dl1r/antikt4empflow/network.json",
+        ],
+        "AntiKt4EMTopo": [
+            "BTagging/201903/rnnip/antikt4empflow/network.json",
+            "BTagging/201903/dl1r/antikt4empflow/network.json",
+            "BTagging/20210519r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20210729/dipsLoose/antikt4empflow/network.json",  # old r22 trainings
+            "BTagging/20210729/dips/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json",  # “recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+            "BTagging/20210824r22/dl1d/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
+            "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+        ],
+        "AntiKtVR30Rmax4Rmin02Track": [
+            "BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json",
+            "BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json",
+            "BTagging/20210519r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20210729/dipsLoose/antikt4empflow/network.json",  # old r22 trainings
+            "BTagging/20210729/dips/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json",  # “recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
+            "BTagging/20210824r22/dl1d/antikt4empflow/network.json",
+            "BTagging/20210824r22/dl1r/antikt4empflow/network.json",
+            "BTagging/20220314/dipsLoose/antikt4empflow/network.json",  # new r22 training
+            "BTagging/20220509/dl1dLoose/antikt4empflow/network.json",  # new "recommended tagger" named DL1dv01 in EDM
+        ],
+    }
+
+    return derivationTrainingMap[jet_collection_list]
+
 
 def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetTrackParticles'):
     acc=ComponentAccumulator()
@@ -59,27 +107,6 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
 
     result.merge(JetTagCalibCfg(inputFlags))
 
-    recoTaggerList={
-        'AntiKt4EMPFlow': [
-           'BTagging/201903/rnnip/antikt4empflow/network.json',
-           'BTagging/201903/dl1r/antikt4empflow/network.json',
-           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-           'BTagging/20210729/dips/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-        ],
-        'AntiKt4EMTopo': [
-           'BTagging/201903/rnnip/antikt4empflow/network.json',
-           'BTagging/201903/dl1r/antikt4empflow/network.json',
-           'BTagging/20210729/dipsLoose/antikt4empflow/network.json', #new r22 trainings
-           'BTagging/20210729/dips/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json', #“recommended tagger” which is DL1dLoose20210824r22 named DL1dv00 in EDM
-           'BTagging/20210824r22/dl1d/antikt4empflow/network.json',
-           'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
-        ]
-    }
-
     #Track Augmenter
     result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
 
@@ -88,28 +115,30 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
             BTagAlgsCfg(
                 inputFlags,
                 JetCollection=jc,
-                nnList=recoTaggerList[jc],
+                nnList=GetTaggerTrainingMap(jc),
                 muons='', # muon augmentation isn't thread safe, disable
             )
         )
 
-    # the following is needed to reliably determine whether we're really being steered from an old-style job option
-    # assume we're running CPython
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in result._allSequences:
-            el.name = "TopAlg"
-
     # By default, in Run3 we don't write out BTagging containers in AOD or ESD
     # following allows to write them out when using Reco_tf.py --CA run 3 style configuration
-
+    
     if inputFlags.Output.doWriteAOD and inputFlags.Jet.WriteToAOD:
-     result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=True, toESD=False))
-
+     result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=True, toESD=False))     
+     
     if inputFlags.Output.doWriteESD:
      result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=False, toESD=True))
-
+    
+    # Hits should be written out if Trackless flag is used
+    if inputFlags.BTagging.Trackless:
+        from JetHitAssociation.JetHitAssociationConfig import JetHitAssociationCfg
+        result.merge(JetHitAssociationCfg(inputFlags))        	
+        BTaggingAODList = ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
+                           'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
+        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
+                           'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
+        result.merge(addToAOD(inputFlags, BTaggingAODList))
+      
     return result
 
 
@@ -119,8 +148,8 @@ def BTagAlgsCfg(inputFlags,
                 TaggerList=None,
                 SecVertexers=None,
                 trackCollection='InDetTrackParticles',
-                muons='Muons',
                 primaryVertices='PrimaryVertices',
+                muons='Muons',
                 BTagCollection=None):
 
     # If things aren't specified in the arguments, we'll read them
@@ -153,6 +182,7 @@ def BTagAlgsCfg(inputFlags,
         trackCollection,
         JetTrackAssociator,
     ))
+
     if muons:
         result.merge(JetParticleAssociationAlgCfg(
             inputFlags, jet+'Jets', muons, JetMuonAssociator))
@@ -201,6 +231,20 @@ def BTagAlgsCfg(inputFlags,
             TrackCollection=trackCollection,
         )
     )
+    
+    #add also Flip tagger information
+    if inputFlags.BTagging.RunFlipTaggers:
+       result.merge(
+           BTagJetAugmenterAlgCfg(
+               inputFlags,
+               BTagCollection=BTagCollection,
+               Associator=BTagTrackAssociator,
+               TrackCollection=trackCollection,
+               doFlipTagger=True,
+           )
+       ) 
+
+    
     if muons:
         result.merge(
             BTagMuonAugmenterAlgCfg(
@@ -248,10 +292,13 @@ def _get_flip_config(nn_path):
 
     Returns a list of flip configurations, or [] for things we don't flip.
     """
-    if 'dl1' in nn_path:
-        return []
+    #flipping of DL1r with 2019 taggers does not work at the moment
+    if (('dl1d' in nn_path) or ('dl1r' in nn_path and '201903' not in nn_path)):
+        return ['FLIP_SIGN']
     if 'rnnip' in nn_path or 'dips' in nn_path or 'gn1' in nn_path:
         return ['NEGATIVE_IP_ONLY']
+    else:
+        return []
 
 
 def addBTagToOutput(inputFlags, JetCollectionList, toAOD=True, toESD=True):
@@ -268,12 +315,6 @@ def addBTagToOutput(inputFlags, JetCollectionList, toAOD=True, toESD=True):
 
     BTaggingAODList = BTaggingFlags.btaggingAODList if toAOD else []
     BTaggingESDList = BTaggingFlags.btaggingESDList if toESD else []
-
-    if BTaggingFlags.DoJetHitAssociation:
-        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
-                            'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
-        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
-                            'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
 
     if toESD:
         result.merge(addToESD(inputFlags, BTaggingESDList))

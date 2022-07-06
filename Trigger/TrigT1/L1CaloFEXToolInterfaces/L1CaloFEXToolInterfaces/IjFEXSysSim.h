@@ -9,6 +9,7 @@
 //     email                :  jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 
+
 #ifndef IjFEXSysSim_H
 #define IjFEXSysSim_H
 
@@ -22,6 +23,8 @@
 #include "xAODTrigger/jFexLRJetRoIAuxContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIAuxContainer.h"
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
+#include "xAODTrigger/jFexFwdElRoIAuxContainer.h"
 #include "xAODTrigger/jFexMETRoIContainer.h"
 #include "xAODTrigger/jFexMETRoIAuxContainer.h"
 #include "xAODTrigger/jFexSumETRoIContainer.h"
@@ -50,6 +53,7 @@ Interface definition for jFEXSysSim
     virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) =0 ;  
     virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) =0 ;
     virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexTauRoIContainer > &jContainer) =0 ;  
+    virtual StatusCode fillFwdElEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexFwdElRoIContainer > &jContainer) =0 ;
     virtual StatusCode fillSumEtEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) =0 ;  
     virtual StatusCode fillMetEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) =0 ;  
 

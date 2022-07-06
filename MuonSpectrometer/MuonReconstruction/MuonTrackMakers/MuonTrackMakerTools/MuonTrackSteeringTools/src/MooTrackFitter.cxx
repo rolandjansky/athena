@@ -65,8 +65,7 @@ namespace Muon {
         ATH_CHECK(m_printer.retrieve());
 
         // Configuration of the material effects
-        Trk::ParticleSwitcher particleSwitch;
-        m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
+        m_ParticleHypothesis = Trk::ParticleSwitcher::particle[m_matEffects];
         m_magFieldProperties = m_slProp ? Trk::NoField : Trk::FullField;
 
         ATH_CHECK(m_trackToSegmentTool.retrieve());
@@ -227,9 +226,8 @@ namespace Muon {
         ++m_nfailedFakeInitial;
 
         // fit track with broad errors, no material
-        Trk::ParticleSwitcher particleSwitch;
         bool doPreFit = m_usePrefit;
-        Trk::ParticleHypothesis particleType = particleSwitch.particle[0];
+        Trk::ParticleHypothesis particleType = Trk::ParticleSwitcher::particle[0];
         if (fitterData.firstHasMomentum || fitterData.secondHasMomentum) doPreFit = false;
         if (!doPreFit) particleType = Trk::muon;
 
@@ -1140,8 +1138,8 @@ namespace Muon {
         } else if (m_idHelperSvc->isMM(id)) {
             const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(ele);
             if (mmDetEl) {
-                return std::make_pair(mmDetEl->stripActiveLengthLeft(id),
-                                     mmDetEl->stripActiveLengthRight(id));
+                return std::make_pair(mmDetEl->stripActiveLengthLeft(id) * cos(mmDetEl->stripAngle(id)),
+                                      mmDetEl->stripActiveLengthRight(id)* cos(mmDetEl->stripAngle(id))); // components along the local Y axis
             }
         }
         return std::make_pair(0.,0.);

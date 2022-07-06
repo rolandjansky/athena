@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_MODEDISCRIMINATOR_H
@@ -26,7 +26,7 @@ namespace PanTau {
         public:
 
     virtual bool isInitialized() = 0;
-    virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) = 0;
+    virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) const = 0;
     };
 
 }

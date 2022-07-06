@@ -298,13 +298,16 @@ def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("DetectorName", "CALO")
-    kwargs.setdefault("NSurfaces", 18)
-    kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
-    kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
     if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
-        # Make room for HGTD (3420 mm < |z| < 3545 mm)
-        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
+        # Make room for HGTD (3420 mm < |z| < 3545 mm) but include JMTube and JMPlug
+        kwargs.setdefault("NSurfaces", 22)
+        kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,64.,64.,120.,120.,1148.,1148.,120.,120.,64.,64.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
+        kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
+        kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-4472.,-4472.,-3545.,-3545.,3545.,3545.,4472.,4472.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     else:
+        kwargs.setdefault("NSurfaces", 18)
+        kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
+        kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     SubDetectorList=[]
     if ConfigFlags.Detector.GeometryLAr:

@@ -69,10 +69,12 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 
         if flags.InDet.Tracking.ActivePass.extension != "LowPt":
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
+            from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
+            InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
         else:
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPtCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
+            from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterLowPtCfg
+            InDetExtensionFitter = acc.popToolsAndMerge(InDetTrackFitterLowPtCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
     #
     # --- load scoring for extension
@@ -86,7 +88,8 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     # --- get configured track extension processor
     #
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolCfg
+    InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
 
     kwargs.setdefault("TrackName", SiTrackCollection)
     kwargs.setdefault("ExtensionMap", ExtendedTracksMap)
@@ -133,8 +136,6 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
 ##########################################################################################################################
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     numThreads=1

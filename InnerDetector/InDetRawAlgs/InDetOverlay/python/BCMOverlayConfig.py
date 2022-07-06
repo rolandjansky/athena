@@ -1,6 +1,6 @@
 """Define methods to construct configured BCM overlay algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -12,11 +12,9 @@ def BCMRawDataProviderAlgCfg(flags, name="BCMRawDataProvider", **kwargs):
     # Temporary until available in the central location
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
+    kwargs.setdefault("RDOKey", f"{flags.Overlay.BkgPrefix}BCM_RDOs")
 
-    BCM_RawDataProvider = CompFactory.BCM_RawDataProvider
-    alg = BCM_RawDataProvider(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.BCM_RawDataProvider(name, **kwargs))
 
     return acc
 
@@ -35,16 +33,18 @@ def BCMOverlayAlgCfg(flags, name="BCMOverlay", **kwargs):
     """Return a ComponentAccumulator for BCMOverlay algorithm"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "BCM_RDOs")
-    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "BCM_RDOs")
+    kwargs.setdefault("BkgInputKey", f"{flags.Overlay.BkgPrefix}BCM_RDOs")
+    kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}BCM_RDOs")
     kwargs.setdefault("OutputKey", "BCM_RDOs")
+
+    if not flags.Overlay.DataOverlay:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, [f'BCM_RDO_Container#{kwargs["BkgInputKey"]}']))
 
     kwargs.setdefault("isDataOverlay", flags.Overlay.DataOverlay)
 
     # Do BCM overlay
-    BCMOverlay = CompFactory.BCMOverlay
-    alg = BCMOverlay(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.BCMOverlay(name, **kwargs))
 
     # Setup output
     if flags.Output.doWriteRDO:
@@ -56,7 +56,7 @@ def BCMOverlayAlgCfg(flags, name="BCMOverlay", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
-            "BCM_RDO_Container#" + flags.Overlay.SigPrefix + "BCM_RDOs"
+            f"BCM_RDO_Container#{flags.Overlay.SigPrefix}BCM_RDOs"
         ]))
 
     return acc
@@ -69,14 +69,11 @@ def BCMTruthOverlayCfg(flags, name="BCMSDOOverlay", **kwargs):
     # We do not need background BCM SDOs
     kwargs.setdefault("BkgInputKey", "")
 
-    kwargs.setdefault("SignalInputKey",
-                      flags.Overlay.SigPrefix + "BCM_SDO_Map")
+    kwargs.setdefault("SignalInputKey", f"{flags.Overlay.SigPrefix}BCM_SDO_Map")
     kwargs.setdefault("OutputKey", "BCM_SDO_Map")
 
     # Do BCM truth overlay
-    InDetSDOOverlay = CompFactory.InDetSDOOverlay
-    alg = InDetSDOOverlay(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addEventAlgo(CompFactory.InDetSDOOverlay(name, **kwargs))
 
     # Setup output
     if flags.Output.doWriteRDO:
@@ -88,7 +85,7 @@ def BCMTruthOverlayCfg(flags, name="BCMSDOOverlay", **kwargs):
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
-            "InDetSimDataCollection#" + flags.Overlay.SigPrefix + "BCM_SDO_Map"
+            f"InDetSimDataCollection#{flags.Overlay.SigPrefix}BCM_SDO_Map"
         ]))
 
     return acc

@@ -182,9 +182,9 @@ def getHLTPrescalesSetAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = HLTPrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['HLTPSK'] )
+        cfg = HLTPrescalesSetAccess( dbalias = keysFromCool["DB"], hltpskey = keysFromCool['HLTPSK'] )
     elif tc["SOURCE"] == "DB":
-        cfg = HLTPrescalesSetAccess( dbalias = tc["DBCONN"], l1pskey = tc["HLTPSK"] )
+        cfg = HLTPrescalesSetAccess( dbalias = tc["DBCONN"], hltpskey = tc["HLTPSK"] )
     elif tc["SOURCE"] == "INFILE":
         cfg = HLTPrescalesSetAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLTPS'))
     else:
@@ -214,11 +214,12 @@ def getHLTMonitoringAccess( flags = None ):
     if tc["SOURCE"] == "FILE":
         cfg = HLTMonitoringAccess( filename = getHLTMonitoringFileName( flags ) )
     elif tc["SOURCE"] == "COOL":
-        # TODO when database will be ready
-        raise NotImplementedError("Python COOL access to the HLT monitoring not yet implemented")
+        """This is the case when reconstructing the data."""
+        from RecExConfig.InputFilePeeker import inpSum
+        keysFromCool = getKeysFromCool( inpSum["run_number"] )
+        cfg = HLTMonitoringAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["SOURCE"] == "DB":
-        # TODO when database will be ready
-        raise NotImplementedError("Python DB access to the HLT monitoring not yet implemented")
+        cfg = HLTMonitoringAccess( dbalias = tc["DBCONN"], smkey = tc["SMK"] )
     elif tc["SOURCE"] == "INFILE":
         cfg = HLTMonitoringAccess(jsonString=_getJSONFromMetadata(flags, key='TriggerMenuJson_HLTMonitoring'))
     else:

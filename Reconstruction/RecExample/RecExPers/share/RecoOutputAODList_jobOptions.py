@@ -310,7 +310,6 @@ if rec.doCaloRinger():
     try:
         include ( "CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
         fullAODList += CfgItemList( "caloRingerAod", items = caloRingerAODList )
-        StreamAOD_Augmented.AddMetaDataItem( caloRingerMetaDataList )
     except Exception:
         treatException("Could not load CaloRingerAlgs/CaloRingerOutputItemList_jobOptions.py" )
 

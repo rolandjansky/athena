@@ -20,7 +20,6 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -37,7 +36,7 @@ static const int SCTELEMENTSINEL = 8;
 #include <sstream>
 
 SCT_ServMatFactoryDC2::SCT_ServMatFactoryDC2(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc>& pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "SCT_ServMatFactoryDC2"),
+  AthMessaging("SCT_ServMatFactoryDC2"),
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
   m_materialManager(nullptr)

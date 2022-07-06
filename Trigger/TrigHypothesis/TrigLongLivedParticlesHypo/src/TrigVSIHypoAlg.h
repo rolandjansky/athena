@@ -31,9 +31,10 @@ class TrigVSIHypoAlg : public ::HypoBase  {
       ToolHandleArray<TrigVSIHypoTool>                   m_hypoTools    {this, "HypoTools", {},"Tools that perform actual selection"};
       SG::ReadHandleKey<xAOD::VertexContainer>           m_verticesKey  {this, "verticesKey", "Undefined",""};
       SG::WriteHandleKey<xAOD::TrigCompositeContainer>   m_vtxCountKey  {this, "vtxCountKey", "Undefined",""};
-      Gaudi::Property<float> m_minPt  {this, "minPt",   1000., "Preselection. Accept vertices with momentum higher than this limit"};
-      Gaudi::Property<float> m_minR   {this, "minR" ,   20.,   "Preselection. Accept vertices with decay position R higher this limit"};
-      Gaudi::Property<float> m_requiredNTrks{this, "requiredNTrks", 2, "Preselection. Accept vertices with tracks more than this limit"};
+      Gaudi::Property<bool>  m_isViewBased   {this, "isViewBased",   true,    "Flag to toggle the hypo to run in a view or in whole-event level"};
+      Gaudi::Property<float> m_minPt         {this, "minPt",         1000.,   "Preselection. Accept vertices with momentum higher than this limit"};
+      Gaudi::Property<float> m_minR          {this, "minR" ,         20.,     "Preselection. Accept vertices with decay position R higher this limit"};
+      Gaudi::Property<float> m_requiredNTrks {this, "requiredNTrks", 2, "Preselection. Accept vertices with tracks more than this limit"};
       ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
 #endif

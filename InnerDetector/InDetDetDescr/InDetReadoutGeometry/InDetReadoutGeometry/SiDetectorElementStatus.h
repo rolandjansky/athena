@@ -145,6 +145,6 @@ namespace InDet {
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( InDet::SiDetectorElementStatus , 154354418 , 1 )
 
-CONDCONT_DEF( InDet::SiDetectorElementStatus, 207353830 );
+CONDCONT_MIXED_DEF( InDet::SiDetectorElementStatus, 207353830 );
 
 #endif // INDETREADOUTGEOMETRY_SIDETECTORELEMENTINFO_H

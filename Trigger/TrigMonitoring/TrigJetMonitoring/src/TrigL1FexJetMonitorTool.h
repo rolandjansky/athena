@@ -7,7 +7,7 @@
 #ifndef TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
 #define TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
 
-#include "./ITrigJetMonitorTool.h"
+#include "TrigJetMonitoring/ITrigJetMonitorTool.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -16,29 +16,24 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Header file for this templated AlgTool follows
-// Control/AthenaExamples/AthExJobOptions/src/TemplatedTool.h
-// extracts data from l1 jet containers. No monitoring code
-// specifics here.
-
-
-template<typename JetContainer>
+// Template paramter must provide a name T::JetContainer
+template<typename T>
 class TrigL1FexJetMonitorTool : virtual public AthAlgTool,
 				virtual public ITrigJetMonitorTool {
   
 public:
+  
+  typedef typename T::JetContainer JetContainer;
+    
   TrigL1FexJetMonitorTool(const std::string&,
 			  const std::string&,
 			  const IInterface*);
-  
-  // to allow access to the ITrigJetMonitorTool interface
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
-  // to resolve possible conflicts with IProperty::interfaceID()
-  static const InterfaceID& interfaceID() {
-    return ITrigJetMonitorTool::interfaceID();}
+
+  StatusCode
+  queryInterface( const InterfaceID& riid, void** ppvIf );
+
   
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   
   virtual StatusCode
   getData(const EventContext& ctx,
@@ -138,8 +133,7 @@ private:
     this, "hltetaref", "hltetaref",
     "SG key for input matched etaref decoration"};
 
-
 };
 
-#include "./TrigL1FexJetMonitorTool.icc"
-#endif // !TRIGJETMONITORING_TRIGL1JETFEXMONITORTOOL_H
+#endif
+

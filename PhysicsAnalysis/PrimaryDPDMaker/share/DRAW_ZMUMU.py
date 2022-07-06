@@ -40,6 +40,9 @@ from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
 goodMuonTool = CP__MuonSelectionTool(name = "DRAW_ZMUMU_MuonsSelector")
 goodMuonTool.MaxEta = 3.
 goodMuonTool.MuQuality = 3
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+goodMuonTool.IsRun3Geo  = CommonGeometryFlags.Run not in ["RUN1","RUN2"] 
+goodMuonTool.DisablePtCuts = True
 # turn of the momentum correction which is not needed for IDHits cut and Preselection
 goodMuonTool.TurnOffMomCorr = True
 ToolSvc += goodMuonTool

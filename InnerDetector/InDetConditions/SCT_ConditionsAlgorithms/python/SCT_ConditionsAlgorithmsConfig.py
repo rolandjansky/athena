@@ -142,9 +142,6 @@ if __name__=="__main__":
 
     algorithm = ""
 
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-    
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.Files = ["./myESD.pool.root"]

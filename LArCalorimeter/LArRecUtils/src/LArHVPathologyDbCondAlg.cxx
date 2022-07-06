@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbCondAlg.h" 
@@ -41,7 +41,7 @@ StatusCode LArHVPathologyDbCondAlg::initialize()
 {
   ATH_CHECK(m_pathologyFolderKey.initialize());
   ATH_CHECK(m_hvMappingKey.initialize());
-  ATH_CHECK(m_hvPAthologyKey.initialize());
+  ATH_CHECK(m_hvPathologyKey.initialize());
   ATH_CHECK(m_caloMgrKey.initialize());
   
   const CaloCell_ID* idHelper = nullptr;
@@ -110,7 +110,7 @@ AthenaAttributeList* LArHVPathologyDbCondAlg::hvPathology2AttrList(const LArHVPa
 
 StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
 
-  SG::WriteCondHandle<LArHVPathology > writeHandle{m_hvPAthologyKey, ctx};
+  SG::WriteCondHandle<LArHVPathology > writeHandle{m_hvPathologyKey, ctx};
 
      if (writeHandle.isValid()) {
        ATH_MSG_DEBUG("Found valid write handle");
@@ -144,9 +144,9 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
        TBufferFile buf(TBuffer::kRead, blob.size(), blob_data, false);
        LArHVPathologiesDb* hvpathdb = (LArHVPathologiesDb*)buf.ReadObjectAny(m_klass);
 
-       std::unique_ptr<LArHVPathology> hvpath=std::make_unique<LArHVPathology>(hvpathdb);
+       auto hvpath = std::make_unique<LArHVPathology>(hvpathdb);
 
-       fillElectMap(calodetdescrmgr, hvpath.get());
+       fillElectMap(calodetdescrmgr, hvpath.get(), writeHandle);
 
 
        if(writeHandle.record(std::move(hvpath)).isFailure()) {
@@ -169,7 +169,8 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
 
 void
 LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr,
-                                      LArHVPathology* hvpath) const
+                                      LArHVPathology* hvpath,
+                                      SG::WriteCondHandle<LArHVPathology>& writeHandle) const
 {
   SG::ReadCondHandle<LArHVIdMapping> cHdl{m_hvMappingKey};
   const LArHVIdMapping* hvCabling = *cHdl;
@@ -177,6 +178,7 @@ LArHVPathologyDbCondAlg::fillElectMap(const CaloDetDescrManager* calodetdescrmgr
      ATH_MSG_WARNING("Do not have HV mapping, will not fill LArHVPathology electIndMap !!!");
      return;
   }
+  writeHandle.addDependency (cHdl);
 
   std::lock_guard<std::mutex> lock(m_mut);
 

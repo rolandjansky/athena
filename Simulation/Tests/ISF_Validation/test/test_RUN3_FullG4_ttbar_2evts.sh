@@ -2,6 +2,8 @@
 #
 # art-description: MC21-style simulation using FullG4 (13 TeV ttbar input - needs updating)
 # art-type: build
+# art-include: 22.0/Athena
+# art-include: 22.0/AthSimulation
 # art-include: master/Athena
 # art-include: master/AthSimulation
 

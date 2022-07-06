@@ -1,0 +1,102 @@
+# 
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+
+
+##############################################################################
+############################### SiT histograms ###############################
+##############################################################################
+
+###### Tracks vs LB ######
+
+# All
+Input: [ 'AFP/SiT/TracksVsLb/lbTracksAll_(?P<station>[far|near]*[AC]side)', 'AFP/SiT/Aux/NumberOfEventsPerLumiblock' ]
+Output: [ 'AFP/SiT/PP/TrackFME/lbTracksAll_vs_lb_{station}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: TrackAll
+
+---
+
+# Front, Middle, End
+Input: [ 'AFP/SiT/TracksVsLb/(?P<fme>Front|Middle|End)/lbTracks(?P=fme)_(?P<station>[far|near]*[AC]side)', 'AFP/SiT/Aux/numberOfEventsPerLumiblock(?P<fme>Front|Middle|End)' ]
+Output: [ 'AFP/SiT/PP/TrackFME/{fme}/lbTracks{fme}_vs_lb_{station}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: TrackFME
+
+---
+
+###### Occupancy vs LB ######
+
+Input: [ 'AFP/SiT/HitsPerPlanesVsLb/lbHitsPerPlanes_(?P<station>[far|near]*[AC]side)_(?P<plane>P[0123])', 'AFP/SiT/Aux/NumberOfEventsPerLumiblock' ]
+Output: [ 'AFP/SiT/PP/HitOccupancy/Occupancy_vs_lb/Occupancy_vs_lb_{station}_{plane}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: TimeOccupancy
+
+---
+
+###### Plane Occupancy ######
+
+Input: [ 'AFP/SiT/HitsPerPlanes/planeHitsAllMU', 'AFP/SiT/Aux/eventsPerStation' ]
+Output: [ 'AFP/SiT/PP/HitOccupancy/PlaneOccupancy/OccupancyAllMU' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: OccupancyAllMU0
+
+---
+
+###### Clusters per Plane ######
+
+# All
+Input: [ 'AFP/SiT/ClustersPerPlanesPP/lbClustersPerPlanes_(?P<station>[far|near]*[AC]side)_(?P<plane>P[0123])', 'AFP/SiT/Aux/NumberOfEventsPerLumiblock' ]
+Output: [ 'AFP/SiT/PP/ClustersFME/{station}_{plane}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: ClustersAll
+
+---
+
+# Front, Middle, End
+Input: [ 'AFP/SiT/ClustersPerPlanesPP/(?P<fme>Front|Middle|End)/clustersPerPlane(?=Front|Middle|End)(?P<fme_letter>[FME])(ront|iddle|nd)PP_(?P<station>[far|near]*[AC]side)_(?P<plane>P[0123])', 'AFP/SiT/Aux/numberOfEventsPerLumiblock(?P<fme>Front|Middle|End)' ]
+Output: [ 'AFP/SiT/PP/ClustersFME/{fme}/{fme_letter}-{station}_{plane}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: ClustersFME
+
+---
+
+##############################################################################
+############################### ToF histograms ###############################
+##############################################################################
+
+###### ToF hits divided by ToF events ######
+
+Input: [ 'AFP/ToF/StationHits/ToFHits_side(?P<side>A|C)', 'AFP/ToF/Events/lb(?P<side>A|C)ToFEvents' ]
+Output: [ 'AFP/ToF/PP/HitsByEvents/HitsByEvents_side{side}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: HitsByEvents
+
+---
+
+###### ToFHitsVsLbByEvents ######
+
+### Per bar ###
+
+Input: [ 'AFP/ToF/ToFHitsVsLb/side(?P<side>A|C)/lb(?P=side)ToF_(?P<train>T[0123])_(?P<bar>[ABCD])', 'AFP/ToF/Events/lb(?P<side>A|C)ToFEvents' ]
+Output: [ 'AFP/ToF/PP/ToFHitsVsLbByEvents/side{side}/lb{side}ToF_{train}_{bar}_Vs_Events' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: lbToF_train_bar_Vs_Events
+
+---
+
+### Per train (A+B+C+D) ###
+
+# All
+Input: [ 'AFP/ToF/ToFHitsVsLb/side(?P<side>A|C)/All/lb(?P=side)ToF_(?P<train>T[0123])', 'AFP/ToF/Events/lb(?P<side>A|C)ToFEvents' ]
+Output: [ 'AFP/ToF/PP/ToFHitsVsLbByEvents/side{side}/All/lb{side}ToF_{train}_Vs_Events' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: lbToF_train_Vs_Events_All
+
+---
+
+# Front, Middle, End
+Input: [ 'AFP/ToF/ToFHitsVsLb/side(?P<side>A|C)/(?P<fme>Front|Middle|End)/lb(?P=side)ToF_(?P<train>T[0123])_(?P=fme)', 'AFP/ToF/Events/lb(?P<side>A|C)ToFEvents' ]
+Output: [ 'AFP/ToF/PP/ToFHitsVsLbByEvents/side{side}/{fme}/lb{side}ToF_{train}_Vs_Events_{fme}' ]
+Function: histgrinder.example.transform_function_divide_ROOT
+Description: lbAToF_train_Vs_Events_FME

@@ -12,10 +12,11 @@
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 // Trk
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExUtils/MaterialInteraction.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
 // STL
 #include <utility>
 

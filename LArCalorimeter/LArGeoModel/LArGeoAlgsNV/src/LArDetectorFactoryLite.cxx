@@ -35,7 +35,7 @@ LArGeo::LArDetectorFactoryLite::LArDetectorFactoryLite(StoreGateSvc* detStore
 						       , IRDBAccessSvc* paramSvc
 						       , GeoModelIO::ReadGeoModel* sqliteReader
 						       , const LArHVManager* hvManager)
-  : AthMessaging(Athena::getMessageSvc(), "LArDetectorFactoryLite")
+  : AthMessaging("LArDetectorFactoryLite")
   , m_detectorManager(nullptr)
   , m_detStore(detStore)
   , m_paramSvc(paramSvc)

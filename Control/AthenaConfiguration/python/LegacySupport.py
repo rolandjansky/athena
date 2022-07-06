@@ -348,9 +348,9 @@ def conf2toConfigurable( comp, indent="", parent="", suppressDupes=False ):
 
 
 def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
-    """
-    Temporarily available method allowing to merge CA into the configurations based on Configurable classes
-    """
+    """Execute the cfgFunc CA with the given flags and arguments and run appendCAtoAthena.
+    Return the result of cfgFunc."""
+
     if not callable(cfgFunc):
         raise TypeError("CAtoGlobalWrapper must be called with a configuration-function as parameter")
 
@@ -362,7 +362,7 @@ def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
             ca = result
 
     appendCAtoAthena(ca)
-
+    return result
 
 def appendCAtoAthena(ca):
     from AthenaCommon.AppMgr import (ServiceMgr, ToolSvc, theApp,
@@ -417,6 +417,8 @@ def appendCAtoAthena(ca):
         return seq
 
     def _mergeSequences( currentConfigurableSeq, conf2Sequence, indent="" ):
+        """Merge conf2sequence into currentConfigurableSeq"""
+
         sequence = CFElements.findSubSequence( currentConfigurableSeq, conf2Sequence.name )
         if not sequence:
             sequence = _fetchOldSeq( conf2Sequence.name )
@@ -438,6 +440,13 @@ def appendCAtoAthena(ca):
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
 
     for seq in ca._allSequences:
+
+        # For legacy (serial) support, the AthAlgSeq needs to be mapped into TopAlg
+        # because that's where old-style job options add their algorithms.
+        # Otherwise we can end up with the wrong order, see e.g. ATLASRECTS-7078.
+        if seq.getName() == "AthAlgSeq":
+            seq.name = "TopAlg"
+
         merged = False
         for pre in preconfigured:
             if seq.getName() == pre.getName():

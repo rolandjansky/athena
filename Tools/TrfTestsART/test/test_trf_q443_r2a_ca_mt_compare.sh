@@ -46,14 +46,26 @@ cd ..
 #echo "art-result: ${fpeStat} FPEs in logfiles"
 
 echo "============ checkxAOD myAOD_ca.pool.root"
-checkxAOD ca/myAOD_ca.pool.root
+checkxAOD ca/myAOD_ca.pool.root | tee myAOD_ca_checkxAOD.txt
 rc3=$?
 echo "art-result: ${rc3} checkxAOD myAOD_ca.pool.root" 
 
 echo "============ checkxAOD myAOD_def.pool.root"
-checkxAOD def/myAOD_def.pool.root
+checkxAOD def/myAOD_def.pool.root | tee myAOD_def_checkxAOD.txt
 rc4=$?
 echo "art-result: ${rc4} checkxAOD myAOD_def.pool.root" 
+
+# Extract the content between the "-----" lines to get the file content, then sort
+sed '1,/-----/d;/-----/,$d' myAOD_ca_checkxAOD.txt  | awk '{print $9}' | sort > sorted_xAOD_content_ca.txt
+sed '1,/-----/d;/-----/,$d' myAOD_def_checkxAOD.txt  | awk '{print $9}' | sort > sorted_xAOD_content_def.txt
+
+# Now compare
+echo "============ Compare file content:"
+echo "Present only in AOD made with CA, and not in ref (old-config):"
+comm -23 sorted_xAOD_content_ca.txt sorted_xAOD_content_def.txt
+echo
+echo "Present only in ref (old-config), not in AOD made with CA:"
+comm -13 sorted_xAOD_content_ca.txt sorted_xAOD_content_def.txt
 
 echo "============ xAODDigest.py --extravars myAOD_ca.pool.root"
 xAODDigest.py --extravars ca/myAOD_ca.pool.root myAOD_ca.txt

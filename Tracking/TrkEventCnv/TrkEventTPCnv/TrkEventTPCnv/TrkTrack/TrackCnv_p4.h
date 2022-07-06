@@ -18,6 +18,7 @@
 
 #include "TrkEventTPCnv/TrkTrack/TrackStateOnSurfaceCnv_p3.h"
 
+#include "AthContainers/ConstDataVector.h"
 class MsgStream;
 
 class TrackCnv_p4: public T_AthenaPoolTPCnvBase<Trk :: Track,
@@ -32,8 +33,9 @@ public:
 
   virtual void  initPrivateConverters( AthenaPoolTopLevelTPCnvBase *topCnv )
   {
-      // std::cout<<"initPrivateConverters for TrackCnv_p4="<<this<<" with topCnv="<<topCnv<<" and tscnv="<<m_trackSummaryCnv<<std::endl;
+    // std::cout<<"initPrivateConverters for TrackCnv_p4="<<this<<" with topCnv="<<topCnv<<" and tscnv="<<m_trackSummaryCnv<<std::endl;
    m_trackStateVectorCnv.setTopConverter( topCnv, 0 );
+   m_multiStateVectorCnv.setTopConverter( topCnv, 0 );
    // m_trackSummaryCnv.setTopConverter( topCnv, 0);
 
   }
@@ -44,6 +46,13 @@ protected:
     TrackStateOnSurfaceCnv_p3 >   TrackStateOSVectorCnv_p3;
     
   TrackStateOSVectorCnv_p3       m_trackStateVectorCnv;
+
+  typedef T_AthenaPoolTPPtrVectorCnv<TrkMultiComponentStateOnSurfaceDV,
+    std::vector<TPObjRef>,
+    MultiComponentStateOnSurfaceCnv_p1 >   MultiStateOSVectorCnv_p1;
+
+  MultiStateOSVectorCnv_p1  m_multiStateVectorCnv;
+ 
 };
 
 #endif // TRACK_CNV_P3_H

@@ -2,9 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "./DataStructs.h"
 #include "TrigL1FexJetMonitorAlgorithm.h"
-#include "TrigL1FexJetMonitorTool.h"
-
 #include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <vector>
@@ -16,6 +15,13 @@ TrigL1FexJetMonitorAlgorithm::TrigL1FexJetMonitorAlgorithm( const std::string& n
 TrigL1FexJetMonitorAlgorithm::~TrigL1FexJetMonitorAlgorithm() {}
 
 StatusCode TrigL1FexJetMonitorAlgorithm::initialize() {
+
+  // verify that the tool handle is pointing to an accessible tool
+  if ( m_filler.retrieve().isFailure() ) {
+    ATH_MSG_FATAL ("Failed to retrieve " << m_filler);
+    return StatusCode::FAILURE;
+  }
+
   return   AthMonitorAlgorithm::initialize();
 }
 
@@ -32,7 +38,7 @@ StatusCode TrigL1FexJetMonitorAlgorithm::fillHistograms(const EventContext& ctx)
   auto groupTool = getGroup(m_groupName);
     
   for (const auto& jd : jetData) {
-    Monitored::Scalar<float> et{"et", jd.m_et};
+    Monitored::Scalar<float> et{jd.m_et_label, jd.m_et};
     Monitored::Scalar<float> eta{"eta", jd.m_eta};
     Monitored::Scalar<float> phi{"phi", jd.m_phi};
     

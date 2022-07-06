@@ -103,8 +103,7 @@ public:
   ParametersT<DIM, T, S>& operator=(const ParametersT<DIM, T, S>& rhs);
 
   /** Move assignment operator */
-  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept =
-    default;
+  ParametersT<DIM, T, S>& operator=(ParametersT<DIM, T, S>&& rhs) noexcept = default;
 
   //** Destructor */
   virtual ~ParametersT() = default;
@@ -145,6 +144,10 @@ public:
 
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;
+  
+    /**Dumps relevant information about the track parameters into the ostream.*/
+  virtual MsgStream& dump(MsgStream& out) const override final;
+  virtual std::ostream& dump(std::ostream& out) const override final;
 
 private:
   /* Helper to factor in update of parameters*/

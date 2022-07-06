@@ -372,7 +372,7 @@ void MetaDataSvc::handle(const Incident& inc) {
 
 //__________________________________________________________________________
 // This method is currently called only from OutputStreamSequencerSvc
-StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn)
+StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn, bool disconnect)
 {
    ATH_MSG_DEBUG("transitionMetaDataFile: " << outputConn );
 
@@ -380,20 +380,20 @@ StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn)
    FileIncident inc("transitionMetaDataFile", "EndInputFile", "dummyMetaInputFileName", "");
    ATH_CHECK(retireMetadataSource(inc));
 
-   // Make sure metadata is ready for writing
-   ATH_CHECK(this->prepareOutput());
+   // Reset flag to allow calling prepareOutput again at next transition
+   m_outputPreprared = false;
 
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
 
-   AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
-   if (cnvSvc) {
-      if (!cnvSvc->disconnectOutput(outputConn).isSuccess()) {
-         ATH_MSG_WARNING("Cannot get disconnect Output Files");
+   if( disconnect ) {
+      AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
+      if (cnvSvc) {
+         if (!cnvSvc->disconnectOutput(outputConn).isSuccess()) {
+            ATH_MSG_WARNING("Cannot get disconnect Output Files");
+         }
       }
    }
-   // Reset flag to allow calling prepareOutput again at next transition
-   m_outputPreprared = false;
 
    return(StatusCode::SUCCESS);
 }

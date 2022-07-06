@@ -17,7 +17,7 @@ namespace MuonPRDTest {
         if (!MuonDetMgr) { return false; }
         SG::ReadHandle<CscSimDataCollection> cscSdoContainer{m_key, ctx};
         if (!cscSdoContainer.isValid()) {
-            ATH_MSG_FATAL("Failed to retrive digit container " << m_key.fullKey());
+            ATH_MSG_FATAL("Failed to retrieve digit container " << m_key.fullKey());
             return false;
         }
         unsigned int n_sdo{0};
@@ -40,7 +40,10 @@ namespace MuonPRDTest {
             m_csc_sdo_word.push_back( csc_sdo.word() );
 
             const MuonGM::CscReadoutElement* rdoEl = MuonDetMgr->getCscReadoutElement(id);
-            if (!rdoEl) return false;
+            if (!rdoEl) {
+                ATH_MSG_ERROR("CSCSDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for " << idHelperSvc()->toString(id));
+                return false;
+            }
 
             Amg::Vector2D hit_on_surface(truth_localPosX, truth_localPosY);
             Amg::Vector3D hit_gpos(0., 0., 0.);

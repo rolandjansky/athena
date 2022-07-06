@@ -33,7 +33,14 @@ def createDigitizationCfgFlags():
     flags = AthConfigFlags()
     # Digitization Steering - needed for easy comparison with the
     # old-style configuration, but can potentially drop
-    flags.addFlag("Digitization.DigiSteeringConf", "StandardPileUpToolsAlg")
+    def _checkDigiSteeringConf(prevFlags):
+        digiSteeringConf = "StandardPileUpToolsAlg"
+        if prevFlags.Input.Files:
+            from AthenaConfiguration.AutoConfigFlags import GetFileMD
+            digiSteeringConf = GetFileMD(prevFlags.Input.Files).get("digiSteeringConf", "StandardPileUpToolsAlg")
+        return digiSteeringConf
+
+    flags.addFlag("Digitization.DigiSteeringConf", _checkDigiSteeringConf)
     # Run Inner Detector noise simulation
     flags.addFlag("Digitization.DoInnerDetectorNoise", True)
     # Run pile-up digitization on one bunch crossing at a time?

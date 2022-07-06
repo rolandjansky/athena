@@ -16,7 +16,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "TMath.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
@@ -88,6 +87,8 @@ LArRODMonAlg::initialize() {
 
   ATH_CHECK(m_bcContKey.initialize());
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   // Open output files for DspTest
   std::ofstream fai;
@@ -171,7 +172,7 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
   int nStreams = m_streams.size();
    //  if ((nStreams == 1 && m_streams[0] == "all") || nStreams <= 0) selectstreams = false; 
  
-  lb = GetEventInfo(ctx)->lumiBlock(); 
+  lb = thisEventInfo->lumiBlock(); 
   
   //Fixme: Use LArTrigStreamMatching also here.
   const int streamsize = nStreams + 1;

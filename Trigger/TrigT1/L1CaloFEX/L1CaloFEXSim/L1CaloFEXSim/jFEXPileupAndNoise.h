@@ -69,8 +69,6 @@ protected:
         int m_FPGA_ET_forward_EM[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]={{0}};
         int m_FPGA_ET_forward_HAD[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]={{0}};
         
-        
-
         //rho variables for the pileup
         float m_rho_EM   = 0; //for eta < 3.2
         float m_rho_HAD1 = 0; //for eta < 1.5
@@ -107,8 +105,8 @@ protected:
         
         //Noise values applied
         // It should be 0 GeV and 1 GeV in firmware LSB scale (bitwise is using MeV right now, CHANGE IF NEEDED!)
-        int m_et_low  = 0;
-        int m_et_high = 1000.;
+        int m_et_low  = 100;
+        int m_et_high = 1000;
         
         
         std::unordered_map<int,std::vector<int> > m_map_Etvalues_EM;

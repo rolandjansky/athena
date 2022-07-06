@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for DetailedTrackTruthCollection.
@@ -19,8 +19,8 @@
 #include "TrackTruthCollectionAccessor.h"
 
 namespace {
-  DataLinkCnv_p1<DataLink<TrackCollection> > dataLinkConverter;
-  DetailedTrackTruthCnv_p1 detailedTruthConverter;
+  const DataLinkCnv_p1<DataLink<TrackCollection> > dataLinkConverter;
+  const DetailedTrackTruthCnv_p1 detailedTruthConverter;
 }
 
 void DetailedTrackTruthCollectionCnv_p1::persToTrans( const Trk::DetailedTrackTruthCollection_p1* pers,

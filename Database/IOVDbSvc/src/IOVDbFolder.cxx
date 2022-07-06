@@ -33,7 +33,6 @@
 #include "CoraCool/CoraCoolObject.h"
 #include "CoraCool/CoraCoolObjectIter.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/AthenaAttrListAddress.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -75,7 +74,7 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
                          IClassIDSvc* clidsvc, IIOVDbMetaDataTool* metadatatool,
                          const bool checklock, const bool outputToFile,
                          const std::string & source):
-  AthMessaging(Athena::getMessageSvc(), "IOVDbFolder"),
+  AthMessaging("IOVDbFolder"),
   p_clidSvc(clidsvc),
   p_metaDataTool(metadatatool),
   m_conn(conn),

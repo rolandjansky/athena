@@ -16,7 +16,7 @@
 #include "H5File.h"
 #include "H5Group.h"
 
-static const char* const fmt_oid = "[OID=%08lX%08lX-%08lX%08lX]";
+static const char* const fmt_oid = "[OID=%08lX%08lX-%016llX]";
 static const char* const fmt_aux = "[AUX=%08lX]";
 
 //___________________________________________________________________________
@@ -75,7 +75,7 @@ StatusCode AthenaHDFStreamTool::makeClient(int num, std::string& /*streamPortSuf
    ATH_MSG_INFO("AthenaHDFStreamTool::makeClient: " << num);
 
    if (num > 0) {
-      m_file = new H5::H5File( "test.h5", H5F_ACC_TRUNC );
+      m_file = new H5::H5File( "test.h5", H5F_ACC_TRUNC ); //FIXME, hardcoded filename
       m_group = new H5::Group(m_file->createGroup("data"));
    } else {
       m_file = new H5::H5File( "test.h5", H5F_ACC_RDONLY );
@@ -102,7 +102,7 @@ StatusCode AthenaHDFStreamTool::getLockedEvent(void** target, unsigned int&/* st
    const std::string dh_entry = "POOLContainer(DataHeader)_entry";
    H5::DataSet dataset = m_group->openDataSet(dh_entry);
    if (m_event_iter + 1 >= dataset.getInMemDataSize()/8) { // End of File
-      FileIncident endFileIncident(name(), "EndInputFile", "HDF:test.h5");
+      FileIncident endFileIncident(name(), "EndInputFile", "HDF:test.h5"); //FIXME, hardcoded filename
       m_incidentSvc->fireIncident(endFileIncident);
       ATH_MSG_INFO("AthenaHDFStreamTool::getLockedEvent: no more events = " << m_event_iter);
       return(StatusCode::FAILURE);
@@ -118,9 +118,7 @@ StatusCode AthenaHDFStreamTool::getLockedEvent(void** target, unsigned int&/* st
    std::size_t nbytes = ds_data[1] - ds_data[0];
    m_token = "[DB=00000000-0000-0000-0000-000000000000][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000401]";
    char text[64];
-   std::size_t secondU = m_event_iter >> 32;
-   std::size_t secondL = m_event_iter & 0xFFFFFFFF;
-   sprintf(text, fmt_oid, 0ul, secondU, nbytes, secondL);
+   sprintf(text, fmt_oid, 0ul, nbytes, m_event_iter);
    text[40] = 0;
    m_token += text;
 
@@ -136,7 +134,7 @@ StatusCode AthenaHDFStreamTool::lockEvent(long eventNumber) const {
    ATH_MSG_VERBOSE("AthenaHDFStreamTool::lockEvent: " << eventNumber);
    m_event_iter = eventNumber;
    if (eventNumber == 0) {
-      FileIncident beginFileIncident(name(), "BeginInputFile", "HDF:test.h5");
+      FileIncident beginFileIncident(name(), "BeginInputFile", "HDF:test.h5"); //FIXME, hardcoded filename
       m_incidentSvc->fireIncident(beginFileIncident);
    }
    return(StatusCode::SUCCESS);
@@ -178,7 +176,6 @@ StatusCode AthenaHDFStreamTool::putObject(const void* source, std::size_t nbytes
    }
 
 // Write Payload data
-//   std::vector<char> write_data(static_cast<const char*>(source), static_cast<const char*>(source) + nbytes);
    if (!m_group->exists(ds_name)) { //if dataset doesn't exist, create it otherwise extend it
       const hsize_t maxdim[1] = {H5S_UNLIMITED};
       const hsize_t ds_size[1] = {nbytes};
@@ -213,22 +210,19 @@ StatusCode AthenaHDFStreamTool::putObject(const void* source, std::size_t nbytes
    }
    if (m_token.find("[OID=") == std::string::npos) { // Core object
       char text[64];
-      std::size_t secondU = positionCount >> 32;
-      std::size_t secondL = positionCount & 0xFFFFFFFF;
-      sprintf(text, fmt_oid, 0ul, secondU, nbytes, secondL);
+      sprintf(text, fmt_oid, 0ul, nbytes, positionCount);
       text[40] = 0;
       m_token += text;
    } else {
       char text[64];
       std::size_t firstU, firstL;
-      std::size_t secondU, secondL;
-      ::sscanf(m_token.substr(m_token.find("[OID="), 40).c_str(), fmt_oid, &firstU, &secondU, &firstL, &secondL);
-      long long unsigned int second = ((long long unsigned int)(secondU) << 32) + secondL;
-      if (firstU == 0ul) {
+      long long unsigned int second;
+      ::sscanf(m_token.substr(m_token.find("[OID="), 40).c_str(), fmt_oid, &firstU, &firstL, &second);
+      if (firstU == 0ul) { //FIXME1
          firstU = firstL; // Keep Core object size
       }
       firstL = positionCount + nbytes - second;
-      sprintf(text, fmt_oid, firstU, secondU, firstL, secondL);
+      sprintf(text, fmt_oid, firstU, firstL, second); // FIXME
       text[40] = 0;
       m_token.replace(m_token.find("[OID="), 39, text);
    }
@@ -326,9 +320,8 @@ StatusCode AthenaHDFStreamTool::getObject(void** target, std::size_t& nbytes, in
    std::string oid_name = m_token.substr(m_token.find("[OID="));
    oid_name = oid_name.substr(0, oid_name.find("]") + 1);
    std::size_t firstU, firstL;
-   std::size_t secondU, secondL;
-   ::sscanf(oid_name.c_str(), fmt_oid, &firstU, &secondU, &firstL, &secondL);
-   long long unsigned int second = ((long long unsigned int)(secondU) << 32) + secondL;
+   long long unsigned int second;
+   ::sscanf(oid_name.c_str(), fmt_oid, &firstU, &firstL, &second);
    if (m_read_size > m_read_position + 15) { // aux store data already read
       std::size_t aux_size = 0;
       ::sscanf(m_read_data + m_read_position, fmt_aux, &aux_size);
@@ -337,7 +330,7 @@ StatusCode AthenaHDFStreamTool::getObject(void** target, std::size_t& nbytes, in
       nbytes = aux_size;
       m_read_position += nbytes;
       char text[64];
-      sprintf(text, fmt_oid, m_read_position, secondU, firstL, secondL);
+      sprintf(text, fmt_oid, m_read_position, firstL, second); // FIXME
       text[40] = 0;
       m_token.replace(m_token.find("[OID="), 39, text);
       return(StatusCode::SUCCESS);
@@ -351,9 +344,9 @@ StatusCode AthenaHDFStreamTool::getObject(void** target, std::size_t& nbytes, in
    if (entry_name == "DataHeader") {
       if (clid_name == "7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD") { // DataHeaderForm Token is copied from DataHeader, change container name
          ds_name.replace(ds_name.find("(DataHeader)"), 12, "Form(DataHeaderForm)");
-         second = 0;//m_event_iter; //FIXME, store real DHF id somewhere...
+         second = m_event_iter; //FIXME, store real DHF id somewhere...
       } else if (clid_name == "00000000-0000-0000-0000-000000000000") { // Return DataHeader Token, for createAddress
-         if (secondU > 0) {
+         if (firstL > 0) { //FIXME1
             m_token.clear();
          } else {
             m_token.replace(m_token.find("[CLID="), 43, "[CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]");
@@ -378,7 +371,7 @@ StatusCode AthenaHDFStreamTool::getObject(void** target, std::size_t& nbytes, in
       H5::DataSpace memspace(1, mem_size);
       long long unsigned int ds_data[2] = {0, 0};
       dataset.read(ds_data, H5::PredType::NATIVE_ULLONG, memspace, filespace);
-      firstL = ds_data[1] - ds_data[0];
+      firstL = ds_data[1] - ds_data[0]; //FIXME1
       second = ds_data[0];
    }
 
@@ -410,9 +403,8 @@ StatusCode AthenaHDFStreamTool::getObject(void** target, std::size_t& nbytes, in
 //___________________________________________________________________________
 StatusCode AthenaHDFStreamTool::clearObject(const char** tokenString, int&/* num*/) const {
    std::size_t firstU, firstL;
-   std::size_t secondU, secondL;
-   ::sscanf(m_token.substr(m_token.find("[OID="), 40).c_str(), fmt_oid, &firstU, &secondU, &firstL, &secondL);
-
+   long long unsigned int second;
+   ::sscanf(m_token.substr(m_token.find("[OID="), 40).c_str(), fmt_oid, &firstU, &firstL, &second);
    std::string ds_name = m_token.substr(m_token.find("[CNT=") + 5);
    ds_name = ds_name.substr(0, ds_name.find("]"));
    while (ds_name.find("/") != std::string::npos) { ds_name = ds_name.replace(ds_name.find("/"), 1, "_"); }
@@ -422,7 +414,6 @@ StatusCode AthenaHDFStreamTool::clearObject(const char** tokenString, int&/* num
       char text[64];
       sprintf(text, fmt_aux, firstU);
       text[15] = 0;
-
       H5::DataSet dataset = m_group->openDataSet(ds_name);
       const hsize_t offset[1] = {dataset.getInMemDataSize()};
       const hsize_t ds_size[1] = {offset[0] + 15};
@@ -434,9 +425,15 @@ StatusCode AthenaHDFStreamTool::clearObject(const char** tokenString, int&/* num
       dataset.write(text, H5::PredType::NATIVE_CHAR, memspace, filespace);
       firstL += 15;
       firstU = 1ul;
-      sprintf(text, fmt_oid, firstU, secondU, firstL, secondL);
+      sprintf(text, fmt_oid, firstU, firstL, second); // FIXME
       text[40] = 0;
       m_token.replace(m_token.find("[OID="), 39, text);
+   }
+   // Return an empty token string for DataHeaderForm, to indicate HDF5 can't update DataHeader after it was written.
+   std::string entry_name = ds_name.substr(ds_name.find("(") + 1);
+   entry_name = entry_name.substr(0, entry_name.find(")"));
+   if (entry_name == "DataHeaderForm") {
+      m_token.clear();
    }
    *tokenString = m_token.c_str();
    return(StatusCode::SUCCESS);

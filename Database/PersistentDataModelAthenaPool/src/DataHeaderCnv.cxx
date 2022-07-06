@@ -228,7 +228,12 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
          ATH_MSG_FATAL("Failed to write " << dhFormType.Name());
          return(StatusCode::FAILURE);
       }
-      dhForm->setToken(dhf_token->toString());
+      if (dhf_token->technology() != 0) { // Only store DHF token if technology allows it to be appended to DH
+         dhForm->setToken(dhf_token->toString());
+      } else { // Otherwise keep string empty to cause DHF reading via DH token
+         ATH_MSG_DEBUG("Technology does not support setting DHF token for: " << dh_token->toString());
+         dhForm->setToken("");
+      }
       dhf_token->release(); dhf_token = nullptr;
       // Update DH with the new Form Ref
       persObj->setDhFormToken(dhForm->getToken());
@@ -319,7 +324,7 @@ std::unique_ptr<DataHeader_p6> DataHeaderCnv::poolReadObject_p6()
       // we need to read a new DHF
       void* voidPtr2 = nullptr;
       Token mapToken;
-      if( dhFormToken.empty() ) {
+      if( dhFormToken.empty() ) { // Some technologies can't set DHF token, use DH token with new CLID.
          m_i_poolToken->setData(&mapToken);
          mapToken.setClassID( Guid("7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD") );
       } else {

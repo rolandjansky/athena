@@ -1,0 +1,1 @@
+/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/DAOD_PHYS/p5169/mc21_13p6TeV.601237.PhPy8EG_A14_ttbar_hdamp258p75_allhad.deriv.DAOD_PHYS.e8357_s3775_r13504_p5169/DAOD_PHYS.29453689._001003.pool.root.1

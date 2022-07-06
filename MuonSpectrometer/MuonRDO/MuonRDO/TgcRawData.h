@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_TGCRAWDATA_H
@@ -25,6 +25,7 @@ public:
     friend class TgcRawDataCnv_p1;
     friend class TgcRawDataCnv_p2;
     friend class TgcRawDataCnv_p3;
+    friend class TgcRawDataCnv_p4;
 
     enum SlbType
     {
@@ -43,17 +44,23 @@ public:
         TYPE_TRACKLET,
         TYPE_HIPT,
         TYPE_SL,
+        TYPE_INNER,
+        TYPE_INNER_NSW,
+        TYPE_INNER_BIS,
+        TYPE_INNER_EIFI,
+        TYPE_INNER_TMDB,
         TYPE_UNKNOWN
     };
 
     // Default constructor
     TgcRawData()
     {
-        clear(0, 0, 0, 0, 0, 0, 0);
+      clear(0, 0, 0, 0, 0);
+      clear(0, 0, 0, 0, 0, 0, 0);
     }
 
     // P1 ------------------------
-    // Constructor for Hit
+    // Constructor for Hit : 8
     TgcRawData(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -63,7 +70,7 @@ public:
                uint16_t bcId,
                uint16_t bitpos);
 
-    // Constructor for Trigger Coincidence
+    // Constructor for Trigger Coincidence : 11
     TgcRawData(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -77,7 +84,7 @@ public:
                int16_t delta);
 
     // P2 ------------------------
-    // Hits
+    // Hits : 11
     TgcRawData(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -90,7 +97,7 @@ public:
                uint16_t tracklet,
                uint16_t channel);
 
-    // Tracklets
+    // Tracklets : 12
     TgcRawData(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -104,7 +111,7 @@ public:
                uint16_t sub,
                uint16_t rphi);
 
-    // High pT
+    // High pT : 15
     TgcRawData(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -121,7 +128,7 @@ public:
                int16_t delta,
                uint16_t inner);
 
-    // Sector logic
+    // Sector logic : 14 -> could be ambiguous with NSW 
     TgcRawData(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -137,6 +144,74 @@ public:
                bool veto,
                uint16_t roi);
 
+    // New Sector logic
+    // RoI : 12
+    TgcRawData(uint16_t bcTag,
+               uint16_t subDetectorId,
+               uint16_t rodId,
+               uint16_t l1Id,
+               uint16_t bcId,
+               bool forward,
+               uint16_t sector,
+               uint16_t innerflag,
+               uint16_t coinflag,
+               bool muplus,
+               uint16_t threshold,
+               uint16_t roi);
+
+    // NSW : 14
+    TgcRawData(uint16_t bcTag,
+               uint16_t subDetectorId,
+               uint16_t rodId,
+               uint16_t l1Id,
+               uint16_t bcId,
+               bool forward,
+               uint16_t sector,
+               uint16_t nsweta,
+               uint16_t nswphi,
+               uint16_t nswcand,
+               uint16_t nswdtheta,
+               uint16_t nswphires,
+               uint16_t nswlowres,
+               uint16_t nswid);
+
+    // RPC BIS78 : 12
+    TgcRawData(uint16_t bcTag,
+               uint16_t subDetectorId,
+               uint16_t rodId,
+               uint16_t l1Id,
+               uint16_t bcId,
+               bool forward,
+               uint16_t sector,
+               uint16_t rpceta,
+               uint16_t rpcphi,
+               uint16_t rpcflag,
+               uint16_t rpcdeta,
+               uint16_t rpcdphi);
+
+    // EIFI : 10
+    TgcRawData(uint16_t bcTag,
+               uint16_t subDetectorId,
+               uint16_t rodId,
+               uint16_t l1Id,
+               uint16_t bcId,
+               bool forward,
+               uint16_t sector,
+               uint16_t ei,
+               uint16_t fi,
+               uint16_t cid); // chamber ID
+    
+    // TMDB : 9
+    TgcRawData(uint16_t bcTag,
+               uint16_t subDetectorId,
+               uint16_t rodId,
+               uint16_t l1Id,
+               uint16_t bcId,
+               bool forward,
+               uint16_t sector,
+               uint16_t mod,
+               uint16_t bcid);
+    
     // Destructor
     virtual ~TgcRawData()
     {
@@ -286,6 +361,86 @@ public:
     {
         return m_roi;
     }
+    uint16_t innerflag() const
+    {
+        return m_innerflag;
+    }
+    uint16_t coinflag() const
+    {
+        return m_coinflag;
+    }
+    uint16_t nsweta() const
+    {
+        return m_nsweta;
+    }
+    uint16_t nswphi() const
+    {
+        return m_nswphi;
+    }
+    uint16_t nswsl() const
+    {
+        return m_nswsl;
+    }
+    uint16_t nswcand() const
+    {
+        return m_nswcand;
+    }
+    uint16_t nswdtheta() const
+    {
+        return m_nswdtheta;
+    }
+    uint16_t nswphires() const
+    {
+        return m_nswphires;
+    }
+    uint16_t nswlowres() const
+    {
+        return m_nswlowres;
+    }
+    uint16_t nswid() const
+    {
+        return m_nswid;
+    }
+    uint16_t rpceta() const
+    {
+        return m_rpceta;
+    }
+    uint16_t rpcphi() const
+    {
+        return m_rpcphi;
+    }
+    uint16_t rpcflag() const
+    {
+        return m_rpcflag;
+    }
+    uint16_t rpcdeta() const
+    {
+        return m_rpcdeta;
+    }
+    uint16_t rpcdphi() const
+    {
+        return m_rpcdphi;
+    }
+    uint16_t ei() const
+    {
+        return m_ei;
+    }
+    uint16_t fi() const
+    {
+        return m_fi;
+    }
+    uint16_t cid() const
+    {
+        return m_cid;
+    }
+    uint16_t tmdbmod() const
+    {
+        return m_tmdbmod;
+    }
+    uint16_t tmdbbcid() const
+    {
+        return m_tmdbbcid;
+    }
 
     static std::string typeName(DataType type);
 
@@ -302,6 +457,11 @@ public:
     }
 
 private:
+    void clear(uint16_t bcTag,
+               uint16_t subDetectorId,
+               uint16_t rodId,
+               uint16_t l1Id,
+               uint16_t bcId);
     void clear(uint16_t bcTag,
                uint16_t subDetectorId,
                uint16_t rodId,
@@ -326,7 +486,7 @@ private:
     uint16_t m_l1Id = 0U;
     uint16_t m_bcId = 0U;
 
-    SlbType m_slbType;
+    SlbType m_slbType{SLB_TYPE_UNKNOWN};
 
     /********** Hit attributes
      */
@@ -372,6 +532,36 @@ private:
     bool m_veto = false;
     uint16_t m_roi = 0U;
 
+    // New Sector Logic
+    // RoI
+    uint16_t m_innerflag = 0U;
+    uint16_t m_coinflag = 0U;
+
+    // NSW
+    uint16_t m_nsweta = 0U;
+    uint16_t m_nswphi = 0U;
+    uint16_t m_nswsl = 0U;
+    uint16_t m_nswcand = 0U;
+    uint16_t m_nswdtheta = 0U;
+    uint16_t m_nswphires = 0U;
+    uint16_t m_nswlowres = 0U;
+    uint16_t m_nswid = 0U;
+
+    // RPC BIS78
+    uint16_t m_rpceta = 0U;
+    uint16_t m_rpcphi = 0U;
+    uint16_t m_rpcflag = 0U;
+    uint16_t m_rpcdeta = 0U;
+    uint16_t m_rpcdphi = 0U;
+
+    // EIFI
+    uint16_t m_ei = 0U;
+    uint16_t m_fi = 0U;
+    uint16_t m_cid = 0U;
+
+    // TMDB
+    uint16_t m_tmdbmod = 0U;
+    uint16_t m_tmdbbcid = 0U;
 };
 
 /**Overload of << operator for MsgStream for debug output*/

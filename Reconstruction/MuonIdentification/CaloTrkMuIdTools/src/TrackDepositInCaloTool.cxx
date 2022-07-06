@@ -27,6 +27,7 @@
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 // --- ROOT ---
 #include <cmath>
 
@@ -626,7 +627,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
 // calcEnergy
 ///////////////////////////////////////////////////////////////////////////////
 double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const Trk::ParticleHypothesis& particleHypo) const {
-    double mass = m_particlemasses.mass[particleHypo];
+    double mass = Trk::ParticleMasses::mass[particleHypo];
     if (!par) return 0.;
     double pX = par->momentum().x();
     double pY = par->momentum().y();

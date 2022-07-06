@@ -40,8 +40,7 @@ namespace Trk {
      */
     virtual void buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 					 const TrackCollection& tracks,
-					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth,
-					 unsigned int maxTracks=-1) const = 0;
+					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const = 0;
   };
   
 } // namespace Trk

@@ -153,7 +153,10 @@ Trk::ConeSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D
   // return it
   return mFrame;
 }
-
+#if defined(__GNUC__)
+[[gnu::flatten]]
+// Avoid out-of-line-eigen calls
+#endif
 void
 Trk::ConeSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
 {
@@ -168,9 +171,7 @@ Trk::ConeSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D
 bool
 Trk::ConeSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D&, Amg::Vector2D& locpos) const
 {
-  const Amg::Transform3D& surfaceTrans = transform();
-  Amg::Transform3D inverseTrans(surfaceTrans.inverse());
-  Amg::Vector3D loc3Dframe(inverseTrans * glopos);
+  Amg::Vector3D loc3Dframe(inverseTransformMultHelper(glopos));
   double r = loc3Dframe.z() * bounds().tanAlpha();
   locpos = Amg::Vector2D(r * atan2(loc3Dframe.y(), loc3Dframe.x()), loc3Dframe.z());
   // now decide on the quility of the transformation
@@ -187,8 +188,9 @@ Trk::ConeSurface::straightLineIntersection(const Amg::Vector3D& pos,
                                            Trk::BoundaryCheck bchk) const
 {
   // transform to a frame with the cone along z, with the tip at 0
-  Amg::Vector3D tpos1 = transform().inverse() * pos;
-  Amg::Vector3D tdir = transform().inverse().linear() * dir;
+  const Amg::Transform3D surfaceTrans = inverseTransformHelper();
+  Amg::Vector3D tpos1 = surfaceTrans * pos;
+  Amg::Vector3D tdir = surfaceTrans.linear() * dir;
   // see the header for the formula derivation
   double tan2Alpha = bounds().tanAlpha() * bounds().tanAlpha();
   double A = tdir.x() * tdir.x() + tdir.y() * tdir.y() - tan2Alpha * tdir.z() * tdir.z();
@@ -273,7 +275,7 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
     return {1, currDist, true, 0.};
 
   // transform to a frame with the cone along z, with the tip a 0
-  Amg::Vector3D locFramePos = transform().inverse() * pos;
+  Amg::Vector3D locFramePos = inverseTransformMultHelper(pos);
   Amg::Vector3D locFrameDir = transform().rotation().inverse() * dir.normalized();
 
   // solutions are in the form of a solution to a quadratic eqn.
@@ -331,7 +333,7 @@ Trk::ConeSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& 
 {
   // (cos phi cos alpha, sin phi cos alpha, sgn z sin alpha)
   bool applyTransform = !(transform().isApprox(Amg::Transform3D::Identity()));
-  Amg::Vector3D posLocal = applyTransform ? transform().inverse() * pos : pos;
+  Amg::Vector3D posLocal = applyTransform ? inverseTransformMultHelper(pos) : pos;
   double phi = posLocal.phi();
   double sgn = posLocal.z() > 0. ? -1. : +1.;
   Amg::Vector3D normalC(cos(phi) * bounds().cosAlpha(), sin(phi) * bounds().cosAlpha(), sgn * bounds().sinAlpha());

@@ -22,13 +22,13 @@ constexpr auto initAccessors(U... names) {
 
 auto boolAccessors = initAccessors<bool>(
   "hasGenericRoiError", "hasGenericDaqError", "hasCrcTobError", "hasCrcFibreError",
-  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference",
-  "vsi_isFake", "vsi_isPassMMV", "vsi_trkd0cut", "vsi_twoCircErrcut", "vsi_twoCircRcut", "vsi_fastErrcut", "vsi_fastRcut", "vsi_fitErrcut", "vsi_chi2cut");
+  "hasCrcDaqError", "hasRoibDaqDifference", "hasRoibCtpDifference", "hasDaqCtpDifference");
 
 auto charAccessors = initAccessors<char>(
   "IP2D_isDefaults", "IP3D_isDefaults", "SV1_isDefaults", "rnnip_isDefaults",
   "JetFitterSecondaryVertex_isDefaults", "JetFitter_isDefaults", "passPFTrackPresel",
-  "muonCaloTag", "tagFakeTrack", "tagIsoTrack", "tagMuonTrack");
+  "muonCaloTag", "tagFakeTrack", "tagIsoTrack", "tagMuonTrack",
+  "vsi_isFake", "vsi_isPassMMV", "vsi_trkd0cut", "vsi_twoCircErrcut", "vsi_twoCircRcut", "vsi_fastErrcut", "vsi_fastRcut", "vsi_fitErrcut", "vsi_chi2cut");
 
 auto intAccessors = initAccessors<int>(
   "SctSpBarrel", "SctSpEndcapA", "SctSpEndcapC", "pixClBarrel", "pixClEndcapA", "pixClEndcapC",
@@ -43,7 +43,7 @@ auto intAccessors = initAccessors<int>(
   "hitDV_seed_type","hitDV_n_track_qual",
   "dEdxTrk_id","dEdxTrk_dedx_n_usedhits",
   "dEdxTrk_n_hits_innermost","dEdxTrk_n_hits_inner","dEdxTrk_n_hits_pix","dEdxTrk_n_hits_sct",
-  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer");
+  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer","NumPV");
 
 auto int16Accessors = initAccessors<int16_t>("view",
   "HPtdEdxTrk_n_hdedx_hits_1p45","HPtdEdxTrk_n_hdedx_hits_1p50","HPtdEdxTrk_n_hdedx_hits_1p55","HPtdEdxTrk_n_hdedx_hits_1p60",
@@ -78,6 +78,8 @@ auto floatAccessors = initAccessors<float>(
   "JetFitter_energyFraction", "JetFitter_mass", "JetFitter_massUncorr", "JetFitter_significance3d",
   "SV1_L3d", "SV1_Lxy", "SV1_deltaR", "SV1_dstToMatLay", "SV1_efracsvx", "SV1_energyTrkInJet",
   "SV1_masssvx", "SV1_normdist", "SV1_significance3d",
+  "AvgMu",
+  "N90Constituents",
   "DL1d20210519r22_pb",
   "DL1d20210519r22_pc",
   "DL1d20210519r22_pu",
@@ -139,15 +141,17 @@ auto floatAccessors = initAccessors<float>(
   "disTrkCand_refit_chi2sum_br_sct1","disTrkCand_refit_chi2sum_br_sct2","disTrkCand_refit_chi2sum_br_sct3","disTrkCand_refit_chi2sum_br_sct4",
   "disTrkCand_refit_ndofsum_br_ibl","disTrkCand_refit_ndofsum_br_pix1","disTrkCand_refit_ndofsum_br_pix2","disTrkCand_refit_ndofsum_br_pix3",
   "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4",
-  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing",
+  "ptcone20", "ptvarcone20", "ptcone30", "ptvarcone30", "etcone20", "topoetcone20","Timing",
   "vsi_mass", "vsi_pT", "vsi_charge",
   "vsi_twoCirc_dr", "vsi_twoCirc_dphi", "vsi_twoCirc_int_r", "vsi_vrtFast_r", "vsi_vrtFast_eta", "vsi_vrtFast_phi",
   "vsi_vrtFit_r", "vsi_vrtFit_chi2", "vsi_vPos", "vsi_vPosMomAngT", "vsi_dphi1", "vsi_dphi2",
   "vsiHypo_nVtx", "vsiHypo_pTcut", "vsiHypo_rCut", "vsiHypo_nTrkCut", "vsiHypo_counts",
-  "eProbabilityNN"
+  "eProbabilityNN",
+  "trk_d0","cl_eta2","cl_phi2", "deltaEta1PearDistortion"
   );
 
-auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
+auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03", "JetDensityEMPFlow",
+  "JetDensityEMTopo");
 
 auto vboolAccessors = initAccessors<std::vector<bool>>("IP2D_flagFromV0ofTracks", "IP3D_flagFromV0ofTracks");
 

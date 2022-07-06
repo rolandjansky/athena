@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa
 # ... because this file is hopeless ...
 
-#############################
-# EgammaLWCalibration
-#############################
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 #############################

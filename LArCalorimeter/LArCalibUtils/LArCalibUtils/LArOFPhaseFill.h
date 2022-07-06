@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCALIBUTILS_LArOFPhaseFill_H
@@ -16,12 +16,9 @@ Use a Tshaper raw conditions - reusing existing class instead of writing new
 ********************************************************************/
 
 #include "AthenaBaseComps/AthAlgorithm.h" 
-
-#include "LArIdentifier/LArOnlineID.h"
-
+#include "LArIdentifier/LArOnlineID_Base.h"
 #include "LArRawConditions/LArOFCBinComplete.h"
-
-#include "AthenaKernel/IOVSvcDefs.h" 
+#include "AthenaKernel/IOVSvcDefs.h"
 
 
 class LArOFPhaseFill : public AthAlgorithm
@@ -30,25 +27,26 @@ class LArOFPhaseFill : public AthAlgorithm
  public:
 
   LArOFPhaseFill(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArOFPhaseFill();
+  ~LArOFPhaseFill() = default;
 
   StatusCode initialize();
-  StatusCode execute();
+  StatusCode execute() {return StatusCode::SUCCESS;};
   StatusCode stop();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
 
  private:
 
   // Services 
-  const LArOnlineID*        m_lar_on_id;
+  const LArOnlineID_Base*        m_lar_on_id;
 
   LArOFCBinComplete*   m_OFCbin;
 
-  std::string m_InputFile; 
-  std::string m_keyOFCbin;
-  std::string m_groupingName;
+  StringProperty m_InputFile {this,"InputFile", "", "Which file to read"}; 
+  StringProperty m_keyOFCbin {this,"keyOFCBin","LArOFCBin","Output key of LArOFCBinComlete object"};
+  StringProperty m_groupingName {this, "GroupingType", "Unknown", "Which grouping type to use"};
+  Gaudi::Property<unsigned int> m_defaultPhase {this, "DefaultPhase", 0, "Phase used for channels not in input file"};
+  BooleanProperty m_isID {this, "isID", false, "contains the input file onlineID ?"};
+  BooleanProperty m_isSC {this, "isSC", false, "Is this the SuperCell ?"};
   int m_groupingType;
-  unsigned m_defaultPhase;
 
 };
 #endif

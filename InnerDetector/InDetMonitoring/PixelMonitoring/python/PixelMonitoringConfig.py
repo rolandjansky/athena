@@ -32,7 +32,7 @@ def PixelMonitoringConfig(flags):
                              'doHeavyIonMon'   : flags.Reco.EnableHI,     #Setting up 1D histogram ranges and binnings for heavy ions
                              'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
                              'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
-                             'TrackName'       : InDetKeys.Tracks()          #'Tracks'
+                             'TrackName'       : InDetKeys.UnslimmedTracks()          #'Tracks'
         }
 
         kwargsErrMonAlg = { 'doOnline'        : isOnline,        #Histograms for online (GlobalMonitoring) running
@@ -42,14 +42,17 @@ def PixelMonitoringConfig(flags):
         kwargsMVAMonAlg = { 'calibFolder'     : '20220503',
                             'RDOName'         : InDetKeys.PixelRDOs(),      #'PixelRDOs'
                             'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
-                            'TrackName'       : InDetKeys.Tracks()          #'Tracks'
+                            'TrackName'       : InDetKeys.UnslimmedTracks()          #'Tracks'
         }
+
+        if doHitMonAlg or doClusterMonAlg or doErrorMonAlg or doMVAMonAlg:
+            from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgActiveOnlyCfg
+            acc.merge(PixelDetectorElementStatusAlgActiveOnlyCfg(flags))
 
         from AthenaMonitoring import AthMonitorCfgHelper
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
 
         from AthenaConfiguration.ComponentFactory import CompFactory
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
         from AthenaMonitoring.FilledBunchFilterToolConfig import FilledBunchFilterToolCfg
 
         if doHitMonAlg:
@@ -68,22 +71,23 @@ def PixelMonitoringConfig(flags):
             kwargsClusMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsClusMonAlg.items():
                 setattr(pixelAthClusterMonAlg, k, v)
-            pixelAthClusterMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthClusterMonAlg_TrackSelectionTool')
-            pixelAthClusterMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-            pixelAthClusterMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
-            pixelAthClusterMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
+
+            from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
+            TrackSelectionTool = acc.popToolsAndMerge(
+                InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags,
+                                                                    maxNPixelHoles = 1)) # Default for TightPrimary is 0
             if flags.Beam.Type is not BeamType.Cosmics:
-                pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
-                pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
-            pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
-            pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+                TrackSelectionTool.maxD0            = 2
+                TrackSelectionTool.maxZ0            = 150
+
+            pixelAthClusterMonAlg.TrackSelectionTool = TrackSelectionTool
+            pixelAthClusterMonAlg.HoleSearchTool = acc.getPublicTool("InDetHoleSearchTool")
 
             PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
 
         if doErrorMonAlg:
             from PixelMonitoring.PixelAthErrorMonAlgCfg import PixelAthErrorMonAlgCfg
             pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(CompFactory.PixelAthErrorMonAlg, 'PixelAthErrorMonAlg', addFilterTools = [FilledBunchFilterToolCfg(flags)])
-            kwargsErrMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             kwargsErrMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             kwargsErrMonAlg.setdefault(  'PixelByteStreamErrs', 'PixelByteStreamErrs')
             kwargsErrMonAlg.setdefault(  'UseByteStreamFEI4', not flags.Input.isMC)
@@ -96,18 +100,21 @@ def PixelMonitoringConfig(flags):
         if doMVAMonAlg:
             from PixelMonitoring.PixelAthMVAMonAlgCfg import PixelAthMVAMonAlgCfg
             pixelAthMVAMonAlg = helper.addAlgorithm(CompFactory.PixelAthMVAMonAlg, 'PixelAthMVAMonAlg', addFilterTools = [FilledBunchFilterToolCfg(flags)])
+            kwargsMVAMonAlg.setdefault(  'PixelDetElStatus',           'PixelDetectorElementStatus' )
+            kwargsMVAMonAlg.setdefault(  'PixelDetElStatusActiveOnly', 'PixelDetectorElementStatusActiveOnly')
             for k, v in kwargsMVAMonAlg.items():
                 setattr(pixelAthMVAMonAlg, k, v)
-            pixelAthMVAMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthMVAMonAlg_TrackSelectionTool')
-            pixelAthMVAMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-            pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
-            pixelAthMVAMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-            if flags.Beam.Type is not BeamType.Cosmics:
-                pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
-                pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
 
-            pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
-            pixelAthMVAMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+            from InDetConfig.InDetTrackSelectionToolConfig import InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg
+            TrackSelectionTool = acc.popToolsAndMerge(
+                InDetTrackSelectionTool_TightPrimary_TrackTools_Cfg(flags,
+                                                                    maxNPixelHoles
+= 1)) # Default for TightPrimary is 0
+            if flags.Beam.Type is not BeamType.Cosmics:
+                TrackSelectionTool.maxD0            = 2
+                TrackSelectionTool.maxZ0            = 150
+
+            pixelAthMVAMonAlg.TrackSelectionTool = TrackSelectionTool
             pixelAthMVAMonAlg.Extrapolator                        = acc.getPublicTool("InDetExtrapolator")
             PixelAthMVAMonAlgCfg(helper, pixelAthMVAMonAlg, **kwargsMVAMonAlg)
 

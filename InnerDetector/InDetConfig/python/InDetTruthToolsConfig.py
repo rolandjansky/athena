@@ -30,7 +30,7 @@ def InDetPRD_TruthTrajectoryManipulatorIDCfg(name='InDetTruthTrajectoryManipulat
 def InDetTruthTrackBuilderCfg(flags, name='InDetTruthTrackBuilder', **kwargs):
     result = ComponentAccumulator()
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg
+    from TrkConfig.CommonTrackFitterConfig import InDetTrackFitterCfg
     InDetTrackFitter = result.popToolsAndMerge(InDetTrackFitterCfg(flags))
     kwargs.setdefault('TrackFitter', InDetTrackFitter)
 

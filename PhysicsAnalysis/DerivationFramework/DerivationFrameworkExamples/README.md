@@ -18,7 +18,7 @@ The examples are as follows:
 
 In run 3 the derivation framework will move to the component accumulator and will be build differently. This package also contains examples showing how to run this new component accumulator based derivation framework. Unlike the examples above the config files are found in the python/ directory and are all python modules rather than job options. Usage is:
 
-`Derivation_tf.py --CA --inputAODFile aod.pool.root --outputDAODFile test.pool.root --requiredDerivedFormats TEST1 TEST3 ...`
+`Derivation_tf.py --CA --inputAODFile aod.pool.root --outputDAODFile test.pool.root --formats TEST1 TEST3 ...`
 
 The examples are very similar to the ones above:
 

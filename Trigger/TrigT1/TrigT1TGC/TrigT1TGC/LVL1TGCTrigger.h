@@ -36,7 +36,7 @@
 
 #include "TrigT1TGC/TGCArguments.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonRDO/TgcL1RdoContainer.h"
+#include "MuonRDO/TgcRdoContainer.h"
 
 // Tile-Muon
 #include "TileEvent/TileMuContainer.h"
@@ -48,8 +48,8 @@
 // RPC BIS78 Trigger Output
 #include "MuonRDO/RpcBis78_TrigRawDataContainer.h"
 
-class TgcL1Rdo;
-class TgcL1RawData;
+class TgcRdo;
+class TgcRawData;
 class ITGCcablingSvc;
 
 
@@ -79,7 +79,7 @@ class LVL1TGCTrigger : public AthAlgorithm
  private:
     StatusCode processOneBunch(const TgcDigitContainer*,
 			       LVL1MUONIF::Lvl1MuCTPIInputPhase1*,
-			       std::map<std::pair<int, int>, TgcL1Rdo*>&);
+			       std::map<std::pair<int, int>, std::unique_ptr<TgcRdo>>&);
     void doMaskOperation(const TgcDigitContainer* ,std::map<Identifier, int>& );
     void fillTGCEvent(std::map<Identifier, int>& ,  TGCEvent&);
     
@@ -93,16 +93,16 @@ class LVL1TGCTrigger : public AthAlgorithm
     StatusCode fillBIS78();
 
     // record bare-RDO for LowPT coincidences (on m_OutputTgcRDO=True):
-    void recordRdoSLB(TGCSector *, std::map<std::pair<int, int>, TgcL1Rdo*>&);
+    void recordRdoSLB(TGCSector *, std::map<std::pair<int, int>, std::unique_ptr<TgcRdo>>&);
     
     // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
-    void recordRdoHPT(TGCSector *, std::map<std::pair<int, int>, TgcL1Rdo*>&);
+    void recordRdoHPT(TGCSector *, std::map<std::pair<int, int>, std::unique_ptr<TgcRdo>>&);
     
     // record bare-RDO for Inner coincidences (on OutputTgcRDO=True):
-    void recordRdoInner(TGCSector *, std::map<std::pair<int, int>, TgcL1Rdo*>&);
+    void recordRdoInner(TGCSector *, std::map<std::pair<int, int>, std::unique_ptr<TgcRdo>>&);
     
     // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
-    void recordRdoSL(TGCSector *, std::map<std::pair<int, int>, TgcL1Rdo*>&);
+    void recordRdoSL(TGCSector *, std::map<std::pair<int, int>, std::unique_ptr<TgcRdo>>&);
     
     // Retrieve Masked channel list
     StatusCode getMaskedChannel();
@@ -113,9 +113,9 @@ class LVL1TGCTrigger : public AthAlgorithm
     // useful functions
     int getCharge(int dR, int Zdir);
     void extractFromString(std::string, std::vector<int>&);
-    //bool addRawData(TgcL1RawData * rawdata,
-    bool addRawData(std::unique_ptr<TgcL1RawData> rawdata,
-		    std::map<std::pair<int, int>, TgcL1Rdo*>&  tgcrdo );
+    //bool addRawData(TgcRawData * rawdata,
+    bool addRawData(std::unique_ptr<TgcRawData> rawdata,
+		    std::map<std::pair<int, int>, std::unique_ptr<TgcRdo>>&  tgcrdo );
     int getLPTTypeInRawData(int type);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldata,
 			     const TGCTrackSelectorOut *trackSelectorOut);
@@ -150,8 +150,8 @@ class LVL1TGCTrigger : public AthAlgorithm
     uint16_t          m_bctagInProcess;
 
     TGCDatabaseManager *m_db;
-    TGCTimingManager *m_TimingManager;
-    TGCElectronicsSystem *m_system;
+    std::unique_ptr<TGCTimingManager> m_TimingManager;
+    std::unique_ptr<TGCElectronicsSystem> m_system;
     
     int m_nEventInSector;
     
@@ -167,7 +167,8 @@ class LVL1TGCTrigger : public AthAlgorithm
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
 
-    SG::WriteHandleKey<TgcL1RdoContainer> m_keyTgcL1Rdo{this,"TgcL1Rdo","TGCL1RDO","Location of TgcL1RdoContainer"};
+    SG::WriteHandleKey<TgcRdoContainer> m_keyTgcRdo{this,"TgcRdo","TGCRDO2","Location of TgcRdoContainer"};
+    SG::ReadHandleKey<TgcRdoContainer> m_keyTgcRdoIn{this,"InputRDO","TGCRDO","Location of input TgcRdoContainer"};
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
     SG::ReadHandleKey<Muon::NSW_TrigRawDataContainer> m_keyNSWTrigOut{this,"NSWTrigger_Input","NSWTRGRDO","Location of NSW_TrigRawDataContainer"};

@@ -18,6 +18,10 @@ atlas_add_dictionary( TrkParametersDict
 atlas_add_executable( TrkParameters_testConstExprMethods
 	                  test/testConstExpr.cxx
 		              LINK_LIBRARIES TrkParameters)
+		              
+atlas_add_test( StreamInsertionOperator_test
+	                SOURCES  test/StreamInsertionOperator_test.cxx
+		              LINK_LIBRARIES TrkParameters)
 
 atlas_add_test( ut_TrkParameters_testConstExprMethods
                 SCRIPT TrkParameters_testConstExprMethods)

@@ -1,0 +1,1 @@
+/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/DAOD_PHYSLITE/p5169/data18_13TeV.00348885.physics_Main.deriv.DAOD_PHYSLITE.r13286_p4910_p5169/DAOD_PHYSLITE.29445515._000679.pool.root.1

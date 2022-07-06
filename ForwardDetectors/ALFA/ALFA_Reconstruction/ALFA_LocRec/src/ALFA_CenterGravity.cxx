@@ -2,13 +2,12 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_CenterGravity.h"
 
 using namespace std;
 
 ALFA_CenterGravity::ALFA_CenterGravity() :
-    AthMessaging(Athena::getMessageSvc(), "ALFA_CenterGravity")
+    AthMessaging("ALFA_CenterGravity")
 {
 	m_histU_PT = NULL;
 	m_histV_PT = NULL;

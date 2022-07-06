@@ -438,8 +438,6 @@ namespace MuonGM {
         std::unique_ptr<NswAsBuilt::StripCalculator> m_MMAsBuiltCalculator;
         std::unique_ptr<NswAsBuilt::StgcStripCalculator> m_StgcAsBuiltCalculator;
 #endif
-        // temporary way to pass MM correction for passivation
-        double m_MM_passivationCorr{0.};
 
         template <typename read_out, size_t N> void clearCache(std::array<std::unique_ptr<read_out>, N>& array);
         template <typename read_out, size_t N> void fillCache(std::array<std::unique_ptr<read_out>, N>& array);
@@ -508,8 +506,8 @@ namespace MuonGM {
 namespace MuonGM {
     class MuonDetectorManager;
 }
-CLASS_DEF(MuonGM::MuonDetectorManager, 4500, 1)
-CLASS_DEF(CondCont<MuonGM::MuonDetectorManager>, 205781622, 0)
+CLASS_DEF(MuonGM::MuonDetectorManager, 4500, 1);
+CONDCONT_MIXED_DEF(MuonGM::MuonDetectorManager, 205781622);
 #endif
 
 #endif

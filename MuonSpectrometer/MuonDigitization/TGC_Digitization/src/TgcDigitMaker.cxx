@@ -28,10 +28,10 @@
 //---------------------------------------------------
 
 //----- Constructor
-TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
+TgcDigitMaker::TgcDigitMaker(const TgcHitIdHelper* hitIdHelper,
 			     const MuonGM::MuonDetectorManager* mdManager,
 			     unsigned int                       runperiod)
-  : AthMessaging (Athena::getMessageSvc(), "TgcDigitMaker")
+  : AthMessaging ("TgcDigitMaker")
 {
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
@@ -68,14 +68,8 @@ StatusCode TgcDigitMaker::initialize()
   // Read share/TGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold. 
   ATH_CHECK(readFileOfEnergyThreshold());
 
-  // Read share/TGC_Digitization_crossTalk.dat file and store values in m_crossTalk.
-  ATH_CHECK(readFileOfCrossTalk());
-
   // Read share/TGC_Digitization_deadChamber.dat file and store values in m_isDeadChamber. 
   ATH_CHECK(readFileOfDeadChamber());
-
-  // Read share/TGC_Digitization_alignment.dat file and store values in m_alignmentZ, m_alignmentT, m_alignmentS, m_alignmentTHS
-  ATH_CHECK(readFileOfAlignment());
 
   // Read share/TGC_Digitization_StripPosition.dat file and store values in m_StripPosition.
   ATH_CHECK(readFileOfStripPosition());
@@ -90,6 +84,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
                                                const double globalHitTime,
                                                const TgcDigitASDposData* ASDpos,
                                                const TgcDigitTimeOffsetData* TOffset,
+                                               const TgcDigitCrosstalkData* Crosstalk,
                                                CLHEP::HepRandomEngine* rndmEngine)
 {
   // timing constant parameters
@@ -145,9 +140,6 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   
   // local position
   Amg::Vector3D localPos = hit->localPosition();
-
-  /*** Ad hoc implementation of detector position shift */ 
-  //adHocPositionShift(stationName, stationEta, stationPhi, direCos, localPos);
 
   // Local z direction is global r direction.  
   float distanceZ = 1.4*CLHEP::mm / direCos[0]*direCos[2];
@@ -265,7 +257,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId, bctag, digits.get());
 
 	  if(iwg==iWG[0]) {
-            randomCrossTalk(elemId, ilyr, kWIRE, iwg, posInWG[0], digit_time, wire_timeOffset, rndmEngine, digits.get());
+            randomCrossTalk(Crosstalk, elemId, ilyr, kWIRE, iwg, posInWG[0], digit_time, wire_timeOffset, rndmEngine, digits.get());
 	  }	 
 
 	  ATH_MSG_DEBUG("WireGroup: newid breakdown digitTime x/y/z direcos height_gang bctag: "
@@ -404,7 +396,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId, bctag, digits.get());
 
 	  if(istr==iStr[0]) {
-	    randomCrossTalk(elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, strip_timeOffset, rndmEngine, digits.get());
+	    randomCrossTalk(Crosstalk, elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, strip_timeOffset, rndmEngine, digits.get());
 	  }
 
 	  ATH_MSG_DEBUG("Strip: newid breakdown digitTime x/y/z direcos r_center bctag: "
@@ -641,95 +633,6 @@ StatusCode TgcDigitMaker::readFileOfEnergyThreshold() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitMaker::readFileOfCrossTalk() {
-  // Indices to be used 
-  int iStationName = -1;
-  int stationEta = -1;
-  int stationPhi = -1;
-  int gasGap = -1;
-  int isStrip = -1;
-  int iProb = -1;
-
-  for(iStationName=0; iStationName<N_STATIONNAME; iStationName++) {
-    for(stationEta=0; stationEta<N_STATIONETA; stationEta++) {
-      for(stationPhi=0; stationPhi<N_STATIONPHI; stationPhi++) {
-        for(gasGap=0; gasGap<N_GASGAP; gasGap++) {
-	  for(isStrip=0; isStrip<N_ISSTRIP; isStrip++) {
-	    for(iProb=0; iProb<N_CROSSTALK_PARAMETER; iProb++) {
-	      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][iProb] = 0.;
-	    }
-          }
-        }
-      }
-    }
-  }
-
-  // Find path to the TGC_Digitization_crossTalk.dat file 
-  const std::string fileName = "TGC_Digitization_crossTalk.dat";
-  std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath.empty()) {
-    ATH_MSG_FATAL("readFileOfCrossTalk(): Could not find file " << fileName);
-    return StatusCode::FAILURE;
-  }
-
-  // Open the TGC_Digitization_crossTalk.dat file 
-  std::ifstream ifs;
-  ifs.open(fileWithPath.c_str(), std::ios::in);
-  if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfCrossTalk(): Could not open file " << fileName);
-    return StatusCode::FAILURE;
-  }
-    
-  double crossTalk_10 = 0.; 
-  double crossTalk_11 = 0.; 
-  double crossTalk_20 = 0.; 
-  double crossTalk_21 = 0.; 
-  // Read the TGC_Digitization_crossTalk.dat file
-  while(ifs.good()) {
-    ifs >> iStationName >> stationEta >> /*stationPhi >>*/ gasGap >> isStrip >> crossTalk_10 >> crossTalk_11 >> crossTalk_20 >> crossTalk_21;
-    ATH_MSG_DEBUG("TgcDigitMaker::readFileOfCrossTalk" 
-		      << " stationName= " << iStationName  
-		      << " stationEta= " << stationEta 
-	//		      << " stationPhi= " << stationPhi
-		      << " gasGap= " << gasGap 
-		      << " isStrip= " << isStrip
-		      << " prob(10) " << crossTalk_10
-		      << " prob(11) " << crossTalk_11
-		      << " prob(20) " << crossTalk_20
-		      << " prob(21) " << crossTalk_21);
-
-    // Subtract offsets to use indices of crossTalk array
-    iStationName -= OFFSET_STATIONNAME;
-    stationEta   -= OFFSET_STATIONETA;
-    //    stationPhi   -= OFFSET_STATIONPHI;
-    gasGap       -= OFFSET_GASGAP;
-    isStrip      -= OFFSET_ISSTRIP;
-
-    // Check the indices are valid 
-    if(iStationName<0 || iStationName>=N_STATIONNAME) continue;
-    if(stationEta  <0 || stationEta  >=N_STATIONETA ) continue;
-    //    if(stationPhi  <0 || stationPhi  >=N_STATIONPHI ) continue;
-    if(gasGap      <0 || gasGap      >=N_GASGAP     ) continue;
-    if(isStrip     <0 || isStrip     >=N_ISSTRIP    ) continue; 
-
-    // stationPhi dependence is now omitted. 
-    // The same energy threshold value is used. 
-    for(stationPhi=0; stationPhi<N_STATIONPHI; stationPhi++) {
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][0] = crossTalk_10;
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][1] = crossTalk_11;
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][2] = crossTalk_20;
-      m_crossTalk[iStationName][stationEta][stationPhi][gasGap][isStrip][3] = crossTalk_21;
-    }
-
-    // If it is the end of the file, get out from while loop.   
-    if(ifs.eof()) break;
-  }
-
-  // Close the TGC_Digitization_crossTalk.dat file 
-  ifs.close();
-
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TgcDigitMaker::readFileOfDeadChamber() {
   // Indices to be used 
@@ -806,79 +709,6 @@ StatusCode TgcDigitMaker::readFileOfDeadChamber() {
   ifs.close();
 
   ATH_MSG_INFO("readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers);
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TgcDigitMaker::readFileOfAlignment() {
-  // Indices to be used 
-  int iStationName, stationEta, stationPhi;
-
-  for(iStationName=0; iStationName<N_STATIONNAME; iStationName++) {
-    for(stationEta=0; stationEta<N_STATIONETA; stationEta++) {
-      for(stationPhi=0; stationPhi<N_STATIONPHI; stationPhi++) {
-	m_alignmentZ[iStationName][stationEta][stationPhi] = 0.;
-	m_alignmentT[iStationName][stationEta][stationPhi] = 0.;
-	m_alignmentS[iStationName][stationEta][stationPhi] = 0.;
-	m_alignmentTHS[iStationName][stationEta][stationPhi] = 0.;
-      }
-    }
-  }
-
-  // Find path to the TGC_Digitization_alignment.dat file 
-  const std::string fileName = "TGC_Digitization_alignment.dat";
-  std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
-  if(fileWithPath.empty()) {
-    ATH_MSG_FATAL("readFileOfAlignment(): Could not find file " << fileName);
-    return StatusCode::FAILURE;
-  }
-
-  // Open the TGC_Digitization_alignment.dat file 
-  std::ifstream ifs;
-  ifs.open(fileWithPath.c_str(), std::ios::in);
-  if(ifs.bad()) {
-    ATH_MSG_FATAL("readFileOfAlignment(): Could not open file " << fileName);
-    return StatusCode::FAILURE;
-  }
-    
-  // Read the TGC_Digitization_alignment.dat file
-  double tmpZ;
-  double tmpT;
-  double tmpS;
-  double tmpTHS;
-  while(ifs.good()) {
-    ifs >> iStationName >> stationEta >> stationPhi >> tmpZ >> tmpT >> tmpS >> tmpTHS;
-    ATH_MSG_DEBUG("readFileOfAlignment" 
-		      << " stationName= " << iStationName  
-		      << " stationEta= " << stationEta 
-		      << " stationPhi= " << stationPhi 
-		      << " z[mm]= " << tmpZ  
-		      << " t[mm]= " << tmpT  
-		      << " s[mm]= " << tmpS
-		      << " ths[rad]= " << tmpTHS);
-
-    // Subtract offsets to use indices of m_alignmentZ, m_alignmentT, m_alignmentTHS arrays
-    iStationName -= OFFSET_STATIONNAME;
-    stationEta   -= OFFSET_STATIONETA;
-    stationPhi   -= OFFSET_STATIONPHI;
-
-    // Check the indices are valid 
-    if(iStationName<0 || iStationName>=N_STATIONNAME) continue;
-    if(stationEta  <0 || stationEta  >=N_STATIONETA ) continue;
-    if(stationPhi  <0 || stationPhi  >=N_STATIONPHI ) continue;
-
-    m_alignmentZ[iStationName][stationEta][stationPhi]   = tmpZ;
-    m_alignmentT[iStationName][stationEta][stationPhi]   = tmpT;
-    m_alignmentS[iStationName][stationEta][stationPhi]   = tmpS;
-    m_alignmentTHS[iStationName][stationEta][stationPhi] = tmpTHS;
-
-    // If it is the end of the file, get out from while loop.   
-    if(ifs.eof()) break;
-  }
-
-  // Close the TGC_Digitization_alignment.dat file 
-  ifs.close();
 
   return StatusCode::SUCCESS;
 }
@@ -974,7 +804,8 @@ double TgcDigitMaker::getEnergyThreshold(const std::string& stationName, int sta
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
+void TgcDigitMaker::randomCrossTalk(const TgcDigitCrosstalkData* crosstalk,
+                                    const Identifier elemId,
                                     const int gasGap,
                                     const TgcSensor sensor,
                                     const int channel,
@@ -984,25 +815,22 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     CLHEP::HepRandomEngine* rndmEngine,
                                     TgcDigitCollection* digits) const
 {
-  int stationName = m_idHelper->stationName(elemId) - OFFSET_STATIONNAME;
-  int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
-  int stationPhi  = m_idHelper->stationPhi(elemId)  - OFFSET_STATIONPHI;
-  int iGasGap     = gasGap                          - OFFSET_GASGAP; 
+  uint16_t station_number = m_idHelper->stationName(elemId);
+  uint16_t station_eta  = std::abs(m_idHelper->stationEta(elemId));
+  uint16_t layer = gasGap;
+  uint16_t layer_id = (station_number << 5) + (station_eta << 2) + layer;
 
-  double prob1CrossTalk  = 0.;
-  double prob11CrossTalk = 0.;
-  double prob20CrossTalk = 0.;
-  double prob21CrossTalk = 0.;
-
-  if((stationName>=0 && stationName<N_STATIONNAME) &&
-     (stationEta >=0 && stationEta <N_STATIONETA ) &&
-     (stationPhi >=0 && stationPhi <N_STATIONPHI ) &&
-     (iGasGap    >=0 && iGasGap    <N_GASGAP     )) {
-    prob1CrossTalk  = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][0];
-    prob11CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][1];
-    prob20CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][2];
-    prob21CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][3];
+  if (station_number < OFFSET_STATIONNAME || station_number >= OFFSET_STATIONNAME + N_STATIONNAME ||
+      station_eta <= 0 || station_eta > N_ABSSTATIONETA ||
+      layer <= 0 || layer > N_GASGAP) {
+    ATH_MSG_ERROR("Unexpected indices are provided!");
+    return;
   }
+
+  float prob1CrossTalk  = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 0);
+  float prob11CrossTalk = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 1);
+  float prob20CrossTalk = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 2);
+  float prob21CrossTalk = this->getCrosstalkProbability(crosstalk, layer_id, sensor, 3);
 
   int nCrossTalks_neg = 0; 
   int nCrossTalks_pos = 0; 
@@ -1030,7 +858,7 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
 
   // No time structure is implemented yet. 
   float dt = digitTime; 
-  TgcStation station = (stationName > 46) ? kINNER : kOUTER;
+  TgcStation station = (station_number > 46) ? kINNER : kOUTER;
   uint16_t bctag = bcTagging(dt, m_gateTimeWindow[station][sensor], time_offset);
   // obtain max channel number
   Identifier thisId = m_idHelper->channelID(elemId, gasGap, (int)sensor, channel);
@@ -1087,41 +915,6 @@ int TgcDigitMaker::getIStationName(const std::string& stationName) const {
   else if(stationName=="T4E") iStationName = 48;
   
   return iStationName;
-}
-
-void TgcDigitMaker::adHocPositionShift(const std::string& stationName, int stationEta, int stationPhi,
-				       const Amg::Vector3D& direCos, Amg::Vector3D &localPos) const {
-  int iStationName = getIStationName(stationName);
-  iStationName -= OFFSET_STATIONNAME;
-  stationEta   -= OFFSET_STATIONETA;
-  stationPhi   -= OFFSET_STATIONPHI;
-  // Check the indices are valid
-  if(iStationName<0 || iStationName>=N_STATIONNAME) return;
-  if(stationEta  <0 || stationEta  >=N_STATIONETA ) return;
-  if(stationPhi  <0 || stationPhi  >=N_STATIONPHI ) return;
-  
-  // Local +x (-x) direction is global +z direction on A-side (C-side). 
-  double localDisplacementX = m_alignmentT[iStationName][stationEta][stationPhi]; 
-
-  // Local +z direction is global +r direction.  
-  double localDisplacementZ = m_alignmentZ[iStationName][stationEta][stationPhi]; 
-
-  // Local +s direction is global +phi direction.  
-  double localDisplacementY = m_alignmentS[iStationName][stationEta][stationPhi]; 
-
-  // Rotation around the s-axis is not implemented yet (2011/11/29).
-  // m_alignmentTHS[tmpStationName][tmpStationEta][tmpStationPhi];
-
-  // Convert local x translation to local y and z translations 
-  double localDisplacementYByX = 0.;
-  double localDisplacementZByX = 0.;
-  if(fabs(localDisplacementX)>1.0E-12) { // local y and z translations are non-zero only if local x translation is non-zero. 
-    if(fabs(direCos[0])<1.0E-12) return; // To avoid zero-division 
-    localDisplacementYByX = direCos[1]/direCos[0]*localDisplacementX;  
-    localDisplacementZByX = direCos[2]/direCos[0]*localDisplacementX;  
-  }
-  localPos.y() = localPos.y()+localDisplacementYByX+localDisplacementY; 
-  localPos.z() = localPos.z()+localDisplacementZByX-localDisplacementZ; 
 }
 
 
@@ -1195,3 +988,10 @@ float TgcDigitMaker::getTimeOffset(const TgcDigitTimeOffsetData* readCdo,
   return ((sensor == TgcSensor::kSTRIP) ? readCdo->stripOffset.find(chamberId)->second : readCdo->wireOffset.find(chamberId)->second);
 }
 
+float TgcDigitMaker::getCrosstalkProbability(const TgcDigitCrosstalkData* readCdo,
+                                             const uint16_t layer_id,
+                                             const TgcSensor sensor,
+                                             const unsigned int index_prob) const {
+  if (readCdo == nullptr) return 0.;  // no crosstalk
+  return ((sensor == TgcSensor::kSTRIP) ? readCdo->getStripProbability(layer_id, index_prob) : readCdo->getWireProbability(layer_id, index_prob));
+}

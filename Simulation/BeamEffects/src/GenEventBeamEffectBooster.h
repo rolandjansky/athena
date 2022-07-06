@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_HEPMC_GENEVENTBEAMEFFECTBOOSTER_H
@@ -12,6 +12,7 @@
 #include "HepMC_Interfaces/IGenEventManipulator.h"
 // Athena headers
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "CxxUtils/checker_macros.h"
 // Gaudi headers
 #include "GaudiKernel/ServiceHandle.h"
 // CLHEP headers
@@ -48,15 +49,15 @@ namespace Simulation {
     StatusCode initializeAthenaEvent();// override final;
 
     /** modifies the given GenEvent */
-    StatusCode manipulate(HepMC::GenEvent& ge) const override final;
+    StatusCode manipulate(HepMC::GenEvent& ge, const EventContext& ctx) const override final;
   private:
     /** calculate the transformations that we want to apply to the particles in the current GenEvent */
-    StatusCode initializeGenEvent(CLHEP::HepLorentzRotation& transform) const;
+    StatusCode initializeGenEvent(CLHEP::HepLorentzRotation& transform, const EventContext& ctx) const;
     /** apply boost to individual GenParticles */
     void boostParticle(HepMC::GenParticlePtr p, const CLHEP::HepLorentzRotation& transform) const;
 
     ServiceHandle<IAthRNGSvc>       m_rndGenSvc{this, "RandomSvc", "AthRNGSvc"};
-    ATHRNG::RNGWrapper*             m_randomEngine{};             //!< Slot-local RNG
+    ATHRNG::RNGWrapper*             m_randomEngine ATLAS_THREAD_SAFE{};  //!< Slot-local RNG
     Gaudi::Property<std::string>     m_randomEngineName{this, "RandomStream", "BEAM"};         //!< Name of the random number stream
     Gaudi::Property<bool>              m_applyBoost{this, "ApplyBoost", true};
     Gaudi::Property<bool>              m_applyDivergence{this, "ApplyDivergence", true};

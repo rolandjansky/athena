@@ -6,6 +6,9 @@
 #include "../L1CPHitsTools.h"
 #include "../L1JEPEtSumsTools.h"
 #include "../L1TriggerTowerTool.h"
+// Migration of L1TriggerTowerTool 
+#include "../L1TriggerTowerToolRun3.h"
+//
 #include "../L1CPMTowerTools.h"
 #include "../L1CPMTools.h"
 #include "../L1JEMJetTools.h"
@@ -22,6 +25,7 @@ DECLARE_COMPONENT( LVL1::L1JetElementTools )
 DECLARE_COMPONENT( LVL1::L1CPHitsTools )
 DECLARE_COMPONENT( LVL1::L1JEPEtSumsTools )
 DECLARE_COMPONENT( LVL1::L1TriggerTowerTool )
+DECLARE_COMPONENT( LVL1::L1TriggerTowerToolRun3 )
 DECLARE_COMPONENT( LVL1::L1CPMTowerTools )
 DECLARE_COMPONENT( LVL1::L1CPMTools )
 DECLARE_COMPONENT( LVL1::L1JEMJetTools )

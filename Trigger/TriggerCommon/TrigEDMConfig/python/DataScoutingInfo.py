@@ -21,6 +21,7 @@ CostMonDS, PhysicsTLA
 DataScoutingIdentifiers = {
     'CostMonDS': 1,
     'PhysicsTLA': 5,
+    'JetPEBPhysicsTLA': 6,
 }
 
 
@@ -29,6 +30,7 @@ TruncationThresholds = {
     0: 5*(1024**2),  # Main: 5 MB
     1: 2*(1024**2),  # CostMonDS: 2 MB
     5: 1*(1024**2),  # PhysicsTLA: 1 MB
+    6: 1*(1024**2),  # JetPEBPhysicsTLA: 1 MB
     
 }
 

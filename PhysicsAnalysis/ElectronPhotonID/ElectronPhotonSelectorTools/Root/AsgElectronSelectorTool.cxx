@@ -71,6 +71,8 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
   declareProperty("doSmoothBinInterpolation", m_doSmoothBinInterpolation, "use smooth interpolation between discriminant bins");
   // especially for  trigger electron
   declareProperty("skipDeltaPoverP",m_skipDeltaPoverP = false,"If true, it will skip the check of deltaPoverP");
+
+  declareProperty("skipAmbiguityCut",m_skipAmbiguityCut = false,"If true, it will skip the ambiguity cut");
 }
 
 
@@ -343,14 +345,16 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   std::string notFoundList = "";
 
   // get the ambiguity type from the decoration
-  if (eg->isAvailable<uint8_t>("ambiguityType")){
-    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
-    ambiguityBit = acc(*eg);
-  }
-  else {
-    allFound = false;
-    notFoundList += "ambiguityType ";
-  }
+  if (!m_skipAmbiguityCut){
+    if (eg->isAvailable<uint8_t>("ambiguityType")){
+      static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+      ambiguityBit = acc(*eg);
+    }
+    else {
+      allFound = false;
+      notFoundList += "ambiguityType ";
+    }
+  } 
 
   nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(*track);
   nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*track);
@@ -717,7 +721,7 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
   ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::accept( &ctx, *part= "<<(&ctx)<<", "<<part<<" )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg){
-    return accept(eg);
+    return accept(ctx, eg);
   }
   else {
     ATH_MSG_DEBUG("AsgElectronSelectorTool::could not cast to const Electron");
@@ -737,7 +741,7 @@ double AsgElectronSelectorTool::calculate( const EventContext& ctx, const xAOD::
   ATH_MSG_VERBOSE("\t AsgElectronSelectorTool::calculate( &ctx, *part"<<(&ctx)<<", "<<part<<" )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg){
-    return calculate(eg);
+    return calculate(ctx, eg);
   }
   else {
     ATH_MSG_DEBUG("AsgElectronSelectorTool::could not cast to const Electron");

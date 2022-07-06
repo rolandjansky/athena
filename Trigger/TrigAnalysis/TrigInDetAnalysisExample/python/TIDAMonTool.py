@@ -38,11 +38,18 @@ def createMonTool( flags, slicetag, chain ) :
     monTool.convention      = 'OFFLINE'
     monTool.defaultDuration = 'run'
     
-#   print( "TIDAMonTool.py CreateMonTool ", chain, "  path:", monTool.HistPath )
+    #   print( "TIDAMonTool.py CreateMonTool ", chain, "  path:", monTool.HistPath )
 
-    ptbins = [ 1, 1.20226, 1.44544, 1.7378, 2.0893, 2.51189, 3.01995, 3.63078, 4.36516, 5.24807, 6.30957, 
-               7.58578, 9.12011, 10.9648, 13.1826, 15.8489, 19.0546, 22.9087, 27.5423, 33.1131, 39.8107, 
-               47.863, 57.544, 69.1831, 83.1764, 100 ]
+    if "mb" in chain :  
+        ptbins = [ 0.2, 0.4, 0.6, 0.8, 
+                   1, 1.20226, 1.44544, 1.7378, 2.0893, 2.51189, 3.01995, 3.63078, 4.36516, 5.24807, 6.30957, 
+                   7.58578, 9.12011, 10.9648, 13.1826, 15.8489, 19.0546, 22.9087, 27.5423, 33.1131, 39.8107, 
+                   47.863, 57.544, 69.1831, 83.1764, 100 ]
+    else:
+        ptbins = [ 1, 1.20226, 1.44544, 1.7378, 2.0893, 2.51189, 3.01995, 3.63078, 4.36516, 5.24807, 6.30957, 
+                   7.58578, 9.12011, 10.9648, 13.1826, 15.8489, 19.0546, 22.9087, 27.5423, 33.1131, 39.8107, 
+                   47.863, 57.544, 69.1831, 83.1764, 100 ]
+    
 
     vnbins = [
            -0.5, 
@@ -244,13 +251,19 @@ def createMonTool( flags, slicetag, chain ) :
 
             defineHisto( monTool, "vx_nvtx",  path=mypath, type="TH1F", title=";number of vertices",  xbins=101, xmin=-0.5,  xmax=100.5 )
             defineHisto( monTool, "vx_zed",   path=mypath, type="TH1F", title=";vtx z [mm]",          xbins=100, xmin=-250,  xmax=250   )
+            defineHisto( monTool, "vx_x",     path=mypath, type="TH1F", title=";vtx x [mm]",          xbins=200, xmin=-1.2,    xmax=1.2   )
+            defineHisto( monTool, "vx_y",     path=mypath, type="TH1F", title=";vtx y [mm]",          xbins=200, xmin=-1.2,    xmax=1.2   )
             defineHisto( monTool, "vx_ntrax", path=mypath, type="TH1F", title=";number of tracks",    xbins=vnbins )
             
             defineHisto( monTool, "vx_nvtx_rec",  path=mypath, type="TH1F", title=";number of vertices",   xbins=101, xmin=-0.5,  xmax=100.5 )
             defineHisto( monTool, "vx_zed_rec",   path=mypath, type="TH1F", title=";vtx z [mm]",           xbins=100, xmin=-250,  xmax=250   )
+            defineHisto( monTool, "vx_x_rec",     path=mypath, type="TH1F", title=";vtx x [mm]",           xbins=200, xmin=-1.2,  xmax=1.2   )
+            defineHisto( monTool, "vx_y_rec",     path=mypath, type="TH1F", title=";vtx y [mm]",           xbins=200, xmin=-1.2,  xmax=1.2   )
             defineHisto( monTool, "vx_ntrax_rec", path=mypath, type="TH1F", title=";number of tracks",     xbins=vnbins )
             
-            defineHisto( monTool, "vx_zed_res",   path=mypath, type="TH1F", title="Delta z [mm]", xbins=400, xmin=-10, xmax=10 )
+            defineHisto( monTool, "vx_zed_res",   path=mypath, type="TH1F", title="Delta z [mm]", xbins=400, xmin=-5,  xmax=5  )
+            defineHisto( monTool, "vx_x_res",     path=mypath, type="TH1F", title="Delta x [mm]", xbins=400, xmin=-0.1, xmax=0.1 )
+            defineHisto( monTool, "vx_y_res",     path=mypath, type="TH1F", title="Delta y [mm]", xbins=400, xmin=-0.1, xmax=0.1 )
             
             
             defineHisto( monTool, "vx_rdz_vs_zed",   path=mypath, type="TProfile", title="rdz_vs_zed; vtx z [mm];z residual [mm]",         xbins=100, xmin=-250,  xmax=250 ) 
@@ -288,9 +301,6 @@ def monGroup( analysis_chain ) :
 
         mg += "/"+chain.tail
 
-        if chain.extra != "" :
-            mg += "_" + chain.extra
-
         if chain.roi != "" :
             mg += "_"+chain.roi
             
@@ -300,6 +310,9 @@ def monGroup( analysis_chain ) :
         if chain.element != "" :
             mg += "_" + chain.element
         
+        if chain.extra != "" :
+            mg += "_" + chain.extra
+
         if chain.passed :
             mg += "/DTE"
 

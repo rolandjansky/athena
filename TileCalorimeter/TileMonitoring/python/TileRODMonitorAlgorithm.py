@@ -146,7 +146,7 @@ def TileRODMonitoringConfig(flags, **kwargs):
                                  title = titleAllRodFragSize, path = 'Tile/ROD',
                                  xbins = 1000, xmin = -0.5, xmax = 999.5,
                                  type = 'TProfile', run = run, triggers = l1Triggers,
-                                 perPartition = False, opt = 'kAddBinsDynamically')
+                                 perPartition = False, opt = 'kAddBinsDynamically', merge = 'merge')
 
         from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
         from TileMonitoring.TileMonitoringCfgHelper import getPartitionName
@@ -167,10 +167,6 @@ def TileRODMonitoringConfig(flags, **kwargs):
     return result
 
 if __name__=='__main__':
-
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
 
     # Setup logs
     from AthenaCommon.Logging import log

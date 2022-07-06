@@ -221,8 +221,6 @@ private:
 
   // For the forward fit part
   double m_cutChiSquaredPerNumberDOF = 0.0;
-  int m_overideMaterialEffects = 0;
-  ParticleHypothesis m_overideParticleHypothesis;
 
   // Counters for fit statistics
   // Number of Fit PrepRawData Calls

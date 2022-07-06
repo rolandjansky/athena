@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONITORING_LARFEBMONALG_H
@@ -16,6 +16,7 @@
 #include "LArRawEvent/LArFebErrorSummary.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include <string>
@@ -55,18 +56,12 @@ private:
   Gaudi::Property<std::vector<std::string> > m_SubDetNames{this, "SubDetNames", {} };
 
   Gaudi::Property<std::string> m_monGroupName  {this, "MonGroup", "FEBMon", "LArLARFEBMonGroup"};
+  //To get the data-dependency right ... 
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "LArStatusFlag", "EventInfo.larFlag", "Key for EventInfo object"};
 
   /* Histogram grouping (part) */
   std::vector<std::map<std::string,int> > m_histoGroups;
 
-  // Variables, which should fill the TTree, waiting until it will be supported by central monitoring
-  //TTree* m_CorruptTree;
-
-  //mutable unsigned int m_eventTime ATLAS_THREAD_SAFE;
-  //mutable unsigned int m_eventTime_ns ATLAS_THREAD_SAFE;
-  //mutable std::vector<int> m_febInErrorTree ATLAS_THREAD_SAFE;
-  //mutable std::vector<int> m_febErrorTypeTree ATLAS_THREAD_SAFE;
-  
   // Id helper
   const LArOnlineID* m_onlineHelper;
 

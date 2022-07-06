@@ -23,22 +23,30 @@ class NswCalibDbThresholdData {
   friend class NswCalibDbAlg;
 
 public:
+    enum class ThrsldTechType{
+        MM,
+        STGC        
+    };
 
     NswCalibDbThresholdData(const MmIdHelper&, const sTgcIdHelper&);
     virtual ~NswCalibDbThresholdData() = default;
 
 	// setting functions
-	void setData(const Identifier*, const double);
+	void setData(const Identifier&, const double);
+	void setZero(ThrsldTechType   , const double);
 
 	// retrieval functions
 	std::vector<Identifier> getChannelIds(const std::string="", const std::string="") const;
-	bool                    getThreshold (const Identifier*   , double&             ) const;
+	bool                    getThreshold (const Identifier&   , double&             ) const;
 
  
 private:
 
 	// containers
-    std::map<unsigned long long, std::vector<double> > m_data{};
+    using ChannelMap = std::map<unsigned long long, std::vector<double>>;
+    using ZeroMap = std::map<ThrsldTechType, double >;
+    ChannelMap m_data{};
+    ZeroMap m_zero{};
 
 	// ID helpers
 	const MmIdHelper&   m_mmIdHelper;

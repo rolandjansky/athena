@@ -12,12 +12,12 @@ Offline configurations are available here:
 """
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory,  FcnWrapper
-from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool
 # Tools and funtions from TrigEgammaFactories
 from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder_HI, TrigEMShowerBuilder, TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
 from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+from TriggerMenuMT.HLT.Egamma.TrigEgammaMVACalibFactories import trigPrecEgammaMVASvc
 
 
 # Decoration tools for egamma and photon objects:
@@ -46,7 +46,7 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         SuperPhotonRecCollectionName=TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
         SuperClusterCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterCollection,
         ClusterCorrectionTool=egammaSwSuperClusterTool,
-        MVACalibSvc= egammaMVASvc,
+        MVACalibSvc= trigPrecEgammaMVASvc,
         doConversions = False,
         AddClustrsMatchingVtxTracks = False,
         ConversionBuilderTool = None,
@@ -61,7 +61,7 @@ TrigTopoEgammaPhotons_HI = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
         InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
         ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
         PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,
-        EMClusterTool = TrigEMClusterTool,
+        EMClusterTool = TrigEMClusterTool("photon"),
         EMShowerTool=TrigEMShowerBuilder_HI,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
         PhotonTools = FcnWrapper(TrigPhotonDecorationTools),
@@ -76,7 +76,7 @@ TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
         InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
         ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
         PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
-        EMClusterTool = TrigEMClusterTool,
+        EMClusterTool = TrigEMClusterTool("photon"),
         EMShowerTool=TrigEMShowerBuilder,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
         PhotonTools = FcnWrapper(TrigPhotonDecorationTools),

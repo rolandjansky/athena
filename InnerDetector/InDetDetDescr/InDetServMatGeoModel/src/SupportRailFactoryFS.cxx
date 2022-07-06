@@ -19,7 +19,6 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -34,7 +33,7 @@
 
 SupportRailFactoryFS::SupportRailFactoryFS(StoreGateSvc *detStore,
 					   ServiceHandle<IRDBAccessSvc> pRDBAccess) :
-  AthMessaging(Athena::getMessageSvc(), "SupportRailFactoryFS"),
+  AthMessaging("SupportRailFactoryFS"),
   m_detStore(detStore),
   m_rdbAccess(std::move(pRDBAccess))
 {

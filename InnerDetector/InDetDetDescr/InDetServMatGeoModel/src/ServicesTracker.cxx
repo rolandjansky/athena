@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "InDetServMatGeoModel/ServicesTracker.h"
 
 #include "InDetServMatGeoModel/ServicesLayer.h"
@@ -18,7 +17,7 @@
 using namespace std;
 
 ServicesTracker::ServicesTracker():
-  AthMessaging(Athena::getMessageSvc(), "ServicesTracker"),
+  AthMessaging("ServicesTracker"),
   m_geoMgr(nullptr)
 {
   m_barrelLayers.clear();

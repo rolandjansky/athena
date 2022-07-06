@@ -82,14 +82,12 @@ rdotrig2aod.args += '--conditionsTag="all:OFLCOND-MC16-SDR-RUN2-09"'
 
 # AOD -> DAOD
 aod2daod = ExecStep.ExecStep('AODtoDAOD')
-aod2daod.type = 'Reco_tf'
+aod2daod.type = 'Derivation_tf'
 aod2daod.input = ''
 aod2daod.forks = 4
 aod2daod.explicit_input = True
-aod2daod.args = '--inputAODFile=AOD.pool.root --sharedWriter=True --runNumber=300001 --digiSeedOffset1=1 --digiSeedOffset2=1 --outputDAODFile=DAOD.pool.root --reductionConf=PHYS'
-aod2daod.args += ' --preExec="default:from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();"'
-aod2daod.args += ' --postExec="default:from IOVDbSvc.CondDB import conddb; conddb.addFolderSplitOnline(\\\"INDET\\\",\\\"/Indet/Onl/Beampos\\\",\\\"/Indet/Beampos\\\", className=\\\"AthenaAttributeList\\\"); from AthenaCommon.AlgSequence import AthSequencer; condSeq = AthSequencer(\\\"AthCondSeq\\\"); from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg; condSeq += BeamSpotCondAlg( \\\"BeamSpotCondAlg\\\" );"'
-aod2daod.args += ' --athenaMPMergeTargetSize "DAOD_*:0"'
+aod2daod.args = '--inputAODFile=AOD.pool.root --outputDAODFile=DAOD.pool.root --CA --formats=PHYS'
+aod2daod.args += ' --sharedWriter=True --athenaMPMergeTargetSize "DAOD_*:0"'
 
 # Define the test with the above steps
 test = Test.Test()

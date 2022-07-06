@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
@@ -24,21 +24,7 @@ def defaultOverlayFlags(configFlags):
     configFlags.Tile.zeroAmplitudeWithoutDigits = False
 
 
-def fromRunArgs(runArgs):
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
-
-    from AthenaCommon.Logging import logging
-    logOverlay = logging.getLogger('Overlay')
-    logOverlay.info('****************** STARTING OVERLAY *****************')
-
-    logOverlay.info('**** Transformation run arguments')
-    logOverlay.info(str(runArgs))
-
-    logOverlay.info('**** Setting-up configuration flags')
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    commonRunArgsToFlags(runArgs, ConfigFlags)
-
+def setOverlayInputFiles(runArgs, configFlags, log):
     hasRDO_BKGInput = hasattr(runArgs, 'inputRDO_BKGFile')
     hasBS_SKIMInput = hasattr(runArgs, 'inputBS_SKIMFile')
 
@@ -51,24 +37,41 @@ def fromRunArgs(runArgs):
         raise RuntimeError('Define one of RDO_BKG and BS_SKIM file types')
 
     if hasattr(runArgs, 'skipSecondaryEvents'):
-        ConfigFlags.Overlay.SkipSecondaryEvents = runArgs.skipSecondaryEvents
+        configFlags.Overlay.SkipSecondaryEvents = runArgs.skipSecondaryEvents
+
+    if hasRDO_BKGInput:
+        log.info('Running MC+MC overlay')
+        configFlags.Overlay.DataOverlay = False
+        configFlags.Input.isMC = True
+        configFlags.Input.Files = runArgs.inputRDO_BKGFile
+        configFlags.Input.SecondaryFiles = runArgs.inputHITSFile
+    else:
+        log.info('Running MC+data overlay')
+        configFlags.Overlay.DataOverlay = True
+        configFlags.Input.isMC = False
+        configFlags.Input.Files = runArgs.inputHITSFile
+        configFlags.Input.SecondaryFiles = runArgs.inputBS_SKIMFile
+
+
+def fromRunArgs(runArgs):
+    from AthenaCommon.Logging import logging
+    logOverlay = logging.getLogger('Overlay')
+    logOverlay.info('****************** STARTING OVERLAY *****************')
+
+    logOverlay.info('**** Transformation run arguments')
+    logOverlay.info(str(runArgs))
+
+    logOverlay.info('**** Setting-up configuration flags')
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    commonRunArgsToFlags(runArgs, ConfigFlags)
+
+    # Setting input files for Overlay
+    setOverlayInputFiles(runArgs, ConfigFlags, logOverlay)
 
     from AthenaConfiguration.Enums import ProductionStep
     ConfigFlags.Common.ProductionStep = ProductionStep.Overlay
 
-    if hasRDO_BKGInput:
-        logOverlay.info('Running MC+MC overlay')
-        ConfigFlags.Overlay.DataOverlay = False
-        ConfigFlags.Input.isMC = True
-        ConfigFlags.Input.Files = runArgs.inputRDO_BKGFile
-        ConfigFlags.Input.SecondaryFiles = runArgs.inputHITSFile
-    else:
-        logOverlay.info('Running MC+data overlay')
-        ConfigFlags.Overlay.DataOverlay = True
-        ConfigFlags.Input.isMC = False
-        ConfigFlags.Input.Files = runArgs.inputHITSFile
-        ConfigFlags.Input.SecondaryFiles = runArgs.inputBS_SKIMFile
-
+    # Setting output files for Overlay
     if hasattr(runArgs, 'outputRDOFile'):
         if runArgs.outputRDOFile == 'None':
             ConfigFlags.Output.RDOFileName = ''

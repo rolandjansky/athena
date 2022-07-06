@@ -6,22 +6,14 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/HelperFunctions.h"
 
-#include <TTree.h>
-#include <vector>
 
-//_____________________________________________________________________________
 MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
   : TauRecToolBase(name) {
   declareProperty("WeightFileName", m_sWeightFileName = "");
   declareProperty("WeightFileName0p", m_sWeightFileName0p = "");
-  declareProperty("UseEMoverLC", m_useEMoverLC = false);
 }
 
-//_____________________________________________________________________________
-MvaTESEvaluator::~MvaTESEvaluator() {
-}
 
-//_____________________________________________________________________________
 StatusCode MvaTESEvaluator::initialize(){
   
   const std::string weightFile = find_file(m_sWeightFileName);
@@ -37,7 +29,7 @@ StatusCode MvaTESEvaluator::initialize(){
   return StatusCode::SUCCESS;
 }
 
-//_____________________________________________________________________________
+
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
 
   std::map<TString, float*> availableVars;
@@ -81,13 +73,14 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ClustersMeanPresamplerFrac", &vars.presampler_frac) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ClustersMeanEMProbability", &vars.eprobability) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.LeadClusterFrac", &vars.lead_cluster_frac) );
+    availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.SecondClusterFrac", &vars.second_cluster_frac) );
+    availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ThirdClusterFrac", &vars.third_cluster_frac) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.UpsilonCluster", &vars.upsilon_cluster) );
-    availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptDetectorAxis", &vars.ptDetectorAxis) );
+    availableVars.insert( std::make_pair("log(TrigTauJetsAuxDyn.ptDetectorAxis)", &vars.logPtDetectorAxis) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.etaDetectorAxis", &vars.etaDetectorAxis) );
-    if (m_useEMoverLC) {
-      // in trigger mode, ptIntermediateAxisEM actually means ptDetectorAxisEM, i.e. no vertex correction and EM scale
-      availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptIntermediateAxisEM/TrigTauJetsAuxDyn.ptDetectorAxis", &vars.ptEM_D_ptLC) );
-    }
+    availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptIntermediateAxisEM/TrigTauJetsAuxDyn.ptDetectorAxis", &vars.ptEM_D_ptLC) );
+    availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptDetectorAxis/TrigTauJetsAuxDyn.ptJetSeed", &vars.ptDetectorAxis_D_ptJetSeed) );
+    availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.centFrac", &vars.centFrac) );
   }
 
   // Retrieve average pileup
@@ -169,23 +162,34 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     xTau.setP4(ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
   }
   else {
+    // protection but should never happen
+    if (xTau.ptDetectorAxis()==0. || xTau.ptJetSeed()==0.) {
+      xTau.setP4(xAOD::TauJetParameters::FinalCalib, 1., xTau.etaDetectorAxis(), xTau.phiDetectorAxis(), 0.);    
+      xTau.setP4(1., xTau.etaDetectorAxis(), xTau.phiDetectorAxis(), 0.);
+      return StatusCode::SUCCESS;
+    }
 
-    vars.ptDetectorAxis = xTau.ptDetectorAxis();
+    vars.logPtDetectorAxis = std::log(xTau.ptDetectorAxis());
     vars.etaDetectorAxis = xTau.etaDetectorAxis();
-    vars.ptEM_D_ptLC = (vars.ptDetectorAxis != 0.) ? ptEM / vars.ptDetectorAxis : 0.;
+    vars.ptEM_D_ptLC = ptEM / xTau.ptDetectorAxis();
+    vars.ptDetectorAxis_D_ptJetSeed = xTau.ptDetectorAxis() / xTau.ptJetSeed();
 
     static const SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
     static const SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+    static const SG::AuxElement::ConstAccessor<float> acc_SecondClusterFrac("SecondClusterFrac");
+    static const SG::AuxElement::ConstAccessor<float> acc_ThirdClusterFrac("ThirdClusterFrac");
+
     vars.upsilon_cluster = acc_UpsilonCluster(xTau);
     vars.lead_cluster_frac = acc_LeadClusterFrac(xTau);
+    vars.second_cluster_frac = acc_SecondClusterFrac(xTau);
+    vars.third_cluster_frac = acc_ThirdClusterFrac(xTau);
  
-    float ptMVA = float( vars.ptDetectorAxis * m_bdtHelper->getResponse(availableVars) );
+    xTau.detail(xAOD::TauJetParameters::centFrac, vars.centFrac);
+
+    float ptMVA = float( xTau.ptDetectorAxis() * m_bdtHelper->getResponse(availableVars) );
     if (ptMVA<1.) ptMVA=1.;
 
-    // this may have to be changed if we apply a calo-only MVA calibration first, followed by a calo+track MVA calibration
-    // in which case, the calo-only would be TauJetParameters::TrigCaloOnly, and the final one TauJetParameters::FinalCalib
-    xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0.);
-    
+    xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0.);    
     // apply MVA calibration
     xTau.setP4(ptMVA, vars.etaDetectorAxis, xTau.phiDetectorAxis(), 0.);
   }

@@ -1271,7 +1271,7 @@ Amg::Vector3D RpcDigitizationTool::posInPanel(
     float panelXlength = ele->stripPanelSsize(measuresPhi);
     Amg::Vector3D result = posInGap;
 
-    if (ele->Nphigasgaps() != 1)
+    if (ele->NgasGaps(true) != 1)
         return result;  // all but BMS/F and ribs chambers
 
     else if (ele->NphiStripPanels() == 1)

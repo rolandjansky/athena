@@ -147,6 +147,7 @@ namespace MuonCombined {
             } else {
                 ATH_MSG_DEBUG("muon found");
                 if (select_commissioning) { muon->addAllAuthor(xAOD::Muon::Author::Commissioning); }
+                
                 if (!muon->primaryTrackParticleLink().isValid()) {
                     ATH_MSG_ERROR("This muon has no valid primaryTrackParticleLink! Author=" << muon->author());
                 }
@@ -769,6 +770,20 @@ namespace MuonCombined {
 
     void MuonCreatorTool::addMuonCandidate(const EventContext& ctx, const MuonCandidate& candidate, xAOD::Muon& muon,
                                            OutputData& outputData, const ElementLink<TrackCollection>& meLink) const {
+        if (!muon.nMuonSegments()) {
+            std::vector< ElementLink<xAOD::MuonSegmentContainer>> segments;
+            for (const Muon::MuonSegment* segLink : candidate.getSegments()) {
+                ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(ctx, segLink, outputData);
+                if (link.isValid()) {
+                    segments.push_back(link);
+                    ATH_MSG_DEBUG("Adding MuGirl: xaod::MuonSegment px " << (*link)->px() << " py " << (*link)->py() << " pz "
+                                                                            << (*link)->pz());
+                } else
+                    ATH_MSG_WARNING("Creating of Muon candidate segment failed "<<candidate.toString());
+                    
+            }           
+            muon.setMuonSegmentLinks(segments);
+        }
         // only set once
         if (muon.muonSpectrometerTrackParticleLink().isValid()) { return; }
         // case where we have a MuGirl muon that is also reconstructed by STACO: don't
@@ -894,7 +909,7 @@ namespace MuonCombined {
                     ATH_MSG_WARNING("failed to create ME track particle for SA muon");
                 }
             }
-        }
+        }        
     }
 
     void MuonCreatorTool::selectStaus(InDetCandidateTagsMap& resolvedInDetCandidates,

@@ -86,7 +86,7 @@ public :
   inline void setAvalancheGain(float val) {m_avalancheGain = val;}
   inline void setInteractionDensityMean(float val) {m_interactionDensityMean = val;}
   inline void setInteractionDensitySigma(float val) {m_interactionDensitySigma = val;}
-  inline void setLorentzAngleFunction(TF1* f) {m_lorentzAngleFunction = f;}
+  inline void setLorentzAngleFunction(const TF1* f) {m_lorentzAngleFunction = f;}
 
   float getQThreshold    () const { return m_qThreshold;      };
   float getDriftGapWidth () const { return m_driftGapWidth;   };
@@ -95,7 +95,7 @@ public :
   float getInteractionDensitySigma () const { return m_interactionDensitySigma;}
   float getLongitudinalDiffusionSigma () const { return m_longitudinalDiffusionSigma;}
   float getTransversDiffusionSigma () const { return m_transverseDiffusionSigma;}
-  TF1* getLorentzAngleFunction () const { return m_lorentzAngleFunction;}
+  const TF1* getLorentzAngleFunction () const { return m_lorentzAngleFunction;}
 
   std::vector <float> getTStripElectronicsAbThr() const { return m_tStripElectronicsAbThr;};
   std::vector <float> getQStripElectronics() const { return m_qStripElectronics;};
@@ -108,69 +108,65 @@ public :
   inline void writeOutputFile(bool val) {m_writeOutputFile = val;}
 
 private:
-
   /** qThreshold=2e, we accept a good strip if the charge is >=2e */
-  float m_qThreshold;
+  float m_qThreshold{0.};
 
 
   /** // 0.350/10 diffusSigma=transverse diffusion (350 microm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
-  float m_transverseDiffusionSigma;
-  float m_longitudinalDiffusionSigma;
+  float m_transverseDiffusionSigma{0.};
+  float m_longitudinalDiffusionSigma{0.};
   /** crosstalk of neighbor strips, it's 15%  */
-  float m_crossTalk1;//0.10; //
+  float m_crossTalk1{0.};//0.10; //
   /** // crosstalk of second neighbor strips, it's 6% */
-  float m_crossTalk2;//0.03;
+  float m_crossTalk2{0.};//0.03;
 
-  float m_driftGapWidth;
+  float m_driftGapWidth{0.};
 
   /** //0.050 drift velocity in [mm/ns], driftGap=5 mm +0.128 mm (the amplification gap) */
-  float m_driftVelocity;
+  float m_driftVelocity{0.};
 
 
   // Avalanche gain
-  float m_avalancheGain;
-  int m_maxPrimaryIons;
+  float m_avalancheGain{0.};
+  int m_maxPrimaryIons{300};
 
-  float m_interactionDensityMean;
-  float m_interactionDensitySigma;
+  float m_interactionDensityMean{0.};
+  float m_interactionDensitySigma{0.};
 
-  std::vector <int>   m_finalNumberofStrip;
-  std::vector <int>   m_nStripElectronics;
-  std::vector < std::vector <float> > m_finalqStrip;
-  std::vector < std::vector <float> > m_finaltStrip;
-  std::vector <float> m_finaltStripNoSlewing;
-  std::vector <float> m_tStripElectronicsAbThr;
-  std::vector <float> m_qStripElectronics;
+  std::vector <int>   m_finalNumberofStrip{};
+  std::vector <int>   m_nStripElectronics{};
+  std::vector < std::vector <float> > m_finalqStrip{};
+  std::vector < std::vector <float> > m_finaltStrip{};
+  std::vector <float> m_finaltStripNoSlewing{};
+  std::vector <float> m_tStripElectronicsAbThr{};
+  std::vector <float> m_qStripElectronics{};
 
-  std::vector <int> m_stripNumber;
-  std::vector <int> m_firstq;
-  std::vector <float> m_qstrip;
-  std::vector <float> m_cntTimes;
-  std::vector <float> m_tStrip;
-  std::vector <float> m_qStrip;
-  std::vector <float> m_time;  //Drift velocity [mm/ns]
-  std::vector <int> m_numberofStrip;
+  std::vector <int> m_stripNumber{};
+  std::vector <int> m_firstq{};
+  std::vector <float> m_qstrip{};
+  std::vector <float> m_cntTimes{};
+  std::vector <float> m_tStrip{};
+  std::vector <float> m_qStrip{};
+  std::vector <float> m_time{};  //Drift velocity [mm/ns]
+  std::vector <int> m_numberofStrip{};
 
-  std::vector <float> m_clusterelectrons;
-  std::vector <float> m_l;
+  std::vector <float> m_clusterelectrons{};
+  std::vector <float> m_l{};
 
   /// ToDo: random number from custom functions
-  TF1 *m_lorentzAngleFunction;
+  const TF1 *m_lorentzAngleFunction{nullptr};
 
-  MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
-  MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
+  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters{};
 
-  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters;
+  std::map<TString, TH1F* > m_mapOfHistograms{};
+  std::map<TString, TH2F* > m_mapOf2DHistograms{};
 
-  std::map<TString, TH1F* > m_mapOfHistograms;
-  std::map<TString, TH2F* > m_mapOf2DHistograms;
+  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons{};
+  int m_NelectronPropBins{0};
 
-  std::unique_ptr<CLHEP::RandGeneral> m_randNelectrons;
-  int m_NelectronPropBins = 0;
-
-  bool m_writeOutputFile;
-  bool m_writeEventDisplays;
-  TFile * m_outputFile;
+  bool m_writeOutputFile{false};
+  bool m_writeEventDisplays{false};
+  TFile * m_outputFile{nullptr};
 
  protected:
   // seperate random number generation for performance monitoring

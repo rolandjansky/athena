@@ -47,7 +47,7 @@ void  TrackParticleCnv_p2::persToTrans(const Rec::TrackParticle_p2 * persObj, Re
     
     //----- Kinematics
     const Amg::Vector3D& mom = parameters.back()->momentum();
-    double mpi = Trk::ParticleMasses().mass[Trk::pion];
+    double mpi = Trk::ParticleMasses::mass[Trk::pion];
     P4PxPyPzE fmom (mom[Trk::px],
                     mom[Trk::py],
                     mom[Trk::pz],

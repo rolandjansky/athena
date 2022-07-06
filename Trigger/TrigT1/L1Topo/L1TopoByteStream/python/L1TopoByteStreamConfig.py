@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 '''
 Functions creating ComponentAccumulator with ByteStream converters for L1Topo objects
 '''
@@ -6,7 +6,23 @@ Functions creating ComponentAccumulator with ByteStream converters for L1Topo ob
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
 
+def L1TopoPhase1ByteStreamToolCfg(name, flags, writeBS=False):
+    from libpyeformat_helper import SourceIdentifier, SubDetector
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    
+    tool = CompFactory.L1TopoPhase1ByteStreamTool(name)
+    moduleids = [0x1800]
+    tool.ROBIDs = [int(SourceIdentifier(SubDetector.TDAQ_CALO_TOPO_PROC, moduleid)) for moduleid in moduleids]
 
+    if writeBS:
+        tool.L1TopoPhase1RAWDataReadContainer = "L1_Phase1L1TopoRAWData"
+        tool.L1TopoPhase1RAWDataWriteContainer = ""
+    else:
+        tool.L1TopoPhase1RAWDataReadContainer = ""
+        tool.L1TopoPhase1RAWDataWriteContainer = "L1_Phase1L1TopoRAWData"
+    
+    return tool
+    
 def L1TopoRDOCollectionBSCnvCfg(flags):
     typeNamesToDecode = ["L1TopoRDOCollection/L1TopoRDOCollection",
                          "SG::AuxVectorBase/L1TopoRDOCollection"]

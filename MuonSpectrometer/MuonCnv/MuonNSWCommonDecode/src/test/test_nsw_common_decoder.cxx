@@ -19,6 +19,10 @@
 #include "MuonNSWCommonDecode/VMMChannel.h"
 #include "MuonNSWCommonDecode/NSWResourceId.h"
 
+// Number of sectors - Module ID, to be checked to avoid confusion with NSW TP
+
+static const uint16_t sectors = 16;
+
 // Local issue definition
 
 ERS_DECLARE_ISSUE_BASE (eformat, InconsistentChannelNumber, eformat::Issue, 
@@ -33,11 +37,12 @@ static const int ERR_GENERIC = -2;
 
 // Global parameters
 
-struct Params {
-  bool printout{false};
-  bool tree_view{true};
-  bool flat_view{true};
-  unsigned int printout_level{0};
+struct Params
+{
+  bool printout {false};
+  bool tree_view {true};
+  bool flat_view {true};
+  unsigned int printout_level {0};
   std::vector <std::string> file_names;
 };
 
@@ -133,6 +138,7 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f, const Pa
     uint32_t sid = r->rob_source_id ();
     eformat::helper::SourceIdentifier source_id (sid);
     eformat::SubDetector s = source_id.subdetector_id ();
+    uint16_t m = source_id.module_id ();
 
     if (s == 0)    // NSW data written before end of March 2021 have wrong source Id
       s = static_cast <eformat::SubDetector> ((sid >> 24) & 0xff);
@@ -142,7 +148,7 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f, const Pa
     else if (s == eformat::MUON_STGC_ENDCAP_A_SIDE  || s == eformat::MUON_STGC_ENDCAP_C_SIDE)
       is_nsw = is_stg = true;
 
-    if (is_nsw)
+    if (is_nsw && m < sectors)
     {
       if (params.printout_level > 2)
         std::cout << "NSW fragment found: detector ID = 0x" << std::hex << s << std::dec << " length " << r->rod_ndata () << std::endl;

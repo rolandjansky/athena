@@ -147,21 +147,13 @@ if DetFlags.overlay.LVL1_on():
 
 #add the tracks
 if overlayFlags.doTrackOverlay():
-    outStream.ItemList += [ 'TrackCollection#Bkg_CombinedInDetTracks' ]
-    outStream.ItemList += [ 'TrackCollection#Bkg_DisappearingTracks' ]
-    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedForwardTracks' ]
-    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedLargeD0Tracks' ]
-    outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles' ]
-    outStream.ItemList += [ 'InDet::PixelClusterContainer#Bkg_PixelClusters' ]
-    outStream.ItemList += [ 'InDet::SCT_ClusterContainer#Bkg_SCT_Clusters' ]
-    if DetFlags.overlay.Truth_on():
-        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthTRT' ]
-        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthPixel' ]
-        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthSCT' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_DisappearingTracksDetailedTruth' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedForwardTracksDetailedTruth' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_CombinedInDetTracksDetailedTruth' ]
-        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedLargeD0TracksDetailedTruth' ]
+    outStream.ItemList += [ 'TrackCollection#'+overlayFlags.bkgPrefix()+'CombinedInDetTracks' ]
+    outStream.ItemList += [ 'TrackCollection#'+overlayFlags.bkgPrefix()+'DisappearingTracks' ]
+    outStream.ItemList += [ 'TrackCollection#'+overlayFlags.bkgPrefix()+'ResolvedForwardTracks' ]
+    outStream.ItemList += [ 'TrackCollection#'+overlayFlags.bkgPrefix()+'ResolvedLargeD0Tracks' ]
+    outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#'+overlayFlags.bkgPrefix()+'TRT_DriftCircles' ]
+    outStream.ItemList += [ 'InDet::PixelClusterContainer#'+overlayFlags.bkgPrefix()+'PixelClusters' ]
+    outStream.ItemList += [ 'InDet::SCT_ClusterContainer#'+overlayFlags.bkgPrefix()+'SCT_Clusters' ]
 
 # Temporary to ensure the output is stored
 outStream.TransientItems = outStream.ItemList

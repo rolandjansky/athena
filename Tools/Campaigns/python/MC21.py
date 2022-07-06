@@ -37,9 +37,6 @@ def MC21aSingleBeamspot(flags):
     MC21a(flags)
 
     # override only pile-up profile
-    flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
-    flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
-    flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
 
 
@@ -73,12 +70,11 @@ def MC21SimulationBase(flags):
     flags.Sim.TRTRangeCut = 30.0
     flags.Sim.TightMuonStepping = True
 
-    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill #, enableFrozenShowersFCalOnly
+    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
     if flags.Sim.ISF.Simulator in [SimulationFlavour.FullG4MT, SimulationFlavour.FullG4MT_QS]:
-        # Not tuned yet for G4 10.6
-        # enableFrozenShowersFCalOnly(flags)
-        pass
+        enableFrozenShowersFCalOnly(flags)
+
     from SimuJobTransforms.G4Optimizations import enableG4Optimizations
     enableG4Optimizations(flags)
 

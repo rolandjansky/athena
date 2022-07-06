@@ -459,8 +459,7 @@ protected:
     if ( m_doOffline ) {
       if ( m_provider->evtStore()->template contains<VxContainer>("VxPrimaryCandidate") ) {
         if ( m_provider->evtStore()->retrieve(primaryVtxCollection, "VxPrimaryCandidate").isFailure()) {
-          if (m_provider->msg().level() <= MSG::WARNING)
-            m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endmsg;
+          if (m_provider->msg().level() <= MSG::WARNING) m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endmsg;
         }
         else {
           VxContainer::const_iterator vtxitr = primaryVtxCollection->begin();
@@ -488,7 +487,7 @@ protected:
     const xAOD::VertexContainer* xaodVtxCollection = 0;
 
     if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "PrimaryVertices" ).isFailure()) {
-      m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endmsg;
+      if (m_provider->msg().level() <= MSG::WARNING) m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endmsg;
     }
     
     if ( xaodVtxCollection!=0 ) { 
@@ -820,7 +819,9 @@ protected:
 	    std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
 	    
 	    if ( xaodtrigvertices.empty() ) { 
-	      m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endmsg;
+	      if ( m_provider->msg().level() <= MSG::DEBUG ) {
+		m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endmsg;
+	      }
 	    }
 	    else {
 	      

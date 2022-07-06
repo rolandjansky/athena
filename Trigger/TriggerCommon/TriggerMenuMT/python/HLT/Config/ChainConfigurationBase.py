@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -9,8 +9,9 @@ import abc
 from TriggerMenuMT.HLT.Config.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoCAmigration
+
 
 #----------------------------------------------------------------
 # Base class to configure chain
@@ -49,12 +50,12 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
         seqArray = []                
         for sequenceCfg in sequenceCfgArray:            
             try:
-                if Configurable.configurableRun3Behavior:                     
+                if isRun3Cfg():
                     seqArray.append (sequenceCfg(flags, **stepArgs) )                                                         
                 else:
                     seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, flags, **stepArgs ))                                                       
             except NameError:
-                if Configurable.configurableRun3Behavior: 
+                if isRun3Cfg():
                     log.warning(str(NoCAmigration('[getStep] This sequence {0} does not exist for CA components'.format(sequenceCfg.__name__)) ))                    
                 else: 
                     raise
@@ -63,7 +64,7 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
             return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
 
         try:
-            if Configurable.configurableRun3Behavior:
+            if isRun3Cfg():
                 raise NoCAmigration                            
             raise RuntimeError("[getStep] No sequences generated for step %s!", stepPartName)        
         except NoCAmigration:

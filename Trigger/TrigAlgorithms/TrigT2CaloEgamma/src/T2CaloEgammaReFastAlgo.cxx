@@ -141,24 +141,11 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
       ATH_CHECK( tool->execute(*ptrigEmCluster, newroi, caloDDE, context) );
     }
     //  // support to new monitoring
-    /*
-      m_rCore=0;
-      m_eRatio=0;
-      m_stripRatio=0;
-      m_MonEta=ptrigEmCluster->eta();
-      m_MonPhi=ptrigEmCluster->phi();
-      if ( ptrigEmCluster->e277()!=0 )
-            m_rCore =  ptrigEmCluster->e237()/ptrigEmCluster->e277();
-      if ( ptrigEmCluster->emaxs1()+ptrigEmCluster->e2tsts1() !=0){
-            m_eRatio  =  ptrigEmCluster->emaxs1()-ptrigEmCluster->e2tsts1();
-            m_eRatio /=  ptrigEmCluster->emaxs1()+ptrigEmCluster->e2tsts1();
-      }
-    */
     // Cluster quality is a collection of possible errors
     // No error quality=0
     ptrigEmCluster->setClusterQuality(error);
     if ((error & 0xC0000000) || ptrigEmCluster->phi() < -M_PI || ptrigEmCluster->phi() > +M_PI ||
-        fabsf(ptrigEmCluster->eta()) > 10.0) {
+        std::abs(ptrigEmCluster->eta()) > 10.0) {
       // Clustering failed. Transmit ahead L1
       ptrigEmCluster->setEta(etaL1);
       ptrigEmCluster->setPhi(phiL1);

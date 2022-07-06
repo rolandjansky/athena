@@ -41,38 +41,6 @@ def ExtrapolatorCfg(flags):
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
 
-def TestBlayerToolCfg(flags):
-  acc = ComponentAccumulator()
-  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-  tool = CompFactory.InDet.InDetTestBLayerTool("InDetTrigTestBLayerTool",
-                                                PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
-                                                Extrapolator    = acc.getPrimaryAndMerge( ExtrapolatorCfg( flags ) ),
-                                                CheckActiveAreas= True 
-                                                )
-  acc.setPrivateTools(tool)
-
-  return acc
-
-def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
-  acc = ComponentAccumulator()
-  if not summaryHelperTool:
-    from InDetConfig.InDetTrackSummaryHelperToolConfig import TrigTrackSummaryHelperToolCfg
-    summaryHelperTool = acc.popToolsAndMerge( TrigTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
-
-  tool = CompFactory.Trk.TrackSummaryTool(name = name,
-                                          InDetSummaryHelperTool = summaryHelperTool,
-                                          doSharedHits           = True,
-                                          doHolesInDet           = True,
-                                          #this may be temporary #61512 (and used within egamma later)
-                                          )
-  if makePublic:
-    acc.addPublicTool( tool, primary=True )
-  else:
-    acc.setPrivateTools(tool)
-  return acc
-
-
-
 class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
@@ -248,7 +216,9 @@ def trtDataPrep(flags, roisKey, signature):
 def ftfCfg(flags, roisKey, signature, signatureName):
   acc = ComponentAccumulator()
 
-  acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+  TrackSummaryTool = acc.popToolsAndMerge( InDetTrigTrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
+  acc.addPublicTool(TrackSummaryTool)
 
   acc.merge( SiTrackMaker_xkCfg( flags, name = "InDetTrigSiTrackMaker_FTF"+signature ) )
 
@@ -280,7 +250,7 @@ def ftfCfg(flags, roisKey, signature, signatureName):
   ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder_" + signature,
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
                                          SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature ),
-                                         TrackSummaryTool         = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
+                                         TrackSummaryTool         = TrackSummaryTool,
 #                                         TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
                                          initialTrackMaker        = acc.getPublicTool( "InDetTrigSiTrackMaker_FTF" + signature ),
                                          trigInDetTrackFitter     = acc.getPublicTool( "TrigInDetTrackFitter" ),
@@ -323,15 +293,10 @@ def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
 def _trackConverterCfg(flags, signature, inputTracksKey, outputTrackParticleKey):
   acc = ComponentAccumulator()
 
-  summaryTool = acc.getPrimaryAndMerge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
-  track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
-  creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                                          TrackSummaryTool      = summaryTool,
-                                                          TrackToVertex         = track_to_vertex,
-                                                          KeepParameters        = True,
-                                                          ComputeAdditionalInfo = True,
-                                                         )
+  from TrkConfig.TrkParticleCreatorConfig import InDetTrigParticleCreatorToolFTFCfg
+  creatorTool = acc.popToolsAndMerge(InDetTrigParticleCreatorToolFTFCfg(flags))
   acc.addPublicTool(creatorTool)
+
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
                                                           TrackName           = inputTracksKey,
@@ -485,13 +450,17 @@ def TRTExtensionAlgCfg(flags):
 
 def TRTExtensionProcessorCfg(flags):
   acc = ComponentAccumulator()
+
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+  from TrkConfig.TrkGlobalChi2FitterConfig import InDetTrigGlobalChi2FitterCfg
+
   extensionProcessor = CompFactory.InDet.InDetExtensionProcessor (name         = f"{prefix}ExtensionProcessor_{flags.InDet.Tracking.ActivePass.name}",
                                                             TrackName          = _tracksPostAmbi(flags),
                                                             #Cosmics           = InDetFlags.doCosmics(),
                                                             ExtensionMap       = 'ExtendedTrackMap',
                                                             NewTrackName       = flags.InDet.Tracking.ActivePass.trkTracks_IDTrig,
-                                                            TrackFitter        = acc.getPrimaryAndMerge(FitterToolCfg(flags)),
-                                                            TrackSummaryTool   = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                            TrackFitter        = acc.getPrimaryAndMerge(InDetTrigGlobalChi2FitterCfg(flags)),
+                                                            TrackSummaryTool   = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
                                                             ScoringTool        = acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)),
                                                             suppressHoleSearch = False,
                                                             RefitPrds = not (flags.InDet.Tracking.ActivePass.refitROT or flags.InDet.Tracking.ActivePass.trtExtensionType == 'DAF') )
@@ -527,8 +496,10 @@ def TRTExtrensionBuilderCfg(flags):
 def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting
+  from TrkConfig.TrkTrackSummaryToolConfig import InDetTrigTrackSummaryToolCfg
+
   tool = CompFactory.InDet.InDetAmbiScoringTool(name = f"{prefix}_AmbiguityScoringTool_{flags.InDet.Tracking.ActivePass.name}",
-                                                SummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags)),
+                                                SummaryTool = acc.popToolsAndMerge(InDetTrigTrackSummaryToolCfg(flags)),
                                                 Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
                                                 DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
                                                 useAmbigFcn = True,
@@ -541,59 +512,6 @@ def ambiguityScoringToolCfg(flags):
   )
   
   acc.addPublicTool(tool, primary=True)
-  return acc
-
-def FitterToolCfg(flags):
-  acc = ComponentAccumulator()
-  from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
-  from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-  from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
-      TrackingGeometryCondAlgCfg)
-  from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
-  from TrkConfig.TrkRIO_OnTrackCreatorConfig import TrigRotCreatorCfg
-  cond_alg = TrackingGeometryCondAlgCfg(flags)
-  geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
-  acc.merge(cond_alg)
-
-  from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
-  updator = acc.popToolsAndMerge(KalmanUpdatorCfg(flags, name="InDetTrigUpdator"))
-
-  fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
-                                            ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
-                                            NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
-                                            PropagatorTool        = acc.popToolsAndMerge( RungeKuttaPropagatorCfg( flags, name="InDetTrigRKPropagator" ) ),
-                                            RotCreatorTool        = acc.popToolsAndMerge(TrigRotCreatorCfg(flags)),
-                                            BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
-                                            EnergyLossTool        = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)),
-                                            MeasurementUpdateTool = updator,
-                                            MaterialUpdateTool    = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetTrigMaterialEffectsUpdator"),
-                                            StraightLine          = not flags.BField.solenoidOn,
-                                            OutlierCut            = 4,
-                                            SignedDriftRadius     = True,
-                                            TrackChi2PerNDFCut    = 9,
-                                            TRTExtensionCuts      = True,
-                                            MaxIterations         = 40,
-                                            Acceleration          = True,
-                                            Momentum=0.,
-                                            TrackingGeometryReadKey=geom_cond_key
-                                                 )
-  acc.addPublicTool(fitter, primary=True)
-  #TODO come back to these settings                                                 
-    # if InDetTrigFlags.useBroadClusterErrors():
-    #   InDetTrigTrackFitter.RecalibrateSilicon = False
-
-    # if InDetTrigFlags.doRefit():
-    #   InDetTrigTrackFitter.BroadRotCreatorTool = None
-    #   InDetTrigTrackFitter.RecalibrateSilicon = False
-    #   InDetTrigTrackFitter.RecalibrateTRT     = False
-    #   InDetTrigTrackFitter.ReintegrateOutliers= False
-
-
-    # if InDetTrigFlags.doRobustReco():
-    #   InDetTrigTrackFitter.OutlierCut         = 10.0
-    #   InDetTrigTrackFitter.TrackChi2PerNDFCut = 20
-    #   InDetTrigTrackFitter.MaxOutliers        = 99
-    #   #only switch off for cosmics InDetTrigTrackFitter.Acceleration       = False
   return acc
 
 def ambiguitySolverAlgCfg(flags):
@@ -651,9 +569,6 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
   return acc
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ComponentAccumulator.debugMode = "trackCA trackPublicTool trackEventAlgo trackCondAlgo trackPrivateTool"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_VERTEXBEAMCONPOSITIONER_H
@@ -12,6 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 namespace ATHRNG {
@@ -44,13 +45,13 @@ namespace Simulation {
       StatusCode  finalize() override final;
 
       /** computes the vertex displacement */
-      CLHEP::HepLorentzVector  *generate() const override final;
+      CLHEP::HepLorentzVector  *generate(const EventContext& ctx) const override final;
 
     private:
 
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       ServiceHandle<IAthRNGSvc> m_rndGenSvc{this, "RandomSvc", "AthRNGSvc"};
-      ATHRNG::RNGWrapper*           m_randomEngine{};             //!< Slot-local RNG
+      ATHRNG::RNGWrapper*           m_randomEngine ATLAS_THREAD_SAFE{};  //!< Slot-local RNG
 
       Gaudi::Property<std::string>  m_randomEngineName{this, "RandomStream", "VERTEX"};         //!< Name of the random number stream
       Gaudi::Property<bool>           m_timeSmearing{this, "SimpleTimeSmearing", false};             //!< Do time smearing

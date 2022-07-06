@@ -390,7 +390,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &i
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX> driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
+StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX>& driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
     std::unique_ptr<TGraphErrors> fitGraph=std::make_unique<TGraphErrors>();
     std::unique_ptr<TF1> ffit=std::make_unique<TF1>("ffit","pol1");
     

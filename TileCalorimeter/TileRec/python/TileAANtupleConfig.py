@@ -93,10 +93,6 @@ if __name__=='__main__':
     parser.add_argument('--no-tmdb', dest='tmdb', action='store_false', help='Do not save TMDB information into ntuple')
     args, _ = parser.parse_known_args()
 
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = True
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

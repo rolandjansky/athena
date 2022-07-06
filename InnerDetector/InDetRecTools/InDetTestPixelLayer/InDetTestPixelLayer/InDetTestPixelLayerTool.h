@@ -17,13 +17,13 @@
 #include "InDetTestPixelLayer/TrackStateOnPixelLayerInfo.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "InDetTestPixelLayer/PixelIDLayerComp.h"
 
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementStatus.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h" //for Gaudi::Hive::currentContext()
 
 #include <mutex>
 #include <string>
@@ -41,12 +41,9 @@ class TrackParticle;
 class AtlasDetectorID;
 class Identifier;
 class PixelID;
+class EventContext;
 
 namespace InDet {
-
-typedef std::map<Identifier, const Trk::ResidualPull*, PixelIDLayerComp>
-  PixelLayerResidualPullMap;
-typedef std::vector<Identifier> PixelIDVec;
 
 class InDetTestPixelLayerTool
   : virtual public IInDetTestPixelLayerTool
@@ -62,15 +59,20 @@ public:
 
   //    bool expectHitInPixelLayer(const Rec::TrackParticle*) const ;
   virtual bool expectHitInPixelLayer(
+    const EventContext& ctx,
     const Trk::TrackParticleBase*,
     int pixel_layer,
     bool recompute = false) const override final;
   virtual bool expectHitInPixelLayer(
+    const EventContext& ctx,
     const Trk::Track*,
     int pixel_layer,
-    bool recompute = false) const override final;
-  virtual bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar,
-                                     int pixel_layer) const override final;
+    bool recompute = false,
+    bool checkBarrelOnly = false) const override final;
+  virtual bool expectHitInPixelLayer(const EventContext& ctx,
+                                     const Trk::TrackParameters* trackpar,
+                                     int pixel_layer,
+                                     bool checkBarrelOnly = false) const override final;
 
   virtual bool expectHit(
     const Trk::TrackParameters* trackpar) const override final;
@@ -84,7 +86,9 @@ public:
     std::vector<TrackStateOnPixelLayerInfo>& infoList) const override final;
   virtual bool getTrackStateOnPixelLayerInfo(
     const Trk::TrackParameters* trackpar,
-    std::vector<TrackStateOnPixelLayerInfo>& infoList) const override final;
+    std::vector<TrackStateOnPixelLayerInfo>& infoList,
+    int pixel_layer = -1,
+    bool checkBarrelOnly = false) const override final;
 
   virtual double getFracGood(const Trk::TrackParticleBase* trackpar,
                              int pixel_layer) const override final;
@@ -93,23 +97,35 @@ public:
 
 private:
 
-  bool IsInCorrectLayer(Identifier&, PixelIDVec&, int) const;
-  bool IsInSameLayer(Identifier&, Identifier&) const;
-
   bool isActive(const Trk::TrackParameters* trackpar) const;
   bool getPixelLayerParameters(
+    const EventContext& ctx,
     const Trk::TrackParameters* trackpar,
     std::vector<std::unique_ptr<const Trk::TrackParameters>>& pixelLayerParam)
     const;
+  bool getPixelLayerParameters(
+    const Trk::TrackParameters* trackpar,
+    std::vector<std::unique_ptr<const Trk::TrackParameters>>& pixelLayerParam)
+    const
+  {
+    return getPixelLayerParameters(
+      Gaudi::Hive::currentContext(), trackpar, pixelLayerParam);
+  }
+
   double getFracGood(const Trk::TrackParameters* trackpar,
                      double phiRegionSize,
                      double etaRegionSize,
                      const InDet::SiDetectorElementStatus *pixelDetElStatus) const;
 
-  SG::ReadHandle<InDet::SiDetectorElementStatus> getPixelDetElStatus() const;
+  SG::ReadHandle<InDet::SiDetectorElementStatus> getPixelDetElStatus(const EventContext& ctx) const;
 
   /** Pointer to Extrapolator AlgTool*/
-  ToolHandle<Trk::IExtrapolator> m_extrapolator;
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator{
+    this,
+    "Extrapolator",
+    "Trk::Extrapolator/InDetExtrapolator",
+    "Extrapolator used to extrapolate to layers"
+  };
 
   /** Handles to IConditionsSummaryServices for Pixels */
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{
@@ -142,13 +158,14 @@ private:
   double m_phiRegionSize;
   double m_etaRegionSize;
   double m_goodFracCut;
+  double m_outerRadius;
 };
 
 
-SG::ReadHandle<InDet::SiDetectorElementStatus> InDetTestPixelLayerTool::getPixelDetElStatus() const {
+SG::ReadHandle<InDet::SiDetectorElementStatus> InDetTestPixelLayerTool::getPixelDetElStatus(const EventContext& ctx) const {
    SG::ReadHandle<InDet::SiDetectorElementStatus> pixelDetElStatus;
    if (!m_pixelDetElStatus.empty()) {
-      pixelDetElStatus = SG::ReadHandle<InDet::SiDetectorElementStatus>(m_pixelDetElStatus);
+      pixelDetElStatus = SG::ReadHandle<InDet::SiDetectorElementStatus>(m_pixelDetElStatus,ctx);
       if (!pixelDetElStatus.isValid()) {
          std::stringstream msg;
          msg << "Failed to get " << m_pixelDetElStatus.key() << " from StoreGate in " << name();

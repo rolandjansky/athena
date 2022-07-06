@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file PFOMonitorAlgorithm.py
@@ -73,11 +73,11 @@ def PFOMonitoringConfig(inputFlags):
     #############################################
     # Configure histograms - All PFOs
     pfosAllGroup.defineHistogram('nPFOs',  title='No. of PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=1000.0)    
-    pfosAllGroup.defineHistogram('pfopT',  title='PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=2000)
+    pfosAllGroup.defineHistogram('pfopT',  title='PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=200)
     pfosAllGroup.defineHistogram('pfoEta', title='PFO eta;eta;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosAllGroup.defineHistogram('pfoPhi', title='PFO phi;phi;Events',xbins=64,xmin=-3.15,xmax=3.15)
-    pfosAllGroup.defineHistogram('pfoMass',title='PFO energy;Mass;Events',xbins=100,xmin=0.0,xmax=500)
-    pfosAllGroup.defineHistogram('pfoE',   title='PFO energy;E;Events',xbins=300,xmin=0.0,xmax=3000)
+    pfosAllGroup.defineHistogram('pfoMass',title='PFO mass;Mass;Events',xbins=100,xmin=0.0,xmax=100)
+    pfosAllGroup.defineHistogram('pfoE',   title='PFO energy;E;Events',xbins=300,xmin=0.0,xmax=300)
     pfosAllGroup.defineHistogram('pfoRapidity', title='PFO rapidity;y;Events',xbins=98,xmin=-4.9,xmax=4.9)
 
     pfosAllGroup.defineHistogram('pfoEta,pfoPhi,pfoE', type='TProfile2D', title='Average PFO Energy;eta;phi',
@@ -90,11 +90,11 @@ def PFOMonitoringConfig(inputFlags):
     #############################################
     # Configure histograms - Charged PFOs
     pfosChargedGroup.defineHistogram('nChPFOs',  title='No. of Charged PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=1000.0)    
-    pfosChargedGroup.defineHistogram('ChpfopT',  title='Charged PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=2000)
+    pfosChargedGroup.defineHistogram('ChpfopT',  title='Charged PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=200)
     pfosChargedGroup.defineHistogram('ChpfoEta', title='Charged PFO eta;eta;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosChargedGroup.defineHistogram('ChpfoPhi', title='Charged PFO phi;phi;Events',xbins=64,xmin=-3.15,xmax=3.15)
-    pfosChargedGroup.defineHistogram('ChpfoMass',title='Charged PFO energy;Mass;Events',xbins=100,xmin=0.0,xmax=500)
-    pfosChargedGroup.defineHistogram('ChpfoE',   title='Charged PFO energy;E;Events',xbins=300,xmin=0.0,xmax=3000)
+    pfosChargedGroup.defineHistogram('ChpfoMass',title='Charged PFO mass;Mass;Events',xbins=100,xmin=0.0,xmax=100)
+    pfosChargedGroup.defineHistogram('ChpfoE',   title='Charged PFO energy;E;Events',xbins=300,xmin=0.0,xmax=300)
     pfosChargedGroup.defineHistogram('ChpfoDenseEnv',title='Charged PFO isInDenseEnvironment Flag',xbins=3,xmin=-1,xmax=2)
     pfosChargedGroup.defineHistogram('ChpfoExpE', title='Charged PFO Expected Energy From Tracks; E_{exp};Events', xbins=300,xmin=0.0,xmax=3000.0)
     pfosChargedGroup.defineHistogram('ChpfoExpE;DenseEnvFlagE', title='Charged PFO Expected Energy From Tracks - IsInDenseEvironmet=TRUE; E_{exp};Events',
@@ -114,11 +114,11 @@ def PFOMonitoringConfig(inputFlags):
     #############################################
     # Configure histograms - Neutral PFOs
     pfosNeutralGroup.defineHistogram('nNuPFOs',  title='No. of Neutral PFOs;N_{PFOs};Events',xbins=200,xmin=0.0,xmax=1000.0)    
-    pfosNeutralGroup.defineHistogram('NupfopT',  title='Neutral PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=2000)
+    pfosNeutralGroup.defineHistogram('NupfopT',  title='Neutral PFO transverse momentum;pT;Events',xbins=100,xmin=0.0,xmax=200)
     pfosNeutralGroup.defineHistogram('NupfoEta', title='Neutral PFO eta;eta;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosNeutralGroup.defineHistogram('NupfoPhi', title='Neutral PFO phi;phi;Events',xbins=64,xmin=-3.15,xmax=3.15)
-    pfosNeutralGroup.defineHistogram('NupfoMass',title='Neutral PFO energy;Mass;Events',xbins=100,xmin=0.0,xmax=500)
-    pfosNeutralGroup.defineHistogram('NupfoE',   title='Neutral PFO energy;E;Events',xbins=300,xmin=0.0,xmax=3000)
+    pfosNeutralGroup.defineHistogram('NupfoMass',title='Neutral PFO mass;Mass;Events',xbins=100,xmin=0.0,xmax=100)
+    pfosNeutralGroup.defineHistogram('NupfoE',   title='Neutral PFO energy;E;Events',xbins=300,xmin=0.0,xmax=300)
     pfosNeutralGroup.defineHistogram('NupfoRapidity', title='Neutral PFO rapidity;y;Events',xbins=98,xmin=-4.9,xmax=4.9)
     pfosNeutralGroup.defineHistogram('NupfoIsolation', title='Neutral PFO Isolation;Iso;Events',xbins=100,xmin=-1.5,xmax=2.0)
     pfosNeutralGroup.defineHistogram('NupfoEPos',title='Neutral PFO Energy From Positive Cells;E_{pos};Events',xbins=500,xmin=0.0,xmax=10000.0)
@@ -159,10 +159,6 @@ def PFOMonitoringConfig(inputFlags):
     # return result
 
 if __name__=='__main__':
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Setup logs
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import INFO

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArMonitoringConfig(inputFlags):
@@ -36,8 +36,8 @@ def LArMonitoringConfig(inputFlags):
        if not inputFlags.Input.isMC:
           acc.merge(LArFEBMonConfig(inputFlags))
           acc.merge(LArDigitMonConfig(inputFlags))
-          from LArConditionsCommon.LArCool import larcool
-          if (larcool is not None and larcool.runType() != 0): #RawData + Result
+          from LArConfiguration.LArConfigFlags import RawChannelSource
+          if inputFlags.LAr.RawChannelSource != RawChannelSource.Calculated:
               acc.merge(LArRODMonConfig(inputFlags))
           acc.merge(LArCoverageConfig(inputFlags))
           acc.merge(LArNoiseCorrelationMonConfig(inputFlags))
@@ -51,8 +51,6 @@ if __name__=='__main__':
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
    from AthenaCommon.Constants import DEBUG
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
 
 

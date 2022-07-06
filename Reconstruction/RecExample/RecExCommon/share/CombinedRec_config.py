@@ -142,23 +142,13 @@ else:
     recAlgs.doMuonSpShower=False
 
 pdr.flag_domain('btagging')
-btaggingOK = False
 #By default disable b-tagging from ESD, unless user has set it and locked it to true upstream
 if rec.readESD():
     rec.doBTagging=False
 if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
-    try:
-        from AthenaCommon.Configurable import Configurable
-        Configurable.configurableRun3Behavior=1  # TODO: remove once ATLASRECTS-6635 is fixed
-        # Configure BTagging algorithm
-        from BTagging.BTagRun3Config import BTagRecoSplitCfg
-        CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
-    except Exception:
-        treatException("Could not set up btagging reconstruction")
-        btaggingOK=False
-    finally:
-        Configurable.configurableRun3Behavior=0
-    pass
+    # Configure BTagging algorithm
+    from BTagging.BTagRun3Config import BTagRecoSplitCfg
+    CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
 
 # Hits associated with high-pt jets for trackless b-tagging
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -217,8 +207,10 @@ else:
 # Functionality: CaloRinger
 #
 pdr.flag_domain('caloringer')
-if rec.doCaloRinger:
-  include('CaloRingerAlgs/CaloRinger_jobOptions.py')
+if rec.doCaloRinger and rec.doESD():
+  from CaloRingerAlgs.CaloRingerAlgsConfig import CaloRingerAlgsCfg
+  CAtoGlobalWrapper(CaloRingerAlgsCfg, ConfigFlags)
+
 
 
 

@@ -4,6 +4,7 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
     InputConverterCfg, TruthServiceCfg,
@@ -79,7 +80,6 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
 
     #Write MetaData container
-    from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
     acc.merge(writeSimulationParametersMetadata(flags))
     if flags.Sim.ISF.ReSimulation:
         acc.addSequence(AthSequencer('SimSequence'), parentName='AthAlgSeq') # TODO make the name configurable?
@@ -352,6 +352,8 @@ def Kernel_GenericSimulatorCfg(flags, name="ISF_Kernel_GenericSimulator", **kwar
     kwargs.setdefault("DoCPUMonitoring", flags.Sim.ISF.DoTimeMonitoring)
     kwargs.setdefault("DoMemoryMonitoring", flags.Sim.ISF.DoMemoryMonitoring)
 
+    #Write MetaData container
+    acc.merge(writeSimulationParametersMetadata(flags))
     if flags.Sim.ISF.ReSimulation:
         acc.addSequence(AthSequencer('SimSequence'), parentName='AthAlgSeq') # TODO make the name configurable?
         acc.addEventAlgo(CompFactory.ISF.SimKernel(name, **kwargs), 'SimSequence') # TODO make the name configurable?

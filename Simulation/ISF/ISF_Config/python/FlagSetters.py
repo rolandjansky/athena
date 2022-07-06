@@ -155,19 +155,19 @@ def configureFlagsATLFAST3MT():
     configureFlagsATLFAST3()
     ISF_Flags.ParticleBroker = ""
     from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "ATLFAST3MT"
+    simFlags.SimulationFlavour = "ATLFAST3"
 
 def configureFlagsATLFAST3MT_QS():
     configureFlagsATLFAST3()
     from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "ATLFAST3MT_QS"
+    simFlags.SimulationFlavour = "ATLFAST3_QS"
     return
 
 def configureFlagsATLFAST3MTEnergyOrdered():
     configureFlagsATLFAST3()
     ISF_Flags.ParticleBroker = ""
     from G4AtlasApps.SimFlags import simFlags
-    simFlags.SimulationFlavour = "ATLFAST3MT"
+    simFlags.SimulationFlavour = "ATLFAST3"
     return
 
 def configureFlagsG4FastCalo():

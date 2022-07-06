@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -73,8 +73,7 @@ namespace MuonGM {
 
         int getDoubletR() const;  //!< return DoubletR value for the given readout element
         int getDoubletZ() const;  //!< return DoubletZ value for the given readout element
-        int getDoubletPhi()
-            const;  //!< return DoubletPhi value for the given readout element, be aware that one RE can contain two DoubletPhis!!!!
+        int getDoubletPhi() const;  //!< return DoubletPhi value for the given readout element, be aware that one RE can contain two DoubletPhis!!!!
         bool hasDEDontop() const;  //!< return whether the RPC is 'up-side-down'
 
         /** function to be used to check whether a given Identifier is contained in the readout element */
@@ -83,18 +82,18 @@ namespace MuonGM {
         /** returns whether the RE is in the ribs of the muon spectrometer */
         bool inTheRibs() const;
 
-        int Nphigasgaps() const;                    //!< returns the number of phi gas gaps
+        int NgasGaps(bool measphi  ) const;            //!< returns the number of gasgaps
         int NphiStripPanels() const;                //!< returns the number of phi strip panels (1 or 2)
         int NetaStripPanels() const;                //!< returns the number of eta strip panels (should always be 1)
         int NphiStrips() const;                     //!< returns the number of phi strips
         int NetaStrips() const;                     //!< returns the number of eta strips
-        int Nstrips(int measphi) const;             //!< returns the number of strips for the phi or eta plane
-        double StripWidth(int measphi) const;       //!< returns the strip width for the phi or eta plane
-        double StripLength(int measphi) const;      //!< returns the strip length for the phi or eta plane
-        double StripPitch(int measphi) const;       //!< returns the strip pitch for the phi or eta plane
-        double StripPanelDead(int measphi) const;   //!< returns strip panel dead area for the phi or eta plane
-        double stripPanelSsize(int measphi) const;  //!< returns strip panel S size for the phi or eta plane
-        double stripPanelZsize(int measphi) const;  //!< returns strip panel Z size for the phi or eta plane
+        int Nstrips(bool measphi  ) const;             //!< returns the number of strips for the phi or eta plane
+        double StripWidth(bool measphi  ) const;       //!< returns the strip width for the phi or eta plane
+        double StripLength(bool measphi  ) const;      //!< returns the strip length for the phi or eta plane
+        double StripPitch(bool measphi  ) const;       //!< returns the strip pitch for the phi or eta plane
+        double StripPanelDead(bool measphi  ) const;   //!< returns strip panel dead area for the phi or eta plane
+        double stripPanelSsize(bool measphi  ) const;  //!< returns strip panel S size for the phi or eta plane
+        double stripPanelZsize(bool measphi  ) const;  //!< returns strip panel Z size for the phi or eta plane
         double gasGapSsize() const;                 //!< returns the gas gap S size
         double gasGapZsize() const;                 //!< returns the gas gap Z size
 
@@ -111,7 +110,7 @@ namespace MuonGM {
         virtual bool stripPosition(const Identifier& id, Amg::Vector2D& pos) const override final;
 
         /** number of layers in phi/eta projection, same for eta/phi planes */
-        virtual int numberOfLayers(bool measPhi = true) const override final;
+        virtual int numberOfLayers(bool measphi   = true) const override final;
         void setNumberOfLayers(const int = 2);
 
         /** number of strips per layer */
@@ -150,7 +149,7 @@ namespace MuonGM {
         virtual int surfaceHash(const Identifier& id) const override final;
 
         /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
-        int surfaceHash(int dbPhi, int gasGap, int measPhi) const;
+        int surfaceHash(int dbPhi, int gasGap, bool measphi  ) const;
 
         /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
         virtual int layerHash(const Identifier& id) const override final;
@@ -186,10 +185,10 @@ namespace MuonGM {
         /** local MuonGeoModel to global transforms and positions, only to be used by digitization */
         Amg::Vector3D stripPanelPos(const Identifier& id) const;
         Amg::Vector3D stripPanelPos(const IdentifierHash& id) const;
-        Amg::Vector3D stripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi) const;
+        Amg::Vector3D stripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, bool measphi  ) const;
         Amg::Vector3D localStripPanelPos(const Identifier& id) const;
         Amg::Vector3D localStripPanelPos(const IdentifierHash& id) const;
-        Amg::Vector3D localStripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi) const;
+        Amg::Vector3D localStripPanelPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, bool measphi  ) const;
         // local to global
         Amg::Vector3D SDtoModuleCoords(const Amg::Vector3D& x, const Identifier& id) const;
         Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
@@ -201,12 +200,12 @@ namespace MuonGM {
 
         Amg::Vector3D stripPos(const Identifier& id) const;
         Amg::Vector3D stripPos(const IdentifierHash& id) const;
-        Amg::Vector3D stripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi, int strip) const;
+        Amg::Vector3D stripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, bool measphi  , int strip) const;
         Amg::Vector3D localStripPos(const Identifier& id) const;
         Amg::Vector3D localStripPos(const IdentifierHash& id) const;
-        Amg::Vector3D localStripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, int measPhi, int strip) const;
-        double localStripSCoord(int doubletZ, int doubletPhi, int measphi, int strip) const;
-        double localStripZCoord(int doubletZ, int doubletPhi, int measphi, int strip) const;
+        Amg::Vector3D localStripPos(int doubletR, int doubletZ, int DoubletPhi, int gasGap, bool measphi  , int strip) const;
+        double localStripSCoord(int doubletZ, int doubletPhi, bool measphi  , int strip) const;
+        double localStripZCoord(int doubletZ, int doubletPhi, bool measphi  , int strip) const;
         double localGasGapDepth(int gasGap) const;
         Amg::Vector3D localGasGapPos(const Identifier& id) const;
         Amg::Vector3D localGasGapPos(int dbZ, int dbP, int gg) const;
@@ -289,29 +288,29 @@ namespace MuonGM {
     inline void RpcReadoutElement::setDoubletPhi(int dbp) { m_dbPhi = dbp; }
     inline bool RpcReadoutElement::hasDEDontop() const { return m_hasDEDontop; }
 
-    inline int RpcReadoutElement::Nphigasgaps() const { return m_nphigasgaps; }
+    inline int RpcReadoutElement::NgasGaps(bool measphi  ) const { return  measphi   ? m_nphigasgaps: m_netagasgaps; }
     inline int RpcReadoutElement::NphiStripPanels() const { return m_nphistrippanels; }
     inline int RpcReadoutElement::NetaStripPanels() const { return m_netastrippanels; }
     inline int RpcReadoutElement::NphiStrips() const { return m_nphistripsperpanel; }
     inline int RpcReadoutElement::NetaStrips() const { return m_netastripsperpanel; }
 
-    inline int RpcReadoutElement::Nstrips(int measphi) const { return measphi == 0 ? m_netastripsperpanel : m_nphistripsperpanel; }
-    inline double RpcReadoutElement::StripWidth(int measphi) const { return measphi == 1 ? m_phistripwidth : m_etastripwidth; }
-    inline double RpcReadoutElement::StripLength(int measphi) const { return measphi == 1 ? m_phistriplength : m_etastriplength; }
-    inline double RpcReadoutElement::StripPitch(int measphi) const { return measphi == 1 ? m_phistrippitch : m_etastrippitch; }
-    inline double RpcReadoutElement::StripPanelDead(int measphi) const { return measphi == 1 ? m_phipaneldead : m_etapaneldead; }
-    inline double RpcReadoutElement::stripPanelSsize(int measphi) const {
-        if (measphi == 1)
-            return Nstrips(measphi) * StripPitch(measphi) - (StripPitch(measphi) - StripWidth(measphi));
+    inline int RpcReadoutElement::Nstrips(bool measphi  ) const { return measphi   ? m_nphistripsperpanel : m_netastripsperpanel; }
+    inline double RpcReadoutElement::StripWidth(bool measphi  ) const { return measphi    ? m_phistripwidth : m_etastripwidth; }
+    inline double RpcReadoutElement::StripLength(bool measphi  ) const { return measphi    ? m_phistriplength : m_etastriplength; }
+    inline double RpcReadoutElement::StripPitch(bool measphi  ) const { return measphi    ? m_phistrippitch : m_etastrippitch; }
+    inline double RpcReadoutElement::StripPanelDead(bool measphi  ) const { return measphi    ? m_phipaneldead : m_etapaneldead; }
+    inline double RpcReadoutElement::stripPanelSsize(bool measphi  ) const {
+        if (measphi  )
+            return Nstrips(measphi  ) * StripPitch(measphi  ) - (StripPitch(measphi  ) - StripWidth(measphi  ));
         else
-            return StripLength(measphi);
+            return StripLength(measphi  );
     }
 
-    inline double RpcReadoutElement::stripPanelZsize(int measphi) const {
-        if (measphi == 0)
-            return Nstrips(measphi) * StripPitch(measphi) - (StripPitch(measphi) - StripWidth(measphi));
+    inline double RpcReadoutElement::stripPanelZsize(bool measphi  ) const {
+        if (!measphi  )
+            return Nstrips(measphi  ) * StripPitch(measphi  ) - (StripPitch(measphi  ) - StripWidth(measphi  ));
         else
-            return StripLength(measphi);
+            return StripLength(measphi  );
     }
 
     inline double RpcReadoutElement::gasGapSsize() const { return m_gasgapssize; }

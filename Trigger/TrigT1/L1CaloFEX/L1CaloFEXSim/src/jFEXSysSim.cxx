@@ -9,6 +9,7 @@
 //     email                : jacob.julian.kempster@cern.ch alison.elliot@cern.ch
 //  ***************************************************************************/
 
+
 #include "L1CaloFEXSim/jFEXSysSim.h"
 #include "L1CaloFEXSim/jFEXSim.h"
 #include "L1CaloFEXSim/jTower.h"
@@ -33,6 +34,11 @@
 #include "xAODTrigger/jFexTauRoI.h"
 #include "xAODTrigger/jFexTauRoIContainer.h" 
 #include "xAODTrigger/jFexTauRoIAuxContainer.h"
+
+#include "xAODTrigger/jFexFwdElRoI.h"
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
+#include "xAODTrigger/jFexFwdElRoIAuxContainer.h"
+
 #include "L1CaloFEXSim/jFEXOutputCollection.h"
 
 #include <ctime>
@@ -67,6 +73,7 @@ namespace LVL1 {
     ATH_CHECK(m_jFexSRJetOutKey.initialize());
     ATH_CHECK(m_jFexLRJetOutKey.initialize());
     ATH_CHECK(m_jFexTauOutKey.initialize());
+    ATH_CHECK(m_jFexFwdElOutKey.initialize());
     ATH_CHECK(m_jFexSumETOutKey.initialize());
     ATH_CHECK(m_jFexMETOutKey.initialize());
     ATH_CHECK(m_l1MenuKey.initialize());
@@ -111,6 +118,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.clear();
     m_allLargeRJetTobs.clear();
     m_alltauTobs.clear();
+    m_allfwdElTobs.clear();
     m_allMetTobs.clear();
     m_allsumEtTobs.clear();
     // We need to split the towers into 6 blocks in eta and 4 blocks in phi.
@@ -283,6 +291,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allfwdElTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getFwdElTOBs() ) ));
     m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -377,6 +386,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    //m_allfwdElTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getFwdElTOBs() ) ));
     m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -493,6 +503,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
     m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    //m_allfwdElTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getFwdElTOBs() ) ));
     m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -608,6 +619,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    //m_allfwdElTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getFwdElTOBs() ) ));
     m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -698,6 +710,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    //m_allfwdElTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getFwdElTOBs() ) ));
     m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -853,6 +866,7 @@ namespace LVL1 {
     m_allSmallRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
     m_allLargeRJetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_alltauTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getTauTOBs() ) ));
+    m_allfwdElTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<std::vector<uint32_t>>> >::value_type(thisJFEX,(m_jFEXSimTool->getFwdElTOBs() ) ));
     m_allsumEtTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getSumEtTOBs() ) ));
     m_allMetTobs.insert(std::unordered_map<uint8_t, std::vector<std::vector<uint32_t>> >::value_type(thisJFEX,(m_jFEXSimTool->getMetTOBs() ) ));
     m_jFEXSimTool->reset();
@@ -864,11 +878,12 @@ namespace LVL1 {
     
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
 
-    const int jJResolution    = l1Menu->thrExtraInfo().jJ().resolutionMeV();
-    const int jLJResolution   = l1Menu->thrExtraInfo().jLJ().resolutionMeV();
-    const int jTauResolution  = l1Menu->thrExtraInfo().jTAU().resolutionMeV();
-    const int jTEResolution   = l1Menu->thrExtraInfo().jTE().resolutionMeV();
-    const int jXEResolution   = l1Menu->thrExtraInfo().jXE().resolutionMeV();
+    const int jJResolution     = l1Menu->thrExtraInfo().jJ().resolutionMeV();
+    const int jLJResolution    = l1Menu->thrExtraInfo().jLJ().resolutionMeV();
+    const int jTauResolution   = l1Menu->thrExtraInfo().jTAU().resolutionMeV();
+    const int jFwdElResolution = l1Menu->thrExtraInfo().jEM().resolutionMeV();
+    const int jTEResolution    = l1Menu->thrExtraInfo().jTE().resolutionMeV();
+    const int jXEResolution    = l1Menu->thrExtraInfo().jXE().resolutionMeV();
 
     //---SRJet EDM
     auto jSRJetContainer = std::make_unique<xAOD::jFexSRJetRoIContainer> ();
@@ -949,10 +964,38 @@ namespace LVL1 {
         
     }
 
+
     SG::WriteHandle<xAOD::jFexTauRoIContainer_v1> outputjFexTauHandle(m_jFexTauOutKey/*, ctx*/);
     ATH_MSG_DEBUG("  write: " << outputjFexTauHandle.key() << " = " << "..." );
     ATH_CHECK(outputjFexTauHandle.record(std::move(jTauContainer),std::move(jTauAuxContainer)));
     
+    //---Forward Elec EDM
+    auto jFwdElContainer = std::make_unique<xAOD::jFexFwdElRoIContainer> ();
+    std::unique_ptr< xAOD::jFexFwdElRoIAuxContainer > jFwdElAuxContainer = std::make_unique<xAOD::jFexFwdElRoIAuxContainer> ();
+    jFwdElContainer->setStore(jFwdElAuxContainer.get());
+
+    //iterate over all Forward Elec Tobs and fill EDM 
+    for( auto const& [jfex, MODULE_tobs] : m_allfwdElTobs ) {
+      uint8_t fpgaNum =0;
+      for(auto &FPGA_tob : MODULE_tobs) {
+	for(auto &tob : FPGA_tob) {
+	  float_t eta = -99;
+	  float_t phi = -99;
+	  if(tob.at(1) != 0){
+	    eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
+	    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();
+	  }
+
+	  ATH_CHECK(fillFwdElEDM(jfex,fpgaNum, tob.at(0), jFwdElResolution, eta, phi, jFwdElContainer));
+	}
+	fpgaNum++;
+      }
+
+    }
+
+    SG::WriteHandle<xAOD::jFexFwdElRoIContainer_v1> outputjFexFwdElHandle(m_jFexFwdElOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputjFexFwdElHandle.key() << " = " << "..." );
+    ATH_CHECK(outputjFexFwdElHandle.record(std::move(jFwdElContainer),std::move(jFwdElAuxContainer)));
     
     //---SumET EDM
     auto jSumETContainer = std::make_unique<xAOD::jFexSumETRoIContainer> ();
@@ -1032,6 +1075,21 @@ namespace LVL1 {
         return StatusCode::SUCCESS;
 
     }
+
+  StatusCode jFEXSysSim::fillFwdElEDM(uint8_t jFexNum,uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexFwdElRoIContainer > &jContainer) {
+
+    xAOD::jFexFwdElRoI* my_EDM = new xAOD::jFexFwdElRoI();
+    jContainer->push_back( my_EDM );
+
+    my_EDM->initialize(jFexNum, fpgaNumber, tobWord ,1 , resolution, eta, phi);
+
+    ATH_MSG_DEBUG(" setting Forward Elec jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
+
+    return StatusCode::SUCCESS;
+
+  }
+
+
 
     StatusCode jFEXSysSim::fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) {
 

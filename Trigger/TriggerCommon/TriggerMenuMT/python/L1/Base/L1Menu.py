@@ -330,6 +330,12 @@ class L1Menu(object):
         for item in self.items:
             if len(item.bunchGroups)==1 and item.bunchGroups[0]=='BGRP0':
                raise RuntimeError("L1 item %s is defined with only BGRP0, ie it can trigger also in the CALREQ BGRP2 bunches. Please add another bunch group (ATR-24781)" % item.name) 
+            if 'BGRP2' in item.bunchGroups:
+                thrtype = item.logic.content['threshold'].ttype
+                if thrtype in ThrType.CaloTypes():
+                    # The LAr Digital Trigger sends an "align frame" to the FEXes in BCID 3500 (in BGRP2)
+                    # No trigger can be sent during this align frame, so we block all calo triggers from this BGRP
+                    raise RuntimeError(f"L1 item {item.name} with threshold type {thrtype} is in CALREQ BGRP2. This is not allowed!")
 
 
     def checkPtMinToTopo(self):

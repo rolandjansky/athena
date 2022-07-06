@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__=='__main__':
@@ -139,8 +139,6 @@ if __name__=='__main__':
    
    ## And now CA
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-   from AthenaCommon.Configurable import Configurable
-   Configurable.configurableRun3Behavior = 1
 
    from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
    allSteeringFlagsOff()
@@ -197,13 +195,6 @@ if __name__=='__main__':
       ConfigFlags.DQ.enableLumiAccess=True
 
    ConfigFlags.lock()
-
-   # taken from future EmonByteStreamConfig
-   from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-   from AthenaConfiguration.ComponentFactory import CompFactory
-   from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
-
-   #acc = ComponentAccumulator()
 
    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
    acc = MainServicesCfg(ConfigFlags)

@@ -29,7 +29,7 @@ namespace NSWL1{
         return L1TdrStgcTriggerLogic::hitPattern(firstPad->padEtaId(), firstPad->padPhiId(), otherPad->padEtaId(), otherPad->padPhiId(), pattern);
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1, const int &iPhi1, std::string &pattern) const {
+    bool L1TdrStgcTriggerLogic::hitPattern(const int iEta0, const int iPhi0, const int iEta1, const int iPhi1, std::string &pattern) const {
         pattern = "33";
         if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
             return false;
@@ -432,8 +432,10 @@ namespace NSWL1{
             } // end if(acceptSingleWedgeInTransition)
         }   // if(not skipInnerOuterMatchHack)
 
-        ATH_MSG_DEBUG("found " << secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
-        for (const auto& tc : secTrigCand) ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
+        if (msgLvl(MSG::DEBUG)) {
+          ATH_MSG_DEBUG("found " << secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads");
+          for (const auto& tc : secTrigCand) ATH_MSG_DEBUG("trigger region area : " << area(tc.triggerRegion3()));
+        }
         return secTrigCand;
     }
 

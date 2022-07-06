@@ -229,12 +229,21 @@ namespace TrigCompositeUtils {
   }
 
   const Decision* getTerminusNode(SG::ReadHandle<DecisionContainer>& container) {
-    for (const Decision* decision : *container) {
-      if (decision->name() == summaryPassNodeName()) {
-        return decision;
-      }
-    }
-    return nullptr;
+    return getTerminusNode(*container);
+  }
+
+  const Decision* getTerminusNode(const DecisionContainer& container) {
+    return getNodeByName(container, summaryPassNodeName());
+  }
+
+  const Decision* getExpressTerminusNode(const DecisionContainer& container) {
+    return getNodeByName(container, summaryPassExpressNodeName());
+  }
+
+  const Decision* getNodeByName(const DecisionContainer& container, const std::string& nodeName) {
+    const auto it = std::find_if(container.begin(), container.end(), [&nodeName](const Decision* d){return d->name()==nodeName;});
+    if (it==container.end()) {return nullptr;}
+    return *it;
   }
 
   std::vector<const Decision*> getRejectedDecisionNodes(const asg::EventStoreType* eventStore,
@@ -356,6 +365,7 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal(const Decision* node, 
     const Decision* comingFrom, 
     NavGraph& navGraph, 
+    const EventContext& ctx,
     std::set<const Decision*>& fullyExploredFrom,
     const DecisionIDContainer& ids,
     const bool enforceDecisionOnNode) {
@@ -366,7 +376,7 @@ namespace TrigCompositeUtils {
     }
 
     // This Decision object is part of this path through the Navigation
-    navGraph.addNode(node, comingFrom);
+    navGraph.addNode(node, ctx, comingFrom);
 
 #if TRIGCOMPUTILS_ENABLE_EARLY_EXIT == 1
     // Note we have to do this check here (after calling addNode) rather than just before calling recursiveGetDecisionsInternal
@@ -382,7 +392,7 @@ namespace TrigCompositeUtils {
       for ( const ElementLink<DecisionContainer>& seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
-        recursiveGetDecisionsInternal(seedDecision, node, navGraph, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
+        recursiveGetDecisionsInternal(seedDecision, node, navGraph, ctx, fullyExploredFrom, ids, /*enforceDecisionOnNode*/ true);
       }
     }
 
@@ -394,12 +404,13 @@ namespace TrigCompositeUtils {
 
   void recursiveGetDecisions(const Decision* start, 
     NavGraph& navGraph, 
+    const EventContext& ctx,
     const DecisionIDContainer& ids,
     const bool enforceDecisionOnStartNode) {
 
     std::set<const Decision*> fullyExploredFrom;
     // Note: we do not require navGraph to be an empty graph. We can extend it.
-    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, fullyExploredFrom, ids, enforceDecisionOnStartNode);
+    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, ctx, fullyExploredFrom, ids, enforceDecisionOnStartNode);
     
     return;
   }
@@ -816,6 +827,10 @@ namespace TrigCompositeUtils {
 
   const std::string& summaryPassNodeName(){
     return Decision::s_summaryPassNodeNameString;
+  }
+
+  const std::string& summaryPassExpressNodeName(){
+    return Decision::s_summaryPassExpressNodeNameString;
   }
 
   const std::string& summaryPrescaledNodeName(){

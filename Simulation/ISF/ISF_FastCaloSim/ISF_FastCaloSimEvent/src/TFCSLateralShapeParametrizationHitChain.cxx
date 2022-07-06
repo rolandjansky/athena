@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
@@ -196,7 +196,7 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::init_hit(TFCSLateralShape
 
 FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  MSG::Level old_level=msg().level();
+  MSG::Level old_level=level();
   const bool debug = msgLvl(MSG::DEBUG);
   const bool verbose = msgLvl(MSG::VERBOSE);
 

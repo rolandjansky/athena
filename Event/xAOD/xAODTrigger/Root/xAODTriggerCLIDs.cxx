@@ -45,6 +45,9 @@
 #include "xAODTrigger/jFexTauRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIAuxContainer.h"
 
+#include "xAODTrigger/jFexFwdElRoIContainer.h"
+#include "xAODTrigger/jFexFwdElRoIAuxContainer.h"
+
 #include "xAODTrigger/jFexSumETRoIContainer.h"
 #include "xAODTrigger/jFexSumETRoIAuxContainer.h"
 

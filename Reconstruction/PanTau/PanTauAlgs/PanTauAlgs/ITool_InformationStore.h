@@ -40,11 +40,11 @@ namespace PanTau {
     virtual inline void setMapVecDouble( MapVecDouble &v ) = 0 ;
 #endif
 
-    virtual StatusCode getInfo_Int(const std::string& varName, int& value) = 0;
-    virtual StatusCode getInfo_Double(const std::string& varName, double& value) = 0;
-    virtual StatusCode getInfo_VecDouble(const std::string& varName, std::vector<double>& value) = 0;
-    virtual StatusCode getInfo_String(const std::string& varName, std::string& value) = 0;
-    virtual StatusCode getInfo_VecString(const std::string& varName, std::vector<std::string>& value) = 0;
+    virtual StatusCode getInfo_Int(const std::string& varName, int& value) const = 0;
+    virtual StatusCode getInfo_Double(const std::string& varName, double& value) const = 0;
+    virtual StatusCode getInfo_VecDouble(const std::string& varName, std::vector<double>& value) const = 0;
+    virtual StatusCode getInfo_String(const std::string& varName, std::string& value) const = 0;
+    virtual StatusCode getInfo_VecString(const std::string& varName, std::vector<std::string>& value) const = 0;
   };
     
 }

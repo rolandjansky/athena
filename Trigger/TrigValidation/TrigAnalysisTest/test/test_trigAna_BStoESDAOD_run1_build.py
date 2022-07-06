@@ -19,7 +19,7 @@ ex.input = 'data_run1'
 ex.args = '--outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root --outputHISTFile=HIST.root'
 ex.args += ' --autoConfiguration="everything"'
 ex.args += ' --conditionsTag "all:COMCOND-BLKPA-RUN1-07"'
-ex.args += ' --preExec "all:DQMonFlags.doCTPMon=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doHLTMon=False;"'
+ex.args += ' --preExec "all:DQMonFlags.doCTPMon=False; DQMonFlags.doLVL1CaloMon=False; DQMonFlags.doHLTMon=False; DQMonFlags.doTileMon=False; DQMonFlags.doCaloMon=False; DQMonFlags.doMuonTrackMon=False; DQMonFlags.doMuonRawMon=False; DQMonFlags.doMuonCombinedMon=False; DQMonFlags.doMuonPhysicsMon=False; DQMonFlags.doMuonSegmentMon=False; DQMonFlags.doMuonTrkPhysMon=False; DQMonFlags.doMuonAlignMon=False; DQMonFlags.doGlobalMon=False;"'
 ex.args += ' --postExec "all:from IOVDbSvc.CondDB import conddb;conddb.addOverride(\'/TRT/Calib/PID_NN\', \'TRTCalibPID_NN_v1\')"'
 
 test = Test.Test()

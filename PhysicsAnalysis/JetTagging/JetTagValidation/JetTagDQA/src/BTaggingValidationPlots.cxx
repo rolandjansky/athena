@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
 #include "BTaggingValidationPlots.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 #include "xAODBTagging/BTaggingUtilities.h" 
@@ -15,7 +14,7 @@ namespace JetTagDQA{
                                                    const std::string& sDir, 
                                                    std::string sParticleType) :
                                                    PlotBase(pParent, sDir),
-                                                   AthMessaging(Athena::getMessageSvc(), "BTaggingValidationPlots"),
+                                                   AthMessaging("BTaggingValidationPlots"),
                                                    m_sParticleType(std::move(sParticleType)),
                                                    m_JVT_defined(false),
                                                    m_JVTLargerEta_defined(false)

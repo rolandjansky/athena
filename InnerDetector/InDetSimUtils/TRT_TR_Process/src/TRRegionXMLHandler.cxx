@@ -10,7 +10,6 @@
 #include "TRTTransitionRadiation.h"
 
 // Athena includes
-#include "AthenaKernel/getMessageSvc.h"
 #include "IdDictDetDescr/IdDictManager.h"
 
 // Gaudi includes
@@ -31,7 +30,7 @@
 #include <stdexcept>
 
 TRRegionXMLHandler::TRRegionXMLHandler(TRTTransitionRadiation *tr) :
-  AthMessaging(Athena::getMessageSvc(), "TRRegionXMLHandler"),
+  AthMessaging("TRRegionXMLHandler"),
   m_theProcess(tr),
   m_storeGate(nullptr),
   m_initialLayoutIdDict(false)

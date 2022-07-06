@@ -202,7 +202,7 @@ dqm_core::Result* dqm_algorithms::KillBinsByStrip::execute(const std::string& na
 
   if(count_red+count_yellow==0 && Allbins.size()>0){
     for(unsigned int i=0;i<Allbins.size();i++){
-      sprintf(tmpstr,"LeadingBin%i-(eta,phi)=(%0.3f,%0.3f)",i,Allbins[i].m_eta,Allbins[i].m_phi);
+      sprintf(tmpstr,"LeadingBin%u-(eta,phi)=(%0.3f,%0.3f)",i,Allbins[i].m_eta,Allbins[i].m_phi);
       std::string tagtag = tmpstr;
       result->tags_[tagtag] = Allbins[i].m_value;
     }

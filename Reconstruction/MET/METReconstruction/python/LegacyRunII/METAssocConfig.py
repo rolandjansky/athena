@@ -54,22 +54,16 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
     # Construct tool and set defaults for case-specific configuration
 
-
-    from METReconstruction.METRecoFlags import metFlags
-
     if config.objType == 'Ele':
         from ROOT import met
         tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
-        tool.UseFEElectronLinks = metFlags.UseFEElectronLinks()
 
     if config.objType == 'Gamma':
         from ROOT import met
         tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
-        tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
 
     if config.objType == 'Tau':
         tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
-        tool.UseFETauLinks = metFlags.UseFETauLinks()
     if config.objType == 'LCJet':
         tool = CfgMgr.met__METJetAssocTool('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':
@@ -80,7 +74,6 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
         tool = CfgMgr.met__METJetAssocTool('MET_OverlapRemovedPFlowJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
-        tool.UseFEMuonLinks = metFlags.UseFEMuonLinks()
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True

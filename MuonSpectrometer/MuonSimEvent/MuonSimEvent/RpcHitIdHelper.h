@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RpcHitIdHelper_H
@@ -13,10 +13,9 @@
 class RpcHitIdHelper: public HitIdHelper {
 public:
 
-  static RpcHitIdHelper* GetHelper();
-  static RpcHitIdHelper* GetHelper(unsigned int nGasGaps);
+  static const RpcHitIdHelper* GetHelper(unsigned int nGasGaps=2); // all non-BI RPCs (Run1+2) have 2 gas gaps, only BI RPCs have 3 gas gaps
   std::string GetStationName(const int& hid) const;
-  void SetStationName(std::string name, int& hid) const;
+  void SetStationName(const std::string& name, int& hid) const;
   int GetPhiSector(const int& hid) const;
   int GetZSector(const int& hid) const;
   int GetDoubletR(const int& hid) const;
@@ -29,12 +28,9 @@ public:
                      const int, const int, const int, const int) const;
 
 private:
-  RpcHitIdHelper();
   RpcHitIdHelper(unsigned int nGasGaps);
-  void Initialize(unsigned int nGasGaps=2); // all non-BI RPCs (Run1+2) have 2 gas gaps, only BI RPCs have 3 gas gaps
+  void Initialize(unsigned int nGasGaps);
   void InitializeStationName();
-  static RpcHitIdHelper* m_help;
-
 };
 
 #endif

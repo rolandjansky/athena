@@ -21,8 +21,11 @@ printfunc ("OutputFile: %s" % StreamESD.OutputFile)
 
 #Write out files in the directory given by the stream name
 VP1EventProducer.DestinationDirectory = "%s/.Unknown/" % OutputDirectory
+
 #Set number of files large so deleting is doen by prune script
-VP1EventProducer.MaxNumberOfFiles = 250
+#Disable VP1 pruning by lshi on 19/May/2022
+#The pruning is performed centrally by python/EventUtils.py
+VP1EventProducer.MaxNumberOfFiles = -1
 
 #Set the output level
 if not 'VP1MsgLvl' in dir():

@@ -158,6 +158,8 @@ private:
 
    mutable SG::SlotSpecificObj<std::atomic<EventContext::ContextEvt_t> > m_lastPrint ATLAS_THREAD_SAFE;
 
+   mutable std::atomic<unsigned int> m_skip{};
+   mutable std::atomic<unsigned int> m_accept{};
 };
 
 #endif

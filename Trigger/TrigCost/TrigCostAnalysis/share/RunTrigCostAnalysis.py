@@ -130,12 +130,12 @@ def hltConfigSvcCfg(flags, smk, dbAlias):
     log.debug("Reading HLTMenu from file {0}".format(menuFile))
 
     hltConfigSvc.InputType = "FILE"
-    hltConfigSvc.JsonFileName = menuFile
+    hltConfigSvc.HLTJsonFileName = menuFile
   elif smk and dbAlias:
     log.debug("Reading HLTMenu from database {0} {1}".format(smk, dbAlias))
 
     hltConfigSvc.InputType = "DB"
-    hltConfigSvc.JsonFileName = ""
+    hltConfigSvc.HLTJsonFileName = ""
     hltConfigSvc.TriggerDB = dbAlias
     hltConfigSvc.SMK = smk
   else:

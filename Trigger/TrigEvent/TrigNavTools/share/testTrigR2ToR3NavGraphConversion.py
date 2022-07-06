@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Output file can be checked (and navigation graphs converted using):
 #  
@@ -11,12 +11,7 @@
 if __name__=='__main__':
     import sys
 
-    # Setup the Run III behavior
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-
     # Set the Athena configuration flags
-    from AthenaCommon.Constants import WARNING
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ###test input file: --filesInput='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myAOD.pool.root'

@@ -135,8 +135,6 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
     # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
     useTRT = flags.Detector.EnableTRT and not(flags.Beam.Type is BeamType.Cosmics and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))
     kwargs.setdefault("TruthNameTRT", 'PRD_MultiTruthTRT' if useTRT else "")
-    if flags.Overlay.doTrackOverlay and (flags.InDet.Tracking.ActivePass.storeSeparateContainer or Tracks == "CombinedInDetTracks"):
-        kwargs.setdefault("TrackOverlayDetailedName",flags.Overlay.BkgPrefix+DetailedTruth)
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
     return acc
@@ -169,8 +167,9 @@ def InDetTruthTrackCreationCfg(flags, name='InDetTruthTrackCreation', **kwargs):
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault('AssociationTool', InDetPRDtoTrackMapToolGangedPixels)
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTruthTrackCreationSummaryToolSharedHits'))
+    from TrkConfig.TrkTrackSummaryToolConfig import InDetTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTruthTrackCreationSummaryToolSharedHits'))
+    acc.addPublicTool(TrackSummaryTool)
     kwargs.setdefault('TrackSummaryTool', TrackSummaryTool)
 
     trajectoryselectors = []

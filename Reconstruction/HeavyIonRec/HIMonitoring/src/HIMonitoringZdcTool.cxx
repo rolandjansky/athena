@@ -1,10 +1,10 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "HIMonitoring/HIMonitoringZdcTool.h"
+#include "HIMonitoringZdcTool.h"
 #include <xAODForward/ZdcModule.h>
 #include <xAODForward/ZdcModuleContainer.h>
 
@@ -35,7 +35,6 @@ StatusCode HIMonitoringZdcTool::bookHistograms( ) {
     // book histograms that are only relevant for cosmics data...
   }
 
-  gStyle->SetOptStat(0);
   book_hist();
 
   return StatusCode::SUCCESS;

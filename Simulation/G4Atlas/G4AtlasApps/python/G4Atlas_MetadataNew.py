@@ -25,6 +25,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
     dbFiller.addSimParam('RunType', 'atlas')
     dbFiller.addSimParam('beamType', ConfigFlags.Beam.Type.value)
     dbFiller.addSimParam('SimLayout', ConfigFlags.GeoModel.AtlasVersion)
+    dbFiller.addSimParam('MagneticField', 'AtlasFieldSvc') # TODO hard-coded for now for consistency with old-style configuration.
 
     #---------
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
@@ -49,11 +50,13 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
     ## Hard-coded simulation hit file magic number (for major changes)
     dbFiller.addSimParam('hitFileMagicNumber', '0') ##FIXME Remove this?
 
-
-def fillISFMetadata(dbFiller):
-    #todo - later
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    dbFiller.addSimParam('Simulator', ISF_Flags.Simulator())
+    if ConfigFlags.Sim.ISFRun:
+        dbFiller.addSimParam('Simulator', ConfigFlags.Sim.ISF.Simulator.value)
+        dbFiller.addSimParam('SimulationFlavour', ConfigFlags.Sim.ISF.Simulator.value.replace('MT', '')) # used by egamma
+    else:
+        # TODO hard-code for now, but set flag properly later
+        dbFiller.addSimParam('Simulator', 'AtlasG4')
+        dbFiller.addSimParam('SimulationFlavour', 'AtlasG4')
 
 
 def writeSimulationParametersMetadata(ConfigFlags):
@@ -66,9 +69,7 @@ def writeSimulationParametersMetadata(ConfigFlags):
     dbFiller.setEndRun(myEndRunNumber)
 
     fillAtlasMetadata(ConfigFlags, dbFiller)
-    if ConfigFlags.Sim.ISFRun:
-        #fillISFMetadata(dbFiller) #add later
-        pass
+
     #-------------------------------------------------
     # Make the MetaData Db
     #-------------------------------------------------

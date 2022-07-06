@@ -29,12 +29,14 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "NSWCalibTools/INSWCalibSmearingTool.h"
+#include "NSWCalibTools/INSWCalibTool.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "MuonCondData/NswCalibDbThresholdData.h"
 
 #include "sTGC_Digitization/sTgcDigitMaker.h"
 
@@ -112,6 +114,7 @@ private:
   std::vector<std::unique_ptr<sTGCSimHitCollection>> m_STGCHitCollList{};
 
   ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool{this,"SmearingTool","Muon::NSWCalibSmearingTool/STgcCalibSmearingTool"};
+  ToolHandle<Muon::INSWCalibTool> m_calibTool{this,"CalibrationTool","Muon::NSWCalibTool/NSWCalibTool"};
 
   SG::WriteHandleKey<sTgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","sTGC_DIGITS","WriteHandleKey for Output sTgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","sTGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
@@ -127,6 +130,9 @@ private:
   SG::ReadHandleKey<sTGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "sTGC_Hits", "name of the input object"};
   std::string m_inputObjectName{""};
 
+  Gaudi::Property<bool> m_useCondThresholds{this, "useCondThresholds", true, "Use conditions data to get VMM charge threshold values"};
+  SG::ReadCondHandleKey<NswCalibDbThresholdData> m_condThrshldsKey {this, "CondThrshldsKey", "NswCalibDbThresholdData", "Key of NswCalibDbThresholdData object containing calibration data (VMM thresholds)"};
+
   Gaudi::Property<int> m_doChannelTypes{this,"doChannelTypes",3};
 
   Gaudi::Property<float> m_deadtimeStrip{this,"DeadtimeElectronicsStrip",50};
@@ -137,6 +143,7 @@ private:
   Gaudi::Property<double> m_energyDepositThreshold{this,"energyDepositThreshold",300.0*CLHEP::eV,"Minimum energy deposit for hit to be digitized"};
   Gaudi::Property<double> m_limitElectronKineticEnergy{this,"limitElectronKineticEnergy",5.0*CLHEP::MeV,"Minimum kinetic energy for electron hit to be digitized"};
 
+  float m_chargeThreshold;
   float m_readoutThreshold;
   float m_neighborOnThreshold;
   float m_saturation;

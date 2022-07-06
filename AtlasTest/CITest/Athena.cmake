@@ -22,8 +22,16 @@ atlas_add_citest( G4ExHive
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
 
+atlas_add_citest( SimulationRun2FullSim
+   SCRIPT RunWorkflowTests_Run2.py --CI -s -w FullSim -e '--maxEvents 10'
+   LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4
+
 atlas_add_citest( SimulationRun2AF3
    SCRIPT RunWorkflowTests_Run2.py --CI -s -w AF3 )
+
+atlas_add_citest( SimulationRun3FullSim
+   SCRIPT RunWorkflowTests_Run3.py --CI -s -w FullSim -e '--maxEvents 10'
+   LOG_IGNORE_PATTERN "WARNING FPE INVALID" )  # ignore FPEs from Geant4
 
 atlas_add_citest( SimulationRun4FullSim
    SCRIPT RunWorkflowTests_Run4.py --CI -s -w FullSim -e '--maxEvents 5'
@@ -41,12 +49,17 @@ atlas_add_citest( OverlayRun2MC
 atlas_add_citest( OverlayRun2Data
    SCRIPT RunWorkflowTests_Run2.py --CI -o -w DataOverlay )
 
+atlas_add_citest( OverlayRun3MC
+   SCRIPT RunWorkflowTests_Run3.py --CI -o -w MCOverlay )
+
+atlas_add_citest( OverlayRun3MC_CAConfig
+   SCRIPT RunWorkflowTests_Run3.py --CI -o -w MCOverlay -e '--CA True' )
 
 #################################################################################
 # Standard reconstruction workflows
 #################################################################################
 atlas_add_citest( RecoRun2Data
-   SCRIPT RunWorkflowTests_Run2.py --CI -r -w DataReco -e '--maxEvents 500' --threads 8 --no-output-checks
+   SCRIPT RunWorkflowTests_Run2.py --CI -r -w DataReco -e '--maxEvents 500' --threads 8
    PROPERTIES PROCESSORS 8 )
 
 atlas_add_citest( RecoRun2Data_CAConfig
@@ -78,6 +91,20 @@ atlas_add_citest( RecoRun2MC_PileUp
    SCRIPT RunWorkflowTests_Run2.py --CI -p -w MCPileUpReco -e '--maxEvents 5 --inputRDO_BKGFile=../../PileUpPresamplingRun2/run_d1730/myRDO.pool.root' --no-output-checks  # go two levels up as the test runs in a subfolder
    DEPENDS_SUCCESS PileUpPresamplingRun2 )
 
+atlas_add_citest( RecoRun3Data_Collisions
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q449 -e '--maxEvents 500 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1' --threads 8
+   PROPERTIES PROCESSORS 8 )
+
+atlas_add_citest( RecoRun3Data_Collisions_Express
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a x658 -e '--maxEvents 25 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_900GeV.00424070.express_express.merge.RAW._lb0100._SFO-ALL._0001.1' --threads 8 --no-output-checks
+   PROPERTIES PROCESSORS 8 )
+
+atlas_add_citest( RecoRun3Data_Cosmics
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q450 -e '--maxEvents 25' --no-output-checks )
+
+atlas_add_citest( RecoRun3Data_Calib
+   SCRIPT RunWorkflowTests_Run3.py --CI -r -w DataReco -a q451 -e '--maxEvents 25' --no-output-checks )
+
 atlas_add_citest( RecoRun3MC
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoRun3MC.sh )
 
@@ -87,6 +114,10 @@ atlas_add_citest( RecoRun3MC_CAConfig
 atlas_add_citest( RecoRun3MC_LegacyVsCA
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoLegacyVsCA.sh RecoRun3MC q445
    DEPENDS_SUCCESS RecoRun3MC RecoRun3MC_CAConfig )
+
+atlas_add_citest( RecoRun3MC_PileUp
+   SCRIPT RunWorkflowTests_Run3.py --CI -p -w MCPileUpReco -e '--maxEvents 5 --inputRDO_BKGFile=../../PileUpPresamplingRun3/run_d1760/myRDO.pool.root' --no-output-checks  # go two levels up as the test runs in a subfolder
+   DEPENDS_SUCCESS PileUpPresamplingRun3 )
 
 atlas_add_citest( RecoRun4MC
    SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder

@@ -1,21 +1,21 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DynVarFixerAlg.h 803546 2017-04-25 09:44:26Z krasznaa $
 #ifndef XAODCORECNV_DYNVARFIXERALG_H
 #define XAODCORECNV_DYNVARFIXERALG_H
-
-// System include(s):
-#include <vector>
-#include <string>
-#include <typeinfo>
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainersInterfaces/AuxTypes.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+
+// EDM include(s).
+#include "AthContainersInterfaces/IAuxStoreIO.h"
+#include "AthContainersInterfaces/IConstAuxStore.h"
+
+// System include(s):
+#include <vector>
 
 // Forward declaration(s):
 class TClass;
@@ -42,8 +42,8 @@ namespace xAODMaker {
    class DynVarFixerAlg : public AthAlgorithm {
 
    public:
-      /// Standard Algorithm constructor
-      DynVarFixerAlg( const std::string& name, ISvcLocator* svcLoc );
+      /// Inherit the base class's constructor
+      using AthAlgorithm::AthAlgorithm;
 
       /// Function initialising the algorithm
       StatusCode initialize() override;
@@ -54,8 +54,23 @@ namespace xAODMaker {
       /// Get the dictionary describing an auxiliary vector variable
       ::TClass* getClass( SG::auxid_t auxid );
 
-      /// The names of the containers to massage
-      std::vector< std::string > m_containers;
+      /// @name Algorithm properties
+      /// @{
+
+      /// Containers to access with the @c SG::IConstAuxStore interface
+      SG::ReadHandleKeyArray< SG::IConstAuxStore > m_constKeys{
+         this, "Containers", {}, "Containers to fix up the dynamic variables of" };
+
+      /// @}
+
+      /// Containers to access with the @c SG::IAuxStoreIO interface
+      ///
+      /// Note that this variable is *not* set up as a property on the
+      /// algorithm. It is instead filled by the algorithm in its
+      /// @c initialize() function. (Based on the content of @c m_constKeys )
+      ///
+      SG::ReadHandleKeyArray< SG::IAuxStoreIO > m_ioKeys;
+
       /// Cache of the dictionaries used
       std::vector< ::TClass* > m_dicts;
       /// Flag showing which variables don't have a dictionary for them

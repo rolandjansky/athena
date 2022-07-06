@@ -29,6 +29,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -44,6 +45,10 @@ namespace Trk {
 
 namespace InDetDD {
     class TRT_DetectorManager;
+}
+
+namespace InDet {
+    class IInDetTrackSelectionTool;
 }
 
 class AtlasDetectorID;
@@ -126,8 +131,8 @@ private:
     bool m_doShift;
     bool m_doExpert;
 
-    unsigned char m_mat_chip_B[64][1642]{};
-    unsigned char m_mat_chip_E[64][3840]{};
+    std::vector<std::vector<unsigned char>> m_mat_chip_B{64, std::vector<unsigned char>(1642)};
+    std::vector<std::vector<unsigned char>> m_mat_chip_E{64, std::vector<unsigned char>(3840)};
 
     float m_DistToStraw;
     bool m_isCosmics;
@@ -160,5 +165,6 @@ private:
     }
 
     int  m_EventBurstCut;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
 };
 #endif

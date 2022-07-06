@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCANALYSIS_ZDCANALYSISTOOL_H
@@ -188,7 +188,7 @@ private:
 
   std::shared_ptr<ZDCTriggerEfficiency> m_zdcTriggerEfficiency;
 
-  static int s_debugLevel;
+  static std::atomic<int> s_debugLevel;
 
 };
 

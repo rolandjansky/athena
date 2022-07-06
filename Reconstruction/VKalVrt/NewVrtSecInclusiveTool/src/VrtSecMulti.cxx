@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///
 ///    @author Vadim Kostyukhin <vadim.kostyukhin@cern.ch>
@@ -26,7 +26,8 @@ namespace Rec{
 
 
    std::vector<xAOD::Vertex*> NewVrtSecInclusiveTool::getVrtSecMulti(  workVectorArrxAOD * xAODwrk,
-                                                                      const xAOD::Vertex & primVrt )
+                                                                       const xAOD::Vertex & primVrt,
+                                                                       compatibilityGraph_t& compatibilityGraph )
    const
    {
 
@@ -48,7 +49,10 @@ namespace Rec{
 
       ATH_MSG_DEBUG( "Number of selected tracks = " <<nTracks);
       
-      if(m_fillHist){ m_hb_ntrksel->Fill( (double) nTracks, m_w_1); }
+      if(m_fillHist){
+        Hists& h = getHists();
+        h.m_hb_ntrksel->Fill( (double) nTracks, m_w_1);
+      }
 
 //
 //  inpTrk[]           - input track list
@@ -59,11 +63,11 @@ namespace Rec{
 //
 
       std::map<long int,std::vector<double>> foundVrt2t;
-      select2TrVrt(xAODwrk->listSelTracks, primVrt, foundVrt2t);
+      select2TrVrt(xAODwrk->listSelTracks, primVrt, foundVrt2t, compatibilityGraph);
 
 //---
-      ATH_MSG_DEBUG(" Defined edges in the graph="<< num_edges(*m_compatibilityGraph));
-      if(num_edges(*m_compatibilityGraph)==0){ return finalVertices;} //No vertices!
+      ATH_MSG_DEBUG(" Defined edges in the graph="<< num_edges(compatibilityGraph));
+      if(num_edges(compatibilityGraph)==0){ return finalVertices;} //No vertices!
 
 //
 //  m_Incomp[]           -  main vector of pointers for multivertex search
@@ -81,7 +85,7 @@ namespace Rec{
 
 
       std::vector< std::vector<int> > allCliques;
-      bron_kerbosch_all_cliques(*m_compatibilityGraph, clique_visitor(allCliques));
+      bron_kerbosch_all_cliques(compatibilityGraph, clique_visitor(allCliques));
       for(int cq=0; cq<(int)allCliques.size();cq++){
           newvrt.selTrk.clear();
           NPTR=allCliques[cq].size();
@@ -111,9 +115,9 @@ namespace Rec{
 //==================================================================================
 // boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>::vertex_iterator vertexIt, vertexEnd;
 // boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>::adjacency_iterator neighbourIt, neighbourEnd;
-// tie(vertexIt, vertexEnd) = vertices(*m_compatibilityGraph);
+// tie(vertexIt, vertexEnd) = vertices(compatibilityGraph);
 // for (; vertexIt != vertexEnd; ++vertexIt) { std::cout << *vertexIt << " is connected with "; 
-//    tie(neighbourIt, neighbourEnd) = adjacent_vertices(*vertexIt, *m_compatibilityGraph); 
+//    tie(neighbourIt, neighbourEnd) = adjacent_vertices(*vertexIt, compatibilityGraph); 
 //    for (; neighbourIt != neighbourEnd; ++neighbourIt) std::cout << *neighbourIt << " ";   std::cout << "\n"; }
 //==================================================================================
     if((*wrkVrtSet).size()==0)return finalVertices;
@@ -175,8 +179,11 @@ namespace Rec{
        //--If not mergeable - refine them
        refineVerticesWithCommonTracks( v1, v2, xAODwrk->listSelTracks, *state);
     }
-    if(m_fillHist){ int cvgood=0; for(auto vrt:(*wrkVrtSet)) if(vrt.Good)cvgood++;
-                    m_hb_rawVrtN->Fill( (float)cvgood, m_w_1); }
+    if(m_fillHist){
+      int cvgood=0; for(auto vrt:(*wrkVrtSet)) if(vrt.Good)cvgood++;
+      Hists& h = getHists();
+      h.m_hb_rawVrtN->Fill( (float)cvgood, m_w_1);
+    }
 //
 //-Clean duplicated 1track vertices if they exist
 //
@@ -207,7 +214,10 @@ namespace Rec{
     int foundV1=-1, foundV2=-1;
     std::vector<double> checkedDst(0);
     double minDistVV=minVrtVrtDist( wrkVrtSet.get(), foundV1, foundV2, checkedDst); //recalculate VV distances
-    if(m_fillHist){m_hb_distVV->Fill( minDistVV, m_w_1); }
+    if(m_fillHist){
+      Hists& h = getHists();
+      h.m_hb_distVV->Fill( minDistVV, m_w_1);
+    }
     while ( minDistVV < m_vertexMergeCut) {
         if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;}
         double probV=mergeAndRefitVertices( (*wrkVrtSet)[foundV1], (*wrkVrtSet)[foundV2], newvrt, xAODwrk->listSelTracks, *state, 0);
@@ -268,10 +278,11 @@ namespace Rec{
 //-----------------------------------------------------------------------------------------
           vrtVrtDist(primVrt,curVrt.vertex, curVrt.vertexCov, signif3D); 
           if(m_fillHist){ 
-             if(nth==2 && curVrt.vertexCharge==0) m_hb_massPiPi1->Fill(curVrt.vertexMom.M(), m_w_1);
-             m_hb_sig3DTot->Fill( signif3D, m_w_1);
-             if(nth==2)m_hb_sig3D2tr->Fill( signif3D, m_w_1);
-             if(nth >2)m_hb_sig3DNtr->Fill( signif3D, m_w_1);
+             Hists& h = getHists();
+             if(nth==2 && curVrt.vertexCharge==0) h.m_hb_massPiPi1->Fill(curVrt.vertexMom.M(), m_w_1);
+             h.m_hb_sig3DTot->Fill( signif3D, m_w_1);
+             if(nth==2)h.m_hb_sig3D2tr->Fill( signif3D, m_w_1);
+             if(nth >2)h.m_hb_sig3DNtr->Fill( signif3D, m_w_1);
           }
 //
 //---  Check V0s and conversions. Necessity must be checked in physics applications
@@ -280,9 +291,12 @@ namespace Rec{
              double mass_PiPi =  curVrt.vertexMom.M();  
              double mass_PPi  =  massV0(curVrt.trkAtVrt,m_massP,m_massPi);
              double mass_EE   =  massV0(curVrt.trkAtVrt,m_massE,m_massE);
-             if(m_fillHist){ m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
-                             m_hb_massPPi ->Fill( mass_PPi,  m_w_1); 
-                             if( curVrt.vertex.perp()>20.)m_hb_massEE  ->Fill( mass_EE,   m_w_1);  } 
+             if(m_fillHist){
+               Hists& h = getHists();
+               h.m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
+               h.m_hb_massPPi ->Fill( mass_PPi,  m_w_1); 
+               if( curVrt.vertex.perp()>20.)h.m_hb_massEE  ->Fill( mass_EE,   m_w_1);
+             } 
              if( std::abs(mass_PiPi-m_massK0) < 22.)     continue;
              if( std::abs(mass_PPi-m_massLam) <  8.)     continue;
              if( mass_EE < 60. && curVrt.vertex.perp() > 20.) continue;
@@ -314,7 +328,7 @@ namespace Rec{
              maxSig3DT=std::max( maxSig3DT, sqrt( SigR2 + SigZ2) );
              sumIBLHits += std::max(getIBLHit(xAODwrk->listSelTracks[j]),0);
              sumBLHits  += std::max(getBLHit(xAODwrk->listSelTracks[j]),0);
-             if(m_fillHist && m_curTup) {
+             if(m_fillHist) {
                 ntrkBC += getIdHF(xAODwrk->listSelTracks[j]);
                 ntrkI  += getG4Inter(xAODwrk->listSelTracks[j]);
              }
@@ -324,29 +338,30 @@ namespace Rec{
           float vrtR=curVrt.vertex.perp();
           TLorentzVector SVPV(curVrt.vertex.x()-primVrt.x(),curVrt.vertex.y()-primVrt.y(),curVrt.vertex.z()-primVrt.z(), 10.);
           if(m_fillHist){
-             if( m_curTup && nth>1 ){
+             Hists& h = getHists();
+             if( nth>1 ){
                 vrtVrtDist(primVrt,curVrt.vertex, curVrt.vertexCov, signif3D); 
                 float Dist2D=vrtVrtDist2D(primVrt,curVrt.vertex, curVrt.vertexCov, signif2D); 
-                m_curTup->NVrtTrk   [m_curTup->nNVrt] = nth;
-                m_curTup->NVrtTrkHF [m_curTup->nNVrt] = ntrkBC;
-                m_curTup->NVrtTrkI  [m_curTup->nNVrt] = ntrkI;
-                m_curTup->NVrtProb  [m_curTup->nNVrt] = vProb;
-                m_curTup->NVrtSig3D [m_curTup->nNVrt] = signif3D;
-                m_curTup->NVrtSig2D [m_curTup->nNVrt] = signif2D;
-                m_curTup->NVrtDist2D[m_curTup->nNVrt] = vrtR<20. ? Dist2D : vrtR;
-                m_curTup->NVrtM     [m_curTup->nNVrt] = curVrt.vertexMom.M();
-                m_curTup->NVrtPt    [m_curTup->nNVrt] = curVrt.vertexMom.Pt();
-                m_curTup->NVrtEta   [m_curTup->nNVrt] = SVPV.Eta();
-                m_curTup->NVrtIBL   [m_curTup->nNVrt] = sumIBLHits;
-                m_curTup->NVrtBL    [m_curTup->nNVrt] = sumBLHits;
-                m_curTup->NVrtCosSPM[m_curTup->nNVrt] = cosSVPVM;
-                m_curTup->NVrtCh    [m_curTup->nNVrt] = curVrt.vertexCharge;
-                m_curTup->NVMinPtT  [m_curTup->nNVrt] = minPtT;
-                m_curTup->NVMinS3DT [m_curTup->nNVrt] = minSig3DT;
-                m_curTup->NVrtBDT   [m_curTup->nNVrt] = 1.1;
-                m_curTup->NVrtHR1   [m_curTup->nNVrt] = xAODwrk->listSelTracks[curVrt.selTrk[0]]->radiusOfFirstHit();
-                m_curTup->NVrtHR2   [m_curTup->nNVrt] = xAODwrk->listSelTracks[curVrt.selTrk[1]]->radiusOfFirstHit();
-                if( m_curTup->nNVrt < DevTuple::maxNVrt-1 )m_curTup->nNVrt++;
+                h.m_curTup->NVrtTrk   [h.m_curTup->nNVrt] = nth;
+                h.m_curTup->NVrtTrkHF [h.m_curTup->nNVrt] = ntrkBC;
+                h.m_curTup->NVrtTrkI  [h.m_curTup->nNVrt] = ntrkI;
+                h.m_curTup->NVrtProb  [h.m_curTup->nNVrt] = vProb;
+                h.m_curTup->NVrtSig3D [h.m_curTup->nNVrt] = signif3D;
+                h.m_curTup->NVrtSig2D [h.m_curTup->nNVrt] = signif2D;
+                h.m_curTup->NVrtDist2D[h.m_curTup->nNVrt] = vrtR<20. ? Dist2D : vrtR;
+                h.m_curTup->NVrtM     [h.m_curTup->nNVrt] = curVrt.vertexMom.M();
+                h.m_curTup->NVrtPt    [h.m_curTup->nNVrt] = curVrt.vertexMom.Pt();
+                h.m_curTup->NVrtEta   [h.m_curTup->nNVrt] = SVPV.Eta();
+                h.m_curTup->NVrtIBL   [h.m_curTup->nNVrt] = sumIBLHits;
+                h.m_curTup->NVrtBL    [h.m_curTup->nNVrt] = sumBLHits;
+                h.m_curTup->NVrtCosSPM[h.m_curTup->nNVrt] = cosSVPVM;
+                h.m_curTup->NVrtCh    [h.m_curTup->nNVrt] = curVrt.vertexCharge;
+                h.m_curTup->NVMinPtT  [h.m_curTup->nNVrt] = minPtT;
+                h.m_curTup->NVMinS3DT [h.m_curTup->nNVrt] = minSig3DT;
+                h.m_curTup->NVrtBDT   [h.m_curTup->nNVrt] = 1.1;
+                h.m_curTup->NVrtHR1   [h.m_curTup->nNVrt] = xAODwrk->listSelTracks[curVrt.selTrk[0]]->radiusOfFirstHit();
+                h.m_curTup->NVrtHR2   [h.m_curTup->nNVrt] = xAODwrk->listSelTracks[curVrt.selTrk[1]]->radiusOfFirstHit();
+                if( h.m_curTup->nNVrt < DevTuple::maxNVrt-1 )h.m_curTup->nNVrt++;
             }
           }
 //-------------------BDT based rejection
@@ -367,8 +382,9 @@ namespace Rec{
              VARS[9]=std::max(rhit0,rhit1);
              float wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);
              if(m_fillHist){
-               m_hb_fakeSVBDT->Fill(wgtSelect,1.);
-               if( m_curTup ) m_curTup->NVrtBDT[m_curTup->nNVrt-1] = wgtSelect;
+               Hists& h = getHists();
+               h.m_hb_fakeSVBDT->Fill(wgtSelect,1.);
+               h.m_curTup->NVrtBDT[h.m_curTup->nNVrt-1] = wgtSelect;
              }
              if(wgtSelect<m_v2tFinBDTCut) curVrt.Good = false;
           }
@@ -376,7 +392,8 @@ namespace Rec{
 //
 //-- Debug ntuple for 1track vertex is filled here
 //
-    if(m_fillHist && m_curTup && m_multiWithOneTrkVrt){
+    if(m_fillHist && m_multiWithOneTrkVrt){
+      Hists& h = getHists();
       for(auto & vrt : (*wrkVrtSet)) {
         if( !vrt.Good || vrt.selTrk.size() != 1 ) continue;  // Good 1track vertices
         auto xaodtp=xAODwrk->listSelTracks[vrt.selTrk[0]];
@@ -384,22 +401,22 @@ namespace Rec{
         double SigR2 = std::abs(impact[0]*impact[0]/impactError[0]);
         double SigZ2 = std::abs(impact[1]*impact[1]/impactError[2]);
         float dist2D=vrtVrtDist2D(primVrt,vrt.vertex, vrt.vertexCov, signif2D); 
-        m_curTup->NVrtTrk   [m_curTup->nNVrt] = 1;
-        m_curTup->NVrtTrkHF [m_curTup->nNVrt] = getIdHF(xaodtp);
-        m_curTup->NVrtProb  [m_curTup->nNVrt] = trkNPairs[vrt.selTrk[0]];
-        m_curTup->NVrtSig3D [m_curTup->nNVrt] = 0.;
-        m_curTup->NVrtSig2D [m_curTup->nNVrt] = signif2D;
-        m_curTup->NVrtDist2D[m_curTup->nNVrt] = dist2D;
-        m_curTup->NVrtM     [m_curTup->nNVrt] = vrt.vertexMom.M();
-        m_curTup->NVrtPt    [m_curTup->nNVrt] = vrt.vertexMom.Pt();
-        m_curTup->NVrtCosSPM[m_curTup->nNVrt] = 0.;
-        m_curTup->NVrtCh    [m_curTup->nNVrt] = vrt.vertexCharge;
-        m_curTup->NVMinPtT  [m_curTup->nNVrt] = xaodtp->pt();
-        m_curTup->NVMinS3DT [m_curTup->nNVrt] = sqrt(SigR2 + SigZ2);
-        m_curTup->NVrtBDT   [m_curTup->nNVrt] = 1.1;
-        m_curTup->NVrtIBL   [m_curTup->nNVrt] = std::max(getIBLHit(xaodtp),0);
-        m_curTup->NVrtBL    [m_curTup->nNVrt] = std::max(getBLHit (xaodtp),0);
-        if( m_curTup->nNVrt < DevTuple::maxNVrt-1 )m_curTup->nNVrt++;
+        h.m_curTup->NVrtTrk   [h.m_curTup->nNVrt] = 1;
+        h.m_curTup->NVrtTrkHF [h.m_curTup->nNVrt] = getIdHF(xaodtp);
+        h.m_curTup->NVrtProb  [h.m_curTup->nNVrt] = trkNPairs[vrt.selTrk[0]];
+        h.m_curTup->NVrtSig3D [h.m_curTup->nNVrt] = 0.;
+        h.m_curTup->NVrtSig2D [h.m_curTup->nNVrt] = signif2D;
+        h.m_curTup->NVrtDist2D[h.m_curTup->nNVrt] = dist2D;
+        h.m_curTup->NVrtM     [h.m_curTup->nNVrt] = vrt.vertexMom.M();
+        h.m_curTup->NVrtPt    [h.m_curTup->nNVrt] = vrt.vertexMom.Pt();
+        h.m_curTup->NVrtCosSPM[h.m_curTup->nNVrt] = 0.;
+        h.m_curTup->NVrtCh    [h.m_curTup->nNVrt] = vrt.vertexCharge;
+        h.m_curTup->NVMinPtT  [h.m_curTup->nNVrt] = xaodtp->pt();
+        h.m_curTup->NVMinS3DT [h.m_curTup->nNVrt] = sqrt(SigR2 + SigZ2);
+        h.m_curTup->NVrtBDT   [h.m_curTup->nNVrt] = 1.1;
+        h.m_curTup->NVrtIBL   [h.m_curTup->nNVrt] = std::max(getIBLHit(xaodtp),0);
+        h.m_curTup->NVrtBL    [h.m_curTup->nNVrt] = std::max(getBLHit (xaodtp),0);
+        if( h.m_curTup->nNVrt < DevTuple::maxNVrt-1 )h.m_curTup->nNVrt++;
    }  }
 //-------------------------------------------
 //Sorting and check
@@ -413,7 +430,10 @@ namespace Rec{
        }
     }
     if(nNtrVrt==0){             //--- No good vertices at all
-      if(m_fillHist && m_curTup ) m_curTup->nNVrt=0;
+      if(m_fillHist) {
+        Hists& h = getHists();
+        h.m_curTup->nNVrt=0;
+      }
       return finalVertices;
     }
 //
@@ -427,8 +447,10 @@ namespace Rec{
           xAODwrk->tmpListTracks.clear();
           for(auto t : curVrt.selTrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listSelTracks[t] );
           if(m_fillHist){ 
-             m_hb_totmass->Fill(curVrt.vertexMom.M(), m_w_1);
-             m_hb_r2d->Fill( curVrt.vertex.perp(), m_w_1); } 
+             Hists& h = getHists();
+             h.m_hb_totmass->Fill(curVrt.vertexMom.M(), m_w_1);
+             h.m_hb_r2d->Fill( curVrt.vertex.perp(), m_w_1);
+          } 
 //--- Re-fit with full error matrix and xAOD::Vertex creation
           xAOD::Vertex * tmpVertex=nullptr;
           if(nth>1){                                    //-- Common case with full refit
@@ -461,8 +483,9 @@ namespace Rec{
           if(tmpVertex)finalVertices.push_back(tmpVertex);
     }
     if(m_fillHist){
-      m_hb_goodvrtN->Fill( finalVertices.size()+0.1, m_w_1);
-      m_hb_goodvrt1N->Fill( n1trVrt+0.1, m_w_1);
+      Hists& h = getHists();
+      h.m_hb_goodvrtN->Fill( finalVertices.size()+0.1, m_w_1);
+      h.m_hb_goodvrt1N->Fill( n1trVrt+0.1, m_w_1);
     }
 //-----------------------------------------------------------------------------------
 //  Saving of results

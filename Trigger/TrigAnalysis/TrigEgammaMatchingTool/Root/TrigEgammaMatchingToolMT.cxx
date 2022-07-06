@@ -76,8 +76,8 @@ bool TrigEgammaMatchingToolMT::isPassed(const xAOD::Egamma *eg,const std::string
     if( match( eg, trigger, dec ) ){
       if( dec ){
         if(xAOD::EgammaHelpers::isElectron(eg)){
-          std::string key = this->key("Electrons");
-          if(boost::contains(trigger,"gsf")) key=this->key("Electrons_GSF");
+          std::string key = this->key("Electrons_GSF");
+          if(boost::contains(trigger,"nogsf")) key=this->key("Electrons");
           if(boost::contains(trigger,"lrt")) key=this->key("Electrons_LRT");
           return ancestorPassed<xAOD::ElectronContainer>(dec, trigger,key, condition);
         }
@@ -137,15 +137,15 @@ bool TrigEgammaMatchingToolMT::matchHLTPhoton(const xAOD::Photon *eg,const std::
 
 bool TrigEgammaMatchingToolMT::matchHLTElectron(const xAOD::Electron *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec, unsigned int condition ) const
 { 
-  if (boost::contains(trigger,"gsf")){
-      ATH_MSG_DEBUG("Matched HLT Electron GSF");
-      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons_GSF"), m_dR, condition );
+  if (boost::contains(trigger,"nogsf")){
+      ATH_MSG_DEBUG("Matched HLT Electron noGSF");
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons"), m_dR, condition );
     }else if(boost::contains(trigger,"lrt")){
       ATH_MSG_DEBUG("Matched HLT Electron LRT");
       return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons_LRT"), m_dR, condition );
     }else {
       ATH_MSG_DEBUG("Matched HLT Electron");
-      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons"), m_dR, condition );     
+      return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electrons_GSF"), m_dR, condition );
     }
 }
 

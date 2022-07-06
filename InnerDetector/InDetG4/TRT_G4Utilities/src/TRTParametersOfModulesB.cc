@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,25 +12,11 @@
 
   // Called by TRTConstructionOfModulesB::TRTConstructionOfModulesB
 
-TRTParametersOfModulesB::TRTParametersOfModulesB(): m_msg("TRTParametersOfModulesB")
+TRTParametersOfModulesB::TRTParametersOfModulesB()
 {
   m_pParameters = TRTParameters::GetPointer();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesB" << endmsg;
-
   DefineParameters();
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfModulesB done" << endmsg;
-}
-
-
-  // Called by TRTConstructionOfModulesB::~TRTConstructionOfModulesB
-
-TRTParametersOfModulesB::~TRTParametersOfModulesB()
-{
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB" << endmsg;
- 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfModulesB done" << endmsg;
 }
 
 
@@ -38,9 +24,7 @@ TRTParametersOfModulesB::~TRTParametersOfModulesB()
 
 void TRTParametersOfModulesB::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters" << endmsg;
-
-    // Distances between corners of shell B:
+  // Distances between corners of shell B:
   int numberOfShellCorners = m_pParameters->GetInteger("NumberOfShellCorners");
   std::vector<double> xOfShellCornersB(numberOfShellCorners,0.);
   std::vector<double> yOfShellCornersB(numberOfShellCorners,0.);
@@ -242,19 +226,15 @@ void TRTParametersOfModulesB::DefineParameters()
   }
  
   if (m_pParameters->GetInteger("PrintParametersOfModulesB"))
-    PrintParameters(m_msg.get(), xGlobalOfHolesB, yGlobalOfHolesB);
- 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesB::DefineParameters done" << endmsg;
+    PrintParameters(xGlobalOfHolesB, yGlobalOfHolesB);
 }
 
 
   // Called by DefineParameters
 
-void TRTParametersOfModulesB::PrintParameters(MsgStream& msg, const  std::vector<double> & xGlobalOfHolesB,
-  const  std::vector<double> & yGlobalOfHolesB) const
+void TRTParametersOfModulesB::PrintParameters(const  std::vector<double> & xGlobalOfHolesB,
+                                              const  std::vector<double> & yGlobalOfHolesB) const
 {
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesB::PrintParameters" << endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -364,6 +344,4 @@ void TRTParametersOfModulesB::PrintParameters(MsgStream& msg, const  std::vector
   }
 
   output << std::endl;
-
-  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesB::PrintParameters done" << endmsg;
 }

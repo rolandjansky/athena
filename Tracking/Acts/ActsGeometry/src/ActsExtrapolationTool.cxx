@@ -137,7 +137,7 @@ ActsExtrapolationTool::initialize()
 ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                                         const Acts::BoundTrackParameters& startParameters,
-                                        Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                        Acts::NavigationDirection navDir /*= Acts::NavigationDirection::Forward*/,
                                         double pathLimit /*= std::numeric_limits<double>::max()*/,
                                         Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
@@ -168,7 +168,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto &mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -216,7 +216,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
 std::unique_ptr<const Acts::CurvilinearTrackParameters>
 ActsExtrapolationTool::propagate(const EventContext& ctx,
                                  const Acts::BoundTrackParameters& startParameters,
-                                 Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                 Acts::NavigationDirection navDir /*= Acts::NavigationDirection::Forward*/,
                                  double pathLimit /*= std::numeric_limits<double>::max()*/,
                                  Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
@@ -246,7 +246,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -271,7 +271,7 @@ ActsPropagationOutput
 ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
                                         const Acts::BoundTrackParameters& startParameters,
                                         const Acts::Surface& target,
-                                        Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                        Acts::NavigationDirection navDir /*= Acts::NavigationDirection::Forward*/,
                                         double pathLimit /*= std::numeric_limits<double>::max()*/,
                                         Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
@@ -301,7 +301,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -342,7 +342,7 @@ std::unique_ptr<const Acts::BoundTrackParameters>
 ActsExtrapolationTool::propagate(const EventContext& ctx,
                                  const Acts::BoundTrackParameters& startParameters,
                                  const Acts::Surface& target,
-                                 Acts::NavigationDirection navDir /*= Acts::forward*/,
+                                 Acts::NavigationDirection navDir /*= Acts::NavigationDirection::Forward*/,
                                  double pathLimit /*= std::numeric_limits<double>::max()*/,
                                  Trk::ParticleHypothesis particleHypo /*= Trk::pion*/) const
 {
@@ -372,7 +372,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   options.direction = navDir;
   if(particleHypo != Trk::noHypothesis){
     options.absPdgCode = m_pdgToParticleHypothesis.convert(particleHypo, startParameters.charge());
-    options.mass = m_particlemasses.mass[particleHypo] * 1_MeV;
+    options.mass = Trk::ParticleMasses::mass[particleHypo] * 1_MeV;
   }
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();

@@ -95,6 +95,10 @@ Trk::StraightLineSurface::operator==(const Trk::Surface& sf) const
 }
 
 // true local to global method - fully defined
+#if defined(__GNUC__)
+[[gnu::flatten]]
+//Avoid out-of-line eigen calls
+#endif
 void
 Trk::StraightLineSurface::localToGlobal(const Amg::Vector2D& locpos,
                                         const Amg::Vector3D& glomom,
@@ -125,7 +129,7 @@ Trk::StraightLineSurface::globalToLocal(const Amg::Vector3D& glopos,
                                         const Amg::Vector3D&  glomom,
                                         Amg::Vector2D& locpos) const
 {
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopos);
   // construct localPosition with sign*candidate.perp() and z.()
   locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.z());
   Amg::Vector3D decVec(glopos - center());
@@ -155,7 +159,7 @@ Trk::StraightLineSurface::isOnSurface(const Amg::Vector3D& glopo,
   if (!(m_bounds.get()) && !Surface::m_associatedDetElement)
     return true;
   // get the standard bounds
-  Amg::Vector3D loc3Dframe = (transform().inverse()) * glopo;
+  Amg::Vector3D loc3Dframe = inverseTransformMultHelper(glopo);
   Amg::Vector2D locCand(loc3Dframe.perp(), loc3Dframe.z());
   return (locCand[Trk::locR] < bounds().r() + tol1 && bounds().insideLoc2(locCand, tol2));
 }

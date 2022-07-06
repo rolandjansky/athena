@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Main steering for MC+MC and MC+data overlay
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -11,9 +11,12 @@ from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from OverlayConfiguration.OverlayMetadata import overlayMetadataCheck, overlayMetadataWrite
 
 from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
+from InDetOverlay.ITkPixelOverlayConfig import ITkPixelOverlayCfg
+from InDetOverlay.ITkStripOverlayConfig import ITkStripOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
+from HGTD_Overlay.HGTD_OverlayConfig import HGTD_OverlayCfg
 from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg, LArSuperCellOverlayCfg
 from MuonConfig.CSC_OverlayConfig import CSC_OverlayCfg
 from MuonConfig.MDT_OverlayConfig import MDT_OverlayCfg
@@ -36,10 +39,16 @@ def OverlayMainCfg(configFlags):
     acc = MainServicesCfg(configFlags)
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
+    acc.merge(OverlayMainContentCfg(configFlags))
+    return acc
+
+
+def OverlayMainContentCfg(configFlags):
+    """Main overlay content"""
 
     # Handle metadata correctly
     overlayMetadataCheck(configFlags)
-    acc.merge(overlayMetadataWrite(configFlags))
+    acc = overlayMetadataWrite(configFlags)
 
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))
@@ -66,6 +75,16 @@ def OverlayMainCfg(configFlags):
         acc.merge(SCTOverlayCfg(configFlags))
     if configFlags.Detector.EnableTRT:
         acc.merge(TRTOverlayCfg(configFlags))
+
+    # ITk
+    if configFlags.Detector.EnableITkPixel:
+        acc.merge(ITkPixelOverlayCfg(configFlags))
+    if configFlags.Detector.EnableITkStrip:
+        acc.merge(ITkStripOverlayCfg(configFlags))
+
+    # HGTD
+    if configFlags.Detector.EnableHGTD:
+        acc.merge(HGTD_OverlayCfg(configFlags))
 
     # Calorimeters
     if configFlags.Detector.EnableLAr:
@@ -105,5 +124,17 @@ def OverlayMainCfg(configFlags):
     if configFlags.PerfMon.doFastMonMT or configFlags.PerfMon.doFullMonMT:
         from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
         acc.merge(PerfMonMTSvcCfg(configFlags))
+
+    #track overlay
+    if configFlags.Overlay.doTrackOverlay:
+        #need this to ensure that the ElementLinks to the PRDs are handled correctly (since the name is hardcoded in the converters)
+        from TrkEventCnvTools.TrkEventCnvToolsConfigCA import TrkEventCnvSuperToolCfg
+        acc.merge(TrkEventCnvSuperToolCfg(configFlags))
+        from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyTrackCollectionsCfg,CopyPixelClusterContainerCfg, CopySCT_ClusterContainerCfg,\
+            CopyTRT_DriftCircleContainerCfg
+        acc.merge(CopyTrackCollectionsCfg(configFlags))
+        acc.merge(CopyPixelClusterContainerCfg(configFlags))
+        acc.merge(CopySCT_ClusterContainerCfg(configFlags))
+        acc.merge(CopyTRT_DriftCircleContainerCfg(configFlags))
 
     return acc

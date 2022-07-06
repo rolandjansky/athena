@@ -41,14 +41,14 @@ namespace met {
     ATH_CHECK( METEgammaAssociator::initialize() );
 
 
-    if (m_usePFOLinks ||  m_usePFOPhotonLinks) {
+    if (m_usePFOLinks) {
         if (m_photonNeutralPFOReadDecorKey.empty()) {ATH_CHECK( m_photonNeutralPFOReadDecorKey.assign(m_phContKey.key()+"."+m_neutralPFOLinksKey));} 
         if (m_photonChargedPFOReadDecorKey.empty()) {ATH_CHECK( m_photonChargedPFOReadDecorKey.assign(m_phContKey.key()+"."+m_chargedPFOLinksKey));} 
 	ATH_CHECK(m_photonNeutralPFOReadDecorKey.initialize());
     	ATH_CHECK(m_photonChargedPFOReadDecorKey.initialize());
 
     }
-    if (m_useFELinks ||  m_useFEPhotonLinks) {
+    if (m_useFELinks) {
         if (m_photonNeutralFEReadDecorKey.empty())  {ATH_CHECK( m_photonNeutralFEReadDecorKey.assign(m_phContKey.key()+"."+m_neutralFELinksKey));} 
         if (m_photonChargedFEReadDecorKey.empty())  {ATH_CHECK( m_photonChargedFEReadDecorKey.assign(m_phContKey.key()+"."+m_chargedFELinksKey));} 
     	ATH_CHECK(m_photonNeutralFEReadDecorKey.initialize());

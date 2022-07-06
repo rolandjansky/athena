@@ -73,6 +73,7 @@ namespace FlavorTagDiscriminants {
     std::string track_link_name;
     std::map<std::string,std::string> remap_scalar;
     TrackLinkType track_link_type;
+    float default_output_value;
   };
 
 

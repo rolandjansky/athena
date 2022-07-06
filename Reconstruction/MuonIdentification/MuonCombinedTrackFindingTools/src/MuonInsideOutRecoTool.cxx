@@ -239,8 +239,8 @@ namespace MuonCombined {
             segLinks.push_back(copy.get());
             segments->push_back(std::move(copy));
         }
-        /// Sort the segments here
-
+        /// Sort the segments here; note the lifetime of 'copy' is still valid here as it exists inside 'segments'
+        //cppcheck-suppress invalidLifetime
         std::sort(segLinks.begin(), segLinks.end(), [this](const Muon::MuonSegment* seg_a, const Muon::MuonSegment* seg_b) -> bool {
             using chamIdx = Muon::MuonStationIndex::ChIndex;
             chamIdx ch_a = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*seg_a));

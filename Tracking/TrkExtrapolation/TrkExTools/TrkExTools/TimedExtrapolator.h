@@ -19,7 +19,6 @@
 #include "GaudiKernel/ToolHandle.h"
 // Trk
 #include "TrkDetDescrUtils/GeometrySignature.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -298,7 +297,7 @@ private:
   ToolHandleArray<ITimedMatEffUpdator> m_updators; //!<  Array of Material Updators
   ToolHandleArray<IMultipleScatteringUpdator>
     m_msupdators;                                      //!<  Array of MultipleScattering Updators
-  ToolHandleArray<IEnergyLossUpdator> m_elossupdators; //!<  Array of EnergyLoss Updators
+  ToolHandle<IEnergyLossUpdator> m_elossupdater; //!<  EnergyLoss Updater
 
   // ---------------- For Extrapolation handling ------------ //
 
@@ -429,9 +428,7 @@ private:
   bool m_fastField;
   Trk::MagneticFieldProperties m_fieldProperties;
 
-  // ------------------------------- static members
-  // --------------------------------------------------------------------
-  static const ParticleMasses s_particleMasses;
+  
 };
 
 inline const TrackingGeometry*

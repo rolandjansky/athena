@@ -2,6 +2,8 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.Enums import BeamType
+from InDetConfig.InDetConfigFlags import TrackFitterType
+
 # TODO : Add some exta levels?
 
 def createITkConfigFlags():
@@ -37,7 +39,7 @@ def createITkConfigFlags():
 
   itkcf.addFlag("ITk.Tracking.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies
   itkcf.addFlag("ITk.Tracking.doDigitalClustering", False)
-  itkcf.addFlag("ITk.Tracking.trackFitterType", "GlobalChi2Fitter") # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
+  itkcf.addFlag("ITk.Tracking.trackFitterType", TrackFitterType.GlobalChi2Fitter) # control which fitter to be used: 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
   itkcf.addFlag("ITk.Tracking.doFastTracking", False) # Turn running of ITk FastTracking on and off
   itkcf.addFlag("ITk.Tracking.doConversionFinding",True) # Turn running of ConversionFinding second pass on and off
   itkcf.addFlag("ITk.Tracking.doLargeD0", False)
@@ -65,7 +67,7 @@ def createITkConfigFlags():
   # config flags for tracking cuts
   from InDetConfig.TrackingPassFlags import createITkTrackingPassFlags, createITkLargeD0TrackingPassFlags, createITkConversionFindingTrackingPassFlags, createITkFastTrackingPassFlags, createITkLargeD0FastTrackingPassFlags
 
-  itkcf.addFlagsCategory ("ITk.Tracking.ActivePass", createITkTrackingPassFlags, prefix=True) # Set up for first tracking pass, updated for second passes
+  itkcf.addFlagsCategory ("ITk.Tracking.MainPass", createITkTrackingPassFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.Tracking.LargeD0Pass", createITkLargeD0TrackingPassFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.Tracking.ConversionFindingPass", createITkConversionFindingTrackingPassFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.Tracking.FastPass", createITkFastTrackingPassFlags, prefix=True)

@@ -6,6 +6,8 @@
 #define LARSC2NTUPLE_H
 
 #include "LArCalibTools/LArDigits2Ntuple.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
+#include "LArRawEvent/LArRawChannelContainer.h"
 
 class LArSC2Ntuple : public LArDigits2Ntuple
 {
@@ -16,21 +18,35 @@ class LArSC2Ntuple : public LArDigits2Ntuple
   // Standard algorithm methods
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
+ protected:
+
+  typedef std::map<HWIdentifier, const LArRawChannel*> rawChanMap_t;
+  void fillRODEnergy(HWIdentifier SCId, rawChanMap_t &rawChanMap, 
+                     const LArOnOffIdMapping* cabling, const LArOnOffIdMapping* cablingROD); 
+
  private:
 
-  long m_sc2event = 0;
+  long m_event;
 
   Gaudi::Property< std::vector<std::string> > m_contKeys{ this, "SCContainerKeys", {},"which containers to dump"};
   Gaudi::Property< bool > m_overwriteEventNumber{this, "OverwriteEventNumber", false, "overwrite the event number from EventInfo ?"};
+  Gaudi::Property< unsigned int >  m_Net{this, "Net", 5, "number of energies to store"};
+  Gaudi::Property< bool > m_fillRawChan{this, "FillRODEnergy", false, "Trying to fill corresponding cells energies"};
 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeyAdditional{this,"CablingKeyAdditional","LArOnOffIdMap","SG Key of LArOnOffIdMapping object for standard cells"};
+  ToolHandle<ICaloSuperCellIDTool>   m_scidtool{this, "CaloSuperCellIDTool", "CaloSuperCellIDTool", "Offline / SuperCell ID mapping tool"};
+
+  NTuple::Item<short> m_ELVL1Id;
   NTuple::Item<short> m_latomeChannel;
 
-  NTuple::Item<float>  m_raw_energy;
+  NTuple::Array<float>  m_ROD_energy;
 
   // From LATOME header
   NTuple::Item<uint16_t> m_bcidLATOMEHEAD;
-  NTuple::Item<uint32_t> m_latomeidLATOMEHEAD;
   NTuple::Item<uint32_t> m_l1idLATOMEHEAD;
+
+  NTuple::Item<uint32_t> m_ntNet;
+
   // DigitContainer
   NTuple::Array<unsigned short> m_bcidVec;
   NTuple::Item<uint32_t> m_latomeSourceId;
@@ -45,7 +61,6 @@ class LArSC2Ntuple : public LArDigits2Ntuple
   NTuple::Array<unsigned short> m_bcidVec_ET_ID;
   NTuple::Array<bool> m_saturVec_ET_ID;
 
-  bool m_hasRawChan = false;
 };
 
 #endif

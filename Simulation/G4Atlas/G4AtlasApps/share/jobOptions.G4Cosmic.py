@@ -70,6 +70,8 @@ from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
 if not checkForContainerInInput("xAOD::EventInfo"):
     # If xAOD::EventInfo is not present in the input file then it should be created
     topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
+else:
+    topSeq += CfgGetter.getAlgorithm("EventInfoUpdateFromContextAlg")
 
 ## Add alg to alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm

@@ -43,8 +43,8 @@ def BunchCrossingTool( type = "" ):
             __logger.error( "The MCBunchCrossingTool is no longer supported" )
             return None
         elif type == "Web":
-            __logger.info( "Forcing the usage of WebBunchCrossingTool" )
-            return WebBunchCrossingTool()
+            __logger.error( "The WebBunchCrossingTool is no longer supported" )
+            return None
         else:
             __logger.warning( "Type = " + type + " not recognized" )
             __logger.warning( "Will select tool type based on global flags" )
@@ -73,6 +73,7 @@ def BunchCrossingTool( type = "" ):
 # @returns The default configuration of a public Trig::TrigConfBunchCrossingTool
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+#
 def TrigConfBunchCrossingTool():
 
     # The default name of the tool:
@@ -110,48 +111,6 @@ def TrigConfBunchCrossingTool():
 
 
 ##
-# @short Function creating the default configuration for Trig::WebBunchCrossingTool
-#
-# The function instantiates a tool that reads the bunch pattern from the
-# http://atlas-trigconf.cern.ch webpages. This tool should only be used for data
-# files, and only when TrigConfBunchCrossingTool and LHCBunchCrossingTool have
-# failed for some reason. (Those should be much more GRID-friendly.)
-#
-# @returns The default configuration of a public Trig::WebBunchCrossingTool
-#
-# @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
-def WebBunchCrossingTool():
-
-    # The default name of the tool:
-    __defaultToolName = "BunchCrossingTool"
-
-    # Get ourselves a logger:
-    from AthenaCommon.Logging import logging
-    __logger = logging.getLogger( "WebBunchCrossingTool" )
-
-    # Check if the tool already exists. If it does, let's just return it without
-    # any modifications:
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr( ToolSvc, __defaultToolName ):
-        __logger.debug( "Tool already exists, not configuring it again" )
-        return getattr( ToolSvc, __defaultToolName )
-
-    # Create a new instance of the tool if it doesn't exist yet:
-    from TrigBunchCrossingTool.TrigBunchCrossingToolConf import \
-         Trig__WebBunchCrossingTool
-    __tool = Trig__WebBunchCrossingTool( __defaultToolName )
-
-    # Create a default configuration for it:
-    __logger.info( "Set the default values for the WebBunchCrossingTool configuration" )
-
-    # Add the tool to ToolSvc and return it to the user:
-    ToolSvc += __tool
-    return getattr( ToolSvc, __defaultToolName )
-
-##
 # @short Function creating a default configuration for the Trig::StaticBunchCrossingTool
 #
 # This function should only be used if either you don't have access to COOL
@@ -164,8 +123,6 @@ def WebBunchCrossingTool():
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def StaticBunchCrossingTool():
 
     # The default name of the tool:

@@ -30,14 +30,20 @@ void VtxR3Analysis::initialise() {
 
   m_hnvtx   = new TIDA::Histogram<float>( monTool(),  "vx_nvtx" );
   m_hzed    = new TIDA::Histogram<float>( monTool(),  "vx_zed" );
+  m_hx      = new TIDA::Histogram<float>( monTool(),  "vx_x" );
+  m_hy      = new TIDA::Histogram<float>( monTool(),  "vx_y" );
   m_hntrax  = new TIDA::Histogram<float>( monTool(),  "vx_ntrax" );
 
 
   m_hnvtx_rec  = new TIDA::Histogram<float>( monTool(),  "vx_nvtx_rec" );
   m_hzed_rec   = new TIDA::Histogram<float>( monTool(),  "vx_zed_rec" );
+  m_hx_rec     = new TIDA::Histogram<float>( monTool(),  "vx_x_rec" );
+  m_hy_rec     = new TIDA::Histogram<float>( monTool(),  "vx_y_rec" );
   m_hntrax_rec = new TIDA::Histogram<float>( monTool(),  "vx_ntrax_rec" );
   
   m_hzed_res = new TIDA::Histogram<float>( monTool(),  "vx_zed_res" );
+  m_hx_res   = new TIDA::Histogram<float>( monTool(),  "vx_x_res" );
+  m_hy_res   = new TIDA::Histogram<float>( monTool(),  "vx_y_res" );
 
   m_rdz_vs_zed    = new TIDA::Histogram<float>( monTool(),  "vx_rdz_vs_zed" );
   m_rdz_vs_ntrax  = new TIDA::Histogram<float>( monTool(),  "vx_rdz_vs_ntrax" );
@@ -87,6 +93,10 @@ void VtxR3Analysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
       //      std::cout << i << "\tref z " << vtx0[i]->z();
 
       m_hzed->Fill( vtx0[i]->z() );
+      m_hx->Fill( vtx0[i]->x() );
+      m_hy->Fill( vtx0[i]->y() );
+
+
       m_hntrax->Fill( vtx0[i]->Ntracks() );
 
       const TIDA::Vertex* mv = m.matched( vtx0[i] ); 
@@ -99,9 +109,13 @@ void VtxR3Analysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 	/// ...
 	
 	m_hzed_rec->Fill( mv->z() );
+	m_hx_rec->Fill( mv->x() );
+	m_hy_rec->Fill( mv->y() );
 	m_hntrax_rec->Fill( mv->Ntracks() );
 
 	m_hzed_res->Fill( mv->z() - vtx0[i]->z() );
+	m_hx_res->Fill( mv->x() - vtx0[i]->x() );
+	m_hy_res->Fill( mv->y() - vtx0[i]->y() );
        
 	m_rdz_vs_zed->Fill(   vtx0[i]->z(),       mv->z() - vtx0[i]->z() );
 	m_rdz_vs_ntrax->Fill( vtx0[i]->Ntracks(), mv->z() - vtx0[i]->z() );
@@ -119,6 +133,7 @@ void VtxR3Analysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 	//	std::cout << "\t" << "------" << std::endl;
  
 	m_eff_zed->Fill( vtx0[i]->z(), 0 );
+
 	m_eff_ntrax->Fill( vtx0[i]->Ntracks(), 0 );
 	m_eff_nvtx->Fill( vtx0.size(), 0 );
 	

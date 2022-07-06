@@ -30,9 +30,6 @@ def BackTrackingCfg(flags, InputCollections = None, TrackCollectionKeys=[] , Tra
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files=defaultTestFiles.RDO_RUN2
@@ -44,7 +41,7 @@ if __name__ == "__main__":
     flags.Concurrency.NumThreads=numThreads
     flags.Concurrency.NumConcurrentEvents=numThreads
 
-    flags.loadAllDynamicFlags()
+    flags = flags.cloneAndReplace("InDet.Tracking.ActivePass","InDet.Tracking.MainPass")
 
     flags.lock()
     flags.dump()
