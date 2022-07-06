@@ -752,7 +752,6 @@ namespace MuonGM {
             // length of the strip with index "istrip"  
             // (formula copied from MuonChannelDesign.h)
             double ylength = design->inputLength + ((design->maxYSize - design->minYSize)*(istrip - design->nMissedBottomEta + 0.5)*design->inputPitch / design->xSize);
-            double sx      = design->distanceToChannel(lpos, istrip)/design->inputPitch; // in [-0.5, 0.5]
             double sy      = 2*locYpos/ylength; // in [-1, 1]
 
             // get the position coordinates, in the multilayer frame, from NswAsBuilt.
