@@ -107,6 +107,7 @@ void McEventCollectionCnv_p6::persToTrans( const McEventCollection_p6* persObj,
     genEvt->add_attribute("event_scale", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_eventScale));
     genEvt->add_attribute("alphaQCD", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQCD));
     genEvt->add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQED));
+    genEvt->add_attribute("filterWeight", std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_filterWeight));
     genEvt->weights()= persEvt.m_weights;
     genEvt->add_attribute("random_states", std::make_shared<HepMC3::VectorLongIntAttribute>(persEvt.m_randomStates));
 
@@ -385,6 +386,7 @@ void McEventCollectionCnv_p6::transToPers( const McEventCollection* transObj,
       auto A_event_scale=genEvt->attribute<HepMC3::DoubleAttribute>("event_scale");
       auto A_alphaQCD=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQCD");
       auto A_alphaQED=genEvt->attribute<HepMC3::DoubleAttribute>("alphaQED");
+      auto A_filterWeight=genEvt->attribute<HepMC3::DoubleAttribute>("filterWeight");
       auto signal_process_vertex = HepMC::signal_process_vertex(genEvt);
       auto A_random_states=genEvt->attribute<HepMC3::VectorLongIntAttribute>("random_states");
       auto beams=genEvt->beams();
@@ -395,6 +397,7 @@ void McEventCollectionCnv_p6::transToPers( const McEventCollection* transObj,
                               A_event_scale?(A_event_scale->value()):0.0,
                               A_alphaQCD?(A_alphaQCD->value()):0.0,
                               A_alphaQED?(A_alphaQED->value()):0.0,
+                              A_filterWeight?(A_filterWeight->value()):1.0,
                               signal_process_vertex?HepMC::barcode(signal_process_vertex):0,
                               beams.size()>0?HepMC::barcode(beams[0]):0,
                               beams.size()>1?HepMC::barcode(beams[1]):0,

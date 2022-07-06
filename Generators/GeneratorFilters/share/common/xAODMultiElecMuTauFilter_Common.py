@@ -3,11 +3,7 @@
 # creation of slimmed container containing electrons and muons
 # connecting the filter
 
-if not hasattr(prefiltSeq, 'xAODCnv'):  
-  from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-  prefiltSeq += xAODMaker__xAODTruthCnvAlg('xAODCnv',WriteTruthMetaData=False)
-  prefiltSeq.xAODCnv.AODContainerName = 'GEN_EVENT'
-
+include ("GeneratorFilters/CreatexAODSlimContainers.py")
 
 from GeneratorFilters.GeneratorFiltersConf import xAODMultiElecMuTauFilter
 xAODMultiElecMuTauFilter = xAODMultiElecMuTauFilter("xAODMultiElecMuTauFilter")
