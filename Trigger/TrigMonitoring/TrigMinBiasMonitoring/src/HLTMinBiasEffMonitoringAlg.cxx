@@ -100,8 +100,7 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
 
     ATH_MSG_DEBUG("checking " << trig << " vs " << ref);
 
-    //    if (trigDecTool->isPassed(ref, TrigDefs::requireDecision))
-    if (passedHLT(trigDecTool->isPassedBits(ref)))
+    if (trigDecTool->isPassed(ref, TrigDefs::requireDecision))
     {
       ATH_MSG_DEBUG("ref passed for " << trig << " vs " << ref);
 
@@ -110,6 +109,8 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
 
       if (wasRun) {
         const auto decision = (isL1(trig) and passedL1(passBits)) or (isHLT(trig) and passedHLT(passBits));
+        ATH_MSG_DEBUG("chain " << trig << (decision ? " passed" : " failed"));
+         
         auto effPassed = Scalar<int>("EffPassed", decision);
         fill(trig + ref, effPassed, nTrkOffline, nTrkOfflineVtx, nTrkOffline_pt05, nTrkOffline_pt1, nTrkOffline_pt2, nTrkOffline_pt4, nTrkOffline_pt6, nTrkOffline_pt8, leadingTrackPt);
       }
