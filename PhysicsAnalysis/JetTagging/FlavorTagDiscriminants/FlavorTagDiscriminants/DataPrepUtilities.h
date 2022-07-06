@@ -39,6 +39,7 @@ namespace FlavorTagDiscriminants {
   enum class TrackSelection {
     ALL,
     IP3D_2018,
+    DIPS_TIGHT_UPGRADE,
     DIPS_LOOSE_202102,
     LOOSE_202102_NOIP
   };
