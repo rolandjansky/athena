@@ -756,7 +756,7 @@ namespace MuonGM {
             double sy      = 2*locYpos/ylength; // in [-1, 1]
 
             // get the position coordinates, in the multilayer frame, from NswAsBuilt.
-            NswAsBuilt::StgcStripCalculator::position_t calcPos = sc->getPositionAlongStgcStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, stgcStrip_id, sx, sy);
+            NswAsBuilt::StgcStripCalculator::position_t calcPos = sc->getPositionAlongStgcStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, stgcStrip_id, sy);
             pos     = calcPos.pos;
 
             // signal that we are in the multilayer reference frame
