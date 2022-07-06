@@ -10,7 +10,9 @@ find_package( ROOT COMPONENTS Core Tree MathCore MathMore Hist RIO Matrix Physic
 find_package( lwtnn REQUIRED )
 find_package( LibXml2 )
 
-if(CMAKE_CUDA_COMPILER)
+option(USE_GPU "whether to run FCS on GPU or not" OFF)
+
+if(USE_GPU AND CMAKE_CUDA_COMPILER)
   add_definitions( -DUSE_GPU)
 endif()
 
@@ -86,8 +88,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
 			   ISF_FastCaloSimEvent/LinkDef.h
 			   EXTERNAL_PACKAGES HepPDT)
 
-			 #			 set( USE_GPU FALSE CACHE BOOL "Flag specifying that this is a simulation release build" )
-if(CMAKE_CUDA_COMPILER)
+if(USE_GPU AND CMAKE_CUDA_COMPILER)
   message("compiling ISF_FastCaoSimEvent using cuda")
   atlas_add_library( ISF_FastCaloSimEvent
     ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx

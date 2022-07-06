@@ -18,6 +18,7 @@ public:
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr, ICaloGeometry* geo=nullptr);
   //override the set_geometry function for FCS-GPU
   //the geometry is needed to assign the deposit energy to cell
+  //will not compile by default
   virtual void set_geometry(ICaloGeometry* geo) override;
 #else
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr);

@@ -70,6 +70,7 @@ public:
 #ifdef USE_GPU
   //for FCS-GPU
   //construct the hist function and copy to GPU
+  //will not compile by default
   void  set_d_HistFunc( FH2D* hf_ptr ) { m_d_HistFunc = hf_ptr; };
   const FH2D*  d_HistFunc() { return m_d_HistFunc; };
   LoadGpuFuncHist* LdFH() { return m_LdFH; };
