@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //example of reading xAOD in fast xAOD mode with POOL::TEvent
@@ -9,6 +9,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODBase/IParticleContainer.h"
 #include "POOLRootAccess/TEvent.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TStopwatch.h"
 #include "TChain.h"
@@ -19,7 +20,7 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 
-int main(int argc, char* argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]) {
 
    xAOD::TEvent::EAuxMode accessMode2 = xAOD::TEvent::kClassAccess;
    POOL::TEvent::EReadMode accessMode = POOL::TEvent::kClassAccess;
