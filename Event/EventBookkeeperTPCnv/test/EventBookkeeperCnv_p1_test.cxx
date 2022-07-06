@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file EventBookkeeperTPCnv/test/EventBookkeeperCnv_p1_test.cxx
@@ -12,6 +12,7 @@
 #undef NDEBUG
 #include "EventBookkeeperTPCnv/EventBookkeeperCnv_p1.h"
 #include "CxxUtils/StrFormat.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
@@ -72,7 +73,7 @@ std::unique_ptr<EventBookkeeper> make (int o)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
@@ -89,7 +90,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;
