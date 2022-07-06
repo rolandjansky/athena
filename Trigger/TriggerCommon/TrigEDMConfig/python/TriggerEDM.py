@@ -79,8 +79,8 @@ def getTriggerEDMList(key, runVersion):
                         if (isinstance(values, list)):
                             newValues = []
                             for value in values:                       
-                                newValue = ''
-                                coll = value.split(".")[0]
+                                newValue = value+'.'
+                                coll = value.split('.')[0]
                                 
                                 varRemovedFlag = False
                                 for myTuple in varToRemoveFromAODSLIM:
@@ -88,12 +88,15 @@ def getTriggerEDMList(key, runVersion):
                                     
                                     if var in value and coll in myTuple:
                                         varRemovedFlag = True
-                                        removeVar =  "."+var
-                                        newValue = value.replace(removeVar, "")
+                                        removeVar =  '.'+var+'.'
+                                        newValue = newValue.replace(removeVar, '.')
                                         
+                                if newValue[-1:] == '.':
+                                    newValue = newValue[:-1]
+
                                 if varRemovedFlag is False: 
                                     newValues.append(value)
-                                elif newValue != '':
+                                elif varRemovedFlag is True:
                                     newValues.append(newValue)                                        
                                 else:
                                     raise RuntimeError("Decoration removed but no new Value was available, not sure what to do...")

@@ -301,7 +301,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
 
 
     if kwargs['fillGapScintilatorHistograms']:
-        rangeScalFactor = [1, 2, 4, 4]
+        rangeScalFactor = [1, 1, 1, 1]
         gapScintDimentions = [2, Tile.MAX_DRAWER, 4] # EBA and EBC, 64 modules, E1-E4
         gapScintArray = helper.addArray(gapScintDimentions, tileCellMonAlg, 'TileGapScintilatorEnergy', topPath = 'Tile/Cell')
         for postfix, tool in gapScintArray.Tools.items():
@@ -315,7 +315,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
             fullTitle = f'Run {run} {moduleName} E{cellIdx + 1}: Energy;Energy [MeV]'
 
             tool.defineHistogram(fullName, title = fullTitle, path = f'GapScint/{partionName}', type = 'TH1F',
-                                 xbins = 500, xmin = -1.5, xmax = 998.5 * rangeScalFactor[cellIdx])
+                                 xbins = 1000, xmin = -1.5, xmax = 25000.5 * rangeScalFactor[cellIdx])
 
 
     accumalator = helper.result()

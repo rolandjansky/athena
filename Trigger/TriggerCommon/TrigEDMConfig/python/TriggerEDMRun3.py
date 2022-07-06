@@ -249,6 +249,7 @@ TauTrackVars = '.'.join(TauTrackToKeep)
 # to be removed from collections for AODSLIM
 # Format: ('decoration', 'Container1Aux', 'Container2Aux',...)
 # e.g. ('GhostTrack_ftf', 'HLT_AntiKt4EMTopoJets_nojcalib_ftfAux', 'HLT_AntiKt4EMTopoJets_nojcalibAux'),
+#     ('ActiveArea', 'HLT_AntiKt4EMTopoJets_nojcalib_ftfAux'),
 # ------------------------------------------------------------
 varToRemoveFromAODSLIM = []
 
