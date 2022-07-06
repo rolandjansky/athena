@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPRD_CONTAINER_p2_H
@@ -15,6 +15,7 @@
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepData_p3.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MMPrepData_p1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepData_p1.h"
+#include "MuonEventTPCnv/MuonPrepRawData/sTgcPrepData_p2.h"
 
 namespace Muon {
 /** Class to contain the Muon Prep Raw Data. */
@@ -37,6 +38,7 @@ typedef MuonPRD_Container_p2<TgcPrepData_p2> TgcPrepDataContainer_p2;
 typedef MuonPRD_Container_p2<TgcPrepData_p3> TgcPrepDataContainer_p3;
 typedef MuonPRD_Container_p2<MMPrepData_p1>  MMPrepDataContainer_p1;
 typedef MuonPRD_Container_p2<sTgcPrepData_p1>  sTgcPrepDataContainer_p1;
+typedef MuonPRD_Container_p2<sTgcPrepData_p2>  sTgcPrepDataContainer_p2;
 } 
 
 #endif
