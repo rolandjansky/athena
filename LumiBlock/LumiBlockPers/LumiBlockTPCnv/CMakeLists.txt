@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LumiBlockTPCnv )
@@ -19,9 +19,9 @@ atlas_add_dictionary( LumiBlockTPCnvDict
 atlas_add_test( LumiBlockRangeCnv_p1_test
                 SOURCES
                 test/LumiBlockRangeCnv_p1_test.cxx
-                LINK_LIBRARIES GaudiKernel TestTools LumiBlockTPCnv )
+                LINK_LIBRARIES GaudiKernel TestTools LumiBlockTPCnv CxxUtils )
 
 atlas_add_test( LumiBlockRangeCnv_p2_test
                 SOURCES
                 test/LumiBlockRangeCnv_p2_test.cxx
-                LINK_LIBRARIES GaudiKernel TestTools LumiBlockTPCnv )
+                LINK_LIBRARIES GaudiKernel TestTools LumiBlockTPCnv CxxUtils )
