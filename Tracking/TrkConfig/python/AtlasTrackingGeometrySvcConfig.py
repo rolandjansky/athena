@@ -248,7 +248,8 @@ def TRT_LayerBuilderCfg(flags, namePrefix='', buildTrtStrawLayers = False):
     # TRT barrel specifications - assume defaults
     # TRT endcap specifications - assume defaults
 
-    if buildTrtStrawLayers:
+    from G4AtlasApps.SimEnums import SimulationFlavour
+    if buildTrtStrawLayers or (flags.Common.ProductionStep in [ProductionStep.Simulation, ProductionStep.FastChain] and flags.Sim.ISF.Simulator not in [SimulationFlavour.ATLFASTIIMT]):
         TRT_LayerBuilder.ModelLayersOnly = False
     result.setPrivateTools(TRT_LayerBuilder)
     return result
