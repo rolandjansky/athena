@@ -35,16 +35,18 @@ EventBookkeeper::EventBookkeeper(const std::string& name,
 }
 
 EventBookkeeper::EventBookkeeper( const EventBookkeeper& rhs )
+  : m_name (rhs.m_name),
+    m_description (rhs.m_description),
+    m_inputstream (rhs.m_inputstream),
+    m_outputstream (rhs.m_outputstream),
+    m_logic (rhs.m_logic),
+    m_nAcceptedEvents (rhs.m_nAcceptedEvents),
+    m_nWeightedAcceptedEvents (rhs.m_nWeightedAcceptedEvents),
+    m_cycle (rhs.m_cycle),
+    m_parentIndex (rhs.m_parentIndex),
+    m_declaredChildFilter (rhs.m_declaredChildFilter),
+    m_declaredTopFilter (rhs.m_declaredTopFilter)
 {
-  m_name=rhs.m_name;
-  m_description=rhs.m_description;
-  m_inputstream=rhs.m_inputstream;
-  m_outputstream = rhs.m_outputstream;
-  m_logic = rhs.m_logic;
-  m_nAcceptedEvents=rhs.m_nAcceptedEvents;
-  m_nWeightedAcceptedEvents=rhs.m_nWeightedAcceptedEvents;
-  m_cycle=rhs.m_cycle;
-  m_parentIndex=rhs.m_parentIndex;
   //Make a new deep copy of the children, as these will be owned by this
   m_childrenEB = new std::vector<EventBookkeeper*>; 
   m_childrenEB->reserve(rhs.m_childrenEB->size());
@@ -57,8 +59,6 @@ EventBookkeeper::EventBookkeeper( const EventBookkeeper& rhs )
   for(unsigned int i=0; i<rhs.m_childrenIndices->size(); i++){ 
     m_childrenIndices->push_back(rhs.m_childrenIndices->at(i));
   }
-  m_declaredChildFilter=rhs.m_declaredChildFilter;
-  m_declaredTopFilter=rhs.m_declaredTopFilter;
 }
 
 EventBookkeeper&
@@ -268,7 +268,9 @@ void EventBookkeeper::AddChildren( std::vector<EventBookkeeper*>* children ){
   return;
 }
 
-EventBookkeeper* EventBookkeeper::AddNewChild(std::string name, std::string description){
+EventBookkeeper* EventBookkeeper::AddNewChild(const std::string& name,
+                                              const std::string& description)
+{
   EventBookkeeper* eb = new EventBookkeeper(name,description,"Child");
   AddChild(eb);
   return eb;
