@@ -15,7 +15,7 @@ run() { (set -x; exec "$@") }
 lastref_dir=last_results
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 inputBS=${artdata}/RecJobTransformTests/data15_13TeV.00283429.physics_Main.daq.RAW._lb0154._SFO-1._0001.data 
-dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_master_data.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_data15_1000evt_reco_r22.root"
 
 # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
@@ -38,7 +38,8 @@ run  Reco_tf.py \
   InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
   InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
   InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
-  InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
+  InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); \
+  InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(True); \
   rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
   rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
   rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \
@@ -56,13 +57,13 @@ if [ $rec_tf_exit_code -eq 0 ]  ;then
   run art.py download --user=artprod --dst="$lastref_dir" "$ArtPackage" "$ArtJobName"
   run ls -la "$lastref_dir"
 
-  echo "compare with R22 with nightly build at 2020-12-05"
-  $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-    -p -x dcube \
-    -c ${dcubeXml} \
-    -r ${dcubeRef} \
-    physval.ntuple.root
-  echo "art-result: $? plots"
+#  echo "compare with R22 with nightly build at 2020-12-05"
+#  $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+#    -p -x dcube \
+#    -c ${dcubeXml} \
+#    -r ${dcubeRef} \
+#    physval.ntuple.root
+#  echo "art-result: $? plots"
   
   echo "compare with last build"
   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \

@@ -37,13 +37,13 @@ case $ArtProcess in
 
       dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
       dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_mu10GeV_reco_r22.root"
-      echo "compare with R21"
-      $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-	   -p -x dcube \
-	   -c ${dcubeXml} \
-	   -r ${dcubeRef} \
-	   physval.root
-      echo "art-result: $? plots"
+#      echo "compare with R21"
+#      $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+#	   -p -x dcube \
+#	   -c ${dcubeXml} \
+#	   -r ${dcubeRef} \
+#	   physval.root
+#      echo "art-result: $? plots"
 
       echo "compare with last build"
       $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
@@ -88,6 +88,7 @@ case $ArtProcess in
       InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
       InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
       InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); \
+      InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(True); \
       rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
       rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
       rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \
